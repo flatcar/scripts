@@ -19,6 +19,7 @@
 # INPUT:
 #
 #   1. Architecture (ARCH) of the TARGET OS image ("arm64", "amd64").
+#   2. What to compare against, can be "last-release" or "last-nightly".
 #
 # OPTIONAL INPUT:
 #
@@ -33,41 +34,60 @@
 function image_changes() (
     set -euo pipefail
 
-    local arch=${1}
-    local channel vernum
+    local arch=${1}; shift
+    local what=${1-last-release}; shift
 
-    channel=$(source sdk_lib/sdk_container_common.sh; get_git_channel)
-    if [ "${channel}" = "developer" ]; then
-            channel="alpha"
-    fi
-    vernum=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
+    local -a package_diff_env package_diff_params
+    local -a size_changes_env size_changes_params
+    local -a show_changes_env show_changes_params
+    local version_description
+    local -a var_names=(
+        package_diff_env package_diff_params
+        size_changes_env size_changes_params
+        show_changes_env show_changes_params
+        version_description
+    )
 
-    local -a package_diff_env package_diff_params_b
-    local -a size_changes_env size_changes_params_b
-    local -a show_changes_env show_changes_params_overrides
+    case ${what} in
+        last-release)
+            local git_tag
+            git_tag_for_release . git_tag
+            prepare_env_vars_and_params_for_release "${arch}" "${git_tag}" "${var_names[@]}"
+            ;;
+        last-nightly)
+            local git_tag
+            git_tag_for_nightly . git_tag
+            prepare_env_vars_and_params_for_bincache "${arch}" "${git_tag}" "${var_names[@]}"
+            ;;
+        *)
+            echo "invalid argument '${what}', expected 'last-nightly' or 'last-release'" >&2
+            exit 1
+            ;;
+    esac
 
-    package_diff_env=(
+    local version
+    version=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
+    package_diff_env+=(
         "FROM_B=bincache"
         "BOARD_B=${arch}-usr"
         # CHANNEL_B is unused
     )
-    package_diff_params_b=(
-        "${vernum}"
+    package_diff_params+=(
+        "${version}"
     )
-    size_changes_env=(
-        # Nothing to add.
+    # Nothing to add to size changes env.
+    size_changes_params+=(
+        "bincache:${arch}:${version}"
     )
-    size_changes_params_b=(
-        "bincache:${arch}:${vernum}"
-    )
-    show_changes_env=(
+    show_changes_env+=(
         # Provide a python3 command for the CVE DB parsing
         "PATH=${PATH}:${PWD}/ci-automation/python-bin"
+        # Override the default locations of repositories.
         "SCRIPTS_REPO=."
         "COREOS_OVERLAY_REPO=../coreos-overlay"
         "PORTAGE_STABLE_REPO=../portage-stable"
     )
-    show_changes_params_overrides=(
+    show_changes_params+=(
         # The show-changes script expects a tag name, so using git tag
         # here instead of the vernum variable.
         "NEW_VERSION=$(git tag --points-at HEAD)"
@@ -82,19 +102,56 @@ function image_changes() (
     if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
         local BUILDCACHE_SERVER=$(source ci-automation/ci-config.env; echo "${BUILDCACHE_SERVER}")
     fi
-    echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/flatcar_production_image.bin.bz2"
+    echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${version}/flatcar_production_image.bin.bz2"
     echo
     local -a oemids
     get_oem_id_list . oemids
     generate_image_changes_report \
-        "${arch}" "${channel}" "${vernum}" '-' "${fbs_repo}" \
-        "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
-        "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
-        "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}" -- \
+        "${version_description}" '-' "${fbs_repo}" \
+        "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
+        "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
+        "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
         "${oemids[@]}"
 )
 # --
 
+# Gets a git tag that can be passed to
+# prepare_env_vars_and_params_for_release.
+#
+# 1 - scripts repo
+# 2 - name of a variable to store the result in
+function git_tag_for_release() {
+    local scripts_repo
+    scripts_repo=${1}; shift
+    local -n git_tag_ref="${1}"; shift
+
+    git_tag_ref=$(cd "${scripts_repo}"; source sdk_lib/sdk_container_common.sh; get_git_version)
+}
+
+# Gets a git tag of a previous nightly that can be passed to
+# prepare_env_vars_and_params_for_bincache.
+#
+# 1 - scripts repo
+# 2 - name of a variable to store the result in
+function git_tag_for_nightly() {
+    local scripts_repo
+    scripts_repo=${1}; shift
+    local -n git_tag_ref="${1}"; shift
+
+    local head_tag search_object
+    head_tag=$(git -C "${scripts_repo}" tag --points-at HEAD)
+    search_object='HEAD'
+    if [[ ${head_tag} = *-nightly-* ]] && [[ ! ${head_tag} = *-INTERMEDIATE ]]; then
+        # HEAD is a nightly, pick an earlier commit to avoid comparing with itself
+        search_object='HEAD^'
+    fi
+    git_tag_ref=$(git -C "${scripts_repo}" describe --tags --abbrev=0 --match='*-nightly-*' --exclude='*-INTERMEDIATE' "${search_object}")
+}
+
+# Gets a list of OEMs that are using sysexts.
+#
+# 1 - scripts repo
+# 2 - name of an array variable to store the result in
 function get_oem_id_list() {
     local scripts_repo
     scripts_repo=${1}; shift
@@ -128,98 +185,36 @@ function get_oem_id_list() {
     done <"${ebuilds[0]}"
 }
 
-# 1 - arch
-# 2 - channel (alpha, beta, stable or lts)
-# 3 - version (FLATCAR_VERSION)
-# 4 - report file (can be relative)
-# 5 - flatcar-build-scripts directory (can be relative, will be realpathed)
+# Generates reports with passed parameters. The report is redirected
+# into the passed report file.
+#
+# 1 - version description (a free form string that describes a version of image that current version is compared against)
+# 2 - report file (can be relative)
+# 3 - flatcar-build-scripts directory (can be relative, will be realpathed)
 # @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides -- list of OEM ids
 #
 # Example:
 #
 # generate_image_changes_report \\
-#     amd64 alpha 3456.0.0+my-changes reports/images.txt ../flatcar-build-scripts .. \\
-#     FROM_B=bincache BOARD_B=amd64-usr --- 3456.0.0+my-changes -- \\
-#     --- bincache:amd64:3456.0.0+my-changes -- \\
-#     "PATH=${PATH}:${PWD}/ci-automation/python-bin" --- -- azure vmware
+#     'Alpha 3456.0.0' reports/images.txt ../flatcar-build-scripts .. \\
+#     FROM_A=release BOARD_A=amd64-usr CHANNEL_A=alpha FROM_B=bincache BOARD_B=amd64-usr --- \\
+#     3456.0.0 3478.0.0+my-changes -- \\
+#     --- \\
+#     release:amd64-usr:3456.0.0 bincache:amd64:3478.0.0+my-changes -- \\
+#     "PATH=${PATH}:${PWD}/ci-automation/python-bin" --- \\
+#     NEW_VERSION=main-3478.0.0-my-changes NEW_CHANNEL=alpha NEW_CHANNEL_PREV_VERSION=3456.0.0 OLD_CHANNEL=alpha OLD_VERSION='' -- \\
+#     azure vmware
 function generate_image_changes_report() (
     set -euo pipefail
 
-    local arch=${1}; shift
-    local channel=${1}; shift
-    local vernum=${1}; shift
+    local version_description=${1}; shift
     local report_output=${1}; shift
     local flatcar_build_scripts_repo=${1}; shift
-
-    local -a package_diff_env package_diff_params
-    local -a size_changes_env size_changes_params
-    local -a show_changes_env show_changes_params
-    local -a oemids
-    local params_shift=0
-
-    split_to_env_and_params \
-        package_diff_env package_diff_params params_shift \
-        "${@}"
-    shift "${params_shift}"
-    split_to_env_and_params \
-        size_changes_env size_changes_params params_shift \
-        "${@}"
-    shift "${params_shift}"
-    split_to_env_and_params \
-        show_changes_env show_changes_params params_shift \
-        "${@}"
-    shift "${params_shift}"
-    oemids=( "${@}" )
-
-    local new_channel new_channel_prev_version channel_a version_a
-    local board="${arch}-usr"
-
-    new_channel="${channel}"
-    new_channel_prev_version=$(channel_version "${new_channel}" "${board}")
-    channel_a=''
-    version_a=''
-    get_channel_a_and_version_a "${new_channel}" "${new_channel_prev_version}" "${vernum}" "${board}" channel_a version_a
-    package_diff_env=(
-        # For A.
-        "FROM_A=release"
-        "BOARD_A=${board}"
-        "CHANNEL_A=${channel_a}"
-        # For B.
-        "${package_diff_env[@]}"
-    )
-    package_diff_params=(
-        # For A.
-        "${version_a}"
-        # For B.
-        "${package_diff_params[@]}"
-    )
-
-    # Nothing to prepend to size_changes_env.
-    #
-    # First parts of the size-changes-report specs, the kind is
-    # appended at call sites.
-    size_changes_params=(
-        # For A.
-        "release:${channel_a}:${board}:${version_a}"
-        # For B.
-        "${size_changes_params[@]}"
-    )
-
-    # Nothing to prepend to show_changes_env.
-    show_changes_params=(
-        "NEW_CHANNEL=${new_channel}"
-        "NEW_CHANNEL_PREV_VERSION=${new_channel_prev_version}"
-        # Potential overrides.
-        "${show_changes_params[@]}"
-    )
+    # rest is forwarded verbatim to print_image_reports
 
     local print_image_reports_invocation=(
         print_image_reports
-        "${flatcar_build_scripts_repo}" "${channel_a}" "${version_a}"
-        "${package_diff_env[@]}" --- "${package_diff_params[@]}" --
-        "${size_changes_env[@]}" --- "${size_changes_params[@]}" --
-        "${show_changes_env[@]}" --- "${show_changes_params[@]}" --
-        "${oemids[@]}"
+        "${flatcar_build_scripts_repo}" "${version_description}" "${@}"
     )
     # Using "|| :" to avoid failing the job.
     if [[ ${report_output} = '-' ]]; then
@@ -230,6 +225,156 @@ function generate_image_changes_report() (
         } >"${report_output}"
     fi
 )
+# --
+
+# Prepares the tool parameters, so they compare against the last
+# release relative to the git tag. The git tag should be in form of
+# <channel>-<version id>-<build id>, which is the usual format used in
+# scripts repo.
+function prepare_env_vars_and_params_for_release() {
+    local arch git_tag
+    arch=${1}; shift
+    git_tag=${1}; shift
+    local -n package_diff_env_ref="${1}"; shift
+    local -n package_diff_params_ref="${1}"; shift
+    local -n size_changes_env_ref="${1}"; shift
+    local -n size_changes_params_ref="${1}"; shift
+    local -n show_changes_env_ref="${1}"; shift
+    local -n show_changes_params_ref="${1}"; shift
+    local -n version_description_ref="${1}"; shift
+
+    local ppfr_channel ppfr_version_id ppfr_build_id ppfr_version ppfr_vernum
+    split_tag "${git_tag}" ppfr_channel ppfr_version_id ppfr_build_id ppfr_version ppfr_vernum
+    if [[ ${ppfr_channel} = 'main' ]]; then
+        ppfr_channel='alpha'
+    fi
+    local board new_channel new_channel_prev_version channel_a version_a
+    board="${arch}-usr"
+
+    new_channel="${ppfr_channel}"
+    new_channel_prev_version=$(channel_version "${new_channel}" "${board}")
+    channel_a=''
+    version_a=''
+    get_channel_a_and_version_a "${new_channel}" "${new_channel_prev_version}" "${ppfr_version}" "${board}" channel_a version_a
+    package_diff_env_ref=(
+        # For A.
+        "FROM_A=release"
+        "BOARD_A=${board}"
+        "CHANNEL_A=${channel_a}"
+    )
+    package_diff_params_ref=(
+        # For A.
+        "${version_a}"
+    )
+
+    # Nothing to prepend to size_changes_env.
+    size_changes_env_ref=()
+    # First parts of the size-changes-report specs, the kind is
+    # appended at call sites.
+    size_changes_params_ref=(
+        # For A.
+        "release:${channel_a}:${board}:${version_a}"
+    )
+
+    # Nothing to prepend to show_changes_env.
+    show_changes_env_ref=()
+    show_changes_params=(
+        "NEW_CHANNEL=${new_channel}"
+        "NEW_CHANNEL_PREV_VERSION=${new_channel_prev_version}"
+        # Channel transition stuff
+        "OLD_CHANNEL=${channel_a}"
+        "OLD_VERSION=${version_a}"
+    )
+
+    version_description_ref="${channel_a} ${version_a}"
+}
+# --
+
+# Prepares the tool parameters, so they compare against the last
+# nightly relative to the git tag. The git tag should be in form of
+# <channel>-<version id>-<build id>, which is the usual format used in
+# scripts repo.
+function prepare_env_vars_and_params_for_bincache() {
+    local arch git_tag
+    arch=${1}; shift
+    git_tag=${1}; shift
+    local -n package_diff_env_ref="${1}"; shift
+    local -n package_diff_params_ref="${1}"; shift
+    local -n size_changes_env_ref="${1}"; shift
+    local -n size_changes_params_ref="${1}"; shift
+    local -n show_changes_env_ref="${1}"; shift
+    local -n show_changes_params_ref="${1}"; shift
+    local -n version_description_ref="${1}"; shift
+
+    local board
+    board="${arch}-usr"
+    local ppfb_channel ppfb_version_id ppfb_build_id ppfb_version ppfb_vernum
+    split_tag "${git_tag}" ppfb_channel ppfb_version_id ppfb_build_id ppfb_version ppfb_vernum
+
+    package_diff_env_ref=(
+        # For A.
+        "FROM_A=bincache"
+        "BOARD_A=${board}"
+        # CHANNEL_A is unused.
+    )
+    package_diff_params_ref=(
+        # For A.
+        "${ppfb_version}"
+    )
+
+    # Nothing to prepend to size_changes_env.
+    size_changes_env_ref=()
+    # First parts of the size-changes-report specs, the kind is
+    # appended at call sites.
+    size_changes_params_ref=(
+        # For A.
+        "bincache:${arch}:${ppfb_version}"
+    )
+
+    # Nothing to prepend to show_changes_env.
+    show_changes_env_ref=()
+    show_changes_params=(
+        "NEW_CHANNEL=${ppfb_channel}"
+        "NEW_CHANNEL_PREV_VERSION=${ppfb_vernum}"
+        # Channel transition stuff, we set the old channel to be the
+        # same as the new channel to say that there was no channel
+        # transition. Such would not make any sense here.
+        "OLD_CHANNEL=${ppfb_channel}"
+        "OLD_VERSION=${ppfb_vernum}"
+    )
+
+    version_description_ref="development version ${ppfb_channel} ${ppfb_version}"
+}
+# --
+
+function split_tag() {
+    local git_tag
+    git_tag=${1}; shift
+    local -n channel_ref=${1}; shift
+    local -n version_id_ref=${1}; shift
+    local -n build_id_ref=${1}; shift
+    local -n version_ref=${1}; shift
+    local -n vernum_ref=${1}; shift
+
+    local channel version_id build_id version vernum
+    channel=${git_tag%%-*}
+    version_id=${git_tag#*-}
+    version_id=${version_id%%-*}
+    build_id=${git_tag#"${channel}-${version_id}"}
+    if [[ -n ${build_id} ]]; then
+        build_id=${build_id#-}
+        version="${version_id}+${build_id}"
+        vernum="${version_id}-${build_id}"
+    else
+        version="${version_id}"
+        vernum="${version_id}"
+    fi
+    channel_ref=${channel}
+    version_id_ref=${version_id}
+    build_id_ref=${build_id}
+    version_ref=${version}
+    vernum_ref=${vernum}
+}
 # --
 
 function get_channel_a_and_version_a() {
@@ -290,7 +435,7 @@ function channel_version() {
 # flatcar-build-scripts repo. The environment and parameters for the
 # scripts are passed as follows:
 #
-# print_image_reports <flatcar-build-scripts-directory> <channel a> <version a> \\
+# print_image_reports <flatcar-build-scripts-directory> <previous version description> \\
 #       <env vars for package-diff> --- <parameters for package-diff> -- \\
 #       <env vars for size-change-report.sh> --- <parameters for size-change-report.sh> -- \\
 #       <env vars for show-changes> --- <parameters for show-changes> -- \\
@@ -314,11 +459,11 @@ function channel_version() {
 #
 # Should come in format of key=value, just like env vars. It's
 # expected that the following key-value pairs will be specified - for
-# NEW_CHANNEL, NEW_CHANNEL_PREV_VERSION NEW_VERSION.
+# NEW_CHANNEL, NEW_CHANNEL_PREV_VERSION, NEW_VERSION, OLD_CHANNEL and
+# OLD_VERSION.
 function print_image_reports() {
     local flatcar_build_scripts_repo=${1}; shift
-    local channel_a=${1}; shift
-    local version_a=${1}; shift
+    local previous_version_description=${1}; shift
     local -a package_diff_env=() package_diff_params=()
     local -a size_change_report_env=() size_change_report_params=()
     local -a show_changes_env=() show_changes_params=()
@@ -349,40 +494,40 @@ function print_image_reports() {
         "${flatcar_build_scripts_repo}/size-change-report.sh"
     )
 
-    echo "== Image differences compared to ${channel_a} ${version_a} =="
-    echo "Package updates, compared to ${channel_a} ${version_a}:"
+    echo "== Image differences compared to ${previous_version_description} =="
+    echo "Package updates, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_packages.txt \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
-    echo "Image file changes, compared to ${channel_a} ${version_a}:"
+    echo "Image file changes, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
-    echo "Image file size changes, compared to ${channel_a} ${version_a}:"
+    echo "Image file size changes, compared to ${previous_version_description}:"
     if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:wtd}" 2>&1; then
         "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:old}" 2>&1
     fi
     echo
-    echo "Image kernel config changes, compared to ${channel_a} ${version_a}:"
+    echo "Image kernel config changes, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
-    echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${channel_a} ${version_a}:"
+    echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt CALCSIZE=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
 
-    echo "== Init ramdisk differences compared to ${channel_a} ${version_a} =="
-    echo "Image init ramdisk file changes, compared to ${channel_a} ${version_a}:"
+    echo "== Init ramdisk differences compared to ${previous_version_description} =="
+    echo "Image init ramdisk file changes, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
-    echo "Image init ramdisk file size changes, compared to ${channel_a} ${version_a}:"
+    echo "Image init ramdisk file size changes, compared to ${previous_version_description}:"
     if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-wtd}" 2>&1; then
         "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-old}" 2>&1
     fi
@@ -393,18 +538,18 @@ function print_image_reports() {
 
     local oemid
     for oemid in "${oemids[@]}"; do
-        echo "== Sysext changes for OEM ${oemid} compared to ${channel_a} ${version_a} =="
-        echo "Package updates, compared to ${channel_a} ${version_a}:"
+        echo "== Sysext changes for OEM ${oemid} compared to ${previous_version_description} =="
+        echo "Package updates, compared to ${previous_version_description}:"
         env \
             "${package_diff_env[@]}" FILE="oem-${oemid}_packages.txt" \
             "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
         echo
-        echo "Image file changes, compared to ${channel_a} ${version_a}:"
+        echo "Image file changes, compared to ${previous_version_description}:"
         env \
             "${package_diff_env[@]}" FILE="oem-${oemid}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
             "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
         echo
-        echo "Image file size changes, compared to ${channel_a} ${version_a}:"
+        echo "Image file size changes, compared to ${previous_version_description}:"
         if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-wtd}"; then
             "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-old}" 2>&1
         fi
@@ -415,18 +560,22 @@ function print_image_reports() {
     for param in "${show_changes_params[@]}"; do
         local "SHOW_CHANGES_${param}"
     done
-    # The first changelog we print is always against the previous version of the new channel (is only same as ${channel_a} ${version_a} without a transition)
+    # The first changelog we print is always against the previous
+    # version of the new channel (is only same as old channel and old
+    # version without a transition)
     env \
         "${show_changes_env[@]}" \
         "${flatcar_build_scripts_repo}/show-changes" \
         "${SHOW_CHANGES_NEW_CHANNEL}-${SHOW_CHANGES_NEW_CHANNEL_PREV_VERSION}" \
         "${SHOW_CHANGES_NEW_VERSION}" 2>&1
-    # See if a channel transition happened and print the changelog against ${channel_a} ${version_a} which is the previous release
-    if [ "${channel_a}" != "${SHOW_CHANGES_NEW_CHANNEL}" ]; then
+    # See if a channel transition happened and print the changelog
+    # against old channel and old version which is the previous
+    # release
+    if [ "${SHOW_CHANGES_OLD_CHANNEL}" != "${SHOW_CHANGES_NEW_CHANNEL}" ]; then
         env \
             "${show_changes_env[@]}" \
             "${flatcar_build_scripts_repo}/show-changes" \
-            "${channel_a}-${version_a}" \
+            "${SHOW_CHANGES_OLD_CHANNEL}-${SHOW_CHANGES_OLD_VERSION}" \
             "${SHOW_CHANGES_NEW_VERSION}" 2>&1
     fi
 }

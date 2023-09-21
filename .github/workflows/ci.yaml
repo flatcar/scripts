@@ -187,7 +187,7 @@ jobs:
                                 --output_root="${CI_CONTAINER_ARTIFACT_ROOT}" \
                                 prodtar container
 
-      - name: Generate reports
+      - name: Generate reports against last release
         shell: bash
         run: |
           set -euo pipefail
@@ -195,24 +195,31 @@ jobs:
 
           source ci-automation/image_changes.sh
 
-          channel=alpha
-          vernum=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
-          board="${arch}-usr"
+          git_tag=''
+          git_tag_for_release . git_tag
+          declare -a var_names=(
+              package_diff_env package_diff_params
+              size_changes_env size_changes_params
+              show_changes_env show_changes_params
+          )
+          declare -a "${var_names[@]}"
+          version_description=''
+          var_names+=( version_description )
 
-          package_diff_env=(
+          prepare_env_vars_and_params_for_release "${arch}" "${git_tag}" "${var_names[@]}"
+
+          package_diff_env+=(
               "FROM_B=file://${PWD}/artifacts/${arch}-usr/latest"
               # BOARD_B and CHANNEL_B are unused.
           )
-          package_diff_params_b=(
+          package_diff_params+=(
               # The package-diff script appends version to the file
               # URL, but the directory with the image has no version
               # component at its end, so we use . as a version.
               '.'
           )
-          size_changes_env=(
-              # Nothing to add.
-          )
-          size_changes_params_b=(
+          # Nothing to add to size changes env.
+          size_changes_params+=(
               "local:${PWD}/artifacts/${arch}-usr/latest"
           )
           show_changes_env=(
@@ -220,7 +227,7 @@ jobs:
               "COREOS_OVERLAY_REPO=../coreos-overlay"
               "PORTAGE_STABLE_REPO=../portage-stable"
           )
-          show_changes_params_overrides=(
+          show_changes_params=(
               # We may not have a tag handy, so we tell show-changes
               # to use git HEAD as a reference to new changelog
               # entries.
@@ -230,10 +237,66 @@ jobs:
           declare -a oemids
           get_oem_id_list . oemids
           generate_image_changes_report \
-              "${arch}" "${channel}" "${vernum}" 'image-changes-reports.txt' "../flatcar-build-scripts" \
-              "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
-              "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
-              "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}" -- \
+              "${version_description}" 'image-changes-reports-release.txt' "../flatcar-build-scripts" \
+              "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
+              "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
+              "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
+              "${oemids[@]}"
+
+      - name: Generate reports against last nightly
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -x
+
+          source ci-automation/image_changes.sh
+
+          git_tag=''
+          git_tag_for_nightly . git_tag
+          declare -a var_names=(
+              package_diff_env package_diff_params
+              size_changes_env size_changes_params
+              show_changes_env show_changes_params
+          )
+          declare -a "${var_names[@]}"
+          version_description=''
+          var_names+=( version_description )
+
+          prepare_env_vars_and_params_for_bincache "${arch}" "${git_tag}" "${var_names[@]}"
+
+          package_diff_env+=(
+              "FROM_B=file://${PWD}/artifacts/${arch}-usr/latest"
+              # BOARD_B and CHANNEL_B are unused.
+          )
+          package_diff_params+=(
+              # The package-diff script appends version to the file
+              # URL, but the directory with the image has no version
+              # component at its end, so we use . as a version.
+              '.'
+          )
+          # Nothing to add to size changes env.
+          size_changes_params+=(
+              "local:${PWD}/artifacts/${arch}-usr/latest"
+          )
+          show_changes_env=(
+              "SCRIPTS_REPO=."
+              "COREOS_OVERLAY_REPO=../coreos-overlay"
+              "PORTAGE_STABLE_REPO=../portage-stable"
+          )
+          show_changes_params=(
+              # We may not have a tag handy, so we tell show-changes
+              # to use git HEAD as a reference to new changelog
+              # entries.
+              'NEW_VERSION=HEAD'
+          )
+
+          declare -a oemids
+          get_oem_id_list . oemids
+          generate_image_changes_report \
+              "${version_description}" 'image-changes-reports-nightly.txt' "../flatcar-build-scripts" \
+              "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
+              "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
+              "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
               "${oemids[@]}"
 
       - name: Build VM image(s)
@@ -327,7 +390,7 @@ jobs:
           retention-days: 7
           name: ${{ matrix.arch }}-image-changes-reports
           path: |
-            scripts/image-changes-reports.txt
+            scripts/image-changes-reports*.txt
 
       # Clean up what we uploaded already so the "vendor images" wildcard
       #  works when uploading artifacts in the next step.
