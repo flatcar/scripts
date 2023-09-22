@@ -447,6 +447,10 @@ setup_flags() {
 	# https://sourceware.org/PR27837
 	filter-ldflags '-Wl,--relax'
 
+	# Flag added for cross-prefix, but causes ldconfig to segfault. Not needed
+	# anyway because glibc already handles this by itself.
+	filter-ldflags '-Wl,--dynamic-linker=*'
+
 	# some weird software relies on sysv hashes in glibc, bug 863863, bug 864100
 	# we have to do that here already so mips can filter it out again :P
 	if use hash-sysv-compat ; then
@@ -1333,13 +1337,14 @@ glibc_do_src_install() {
 	# '#define VERSION "2.26.90"' -> '2.26.90'
 	local upstream_pv=$(sed -n -r 's/#define VERSION "(.*)"/\1/p' "${S}"/version.h)
 
+	# Flatcar: override this and strip everything to keep image size at bay
 	# Avoid stripping binaries not targeted by ${CHOST}. Or else
 	# ${CHOST}-strip would break binaries build for ${CTARGET}.
-	is_crosscompile && dostrip -x /
+	# is_crosscompile && dostrip -x /
 
 	# gdb thread introspection relies on local libpthreads symbols. stripping breaks it
 	# See Note [Disable automatic stripping]
-	dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
+	# dostrip -x $(alt_libdir)/libpthread-${upstream_pv}.so
 
 	if [[ -e ${ED}/$(alt_usrlibdir)/libm-${upstream_pv}.a ]] ; then
 		# Move versioned .a file out of libdir to evade portage QA checks
@@ -1527,6 +1532,23 @@ glibc_do_src_install() {
 	if use compile-locales && ! is_crosscompile ; then
 		run_locale_gen --inplace-glibc "${ED}/"
 	fi
+
+	## Flatcar Container Linux: Add some local changes:
+	# - Config files are installed by baselayout, not glibc.
+	# - Install nscd/systemd stuff in /usr.
+
+	# Use tmpfiles to put nscd.conf in /etc and create directories.
+	insinto /usr/share/baselayout
+	if ! in_iuse nscd || use nscd ; then
+		doins "${S}"/nscd/nscd.conf || die
+		newtmpfiles "${FILESDIR}"/nscd-conf.tmpfiles nscd-conf.conf || die
+	fi
+
+	# Clean out any default configs.
+	rm -rf "${ED}"/etc
+
+	# Restore this one for the SDK.
+	test ! -e "${T}"/00glibc || doenvd "${T}"/00glibc
 }
 
 glibc_headers_install() {
