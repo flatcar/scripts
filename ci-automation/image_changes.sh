@@ -535,7 +535,7 @@ function print_image_reports() {
     yell "Init ramdisk differences compared to ${previous_version_description}"
     underline "Image init ramdisk file changes, compared to ${previous_version_description}:"
     env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 \
+        "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 CUTKERNEL=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
 
     underline "Image init ramdisk file size changes, compared to ${previous_version_description}:"
