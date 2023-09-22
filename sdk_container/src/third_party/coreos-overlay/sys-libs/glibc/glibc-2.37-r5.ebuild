@@ -20,7 +20,7 @@ SLOT="2.2"
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=5
+PATCH_VER=7
 PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
@@ -39,7 +39,7 @@ MIN_PAX_UTILS_VER="1.3.3"
 if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
@@ -168,6 +168,30 @@ XFAIL_TEST_LIST=(
 	tst-system
 	tst-strerror
 	tst-strsignal
+)
+
+XFAIL_NSPAWN_TEST_LIST=(
+	# These tests need to be adapted to handle EPERM/ENOSYS(?) properly
+	# upstream, as systemd-nspawn's default seccomp whitelist is too strict.
+	# https://sourceware.org/PR30603
+	test-errno-linux
+	tst-bz21269
+	tst-mlock2
+	tst-ntp_gettime
+	tst-ntp_gettime-time64
+	tst-ntp_gettimex
+	tst-ntp_gettimex-time64
+	tst-pkey
+	tst-process_mrelease
+	tst-adjtime
+	tst-adjtime-time64
+	tst-clock2
+	tst-clock2-time64
+
+	# These fail if --suppress-sync and/or low priority is set
+	tst-sync_file_range
+	tst-sched1
+	test-errno
 )
 
 #
@@ -840,6 +864,8 @@ sanity_prechecks() {
 }
 
 upgrade_warning() {
+	is_crosscompile && return
+
 	if [[ ${MERGE_TYPE} != buildonly && -n ${REPLACING_VERSIONS} && -z ${ROOT} ]]; then
 		local oldv newv=$(ver_cut 1-2 ${PV})
 		for oldv in ${REPLACING_VERSIONS}; do
@@ -1225,6 +1251,12 @@ glibc_src_test() {
 
 	local myxfailparams=""
 	if [[ "${GENTOO_GLIBC_XFAIL_TESTS}" == "yes" ]] ; then
+		local virt=$(systemd-detect-virt 2>/dev/null)
+		if [[ ${virt} == systemd-nspawn ]] ; then
+			ewarn "Skipping extra tests because in systemd-nspawn container"
+			XFAIL_TEST_LIST+=( "${XFAIL_NSPAWN_TEST_LIST[@]}" )
+		fi
+
 		for myt in ${XFAIL_TEST_LIST[@]} ; do
 			myxfailparams+="test-xfail-${myt}=yes "
 		done
