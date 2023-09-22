@@ -500,51 +500,49 @@ function print_image_reports() {
 
     flatcar_build_scripts_repo=$(realpath "${flatcar_build_scripts_repo}")
 
-    echo "==================================================================="
-
     local size_changes_invocation=(
         env
         "${size_change_report_env[@]}"
         "${flatcar_build_scripts_repo}/size-change-report.sh"
     )
 
-    echo "== Image differences compared to ${previous_version_description} =="
-    echo "Package updates, compared to ${previous_version_description}:"
+    yell "Image differences compared to ${previous_version_description}"
+    underline "Package updates, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_packages.txt \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-    echo
-    echo "Image file changes, compared to ${previous_version_description}:"
+
+    underline "Image file changes, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-    echo
-    echo "Image file size changes, compared to ${previous_version_description}:"
+
+    underline "Image file size changes, compared to ${previous_version_description}:"
     if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:wtd}" 2>&1; then
         "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:old}" 2>&1
     fi
-    echo
-    echo "Image kernel config changes, compared to ${previous_version_description}:"
+
+    underline "Image kernel config changes, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-    echo
-    echo "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${previous_version_description}:"
+
+    underline "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt CALCSIZE=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-    echo
 
-    echo "== Init ramdisk differences compared to ${previous_version_description} =="
-    echo "Image init ramdisk file changes, compared to ${previous_version_description}:"
+    yell "Init ramdisk differences compared to ${previous_version_description}"
+    underline "Image init ramdisk file changes, compared to ${previous_version_description}:"
     env \
         "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-    echo
-    echo "Image init ramdisk file size changes, compared to ${previous_version_description}:"
+
+    underline "Image init ramdisk file size changes, compared to ${previous_version_description}:"
     if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-wtd}" 2>&1; then
         "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-old}" 2>&1
     fi
+    echo
     echo "Take the total size difference with a grain of salt as normally initrd is compressed, so the actual difference will be smaller."
     echo "To see the actual difference in size, see if there was a report for /boot/flatcar/vmlinuz-a."
     echo "Note that vmlinuz-a also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
@@ -552,22 +550,21 @@ function print_image_reports() {
 
     local oemid
     for oemid in "${oemids[@]}"; do
-        echo "== Sysext changes for OEM ${oemid} compared to ${previous_version_description} =="
-        echo "Package updates, compared to ${previous_version_description}:"
+        yell "Sysext changes for OEM ${oemid} compared to ${previous_version_description}"
+        underline "Package updates, compared to ${previous_version_description}:"
         env \
             "${package_diff_env[@]}" FILE="oem-${oemid}_packages.txt" \
             "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-        echo
-        echo "Image file changes, compared to ${previous_version_description}:"
+
+        underline "Image file changes, compared to ${previous_version_description}:"
         env \
             "${package_diff_env[@]}" FILE="oem-${oemid}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
             "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-        echo
-        echo "Image file size changes, compared to ${previous_version_description}:"
+
+        underline "Image file size changes, compared to ${previous_version_description}:"
         if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-wtd}"; then
             "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-old}" 2>&1
         fi
-        echo
     done
 
     local param
@@ -577,6 +574,7 @@ function print_image_reports() {
     # The first changelog we print is always against the previous
     # version of the new channel (is only same as old channel and old
     # version without a transition)
+    yell "Changelog against ${SHOW_CHANGES_NEW_CHANNEL}-${SHOW_CHANGES_NEW_CHANNEL_PREV_VERSION}"
     env \
         "${show_changes_env[@]}" \
         "${flatcar_build_scripts_repo}/show-changes" \
@@ -586,6 +584,7 @@ function print_image_reports() {
     # against old channel and old version which is the previous
     # release
     if [ "${SHOW_CHANGES_OLD_CHANNEL}" != "${SHOW_CHANGES_NEW_CHANNEL}" ]; then
+        yell "Changelog against ${SHOW_CHANGES_OLD_CHANNEL}-${SHOW_CHANGES_OLD_VERSION}"
         env \
             "${show_changes_env[@]}" \
             "${flatcar_build_scripts_repo}/show-changes" \
@@ -594,6 +593,54 @@ function print_image_reports() {
     fi
 }
 # --
+
+function yell() {
+    local msg
+    msg=${1}; shift
+
+    local msg_len
+    msg_len=${#msg}
+
+    local y_str
+    repeat_string '!' $((msg_len + 6)) y_str
+
+    printf '\n%s\n!! %s !!\n%s\n\n' "${y_str}" "${msg}" "${y_str}"
+}
+
+function underline() {
+    local msg
+    msg=${1}; shift
+
+    local msg_len
+    msg_len=${#msg}
+
+    local u_str
+    repeat_string '=' "${msg_len}" u_str
+
+    printf '\n%s\n%s\n\n' "${msg}" "${u_str}"
+}
+
+function repeat_string() {
+    local str ntimes out_str_var_name
+    str="${1}"; shift
+    ntimes="${1}"; shift
+    out_str_var_name="${1}"; shift
+    local -n out_str_ref="${out_str_var_name}"
+
+    if [[ ${ntimes} -eq 0 ]]; then
+        out_str_ref=""
+        return 0
+    elif [[ ${ntimes} -eq 1 ]]; then
+        out_str_ref="${str}"
+        return 0
+    fi
+    local add_one
+    add_one=$((ntimes % 2))
+    repeat_string "${str}${str}" $((ntimes / 2)) "${out_str_var_name}"
+    if [[ add_one -gt 0 ]]; then
+        out_str_ref+="${str}"
+    fi
+}
 
 # 1 - name of an array variable for environment variables
 # 2 - name of an array variable for parameters
