@@ -59,7 +59,7 @@ src_prepare() {
 	echo "# 1-9 when compressing.  The higher the number," >> "${S}/src/semanage.conf"
 	echo "# the more memory is traded off for disk space." >> "${S}/src/semanage.conf"
 	echo "# Set to 0 to disable bzip2 compression." >> "${S}/src/semanage.conf"
-	echo "bzip-blocksize=0" >> "${S}/src/semanage.conf"
+	echo "bzip-blocksize=1" >> "${S}/src/semanage.conf"
 	echo >> "${S}/src/semanage.conf"
 	echo "# Reduce memory usage for bzip2 compression and" >> "${S}/src/semanage.conf"
 	echo "# decompression of modules in the module store." >> "${S}/src/semanage.conf"
