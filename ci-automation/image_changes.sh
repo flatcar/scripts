@@ -65,7 +65,8 @@ function image_changes() (
             ;;
     esac
 
-    local version
+    local ic_head_tag version
+    head_git_tag . ic_head_tag
     version=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
     package_diff_env+=(
         "FROM_B=bincache"
@@ -90,7 +91,7 @@ function image_changes() (
     show_changes_params+=(
         # The show-changes script expects a tag name, so using git tag
         # here instead of the vernum variable.
-        "NEW_VERSION=$(git tag --points-at HEAD)"
+        "NEW_VERSION=${ic_head_tag}"
     )
 
     local fbs_repo='../flatcar-build-scripts'
@@ -122,11 +123,23 @@ function image_changes() (
 # 1 - scripts repo
 # 2 - name of a variable to store the result in
 function git_tag_for_release() {
+    local scripts_repo git_tag_var_name
+    scripts_repo=${1}; shift
+    git_tag_var_name=${1}; shift
+
+    head_git_tag "${scripts_repo}" "${git_tag_var_name}"
+}
+
+function head_git_tag() {
     local scripts_repo
     scripts_repo=${1}; shift
     local -n git_tag_ref="${1}"; shift
 
-    git_tag_ref=$(cd "${scripts_repo}"; source sdk_lib/sdk_container_common.sh; get_git_version)
+    git_tag_ref=$(git -C "${scripts_repo}" tag --points-at HEAD)
+    if [[ -z ${git_tag_ref} ]]; then
+        echo 'expected git HEAD commit to contain a tag' >&2
+        exit 1
+    fi
 }
 
 # Gets a git tag of a previous nightly that can be passed to
