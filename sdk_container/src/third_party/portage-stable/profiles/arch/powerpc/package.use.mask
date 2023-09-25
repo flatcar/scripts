@@ -1,6 +1,20 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Georgy Yakovlev <gyakovlev@gentoo.org (2023-09-21)
+# dtrace/systemtap not availabie on ppc platform for jdk
+# configure: ERROR: Unavailable JVM features explicitly enabled for 'server': 'dtrace'
+# https://github.com/openjdk/jdk17u-dev/commit/5b29c6ec93372b20016565b84d449860b7233d6c
+dev-java/openjdk:17 systemtap
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-09-20)
+# Libei not keyworded here yet
+x11-base/xwayland libei
+
+# Jon Janzen <jon@jonjanzen.com> (2023-09-11)
+# librttopo has not been tested on this arch
+dev-db/spatialite rttopo
+
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-08-30)
 # Avoid keywordming more Qt stuff
 dev-python/pyside2 3d datavis scxml

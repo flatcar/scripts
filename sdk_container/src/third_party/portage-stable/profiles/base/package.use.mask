@@ -6,6 +6,16 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Jaco Kroon <jaco@uls.co.za> (2023-09-19)
+# Joonas Niilola <juippis@gentoo.org> (2023-09-21)
+# DAHDI is being last-rited. See bug #914477.
+net-misc/asterisk dahdi
+net-voip/yate dahdi
+
+# Matt Turner <mattst88@gentoo.org> (2023-09-14)
+# Not ported to libsoup:3.0
+app-office/abiword collab
+
 # Sam James <sam@gentoo.org> (2023-09-09)
 # Needs <dev-libs/openssl-3 which is EOL on 2023-09-11. Please upgrade immediately.
 # See bug #913685.
@@ -162,11 +172,6 @@ sci-libs/vtk debug
 # AMDGPU enablement depends on dev-libs/rocr-runtime, ~amd64 only
 # See also: https://bugs.gentoo.org/891499
 sys-libs/libomp llvm_targets_AMDGPU
-
-# Michał Górny <mgorny@gentoo.org> (2023-01-21)
-# media-libs/qtav is masked for removal.
-media-gfx/digikam mediaplayer
-media-gfx/kphotoalbum qtav
 
 # Sam James <sam@gentoo.org> (2023-01-21)
 # Fails to compile: https://github.com/libffi/libffi/issues/760

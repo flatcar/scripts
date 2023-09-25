@@ -1,6 +1,25 @@
 # Copyright 2022-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# WANG Xuerui <xen0n@gentoo.org> (2023-09-24)
+# fails tests
+gnome-extra/gnome-software flatpak
+
+# WANG Xuerui <xen0n@gentoo.org> (2023-09-21)
+# dev-ruby/asciidoctor is not keyworded yet.
+dev-util/librnp man
+
+# Michał Górny <mgorny@gentoo.org> (2023-09-19)
+# dev-cpp/cpp-httplib is keyworded here.
+sys-devel/llvm -debuginfod
+
+# WANG Xuerui <xen0n@gentoo.org> (2023-09-12)
+# Vulkan is available on loong.
+dev-qt/qt3d -vulkan
+dev-qt/qtdeclarative -vulkan
+dev-qt/qtgui -vulkan
+dev-qt/qtwayland -vulkan
+
 # WANG Xuerui <xen0n@gentoo.org> (2023-09-10)
 # Revdeps of dev-python/ujson which is masked.
 dev-python/cattrs test
@@ -11,12 +30,11 @@ dev-python/ruamel-std-pathlib test
 # Avoid having to keyword more Qt deps
 dev-python/pyside2 3d datavis script location scxml
 
-# WANG Xuerui <xen0n@gentoo.org> (2023-08-05)
-# no keyworded lld
-dev-lang/rust wasm
-
 # WANG Xuerui <xen0n@gentoo.org> (2023-07-26)
-# missing llvm:16 and keyworded lld
+# no llvm:15 or lld:16 on loong
+app-office/libreoffice clang
+<dev-db/postgresql-16 llvm
+<dev-lang/rust-1.73.0 wasm
 dev-lang/spidermonkey clang lto
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-07-26)
@@ -186,21 +204,6 @@ dev-lang/ocaml test
 # WANG Xuerui <xen0n@gentoo.org> (2022-11-29)
 # Dep media-plugins/libvisual-plugins fails to build, seems too hairy to fix.
 media-plugins/gst-plugins-meta libvisual
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-11-27)
-# Mask configurations not accepting llvm:16 and/or clang:16, either due to
-# lack of testing or simply being unsupported upstream (the opaque pointers
-# in particular need downstream changes).
-app-office/libreoffice clang
-<dev-db/postgresql-16 llvm
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-11-27)
-# LLVM toolchain now partially usable on loong, mask the remaining pieces
-# pending test/bugfixes/porting.
-#
-# - sys-devel/lld: port is still under review
-dev-util/lldb test
-sys-devel/clang-common default-lld
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-10-04)
 # Sanitizers partially supported on this architecture.
