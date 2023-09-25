@@ -152,10 +152,12 @@ dev-libs/jsoncpp
 dev-libs/libaio
 dev-libs/libassuan
 dev-libs/libbsd
+dev-libs/libdnet
 dev-libs/libgcrypt
 dev-libs/libgpg-error
 dev-libs/libksba
 dev-libs/libltdl
+dev-libs/libmspack
 dev-libs/libnl
 dev-libs/libpcre
 dev-libs/libpcre2
@@ -170,6 +172,7 @@ dev-libs/oniguruma
 dev-libs/popt
 dev-libs/protobuf
 dev-libs/userspace-rcu
+dev-libs/xmlsec
 
 dev-perl/File-Slurp
 dev-perl/Locale-gettext
@@ -340,6 +343,7 @@ net-libs/libnsl
 net-libs/libpcap
 net-libs/libslirp
 net-libs/nghttp2
+net-libs/rpcsvc-proto
 
 net-misc/bridge-utils
 net-misc/curl
@@ -450,6 +454,8 @@ sys-firmware/sgabios
 sys-fs/cryptsetup
 sys-fs/dosfstools
 sys-fs/e2fsprogs
+sys-fs/fuse
+sys-fs/fuse-common
 sys-fs/lsscsi
 sys-fs/mtools
 sys-fs/multipath-tools

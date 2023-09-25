@@ -4,8 +4,9 @@
 EAPI=8
 
 OEMIDS=(
-    qemu
     azure
+    qemu
+    vmware
 )
 
 DESCRIPTION='Common OEM files'
