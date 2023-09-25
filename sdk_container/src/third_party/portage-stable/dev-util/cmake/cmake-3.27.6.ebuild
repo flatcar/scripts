@@ -50,7 +50,7 @@ else
 
 		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
-		BDEPEND="verify-sig? ( sec-keys/openpgp-keys-bradking )"
+		BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20230817 )"
 	fi
 fi
 
@@ -103,6 +103,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0006-Filter-out-distcc-warnings-to-avoid-confusing-CMake.patch
 
 	# Upstream fixes (can usually be removed with a version bump)
+	# pkgconf
+	# fixes https://github.com/pkgconf/pkgconf/issues/317
+	"${FILESDIR}"/${PN}-3.27.4-0001-FindPkgConfig-ignore-whitespace-separators-in-versio.patch
 )
 
 cmake_src_bootstrap() {
