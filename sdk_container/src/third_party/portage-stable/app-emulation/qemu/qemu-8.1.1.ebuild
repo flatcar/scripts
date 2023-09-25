@@ -6,9 +6,10 @@ EAPI=8
 # Generate using https://github.com/thesamesam/sam-gentoo-scripts/blob/main/niche/generate-qemu-docs
 # Set to 1 if prebuilt, 0 if not
 # (the construct below is to allow overriding from env for script)
-QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-0}
+QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
-QEMU_DOCS_VERSION=$(ver_cut 1-3)
+#QEMU_DOCS_VERSION=$(ver_cut 1-3)
+QEMU_DOCS_VERSION=8.1.0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
@@ -25,7 +26,11 @@ if [[ ${PV} == *9999* ]]; then
 	QEMU_DOCS_PREBUILT=0
 
 	EGIT_REPO_URI="https://gitlab.com/qemu-project/qemu.git/"
-	EGIT_SUBMODULES=()
+	EGIT_SUBMODULES=(
+		tests/fp/berkeley-softfloat-3
+		tests/fp/berkeley-testfloat-3
+		subprojects/keycodemapdb
+	)
 	inherit git-r3
 	SRC_URI=""
 else
@@ -436,14 +441,6 @@ check_targets() {
 	popd >/dev/null
 }
 
-if [[ ${PV} == 9999 ]]; then
-src_unpack() {
-	git-r3_src_unpack
-	cd "${P}" || die
-	meson subprojects download keycodemapdb berkeley-softfloat-3 berkeley-testfloat-3 || die
-}
-fi
-
 src_prepare() {
 	check_targets IUSE_SOFTMMU_TARGETS softmmu
 	check_targets IUSE_USER_TARGETS linux-user
@@ -458,7 +455,7 @@ src_prepare() {
 	MAKEOPTS+=" V=1"
 
 	# Remove bundled modules
-	rm -r roms/*/ || die
+	rm -r subprojects/dtc roms/*/ || die
 }
 
 ##
