@@ -1,2 +1,2 @@
-- Reworked the VMware OEM software to be shipped a A/B updated systemd-sysext image
+- Reworked the VMware OEM software to be shipped as A/B updated systemd-sysext image
 - The open-vm-tools package in VMware OEM now comes with vmhgfs-fuse, udev rules, pam and vgauth
