@@ -28,16 +28,18 @@ DEPEND="
 	uuid? ( sys-apps/util-linux:= )
 "
 RDEPEND="${DEPEND}"
-
 BDEPEND="
 	dev-lang/swig
 "
+
+PATCHES=( "${FILESDIR}/${P}-free-segfault.patch" )
 
 src_configure() {
 	local emesonargs=(
 		-Dpython=false
 		$(meson_feature json json-c)
 		$(meson_feature dbus libdbus)
+		$(meson_feature keyutils)
 		$(meson_feature ssl openssl)
 		$(meson_feature python)
 	)
