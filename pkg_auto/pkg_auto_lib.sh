@@ -2468,10 +2468,10 @@ function handle_profiles() {
     local -a relevant_lines possibly_irrelevant_files
     relevant_lines=()
     possibly_irrelevant_files=()
-    local path dir mark
-    while read -r line; do
-        if [[ ${line} = "diff "* ]]; then
-            path=${line##*"${NEW_PORTAGE_STABLE}/profiles/"}
+    local REPLY path dir mark
+    while read -r; do
+        if [[ ${REPLY} = "diff "* ]]; then
+            path=${REPLY##*"${NEW_PORTAGE_STABLE}/profiles/"}
             dirname_out "${path}" dir
             relevant=''
             mark=${profile_dirs_set["${dir}"]:-}
@@ -2489,7 +2489,7 @@ function handle_profiles() {
             fi
         fi
         if [[ -n ${relevant} ]]; then
-            relevant_lines+=( "${line}" )
+            relevant_lines+=( "${REPLY}" )
         fi
     done <"${out_dir}/full.diff"
     lines_to_file_truncate "${out_dir}/relevant.diff" "${relevant_lines[@]}"
