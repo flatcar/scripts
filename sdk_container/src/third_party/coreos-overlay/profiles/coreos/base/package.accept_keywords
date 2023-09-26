@@ -10,6 +10,9 @@
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2 ~arm64
 
+# Needed to fix CVE-2023-36054.
+=app-crypt/mit-krb5-1.21.2 ~amd64 ~arm64
+
 # Needed to address CVE-2023-2609 and CVE-2023-2610.
 =app-editors/vim-9.0.1678 ~amd64 ~arm64
 =app-editors/vim-core-9.0.1678 ~amd64 ~arm64
