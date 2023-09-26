@@ -94,5 +94,8 @@
 # ?
 =sys-power/acpid-2.0.33 ~amd64 ~arm64
 
+# Needed to fix CVE-2023-4016.
+=sys-process/procps-4.0.4 ~amd64 ~arm64
+
 # Accept unstable host Rust compilers.
 =virtual/rust-1.72.1 ~amd64 ~arm64
