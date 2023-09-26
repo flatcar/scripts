@@ -10,24 +10,15 @@ SRC_URI=""
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64 arm64 x86"
-IUSE="ec2 openstack brightbox"
-REQUIRED_USE="^^ ( ec2 openstack brightbox )"
-
-RDEPEND="
-	ec2? ( app-emulation/amazon-ssm-agent )
-	coreos-base/flatcar-eks
-"
+IUSE="openstack brightbox"
+REQUIRED_USE="^^ ( openstack brightbox )"
 
 # no source directory
 S="${WORKDIR}"
 
 src_prepare() {
 	default
-	if use ec2 ; then
-		ID="ami"
-		NAME="Amazon EC2"
-		HOME_URL="http://aws.amazon.com/ec2/"
-	elif use openstack ; then
+	if use openstack ; then
 		ID="openstack"
 		NAME="Openstack"
 		HOME_URL="https://www.openstack.org/"
@@ -49,9 +40,7 @@ src_prepare() {
 src_install() {
 	insinto "/oem"
 	doins "${T}/oem-release"
-	if use ec2 ; then
-		newins "${FILESDIR}/grub-ec2.cfg" grub.cfg
-	elif use openstack ; then
+	if use openstack ; then
 		newins "${FILESDIR}/grub-openstack.cfg" grub.cfg
 	elif use brightbox ; then
 		newins "${FILESDIR}/grub-brightbox.cfg" grub.cfg
@@ -59,10 +48,6 @@ src_install() {
 
 	insinto "/oem/base"
 	doins "${FILESDIR}/base/README"
-	if use ec2 ; then
-		newins "${FILESDIR}/base/base-ec2.ign" base.ign
-	fi
-
 	if use openstack; then
 		newins "${FILESDIR}/base/openstack.ign" base.ign
 	fi

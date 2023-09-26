@@ -4,6 +4,7 @@
 EAPI=8
 
 OEMIDS=(
+    ami
     azure
     qemu
     vmware
@@ -28,7 +29,7 @@ BDEPEND="
 "
 
 src_compile() {
-    local oemid package ebuild version name homepage lines
+    local oemid package ebuild version name homepage lines oemid_cmdline
 
     for oemid in "${OEMIDS[@]}"; do
         if use "${oemid}"; then break; fi
@@ -69,10 +70,19 @@ src_compile() {
         fi
     } >"${T}/oem-release"
 
+    oemid_cmdline="${oemid}"
+
+    # In this specific case, the OEM ID from the oem-release file ('ami')
+    # is different from the OEM ID kernel command line parameter ('ec2')
+    # because some services like Afterburn or Ignition expects 'ec2|aws' value.
+    if [[ "${oemid}" == "ami" ]]; then
+        oemid_cmdline="ec2"
+    fi
+
     lines=(
         '# Flatcar GRUB settings'
         ''
-        "set oem_id=\"${oemid}\""
+        "set oem_id=\"${oemid_cmdline}\""
     )
     {
         printf '%s\n' "${lines[@]}"

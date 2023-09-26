@@ -5,7 +5,7 @@ EAPI=7
 COREOS_GO_PACKAGE="${GITHUB_URI}"
 COREOS_GO_VERSION="go1.19"
 
-inherit coreos-go-depend golang-vcs-snapshot
+inherit coreos-go-depend golang-vcs-snapshot systemd
 
 EGO_PN="github.com/aws/${PN}"
 DESCRIPTION="AWS Systems Manager Agent"
@@ -48,10 +48,10 @@ src_compile() {
 }
 
 src_install() {
-	into "/oem"
 	dobin bin/amazon-ssm-agent bin/ssm-cli bin/ssm-document-worker bin/ssm-session-logger bin/ssm-session-worker
-	# files used by ignition on a first run
-	insinto "/oem/ssm"
+	insinto "/usr/share/amazon/ssm"
 	newins seelog_unix.xml seelog.xml.template
 	doins amazon-ssm-agent.json.template
+
+	systemd_dounit packaging/linux/amazon-ssm-agent.service
 }
