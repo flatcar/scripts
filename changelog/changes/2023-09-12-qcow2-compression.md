@@ -1,0 +1,1 @@
+- Use qcow2 compressed format instead of additional compression layer in Qemu images ([Flatcar#1135](https://github.com/flatcar/Flatcar/issues/1135), [scripts#1132](https://github.com/flatcar/scripts/pull/1132))
