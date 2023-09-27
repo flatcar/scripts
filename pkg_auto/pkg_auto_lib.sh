@@ -1462,7 +1462,6 @@ function consistency_check_for_package() {
                 "    - version: ${v2}"
         fi
     fi
-fi
 }
 
 # consistency checks between:
