@@ -143,13 +143,13 @@ function setup_workdir_with_config() {
     file=${1}; shift
 
     local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base
-    local -a cfg_cleanups_opts
+    local -a cfg_cleanups
     local -A cfg_overrides
 
     # some defaults
     cfg_old_base='origin/main'
     cfg_new_base=''
-    cfg_cleanups_opts=('ignore')
+    cfg_cleanups=('ignore')
     cfg_overrides=()
 
     local line key value swwc_stripped var_name arch
@@ -173,7 +173,8 @@ function setup_workdir_with_config() {
                 unset -n var
                 ;;
             cleanups)
-                mapfile -t -d';' cfg_cleanups_opts < <(printf '%s' "${value}")
+                var_name="cfg_${key//-/_}"
+                mapfile -t -d',' "${var_name}" < <(printf '%s' "${value}")
                 ;;
             *-sdk-img)
                 arch=${key%%-*}
@@ -190,7 +191,7 @@ function setup_workdir_with_config() {
         ensure_specified "${key}" "${!var_name}"
     done
 
-    setup_cleanups "${cfg_cleanups_opts[@]}"
+    setup_cleanups "${cfg_cleanups[@]}"
     setup_workdir "${workdir}"
     add_cleanup "rm -f ${WORKDIR@Q}/config"
     cp -a "${config_file}" "${WORKDIR}/config"
