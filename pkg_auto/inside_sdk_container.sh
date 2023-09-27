@@ -97,3 +97,6 @@ echo 'Generating SDK package source information'
 package_sources_sdk >"${reports_dir}/sdk-package-repos" 2>"${reports_dir}/sdk-package-repos-warnings"
 echo 'Generating board package source information'
 package_sources_board >"${reports_dir}/board-package-repos" 2>"${reports_dir}/board-package-repos-warnings"
+
+echo "Cleaning empty warning files"
+clean_empty_warning_files "${reports_dir}"

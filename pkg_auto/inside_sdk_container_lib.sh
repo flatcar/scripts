@@ -353,4 +353,16 @@ function ensure_valid_reports() {
     done
 }
 
+function clean_empty_warning_files() {
+    local dir
+    dir=${1}; shift
+
+    local file
+    for file in "${dir}/"*'-warnings'; do
+        if [[ ! -s ${file} ]]; then
+            rm -f "${file}"
+        fi
+    done
+}
+
 fi
