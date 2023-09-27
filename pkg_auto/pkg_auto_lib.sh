@@ -1382,8 +1382,8 @@ function consistency_check_for_package() {
             if [[ ${v1} != "${v2}" ]]; then
                 pkg_warn \
                     "- version mismatch:" \
-                    "  - package ${pkg}" \
-                    "  - slot ${s}" \
+                    "  - package: ${pkg}" \
+                    "  - slot: ${s}" \
                     "  - profile 1: ${ccfp_profile_1}" \
                     "    - version: ${v1}" \
                     "  - profile 1: ${ccfp_profile_2}" \
@@ -1409,7 +1409,7 @@ function consistency_check_for_package() {
         if [[ ${#profile_1_slots[@]} -gt 0 ]] || [[ ${#profile_2_slots[@]} -gt 0 ]]; then
             pkg_warn \
                 "- suspicious:" \
-                "  - package ${pkg}" \
+                "  - package: ${pkg}" \
                 "  - profile 1: ${ccfp_profile_1}" \
                 "  - profile 2: ${ccfp_profile_2}" \
                 "  - common slots: ${common_slots[*]}" \
