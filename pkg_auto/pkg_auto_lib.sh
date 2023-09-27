@@ -1710,7 +1710,7 @@ function handle_package_changes() {
             for s in "${!which_slots_set_ref[@]}"; do
                 verminmax=${which_slot_verminmax_map_ref["${s}"]:-}
                 if [[ -n ${verminmax} ]]; then
-                    which_filtered_slots_set_ref["${verminmax}"]=x
+                    which_filtered_slots_set_ref["${s}"]=x
                 fi
             done
             pkg_debug "all filtered slots for ${which} name: ${!which_filtered_slots_set_ref[*]}"
@@ -2414,7 +2414,9 @@ function handle_gentoo_sync() {
 }
 
 function sort_summary_stubs() {
-    sort_like_summary_stubs "${REPORTS_DIR}/updates/summary_stubs"
+    if [[ -f "${REPORTS_DIR}/updates/summary_stubs" ]]; then
+        sort_like_summary_stubs "${REPORTS_DIR}/updates/summary_stubs"
+    fi
 }
 
 # lines look like as follows:
@@ -2505,7 +2507,9 @@ function sort_like_summary_stubs() {
 }
 
 function sort_changelog_stubs() {
-    sort_like_changelog_stubs "${REPORTS_DIR}/updates/changelog_stubs"
+    if [[ -f "${REPORTS_DIR}/updates/changelog_stubs" ]]; then
+        sort_like_changelog_stubs "${REPORTS_DIR}/updates/changelog_stubs"
+    fi
 }
 
 function sort_like_changelog_stubs() {
