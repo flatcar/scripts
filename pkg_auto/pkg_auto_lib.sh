@@ -143,7 +143,7 @@ function setup_workdir_with_config() {
     file=${1}; shift
 
     local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base
-    local -a cfg_cleanups
+    local -a cfg_cleanups cfg_debug_packages
     local -A cfg_overrides
 
     # some defaults
@@ -151,6 +151,7 @@ function setup_workdir_with_config() {
     cfg_new_base=''
     cfg_cleanups=('ignore')
     cfg_overrides=()
+    cfg_debug_packages=()
 
     local line key value swwc_stripped var_name arch
     while read -r line; do
@@ -172,7 +173,7 @@ function setup_workdir_with_config() {
                 var=${value}
                 unset -n var
                 ;;
-            cleanups)
+            cleanups|debug-packages)
                 var_name="cfg_${key//-/_}"
                 mapfile -t -d',' "${var_name}" < <(printf '%s' "${value}")
                 ;;
@@ -197,6 +198,7 @@ function setup_workdir_with_config() {
     cp -a "${config_file}" "${WORKDIR}/config"
     setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
     override_sdk_image_names cfg_overrides
+    add_debug_packages "${cfg_debug_packages[@]}"
 }
 
 function strip_out() {
@@ -353,12 +355,6 @@ function override_sdk_image_names() {
     overrides_map_var_name=${1}; shift
     local -n overrides_map_ref="${overrides_map_var_name}"
 
-    local globals_file
-    globals_file="${WORKDIR}/globals"
-    if [[ ! -e "${globals_file}" ]]; then
-        fail "globals not set yet in workdir"
-    fi
-
     if [[ ${#overrides_map_ref[@]} -eq 0 ]]; then
         return 0
     fi
@@ -375,7 +371,32 @@ function override_sdk_image_names() {
         fi
         lines+=( "${upcase_arch@Q}_PACKAGES_IMAGE=${image_name@Q}" )
     done
-    lines_to_file "${globals_file}" "${lines[@]}"
+    append_to_globals "${lines[@]}"
+}
+
+function add_debug_packages() {
+    local -a prepared lines
+    prepared=( "${@@Q}" )
+    prepared=( "${prepared[@]/#/'    ['")
+    prepared=( "${prepared[@]/%/']=x'")
+    lines=(
+        'local -A DEBUG_PACKAGES'
+        ''
+        'DEBUG_PACKAGES=('
+        "${prepared[@]}"
+        ')'
+    )
+    append_to_globals "${lines[@]}"
+}
+
+function append_to_globals() {
+    local globals_file
+    globals_file="${WORKDIR}/globals"
+    if [[ ! -e "${globals_file}" ]]; then
+        fail "globals not set yet in workdir"
+    fi
+
+    lines_to_file "${globals_file}" "${@}"
 }
 
 # TODO: docs
@@ -1159,6 +1180,9 @@ function pkginfo_c_process_file() {
     local -n pkg_set_ref="${pkg_set_var_name}"
     pkg_slots_set_mvm_var_name=${1}; shift
 
+    # shellcheck disable=SC1091 # generated file
+    source "${WORKDIR}/globals"
+
     local which arch report
     mvm_c_get_extra 'which' which
     mvm_c_get_extra 'arch' arch
@@ -1167,6 +1191,9 @@ function pkginfo_c_process_file() {
     local pkg version_slot throw_away v s
     # shellcheck disable=SC2034 # throw_away is unused, it's here for read to store the rest of the line if there is something else
     while read -r pkg version_slot throw_away; do
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            pkg_debug "${pkg} in ${which} ${arch} ${report}: ${version_slot}"
+        fi
         v=${version_slot%%:*}
         s=${version_slot##*:}
         mvm_c_add "${pkg}" "${s}" "${v}"
@@ -1462,7 +1489,14 @@ function consistency_checks() {
     pkginfo_name "${which}" amd64 "${BOARD_PKGS}" cc_pimap_mvm_2_var_name
     mvm_declare cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm mvm_mvc_map
     for pkg in "${all_pkgs_ref[@]}"; do
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            pkg_debug "${pkg} in ${which} amd64 sdk <-> amd64 board"
+            set -xv
+        fi
         consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            set +vx
+        fi
     done
 
     # amd64 board <-> arm64 board
@@ -1470,7 +1504,14 @@ function consistency_checks() {
     pkginfo_name "${which}" arm64 "${BOARD_PKGS}" cc_pimap_mvm_2_var_name
     mvm_declare cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm mvm_mvc_map
     for pkg in "${all_pkgs_ref[@]}"; do
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            pkg_debug "${pkg} in ${which} amd64 board <-> arm64 board"
+            set -xv
+        fi
         consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            set +vx
+        fi
     done
 
     local cc_slot_verminmax1_map_var_name cc_slot_verminmax2_map_var_name
@@ -1479,6 +1520,10 @@ function consistency_checks() {
     # shellcheck disable=SC2034 # used indirectly below
     empty_map=()
     for pkg in "${all_pkgs_ref[@]}"; do
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            pkg_debug "${pkg} in ${which} verminmax stuff"
+            set -xv
+        fi
         mvm_get cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm "${pkg}" cc_slot_verminmax1_map_var_name
         mvm_get cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm "${pkg}" cc_slot_verminmax2_map_var_name
         mvm_get "${pkg_slots_set_mvm_var_name}" "${pkg}" cc_slots_set_var_name
@@ -1503,6 +1548,9 @@ function consistency_checks() {
             mvm_add "${pkg_slot_verminmax_mvm_var_name}" "${pkg}" "${s}" "${verminmax}"
         done
         unset -n slots_set_ref slot_verminmax2_map_ref slot_verminmax1_map_ref
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            set +vx
+        fi
     done
     mvm_unset cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm
     mvm_unset cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm
@@ -2603,6 +2651,10 @@ function handle_scripts() {
 
     xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
     generate_summary_stub scripts -- 'TODO: review the diffs'
+}
+
+function pkg_debug() {
+    info "DEBUG: ${*}"
 }
 
 fi

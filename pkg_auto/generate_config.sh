@@ -8,6 +8,7 @@ set -euo pipefail
 ## Parameters:
 ## -a: aux directory
 ## -b: base workdir - use config from passed workdir to fill unspecified options
+## -d: debug package - list many times
 ## -h: this help
 ## -i: SDK image override in form of ${arch}:${name},
 ## -n: new base
@@ -40,6 +41,7 @@ gc_scripts_directory=''
 # shellcheck disable=SC2034 # used by name below
 gc_cleanup_opts=''
 # ${arch}_sdk_img are declared on demand
+gc_debug_packages=()
 
 declare -A opt_map
 opt_map=(
@@ -54,6 +56,13 @@ opt_map=(
 
 while [[ ${#} -gt 0 ]]; do
     case ${1} in
+        -d)
+            if [[ -z ${2:-} ]]; then
+                fail 'missing value for -d'
+            fi
+            gc_debug_packages+=( "${2}" )
+            shift 2
+            ;;
         -h)
             print_help
             exit 0
@@ -101,6 +110,8 @@ while [[ ${#} -gt 0 ]]; do
     esac
 done
 
+join_by gc_debug_packages_csv ',' "${gc_debug_packages[@]}"
+
 declare -a pairs
 pairs=(
     'scripts' gc_scripts_directory
@@ -111,6 +122,7 @@ pairs=(
     'cleanups' gc_cleanup_opts
     'amd64-sdk-img' gc_arm64_sdk_img
     'arm64-sdk-img' gc_amd64_sdk_img
+    'debug-packages' gc_debug_packages_csv
 )
 
 if [[ -n ${gc_base_workdir} ]]; then
