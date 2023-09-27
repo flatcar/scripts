@@ -824,6 +824,7 @@ function manual() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    pkg_debug_lines 'manual work needed:' "${@}"
     # shellcheck disable=SC2153 # REPORTS_DIR is not a misspelling, it comes from globals file
     lines_to_file "${REPORTS_DIR}/manual-work-needed" "${@}"
 }
@@ -832,6 +833,7 @@ function pkg_warn() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    pkg_debug_lines 'pkg warn:' "${@}"
     lines_to_file "${REPORTS_DIR}/warnings" "${@}"
 }
 
@@ -839,6 +841,7 @@ function devel_warn() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    pkg_debug_lines 'developer warn:' "${@}"
     lines_to_file "${REPORTS_DIR}/developer-warnings" "${@}"
 }
 
@@ -1191,15 +1194,15 @@ function pkginfo_c_process_file() {
     local pkg version_slot throw_away v s
     # shellcheck disable=SC2034 # throw_away is unused, it's here for read to store the rest of the line if there is something else
     while read -r pkg version_slot throw_away; do
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            pkg_debug "${pkg} in ${which} ${arch} ${report}: ${version_slot}"
-        fi
+        pkg_debug_enable "${pkg}"
+        pkg_debug "${which} ${arch} ${report}: ${version_slot}"
         v=${version_slot%%:*}
         s=${version_slot##*:}
         mvm_c_add "${pkg}" "${s}" "${v}"
         # shellcheck disable=SC2034 # it's a reference to external variable
         pkg_set_ref["${pkg}"]='x'
         mvm_add "${pkg_slots_set_mvm_var_name}" "${pkg}" "${s}"
+        pkg_debug_disable "${pkg}"
     done <"${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
 }
 
@@ -1400,11 +1403,14 @@ function consistency_check_for_package() {
     pkginfo_profile "${pi2_pimap_mvm_var_name}" ccfp_profile_2
 
     local s v1 v2 ccfp_min ccfp_max mm
+    pkg_debug "all slots iterated over: ${!slots_set_ref[*]}"
     for s in "${!slots_set_ref[@]}"; do
         v1=${slot_version1_map["${s}"]:-}
         v2=${slot_version2_map["${s}"]:-}
+        pkg_debug "v1: ${v1}, v2: ${v2}"
 
         if [[ -n ${v1} ]] && [[ -n ${v2} ]]; then
+            pkg_debug "${s} is a common slot for ${ccfp_profile_1} and ${ccfp_profile_2}"
             common_slots+=( "${s}" )
             if [[ ${v1} != "${v2}" ]]; then
                 pkg_warn \
@@ -1420,18 +1426,24 @@ function consistency_check_for_package() {
             mm="${ccfp_min}:${ccfp_max}"
         elif [[ -n ${v1} ]]; then
             # only side1 has the slot
+            pkg_debug "${s} is a slot only in ${ccfp_profile_1}"
             profile_1_slots+=( "${s}" )
             mm="${v1}:${v1}"
         elif [[ -n ${v2} ]]; then
             # only side 2 has the slot
+            pkg_debug "${s} is a slot only in ${ccfp_profile_2}"
             profile_2_slots+=( "${s}" )
             mm="${v2}:${v2}"
         else
+            pkg_debug "${s} is a slot absent from both ${ccfp_profile_1} and ${ccfp_profile_2}"
             continue
         fi
 
         mvm_add "${pkg_slot_verminmax_map_mvm_var_name}" "${pkg}" "${s}" "${mm}"
     done
+    pkg_debug "common slots: ${common_slots[*]}"
+    pkg_debug "profile 1 slots: ${profile_1_slots[*]}"
+    pkg_debug "profile 2 slots: ${profile_2_slots[*]}"
     local s1 s2
     if [[ ${#common_slots[@]} -gt 0 ]]; then
         if [[ ${#profile_1_slots[@]} -gt 0 ]] || [[ ${#profile_2_slots[@]} -gt 0 ]]; then
@@ -1457,7 +1469,7 @@ function consistency_check_for_package() {
                 "  - profile 1: ${ccfp_profile_1}" \
                 "    - slot: ${profile_1_slots[0]}" \
                 "    - version: ${v1}" \
-                "  - profile 1: ${ccfp_profile_2}" \
+                "  - profile 2: ${ccfp_profile_2}" \
                 "    - slot: ${profile_2_slots[0]}" \
                 "    - version: ${v2}"
         fi
@@ -1488,14 +1500,10 @@ function consistency_checks() {
     pkginfo_name "${which}" amd64 "${BOARD_PKGS}" cc_pimap_mvm_2_var_name
     mvm_declare cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm mvm_mvc_map
     for pkg in "${all_pkgs_ref[@]}"; do
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            pkg_debug "${pkg} in ${which} amd64 sdk <-> amd64 board"
-            set -xv
-        fi
+        pkg_debug_enable "${pkg}"
+        pkg_debug "${which} amd64 sdk <-> amd64 board"
         consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            set +vx
-        fi
+        pkg_debug_disable
     done
 
     # amd64 board <-> arm64 board
@@ -1503,14 +1511,10 @@ function consistency_checks() {
     pkginfo_name "${which}" arm64 "${BOARD_PKGS}" cc_pimap_mvm_2_var_name
     mvm_declare cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm mvm_mvc_map
     for pkg in "${all_pkgs_ref[@]}"; do
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            pkg_debug "${pkg} in ${which} amd64 board <-> arm64 board"
-            set -xv
-        fi
+        pkg_debug_enable "${pkg}"
+        pkg_debug "${which} amd64 board <-> arm64 board"
         consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm "${pkg_slots_set_mvm_var_name}"
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            set +vx
-        fi
+        pkg_debug_disable
     done
 
     local cc_slot_verminmax1_map_var_name cc_slot_verminmax2_map_var_name
@@ -1519,19 +1523,23 @@ function consistency_checks() {
     # shellcheck disable=SC2034 # used indirectly below
     empty_map=()
     for pkg in "${all_pkgs_ref[@]}"; do
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            pkg_debug "${pkg} in ${which} verminmax stuff"
-            set -xv
-        fi
+        pkg_debug_enable "${pkg}"
+        pkg_debug "${which} verminmax stuff"
         mvm_get cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm "${pkg}" cc_slot_verminmax1_map_var_name
         mvm_get cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm "${pkg}" cc_slot_verminmax2_map_var_name
         mvm_get "${pkg_slots_set_mvm_var_name}" "${pkg}" cc_slots_set_var_name
         local -n slot_verminmax1_map_ref="${cc_slot_verminmax1_map_var_name:-empty_map}"
+        pkg_debug "all slots in 1: ${!slot_verminmax1_map_ref[*]}"
+        pkg_debug "all vmms in  1: ${slot_verminmax1_map_ref[*]}"
         local -n slot_verminmax2_map_ref="${cc_slot_verminmax2_map_var_name:-empty_map}"
+        pkg_debug "all slots in 2: ${!slot_verminmax2_map_ref[*]}"
+        pkg_debug "all vmms in  2: ${slot_verminmax2_map_ref[*]}"
         local -n slots_set_ref="${cc_slots_set_var_name}"
+        pkg_debug "all slots iterated over: ${!slots_set_ref[*]}"
         for s in "${!slots_set_ref[@]}"; do
             verminmax1=${slot_verminmax1_map_ref["${s}"]:-}
             verminmax2=${slot_verminmax2_map_ref["${s}"]:-}
+            pkg_debug "slot: ${s}, vmm1: ${verminmax1}, vmm2: ${verminmax2}"
             if [[ -n "${verminmax1}" ]] && [[ -n "${verminmax2}" ]]; then
                 ver_min_max \
                     cc_min cc_max \
@@ -1547,9 +1555,7 @@ function consistency_checks() {
             mvm_add "${pkg_slot_verminmax_mvm_var_name}" "${pkg}" "${s}" "${verminmax}"
         done
         unset -n slots_set_ref slot_verminmax2_map_ref slot_verminmax1_map_ref
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            set +vx
-        fi
+        pkg_debug_disable
     done
     mvm_unset cc_amd64_arm64_board_pkg_slot_verminmax_map_mvm
     mvm_unset cc_amd64_sdk_board_pkg_slot_verminmax_map_mvm
@@ -1658,6 +1664,8 @@ function handle_package_changes() {
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}
         new_name=${new_pkgs["${pkg_idx}"]}
+        pkg_debug_enable "${old_name}" "${new_name}"
+        pkg_debug 'handling updates'
         pkg_idx=$((pkg_idx + 1))
         old_repo=${hpc_package_sources_map["${old_name}"]}
         new_repo=${hpc_package_sources_map["${new_name}"]}
@@ -1687,6 +1695,11 @@ function handle_package_changes() {
         sets_split \
             hpc_old_slots_set_ref hpc_new_slots_set_ref \
             hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
+        pkg_debug "old slots: ${!hpc_old_slots_set_ref[*]}"
+        pkg_debug "new slots: ${!hpc_new_slots_set_ref[*]}"
+        pkg_debug "common slots: ${!hpc_common_slots_set[*]}"
+        pkg_debug "only old slots: ${!hpc_only_old_slots_set[*]}"
+        pkg_debug "only new slots: ${!hpc_only_new_slots_set[*]}"
 
         update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
         mkdir -p "${hpc_update_dir_non_slot}"
@@ -1697,9 +1710,11 @@ function handle_package_changes() {
         generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
 
         hpc_changed=
+        pkg_debug 'going over common slots'
         for s in "${!hpc_common_slots_set[@]}"; do
             old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
             new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
+            pkg_debug "slot: ${s}, vmm old: ${old_verminmax}, vmm new: ${new_verminmax}"
             if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
                 devel_warn \
                     "- no minmax info available for old and/or new:" \
@@ -1741,6 +1756,7 @@ function handle_package_changes() {
             old_verminmax=${old_slot_verminmax_map_ref["${hpc_old_s}"]:-}
             get_nth_from_set 0 hpc_only_new_slots_set hpc_new_s
             new_verminmax=${new_slot_verminmax_map_ref["${hpc_new_s}"]:-}
+            pkg_debug "jumping from slot ${hpc_old_s} (vmm: ${old_verminmax}) to slot ${hpc_new_s} (vmm: ${new_verminmax})"
             if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
                 devel_warn \
                     "- no verminmax info available for old and/or new:" \
@@ -1777,6 +1793,7 @@ function handle_package_changes() {
                     ;;
             esac
         elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]; then
+            pkg_debug 'complicated slots situation, needs manual intervention'
             lines=(
                 '- handle package update:'
                 '  - old package name:'
@@ -1804,12 +1821,14 @@ function handle_package_changes() {
         # empty (parent directory being a category directory, like
         # sys-apps)
         if [[ -z ${hpc_changed} ]]; then
+            pkg_debug 'no changes, dropping reports'
             rm -rf "${hpc_update_dir_non_slot}"
             dirname_out "${hpc_update_dir_non_slot}" hpc_category_dir
             if dir_is_empty "${hpc_category_dir}"; then
                 rmdir "${hpc_category_dir}"
             fi
         fi
+        pkg_debug_disable
     done
 
     mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
@@ -2653,8 +2672,45 @@ function handle_scripts() {
     generate_summary_stub scripts -- 'TODO: review the diffs'
 }
 
+function pkg_debug_enable() {
+    local pkg
+    pkg=${1}; shift
+
+    local -A pkg_set
+    pkg_set=()
+    local -a vals
+    vals=()
+    for pkg; do
+        if [[ -n ${pkg_set["${pkg}"]:-} ]]; then
+            continue
+        fi
+        pkg_set["${pkg}"]=x
+        # it is expected that globals were already sourced, otherwise
+        # debugging won't be enabled at all
+        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
+            vals+=( "${pkg}" )
+        fi
+    done
+    if [[ ${#vals[@]} -gt 0 ]]; then
+        declare -g PKG_AUTO_LIB_DEBUG
+        join_by PKG_AUTO_LIB_DEBUG ',' "${vals[@]}"
+    fi
+}
+
+function pkg_debug_disable() {
+    unset PKG_AUTO_LIB_DEBUG
+}
+
 function pkg_debug() {
-    info "DEBUG: ${*}"
+    if [[ -n ${PKG_AUTO_LIB_DEBUG:-} ]]; then
+        info "DEBUG(${PKG_AUTO_LIB_DEBUG}): ${*}"
+    fi
+}
+
+function pkg_debug_lines() {
+    if [[ -n ${PKG_AUTO_LIB_DEBUG:-} ]]; then
+        info_lines "${@/#/"DEBUG(${PKG_AUTO_LIB_DEBUG}): "}"
+    fi
 }
 
 fi

@@ -76,6 +76,10 @@ function info() {
     printf '%s: %s\n' "${THIS_NAME}" "${*}"
 }
 
+function info_lines() {
+    printf '%s\n' "${@/#/"${THIS_NAME}: "}"
+}
+
 function fail() {
     info "${@}" >&2
     exit 1
