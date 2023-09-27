@@ -1686,12 +1686,12 @@ function handle_package_changes() {
 
         mvm_get hpc_pkg_slots_set_mvm "${old_name}" hpc_old_slots_set_var_name
         mvm_get hpc_pkg_slots_set_mvm "${new_name}" hpc_new_slots_set_var_name
-        : "${hpc_old_slots_set_var_name:='empty_map_or_set'}"
-        : "${hpc_new_slots_set_var_name:='empty_map_or_set'}"
+        : "${hpc_old_slots_set_var_name:=empty_map_or_set}"
+        : "${hpc_new_slots_set_var_name:=empty_map_or_set}"
         mvm_get hpc_old_pkg_slot_verminmax_map_mvm "${old_name}" hpc_old_slot_verminmax_map_var_name
         mvm_get hpc_new_pkg_slot_verminmax_map_mvm "${new_name}" hpc_new_slot_verminmax_map_var_name
-        : "${hpc_old_slot_verminmax_map_var_name:='empty_map_or_set'}"
-        : "${hpc_new_slot_verminmax_map_var_name:='empty_map_or_set'}"
+        : "${hpc_old_slot_verminmax_map_var_name:=empty_map_or_set}"
+        : "${hpc_new_slot_verminmax_map_var_name:=empty_map_or_set}"
         local -n old_slot_verminmax_map_ref="${hpc_old_slot_verminmax_map_var_name}"
         local -n new_slot_verminmax_map_ref="${hpc_new_slot_verminmax_map_var_name}"
 
