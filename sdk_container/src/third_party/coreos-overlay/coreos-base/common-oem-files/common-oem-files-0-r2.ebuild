@@ -6,6 +6,7 @@ EAPI=8
 OEMIDS=(
     ami
     azure
+    openstack
     qemu
     vmware
 )
