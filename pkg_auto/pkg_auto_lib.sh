@@ -2672,21 +2672,19 @@ function handle_scripts() {
     generate_summary_stub scripts -- 'TODO: review the diffs'
 }
 
+# it is expected that globals were already sourced, otherwise
+# debugging won't be enabled at all
 function pkg_debug_enable() {
-    local pkg
-    pkg=${1}; shift
-
     local -A pkg_set
     pkg_set=()
     local -a vals
     vals=()
+    local pkg
     for pkg; do
         if [[ -n ${pkg_set["${pkg}"]:-} ]]; then
             continue
         fi
         pkg_set["${pkg}"]=x
-        # it is expected that globals were already sourced, otherwise
-        # debugging won't be enabled at all
         if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
             vals+=( "${pkg}" )
         fi
