@@ -1552,6 +1552,7 @@ function consistency_checks() {
             else
                 continue
             fi
+            pkg_debug "adding vmm ${verminmax} for slot ${s}"
             mvm_add "${pkg_slot_verminmax_mvm_var_name}" "${pkg}" "${s}" "${verminmax}"
         done
         unset -n slots_set_ref slot_verminmax2_map_ref slot_verminmax1_map_ref
