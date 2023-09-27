@@ -1660,7 +1660,7 @@ function handle_package_changes() {
     local hpc_update_dir
     local -A empty_map_or_set
     local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
-    local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name_var_name verminmax
+    local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name verminmax
     local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
     # shellcheck disable=SC2034 # used by name below, in a special case
     empty_map_or_set=()
@@ -1701,10 +1701,10 @@ function handle_package_changes() {
         for which in old new; do
             slots_set_var_name_var_name="hpc_${which}_slots_set_var_name"
             slot_verminmax_map_var_name_var_name="hpc_${which}_slot_verminmax_map_var_name"
-            filtered_slots_set_var_name_var_name="hpc_${which}_filtered_slots_set"
+            filtered_slots_set_var_name="hpc_${which}_filtered_slots_set"
             local -n which_slots_set_ref="${!slots_set_var_name_var_name}"
             local -n which_slot_verminmax_map_ref="${!slot_verminmax_map_var_name_var_name}"
-            local -n which_filtered_slots_set_ref="${!filtered_slots_set_var_name_var_name}"
+            local -n which_filtered_slots_set_ref="${filtered_slots_set_var_name}"
             pkg_debug "all unfiltered slots for ${which} name: ${!which_slots_set_ref[*]}"
             which_filtered_slots_set_ref=()
             for s in "${!which_slots_set_ref[@]}"; do
