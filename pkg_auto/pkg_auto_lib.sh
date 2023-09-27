@@ -1660,6 +1660,8 @@ function handle_package_changes() {
     local hpc_update_dir
     local -A empty_map_or_set
     local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
+    local which slots_set_var_name slot_verminmax_map_var_name filtered_slots_set_var_name verminmax
+    local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
     # shellcheck disable=SC2034 # used by name below, in a special case
     empty_map_or_set=()
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
@@ -1684,23 +1686,45 @@ function handle_package_changes() {
 
         mvm_get hpc_pkg_slots_set_mvm "${old_name}" hpc_old_slots_set_var_name
         mvm_get hpc_pkg_slots_set_mvm "${new_name}" hpc_new_slots_set_var_name
-        local -n hpc_old_slots_set_ref="${hpc_old_slots_set_var_name:-empty_map_or_set}"
-        local -n hpc_new_slots_set_ref="${hpc_new_slots_set_var_name:-empty_map_or_set}"
+        : "${hpc_old_slots_set_var_name:='empty_map_or_set'}"
+        : "${hpc_new_slots_set_var_name:='empty_map_or_set'}"
         mvm_get hpc_old_pkg_slot_verminmax_map_mvm "${old_name}" hpc_old_slot_verminmax_map_var_name
         mvm_get hpc_new_pkg_slot_verminmax_map_mvm "${new_name}" hpc_new_slot_verminmax_map_var_name
-        local -n old_slot_verminmax_map_ref="${hpc_old_slot_verminmax_map_var_name:-empty_map_or_set}"
-        local -n new_slot_verminmax_map_ref="${hpc_new_slot_verminmax_map_var_name:-empty_map_or_set}"
+        : "${hpc_old_slot_verminmax_map_var_name:='empty_map_or_set'}"
+        : "${hpc_new_slot_verminmax_map_var_name:='empty_map_or_set'}"
+        local -n old_slot_verminmax_map_ref="${hpc_old_slot_verminmax_map_var_name}"
+        local -n new_slot_verminmax_map_ref="${hpc_new_slot_verminmax_map_var_name}"
+
+        for which in old new; do
+            slots_set_var_name="hpc_${which}_slots_set_var_name"
+            slot_verminmax_map_var_name="hpc_${which}_slot_verminmax_map_var_name"
+            filtered_slots_set_var_name="hpc_${which}_filtered_slots_set"
+            local -n which_slots_set_ref="${slots_set_var_name}"
+            local -n which_slot_verminmax_map_ref="${slot_verminmax_map_var_name}"
+            local -n which_filtered_slots_set_ref="${filtered_slots_set_var_name}"
+            pkg_debug "all unfiltered slots for ${which} name: ${!which_slots_set_ref[*]}"
+            which_filtered_slots_set_ref=()
+            for s in "${!which_slots_set_ref[@]}"; do
+                verminmax=${which_slot_verminmax_map_ref["${s}"]:-}
+                if [[ -n ${verminmax} ]]; then
+                    which_filtered_slots_set_ref["${verminmax}"]=x
+                fi
+            done
+            pkg_debug "all filtered slots for ${which} name: ${!which_filtered_slots_set_ref[*]}"
+            unset -n which_filtered_slots_set_ref
+            unset -n which_slot_verminmax_map_ref
+            unset -n which_slots_set_ref
+        done
+
         hpc_only_old_slots_set=()
         hpc_only_new_slots_set=()
         hpc_common_slots_set=()
         sets_split \
-            hpc_old_slots_set_ref hpc_new_slots_set_ref \
+            hpc_old_filtered_slots_set hpc_new_filtered_slots_set \
             hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
-        pkg_debug "old slots: ${!hpc_old_slots_set_ref[*]}"
-        pkg_debug "new slots: ${!hpc_new_slots_set_ref[*]}"
-        pkg_debug "common slots: ${!hpc_common_slots_set[*]}"
-        pkg_debug "only old slots: ${!hpc_only_old_slots_set[*]}"
-        pkg_debug "only new slots: ${!hpc_only_new_slots_set[*]}"
+        pkg_debug "all common slots: ${!hpc_common_slots_set[*]}"
+        pkg_debug "slots only for old name: ${!hpc_only_old_slots_set[*]}"
+        pkg_debug "slots only for new name: ${!hpc_only_new_slots_set[*]}"
 
         update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
         mkdir -p "${hpc_update_dir_non_slot}"
@@ -1801,7 +1825,7 @@ function handle_package_changes() {
                 "    - name: ${old_name}"
                 '    - slots:'
             )
-            for s in "${!hpc_old_slots_set_ref[@]}"; do
+            for s in "${!hpc_old_filtered_slots_set[@]}"; do
                 old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
                 lines+=("      - ${s}, minmax: ${old_verminmax}")
             done
@@ -1810,13 +1834,13 @@ function handle_package_changes() {
                 "    - name: ${new_name}"
                 '    - slots:'
             )
-            for s in "${!hpc_new_slots_set_ref[@]}"; do
+            for s in "${!hpc_new_filtered_slots_set[@]}"; do
                 new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
                 lines+=("      - ${s}, minmax: ${new_verminmax}")
             done
             manual "${lines[@]}"
         fi
-        unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref hpc_new_slots_set_ref hpc_old_slots_set_ref
+        unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
         # if nothing changed, drop the entire update directory for the
         # package, and possibly the parent directory if it became
         # empty (parent directory being a category directory, like
