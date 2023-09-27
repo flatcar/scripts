@@ -18,11 +18,6 @@ azure_instance_type_var="AZURE_${CIA_ARCH}_MACHINE_SIZE"
 azure_instance_type="${!azure_instance_type_var}"
 azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
 
-azure_profile_config_file=''
-secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
-azure_auth_config_file=''
-secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
-
 # Fetch the Azure image if not present
 if [ -f "${AZURE_IMAGE_NAME}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ${AZURE_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
@@ -57,8 +52,7 @@ run_kola_tests() {
       --platform=azure \
       --azure-image-file="${AZURE_IMAGE_NAME}" \
       --azure-location="${AZURE_LOCATION}" \
-      --azure-profile="${azure_profile_config_file}" \
-      --azure-auth="${azure_auth_config_file}" \
+      --azure-identity \
       --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --tapfile="${instance_tapfile}" \
       --azure-size="${instance_type}" \
