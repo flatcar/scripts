@@ -360,7 +360,7 @@ function mvm_c_remove() {
     fi
 
     local var_name=${storage_map_ref["${key}"]}
-    unset "storage_map_ref["${key}"]"
+    unset "storage_map_ref[${key}]"
 
     local destructor
     destructor=${mvm['destructor']}

@@ -377,8 +377,8 @@ function override_sdk_image_names() {
 function add_debug_packages() {
     local -a prepared lines
     prepared=( "${@@Q}" )
-    prepared=( "${prepared[@]/#/'    ['")
-    prepared=( "${prepared[@]/%/']=x'")
+    prepared=( "${prepared[@]/#/'    ['}" )
+    prepared=( "${prepared[@]/%/']=x'}" )
     lines=(
         'local -A DEBUG_PACKAGES'
         ''
@@ -1691,6 +1691,7 @@ function handle_package_changes() {
         update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
         mkdir -p "${hpc_update_dir_non_slot}"
 
+        # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE comes from globals file
         generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
@@ -1972,11 +1973,11 @@ function handle_pkg_as_is() {
         lines+=( 'TODO: review other.diff' )
         modified=x
     fi
-    local hpai_parent_dir
     if [[ -z ${renamed} ]] && [[ -z ${modified} ]]; then
         # Nothing relevant has changed, return early.
         return 0
     fi
+    # shellcheck disable=SC2034 # ref to an external variable
     changed_ref=x
     lines+=( 'TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
