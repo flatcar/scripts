@@ -1660,7 +1660,7 @@ function handle_package_changes() {
     local hpc_update_dir
     local -A empty_map_or_set
     local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
-    local which slots_set_var_name slot_verminmax_map_var_name filtered_slots_set_var_name verminmax
+    local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name_var_name verminmax
     local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
     # shellcheck disable=SC2034 # used by name below, in a special case
     empty_map_or_set=()
@@ -1677,10 +1677,13 @@ function handle_package_changes() {
                 '- package has moved between repos? unsupported for now' \
                 "  - old package and repo: ${old_name} ${old_repo}" \
                 "  - new package and repo: ${new_name} ${new_repo}"
+            pkg_debug_disable
             continue
         fi
         if [[ ${new_repo} != 'portage-stable' ]]; then
             # coreos-overlay packages will need a separate handling
+            pkg_debug 'not a portage-stable package'
+            pkg_debug_disable
             continue
         fi
 
@@ -1696,12 +1699,12 @@ function handle_package_changes() {
         local -n new_slot_verminmax_map_ref="${hpc_new_slot_verminmax_map_var_name}"
 
         for which in old new; do
-            slots_set_var_name="hpc_${which}_slots_set_var_name"
-            slot_verminmax_map_var_name="hpc_${which}_slot_verminmax_map_var_name"
-            filtered_slots_set_var_name="hpc_${which}_filtered_slots_set"
-            local -n which_slots_set_ref="${slots_set_var_name}"
-            local -n which_slot_verminmax_map_ref="${slot_verminmax_map_var_name}"
-            local -n which_filtered_slots_set_ref="${filtered_slots_set_var_name}"
+            slots_set_var_name_var_name="hpc_${which}_slots_set_var_name"
+            slot_verminmax_map_var_name_var_name="hpc_${which}_slot_verminmax_map_var_name"
+            filtered_slots_set_var_name_var_name="hpc_${which}_filtered_slots_set"
+            local -n which_slots_set_ref="${!slots_set_var_name_var_name}"
+            local -n which_slot_verminmax_map_ref="${!slot_verminmax_map_var_name_var_name}"
+            local -n which_filtered_slots_set_ref="${!filtered_slots_set_var_name_var_name}"
             pkg_debug "all unfiltered slots for ${which} name: ${!which_slots_set_ref[*]}"
             which_filtered_slots_set_ref=()
             for s in "${!which_slots_set_ref[@]}"; do
@@ -1791,32 +1794,32 @@ function handle_package_changes() {
                     "  - new package: ${new_name}" \
                     "    - slot: ${hpc_new_s}" \
                     "    - minmax: ${new_verminmax}"
-                continue
-            fi
-            update_dir "${new_name}" "${hpc_old_s}" "${hpc_new_s}" hpc_update_dir
-            mkdir -p "${hpc_update_dir}"
-            old_version=${old_verminmax%%:*}
-            new_version=${new_verminmax##*:}
-            gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
-            case ${hpc_cmp_result} in
-                "${GV_GT}")
-                    handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
-                    hpc_changed=x
-                    ;;
-                "${GV_EQ}")
-                    hpc_slot_changed=
-                    handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" hpc_slot_changed
-                    if [[ -z ${hpc_slot_changed} ]]; then
-                        rm -rf "${hpc_update_dir}"
-                    else
+            else
+                update_dir "${new_name}" "${hpc_old_s}" "${hpc_new_s}" hpc_update_dir
+                mkdir -p "${hpc_update_dir}"
+                old_version=${old_verminmax%%:*}
+                new_version=${new_verminmax##*:}
+                gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
+                case ${hpc_cmp_result} in
+                    "${GV_GT}")
+                        handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
                         hpc_changed=x
-                    fi
-                    ;;
-                "${GV_LT}")
-                    handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
-                    hpc_changed=x
-                    ;;
-            esac
+                        ;;
+                    "${GV_EQ}")
+                        hpc_slot_changed=
+                        handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" hpc_slot_changed
+                        if [[ -z ${hpc_slot_changed} ]]; then
+                            rm -rf "${hpc_update_dir}"
+                        else
+                            hpc_changed=x
+                        fi
+                        ;;
+                    "${GV_LT}")
+                        handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
+                        hpc_changed=x
+                        ;;
+                esac
+            fi
         elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]; then
             pkg_debug 'complicated slots situation, needs manual intervention'
             lines=(
