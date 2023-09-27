@@ -306,7 +306,9 @@ IMG_cloudsigma_DISK_FORMAT=qcow2
 IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
 
 ## packet
-IMG_packet_OEM_PACKAGE=oem-packet
+IMG_packet_OEM_PACKAGE=common-oem-files
+IMG_packet_OEM_SYSEXT=oem-packet
+IMG_packet_OEM_USE=packet
 
 ###########################################################
 

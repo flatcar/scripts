@@ -1,6 +1,3 @@
-# Flatcar GRUB settings
-
-set oem_id="packet"
 set linux_append="flatcar.autologin"
 
 if [ "$grub_cpu" = i386 ] || [ "$grub_cpu" = x86_64 ]; then

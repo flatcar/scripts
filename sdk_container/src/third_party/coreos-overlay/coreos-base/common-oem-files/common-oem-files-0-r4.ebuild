@@ -8,6 +8,7 @@ OEMIDS=(
     azure
     digitalocean
     openstack
+    packet
     qemu
     vmware
 )
