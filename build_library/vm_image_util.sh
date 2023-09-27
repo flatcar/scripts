@@ -282,7 +282,9 @@ IMG_cloudstack_vhd_DISK_FORMAT=vhd
 IMG_cloudstack_vhd_OEM_PACKAGE=oem-cloudstack
 
 ## digitalocean
-IMG_digitalocean_OEM_PACKAGE=oem-digitalocean
+IMG_digitalocean_OEM_PACKAGE=common-oem-files
+IMG_digitalocean_OEM_USE=digitalocean
+IMG_digitalocean_OEM_SYSEXT=oem-digitalocean
 
 ## exoscale
 IMG_exoscale_DISK_FORMAT=qcow2
