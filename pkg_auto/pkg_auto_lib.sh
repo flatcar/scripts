@@ -1405,6 +1405,7 @@ function consistency_check_for_package() {
 
         mvm_add "${pkg_slot_verminmax_map_mvm_var_name}" "${pkg}" "${s}" "${mm}"
     done
+    local s1 s2
     if [[ ${#common_slots[@]} -gt 0 ]]; then
         if [[ ${#profile_1_slots[@]} -gt 0 ]] || [[ ${#profile_2_slots[@]} -gt 0 ]]; then
             pkg_warn \
@@ -1417,7 +1418,24 @@ function consistency_check_for_package() {
                 "  - slots only in profile 2: ${profile_2_slots[*]}" \
                 "  - what: there are slots that exist only on one profile while both profiles also have some common slots"
         fi
+    elif [[ ${#profile_1_slots[@]} -eq 1 ]] || [[ ${#profile_2_slots[@]} -eq 1 ]]; then
+        s1=${profile_1_slots[0]}
+        s2=${profile_2_slots[0]}
+        v1=${slot_version1_map["${s1}"]:-}
+        v2=${slot_version2_map["${s2}"]:-}
+        if [[ ${v1} != "${v2}" ]]; then
+            pkg_warn \
+                "- version mismatch:" \
+                "  - package ${pkg}" \
+                "  - profile 1: ${ccfp_profile_1}" \
+                "    - slot: ${profile_1_slots[0]}" \
+                "    - version: ${v1}" \
+                "  - profile 1: ${ccfp_profile_2}" \
+                "    - slot: ${profile_2_slots[0]}" \
+                "    - version: ${v2}"
+        fi
     fi
+fi
 }
 
 # consistency checks between:
