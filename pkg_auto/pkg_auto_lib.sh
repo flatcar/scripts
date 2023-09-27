@@ -1445,7 +1445,7 @@ function consistency_check_for_package() {
                 "  - slots only in profile 2: ${profile_2_slots[*]}" \
                 "  - what: there are slots that exist only on one profile while both profiles also have some common slots"
         fi
-    elif [[ ${#profile_1_slots[@]} -eq 1 ]] || [[ ${#profile_2_slots[@]} -eq 1 ]]; then
+    elif [[ ${#profile_1_slots[@]} -eq 1 ]] && [[ ${#profile_2_slots[@]} -eq 1 ]]; then
         s1=${profile_1_slots[0]}
         s2=${profile_2_slots[0]}
         v1=${slot_version1_map["${s1}"]:-}
