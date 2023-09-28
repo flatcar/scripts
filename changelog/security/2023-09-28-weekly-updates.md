@@ -1,0 +1,4 @@
+- curl ([CVE-2023-38039](https://nvd.nist.gov/vuln/detail/CVE-2023-38039))
+- lua ([CVE-2022-33099](https://nvd.nist.gov/vuln/detail/CVE-2022-33099))
+- mit-krb5 ([CVE-2023-36054](https://nvd.nist.gov/vuln/detail/CVE-2023-36054))
+- procps ([CVE-2023-4016](https://nvd.nist.gov/vuln/detail/CVE-2023-4016))
