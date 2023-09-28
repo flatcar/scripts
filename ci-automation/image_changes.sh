@@ -19,7 +19,7 @@
 # INPUT:
 #
 #   1. Architecture (ARCH) of the TARGET OS image ("arm64", "amd64").
-#   2. What to compare against, can be "last-release" or "last-nightly".
+#   2. What to compare against, must be either "last-release" or "last-nightly".
 #
 # OPTIONAL INPUT:
 #
@@ -33,9 +33,10 @@
 # variables are not spilled into the caller.
 function image_changes() (
     set -euo pipefail
+    local arch what
 
-    local arch=${1}; shift
-    local what=${1-last-release}; shift
+    arch=${1}; shift
+    what=${1}; shift
 
     local -a package_diff_env package_diff_params
     local -a size_changes_env size_changes_params
