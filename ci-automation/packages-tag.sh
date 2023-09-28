@@ -70,8 +70,16 @@ function _packages_tag_impl() {
     # Also push the changes to the branch ONLY IF we're doing a nightly
     #   build of the 'flatcar-MAJOR' branch AND we're definitely ON the respective branch
     local target_branch=''
-    if    [[ "${version}" =~ ^(stable|alpha|beta|lts)-[0-9.]+-nightly-[-0-9]+$ ]] \
-       && [[ "$(git rev-parse --abbrev-ref HEAD)" =~ ^flatcar-[0-9]+$ ]] ; then
+    # These variables are here to make it easier to test nightly
+    # builds without messing with actual release branches.
+    local flatcar_branch_prefix='flatcar'
+    local nightly='nightly'
+    # Patterns used below.
+    local nightly_pattern_1='^(stable|alpha|beta|lts)-[0-9.]+-'"${nightly}"'-[-0-9]+$'
+    local nightly_pattern_2='^(stable|alpha|beta|lts)-[0-9.]+(|-'"${nightly}"'-[-0-9]+)$'
+    local flatcar_pattern='^'"${flatcar_branch_prefix}"'-[0-9]+$'
+    if    [[ "${version}" =~ ${nightly_pattern_1} ]] \
+       && [[ "$(git rev-parse --abbrev-ref HEAD)" =~ ${flatcar_pattern} ]] ; then
         target_branch="$(git rev-parse --abbrev-ref HEAD)"
         local existing_tag=""
         # Check for the existing tag only when we allow shortcutting
@@ -83,7 +91,7 @@ function _packages_tag_impl() {
             existing_tag=$(git tag --points-at HEAD) # exit code is always 0, output may be empty
         fi
         # If the found tag is a release or nightly tag, we stop this build if there are no changes
-        if [[ "${existing_tag}" =~ ^(stable|alpha|beta|lts)-[0-9.]+(|-nightly-[-0-9]+)$ ]]; then
+        if [[ "${existing_tag}" =~ ${nightly_pattern_2} ]]; then
           local ret=0
           git diff --exit-code "${existing_tag}" || ret=$?
           if [[ ret -eq 0 ]]; then
