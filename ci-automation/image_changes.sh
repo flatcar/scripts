@@ -129,6 +129,42 @@ function git_tag_for_release() {
     git_tag_var_name=${1}; shift
 
     head_git_tag "${scripts_repo}" "${git_tag_var_name}"
+
+    local -n git_tag_ref="${git_tag_var_name}"
+    local version_file version_id build_id minor_version channel
+    if [[ ${git_tag_ref} = 'HEAD' ]]; then
+        # Welp, we wanted to have something in form of
+        # <channel>-<version_id>-<build_id>, fake something up from
+        # version file. Figuring out the channel is a heuristic at
+        # best.
+        version_file="${scripts_repo}/sdk_container/.repo/manifests/version.txt"
+        if [[ ! -e ${version_file} ]]; then
+            echo "The scripts repo at '${scripts_repo}' is messed up, has no version file" >&2
+            exit 1
+        fi
+        version_id=$(source "${version_file}"; printf '%s' "${FLATCAR_VERSION_ID}")
+        build_id=$(source "${version_file}"; printf '%s' "${FLATCAR_BUILD_ID}")
+        minor_version=${version_id#*.}
+        minor_version=${minor_version%.*}
+        case ${minor_version} in
+            0)
+                channel=alpha
+                ;;
+            1)
+                channel=beta
+                ;;
+            2)
+                channel=stable
+                ;;
+            3)
+                channel=lts
+                ;;
+            *)
+                channel=main
+                ;;
+        esac
+        git_tag_ref="${channel}-${version_id}-${build_id}"
+    fi
 }
 
 function head_git_tag() {
@@ -138,8 +174,7 @@ function head_git_tag() {
 
     git_tag_ref=$(git -C "${scripts_repo}" tag --points-at HEAD)
     if [[ -z ${git_tag_ref} ]]; then
-        echo 'expected git HEAD commit to contain a tag' >&2
-        exit 1
+        git_tag_ref='HEAD'
     fi
 }
 
