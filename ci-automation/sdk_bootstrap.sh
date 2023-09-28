@@ -79,9 +79,16 @@ function _sdk_bootstrap_impl() {
     #   build of the 'main' branch AND we're definitely ON the main branch.
     #   This includes intermediate SDKs when doing 2-phase nightly builds.
     local target_branch=''
-    if   [[ "${version}" =~ ^main-[0-9.]+-nightly-[-0-9]+(-INTERMEDIATE)?$ ]] \
-       && [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"  ] ; then
-        target_branch='main'
+    # These variables are here to make it easier to test nightly
+    # builds without messing with actual release branches.
+    local main_branch='main'
+    local nightly='nightly'
+    # Patterns used below.
+    local nightly_pattern_1='^main-[0-9.]+-'"${nightly}"'-[-0-9]+(-INTERMEDIATE)?$'
+    local nightly_pattern_2='^main-[0-9.]+-'"${nightly}"'-[-0-9]+$'
+    if   [[ "${version}" =~ ${nightly_pattern_1} ]] \
+       && [ "$(git rev-parse HEAD)" = "$(git rev-parse "origin/${main_branch}")"  ] ; then
+        target_branch=${main_branch}
         local existing_tag=""
         # Check for the existing tag only when we allow shortcutting
         # the builds. That way we can skip the checks for build
@@ -92,7 +99,7 @@ function _sdk_bootstrap_impl() {
             existing_tag=$(git tag --points-at HEAD) # exit code is always 0, output may be empty
         fi
         # If the found tag is a nightly tag, we stop this build if there are no changes
-        if [[ "${existing_tag}" =~ ^main-[0-9.]+-nightly-[-0-9]+$ ]]; then
+        if [[ "${existing_tag}" =~ ${nightly_pattern_2} ]]; then
           local ret=0
           git diff --exit-code "${existing_tag}" || ret=$?
           if [ "$ret" = "0" ]; then
