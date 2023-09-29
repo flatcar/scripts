@@ -13,8 +13,13 @@ if [ "$(readlink -f /etc/nsswitch.conf)" != '/usr/share/baselayout/nsswitch.conf
 	exit 0
 fi
 
-if [ "$(readlink -f /etc/ssh/sshd_config)" != '/usr/share/ssh/sshd_config' ]; then
-	echo '/etc/ssh/sshd_config is not a symlink to /usr/share/ssh/sshd_config. Not enabling OS Login'
+if [[ ! -d '/etc/ssh/sshd_config.d' ]]; then
+	echo 'No /etc/ssh/sshd_config.d directory. Not enabling OS Login'
+	exit 0
+fi
+
+if ! grep --fixed-strings --no-messages --silent 'Include "/etc/ssh/sshd_config.d/*.conf"' '/etc/ssh/sshd_config'; then
+	echo '/etc/ssh/sshd_config does not include configuration snippets in /etc/ssh/sshd_config.d. Not enabling OS Login'
 	exit 0
 fi
 
@@ -25,6 +30,6 @@ mkdir -m 0750 -p '/var/lib/google-sudoers.d'
 mkdir -m 0750 -p '/var/lib/google-users.d'
 ln -f -s '/usr/share/google-oslogin/pam_sshd' '/etc/pam.d/sshd'
 ln -f -s '/usr/share/google-oslogin/nsswitch.conf' '/etc/nsswitch.conf'
-ln -f -s '/usr/share/google-oslogin/sshd_config' '/etc/ssh/sshd_config'
+ln -f -s '/usr/share/google-oslogin/60-flatcar-google-oslogin.conf' '/etc/ssh/sshd_config.d/60-flatcar-google-oslogin.conf'
 ln -f -s '/usr/share/google-oslogin/oslogin-sudoers' '/etc/sudoers.d/oslogin-sudoers'
 ln -f -s '/usr/share/google-oslogin/group.conf' '/etc/security/group.conf'

@@ -1,5 +1,7 @@
+# This is an old SSHD config file, unused in new Flatcar
+# installations. We provide it for backward compatibility.
+
 # Use most defaults for sshd configuration.
-# Keep this in sync with coreos/init/configs/sshd_config
 Subsystem sftp internal-sftp
 ClientAliveInterval 180
 UseDNS no

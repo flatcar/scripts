@@ -49,6 +49,7 @@ src_install() {
 	# config files the base Ignition config will create links to
 	insinto /usr/share/google-oslogin
 	doins "${FILESDIR}/sshd_config"
+	doins "${FILESDIR}/60-flatcar-google-oslogin.conf"
 	doins "${FILESDIR}/nsswitch.conf"
 	doins "${FILESDIR}/pam_sshd"
 	doins "${FILESDIR}/oslogin-sudoers"

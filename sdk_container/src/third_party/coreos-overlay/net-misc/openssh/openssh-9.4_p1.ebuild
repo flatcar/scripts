@@ -19,7 +19,7 @@ S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam +pie security-key selinux +ssl static test X xmss"
 
@@ -86,8 +86,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-9.3_p1-disable-conch-interop-tests.patch"
 	"${FILESDIR}/${PN}-9.3_p1-fix-putty-tests.patch"
 	"${FILESDIR}/${PN}-9.3_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
-	"${FILESDIR}/${PN}-9.3_p1-gss-use-HOST_NAME_MAX.patch" #834044
-	"${FILESDIR}/${PN}-9.3_p1-openssl-version-compat-check.patch"
+	"${FILESDIR}/${PN}-9.3_p2-zlib-1.3.patch" #912766
 )
 
 pkg_pretend() {
@@ -100,6 +99,9 @@ pkg_pretend() {
 	done
 
 	if [[ -n ${enabled_eol_flags} && ${OPENSSH_EOL_USE_FLAGS_I_KNOW_WHAT_I_AM_DOING} != yes ]]; then
+		# Skip for binary packages entirely because of environment saving, bug #907892
+		[[ ${MERGE_TYPE} == binary ]] && return
+
 		ewarn "net-misc/openssh does not support USE='${enabled_eol_flags%,}' anymore."
 		ewarn "The Base system team *STRONGLY* recommends you not rely on this functionality,"
 		ewarn "since these USE flags required third-party patches that often trigger bugs"
@@ -228,7 +230,7 @@ src_test() {
 }
 
 insert_include() {
-	local src_config=${1} options=${2} includedir=${3}
+	local src_config="${1}" options="${2}" includedir="${3}"
 	local name copy regexp_options regexp lineno comment_options
 
 	name=${src_config##*/}

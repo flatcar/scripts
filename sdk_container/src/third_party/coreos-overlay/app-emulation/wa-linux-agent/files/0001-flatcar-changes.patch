@@ -1,4 +1,4 @@
-From 90b28746c0d8698a080eb7082e0e14054aee0a02 Mon Sep 17 00:00:00 2001
+From dd1512513b407e23155f58400cacecac8576d6f9 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 27 Feb 2023 15:59:21 +0100
 Subject: [PATCH] flatcar changes
@@ -7,12 +7,12 @@ Subject: [PATCH] flatcar changes
  azurelinuxagent/common/osutil/coreos.py       |  39 +-----
  azurelinuxagent/common/osutil/coreoscommon.py |  57 ++++++++
  azurelinuxagent/common/osutil/factory.py      |   3 +
- azurelinuxagent/common/osutil/flatcar.py      |  41 ++++++
+ azurelinuxagent/common/osutil/flatcar.py      |  60 +++++++++
  config/flatcar/waagent.conf                   | 122 ++++++++++++++++++
  init/flatcar/10-waagent-sysext.conf           |   2 +
  init/flatcar/waagent.service                  |  30 +++++
  setup.py                                      |  20 ++-
- 8 files changed, 272 insertions(+), 42 deletions(-)
+ 8 files changed, 291 insertions(+), 42 deletions(-)
  create mode 100644 azurelinuxagent/common/osutil/coreoscommon.py
  create mode 100644 azurelinuxagent/common/osutil/flatcar.py
  create mode 100644 config/flatcar/waagent.conf
@@ -164,10 +164,10 @@ index b5ee0b09..9280c645 100644
      if distro_name in ("suse", "sle_hpc", "sles", "opensuse"):
 diff --git a/azurelinuxagent/common/osutil/flatcar.py b/azurelinuxagent/common/osutil/flatcar.py
 new file mode 100644
-index 00000000..3d1bf535
+index 00000000..bf739a8e
 --- /dev/null
 +++ b/azurelinuxagent/common/osutil/flatcar.py
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,60 @@
 +#
 +# Copyright 2023 Microsoft Corporation
 +#
@@ -187,12 +187,15 @@ index 00000000..3d1bf535
 +#
 +
 +import os
++import os.path
 +import shutil
++import stat
 +
 +import azurelinuxagent.common.conf as conf
++import azurelinuxagent.common.logger as logger
++import azurelinuxagent.common.utils.fileutil as fileutil
 +
 +from azurelinuxagent.common.osutil.coreoscommon import CoreosCommonUtil
-+
 +
 +class FlatcarUtil(CoreosCommonUtil):
 +
@@ -201,14 +204,30 @@ index 00000000..3d1bf535
 +        return "/usr/lib/systemd/system"
 +
 +    def conf_sshd(self, disable_password):
-+        # make sure that the config file stops being a symlink
-+        conf_file_path = conf.get_sshd_conf_file_path()
-+        conf_file_path2 = f"{conf_file_path}.wal.tmp"
-+        shutil.copy(conf_file_path, conf_file_path2)
-+        os.remove(conf_file_path)
-+        os.rename(conf_file_path2, conf_file_path)
-+        super(CoreosCommonUtil, self).conf_sshd(disable_password)
-+        pass
++        ssh_dir = conf.get_ssh_dir()
++        snippet_dir = os.path.join(ssh_dir, "sshd_config.d")
++        statinfo = os.lstat(snippet_dir)
++        if stat.S_ISDIR(statinfo.st_mode):
++            # This adds a configuration snippet that will be loaded by
++            # openssh.
++            snippet_file = os.path.join(snippet_dir, "80-flatcar-walinuxagent.conf")
++            option = "no" if disable_password else "yes"
++            lines = [
++                f"PasswordAuthentication {option}",
++                f"ChallengeResponseAuthentication {option}",
++                f"ClientAliveInterval {str(conf.get_ssh_client_alive_interval())}"
++            ]
++            fileutil.write_file(snippet_file, "\n".join(lines))
++            logger.info("Added a configuration snippet {0} SSH password-based authentication methods. It also configures SSH client probing to keep connections alive."
++                        .format("disabling" if disable_password else "enabling"))
++        else:
++            # Make sure that the config file stops being a symlink.
++            conf_file_path = conf.get_sshd_conf_file_path()
++            conf_file_path2 = f"{conf_file_path}.wal.tmp"
++            shutil.copy(conf_file_path, conf_file_path2)
++            os.remove(conf_file_path)
++            os.rename(conf_file_path2, conf_file_path)
++            super(CoreosCommonUtil, self).conf_sshd(disable_password)
 diff --git a/config/flatcar/waagent.conf b/config/flatcar/waagent.conf
 new file mode 100644
 index 00000000..b453c634
