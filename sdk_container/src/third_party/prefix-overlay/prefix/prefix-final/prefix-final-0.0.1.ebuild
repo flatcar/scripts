@@ -11,6 +11,6 @@ KEYWORDS="amd64 arm64"
 
 # These should be the absolute minimum runtime dependencies of the "final" prefix.
 # "Staging" has @system so it is pretty heavyweight.
-RDEPEND="${RDEPEND}
+RDEPEND="
     virtual/libc
 "

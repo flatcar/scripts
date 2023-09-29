@@ -17,7 +17,7 @@ Before prefix build support are considered stable, the below must be implemented
 ## About
 
 Prefix builds let you build and ship applications and all their dependencies in a custom directory.
-This custom directory is self-contained, all dependencies are included, and binaries are only linked agains libraries in the custom directory.
+This custom directory is self-contained, all dependencies are included, and binaries are only linked against libraries in the custom directory.
 The applications' root will be `/` - i.e. there's no need to `chroot` into the custom directory.
 
 For example, applications built with the prefix `/usr/local/my-app` will ship

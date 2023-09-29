@@ -4,7 +4,7 @@
 DEFAULT_STAGING_ROOT="/build/"
 
 function lineprepend() {
-  awk -v msg="$@" '{ print msg ": " $0}'
+  awk -v msg="$*" '{ print msg ": " $0}'
 }
 # --
 
@@ -114,17 +114,17 @@ function create_make_conf() {
 
 sudo_clobber "${filepath}" <<EOF
 DISTDIR="/mnt/host/source/.cache/distfiles"
-PKGDIR="${STAGINGDIR}/pkgs"
-PORT_LOGDIR="${dir}/logs"
-PORTAGE_TMPDIR="${dir}/tmp"
+PKGDIR=${STAGINGDIR@Q}/pkgs
+PORT_LOGDIR=${dir@Q}/logs
+PORTAGE_TMPDIR=${dir@Q}/tmp
 PORTAGE_BINHOST=""
 PORTAGE_USERNAME="sdk"
 MAKEOPTS="--jobs=4"
-CHOST="${PREFIX_CHOST}"
+CHOST=${PREFIX_CHOST@Q}
 
-ACCEPT_KEYWORDS="${PREFIX_KEYWORDS}"
+ACCEPT_KEYWORDS=${PREFIX_KEYWORDS@Q}
 
-EMERGE_DEFAULT_OPTS="${emerge_opts}"
+EMERGE_DEFAULT_OPTS=${emerge_opts@Q}
 
 USE="
 -desktop
@@ -162,11 +162,11 @@ function create_emerge_wrapper() {
 
 set -euo pipefail
 
-PREFIXNAME="${PREFIXNAME}"
-EPREFIX="${EPREFIX}"
-STAGINGROOT="${STAGINGROOT}"
-FINALROOT="${FINALROOT}"
-CB_ROOT="${CB_ROOT}"
+PREFIXNAME=${PREFIXNAME@Q}
+EPREFIX=${EPREFIX@Q}
+STAGINGROOT=${STAGINGROOT@Q}
+FINALROOT=${FINALROOT@Q}
+CB_ROOT=${CB_ROOT@Q}
 
 if [ "\${1}" = "--help" ] ; then
     echo "\$0 : emerge prefix wrapper for prefix '\${PREFIXNAME}'"
@@ -178,11 +178,11 @@ if [ "\${1}" = "--help" ] ; then
     echo "             --install    Skip build, just install. Binpkg must exist in staging."
     echo
     echo "      Prefix configuration:"
-    echo "        PREFIXNAME=\"\${PREFIXNAME}\""
-    echo "        EPREFIX=\"\${EPREFIX}\""
-    echo "        STAGINGROOT=\"\${STAGINGROOT}\""
-    echo "        FINALROOT=\"\${FINALROOT}\""
-    echo "        CB_ROOT="\${CB_ROOT}""
+    echo "        PREFIXNAME=\${PREFIXNAME@Q}"
+    echo "        EPREFIX=\${EPREFIX@Q}"
+    echo "        STAGINGROOT=\${STAGINGROOT@Q}"
+    echo "        FINALROOT=\${FINALROOT@Q}"
+    echo "        CB_ROOT=\${CB_ROOT@Q}"
     exit
 fi
 
@@ -199,7 +199,7 @@ if [ "\${skip_build}" = "true" ]  ; then
     echo "NOTE that install into final will fail if binpkgs are missing."
 else
     echo "Building in staging..."
-    sudo -E EPREFIX=\${EPREFIX} \${CB_ROOT}/bin/cb-emerge \${STAGINGROOT} "\$@"
+    sudo -E EPREFIX="\${EPREFIX}" "\${CB_ROOT}/bin/cb-emerge" "\${STAGINGROOT}" "\$@"
 fi
 
 if [ "\${skip_install}" = "true" ]  ; then
