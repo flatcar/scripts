@@ -83,7 +83,7 @@ function image_changes() (
     echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/flatcar_production_image.bin.bz2"
     echo
     generate_image_changes_report \
-        "${arch}" "${channel}" "${vernum}" /dev/stdout "${fbs_repo}" "${work_directory}" \
+        "${arch}" "${channel}" "${vernum}" '-' "${fbs_repo}" "${work_directory}" \
         "${package_diff_env[@]}" --- "${package_diff_params_b[@]}" -- \
         "${size_changes_env[@]}" --- "${size_changes_params_b[@]}" -- \
         "${show_changes_env[@]}" --- "${show_changes_params_overrides[@]}"
@@ -177,14 +177,21 @@ function generate_image_changes_report() (
         "${show_changes_params[@]}"
     )
 
-    {
-        # Using "|| :" to avoid failing the job.
-        print_image_reports \
-            "${flatcar_build_scripts_repo}" "${channel_a}" "${version_a}" "${work_directory}" \
-            "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
-            "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
-            "${show_changes_env[@]}" --- "${show_changes_params[@]}" || :
-    } >"${report_output}"
+    local print_image_reports_invocation=(
+        print_image_reports
+        "${flatcar_build_scripts_repo}" "${channel_a}" "${version_a}" "${work_directory}"
+        "${package_diff_env[@]}" --- "${package_diff_params[@]}" --
+        "${size_changes_env[@]}" --- "${size_changes_params[@]}" --
+        "${show_changes_env[@]}" --- "${show_changes_params[@]}"
+    )
+    # Using "|| :" to avoid failing the job.
+    if [[ ${report_output} = '-' ]]; then
+        "${print_image_reports_invocation[@]}" || :
+    else
+        {
+            "${print_image_reports_invocation[@]}" || :
+        } >"${report_output}"
+    fi
 )
 # --
 
@@ -301,25 +308,25 @@ function print_image_reports() {
     env \
         --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_packages.txt \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}"
+        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
     echo "Image file changes, compared to ${channel_a} ${version_a}:"
     env \
         --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}"
+        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
     echo "Image kernel config changes, compared to ${channel_a} ${version_a}:"
     env \
         --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}"
+        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
     echo "Image init ramdisk file changes, compared to ${channel_a} ${version_a}:"
     env \
         --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}"
+        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
 
     local size_changes_invocation=(
@@ -329,13 +336,13 @@ function print_image_reports() {
         "${flatcar_build_scripts_repo}/size-change-report.sh"
     )
     echo "Image file size changes, compared to ${channel_a} ${version_a}:"
-    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:wtd}"; then
-        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:old}"
+    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:wtd}" 2>&1; then
+        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:old}" 2>&1
     fi
     echo
     echo "Image init ramdisk file size changes, compared to ${channel_a} ${version_a}:"
-    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-wtd}"; then
-        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-old}"
+    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-wtd}" 2>&1; then
+        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-old}" 2>&1
     fi
     echo "Take the total size difference with a grain of salt as normally initrd is compressed, so the actual difference will be smaller."
     echo "To see the actual difference in size, see if there was a report for /boot/flatcar/vmlinuz-a."
@@ -346,7 +353,7 @@ function print_image_reports() {
     env \
         --chdir="${work_directory}" \
         "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt CALCSIZE=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}"
+        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
     echo
 
     local param
@@ -359,7 +366,7 @@ function print_image_reports() {
         "${show_changes_env[@]}" \
         "${flatcar_build_scripts_repo}/show-changes" \
         "${SHOW_CHANGES_NEW_CHANNEL}-${SHOW_CHANGES_NEW_CHANNEL_PREV_VERSION}" \
-        "${SHOW_CHANGES_NEW_VERSION}"
+        "${SHOW_CHANGES_NEW_VERSION}" 2>&1
     # See if a channel transition happened and print the changelog against ${channel_a} ${version_a} which is the previous release
     if [ "${channel_a}" != "${SHOW_CHANGES_NEW_CHANNEL}" ]; then
         env \
@@ -367,7 +374,7 @@ function print_image_reports() {
             "${show_changes_env[@]}" \
             "${flatcar_build_scripts_repo}/show-changes" \
             "${channel_a}-${version_a}" \
-            "${SHOW_CHANGES_NEW_VERSION}"
+            "${SHOW_CHANGES_NEW_VERSION}" 2>&1
     fi
 }
 # --
