@@ -204,7 +204,7 @@ function get_oem_id_list() {
 # into the passed report file.
 #
 # 1 - version description (a free form string that describes a version of image that current version is compared against)
-# 2 - report file (can be relative)
+# 2 - report file (can be relative), '-' for standard output
 # 3 - flatcar-build-scripts directory (can be relative, will be realpathed)
 # @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides -- list of OEM ids
 #
