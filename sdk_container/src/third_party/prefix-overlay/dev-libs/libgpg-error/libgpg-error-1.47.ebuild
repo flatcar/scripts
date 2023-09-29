@@ -55,16 +55,9 @@ src_prepare() {
 	# only necessary for as long as we run eautoreconf, configure.ac
 	# uses ./autogen.sh to generate PACKAGE_VERSION, but autogen.sh is
 	# not a pure /bin/sh script, so it fails on some hosts
-	# Flatcar / t-lo 2023-09-19: Use build root for hprefixify to
-	#  prevent issues with prefix and cross-compiling, which causes
-	#  VERSION to be emptied when eautoreconf runs. This, in turn, will break
-	#  compilation with:
-	#     usage: mkhe:ader host_triplet template.h config.h version version_number
-	if tc-is-cross-compiler ; then
-		hprefixify -e "s#${EPREFIX}#${BROOT}#" -w 1 autogen.sh
-	else
-		hprefixify -w 1 autogen.sh
-	fi
+	# Flatcar / t-lo 2023-09-27: pull in upstream fix https://github.com/gentoo/gentoo/pull/33010
+    #  for prefix builds.
+    sed -i -e "1s:.*:#\!${BASH}:" autogen.sh || die
 	eautoreconf
 }
 

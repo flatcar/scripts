@@ -30,7 +30,7 @@ function set_prefix_vars() {
       ;;
     arm64-usr)
       PREFIX_CHOST="aarch64-cros-linux-gnu"
-      PREFIX_KEYWORDS="arm64 -~arm64 -multilib"
+      PREFIX_KEYWORDS="arm64 -~arm64"
       ;;
   esac
 
@@ -168,47 +168,50 @@ STAGINGROOT=${STAGINGROOT@Q}
 FINALROOT=${FINALROOT@Q}
 CB_ROOT=${CB_ROOT@Q}
 
-if [ "\${1}" = "--help" ] ; then
-    echo "\$0 : emerge prefix wrapper for prefix '\${PREFIXNAME}'"
+EOF
+
+  sudo_append "${filename}" <<'EOF'
+if [ "${1}" = "--help" ] ; then
+    echo "$0 : emerge prefix wrapper for prefix '${PREFIXNAME}'"
     echo "Usage:"
-    echo "  \$0 [--install|--stage] <emerge-opts>"
+    echo "  $0 [--install|--stage] <emerge-opts>"
     echo "                          Builds packages in prefix' staging and installs w/ runtime dependencies"
     echo "                           to prefix' final root."
     echo "             --stage      Build binpkg in staging but don't install."
     echo "             --install    Skip build, just install. Binpkg must exist in staging."
     echo
     echo "      Prefix configuration:"
-    echo "        PREFIXNAME=\${PREFIXNAME@Q}"
-    echo "        EPREFIX=\${EPREFIX@Q}"
-    echo "        STAGINGROOT=\${STAGINGROOT@Q}"
-    echo "        FINALROOT=\${FINALROOT@Q}"
-    echo "        CB_ROOT=\${CB_ROOT@Q}"
+    echo "        PREFIXNAME=${PREFIXNAME@Q}"
+    echo "        EPREFIX=${EPREFIX@Q}"
+    echo "        STAGINGROOT=${STAGINGROOT@Q}"
+    echo "        FINALROOT=${FINALROOT@Q}"
+    echo "        CB_ROOT=${CB_ROOT@Q}"
     exit
 fi
 
 skip_build="false"
 skip_install="false"
 
-case "\${1}" in
+case "${1}" in
     --install) skip_build="true"; shift;;
     --stage) skip_install="true"; shift;;
 esac
 
-if [ "\${skip_build}" = "true" ]  ; then
+if [ "${skip_build}" = "true" ]  ; then
     echo "Skipping build into staging as requested."
     echo "NOTE that install into final will fail if binpkgs are missing."
 else
     echo "Building in staging..."
-    sudo -E EPREFIX="\${EPREFIX}" "\${CB_ROOT}/bin/cb-emerge" "\${STAGINGROOT}" "\$@"
+    sudo -E EPREFIX="${EPREFIX}" "${CB_ROOT}/bin/cb-emerge" "${STAGINGROOT}" "$@"
 fi
 
-if [ "\${skip_install}" = "true" ]  ; then
+if [ "${skip_install}" = "true" ]  ; then
     echo "Skipping install into final as requested."
 else
     echo "Installing..."
-    sudo -E EPREFIX="\${EPREFIX}" \\
-            ROOT="\${FINALROOT}" \\
-            PORTAGE_CONFIGROOT="\${FINALROOT}\${EPREFIX}" emerge "\$@"
+    sudo -E EPREFIX="${EPREFIX}" \
+            ROOT="${FINALROOT}" \
+            PORTAGE_CONFIGROOT="${FINALROOT}${EPREFIX}" emerge "$@"
 fi
 EOF
 
