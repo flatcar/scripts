@@ -225,6 +225,9 @@ jobs:
           )
           show_changes_env=(
               # Nothing to add.
+              "SCRIPTS_REPO=scripts"
+              "COREOS_OVERLAY_REPO=coreos-overlay"
+              "PORTAGE_STABLE_REPO=portage-stable"
           )
           show_changes_params_overrides=(
               # We may not have a tag handy, so we tell show-changes

@@ -63,6 +63,9 @@ function image_changes() (
     show_changes_env=(
         # Provide a python3 command for the CVE DB parsing
         "PATH=${PATH}:${PWD}/ci-automation/python-bin"
+        "SCRIPTS_REPO=scripts"
+        "COREOS_OVERLAY_REPO=coreos-overlay"
+        "PORTAGE_STABLE_REPO=portage-stable"
     )
     show_changes_params_overrides=(
         # Nothing to override.
