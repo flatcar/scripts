@@ -222,12 +222,13 @@ jobs:
           size_changes_params+=(
               "local:${PWD}/artifacts/${arch}-usr/latest"
           )
-          show_changes_env=(
+          show_changes_env+=(
+              # Override the default locations of repositories.
               "SCRIPTS_REPO=."
               "COREOS_OVERLAY_REPO=../coreos-overlay"
               "PORTAGE_STABLE_REPO=../portage-stable"
           )
-          show_changes_params=(
+          show_changes_params+=(
               # We may not have a tag handy, so we tell show-changes
               # to use git HEAD as a reference to new changelog
               # entries.
@@ -278,12 +279,13 @@ jobs:
           size_changes_params+=(
               "local:${PWD}/artifacts/${arch}-usr/latest"
           )
-          show_changes_env=(
+          show_changes_env+=(
+              # Override the default locations of repositories.
               "SCRIPTS_REPO=."
               "COREOS_OVERLAY_REPO=../coreos-overlay"
               "PORTAGE_STABLE_REPO=../portage-stable"
           )
-          show_changes_params=(
+          show_changes_params+=(
               # We may not have a tag handy, so we tell show-changes
               # to use git HEAD as a reference to new changelog
               # entries.
