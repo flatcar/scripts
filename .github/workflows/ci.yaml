@@ -187,6 +187,52 @@ jobs:
                                 --output_root="${CI_CONTAINER_ARTIFACT_ROOT}" \
                                 prodtar container
 
+      - name: Build VM image(s)
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -x
+
+          source ci-automation/ci_automation_common.sh
+
+          images_out="images"
+
+          has_packet=0
+          has_pxe=0
+          formats="${IMAGE_FORMATS}"
+          for format in "${formats}";do
+            [[ "${format}" = 'packet' ]] || [[ "${format}" = 'equinix_metal' ]] && has_packet=1
+            [[ "${format}" = 'pxe' ]] && has_pxe=1
+          done
+
+          [[ ${has_packet} -eq 1 ]] && [[ ${has_pxe} -eq 0 ]] && set -- 'pxe' "${@}"
+          if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
+            formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
+            formats+=" vmware vmware_insecure vmware_ova vmware_raw"
+          fi
+          if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
+            formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
+            formats+=" ami ami_vmdk"
+          fi
+          # Keep compatibility with SDK scripts where "equinix_metal" remains unknown.
+          formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
+
+          for format in ${formats}; do
+              echo " ###################  VENDOR '${format}' ################### "
+              ./run_sdk_container -n "${container_name}" \
+                  ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
+                      --from "${CI_CONTAINER_ARTIFACT_ROOT}/${arch}-usr/latest" \
+                      --image_compression_formats=bz2
+          done
+
+          # upload-artifacts cannot handle artifact uploads from sym-linked directories (no, really)
+          #  so we move things around.
+          mkdir -p artifacts/images
+          (
+            cd artifacts/${arch}-usr/latest/
+            mv * ../../images/
+          )
+
       - name: Generate reports against last release
         shell: bash
         run: |
@@ -300,52 +346,6 @@ jobs:
               "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
               "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
               "${oemids[@]}"
-
-      - name: Build VM image(s)
-        shell: bash
-        run: |
-          set -euo pipefail
-          set -x
-
-          source ci-automation/ci_automation_common.sh
-
-          images_out="images"
-
-          has_packet=0
-          has_pxe=0
-          formats="${IMAGE_FORMATS}"
-          for format in "${formats}";do
-            [[ "${format}" = 'packet' ]] || [[ "${format}" = 'equinix_metal' ]] && has_packet=1
-            [[ "${format}" = 'pxe' ]] && has_pxe=1
-          done
-
-          [[ ${has_packet} -eq 1 ]] && [[ ${has_pxe} -eq 0 ]] && set -- 'pxe' "${@}"
-          if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
-            formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
-            formats+=" vmware vmware_insecure vmware_ova vmware_raw"
-          fi
-          if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
-            formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
-            formats+=" ami ami_vmdk"
-          fi
-          # Keep compatibility with SDK scripts where "equinix_metal" remains unknown.
-          formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
-
-          for format in ${formats}; do
-              echo " ###################  VENDOR '${format}' ################### "
-              ./run_sdk_container -n "${container_name}" \
-                  ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
-                      --from "${CI_CONTAINER_ARTIFACT_ROOT}/${arch}-usr/latest" \
-                      --image_compression_formats=bz2
-          done
-
-          # upload-artifacts cannot handle artifact uploads from sym-linked directories (no, really)
-          #  so we move things around.
-          mkdir -p artifacts/images
-          (
-            cd artifacts/${arch}-usr/latest/
-            mv * ../../images/
-          )
 
       - name: Upload binpkgs
         uses: actions/upload-artifact@v3
