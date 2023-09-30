@@ -378,6 +378,7 @@ sec-policy/selinux-unconfined
 
 sys-apps/acl
 sys-apps/attr
+sys-apps/bubblewrap
 sys-apps/checkpolicy
 sys-apps/config-site
 sys-apps/coreutils
@@ -508,6 +509,7 @@ virtual/perl-IO
 virtual/pkgconfig
 virtual/service-manager
 virtual/ssh
+virtual/tmpfiles
 
 x11-base/xorg-proto
 
