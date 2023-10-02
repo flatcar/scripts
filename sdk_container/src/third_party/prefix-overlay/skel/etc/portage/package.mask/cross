@@ -1,1 +1,0 @@
->=sys-devel/gcc-13 # FIXME: Cannot cross-compile gcc 13+ using older version
