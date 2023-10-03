@@ -1,0 +1,3 @@
+- libnl ([3.8.0](https://github.com/thom311/libnl/compare/libnl3_7_0...libnl3_8_0))
+- libxml2 ([2.11.5](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.11.5))
+- strace([6.4](https://github.com/strace/strace/releases/tag/v6.4))
