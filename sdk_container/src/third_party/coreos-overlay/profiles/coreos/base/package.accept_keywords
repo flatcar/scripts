@@ -53,6 +53,8 @@
 # Required for addressing CVE-2023-32001.
 =net-misc/curl-8.2.1 ~amd64 ~arm64
 
+net-misc/ena-driver ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =net-nds/openldap-2.6.4-r1 ~amd64
 =sec-policy/selinux-base-2.20200818-r3 ~arm64
