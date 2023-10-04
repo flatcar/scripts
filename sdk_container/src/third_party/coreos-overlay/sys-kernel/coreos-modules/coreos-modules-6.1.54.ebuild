@@ -7,6 +7,7 @@ inherit coreos-kernel savedconfig
 
 DESCRIPTION="CoreOS Linux kernel modules"
 KEYWORDS="amd64 arm64"
+DEPEND="net-misc/ena-driver"
 RDEPEND="!<sys-kernel/coreos-kernel-4.6.3-r1"
 
 src_prepare() {
