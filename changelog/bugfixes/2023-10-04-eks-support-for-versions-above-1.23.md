@@ -1,0 +1,1 @@
+- Added EKS support for versions 1.24-1.28. Fixed `/usr/share/amazon/eks/download-kubelet.sh` to include download paths for these versions.
