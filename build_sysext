@@ -27,6 +27,10 @@ DEFINE_string image_builddir '' \
   "Custom directory to build the sysext in. Defaults to a 'sysext' sub-directory of the directory the squashfs base image resides in; '${default_imagedir}/sysext' by default."
 DEFINE_string manglefs_script '' \
   "A path to executable that will customize the rootfs of the sysext image."
+DEFINE_boolean generate_pkginfo "${FLAGS_FALSE}" \
+  "Generate an additional squashfs '<sysext_name>_pkginfo.raw' with portage package meta-information (/var/db ...). Useful for creating sysext dependencies; see 'base_pkginfo' below."
+DEFINE_string base_pkginfo "" \
+  "Colon-separated list of pkginfo squashfs paths / files generated via 'generate_pkginfo' to base this sysext on. The corresponding base sysexts are expected to be merged with the sysext generated."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 
@@ -126,6 +130,10 @@ cleanup() {
   )
   umount "${dirs[@]}" 2>/dev/null || true
   rm -rf "${dirs[@]}" || true
+  if [[ -d "${BUILD_DIR}/img-pkginfo" ]] ; then
+    umount "${BUILD_DIR}/img-pkginfo"/* 2>/dev/null || true
+    rm -rf "${BUILD_DIR}/img-pkginfo" || true
+  fi
 }
 
 # Set up trap to execute cleanup() on script exit
@@ -134,11 +142,33 @@ trap cleanup EXIT
 ARCH=$(_get_sysext_arch "${FLAGS_board}")
 cleanup
 
+# If we need to handle pkginfo squashfs files, create mount points under
+# ${BUILD_DIR}/img-pkginfo, mount the squashfs images, and add the mount paths to
+# the list of lowerdirs.
+pkginfo_lowerdirs=""
+if [[ -n "${FLAGS_base_pkginfo}" ]] ; then
+  for entry in $(echo ${FLAGS_base_pkginfo} | sed 's/:/ /g'); do
+    ppath="$(readlink -f "${entry}")"
+    if [[ ! -f "${ppath}" ]] ; then
+      error "--base_pkginfo contains invalid entries."
+      error "Pkginfo file '${ppath}' does not exist."
+      die "Full --base_pkginfo: '${FLAGS_base_pkginfo}'"
+    fi
+
+    pfile="$(basename "${ppath}")"
+    pmdir="${BUILD_DIR}/img-pkginfo/${pfile}"
+    mkdir -p "${pmdir}"
+    mount -rt squashfs -o loop,nodev "${ppath}" "${pmdir}"
+    pkginfo_lowerdirs="${pkginfo_lowerdirs}:${pmdir}"
+    info "Added packageinfo from '${ppath}' to base layers."
+  done
+fi
+
 mkdir "${BUILD_DIR}/fs-root"
 mount -rt squashfs -o loop,nodev "${FLAGS_squashfs_base}" "${BUILD_DIR}/fs-root"
 mkdir "${BUILD_DIR}/install-root"
 mkdir "${BUILD_DIR}/workdir"
-mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
 VERSION_BOARD=$(grep "^VERSION=" ${BUILD_DIR}/fs-root/usr/lib/os-release | cut -d = -f 2-)
 if [ "$VERSION_BOARD" != "$FLATCAR_VERSION" ]; then
   warn "Base squashfs version: $VERSION_BOARD"
@@ -184,6 +214,13 @@ if [[ -n "${FLAGS_manglefs_script}" ]]; then
     die "${FLAGS_manglefs_script} is not executable"
   fi
   "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root"
+fi
+
+if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
+  info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
+  mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
+  cp -R "${BUILD_DIR}/install-root/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
+  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" -noappend
 fi
 
 info "Removing non-/usr directories from sysext image"
