@@ -1,0 +1,67 @@
+From e5c4e6bd9f3bad3b27e338e4da2f3b0b53ab1599 Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Fri, 29 Sep 2023 18:06:09 +0200
+Subject: [PATCH] sgdisk: Run partprobe after partition changes
+
+The sgdisk tool does not update the kernel partition table in contrast
+to other similar tools. Often udev can detect the changes but not always
+as experienced when adding a new partition on Flatcar's boot disk.
+Instead of implicitly relying on some other component to re-read the
+kernel partition table, trigger the re-read with partprobe.
+---
+ dracut/30ignition/module-setup.sh | 1 +
+ internal/distro/distro.go         | 2 ++
+ internal/sgdisk/sgdisk.go         | 5 +++++
+ 3 files changed, 8 insertions(+)
+
+diff --git a/dracut/30ignition/module-setup.sh b/dracut/30ignition/module-setup.sh
+index ad7e80fd..3cdcb631 100755
+--- a/dracut/30ignition/module-setup.sh
++++ b/dracut/30ignition/module-setup.sh
+@@ -33,6 +33,7 @@ install() {
+         mkfs.xfs \
+         mkswap \
+         sgdisk \
++        partprobe \
+         useradd \
+         userdel \
+         usermod \
+diff --git a/internal/distro/distro.go b/internal/distro/distro.go
+index 61ca87ae..c1c13b62 100644
+--- a/internal/distro/distro.go
++++ b/internal/distro/distro.go
+@@ -37,6 +37,7 @@ var (
+ 	mdadmCmd     = "mdadm"
+ 	mountCmd     = "mount"
+ 	sgdiskCmd    = "sgdisk"
++	partprobeCmd = "partprobe"
+ 	modprobeCmd  = "modprobe"
+ 	udevadmCmd   = "udevadm"
+ 	usermodCmd   = "usermod"
+@@ -90,6 +91,7 @@ func GroupdelCmd() string  { return groupdelCmd }
+ func MdadmCmd() string     { return mdadmCmd }
+ func MountCmd() string     { return mountCmd }
+ func SgdiskCmd() string    { return sgdiskCmd }
++func PartprobeCmd() string { return partprobeCmd }
+ func ModprobeCmd() string  { return modprobeCmd }
+ func UdevadmCmd() string   { return udevadmCmd }
+ func UsermodCmd() string   { return usermodCmd }
+diff --git a/internal/sgdisk/sgdisk.go b/internal/sgdisk/sgdisk.go
+index 29915809..e70a3881 100644
+--- a/internal/sgdisk/sgdisk.go
++++ b/internal/sgdisk/sgdisk.go
+@@ -121,6 +121,11 @@ func (op *Operation) Commit() error {
+ 	if _, err := op.logger.LogCmd(cmd, "deleting %d partitions and creating %d partitions on %q", len(op.deletions), len(op.parts), op.dev); err != nil {
+ 		return fmt.Errorf("create partitions failed: %v", err)
+ 	}
++	// In contrast to similar tools, sgdisk does not trigger the update of the kernel partition table
++	cmd = exec.Command(distro.PartprobeCmd(), op.dev)
++	if _, err := op.logger.LogCmd(cmd, "re-reading of %d deleted partitions and %d created partitions on %q", len(op.deletions), len(op.parts), op.dev); err != nil {
++		return fmt.Errorf("re-reading partitions failed: %v", err)
++	}
+ 
+ 	return nil
+ }
+-- 
+2.41.0
+
