@@ -5,7 +5,6 @@
 GSUTIL_OPTS=
 UPLOAD_ROOT=
 UPLOAD_PATH=
-TORCX_UPLOAD_ROOT=
 UPLOAD_DEFAULT=${FLAGS_FALSE}
 DEFAULT_IMAGE_COMPRESSION_FORMAT="bz2"
 
@@ -13,7 +12,6 @@ DEFAULT_IMAGE_COMPRESSION_FORMAT="bz2"
 _user="${USER}"
 [[ ${USER} == "root" ]] && _user="${SUDO_USER}"
 : ${FLATCAR_UPLOAD_ROOT:=gs://users.developer.core-os.net/${_user}}
-: ${FLATCAR_TORCX_UPLOAD_ROOT:=${FLATCAR_UPLOAD_ROOT}/torcx}
 unset _user
 
 DEFINE_boolean parallel ${FLAGS_TRUE} \
@@ -30,12 +28,6 @@ DEFINE_string download_root "" \
   "HTTP download prefix, board/version/etc will be appended."
 DEFINE_string download_path "" \
   "HTTP download path, overrides --download_root."
-DEFINE_string torcx_upload_root "${FLATCAR_TORCX_UPLOAD_ROOT}" \
-  "Tectonic torcx package and manifest Upload prefix. Must be a gs:// URL."
-DEFINE_string tectonic_torcx_download_root "" \
-  "HTTP download prefix for tectonic torcx packages and manifests."
-DEFINE_string tectonic_torcx_download_path "" \
-  "HTTP download path, overrides --tectonic_torcx_download_root."
 DEFINE_string sign "" \
   "Sign all files to be uploaded with the given GPG key."
 DEFINE_string sign_digests "" \
@@ -162,15 +154,6 @@ check_gsutil_opts() {
         fi
         # Make sure the path doesn't end with a slash
         UPLOAD_ROOT="${FLAGS_upload_root%%/}"
-    fi
-
-    if [[ -n "${FLAGS_torcx_upload_root}" ]]; then
-        if [[ "${FLAGS_torcx_upload_root}" != gs://* ]] \
-           && [[ "${FLAGS_torcx_upload_root}" != rsync://* ]] ; then
-            die_notrace "--torcx_upload_root must be a gs:// or rsync:// URL"
-        fi
-        # Make sure the path doesn't end with a slash
-        TORCX_UPLOAD_ROOT="${FLAGS_torcx_upload_root%%/}"
     fi
 
     if [[ -n "${FLAGS_upload_path}" ]]; then
@@ -369,32 +352,6 @@ download_image_url() {
     # Just in case download_root was set from UPLOAD_ROOT
     if [[ "${download_path}" == gs://* ]]; then
         download_path="https://${download_path#gs://}"
-    fi
-
-    echo "${download_path}/$1"
-}
-
-# Translate the configured torcx upload URL to a download url
-# This is similar to the download_image_url, other than assuming the release
-# bucket is the tectonic_torcx one.
-download_tectonic_torcx_url() {
-    if [[ ${FLAGS_upload} -ne ${FLAGS_TRUE} ]]; then
-        echo "$1"
-        return 0
-    fi
-
-    local download_root="${FLAGS_tectonic_torcx_download_root:-${TORCX_UPLOAD_ROOT}}"
-
-    local download_path
-    if [[ -n "${FLAGS_tectonic_torcx_download_path}" ]]; then
-        download_path="${FLAGS_tectonic_torcx_download_path%%/}"
-    else
-        download_path="${download_root%%/}"
-    fi
-
-    # Just in case download_root was set from UPLOAD_ROOT
-    if [[ "${download_path}" == gs://* ]]; then
-        download_path="http://${download_path#gs://}"
     fi
 
     echo "${download_path}/$1"

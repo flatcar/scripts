@@ -272,8 +272,7 @@ function package_run_dependencies() (
 )
 
 
-# List packages implicitly contained in rootfs, such as in torcx packages or
-# initramfs.
+# List packages implicitly contained in rootfs, such as in initramfs.
 image_packages_implicit() {
     local profile="${BUILD_DIR}/configroot/etc/portage/profile"
 
@@ -302,12 +301,6 @@ image_packages_implicit() {
             query_available_package "${pkg}"
         done < "${profile}/package.provided"
     fi
-
-    # Include source packages of all torcx images installed on disk.
-    [ -z "${FLAGS_torcx_manifest}" ] ||
-    torcx_manifest::sources_on_disk "${FLAGS_torcx_manifest}" |
-    while read pkg ; do query_available_package "${pkg}" ; done
-
 
     # Include source packages of all sysext images installed on disk.
     for docker_containerd_package in $(package_run_dependencies docker) $(package_run_dependencies containerd); do
@@ -535,8 +528,6 @@ EOF
 # Add /usr/share/SLSA reports for packages indirectly contained within the rootfs
 # If the package is available in BOARD_ROOT accesses it from there, otherwise
 # needs to download binpkg.
-# Reports for torcx packages are also included when adding the torcx package to
-# rootfs.
 insert_extra_slsa() {
   info "Inserting additional SLSA file"
   local rootfs="$1"
@@ -644,18 +635,33 @@ finish_image() {
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
 
-  # Ship the docker systemd-sysext image and rip out torcx in same go; TODO: create seperate sysext images for containerd and docker
-  mkdir -p "${PORTAGE_CONFIGROOT}"/etc/portage/profile
-  query_available_package containerd | sudo_clobber ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided # use a temporary package.provided to make emerge believe the dependencies are already installed
-  sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="${SCRIPTS_DIR}/manglefs_docker" docker-flatcar app-containers/docker
-  sudo install -m 0644 -D "${BUILD_DIR}/docker-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
-  sudo mkdir -p "${root_fs_dir}"/etc/extensions/
-  sudo ln -sf /usr/share/flatcar/docker-flatcar.raw "${root_fs_dir}"/etc/extensions/docker-flatcar.raw
-  sudo rm ${PORTAGE_CONFIGROOT}/etc/portage/profile/package.provided
+  info "Creating containerd and docker sysexts."
 
-  sudo "${SCRIPTS_DIR}/build_sysext" --board="${BOARD}" --image_builddir=${BUILD_DIR} --squashfs_base="${BUILD_DIR}/${image_sysext_base}" --manglefs_script="${SCRIPTS_DIR}/manglefs_containerd" containerd-flatcar app-containers/containerd
-  sudo install -m 0644 -D "${BUILD_DIR}/containerd-flatcar.raw" "${root_fs_dir}"/usr/share/flatcar/
-  sudo ln -sf /usr/share/flatcar/containerd-flatcar.raw "${root_fs_dir}"/etc/extensions/containerd-flatcar.raw
+  sudo "${SCRIPTS_DIR}/build_sysext" \
+            --board="${BOARD}" \
+            --image_builddir="${BUILD_DIR}" \
+            --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+            --manglefs_script="${SCRIPTS_DIR}/manglefs_containerd" \
+            --generate_pkginfo \
+            containerd app-containers/containerd
+
+  sudo "${SCRIPTS_DIR}/build_sysext" \
+            --board="${BOARD}" \
+            --image_builddir=${BUILD_DIR} \
+            --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+            --manglefs_script="${SCRIPTS_DIR}/manglefs_docker" \
+            --base_pkginfo="${BUILD_DIR}/containerd_pkginfo.raw" \
+         docker app-containers/docker
+
+  sudo mkdir -p "${root_fs_dir}"/usr/share/flatcar/sysext
+  sudo install -m 0644 -D "${BUILD_DIR}/containerd.raw" "${root_fs_dir}"/usr/share/flatcar/sysext/
+  sudo install -m 0644 -D "${BUILD_DIR}/docker.raw" "${root_fs_dir}"/usr/share/flatcar/sysext/
+
+  # Install symlinks into /etc/extensions - this will be picked up by the logic to populate
+  # /usr/share/flatcar/etc below, so it will end up below /usr in the final image.
+  sudo mkdir -p "${root_fs_dir}"/etc/extensions/
+  sudo ln -sf /usr/share/flatcar/sysext/containerd.raw "${root_fs_dir}"/etc/extensions/containerd.raw
+  sudo ln -sf /usr/share/flatcar/sysext/docker.raw "${root_fs_dir}"/etc/extensions/docker.raw
 
   # Only enable rootfs verification on prod builds.
   local disable_read_write="${FLAGS_FALSE}"

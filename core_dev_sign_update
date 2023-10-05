@@ -69,18 +69,3 @@ else
 		--armor --detach-sign "${data_dir}/update.hash"
 fi
 echo "=== Update payload signed successfully. ==="
-
-echo "===     Verifying torcx manifest...     ==="
-gpg2 --verify "${data_dir}/torcx_manifest.json.sig"
-echo "===      Signing torcx manifest...      ==="
-if [[ -z "${FLAGS_gpg_key}" ]]; then
-	gpg2 \
-		--output "${output_dir}/torcx_manifest.json.sig.$(whoami)" \
-		--detach-sign --armor "${data_dir}/torcx_manifest.json"
-else
-	gpg2 \
-		--local-user "$FLAGS_gpg_key" \
-		--output "${output_dir}/torcx_manifest.json.sig.$(whoami)" \
-		--detach-sign --armor "${data_dir}/torcx_manifest.json"
-fi
-echo "=== Torcx manifest signed successfully. ==="
