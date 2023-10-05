@@ -77,7 +77,6 @@ create_prod_image() {
   local image_initrd_contents="${image_name%.bin}_initrd_contents.txt"
   local image_initrd_contents_wtd="${image_name%.bin}_initrd_contents_wtd.txt"
   local image_disk_usage="${image_name%.bin}_disk_usage.txt"
-  local image_pkgdb="${image_name%.bin}_pkgdb.tar.xz"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
@@ -102,7 +101,6 @@ create_prod_image() {
           || die_notrace "coreos-au-key is missing the 'official' use flag"
   fi
 
-  tar -cf "${BUILD_DIR}/${image_pkgdb}" -C "${root_fs_dir}" var/cache/edb var/db/pkg
   sudo cp -a "${root_fs_dir}" "${BUILD_DIR}/root_fs_dir2"
   sudo rsync -a --delete  "${BUILD_DIR}/configroot/etc/portage" "${BUILD_DIR}/root_fs_dir2/etc"
   sudo mksquashfs "${BUILD_DIR}/root_fs_dir2"  "${BUILD_DIR}/${image_sysext_base}" -noappend
