@@ -635,34 +635,6 @@ finish_image() {
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
 
-  info "Creating containerd and docker sysexts."
-
-  sudo "${SCRIPTS_DIR}/build_sysext" \
-            --board="${BOARD}" \
-            --image_builddir="${BUILD_DIR}" \
-            --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-            --manglefs_script="${SCRIPTS_DIR}/manglefs_containerd" \
-            --generate_pkginfo \
-            containerd app-containers/containerd
-
-  sudo "${SCRIPTS_DIR}/build_sysext" \
-            --board="${BOARD}" \
-            --image_builddir=${BUILD_DIR} \
-            --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-            --manglefs_script="${SCRIPTS_DIR}/manglefs_docker" \
-            --base_pkginfo="${BUILD_DIR}/containerd_pkginfo.raw" \
-         docker app-containers/docker
-
-  sudo mkdir -p "${root_fs_dir}"/usr/share/flatcar/sysext
-  sudo install -m 0644 -D "${BUILD_DIR}/containerd.raw" "${root_fs_dir}"/usr/share/flatcar/sysext/
-  sudo install -m 0644 -D "${BUILD_DIR}/docker.raw" "${root_fs_dir}"/usr/share/flatcar/sysext/
-
-  # Install symlinks into /etc/extensions - this will be picked up by the logic to populate
-  # /usr/share/flatcar/etc below, so it will end up below /usr in the final image.
-  sudo mkdir -p "${root_fs_dir}"/etc/extensions/
-  sudo ln -sf /usr/share/flatcar/sysext/containerd.raw "${root_fs_dir}"/etc/extensions/containerd.raw
-  sudo ln -sf /usr/share/flatcar/sysext/docker.raw "${root_fs_dir}"/etc/extensions/docker.raw
-
   # Only enable rootfs verification on prod builds.
   local disable_read_write="${FLAGS_FALSE}"
   if [[ "${IMAGE_BUILD_TYPE}" == "prod" ]]; then

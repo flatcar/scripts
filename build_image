@@ -33,6 +33,8 @@ DEFINE_string base_pkg "coreos-base/coreos" \
   "The base portage package to base the build off of (only applies to prod images)"
 DEFINE_string base_dev_pkg "coreos-base/coreos-dev" \
   "The base portage package to base the build off of (only applies to dev containers)"
+DEFINE_string base_sysexts "app-containers/containerd,app-containers/docker" \
+  "Comma-separated list of packages to build into sysexts and include with OS image and update payload. Must be in order of dependencies, base sysexts come first."
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"
 DEFINE_string disk_layout "" \
@@ -165,7 +167,7 @@ fi
 
 if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="prod"
-  create_prod_image ${FLATCAR_PRODUCTION_IMAGE_NAME} ${DISK_LAYOUT} ${FLAGS_group} ${FLAGS_base_pkg}
+  create_prod_image ${FLATCAR_PRODUCTION_IMAGE_NAME} ${DISK_LAYOUT} ${FLAGS_group} ${FLAGS_base_pkg} ${FLAGS_base_sysexts}
   if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]]; then
     generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" ${DISK_LAYOUT}
   elif [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then

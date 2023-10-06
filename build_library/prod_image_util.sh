@@ -52,6 +52,58 @@ extract_prod_gcc() {
     package_provided "${gcc}"
 }
 
+# Create a sysext from a package and install it to the OS image.
+# Conventions:
+# - For each <group>/<package>, <group>_<package>_pkginfo will be built. Can be used in subsequent calls
+#   to build dependent sysexts.
+# - If ${BUILD_LIBRARY_DIR}/sysext_mangle_<group>_<package> exists it will be used as FS mangle script
+#   when building the sysext.
+#
+create_prod_sysext() {
+  local install_root="$1"
+  local base_image="$2"
+  local grp_pkg="$3"
+  local pkginfo="${4:-}"
+
+  local name="${grp_pkg//\//_}" # some-group/some-package => some-group_some-package
+  local pkginfo_opt=""
+  local manglefs_opt=""
+
+  local msg="Creating sysext '${grp_pkg}' ==> ${name}.raw"
+
+  # Include previous sysexts' pkginfo if supplied
+  if [[ -n "${pkginfo}" ]] ; then
+    if [[ ! -f "${BUILD_DIR}/${pkginfo}" ]] ; then
+      die "Sysext build '${grp_pkg}': unable to find package info at '${BUILD_DIR}/${pkginfo}'."
+    fi
+    msg="${msg} w/ package info '${pkginfo}'"
+    pkginfo_opt="--base_pkginfo=${BUILD_DIR}/${pkginfo}"
+  fi
+
+  # Include FS mangle script if present
+  if [[ -x "${BUILD_LIBRARY_DIR}/sysext_mangle_${name}" ]] ; then
+    manglefs_opt="--manglefs_script=${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
+    msg="${msg}, FS mangle script 'sysext_mangle_${name}'"
+  fi
+
+  info "${msg}."
+  
+  sudo "${SCRIPTS_DIR}/build_sysext" \
+            --board="${BOARD}" \
+            --image_builddir="${BUILD_DIR}" \
+            --squashfs_base="${base_image}" \
+            --generate_pkginfo \
+            ${manglefs_opt} ${pkginfo_opt} \
+            "${name}" "${grp_pkg}"
+
+  sudo mkdir -p "${install_root}"/usr/share/flatcar/sysext
+  sudo install -m 0644 -D "${BUILD_DIR}/${name}.raw" "${install_root}"/usr/share/flatcar/sysext/
+
+  sudo mkdir -p "${install_root}"/etc/extensions/
+  sudo ln -sf "/usr/share/flatcar/sysext/${name}.raw" "${install_root}/etc/extensions/${name}.raw"
+}
+# --
+
 create_prod_image() {
   local image_name="$1"
   local disk_layout="$2"
@@ -61,6 +113,8 @@ create_prod_image() {
     echo "did not get base package!"
     exit 1
   fi
+
+  local base_sysexts="$5"
 
   info "Building production image ${image_name}"
   local root_fs_dir="${BUILD_DIR}/rootfs"
@@ -136,6 +190,19 @@ EOF
   # Remove source locale data, only need to ship the compiled archive.
   sudo rm -rf ${root_fs_dir}/usr/share/i18n/
 
+  if [[ -n "${base_sysexts}" ]] ; then
+    local grp_pkg=""
+    local prev_pkginfo=""
+    for grp_pkg in ${base_sysexts//,/ }; do
+      create_prod_sysext "${root_fs_dir}"\
+                         "${BUILD_DIR}/${image_sysext_base}" \
+                         "${grp_pkg}" \
+                         "${prev_pkginfo}"
+      prev_pkginfo="${grp_pkg//\//_}_pkginfo.raw"
+    done
+  fi
+
+  # Finish image will move files from /etc to /usr/share/flatcar/etc.
   finish_image \
       "${image_name}" \
       "${disk_layout}" \
