@@ -33,6 +33,74 @@
 
 #--- END OF EXAMPLES ---
 
+# David Seifert <soap@gentoo.org> (2023-10-08)
+# Upstream long gone, unmaintained, EAPI 6, only Gentoo still packages
+# this. Removal on 2023-11-07. Bug #905187.
+app-misc/dvorakng
+
+# David Seifert <soap@gentoo.org> (2023-10-08)
+# Unmaintained, EAPI 6, tons of patches we have to carry, last release
+# 20 years ago, all major distros have removed this.
+# Removal on 2023-11-07. Bug #602382.
+app-backup/flexbackup
+
+# David Seifert <soap@gentoo.org> (2023-10-08)
+# Unmaintained, last release over 23 years(!) ago, multiple QA issues,
+# no other major distro carries this anymore. Removal on 2023-11-07.
+# Bug #425872, #452982, #520968, #605450, #878621, #905945.
+app-admin/qpage
+
+# David Seifert <soap@gentoo.org> (2023-10-08)
+# Upstream gone, kept on life support by Debian, most distros don't
+# carry this anymore, Transmeta CPUs are long obsolete at this point.
+# Removal on 2023-11-07. Bug #541694, #905186.
+app-admin/longrun
+
+# David Seifert <soap@gentoo.org> (2023-10-08)
+# Unmaintained, typical broken suckless build system, no upstream
+# activity, only Fedora still carries it.
+# Removal on 2023-11-06. Bug #732422, #914638.
+x11-misc/sselp
+
+# David Seifert <soap@gentoo.org> (2023-10-08)
+# Unmaintained, last release over 5 years ago, lots of QA issues, no
+# other distro carries this.
+# Removal on 2023-11-06. Bug #742782, #742809, #771858, #811393,
+# #898314, #898322, #898324, #898326.
+dev-libs/libtubo
+x11-libs/librfm
+x11-misc/rodent
+
+# Hans de Graaff <graaff@gentoo.org> (2023-10-07)
+# Unresolved security issues since two years, bug #792336. Original
+# upstream inactive since 2019. Substitute upstream inactive since
+# 2020. No reverse dependencies. Masked for removal on 2023-11-07.
+sys-fs/dmg2img
+
+# Sam James <sam@gentoo.org> (2023-10-06)
+# Breaks building scipy: https://github.com/cython/cython/issues/5748
+=dev-python/cython-3.0.3
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-10-04)
+# Incompatible with newer media-video/ffmpeg, bug #914499.
+# Deps appenh and loadlib not used by anything else.
+# Removal on 2023-11-04.
+media-video/jubler
+dev-java/appenh
+dev-java/loadlib
+
+# Mart Raudsepp <leio@gentoo.org> (2023-10-04)
+# GStreamer plugin removed upstream. The database used by this music fingerprint
+# plugin has been defunct for a while. Removal on 2023-11-04. Bug #915189.
+media-plugins/gst-plugins-ofa
+
+# Michał Górny <mgorny@gentoo.org> (2023-10-04)
+# The project was abandoned upstream.  The test suite is broken
+# with python3.12.  It was used only as an optional test dep
+# for dev-python/Arpeggio.
+# Removal on 2023-11-03.  Bug #915162.
+dev-python/memory-profiler
+
 # Michał Górny <mgorny@gentoo.org> (2023-09-29)
 # The project is no longer maintained upstream.  We haven't handled
 # the version bump from a year ago yet.  No reverse dependencies.
@@ -183,11 +251,6 @@ dev-ruby/mail:2.7
 <dev-libs/openssl-3
 <app-crypt/xca-2.4.0_p20230526
 
-# Conrad Kostecki <conikost@gentoo.org> (2023-09-09)
-# Release causes problems, upstream degrated to RC back.
-# See #913884 for more information
-=net-wireless/unifi-7.5.174-r1
-
 # David Seifert <soap@gentoo.org> (2023-09-09)
 # EOL upstream in 2 months, causes major headaches for OpenSSL 1.1
 # masking. Removal on 2023-10-09.
@@ -227,54 +290,6 @@ app-crypt/tpm2-tss-engine
 # Two open bugs: #725584 and #793236.
 # Removal on 2023-10-03.
 dev-erlang/protobuffs
-
-# Sam James <sam@gentoo.org> (2023-08-30)
-# Used to be a dependency of dev-python/qiskit-terra but is now being phased
-# out. Fails to build with modern setuptools and >= Python 3.11. No upstream
-# activity.
-# Removal on 2023-09-29.  Bug #911840, bug #896900.
-dev-python/tweedledum
-
-# Hans de Graaff <graaff@gentoo.org> (2023-08-29)
-# Obsolete slots that are no longer used by any sinatra version. Use the
-# newer slot instead. Masked for removal on 2023-09-29.
-dev-ruby/mustermann:1
-dev-ruby/mustermann:2
-
-# Olivier Laurantin <olivier.laurantin@laposte.net> (2023-08-29)
-# Masked for removal on 2023-10-01
-# net-wireless/blueberry will never work with recent gnome-bluetooth versions
-# and is the only package requiring net-wireless/gnome-bluetooth:2
-net-wireless/blueberry
-net-wireless/gnome-bluetooth:2
-
-# Hans de Graaff <graaff@gentoo.org> (2023-08-29)
-# Use the newer slot instead.  Masked for removal on 2023-09-29.
-dev-ruby/twitter:7
-
-# Sam James <sam@gentoo.org> (2023-08-29)
-# Obsolete as of September 2021 when legacy Tor hidden services stopped
-# working. Now fails to build with latest protobuf too. No upstream activity
-# since 2017. Alternatives (unvetted) are 'cwtch' and 'ricochet-refreshed' but
-# neither are packaged.
-# Removal on 2023-09-28.  Bug #830477, bug #913004.
-net-im/ricochet
-
-# Sam James <sam@gentoo.org> (2023-08-29)
-# Fails to build with new protobuf. Deprecated by upstream which recommend
-# sci-biology/kallisto as a replacement.
-# Removal on 2023-09-28.  Bug #912828.
-sci-biology/express
-
-# Michał Górny <mgorny@gentoo.org> (2023-08-28)
-# A shim that is no longer needed.  No reverse dependencies.
-# Removal on 2023-09-27.  Bug #906516.
-dev-python/pytz_deprecation_shim
-
-# Jonas Stein <jstein@gentoo.org> (2023-08-17)
-# Upstream warns that it is broken and there is no fix since 2010
-# Removal after 2023-10-01.  Bug #912363.
-app-dicts/edictionary
 
 # Sam James <sam@gentoo.org> (2023-08-04)
 # Stricter behavior which causes some packages to fail, see bug #911721.
@@ -319,7 +334,6 @@ app-dicts/edictionary
 # Matt Turner <mattst88@gentoo.org> (2023-07-06)
 # GNOME 45 mask
 >=app-editors/ghex-45_alpha
->=app-misc/gnote-45_alpha
 >=gnome-extra/gnome-logs-45_alpha
 >=net-misc/gnome-remote-desktop-45_alpha
 >=x11-libs/pango-1.51.0
@@ -538,10 +552,6 @@ sys-devel/automake:1.11
 # incompatiblity with revdep licenses.  Mask until the situation
 # is resolved.  Bug #791259.
 >=media-libs/libopenaptx-0.2.1
-
-# Ulrich Müller <ulm@gentoo.org> (2021-04-20)
-# Version 3.15 is broken with Emacs 27.2.
-=app-emacs/mic-paren-3.15-r0
 
 # Sam James <sam@gentoo.org> (2021-03-30)
 # Seems to break dev-tex/culmus-latex
