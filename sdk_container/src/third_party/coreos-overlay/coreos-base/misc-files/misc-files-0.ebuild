@@ -100,4 +100,9 @@ src_install() {
         dosym "${target}" "${link}"
         fowners --no-dereference 500:500 "${link}"
     done
+
+    # Create a symlink for Kubernetes to redirect writes from /usr/libexec/... to /var/kubernetes/...
+    # (The below keepdir will result in a tmpfiles entry in base_image_var.conf)
+    keepdir /var/kubernetes/kubelet-plugins/volume/exec
+    dosym /var/kubernetes/kubelet-plugins/volume/exec /usr/libexec/kubernetes/kubelet-plugins/volume/exec
 }
