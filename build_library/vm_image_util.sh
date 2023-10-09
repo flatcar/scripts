@@ -47,10 +47,10 @@ VALID_OEM_PACKAGES=(
     cloudsigma
     cloudstack
     digitalocean
-    ec2-compat
     exoscale
     gce
     hyperv
+    openstack
     packet
     qemu
     rackspace
@@ -229,16 +229,18 @@ IMG_ami_OEM_USE=ami
 IMG_ami_OEM_PACKAGE=common-oem-files
 IMG_ami_OEM_SYSEXT=oem-ami
 
-## openstack, supports ec2's metadata format so use oem-ec2-compat
+## openstack
 IMG_openstack_DISK_FORMAT=qcow2
 IMG_openstack_DISK_LAYOUT=vm
-IMG_openstack_OEM_PACKAGE=oem-ec2-compat
+IMG_openstack_OEM_PACKAGE=common-oem-files
 IMG_openstack_OEM_USE=openstack
+IMG_openstack_OEM_SYSEXT=oem-openstack
 
 ## openstack but without a resized root partition for more flexibility
 IMG_openstack_mini_DISK_FORMAT=qcow2
-IMG_openstack_mini_OEM_PACKAGE=oem-ec2-compat
+IMG_openstack_mini_OEM_PACKAGE=common-oem-files
 IMG_openstack_mini_OEM_USE=openstack
+IMG_openstack_mini_OEM_SYSEXT=oem-openstack
 
 ## brightbox, supports ec2's metadata format so use oem-ec2-compat
 IMG_brightbox_DISK_FORMAT=qcow2
@@ -280,7 +282,9 @@ IMG_cloudstack_vhd_DISK_FORMAT=vhd
 IMG_cloudstack_vhd_OEM_PACKAGE=oem-cloudstack
 
 ## digitalocean
-IMG_digitalocean_OEM_PACKAGE=oem-digitalocean
+IMG_digitalocean_OEM_PACKAGE=common-oem-files
+IMG_digitalocean_OEM_USE=digitalocean
+IMG_digitalocean_OEM_SYSEXT=oem-digitalocean
 
 ## exoscale
 IMG_exoscale_DISK_FORMAT=qcow2
@@ -302,7 +306,9 @@ IMG_cloudsigma_DISK_FORMAT=qcow2
 IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
 
 ## packet
-IMG_packet_OEM_PACKAGE=oem-packet
+IMG_packet_OEM_PACKAGE=common-oem-files
+IMG_packet_OEM_SYSEXT=oem-packet
+IMG_packet_OEM_USE=packet
 
 ###########################################################
 

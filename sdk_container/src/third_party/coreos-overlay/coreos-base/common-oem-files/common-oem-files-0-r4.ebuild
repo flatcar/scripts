@@ -6,6 +6,9 @@ EAPI=8
 OEMIDS=(
     ami
     azure
+    digitalocean
+    openstack
+    packet
     qemu
     vmware
 )
