@@ -301,11 +301,6 @@ image_packages_implicit() {
             query_available_package "${pkg}"
         done < "${profile}/package.provided"
     fi
-
-    # Include source packages of all sysext images installed on disk.
-    for docker_containerd_package in $(package_run_dependencies docker) $(package_run_dependencies containerd); do
-     query_available_package "${docker_containerd_package}" ;
-    done
 }
 
 # Generate a list of packages installed in an image.
