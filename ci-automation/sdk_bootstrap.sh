@@ -81,8 +81,8 @@ function _sdk_bootstrap_impl() {
     local target_branch=''
     # These variables are here to make it easier to test nightly
     # builds without messing with actual release branches.
-    local main_branch='main'
-    local nightly='nightly'
+    local main_branch='krnowak/fake-main'
+    local nightly='fakely'
     # Patterns used below.
     local nightly_pattern_1='^main-[0-9.]+-'"${nightly}"'-[-0-9]+(-INTERMEDIATE)?$'
     local nightly_pattern_2='^main-[0-9.]+-'"${nightly}"'-[-0-9]+$'
@@ -141,6 +141,8 @@ function _sdk_bootstrap_impl() {
     )
     update_and_push_version "${version}" "${target_branch}"
     apply_local_patches
+
+    exit 1
 
     ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}"
 
