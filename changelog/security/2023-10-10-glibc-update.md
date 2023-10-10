@@ -1,0 +1,1 @@
+- glibc ([CVE-2023-4911](https://nvd.nist.gov/vuln/detail/CVE-2023-4911))
