@@ -4,7 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/danielstenberg.asc
-inherit autotools multilib-minimal prefix verify-sig
+inherit autotools multilib-minimal multiprocessing prefix toolchain-funcs verify-sig
 
 DESCRIPTION="A Client that groks URLs"
 HOMEPAGE="https://curl.se/"
@@ -17,67 +17,72 @@ else
 		https://curl.se/download/${P}.tar.xz
 		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha amd64 arm ~arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
 SLOT="0"
-IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+IUSE="+adns +alt-svc brotli +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
+IUSE+=" +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
 # These select the default SSL implementation
-IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_rustls"
-IUSE+=" nghttp3"
+IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
 RESTRICT="!test? ( test )"
 
 # Only one default ssl provider can be enabled
 # The default ssl provider needs its USE satisfied
+# nghttp3 = https://bugs.gentoo.org/912029
 REQUIRED_USE="
 	ssl? (
 		^^ (
 			curl_ssl_gnutls
 			curl_ssl_mbedtls
-			curl_ssl_nss
 			curl_ssl_openssl
 			curl_ssl_rustls
 		)
 	)
 	curl_ssl_gnutls? ( gnutls )
 	curl_ssl_mbedtls? ( mbedtls )
-	curl_ssl_nss? ( nss )
 	curl_ssl_openssl? ( openssl )
 	curl_ssl_rustls? ( rustls )
+	nghttp3? (
+		!openssl
+		alt-svc )
 "
 
+# cURL's docs and CI/CD are great resources for confirming supported versions
+# particulary for fast-moving targets like HTTP/2 and TCP/2 e.g.:
+# - https://github.com/curl/curl/blob/master/docs/INTERNALS.md (core dependencies + minimum versions)
+# - https://github.com/curl/curl/blob/master/docs/HTTP3.md (example of a feature that moves quickly)
+# - https://github.com/curl/curl/blob/master/.github/workflows/quiche-linux.yml (CI/CD for TCP/2)
+# However 'supported' vs 'works' are two entirely different things; be sane but
+# don't be afraid to require a later version.
+
 RDEPEND="
-	sys-libs/zlib[${MULTILIB_USEDEP}]
+	>=sys-libs/zlib-1.1.4[${MULTILIB_USEDEP}]
 	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.12.0:=[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
-	ldap? ( net-nds/openldap:=[static-libs?,${MULTILIB_USEDEP}] )
+	ldap? ( >=net-nds/openldap-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
 	nghttp3? (
-		>=net-libs/nghttp3-0.11.0[${MULTILIB_USEDEP}]
-		>=net-libs/ngtcp2-0.15.0[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
+		>=net-libs/nghttp3-0.15.0[${MULTILIB_USEDEP}]
+		>=net-libs/ngtcp2-0.19.1[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
 	)
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
-	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
+	ssh? ( >=net-libs/libssh2-1.0.0[${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
 			app-misc/ca-certificates
-			net-libs/gnutls:=[static-libs?,${MULTILIB_USEDEP}]
+			>=net-libs/gnutls-3.1.10:=[static-libs?,${MULTILIB_USEDEP}]
 			dev-libs/nettle:=[${MULTILIB_USEDEP}]
 		)
 		mbedtls? (
 			app-misc/ca-certificates
 			net-libs/mbedtls:=[${MULTILIB_USEDEP}]
 		)
-		nss? (
-			app-misc/ca-certificates
-			dev-libs/nss[${MULTILIB_USEDEP}]
-			dev-libs/nss-pem
-		)
 		openssl? (
-			dev-libs/openssl:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
+			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		rustls? (
 			net-libs/rustls-ffi:=[${MULTILIB_USEDEP}]
@@ -85,13 +90,15 @@ RDEPEND="
 	)
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
 "
+
 DEPEND="${RDEPEND}"
+
 BDEPEND="
 	dev-lang/perl
 	virtual/pkgconfig
 	test? (
 		sys-apps/diffutils
-		http2? ( net-libs/nghttp2:=[utils,${MULTILIB_USEDEP}] )
+		http2? ( >=net-libs/nghttp2-1.15.0:=[utils,${MULTILIB_USEDEP}] )
 		nghttp3? ( net-libs/nghttp2:=[utils,${MULTILIB_USEDEP}] )
 	)
 	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
@@ -137,8 +144,8 @@ multilib_src_configure() {
 	local myconf=()
 
 	myconf+=( --without-ca-fallback --with-ca-bundle="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt  )
-	if use ssl ; then
-		myconf+=( --without-gnutls --without-mbedtls --without-nss --without-rustls )
+	if use ssl; then
+		myconf+=( --without-gnutls --without-mbedtls --without-rustls )
 
 		if use gnutls; then
 			multilib_is_native_abi && einfo "SSL provided by gnutls"
@@ -147,10 +154,6 @@ multilib_src_configure() {
 		if use mbedtls; then
 			multilib_is_native_abi && einfo "SSL provided by mbedtls"
 			myconf+=( --with-mbedtls )
-		fi
-		if use nss; then
-			multilib_is_native_abi && einfo "SSL provided by nss"
-			myconf+=( --with-nss --with-nss-deprecated )
 		fi
 		if use openssl; then
 			multilib_is_native_abi && einfo "SSL provided by openssl"
@@ -166,9 +169,6 @@ multilib_src_configure() {
 		elif use curl_ssl_mbedtls; then
 			multilib_is_native_abi && einfo "Default SSL provided by mbedtls"
 			myconf+=( --with-default-ssl-backend=mbedtls )
-		elif use curl_ssl_nss; then
-			multilib_is_native_abi && einfo "Default SSL provided by nss"
-			myconf+=( --with-default-ssl-backend=nss )
 		elif use curl_ssl_openssl; then
 			multilib_is_native_abi && einfo "Default SSL provided by openssl"
 			myconf+=( --with-default-ssl-backend=openssl )
@@ -177,6 +177,7 @@ multilib_src_configure() {
 			myconf+=( --with-default-ssl-backend=rustls )
 		else
 			eerror "We can't be here because of REQUIRED_USE."
+			die "Please file a bug, hit impossible condition w/ USE=ssl handling."
 		fi
 
 	else
@@ -196,7 +197,12 @@ multilib_src_configure() {
 
 	myconf+=(
 		$(use_enable alt-svc)
-		--enable-crypto-auth
+		--enable-basic-auth
+		--enable-bearer-auth
+		--enable-digest-auth
+		--enable-kerberos-auth
+		--enable-negotiate-auth
+		--enable-aws
 		--enable-dict
 		--disable-ech
 		--enable-file
@@ -241,7 +247,7 @@ multilib_src_configure() {
 		--without-amissl
 		--without-bearssl
 		$(use_with brotli)
-		--without-fish-functions-dir
+		--with-fish-functions-dir="${EPREFIX}"/usr/share/fish/vendor_completions.d
 		$(use_with http2 nghttp2)
 		--without-hyper
 		$(use_with idn libidn2)
@@ -263,11 +269,18 @@ multilib_src_configure() {
 		--without-wolfssl
 		--with-zlib
 		$(use_with zstd)
+		--with-zsh-functions-dir="${EPREFIX}"/usr/share/zsh/site-functions
 	)
 
 	if use test && multilib_is_native_abi && ( use http2 || use nghttp3 ); then
 		myconf+=(
 			--with-test-nghttpx="${BROOT}/usr/bin/nghttpx"
+		)
+	fi
+
+	if [[ ${CHOST} == *mingw* ]] ; then
+		myconf+=(
+			--disable-pthreads
 		)
 	fi
 
@@ -305,6 +318,15 @@ multilib_src_configure() {
 	echo "Requires.private: ${priv[*]}" >> libcurl.pc || die
 }
 
+multilib_src_compile() {
+	default
+
+	if multilib_is_native_abi; then
+		# Shell completions
+		! tc-is-cross-compiler && emake -C scripts
+	fi
+}
+
 # There is also a pytest harness that tests for bugs in some very specific
 # situations; we can rely on upstream for this rather than adding additional test deps.
 multilib_src_test() {
@@ -318,9 +340,20 @@ multilib_src_test() {
 	# Note: if needed, we can skip specific tests. See e.g. Fedora's packaging
 	# or just read https://github.com/curl/curl/tree/master/tests#run.
 	# Note: we don't run the testsuite for cross-compilation.
+	# Upstream recommend 7*nproc as a starting point for parallel tests, but
+	# this ends up breaking when nproc is huge (like -j80).
 	# The network sandbox causes tests 241 and 1083 to fail; these are typically skipped
 	# as most gentoo users don't have an 'ip6-localhost'
-	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p !241 !1083"
+	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083"
+}
+
+multilib_src_install() {
+	emake DESTDIR="${D}" install
+
+	if multilib_is_native_abi; then
+		# Shell completions
+		! tc-is-cross-compiler && emake -C scripts DESTDIR="${D}" install
+	fi
 }
 
 multilib_src_install_all() {
