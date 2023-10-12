@@ -8,14 +8,14 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="e98d00c2eb00b1cfb25212f7527ed47d8ab3bb3a"
+	CROS_WORKON_COMMIT="7ba7440c49d32f911fb9e1c213307947a777085d"
 	KEYWORDS="amd64 arm64"
 fi
 
 inherit cros-workon multilib
 
 DESCRIPTION="UEFI Shim loader"
-HOMEPAGE="https://github.com/rhinstaller/shim"
+HOMEPAGE="https://github.com/rhboot/shim"
 
 LICENSE="BSD"
 SLOT="0"
