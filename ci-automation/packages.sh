@@ -41,8 +41,7 @@
 # OUTPUT:
 #
 #   1. Exported container image "flatcar-packages-[ARCH]-[VERSION].tar.gz" with binary packages
-#       pushed to buildcache, and torcx_manifest.json pushed to "images/${arch}/${vernum}/"
-#       (for use with tests).
+#       pushed to buildcache (for use with tests).
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #   3. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
@@ -81,38 +80,14 @@ function _packages_build_impl() {
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     local packages_container="flatcar-packages-${arch}-${docker_vernum}"
-    local torcx_pkg_url="https://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/torcx"
 
     source sdk_lib/sdk_container_common.sh
 
-    if is_official "${vernum}"; then
-        # A channel returned by get_git_channel should not ever be
-        # "developer" here, because it's an official build done from
-        # one of the maintenance branches. So if the channel happens
-        # to be "developer", then you are doing it wrong (releasing
-        # from the main branch?).
-        torcx_pkg_url="https://$(get_git_channel).release.flatcar-linux.net/${arch}-usr/${vernum}/torcx"
-    fi
-
     apply_local_patches
-    # Build packages; store packages and torcx output in container
-    ./run_sdk_container -x ./ci-cleanup.sh -n "${packages_container}" -v "${vernum}" \
+    # Build packages; store packages in container
+    ./run_sdk_container -x ./ci-cleanup.sh  -n "${packages_container}" -v "${vernum}" \
         -C "${sdk_image}" \
-        mkdir -p "${CONTAINER_TORCX_ROOT}"
-    ./run_sdk_container -n "${packages_container}" -v "${vernum}" \
-        -C "${sdk_image}" \
-        ./build_packages --board="${arch}-usr" \
-            --torcx_output_root="${CONTAINER_TORCX_ROOT}" \
-            --torcx_extra_pkg_url="${torcx_pkg_url}"
-
-    # copy torcx manifest and docker tarball for publishing
-    local torcx_tmp="__build__/torcx_tmp"
-    rm -rf "${torcx_tmp}"
-    mkdir "${torcx_tmp}"
-    ./run_sdk_container -n "${packages_container}" -v "${vernum}" \
-        -C "${sdk_image}" \
-        cp -r "${CONTAINER_TORCX_ROOT}/" \
-        "${torcx_tmp}"
+        ./build_packages --board="${arch}-usr"
 
     # run_sdk_container updates the version file, use that version from here on
     source sdk_container/.repo/manifests/version.txt
@@ -122,22 +97,5 @@ function _packages_build_impl() {
 
     # generate image + push to build cache
     docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
-
-    # publish torcx output root for consumption by build_image
-    local torcx_root_tar="torcx_root.tar.zst"
-    tar --zstd -cpf "${torcx_root_tar}" -C "${torcx_tmp}/torcx" .
-    copy_to_buildcache "images/${arch}/${vernum}/torcx" "${torcx_root_tar}"
-
-    # Publish torcx manifest and docker tarball to "images" cache so tests can pull it later.
-    create_digests "${SIGNER}" \
-        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json" \
-        "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz
-    sign_artifacts "${SIGNER}" \
-        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"* \
-        "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz*
-    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
-        "${torcx_tmp}/torcx/${arch}-usr/latest/torcx_manifest.json"*
-    copy_to_buildcache "images/${arch}/${vernum}/torcx" \
-        "${torcx_tmp}/torcx/pkgs/${arch}-usr/docker/"*/*.torcx.tgz*
 }
 # --

@@ -16,7 +16,7 @@
 #   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
 #   3. Mantle container docker image reference is stored in sdk_container/.repo/manifests/mantle-container.
-#   4. Vendor image and torcx docker tarball + manifest to run tests for are available on buildcache
+#   4. Vendor image to run tests for are available on buildcache
 #         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #   5. SDK container is either
 #       - available via ghcr.io/flatcar/flatcar-sdk-[ARCH]:[VERSION] (official SDK release)

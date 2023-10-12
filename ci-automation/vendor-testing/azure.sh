@@ -53,7 +53,6 @@ run_kola_tests() {
       --azure-image-file="${AZURE_IMAGE_NAME}" \
       --azure-location="${AZURE_LOCATION}" \
       --azure-identity \
-      --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --tapfile="${instance_tapfile}" \
       --azure-size="${instance_type}" \
       --azure-hyper-v-generation="${hyperv_gen}" \

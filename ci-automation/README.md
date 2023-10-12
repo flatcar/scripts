@@ -77,8 +77,8 @@ image_build amd64
 4. Packages build (`packages.sh`): Build OS image packages and generate a new container image (containing both SDK and packages).
 5. Packages are published and the generic OS image is built.
    1. Binary packages are published (`push_pkgs.sh`) to the build cache, making them available to developers who base their work on the main branch.
-   2. Image build (`image.sh`): Using the container from 3., build an OS image and torcx store, and generate a new container image with everything in it.
-6. VMs build (`vms.sh`). Using the packages+torcx+image container from 4., build vendor images. Results are vendor-specific OS images.
+   2. Image build (`image.sh`): Using the container from 3., build an OS image, and generate a new container image with everything in it.
+6. VMs build (`vms.sh`). Using the packages+image container from 4., build vendor images. Results are vendor-specific OS images.
 
 ```
        .---------.                     .------------.             .--------.
@@ -97,7 +97,7 @@ image_build amd64
             |    alpha-3499.0.0-dev23     `--------´                   |
             |                                 |`- sdk + OS packages -->|
             |                                 |    container image     |
-            |                                 |    torcx manifest      |
+            |                                 |                        |
             |                           ______v_______                 |
             |                          ( publish pkgs )                |
             |                           `------------´                 |
@@ -129,7 +129,7 @@ Testing is implemented in two layers:
 
 Testing relies on the SDK container and will use tools / test suites from the SDK.
 The low-level vendor / image specific script (layer 2. in the list above) runs inside the SDK.
-Testing will use the vendor image published by `vms.sh` from buildcache, and the torcx manifest published by `packages.sh`.
+Testing will use the vendor image published by `vms.sh` from buildcache.
 
 Additionally, a script library is provided (at `ci-automation/tapfile_helper_lib.sh`) to help handling `.tap` test result files produced by test runs.
 Library functions may be used to merge the result of multiple test runs (e.g. for multiple image types / vendors) into a single test result report.

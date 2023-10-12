@@ -51,7 +51,6 @@ timeout --signal=SIGQUIT 4h\
     --platform=do \
     --channel="${CIA_CHANNEL}" \
     --tapfile="${CIA_TAPFILE}" \
-    --torcx-manifest="${CIA_TORCX_MANIFEST}" \
     "${@}"
 
 set +x

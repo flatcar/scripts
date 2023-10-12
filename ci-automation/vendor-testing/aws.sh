@@ -58,7 +58,6 @@ run_kola_tests() {
          --aws-type="${instance_type}" \
          --aws-iam-profile="${AWS_IAM_PROFILE}" \
          --tapfile="${instance_tapfile}" \
-         --torcx-manifest="${CIA_TORCX_MANIFEST}" \
          "${@}"
 }
 

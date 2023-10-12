@@ -115,7 +115,6 @@ run_kola_tests() {
       --qemu-bios="${bios}" \
       --qemu-image="${image}" \
       --tapfile="${instance_tapfile}" \
-      --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --update-payload="${QEMU_UPDATE_PAYLOAD}" \
       ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
       "${tests[@]}"

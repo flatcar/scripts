@@ -49,7 +49,6 @@ timeout --signal=SIGQUIT 2h kola run \
   --parallel="${OPENSTACK_PARALLEL}" \
   --tapfile="${CIA_TAPFILE}" \
   --channel="${CIA_CHANNEL}" \
-  --torcx-manifest="${CIA_TORCX_MANIFEST}" \
   --basename="${kola_test_basename}" \
   --platform=openstack \
   --openstack-network=public \

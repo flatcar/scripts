@@ -19,7 +19,7 @@
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
 #   3. Flatcar packages container is available via build cache server
 #       from "/containers/[VERSION]/flatcar-packages-[ARCH]-[FLATCAR_VERSION].tar.gz"
-#       or present locally. Container must contain binary packages and torcx artifacts.
+#       or present locally. Container must contain binary packages.
 #
 # INPUT:
 #
