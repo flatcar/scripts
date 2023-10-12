@@ -3,14 +3,20 @@
 
 EAPI=8
 
+# One OEM ID per line, a comment at the end of the line to denote
+# which arch this OEM is for (not necessary if OEM is built for all of
+# them). The arches should be space separated.
+#
+# This is used by the ci-automation/image_changes.sh script to figure
+# out the per-arch OEM IDs.
 OEMIDS=(
     ami
     azure
-    digitalocean
+    digitalocean # amd64
     openstack
     packet
     qemu
-    vmware
+    vmware # amd64
 )
 
 DESCRIPTION='Common OEM files'
