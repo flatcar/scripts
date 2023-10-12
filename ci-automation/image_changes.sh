@@ -488,21 +488,21 @@ function get_channel_a_and_version_a() {
 # --
 
 # Gets the latest release for given channel and board. For lts channel
-# gets a version of the latest LTS.
-function channel_version() {
+# gets a version of the latest LTS. Runs in a subshell.
+function channel_version() (
     local channel=${1}; shift
     local board=${1}; shift
 
-    curl \
-        -fsSL \
-        --retry-delay 1 \
-        --retry 60 \
-        --retry-connrefused \
-        --retry-max-time 60 \
-        --connect-timeout 20 \
-        "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt" | \
-        grep -m 1 'FLATCAR_VERSION=' | cut -d = -f 2-
-}
+    source <(curl \
+                 -fsSL \
+                 --retry-delay 1 \
+                 --retry 60 \
+                 --retry-connrefused \
+                 --retry-max-time 60 \
+                 --connect-timeout 20 \
+                 "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt")
+    echo "${FLATCAR_VERSION}"
+)
 # --
 
 # Prints some reports using scripts from the passed path to
