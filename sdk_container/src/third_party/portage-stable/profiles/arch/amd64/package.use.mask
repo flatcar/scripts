@@ -65,7 +65,7 @@ dev-lang/ruby -jit
 
 # Sam James <sam@gentoo.org> (2023-04-03)
 # pytables is available here.
-dev-python/pytables -cpudetection
+dev-python/tables -cpudetection
 
 # Craig Andrews <candrews@gentoo.org> (2023-03-09)
 # media-libs/libplacebo is keyworded here
@@ -220,13 +220,6 @@ sci-physics/root -cudnn
 # Encrypted Media Extensions (eme-free) can be disabled on amd64
 mail-client/thunderbird -eme-free
 www-client/firefox -eme-free
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-02-26)
-# Vulkan is available on amd64.
-dev-qt/qt3d -vulkan
-dev-qt/qtdeclarative -vulkan
-dev-qt/qtgui -vulkan
-dev-qt/qtwayland -vulkan
 
 # James Le Cuirot <chewi@gentoo.org> (2019-12-10)
 # The JIT feature only works on amd64 and x86.

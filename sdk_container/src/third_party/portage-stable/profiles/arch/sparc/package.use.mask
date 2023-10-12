@@ -1,6 +1,17 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-10-08)
+# Vulkan is not available on sparc.
+dev-qt/qtdeclarative vulkan
+dev-qt/qtgui vulkan
+<dev-qt/qtwayland-5.15.11:5 vulkan
+>=dev-qt/qtwayland-5.15.11:5 compositor
+
+# Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
+# sys-apps/s6-linux-init has not been tested on this arch
+sys-apps/openrc s6
+
 # Sam James <sam@gentoo.org> (2023-09-22)
 # Qt 6 not keyworded here.
 dev-util/cmake gui
@@ -332,10 +343,6 @@ x11-themes/qtcurve plasma
 # Rolf Eike Beer <eike@sf-mail.de> (2020-04-09)
 # dependencies not keyworded
 dev-python/stevedore doc
-
-# Rolf Eike Beer <eike@sf-mail.de> (2020-04-06)
-# ghc does not build, which is needed for darcs, bug #711944
-app-portage/layman darcs
 
 # Rolf Eike Beer <eike@sf-mail.de> (2020-04-06)
 # grub pc is not supported on sparc

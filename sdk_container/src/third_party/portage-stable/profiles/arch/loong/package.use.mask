@@ -1,6 +1,18 @@
 # Copyright 2022-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2023-10-08)
+# dev-db/mysql not keyworded here
+dev-perl/DBD-mysql mysql
+
+# Patrick Lauer <patrick@gentoo.org> (2023-10-05)
+# JIT / llvm support needs too old llvm
+dev-db/postgresql llvm
+
+# Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
+# sys-apps/s6-linux-init has not been tested on this arch
+sys-apps/openrc s6
+
 # WANG Xuerui <xen0n@gentoo.org> (2023-09-29)
 # no luajit for now
 media-gfx/gimp lua
@@ -17,13 +29,6 @@ dev-util/librnp man
 # Michał Górny <mgorny@gentoo.org> (2023-09-19)
 # dev-cpp/cpp-httplib is keyworded here.
 sys-devel/llvm -debuginfod
-
-# WANG Xuerui <xen0n@gentoo.org> (2023-09-12)
-# Vulkan is available on loong.
-dev-qt/qt3d -vulkan
-dev-qt/qtdeclarative -vulkan
-dev-qt/qtgui -vulkan
-dev-qt/qtwayland -vulkan
 
 # WANG Xuerui <xen0n@gentoo.org> (2023-09-10)
 # Revdeps of dev-python/ujson which is masked.
@@ -125,10 +130,6 @@ dev-python/qtconsole test
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
 # dev-qt/qtwebengine:5 isn't available on loong.
 dev-python/QtPy webengine
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
-# app-arch/p7zip fails one test
-kde-apps/kdeutils-meta 7zip
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # <dev-cpp/tbb-2021 fails to build on loong w/ gcc-13

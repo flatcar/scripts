@@ -1,6 +1,10 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
+# sys-apps/s6-linux-init has not been tested on this arch
+sys-apps/openrc s6
+
 # Sam James <sam@gentoo.org> (2023-09-24)
 # Qt not keyworded here.
 app-doc/doxygen gui
@@ -156,9 +160,6 @@ dev-vcs/subversion ruby
 # Mikle Kolyada <zlogene@gentoo.org> (2018-06-03)
 # Not tested
 dev-python/cssselect doc
-# not really interested in supporting alternative
-# VCS for overlays yet. Layman needs SVN for tests too.
-app-portage/layman darcs mercurial test
 dev-python/setuptools-scm test
 # no lua support for vim
 app-editors/vim lua
@@ -177,10 +178,6 @@ dev-libs/libpcre2 jit
 # Sergey Popov <pinkbyte@gentoo.org> (2015-10-24)
 # Not tested
 net-mail/dovecot lz4
-
-# Sergey Popov <pinkbyte@gentoo.org> (2015-02-18)
-# Not tested
-app-portage/layman g-sorcery
 
 # Mikle Kolyada <zlogene@gentoo.org> (2014-01-11)
 # too much unkeyworded dependencies (bug #497068)
