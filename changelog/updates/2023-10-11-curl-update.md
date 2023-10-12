@@ -1,0 +1,1 @@
+- curl ([8.4.0](https://curl.se/changes.html#8_4_0))
