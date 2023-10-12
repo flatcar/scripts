@@ -49,7 +49,7 @@ case "${channel_name}" in
         ;;
     alpha|beta|stable|lts)
         link="https://${channel_name}.release.flatcar-linux.net/amd64-usr/current"
-        major=$(curl -sSL "${link}/version.txt" | awk -F= '/FLATCAR_BUILD=/{ print $2 }')
+        major=$(source <(curl -sSL "${link}/version.txt"); echo "${FLATCAR_BUILD}")
         branch="flatcar-${major}"
         ;;
     *)

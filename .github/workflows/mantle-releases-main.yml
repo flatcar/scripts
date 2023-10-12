@@ -40,7 +40,7 @@ jobs:
             fi
             rm -f lts-info
           else
-            major=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 https://${{ matrix.branch }}.release.flatcar-linux.net/amd64-usr/current/version.txt | awk -F= '/FLATCAR_BUILD=/{ print $2 }')
+            major=$(source <(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 https://${{ matrix.branch }}.release.flatcar-linux.net/amd64-usr/current/version.txt); echo "${FLATCAR_BUILD}")
             branch="flatcar-${major}"
           fi
           echo "BRANCH=${branch}" >>"${GITHUB_OUTPUT}"
