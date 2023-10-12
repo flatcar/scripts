@@ -108,7 +108,7 @@ function image_changes() (
     echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${version}/flatcar_production_image.bin.bz2"
     echo
     local -a oemids
-    get_oem_id_list . oemids
+    get_oem_id_list . "${arch}" oemids
     generate_image_changes_report \
         "${version_description}" '-' "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
@@ -201,10 +201,12 @@ function git_tag_for_nightly() {
 # Gets a list of OEMs that are using sysexts.
 #
 # 1 - scripts repo
-# 2 - name of an array variable to store the result in
+# 2 - arch
+# 3 - name of an array variable to store the result in
 function get_oem_id_list() {
-    local scripts_repo
+    local scripts_repo arch
     scripts_repo=${1}; shift
+    arch=${1}; shift
     local -n list_var_ref=${1}; shift
 
     local -a ebuilds
@@ -214,22 +216,44 @@ function get_oem_id_list() {
     if [[ ${#ebuilds[@]} -eq 0 ]]; then
         return 0
     fi
-    local line mode
-    # 0 = none OEMIDS line found yet
+    local mode
+    # 0 = no OEMIDS line found yet
     # 1 = OEMIDS line found
     mode=0
-    while read -r line; do
+    local -a fields
+    local first arch_field arch_found
+    while read -r -a fields; do
+        if [[ ${#fields[@]} -eq 0 ]]; then
+            continue
+        fi
+        first=${fields[0]}
         case ${mode} in
             0)
-                if [[ ${line} = 'OEMIDS=(' ]]; then
+                if [[ ${first} = 'OEMIDS=(' ]]; then
                     mode=1
                 fi
                 ;;
             1)
-                if [[ ${line} = ')' ]]; then
+                if [[ ${first} = ')' ]]; then
                     break
                 fi
-                list_var_ref+=( "${line}" )
+                if [[ ${#fields[@]} -gt 1 ]]; then
+                    if [[ ${fields[1]} != '#' ]]; then
+                        echo "expect a line inside OEMIDS to be like '<OEMID> # <ARCH1> <ARCH2>…' or just '<OEMID>', got '${fields[*]}'" >&2
+                        exit 1
+                    fi
+                    arch_found=
+                    for arch_field in "${fields[@]:2}"; do
+                        if [[ ${arch} = "${arch_field}" ]]; then
+                            arch_found=x
+                            break
+                        fi
+                    done
+                    if [[ -z ${arch_found} ]]; then
+                        continue
+                    fi
+                fi
+                list_var_ref+=( "${first}" )
                 ;;
         esac
     done <"${ebuilds[0]}"
