@@ -54,24 +54,21 @@ if [[ ${PV} != 9999 ]]; then
 		"
 		S=${WORKDIR}/${P%_*}
 	fi
-	KEYWORDS="amd64 arm arm64 ~ia64 ppc ppc64 ~riscv sparc x86"
+	# Flatcar: Mark as stable for arm64.
+	KEYWORDS="amd64 ~arm arm64 ~ia64 ~ppc ~ppc64 ~riscv ~sparc x86"
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/grub.git"
 fi
 
-SRC_URI+=" https://dev.gentoo.org/~floppym/dist/${P}-backports-r2.tar.xz"
+SRC_URI+=" https://dev.gentoo.org/~floppym/dist/${P}-backports-r3.tar.xz"
 
 PATCHES=(
 	"${WORKDIR}/${P}-backports"
 	"${FILESDIR}"/gfxpayload.patch
 	"${FILESDIR}"/grub-2.02_beta2-KERNEL_GLOBS.patch
 	"${FILESDIR}"/grub-2.06-test-words.patch
-	"${FILESDIR}"/grub-2.06-grub-mkconfig-restore-umask.patch
-	"${FILESDIR}"/grub-2.06-gentpl.py-Remove-.interp-section-from-.img-files.patch
-	"${FILESDIR}"/grub-2.06-fs-ext2-ignore-checksum-seed.patch
-	"${FILESDIR}"/grub-2.06-riscv.patch
-	"${FILESDIR}"/grub-2.06-locale.patch
+	# Flatcar: Add our patches.
 	"${FILESDIR}"/grub-2.06-add-verity-hash.patch
 	"${FILESDIR}"/grub-2.06-add-gpt-partition-scheme.patch
 )
@@ -103,6 +100,7 @@ REQUIRED_USE="
 	grub_platforms_loongson? ( fonts )
 "
 
+# Flatcar: Add a dependency on aarch64 cross gcc for arm64 platform.
 BDEPEND="
 	${PYTHON_DEPS}
 	>=sys-devel/flex-2.5.35
@@ -216,6 +214,7 @@ grub_configure() {
 		efi*) platform=efi ;;
 		xen-pvh) platform=xen_pvh ;;
 		xen*) platform=xen ;;
+		# Flatcar: Handle arm64 as efi platform
 		arm64*) platform=efi ;;
 		guessed) ;;
 		*) platform=${MULTIBUILD_VARIANT} ;;
