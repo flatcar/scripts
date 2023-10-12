@@ -255,7 +255,7 @@ jobs:
           prepare_env_vars_and_params_for_release "${arch}" "${git_tag}" "${var_names[@]}"
 
           package_diff_env+=(
-              "FROM_B=file://${PWD}/artifacts/${arch}-usr/latest"
+              "FROM_B=file://${PWD}/artifacts/images"
               # BOARD_B and CHANNEL_B are unused.
           )
           package_diff_params+=(
@@ -266,7 +266,7 @@ jobs:
           )
           # Nothing to add to size changes env.
           size_changes_params+=(
-              "local:${PWD}/artifacts/${arch}-usr/latest"
+              "local:${PWD}/artifacts/images"
           )
           show_changes_env+=(
               # Override the default locations of repositories.
@@ -312,7 +312,7 @@ jobs:
           prepare_env_vars_and_params_for_bincache "${arch}" "${git_tag}" "${var_names[@]}"
 
           package_diff_env+=(
-              "FROM_B=file://${PWD}/artifacts/${arch}-usr/latest"
+              "FROM_B=file://${PWD}/artifacts/images"
               # BOARD_B and CHANNEL_B are unused.
           )
           package_diff_params+=(
@@ -323,7 +323,7 @@ jobs:
           )
           # Nothing to add to size changes env.
           size_changes_params+=(
-              "local:${PWD}/artifacts/${arch}-usr/latest"
+              "local:${PWD}/artifacts/images"
           )
           show_changes_env+=(
               # Override the default locations of repositories.
