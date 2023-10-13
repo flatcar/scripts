@@ -109,26 +109,21 @@ trap cleanup EXIT
 info "Installing GRUB ${FLAGS_target} in ${FLAGS_disk_image##*/}"
 LOOP_DEV=$(sudo losetup --find --show --partscan "${FLAGS_disk_image}")
 ESP_DIR=$(mktemp --directory)
+MOUNTED=
 
-# work around slow/buggy udev, make sure the node is there before mounting
-if [[ ! -b "${LOOP_DEV}p1" ]]; then
-    # sleep a little just in case udev is ok but just not finished yet
-    warn "loopback device node ${LOOP_DEV}p1 missing, waiting on udev..."
-    sleep 0.5
-    for (( i=0; i<5; i++ )); do
-        if [[ -b "${LOOP_DEV}p1" ]]; then
-            break
-        fi
-        warn "looback device node still ${LOOP_DEV}p1 missing, reprobing..."
-        sudo blockdev --rereadpt ${LOOP_DEV}
-        sleep 0.5
-    done
-    if [[ ! -b "${LOOP_DEV}p1" ]]; then
-        failboat "${LOOP_DEV}p1 where art thou? udev has forsaken us!"
+for (( i=0; i<5; ++i )); do
+    if sudo mount -t vfat "${LOOP_DEV}p1" "${ESP_DIR}"; then
+        MOUNTED=x
+        break
     fi
+    warn "loopback device node ${LOOP_DEV}p1 still missing, reprobing..."
+    sudo blockdev --rereadpt "${LOOP_DEV}"
+    # sleep for 0.5, then 1, then 2, then 4, then 8 seconds.
+    sleep "$(bc <<<"scale=1; (2.0 ^ ${i}) / 2.0")"
+done
+if [[ -z ${MOUNTED} ]]; then
+    failboat "${LOOP_DEV}p1 where art thou? udev has forsaken us!"
 fi
-
-sudo mount -t vfat "${LOOP_DEV}p1" "${ESP_DIR}"
 sudo mkdir -p "${ESP_DIR}/${GRUB_DIR}"
 
 info "Compressing modules in ${GRUB_DIR}"
