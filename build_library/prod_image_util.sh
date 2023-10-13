@@ -179,30 +179,6 @@ EOF
       "${image_initrd_contents_wtd}" \
       "${image_disk_usage}"
 
-  # append sysext inventories to image contents files.
-  if [[ -n "${base_sysexts}" ]] ; then
-    local inventory_file="" image_basename="${image_name%.bin}"
-
-    for inventory_file in "${image_contents}" "${image_contents_wtd}" "${image_disk_usage}" "${image_packages}" ; do
-      local suffix="${inventory_file/${image_basename}/}" sysext=""
-
-      info "Processing '${inventory_file}'"
-
-      for sysext in ${base_sysexts//,/ }; do
-        local name="${sysext//\//_}"
-        local sysext_inventory="${root_fs_sysexts_output_dir}/${name}${suffix}"
-        if [[ ! -f "${sysext_inventory}" ]] ; then
-          die "Sysext inventory file '${sysext//\//_}${suffix}' for '${inventory_file}' not found in '${root_fs_sysexts_output_dir}'"
-        fi
-        info "Adding sysext inventory '${name}${suffix}' to '${inventory_file}'"
-        {
-          echo -e "\n\n### Sysext ${name}.raw\n"
-          cat "${sysext_inventory}"
-        } >> "${BUILD_DIR}/${inventory_file}"
-      done
-    done
-  fi
-
   # Upload
   local to_upload=(
     "${BUILD_DIR}/${image_contents}"
@@ -219,6 +195,24 @@ EOF
     "${BUILD_DIR}/${image_disk_usage}"
     "${BUILD_DIR}/${image_sysext_base}"
   )
+
+  # append sysext inventories to uploads
+  if [[ -n "${base_sysexts}" ]] ; then
+    local inventory_file="" image_basename="${image_name%.bin}"
+
+    for inventory_file in "${image_contents}" "${image_contents_wtd}" "${image_disk_usage}" "${image_packages}" ; do
+      local suffix="${inventory_file/${image_basename}/}" sysext=""
+
+      for sysext in ${base_sysexts//,/ }; do
+        local name="${sysext%:*}"
+        local sysext_inventory="${root_fs_sysexts_output_dir}/${name}${suffix}"
+        if [[ ! -f "${sysext_inventory}" ]] ; then
+          die "Sysext inventory file '${name}${suffix}' for '${inventory_file}' not found in '${root_fs_sysexts_output_dir}'"
+        fi
+        to_upload+=( "${sysext_inventory}" )
+      done
+    done
+  fi
 
   local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
   declare -a compressed_images

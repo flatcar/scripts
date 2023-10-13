@@ -29,14 +29,14 @@ create_prod_sysext() {
   local workdir="$3"
   local base_sysext="$4"
   local install_root="$5"
-  local grp_pkg="$6"
-  local pkginfo="${7:-}"
+  local name="$6"
+  local grp_pkg="$7"
+  local pkginfo="${8:-}"
 
-  local name="${grp_pkg//\//_}" # some-group/some-package => some-group_some-package
   local pkginfo_opt=""
   local manglefs_opt=""
 
-  local msg="Creating sysext '${grp_pkg}' ==> ${name}.raw"
+  local msg="Installing ${grp_pkg}' in sysext ${name}.raw"
 
   # Include previous sysexts' pkginfo if supplied
   if [[ -n "${pkginfo}" ]] ; then
@@ -107,15 +107,18 @@ sudo mksquashfs "${root_fs_dir}" "${sysext_base}" -noappend
 # for combined overlay later.
 prev_pkginfo=""
 sysext_lowerdirs="${sysext_mountdir}/rootfs-lower"
-for grp_pkg in ${sysexts_list//,/ }; do
+for sysext in ${sysexts_list//,/ }; do
+  # format is "<name>:<group>/<package>"
+  name="${sysext%:*}"
+  grp_pkg="${sysext#*:}"
   create_prod_sysext "${BOARD}" \
                      "${sysext_output_dir}" \
                      "${sysext_workdir}" \
                      "${sysext_base}" \
                      "${root_fs_dir}"\
+                     "${name}" \
                      "${grp_pkg}" \
                      "${prev_pkginfo}"
-  name="${grp_pkg//\//_}"
 
   mkdir -p "${sysext_mountdir}/${name}" \
            "${sysext_mountdir}/${name}_pkginfo"
