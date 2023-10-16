@@ -100,14 +100,8 @@ jobs:
           [ -z "${{ inputs.image_formats }}" ] || IMAGE_FORMATS="${{ inputs.image_formats }}"
           echo "IMAGE_FORMATS=${IMAGE_FORMATS}" >> $GITHUB_ENV
 
-          # Artifact root for images and torcx tarball as seen from within the container
+          # Artifact root for images as seen from within the container
           echo "CI_CONTAINER_ARTIFACT_ROOT=/home/sdk/trunk/src/scripts/artifacts" >> $GITHUB_ENV
-          echo "CI_CONTAINER_TORCX_ROOT=/home/sdk/trunk/src/scripts/artifacts/torcx" >> $GITHUB_ENV
-          mkdir -p artifacts/torcx
-
-          # Placeholder URL for run-kola-tests.yaml, "Extract artifacts" step which will replace
-          #  this with its IP address.
-          echo "TORCX_TESTS_PACKAGE_URL=http://localhost:12345" >> $GITHUB_ENV
 
           if [ -n "${{ inputs.custom_sdk_version }}" ] ; then
               echo "CUSTOM_SDK_VERSION=${{ inputs.custom_sdk_version }}" >> $GITHUB_ENV
@@ -146,9 +140,7 @@ jobs:
           #  which will be re-used by subsequent build steps.
           ./run_sdk_container -n "${container_name}" -v "${version}" \
             -C "${sdk_image}" \
-            ./build_packages --board="${arch}-usr" \
-                --torcx_output_root="${CI_CONTAINER_TORCX_ROOT}" \
-                --torcx_extra_pkg_url="${TORCX_TESTS_PACKAGE_URL}"
+            ./build_packages --board="${arch}-usr"
 
           # Create binpkgs tarball for archiving as artifact later
           ./run_sdk_container -n "${container_name}" \
@@ -193,7 +185,7 @@ jobs:
           ./run_sdk_container -n "${container_name}" \
                   ./build_image --board="${arch}-usr" --group="${channel}" \
                                 --output_root="${CI_CONTAINER_ARTIFACT_ROOT}" \
-                                --torcx_root="${CI_CONTAINER_TORCX_ROOT}" prodtar container
+                                prodtar container
 
       - name: Generate reports
         shell: bash
@@ -291,12 +283,6 @@ jobs:
             mv * ../../images/
           )
 
-          # create a tarball for torcx package + JSON file because upload-artifacts cannot handle filenames containing colons
-          #  (such as "docker:20.10.torcx.tgz")
-          mv artifacts/torcx/${arch}-usr/latest/torcx_manifest.json artifacts/torcx/pkgs/
-          tar -C artifacts/torcx/pkgs/ -cvf torcx.tar .
-
-
       - name: Upload binpkgs
         uses: actions/upload-artifact@v3
         with:
@@ -335,14 +321,6 @@ jobs:
           name: ${{ matrix.arch }}-devcontainer
           path: |
             scripts/artifacts/images/flatcar_developer_container*
-
-      - name: Upload torcx tarball
-        uses: actions/upload-artifact@v3
-        with:
-          retention-days: 7
-          name: ${{ matrix.arch }}-torcx
-          path: |
-            scripts/torcx.tar
 
       - name: Upload reports
         uses: actions/upload-artifact@v3
