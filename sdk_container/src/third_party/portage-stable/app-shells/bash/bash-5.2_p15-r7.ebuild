@@ -1,7 +1,7 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/chetramey.asc
 inherit flag-o-matic toolchain-funcs prefix verify-sig
@@ -117,6 +117,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-5.0-syslog-history-extern.patch
 	"${FILESDIR}"/${PN}-5.2_p15-random-ub.patch
 	"${FILESDIR}"/${PN}-5.2_p15-configure-clang16.patch
+	"${FILESDIR}"/${PN}-5.2_p15-shell-parser-reset-issue.patch
 )
 
 pkg_setup() {
@@ -256,14 +257,20 @@ src_configure() {
 }
 
 src_compile() {
-	if use pgo ; then
-		# Build Bash and run its tests to generate profiles.
-		emake CFLAGS="${CFLAGS} -fprofile-generate=${T}/pgo -fprofile-dir=${T}/pgo"
+	# -fprofile-partial-training because upstream note the test suite isn't super comprehensive
+	# See https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html#sec-gcc10-pgo
+	local pgo_generate_flags=$(usev pgo "-fprofile-update=atomic -fprofile-dir=${T}/pgo -fprofile-generate=${T}/pgo $(test-flags-CC -fprofile-partial-training)")
+	local pgo_use_flags=$(usev pgo "-fprofile-use=${T}/pgo -fprofile-dir=${T}/pgo $(test-flags-CC -fprofile-partial-training)")
 
+	emake CFLAGS="${CFLAGS} ${pgo_generate_flags}"
+	use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_generate_flags}" all others
+
+	# Build Bash and run its tests to generate profiles.
+	if use pgo ; then
 		# Used in test suite.
 		unset A
 
-		emake CFLAGS="${CFLAGS} -fprofile-generate=${T}/pgo -fprofile-dir=${T}/pgo" -k check
+		emake CFLAGS="${CFLAGS} ${pgo_generate_flags}" -k check
 
 		if tc-is-clang; then
 			llvm-profdata merge "${T}"/pgo --output="${T}"/pgo/default.profdata || die
@@ -271,13 +278,8 @@ src_compile() {
 
 		# Rebuild Bash using the profiling data we just generated.
 		emake clean
-		emake CFLAGS="${CFLAGS} -fprofile-use=${T}/pgo -fprofile-dir=${T}/pgo"
-
-		use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} -fprofile-use=${T}/pgo -fprofile-dir=${T}/pgo" all others
-	else
-		emake
-
-		use plugins && emake -C examples/loadables all others
+		emake CFLAGS="${CFLAGS} ${pgo_use_flags}"
+		use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_use_flags}" all others
 	fi
 }
 
