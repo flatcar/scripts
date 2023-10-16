@@ -1,0 +1,2 @@
+- nghttp2 ([1.57.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.57.0) (includes [1.52.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.57.0), [1.53.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.53.0), [1.54.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.54.0), [1.55.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.55.0), [1.55.1](https://github.com/nghttp2/nghttp2/releases/tag/v1.55.1) and [1.56.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.56.0)))
+- sqlite ([3.43.2](https://www.sqlite.org/releaselog/3_43_2.html))

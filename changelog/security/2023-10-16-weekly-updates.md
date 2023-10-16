@@ -1,0 +1,1 @@
+- nghttp2 ([CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487))
