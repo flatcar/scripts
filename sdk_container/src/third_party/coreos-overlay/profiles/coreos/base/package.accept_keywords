@@ -57,7 +57,6 @@
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=net-misc/whois-5.5.18-r1 ~amd64
 =net-nds/openldap-2.6.4-r1 ~amd64
 =sec-policy/selinux-base-2.20200818-r3 ~arm64
 =sec-policy/selinux-base-policy-2.20200818-r3 ~arm64
