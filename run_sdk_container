@@ -45,11 +45,13 @@ usage() {
     echo "      -C           - Use an entirely custom container image instead of the SDK's"
     echo "                     $sdk_container_common_registry/flatcar-sdk-[ARCH]:[SDK VERSION]"
     echo "                     Useful for CI."
+    echo "      -U             Do not update the versionfile. Instead, use the version from the versionfile as-is."
     echo "      -h             Print this help."
     echo
 }
 # --
 
+update_versionfile="true"
 while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
@@ -62,6 +64,10 @@ while [ 0 -lt $# ] ; do
     --rm) remove=true;             shift;;
     -x) cleanup="$2";       shift; shift;;
     -C) custom_image="$2";  shift; shift;;
+    -U) sdk_version="$(get_sdk_version_from_versionfile)"
+        os_version="$(get_version_from_versionfile)"
+        update_versionfile="false"
+        shift;;
     *) break;;
     esac
 done
@@ -73,7 +79,9 @@ else
     container_image_name="$sdk_container_common_registry/flatcar-sdk-${arch}:${docker_sdk_vernum}"
 fi
 
-create_versionfile "$sdk_version" "$os_version"
+if [[ "${update_versionfile}" == true ]] ; then
+    create_versionfile "$sdk_version" "$os_version"
+fi
 
 if [ -z "$name" ] ; then
     docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
