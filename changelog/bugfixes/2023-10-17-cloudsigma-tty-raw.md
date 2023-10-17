@@ -1,0 +1,1 @@
+- TTY to fetch server_context is set to RAW mode before running cloudinit ([scripts#1280](https://github.com/flatcar/scripts/pull/1280))
