@@ -11,6 +11,7 @@ coreos:
 
         [Service]
         Type=oneshot
+        ExecStartPre=stty -F /dev/ttyS1 raw -echo
         ExecStart=/usr/bin/coreos-cloudinit --oem=cloudsigma
 
   oem:
