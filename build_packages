@@ -272,10 +272,13 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   # lvm2[udev] -> virtual/udev -> systemd[cryptsetup] -> cryptsetup -> lvm2
   # lvm2[systemd] -> systemd[cryptsetup] -> cryptsetup -> lvm2
   # systemd[cryptsetup] -> cryptsetup[udev] -> virtual/udev -> systemd
+  # curl[http2] -> nghttp2[systemd] -> systemd[curl] -> curl
   break_dep_loop sys-apps/util-linux udev,systemd,cryptsetup \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 udev,systemd \
-                 sys-apps/systemd cryptsetup
+                 sys-apps/systemd cryptsetup,curl \
+                 net-misc/curl http2 \
+                 net-libs/nghttp2 systemd
 fi
 
 export KBUILD_BUILD_USER="${BUILD_USER:-build}"

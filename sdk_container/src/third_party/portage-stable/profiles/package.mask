@@ -33,6 +33,75 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2023-10-15)
+# These packages were required by old version of dev-python/jupyterlab
+# and dev-python/notebook, and are no longer used.
+# Removal on 2023-11-14.  Bug #915824.
+dev-python/check-manifest
+dev-python/jupyter-server-fileid
+dev-python/jupyter-server-ydoc
+dev-python/jupyter-ydoc
+dev-python/nbclassic
+dev-python/y-py
+dev-python/ypy-websocket
+
+# Mart Raudsepp <leio@gentoo.org> (2023-10-14)
+# The database used by this music fingerprint library has been defunct for
+# a while. Removal on 2023-11-13. Bug #915190.
+media-libs/libofa
+
+# Mart Raudsepp <leio@gentoo.org> (2023-10-14)
+# GStreamer plugin removed upstream. MMS was deprecated in 2003 and no
+# streams using MMS are known to exist. Removal on 2023-11-13. Bug #915771.
+media-plugins/gst-plugins-libmms
+
+# Florian Schmaus <flow@gentoo.org> (2023-10-14)
+# Obsolete acct-* packages that became leaf packages.
+# Removal on 2023-11-14.
+acct-user/tpm
+acct-group/tpm
+acct-user/ultimaker
+acct-group/ultimaker
+acct-group/systemd-hostname
+
+# Michał Górny <mgorny@gentoo.org> (2023-10-14)
+# media-video/transcode is dead for many years.  We already piled up
+# a lot of downstream patches just to keep it working, and it's broken
+# again (ffmpeg-5 this time).  The mask includes revdeps.
+# Removal on 2023-11-13.  Bug #861311.
+app-cdr/dvdshrink
+media-plugins/vdr-burn
+media-plugins/vdr-burn-templates
+media-video/dvd9to5
+media-video/dvdrip
+media-video/transcode
+
+# Andrey Grozin <grozin@gentoo.org> (2023-10-12)
+# The last upstream tag in 2021
+# There is an active fork: app-text/crqt-ng and app-text/crwx-ng
+# Bug https://bugs.gentoo.org/915634
+# Removal on 2023-11-11
+app-text/coolreader
+
+# Ionen Wolkens <ionen@gentoo.org> (2023-10-10)
+# Formerly added for unbundling on games-emulation/pcsx2, which is
+# no longer needed. Has no real use on its own, has no revdeps, and
+# does not have real releases (snapshot-only).
+# Removal on 2023-11-09.
+dev-libs/libchdr
+
+# Patrick Lauer <patrick@gentoo.org> (2023-10-09)
+# ROCm 5.7 doesn't reliably work yet.
+=dev-util/rocm-cmake-5.7.0
+=dev-libs/roct-thunk-interface-5.7.0
+=dev-libs/rocm-device-libs-5.7.0
+=dev-libs/rocm-comgr-5.7.0
+=dev-libs/rocr-runtime-5.7.0
+=dev-libs/rocm-opencl-runtime-5.7.0
+=dev-util/rocminfo-5.7.0
+=dev-util/hip-5.7.0
+=dev-util/hipcc-5.7.0
+
 # David Seifert <soap@gentoo.org> (2023-10-08)
 # Upstream long gone, unmaintained, EAPI 6, only Gentoo still packages
 # this. Removal on 2023-11-07. Bug #905187.
@@ -202,46 +271,6 @@ dev-ruby/ruby-elf
 # Removal on 2023-10-14
 dev-python/abydos
 
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2023-09-11)
-# Dead project accumulating open bugs and incompatibilities.
-#
-# For more detail, please see the '2021-08-24-eudev-retirement' news item
-# as well as the '2022-04-19-systemd-utils' news item.
-#
-# No Gentoo maintainer commits since February 2021.
-#
-# Many Gentoo packaging issues (some may need to go upstream):
-#  bug #713106, #753134, bug #667686, bug #771705, bug #668880, #770358, bug #851255
-#  bug #711462, #904741
-#
-# But more pressingly, lacks support for the udev 'tags' API which libgudev now
-# requires. No fix has been committed upstream and other software like Plymouth
-# has been broken with eudev for some time because of this missing support.
-# See bug #913702.
-#
-# Removal on 2023-10-11.
-sys-fs/eudev
-
-# Leonardo Hernández Hernández <leohdz172@proton.me> (2023-09-10)
-# Upstream has marked this packaged as unmaintained[0] and recommends usage of
-# the active fork eza[1] available as sys-apps/eza
-# Please transition to the new package.
-# Removal: 2023-10-10.  Bug #913737.
-# [0]: https://github.com/ogham/exa/commit/fb05c421ae98e076989eb6e8b1bcf42c07c1d0fe
-# [1]: https://github.com/eza-community/eza
-sys-apps/exa
-
-# Hans de Graaff <graaff@gentoo.org> (2023-09-10)
-# Obsolete slot that no longer has any reverse dependencies. Not
-# compatible with openssl 3. Use the newer slot instead. Masked for
-# removal on 2023-10-10.
-dev-ruby/net-ssh:6
-
-# Hans de Graaff <graaff@gentoo.org> (2023-09-10)
-# Obsolete slot that no longer has any reverse dependencies. Use the
-# newer slot instead. Masked for removal on 2023-10-10.
-dev-ruby/mail:2.7
-
 # Sam James <sam@gentoo.org> (2023-09-09)
 # OpenSSL 1.1.x is EOL on 2023-09-11. Please upgrade immediately to >= OpenSSL 3.
 # https://www.openssl.org/blog/blog/2023/03/28/1.1.1-EOL/
@@ -250,46 +279,6 @@ dev-ruby/mail:2.7
 # for old PHP or Ruby references.
 <dev-libs/openssl-3
 <app-crypt/xca-2.4.0_p20230526
-
-# David Seifert <soap@gentoo.org> (2023-09-09)
-# EOL upstream in 2 months, causes major headaches for OpenSSL 1.1
-# masking. Removal on 2023-10-09.
-dev-lang/php:8.0
-virtual/httpd-php:8.0
-
-# David Seifert <soap@gentoo.org> (2023-09-09)
-# Depends on PHP 8.0. Removal on 2023-10-09.
-~www-apps/tt-rss-20220218
-
-# David Seifert <soap@gentoo.org> (2023-09-09)
-# Depends on PHP 8.0, which in turn depends on OpenSSL 1.1, which in
-# turn is to be masked and removed soon. Removal on 2023-10-09.
-www-apps/moodle:3.11.16
-www-apps/moodle:4.0.10
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2023-09-06)
-# dev-libs/sink is unmaintained upstream, in Gentoo, fails to build.
-# Masked for removal on 2023-10-06, together with mail-client/kube and
-# would-be orphan libraries. Bugs #907499, #904876, #872062, #856094
-net-libs/kdav2
-net-libs/kimap2
-dev-libs/kasync
-dev-libs/sink
-mail-client/kube
-
-# David Seifert <soap@gentoo.org> (2023-09-05)
-# OpenSSL 1.1 based, does not work with 3.0+. tpm2-openssl is the
-# spiritual successor for OpenSSL 3.0+, but isn't packaged.
-# Removal on 2023-10-05.
-app-crypt/tpm2-tss-engine
-
-# Florian Schmaus <flow@gentoo.org> (2023-09-03)
-# Became a leaf package after dev-erlang/riak_pb was removed (989c0f55e0).
-# Unmaintained in ::gentoo and upstream since multiple years. Alternative at
-# https://github.com/tomas-abrahamsson/gpb.
-# Two open bugs: #725584 and #793236.
-# Removal on 2023-10-03.
-dev-erlang/protobuffs
 
 # Sam James <sam@gentoo.org> (2023-08-04)
 # Stricter behavior which causes some packages to fail, see bug #911721.
