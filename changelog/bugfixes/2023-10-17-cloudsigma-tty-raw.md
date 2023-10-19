@@ -1,0 +1,1 @@
+- Set TTY used for fetching server_context to RAW mode before running cloudinit on cloudsigma ([scripts#1280](https://github.com/flatcar/scripts/pull/1280))
