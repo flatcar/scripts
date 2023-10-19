@@ -1,1 +1,0 @@
-- SDK: bump Mantle / Kola container image version to include torcx removal / sysext tests ([Mantle#466](https://github.com/flatcar/mantle/pull/466), [Mantle#465](https://github.com/flatcar/mantle/pull/465))

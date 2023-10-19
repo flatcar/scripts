@@ -1,1 +1,0 @@
-- update_engine: remove torcx sanity checks because the OS image removed torcx ([update_engine#30](https://github.com/flatcar/update_engine/pull/30))
