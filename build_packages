@@ -276,7 +276,7 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   break_dep_loop sys-apps/util-linux udev,systemd,cryptsetup \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 udev,systemd \
-                 sys-apps/systemd cryptsetup,curl \
+                 sys-apps/systemd cryptsetup \
                  net-misc/curl http2 \
                  net-libs/nghttp2 systemd
 fi
