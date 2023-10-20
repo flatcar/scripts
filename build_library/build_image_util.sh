@@ -261,17 +261,6 @@ image_packages_portage() {
         equery --no-color list --format '$cpv::$repo' '*'
 }
 
-# List dependencies for a package runtime dependencies
-
-function package_run_dependencies() (
-  pkg=${1:?}
-  ebuild=$(equery-${BOARD} w "${pkg}")
-  function inherit() { : ; }
-  . "${ebuild}"
-  echo ${RDEPEND}
-)
-
-
 # List packages implicitly contained in rootfs, such as in initramfs.
 image_packages_implicit() {
     local profile="${BUILD_DIR}/configroot/etc/portage/profile"

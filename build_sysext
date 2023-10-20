@@ -31,6 +31,8 @@ DEFINE_boolean generate_pkginfo "${FLAGS_FALSE}" \
   "Generate an additional squashfs '<sysext_name>_pkginfo.raw' with portage package meta-information (/var/db ...). Useful for creating sysext dependencies; see 'base_pkginfo' below."
 DEFINE_string base_pkginfo "" \
   "Colon-separated list of pkginfo squashfs paths / files generated via 'generate_pkginfo' to base this sysext on. The corresponding base sysexts are expected to be merged with the sysext generated."
+DEFINE_string compression "zstd" \
+  "Compression to use for sysext squashfs. One of 'gzip', 'lzo', 'lz4', 'xz', or 'zstd'. Must be supported by the Flatcar squashfs kernel module in order for the sysext to work."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 
@@ -193,7 +195,7 @@ if [[ ${#} -lt 1 ]]; then
    show_help_if_requested -h
 fi
 
-info "Building '${SYSEXTNAME}' with (meta-)packages '${@}' in '${BUILD_DIR}'".
+info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
 
 for package; do
   echo "Installing package into sysext image: $package"
@@ -211,18 +213,18 @@ done
 umount "${BUILD_DIR}/install-root"
 umount "${BUILD_DIR}/fs-root"
 
+if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
+  info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
+  mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
+  cp -R "${BUILD_DIR}/install-root/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
+  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" -noappend -comp "${FLAGS_compression}"
+fi
+
 if [[ -n "${FLAGS_manglefs_script}" ]]; then
   if [[ ! -x "${FLAGS_manglefs_script}" ]]; then
     die "${FLAGS_manglefs_script} is not executable"
   fi
   "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root"
-fi
-
-if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
-  info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
-  mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
-  cp -R "${BUILD_DIR}/install-root/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
-  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" -noappend
 fi
 
 info "Writing ${SYSEXTNAME}_packages.txt"
@@ -245,7 +247,7 @@ all_fields=(
   "ARCHITECTURE=${ARCH}"
 )
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
-mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" -noappend
+mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" -noappend -comp "${FLAGS_compression}"
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
 
 # Generate reports

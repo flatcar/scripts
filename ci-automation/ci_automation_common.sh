@@ -193,7 +193,7 @@ function docker_image_from_buildcache() {
     local id_file_url_release="https://mirror.release.flatcar-linux.net/containers/${version}/${id_file}"
 
     local local_image=""
-    if image_exists_locally "/${name}" "${version}" ; then
+    if image_exists_locally "${name}" "${version}" ; then
         local_image="${name}:${version}"
     elif image_exists_locally "${CONTAINER_REGISTRY}/${name}" "${version}" ; then
         local_image="${CONTAINER_REGISTRY}/${name}:${version}"

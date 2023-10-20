@@ -33,12 +33,6 @@ git mv "${cliEbuildOld}" "${cliEbuildNew}"
 sed -i "s/GIT_COMMIT=\(.*\)/GIT_COMMIT=${COMMIT_HASH_CLI}/g" "${cliEbuildNew}"
 sed -i "s/v${VERSION_OLD}/v${VERSION_NEW}/g" "${cliEbuildNew}"
 
-# torcx ebuild file has a docker version with only major and minor versions, like 19.03.
-versionTorcx=${VERSION_OLD%.*}
-torcxEbuildFile=$(get_ebuild_filename app-torcx/docker "${versionTorcx}")
-sed -i "s/docker-${VERSION_OLD}/docker-${VERSION_NEW}/g" "${torcxEbuildFile}"
-sed -i "s/docker-cli-${VERSION_OLD}/docker-cli-${VERSION_NEW}/g" "${torcxEbuildFile}"
-
 # update also docker versions used by the current runc ebuild file.
 versionRunc=$(sed -n "s/^DIST runc-\([0-9]*.[0-9]*.*\)\.tar.*/\1/p" app-containers/runc/Manifest | sort -ruV | head -n1)
 runcEbuildFile=$(get_ebuild_filename app-containers/runc "${versionRunc}")
@@ -63,7 +57,6 @@ generate_update_changelog 'Docker' "${VERSION_NEW}" "${URL}" 'docker'
 regenerate_manifest app-containers/docker-cli "${VERSION_NEW}"
 commit_changes app-containers/docker "${VERSION_OLD}" "${VERSION_NEW}" \
                app-containers/docker-cli \
-               app-torcx/docker \
                app-containers/runc
 
 cleanup_repo
