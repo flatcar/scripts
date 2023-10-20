@@ -51,10 +51,10 @@ function set_vars() {
   # Read by the mantle container.
   # The local directory ("pwd") will be mounted to /work/ in the container.
   cat > sdk_container/.env <<EOF
-export QEMU_IMAGE_NAME="/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_image.bin"
-export QEMU_UEFI_BIOS="/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_qemu_uefi_efi_code.fd"
-export QEMU_UPDATE_PAYLOAD="/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_test_update.gz"
-export PARALLEL_TESTS=${parallel@Q}
+export QEMU_IMAGE_NAME="/work/__build__/images/images/${arch}-usr/latest/flatcar_production_image.bin"
+export QEMU_UEFI_BIOS="/work/__build__/images/images/${arch}-usr/latest/flatcar_production_qemu_uefi_efi_code.fd"
+export QEMU_UPDATE_PAYLOAD="/work/__build__/images/images/${arch}-usr/latest/flatcar_test_update.gz"
+export PARALLEL_TESTS=${parallel}
 EOF
 
   export MAX_RETRIES=5
