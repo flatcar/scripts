@@ -33,6 +33,8 @@ DEFINE_string base_pkginfo "" \
   "Colon-separated list of pkginfo squashfs paths / files generated via 'generate_pkginfo' to base this sysext on. The corresponding base sysexts are expected to be merged with the sysext generated."
 DEFINE_string compression "zstd" \
   "Compression to use for sysext squashfs. One of 'gzip', 'lzo', 'lz4', 'xz', or 'zstd'. Must be supported by the Flatcar squashfs kernel module in order for the sysext to work."
+DEFINE_string mksquashfs_opts "" \
+  "Additional command line options to pass to mksquashfs. See 'man 1 mksquashfs'. If <compression> is 'zstd' (the default), this option defaults to '-Xcompression-level 22 -b 512K'. Otherwise the default is empty."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 
@@ -99,6 +101,10 @@ if [[ -z "${FLAGS_image_builddir}" ]]; then
 fi
 BUILD_DIR=$(realpath "${FLAGS_image_builddir}")
 mkdir -p "${BUILD_DIR}"
+
+if [[ "${FLAGS_compression}" = "zstd" && -z "${FLAGS_mksquashfs_opts}" ]] ; then
+    FLAGS_mksquashfs_opts="-Xcompression-level 22 -b 512k"
+fi
 
 source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
@@ -217,7 +223,8 @@ if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
   mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
   cp -R "${BUILD_DIR}/install-root/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
-  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" -noappend -comp "${FLAGS_compression}"
+  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" \
+              -noappend -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 fi
 
 if [[ -n "${FLAGS_manglefs_script}" ]]; then
@@ -247,7 +254,8 @@ all_fields=(
   "ARCHITECTURE=${ARCH}"
 )
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
-mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" -noappend -comp "${FLAGS_compression}"
+mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
+               -noappend -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
 
 # Generate reports
