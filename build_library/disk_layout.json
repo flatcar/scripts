@@ -29,7 +29,8 @@
         "type":"flatcar-rootfs",
         "blocks":"2097152",
         "fs_blocks":"260094",
-        "fs_type":"ext2",
+        "fs_type":"btrfs",
+        "fs_compression":"zstd",
         "mount":"/usr",
         "features": ["prioritize", "verity"]
       },
