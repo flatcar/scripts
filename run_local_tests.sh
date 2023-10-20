@@ -51,10 +51,10 @@ function set_vars() {
   # Read by the mantle container.
   # The local directory ("pwd") will be mounted to /work/ in the container.
   cat > sdk_container/.env <<EOF
-export export QEMU_IMAGE_NAME="/work/__build__/images/images/${arch}-usr/latest/flatcar_production_image.bin"
-export QEMU_UEFI_BIOS="/work/__build__/images/images/${arch}-usr/latest/flatcar_production_qemu_uefi_efi_code.fd"
-export QEMU_UPDATE_PAYLOAD="/work/__build__/images/images/${arch}-usr/latest/flatcar_test_update.gz"
-export PARALLEL_TESTS=${parallel}                                                     
+export QEMU_IMAGE_NAME="/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_image.bin"
+export QEMU_UEFI_BIOS="/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_qemu_uefi_efi_code.fd"
+export QEMU_UPDATE_PAYLOAD="/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_test_update.gz"
+export PARALLEL_TESTS=${parallel@Q}
 EOF
 
   export MAX_RETRIES=5
@@ -62,7 +62,7 @@ EOF
 }
 #--
 
-function run_local_tests() {
+function run_local_tests() (
   local arch="${1:-amd64}"
   if [[ $# -gt 0 ]] ; then shift; fi
   local parallel="${1:-2}"
@@ -98,7 +98,7 @@ function run_local_tests() {
     test_run "${arch}" qemu_update
   fi
 
-}
+)
 # --
 
 

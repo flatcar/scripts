@@ -33,8 +33,7 @@ create_prod_sysext() {
   local grp_pkg="$7"
   local pkginfo="${8:-}"
 
-  local pkginfo_opt=""
-  local manglefs_opt=""
+  local -a build_sysext_opts=()
 
   local msg="Installing ${grp_pkg}' in sysext ${name}.raw"
 
@@ -44,12 +43,12 @@ create_prod_sysext() {
       die "Sysext build '${grp_pkg}': unable to find package info at '${output_dir}/${pkginfo}'."
     fi
     msg="${msg} w/ package info '${pkginfo}'"
-    pkginfo_opt="--base_pkginfo=${output_dir}/${pkginfo}"
+    build_sysext_opts+=( "--base_pkginfo=${output_dir}/${pkginfo}" )
   fi
 
   # Include FS mangle script if present
   if [[ -x "${BUILD_LIBRARY_DIR}/sysext_mangle_${name}" ]] ; then
-    manglefs_opt="--manglefs_script=${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
+    build_sysext_opts+=( "--manglefs_script=${BUILD_LIBRARY_DIR}/sysext_mangle_${name}" )
     msg="${msg}, FS mangle script 'sysext_mangle_${name}'"
   fi
 
@@ -60,7 +59,7 @@ create_prod_sysext() {
             --image_builddir="${workdir}/sysext-build" \
             --squashfs_base="${base_sysext}" \
             --generate_pkginfo \
-            ${manglefs_opt} ${pkginfo_opt} \
+            "${build_sysext_opts[@]}" \
             "${name}" "${grp_pkg}"
 
   sudo mv "${workdir}/sysext-build/${name}.raw" "${workdir}/sysext-build/${name}_pkginfo.raw" \

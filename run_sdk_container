@@ -51,7 +51,7 @@ usage() {
 }
 # --
 
-update_versionfile="true"
+update_versionfile=x
 while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
@@ -66,7 +66,7 @@ while [ 0 -lt $# ] ; do
     -C) custom_image="$2";  shift; shift;;
     -U) sdk_version="$(get_sdk_version_from_versionfile)"
         os_version="$(get_version_from_versionfile)"
-        update_versionfile="false"
+        update_versionfile=
         shift;;
     *) break;;
     esac
@@ -79,7 +79,7 @@ else
     container_image_name="$sdk_container_common_registry/flatcar-sdk-${arch}:${docker_sdk_vernum}"
 fi
 
-if [[ "${update_versionfile}" == true ]] ; then
+if [[ -n ${update_versionfile} ]] ; then
     create_versionfile "$sdk_version" "$os_version"
 fi
 
