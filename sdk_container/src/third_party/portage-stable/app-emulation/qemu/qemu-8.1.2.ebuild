@@ -8,12 +8,13 @@ EAPI=8
 # (the construct below is to allow overriding from env for script)
 QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
-QEMU_DOCS_VERSION="8.0.0"
+#QEMU_DOCS_VERSION=$(ver_cut 1-3)
+QEMU_DOCS_VERSION=8.1.0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{9,10,11} )
+PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="ncurses,readline"
 
 FIRMWARE_ABI_VERSION="7.2.0"
@@ -28,7 +29,7 @@ if [[ ${PV} == *9999* ]]; then
 	EGIT_SUBMODULES=(
 		tests/fp/berkeley-softfloat-3
 		tests/fp/berkeley-testfloat-3
-		ui/keycodemapdb
+		subprojects/keycodemapdb
 	)
 	inherit git-r3
 	SRC_URI=""
@@ -54,9 +55,9 @@ SLOT="0"
 
 IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	+fdt fuse glusterfs +gnutls gtk infiniband iscsi io-uring
-	jack jemalloc +jpeg
+	jack jemalloc +jpeg keyutils
 	lzo multipath
-	ncurses nfs nls numa opengl +oss pam +pin-upstream-blobs
+	ncurses nfs nls numa opengl +oss pam +pin-upstream-blobs pipewire
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
@@ -154,7 +155,8 @@ ALL_DEPEND="
 	sys-libs/zlib[static-libs(+)]
 	python? ( ${PYTHON_DEPS} )
 	systemtap? ( dev-util/systemtap )
-	xattr? ( sys-apps/attr[static-libs(+)] )"
+	xattr? ( sys-apps/attr[static-libs(+)] )
+"
 
 # Dependencies required for qemu tools (qemu-nbd, qemu-img, qemu-io, ...)
 # softmmu targets (qemu-system-*).
@@ -178,10 +180,7 @@ SOFTMMU_TOOLS_DEPEND="
 		dev-libs/nettle:=[static-libs(+)]
 	)
 	gtk? (
-		x11-libs/cairo
-		x11-libs/gdk-pixbuf:2
 		x11-libs/gtk+:3
-		x11-libs/libX11
 		vte? ( x11-libs/vte:2.91 )
 	)
 	infiniband? ( sys-cluster/rdma-core[static-libs(+)] )
@@ -191,6 +190,7 @@ SOFTMMU_TOOLS_DEPEND="
 	jemalloc? ( dev-libs/jemalloc )
 	jpeg? ( media-libs/libjpeg-turbo:=[static-libs(+)] )
 	kernel_linux? ( sys-libs/libcap-ng[static-libs(+)] )
+	keyutils? ( sys-apps/keyutils[static-libs(+)] )
 	lzo? ( dev-libs/lzo:2[static-libs(+)] )
 	multipath? ( sys-fs/multipath-tools )
 	ncurses? (
@@ -206,6 +206,7 @@ SOFTMMU_TOOLS_DEPEND="
 		media-libs/mesa[egl(+),gbm(+)]
 	)
 	pam? ( sys-libs/pam )
+	pipewire? ( >=media-video/pipewire-0.3.60 )
 	png? ( >=media-libs/libpng-1.6.34:=[static-libs(+)] )
 	pulseaudio? ( media-libs/libpulse )
 	rbd? ( sys-cluster/ceph )
@@ -255,7 +256,8 @@ X86_FIRMWARE_DEPEND="
 			>=sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		)
 		sys-firmware/sgabios
-	)"
+	)
+"
 PPC_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
@@ -268,14 +270,15 @@ PPC_FIRMWARE_DEPEND="
 	)
 "
 
+# See bug #913084 for pip dep
 BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
-	dev-util/meson
-	sys-apps/texinfo
+	>=dev-util/meson-0.63.0
+	dev-python/pip[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
-		dev-python/sphinx[${PYTHON_USEDEP}]
+		>=dev-python/sphinx-1.6.0[${PYTHON_USEDEP}]
 		dev-python/sphinx-rtd-theme[${PYTHON_USEDEP}]
 	)
 	gtk? ( nls? ( sys-devel/gettext ) )
@@ -292,23 +295,26 @@ CDEPEND="
 	qemu_softmmu_targets_ppc? ( ${PPC_FIRMWARE_DEPEND} )
 	qemu_softmmu_targets_ppc64? ( ${PPC_FIRMWARE_DEPEND} )
 "
-DEPEND="${CDEPEND}
+DEPEND="
+	${CDEPEND}
 	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
-	static-user? ( ${ALL_DEPEND} )"
-RDEPEND="${CDEPEND}
+	static-user? ( ${ALL_DEPEND} )
+"
+RDEPEND="
+	${CDEPEND}
 	acct-group/kvm
 	selinux? (
 		sec-policy/selinux-qemu
 		sys-libs/libselinux
-	)"
+	)
+"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.0.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-8.0.0-make.patch
-	"${FILESDIR}"/${PN}-7.1.0-also-build-virtfs-proxy-helper.patch
 	"${FILESDIR}"/${PN}-7.1.0-capstone-include-path.patch
-	"${FILESDIR}"/${PN}-7.2.0-disable-gmp.patch
-	"${FILESDIR}"/${PN}-8.0.0-remove-python-meson-check.patch
+	"${FILESDIR}"/${PN}-8.1.0-also-build-virtfs-proxy-helper.patch
+	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
+	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
 )
 
 QA_PREBUILT="
@@ -324,7 +330,8 @@ QA_PREBUILT="
 	usr/share/qemu/u-boot.e500
 "
 
-QA_WX_LOAD="usr/bin/qemu-i386
+QA_WX_LOAD="
+	usr/bin/qemu-i386
 	usr/bin/qemu-x86_64
 	usr/bin/qemu-alpha
 	usr/bin/qemu-arm
@@ -448,13 +455,8 @@ src_prepare() {
 	# Verbose builds
 	MAKEOPTS+=" V=1"
 
-	# We already force -D_FORTIFY_SOURCE=2 (or 3) in our toolchain, but
-	# this setting (-U then -D..=2) will prevent us from trying out 3, so
-	# drop it. No change to level of protection b/c we patch our toolchain.
-	sed -i -e 's/-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2//' configure || die
-
 	# Remove bundled modules
-	rm -r dtc meson roms/*/ || die
+	rm -r subprojects/dtc roms/*/ || die
 }
 
 ##
@@ -482,7 +484,7 @@ qemu_src_configure() {
 		--disable-containers # bug #732972
 		--disable-guest-agent
 		--disable-strip
-		--with-git-submodules=ignore
+		--disable-download
 
 		# bug #746752: TCG interpreter has a few limitations:
 		# - it does not support FPU
@@ -501,6 +503,7 @@ qemu_src_configure() {
 		--disable-gcrypt
 		--cc="$(tc-getCC)"
 		--cxx="$(tc-getCXX)"
+		--objcc="$(tc-getCC)"
 		--host-cc="$(tc-getBUILD_CC)"
 
 		$(use_enable alsa)
@@ -509,6 +512,7 @@ qemu_src_configure() {
 		$(use_enable jack)
 		$(use_enable nls gettext)
 		$(use_enable oss)
+		$(use_enable pipewire)
 		$(use_enable plugins)
 		$(use_enable pulseaudio pa)
 		$(use_enable selinux)
@@ -567,6 +571,7 @@ qemu_src_configure() {
 		$(conf_malloc jemalloc)
 		$(conf_notuser jpeg vnc-jpeg)
 		$(conf_notuser kernel_linux kvm)
+		$(conf_notuser keyutils libkeyutils)
 		$(conf_notuser lzo)
 		$(conf_notuser multipath mpath)
 		$(conf_notuser ncurses curses)
@@ -607,6 +612,7 @@ qemu_src_configure() {
 			# Note: backend order matters here: #716202
 			# We iterate from higher-level to lower level.
 			$(usex pulseaudio pa "")
+			$(usev pipewire)
 			$(usev jack)
 			$(usev sdl)
 			$(usev alsa)
@@ -838,7 +844,7 @@ src_install() {
 	doins "${FILESDIR}/bridge.conf"
 
 	cd "${S}" || die
-	dodoc MAINTAINERS docs/specs/pci-ids.txt
+	dodoc MAINTAINERS
 	newdoc pc-bios/README README.pc-bios
 
 	# Disallow stripping of prebuilt firmware files.
