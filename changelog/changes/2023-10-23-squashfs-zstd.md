@@ -1,0 +1,1 @@
+- linux kernel: added zstd support for squashfs kernel module ([scripts#](https://github.com/flatcar/scripts/pull/1296))
