@@ -47,7 +47,7 @@ setup-allowed-flags() {
 # Note: shell globs and character lists are allowed
 _setup-allowed-flags() {
 	ALLOWED_FLAGS=(
-		-pipe -O '-O[123szg]' '-mcpu=*' '-march=*' '-mtune=*'
+		-pipe -O '-O[123szg]' '-mcpu=*' '-march=*' '-mtune=*' '-mfpmath=*'
 		-flto '-flto=*' -fno-lto
 
 		# Hardening flags
@@ -56,11 +56,16 @@ _setup-allowed-flags() {
 		'-fcf-protection=*'
 		-fbounds-check -fbounds-checking
 		-fno-PIE -fno-pie -nopie -no-pie
+		-fharden-compares -fharden-conditional-branches
+		-fharden-control-flow-redundancy -fhardcfr-skip-leaf
+		-fhardcfr-check-exceptions -fhardcfr-check-returning-calls
+		'-fhardcfr-check-noreturn-calls=*'
 		# Spectre mitigations, bug #646076
 		'-mindirect-branch=*'
 		-mindirect-branch-register
 		'-mfunction-return=*'
 		-mretpoline
+		'-mharden-sls=*'
 		'-mbranch-protection=*'
 
 		# Misc
@@ -133,6 +138,8 @@ _setup-allowed-flags() {
 		# Allow explicit stack realignment to run non-conformant
 		# binaries: bug #677852
 		-mstackrealign
+		'-mpreferred-stack-boundary=*'
+		'-mincoming-stack-boundary=*'
 	)
 	ALLOWED_FLAGS+=(
 		# Clang-only
