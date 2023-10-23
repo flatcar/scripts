@@ -33,6 +33,9 @@
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
 =dev-lang/nasm-2.15.05 ~arm64
 
+# Keep versions on both arches in sync.
+=dev-lang/python-3.11.6 ~amd64
+
 # Accept unstable host Rust compilers.
 =dev-lang/rust-1.73.0 ~amd64 ~arm64
 
