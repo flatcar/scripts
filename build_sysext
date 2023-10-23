@@ -227,16 +227,16 @@ if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
               -noappend -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 fi
 
+info "Writing ${SYSEXTNAME}_packages.txt"
+ROOT="${BUILD_DIR}/install-root" PORTAGE_CONFIGROOT="${BUILD_DIR}/install-root" \
+      equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+
 if [[ -n "${FLAGS_manglefs_script}" ]]; then
   if [[ ! -x "${FLAGS_manglefs_script}" ]]; then
     die "${FLAGS_manglefs_script} is not executable"
   fi
   "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root"
 fi
-
-info "Writing ${SYSEXTNAME}_packages.txt"
-ROOT="${BUILD_DIR}/install-root" PORTAGE_CONFIGROOT="${BUILD_DIR}/install-root"\
-      equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
 
 info "Removing non-/usr directories from sysext image"
 for entry in "${BUILD_DIR}/install-root"/*; do
