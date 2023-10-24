@@ -27,6 +27,14 @@ DEFINE_string image_builddir '' \
   "Custom directory to build the sysext in. Defaults to a 'sysext' sub-directory of the directory the squashfs base image resides in; '${default_imagedir}/sysext' by default."
 DEFINE_string manglefs_script '' \
   "A path to executable that will customize the rootfs of the sysext image."
+DEFINE_boolean generate_pkginfo "${FLAGS_FALSE}" \
+  "Generate an additional squashfs '<sysext_name>_pkginfo.raw' with portage package meta-information (/var/db ...). Useful for creating sysext dependencies; see 'base_pkginfo' below."
+DEFINE_string base_pkginfo "" \
+  "Colon-separated list of pkginfo squashfs paths / files generated via 'generate_pkginfo' to base this sysext on. The corresponding base sysexts are expected to be merged with the sysext generated."
+DEFINE_string compression "zstd" \
+  "Compression to use for sysext squashfs. One of 'gzip', 'lzo', 'lz4', 'xz', or 'zstd'. Must be supported by the Flatcar squashfs kernel module in order for the sysext to work."
+DEFINE_string mksquashfs_opts "" \
+  "Additional command line options to pass to mksquashfs. See 'man 1 mksquashfs'. If <compression> is 'zstd' (the default), this option defaults to '-Xcompression-level 22 -b 512K'. Otherwise the default is empty."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 
@@ -94,6 +102,10 @@ fi
 BUILD_DIR=$(realpath "${FLAGS_image_builddir}")
 mkdir -p "${BUILD_DIR}"
 
+if [[ "${FLAGS_compression}" = "zstd" && -z "${FLAGS_mksquashfs_opts}" ]] ; then
+    FLAGS_mksquashfs_opts="-Xcompression-level 22 -b 512k"
+fi
+
 source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
@@ -126,6 +138,11 @@ cleanup() {
   )
   umount "${dirs[@]}" 2>/dev/null || true
   rm -rf "${dirs[@]}" || true
+  if [[ -d "${BUILD_DIR}/base-pkginfo" ]] ; then
+    umount "${BUILD_DIR}/base-pkginfo"/* 2>/dev/null || true
+    rm -rf "${BUILD_DIR}/base-pkginfo" || true
+  fi
+  rm -rf "${BUILD_DIR}/img-pkginfo"
 }
 
 # Set up trap to execute cleanup() on script exit
@@ -134,11 +151,34 @@ trap cleanup EXIT
 ARCH=$(_get_sysext_arch "${FLAGS_board}")
 cleanup
 
+# If we need to handle pkginfo squashfs files, create mount points under
+# ${BUILD_DIR}/base-pkginfo, mount the squashfs images, and add the mount paths to
+# the list of lowerdirs.
+pkginfo_lowerdirs=""
+if [[ -n "${FLAGS_base_pkginfo}" ]] ; then
+  for entry in $(echo ${FLAGS_base_pkginfo} | sed 's/:/ /g'); do
+    ppath="$(readlink -f "${entry}")"
+    if [[ ! -f "${ppath}" ]] ; then
+      error "--base_pkginfo contains invalid entries."
+      error "Pkginfo file '${ppath}' does not exist."
+      die "Full --base_pkginfo: '${FLAGS_base_pkginfo}'"
+    fi
+
+    pfile="$(basename "${ppath}")"
+    pmdir="${BUILD_DIR}/base-pkginfo/${pfile}"
+    mkdir -p "${pmdir}"
+    mount -rt squashfs -o loop,nodev "${ppath}" "${pmdir}"
+    pkginfo_lowerdirs="${pkginfo_lowerdirs}:${pmdir}"
+    info "Added packageinfo from '${ppath}' to base layers."
+  done
+fi
+
 mkdir "${BUILD_DIR}/fs-root"
 mount -rt squashfs -o loop,nodev "${FLAGS_squashfs_base}" "${BUILD_DIR}/fs-root"
 mkdir "${BUILD_DIR}/install-root"
 mkdir "${BUILD_DIR}/workdir"
-mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+
 VERSION_BOARD=$(grep "^VERSION=" ${BUILD_DIR}/fs-root/usr/lib/os-release | cut -d = -f 2-)
 if [ "$VERSION_BOARD" != "$FLATCAR_VERSION" ]; then
   warn "Base squashfs version: $VERSION_BOARD"
@@ -161,7 +201,7 @@ if [[ ${#} -lt 1 ]]; then
    show_help_if_requested -h
 fi
 
-info "Building '${SYSEXTNAME}' with (meta-)packages '${@}' in '${BUILD_DIR}'".
+info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
 
 for package; do
   echo "Installing package into sysext image: $package"
@@ -178,6 +218,18 @@ done
 # Unmount in order to get rid of the overlay
 umount "${BUILD_DIR}/install-root"
 umount "${BUILD_DIR}/fs-root"
+
+if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
+  info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
+  mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
+  cp -R "${BUILD_DIR}/install-root/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
+  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" \
+              -noappend -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
+fi
+
+info "Writing ${SYSEXTNAME}_packages.txt"
+ROOT="${BUILD_DIR}/install-root" PORTAGE_CONFIGROOT="${BUILD_DIR}/install-root" \
+      equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
 
 if [[ -n "${FLAGS_manglefs_script}" ]]; then
   if [[ ! -x "${FLAGS_manglefs_script}" ]]; then
@@ -202,7 +254,8 @@ all_fields=(
   "ARCHITECTURE=${ARCH}"
 )
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
-mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" -noappend
+mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
+               -noappend -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
 
 # Generate reports

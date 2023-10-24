@@ -62,7 +62,6 @@ run_kola_tests() {
         --platform=gce \
         --channel="${CIA_CHANNEL}" \
         --tapfile="${instance_tapfile}" \
-        --torcx-manifest="${CIA_TORCX_MANIFEST}" \
         "${@}"
 }
 

@@ -19,7 +19,7 @@
 #   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
 #   3. Mantle container docker image reference is stored in sdk_container/.repo/manifests/mantle-container.
-#   4. Vendor image and torcx docker tarball + manifest to run tests for are available on buildcache
+#   4. Vendor image to run tests for are available on buildcache
 #         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #
 # INPUT:
@@ -54,14 +54,10 @@
 #
 # Vendor scripts are provided with their own sub-directory and are expected to CD into there before
 #  creating any artifacts (see vendor script argument 1 below).
-# The torcx manifest is supplied in
-#   ../
-# relative to the vendor sub-directory. The manifest is updated to include a URL pointing to the docker
-#  torcx tarball on the build cache (for the docker.torcx-manifest-pkgs test).
 #
 # Vendor specific scripts are called with the following positional arguments:
 # 1 - Toplevel tests directory
-#     It contains some additional files needed for running the tests (like torcx manifest or file with channel information).
+#     It contains some additional files needed for running the tests (like file with channel information).
 # 2 - Working directory for the tests.
 #     The vendor script is expected to keep all artifacts it produces in that directory.
 # 3 - Architecture to test.
@@ -73,46 +69,6 @@
 # as a first step - it will do some common steps that the vendor
 # script would need to make anyway. For more information, please refer
 # to the vendor_test.sh file.
-
-# Download torcx manifest and modify URLs pointing to the origin
-# server to point to the build cache. This is because the tests for
-# releases are run before artifacts are uploaded to the origin
-# server. This would make kola's docker.torcx-manifest-pkgs test to
-# fail.
-function __prepare_torcx() {
-    local arch="$1"
-    local vernum="$2"
-    local workdir="$3"
-
-    copy_from_buildcache "images/${arch}/${vernum}/torcx/torcx_manifest.json" "${workdir}"
-
-    # Change URLs from:
-    #
-    # https://${channel}.release.flatcar-linux.net/${arch}-usr/${vernum}/torcx/…
-    #
-    # to:
-    #
-    # https://bincache.flatcar-linux.net/images/${arch}/${vernum}/torcx/…
-    #
-    # This is done in two parts - replacing host part and arch part.
-    #
-    # Replace 'https://${channel}.release.flatcar-linux.net/' with
-    # 'https://bincache.flatcar-linux.net/' matching the initial "url"
-    # JSON key too.
-    local host_match='\("url":\s*"https://\)[a-z]\+\.release\([^/]\+/\)'
-    local host_replace='\1bincache\2'
-    # Replace '${arch}-usr/` part with 'images/${arch}/'.
-    local arch_match='\([a-z0-9]\+\)-usr/'
-    local arch_replace='images/\3/'
-    sed \
-        -e "s#${host_match}${arch_match}#${host_replace}${arch_replace}#g" \
-        "${workdir}/torcx_manifest.json" \
-        >"${workdir}/torcx_manifest_new.json"
-
-    mv "${workdir}/torcx_manifest.json" "${workdir}/torcx_manifest.json.original"
-    mv "${workdir}/torcx_manifest_new.json" "${workdir}/torcx_manifest.json"
-}
-# --
 
 function __escape_multiple() {
     local out_array_arg_name="${1}"; shift
@@ -176,9 +132,6 @@ function _test_run_impl() {
     local mantle_ref
     mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
 
-    # Make the torcx artifacts available to test implementation
-    __prepare_torcx "${arch}" "${vernum}" "${work_dir}"
-
     local tap_merged_summary="results-${image}"
     local tap_merged_detailed="results-${image}-detailed"
     local retry=""
@@ -214,7 +167,7 @@ function _test_run_impl() {
         #  determine success based on test results (tapfile).
         set +e
         touch sdk_container/.env
-        docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
+        docker run --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
          bash -c "git config --global --add safe.directory /work && \
                   source sdk_container/.env && \
@@ -223,7 +176,7 @@ function _test_run_impl() {
         rm -f "${work_dir}/first_run"
 
         # Note: git safe.directory is not set in this run as it does not use git
-        docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
+        docker run --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
             ci-automation/test_update_reruns.sh \
                 "${arch}" "${vernum}" "${image}" "${retry}" \

@@ -99,12 +99,6 @@ jobs:
         with:
           name: ${{ matrix.arch }}-devcontainer
 
-      - name: Download torcx tarball
-        if: ${{ !inputs.workflow_run_id }}
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.arch }}-torcx
-
       - name: Download binpkgs from other workflow
         uses: gabriel-samfira/action-download-artifact@v5
         if: ${{ inputs.workflow_run_id }}
@@ -141,15 +135,6 @@ jobs:
           run_id: ${{ inputs.workflow_run_id }}
           name: ${{ matrix.arch }}-devcontainer
 
-      - name: Download torcx tarball from other workflow
-        uses: gabriel-samfira/action-download-artifact@v5
-        if: ${{ inputs.workflow_run_id }}
-        with:
-          workflow: ${{ inputs.workflow_name_or_id }}
-          workflow_conclusion: success
-          run_id: ${{ inputs.workflow_run_id }}
-          name: ${{ matrix.arch }}-torcx
-
       - name: Extract artifacts
         shell: bash
         run: |
@@ -157,8 +142,8 @@ jobs:
           set -x
           set -euo pipefail
 
-          # Set up a webserver for devcontainer and torcx tests.
-          # The respective tests will download devcontainer and torcx tarball via http.
+          # Set up a webserver for devcontainer tests.
+          # The respective tests will download devcontainer via http.
           # The devcontainer test will then run a build
           #   which will download and install binpkgs into the dev container.
           # For the sake of that test we will serve both via a temporary local web server.
@@ -173,19 +158,6 @@ jobs:
           mkdir ${TESTS_WEBSERVER_WEBROOT}
           mv flatcar_developer_container* ${TESTS_WEBSERVER_WEBROOT}
           tar -C ${TESTS_WEBSERVER_WEBROOT} -xvf binpkgs.tar
-
-          tar -C ${TESTS_WEBSERVER_WEBROOT} -xvf torcx.tar
-
-          # Move torcx package into plain webroot
-          #  (path consists of <arch>/<packagename>/<checksum>/<packagename>:<version>.torcx.tar.gz)
-          mv "${TESTS_WEBSERVER_WEBROOT}/${{ matrix.arch }}-usr"/*/*/*.torcx.tgz \
-             "${TESTS_WEBSERVER_WEBROOT}"
-
-          # Update torcx.json's http URL to point to the webserver IP.
-          # ci.yaml defines the "localhost" placeholder in its "Set Environment" step.
-          sed -i "s,http://localhost:12345,http://${TESTS_WEBSERVER_IP}:${TESTS_WEBSERVER_PORT}," \
-                 "${TESTS_WEBSERVER_WEBROOT}/torcx_manifest.json"
-          cat "${TESTS_WEBSERVER_WEBROOT}/torcx_manifest.json"
 
           # Extract the generic image we'll use for qemu tests.
           # Note that the qemu[_uefi] tests use the generic image instead of the
@@ -220,14 +192,6 @@ jobs:
           )
 
           source ci-automation/test.sh
-
-          # Provide our own torcx prepare function so we use our local manifest json.
-          # This is called by test_run below.
-          function __prepare_torcx() {
-            shift; shift # no need for arch or vernum
-            local destdir="$1"
-            cp "../${TESTS_WEBSERVER_WEBROOT}/torcx_manifest.json" "${destdir}"
-          }
 
           PARALLEL_ARCH=10
 

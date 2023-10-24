@@ -36,7 +36,6 @@ run_kola_tests() {
           --platform=equinixmetal \
           --tapfile="${instance_tapfile}" \
           --parallel="${EQUINIXMETAL_PARALLEL}" \
-          --torcx-manifest="${CIA_TORCX_MANIFEST}" \
           --equinixmetal-image-url="${BASE_URL}/${EQUINIXMETAL_IMAGE_NAME}" \
           --equinixmetal-installer-image-kernel-url="${BASE_URL}/${PXE_KERNEL_NAME}" \
           --equinixmetal-installer-image-cpio-url="${BASE_URL}/${PXE_IMAGE_NAME}" \

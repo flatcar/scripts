@@ -192,9 +192,16 @@ function docker_image_from_buildcache() {
     local id_file_url="https://${BUILDCACHE_SERVER}/containers/${version}/${id_file}"
     local id_file_url_release="https://mirror.release.flatcar-linux.net/containers/${version}/${id_file}"
 
+    local local_image=""
     if image_exists_locally "${name}" "${version}" ; then
+        local_image="${name}:${version}"
+    elif image_exists_locally "${CONTAINER_REGISTRY}/${name}" "${version}" ; then
+        local_image="${CONTAINER_REGISTRY}/${name}:${version}"
+    fi
+
+    if [[ -n "${local_image}" ]] ; then
         local image_id=""
-        image_id=$($docker image inspect "${name}:${version}" | jq -r '.[].Id' | sed 's/^sha256://')
+        image_id=$($docker image inspect "${local_image}" | jq -r '.[].Id' | sed 's/^sha256://')
         local remote_id=""
         remote_id=$(curl --fail --silent --show-error --location --retry-delay 1 \
                     --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \

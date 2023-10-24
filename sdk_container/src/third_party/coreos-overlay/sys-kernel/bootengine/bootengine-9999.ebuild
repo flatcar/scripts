@@ -37,7 +37,6 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-kargs-helper \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
-		"${D}"/usr/lib/dracut/modules.d/35torcx/torcx-profile-populate-generator \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/gpg-agent-wrapper \

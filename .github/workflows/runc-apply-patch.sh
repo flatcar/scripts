@@ -36,11 +36,6 @@ sed -i "s/runc-${VERSION_OLD}/runc-${VERSION_NEW}/g" app-containers/containerd/c
 
 dockerVersion=$(sed -n "s/^DIST docker-\([0-9]*.[0-9]*.[0-9]*\).*/\1/p" app-containers/docker/Manifest | sort -ruV | head -n1)
 
-# torcx ebuild file has a docker version with only major and minor versions, like 19.03.
-versionTorcx=${dockerVersion%.*}
-torcxEbuildFile=$(get_ebuild_filename app-torcx/docker "${versionTorcx}")
-sed -i "s/runc-${VERSION_OLD}/runc-${VERSION_NEW}/g" "${torcxEbuildFile}"
-
 popd
 
 URL="https://github.com/opencontainers/runc/releases/tag/v${VERSION_NEW}"
@@ -48,8 +43,7 @@ URL="https://github.com/opencontainers/runc/releases/tag/v${VERSION_NEW}"
 generate_update_changelog 'runc' "${VERSION_NEW}" "${URL}" 'runc'
 
 commit_changes app-containers/runc "${VERSION_OLD}" "${VERSION_NEW}" \
-               app-containers/containerd \
-               app-torcx/docker
+               app-containers/containerd
 
 cleanup_repo
 

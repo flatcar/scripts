@@ -260,8 +260,8 @@ image_packages_portage() {
     ROOT="$1" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
         equery --no-color list --format '$cpv::$repo' '*'
 }
-# List packages implicitly contained in rootfs, such as in torcx packages or
-# initramfs.
+
+# List packages implicitly contained in rootfs, such as in initramfs.
 image_packages_implicit() {
     local profile="${BUILD_DIR}/configroot/etc/portage/profile"
 
@@ -290,11 +290,6 @@ image_packages_implicit() {
             query_available_package "${pkg}"
         done < "${profile}/package.provided"
     fi
-
-    # Include source packages of all torcx images installed on disk.
-    [ -z "${FLAGS_torcx_manifest}" ] ||
-    torcx_manifest::sources_on_disk "${FLAGS_torcx_manifest}" |
-    while read pkg ; do query_available_package "${pkg}" ; done
 }
 
 # Generate a list of packages installed in an image.
@@ -517,8 +512,6 @@ EOF
 # Add /usr/share/SLSA reports for packages indirectly contained within the rootfs
 # If the package is available in BOARD_ROOT accesses it from there, otherwise
 # needs to download binpkg.
-# Reports for torcx packages are also included when adding the torcx package to
-# rootfs.
 insert_extra_slsa() {
   info "Inserting additional SLSA file"
   local rootfs="$1"
@@ -625,27 +618,6 @@ finish_image() {
 
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
-
-  # Copy in packages from the torcx store that are marked as being on disk
-  if [ -n "${FLAGS_torcx_manifest}" ]; then
-    for pkg in $(torcx_manifest::get_pkg_names "${FLAGS_torcx_manifest}"); do
-      local default_version="$(torcx_manifest::default_version "${FLAGS_torcx_manifest}" "${pkg}")"
-      for version in $(torcx_manifest::get_versions "${FLAGS_torcx_manifest}" "${pkg}"); do
-        local on_disk_path="$(torcx_manifest::local_store_path "${FLAGS_torcx_manifest}" "${pkg}" "${version}")"
-        if [[ -n "${on_disk_path}" ]]; then
-          local casDigest="$(torcx_manifest::get_digest "${FLAGS_torcx_manifest}" "${pkg}" "${version}")"
-          sudo cp "${FLAGS_torcx_root}/pkgs/${BOARD}/${pkg}/${casDigest}/${pkg}:${version}.torcx.tgz" \
-            "${root_fs_dir}${on_disk_path}"
-          sudo tar xf "${root_fs_dir}${on_disk_path}" -C "${root_fs_dir}" --wildcards "./usr/share/SLSA"
-          if [[ "${version}" == "${default_version}" ]]; then
-            # Create the default symlink for this package
-            sudo ln -fns "${on_disk_path##*/}" \
-              "${root_fs_dir}/${on_disk_path%/*}/${pkg}:com.coreos.cl.torcx.tgz"
-          fi
-        fi
-      done
-    done
-  fi
 
   # Only enable rootfs verification on prod builds.
   local disable_read_write="${FLAGS_FALSE}"

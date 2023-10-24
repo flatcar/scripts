@@ -17,7 +17,7 @@
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
 #   3. Flatcar packages container is available via build cache server
 #       from "/containers/[VERSION]/flatcar-packages-[ARCH]-[FLATCAR_VERSION].tar.gz"
-#       or present locally. Container must contain binary packages and torcx artefacts.
+#       or present locally. Container must contain binary packages.
 #
 # INPUT:
 #
@@ -37,7 +37,7 @@
 #
 # OUTPUT:
 #
-#   1. OS image, dev container, related artifacts, and torcx packages pushed to buildcache.
+#   1. OS image, dev container, and related artifacts pushed to buildcache.
 #   2. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #   3. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
@@ -84,17 +84,12 @@ function _image_build_impl() {
             official_arg="--noofficial"
     fi
 
-    local torcx_root_tar="torcx_root.tar.zst"
     apply_local_patches
-    copy_from_buildcache "images/${arch}/${vernum}/torcx/${torcx_root_tar}" .
 
     # build image and related artifacts
     ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
-            mkdir -p "${CONTAINER_IMAGE_ROOT}" "${CONTAINER_TORCX_ROOT}"
-    ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
-            -v "${vernum}" \
-            tar --zstd -xf "${torcx_root_tar}" -C "${CONTAINER_TORCX_ROOT}"
+            mkdir -p "${CONTAINER_IMAGE_ROOT}"
     ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
             ./set_official --board="${arch}-usr" "${official_arg}"
@@ -103,7 +98,7 @@ function _image_build_impl() {
             ./build_image --board="${arch}-usr" --group="${channel}" \
                           --output_root="${CONTAINER_IMAGE_ROOT}" \
                           --only_store_compressed \
-                          --torcx_root="${CONTAINER_TORCX_ROOT}" prodtar container
+                          prodtar container
 
     # copy resulting images + push to buildcache
     local images_out="images/"
