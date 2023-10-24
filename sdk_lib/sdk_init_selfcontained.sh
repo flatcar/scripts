@@ -26,8 +26,10 @@ function clone_version() {
 }
 # --
 
-version="$(source /mnt/host/source/.repo/manifests/version.txt; echo $FLATCAR_VERSION)"
+version=$(source /mnt/host/source/src/scripts/manifests/version.txt; echo "$FLATCAR_VERSION")
 
 mkdir -p /home/sdk/trunk/src/third_party/
 
+# Drop the manifests dir, it will be replaced by one from scripts repo.
+rm -rf /home/sdk/trunk/src/scripts
 clone_version scripts /home/sdk/trunk/src/scripts "$version"

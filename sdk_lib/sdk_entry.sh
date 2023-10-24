@@ -15,7 +15,7 @@ chown -R sdk:sdk /home/sdk
 #  chroot portage conf to point to the correct binhost.
 (
     source /etc/lsb-release # SDK version in DISTRIB_RELEASE
-    source /mnt/host/source/.repo/manifests/version.txt # OS image version in FLATCAR_VERSION_ID
+    source /mnt/host/source/src/scripts/manifests/version.txt # OS image version in FLATCAR_VERSION_ID
     version="${FLATCAR_VERSION_ID}"
 
     # If this is a nightly build tag we can use pre-built binaries directly from the
