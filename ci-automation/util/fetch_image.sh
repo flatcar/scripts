@@ -30,7 +30,7 @@ function fetch_image() {
     local script_root="$(dirname "${BASH_SOURCE[0]}")/../.."
     source "${script_root}/ci-automation/ci_automation_common.sh"
 
-    local vernum="$(source "${script_root}/sdk_container/.repo/manifests/version.txt";
+    local vernum="$(source "${script_root}/manifests/version.txt";
                     echo "${FLATCAR_VERSION}")"
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
 

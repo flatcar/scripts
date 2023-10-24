@@ -16,9 +16,9 @@
 #
 # PREREQUISITES:
 #
-#   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
+#   1. SDK version and OS image version are recorded in manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
-#   3. Mantle container docker image reference is stored in sdk_container/.repo/manifests/mantle-container.
+#   3. Mantle container docker image reference is stored in manifests/mantle-container.
 #   4. Vendor image to run tests for are available on buildcache
 #         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #
@@ -112,7 +112,7 @@ function _test_run_impl() {
     source ci-automation/ci_automation_common.sh
     source sdk_lib/sdk_container_common.sh
 
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum
     docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
@@ -130,7 +130,7 @@ function _test_run_impl() {
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
     local mantle_ref
-    mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
+    mantle_ref=$(cat manifests/mantle-container)
 
     local tap_merged_summary="results-${image}"
     local tap_merged_detailed="results-${image}-detailed"
