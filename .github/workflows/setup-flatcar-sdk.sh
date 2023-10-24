@@ -24,7 +24,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io \
 pushd "${WORK_SCRIPTS_DIR}"
 
 source ci-automation/ci_automation_common.sh
-source sdk_container/.repo/manifests/version.txt
+source manifests/version.txt
 
 # run_sdk_container requires a tag to exist in the repo it resides,
 # which may not be the case for forked repos. Add some fake tag in
