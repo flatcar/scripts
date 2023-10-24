@@ -3,5 +3,16 @@
 set -euo pipefail
 rootfs="${1}"
 
+
+# No manpages on Flatcar, no need to ship "stress" tool
+echo ">>> NOTICE: $0: removing 'gen-manpages', 'containerd-stress' from sysext"
+rm -f "${rootfs}/usr/bin/gen-manpages" "${rootfs}/usr/bin/containerd-stress"
+
+script_root="$(cd "$(dirname "$0")/../"; pwd)"
+files_dir="${script_root}/sdk_container/src/third_party/coreos-overlay/coreos/sysext/containerd"
+
+echo ">>> NOTICE $0: installing extra files from '${files_dir}'"
+cp -va "${files_dir}/"* "${rootfs}"
+
 mkdir -p "${rootfs}/usr/lib/systemd/system/multi-user.target.d"
 { echo "[Unit]"; echo "Upholds=containerd.service"; } > "${rootfs}/usr/lib/systemd/system/multi-user.target.d/10-containerd-service.conf"
