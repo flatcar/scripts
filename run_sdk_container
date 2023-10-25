@@ -18,10 +18,11 @@ custom_image=""
 tty=()
 remove=""
 cleanup=""
+mounts=()
 
 usage() {
     echo "  Usage:"
-    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [<container-command>]"
+    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [-m <src>:<dest>] [<container-command>]"
     echo "       Start an SDK container of a given SDK release version."
     echo "       This will create the container if it does not exist, otherwise start the existing container."
     echo "       If the container is already running then it will exec into the container."
@@ -46,6 +47,8 @@ usage() {
     echo "                     $sdk_container_common_registry/flatcar-sdk-[ARCH]:[SDK VERSION]."
     echo "                     Useful for CI."
     echo "      -U             Do not update the versionfile. Instead, use the version from the versionfile as-is."
+    echo "      -m <src>:<dest> - Mount local file or directory inside the container."
+    echo "                     Can be specified multiple times."
     echo "      -h             Print this help."
     echo
 }
@@ -68,6 +71,7 @@ while [[ $# -gt 0 ]] ; do
         os_version=$(get_version_from_versionfile)
         update_versionfile=
         shift;;
+    -m) mounts+=( -v "$2" ); shift; shift;;
     *) break;;
     esac
 done
@@ -138,6 +142,7 @@ if [[ -z ${stat} ]] ; then
         -v "${PWD}/__build__/images:/mnt/host/source/src/build"
         -v "${PWD}:/mnt/host/source/src/scripts"
         "${gpg_volumes[@]}"
+        "${mounts[@]}"
         --privileged
         --network host
         -e SDK_USER_ID="$(id -u)"
