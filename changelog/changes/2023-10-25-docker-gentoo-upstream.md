@@ -1,0 +1,1 @@
+- cri-tools, runc, containerd, docker, and docker-cli are now shipped without debugging symbols and built from Gentoo upstream ebuilds.
