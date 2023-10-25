@@ -41,8 +41,9 @@ create_provenance_overlay() {
     read scripts_hash<"${scripts_git}/${scripts_hash#ref: }"
     echo "${scripts_hash}" >"${root_overlay}${scripts_git}/HEAD"
   fi
-  mkdir -p "${root_overlay}/mnt/host/source/.repo/manifests"
-  cp "${REPO_MANIFESTS_DIR}/version.txt" "${root_overlay}/mnt/host/source/.repo/manifests"
+  local mdir="${root_overlay}/mnt/host/source/src/scripts/manifests"
+  mkdir -p "${mdir}"
+  cp "${REPO_MANIFESTS_DIR}/version.txt" "${mdir}"
 }
 
 catalyst_init "$@"

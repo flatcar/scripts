@@ -294,7 +294,7 @@ SRC_INTERNAL="${GCLIENT_ROOT}/src-internal"
 SCRIPTS_DIR="${SRC_ROOT}/scripts"
 BUILD_LIBRARY_DIR="${SCRIPTS_DIR}/build_library"
 REPO_CACHE_DIR="${REPO_ROOT}/.cache"
-REPO_MANIFESTS_DIR="${REPO_ROOT}/.repo/manifests"
+REPO_MANIFESTS_DIR="${SCRIPTS_DIR}/manifests"
 
 # Source FLATCAR_VERSION_ID from manifest.
 if [[ -f "${REPO_MANIFESTS_DIR}/version.txt" ]]; then

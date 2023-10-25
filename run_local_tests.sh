@@ -26,7 +26,7 @@
 #   ./run_local_tests.sh
 #
 # Optional prerequisites:
-# - Custom Mantle container image / version in sdk_container/.repo/manifests/mantle-container.
+# - Custom Mantle container image / version in manifests/mantle-container.
 #   This comes in handy if you've built a local mantle/kola which you want to test.
 #   Just edit the file and put in the whole containerr image name and version.
 #
@@ -70,7 +70,7 @@ function run_local_tests() (
 
   rm -f results.*
 
-  local mantle_container="$(cat "sdk_container/.repo/manifests/mantle-container")"
+  local mantle_container="$(cat "manifests/mantle-container")"
   local tests=""
   local update_tests=false
 

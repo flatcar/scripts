@@ -26,8 +26,12 @@ BUILD_PATCH=$(git format-patch --output=/dev/stdout "${TAG}~1..${TAG}")
 git checkout --recurse-submodules "${TAG}"
 git reset --hard "${BRANCH}"
 echo "${BUILD_PATCH}" | git am -3 || {
-  git checkout "${TAG}" -- sdk_container/.repo/manifests/version.txt
-  git add sdk_container/.repo/manifests/version.txt
+  vertxt='manifest/version.txt'
+  if ! git checkout "${TAG}" -- "${vertxt}"; then
+    vertxt='sdk_container/.repo/manifest/version.txt'
+    git checkout "${TAG}" -- "${vertxt}"
+  fi
+  git add "${vertxt}"
   git am --continue
   # This does not handle submodule conflicts: It should use the one
   # from the TAG (similar to version.txt) unless an explicit new
