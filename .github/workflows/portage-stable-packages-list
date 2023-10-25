@@ -245,6 +245,7 @@ eclass/autotools.eclass
 # Still has some Flatcar modifications, will need to upstream it first.
 #
 # eclass/bash-completion-r1.eclass
+eclass/cargo.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/desktop.eclass
