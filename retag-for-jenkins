@@ -33,9 +33,6 @@ echo "${BUILD_PATCH}" | git am -3 || {
   fi
   git add "${vertxt}"
   git am --continue
-  # This does not handle submodule conflicts: It should use the one
-  # from the TAG (similar to version.txt) unless an explicit new
-  # reference was specified
 } || { echo "Failed to resolve conflict, continue manually" >&2 ; exit 1 ; }
 git tag -d "${TAG}"
 git tag "${TAG}"
