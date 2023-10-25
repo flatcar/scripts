@@ -26,8 +26,10 @@ stage4/root_overlay: ${ROOT_OVERLAY}
 EOF
 catalyst_stage_default
 }
+
 create_provenance_overlay() {
   local root_overlay="$1"
+  local f d
   while read f; do
     d="${f%/*}"
     mkdir -p "${root_overlay}${d}/"
@@ -36,6 +38,7 @@ create_provenance_overlay() {
   local scripts_git=/mnt/host/source/src/scripts/.git
   # `git rev-parse` fails due to the safe.directory setting in SDK container.
   # Open-code the ref lookup
+  local scripts_hash
   read scripts_hash <"${scripts_git}/HEAD"
   if [[ "${scripts_hash}" == "ref:"* ]]; then
     read scripts_hash<"${scripts_git}/${scripts_hash#ref: }"
