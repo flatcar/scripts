@@ -42,7 +42,7 @@ create_prod_sysext() {
   # Include previous sysexts' pkginfo if supplied
   if [[ -n "${pkginfo}" ]] ; then
     if [[ ! -f "${output_dir}/${pkginfo}" ]] ; then
-      die "Sysext build '${grp_pkg}': unable to find package info at '${output_dir}/${pkginfo}'."
+      die "Sysext build '${name}': unable to find package info at '${output_dir}/${pkginfo}'."
     fi
     msg="${msg} w/ package info '${pkginfo}'"
     build_sysext_opts+=( "--base_pkginfo=${output_dir}/${pkginfo}" )
