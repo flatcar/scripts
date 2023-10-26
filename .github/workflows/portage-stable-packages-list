@@ -87,7 +87,6 @@ app-arch/zstd
 
 app-cdr/cdrtools
 
-app-containers/containerd
 app-containers/cri-tools
 app-containers/docker
 app-containers/docker-cli
