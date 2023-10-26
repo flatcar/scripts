@@ -205,59 +205,22 @@ function git_tag_for_nightly() {
 # 2 - arch
 # 3 - name of an array variable to store the result in
 function get_oem_id_list() {
-    local scripts_repo arch
+    local scripts_repo arch list_var_name
     scripts_repo=${1}; shift
     arch=${1}; shift
-    local -n list_var_ref=${1}; shift
+    list_var_name=${1}; shift
 
-    local -a ebuilds
-    ebuilds=( "${scripts_repo}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/common-oem-files-"*'.ebuild' )
+    # This defines COMMON_OEMIDS, AMD64_ONLY_OEMIDS, ARM64_ONLY_OEMIDS
+    # and OEMIDS variable. We don't use the last one.
+    source "${scripts_repo}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/files/oemids.sh" local
 
-    list_var_ref=()
-    if [[ ${#ebuilds[@]} -eq 0 ]]; then
-        return 0
-    fi
-    local mode
-    # 0 = no OEMIDS line found yet
-    # 1 = OEMIDS line found
-    mode=0
-    local -a fields
-    local first arch_field arch_found
-    while read -r -a fields; do
-        if [[ ${#fields[@]} -eq 0 ]]; then
-            continue
-        fi
-        first=${fields[0]}
-        case ${mode} in
-            0)
-                if [[ ${first} = 'OEMIDS=(' ]]; then
-                    mode=1
-                fi
-                ;;
-            1)
-                if [[ ${first} = ')' ]]; then
-                    break
-                fi
-                if [[ ${#fields[@]} -gt 1 ]]; then
-                    if [[ ${fields[1]} != '#' ]]; then
-                        echo "expect a line inside OEMIDS to be like '<OEMID> # <ARCH1> <ARCH2>…' or just '<OEMID>', got '${fields[*]}'" >&2
-                        exit 1
-                    fi
-                    arch_found=
-                    for arch_field in "${fields[@]:2}"; do
-                        if [[ ${arch} = "${arch_field}" ]]; then
-                            arch_found=x
-                            break
-                        fi
-                    done
-                    if [[ -z ${arch_found} ]]; then
-                        continue
-                    fi
-                fi
-                list_var_ref+=( "${first}" )
-                ;;
-        esac
-    done <"${ebuilds[0]}"
+    local -n arch_oemids_ref="${arch^^}_ONLY_OEMIDS"
+    local all_oemids=(
+        "${COMMON_OEMIDS[@]}"
+        "${arch_oemids_ref[@]}"
+    )
+
+    mapfile -t "${list_var_name}" < <(printf '%s\n' "${all_oemids[@]}" | sort)
 }
 
 function get_base_sysext_list() {
