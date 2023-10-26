@@ -109,7 +109,7 @@ function image_changes() (
     echo
     local -a oemids base_sysexts
     get_oem_id_list . "${arch}" oemids
-    get_base_sysext_list . base_sysexts
+    get_base_sysext_list . "${arch}" base_sysexts
     generate_image_changes_report \
         "${version_description}" '-' "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
@@ -262,18 +262,15 @@ function get_oem_id_list() {
 
 function get_base_sysext_list() {
     local scripts_repo=${1}; shift
+    local arch=${1}; shift
     local -n list_var_ref=${1}; shift
 
-    local line
-    line=$({ git -C "${scripts_repo}" grep -F 'DEFINE_string base_sysexts ' | head -n1; } || :)
-    line=${line#*'"'}
-    line=${line%'"'*}
+    source "${scripts_repo}/ci-automation/base_sysexts.sh" 'local'
+    local -n base_sysexts_ref="${arch}_base_sysexts"
 
     list_var_ref=()
-    local -a entries
-    mapfile -t entries <<<"${line//,/$'\n'}"
     local entry
-    for entry in "${entries[@]}"; do
+    for entry in "${base_sysexts_ref[@]}"; do
         list_var_ref+=( "${entry%%:*}" )
     done
 }

@@ -283,7 +283,7 @@ jobs:
 
           declare -a oemids base_sysexts
           get_oem_id_list . "${arch}" oemids
-          get_base_sysext_list . base_sysexts
+          get_base_sysext_list . "${arch}" base_sysexts
           generate_image_changes_report \
               "${version_description}" 'image-changes-reports-release.txt' "../flatcar-build-scripts" \
               "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \

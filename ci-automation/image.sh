@@ -86,6 +86,10 @@ function _image_build_impl() {
 
     apply_local_patches
 
+    source ci-automation/base_sysexts.sh 'local'
+    local -n base_sysexts_ref="${arch}_base_sysexts"
+    local base_sysexts_param=$(export IFS=,; echo "${base_sysexts_ref[*]}")
+
     # build image and related artifacts
     ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
@@ -96,6 +100,7 @@ function _image_build_impl() {
     ./run_sdk_container -n "${image_container}" -C "${packages_image}" \
             -v "${vernum}" \
             ./build_image --board="${arch}-usr" --group="${channel}" \
+                          --base_sysexts="${base_sysexts_param}" \
                           --output_root="${CONTAINER_IMAGE_ROOT}" \
                           --only_store_compressed \
                           prodtar container
