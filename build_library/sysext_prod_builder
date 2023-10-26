@@ -35,9 +35,9 @@ create_prod_sysext() {
 
   local -a build_sysext_opts=()
 
-  local grp_pkg="${grp_pkgs//&/ }"
-
-  local msg="Installing ${grp_pkg} in sysext ${name}.raw"
+  local -a grp_pkg
+  mapfile -t grp_pkg <<<"${grp_pkgs//&/$'\n'}"
+  local msg="Installing ${grp_pkg[*]} in sysext ${name}.raw"
 
   # Include previous sysexts' pkginfo if supplied
   if [[ -n "${pkginfo}" ]] ; then
@@ -62,7 +62,7 @@ create_prod_sysext() {
             --squashfs_base="${base_sysext}" \
             --generate_pkginfo \
             "${build_sysext_opts[@]}" \
-            "${name}" ${grp_pkg}
+            "${name}" "${grp_pkg[@]}"
 
   sudo mv "${workdir}/sysext-build/${name}.raw" "${workdir}/sysext-build/${name}_pkginfo.raw" \
                               "${workdir}/sysext-build/${name}"_*.txt "${output_dir}"
