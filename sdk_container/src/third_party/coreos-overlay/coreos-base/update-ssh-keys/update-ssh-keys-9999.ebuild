@@ -10,12 +10,11 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="5be7dcf3415f59afb8e78d7061a854f7b0efffc9" # flatcar-master
+	CROS_WORKON_COMMIT="de1e0d83c9a9279cf85d74c1d34f790d4a87bea8" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
 PATCHES=(
-    "${FILESDIR}"/0001-eclass-trick.patch
 )
 
 # sed -n 's/^"checksum \([^ ]*\) \([^ ]*\) .*/\1-\2/p' Cargo.lock
