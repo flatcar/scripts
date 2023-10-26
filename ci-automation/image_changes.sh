@@ -107,14 +107,15 @@ function image_changes() (
     fi
     echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${version}/flatcar_production_image.bin.bz2"
     echo
-    local -a oemids
+    local -a oemids base_sysexts
     get_oem_id_list . "${arch}" oemids
+    get_base_sysext_list . base_sysexts
     generate_image_changes_report \
         "${version_description}" '-' "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
         "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
         "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
-        "${oemids[@]}"
+        "${oemids[@]}" -- "${base_sysexts[@]}"
 )
 # --
 
@@ -259,13 +260,32 @@ function get_oem_id_list() {
     done <"${ebuilds[0]}"
 }
 
+function get_base_sysext_list() {
+    local scripts_repo=${1}; shift
+    local -n list_var_ref=${1}; shift
+
+    local line
+    line=$({ git -C "${scripts_repo}" grep -F 'DEFINE_string base_sysexts ' | head -n1; } || :)
+    line=${line#*'"'}
+    line=${line%'"'*}
+
+    list_var_ref=()
+    local -a entries
+    mapfile -t entries <<<"${line//,/$'\n'}"
+    local entry
+    for entry in "${entries[@]}"; do
+        list_var_ref+=( "${entry%%:*}" )
+    done
+}
+
+
 # Generates reports with passed parameters. The report is redirected
 # into the passed report file.
 #
 # 1 - version description (a free form string that describes a version of image that current version is compared against)
 # 2 - report file (can be relative), '-' for standard output
 # 3 - flatcar-build-scripts directory (can be relative, will be realpathed)
-# @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides -- list of OEM ids
+# @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides -- list of OEM ids -- list of base sysext names
 #
 # Example:
 #
@@ -277,7 +297,7 @@ function get_oem_id_list() {
 #     release:amd64-usr:3456.0.0 bincache:amd64:3478.0.0+my-changes -- \\
 #     "PATH=${PATH}:${PWD}/ci-automation/python-bin" --- \\
 #     NEW_VERSION=main-3478.0.0-my-changes NEW_CHANNEL=alpha NEW_CHANNEL_PREV_VERSION=3456.0.0 OLD_CHANNEL=alpha OLD_VERSION='' -- \\
-#     azure vmware
+#     azure vmware -- containerd-flatcar docker-flatcar
 function generate_image_changes_report() (
     set -euo pipefail
 
@@ -513,7 +533,7 @@ function channel_version() (
 #       <env vars for package-diff> --- <parameters for package-diff> -- \\
 #       <env vars for size-change-report.sh> --- <parameters for size-change-report.sh> -- \\
 #       <env vars for show-changes> --- <parameters for show-changes> -- \\
-#       <list of OEM ids>
+#       <list of OEM ids> -- <list of base sysexts>
 #
 # Env vars are passed to the called scripts verbatim. Parameters are
 # described below.
@@ -541,7 +561,7 @@ function print_image_reports() {
     local -a package_diff_env=() package_diff_params=()
     local -a size_change_report_env=() size_change_report_params=()
     local -a show_changes_env=() show_changes_params=()
-    local -a oemids
+    local -a oemids base_sysexts
     local params_shift=0
 
     split_to_env_and_params \
@@ -556,7 +576,10 @@ function print_image_reports() {
         show_changes_env show_changes_params params_shift \
         "${@}"
     shift "${params_shift}"
-    oemids=( "${@}" )
+    get_batch_of_args oemids params_shift "${@}"
+    shift "${params_shift}"
+    get_batch_of_args base_sysexts params_shift "${@}"
+    shift "${params_shift}"
 
     flatcar_build_scripts_repo=$(realpath "${flatcar_build_scripts_repo}")
 
@@ -607,6 +630,25 @@ function print_image_reports() {
     echo "To see the actual difference in size, see if there was a report for /boot/flatcar/vmlinuz-a."
     echo "Note that vmlinuz-a also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
     echo
+
+    local base_sysext
+    for base_sysext in "${base_sysexts[@]}"; do
+        yell "Base sysext ${base_sysext} changes compared to ${previous_version_description}"
+        underline "Package updates, compared to ${previous_version_description}:"
+        env \
+            "${package_diff_env[@]}" FILE="rootfs-included-sysexts/${base_sysext}_packages.txt" \
+            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
+
+        underline "Image file changes, compared to ${previous_version_description}:"
+        env \
+            "${package_diff_env[@]}" FILE="rootfs-included-sysexts/${base_sysext}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
+            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
+
+        underline "Image file size changes, compared to ${previous_version_description}:"
+        if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:base-sysext-${base_sysext}-wtd}"; then
+            "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:base-sysext-${base_sysext}-old}" 2>&1
+        fi
+    done
 
     local oemid
     for oemid in "${oemids[@]}"; do
@@ -740,5 +782,25 @@ function split_to_env_and_params() {
     steap_env_var_ref=( "${env[@]}" )
     steap_params_var_ref=( "${params[@]}" )
     steap_to_shift_var_ref=${to_shift}
+}
+# --
+
+# 1 - name of an array variable that will contain the args
+# 2 - name of a scalar variable for shift number
+# @ - args with -- as batch separator
+function get_batch_of_args() {
+    local -n batch_ref=${1}; shift
+    local -n shift_ref=${1}; shift
+
+    batch_ref=()
+    shift_ref=0
+    local arg
+    for arg; do
+        shift_ref=$((shift_ref + 1))
+        if [[ ${arg} = '--' ]]; then
+            break
+        fi
+        batch_ref+=( "${arg}" )
+    done
 }
 # --
