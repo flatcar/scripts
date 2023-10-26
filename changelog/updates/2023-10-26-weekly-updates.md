@@ -1,0 +1,8 @@
+- ethtool ([6.5](https://git.kernel.org/pub/scm/network/ethtool/ethtool.git/tree/NEWS?h=v6.5))
+- hwdata ([0.374](https://github.com/vcrhonek/hwdata/commits/v0.374))
+- DEV: iperf ([3.15](https://github.com/esnet/iperf/releases/tag/3.15))
+- iproute2 ([6.5.0](https://marc.info/?l=linux-netdev&m=169401822317373&w=2))
+- protobuf ([21.12](https://github.com/protocolbuffers/protobuf/releases/tag/v21.12) (includes [21.10](https://github.com/protocolbuffers/protobuf/releases/tag/v21.10) and [21.11](https://github.com/protocolbuffers/protobuf/releases/tag/v21.11)))
+- DEV, AZURE: python ([3.11.6](https://docs.python.org/release/3.11.6/whatsnew/changelog.html#python-3-11-6))
+- DEV: smartmontools ([7.4](https://www.smartmontools.org/browser/tags/RELEASE_7_4/smartmontools/NEWS))
+- thin-provisioning-tools ([1.0.6](https://github.com/jthornber/thin-provisioning-tools/blob/v1.0.6/CHANGES))
