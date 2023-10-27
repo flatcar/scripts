@@ -25,8 +25,8 @@ DEFINE_string squashfs_base '' \
   "The path to the squashfs base image. Defaults to the most current image built in '${default_imagedir}/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}'."
 DEFINE_string image_builddir '' \
   "Custom directory to build the sysext in. Defaults to a 'sysext' sub-directory of the directory the squashfs base image resides in; '${default_imagedir}/sysext' by default."
-DEFINE_boolean strip_binaries "${FLAGS_TRUE}" \
-  "After installation, scan sysext root for unstripped binaries and strip these."
+DEFINE_boolean strip_binaries "${FLAGS_FALSE}" \
+  "After installation, scan sysext root for unstripped binaries and strip these. WARNING - this can subtly break some packages, e.g. Docker (see https://github.com/moby/moby/blob/master/project/PACKAGERS.md#stripping-binaries)."
 DEFINE_string manglefs_script '' \
   "A path to executable that will customize the rootfs of the sysext image."
 DEFINE_boolean generate_pkginfo "${FLAGS_FALSE}" \
