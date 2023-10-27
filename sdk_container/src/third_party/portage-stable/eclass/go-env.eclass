@@ -19,6 +19,7 @@ inherit toolchain-funcs
 # @FUNCTION: go-env_set_compile_environment
 # @DESCRIPTION:
 # Set up basic compile environment: CC, CXX, and GOARCH.
+# Also carry over CFLAGS, LDFLAGS and friends.
 # Required for cross-compiling with crossdev.
 # If not set, host defaults will be used and the resulting binaries are host arch.
 # (e.g. "emerge-aarch64-cross-linux-gnu foo" run on x86_64 will emerge "foo" for x86_64
@@ -38,6 +39,10 @@ go-env_set_compile_environment() {
 
 	tc-export CC CXX
 	export GOARCH
+	export CGO_CFLAGS="${CGO_CFLAGS:-$CFLAGS}"
+	export CGO_CPPFLAGS="${CGO_CPPFLAGS:-$CPPFLAGS}"
+	export CGO_CXXFLAGS="${CGO_CXXFLAGS:-$CXXFLAGS}"
+	export CGO_LDFLAGS="${CGO_LDFLAGS:-$LDFLAGS}"
 }
 
 fi
