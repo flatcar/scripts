@@ -138,7 +138,6 @@ dev-lang/python-exec
 dev-lang/python-exec-conf
 dev-lang/yasm
 
-dev-libs/boost
 dev-libs/cJSON
 dev-libs/cyrus-sasl
 dev-libs/elfutils
@@ -214,7 +213,6 @@ dev-python/tomli
 dev-python/typing-extensions
 dev-python/wheel
 
-dev-util/b2
 dev-util/bpftool
 dev-util/catalyst
 dev-util/checkbashisms
@@ -247,6 +245,7 @@ eclass/autotools.eclass
 # Still has some Flatcar modifications, will need to upstream it first.
 #
 # eclass/bash-completion-r1.eclass
+eclass/cargo.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/desktop.eclass

@@ -31,7 +31,6 @@ DEPEND="
 	dev-libs/gobject-introspection
 	dev-python/setuptools
 	dev-python/six
-	dev-util/b2
 	dev-util/catalyst
 	dev-util/checkbashisms
 	dev-util/pahole

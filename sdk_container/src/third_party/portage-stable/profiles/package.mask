@@ -33,6 +33,32 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2023-10-23)
+# Broken on Python 3.11.  Archived upstream since 2020.  No revdeps.
+# Removal on 2023-11-22.  Bug #896886.
+dev-python/sphinx-testing
+
+# Michał Górny <mgorny@gentoo.org> (2023-10-22)
+# Incompatible with Python 3.12.  Last commit in 2016.  No revdeps.
+# Removal on 2023-11-21.  Bug #909917.
+dev-python/exam
+
+# Michał Górny <mgorny@gentoo.org> (2023-10-20)
+# The test suite is broken and does not fail correctly.  No maintainer.
+# No revdeps.
+# Removal on 2023-11-19.  Bug #916047.
+dev-python/pydotplus
+
+# Ulrich Müller <ulm@gentoo.org> (2023-10-19)
+# Pretest versions, masked for testing.
+<app-editors/emacs-29.1.9999:29-vcs
+
+# Sam James <sam@gentoo.org> (2023-10-16)
+# Part of Perl core and better maintained there - the version on CPAN is out of
+# date and incompatible with Perl 5.38. No reverse dependencies.
+# Removal on 2023-11-15.
+dev-perl/PathTools
+
 # Michał Górny <mgorny@gentoo.org> (2023-10-15)
 # These packages were required by old version of dev-python/jupyterlab
 # and dev-python/notebook, and are no longer used.
@@ -41,7 +67,6 @@ dev-python/check-manifest
 dev-python/jupyter-server-fileid
 dev-python/jupyter-server-ydoc
 dev-python/jupyter-ydoc
-dev-python/nbclassic
 dev-python/y-py
 dev-python/ypy-websocket
 
@@ -203,16 +228,6 @@ app-dicts/prime-dict
 # the changes in 8.0.2.
 ~dev-python/setuptools-scm-8.0.1
 
-# Joonas Niilola <juippis@gentoo.org> (2023-09-21)
-# Enigmail's functionality has been built into Thunderbird-68, carrying over
-# all the way to 115. Enigmail hasn't been supported in TB since 91. It's
-# currently only supported on SeaMonkey, but upstream provides a pre-packed
-# extension to download for SM directly. Therefore there's not much reason to
-# package it in Gentoo, given also the current version is years behind upstream
-# releases. Bug #914486
-# Removal in ~30 days.
-x11-plugins/enigmail
-
 # Jaco Kroon <jaco@uls.co.za> (2023-09-19)
 # Joonas Niilola <juippis@gentoo.org> (2023-09-21)
 # DAHDI is not suited for a rolling-release distribution. Upstream releases new
@@ -225,51 +240,6 @@ net-libs/libpri
 net-misc/dahdi
 net-misc/dahdi-tools
 net-misc/openr2
-
-# Ulrich Müller <ulm@gentoo.org> (2023-09-20)
-# Unmaintained upstream: Last release (2.92) in 2003, last commit
-# to XEmacs CVS repository in 2008. Broken with Emacs 29.
-# Masked for removal on 2023-10-20, bug #914449.
-app-emacs/crypt++
-
-# Bernard Cafarelli <voyageur@gentoo.org> (2023-09-19)
-# Only works with PHP 7, which was dropped from Gentoo
-# Upstream has no short-term plan to add PHP 8 support
-# Bug #842882, removal on 2023-10-19.
-www-apps/owncloud
-
-# Michał Górny <mgorny@gentoo.org> (2023-09-17)
-# Core API has not been maintained since 2017, and all the repositories
-# have been archived in 2019.  It remained in ::gentoo only
-# as an optional test dependency, and all reverse dependencies have been
-# updated not to depend on it.
-# Removal on 2023-10-17.  Bug #914363.
-dev-python/coreapi
-dev-python/coreschema
-dev-python/itypes
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2021-07-06, 2023-09-15)
-# No longer maintained upstream; masked everywhere for two years now.
-# Please see also the 2021-07-15-opentmpfiles-deprecation news item.
-# https://www.gentoo.org/support/news-items/2021-07-15-opentmpfiles-deprecation.html
-#
-# The replacement is sys-apps/systemd-utils[tmpfiles]; new name
-# but otherwise identical to the solution described in the news item.
-# Removal on 2023-10-15.
-sys-apps/opentmpfiles
-
-# Hans de Graaff <graaff@gentoo.org> (2023-09-15)
-# Not compatible with ruby31, no reverse dependencies. Last release in
-# 2013. Masked for removal on 2023-10-15.
-dev-ruby/ruby-elf
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-09-14)
-# No longer a test dependency of dev-python/textdistance, now fails tests
-# with the latest numpy. Upstream inactive and we already need patching for
-# python 3.10 compatibility. No other reverse dependencies.
-# Bug: https://bugs.gentoo.org/887845
-# Removal on 2023-10-14
-dev-python/abydos
 
 # Sam James <sam@gentoo.org> (2023-09-09)
 # OpenSSL 1.1.x is EOL on 2023-09-11. Please upgrade immediately to >= OpenSSL 3.
@@ -322,7 +292,6 @@ dev-python/abydos
 
 # Matt Turner <mattst88@gentoo.org> (2023-07-06)
 # GNOME 45 mask
->=app-editors/ghex-45_alpha
 >=gnome-extra/gnome-logs-45_alpha
 >=net-misc/gnome-remote-desktop-45_alpha
 >=x11-libs/pango-1.51.0

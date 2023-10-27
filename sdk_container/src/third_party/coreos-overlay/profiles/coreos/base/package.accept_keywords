@@ -33,6 +33,9 @@
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
 =dev-lang/nasm-2.15.05 ~arm64
 
+# Keep versions on both arches in sync.
+=dev-lang/python-3.11.6 ~amd64
+
 # Accept unstable host Rust compilers.
 =dev-lang/rust-1.73.0 ~amd64 ~arm64
 
@@ -66,12 +69,13 @@
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/policycoreutils-3.1-r4 ~arm64
 =sys-apps/semodule-utils-3.1 ~arm64
+=sys-apps/smartmontools-7.4 ~arm64
+=sys-block/thin-provisioning-tools-1.0.6 ~amd64
 
 # Needed to force enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.27-r1 **
 
 # Keep versions on both arches in sync.
-=sys-devel/automake-1.16.5-r1 ~arm64
 =sys-firmware/edk2-aarch64-18.02 **
 =sys-libs/libselinux-3.1-r3 ~arm64
 =sys-libs/libsemanage-3.1-r2 ~arm64

@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://www.kernel.org/pub/linux/utils/net/${PN}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 sparc x86"
 fi
 
 DESCRIPTION="kernel routing and traffic control utilities"
@@ -61,12 +61,12 @@ src_prepare() {
 	local versionfile="include/version.h"
 	if [[ ${PV} != 9999 ]] && ! grep -Fq "${PV}" ${versionfile} ; then
 		einfo "Fixing version string"
-		sed "s@\"[[:digit:]\.]\+\"@\"${PV}\"@" \
-			-i ${versionfile} || die
+		sed -i "s@\"[[:digit:]\.]\+\"@\"${PV}\"@" \
+			${versionfile} || die
 	fi
 
 	# echo -n is not POSIX compliant
-	sed 's@echo -n@printf@' -i configure || die
+	sed -i 's@echo -n@printf@' configure || die
 
 	sed -i \
 		-e '/^CC :\?=/d' \

@@ -86,7 +86,6 @@ media-video/obs-studio browser
 
 # Joonas Niilola <juippis@gentoo.org> (2021-06-23)
 # Pandoc is a required dep, and not keyworded.
-sys-apps/exa man
 sys-apps/eza man
 
 # Matt Turner <mattst88@gentoo.org> (2021-06-10)
@@ -146,7 +145,7 @@ media-video/ffmpeg -rav1e
 # media-libs/libplacebo is keyworded
 media-video/vlc -libplacebo
 
-# Georgy Yakovlev <gyakovlev@gentoo.org (2020-06-07)
+# Georgy Yakovlev <gyakovlev@gentoo.org> (2020-06-07)
 # works on ppc64
 app-emulation/qemu -spice -usbredir
 
@@ -209,7 +208,7 @@ dev-java/ant-apache-bsf python
 # Mask until >sys-cluster/ceph-0.94 goes stable
 net-analyzer/rrdtool rados
 
-# Michael Sterrett <mr_bones_@gentoo.org (2013-11-12)
+# Michael Sterrett <mr_bones_@gentoo.org> (2013-11-12)
 # Mask openmedia use flag because the content generation tools
 # are missing keywords.
 games-simulation/openttd openmedia
