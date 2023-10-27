@@ -20,6 +20,7 @@ esac
 if [[ -z ${_GOLANG_VCS_ECLASS} ]]; then
 _GOLANG_VCS_ECLASS=1
 
+# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
 inherit estack golang-base go-env
 
 PROPERTIES+=" live"
@@ -86,7 +87,8 @@ _golang-vcs_env_setup() {
 		die "${ECLASS}: unable to create ${WORKDIR}/${P}"
 	return 0
 
-    go-env_set_compile_environment
+	# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
+	go-env_set_compile_environment
 }
 
 # @FUNCTION: _golang-vcs_fetch

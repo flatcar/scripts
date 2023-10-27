@@ -68,6 +68,7 @@ esac
 if [[ -z ${_GO_MODULE_ECLASS} ]]; then
 _GO_MODULE_ECLASS=1
 
+# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
 inherit multiprocessing toolchain-funcs go-env
 
 if [[ ! ${GO_OPTIONAL} ]]; then
@@ -388,7 +389,8 @@ go-module_src_unpack() {
 		fi
 	fi
 
-    go-env_set_compile_environment
+	# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
+	go-env_set_compile_environment
 }
 
 # @FUNCTION: _go-module_src_unpack_gosum
