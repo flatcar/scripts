@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="2d82b700b90ca8d664e0915b26c306f94c4d3483" # trunk
+	CROS_WORKON_COMMIT="f0ad33c6b4b3e966be2437d3da44a7c580e3dc37" # trunk
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -22,7 +22,6 @@ CRATES="
 	argh-0.1.12
 	argh_derive-0.1.12
 	argh_shared-0.1.12
-	atty-0.2.14
 	autocfg-1.1.0
 	backtrace-0.3.69
 	base64-0.21.3
@@ -45,7 +44,6 @@ CRATES="
 	der-0.7.8
 	digest-0.10.7
 	encoding_rs-0.8.33
-	env_logger-0.8.4
 	env_logger-0.10.0
 	errno-0.3.3
 	errno-dragonfly-0.1.2
@@ -65,7 +63,6 @@ CRATES="
 	globset-0.4.13
 	h2-0.3.21
 	hashbrown-0.12.3
-	hermit-abi-0.1.19
 	hermit-abi-0.3.2
 	http-0.2.9
 	http-body-0.4.5
@@ -82,10 +79,9 @@ CRATES="
 	jetscii-0.5.3
 	js-sys-0.3.64
 	lazy_static-1.4.0
-	libc-0.2.147
+	libc-0.2.149
 	libm-0.2.7
-	linux-raw-sys-0.4.5
-	lock_api-0.4.10
+	linux-raw-sys-0.4.10
 	log-0.4.20
 	memchr-2.6.3
 	mime-0.3.17
@@ -103,8 +99,6 @@ CRATES="
 	openssl-macros-0.1.1
 	openssl-probe-0.1.5
 	openssl-sys-0.9.93
-	parking_lot-0.12.1
-	parking_lot_core-0.9.8
 	pem-rfc7468-0.7.0
 	percent-encoding-2.3.0
 	pin-project-lite-0.2.13
@@ -127,10 +121,9 @@ CRATES="
 	reqwest-0.11.20
 	rsa-0.9.2
 	rustc-demangle-0.1.23
-	rustix-0.38.11
+	rustix-0.38.20
 	ryu-1.0.15
 	schannel-0.1.22
-	scopeguard-1.2.0
 	security-framework-2.9.2
 	security-framework-sys-2.9.1
 	serde-1.0.188
@@ -138,7 +131,6 @@ CRATES="
 	serde_json-1.0.105
 	serde_urlencoded-0.7.1
 	sha2-0.10.7
-	signal-hook-registry-1.4.1
 	signature-2.1.0
 	slab-0.4.9
 	smallvec-1.11.0
