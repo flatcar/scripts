@@ -2,3 +2,13 @@ move dev-python/python-varlink dev-python/varlink
 move dev-python/python-musicbrainzngs dev-python/musicbrainzngs
 move dev-python/python-libevdev dev-python/libevdev
 move dev-python/sphinx_lv2_theme dev-python/sphinx-lv2-theme
+move dev-python/jschema_to_python dev-python/jschema-to-python
+move dev-python/sarif_om dev-python/sarif-om
+move dev-python/memory_allocator dev-python/memory-allocator
+move media-libs/OpenImageIO media-libs/openimageio
+move media-libs/OpenColorIO media-libs/opencolorio
+move media-libs/OpenShadingLanguage media-libs/osl
+move dev-libs/Imath dev-libs/imath
+move dev-python/cli_helpers dev-python/cli-helpers
+move dev-python/python-cstruct dev-python/cstruct
+move dev-python/swagger_spec_validator dev-python/swagger-spec-validator

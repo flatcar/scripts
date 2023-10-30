@@ -6,6 +6,10 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Marek Szuba <marecki@gentoo.org> (2023-10-26)
+# media-gfx/gmic has been masked for removal, see Bug #916289.
+media-gfx/darktable gmic
+
 # hololeap <hololeap@protonmail.com> (2023-10-15)
 # Enabling these flags will create cycles in the dependency graph.
 # Maintainers may want to temporarily unmask these in order to run
@@ -218,18 +222,6 @@ dev-libs/libffi exec-static-trampoline
 # Doesn't compile currently, bug #853094.
 >=net-dialup/freeradius-3.2.0 oracle
 
-# David Seifert <soap@gentoo.org> (2023-01-04)
-# Out of date patchset, warns on latest version about being "expired",
-# unofficial and maintainer discourages people upgrading to latest (non-packaged)
-# versions of knots too. The upstream maintainer was recently compromised
-# and there is no explanation as to how, so continuing to provide these patches
-# would be irresponsible. Bug #889326
-dev-util/bitcoin-tx knots
-net-libs/libbitcoinconsensus knots
-net-p2p/bitcoin-cli knots
-net-p2p/bitcoin-qt knots
-net-p2p/bitcoind knots
-
 # Matt Turner <mattst88@gentoo.org> (2023-01-01)
 # Depends on nautilus < 43
 >=app-text/evince-43.0 nautilus
@@ -389,11 +381,6 @@ net-libs/ngtcp2 openssl
 # Needs masked version of ogre (>=1.12), bug #825330
 >=dev-games/mygui-3.4.1 ogre
 
-# Marek Szuba <marecki@gentoo.org> (2022-02-07)
-# Deprecated back-end with known stability and data-corruption issues,
-# likely to be removed in gramps-5.2.0.
-app-misc/gramps berkdb
-
 # Jason A. Donenfeld <zx2c4@gentoo.org> (2022-02-04)
 # We're still ironing out some kinks and writing documentation for
 # this feature, so keep masked for now.
@@ -435,8 +422,9 @@ media-video/mjpg-streamer http-management
 app-text/texlive pdfannotextractor
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2021-10-16)
-# openjfx for openjdk17 is not yet available
+# openjfx for OpenJDK 17 and 21 is not yet available.
 dev-java/openjdk:17 javafx
+dev-java/openjdk:21 javafx
 
 # Marek Szuba <marecki@gentoo.org> (2021-10-10)
 # Legacy interface that depends on dev-libs/libx86 and specific kernel
