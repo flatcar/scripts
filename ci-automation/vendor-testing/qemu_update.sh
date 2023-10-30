@@ -99,6 +99,8 @@ run_kola_tests() {
         image="tmp/flatcar_production_image_previous.bin"
     elif [ "${instance_type}" = "first_dual" ]; then
         image="tmp/flatcar_production_image_first_dual.bin"
+        # Test docker 20 -> docker 24 migration btrfs storage driver backwards compatibility
+        tests+=("cl.update.docker-btrfs-compat")
         # Only run this test if the Azure dev payload exists on bincache because the fallback download needs it
         if curl --head -o /dev/null -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://bincache.flatcar-linux.net/images/${CIA_ARCH}/${CIA_VERNUM}/flatcar_test_update-oem-azure.gz"; then
           tests+=("cl.update.oem")
