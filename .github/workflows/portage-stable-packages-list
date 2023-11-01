@@ -87,6 +87,12 @@ app-arch/zstd
 
 app-cdr/cdrtools
 
+app-containers/cri-tools
+app-containers/docker
+app-containers/docker-cli
+app-containers/docker-proxy
+app-containers/runc
+
 app-crypt/adcli
 app-crypt/libb2
 app-crypt/libmd

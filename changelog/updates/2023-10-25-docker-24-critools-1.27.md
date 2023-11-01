@@ -1,0 +1,2 @@
+- docker ([24.0.6](https://docs.docker.com/engine/release-notes/24.0/), includes changes from [23.0](https://docs.docker.com/engine/release-notes/23.0/))
+- cri-tools ([1.27.0](https://github.com/kubernetes-sigs/cri-tools/releases/tag/v1.27.0))

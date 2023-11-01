@@ -71,19 +71,27 @@ function run_local_tests() (
   rm -f results.*
 
   local mantle_container="$(cat "sdk_container/.repo/manifests/mantle-container")"
-  local custom_test_list=false
+  local tests=""
+  local update_tests=false
 
   # Generate list of all tests for qemu w/o the devcontainer tests.
   # This will generate globs for top-level test modules, e.g. "cl.update.oem" will become cl.*.
   # Globs are necessary because tests ignore OS min/max version specification if a test was specified with its full name.
   # Using globs will prevent tests to be run which aren't meant for the OS version we're testing.
+  # NOTE that update tests get special handling because qemu_update is a separate "platform".
   if [[ $# -eq 0 ]] ; then
     tests="$(docker run "${mantle_container}" \
               kola list --platform qemu \
               | awk '!/^(devcontainer|Test)/ {if ($1 != "") print gensub(/^([^.]+).*/,"\\1",1,$1) ".*"}' | uniq)"
-    set -- ${tests}
+    update_tests=true
   else
-    custom_test_list=true
+    tests="${@}"
+    if [[ "$tests" = *"qemu_update"* ]] ; then
+        update_tests=true
+    fi
+    if [[ "$tests" = "qemu_update" ]] ; then
+        tests=""
+    fi
   fi
 
   source ci-automation/test.sh || exit 1
@@ -93,8 +101,15 @@ function run_local_tests() (
   echo "Using Mantle docker image '${mantle_container}'"
 
   rm -f results.sqlite
-  test_run "${arch}" qemu_uefi "${@}"
-  if [[ "${custom_test_list}" = "false" ]] ; then
+  if [[ -n "${tests}" ]] ; then
+    echo "================================="
+    echo "Running qemu_uefi tests"
+    test_run "${arch}" qemu_uefi "${tests}"
+  fi
+
+  if ${update_tests} ; then
+    echo "================================="
+    echo "Running qemu_update tests"
     test_run "${arch}" qemu_update
   fi
 

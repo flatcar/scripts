@@ -127,3 +127,6 @@ DONT_MOUNT_BOOT=1
 # inside the scripts repository that poke binary packages assume that
 # bzip2 is used, not zstd. Eventually we will want to move to zstd.
 BINPKG_COMPRESS=bzip2
+
+# Enable cgo by default. Required for the docker device-mapper driver to compile.
+CGO_ENABLED=1

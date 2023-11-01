@@ -148,3 +148,8 @@ net-analyzer/tcpdump -ssl -smi -samba
 
 # selinux: to find files with a particular SElinux label
 sys-apps/findutils selinux
+
+# Flatcar defaults formerly defined in coreos-overlay ebuilds
+app-containers/containerd btrfs device-mapper
+app-containers/docker btrfs device-mapper overlay seccomp
+app-containers/docker-cli hardened

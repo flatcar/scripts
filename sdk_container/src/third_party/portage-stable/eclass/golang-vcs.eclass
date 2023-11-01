@@ -1,10 +1,10 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: golang-vcs.eclass
 # @MAINTAINER:
 # William Hubbs <williamh@gentoo.org>
-# @SUPPORTED_EAPIS: 5 6 7
+# @SUPPORTED_EAPIS: 6 7
 # @PROVIDES: golang-base
 # @BLURB: Eclass for fetching and unpacking go repositories.
 # @DEPRECATED: go-module.eclass
@@ -12,25 +12,20 @@
 # This eclass is written to ease the maintenance of live ebuilds
 # of software written in the Go programming language.
 
-inherit estack eutils golang-base
-
-case "${EAPI:-0}" in
-	5|6|7)
-		;;
-	*)
-		die "${ECLASS}: Unsupported eapi (EAPI=${EAPI})"
-		;;
+case ${EAPI} in
+	6|7) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-EXPORT_FUNCTIONS src_unpack
+if [[ -z ${_GOLANG_VCS_ECLASS} ]]; then
+_GOLANG_VCS_ECLASS=1
 
-if [[ -z ${_GOLANG_VCS} ]]; then
-
-_GOLANG_VCS=1
+# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
+inherit estack golang-base go-env
 
 PROPERTIES+=" live"
 
-# @ECLASS-VARIABLE: EGO_PN
+# @ECLASS_VARIABLE: EGO_PN
 # @REQUIRED
 # @DESCRIPTION:
 # This is the import path for the go package(s). Please emerge dev-lang/go
@@ -42,7 +37,7 @@ PROPERTIES+=" live"
 # EGO_PN="github.com/user1/package1 github.com/user2/package2"
 # @CODE
 
-# @ECLASS-VARIABLE: EGO_STORE_DIR
+# @ECLASS_VARIABLE: EGO_STORE_DIR
 # @USER_VARIABLE
 # @DESCRIPTION:
 # Storage directory for Go sources.
@@ -52,12 +47,12 @@ PROPERTIES+=" live"
 #
 # EGO_STORE_DIR=${DISTDIR}/go-src
 
-# @ECLASS-VARIABLE: EVCS_OFFLINE
+# @ECLASS_VARIABLE: EVCS_OFFLINE
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # If non-empty, this variable prevents any online operations.
 
-# @ECLASS-VARIABLE: EVCS_UMASK
+# @ECLASS_VARIABLE: EVCS_UMASK
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Set this variable to a custom umask. This is intended to be set by
@@ -69,11 +64,12 @@ PROPERTIES+=" live"
 # @INTERNAL
 # @DESCRIPTION:
 # Create EGO_STORE_DIR if necessary.
+# Set compile env via go-env.
 _golang-vcs_env_setup() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	local distdir=${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}
-	: ${EGO_STORE_DIR:=${distdir}/go-src}
+	: "${EGO_STORE_DIR:=${distdir}/go-src}"
 
 	[[ -n ${EVCS_UMASK} ]] && eumask_push $EVCS_UMASK
 
@@ -90,6 +86,9 @@ _golang-vcs_env_setup() {
 	mkdir -p "${WORKDIR}/${P}/src" ||
 		die "${ECLASS}: unable to create ${WORKDIR}/${P}"
 	return 0
+
+	# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
+	go-env_set_compile_environment
 }
 
 # @FUNCTION: _golang-vcs_fetch
@@ -139,3 +138,5 @@ golang-vcs_src_unpack() {
 }
 
 fi
+
+EXPORT_FUNCTIONS src_unpack
