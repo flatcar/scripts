@@ -40,7 +40,7 @@ function image_changes() (
     if [ "${channel}" = "developer" ]; then
             channel="alpha"
     fi
-    vernum=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
+    vernum=$(source manifests/version.txt; echo "${FLATCAR_VERSION}")
 
     local -a package_diff_env package_diff_params_b
     local -a size_changes_env size_changes_params_b

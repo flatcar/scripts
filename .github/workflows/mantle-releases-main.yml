@@ -63,9 +63,9 @@ jobs:
           set -euo pipefail
           set -x
           commit=${{ steps.fetch-latest-mantle.outputs.COMMIT }}
-          if ! grep -q "ghcr.io/flatcar/mantle:git-${commit}" sdk_container/.repo/manifests/mantle-container; then
-            echo "ghcr.io/flatcar/mantle:git-${commit}" > sdk_container/.repo/manifests/mantle-container
-            git add sdk_container/.repo/manifests/mantle-container
+          if ! grep -q "ghcr.io/flatcar/mantle:git-${commit}" manifests/mantle-container; then
+            echo "ghcr.io/flatcar/mantle:git-${commit}" > manifests/mantle-container
+            git add manifests/mantle-container
           fi
       - name: Create pull request for branch
         if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}

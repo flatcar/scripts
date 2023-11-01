@@ -82,8 +82,13 @@ function _garbage_collect_impl() {
         echo "#### Processing version '${version}' ####"
         echo
 
-        git checkout "${version}" -- sdk_container/.repo/manifests/version.txt
-        source sdk_container/.repo/manifests/version.txt
+        vertxt=manifests/version.txt
+        if ! git checkout "${version}" -- "${vertxt}"; then
+            echo 'Trying to check out the old location of the version.txt then.'
+            vertxt=sdk_container/.repo/manifests/version.txt
+            git checkout "${version}" -- "${vertxt}"
+        fi
+        source "${vertxt}"
 
         # Assuming that the SDK build version also has the same OS version
         local os_vernum="${FLATCAR_VERSION}"
@@ -151,7 +156,7 @@ function _garbage_collect_impl() {
     echo
 
     local mantle_ref
-    mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
+    mantle_ref=$(cat manifests/mantle-container)
     docker run --pull always --rm --net host \
       --env AZURE_AUTH_CREDENTIALS --env AZURE_PROFILE \
       --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY \

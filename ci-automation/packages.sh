@@ -13,7 +13,7 @@
 #
 # PREREQUISITES:
 #
-#   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
+#   1. SDK version and OS image version are recorded in manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
 #   3. SDK container is either
 #       - available via ghcr.io/flatcar/flatcar-sdk-[ARCH]:[VERSION] (official SDK release)
@@ -64,7 +64,7 @@ function _packages_build_impl() {
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
 
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     local sdk_version="${FLATCAR_SDK_VERSION}"
 
     # Get SDK from either the registry or import from build cache
@@ -90,7 +90,7 @@ function _packages_build_impl() {
         ./build_packages --board="${arch}-usr"
 
     # run_sdk_container updates the version file, use that version from here on
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     local packages_image="flatcar-packages-${arch}"

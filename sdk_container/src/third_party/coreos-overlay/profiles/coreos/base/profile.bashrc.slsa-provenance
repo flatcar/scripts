@@ -143,7 +143,7 @@ __slsa_provenance_report() {
     fi
 
     # FIXME: Supply SDK image ID and sha256 digest along with the version tag
-    local sdk_version="$(source /mnt/host/source/.repo/manifests/version.txt; echo ${FLATCAR_SDK_VERSION})"
+    local sdk_version=$(source /mnt/host/source/src/scripts/manifests/version.txt; echo "${FLATCAR_SDK_VERSION}")
 
     # FIXME: add builder ID
 cat <<EOF

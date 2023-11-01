@@ -14,7 +14,7 @@
 #
 # PREREQUISITES:
 #
-#   1. SDK version is recorded in sdk_container/.repo/manifests/version.txt
+#   1. SDK version is recorded in manifests/version.txt
 #   2. SDK container is either
 #       - available via ghcr.io/flatcar/flatcar-sdk-[ARCH]:[VERSION] (official SDK release)
 #       OR
@@ -41,7 +41,7 @@
 #
 #   1. Updated scripts repository
 #        - version tag
-#        - sdk_container/.repo/manifests/version.txt denotes new FLATCAR OS version
+#        - manifests/version.txt denotes new FLATCAR OS version
 #   2. "./skip-build" as flag file to signal that the build should stop
 
 function packages_tag() {
@@ -63,7 +63,7 @@ function _packages_tag_impl() {
 
     check_version_string "${version}"
 
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     local sdk_version="${FLATCAR_SDK_VERSION}"
 
     # Create new tag in scripts repo w/ updated versionfile

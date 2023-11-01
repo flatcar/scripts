@@ -47,7 +47,7 @@
 #   1. SDK tarball (gentoo catalyst output) of the new SDK, pushed to buildcache.
 #   2. Updated scripts repository
 #        - version tag
-#        - sdk_container/.repo/manifests/version.txt denotes new SDK version
+#        - manifests/version.txt denotes new SDK version
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #   4. If signer key was passed, signatures of artifacts from point 1, pushed along to buildcache.
@@ -147,7 +147,7 @@ function _sdk_bootstrap_impl() {
     # push SDK tarball to buildcache
     # Get Flatcar version number format (separator is '+' instead of '-',
     # equal to $(strip_version_prefix "$version")
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     local dest_tarball="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
 
     # change the owner of the files and directories in __build__ back

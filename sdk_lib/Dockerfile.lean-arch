@@ -13,8 +13,11 @@ RUN if [ -n "$RMARCH" ]; then \
         sudo rm -f /usr/local/bin/*-$RMARCH; \
     fi
 
-# Note: .repo/manifests/version.txt will survive this. That's intended.
+# Note: Preserve manifests.
+RUN sudo mv /mnt/host/source/src/scripts/manifests /manifests
 RUN sudo rm -rf /mnt/host/source/*
+RUN sudo mkdir -p /mnt/host/source/src/scripts
+RUN sudo mv /manifests /mnt/host/source/src/scripts/manifests
 
 FROM scratch
 

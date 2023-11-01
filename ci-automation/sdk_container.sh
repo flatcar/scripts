@@ -15,7 +15,7 @@
 #
 # PREREQUISITES:
 #
-#   1. SDK version is recorded in sdk_container/.repo/manifests/version.txt and a matching
+#   1. SDK version is recorded in manifests/version.txt and a matching
 #       SDK tarball is available on BUILDCACHE/sdk/[ARCH]/[VERSION]/flatcar-sdk-[ARCH]-[VERSION].tar.bz2
 #
 # OPTIONAL INPUT:
@@ -56,7 +56,7 @@ function _sdk_container_build_impl() {
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
 
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     local vernum="${FLATCAR_SDK_VERSION}"
     local sdk_tarball="flatcar-sdk-${ARCH}-${vernum}.tar.bz2"
 

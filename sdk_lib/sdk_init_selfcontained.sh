@@ -19,15 +19,17 @@ function clone_version() {
     local dest="$2"
     local version="$3"
 
-    git clone https://github.com/flatcar/$repo "$dest"
+    git clone "https://github.com/flatcar/$repo" "$dest"
     git -C "${dest}" fetch --all
     local tag=$(git -C "${dest}" tag -l | grep "${version}")
     git -C "${dest}" checkout "$tag"
 }
 # --
 
-version="$(source /mnt/host/source/.repo/manifests/version.txt; echo $FLATCAR_VERSION)"
+version=$(source /mnt/host/source/src/scripts/manifests/version.txt; echo "$FLATCAR_VERSION")
 
 mkdir -p /home/sdk/trunk/src/third_party/
 
+# Drop the manifests dir, it will be replaced by one from scripts repo.
+rm -rf /home/sdk/trunk/src/scripts
 clone_version scripts /home/sdk/trunk/src/scripts "$version"

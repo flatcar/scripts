@@ -13,9 +13,9 @@
 #
 # PREREQUISITES:
 #
-#   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
+#   1. SDK version and OS image version are recorded in manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
-#   3. Mantle container docker image reference is stored in sdk_container/.repo/manifests/mantle-container.
+#   3. Mantle container docker image reference is stored in manifests/mantle-container.
 #   4. Vendor image to run tests for are available on buildcache
 #         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #   5. SDK container is either
@@ -74,7 +74,7 @@ function _inside_mantle() {
 
     source sdk_lib/sdk_container_common.sh
     source ci-automation/ci_automation_common.sh
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     # Needed because we are not the SDK container here
     source sdk_container/.env
     CHANNEL="$(get_git_channel)"
@@ -189,7 +189,7 @@ function _release_build_impl() {
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
 
-    source sdk_container/.repo/manifests/version.txt
+    source manifests/version.txt
     # Needed because we are not the SDK container here
     source sdk_container/.env
     local sdk_version="${FLATCAR_SDK_VERSION}"
@@ -201,7 +201,7 @@ function _release_build_impl() {
 
     local container_name="flatcar-publish-${docker_vernum}"
     local mantle_ref
-    mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
+    mantle_ref=$(cat manifests/mantle-container)
     # A job on each worker prunes old mantle images (docker image prune), no need to do it here
     echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
 
