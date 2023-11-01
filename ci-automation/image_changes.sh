@@ -210,9 +210,15 @@ function get_oem_id_list() {
     arch=${1}; shift
     list_var_name=${1}; shift
 
+    local -a ebuilds=("${scripts_repo}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/common-oem-files-"*'.ebuild')
+    if [[ ${#ebuilds[@]} -eq 0 ]] || [[ ! -e ${ebuilds[0]} ]]; then
+        echo "No coreos-base/common-oem-files ebuilds?!" >&2
+        exit 1
+    fi
+
     # This defines COMMON_OEMIDS, AMD64_ONLY_OEMIDS, ARM64_ONLY_OEMIDS
     # and OEMIDS variable. We don't use the last one.
-    source "${scripts_repo}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/files/oemids.sh" local
+    source "${ebuilds[0]}" flatcar-local-variables
 
     local -n arch_oemids_ref="${arch^^}_ONLY_OEMIDS"
     local all_oemids=(
