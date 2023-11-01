@@ -5,7 +5,6 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{10..11} )
 PYTHON_REQ_USE="threads(+),xml(+)"
-TMPFILES_OPTIONAL=1
 inherit python-single-r1 flag-o-matic waf-utils multilib-minimal linux-info systemd pam tmpfiles
 
 DESCRIPTION="Samba Suite Version 4"
@@ -27,7 +26,6 @@ IUSE="acl addc ads ceph client cluster cpu_flags_x86_aes cups debug fam glusterf
 IUSE+=" iprint json ldap llvm-libunwind pam profiling-data python quota +regedit selinux"
 IUSE+=" snapper spotlight syslog system-heimdal +system-mitkrb5 systemd test unwind winbind"
 IUSE+=" zeroconf"
-IUSE+=" +minimal"  # Flatcar: Only install libraries, not executables.
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	addc? ( json python !system-mitkrb5 winbind )
@@ -61,13 +59,14 @@ TALLOC_VERSION="2.4.0"
 TDB_VERSION="1.4.8"
 TEVENT_VERSION="0.14.1"
 
-# Flatcar: exclude perl, icu, libtasn1, Parse-Yapp from DEPEND
 COMMON_DEPEND="
 	>=app-arch/libarchive-3.1.2:=[${MULTILIB_USEDEP}]
-	spotlight? ( dev-libs/icu:=[${MULTILIB_USEDEP}] )
+	dev-lang/perl:=
+	dev-libs/icu:=[${MULTILIB_USEDEP}]
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
-	!minimal? ( dev-libs/libtasn1:=[${MULTILIB_USEDEP}] )
+	dev-libs/libtasn1:=[${MULTILIB_USEDEP}]
 	dev-libs/popt[${MULTILIB_USEDEP}]
+	dev-perl/Parse-Yapp
 	>=net-libs/gnutls-3.4.7:=[${MULTILIB_USEDEP}]
 	>=sys-fs/e2fsprogs-1.46.4-r51[${MULTILIB_USEDEP}]
 	>=sys-libs/ldb-2.7.2:=[ldap(+)?,${MULTILIB_USEDEP}]
@@ -109,7 +108,7 @@ COMMON_DEPEND="
 		sys-libs/tevent[python,${PYTHON_SINGLE_USEDEP}]
 	)
 	snapper? ( sys-apps/dbus )
-	system-heimdal? ( >=app-crypt/heimdal-1.5[-ssl,${MULTILIB_USEDEP}] )
+	system-heimdal? ( >=app-crypt/heimdal-1.5[-ssl(-),${MULTILIB_USEDEP}] )
 	system-mitkrb5? ( >=app-crypt/mit-krb5-1.19[${MULTILIB_USEDEP}] )
 	systemd? ( sys-apps/systemd:= )
 	unwind? (
@@ -118,9 +117,8 @@ COMMON_DEPEND="
 	)
 	zeroconf? ( net-dns/avahi[dbus] )
 "
-# Flatcar: pull in JSON only if json is enabled
 DEPEND="${COMMON_DEPEND}
-	json? ( dev-perl/JSON )
+	dev-perl/JSON
 	net-libs/libtirpc[${MULTILIB_USEDEP}]
 	net-libs/rpcsvc-proto
 	spotlight? ( dev-libs/glib )
@@ -140,8 +138,6 @@ RDEPEND="${COMMON_DEPEND}
 	selinux? ( sec-policy/selinux-samba )
 "
 BDEPEND="${PYTHON_DEPS}
-	dev-lang/perl:=
-	dev-perl/Parse-Yapp
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
 	virtual/pkgconfig
@@ -149,7 +145,6 @@ BDEPEND="${PYTHON_DEPS}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-4.18.4-pam.patch
-	"${FILESDIR}"/${PN}-4.18.4-bug-15418-windows-update-secure-channel.patch
 	"${FILESDIR}"/ldb-2.5.2-skip-wav-tevent-check.patch
 )
 
@@ -252,10 +247,6 @@ multilib_src_configure() {
 		Cflags: -I\${includedir}
 		EOF
 	fi
-
-	# Flatcar: we need only the mandatory bundled library, ldb by default.
-	# Without that, configure will fail because of a missing bundled library.
-	bundled_libs="ldb"
 
 	local myconf=(
 		--enable-fhs
@@ -367,8 +358,7 @@ multilib_src_install() {
 		newinitd "${CONFDIR}/samba4.initd-r1" samba
 		newconfd "${CONFDIR}/samba4.confd" samba
 
-		# Flatcar: do not create samba config if minimal enabled
-		use minimal || dotmpfiles "${FILESDIR}"/samba.conf
+		dotmpfiles "${FILESDIR}"/samba.conf
 		if ! use addc ; then
 			rm "${D}/$(systemd_get_systemunitdir)/samba.service" \
 				|| die
@@ -386,22 +376,8 @@ multilib_src_install() {
 		insinto /etc/security
 		doins examples/pam_winbind/pam_winbind.conf
 	fi
-
-	# Flatcar: clean up unnecessary files
-	rm -f "${ED%/}"/etc/samba/*
-	rm -f "${ED%/}"/usr/lib*/samba/ldb/*
-	if use minimal ; then
-		mv "${ED%/}"/usr/bin/net "${T}"/
-		rm -f "${ED%/}"/usr/bin/* "${ED%/}"/usr/sbin/*
-		mv "${T}"/net "${ED%/}"/usr/bin/net
-		rm -rf ${ED%/}/lib*/security
-		rm -rf ${ED%/}/usr/lib/systemd
-		rm -rf ${ED%/}/usr/lib*/perl*
-		rm -rf ${ED%/}/usr/lib*/python*
-		rm -rf ${ED%/}/var
-	fi
 }
 
 pkg_postinst() {
-	use minimal || tmpfiles_process samba.conf
+	tmpfiles_process samba.conf
 }
