@@ -216,8 +216,11 @@ function get_oem_id_list() {
         exit 1
     fi
 
-    # This defines COMMON_OEMIDS, AMD64_ONLY_OEMIDS, ARM64_ONLY_OEMIDS
-    # and OEMIDS variable. We don't use the last one.
+    # This defines local COMMON_OEMIDS, AMD64_ONLY_OEMIDS,
+    # ARM64_ONLY_OEMIDS and OEMIDS variable. We don't use the last
+    # one. Also defines global-by-default EAPI, which we make local
+    # here to avoid making it global.
+    local EAPI
     source "${ebuilds[0]}" flatcar-local-variables
 
     local -n arch_oemids_ref="${arch^^}_ONLY_OEMIDS"

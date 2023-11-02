@@ -1,13 +1,32 @@
 # Copyright (c) 2023 The Flatcar Maintainers.
 # Distributed under the terms of the GNU General Public License v2
 
-# Hack description below.
+EAPI=8
+
+# The hack below is there in order to avoid excessive duplication of
+# OEM IDs around the place. This ebuild serves as a Gentoo ebuild and
+# as a bash file to be sourced in order to get arch-specific
+# information about possible OEM IDs. The latter role is assumed when
+# the ebuild is sourced with first argument being
+# 'flatcar-local-variables'. Due to the requirements imposed by the
+# section 7.3.1 in Package Manager Specification (that says that EAPI
+# assignment must be the first non-comment, non-blank line in the
+# file), shell scripts wanting to source this ebuild for geting OEM
+# IDs, may need to declare EAPI as local, if it finds it suitable. The
+# role of sourced script is used by our image-changes job. All this
+# fluff needs to happen before we define or invoke any other
+# Gentoo-specific variables or functions like "DEPEND" or "inherit"
+# that may mess up sourcing.
+#
+# This can't be done with a separate shell file in FILESDIR, because
+# portage moves the ebuild into some temporary directory where
+# FILESDIR, although defined, does not even exist at first - it shows
+# up during the invocation of any src_ functions. Probably a security
+# measure or something.
 
 if [[ ${1:-} = 'flatcar-local-variables' ]]; then
-    local -a EAPI COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS OEMIDS
+    local -a COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS OEMIDS
 fi
-
-EAPI=8
 
 COMMON_OEMIDS=(
     ami
@@ -32,29 +51,10 @@ OEMIDS=(
 )
 
 if [[ ${1:-} = 'flatcar-local-variables' ]]; then
-    unset EAPI
     return 0
 else
     unset COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS
 fi
-
-# The hack above was done in order to avoid excessive duplication of
-# OEM IDs around the place. This ebuild serves as a Gentoo ebuild and
-# as a bash file to be sourced in order to get arch-specific
-# information about possible OEM IDs. The latter role is assumed when
-# the ebuild is sourced with first argument being
-# 'flatcar-local-variables'. This role is used by our image-changes
-# job. All this fluff needs to happen before we define or invoke any
-# Gentoo-specific variables or functions like "DEPEND" or "inherit"
-# that may mess up sourcing. The only exception is EAPI, which must
-# happen in first 24 lines of the ebuild - this is defined in Package
-# Manager Specification and is enforced by portage.
-#
-# This can't be done with a separate shell file in FILESDIR, because
-# portage moves the ebuild into some temporary directory where
-# FILESDIR, although defined, does not even exist at first - it shows
-# up during the invocation of any src_ functions. Probably a security
-# measure or something.
 
 DESCRIPTION='Common OEM files'
 HOMEPAGE='https://www.flatcar.org/'
