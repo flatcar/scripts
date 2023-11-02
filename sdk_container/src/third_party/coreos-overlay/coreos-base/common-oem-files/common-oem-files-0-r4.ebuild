@@ -1,29 +1,13 @@
 # Copyright (c) 2023 The Flatcar Maintainers.
 # Distributed under the terms of the GNU General Public License v2
 
-# This is a terrible hack done in order to avoid excessive duplication
-# of OEM IDs around the place. This ebuild basically serves as a
-# Gentoo ebuild (duh…) and as a bash file to be sourced in order to
-# get arch-specific information about possible OEM IDs. The latter
-# role is assumed when the ebuild is sourced with first argument being
-# 'flatcar-local-variables'. This role is used by our image-changes
-# job. All this fluff needs to happen before we define or invoke any
-# Gentoo-specific variables or functions like "EAPI" or "inherit" that
-# may mess up sourcing.
-#
-# This can't be done with a separate shell file in FILESDIR (I tried),
-# because portage moves the ebuild into some temporary directory where
-# FILESDIR, although defined, does not even exist. Probably a security
-# measure or something. So this needs to be done as
-# all-in-terrible-one (as opposed to all-in-wonder-one).
-
-##
-## BEGIN HACK
-##
+# Hack description below.
 
 if [[ ${1:-} = 'flatcar-local-variables' ]]; then
-    local -a COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS OEMIDS
+    local -a EAPI COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS OEMIDS
 fi
+
+EAPI=8
 
 COMMON_OEMIDS=(
     ami
@@ -48,17 +32,29 @@ OEMIDS=(
 )
 
 if [[ ${1:-} = 'flatcar-local-variables' ]]; then
-    # Leave the sourced script here.
+    unset EAPI
     return 0
 else
     unset COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS
 fi
 
-##
-## END HACK
-##
-
-EAPI=8
+# The hack above was done in order to avoid excessive duplication of
+# OEM IDs around the place. This ebuild serves as a Gentoo ebuild and
+# as a bash file to be sourced in order to get arch-specific
+# information about possible OEM IDs. The latter role is assumed when
+# the ebuild is sourced with first argument being
+# 'flatcar-local-variables'. This role is used by our image-changes
+# job. All this fluff needs to happen before we define or invoke any
+# Gentoo-specific variables or functions like "DEPEND" or "inherit"
+# that may mess up sourcing. The only exception is EAPI, which must
+# happen in first 24 lines of the ebuild - this is defined in Package
+# Manager Specification and is enforced by portage.
+#
+# This can't be done with a separate shell file in FILESDIR, because
+# portage moves the ebuild into some temporary directory where
+# FILESDIR, although defined, does not even exist at first - it shows
+# up during the invocation of any src_ functions. Probably a security
+# measure or something.
 
 DESCRIPTION='Common OEM files'
 HOMEPAGE='https://www.flatcar.org/'
