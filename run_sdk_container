@@ -19,10 +19,11 @@ tty=()
 remove=""
 cleanup=""
 mounts=()
+git_repos=()
 
 usage() {
     echo "  Usage:"
-    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [-m <src>:<dest>] [--] [<container-command>]"
+    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [-m <src>:<dest>] [-g <name>:<src>:<dest>] [--] [<container-command>]"
     echo "       Start an SDK container of a given SDK release version."
     echo "       This will create the container if it does not exist, otherwise start the existing container."
     echo "       If the container is already running then it will exec into the container."
@@ -49,6 +50,11 @@ usage() {
     echo "      -U             Do not update the versionfile. Instead, use the version from the versionfile as-is."
     echo "      -m <src>:<dest> - Mount local file or directory inside the container."
     echo "                     Can be specified multiple times."
+    echo "      -g <name:><src>:<dest> - Mount local git repository inside the container."
+    echo "                     Takes care of properly mounting and setting up "
+    echo "                     other worktrees of the git repo inside the container."
+    echo "                     Can be specified multiple times, but each with different name."
+    echo "                     <name> can't be 'scripts'"
     echo "      --             Stop parsing options at this point, pass the rest as the container command."
     echo "      -h             Print this help."
     echo
@@ -73,6 +79,7 @@ while [[ $# -gt 0 ]] ; do
         update_versionfile=
         shift;;
     -m) mounts+=( -v "$2" ); shift; shift;;
+    -g) git_repos+=( "$2" ); shift; shift;;
     --) shift; break;;
     -*) echo "Unknown flag ${1@Q}, use '-h' or '--help' for usage"; exit 1;;
     *) break;;
@@ -171,42 +178,57 @@ if [[ -z ${stat} ]] ; then
     fi
 
     source sdk_lib/git_worktree_handling.sh
-    main_scripts_repo=''
-    declare -A linked_scripts_repos=()
-    discover_repo_layout . main_scripts_repo linked_scripts_repos
-    scripts_mounts=()
-    if [[ ${#linked_scripts_repos[@]} -gt 0 ]]; then
-        this_name=''
-        linked_repo_name '.' "${main_scripts_repo}" linked_scripts_repos this_name
-        if [[ -n ${this_name} ]]; then
-            base_directory='/mnt/host/scripts-worktrees'
-            declare -A scripts_overrides=(["${this_name}"]="/mnt/host/source/src/scripts")
-            main_scripts_repo_sdk=''
-            declare -A linked_scripts_repos_sdk=()
-            repo_layout_inside_sdk \
-                "${base_directory}" \
-                scripts_overrides \
-                main_scripts_repo_sdk \
-                linked_scripts_repos_sdk \
-                "${!linked_scripts_repos[@]}"
-            repo_layouts_to_docker_volumes \
-                "${main_scripts_repo}" \
-                "${main_scripts_repo_sdk}" \
-                linked_scripts_repos \
-                linked_scripts_repos_sdk \
-                scripts_mounts
-            # sdk_entry will read this directory and remove it afterwards
-            mkdir -p .replacements
-            replacements_file=$(mktemp --tmpdir=.replacements replacements-XXXXXXXXXX)
-            repo_layout_to_replacements \
-                "${main_scripts_repo_sdk}" \
-                linked_scripts_repos_sdk \
-                "${replacements_file}"
+    declare -A linked_repos repo_overrides linked_repos_sdk
+    declare -a repo_mounts=() fields
+    for git_repo in "scripts:${PWD}:/mnt/host/source/src/scripts" "${git_repos[@]}"; do
+        mapfile -t fields <<<"${git_repo//:/$'\n'}"
+        if [[ ${#fields[@]} -ne 3 ]]; then
+            echo "invalid -g parameter, should have 3 fields, has ${#fields[@]}: ${git_repo}" >&2
+            exit 1
         fi
-    fi
-    if [[ ${#scripts_mounts[@]} -eq 0 ]]; then
-        scripts_mounts+=(-v "${PWD}:/mnt/host/source/src/scripts")
-    fi
+        main_name=${fields[0]}
+        path=${fields[1]}
+        sdk_path=${fields[2]}
+        main_repo=''
+        linked_repos=()
+        discover_repo_layout "${path}" main_repo linked_repos
+        if [[ ${#linked_repos[@]} -eq 0 ]]; then
+            repo_mounts+=( -v "${path}:${sdk_path}" )
+            continue
+        fi
+
+        this_name=''
+        linked_repo_name "${path}" "${main_repo}" linked_repos this_name
+        if [[ -z ${this_name} ]]; then
+            continue;
+        fi
+
+        base_directory="/mnt/host/all-worktrees/${main_name}"
+        repo_overrides=(["${this_name}"]="${sdk_path}")
+        main_repo_sdk=''
+        linked_repos_sdk=()
+        new_repo_mounts=()
+        repo_layout_inside_sdk \
+            "${base_directory}" \
+            repo_overrides \
+            main_repo_sdk \
+            linked_repos_sdk \
+            "${!linked_repos[@]}"
+        repo_layouts_to_docker_volumes \
+            "${main_repo}" \
+            "${main_repo_sdk}" \
+            linked_repos \
+            linked_repos_sdk \
+            new_repo_mounts
+        repo_mounts+=( "${new_repo_mounts[@]}" )
+        # sdk_entry will read this directory and remove it afterwards
+        mkdir -p .replacements
+        replacements_file=$(mktemp --tmpdir=.replacements replacements-XXXXXXXXXX)
+        repo_layout_to_replacements \
+            "${main_repo_sdk}" \
+            linked_repos_sdk \
+            "${replacements_file}"
+    done
 
     docker_flags=(
         "${tty[@]}"
@@ -215,7 +237,7 @@ if [[ -z ${stat} ]] ; then
         -v /dev:/dev
         -v "${PWD}/sdk_container:/mnt/host/source/"
         -v "${PWD}/__build__/images:/mnt/host/source/src/build"
-        "${scripts_mounts[@]}"
+        "${repo_mounts[@]}"
         "${gpg_volumes[@]}"
         "${mounts[@]}"
         --privileged
