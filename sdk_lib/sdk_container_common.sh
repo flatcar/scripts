@@ -32,10 +32,16 @@ if command -v podman >/dev/null; then
     fi
 fi
 
-docker="docker"
+docker_a=( docker )
 if "${is_podman}"; then
-  docker="sudo podman"
+  docker_a=( sudo podman )
 fi
+docker=${docker_a[*]}
+
+function call_docker() {
+    "${docker_a[@]}" "${@}"
+}
+# --
 
 # Common "echo" function
 
@@ -263,7 +269,6 @@ EOF
     export GOOGLE_APPLICATION_CREDENTIALS
 }
 
-   
 # --
 
 # Generate volume mount command line options for docker
@@ -271,26 +276,32 @@ EOF
 #  into the SDK container.
 
 function gnupg_ssh_gcloud_mount_opts() {
+    local -n args_ref="${1}"; shift
+
     local sdk_gnupg_home="/home/sdk/.gnupg"
     local gpgagent_dir="/run/user/$(id -u)/gnupg"
 
+    args_ref=()
     # pass host GPG home and Agent directories to container
-    if [ -d "$GNUPGHOME" ] ; then
-        echo "-v $GNUPGHOME:$sdk_gnupg_home"
+    if [[ -d ${GNUPGHOME} ]] ; then
+        args_ref+=( -v "$GNUPGHOME:$sdk_gnupg_home" )
     fi
-    if [ -d "$gpgagent_dir" ] ; then
-        echo "-v $gpgagent_dir:$gpgagent_dir"
-    fi
-
-    if [ -e "${SSH_AUTH_SOCK:-}" ] ; then
-        local sshsockdir="$(dirname "$SSH_AUTH_SOCK")"
-        echo "-v $sshsockdir:/run/sdk/ssh"
+    if [[ -d ${gpgagent_dir} ]] ; then
+        args_ref+=( -v "${gpgagent_dir}:${gpgagent_dir}" )
     fi
 
-    if [ -e "${GOOGLE_APPLICATION_CREDENTIALS:-}" ] ; then
-        local creds_dir="$(dirname "${GOOGLE_APPLICATION_CREDENTIALS}")"
-        if [ -d "$creds_dir" ] ; then
+    local sshsockdir
+    if [[ -e ${SSH_AUTH_SOCK:-} ]] ; then
+        sshsockdir=$(dirname "$SSH_AUTH_SOCK")
+        args_ref+=( -v "${sshsockdir}:/run/sdk/ssh" )
+    fi
+
+    local creds_dir
+    if [[ -e ${GOOGLE_APPLICATION_CREDENTIALS:-} ]] ; then
+        creds_dir=$(dirname "${GOOGLE_APPLICATION_CREDENTIALS}")
+        if [[ -d ${creds_dir} ]] ; then
             echo "-v $creds_dir:$creds_dir"
+            args_ref+=( -v "${creds_dir}:${creds_dir}" )
         fi
     fi
 }
