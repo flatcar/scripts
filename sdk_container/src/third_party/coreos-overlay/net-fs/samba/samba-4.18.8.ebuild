@@ -109,7 +109,7 @@ COMMON_DEPEND="
 		sys-libs/tevent[python,${PYTHON_SINGLE_USEDEP}]
 	)
 	snapper? ( sys-apps/dbus )
-	system-heimdal? ( >=app-crypt/heimdal-1.5[-ssl,${MULTILIB_USEDEP}] )
+	system-heimdal? ( >=app-crypt/heimdal-1.5[-ssl(-),${MULTILIB_USEDEP}] )
 	system-mitkrb5? ( >=app-crypt/mit-krb5-1.19[${MULTILIB_USEDEP}] )
 	systemd? ( sys-apps/systemd:= )
 	unwind? (
@@ -149,7 +149,6 @@ BDEPEND="${PYTHON_DEPS}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-4.18.4-pam.patch
-	"${FILESDIR}"/${PN}-4.18.4-bug-15418-windows-update-secure-channel.patch
 	"${FILESDIR}"/ldb-2.5.2-skip-wav-tevent-check.patch
 )
 
