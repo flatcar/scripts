@@ -195,14 +195,14 @@ case "${FLAGS_target}" in
 	# Use the test keys for signing unofficial builds
 	if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
             sudo sbsign --key /usr/share/sb_keys/DB.key \
-		--cert /usr/share/sb_keys/DB.crt \
+                    --cert /usr/share/sb_keys/DB.crt \
                     "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
-                "${ESP_DIR}/EFI/boot/grub.efi"
+                "${ESP_DIR}/EFI/boot/grubx64.efi"
             sudo sbsign --key /usr/share/sb_keys/DB.key \
-                 --cert /usr/share/sb_keys/DB.crt \
-                 --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
-                 "/usr/lib/shim/shim.efi"
+                --cert /usr/share/sb_keys/DB.crt \
+                --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
+                "/usr/lib/shim/shim.efi"
         else
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/grub.efi"
