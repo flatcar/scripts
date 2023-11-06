@@ -6,18 +6,24 @@ EAPI=8
 # Worth keeping an eye on 'develop' branch upstream for possible backports.
 AUTOTOOLS_AUTO_DEPEND="no"
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/madler.asc
-inherit autotools multilib-minimal flag-o-matic toolchain-funcs usr-ldscript verify-sig
+inherit autotools edo multilib-minimal flag-o-matic toolchain-funcs usr-ldscript verify-sig
 
 DESCRIPTION="Standard (de)compression library"
 HOMEPAGE="https://zlib.net/"
-SRC_URI="https://zlib.net/${P}.tar.xz
+SRC_URI="
+	https://zlib.net/${P}.tar.xz
 	https://zlib.net/fossils/${P}.tar.xz
 	https://zlib.net/current/beta/${P}.tar.xz
-	verify-sig? ( https://zlib.net/${P}.tar.xz.asc )"
+	https://github.com/madler/zlib/releases/download/v${PV}/${P}.tar.xz
+	verify-sig? (
+		https://zlib.net/${P}.tar.xz.asc
+		https://github.com/madler/zlib/releases/download/v${PV}/${P}.tar.xz.asc
+	)
+"
 
 LICENSE="ZLIB"
 SLOT="0/1" # subslot = SONAME
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="minizip static-libs"
 
 RDEPEND="!sys-libs/zlib-ng[compat]"
@@ -40,6 +46,9 @@ PATCHES=(
 
 	# Fix building on sparc with older binutils, we pass it in ebuild instead
 	"${FILESDIR}"/${PN}-1.2.13-Revert-Turn-off-RWX-segment-warnings-on-sparc-system.patch
+
+	# CVE-2023-45853 (bug #916484)
+	"${FILESDIR}"/${PN}-1.2.13-CVE-2023-45853.patch
 )
 
 src_prepare() {
@@ -58,8 +67,6 @@ src_prepare() {
 			;;
 	esac
 }
-
-echoit() { echo "$@"; "$@"; }
 
 multilib_src_configure() {
 	# We pass manually instead of relying on the configure script/makefile
@@ -89,7 +96,7 @@ multilib_src_configure() {
 			)
 
 			# Not an autoconf script, so can't use econf
-			echoit "${S}"/configure "${myconf[@]}" || die
+			edo "${S}"/configure "${myconf[@]}"
 
 			;;
 	esac
@@ -126,12 +133,6 @@ multilib_src_compile() {
 	use minizip && emake -C contrib/minizip
 }
 
-sed_macros() {
-	# Clean up namespace a little, bug #383179
-	# We do it here so we only have to tweak 2 files
-	sed -i -r 's:\<(O[FN])\>:_Z_\1:g' "$@" || die
-}
-
 multilib_src_install() {
 	case ${CHOST} in
 		*-mingw*|mingw*)
@@ -154,11 +155,8 @@ multilib_src_install() {
 			;;
 	esac
 
-	sed_macros "${ED}"/usr/include/*.h
-
 	if use minizip ; then
 		emake -C contrib/minizip install DESTDIR="${D}"
-		sed_macros "${ED}"/usr/include/minizip/*.h
 
 		# This might not exist if slibtool is used.
 		# bug #816756

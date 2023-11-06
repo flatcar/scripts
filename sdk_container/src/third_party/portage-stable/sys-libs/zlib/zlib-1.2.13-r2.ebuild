@@ -40,6 +40,9 @@ PATCHES=(
 
 	# Fix building on sparc with older binutils, we pass it in ebuild instead
 	"${FILESDIR}"/${PN}-1.2.13-Revert-Turn-off-RWX-segment-warnings-on-sparc-system.patch
+
+	# CVE-2023-45853 (bug #916484)
+	"${FILESDIR}"/${PN}-1.2.13-CVE-2023-45853.patch
 )
 
 src_prepare() {
