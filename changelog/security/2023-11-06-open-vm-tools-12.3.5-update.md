@@ -1,0 +1,1 @@
+- VMWare: open-vm-tools ([CVE-2023-34058](https://nvd.nist.gov/vuln/detail/CVE-2023-34058), [CVE-2023-34059](https://nvd.nist.gov/vuln/detail/CVE-2023-34059))
