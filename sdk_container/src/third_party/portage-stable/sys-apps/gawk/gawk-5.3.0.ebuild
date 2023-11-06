@@ -29,7 +29,7 @@ else
 	SRC_URI="mirror://gnu/gawk/${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/gawk/${P}.tar.xz.sig )"
 
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ~ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="GPL-3+"
@@ -48,7 +48,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
-	>=sys-apps/texinfo-6.7
+	>=sys-apps/texinfo-7.1
 	>=sys-devel/bison-3.5.4
 	nls? ( sys-devel/gettext )
 "
@@ -79,9 +79,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# Avoid automagic dependency on libsigsegv
-	export ac_cv_libsigsegv=no
-
 	# README says gawk may not work properly if built with non-Bison.
 	# We already BDEPEND on Bison, so just unset YACC rather than
 	# guessing if we need to do yacc.bison or bison -y.
