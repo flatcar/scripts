@@ -118,6 +118,39 @@ if [[ -n ${cleanup} ]] ; then
     echo "${docker_a[@]@Q} container rm -f ${name@Q}" >>"${cleanup}"
 fi
 
+function prev_trap_cmd {
+    local sig=${1}; shift
+    local cmd
+    cmd=$(trap -p "${sig}")
+
+    if [[ -z ${cmd} ]]; then
+        echo ':'
+    fi
+
+    cmd=${cmd#'trap -- '}
+    cmd=${cmd%" ${sig}"}
+
+    # This unquotes the trap cmd. So the following:
+    #
+    # 'echo '\''foo'\'''
+    #
+    # becomes:
+    #
+    # echo 'foo'
+    xargs <<<"${cmd}"
+}
+
+function add_trap {
+    local cmd sig
+    cmd=${1}; shift
+    sig=${1}; shift
+
+    local full_cmd
+    full_cmd="$(prev_trap_cmd "${sig}"); ${cmd}"
+    # shellcheck disable=SC2064 # we want to expand full_cmd right now, not at trap time
+    trap "${full_cmd}" "${sig}"
+}
+
 if [[ -z ${stat} ]] ; then
     yell "Creating a new container '$name'"
 
@@ -163,12 +196,10 @@ fi
 
 if [[ ${stat} != "Up" ]] ; then
     yell "Starting stopped container '$name'"
+    add_trap "call_docker stop -t 0 ${name@Q}" EXIT
     if [[ -n ${remove} ]]; then
-      remove_command="call_docker rm -f ${name@Q}"
-    else
-      remove_command=":"
+        add_trap "call_docker rm -f ${name@Q}" EXIT
     fi
-    trap "call_docker stop -t 0 ${name@Q} ; ${remove_command}" EXIT
     call_docker start "${name}"
 fi
 
