@@ -170,6 +170,44 @@ if [[ -z ${stat} ]] ; then
         call_docker pull "${container_image_name}" || true
     fi
 
+    source sdk_lib/git_worktree_handling.sh
+    main_scripts_repo=''
+    declare -A linked_scripts_repos=()
+    discover_repo_layout . main_scripts_repo linked_scripts_repos
+    scripts_mounts=()
+    if [[ ${#linked_scripts_repos[@]} -gt 0 ]]; then
+        this_name=''
+        linked_repo_name '.' "${main_scripts_repo}" linked_scripts_repos this_name
+        if [[ -n ${this_name} ]]; then
+            base_directory='/mnt/host/scripts-worktrees'
+            declare -A scripts_overrides=(["${this_name}"]="/mnt/host/source/src/scripts")
+            main_scripts_repo_sdk=''
+            declare -A linked_scripts_repos_sdk=()
+            repo_layout_inside_sdk \
+                "${base_directory}" \
+                scripts_overrides \
+                main_scripts_repo_sdk \
+                linked_scripts_repos_sdk \
+                "${!linked_scripts_repos[@]}"
+            repo_layouts_to_docker_volumes \
+                "${main_scripts_repo}" \
+                "${main_scripts_repo_sdk}" \
+                linked_scripts_repos \
+                linked_scripts_repos_sdk \
+                scripts_mounts
+            # sdk_entry will read this directory and remove it afterwards
+            mkdir -p .replacements
+            replacements_file=$(mktemp --tmpdir=.replacements replacements-XXXXXXXXXX)
+            repo_layout_to_replacements \
+                "${main_scripts_repo_sdk}" \
+                linked_scripts_repos_sdk \
+                "${replacements_file}"
+        fi
+    fi
+    if [[ ${#scripts_mounts[@]} -eq 0 ]]; then
+        scripts_mounts+=(-v "${PWD}:/mnt/host/source/src/scripts")
+    fi
+
     docker_flags=(
         "${tty[@]}"
         -i
@@ -177,7 +215,7 @@ if [[ -z ${stat} ]] ; then
         -v /dev:/dev
         -v "${PWD}/sdk_container:/mnt/host/source/"
         -v "${PWD}/__build__/images:/mnt/host/source/src/build"
-        -v "${PWD}:/mnt/host/source/src/scripts"
+        "${scripts_mounts[@]}"
         "${gpg_volumes[@]}"
         "${mounts[@]}"
         --privileged
