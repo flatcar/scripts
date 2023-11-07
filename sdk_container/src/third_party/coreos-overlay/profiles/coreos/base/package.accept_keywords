@@ -7,7 +7,7 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-=app-containers/containerd-1.7.7 ~amd64 ~arm64 # NOTE this doesn't even exist upstream; Gentoo is on 1.7.6.
+=app-containers/containerd-1.7.8 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2023-11-03 15:31:59
 =app-containers/cri-tools-1.27.0 ~amd64 ~arm64
 =app-containers/docker-24.0.6 ~amd64 ~arm64
 =app-containers/docker-cli-24.0.6 ~amd64 ~arm64
