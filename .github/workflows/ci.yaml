@@ -339,14 +339,15 @@ jobs:
               'NEW_VERSION=HEAD'
           )
 
-          declare -a oemids
+          declare -a oemids base_sysexts
           get_oem_id_list . "${arch}" oemids
+          get_base_sysext_list . "${arch}" base_sysexts
           generate_image_changes_report \
-              "${version_description}" 'image-changes-reports-nightly.txt' "../flatcar-build-scripts" \
+              "${version_description}" 'image-changes-reports-release.txt' "../flatcar-build-scripts" \
               "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
               "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
               "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
-              "${oemids[@]}"
+              "${oemids[@]}" -- "${base_sysexts[@]}"
 
       - name: Upload binpkgs
         uses: actions/upload-artifact@v3
