@@ -35,7 +35,7 @@ reports: ../../reports
 # performs no cleanups at all
 #
 # Optional, if not specified, defaults to ignore.
-#cleanups: file;../../x-cleanups
+#cleanups: file,../../x-cleanups
 #cleanups: trap
 #cleanups: ignore
 

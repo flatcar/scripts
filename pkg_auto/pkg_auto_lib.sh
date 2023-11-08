@@ -175,7 +175,7 @@ function setup_workdir_with_config() {
                 ;;
             cleanups|debug-packages)
                 var_name="cfg_${key//-/_}"
-                mapfile -t -d',' "${var_name}" < <(printf '%s' "${value}")
+                mapfile -t "${var_name}" <<<"${value//,/$'\n'}"
                 ;;
             *-sdk-img)
                 arch=${key%%-*}
@@ -2402,7 +2402,7 @@ function handle_gentoo_sync() {
                 handle_scripts
                 ;;
             metadata)
-                fail "not handling metadata updates"
+                info "not handling metadata updates, skipping"
                 ;;
             *)
                 fail "unknown non-package update for ${entry}"
