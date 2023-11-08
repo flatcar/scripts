@@ -4,7 +4,6 @@
 
 GLSA_ALLOWLIST=(
 	201412-09 # incompatible CA certificate version numbers
-	202209-12 # grub 2.06 is still in progress
 )
 
 glsa_image() {
