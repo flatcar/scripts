@@ -1,3 +1,3 @@
-- hwdata ([v0.375](https://github.com/vcrhonek/hwdata/releases/tag/v0.375)
+- hwdata ([v0.375](https://github.com/vcrhonek/hwdata/releases/tag/v0.375))
 - nvme-cli ([v2.6](https://github.com/linux-nvme/nvme-cli/releases/tag/v2.6), libnvme [v1.6](https://github.com/linux-nvme/libnvme/releases/tag/v1.6))
 - SDK: python packaging ([23.2](https://github.com/pypa/packaging/releases/tag/23.2)), platformdirs ([3.11.0](https://github.com/platformdirs/platformdirs/releases/tag/3.11.0)) 
