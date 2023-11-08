@@ -29,6 +29,9 @@ function _inside_capi_image_publish() {
     FLATCAR_CHANNEL="$(get_git_channel)"
     FLATCAR_VERSION="${FLATCAR_VERSION}"
 
+    FLATCAR_CHANNEL="stable"
+    FLATCAR_VERSION="3602.2.1"
+
     azure_profile_config_file=""
     secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
     azure_auth_config_file=""
