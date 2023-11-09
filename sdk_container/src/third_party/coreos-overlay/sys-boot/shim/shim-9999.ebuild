@@ -22,7 +22,11 @@ SLOT="0"
 IUSE=""
 
 RDEPEND=""
-DEPEND="sys-boot/gnu-efi dev-libs/openssl"
+# TODO: Would be ideal to depend on sys-boot/gnu-efi package, but
+# currently the shim insists on using the bundled copy. This will need
+# to be addressed by patching this check out after making sure that
+# our copy of gnu-efi is as usable as the bundled one.
+DEPEND="dev-libs/openssl"
 
 src_unpack() {
 	cros-workon_src_unpack
@@ -30,14 +34,30 @@ src_unpack() {
 }
 
 src_compile() {
-	emake \
-		CROSS_COMPILE="${CHOST}-" \
-		EFI_INCLUDE="${SYSROOT%/}"/usr/include/efi \
-		EFI_PATH="${SYSROOT%/}"/usr/$(get_libdir) \
-		shim.efi || die
+	local emake_args=(
+		CROSS_COMPILE="${CHOST}-"
+	)
+	# Apparently our environment already has the ARCH variable in
+	# it, and Makefile picks it up instead of figuring it out
+	# itself with the compiler -dumpmachine flag. But also it
+	# expects a different format of the values. It wants x86_64
+	# instead of amd64, and aarch64 instead of arm64.
+	if use amd64; then
+		emake_args+=( ARCH=x86_64 )
+	elif use arm64; then
+		emake_args+=( ARCH=aarch64 )
+	fi
+	emake "${emake_args[@]}" || die
 }
 
 src_install() {
+	local suffix
+	suffix=''
+	if use amd64; then
+		suffix=x64
+	elif use arm64; then
+		suffix=aa64
+	fi
 	insinto /usr/lib/shim
-	doins "shim.efi"
+	newins "shim${suffix}.efi" 'shim.efi'
 }
