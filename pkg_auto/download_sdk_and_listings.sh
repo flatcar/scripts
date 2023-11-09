@@ -21,7 +21,7 @@
 
 set -euo pipefail
 
-source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/impl/stuff.sh"
 
 CLEANUP_FILE=
 SCRIPTS=

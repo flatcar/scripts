@@ -32,7 +32,7 @@
 
 set -euo pipefail
 
-source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/impl/stuff.sh"
 source "${PKG_AUTO_IMPL_DIR}/inside_sdk_container_lib.sh"
 
 while [[ ${#} -gt 0 ]]; do

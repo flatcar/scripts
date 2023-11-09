@@ -23,7 +23,7 @@ set -euo pipefail
 
 set -euo pipefail
 
-source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/impl/stuff.sh"
 source "${PKG_AUTO_IMPL_DIR}/pkg_auto_lib.sh"
 
 gc_base_workdir=''
