@@ -87,11 +87,11 @@ function fail() {
 }
 
 function yell() {
-	echo
-	echo '!!!!!!!!!!!!!!!!!!'
-	echo "    ${*}"
-	echo '!!!!!!!!!!!!!!!!!!'
-	echo
+    echo
+    echo '!!!!!!!!!!!!!!!!!!'
+    echo "    ${*}"
+    echo '!!!!!!!!!!!!!!!!!!'
+    echo
 }
 
 function print_help() {
