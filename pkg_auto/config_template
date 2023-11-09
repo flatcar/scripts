@@ -25,7 +25,7 @@ reports: ../../reports
 #
 # Can be:
 #
-# file;${path_to_file}
+# file,${path_to_file}
 # stores cleanup steps in the file. Can be later sourced to perform cleanups.
 #
 # trap
