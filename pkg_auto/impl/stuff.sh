@@ -71,7 +71,7 @@ THIS=$(realpath "${THIS}")
 THIS_DIR=$(realpath "${THIS_DIR}")
 dirname_out "${BASH_SOURCE[0]}" PKG_AUTO_IMPL_DIR
 PKG_AUTO_IMPL_DIR=$(realpath "${PKG_AUTO_IMPL_DIR}")
-PKG_AUTO_DIR=$(realpath "${PKG_AUTO_IMPL_DIR}")
+PKG_AUTO_DIR=$(realpath "${PKG_AUTO_IMPL_DIR}/..")
 
 function info() {
     printf '%s: %s\n' "${THIS_NAME}" "${*}"
