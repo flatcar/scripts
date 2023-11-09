@@ -36,6 +36,8 @@ function debug_new_state() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
+    # TODO: drop this workaround when handling git clones is merged
+    #
     # For debugging, it's best to operate on a full clone instead of
     # worktree - worktrees are useless inside containers, because the
     # original clone that has the history, configuration and
@@ -61,14 +63,20 @@ function debug_new_state() {
         git -C "${clone_dir}" config --local "user.${setting}" "${value}"
     done
 
-    cp -a "${PKG_AUTO_DIR}"/{print_profile_tree.sh,inside_sdk_container{,_lib}.sh,stuff.sh} "${clone_dir}"
-    env --chdir "${clone_dir}" \
-        ./run_sdk_container \
-        -t \
-        -C "${!image_var_name}" \
-        -n "pkg-new-state-debug-${arch}" \
-        -a "${arch}" \
-        --rm || :
+    local pkg_auto_copy
+    pkg_auto_copy=$(mktemp --tmpdir "${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
+    add_cleanup "rm -rf ${pkg_auto_copy@Q}"
+    cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
+    local -a run_sdk_container_args=(
+        -t
+        -C "${!image_var_name}"
+        -n "pkg-new-state-debug-${arch}"
+        -a "${arch}"
+        -U
+        -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
+        --rm
+    )
+    env --chdir "${clone_dir}" ./run_sdk_container "${run_sdk_container_args[@]}" || :
 
     # When done with debugging, push the new state branch from clone
     # to origin (which is in ${NEW_STATE}). That's our
@@ -534,8 +542,8 @@ function setup_worktrees() {
 
 function setup_initial_globals_file() {
     local sync_script pkg_list_sort_script
-    sync_script="${PKG_AUTO_DIR}/sync_with_gentoo.sh"
-    pkg_list_sort_script="${PKG_AUTO_DIR}/sort_packages_list.py"
+    sync_script="${PKG_AUTO_IMPL_DIR}/sync_with_gentoo.sh"
+    pkg_list_sort_script="${PKG_AUTO_IMPL_DIR}/sort_packages_list.py"
 
     local globals_file
     globals_file="${WORKDIR}/globals"
@@ -1013,10 +1021,8 @@ function generate_sdk_reports() {
 
     local arch packages_image_var_name packages_image_name
     local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch
-    local file full_file
-    local rv
-    local sdk_reports_dir salvaged_dir
-    local -a report_files
+    local file full_file rv sdk_reports_dir salvaged_dir pkg_auto_copy
+    local -a report_files run_sdk_container_args
     for arch in "${ARCHES[@]}"; do
         packages_image_var_name="${arch^^}_PACKAGES_IMAGE"
         packages_image_name=${!packages_image_var_name}
@@ -1038,19 +1044,21 @@ function generate_sdk_reports() {
                 "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
             git -C "${SCRIPTS}" \
                 worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
-            for file in inside_sdk_container{,_lib}.sh stuff.sh print_profile_tree.sh; do
-                full_file="${sdk_run_state}/${file}"
-                add_cleanup "rm -f ${full_file@Q}"
-                cp -a "${PKG_AUTO_DIR}/${file}" "${sdk_run_state}"
-            done
+
+            pkg_auto_copy=$(mktemp --tmpdir "${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
+            add_cleanup "rm -rf ${pkg_auto_copy@Q}"
+            cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
+            local -a run_sdk_container_args=(
+                -C "${packages_image_name}"
+                -n "pkg-${sdk_run_kind}-${arch}"
+                -a "${arch}"
+                -U
+                -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
+                --rm
+                ./pkg_auto/inside_sdk_container.sh "${arch}" pkg-reports
+            )
             rv=0
-            env --chdir "${sdk_run_state}" \
-                ./run_sdk_container \
-                -C "${packages_image_name}" \
-                -n "pkg-${sdk_run_kind}-${arch}" \
-                -a "${arch}" \
-                --rm \
-                ./inside_sdk_container.sh "${arch}" pkg-reports || rv=${?}
+            env --chdir "${sdk_run_state}" ./run_sdk_container "${run_sdk_container_args[@]}" || rv=${?}
             if [[ ${rv} -ne 0 ]]; then
                 {
                     salvaged_dir="${REPORTS_DIR}/salvaged-reports"
@@ -1101,7 +1109,7 @@ function generate_sdk_reports() {
     cp -a "${WORKDIR}/pkg-reports" "${REPORTS_DIR}/reports-from-sdk"
 }
 
-source "${PKG_AUTO_DIR}/mvm.sh"
+source "${PKG_AUTO_IMPL_DIR}/mvm.sh"
 
 # pkginfo: map[pkg]map[slot]version
 function pkginfo_name() {
