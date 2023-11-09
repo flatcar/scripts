@@ -64,7 +64,7 @@ function debug_new_state() {
     done
 
     local pkg_auto_copy
-    pkg_auto_copy=$(mktemp --tmpdir "${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
+    pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
     add_cleanup "rm -rf ${pkg_auto_copy@Q}"
     cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
     local -a run_sdk_container_args=(
@@ -1045,7 +1045,7 @@ function generate_sdk_reports() {
             git -C "${SCRIPTS}" \
                 worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
 
-            pkg_auto_copy=$(mktemp --tmpdir "${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
+            pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
             add_cleanup "rm -rf ${pkg_auto_copy@Q}"
             cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
             local -a run_sdk_container_args=(
