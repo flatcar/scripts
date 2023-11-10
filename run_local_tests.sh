@@ -104,7 +104,7 @@ function run_local_tests() (
   if [[ -n "${tests}" ]] ; then
     echo "================================="
     echo "Running qemu_uefi tests"
-    test_run "${arch}" qemu_uefi "${tests}"
+    test_run "${arch}" qemu_uefi ${tests}
   fi
 
   if ${update_tests} ; then
