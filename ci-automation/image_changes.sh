@@ -36,36 +36,28 @@ function image_changes() (
     local arch what
 
     arch=${1}; shift
-    what=${1}; shift
+    # make nightly and release from last-nightly and last-release, respectively
+    mode=${1#last-}; shift
 
-    local -a package_diff_env package_diff_params
-    local -a size_changes_env size_changes_params
-    local -a show_changes_env show_changes_params
-    local version_description
-    local -a var_names=(
-        package_diff_env package_diff_params
-        size_changes_env size_changes_params
-        show_changes_env show_changes_params
-        version_description
-    )
+    local fbs_repo='../flatcar-build-scripts'
+    rm -rf "${fbs_repo}"
+    git clone \
+        --depth 1 \
+        --single-branch \
+        "https://github.com/flatcar/flatcar-build-scripts" \
+        "${fbs_repo}"
+    if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
+        local BUILDCACHE_SERVER=$(source ci-automation/ci-config.env; echo "${BUILDCACHE_SERVER}")
+    fi
+    echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${version}/flatcar_production_image.bin.bz2"
+    echo
+    run_image_changes_job "${arch}" "${mode}" '-' "${fbs_repo}" ricj_callback
+)
+# --
 
-    case ${what} in
-        last-release)
-            local git_tag
-            git_tag_for_release . git_tag
-            prepare_env_vars_and_params_for_release "${arch}" "${git_tag}" "${var_names[@]}"
-            ;;
-        last-nightly)
-            local git_tag
-            git_tag_for_nightly . git_tag
-            prepare_env_vars_and_params_for_bincache "${arch}" "${git_tag}" "${var_names[@]}"
-            ;;
-        *)
-            echo "invalid argument '${what}', expected 'last-nightly' or 'last-release'" >&2
-            exit 1
-            ;;
-    esac
-
+# Callback invoked by run_image_changes_job, read its docs to learn
+# about the details about the callback.
+function ricj_callback() {
     local ic_head_tag version
     head_git_tag . ic_head_tag
     version=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
@@ -94,29 +86,75 @@ function image_changes() (
         # here instead of the vernum variable.
         "NEW_VERSION=${ic_head_tag}"
     )
+}
+# --
 
-    local fbs_repo='../flatcar-build-scripts'
-    rm -rf "${fbs_repo}"
-    git clone \
-        --depth 1 \
-        --single-branch \
-        "https://github.com/flatcar/flatcar-build-scripts" \
-        "${fbs_repo}"
-    if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
-        local BUILDCACHE_SERVER=$(source ci-automation/ci-config.env; echo "${BUILDCACHE_SERVER}")
-    fi
-    echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${version}/flatcar_production_image.bin.bz2"
-    echo
+# Runs the whole image changes job for given arch and mode. The report
+# is written to the given file. The reports will be done using tools
+# from the passed path to the flatcar build scripts repository. The
+# parameters and environment of the tools should will be partially set
+# up depending on mode, but the further setup should be done by the
+# passed callback.
+#
+# The callback takes no parameters. It should assume that array
+# variables 'package_diff_env', 'package_diff_params',
+# 'size_changes_env', 'size_changes_params', 'show_changes_env' and
+# 'show_changes_params' are already defined, so it can append
+# necessary data into them.
+#
+# 1 - arch
+# 2 - mode
+# 3 - report file name ('-' for standard output)
+# 4 - path to the flatcar-build-scripts repository
+# 5 - name of a callback function
+function run_image_changes_job() {
+    arch=${1}; shift
+    mode=${1}; shift
+    report_file_name=${1}; shift
+    fbs_repo=${1}; shift
+    cb=${1}; shift
+
+    case ${mode} in
+        release|nightly)
+            :
+            ;;
+        *)
+            echo "invalid mode ${mode@Q}, expected 'nightly' or 'release'" >&2
+            exit 1
+            ;;
+    esac
+
+    local -a package_diff_env package_diff_params
+    local -a size_changes_env size_changes_params
+    local -a show_changes_env show_changes_params
+    local version_description
+    local -a var_names=(
+        package_diff_env package_diff_params
+        size_changes_env size_changes_params
+        show_changes_env show_changes_params
+        version_description
+    )
+    local git_tag_for_mode prepare_env_vars_and_params_for_mode
+    git_tag_for_mode="git_tag_for_${mode}"
+    prepare_env_vars_and_params_for_mode="prepare_env_vars_and_params_for_${mode}"
+
+    local git_tag
+    "${git_tag_for_mode}" . git_tag
+    "${prepare_env_vars_and_params_for_mode}" "${arch}" "${git_tag}" "${var_names[@]}"
+
+    # invoke callback that should append necessary info to env and params variables
+    "${cb}"
+
     local -a oemids base_sysexts
     get_oem_id_list . "${arch}" oemids
     get_base_sysext_list . "${arch}" base_sysexts
     generate_image_changes_report \
-        "${version_description}" '-' "${fbs_repo}" \
+        "${version_description}" "${report_file_name}" "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
         "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
         "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
         "${oemids[@]}" -- "${base_sysexts[@]}"
-)
+}
 # --
 
 # Gets a git tag that can be passed to
@@ -180,7 +218,7 @@ function head_git_tag() {
 }
 
 # Gets a git tag of a previous nightly that can be passed to
-# prepare_env_vars_and_params_for_bincache.
+# prepare_env_vars_and_params_for_nightly.
 #
 # 1 - scripts repo
 # 2 - name of a variable to store the result in
@@ -357,7 +395,7 @@ function prepare_env_vars_and_params_for_release() {
 # nightly relative to the git tag. The git tag should be in form of
 # <channel>-<version id>-<build id>, which is the usual format used in
 # scripts repo.
-function prepare_env_vars_and_params_for_bincache() {
+function prepare_env_vars_and_params_for_nightly() {
     local arch git_tag
     arch=${1}; shift
     git_tag=${1}; shift

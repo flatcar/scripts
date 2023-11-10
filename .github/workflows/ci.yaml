@@ -234,10 +234,10 @@ jobs:
           )
 
       - name: Generate reports against last release
-        run: .github/workflows/image_changes.sh release
+        run: .github/workflows/image_changes.sh ${{ matrix.arch }} release
 
       - name: Generate reports against last nightly
-        run: .github/workflows/image_changes.sh nightly
+        run: .github/workflows/image_changes.sh ${{ matrix.arch }} nightly
 
       - name: Upload binpkgs
         uses: actions/upload-artifact@v3
