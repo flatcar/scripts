@@ -40,7 +40,7 @@ gc_reports_directory=''
 gc_scripts_directory=''
 # shellcheck disable=SC2034 # used by name below
 gc_cleanup_opts=''
-# ${arch}_sdk_img are declared on demand
+# gc_${arch}_sdk_img are declared on demand
 gc_debug_packages=()
 
 declare -A opt_map
@@ -120,8 +120,8 @@ pairs=(
     'old-base' gc_old_base
     'new-base' gc_new_base
     'cleanups' gc_cleanup_opts
-    'amd64-sdk-img' gc_arm64_sdk_img
-    'arm64-sdk-img' gc_amd64_sdk_img
+    'amd64-sdk-img' gc_amd64_sdk_img
+    'arm64-sdk-img' gc_arm64_sdk_img
     'debug-packages' gc_debug_packages_csv
 )
 
