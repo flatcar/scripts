@@ -377,7 +377,7 @@ function override_sdk_image_names() {
             # separate overrides from initial values
             lines+=( '' )
         fi
-        lines+=( "${upcase_arch@Q}_PACKAGES_IMAGE=${image_name@Q}" )
+        lines+=( "${upcase_arch}_PACKAGES_IMAGE=${image_name@Q}" )
     done
     append_to_globals "${lines[@]}"
 }
