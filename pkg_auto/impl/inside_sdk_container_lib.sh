@@ -23,15 +23,20 @@ function emerge_pretend() {
         --verbose
         --verbose-conflicts
         --verbose-slot-rebuilds y
-        --selective n
         --changed-deps y
         --changed-deps-report y
         --changed-slot y
         --changed-use
+        --newuse
         --complete-graph y
+        --deep
         --rebuild-if-new-slot y
-        --rebuild-if-new-rev y
+        --rebuild-if-unbuilt y
         --with-bdeps y
+        --dynamic-deps y
+        --update
+        --ignore-built-slot-operator-deps y
+        --selective n
     )
     local rv
     rv=0
