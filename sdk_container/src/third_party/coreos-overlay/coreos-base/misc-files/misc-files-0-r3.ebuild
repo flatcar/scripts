@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="openssh"
+IUSE="openssh ntp"
 
 # No source directory.
 S="${WORKDIR}"
@@ -31,6 +31,7 @@ DEPEND="
 RDEPEND="
 	${DEPEND}
 	>=app-shells/bash-5.2_p15-r2
+	ntp? ( >=net-misc/ntp-4.2.8_p17 )
 "
 
 declare -A CORE_BASH_SYMLINKS
@@ -55,6 +56,24 @@ src_compile() {
         echo "L /home/core/${name} - core core - ${target}" >>"${config_tmp}"
     done
     LC_ALL=C sort "${config_tmp}" >"${config}"
+}
+
+misc_files_install_dropin() {
+    local unit conf
+    unit=${1}; shift
+    conf=${1}; shift
+
+    [[ -n ${unit} ]] || die "No unit specified"
+    [[ -n ${conf} ]] || die "No conf file specified"
+    [[ ${conf} = *.conf ]] || die "Conf file must have .conf suffix"
+
+    local override_dir
+    override_dir="$(systemd_get_systemunitdir)/${unit}.d"
+    (
+        insopts -m 0644
+        insinto "${override_dir}"
+        doins "${conf}"
+    )
 }
 
 src_install() {
@@ -83,6 +102,11 @@ src_install() {
         compat_symlinks+=(
             ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
             ['/usr/share/ssh/sshd_config']='/usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf'
+        )
+    fi
+    if use ntp; then
+        compat_symlinks+=(
+            ['/usr/share/ntp/ntp.conf']='/usr/share/flatcar/etc/ntp.conf'
         )
     fi
 
@@ -133,14 +157,18 @@ src_install() {
 
         # Install our socket drop-in file that disables the rate
         # limiting on the sshd socket.
-        local override_dir
-        override_dir="$(systemd_get_systemunitdir)/sshd.socket.d"
-        dodir "${override_dir}"
-        insinto "${override_dir}"
-        doins "${FILESDIR}/no-trigger-limit-burst.conf"
+        misc_files_install_dropin sshd.socket "${FILESDIR}/no-trigger-limit-burst.conf"
 
         # Enable some sockets that aren't enabled by their own ebuilds.
         systemd_enable_service sockets.target sshd.socket
+    fi
+
+    if use ntp; then
+        insinto /etc
+        doins "${FILESDIR}/ntp.conf"
+        misc_files_install_dropin ntpd.service "${FILESDIR}/ntpd-always-restart.conf"
+        misc_files_install_dropin ntpdate.service "${FILESDIR}/ntp-environment.conf"
+        misc_files_install_dropin sntp.service "${FILESDIR}/ntp-environment.conf"
     fi
 
     # Create a symlink for Kubernetes to redirect writes from /usr/libexec/... to /var/kubernetes/...
