@@ -369,6 +369,7 @@ net-misc/curl
 net-misc/ethertypes
 net-misc/iperf
 net-misc/iputils
+net-misc/ntp
 net-misc/rsync
 net-misc/socat
 net-misc/wget
