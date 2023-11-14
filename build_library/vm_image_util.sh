@@ -9,7 +9,6 @@ VALID_IMG_TYPES=(
     ami
     ami_vmdk
     azure
-    brightbox
     cloudsigma
     cloudstack
     cloudstack_vhd
@@ -241,12 +240,6 @@ IMG_openstack_mini_DISK_FORMAT=qcow2
 IMG_openstack_mini_OEM_PACKAGE=common-oem-files
 IMG_openstack_mini_OEM_USE=openstack
 IMG_openstack_mini_OEM_SYSEXT=oem-openstack
-
-## brightbox, supports ec2's metadata format so use oem-ec2-compat
-IMG_brightbox_DISK_FORMAT=qcow2
-IMG_brightbox_DISK_LAYOUT=vm
-IMG_brightbox_OEM_PACKAGE=oem-ec2-compat
-IMG_brightbox_OEM_USE=brightbox
 
 ## pxe, which is an cpio image
 IMG_pxe_DISK_FORMAT=cpio

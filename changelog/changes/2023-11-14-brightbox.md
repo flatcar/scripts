@@ -1,0 +1,2 @@
+- Brightbox: The regular OpenStack image should now be used, it includes Afterburn for instance metadata attributes
+- OpenStack: An uncompressed image is provided for simpler import (since the images use qcow2 inline compression, there is no benefit in using the `.gz` or `.bz2` images)
