@@ -2329,7 +2329,7 @@ function grep_pkg() {
     pkg=${1}; shift
     # rest are directories
 
-    git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-bA-Z0-9_-]\|$\)' -- "${@}" || :
+    git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-zA-Z0-9_-]\|$\)' -- "${@}" || :
 }
 
 function cat_entries() {
