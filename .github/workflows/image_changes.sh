@@ -37,7 +37,7 @@ function github_ricj_callback() {
 }
 
 arch=${1}; shift
-mode=${1; shift
+mode=${1}; shift
 report_file_name="image-changes-reports-${mode}.txt"
 
 run_image_changes_job "${arch}" "${mode}" "${report_file_name}" '../flatcar-build-scripts' github_ricj_callback
