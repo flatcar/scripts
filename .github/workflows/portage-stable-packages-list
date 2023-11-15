@@ -356,11 +356,19 @@ net-firewall/ipset
 net-fs/cifs-utils
 
 net-libs/gnutls
+net-libs/http-parser
 net-libs/libmicrohttpd
+net-libs/libmnl
+net-libs/libnetfilter_conntrack
+net-libs/libnetfilter_cthelper
+net-libs/libnetfilter_cttimeout
+net-libs/libnetfilter_queue
+net-libs/libnfnetlink
 net-libs/libnftnl
 net-libs/libnsl
 net-libs/libpcap
 net-libs/libslirp
+net-libs/libssh2
 net-libs/nghttp2
 net-libs/rpcsvc-proto
 
