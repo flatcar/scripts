@@ -1,21 +1,20 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-CMAKE_ECLASS=cmake
+EAPI=8
+
 inherit cmake-multilib
 
 DESCRIPTION="Library implementing the SSH2 protocol"
 HOMEPAGE="https://www.libssh2.org"
-SRC_URI="https://www.libssh2.org/download/${P}.tar.gz"
+SRC_URI="https://www.libssh2.org/download/${P}.tar.xz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-solaris"
-IUSE="gcrypt mbedtls zlib"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ~ppc ppc64 ~riscv ~s390 sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+IUSE="gcrypt mbedtls test zlib"
 REQUIRED_USE="?? ( gcrypt mbedtls )"
-# Tests try to set containers up using docker (and fail for some reason).
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	gcrypt? ( >=dev-libs/libgcrypt-1.5.3:0[${MULTILIB_USEDEP}] )
@@ -31,6 +30,10 @@ DEPEND="
 	${RDEPEND}
 "
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.11.0-mansyntax_sh.patch
+)
+
 multilib_src_configure() {
 	local crypto_backend=OpenSSL
 	if use gcrypt; then
@@ -41,13 +44,22 @@ multilib_src_configure() {
 
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=ON
+		-DBUILD_TESTING=$(usex test)
 		-DCRYPTO_BACKEND=${crypto_backend}
 		-DENABLE_ZLIB_COMPRESSION=$(usex zlib)
 	)
+
+	if use test ; then
+		# Pass separately to avoid unused var warnings w/ USE=-test
+		mycmakeargs+=(
+			-DRUN_SSHD_TESTS=OFF
+			-DRUN_DOCKER_TESTS=OFF
+		)
+	fi
+
 	cmake_src_configure
 }
 
 multilib_src_install_all() {
 	einstalldocs
-	find "${ED}" -name '*.la' -delete || die
 }
