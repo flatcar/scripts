@@ -1,18 +1,20 @@
-From dd1512513b407e23155f58400cacecac8576d6f9 Mon Sep 17 00:00:00 2001
+From 7382c63bb2c90a1173393faf093002341f830a09 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 27 Feb 2023 15:59:21 +0100
 Subject: [PATCH] flatcar changes
 
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@microsoft.com>
 ---
- azurelinuxagent/common/osutil/coreos.py       |  39 +-----
- azurelinuxagent/common/osutil/coreoscommon.py |  57 ++++++++
+ azurelinuxagent/common/osutil/coreos.py       |  40 +-----
+ azurelinuxagent/common/osutil/coreoscommon.py |  59 +++++++++
  azurelinuxagent/common/osutil/factory.py      |   3 +
- azurelinuxagent/common/osutil/flatcar.py      |  60 +++++++++
+ azurelinuxagent/common/osutil/flatcar.py      |  78 +++++++++++
+ .../common/persist_firewall_rules.py          |   1 +
  config/flatcar/waagent.conf                   | 122 ++++++++++++++++++
  init/flatcar/10-waagent-sysext.conf           |   2 +
  init/flatcar/waagent.service                  |  30 +++++
  setup.py                                      |  20 ++-
- 8 files changed, 291 insertions(+), 42 deletions(-)
+ 9 files changed, 312 insertions(+), 43 deletions(-)
  create mode 100644 azurelinuxagent/common/osutil/coreoscommon.py
  create mode 100644 azurelinuxagent/common/osutil/flatcar.py
  create mode 100644 config/flatcar/waagent.conf
@@ -20,14 +22,13 @@ Subject: [PATCH] flatcar changes
  create mode 100644 init/flatcar/waagent.service
 
 diff --git a/azurelinuxagent/common/osutil/coreos.py b/azurelinuxagent/common/osutil/coreos.py
-index fc0a6604..314008f0 100644
+index 373727e2..63578932 100644
 --- a/azurelinuxagent/common/osutil/coreos.py
 +++ b/azurelinuxagent/common/osutil/coreos.py
-@@ -17,11 +17,10 @@
- #
+@@ -18,10 +18,10 @@
  
  import os
--import azurelinuxagent.common.utils.shellutil as shellutil
+ from azurelinuxagent.common.utils import shellutil
 -from azurelinuxagent.common.osutil.default import DefaultOSUtil
 +from azurelinuxagent.common.osutil.coreoscommon import CoreosCommonUtil
  
@@ -37,7 +38,7 @@ index fc0a6604..314008f0 100644
  
      def __init__(self):
          super(CoreOSUtil, self).__init__()
-@@ -46,40 +45,6 @@ class CoreOSUtil(DefaultOSUtil):
+@@ -46,42 +46,6 @@ class CoreOSUtil(DefaultOSUtil):
      def get_agent_bin_path():
          return "/usr/share/oem/bin"
  
@@ -73,17 +74,19 @@ index fc0a6604..314008f0 100644
 -        return shellutil.run("systemctl stop {0}".format(self.service_name), chk_err=False)
 -
 -    def get_dhcp_pid(self):
--        return self._get_dhcp_pid(["systemctl", "show", "-p", "MainPID", "systemd-networkd"])
+-        return self._get_dhcp_pid(
+-            ["systemctl", "show", "-p", "MainPID", "systemd-networkd"],
+-            transform_command_output=lambda o: o.replace("MainPID=", ""))
 -
      def conf_sshd(self, disable_password):
          # In CoreOS, /etc/sshd_config is mount readonly.  Skip the setting.
          pass
 diff --git a/azurelinuxagent/common/osutil/coreoscommon.py b/azurelinuxagent/common/osutil/coreoscommon.py
 new file mode 100644
-index 00000000..fde9a456
+index 00000000..66eae16e
 --- /dev/null
 +++ b/azurelinuxagent/common/osutil/coreoscommon.py
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,59 @@
 +#
 +# Copyright 2023 Microsoft Corporation
 +#
@@ -140,20 +143,22 @@ index 00000000..fde9a456
 +        return shellutil.run("systemctl stop {0}".format(self.service_name), chk_err=False)
 +
 +    def get_dhcp_pid(self):
-+        return self._get_dhcp_pid(["systemctl", "show", "-p", "MainPID", "systemd-networkd"])
++        return self._get_dhcp_pid(
++            ["systemctl", "show", "-p", "MainPID", "systemd-networkd"],
++            transform_command_output=lambda o: o.replace("MainPID=", ""))
 diff --git a/azurelinuxagent/common/osutil/factory.py b/azurelinuxagent/common/osutil/factory.py
-index b5ee0b09..9280c645 100644
+index 83123e3f..b9257a9b 100644
 --- a/azurelinuxagent/common/osutil/factory.py
 +++ b/azurelinuxagent/common/osutil/factory.py
-@@ -27,6 +27,7 @@ from .clearlinux import ClearLinuxUtil
- from .coreos import CoreOSUtil
+@@ -28,6 +28,7 @@ from .coreos import CoreOSUtil
  from .debian import DebianOSBaseUtil, DebianOSModernUtil
  from .default import DefaultOSUtil
+ from .devuan import DevuanOSUtil
 +from .flatcar import FlatcarUtil
  from .freebsd import FreeBSDOSUtil
  from .gaia import GaiaOSUtil
  from .iosxe import IosxeOSUtil
-@@ -82,6 +83,8 @@ def _get_osutil(distro_name, distro_code_name, distro_version, distro_full_name)
+@@ -88,6 +89,8 @@ def _get_osutil(distro_name, distro_code_name, distro_version, distro_full_name)
          return DebianOSBaseUtil()
  
      if distro_name in ("flatcar", "coreos") or distro_code_name in ("flatcar", "coreos"):
@@ -164,10 +169,10 @@ index b5ee0b09..9280c645 100644
      if distro_name in ("suse", "sle_hpc", "sles", "opensuse"):
 diff --git a/azurelinuxagent/common/osutil/flatcar.py b/azurelinuxagent/common/osutil/flatcar.py
 new file mode 100644
-index 00000000..bf739a8e
+index 00000000..e31b2923
 --- /dev/null
 +++ b/azurelinuxagent/common/osutil/flatcar.py
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,78 @@
 +#
 +# Copyright 2023 Microsoft Corporation
 +#
@@ -194,6 +199,7 @@ index 00000000..bf739a8e
 +import azurelinuxagent.common.conf as conf
 +import azurelinuxagent.common.logger as logger
 +import azurelinuxagent.common.utils.fileutil as fileutil
++import azurelinuxagent.common.utils.shellutil as shellutil
 +
 +from azurelinuxagent.common.osutil.coreoscommon import CoreosCommonUtil
 +
@@ -201,7 +207,7 @@ index 00000000..bf739a8e
 +
 +    @staticmethod
 +    def get_systemd_unit_file_install_path():
-+        return "/usr/lib/systemd/system"
++        return "/etc/systemd/system"
 +
 +    def conf_sshd(self, disable_password):
 +        ssh_dir = conf.get_ssh_dir()
@@ -228,6 +234,35 @@ index 00000000..bf739a8e
 +            os.remove(conf_file_path)
 +            os.rename(conf_file_path2, conf_file_path)
 +            super(CoreosCommonUtil, self).conf_sshd(disable_password)
++
++    def restart_if(self, ifname, retries=3, wait=5):
++        """
++        Restart an interface by bouncing the link. systemd-networkd observes
++        this event, and forces a renew of DHCP.
++        """
++        retry_limit = retries + 1
++        for attempt in range(1, retry_limit):
++            return_code = shellutil.run("ip link set {0} down && ip link set {0} up".format(ifname))
++            if return_code == 0:
++                return
++            logger.warn("failed to restart {0}: return code {1}".format(ifname, return_code))
++            if attempt < retry_limit:
++                logger.info("retrying in {0} seconds".format(wait))
++                time.sleep(wait)
++            else:
++                logger.warn("exceeded restart retries")
+diff --git a/azurelinuxagent/common/persist_firewall_rules.py b/azurelinuxagent/common/persist_firewall_rules.py
+index 74b878ce..22562c96 100644
+--- a/azurelinuxagent/common/persist_firewall_rules.py
++++ b/azurelinuxagent/common/persist_firewall_rules.py
+@@ -35,6 +35,7 @@ class PersistFirewallRulesHandler(object):
+ # Do not edit.
+ [Unit]
+ Description=Setup network rules for WALinuxAgent 
++After=systemd-sysext.service
+ Before=network-pre.target
+ Wants=network-pre.target
+ DefaultDependencies=no
 diff --git a/config/flatcar/waagent.conf b/config/flatcar/waagent.conf
 new file mode 100644
 index 00000000..b453c634
@@ -401,10 +436,10 @@ index 00000000..d0d6f7c8
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/setup.py b/setup.py
-index d38d74d6..57b0edb9 100755
+index 8f5d92b4..35400e09 100755
 --- a/setup.py
 +++ b/setup.py
-@@ -125,12 +125,22 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
+@@ -135,12 +135,22 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
                            src=["init/arch/waagent.service"])
      elif name in ('coreos', 'flatcar'):
          set_bin_files(data_files, dest=agent_bin_path)
@@ -433,5 +468,5 @@ index d38d74d6..57b0edb9 100755
          set_bin_files(data_files, dest=agent_bin_path)
          set_conf_files(data_files, dest="/usr/share/defaults/waagent",
 -- 
-2.25.1
+2.39.2
 
