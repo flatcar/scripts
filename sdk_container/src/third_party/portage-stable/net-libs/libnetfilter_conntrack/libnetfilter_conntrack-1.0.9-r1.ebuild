@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit linux-info verify-sig
+inherit autotools linux-info verify-sig
 
 DESCRIPTION="Programming interface (API) to the in-kernel connection tracking state table"
 HOMEPAGE="https://www.netfilter.org/projects/libnetfilter_conntrack/"
@@ -25,6 +25,7 @@ DOCS=( README )
 
 PATCHES=(
 	"${FILESDIR}"/${P}-musl.patch
+	"${FILESDIR}"/${PN}-1.0.9-configure-clang16.patch
 )
 
 pkg_setup() {
@@ -42,6 +43,13 @@ pkg_setup() {
 	fi
 
 	check_extra_config
+}
+
+src_prepare() {
+	default
+
+	# autoreconf only for clang 16 configure patch
+	eautoreconf
 }
 
 src_install() {
