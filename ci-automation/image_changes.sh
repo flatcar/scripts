@@ -49,6 +49,8 @@ function image_changes() (
     if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
         local BUILDCACHE_SERVER=$(source ci-automation/ci-config.env; echo "${BUILDCACHE_SERVER}")
     fi
+    local version
+    version=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
     echo "Image URL: http://${BUILDCACHE_SERVER}/images/${arch}/${version}/flatcar_production_image.bin.bz2"
     echo
     run_image_changes_job "${arch}" "${mode}" '-' "${fbs_repo}" ricj_callback
