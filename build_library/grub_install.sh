@@ -205,7 +205,7 @@ case "${FLAGS_target}" in
                  "/usr/lib/shim/shim.efi"
         else
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
-                "${ESP_DIR}/EFI/boot/grub.efi"
+                "${ESP_DIR}/EFI/boot/grubx64.efi"
             sudo cp "/usr/lib/shim/shim.efi" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
 	fi
