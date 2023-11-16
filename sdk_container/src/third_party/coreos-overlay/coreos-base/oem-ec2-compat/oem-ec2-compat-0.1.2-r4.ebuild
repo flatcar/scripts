@@ -10,8 +10,8 @@ SRC_URI=""
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64 arm64 x86"
-IUSE="openstack brightbox"
-REQUIRED_USE="^^ ( openstack brightbox )"
+IUSE="openstack"
+REQUIRED_USE="^^ ( openstack )"
 
 # no source directory
 S="${WORKDIR}"
@@ -22,10 +22,6 @@ src_prepare() {
 		ID="openstack"
 		NAME="Openstack"
 		HOME_URL="https://www.openstack.org/"
-	elif use brightbox ; then
-		ID="brightbox"
-		NAME="Brightbox"
-		HOME_URL="http://brightbox.com/"
 	else
 		die "Unknown OEM!"
 	fi
@@ -42,8 +38,6 @@ src_install() {
 	doins "${T}/oem-release"
 	if use openstack ; then
 		newins "${FILESDIR}/grub-openstack.cfg" grub.cfg
-	elif use brightbox ; then
-		newins "${FILESDIR}/grub-brightbox.cfg" grub.cfg
 	fi
 
 	insinto "/oem/base"
