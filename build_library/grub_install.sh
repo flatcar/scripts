@@ -205,13 +205,13 @@ case "${FLAGS_target}" in
                  "/usr/lib/shim/shim.efi"
         else
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
-                "${ESP_DIR}/EFI/boot/grubx64.efi"
+                "${ESP_DIR}/EFI/boot/grub.efi"
             sudo cp "/usr/lib/shim/shim.efi" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
 	fi
         # copying from vfat so ignore permissions
         if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grub.efi" \
+            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grubx64.efi" \
                 "${FLAGS_copy_efi_grub}"
         fi
         if [[ -n "${FLAGS_copy_shim}" ]]; then
