@@ -1,0 +1,9 @@
+# Do not install ntpdate or sntp systemd files in /etc.
+INSTALL_MASK+=" /etc/systemd"
+# Do not install the default ntp.conf, we provide our own in
+# coreos-base/misc-files.
+INSTALL_MASK+=" /etc/ntp.conf"
+# Do not install perl scripts to /usr/bin.
+INSTALL_MASK+=" /usr/bin/calc_tickadj /usr/bin/ntp-wait /usr/bin/ntptrace /usr/bin/update-leap"
+# Do not install perl package to /usr/share/ntp.
+INSTALL_MASK+=" /usr/share/ntp"

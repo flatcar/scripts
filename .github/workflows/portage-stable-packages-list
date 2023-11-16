@@ -115,8 +115,8 @@ app-misc/mime-types
 app-misc/pax-utils
 
 app-portage/elt-patches
-app-portage/portage-utils
 app-portage/gentoolkit
+app-portage/portage-utils
 
 app-shells/bash
 app-shells/bash-completion
@@ -128,8 +128,6 @@ app-text/docbook-xsl-ns-stylesheets
 app-text/docbook-xsl-stylesheets
 app-text/manpager
 app-text/sgml-common
-
-sec-keys/openpgp-keys-gentoo-release
 
 dev-cpp/gtest
 
@@ -146,6 +144,7 @@ dev-lang/yasm
 
 dev-libs/cJSON
 dev-libs/cyrus-sasl
+dev-libs/ding-libs
 dev-libs/elfutils
 dev-libs/expat
 dev-libs/glib
@@ -153,26 +152,41 @@ dev-libs/gmp
 dev-libs/gobject-introspection
 dev-libs/gobject-introspection-common
 dev-libs/inih
+dev-libs/jansson
+dev-libs/json-c
 dev-libs/jsoncpp
 dev-libs/libaio
 dev-libs/libassuan
 dev-libs/libbsd
 dev-libs/libdnet
+dev-libs/libev
+dev-libs/libevent
+dev-libs/libffi
 dev-libs/libgcrypt
 dev-libs/libgpg-error
 dev-libs/libksba
+dev-libs/liblinear
 dev-libs/libltdl
 dev-libs/libmspack
 dev-libs/libnl
 dev-libs/libpcre
 dev-libs/libpcre2
 dev-libs/libpipeline
+dev-libs/libsodium
 dev-libs/libtasn1
+dev-libs/libunistring
 dev-libs/libusb
 dev-libs/libuv
+dev-libs/libverto
 dev-libs/libxml2
 dev-libs/libxslt
+dev-libs/libyaml
+dev-libs/lzo
+dev-libs/mpc
+dev-libs/mpfr
 dev-libs/nettle
+dev-libs/npth
+dev-libs/nspr
 dev-libs/oniguruma
 dev-libs/popt
 dev-libs/protobuf
@@ -355,6 +369,7 @@ net-misc/curl
 net-misc/ethertypes
 net-misc/iperf
 net-misc/iputils
+net-misc/ntp
 net-misc/rsync
 net-misc/socat
 net-misc/wget
@@ -373,13 +388,14 @@ profiles
 #
 # scripts
 
+sec-keys/openpgp-keys-gentoo-release
+
 sec-policy/selinux-base
 sec-policy/selinux-base-policy
 sec-policy/selinux-container
 sec-policy/selinux-dbus
 sec-policy/selinux-sssd
 sec-policy/selinux-unconfined
-
 
 sys-apps/acl
 sys-apps/attr
