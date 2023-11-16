@@ -127,8 +127,10 @@ function _vm_build_impl() {
     for format in ${formats}; do
         echo " ###################  VENDOR '${format}' ################### "
         COMPRESSION_FORMAT="bz2"
-        if [[ "${format}" =~ ^(openstack|openstack_mini|digitalocean)$ ]];then
+        if [[ "${format}" =~ ^(openstack_mini|digitalocean)$ ]];then
             COMPRESSION_FORMAT="gz,bz2"
+        elif [[ "${format}" =~ ^(openstack)$ ]];then
+            COMPRESSION_FORMAT="gz,bz2,none"
         elif [[ "${format}" =~ ^(qemu|qemu_uefi)$ ]];then
             COMPRESSION_FORMAT="bz2,none"
         fi
@@ -148,6 +150,7 @@ function _vm_build_impl() {
         -v "${vernum}" \
         mv "${CONTAINER_IMAGE_ROOT}/${arch}-usr/" "./${images_out}/"
 
+    ( cd images/latest ; ln -s flatcar_production_openstack_image.img.bz2 flatcar_production_brightbox_image.img.bz2 )
     create_digests "${SIGNER}" "images/latest/"*
     sign_artifacts "${SIGNER}" "images/latest/"*
     copy_to_buildcache "images/${arch}/${vernum}/" "images/latest/"*
