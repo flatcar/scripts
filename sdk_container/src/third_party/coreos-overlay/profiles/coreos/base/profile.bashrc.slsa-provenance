@@ -133,35 +133,35 @@ __slsa_provenance_resolved_dependencies() {
         # There can be multiple, and can be used conditionally based on use flags,
         #  and even replaced with different local names ("http://... -> othername.tgz"). So
         #  we go through what's actually used ($A), then find the corresponding source URI.
-        local src prev_uri rename orig_name found
-        for src in ${A}; do
-            found=
+        declare -A uri_dict=() uri_orig_names=()
+        local prev_uri='' rename='' base_name prev_base_name
+        for uri in ${SRC_URI}; do
+            if [[ ${uri} = '->' ]] ; then
+                rename=x
+                continue
+            fi
+            base_name=$(basename "${uri}")
+            uri_orig_names["${uri}"]=${base_name}
+            if [[ -n ${rename} ]] ; then
+                unset "uri_dict[${prev_base_name}]"
+                uri=${prev_uri}
+            fi
+            uri_dict["${base_name}"]=${uri}
             rename=
-            prev_uri=''
-            orig_name=''
-            for uri in ${SRC_URI}; do
-                if [[ ${uri} = '->' ]] ; then
-                    rename=x
-                    continue
-                fi
-                if [[ ${src} = "$(basename "${uri}")" ]] ; then
-                    orig_name=${src}
-                    if [[ -n ${rename} ]] ; then
-                        uri=${prev_uri}
-                        orig_name=$(basename "${uri}")
-                    fi
-                    einfo "    Provenance: recording tarball material (input) '${src}' ('${orig_name}')"
-                    csum=$(sha512sum "${DISTDIR}/${src}")
-                    csum=${csum%% *}
-                    __slsa_rd_printf "${uri}" 'sha512' "${csum}"
-                    found=x
-                fi
-                rename=
-                prev_uri=${uri}
-            done
-            if [[ -z ${found} ]] ; then
+            prev_uri=${uri}
+            prev_base_name=${base_name}
+        done
+        local src orig_name
+        for src in ${A}; do
+            uri=${uri_dict["${src}"]:-}
+            if [[ -z ${uri} ]] ; then
                 die "No SRC_URI found for source '${src}', unable to record provenance!"
             fi
+            orig_name=${uri_orig_names["${uri}"]}
+            einfo "    Provenance: recording tarball material (input) '${src}' ('${orig_name}')"
+            csum=$(sha512sum "${DISTDIR}/${src}")
+            csum=${csum%% *}
+            __slsa_rd_printf "${uri}" 'sha512' "${csum}"
         done
     elif [[ -n ${EGIT_REPO_URI:-} ]] ; then
         # package is built from repo checkout (git)
