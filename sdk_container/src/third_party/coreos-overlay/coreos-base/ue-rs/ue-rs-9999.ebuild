@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="f0ad33c6b4b3e966be2437d3da44a7c580e3dc37" # trunk
+	CROS_WORKON_COMMIT="f122a63128bc85950adc0168cfaa024aafdc1bc5" # trunk
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -33,6 +33,8 @@ CRATES="
 	bumpalo-3.13.0
 	byteorder-1.4.3
 	bytes-1.4.0
+	bzip2-0.4.4
+	bzip2-sys-0.1.11+1.0.8
 	cc-1.0.83
 	cfg-if-1.0.0
 	const-oid-0.9.5
@@ -79,9 +81,9 @@ CRATES="
 	jetscii-0.5.3
 	js-sys-0.3.64
 	lazy_static-1.4.0
-	libc-0.2.149
+	libc-0.2.150
 	libm-0.2.7
-	linux-raw-sys-0.4.10
+	linux-raw-sys-0.4.11
 	log-0.4.20
 	memchr-2.6.3
 	mime-0.3.17
@@ -114,14 +116,14 @@ CRATES="
 	rand-0.8.5
 	rand_chacha-0.3.1
 	rand_core-0.6.4
-	redox_syscall-0.3.5
+	redox_syscall-0.4.1
 	regex-1.9.5
 	regex-automata-0.3.8
 	regex-syntax-0.7.5
 	reqwest-0.11.20
 	rsa-0.9.2
 	rustc-demangle-0.1.23
-	rustix-0.38.20
+	rustix-0.38.23
 	ryu-1.0.15
 	schannel-0.1.22
 	security-framework-2.9.2
@@ -141,7 +143,7 @@ CRATES="
 	subtle-2.5.0
 	syn-1.0.109
 	syn-2.0.31
-	tempfile-3.8.0
+	tempfile-3.8.1
 	termcolor-1.2.0
 	thiserror-1.0.48
 	thiserror-impl-1.0.48
