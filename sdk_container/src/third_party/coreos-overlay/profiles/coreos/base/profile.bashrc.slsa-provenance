@@ -77,29 +77,34 @@ __slsa_provenance_materials() {
         # There can be multiple, and can be used conditionally based on use flags,
         #  and even replaced with different local names ("http://... -> othername.tgz"). So
         #  we go through what's actually used ($A), then find the corresponding source URI.
+        declare -A uri_dict
         local src="" prev_uri="" rename="false" orig_name=""
+        for uri in ${SRC_URI}; do
+            if [ "${uri}" = "->" ] ; then
+                rename="true"
+                continue
+            fi
+            local base_name="$(basename "${uri}")"
+            if [ "${rename}" = "true" ] ; then
+                prev_base_name="$(basename "${prev_uri}")"
+                unset uri_dict["${prev_base_name}"]
+                uri="${prev_uri}"
+            fi
+            uri_dict["${base_name}"]="${uri}"
+            rename="false"
+            prev_uri="${uri}"
+        done
         for src in ${A}; do
             local found="false"
-            for uri in ${SRC_URI}; do
-                if [ "${uri}" = "->" ] ; then
-                    rename="true"
-                    continue
-                fi
-                if [ "${src}" = "$(basename "${uri}")" ] ; then
-                    orig_name="${src}"
-                    if [ "${rename}" = "true" ] ; then
-                        uri="${prev_uri}"
-                        orig_name="$(basename "${uri}")"
-                    fi
-                    einfo "    Provenance: recording tarball material (input) '${src}' ('${orig_name}')"
-                    csum="$(sha512sum "${DISTDIR}/${src}" | cut -d' ' -f1)"
-                    echo -e ",\n      { \"uri\": \"${uri}\","
-                    echo -n "        \"digest\": {\"sha512\":\"${csum}\"} }"
-                    found="true"
-                fi
-                rename="false"
-                prev_uri="${uri}"
-            done
+            uri="${uri_dict["${src}"]}"
+            if [ -n "${uri}" ] ; then
+                orig_name="${src}"
+                einfo "    Provenance: recording tarball material (input) '${src}' ('${orig_name}')"
+                csum="$(sha512sum "${DISTDIR}/${src}" | cut -d' ' -f1)"
+                echo -e ",\n      { \"uri\": \"${uri}\","
+                echo -n "        \"digest\": {\"sha512\":\"${csum}\"} }"
+                found="true"
+            fi
             if [ "${found}" != "true" ] ; then
                 die "No SRC_URI found for source '${src}', unable to record provenance!"
             fi
