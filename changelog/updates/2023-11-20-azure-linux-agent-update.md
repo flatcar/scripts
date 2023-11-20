@@ -1,0 +1,1 @@
+- Azure: WALinuxAgent ([v2.9.1.1](https://github.com/Azure/WALinuxAgent/releases/tag/v2.9.1.1))
