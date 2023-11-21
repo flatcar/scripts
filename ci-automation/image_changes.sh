@@ -279,11 +279,10 @@ function get_base_sysext_list() {
     local -n list_var_ref=${1}; shift
 
     source "${scripts_repo}/ci-automation/base_sysexts.sh" 'local'
-    local -n base_sysexts_ref="${arch}_base_sysexts"
 
     list_var_ref=()
     local entry
-    for entry in "${base_sysexts_ref[@]}"; do
+    for entry in "${ciabs_base_sysexts[@]}"; do
         list_var_ref+=( "${entry%%:*}" )
     done
 }

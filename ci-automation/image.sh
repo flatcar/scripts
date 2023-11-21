@@ -87,9 +87,8 @@ function _image_build_impl() {
     apply_local_patches
 
     source ci-automation/base_sysexts.sh 'local'
-    local -n base_sysexts_ref="${arch}_base_sysexts"
     local base_sysexts_param
-    base_sysexts_param=$(export IFS=,; echo "${base_sysexts_ref[*]}")
+    base_sysexts_param=$(export IFS=,; echo "${ciabs_base_sysexts[*]}")
 
     # build image and related artifacts
     ./run_sdk_container -x ./ci-cleanup.sh -n "${image_container}" -C "${packages_image}" \
