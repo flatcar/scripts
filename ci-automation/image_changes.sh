@@ -47,7 +47,8 @@ function image_changes() (
         "https://github.com/flatcar/flatcar-build-scripts" \
         "${fbs_repo}"
     if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
-        local BUILDCACHE_SERVER=$(source ci-automation/ci-config.env; echo "${BUILDCACHE_SERVER}")
+        local BUILDCACHE_SERVER
+        BUILDCACHE_SERVER=$(source ci-automation/ci-config.env; echo "${BUILDCACHE_SERVER}")
     fi
     local version
     version=$(source sdk_container/.repo/manifests/version.txt; echo "${FLATCAR_VERSION}")
@@ -522,14 +523,21 @@ function channel_version() (
     local channel=${1}; shift
     local board=${1}; shift
 
-    source <(curl \
-                 -fsSL \
-                 --retry-delay 1 \
-                 --retry 60 \
-                 --retry-connrefused \
-                 --retry-max-time 60 \
-                 --connect-timeout 20 \
-                 "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt")
+    local tmp_version_txt
+    tmp_version_txt=$(mktemp)
+    # This function runs in a subshell, so we can have our own scoped
+    # traps.
+    trap 'rm "${tmp_version_txt}"' EXIT
+
+    curl \
+        -fsSL \
+        --retry-delay 1 \
+        --retry 60 \
+        --retry-connrefused \
+        --retry-max-time 60 \
+        --connect-timeout 20 \
+        "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt" >"${tmp_version_txt}"
+    source "${tmp_version_txt}"
     echo "${FLATCAR_VERSION}"
 )
 # --
