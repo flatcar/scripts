@@ -42,9 +42,7 @@ if [[ "${CHANNEL}" = 'main' ]]; then
 fi
 
 # Pin the docker image version to that of the latest release in the channel.
-docker_sdk_vernum="$(curl -s -S -f -L "${MIRROR_LINK}/version.txt" \
-    | grep -m 1 FLATCAR_SDK_VERSION= | cut -d = -f 2- \
-)"
+docker_sdk_vernum=$(source <(curl -s -S -f -L "${MIRROR_LINK}/version.txt"); echo "${FLATCAR_SDK_VERSION}")
 
 docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
 
