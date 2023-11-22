@@ -8,3 +8,5 @@ timeout --signal=SIGQUIT 60m ore equinixmetal gc --duration 6h \
   --project="${EQUINIXMETAL_PROJECT}" --gs-json-key=<(echo "${GCP_JSON_KEY}" | base64 --decode) --api-key="${EQUINIXMETAL_KEY}"
 timeout --signal=SIGQUIT 60m ore openstack gc --duration 6h \
   --config-file=<(echo "${OPENSTACK_CREDS}" | base64 --decode)
+timeout --signal=SIGQUIT 60m ore brightbox gc --duration 6h \
+  --brightbox-client-id="${BRIGHTBOX_CLIENT_ID}" --brightbox-client-secret="${BRIGHTBOX_CLIENT_SECRET}"
