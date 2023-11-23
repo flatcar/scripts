@@ -21,13 +21,15 @@ LICENSE="BSD"
 SLOT="0"
 IUSE=""
 
-BDEPEND="coreos-base/coreos-sb-keys"
 RDEPEND=""
 # TODO: Would be ideal to depend on sys-boot/gnu-efi package, but
 # currently the shim insists on using the bundled copy. This will need
 # to be addressed by patching this check out after making sure that
 # our copy of gnu-efi is as usable as the bundled one.
-DEPEND="dev-libs/openssl"
+DEPEND="
+  dev-libs/openssl
+  coreos-base/coreos-sb-keys
+"
 
 src_unpack() {
 	cros-workon_src_unpack
@@ -50,7 +52,7 @@ src_compile() {
 	elif use arm64; then
 		emake_args+=( ARCH=aarch64 )
 	fi
-  emake_args+= ( ENABLE_SBSIGN=1 )
+  emake_args+=( ENABLE_SBSIGN=1 )
   emake_args+=( VENDOR_CERT_FILE="/usr/share/sb_keys/DB.der" )
 	emake "${emake_args[@]}" || die
 }
