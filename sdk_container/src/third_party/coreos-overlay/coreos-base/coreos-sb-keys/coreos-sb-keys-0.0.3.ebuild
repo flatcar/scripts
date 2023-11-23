@@ -1,14 +1,15 @@
 # Copyright (c) 2015 CoreOS Inc.
+# Copyright (c) 2024 The Flatcar Maintainers.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 DESCRIPTION="Flatcar Secure Boot keys"
 HOMEPAGE=""
 SRC_URI=""
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 x86"
+KEYWORDS="amd64 arm64"
 IUSE=""
 
 S="${WORKDIR}"
@@ -24,6 +25,6 @@ src_install() {
 
 	# shim keys
 	newins "${FILESDIR}/shim.key" shim.key
-  	newins "${FILESDIR}/shim.der" shim.der
-  	newins "${FILESDIR}/shim.pem" shim.pem
+  newins "${FILESDIR}/shim.der" shim.der
+  newins "${FILESDIR}/shim.pem" shim.pem
 }

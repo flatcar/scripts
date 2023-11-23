@@ -26,7 +26,10 @@ RDEPEND=""
 # currently the shim insists on using the bundled copy. This will need
 # to be addressed by patching this check out after making sure that
 # our copy of gnu-efi is as usable as the bundled one.
-DEPEND="dev-libs/openssl"
+DEPEND="
+	dev-libs/openssl
+  	coreos-base/coreos-sb-keys
+"
 
 src_unpack() {
 	cros-workon_src_unpack
@@ -47,6 +50,8 @@ src_compile() {
 	elif use arm64; then
 		emake_args+=( ARCH=aarch64 )
 	fi
+  	emake_args+=( ENABLE_SBSIGN=1 )
+  	emake_args+=( VENDOR_CERT_FILE="/usr/share/sb_keys/shim.der" )
 	emake "${emake_args[@]}" || die
 }
 
@@ -60,4 +65,5 @@ src_install() {
 	fi
 	insinto /usr/lib/shim
 	newins "shim${suffix}.efi" 'shim.efi'
+  	newins "mm${suffix}.efi" "mm${suffix}.efi"
 }
