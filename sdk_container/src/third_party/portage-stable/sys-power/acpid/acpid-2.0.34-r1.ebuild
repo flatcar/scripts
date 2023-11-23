@@ -1,24 +1,25 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
+
 inherit linux-info systemd
 
 DESCRIPTION="Daemon for Advanced Configuration and Power Interface"
-HOMEPAGE="https://sourceforge.net/projects/acpid2"
-EXTRAS_VER="2.0.32-r2"
-EXTRAS_NAME="${CATEGORY}_${PN}_${EXTRAS_VER}_extras"
-SRC_URI="mirror://sourceforge/${PN}2/${P}.tar.xz
-	https://dev.gentoo.org/~andrey_utkin/distfiles/${EXTRAS_NAME}.tar.xz
-	"
+HOMEPAGE="https://sourceforge.net/projects/acpid2/"
+SRC_URI="mirror://sourceforge/${PN}2/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ~ia64 ~riscv x86"
+KEYWORDS="amd64 ~arm arm64 ~ia64 ~loong ~riscv x86"
 IUSE="selinux"
 
 RDEPEND="selinux? ( sec-policy/selinux-apm )"
 DEPEND=">=sys-kernel/linux-headers-3"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.0.34-lfs.patch
+)
 
 pkg_pretend() {
 	local CONFIG_CHECK="~INPUT_EVDEV"
@@ -28,10 +29,6 @@ pkg_pretend() {
 
 pkg_setup() { :; }
 
-PATCHES=(
-	"${WORKDIR}/${EXTRAS_NAME}/${PN}-2.0.32-powerbtn-gsd-power.patch" #702700
-)
-
 src_install() {
 	emake DESTDIR="${D}" install
 
@@ -40,16 +37,16 @@ src_install() {
 	rm -f "${D}"/usr/share/doc/${PF}/COPYING || die
 
 	exeinto /etc/acpi
-	newexe "${WORKDIR}/${EXTRAS_NAME}/${PN}-1.0.6-default.sh" default.sh
+	newexe "${FILESDIR}"/${PN}-1.0.6-default.sh default.sh
 	exeinto /etc/acpi/actions
 	newexe samples/powerbtn/powerbtn.sh powerbtn.sh
 	insinto /etc/acpi/events
-	newins "${WORKDIR}/${EXTRAS_NAME}/${PN}-1.0.4-default" default
+	newins "${FILESDIR}"/${PN}-1.0.4-default default
 
-	newinitd "${WORKDIR}/${EXTRAS_NAME}/${PN}-2.0.26-init.d" ${PN}
-	newconfd "${WORKDIR}/${EXTRAS_NAME}/${PN}-2.0.16-conf.d" ${PN}
+	newinitd "${FILESDIR}"/${PN}-2.0.26-init.d ${PN}
+	newconfd "${FILESDIR}"/${PN}-2.0.16-conf.d ${PN}
 
-	systemd_dounit "${WORKDIR}"/${EXTRAS_NAME}/systemd/${PN}.{service,socket}
+	systemd_dounit "${FILESDIR}"/${PN}.{service,socket}
 }
 
 pkg_postinst() {
@@ -59,13 +56,5 @@ pkg_postinst() {
 		elog "which can be found online at:"
 		elog "https://wiki.gentoo.org/wiki/Power_management/Guide"
 		elog
-	fi
-
-	# files/systemd/acpid.socket -> ListenStream=/run/acpid.socket
-	mkdir -p "${ROOT%/}"/run
-
-	if ! grep -qs "^tmpfs.*/run " "${ROOT%/}"/proc/mounts ; then
-		echo
-		ewarn "You should reboot the system now to get /run mounted with tmpfs!"
 	fi
 }
