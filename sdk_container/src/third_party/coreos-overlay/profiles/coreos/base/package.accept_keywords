@@ -83,7 +83,7 @@
 =sys-block/thin-provisioning-tools-1.0.6 ~amd64
 
 # Needed to force enable ipvsadm for arm64.
-=sys-cluster/ipvsadm-1.27-r1 **
+=sys-cluster/ipvsadm-1.31-r1 **
 
 # Keep versions on both arches in sync.
 =sys-firmware/edk2-aarch64-18.02 **
