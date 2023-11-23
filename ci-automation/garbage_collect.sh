@@ -82,8 +82,9 @@ function _garbage_collect_impl() {
         echo "#### Processing version '${version}' ####"
         echo
 
-        git checkout "${version}" -- sdk_container/.repo/manifests/version.txt
-        source sdk_container/.repo/manifests/version.txt
+        local versiontxt=$(git ls-tree --name-only -r "${version}" | grep version.txt)
+        git checkout "${version}" -- "${versiontxt}"
+        source "${versiontxt}"
 
         # Assuming that the SDK build version also has the same OS version
         local os_vernum="${FLATCAR_VERSION}"
