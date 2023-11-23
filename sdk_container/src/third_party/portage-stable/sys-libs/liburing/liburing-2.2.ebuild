@@ -12,7 +12,7 @@ if [[ "${PV}" == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/axboe/liburing.git"
 else
 	SRC_URI="https://git.kernel.dk/cgit/${PN}/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ppc ppc64 ~riscv sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ppc ppc64 ~riscv sparc x86"
 fi
 LICENSE="MIT"
 SLOT="0/2" # liburing.so major version
@@ -21,10 +21,9 @@ IUSE="static-libs"
 # fsync test hangs forever
 RESTRICT="test"
 
-PATCHES=(
-	# Upstream, bug #816798
-	"${FILESDIR}"/${P}-arm-syscall.patch
-)
+# At least installed headers need <linux/*>, bug #802516
+DEPEND=">=sys-kernel/linux-headers-5.1"
+RDEPEND="${DEPEND}"
 
 src_prepare() {
 	default
@@ -45,9 +44,10 @@ multilib_src_configure() {
 		--libdevdir="${EPREFIX}/usr/$(get_libdir)"
 		--mandir="${EPREFIX}/usr/share/man"
 		--cc="$(tc-getCC)"
+		--cxx="$(tc-getCXX)"
 	)
 	# No autotools configure! "econf" will fail.
-	TMPDIR="${T}" ./configure "${myconf[@]}"
+	TMPDIR="${T}" ./configure "${myconf[@]}" || die
 }
 
 multilib_src_compile() {

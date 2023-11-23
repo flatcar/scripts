@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,33 +12,35 @@ if [[ "${PV}" == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/axboe/liburing.git"
 else
 	SRC_URI="https://git.kernel.dk/cgit/${PN}/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ppc ppc64 ~riscv sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
+	QA_PKGCONFIG_VERSION=${PV}
 fi
 LICENSE="MIT"
 SLOT="0/2" # liburing.so major version
 
-IUSE="static-libs"
+IUSE="examples static-libs test"
 # fsync test hangs forever
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 # At least installed headers need <linux/*>, bug #802516
 DEPEND=">=sys-kernel/linux-headers-5.1"
 RDEPEND="${DEPEND}"
 
 PATCHES=(
-	# Upstream, bug #816798
-	"${FILESDIR}"/${P}-arm-syscall.patch
-	# Upstream, bug #829293
-	"${FILESDIR}"/${P}-gnu_source-musl-cpuset.patch
+	# https://bugs.gentoo.org/891633
+	"${FILESDIR}/${PN}-2.3-liburing.map-Export-io_uring_-enable_rings-register_.patch"
+	# https://github.com/axboe/liburing/pull/787
+	"${FILESDIR}/${PN}-2.3-remove-error-from-error_h-for-portability.patch"
 )
 
 src_prepare() {
 	default
 
-	if [[ "${PV}" != *9999 ]] ; then
-		# Make sure pkgconfig files contain the correct version
-		# bug #809095 and #833895
-		sed -i "/^Version:/s@[[:digit:]\.]\+@${PV}@" ${PN}.spec || die
+	if ! use examples; then
+		sed -e '/examples/d' Makefile -i || die
+	fi
+	if ! use test; then
+		sed -e '/test/d' Makefile -i || die
 	fi
 
 	multilib_copy_sources
@@ -70,5 +72,19 @@ multilib_src_install_all() {
 }
 
 multilib_src_test() {
-	emake V=1 runtests
+	local disabled_tests=(
+		accept.c
+		fpos.c
+		io_uring_register.c
+		link-timeout.c
+		read-before-exit.c
+		recv-msgall-stream.c
+	)
+	local disabled_test
+	for disabled_test in "${disabled_tests[@]}"; do
+		sed -i "/\s*${disabled_test}/d" test/Makefile \
+			|| die "Failed to remove ${disabled_test}"
+	done
+
+	emake -C test V=1 runtests
 }
