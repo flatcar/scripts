@@ -21,4 +21,5 @@ src_install() {
 	newins "${FILESDIR}/KEK.crt" KEK.crt
 	newins "${FILESDIR}/DB.key" DB.key
 	newins "${FILESDIR}/DB.crt" DB.crt
+	newins "${FILESDIR}/DB.crt" DB.der
 }
