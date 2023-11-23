@@ -1,0 +1,7 @@
+- acpid ([2.0.34](https://sourceforge.net/p/acpid2/code/ci/2.0.34/tree/Changelog))
+- efibootmgr ([18](https://github.com/rhboot/efibootmgr/releases/tag/18))
+- efivar ([38](https://github.com/rhboot/efivar/releases/tag/38))
+- ipvsadm ([1.31](https://git.kernel.org/pub/scm/utils/kernel/ipvsadm/ipvsadm.git/tag/?h=v1.31) (includes [1.28](https://git.kernel.org/pub/scm/utils/kernel/ipvsadm/ipvsadm.git/tag/?h=v1.28), [1.29](https://git.kernel.org/pub/scm/utils/kernel/ipvsadm/ipvsadm.git/tag/?h=v1.29) and [1.30](https://git.kernel.org/pub/scm/utils/kernel/ipvsadm/ipvsadm.git/tag/?h=v1.30)))
+- libunwind ([1.7.2](https://github.com/libunwind/libunwind/releases/tag/v1.7.2) (includes [1.7.0](https://github.com/libunwind/libunwind/releases/tag/v1.7.0)))
+- liburing ([2.3](https://github.com/axboe/liburing/blob/liburing-2.3/CHANGELOG))
+- squashfs-tools ([4.6.1](https://github.com/plougher/squashfs-tools/releases/tag/4.6.1) (includes [4.6](https://github.com/plougher/squashfs-tools/releases/tag/4.6)))
