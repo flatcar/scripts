@@ -3,15 +3,58 @@
 
 EAPI=8
 
-OEMIDS=(
+# The hack below is there in order to avoid excessive duplication of
+# OEM IDs around the place. This ebuild serves as a Gentoo ebuild and
+# as a bash file to be sourced in order to get arch-specific
+# information about possible OEM IDs. The latter role is assumed when
+# the ebuild is sourced with first argument being
+# 'flatcar-local-variables'. Due to the requirements imposed by the
+# section 7.3.1 in Package Manager Specification (that says that EAPI
+# assignment must be the first non-comment, non-blank line in the
+# file), shell scripts wanting to source this ebuild for geting OEM
+# IDs, may need to declare EAPI as local, if it finds it suitable. The
+# role of sourced script is used by our image-changes job. All this
+# fluff needs to happen before we define or invoke any other
+# Gentoo-specific variables or functions like "DEPEND" or "inherit"
+# that may mess up sourcing.
+#
+# This can't be done with a separate shell file in FILESDIR, because
+# portage moves the ebuild into some temporary directory where
+# FILESDIR, although defined, does not even exist at first - it shows
+# up during the invocation of any src_ functions. Probably a security
+# measure or something.
+
+if [[ ${1:-} = 'flatcar-local-variables' ]]; then
+    local -a COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS OEMIDS
+fi
+
+COMMON_OEMIDS=(
     ami
     azure
-    digitalocean
     openstack
     packet
     qemu
+)
+
+ARM64_ONLY_OEMIDS=(
+)
+
+AMD64_ONLY_OEMIDS=(
+    digitalocean
     vmware
 )
+
+OEMIDS=(
+    "${COMMON_OEMIDS[@]}"
+    "${ARM64_ONLY_OEMIDS[@]}"
+    "${AMD64_ONLY_OEMIDS[@]}"
+)
+
+if [[ ${1:-} = 'flatcar-local-variables' ]]; then
+    return 0
+else
+    unset COMMON_OEMIDS ARM64_ONLY_OEMIDS AMD64_ONLY_OEMIDS
+fi
 
 DESCRIPTION='Common OEM files'
 HOMEPAGE='https://www.flatcar.org/'
