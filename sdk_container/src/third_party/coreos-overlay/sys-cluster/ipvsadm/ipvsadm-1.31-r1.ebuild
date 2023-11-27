@@ -11,11 +11,10 @@ SRC_URI="https://kernel.org/pub/linux/utils/kernel/ipvsadm/ipvsadm-${PV}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~ia64 ~ppc ppc64 ~s390 sparc x86"
+KEYWORDS="amd64 ~ia64 ~arm64 ~ppc ppc64 ~s390 sparc x86"
 IUSE="static-libs"
 
 RDEPEND="
-	>=sys-libs/ncurses-5.2:=
 	dev-libs/libnl:=
 	>=dev-libs/popt-1.16
 "
@@ -25,50 +24,29 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-PATCHES=( "${FILESDIR}/${PN}"-1.27-buildsystem.patch )
+PATCHES=( "${FILESDIR}/${PN}"-1.31-buildsystem.patch )
 
-pkg_pretend() {
-	if kernel_is 2 4; then
-		eerror "${P} supports only 2.6 series and later kernels, please try ${PN}-1.21 for 2.4 kernels"
-		die "wrong kernel version"
-	fi
-}
-
-src_prepare() {
-	default
-	use static-libs && export STATIC=1
-}
-
-src_compile() {
-	local libnl_include
-	if has_version ">=dev-libs/libnl-3.0"; then
-		libnl_include=$($(tc-getPKG_CONFIG) --cflags libnl-3.0)
-	else
-		libnl_include=""
-	fi
-	emake -e \
-		INCLUDE="-I.. -I. ${libnl_include}" \
-		CC="$(tc-getCC)" \
-		HAVE_NL=1 \
-		STATIC="${STATIC}" \
-		POPT_LIB="$($(tc-getPKG_CONFIG) --libs popt)"
+src_configure() {
+    cat <<EOF >config.mk
+HAVE_NL = 1
+AR = $(tc-getAR)
+CC = $(tc-getCC)
+PKG_CONFIG = $(tc-getPKG_CONFIG)
+LINK_WITH = shared
+BUILD_LIBS = $(usex static-libs both shared)
+LIB = /usr/$(get_libdir)
+CFLAGS = ${CFLAGS}
+LDFLAGS = ${LDFLAGS}
+EOF
 }
 
 src_install() {
-	into /
-	dosbin ipvsadm ipvsadm-save ipvsadm-restore
-
-	into /usr
-	doman ipvsadm.8 ipvsadm-save.8 ipvsadm-restore.8
-
-	newinitd "${FILESDIR}"/ipvsadm-init ipvsadm
-	keepdir /var/lib/ipvsadm
-
-	use static-libs && dolib.a libipvs/libipvs.a
-	dolib.so libipvs/libipvs.so
+	default
+	rm -rf "${D}/etc/rc.d/"
 
 	insinto /usr/include/ipvs
 	newins libipvs/libipvs.h ipvs.h
+	doins libipvs/ip_vs.h
 }
 
 pkg_postinst() {

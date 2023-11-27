@@ -1,0 +1,367 @@
+From 11317a755aaa77ba7696ca3eda7b7439f3f53e4b Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Fri, 24 Nov 2023 15:15:48 +0100
+Subject: [PATCH] Improve build system a bit
+
+- Allow overriding a path to pkg-config for cross-compilation
+  purposes. The builder can specify PKG_CONFIG variable to change the
+  default value being "pkg-config".
+
+- Do the same for "ar". Can be overridden by specifying AR variable.
+
+- Try to detect popt library using pkg-config. If it fails, fall back
+  to passing -lpopt to the linker.
+
+- Try to detect CFLAGS for both popt and libnl using pkg-config.
+
+- Drop obsolete POPT_DEFINE variable.
+
+- Move building of libipvs libraries to main Makefile to avoid
+  duplicating library detections and other things.
+
+- Allow declaring if ipvsadm should be linked with shared or static
+  libipvs.
+
+- Build shared library objects separately from static library objects
+  as they may need different compiler options.
+
+- Allow declaring which variants of libipvs to build.
+
+- Install libraries too. Specify LIB variable to override the default
+  /usr/lib location.
+
+- Support using widely-used DESTDIR variable. BUILD_ROOT is still
+  supported - only one of the two can be specified.
+
+- Allow overriding CFLAGS without clobbering the warning flags. The
+  warning flags can be overridden by specifying OPTFLAGS.
+
+- Fix man directory, should be /usr/share/man, not /usr/man.
+
+- Allow providing config.mk, which can be used to configure the
+  project via a file.
+---
+ Makefile         | 219 +++++++++++++++++++++++++++++++++++++----------
+ libipvs/Makefile |  44 ----------
+ 2 files changed, 176 insertions(+), 87 deletions(-)
+ delete mode 100644 libipvs/Makefile
+
+diff --git a/Makefile b/Makefile
+index 91a2991..9ed9a27 100644
+--- a/Makefile
++++ b/Makefile
+@@ -35,26 +35,80 @@ ARCH		= $(shell uname -m)
+ RPMSOURCEDIR	= $(shell rpm --eval '%_sourcedir')
+ RPMSPECDIR	= $(shell rpm --eval '%_specdir')
+ 
++# Both have the same function, so at most one of those may be
++# non-empty. DESTDIR is preferred as it's more standard name.
++BUILD_ROOT	=
++DESTDIR		=
++
++# Specify to 1 if the projects should be built using libnl.
++HAVE_NL		= 0
++
++AR		= ar
+ CC		= gcc
+-INCLUDE		=
+-SBIN		= $(BUILD_ROOT)/sbin
+-MANDIR		= usr/man
+-MAN		= $(BUILD_ROOT)/$(MANDIR)/man8
+-INIT		= $(BUILD_ROOT)/etc/rc.d/init.d
+ MKDIR		= mkdir
+ INSTALL		= install
+-STATIC_LIBS	= libipvs/libipvs.a
++PKG_CONFIG	= pkg-config
++
++INCLUDE		=
++
++SBIN		= /sbin
++MAN		= /usr/share/man/man8
++INIT		= /etc/rc.d/init.d
++LIB		= /usr/lib
++
++SHARED_LIB	= libipvs.so
++STATIC_LIB	= libipvs.a
++# either shared or static, selects the library type the binary should
++# be linked with
++LINK_WITH	= static
++# either shared, static or both, decides which libraries should be
++# built; must be consistent with LINK_WITH
++BUILD_LIBS	= both
+ 
+ ifeq "${ARCH}" "sparc64"
+-    CFLAGS = -Wall -Wunused -Wstrict-prototypes -g -m64 -pipe -mcpu=ultrasparc -mcmodel=medlow
++    CFLAGS	= -g -m64 -pipe -mcpu=ultrasparc -mcmodel=medlow
+ else
+-    CFLAGS = -Wall -Wunused -Wstrict-prototypes -g
++    CFLAGS	= -g
+ endif
+ 
++OPTFLAGS	= -Wall -Wunused -Wstrict-prototypes
++
++# Optionally include config.mk which may set up/override the variables
++# above.
++-include config.mk
+ 
+ #####################################
+ # No servicable parts below this line
+ 
++ifneq "$(BUILD_ROOT)" ""
++ifneq "$(DESTDIR)" ""
++$(error At most one of BUILD_ROOT or DESTDIR can be specified)
++endif
++DESTDIR=$(BUILD_ROOT)
++endif
++
++OPT_BAD=
++ifneq "$(firstword $(BUILD_LIBS))" "$(BUILD_LIBS)"
++OPT_BAD=x
++endif
++ifneq "$(findstring $(BUILD_LIBS),shared static both)" "$(BUILD_LIBS)"
++OPT_BAD=x
++endif
++ifneq "$(OPT_BAD)" ""
++$(error "BUILD_LIBS must be either 'shared', 'static' or 'both'")
++endif
++
++OPT_BAD=
++ifneq "$(firstword $(LINK_WITH))" "$(LINK_WITH)"
++OPT_BAD=x
++endif
++ifneq "$(findstring $(LINK_WITH),shared static)" "$(LINK_WITH)"
++OPT_BAD=x
++endif
++ifneq "$(OPT_BAD)" ""
++$(error "LINK_WITH must be either 'shared' or 'static'")
++endif
++
+ RPMBUILD = $(shell				\
+ 	if [ -x /usr/bin/rpmbuild ]; then	\
+ 		echo "/usr/bin/rpmbuild";	\
+@@ -62,51 +116,133 @@ RPMBUILD = $(shell				\
+ 		echo "/bin/rpm";		\
+ 	fi )
+ 
+-OBJS		= ipvsadm.o config_stream.o dynamic_array.o
+-LIBS		= -lpopt
++SHARED_LIB_PATH=libipvs/$(SHARED_LIB)
++STATIC_LIB_PATH=libipvs/$(STATIC_LIB)
++
++POPT_CFLAGS	= ""
++POPT_LIBS	= -lpopt
++LIBNL_CFLAGS	= ""
++LIBNL_LIBS	= -lnl
++
++HAS_PKG_CONFIG	= $(shell if command -v $(PKG_CONFIG) > /dev/null 2>&1; then echo x; fi)
++ifneq "$(HAS_PKG_CONFIG)" ""
++
++POPT_MOD	= $(shell if $(PKG_CONFIG) --exists popt; then echo popt; fi)
++ifneq "$(POPT_MOD)" ""
++POPT_CFLAGS	= $(shell $(PKG_CONFIG) --cflags $(POPT_MOD))
++POPT_LIBS	= $(shell $(PKG_CONFIG) --libs $(POPT_MOD))
++endif # POPT_MOD
++
++LIBNL_MOD	= $(shell \
++		if $(PKG_CONFIG) --exists libnl-genl-3.0; then echo libnl-genl-3.0; \
++		elif $(PKG_CONFIG) --exists libnl-2.0; then echo libnl-2.0; \
++		elif $(PKG_CONFIG) --exists libnl-1; then echo libnl-1; \
++		fi)
++ifneq "$(LIBNL_MOD)" ""
++LIBNL_CFLAGS	= $(shell $(PKG_CONFIG) --cflags $(LIBNL_MOD))
++LIBNL_LIBS	= $(shell $(PKG_CONFIG) --libs $(LIBNL_MOD))
++endif # LIBNL_MOD
++
++endif # HAS_PKG_CONFIG
++
++COMMON_DEFINES	= $(shell if [ ! -f ../ip_vs.h ]; then \
++		     echo "-DHAVE_NET_IP_VS_H"; fi)
++
++BIN_SOURCES	= ipvsadm.c config_stream.c dynamic_array.c
++BIN_CFLAGS	= $(POPT_CFLAGS)
++BIN_LIBS	=
++BIN_OBJS	= $(patsubst %.c,bin_%.o,$(BIN_SOURCES))
++BIN_DEFINES	= -DVERSION=\"$(VERSION)\" -DSCHEDULERS=\"$(SCHEDULERS)\" \
++		  -DPE_LIST=\"$(PE_LIST)\"
++ifeq "$(LINK_WITH)" "static"
++BIN_LIBIPVS_DEP	= $(STATIC_LIB_PATH)
++BIN_LIBS	+= $(STATIC_LIB_PATH)
++ifneq "$(findstring $(BUILD_LIBS),static both)" "$(BUILD_LIBS)"
++$(error "Linking with static library, but it is not built")
++endif # BUILD_LIBS static both
++else ifeq "$(LINK_WITH)" "shared"
++BIN_LIBIPVS_DEP	= $(SHARED_LIB_PATH)
++BIN_LIBS	+= -Llibipvs -lipvs
++ifneq "$(findstring $(BUILD_LIBS),shared both)" "$(BUILD_LIBS)"
++$(error "Linking with shared library, but it is not built")
++endif # BUILD_LIBS shared both
++endif # LINK_WITH
++
++BIN_LIBS	+= $(POPT_LIBS)
+ ifneq (0,$(HAVE_NL))
+-LIBS		+= $(shell \
+-		if which pkg-config > /dev/null 2>&1; then \
+-		  if   pkg-config --libs libnl-genl-3.0  2> /dev/null; then :;\
+-		  elif pkg-config --libs libnl-2.0       2> /dev/null; then :;\
+-		  elif pkg-config --libs libnl-1         2> /dev/null; then :;\
+-		  fi; \
+-		else echo "-lnl"; fi)
++BIN_CFLAGS	+= $(LIBNL_CFLAGS)
++BIN_LIBS	+= $(LIBNL_LIBS)
+ endif
+-DEFINES		= -DVERSION=\"$(VERSION)\" -DSCHEDULERS=\"$(SCHEDULERS)\" \
+-		  -DPE_LIST=\"$(PE_LIST)\" $(POPT_DEFINE)
+-DEFINES		+= $(shell if [ ! -f ../ip_vs.h ]; then	\
+-		     echo "-DHAVE_NET_IP_VS_H"; fi;)
+ 
++bin_%.o: %.c
++		$(CC) $(OPTFLAGS) $(CFLAGS) $(BIN_CFLAGS) $(BIN_INCLUDES) $(BIN_DEFINES) $(COMMON_DEFINES) -c -o $@ $<
+ 
+-.PHONY	= all clean install dist distclean rpm rpms
++ipvsadm: $(BIN_OBJS) $(BIN_LIBIPVS_DEP)
++		$(CC) $(LDFLAGS) $(OPTFLAGS) $(CFLAGS) -o $@ $(BIN_OBJS) $(BIN_LIBS)
+ 
+-all:            libs ipvsadm
++LIB_SOURCES	= libipvs/libipvs.c libipvs/ip_vs_nl_policy.c
++LIB_CFLAGS	=
++LIB_LIBS	=
++LIB_DEFINES	=
++LIB_INCLUDES	= $(shell if [ -f ../ip_vs.h ]; then \
++		     echo "-I../../."; fi)
++ifneq (0,$(HAVE_NL))
++LIB_CFLAGS	+= $(LIBNL_CFLAGS)
++LIB_LIBS	+= $(LIBNL_LIBS)
++LIB_DEFINES	+= -DLIBIPVS_USE_NL
++ifeq ($(LIBNL_MOD),libnl-1)
++LIB_DEFINES	+= -DFALLBACK_LIBNL1
++endif # libnl-1
++endif # HAVE_NL
+ 
+-libs:
+-		make -C libipvs
++ALL_BUILT_LIBS=
++ifeq "$(findstring $(BUILD_LIBS),shared both)" "$(BUILD_LIBS)"
++SH_LIB_CFLAGS	= -fPIC
++SH_LIB_OBJS	= $(patsubst libipvs/%.c,libipvs/sh_%.o,$(LIB_SOURCES))
+ 
+-ipvsadm:	$(OBJS) $(STATIC_LIBS)
+-		$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
++libipvs/sh_%.o:	libipvs/%.c
++		$(CC) $(SH_LIB_CFLAGS) $(OPTFLAGS) $(CFLAGS) $(LIB_CFLAGS) $(LIB_INCLUDES) $(LIB_DEFINES) $(COMMON_DEFINES) -c -o $@ $<
+ 
+-install:        all
+-		if [ ! -d $(SBIN) ]; then $(MKDIR) -p $(SBIN); fi
+-		$(INSTALL) -m 0755 ipvsadm $(SBIN)
+-		$(INSTALL) -m 0755 ipvsadm-save $(SBIN)
+-		$(INSTALL) -m 0755 ipvsadm-restore $(SBIN)
+-		[ -d $(MAN) ] || $(MKDIR) -p $(MAN)
+-		$(INSTALL) -m 0644 ipvsadm.8 $(MAN)
+-		$(INSTALL) -m 0644 ipvsadm-save.8 $(MAN)
+-		$(INSTALL) -m 0644 ipvsadm-restore.8 $(MAN)
+-		[ -d $(INIT) ] || $(MKDIR) -p $(INIT)
+-		$(INSTALL) -m 0755 ipvsadm.sh $(INIT)/ipvsadm
++$(SHARED_LIB_PATH):	$(SH_LIB_OBJS)
++		$(CC) $(LDFLAGS) -shared -Wl,-soname,$(SHARED_LIB) -o $@ $^
++
++ALL_BUILT_LIBS	+= $(SHARED_LIB_PATH)
++endif
++
++ifeq "$(findstring $(BUILD_LIBS),static both)" "$(BUILD_LIBS)"
++ST_LIB_CFLAGS	=
++ST_LIB_OBJS	= $(patsubst libipvs/%.c,libipvs/st_%.o,$(LIB_SOURCES))
++
++libipvs/st_%.o:	libipvs/%.c
++		$(CC) $(ST_LIB_CFLAGS) $(OPTFLAGS) $(CFLAGS) $(LIB_CFLAGS) $(LIB_INCLUDES) $(LIB_DEFINES) $(COMMON_DEFINES) -c -o $@ $<
++
++$(STATIC_LIB_PATH):	$(ST_LIB_OBJS)
++		$(AR) rv $@ $^
++
++ALL_BUILT_LIBS	+= $(STATIC_LIB_PATH)
++endif
++
++all: ipvsadm $(ALL_BUILT_LIBS)
++
++install:	all
++		if [ ! -d $(DESTDIR)$(SBIN) ]; then $(MKDIR) -p $(DESTDIR)$(SBIN); fi
++		$(INSTALL) -m 0755 ipvsadm $(DESTDIR)$(SBIN)
++		$(INSTALL) -m 0755 ipvsadm-save $(DESTDIR)$(SBIN)
++		$(INSTALL) -m 0755 ipvsadm-restore $(DESTDIR)$(SBIN)
++		[ -d $(DESTDIR)$(MAN) ] || $(MKDIR) -p $(DESTDIR)$(MAN)
++		$(INSTALL) -m 0644 ipvsadm.8 $(DESTDIR)$(MAN)
++		$(INSTALL) -m 0644 ipvsadm-save.8 $(DESTDIR)$(MAN)
++		$(INSTALL) -m 0644 ipvsadm-restore.8 $(DESTDIR)$(MAN)
++		[ -d $(DESTDIR)$(INIT) ] || $(MKDIR) -p $(DESTDIR)$(INIT)
++		$(INSTALL) -m 0755 ipvsadm.sh $(DESTDIR)$(INIT)/ipvsadm
++		[ -d $(DESTDIR)$(LIB) ] || $(MKDIR) -p $(DESTDIR)$(LIB)
++		$(INSTALL) -m 0644 $(ALL_BUILT_LIBS) $(DESTDIR)$(LIB)
+ 
+ clean:
+ 		rm -f ipvsadm $(NAME).spec $(NAME)-$(VERSION).tar.gz
+ 		rm -rf debian/tmp
+ 		find . -name '*.[ao]' -o -name "*~" -o -name "*.orig" \
+-		  -o -name "*.rej" -o -name core | xargs rm -f
+-		make -C libipvs clean
++		  -o -name "*.rej" -o -name core -o -name '*.so' | xargs rm -f
+ 
+ distclean:	clean
+ 
+@@ -137,6 +273,3 @@ deb:		debs
+ 
+ debs:
+ 		dpkg-buildpackage
+-
+-%.o:	%.c
+-		$(CC) $(CFLAGS) $(INCLUDE) $(DEFINES) -c -o $@ $<
+diff --git a/libipvs/Makefile b/libipvs/Makefile
+deleted file mode 100644
+index f845c8b..0000000
+--- a/libipvs/Makefile
++++ /dev/null
+@@ -1,44 +0,0 @@
+-# Makefile for libipvs
+-
+-CC		= gcc
+-CFLAGS		= -Wall -Wunused -Wstrict-prototypes -g -fPIC
+-ifneq (0,$(HAVE_NL))
+-CFLAGS		+= -DLIBIPVS_USE_NL
+-CFLAGS		+= $(shell \
+-		if which pkg-config > /dev/null 2>&1; then \
+-		  if   pkg-config --cflags libnl-3.0  2> /dev/null; then :; \
+-		  elif pkg-config --cflags libnl-2.0  2> /dev/null; then :; \
+-		  elif pkg-config --cflags libnl-1    2> /dev/null; then :; \
+-		  fi; \
+-		fi)
+-endif
+-
+-INCLUDE		+= $(shell if [ -f ../../ip_vs.h ]; then	\
+-		     echo "-I../../."; fi;)
+-DEFINES		= $(shell if [ ! -f ../../ip_vs.h ]; then	\
+-		    echo "-DHAVE_NET_IP_VS_H"; fi;)
+-DEFINES		+= $(shell if which pkg-config > /dev/null 2>&1; then \
+-			 if   pkg-config --exists libnl-3.0; then :; \
+-			 elif pkg-config --exists libnl-2.0; then :; \
+-			 elif pkg-config --exists libnl-1; \
+-			 then echo "-DFALLBACK_LIBNL1"; fi; fi)
+-
+-.PHONY		= all clean install dist distclean rpm rpms
+-STATIC_LIB	= libipvs.a
+-SHARED_LIB	= libipvs.so
+-
+-all:		$(STATIC_LIB) $(SHARED_LIB)
+-
+-$(STATIC_LIB):	libipvs.o ip_vs_nl_policy.o
+-		ar rv $@ $^
+-
+-$(SHARED_LIB):	libipvs.o ip_vs_nl_policy.o
+-		$(CC) -shared -Wl,-soname,$@ -o $@ $^
+-
+-%.o:		%.c
+-		$(CC) $(CFLAGS) $(INCLUDE) $(DEFINES) -c -o $@ $<
+-
+-clean:
+-		rm -f *.[ao] *~ *.orig *.rej core *.so
+-
+-distclean:	clean
+-- 
+2.34.1
+
