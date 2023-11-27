@@ -71,14 +71,7 @@
 
 # Keep versions on both arches in sync.
 =net-nds/openldap-2.6.4-r1 ~amd64
-=sec-policy/selinux-base-2.20200818-r3 ~arm64
-=sec-policy/selinux-base-policy-2.20200818-r3 ~arm64
-=sec-policy/selinux-unconfined-2.20200818-r2 ~arm64
-=sec-policy/selinux-virt-2.20200818-r2 ~arm64
-=sys-apps/checkpolicy-3.1 ~arm64
 =sys-apps/kexec-tools-2.0.24 ~arm64
-=sys-apps/policycoreutils-3.1-r4 ~arm64
-=sys-apps/semodule-utils-3.1 ~arm64
 =sys-block/thin-provisioning-tools-1.0.6 ~amd64
 
 # Enable ipvsadm for arm64.
@@ -88,9 +81,6 @@
 =sys-devel/binutils-2.40-r9 ~arm64
 =sys-firmware/edk2-aarch64-18.02 **
 =sys-libs/binutils-libs-2.40-r7 ~arm64
-=sys-libs/libselinux-3.1-r3 ~arm64
-=sys-libs/libsemanage-3.1-r2 ~arm64
-=sys-libs/libsepol-3.1 ~arm64
 
 # Needed to fix CVE-2023-29491.
 =sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
