@@ -528,6 +528,15 @@ function channel_version() (
     # traps.
     trap 'rm "${tmp_version_txt}"' EXIT
 
+    curl_to_stdout "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt" >"${tmp_version_txt}"
+    source "${tmp_version_txt}"
+    echo "${FLATCAR_VERSION}"
+)
+# --
+
+function curl_to_stdout() {
+    local url=${1}; shift
+
     curl \
         -fsSL \
         --retry-delay 1 \
@@ -535,10 +544,8 @@ function channel_version() (
         --retry-connrefused \
         --retry-max-time 60 \
         --connect-timeout 20 \
-        "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt" >"${tmp_version_txt}"
-    source "${tmp_version_txt}"
-    echo "${FLATCAR_VERSION}"
-)
+        "${url}"
+}
 # --
 
 # Prints some reports using scripts from the passed path to
