@@ -1,0 +1,1 @@
+- Fixed the missing `/etc/extensions/` symlinks for the inbuilt Docker/containerd systemd-sysext images on update from Beta 3760.1.0 ([update_engine#32](https://github.com/flatcar/update_engine/pull/32))
