@@ -491,11 +491,11 @@ function get_channel_a_and_version_a() {
     local -n gcaava_version_a_ref="${gcaava_version_a_varname}"
     local major_a major_b channel version
 
-    major_a=$(echo "${new_channel_prev_version}" | cut -d . -f 1)
-    major_b=$(echo "${new_channel_new_version}" | cut -d . -f 1)
+    major_a=${new_channel_prev_version%%.*}
+    major_b=${new_channel_new_version%%.*}
     # When the major version for the new channel is different, a transition has happened and we can find the previous release in the old channel
-    if [ "${major_a}" != "${major_b}" ]; then
-        case "${new_channel}" in
+    if [[ ${major_a} != "${major_b}" ]]; then
+        case ${new_channel} in
           lts)
             channel=stable
             ;;
