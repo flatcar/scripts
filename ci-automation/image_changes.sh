@@ -51,6 +51,23 @@ function _image_changes_impl() {
     source sdk_container/.repo/manifests/version.txt
     local vernum="${FLATCAR_VERSION}"
 
+    MAJOR_B=$(echo "${FLATCAR_VERSION}" | cut -d . -f 1)
+
+    SUFFIX=
+    if [ "${channel}" = "lts" ]; then
+            curl -fsSLO --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 'https://lts.release.flatcar-linux.net/lts-info'
+            while read -r LINE; do
+                # each line is major:year:(supported|unsupported)
+                TUPLE=(${LINE//:/ })
+                MAJOR="${TUPLE[0]}"
+                if [[ "${MAJOR_B}" = "${MAJOR}" ]]; then
+                    SUFFIX="-${TUPLE[1]}"
+                    break
+                fi
+            done <lts-info
+            rm -f lts-info
+    fi
+
     echo "==================================================================="
     export BOARD_A="${arch}-usr"
     export FROM_A="release"
@@ -59,9 +76,8 @@ function _image_changes_impl() {
     else
             NEW_CHANNEL="${channel}"
     fi
-    NEW_CHANNEL_VERSION_A=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${NEW_CHANNEL}.release.flatcar-linux.net/${BOARD_A}/current/version.txt" | grep -m 1 FLATCAR_VERSION= | cut -d = -f 2)
+    NEW_CHANNEL_VERSION_A=$(curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 "https://${NEW_CHANNEL}.release.flatcar-linux.net/${BOARD_A}/current${SUFFIX}/version.txt" | grep -m 1 FLATCAR_VERSION= | cut -d = -f 2)
     MAJOR_A=$(echo "${NEW_CHANNEL_VERSION_A}" | cut -d . -f 1)
-    MAJOR_B=$(echo "${FLATCAR_VERSION}" | cut -d . -f 1)
     # When the major version for the new channel is different, a transition has happened and we can find the previous release in the old channel
     if [ "${MAJOR_A}" != "${MAJOR_B}" ]; then
         case "${NEW_CHANNEL}" in
