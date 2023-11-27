@@ -100,7 +100,7 @@
 =sys-libs/readline-8.2_p1 ~amd64 ~arm64
 
 # Needed to fix CVE-2023-4016.
-=sys-process/procps-4.0.4 ~amd64 ~arm64
+=sys-process/procps-4.0.4 ~amd64
 
 # Accept unstable host Rust compilers.
 =virtual/rust-1.73.0 ~amd64 ~arm64
