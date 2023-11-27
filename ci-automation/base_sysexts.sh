@@ -7,5 +7,5 @@ fi
 
 ciabs_base_sysexts=(
     'containerd-flatcar:app-containers/containerd'
-    'docker-flatcar:app-containers/docker'
+    'docker-flatcar:app-containers/docker&app-containers/docker-cli'
 )
