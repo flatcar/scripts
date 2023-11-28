@@ -355,7 +355,11 @@ function prepare_env_vars_and_params_for_release() {
     board="${arch}-usr"
 
     new_channel="${ppfr_channel}"
-    new_channel_prev_version=$(channel_version "${new_channel}" "${board}")
+    if [[ ${new_channel} = 'lts' ]]; then
+        new_channel_prev_version=$(lts_channel_version "${ppfr_version_id%%.*}" "${board}")
+    else
+        new_channel_prev_version=$(channel_version "${new_channel}" "${board}")
+    fi
     channel_a=''
     version_a=''
     get_channel_a_and_version_a "${new_channel}" "${new_channel_prev_version}" "${ppfr_version}" "${board}" channel_a version_a
@@ -491,11 +495,11 @@ function get_channel_a_and_version_a() {
     local -n gcaava_version_a_ref="${gcaava_version_a_varname}"
     local major_a major_b channel version
 
-    major_a=$(echo "${new_channel_prev_version}" | cut -d . -f 1)
-    major_b=$(echo "${new_channel_new_version}" | cut -d . -f 1)
+    major_a=${new_channel_prev_version%%.*}
+    major_b=${new_channel_new_version%%.*}
     # When the major version for the new channel is different, a transition has happened and we can find the previous release in the old channel
-    if [ "${major_a}" != "${major_b}" ]; then
-        case "${new_channel}" in
+    if [[ ${major_a} != "${major_b}" ]]; then
+        case ${new_channel} in
           lts)
             channel=stable
             ;;
@@ -516,6 +520,34 @@ function get_channel_a_and_version_a() {
 }
 # --
 
+function lts_channel_version() (
+    local major=${1}; shift
+    local board=${1}; shift
+
+    local tmp_lts_info tmp_version_txt
+    tmp_lts_info=$(mktemp)
+    tmp_version_txt=$(mktemp)
+    # This function runs in a subshell, so we can have our own scoped
+    # traps.
+    trap 'rm "${tmp_lts_info}" "${tmp_version_txt}"' EXIT
+    curl_to_stdout 'https://lts.release.flatcar-linux.net/lts-info' >"${tmp_lts_info}"
+    local line tuple lts_major year
+    while read -r line; do
+        # each line is major:year:(supported|unsupported)
+        mapfile -t tuple <<<"${line//:/$'\n'}"
+        lts_major="${tuple[0]}"
+        if [[ ${lts_major} = "${major}" ]]; then
+            year="${tuple[1]}"
+            break
+        fi
+    done <"${tmp_lts_info}"
+
+    curl_to_stdout "https://lts.release.flatcar-linux.net/${board}/current-${year}/version.txt" >"${tmp_version_txt}"
+    source "${tmp_version_txt}"
+    echo "${FLATCAR_VERSION}"
+)
+# --
+
 # Gets the latest release for given channel and board. For lts channel
 # gets a version of the latest LTS. Runs in a subshell.
 function channel_version() (
@@ -528,6 +560,15 @@ function channel_version() (
     # traps.
     trap 'rm "${tmp_version_txt}"' EXIT
 
+    curl_to_stdout "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt" >"${tmp_version_txt}"
+    source "${tmp_version_txt}"
+    echo "${FLATCAR_VERSION}"
+)
+# --
+
+function curl_to_stdout() {
+    local url=${1}; shift
+
     curl \
         -fsSL \
         --retry-delay 1 \
@@ -535,10 +576,8 @@ function channel_version() (
         --retry-connrefused \
         --retry-max-time 60 \
         --connect-timeout 20 \
-        "https://${channel}.release.flatcar-linux.net/${board}/current/version.txt" >"${tmp_version_txt}"
-    source "${tmp_version_txt}"
-    echo "${FLATCAR_VERSION}"
-)
+        "${url}"
+}
 # --
 
 # Prints some reports using scripts from the passed path to
