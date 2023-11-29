@@ -256,8 +256,10 @@ IMG_iso_MEM=2048
 ## gce, image tarball
 IMG_gce_DISK_LAYOUT=vm
 IMG_gce_CONF_FORMAT=gce
-IMG_gce_OEM_PACKAGE=oem-gce
+IMG_gce_OEM_PACKAGE=common-oem-files
 IMG_gce_OEM_ACI=gce
+IMG_gce_OEM_USE=gce
+IMG_gce_OEM_SYSEXT=oem-gce
 
 ## rackspace
 IMG_rackspace_OEM_PACKAGE=oem-rackspace

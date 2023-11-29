@@ -31,6 +31,7 @@ fi
 COMMON_OEMIDS=(
     ami
     azure
+    gce
     openstack
     packet
     qemu
