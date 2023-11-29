@@ -37,6 +37,7 @@ function emerge_pretend() {
         --update
         --ignore-built-slot-operator-deps y
         --selective n
+        --keep-going y
     )
     local rv
     rv=0
