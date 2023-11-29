@@ -1,0 +1,1 @@
+- Deleted files in `/etc` that have a tmpfiles rule that normally would recreate them will now show up again through the `/etc` lowerdir ([Flatcar#1265](https://github.com/flatcar/Flatcar/issues/1265), [bootengine#79](https://github.com/flatcar/bootengine/pull/79))
