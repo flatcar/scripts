@@ -1,1 +1,0 @@
-coreos-oem-gce-0.0.1.ebuild

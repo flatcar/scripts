@@ -19,14 +19,20 @@ IUSE=""
 # no source directory
 S="${WORKDIR}"
 
+RDEPEND="
+    app-emulation/google-compute-engine
+"
+
 OEM_NAME="Google Compute Engine"
 
 src_install() {
+    systemd_dounit "${FILESDIR}/units/oem-gce.service"
     systemd_dounit "${FILESDIR}/units/oem-gce-enable-oslogin.service"
     systemd_dounit "${FILESDIR}/units/setup-oem.service"
     systemd_install_dropin "multi-user.target" "${FILESDIR}/units/10-oem-gce.conf"
 
     dobin "${FILESDIR}/bin/enable-oslogin"
+    dobin "${FILESDIR}/bin/init.sh"
 
     # These files will be symlinked to /etc via 'setup-oem.service'
     insinto /usr/share/gce/
