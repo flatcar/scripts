@@ -67,14 +67,7 @@ create_prod_sysext() {
   sudo mv "${workdir}/sysext-build/${name}.raw" "${workdir}/sysext-build/${name}_pkginfo.raw" \
                               "${workdir}/sysext-build/${name}"_*.txt "${output_dir}"
 
-  sudo mkdir -p "${install_root}"/usr/share/flatcar/sysext || {
-    echo "DEBUG OUTPUT:"
-    mount
-    df -h
-    sudo dmesg
-    echo "END DEBUG OUTPUT"
-    exit 1
-  }
+  sudo mkdir -p "${install_root}"/usr/share/flatcar/sysext
   sudo install -m 0644 -D "${output_dir}/${name}.raw" "${install_root}"/usr/share/flatcar/sysext/
 
   sudo mkdir -p "${install_root}"/etc/extensions/
