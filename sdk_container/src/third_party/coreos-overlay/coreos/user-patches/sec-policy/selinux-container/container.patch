@@ -1,18 +1,16 @@
-diff --git a/policy/modules/services/container.fc b/policy/modules/services/container.fc
-index 056aa6023..e4bcada03 100644
---- a/refpolicy/policy/modules/services/container.fc
-+++ b/refpolicy/policy/modules/services/container.fc
-@@ -113,3 +113,5 @@ HOME_DIR/\.docker(/.*)?		gen_context(system_u:object_r:container_conf_home_t,s0)
+diff -p -r -u work/refpolicy/policy/modules/services/container.fc work2/refpolicy/policy/modules/services/container.fc
+--- work/refpolicy/policy/modules/services/container.fc	2023-10-02 17:11:39.000000000 -0000
++++ work2/refpolicy/policy/modules/services/container.fc	2023-11-30 11:01:57.674590785 -0000
+@@ -117,3 +117,5 @@ HOME_DIR/\.docker(/.*)?		gen_context(sys
  /var/log/kube-controller-manager(/.*)?		gen_context(system_u:object_r:container_log_t,s0)
  /var/log/kube-proxy(/.*)?		gen_context(system_u:object_r:container_log_t,s0)
  /var/log/kube-scheduler(/.*)?		gen_context(system_u:object_r:container_log_t,s0)
 +
 +/usr/share/containerd(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
-diff --git a/policy/modules/services/container.te b/policy/modules/services/container.te
-index 5de421fc3..4a6c2760e 100644
---- a/refpolicy/policy/modules/services/container.te
-+++ b/refpolicy/policy/modules/services/container.te
-@@ -1007,3 +1007,62 @@ optional_policy(`
+diff -p -r -u work/refpolicy/policy/modules/services/container.te work2/refpolicy/policy/modules/services/container.te
+--- work/refpolicy/policy/modules/services/container.te	2023-10-02 17:11:39.000000000 -0000
++++ work2/refpolicy/policy/modules/services/container.te	2023-11-30 11:03:31.875742024 -0000
+@@ -1088,3 +1088,65 @@ optional_policy(`
         unconfined_domain_noaudit(spc_user_t)
         domain_ptrace_all_domains(spc_user_t)
  ')
@@ -57,6 +55,9 @@ index 5de421fc3..4a6c2760e 100644
 +allow container_t kernel_t:fifo_file { getattr ioctl read write open append };
 +allow container_t initrc_t:fifo_file { getattr ioctl read write open append };
 +filetrans_pattern(kernel_t, etc_t, container_file_t, dir, "cni");
++
++# for ping inside docker
++allow container_t self:capability net_raw;
 +
 +# this is required by flanneld
 +allow container_t kernel_t:system { module_request };
