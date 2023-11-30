@@ -737,9 +737,16 @@ EOF
   done
   sudo "${root_fs_dir}"/usr/sbin/flatcar-tmpfiles "${root_fs_dir}"
   # Now that we used the tmpfiles for creating /etc we delete them because
-  # the L, d, and C entries cause upcopies. Also filter out rules with ! or - but no other modifiers
+  # the L, d, D, and C entries cause upcopies. Also filter out rules with ! or - but no other modifiers
   # like + or = which explicitly recreate files.
-  sudo sed -i '/^[CLd]-*!*-*[ \t]*\/etc\//d' "${root_fs_dir}"/usr/lib/tmpfiles.d/*
+  # But before filtering, first store rules that would recreate missing files
+  # to /usr/share/flatcar/etc-no-whiteouts so that we can ensure that
+  # no overlayfs whiteouts exist for these files (example: /etc/resolv.conf).
+  # These rules are combined with the + modifier in addition.
+  # Other rules like w, e, x, do not create files that don't exist.
+  # Note: '-' must come first in the modifier pattern.
+  grep -Ph '^[fcCdDLvqQpb][-=~^!+]*[ \t]*/etc' "${root_fs_dir}"/usr/lib/tmpfiles.d/* | grep -oP '/etc[^ \t]*' | sudo_clobber "${root_fs_dir}"/usr/share/flatcar/etc-no-whiteouts
+  sudo sed -i '/^[CdDL][-=~^!]*[ \t]*\/etc\//d' "${root_fs_dir}"/usr/lib/tmpfiles.d/*
 
   # SELinux: Label the root filesystem for using 'file_contexts'.
   # The labeling has to be done before moving /etc to /usr/share/flatcar/etc to prevent wrong labels for these files and as
