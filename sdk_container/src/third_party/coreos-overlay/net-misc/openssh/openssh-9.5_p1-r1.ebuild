@@ -232,6 +232,10 @@ insert_include() {
 	local src_config="${1}" options="${2}" includedir="${3}"
 	local name copy regexp_options regexp lineno comment_options
 
+	if [[ ! "${includedir}" =~ ^/.* ]]; then
+		die "includir must be an absolute path (i.e, starting with /). Got: ${includedir}"
+	fi
+
 	name=${src_config##*/}
 	copy="${T}/${name}"
 	cp -a "${src_config}" "${copy}" || die
@@ -251,7 +255,7 @@ insert_include() {
 		head -n "${lineno}" "${copy}" || die
 		cat <<-EOF || die
 		# Make sure that all ${comment_options} options are below this Include!
-		Include "${EPREFIX}/${includedir}/*.conf"
+		Include "${EPREFIX}${includedir}/*.conf"
 
 		EOF
 		tail -n "+${lineno}" "${copy}" || die
