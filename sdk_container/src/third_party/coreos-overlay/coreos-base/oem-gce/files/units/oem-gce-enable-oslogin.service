@@ -8,6 +8,7 @@ Before=sshd.socket
 
 [Service]
 Type=oneshot
+RemainAfterExit=true
 
 ExecStart=/oem/bin/enable-oslogin
 
