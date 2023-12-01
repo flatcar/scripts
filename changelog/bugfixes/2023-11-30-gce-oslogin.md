@@ -1,0 +1,1 @@
+- GCP: Fixed OS Login enabling ([scripts#1445](https://github.com/flatcar/scripts/pull/1445))
