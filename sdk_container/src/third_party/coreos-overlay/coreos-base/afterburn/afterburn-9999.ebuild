@@ -10,198 +10,285 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="43dc76d7c38921d8eb0dc24d3b0b18787fa8ee07" # v5.2.0
+	CROS_WORKON_COMMIT="ed885772b4626ecf8a34e25c93be6b63b326a2e0" # v5.5.0
 	KEYWORDS="amd64 arm64"
 fi
 
 # https://github.com/gentoo/cargo-ebuild
 CRATES="
-aho-corasick-0.7.18
-ansi_term-0.12.1
-anyhow-1.0.52
-arc-swap-1.3.0
-assert-json-diff-2.0.1
-atty-0.2.14
-autocfg-1.0.1
-base64-0.10.1
-base64-0.13.0
-bitflags-1.3.2
-block-buffer-0.10.0
-block-buffer-0.9.0
-bumpalo-3.7.0
-byteorder-1.4.3
-bytes-1.0.1
-cc-1.0.68
-cfg-if-1.0.0
-charset-0.1.2
-chrono-0.4.19
-clap-2.34.0
-colored-2.0.0
-core-foundation-0.9.1
-core-foundation-sys-0.8.2
-cpufeatures-0.1.5
-cpufeatures-0.2.1
-crossbeam-channel-0.5.1
-crossbeam-utils-0.8.5
-crypto-common-0.1.1
-difference-2.0.0
-digest-0.10.1
-digest-0.9.0
-dirs-next-2.0.0
-dirs-sys-next-0.1.2
-encoding_rs-0.8.28
-errno-0.2.7
-errno-dragonfly-0.1.1
-fastrand-1.6.0
-fnv-1.0.7
-foreign-types-0.3.2
-foreign-types-shared-0.1.1
-form_urlencoded-1.0.1
-futures-channel-0.3.15
-futures-core-0.3.15
-futures-io-0.3.15
-futures-sink-0.3.15
-futures-task-0.3.15
-futures-util-0.3.15
-gcc-0.3.55
-generic-array-0.14.4
-getrandom-0.2.3
-h2-0.3.10
-hashbrown-0.11.2
-hermit-abi-0.1.19
-hmac-0.12.0
-hostname-0.3.1
-http-0.2.4
-http-body-0.4.2
-httparse-1.4.1
-httpdate-1.0.1
-hyper-0.14.11
-hyper-tls-0.5.0
-idna-0.2.3
-indexmap-1.7.0
-instant-0.1.12
-ipnet-2.3.1
-ipnetwork-0.18.0
-itoa-0.4.7
-itoa-1.0.1
-js-sys-0.3.51
-lazy_static-1.4.0
-libc-0.2.103
-libsystemd-0.5.0
-linked-hash-map-0.5.4
-log-0.4.14
-mailparse-0.13.7
-maplit-1.0.2
-match_cfg-0.1.0
-matches-0.1.8
-md-5-0.9.1
-memchr-2.4.0
-memoffset-0.6.4
-mime-0.3.16
-minimal-lexical-0.2.1
-mio-0.7.13
-miow-0.3.7
-mockito-0.30.0
-native-tls-0.2.8
-nix-0.23.1
-nom-7.1.0
-ntapi-0.3.6
-num-integer-0.1.44
-num-traits-0.2.14
-num_cpus-1.13.0
-once_cell-1.8.0
-opaque-debug-0.3.0
-openssh-keys-0.5.0
-openssl-0.10.38
-openssl-probe-0.1.4
-openssl-sys-0.9.70
-percent-encoding-2.1.0
-pin-project-lite-0.2.7
-pin-utils-0.1.0
-pkg-config-0.3.19
-pnet_base-0.28.0
-pnet_datalink-0.28.0
-pnet_sys-0.28.0
-ppv-lite86-0.2.10
-proc-macro2-1.0.27
-quote-1.0.9
-quoted_printable-0.4.3
-rand-0.8.4
-rand_chacha-0.3.1
-rand_core-0.6.3
-rand_hc-0.3.1
-redox_syscall-0.2.9
-redox_users-0.4.0
-regex-1.5.4
-regex-syntax-0.6.25
-remove_dir_all-0.5.3
-reqwest-0.11.9
-rustversion-1.0.5
-ryu-1.0.5
-schannel-0.1.19
-security-framework-2.3.1
-security-framework-sys-2.3.0
-serde-1.0.133
-serde-xml-rs-0.5.1
-serde_derive-1.0.133
-serde_json-1.0.74
-serde_urlencoded-0.7.0
-serde_yaml-0.8.23
-sha2-0.10.1
-sha2-0.9.5
-slab-0.4.3
-slog-2.7.0
-slog-async-2.7.0
-slog-scope-4.4.0
-slog-term-2.8.0
-socket2-0.4.0
-strsim-0.8.0
-subtle-2.4.0
-syn-1.0.73
-take_mut-0.2.2
-tempfile-3.3.0
-term-0.7.0
-textwrap-0.11.0
-thiserror-1.0.26
-thiserror-impl-1.0.26
-thread_local-1.1.3
-time-0.1.43
-tinyvec-1.2.0
-tinyvec_macros-0.1.0
-tokio-1.15.0
-tokio-native-tls-0.3.0
-tokio-util-0.6.7
-tower-service-0.3.1
-tracing-0.1.26
-tracing-core-0.1.18
-try-lock-0.2.3
-typenum-1.13.0
-unicode-bidi-0.3.5
-unicode-normalization-0.1.19
-unicode-width-0.1.8
-unicode-xid-0.2.2
-url-2.2.2
-users-0.11.0
-uuid-0.8.2
-vcpkg-0.2.15
-vec_map-0.8.2
-version_check-0.9.3
-vmw_backdoor-0.2.1
-want-0.3.0
-wasi-0.10.2+wasi-snapshot-preview1
-wasm-bindgen-0.2.74
-wasm-bindgen-backend-0.2.74
-wasm-bindgen-futures-0.4.24
-wasm-bindgen-macro-0.2.74
-wasm-bindgen-macro-support-0.2.74
-wasm-bindgen-shared-0.2.74
-web-sys-0.3.51
-winapi-0.3.9
-winapi-i686-pc-windows-gnu-0.4.0
-winapi-x86_64-pc-windows-gnu-0.4.0
-winreg-0.7.0
-xml-rs-0.8.3
-yaml-rust-0.4.5
+	addr2line-0.21.0
+	adler-1.0.2
+	adler32-1.2.0
+	aho-corasick-1.1.2
+	anstyle-1.0.4
+	anyhow-1.0.75
+	arc-swap-1.6.0
+	assert-json-diff-2.0.2
+	async-broadcast-0.5.1
+	async-channel-2.1.0
+	async-executor-1.7.2
+	async-fs-1.6.0
+	async-io-1.13.0
+	async-io-2.2.0
+	async-lock-2.8.0
+	async-lock-3.1.1
+	async-process-1.8.1
+	async-recursion-1.0.5
+	async-signal-0.2.5
+	async-task-4.5.0
+	async-trait-0.1.74
+	atomic-waker-1.1.2
+	atty-0.2.14
+	autocfg-1.1.0
+	backtrace-0.3.69
+	base64-0.13.1
+	base64-0.21.5
+	bitflags-1.3.2
+	bitflags-2.4.1
+	block-buffer-0.10.4
+	blocking-1.5.1
+	bumpalo-3.14.0
+	byteorder-1.5.0
+	bytes-1.5.0
+	cc-1.0.83
+	cfg-if-1.0.0
+	charset-0.1.3
+	clap-4.4.8
+	clap_builder-4.4.8
+	clap_derive-4.4.7
+	clap_lex-0.6.0
+	colored-2.0.4
+	concurrent-queue-2.3.0
+	core-foundation-0.9.3
+	core-foundation-sys-0.8.4
+	cpufeatures-0.2.11
+	crc32fast-1.3.2
+	crossbeam-channel-0.5.8
+	crossbeam-utils-0.8.16
+	crypto-common-0.1.6
+	data-encoding-2.5.0
+	deranged-0.3.9
+	derivative-2.2.0
+	digest-0.10.7
+	dirs-next-2.0.0
+	dirs-sys-next-0.1.2
+	encoding_rs-0.8.33
+	enumflags2-0.7.8
+	enumflags2_derive-0.7.8
+	equivalent-1.0.1
+	errno-0.3.7
+	event-listener-2.5.3
+	event-listener-3.1.0
+	event-listener-strategy-0.3.0
+	fastrand-1.9.0
+	fastrand-2.0.1
+	fnv-1.0.7
+	foreign-types-0.3.2
+	foreign-types-shared-0.1.1
+	form_urlencoded-1.2.1
+	futures-0.3.29
+	futures-channel-0.3.29
+	futures-core-0.3.29
+	futures-executor-0.3.29
+	futures-io-0.3.29
+	futures-lite-1.13.0
+	futures-lite-2.0.1
+	futures-macro-0.3.29
+	futures-sink-0.3.29
+	futures-task-0.3.29
+	futures-util-0.3.29
+	generic-array-0.14.7
+	getrandom-0.2.11
+	gimli-0.28.0
+	h2-0.3.22
+	hashbrown-0.14.2
+	heck-0.4.1
+	hermit-abi-0.1.19
+	hermit-abi-0.3.3
+	hex-0.4.3
+	hmac-0.12.1
+	http-0.2.11
+	http-body-0.4.5
+	httparse-1.8.0
+	httpdate-1.0.3
+	hyper-0.14.27
+	hyper-tls-0.5.0
+	idna-0.5.0
+	indexmap-2.1.0
+	instant-0.1.12
+	io-lifetimes-1.0.11
+	ipnet-2.9.0
+	ipnetwork-0.20.0
+	is-terminal-0.4.9
+	itoa-1.0.9
+	js-sys-0.3.65
+	lazy_static-1.4.0
+	libc-0.2.150
+	libflate-1.4.0
+	libflate_lz77-1.2.0
+	libredox-0.0.1
+	libsystemd-0.7.0
+	linux-raw-sys-0.3.8
+	linux-raw-sys-0.4.11
+	lock_api-0.4.11
+	log-0.4.20
+	mailparse-0.14.0
+	maplit-1.0.2
+	md-5-0.10.6
+	memchr-2.6.4
+	memoffset-0.7.1
+	memoffset-0.9.0
+	mime-0.3.17
+	minimal-lexical-0.2.1
+	miniz_oxide-0.7.1
+	mio-0.8.9
+	mockito-1.2.0
+	native-tls-0.2.11
+	nix-0.26.4
+	nix-0.27.1
+	no-std-net-0.6.0
+	nom-7.1.3
+	num_cpus-1.16.0
+	num_threads-0.1.6
+	object-0.32.1
+	once_cell-1.18.0
+	openssh-keys-0.6.2
+	openssl-0.10.60
+	openssl-macros-0.1.1
+	openssl-probe-0.1.5
+	openssl-sys-0.9.96
+	ordered-stream-0.2.0
+	parking-2.2.0
+	parking_lot-0.12.1
+	parking_lot_core-0.9.9
+	percent-encoding-2.3.1
+	pin-project-lite-0.2.13
+	pin-utils-0.1.0
+	piper-0.2.1
+	pkg-config-0.3.27
+	pnet_base-0.34.0
+	pnet_datalink-0.34.0
+	pnet_sys-0.34.0
+	polling-2.8.0
+	polling-3.3.0
+	powerfmt-0.2.0
+	ppv-lite86-0.2.17
+	proc-macro-crate-1.3.1
+	proc-macro2-1.0.69
+	quote-1.0.33
+	quoted_printable-0.4.8
+	rand-0.8.5
+	rand_chacha-0.3.1
+	rand_core-0.6.4
+	redox_syscall-0.4.1
+	redox_users-0.4.4
+	regex-1.10.2
+	regex-automata-0.4.3
+	regex-syntax-0.8.2
+	reqwest-0.11.22
+	rle-decode-fast-1.0.3
+	rustc-demangle-0.1.23
+	rustix-0.37.27
+	rustix-0.38.25
+	rustversion-1.0.14
+	ryu-1.0.15
+	schannel-0.1.22
+	scopeguard-1.2.0
+	security-framework-2.9.2
+	security-framework-sys-2.9.1
+	serde-1.0.193
+	serde-xml-rs-0.6.0
+	serde_derive-1.0.193
+	serde_json-1.0.108
+	serde_repr-0.1.17
+	serde_urlencoded-0.7.1
+	serde_yaml-0.9.27
+	sha1-0.10.6
+	sha2-0.10.8
+	signal-hook-registry-1.4.1
+	similar-2.3.0
+	slab-0.4.9
+	slog-2.7.0
+	slog-async-2.8.0
+	slog-scope-4.4.0
+	slog-term-2.9.0
+	smallvec-1.11.2
+	socket2-0.4.10
+	socket2-0.5.5
+	static_assertions-1.1.0
+	strsim-0.10.0
+	subtle-2.5.0
+	syn-1.0.109
+	syn-2.0.39
+	system-configuration-0.5.1
+	system-configuration-sys-0.5.0
+	take_mut-0.2.2
+	tempfile-3.8.1
+	term-0.7.0
+	terminal_size-0.3.0
+	thiserror-1.0.50
+	thiserror-impl-1.0.50
+	thread_local-1.1.7
+	time-0.3.30
+	time-core-0.1.2
+	time-macros-0.2.15
+	tinyvec-1.6.0
+	tinyvec_macros-0.1.1
+	tokio-1.34.0
+	tokio-macros-2.2.0
+	tokio-native-tls-0.3.1
+	tokio-util-0.7.10
+	toml_datetime-0.6.5
+	toml_edit-0.19.15
+	tower-service-0.3.2
+	tracing-0.1.40
+	tracing-attributes-0.1.27
+	tracing-core-0.1.32
+	try-lock-0.2.4
+	typenum-1.17.0
+	uds_windows-1.0.2
+	unicode-bidi-0.3.13
+	unicode-ident-1.0.12
+	unicode-normalization-0.1.22
+	unsafe-libyaml-0.2.9
+	url-2.5.0
+	uuid-1.6.1
+	uzers-0.11.3
+	vcpkg-0.2.15
+	version_check-0.9.4
+	vmw_backdoor-0.2.4
+	waker-fn-1.1.1
+	want-0.3.1
+	wasi-0.11.0+wasi-snapshot-preview1
+	wasm-bindgen-0.2.88
+	wasm-bindgen-backend-0.2.88
+	wasm-bindgen-futures-0.4.38
+	wasm-bindgen-macro-0.2.88
+	wasm-bindgen-macro-support-0.2.88
+	wasm-bindgen-shared-0.2.88
+	web-sys-0.3.65
+	winapi-0.3.9
+	winapi-i686-pc-windows-gnu-0.4.0
+	winapi-x86_64-pc-windows-gnu-0.4.0
+	windows-sys-0.48.0
+	windows-targets-0.48.5
+	windows_aarch64_gnullvm-0.48.5
+	windows_aarch64_msvc-0.48.5
+	windows_i686_gnu-0.48.5
+	windows_i686_msvc-0.48.5
+	windows_x86_64_gnu-0.48.5
+	windows_x86_64_gnullvm-0.48.5
+	windows_x86_64_msvc-0.48.5
+	winnow-0.5.19
+	winreg-0.50.0
+	xdg-home-1.0.0
+	xml-rs-0.8.19
+	zbus-3.14.1
+	zbus_macros-3.14.1
+	zbus_names-2.6.0
+	zvariant-3.15.0
+	zvariant_derive-3.15.0
+	zvariant_utils-1.0.1
 "
 
 inherit coreos-cargo cros-workon systemd
