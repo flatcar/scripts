@@ -1,0 +1,13 @@
+/etc/systemd/system/multi-user.target.wants/oem-cloudinit.service
+/etc/systemd/system/multi-user.target.wants/oem-gce.service
+/etc/systemd/system/oem-cloudinit.service
+/etc/systemd/system/oem-gce-enable-oslogin.service
+/etc/systemd/system/oem-gce.service
+/etc/systemd/system/sysinit.target.wants/oem-gce-enable-oslogin.service
+/oem/base/
+/oem/bin/
+/oem/files/
+/oem/flatcar-oem-gce.aci
+/oem/units/
+/var/lib/flatcar-oem-gce
+/var/lib/flatcar-oem-gce.img

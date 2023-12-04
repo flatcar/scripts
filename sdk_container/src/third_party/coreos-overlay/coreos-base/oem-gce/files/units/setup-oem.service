@@ -1,0 +1,12 @@
+[Unit]
+Description=Setup OEM
+Before=oem-gce-enable-oslogin.service
+DefaultDependencies=false
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=-/usr/bin/ln --symbolic --force /usr/share/gce/hosts /etc/hosts
+ExecStart=-/usr/bin/ln --symbolic /usr/share/gce/google-cloud-sdk.sh /etc/profile.d/google-cloud-sdk.sh
+[Install]
+WantedBy=sysinit.target

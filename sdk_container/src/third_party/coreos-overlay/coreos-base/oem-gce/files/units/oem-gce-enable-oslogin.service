@@ -10,7 +10,7 @@ Before=sshd.socket
 Type=oneshot
 RemainAfterExit=true
 
-ExecStart=/oem/bin/enable-oslogin
+ExecStart=/usr/bin/enable-oslogin
 
 [Install]
 WantedBy=sysinit.target

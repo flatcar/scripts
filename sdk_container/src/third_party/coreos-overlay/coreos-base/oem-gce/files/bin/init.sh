@@ -1,11 +1,7 @@
-#!/bin/sh
-set -e
-
+#!/bin/bash -ex
 # GCE can work with our normal file system, but it needs an "init system".
 # Here is a better place to install this script so it doesn't get put in real
 # images built from the GCE Python package.
-cat << 'EOF' > init.sh && chmod 755 init.sh
-#!/bin/bash -ex
 
 # Write a configuration template if it does not exist.
 [ -e /etc/default/instance_configs.cfg.template ] ||
@@ -38,20 +34,3 @@ test -n "$stopping" || exit 1
 
 # Otherwise, run the shutdown script before quitting.
 exec /usr/bin/google_metadata_script_runner --script-type shutdown
-EOF
-
-# Disable PAM checks in the container.
-rm -f usr/lib/pam.d/*
-cat << 'EOF' > usr/lib/pam.d/other
-account optional pam_permit.so
-auth optional pam_permit.so
-password optional pam_permit.so
-session optional pam_permit.so
-EOF
-
-# Don't bundle these paths, since they are useless to us.
-mv usr/lib/systemd/lib*.so* usr/lib64/
-rm -fr boot etc/* usr/lib/systemd var/db/pkg
-
-# Remove test stuff from python - it's quite large.
-rm -rf usr/lib/python*/test

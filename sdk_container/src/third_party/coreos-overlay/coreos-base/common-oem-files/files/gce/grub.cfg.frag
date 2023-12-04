@@ -1,7 +1,3 @@
-# Flatcar GRUB settings
-
-set oem_id="gce"
-
 # GCE only has a serial console.
 set linux_console="console=ttyS0,115200n8"
 serial com0 --speed=115200 --word=8 --parity=no
