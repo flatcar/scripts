@@ -6,6 +6,9 @@ Subject: [PATCH 1/3] Revert "*: remove cl-legacy feature"
 This reverts commit 3e4b623b390ab756a6be963eec7198b3e7f44e20.
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+(dpark: Re-add hostname crate and its dependencies, as they are not
+ included by default in 5.5.)
+Signed-off-by: Dongsu Park <dpark@linux.microsoft.com>
 ---
  Cargo.toml                              |  3 +
  src/metadata.rs                         |  8 +++
@@ -15,11 +18,62 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  5 files changed, 96 insertions(+)
  create mode 100644 src/providers/vagrant_virtualbox/mod.rs
 
+diff --git a/Cargo.lock b/Cargo.lock
+index edb7819c..8bf34440 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -31,13 +31,14 @@ dependencies = [
+  "base64 0.21.5",
+  "cfg-if",
+  "clap",
++ "hostname",
+  "ipnetwork",
+  "libflate",
+  "libsystemd",
+  "mailparse",
+  "maplit",
+  "mockito",
+- "nix 0.26.4",
++ "nix 0.27.1",
+  "openssh-keys",
+  "openssl",
+  "pnet_base",
+@@ -901,6 +902,17 @@ dependencies = [
+  "digest",
+ ]
+ 
++[[package]]
++name = "hostname"
++version = "0.3.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "3c731c3e10504cc8ed35cfe2f1db4c9274c3d35fa486e3b31df46f068ef3e867"
++dependencies = [
++ "libc",
++ "match_cfg",
++ "winapi",
++]
++
+ [[package]]
+ name = "http"
+ version = "0.2.11"
+@@ -1159,6 +1171,12 @@ version = "1.0.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
+ 
++[[package]]
++name = "match_cfg"
++version = "0.1.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ffbee8634e0d45d258acb448e7eaab3fce7a0a467395d4d9f228e3c1f01fb2e4"
++
+ [[package]]
+ name = "md-5"
+ version = "0.10.6"
 diff --git a/Cargo.toml b/Cargo.toml
 index e5b3dc3..f9b3e46 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
-@@ -26,6 +26,9 @@ lto = true
+@@ -26,11 +26,15 @@ lto = true
  # We assume we're being delivered via e.g. RPM which supports split debuginfo
  debug = true
  
@@ -28,7 +82,13 @@ index e5b3dc3..f9b3e46 100644
 +
  [dependencies]
  anyhow = "1.0"
- base64 = "0.13"
+ base64 = "0.21"
+ cfg-if = "1.0"
+ clap = { version = "4", "default_features" = false, "features" = ["std", "cargo", "derive", "error-context", "help", "suggestions", "usage", "wrap_help"] }
++hostname = "0.3.1"
+ ipnetwork = ">= 0.17, < 0.21"
+ libflate = "1.3"
+ libsystemd = ">= 0.2.1, < 0.8.0"
 diff --git a/src/metadata.rs b/src/metadata.rs
 index 758bb1e..8544de9 100644
 --- a/src/metadata.rs
@@ -39,9 +99,9 @@ index 758bb1e..8544de9 100644
  use crate::providers::powervs::PowerVSProvider;
 +#[cfg(feature = "cl-legacy")]
 +use crate::providers::vagrant_virtualbox::VagrantVirtualboxProvider;
+ use crate::providers::scaleway::ScalewayProvider;
  use crate::providers::vmware::VmwareProvider;
  use crate::providers::vultr::VultrProvider;
- 
 @@ -48,6 +50,8 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
      match provider {
          "aliyun" => box_result!(AliyunProvider::try_new()?),
@@ -57,18 +117,18 @@ index 758bb1e..8544de9 100644
          "gcp" => box_result!(GcpProvider::try_new()?),
 +        #[cfg(feature = "cl-legacy")]
 +        "gce" => box_result!(GcpProvider::try_new()?),
+         "hetzner" => box_result!(HetznerProvider::try_new()?),
          // IBM Cloud - VPC Generation 2.
          "ibmcloud" => box_result!(IBMGen2Provider::try_new()?),
-         // IBM Cloud - Classic infrastructure.
 @@ -63,6 +69,8 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
          "openstack-metadata" => box_result!(OpenstackProviderNetwork::try_new()?),
          "packet" => box_result!(PacketProvider::try_new()?),
          "powervs" => box_result!(PowerVSProvider::try_new()?),
 +        #[cfg(feature = "cl-legacy")]
 +        "vagrant-virtualbox" => box_result!(VagrantVirtualboxProvider::new()),
+         "scaleway" => box_result!(ScalewayProvider::try_new()?),
          "vmware" => box_result!(VmwareProvider::try_new()?),
          "vultr" => box_result!(VultrProvider::try_new()?),
-         _ => bail!("unknown provider '{}'", provider),
 diff --git a/src/providers/mod.rs b/src/providers/mod.rs
 index f684d22..a67546c 100644
 --- a/src/providers/mod.rs
@@ -79,9 +139,9 @@ index f684d22..a67546c 100644
  pub mod powervs;
 +#[cfg(feature = "cl-legacy")]
 +pub mod vagrant_virtualbox;
+ pub mod scaleway;
  pub mod vmware;
  pub mod vultr;
- 
 diff --git a/src/providers/vagrant_virtualbox/mod.rs b/src/providers/vagrant_virtualbox/mod.rs
 new file mode 100644
 index 0000000..d7a9e0e

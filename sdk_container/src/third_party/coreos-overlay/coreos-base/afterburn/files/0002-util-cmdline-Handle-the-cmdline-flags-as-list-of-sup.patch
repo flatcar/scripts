@@ -29,10 +29,10 @@ index e7b5550..5c1cfda 100644
 -const CMDLINE_PLATFORM_FLAG: &str = "coreos.oem.id";
 +const CMDLINE_PLATFORM_FLAGS: [&'static str; 2] = ["flatcar.oem.id", "coreos.oem.id"];
  
- /// Get platform/OEM value from cmdline file.
+ /// Get platform value from cmdline file.
  pub fn get_platform(fpath: &str) -> Result<String> {
      let content = std::fs::read_to_string(fpath)
-         .with_context(|| format!("Failed to read cmdline file ({})", fpath))?;
+         .with_context(|| format!("Failed to read cmdline file ({fpath})"))?;
  
 -    match find_flag_value(CMDLINE_PLATFORM_FLAG, &content) {
 -        Some(platform) => {
@@ -85,7 +85,7 @@ index e7b5550..5c1cfda 100644
 -        ];
 -        for (tcase, tres) in tests {
 -            let res = find_flag_value(flagname, tcase);
--            assert_eq!(res, tres, "failed testcase: '{}'", tcase);
+-            assert_eq!(res, tres, "failed testcase: '{tcase}'");
 +        for flagname in &CMDLINE_PLATFORM_FLAGS {
 +            let tests = vec![
 +                ("".to_string(), None),
