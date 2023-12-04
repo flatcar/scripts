@@ -24,6 +24,11 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
+PATCHES=(
+	"${FILESDIR}"/${P}-ipv6-tests.patch
+	"${FILESDIR}"/${P}-hppa-kernel.patch
+)
+
 src_prepare() {
 	default
 
