@@ -195,7 +195,7 @@ install_build_source() {
 		| grep -v dt-bindings ))
 
 	# remove the broken symlinks referencing $ROOT
-	rm "${D}/usr/lib/modules/${KV_FULL}/build" || die
+	rm "${D}/usr/lib/modules/${KV_FULL}"/{source,build} || die
 
 	# Compose list of architectures to be excluded from the kernel modules
 	# tree in the final image. It is an array to be used as a pattern for
