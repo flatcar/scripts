@@ -1,0 +1,41 @@
+From 2a9489f373771e190c4d311d6b934342a3ba98a7 Mon Sep 17 00:00:00 2001
+Message-Id: <2a9489f373771e190c4d311d6b934342a3ba98a7.1701767005.git.dpark@linux.microsoft.com>
+From: Dongsu Park <dpark@linux.microsoft.com>
+Date: Tue, 5 Dec 2023 10:03:10 +0100
+Subject: [PATCH] providers/vmware: add missing public functions for non-amd64
+
+VmwareProvider must have a corresponding empty function
+`parse_netplan_config()` in unsupported part as well, just like the
+amd64 part.
+Otherwise build would fail when cross-building afterburn for arm64.
+
+```
+error[E0599]: no method named `parse_netplan_config` found for reference
+`&VmwareProvider` in the current scope
+  --> src/providers/vmware/mod.rs:37:14
+   |
+37 |         self.parse_netplan_config()
+   |              ^^^^^^^^^^^^^^^^^^^^ method not found in
+`&VmwareProvider`
+```
+
+---
+ src/providers/vmware/unsupported.rs | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/providers/vmware/unsupported.rs b/src/providers/vmware/unsupported.rs
+index 99dace52..c4c04f20 100644
+--- a/src/providers/vmware/unsupported.rs
++++ b/src/providers/vmware/unsupported.rs
+@@ -7,4 +7,8 @@ impl VmwareProvider {
+     pub fn try_new() -> Result<Self> {
+         bail!("unsupported architecture");
+     }
++
++    pub fn parse_netplan_config(&self) -> Result<Option<String>> {
++        bail!("unsupported architecture");
++    }
+ }
+-- 
+2.34.1
+
