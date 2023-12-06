@@ -1,0 +1,33 @@
+From c47aa98230e7b540c88a4551a54fd9348f60b6a9 Mon Sep 17 00:00:00 2001
+Message-Id: <c47aa98230e7b540c88a4551a54fd9348f60b6a9.1701862700.git.dpark@linux.microsoft.com>
+From: Dongsu Park <dpark@linux.microsoft.com>
+Date: Wed, 6 Dec 2023 12:36:24 +0100
+Subject: [PATCH] Cargo: reduce binary size for release profile
+
+In the release profile of Cargo.toml, add `codegen-units = 1`,
+`strip = true`, and remove `debug = true`, to reduce binary size of
+afterburn included in production images.
+---
+ Cargo.toml | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index da74d909..1cf3213c 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -30,8 +30,10 @@ name = "afterburn"
+ path = "src/main.rs"
+ 
+ [profile.release]
+-# We assume we're being delivered via e.g. RPM which supports split debuginfo
+-debug = true
++# Flatcar: Reduce binary size for prod images by using one codegen unit,
++# stripping binary, and removing debug = true.
++codegen-units = 1
++strip = true
+ 
+ [features]
+ cl-legacy = []
+-- 
+2.34.1
+

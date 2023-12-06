@@ -313,6 +313,7 @@ PATCHES=(
 	"${FILESDIR}"/0001-Revert-remove-cl-legacy-feature.patch
 	"${FILESDIR}"/0002-util-cmdline-Handle-the-cmdline-flags-as-list-of-sup.patch
 	"${FILESDIR}"/0003-vmware-arm64-unsupported.patch
+	"${FILESDIR}"/0004-cargo-reduce-binary-size-for-release-profile.patch
 )
 
 src_unpack() {
