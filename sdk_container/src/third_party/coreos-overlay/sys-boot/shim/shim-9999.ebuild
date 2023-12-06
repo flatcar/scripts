@@ -53,7 +53,7 @@ src_compile() {
 		emake_args+=( ARCH=aarch64 )
 	fi
   emake_args+=( ENABLE_SBSIGN=1 )
-  emake_args+=( VENDOR_CERT_FILE="/usr/share/sb_keys/DB.der" )
+  emake_args+=( VENDOR_CERT_FILE="${SYSROOT}/usr/share/sb_keys/DB.der" )
 	emake "${emake_args[@]}" || die
 }
 
