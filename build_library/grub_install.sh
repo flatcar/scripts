@@ -199,6 +199,10 @@ case "${FLAGS_target}" in
                     "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
+            sudo cp "/usr/lib/shim/mmx64.efi" \
+                "${ESP_DIR}/EFI/boot/mmx64.efi"
+            sudo cp "/usr/lib/shim/fbx64.efi" \
+                "${ESP_DIR}/EFI/boot/fbx64.efi"
             sudo sbsign --key /usr/share/sb_keys/DB.key \
                  --cert /usr/share/sb_keys/DB.crt \
                  --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
