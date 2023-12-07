@@ -1,0 +1,5 @@
+- libmnl ([1.0.5](https://git.netfilter.org/libmnl/log/?h=libmnl-1.0.5))
+- libnetfilter_conntrack ([1.0.9](https://git.netfilter.org/libnetfilter_conntrack/log/?h=libnetfilter_conntrack-1.0.9))
+- libnetfilter_cthelper ([1.0.1](https://git.netfilter.org/libnetfilter_cthelper/log/?id=8cee0347cc6969c39bb64000dfaa676a8f9e30f0))
+- libnetfilter_cttimeout ([1.0.1](https://git.netfilter.org/libnetfilter_cttimeout/log/?id=068d36d6291f53a0a609ab1f695aa06e94ce3d30))
+- libnfnetlink ([1.0.2](https://git.netfilter.org/libnfnetlink/log/?h=libnfnetlink-1.0.2))

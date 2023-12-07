@@ -1,24 +1,22 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit linux-info
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/netfilter.org.asc
+inherit linux-info verify-sig
 
-PATCH_BLOB=04aef8a4dedf267dd5744afb134ef8046e77f613
-PATCH_FN=${PATCH_BLOB}-musl-fix-includes.patch
-
-DESCRIPTION="the low-level library for netfilter related kernel/userspace communication"
+DESCRIPTION="The low-level library for netfilter related kernel/userspace communication"
 HOMEPAGE="http://www.netfilter.org/projects/libnfnetlink/"
 SRC_URI="
-	http://www.netfilter.org/projects/${PN}/files/${P}.tar.bz2
-	https://git.alpinelinux.org/cgit/aports/plain/main/libnfnetlink/musl-fix-includes.patch -> ${PATCH_FN}"
+	https://www.netfilter.org/projects/${PN}/files/${P}.tar.bz2
+	verify-sig? ( https://www.netfilter.org/projects/${PN}/files/${P}.tar.bz2.sig )"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 
-PATCHES=( "${DISTDIR}/${PATCH_FN}" )
+BDEPEND="verify-sig? ( sec-keys/openpgp-keys-netfilter )"
 
 pkg_setup() {
 	linux-info_pkg_setup
@@ -40,13 +38,15 @@ pkg_setup() {
 	check_extra_config
 }
 
-src_configure() {
-	econf --disable-static
+src_unpack() {
+	default
+
+	use verify-sig && verify-sig_verify_detached "${DISTDIR}"/${P}.tar.bz2{,.sig}
 }
 
 src_install() {
 	default
 
-	# no static archives
-	find "${D}" -name '*.la' -delete || die
+	# No static archives
+	find "${ED}" -name '*.la' -delete || die
 }
