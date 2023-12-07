@@ -47,13 +47,15 @@ src_compile() {
 	# instead of amd64, and aarch64 instead of arm64.
 	insinto /usr/share/sb_keys
 	newins "${FILESDIR}/shim.der" shim.der
+	newins "${FILESDIR}/shim.rsa" shim.rsa
+	newins "${FILESDIR}/shim.pem" shim.pem
 	if use amd64; then
 		emake_args+=( ARCH=x86_64 )
 	elif use arm64; then
 		emake_args+=( ARCH=aarch64 )
 	fi
   emake_args+=( ENABLE_SBSIGN=1 )
-  emake_args+=( VENDOR_CERT_FILE="${SYSROOT}/usr/share/sb_keys/DB.der" )
+  emake_args+=( VENDOR_CERT_FILE="${SYSROOT}/usr/share/sb_keys/shim.der" )
 	emake "${emake_args[@]}" || die
 }
 

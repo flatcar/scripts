@@ -3,7 +3,7 @@
 
 EAPI=7
 
-DESCRIPTION="CoreOS Secure Boot keys"
+DESCRIPTION="Flatcar Secure Boot keys"
 HOMEPAGE=""
 SRC_URI=""
 LICENSE="BSD"
