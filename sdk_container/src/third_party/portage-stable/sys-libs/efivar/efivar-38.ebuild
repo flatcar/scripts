@@ -1,4 +1,4 @@
-# Copyright 2014-2022 Gentoo Authors
+# Copyright 2014-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,7 +11,7 @@ SRC_URI="https://github.com/rhinstaller/efivar/releases/download/${PV}/${P}.tar.
 
 LICENSE="GPL-2"
 SLOT="0/1"
-KEYWORDS="~amd64 ~arm ~arm64 ~ia64 ~ppc64 ~riscv ~x86"
+KEYWORDS="amd64 arm arm64 ~ia64 ~loong ppc64 ~riscv x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -29,10 +29,18 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}"/efivar-38-ia64-relro.patch
 		"${FILESDIR}"/efivar-38-march-native.patch
 		"${FILESDIR}"/efivar-38-Makefile-dep.patch
 		"${FILESDIR}"/efivar-38-binutils-2.36.patch
+		"${FILESDIR}"/efivar-38-ld-locale.patch
+		"${FILESDIR}"/efivar-38-glibc-2.36.patch
+		"${FILESDIR}"/efivar-38-lld-fixes.patch
+		"${FILESDIR}"/efivar-38-efisecdb-musl.patch
+		"${FILESDIR}"/efivar-38-efisecdb-optarg.patch
+		"${FILESDIR}"/efivar-38-64bit-off_t.patch
+
+		# Rejected upstream, keep this for ia64 support
+		"${FILESDIR}"/efivar-38-ia64-relro.patch
 	)
 	default
 }

@@ -25,13 +25,6 @@ RESTRICT="test"
 DEPEND=">=sys-kernel/linux-headers-5.1"
 RDEPEND="${DEPEND}"
 
-PATCHES=(
-	# Upstream, bug #816798
-	"${FILESDIR}"/${P}-arm-syscall.patch
-	# Upstream, bug #829293
-	"${FILESDIR}"/${P}-gnu_source-musl-cpuset.patch
-)
-
 src_prepare() {
 	default
 

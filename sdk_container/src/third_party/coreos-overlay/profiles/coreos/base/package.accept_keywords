@@ -82,8 +82,8 @@
 =sys-apps/smartmontools-7.4 ~arm64
 =sys-block/thin-provisioning-tools-1.0.6 ~amd64
 
-# Needed to force enable ipvsadm for arm64.
-=sys-cluster/ipvsadm-1.27-r1 **
+# Enable ipvsadm for arm64.
+=sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
 =sys-firmware/edk2-aarch64-18.02 **
@@ -97,9 +97,6 @@
 # A dependency of app-shells/bash version that we need for security
 # fixes.
 =sys-libs/readline-8.2_p1 ~amd64 ~arm64
-
-# ?
-=sys-power/acpid-2.0.33 ~amd64 ~arm64
 
 # Needed to fix CVE-2023-4016.
 =sys-process/procps-4.0.4 ~amd64 ~arm64

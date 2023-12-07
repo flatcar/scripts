@@ -126,6 +126,7 @@ app-text/build-docbook-catalog
 app-text/docbook-xml-dtd
 app-text/docbook-xsl-ns-stylesheets
 app-text/docbook-xsl-stylesheets
+app-text/mandoc
 app-text/manpager
 app-text/sgml-common
 
@@ -455,6 +456,9 @@ sys-block/open-isns
 sys-block/parted
 sys-block/thin-provisioning-tools
 
+sys-boot/efibootmgr
+sys-boot/gnu-efi
+
 sys-devel/autoconf
 sys-devel/autoconf-archive
 sys-devel/autoconf-wrapper
@@ -490,11 +494,14 @@ sys-fs/lsscsi
 sys-fs/mtools
 sys-fs/multipath-tools
 sys-fs/quota
+sys-fs/squashfs-tools
 sys-fs/xfsprogs
 
+sys-kernel/installkernel-gentoo
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs
+sys-libs/efivar
 sys-libs/gdbm
 sys-libs/ldb
 sys-libs/libcap
@@ -503,12 +510,16 @@ sys-libs/libnvme
 sys-libs/libseccomp
 sys-libs/libselinux
 sys-libs/libsepol
+sys-libs/libunwind
+sys-libs/liburing
 sys-libs/ncurses
 sys-libs/readline
 sys-libs/talloc
 sys-libs/tdb
 sys-libs/tevent
 sys-libs/zlib
+
+sys-power/acpid
 
 sys-process/lsof
 sys-process/procps
