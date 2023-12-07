@@ -10,10 +10,10 @@
 		<name>Patrick McLean</name>
 	</maintainer>
 	<use>
-		<flag name="oniguruma">Use dev-libs/oniguruma for regular expression support</flag>
+		<flag name="oniguruma">Use <pkg>dev-libs/oniguruma</pkg> for regular expression support</flag>
 	</use>
 	<upstream>
 		<remote-id type="cpe">cpe:/a:jq_project:jq</remote-id>
-		<remote-id type="github">stedolan/jq</remote-id>
+		<remote-id type="github">jqlang/jq</remote-id>
 	</upstream>
 </pkgmetadata>
