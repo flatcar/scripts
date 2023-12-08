@@ -45,10 +45,6 @@ src_compile() {
 	# itself with the compiler -dumpmachine flag. But also it
 	# expects a different format of the values. It wants x86_64
 	# instead of amd64, and aarch64 instead of arm64.
-	insinto /usr/share/sb_keys
-	newins "${FILESDIR}/shim.der" shim.der
-	newins "${FILESDIR}/shim.rsa" shim.rsa
-	newins "${FILESDIR}/shim.pem" shim.pem
 	if use amd64; then
 		emake_args+=( ARCH=x86_64 )
 	elif use arm64; then

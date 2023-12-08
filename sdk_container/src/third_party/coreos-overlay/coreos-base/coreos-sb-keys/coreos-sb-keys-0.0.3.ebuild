@@ -3,7 +3,7 @@
 
 EAPI=7
 
-DESCRIPTION="Flatcar Secure Boot keys"
+DESCRIPTION="Flatshimr Secure Boot keys"
 HOMEPAGE=""
 SRC_URI=""
 LICENSE="BSD"
@@ -21,8 +21,7 @@ src_install() {
 	newins "${FILESDIR}/KEK.crt" KEK.crt
 	newins "${FILESDIR}/DB.key" DB.key
 	newins "${FILESDIR}/DB.crt" DB.crt
-  newins "${FILESDIR}/ca.key" ca.key
-  newins "${FILESDIR}/ca.der" ca.der
-  newins "${FILESDIR}/ca.pem" ca.pem
-  newins "
+  newins "${FILESDIR}/shim.key" shim.key
+  newins "${FILESDIR}/shim.der" shim.der
+  newins "${FILESDIR}/shim.pem" shim.pem
 }
