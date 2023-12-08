@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="f122a63128bc85950adc0168cfaa024aafdc1bc5" # trunk
+	CROS_WORKON_COMMIT="2c58396dcb97cc91bb14873c242b75bb8ebce0ad" # trunk
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -19,6 +19,7 @@ CRATES="
 	addr2line-0.21.0
 	adler-1.0.2
 	aho-corasick-1.0.5
+	anyhow-1.0.75
 	argh-0.1.12
 	argh_derive-0.1.12
 	argh_shared-0.1.12
@@ -97,10 +98,10 @@ CRATES="
 	num_cpus-1.16.0
 	object-0.32.1
 	once_cell-1.18.0
-	openssl-0.10.57
+	openssl-0.10.60
 	openssl-macros-0.1.1
 	openssl-probe-0.1.5
-	openssl-sys-0.9.93
+	openssl-sys-0.9.96
 	pem-rfc7468-0.7.0
 	percent-encoding-2.3.0
 	pin-project-lite-0.2.13
