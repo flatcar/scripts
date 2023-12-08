@@ -55,7 +55,7 @@ src_compile() {
 		emake_args+=( ARCH=aarch64 )
 	fi
   emake_args+=( ENABLE_SBSIGN=1 )
-  emake_args+=( VENDOR_CERT_FILE="${SYSROOT}/usr/share/sb_keys/shim.der" )
+  emake_args+=( VENDOR_CERT_FILE="${FILESDIR}/shim.der" )
 	emake "${emake_args[@]}" || die
 }
 
