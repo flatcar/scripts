@@ -6,6 +6,21 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# John Helmert III <ajak@gentoo.org> (2023-11-25)
+# app-text/gocr has been masked for removal, bug #824290
+media-gfx/xsane ocr
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-11-20)
+# Qt6 is still experimental in freecad, currently the configure phase
+# gets itself stuck by importing both qt5 and qt6 cmake files.
+# Since there is no python3.12 support for shiboken2/pyside2, we have
+# to mask that flag as well.
+media-gfx/freecad qt6 python_single_target_python3_12
+
+# Florian Schmaus <flow@gentoo.org> (2023-11-10)
+# Only available for amd64.
+sys-apps/irqbalance thermal
+
 # Marek Szuba <marecki@gentoo.org> (2023-10-26)
 # media-gfx/gmic has been masked for removal, see Bug #916289.
 media-gfx/darktable gmic
@@ -42,9 +57,8 @@ media-video/chaplin transcode
 # Ionen Wolkens <ionen@gentoo.org> (2023-10-10)
 # Broken with Qt6.6 and, given USE has no revdeps, simpler to just
 # mask for now to save desktop profile users (default bluetooth)
-# from failures. Limited to -r1 to spare stable users from rebuilds
-# (-r0 instead requires <6.6).
-=dev-python/PyQt6-6.5.2-r1 bluetooth
+# from failures. Update: could be cleaned up now but waiting for
+# 6.6.0 stable to avoid unnecessary rebuilds.
 ~dev-python/PyQt6-6.5.3 bluetooth
 
 # Jaco Kroon <jaco@uls.co.za> (2023-09-19)
@@ -80,10 +94,6 @@ sci-mathematics/singular polymake
 dev-libs/redland-bindings php
 media-gfx/exact-image php
 sci-geosciences/mapserver php
-
-# Michael Orlitzky <mjo@gentoo.org> (2023-08-11)
-# php-7.x is End-of-Life (EOL) and masked.
-www-servers/nginx-unit php7-4
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2023-08-14)
 # OpenMW is only playtested with LuaJIT, and in fact unit tests fail with Lua-5.
@@ -136,7 +146,8 @@ net-misc/curl sslv3
 
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-05-04)
 # No suitable version of dev-libs/protobuf available.
-dev-java/protobuf-java system-protoc
+>=dev-java/protobuf-java-3.24.2 system-protoc
+=dev-java/protobuf-java-3.23.0 system-protoc
 
 # Joonas Niilola <juippis@gentoo.org> (2023-06-06)
 # Runtime not tested, may require more configuration in the ebuild.
@@ -547,9 +558,7 @@ dev-php/PEAR-Text_Password test
 dev-php/PEAR-Text_Wiki test
 dev-php/PEAR-Text_Wiki_Mediawiki test
 dev-php/PEAR-XML_RSS test
-dev-php/PHP_CodeCoverage test
 dev-php/PHP_CodeSniffer test
-dev-php/PHP_TokenStream test
 dev-php/awl test
 dev-php/fedora-autoloader test
 dev-php/json-schema test

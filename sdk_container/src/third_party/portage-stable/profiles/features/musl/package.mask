@@ -1,6 +1,10 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Florian Schmaus <flow@gentoo.org> (2023-11-22)
+# Requires systemd which is not supported on musl.
+sys-power/sandmann-bin
+
 # Maciej Barć <xgqt@gentoo.org> (2023-09-16)
 # Binary package, which is compiled against glibc
 dev-lang/dafny-bin
@@ -334,6 +338,16 @@ app-editors/jasspa-microemacs
 sys-apps/unscd
 sys-auth/libnss-nis
 sys-auth/sssd
+net-nds/nsscache
+sys-auth/libnss-cache
+sys-auth/libnss-mysql
+sys-auth/libnss-nis
+sys-auth/libnss-pgsql
+sys-auth/nss-mdns
+sys-auth/nss-myhostname
+sys-auth/nss-pam-ldapd
+sys-auth/nss_ldap
+sys-libs/nss-usrfiles
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-03-21)
 # Needs a port to musl. Uses glibc-specific termio and __getppid.
