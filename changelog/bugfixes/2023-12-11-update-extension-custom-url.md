@@ -1,0 +1,1 @@
+- Fixed supplying extension update payloads with a custom base URL in Nebraska ([Flatcar#1281](https://github.com/flatcar/Flatcar/issues/1281))
