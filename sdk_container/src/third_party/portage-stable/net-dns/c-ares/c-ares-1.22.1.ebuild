@@ -43,7 +43,23 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 )
 
 multilib_src_configure() {
+	# These configure tests take a long time to run. The args one runs in O(n^4).
+	export ac_cv_func_getnameinfo='yes'
+	export ac_cv_func_recvfrom='yes'
+	export ac_cv_func_recv='yes'
+	export ac_cv_func_send='yes'
+	export curl_cv_func_getnameinfo_args='const struct sockaddr *,socklen_t,size_t,int'
+	export curl_cv_func_recv_args='int,void *,size_t,int,int'
+	export curl_cv_func_recvfrom_args='int,void *,size_t,int,struct sockaddr *,socklen_t *,int'
+	export curl_cv_func_send_args='int,const void *,size_t,int,int'
+	export curl_cv_getnameinfo='yes'
+	export curl_cv_recv='yes'
+	export curl_cv_recvfrom='yes'
+	export curl_cv_send='yes'
+
 	local myeconfargs=(
+		--cache-file="${BUILD_DIR}"/config.cache
+
 		--enable-nonblocking
 		--enable-symbol-hiding
 		$(use_enable static-libs static)
