@@ -55,8 +55,10 @@ RDEPEND="
 	rtas? ( sys-libs/librtas )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
 	slang? ( sys-libs/slang )
-	!build? ( systemd? ( sys-apps/systemd ) )
-	udev? ( virtual/libudev:= )
+	!build? (
+		systemd? ( sys-apps/systemd )
+		udev? ( virtual/libudev:= )
+	)
 "
 BDEPEND="
 	virtual/pkgconfig
@@ -94,6 +96,10 @@ fi
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
+)
 
 pkg_pretend() {
 	if use su && ! use suid ; then
@@ -141,6 +147,8 @@ src_prepare() {
 
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
+			# Fails with network-sandbox at least in nspawn
+			lsfd/option-inet
 		)
 
 		local known_failing_test
@@ -214,8 +222,6 @@ multilib_src_configure() {
 		$(multilib_native_use_enable suid makeinstall-setuid)
 		$(multilib_native_use_with readline)
 		$(multilib_native_use_with slang)
-		$(multilib_native_use_with systemd)
-		$(multilib_native_use_with udev)
 		$(multilib_native_usex ncurses "$(use_with magic libmagic)" '--without-libmagic')
 		$(multilib_native_usex ncurses "$(use_with unicode ncursesw)" '--without-ncursesw')
 		$(multilib_native_usex ncurses "$(use_with !unicode ncurses)" '--without-ncurses')
@@ -228,6 +234,18 @@ multilib_src_configure() {
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
 	)
+
+	if use build ; then
+		myeconfargs+=(
+			--without-systemd
+			--without-udev
+		)
+	else
+		myeconfargs+=(
+			$(multilib_native_use_with systemd)
+			$(multilib_native_use_with udev)
+		)
+	fi
 
 	if multilib_is_native_abi ; then
 		myeconfargs+=(
