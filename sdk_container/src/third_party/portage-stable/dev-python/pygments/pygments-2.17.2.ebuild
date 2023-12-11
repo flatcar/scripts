@@ -3,8 +3,7 @@
 
 EAPI=8
 
-DISTUTILS_USE_PEP517=setuptools
-PYPI_NO_NORMALIZE=1
+DISTUTILS_USE_PEP517=hatchling
 PYPI_PN=${PN^}
 PYTHON_COMPAT=( python3_{10..12} pypy3 )
 
@@ -38,6 +37,7 @@ EPYTEST_DESELECT=(
 	tests/test_html_formatter.py::test_ctags
 )
 
+EPYTEST_XDIST=1
 distutils_enable_tests pytest
 
 src_install() {
