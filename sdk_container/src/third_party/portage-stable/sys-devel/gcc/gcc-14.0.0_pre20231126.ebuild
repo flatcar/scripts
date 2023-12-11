@@ -5,7 +5,7 @@ EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
 PATCH_GCC_VER="14.0.0"
-PATCH_VER="5"
+PATCH_VER="9"
 MUSL_VER="1"
 MUSL_GCC_VER="14.0.0"
 
@@ -60,6 +60,5 @@ src_prepare() {
 
 	toolchain_src_prepare
 
-	eapply "${FILESDIR}"/${P}-pycryptodome-ice.patch
 	eapply_user
 }
