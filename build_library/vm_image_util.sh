@@ -832,6 +832,8 @@ _write_qemu_uefi_secure_conf() {
     flash-var "$(_dst_dir)/${flash_rw}" "PK" "${VM_TMP_DIR}/PK.esl"
     flash-var "$(_dst_dir)/${flash_rw}" "KEK" "${VM_TMP_DIR}/KEK.esl"
     flash-var "$(_dst_dir)/${flash_rw}" "db" "${VM_TMP_DIR}/DB.esl"
+    echo -n -e "\x01" >"${VM_TMP_DIR}/SHIM_VERBOSE"
+    flash-var -g 605dab50-e046-4300-abb6-3dd810dd8b23 "$(_dst_dir)/${flash_rw}" "SHIM_VERBOSE" "${VM_TMP_DIR}/SHIM_VERBOSE"
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }
 
