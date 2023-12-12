@@ -50,7 +50,7 @@ CORE_NAME=
 
 # Whether the SDK's grub or the board root's grub is used. Once amd64 is
 # fixed up the board root's grub will always be used.
-BOARD_GRUB=0
+BOARD_GRUB=1
 
 case "${FLAGS_target}" in
     i386-pc)
