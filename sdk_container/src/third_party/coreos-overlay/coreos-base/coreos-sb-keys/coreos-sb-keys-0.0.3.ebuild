@@ -21,7 +21,7 @@ src_install() {
 	newins "${FILESDIR}/KEK.crt" KEK.crt
 	newins "${FILESDIR}/DB.key" DB.key
 	newins "${FILESDIR}/DB.crt" DB.crt
-  newins "${FILESDIR}/shim.key" shim.key
-  newins "${FILESDIR}/shim.der" shim.der
-  newins "${FILESDIR}/shim.pem" shim.pem
+  	newins "${FILESDIR}/shim.key" shim.key
+  	newins "${FILESDIR}/shim.der" shim.der
+  	newins "${FILESDIR}/shim.pem" shim.pem
 }
