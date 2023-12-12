@@ -194,23 +194,25 @@ case "${FLAGS_target}" in
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
         # Use the test keys for signing unofficial builds
         if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-            sudo sbsign --key /usr/share/sb_keys/shim.rsa \
+            info "Signing artifacts for secure boot with dev keys"
+            sudo sbsign --key /usr/share/sb_keys/shim.key \
                     --cert /usr/share/sb_keys/shim.pem \
                     "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
-            sudo sbsign --key /usr/share/sb_keys/shim.rsa \
+            sudo sbsign --key /usr/share/sb_keys/shim.key \
                     --cert /usr/share/sb_keys/shim.pem \
                     "/usr/lib/shim/mmx64.efi"
             sudo cp "/usr/lib/shim/mmx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
-            sudo sbsign --key /usr/share/sb_keys/shim.rsa \
+            sudo sbsign --key /usr/share/sb_keys/shim.key \
                     --cert /usr/share/sb_keys/shim.pem \
                     "/usr/lib/shim/fbx64.efi"
-            sudo cp "/usr/lib/shim/fbx64.efi.signed" \
-                "${ESP_DIR}/EFI/boot/fbx64.efi"
-            sudo sbsign --key /usr/share/sb_keys/shim.rsa \
-                 --cert /usr/share/sb_keys/shim.pem \
+            # fbx64.efi is used to setup boot entries
+            #sudo cp "/usr/lib/shim/fbx64.efi.signed" \
+            #    "${ESP_DIR}/EFI/boot/fbx64.efi"
+            sudo sbsign --key /usr/share/sb_keys/DB.key \
+                 --cert /usr/share/sb_keys/DB.crt \
                  --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
                  "/usr/lib/shim/shim.efi"
         else

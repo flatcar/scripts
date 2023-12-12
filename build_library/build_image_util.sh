@@ -828,8 +828,8 @@ EOF
 
   # Sign the kernel after /usr is in a consistent state and verity is calculated
   if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-      sudo sbsign --key /usr/share/sb_keys/DB.key \
-	   --cert /usr/share/sb_keys/DB.crt \
+      sudo sbsign --key /usr/share/sb_keys/shim.key \
+	   --cert /usr/share/sb_keys/shim.pem \
 	   "${root_fs_dir}/boot/flatcar/vmlinuz-a"
       sudo mv "${root_fs_dir}/boot/flatcar/vmlinuz-a.signed" \
 	   "${root_fs_dir}/boot/flatcar/vmlinuz-a"
