@@ -209,8 +209,8 @@ case "${FLAGS_target}" in
                     "/usr/lib/shim/fbx64.efi"
             sudo cp "/usr/lib/shim/fbx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/fbx64.efi"
-            sudo sbsign --key /usr/share/sb_keys/shim.rsa \
-                 --cert /usr/share/sb_keys/shim.pem \
+            sudo sbsign --key /usr/share/sb_keys/DB.key \
+                 --cert /usr/share/sb_keys/DB.cert \
                  --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
                  "/usr/lib/shim/shim.efi"
         else
