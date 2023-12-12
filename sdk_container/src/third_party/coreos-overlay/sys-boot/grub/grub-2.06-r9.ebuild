@@ -321,6 +321,10 @@ src_install() {
 
 	# https://bugs.gentoo.org/231935
 	dostrip -x /usr/lib/grub
+
+	dodir /usr/share/grub
+	sed -e "s/@@UPSTREAM_VERSION@@/${PV}/" -e "s/@@VERSION@@/${PVR}/" "${FILESDIR}"/sbat.csv.in >"${ED}/usr/share/grub/sbat.csv"
+
 }
 
 pkg_postinst() {
