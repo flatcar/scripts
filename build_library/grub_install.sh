@@ -60,7 +60,7 @@ case "${FLAGS_target}" in
         CORE_NAME="core.img"
         ;;
     x86_64-efi)
-        CORE_MODULES+=( serial efi_gop efinet pgp http tftp )
+        CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp )
         CORE_NAME="core.efi"
         SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
