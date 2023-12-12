@@ -22,8 +22,6 @@ else
 	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
-# Flatcar: keep the patchlevel "0", no matter what it changes from Gentoo.
-# That is necessary for automatic package updates of Flatcar to work correctly.
 RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
 
 DESCRIPTION="Systems programming language from Mozilla"
@@ -119,16 +117,15 @@ DEPEND="
 	)
 "
 
-# Flatcar: lsb-release must be removed, as it conflicts with baselayout
-# of Flatcar.
 RDEPEND="${DEPEND}
 	app-eselect/eselect-rust
+	sys-apps/lsb-release
 "
 
-# Flatcar: rust-src must be removed for keeping the SDK size minimal.
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 	miri? ( nightly )
 	parallel-compiler? ( nightly )
+	rust-analyzer? ( rust-src )
 	test? ( ${ALL_LLVM_TARGETS[*]} )
 	wasm? ( llvm_targets_WebAssembly )
 	x86? ( cpu_flags_x86_sse2 )
@@ -163,10 +160,10 @@ QA_EXECSTACK="usr/lib/${PN}/${PV}/lib/rustlib/*/lib*.rlib:lib.rmeta"
 # causes double bootstrap
 RESTRICT="test"
 
-VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/rust.asc
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/rust.asc
 
 PATCHES=(
-	"${FILESDIR}"/1.72.0-bump-libc-deps-to-0.2.146.patch
+	#"${FILESDIR}"/1.72.0-bump-libc-deps-to-0.2.146.patch  # pending refresh
 	"${FILESDIR}"/1.70.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.62.1-musl-dynamic-linking.patch
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
@@ -292,10 +289,11 @@ esetup_unwind_hack() {
 
 src_prepare() {
 	# Clear vendor checksums for crates that we patched to bump libc.
-	for i in addr2line-0.20.0 bstr cranelift-jit crossbeam-channel elasticlunr-rs handlebars icu_locid libffi \
-		terminal_size tracing-tree; do
-		clear_vendor_checksums "${i}"
-	done
+	# NOTE: refresh this on each bump.
+	#for i in addr2line-0.20.0 bstr cranelift-jit crossbeam-channel elasticlunr-rs handlebars icu_locid libffi \
+	#	terminal_size tracing-tree; do
+	#	clear_vendor_checksums "${i}"
+	#done
 
 	if ! use system-bootstrap; then
 		has_version sys-devel/gcc || esetup_unwind_hack
@@ -326,14 +324,10 @@ src_configure() {
 			sed -i '/linker:/ s/rust-lld/wasm-ld/' compiler/rustc_target/src/spec/wasm_base.rs || die
 		fi
 	fi
-	# Flatcar: Auto-enable cross-building only if the cross-compiler is available
-	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
-		rust_targets="${rust_targets},\"aarch64-unknown-linux-gnu\""
-	fi
 	rust_targets="${rust_targets#,}"
 
-	# Flatcar: Remove rustdoc to keep the SDK size minimal.
-	local tools='"cargo"'
+	# cargo and rustdoc are mandatory and should always be included
+	local tools='"cargo","rustdoc"'
 	use clippy && tools+=',"clippy"'
 	use miri && tools+=',"miri"'
 	use profiler && tools+=',"rust-demangler"'
@@ -484,30 +478,6 @@ src_configure() {
 			_EOF_
 		fi
 	done
-	# Flatcar: workaround for cross-compile. Could soon be replaced
-	# by the "experimental cross support" below
-	if [ "${CBUILD}" != "aarch64-unknown-linux-gnu" ] && [ -f /usr/bin/aarch64-cros-linux-gnu-gcc ]; then
-		cat <<- 'EOF' > "${S}/cc.sh"
-			#!/bin/bash
-			args=("$@")
-			filtered=()
-			for i in "${args[@]}"; do
-			  if [ "$i" != "-mindirect-branch-register" ] && [ "$i" != "-mindirect-branch=thunk" ]; then
-			    filtered+=("$i")
-			  fi
-			done
-			aarch64-cros-linux-gnu-gcc --sysroot=/usr/aarch64-cros-linux-gnu "${filtered[@]}"
-		EOF
-		sed 's/gcc/g++/g' "${S}/cc.sh" > "${S}/cxx.sh"
-		chmod +x "${S}/cc.sh" "${S}/cxx.sh"
-		cat <<- EOF >> "${S}"/config.toml
-			[target.aarch64-unknown-linux-gnu]
-			cc = "${S}/cc.sh"
-			cxx = "${S}/cxx.sh"
-			linker = "${S}/cc.sh"
-			ar = "aarch64-cros-linux-gnu-ar"
-		EOF
-	fi
 	if use wasm; then
 		cat <<- _EOF_ >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
