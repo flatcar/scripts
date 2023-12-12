@@ -52,6 +52,8 @@ CORE_NAME=
 # fixed up the board root's grub will always be used.
 BOARD_GRUB=1
 
+SBAT_ARG=()
+
 case "${FLAGS_target}" in
     i386-pc)
         CORE_MODULES+=( biosdisk serial )
@@ -60,6 +62,7 @@ case "${FLAGS_target}" in
     x86_64-efi)
         CORE_MODULES+=( serial efi_gop efinet pgp http tftp )
         CORE_NAME="core.efi"
+        SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
     x86_64-xen)
         CORE_NAME="core.elf"
@@ -68,6 +71,7 @@ case "${FLAGS_target}" in
         CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp )
         CORE_NAME="core.efi"
         BOARD_GRUB=1
+        SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
     *)
         die_notrace "Unknown GRUB target ${FLAGS_target}"
@@ -174,6 +178,7 @@ sudo grub-mkimage \
     --directory "${GRUB_SRC}" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
     --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
+    "${SBAT_ARG[@]}" \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
     "${CORE_MODULES[@]}"
 
