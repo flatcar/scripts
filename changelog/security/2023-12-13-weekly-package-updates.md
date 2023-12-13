@@ -1,0 +1,1 @@
+- intel-microcode ([CVE-2023-23583](https://nvd.nist.gov/vuln/detail/CVE-2023-23583))
