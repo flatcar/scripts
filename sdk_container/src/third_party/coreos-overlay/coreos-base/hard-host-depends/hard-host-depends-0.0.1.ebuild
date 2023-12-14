@@ -96,6 +96,7 @@ RDEPEND="${RDEPEND}
 RDEPEND="${RDEPEND}
 	sys-fs/squashfs-tools
 	dev-libs/libp11
+	dev-libs/opensc
 	"
 
 # Host dependencies that are needed for delta_generator.
