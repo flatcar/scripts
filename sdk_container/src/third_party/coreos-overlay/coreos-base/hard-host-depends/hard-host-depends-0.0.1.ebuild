@@ -93,10 +93,12 @@ RDEPEND="${RDEPEND}
 
 # Host dependencies that are needed to create and sign images
 # TODO:	sys-apps/mosys
+# app-crypt/ccid is required for pcsc-lite daemon to work.
 RDEPEND="${RDEPEND}
 	sys-fs/squashfs-tools
 	dev-libs/libp11
 	dev-libs/opensc
+	app-crypt/ccid
 	"
 
 # Host dependencies that are needed for delta_generator.

@@ -106,6 +106,7 @@ app-containers/runc
 app-crypt/adcli
 app-crypt/argon2
 app-crypt/efitools
+app-crypt/ccid
 app-crypt/libb2
 app-crypt/libmd
 app-crypt/mhash
