@@ -66,5 +66,4 @@ src_install() {
 	insinto /usr/lib/shim
 	newins "shim${suffix}.efi" 'shim.efi'
   	newins "mm${suffix}.efi" "mm${suffix}.efi"
-  	newins "fb${suffix}.efi" "fb${suffix}.efi"
 }

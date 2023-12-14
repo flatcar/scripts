@@ -204,11 +204,6 @@ case "${FLAGS_target}" in
                     "/usr/lib/shim/mmx64.efi"
             sudo cp "/usr/lib/shim/mmx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
-            sudo sbsign --key /usr/share/sb_keys/shim.key \
-                    --cert /usr/share/sb_keys/shim.pem \
-                    "/usr/lib/shim/fbx64.efi"
-            sudo cp "/usr/lib/shim/fbx64.efi.signed" \
-                "${ESP_DIR}/EFI/boot/fbx64.efi"
             sudo sbsign --key /usr/share/sb_keys/DB.key \
                  --cert /usr/share/sb_keys/DB.crt \
                  --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
