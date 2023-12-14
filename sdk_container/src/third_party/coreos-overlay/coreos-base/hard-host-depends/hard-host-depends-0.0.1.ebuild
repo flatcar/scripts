@@ -95,6 +95,7 @@ RDEPEND="${RDEPEND}
 # TODO:	sys-apps/mosys
 RDEPEND="${RDEPEND}
 	sys-fs/squashfs-tools
+	dev-libs/libp11
 	"
 
 # Host dependencies that are needed for delta_generator.
