@@ -2,10 +2,13 @@
 
 set -e
 
-if [ $# -ne 2 ]; then
-    echo "usage: ${0} DATA_DIR KEYS_DIR"
+if [ $# -lt 1 ]; then
+    echo "usage: $0 alpha:1786.0.0 beta:1781.2.0"
     exit 1
 fi
+
+# DOWNLOAD can be set to 1 to download release artifacts automatically.
+DOWNLOAD="${DOWNLOAD:-0}"
 
 if [ -z "${PRIVATE_KEYS}" ]; then
     echo "PRIVATE_KEYS must be set using the URI form (https://www.rfc-editor.org/rfc/rfc7512#section-2.3)"
@@ -361,63 +364,70 @@ TkvXzMghTKTbYL9TjbK/CLzOR+5XXCHxXgDGLg==
 -----END PGP PUBLIC KEY BLOCK-----
 "
 
-DATA_DIR="$1"
-PUBLIC_KEYS_DIR="$2"
-
 GNUPGHOME="${PWD}/gnupg"
 mkdir -p "${GNUPGHOME}"
 chmod 700 "${GNUPGHOME}"
 trap 'rm -rf ${GNUPGHOME}' EXIT
 
+if [ "${DOWNLOAD}" != 0 ]; then
+    echo "Downloading files"
+    pushd ./data
+    ./download_payloads "$@"
+    popd
+fi
+
 # Setup GnuPG for verifying the image signature
 gpg --batch --quiet --import <<< "${GPG_KEY}"
 
-echo "Verifying files"
-# Check that we have a signature for the files we work on
-test -f "${DATA_DIR}/flatcar_production_update.bin.bz2.sig"
-test -f "${DATA_DIR}/flatcar_production_image.vmlinuz.sig"
-for FILE_PATH in "${DATA_DIR}"/*.sig; do
-  gpg --verify "${FILE_PATH}"
+for d in ./data/*/*; do
+    DATA_DIR="${d}"
+    echo "Verifying files for ${DATA_DIR}"
+    # Check that we have a signature for the files we work on
+    test -f "${DATA_DIR}/flatcar_production_update.bin.bz2.sig"
+    test -f "${DATA_DIR}/flatcar_production_image.vmlinuz.sig"
+    for FILE_PATH in "${DATA_DIR}"/*.sig; do
+      gpg --verify "${FILE_PATH}"
+    done
+    
+    echo "Generating extension payloads for ${DATA_DIR}"
+    shopt -s nullglob
+    for EXTENSION_PATH in "${DATA_DIR}/flatcar-"*.raw "${DATA_DIR}/oem-"*.raw; do
+      # Check that we have a signature for the files we work on
+      test -f "${EXTENSION_PATH}".sig
+      OUTPUT_PATH="${EXTENSION_PATH/.raw/.gz}"
+      if [ ! -f "${OUTPUT_PATH}" ]; then
+        echo "Generating ${OUTPUT_PATH}"
+        ./core_sign_update \
+          --image "${EXTENSION_PATH}" \
+          --output "${OUTPUT_PATH}" \
+          --private_keys "${PRIVATE_KEYS}" \
+          --public_keys "/mnt/host/source/src/scripts/sdk_container/src/third_party/coreos-overlay/coreos-base/coreos-au-key/files/official-v2.pub.pem" \
+          --keys_separator "+"
+      else
+        echo "ERROR: Found update payload already: ${OUTPUT_PATH}."
+        exit 1
+      fi
+    done
+    shopt -u nullglob
+    
+    echo "Extracting flatcar_production_update.bin.bz2 for ${DATA_DIR}"
+    bunzip2 -f -k "${DATA_DIR}/flatcar_production_update.bin.bz2"
+    
+    echo "Generating generic update payload for ${DATA_DIR}"
+    OUTPUT_PATH="${DATA_DIR}/flatcar_production_update.gz"
+    if [ ! -f "${OUTPUT_PATH}" ]; then
+        echo "Update payload not found. Building..."
+        ./core_sign_update \
+            --image "${DATA_DIR}/flatcar_production_update.bin" \
+            --kernel "${DATA_DIR}/flatcar_production_image.vmlinuz" \
+            --output "${OUTPUT_PATH}" \
+            --private_keys "${PRIVATE_KEYS}" \
+            --public_keys "/mnt/host/source/src/scripts/sdk_container/src/third_party/coreos-overlay/coreos-base/coreos-au-key/files/official-v2.pub.pem" \
+            --keys_separator "+"
+    else
+        echo "ERROR: Found update payload already: ${OUTPUT_PATH}."
+        exit 1
+    fi
+    
+    echo "Payload generated: ${OUTPUT_PATH}"
 done
-
-echo "Generating extension payloads"
-shopt -s nullglob
-for EXTENSION_PATH in "${DATA_DIR}/flatcar-"*.raw "${DATA_DIR}/oem-"*.raw; do
-  # Check that we have a signature for the files we work on
-  test -f "${EXTENSION_PATH}".sig
-  OUTPUT_PATH="${EXTENSION_PATH/.raw/.gz}"
-  if [ ! -f "${OUTPUT_PATH}" ]; then
-    echo "Generating ${OUTPUT_PATH}"
-    ./core_sign_update \
-      --image "${EXTENSION_PATH}" \
-      --output "${OUTPUT_PATH}" \
-      --private_keys "${PRIVATE_KEYS}" \
-      --public_keys "${PUBLIC_KEYS_DIR}/flatcar.pub.pem" \
-      --keys_separator "+"
-  else
-    echo "ERROR: Found update payload already: ${OUTPUT_PATH}."
-    exit 1
-  fi
-done
-shopt -u nullglob
-
-echo "Extracting flatcar_production_update.bin.bz2"
-bunzip2 -f -k "${DATA_DIR}/flatcar_production_update.bin.bz2"
-
-echo "Generating generic update payload"
-OUTPUT_PATH="${DATA_DIR}/flatcar_production_update.gz"
-if [ ! -f "${OUTPUT_PATH}" ]; then
-    echo "Update payload not found. Building..."
-    ./core_sign_update \
-        --image "${DATA_DIR}/flatcar_production_update.bin" \
-        --kernel "${DATA_DIR}/flatcar_production_image.vmlinuz" \
-        --output "${OUTPUT_PATH}" \
-        --private_keys "${PRIVATE_KEYS}" \
-        --public_keys "${PUBLIC_KEYS_DIR}/flatcar.pub.pem" \
-        --keys_separator "+"
-else
-    echo "ERROR: Found update payload already: ${OUTPUT_PATH}."
-    exit 1
-fi
-
-echo "Payload generated: ${OUTPUT_PATH}"
