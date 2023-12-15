@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  echo "Usage: $0 RELEASE_DESCRIPTORS..."
+  echo "Example: $0 alpha:1786.0.0 beta:1781.2.0"
+  echo "Downloads the release update payloads to ARCH-usr/VERSION/ folders."
+  echo "Expected to be run in .../sdk/src/scripts/data/"
+  echo "(usually before entering the chroot and running ./generate_payload data/ARCH-usr/VERSION/ keys/)."
+  exit 1
+fi
+
+if [ "$(basename "${PWD}")" != "data" ] || [ "$(basename "$(readlink -f ..)")" != "scripts" ]; then
+  echo "Expected to be run in .../sdk/src/scripts/data/" >&2
+  exit 1
+fi
+
+# Same as in copy-to-origin.sh and set-symlink.sh
+for TUPLE_COL in "$@"; do
+  IFS=":" read -r -a TUPLE <<< "${TUPLE_COL}"
+  CHANNEL="${TUPLE[0]}"
+  VERSION="${TUPLE[1]}"
+  for ARCH in amd64 arm64; do
+    echo "Downloading ${CHANNEL} ${VERSION} ${ARCH}"
+    rm -rf "${ARCH}-usr/${VERSION}"
+    mkdir -p "${ARCH}-usr/${VERSION}" && cd "${ARCH}-usr/${VERSION}"
+    BASEURL="https://bincache.flatcar-linux.net/images/${ARCH}/${VERSION}/"
+    # Note: Don't replace this with 'mapfile -t array < <(curl)' or 'read -r -a array <<< "$(curl)"' because that has no error checking
+    EXTRA_PAYLOADS=($(curl -H 'Accept: application/json' -fsSL "${BASEURL}" | jq -r ".[].name" | { grep -P '^(oem|flatcar)-.*raw(.sig)?$' || true ; }))
+    wget "${BASEURL}"{flatcar_production_update.bin.bz2,flatcar_production_update.bin.bz2.sig,flatcar_production_image.vmlinuz,flatcar_production_image.vmlinuz.sig}
+    for EXTRA_PAYLOAD in "${EXTRA_PAYLOADS[@]}"; do
+      wget "${BASEURL}${EXTRA_PAYLOAD}"
+    done
+    cd ../..
+  done
+done
+echo "Success"
