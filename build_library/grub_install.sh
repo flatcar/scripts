@@ -44,6 +44,7 @@ GRUB_SRC="/usr/lib/grub/${FLAGS_target}"
 
 # Modules required to boot a standard CoreOS configuration
 CORE_MODULES=( normal search test fat part_gpt search_fs_uuid gzio search_part_label terminal gptprio configfile memdisk tar echo read )
+SBAT=()
 
 # Name of the core image, depends on target
 CORE_NAME=
@@ -60,6 +61,7 @@ case "${FLAGS_target}" in
     x86_64-efi)
         CORE_MODULES+=( serial efi_gop efinet pgp http tftp )
         CORE_NAME="core.efi"
+        SBAT=(--sbat "${BUILD_LIBRARY_DIR}/sbat.csv")
         ;;
     x86_64-xen)
         CORE_NAME="core.elf"
@@ -172,10 +174,10 @@ sudo grub-mkimage \
     --compression=auto \
     --format "${FLAGS_target}" \
     --directory "${GRUB_SRC}" \
-    --sbat "${BUILD_LIBRARY_DIR}/sbat.csv" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
     --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+    "${SBAT[@]}"
     "${CORE_MODULES[@]}"
 
 # Now target specific steps to make the system bootable
