@@ -172,6 +172,7 @@ sudo grub-mkimage \
     --compression=auto \
     --format "${FLAGS_target}" \
     --directory "${GRUB_SRC}" \
+    --sbat "${BUILD_LIBRARY_DIR}/sbat.csv" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
     --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
