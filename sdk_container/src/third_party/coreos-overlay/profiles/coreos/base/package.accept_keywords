@@ -16,7 +16,7 @@
 =app-crypt/adcli-0.9.2 ~amd64 ~arm64
 
 # Needed by arm64-native SDK.
-=app-crypt/efitools-1.9.2 ~arm64
+=app-crypt/efitools-1.9.2-r1 ~arm64
 
 # Needed to fix CVE-2023-36054.
 =app-crypt/mit-krb5-1.21.2 ~amd64 ~arm64

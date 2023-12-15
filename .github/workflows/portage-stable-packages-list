@@ -59,6 +59,9 @@ acct-user/systemd-resolve
 acct-user/systemd-timesync
 acct-user/tss
 
+app-admin/eselect
+app-admin/perl-cleaner
+
 app-alternatives/awk
 app-alternatives/bc
 app-alternatives/bzip2
@@ -74,6 +77,8 @@ app-arch/cpio
 app-arch/gzip
 app-arch/lbzip2
 app-arch/libarchive
+app-arch/lz4
+app-arch/lzop
 app-arch/ncompress
 app-arch/pbzip2
 app-arch/pigz
@@ -94,11 +99,17 @@ app-containers/docker-proxy
 app-containers/runc
 
 app-crypt/adcli
+app-crypt/argon2
+app-crypt/efitools
 app-crypt/libb2
 app-crypt/libmd
+app-crypt/mhash
 app-crypt/mit-krb5
 app-crypt/pinentry
 app-crypt/rhash
+app-crypt/shash
+
+app-doc/eclass-manpages
 
 app-editors/nano
 app-editors/vim
@@ -108,11 +119,18 @@ app-emulation/qemu
 app-emulation/qemu-guest-agent
 
 app-eselect/eselect-iptables
+app-eselect/eselect-lib-bin-symlink
+app-eselect/eselect-pinentry
+app-eselect/eselect-python
+app-eselect/eselect-rust
+app-eselect/eselect-vi
 
 app-misc/c_rehash
 app-misc/editor-wrapper
+app-misc/jq
 app-misc/mime-types
 app-misc/pax-utils
+app-misc/zisofs-tools
 
 app-portage/elt-patches
 app-portage/gentoolkit
@@ -120,6 +138,7 @@ app-portage/portage-utils
 
 app-shells/bash
 app-shells/bash-completion
+app-shells/gentoo-bashcomp
 
 app-text/asciidoc
 app-text/build-docbook-catalog
@@ -129,6 +148,9 @@ app-text/docbook-xsl-stylesheets
 app-text/mandoc
 app-text/manpager
 app-text/sgml-common
+app-text/xmlto
+
+app-vim/gentoo-syntax
 
 dev-cpp/gtest
 
