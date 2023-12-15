@@ -163,8 +163,13 @@ delta_generator --signature_file ${files} --in_file update --out_file update.sig
 
 i=1
 for key in "${public_keys[@]}"; do
+	version="${i}"
+	if [ ${#public_keys[@]} == 1 ]; then
+		version=2
+	fi
+
 	delta_generator \
-		--public_key_version "${i}" \
+		--public_key_version "${version}" \
 		--public_key "${key}" \
 		--in_file update.signed
 
