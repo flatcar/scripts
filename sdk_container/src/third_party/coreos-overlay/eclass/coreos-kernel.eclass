@@ -195,7 +195,7 @@ install_build_source() {
 		| grep -v dt-bindings ))
 
 	# remove the broken symlinks referencing $ROOT
-	rm "${D}/usr/lib/modules/${KV_FULL}"/{source,build} || die
+	rm "${D}/usr/lib/modules/${KV_FULL}/build" || die
 
 	# Compose list of architectures to be excluded from the kernel modules
 	# tree in the final image. It is an array to be used as a pattern for
@@ -230,6 +230,11 @@ install_build_source() {
 	# /usr/lib/modules/${KV_FULL}/source/scripts/dtc/include-prefixes.
 	# The grep must run with "-w" to exclude exact patterns like either arm
 	# or arm64.
+	ls -liath .
+	echo "<<<<"
+	ls -liath source
+	echo "<<<<"
+	ls -liath build
 	{
 		echo source/Makefile
 		find source/arch/${kernel_arch} -follow -maxdepth 1 -name 'Makefile*' -print

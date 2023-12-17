@@ -49,7 +49,7 @@ src_install() {
 		  INSTALL_FW_PATH="${T}/fw" \
 		  modules_install
 	rm "${D}/usr/lib/debug/usr/lib/modules/${KV_FULL}/"modules.* || die
-	rm "${D}/usr/lib/debug/usr/lib/modules/${KV_FULL}"/{build,source} || die
+	rm "${D}/usr/lib/debug/usr/lib/modules/${KV_FULL}/build" || die
 
 	# Clean up the build tree
 	shred_keys

@@ -37,5 +37,4 @@ IUSE=""
 UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
 	${PATCH_DIR}/z0002-revert-pahole-flags.patch \
-	${PATCH_DIR}/z0003-revert-source-removal.patch \
 "

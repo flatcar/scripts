@@ -14,7 +14,8 @@ case "${NUM_JOBS}" in
   *[!0-9]*) NUM_JOBS='' ;;
 esac
 if [[ -z ${NUM_JOBS} ]] || [[ ${NUM_JOBS} -eq 0 ]]; then
-  NUM_JOBS=$(grep -c "^processor" /proc/cpuinfo)
+  NUM_JOBS=40
+  #$(grep -c "^processor" /proc/cpuinfo)
 fi
 # Ensure that any sub scripts we invoke get the max proc count.
 export NUM_JOBS
