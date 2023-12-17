@@ -230,11 +230,6 @@ install_build_source() {
 	# /usr/lib/modules/${KV_FULL}/source/scripts/dtc/include-prefixes.
 	# The grep must run with "-w" to exclude exact patterns like either arm
 	# or arm64.
-	ls -liath .
-	echo "<<<<"
-	ls -liath source
-	echo "<<<<"
-	ls -liath build
 	{
 		echo source/Makefile
 		find source/arch/${kernel_arch} -follow -maxdepth 1 -name 'Makefile*' -print
