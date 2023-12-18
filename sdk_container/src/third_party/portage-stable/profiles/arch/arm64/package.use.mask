@@ -1,13 +1,25 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ionen Wolkens <ionen@gentoo.org> (2023-12-02)
+# dev-qt/qtwebengine:6 is keyworded here.
+dev-python/PyQt6 -pdfium
+
+# Takuya Wakazono <pastalian46@gmail.com> (2023-11-21)
+# app-crypt/rpm-sequoia is keyworded here.
+app-arch/rpm -sequoia
+
+# Leonardo Hernández Hernández <leohdz172@proton.me> (2023-11-15)
+# media-libs/shaderc in not keyworded
+media-video/ffmpeg shaderc
+
 # Jimi Huotari <chiitoo@gentoo.org> (2023-10-21)
 # Unmask on specific arches where it's available.
 media-video/obs-studio -mpegts
 
 # Sam James <sam@gentoo.org> (2023-10-11)
 # Supports 64-bit NEON
-dev-libs/botan -cpu_flags_arm_neo
+dev-libs/botan -cpu_flags_arm_neon
 
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
@@ -25,10 +37,6 @@ dev-python/pymongo -test-full
 # Ruby has several JITs available but they need porting to individual arches.
 # Unmask on specific arches where it's available.
 dev-lang/ruby -jit
-
-# Sam James <sam@gentoo.org> (2023-01-27)
-# media-libs/shaderc not keyworded here
-games-action/supertuxkart vulkan
 
 # Michał Górny <mgorny@gentoo.org> (2023-01-24)
 # libomptarget is only supported on 64-bit architectures.
@@ -152,8 +160,8 @@ media-sound/bluez-alsa man
 # Sam James <sam@gentoo.org> (2020-01-17)
 # gnuefi + systemd-boot works on arm64
 # bug #729720
-sys-apps/systemd -boot -gnuefi
-sys-apps/systemd-utils -boot
+sys-apps/systemd -boot -gnuefi -ukify
+sys-apps/systemd-utils -boot -ukify
 
 # Joonas Niilola <juippis@gentoo.org> (2021-01-15)
 # Dependency not keyworded on this arch.
@@ -256,10 +264,6 @@ media-video/ffmpeg-chromium -cpu_flags_arm_neon
 # dev-libs/criterion is not keyworded yet
 app-admin/syslog-ng test
 
-# Craig Andrews <candrews@gentoo.org> (2019-11-26)
-# net-misc/quiche is available on this arch
-net-misc/curl -quiche
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2019-10-29)
 # Neither sys-apps/bolt nor kde-plasma/plasma-thunderbolt are keyworded
 kde-plasma/plasma-meta thunderbolt
@@ -305,7 +309,6 @@ media-sound/mpg123 -sdl
 media-video/ffmpeg -sdl
 media-video/mplayer -sdl
 media-video/mpv -sdl
-media-video/transcode -sdl
 >=x11-libs/wxGTK-3 -sdl
 
 # Michał Górny <mgorny@gentoo.org> (2018-07-07)

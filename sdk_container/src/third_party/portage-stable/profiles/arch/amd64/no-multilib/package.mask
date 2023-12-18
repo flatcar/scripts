@@ -17,10 +17,6 @@ games-util/steam-games-meta
 games-util/steam-launcher
 games-util/steam-meta
 
-# Andreas K. Huettel <dilfridge@gentoo.org>
-# Novell Groupwise Client sadly needs a 32bit java vm (bundled)
-mail-client/novell-groupwise-client
-
 # AMD64 Team <amd64@gentoo.org>
 # Mask packages that rely on amd64 multilib
 app-accessibility/mbrola
@@ -92,7 +88,6 @@ games-rpg/wasteland2
 games-server/etqw-ded
 games-strategy/darwinia
 games-strategy/darwinia-demo
-games-strategy/defcon-demo
 games-strategy/dominions2
 games-strategy/knights-demo
 games-strategy/majesty-demo

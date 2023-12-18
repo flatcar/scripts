@@ -90,10 +90,6 @@ sys-cluster/slurm nvml
 # ada bootstrap currently only available on amd64/x86
 sys-devel/gcc -ada
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-09-11)
-# media-libs/qtav not keyworded yet
-media-gfx/kphotoalbum qtav
-
 # Arthur Zamarin <arthurzam@gentoo.org> (2022-08-15)
 # deps not keyworded
 dev-util/pkgcheck emacs
@@ -385,8 +381,8 @@ app-emulation/libvirt xen
 
 # Mike Gilbert <floppym@gentoo.org> (2015-09-05)
 # sys-boot/gnu-efi is not supported on all archs.
-sys-apps/systemd -boot -gnuefi
-sys-apps/systemd-utils -boot
+sys-apps/systemd -boot -gnuefi -ukify
+sys-apps/systemd-utils -boot -ukify
 
 # Ben de Groot <yngwin@gentoo.org> (2015-03-15)
 # media-libs/libbdplus is keyworded on x86, so unmask the useflag
@@ -436,10 +432,6 @@ gnustep-base/gnustep-make -libobjc2
 # The SPICE server is only supported on 64-bit platforms and not on 32-bit
 # https://lists.freedesktop.org/archives/spice-devel/2015-September/021846.html
 app-emulation/qemu spice
-
-# Samuli Suominen <ssuominen@gentoo.org> (2011-12-06)
-# NuppelVideo support is x86 only
-media-video/transcode -nuv -pic
 
 # Davide Pesavento <pesa@gentoo.org> (2011-11-30)
 # The QML (V4) and JSC JITs are supported only on amd64/arm/x86,
