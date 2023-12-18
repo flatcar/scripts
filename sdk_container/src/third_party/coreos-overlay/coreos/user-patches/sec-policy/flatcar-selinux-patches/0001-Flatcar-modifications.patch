@@ -1,0 +1,501 @@
+From 5293e66fafd5f5cf2872abc03d8b49ed5bc81b9a Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Mon, 4 Dec 2023 12:17:25 +0100
+Subject: [PATCH] Flatcar modifications
+
+---
+ policy/modules/admin/netutils.te        |  20 ++++
+ policy/modules/kernel/corenetwork.if.in |  26 ++++
+ policy/modules/kernel/corenetwork.te.in |  12 +-
+ policy/modules/kernel/files.if          |  45 +++++++
+ policy/modules/kernel/kernel.te         |  73 ++++++++++++
+ policy/modules/services/container.fc    |   6 +
+ policy/modules/services/container.te    | 150 +++++++++++++++++++++++-
+ policy/modules/system/init.te           |   8 ++
+ policy/modules/system/locallogin.te     |   9 +-
+ policy/modules/system/logging.te        |   9 ++
+ 10 files changed, 355 insertions(+), 3 deletions(-)
+
+diff --git a/refpolicy/policy/modules/admin/netutils.te b/refpolicy/policy/modules/admin/netutils.te
+index 3c43a1d84..429c67220 100644
+--- a/refpolicy/policy/modules/admin/netutils.te
++++ b/refpolicy/policy/modules/admin/netutils.te
+@@ -128,6 +128,16 @@ corenet_raw_sendrecv_generic_if(ping_t)
+ corenet_raw_sendrecv_generic_node(ping_t)
+ corenet_tcp_sendrecv_generic_node(ping_t)
+ corenet_raw_bind_generic_node(ping_t)
++#
++# FLATCAR:
++#
++# This is to fix ping -I with some IP or network interface.
++#
++# Based on https://github.com/fedora-selinux/selinux-policy/pull/403
++#
++# TODO: What AVC does this fix?
++#
++corenet_icmp_bind_generic_node(ping_t)
+ 
+ dev_read_urand(ping_t)
+ 
+@@ -212,6 +222,16 @@ corenet_udp_bind_traceroute_port(traceroute_t)
+ corenet_tcp_connect_all_ports(traceroute_t)
+ corenet_sendrecv_all_client_packets(traceroute_t)
+ corenet_sendrecv_traceroute_server_packets(traceroute_t)
++#
++# FLATCAR:
++#
++# This is to fix ping -I with some IP or network interface.
++#
++# Based on https://github.com/fedora-selinux/selinux-policy/pull/403
++#
++# TODO: What AVC does this fix?
++#
++corenet_icmp_bind_generic_node(traceroute_t)
+ 
+ dev_read_rand(traceroute_t)
+ dev_read_urand(traceroute_t)
+diff --git a/refpolicy/policy/modules/kernel/corenetwork.if.in b/refpolicy/policy/modules/kernel/corenetwork.if.in
+index d1038d742..a675c8e28 100644
+--- a/refpolicy/policy/modules/kernel/corenetwork.if.in
++++ b/refpolicy/policy/modules/kernel/corenetwork.if.in
+@@ -877,6 +877,32 @@ interface(`corenet_sctp_bind_generic_node',`
+ 	allow $1 node_t:sctp_socket node_bind;
+ ')
+ 
++#
++# FLATCAR:
++#
++# This is to fix ping -I with some IP or network interface. Added
++# icmp_socket here.
++#
++# Based on https://github.com/fedora-selinux/selinux-policy/pull/403
++#
++########################################
++## <summary>
++##	Bind ICMP sockets to generic nodes.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`corenet_icmp_bind_generic_node',`
++	gen_require(`
++		type node_t;
++	')
++
++	allow $1 node_t:icmp_socket node_bind;
++')
++
+ ########################################
+ ## <summary>
+ ##	Bind TCP sockets to generic nodes.
+diff --git a/refpolicy/policy/modules/kernel/corenetwork.te.in b/refpolicy/policy/modules/kernel/corenetwork.te.in
+index 53bf7849c..9edac05e8 100644
+--- a/refpolicy/policy/modules/kernel/corenetwork.te.in
++++ b/refpolicy/policy/modules/kernel/corenetwork.te.in
+@@ -381,7 +381,17 @@ allow corenet_unconfined_type port_type:sctp_socket { name_connect };
+ 
+ # Bind to any network address.
+ allow corenet_unconfined_type port_type:{ tcp_socket udp_socket rawip_socket sctp_socket } name_bind;
+-allow corenet_unconfined_type node_type:{ tcp_socket udp_socket rawip_socket sctp_socket } node_bind;
++#
++# FLATCAR:
++#
++# This is to fix ping -I with some IP or network interface. Added
++# icmp_socket here.
++#
++# Based on https://github.com/fedora-selinux/selinux-policy/pull/403
++#
++# TODO: What AVC does this fix?
++#
++allow corenet_unconfined_type node_type:{ icmp_socket tcp_socket udp_socket rawip_socket sctp_socket } node_bind;
+ 
+ # Infiniband
+ corenet_ib_access_all_pkeys(corenet_unconfined_type)
+diff --git a/refpolicy/policy/modules/kernel/files.if b/refpolicy/policy/modules/kernel/files.if
+index 370ac0931..098d0cd6c 100644
+--- a/refpolicy/policy/modules/kernel/files.if
++++ b/refpolicy/policy/modules/kernel/files.if
+@@ -7911,3 +7911,48 @@ interface(`files_relabel_all_pidfiles',`
+ 	relabel_files_pattern($1, pidfile, pidfile)
+ 	relabel_lnk_files_pattern($1, pidfile, pidfile)
+ ')
++
++#
++# FLATCAR:
++#
++# It's a part of our relabeling effort. Not finished, not yet used.
++#
++# Upstream PR: https://github.com/SELinuxProject/refpolicy/pull/515
++#
++# Second part of this change: https://github.com/flatcar/coreos-overlay/blob/f9a9943cb7ebfcb6fa625b06eb808a65572f54ff/sec-policy/selinux-base-policy/files/systemd-relabel.patch
++#
++########################################
++## <summary>
++##	Relabel all files on the filesystem, except
++##	policy_config_t and exceptions.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <param name="exception_types" optional="true">
++##	<summary>
++##	The types to be excluded.  Each type or attribute
++##	must be negated by the caller.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`files_relabel_all_non_policy_files',`
++	gen_require(`
++		attribute file_type;
++		type policy_config_t;
++	')
++
++	allow $1 { file_type -policy_config_t $2 }:dir list_dir_perms;
++	relabel_dirs_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
++	relabel_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
++	relabel_lnk_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
++	relabel_fifo_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
++	relabel_sock_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
++	# this is only relabelfrom since there should be no
++	# device nodes with file types.
++	relabelfrom_blk_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
++	relabelfrom_chr_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
++')
+diff --git a/refpolicy/policy/modules/kernel/kernel.te b/refpolicy/policy/modules/kernel/kernel.te
+index 8156ac087..72a07e753 100644
+--- a/refpolicy/policy/modules/kernel/kernel.te
++++ b/refpolicy/policy/modules/kernel/kernel.te
+@@ -369,6 +369,79 @@ files_mounton_default(kernel_t)
+ 
+ mcs_process_set_categories(kernel_t)
+ 
++#
++# FLATCAR:
++#
++# TODO: What AVCs does this fix?
++#
++allow kernel_t self:user_namespace create;
++
++#
++# FLATCAR:
++#
++# Occurs in coreos.tls.fetch-urls tests. Haven't pinpointed the cause yet:
++#
++# avc:  denied  { add_name } for  pid=[0-9]* comm="bash" name="63" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=dir permissive=0
++#
++# Occurs in kubeadm.v<VERSION>.calico.base and
++# kubeadm.v<VERSION>.calico.cgroupv1.base:
++#
++# avc:  denied  { add_name } for  pid=[0-9]* comm="tee" name="63" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=dir permissive=0
++#
++allow kernel_t self:dir { add_name };
++
++#
++# FLATCAR:
++#
++# Occurs in coreos.tls.fetch-urls tests. Haven't pinpointed the cause yet:
++#
++# avc:  denied  { create } for  pid=[0-9]* comm="bash" name="63" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:kernel_t:s0 tclass=file permissive=0
++#
++# Occurs in kubeadm.v<VERSION>.calico.base and
++# kubeadm.v<VERSION>.calico.cgroupv1.base:
++#
++# avc:  denied  { create } for  pid=[0-9]* comm="tee" name="63" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:kernel_t:s0 tclass=file permissive=0
++#
++allow kernel_t self:file { create };
++
++#
++# FLATCAR:
++#
++# Occurs in coreos.tls.fetch-urls tests. Haven't pinpointed the cause
++# yet:
++#
++# avc:  denied  { write } for  pid=[0-9]* comm="bash" name="fd" dev="proc" ino=[0-9]* scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=dir permissive=0
++#
++# This one occurs a lot in kubeadm.v<VERSION>.calico.base and
++# kubeadm.v<VERSION>.calico.cgroupv1.base, is this from mantle's
++# kola/tests/kubeadm/templates.go?
++#
++# avc:  denied  { write } for  pid=[0-9]* comm="tee" name="fd" dev="proc" ino=[0-9]* scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=dir permissive=0
++#
++allow kernel_t self:dir { write };
++
++#
++# FLATCAR:
++#
++# This one happens a lot in kubeadm.v<VERSION>.<CNI>.cgroupv1.base. No
++# idea what is this, but looks like a vestige of cgroupv1 support.
++#
++# avc:  denied  { audit_read } for  pid=[0-9]* comm="systemd" capability=37  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=1
++#
++allow kernel_t self:capability2 { audit_read };
++
++#
++# FLATCAR:
++#
++# This one happens a lot in kubeadm.v<VERSION>.<CNI>.cgroupv1.base and
++# kubeadm.v<VERSION>.<CNI>.base for cilium and calico.
++#
++# avc:  denied  { watch_reads } for  pid=[0-9]* comm="systemd" path="/run/mount/utab.lock" dev="tmpfs" ino=[0-9]* scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:mount_runtime_t:s0 tclass=file permissive=0
++#
++optional_policy(`
++	mount_watch_reads_runtime_files(kernel_t)
++')
++
+ mls_process_read_all_levels(kernel_t)
+ mls_process_write_all_levels(kernel_t)
+ mls_file_write_all_levels(kernel_t)
+diff --git a/refpolicy/policy/modules/services/container.fc b/refpolicy/policy/modules/services/container.fc
+index 49e5d59bb..3769ad311 100644
+--- a/refpolicy/policy/modules/services/container.fc
++++ b/refpolicy/policy/modules/services/container.fc
+@@ -38,6 +38,12 @@ HOME_DIR/\.docker(/.*)?		gen_context(system_u:object_r:container_conf_home_t,s0)
+ /etc/cni(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
+ /etc/docker(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
+ /etc/containerd(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
++#
++# FLATCAR:
++#
++# We keep containerd config in /usr/share, so label it as container_config_t too.
++#
++/usr/share/containerd(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
+ 
+ /run/containers(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
+ /run/libpod(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
+diff --git a/refpolicy/policy/modules/services/container.te b/refpolicy/policy/modules/services/container.te
+index a5ad4686d..ceaeb2dfc 100644
+--- a/refpolicy/policy/modules/services/container.te
++++ b/refpolicy/policy/modules/services/container.te
+@@ -58,6 +58,52 @@ gen_tunable(container_use_dri, false)
+ ## </desc>
+ gen_tunable(container_use_ecryptfs, false)
+ 
++# FLATCAR:
++#
++# Turned to be true by default to address following AVCs:
++#
++# This one comes from cl.internet (DockerPing?):
++#
++# For ping inside docker container.
++#
++# Boolean container_use_host_all_caps also allows this. Maybe this
++# should be turned on by default then?
++#
++# avc:  denied  { net_raw } for  pid=[0-9]* comm="ping" capability=13  scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=capability permissive=0
++#
++# This one comes from docker.base:
++#
++# avc:  denied  { setuid } for  pid=[0-9]* comm="ping" capability=7  scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=capability permissive=0
++#
++# This one happens in kubeadm.v<VERSION>.<CNI>.base for cilium and calico
++#
++# avc:  denied  { chown } for  pid=[0-9]* comm="nginx" capability=0  scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=capability permissive=0
++#
++# Boolean container_use_host_all_caps also allows this. Maybe this
++# should be turned on by default then?
++#
++# This one happens in kubeadm.v<VERSION>.<CNI>.base for cilium and calico
++#
++# avc:  denied  { dac_override } for  pid=[0-9]* comm="rpcbind" capability=1  scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=capability permissive=0
++#
++# This comes from the same place:
++#
++# avc:  denied  { dac_override } for  pid=[0-9]* comm="systemd-tmpfile" capability=1  scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=capability permissive=0
++#
++# Boolean container_use_host_all_caps also allows this. Maybe this
++# should be turned on by default then?
++#
++# This one happens in kubeadm.v<VERSION>.<CNI>.base for cilium and calico
++#
++# avc:  denied  { dac_read_search } for  pid=[0-9]* comm="rpcbind" capability=2  scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=capability permissive=0
++#
++# This comes from the same place:
++#
++# avc:  denied  { dac_read_search } for  pid=[0-9]* comm="systemd-tmpfile" capability=2  scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=capability permissive=0
++#
++# Boolean container_use_host_all_caps also allows this. Maybe this
++# should be turned on by default then?
++#
+ ## <desc>
+ ##	<p>
+ ##	Allow containers to use all capabilities in a
+@@ -65,7 +111,7 @@ gen_tunable(container_use_ecryptfs, false)
+ ##	directly on the host.
+ ##	</p>
+ ## </desc>
+-gen_tunable(container_use_host_all_caps, false)
++gen_tunable(container_use_host_all_caps, true)
+ 
+ ## <desc>
+ ##	<p>
+@@ -1088,3 +1134,105 @@ optional_policy(`
+        unconfined_domain_noaudit(spc_user_t)
+        domain_ptrace_all_domains(spc_user_t)
+ ')
++
++#
++# FLATCAR:
++#
++# The rules below were added long time ago.
++#
++# TODO: Would be nice to document what they were trying to fix. And
++# maybe document what AVCs they were trying to address? I suspect that
++# a lot of them are not necessary now or won't be necessary when whole
++# image will be labeled.
++#
++
++allow container_domain self:socket_class_set { accept ioctl read getattr lock write append getopt setopt };
++allow container_domain init_t:unix_stream_socket { accept ioctl read getattr lock write append getopt shutdown };
++
++# required for sharing /run for the etcd-wrapper
++files_mounton_runtime_dirs(container_engine_domain)
++
++# this is a hack while the system is not labelled. we need to authorize transition from kernel_t
++require {
++	type kernel_t;
++	type tmpfs_t;
++	type var_lib_t;
++	type unconfined_t;
++}
++allow kernel_t container_t:process transition;
++allow initrc_t container_t:process transition;
++allow kernel_t container_t:process2 nnp_transition;
++allow kernel_t unconfined_t:process transition;
++fs_manage_tmpfs_chr_files(container_t)
++fs_manage_tmpfs_dirs(container_t)
++fs_manage_tmpfs_files(container_t)
++fs_manage_tmpfs_sockets(container_t)
++fs_manage_tmpfs_symlinks(container_t)
++fs_remount_tmpfs(container_t)
++kernel_read_messages(container_t)
++kernel_sigchld(container_t)
++kernel_use_fds(container_t)
++allow container_t self:process getcap;
++files_read_var_lib_files(container_t)
++files_read_var_lib_symlinks(container_t)
++term_use_generic_ptys(container_t)
++term_setattr_generic_ptys(container_t)
++allow container_t tmpfs_t:chr_file { read write open };
++allow container_t container_file_t:chr_file { manage_file_perms };
++allow container_t self:process getpgid;
++allow container_t container_file_t:file { entrypoint mounton };
++allow container_t var_lib_t:file { entrypoint execute execute_no_trans };
++allow container_t kernel_t:fifo_file { getattr ioctl read write open append };
++allow container_t initrc_t:fifo_file { getattr ioctl read write open append };
++filetrans_pattern(kernel_t, etc_t, container_file_t, dir, "cni")
++
++# this is required by flanneld
++allow container_t kernel_t:system { module_request };
++
++# required by flanneld to write into /run/flannel/subnet.env
++filetrans_pattern(kernel_t, var_run_t, container_file_t, dir, "flannel")
++
++# required for cilium
++allow kernel_t spc_t:process transition;
++# required for using cilium cgroup v1
++allow kernel_t self:perf_event { open cpu kernel read };
++allow unconfined_t container_file_t:file { entrypoint };
++
++#
++# These ones come from kubeadm.v<VERSION>.<CNI>.base for cilium and calico:
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-apiserver" path="/etc/kubernetes/pki/apiserver.crt" dev="overlay" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-apiserver" path="/etc/kubernetes/pki/ca.crt" dev="overlay" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-apiserver" path="/etc/kubernetes/pki/front-proxy-ca.crt" dev="overlay" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-apiserver" path="/etc/kubernetes/pki/front-proxy-client.crt" dev="overlay" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-controller" path="/etc/kubernetes/pki/ca.crt" dev="overlay" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-controller" path="/etc/kubernetes/pki/front-proxy-ca.crt" dev="overlay" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
++#
++allow container_t etc_t:file watch;
++
++#
++# This one comes from kubeadm.v<VERSION>.<CNI>.base for cilium and calico:
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-controller" path="/opt/libexec/kubernetes/kubelet-plugins/volume/exec" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:usr_t:s0 tclass=dir permissive=0
++#
++# This one comes from kubeadm.v<VERSION>.calico.base:
++#
++# avc:  denied  { watch } for  pid=[0-9]* comm="kube-controller" path="/opt/libexec/kubernetes/kubelet-plugins/volume/exec/nodeagent~uds" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:usr_t:s0 tclass=dir permissive=0
++#
++allow container_t usr_t:dir { watch };
++
++#
++# These ones come from kubeadm.v<VERSION>.calico.base:
++#
++# avc:  denied  { execute } for  pid=[0-9]* comm="kube-controller" name="uds" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
++#
++# avc:  denied  { execute_no_trans } for  pid=[0-9]* comm="kube-controller" path="/opt/libexec/kubernetes/kubelet-plugins/volume/exec/nodeagent~uds/uds" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
++#
++# avc:  denied  { map } for  pid=[0-9]* comm="uds" path="/opt/libexec/kubernetes/kubelet-plugins/volume/exec/nodeagent~uds/uds" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
++#
++allow container_t usr_t:file { execute execute_no_trans map };
+diff --git a/refpolicy/policy/modules/system/init.te b/refpolicy/policy/modules/system/init.te
+index c83d88b74..b55afabc0 100644
+--- a/refpolicy/policy/modules/system/init.te
++++ b/refpolicy/policy/modules/system/init.te
+@@ -1658,3 +1658,11 @@ optional_policy(`
+ 	userdom_dontaudit_rw_all_users_stream_sockets(systemprocess)
+ 	userdom_dontaudit_write_user_tmp_files(systemprocess)
+ ')
++
++#
++# FLATCAR:
++#
++# TODO: What AVC does this fix?
++#
++require { type unconfined_t; }
++allow init_t unconfined_t:file exec_file_perms;
+diff --git a/refpolicy/policy/modules/system/locallogin.te b/refpolicy/policy/modules/system/locallogin.te
+index 4dc9981bc..ee68ba624 100644
+--- a/refpolicy/policy/modules/system/locallogin.te
++++ b/refpolicy/policy/modules/system/locallogin.te
+@@ -34,7 +34,14 @@ role system_r types sulogin_t;
+ 
+ allow local_login_t self:capability { chown dac_read_search dac_override fowner fsetid kill setgid setuid sys_nice sys_resource sys_tty_config };
+ dontaudit local_login_t self:capability net_admin;
+-allow local_login_t self:process { getcap setcap setexec setrlimit setsched };
++#
++# FLATCAR:
++#
++# Added setpgid here.
++#
++# TODO: What AVC does this fix?
++#
++allow local_login_t self:process { setpgid getcap setcap setexec setrlimit setsched };
+ allow local_login_t self:fd use;
+ allow local_login_t self:fifo_file rw_fifo_file_perms;
+ allow local_login_t self:sock_file read_sock_file_perms;
+diff --git a/refpolicy/policy/modules/system/logging.te b/refpolicy/policy/modules/system/logging.te
+index a7b6173d8..343ef1abc 100644
+--- a/refpolicy/policy/modules/system/logging.te
++++ b/refpolicy/policy/modules/system/logging.te
+@@ -507,6 +507,15 @@ userdom_dontaudit_search_user_home_dirs(syslogd_t)
+ 
+ ifdef(`init_systemd',`
+ 	# for systemd-journal
++
++	#
++	# FLATCAR:
++	#
++	# TODO: What AVC does this fix?
++	#
++	require { type kernel_t; }
++	allow syslogd_t kernel_t:netlink_audit_socket getattr;
++
+ 	allow syslogd_t self:capability audit_control;
+ 	allow syslogd_t self:netlink_audit_socket connected_socket_perms;
+ 	allow syslogd_t self:capability2 audit_read;
+-- 
+2.34.1
+
