@@ -24,7 +24,7 @@ else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/jpakkane.gpg
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -53,7 +53,13 @@ RDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${P}-python-path.patch
+	"${FILESDIR}"/${PN}-1.2.1-python-path.patch
+
+	# backport fix for broken configure_file()
+	"${FILESDIR}"/0001-Only-convert-boolean-values-for-cmake-formats.patch
+
+	# backport fix for hiding compiler warnings (such as Modern C) in vala and cython
+	"${FILESDIR}"/0001-ninja-backend-don-t-hide-all-compiler-warnings-for-t.patch
 )
 
 python_prepare_all() {
