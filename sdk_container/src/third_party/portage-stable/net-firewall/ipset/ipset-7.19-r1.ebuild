@@ -3,8 +3,8 @@
 
 EAPI=8
 
-MODULES_OPTIONAL_USE=modules
-inherit autotools bash-completion-r1 linux-info linux-mod systemd
+MODULES_OPTIONAL_IUSE=modules
+inherit autotools bash-completion-r1 linux-mod-r1 systemd
 
 DESCRIPTION="IPset tool for iptables, successor to ippool"
 HOMEPAGE="https://ipset.netfilter.org/ https://git.netfilter.org/ipset/"
@@ -12,10 +12,10 @@ SRC_URI="https://ipset.netfilter.org/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv x86"
+KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 
 RDEPEND="
-	>=net-firewall/iptables-1.4.7
+	net-firewall/iptables
 	net-libs/libmnl:=
 "
 DEPEND="${RDEPEND}"
@@ -23,20 +23,13 @@ BDEPEND="virtual/pkgconfig"
 
 DOCS=( ChangeLog INSTALL README UPGRADE )
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-7.16-bashism.patch
-)
-
 # configurable from outside, e.g. /etc/portage/make.conf
 IP_NF_SET_MAX=${IP_NF_SET_MAX:-256}
 
-BUILD_TARGETS="modules"
-MODULE_NAMES_ARG="kernel/net/netfilter/ipset/:${S}/kernel/net/netfilter/ipset"
-MODULE_NAMES="xt_set(kernel/net/netfilter/ipset/:${S}/kernel/net/netfilter/)"
-MODULE_NAMES+=" em_ipset(kernel/net/sched/:${S}/kernel/net/sched/)"
-for i in ip_set{,_bitmap_{ip{,mac},port},_hash_{ip{,mac,mark,port{,ip,net}},mac,net{,port{,net},iface,net}},_list_set}; do
-	MODULE_NAMES+=" ${i}(${MODULE_NAMES_ARG})"
-done
+src_prepare() {
+	default
+	eautoreconf
+}
 
 pkg_setup() {
 	get_version
@@ -70,13 +63,8 @@ pkg_setup() {
 			die "Nonmodular kernel detected, will not build kernel modules"
 		fi
 	fi
-	[[ ${build_modules} -eq 1 ]] && linux-mod_pkg_setup
-}
 
-src_prepare() {
-	default
-
-	eautoreconf
+	[[ ${build_modules} -eq 1 ]] && linux-mod-r1_pkg_setup
 }
 
 src_configure() {
@@ -92,12 +80,19 @@ src_configure() {
 
 src_compile() {
 	einfo "Building userspace"
+
+	local modlist=( xt_set=kernel/net/netfilter/ipset/:"${S}":kernel/net/netfilter/:
+					em_ipset=kernel/net/sched:"${S}":kernel/net/sched/:modules )
+
+	for i in ip_set{,_bitmap_{ip{,mac},port},_hash_{ip{,mac,mark,port{,ip,net}},mac,net{,port{,net},iface,net}},_list_set}; do
+		modlist+=( ${i}=kernel/net/netfilter/ipset/:"${S}":kernel/net/netfilter/ipset )
+	done
+
 	emake
 
 	if [[ ${build_modules} -eq 1 ]]; then
 		einfo "Building kernel modules"
-		set_arch_to_kernel
-		emake modules
+		linux-mod-r1_src_compile
 	fi
 }
 
@@ -114,6 +109,6 @@ src_install() {
 
 	if [[ ${build_modules} -eq 1 ]]; then
 		einfo "Installing kernel modules"
-		linux-mod_src_install
+		linux-mod-r1_src_install
 	fi
 }
