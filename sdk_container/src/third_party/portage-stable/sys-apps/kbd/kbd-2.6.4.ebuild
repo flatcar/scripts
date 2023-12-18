@@ -3,17 +3,16 @@
 
 EAPI=8
 
-inherit autotools
-
 if [[ ${PV} == 9999 ]] ; then
+	inherit autotools git-r3
 	EGIT_REPO_URI="https://github.com/legionus/kbd.git https://git.kernel.org/pub/scm/linux/kernel/git/legion/kbd.git"
 	EGIT_BRANCH="master"
-	inherit git-r3
 else
 	if [[ $(ver_cut 3) -lt 90 ]] ; then
 		SRC_URI="https://www.kernel.org/pub/linux/utils/kbd/${P}.tar.xz"
-		KEYWORDS="~alpha ~amd64 arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 sparc ~x86"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 	else
+		inherit autotools
 		SRC_URI="https://github.com/legionus/kbd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	fi
 fi
@@ -42,16 +41,10 @@ RDEPEND="
 	${DEPEND}
 	selinux? ( sec-policy/selinux-loadkeys )
 "
-# autoconf-archive for F_S patch
 BDEPEND="
-	sys-devel/autoconf-archive
 	virtual/pkgconfig
 	test? ( dev-libs/check )
 "
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.6.3-no-redefine-fortify-source.patch
-)
 
 src_prepare() {
 	default
@@ -65,12 +58,9 @@ src_prepare() {
 	mv qwerty/cz.map qwerty/cz-qwerty.map || die
 	popd &> /dev/null || die
 
-	#if [[ ${PV} == 9999 ]] || [[ $(ver_cut 3) -ge 90 ]] ; then
-	#	eautoreconf
-	#fi
-
-	# Always do it for now for the F_S patch
-	eautoreconf
+	if [[ ${PV} == 9999 ]] || [[ $(ver_cut 3) -ge 90 ]] ; then
+		eautoreconf
+	fi
 }
 
 src_configure() {
