@@ -26,8 +26,12 @@ function clone_version() {
 }
 # --
 
+# Nothing mounted on /mnt/host in self-contained mode
+sudo chown -R sdk:sdk /home/sdk /mnt/host/source
+
 version="$(source /mnt/host/source/.repo/manifests/version.txt; echo $FLATCAR_VERSION)"
 
-mkdir -p /home/sdk/trunk/src/third_party/
+rmdir /mnt/host/source/src/third_party
+ln -s /mnt/host/source/src/scripts/sdk_container/src/third_party /mnt/host/source/src/
 
 clone_version scripts /home/sdk/trunk/src/scripts "$version"
