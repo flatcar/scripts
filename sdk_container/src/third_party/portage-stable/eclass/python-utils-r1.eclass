@@ -153,17 +153,6 @@ _python_set_impls() {
 		done
 	fi
 
-	if [[ -n ${obsolete[@]} && ${EBUILD_PHASE} == setup ]]; then
-		# complain if people don't clean up old impls while touching
-		# the ebuilds recently.  use the copyright year to infer last
-		# modification
-		# NB: this check doesn't have to work reliably
-		if [[ $(head -n 1 "${EBUILD}" 2>/dev/null) == *2022* ]]; then
-			eqawarn "Please clean PYTHON_COMPAT of obsolete implementations:"
-			eqawarn "  ${obsolete[*]}"
-		fi
-	fi
-
 	local supp=() unsupp=()
 
 	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
@@ -1307,6 +1296,21 @@ _python_check_occluded_packages() {
 # parameter, when calling epytest.  The listed files will be entirely
 # skipped from test collection.
 
+# @ECLASS_VARIABLE: EPYTEST_XDIST
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# If set to a non-empty value, enables running tests in parallel
+# via pytest-xdist plugin.  If this variable is set prior to calling
+# distutils_enable_tests in distutils-r1, a test dependency
+# on dev-python/pytest-xdist is added automatically.
+
+# @ECLASS_VARIABLE: EPYTEST_JOBS
+# @USER_VARIABLE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Specifies the number of jobs for parallel (pytest-xdist) test runs.
+# When unset, defaults to -j from MAKEOPTS, or the current nproc.
+
 # @FUNCTION: epytest
 # @USAGE: [<args>...]
 # @DESCRIPTION:
@@ -1321,15 +1325,8 @@ epytest() {
 	_python_check_EPYTHON
 	_python_check_occluded_packages
 
-	local color
-	case ${NOCOLOR} in
-		true|yes)
-			color=no
-			;;
-		*)
-			color=yes
-			;;
-	esac
+	local color=yes
+	[[ ${NO_COLOR} ]] && color=no
 
 	local args=(
 		# verbose progress reporting and tracebacks
@@ -1347,30 +1344,57 @@ epytest() {
 		# count is more precise when we're dealing with a large number
 		# of tests
 		-o console_output_style=count
-		# disable the undesirable-dependency plugins by default to
-		# trigger missing argument strips.  strip options that require
-		# them from config files.  enable them explicitly via "-p ..."
-		# if you *really* need them.
-		-p no:cov
-		-p no:flake8
-		-p no:flakes
-		-p no:pylint
-		# sterilize pytest-markdown as it runs code snippets from all
-		# *.md files found without any warning
-		-p no:markdown
-		# pytest-sugar undoes everything that's good about pytest output
-		# and makes it hard to read logs
-		-p no:sugar
-		# pytest-xvfb automatically spawns Xvfb for every test suite,
-		# effectively forcing it even when we'd prefer the tests
-		# not to have DISPLAY at all, causing crashes sometimes
-		# and causing us to miss missing virtualx usage
-		-p no:xvfb
-		# intrusive packages that break random test suites
-		-p no:pytest-describe
-		-p no:plus
-		-p no:tavern
 	)
+
+	if [[ ! ${PYTEST_DISABLE_PLUGIN_AUTOLOAD} ]]; then
+		args+=(
+			# disable the undesirable-dependency plugins by default to
+			# trigger missing argument strips.  strip options that require
+			# them from config files.  enable them explicitly via "-p ..."
+			# if you *really* need them.
+			-p no:cov
+			-p no:flake8
+			-p no:flakes
+			-p no:pylint
+			# sterilize pytest-markdown as it runs code snippets from all
+			# *.md files found without any warning
+			-p no:markdown
+			# pytest-sugar undoes everything that's good about pytest output
+			# and makes it hard to read logs
+			-p no:sugar
+			# pytest-xvfb automatically spawns Xvfb for every test suite,
+			# effectively forcing it even when we'd prefer the tests
+			# not to have DISPLAY at all, causing crashes sometimes
+			# and causing us to miss missing virtualx usage
+			-p no:xvfb
+			# intrusive packages that break random test suites
+			-p no:pytest-describe
+			-p no:plus
+			-p no:tavern
+			# does something to logging
+			-p no:salt-factories
+		)
+	fi
+
+	if [[ ${EPYTEST_XDIST} ]]; then
+		local jobs=${EPYTEST_JOBS:-$(makeopts_jobs)}
+		if [[ ${jobs} -gt 1 ]]; then
+			if [[ ${PYTEST_PLUGINS} != *xdist.plugin* ]]; then
+				args+=(
+					# explicitly enable the plugin, in case the ebuild was
+					# using PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+					-p xdist
+				)
+			fi
+			args+=(
+				-n "${jobs}"
+				# worksteal ensures that workers don't end up idle when heavy
+				# jobs are unevenly distributed
+				--dist=worksteal
+			)
+		fi
+	fi
+
 	local x
 	for x in "${EPYTEST_DESELECT[@]}"; do
 		args+=( --deselect "${x}" )
