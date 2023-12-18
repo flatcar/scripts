@@ -5,7 +5,7 @@ EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
 PATCH_GCC_VER="11.4.0"
-PATCH_VER="9"
+PATCH_VER="12"
 MUSL_VER="2"
 MUSL_GCC_VER="11.4.0"
 
@@ -37,7 +37,7 @@ if tc_is_live ; then
 	EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
 	# Don't keyword live ebuilds
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	:;
 fi
 
