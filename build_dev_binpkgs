@@ -46,10 +46,7 @@ fi
 # --
 
 function my_board_emerge() {
-	export PORTAGE_CONFIGROOT="/build/${FLAGS_board}"
-	export SYSROOT="${SYSROOT:-/build/${FLAGS_board}}"
-	export ROOT="/build/${FLAGS_board}"
-	sudo -E emerge --root-deps=rdeps "${@}"
+	PORTAGE_CONFIGROOT="/build/${FLAGS_board}" SYSROOT="${SYSROOT:-/build/${FLAGS_board}}" ROOT="/build/${FLAGS_board}" sudo -E emerge --root-deps=rdeps "${@}"
 }
 # --
 
