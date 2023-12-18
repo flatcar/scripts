@@ -36,6 +36,8 @@ DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update toolchain automatically."
 DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
   "Don't run the chroot upgrade automatically; use with care."
+DEFINE_boolean only_resolve_circular_deps "${FLAGS_FALSE}" \
+  "Don't build all packages; only resolve circular dependencies, then stop."
 
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
@@ -273,6 +275,11 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
                  sys-apps/systemd cryptsetup \
                  net-misc/curl http2 \
                  net-libs/nghttp2 systemd
+fi
+
+if [[ "${FLAGS_only_resolve_circular_deps}" -eq "${FLAGS_TRUE}" ]]; then
+  info "Circular dependencies resolved. Stopping as requested."
+  exit
 fi
 
 export KBUILD_BUILD_USER="${BUILD_USER:-build}"
