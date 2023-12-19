@@ -12,6 +12,10 @@
 #   This script will publish the packages from a pre-built packages container to
 #   the buildcache server, effectively turning the build cache into a
 #   binary packages server for the SDK.
+#   Before pushing packages the script will run ./build_dev_binpkgs to ensure all
+#   binary packages for the development container are actually built.
+#   Note that this may build packages not previously built by the "build_packages"
+#   step.
 #
 # PREREQUISITES:
 #
@@ -88,11 +92,14 @@ function _push_packages_impl() {
 
     docker_image_from_buildcache "${packages}" "${docker_vernum}"
 
+    local my_name="flatcar-packages-publisher-${arch}-${docker_vernum}"
+    ./run_sdk_container -x ./ci-cleanup.sh -n "${my_name}" -C "${packages_image}" \
+            ./build_dev_binpkgs --board="${arch}-usr"
+
     local cmd="source ci-automation/push_pkgs.sh"
     cmd="$cmd; image_build__copy_to_bincache '$arch' '$vernum'"
 
-    local my_name="flatcar-packages-publisher-${arch}-${docker_vernum}"
-    ./run_sdk_container -x ./ci-cleanup.sh -n "${my_name}" -C "${packages_image}" \
+    ./run_sdk_container -x ./ci-cleanup.sh -n "${my_name}" \
             bash -c "$cmd"
 }
 # --

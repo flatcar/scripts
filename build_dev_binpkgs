@@ -1,0 +1,88 @@
+#!/bin/bash
+# Copyright (c) 2023 by the Flatcar Maintainers.
+# Use of this source code is governed by the Apache 2.0 license.
+
+. "$(dirname "$0")/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+assert_not_root_user
+
+# Dependencies and packages to include by default.
+packages_default=( "coreos-devel/board-packages" )
+
+# Packages that are rdeps of the above but should not be included.
+# (mostly large packages, e.g. programming languages etc.)
+skip_packages_default="dev-lang/rust,virtual/rust,dev-lang/go,dev-lang/go-bootstrap,dev-go/go-md2man"
+
+
+# Developer-visible flags.
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "The board to build packages for."
+DEFINE_string skip_packages "${skip_packages_default[@]}" \
+  "Comma-separated list of packages in the dependency tree to skip."
+DEFINE_boolean pretend "${FLAGS_FALSE}" \
+	"List packages that would be built but do not actually build."
+
+FLAGS_HELP="usage: $(basename $0) [flags] [packages]
+
+build_dev_binpkgs builds binary packages for all dependencies of [packages]
+that are not present in '/build/<board>/var/lib/portage/pkgs/'.
+Useful for publishing a complete set of packages to a binhost.
+
+[packages] defaults to '${packages_default}' if not specified.
+"
+
+# Parse command line
+FLAGS "$@" || exit 1
+eval set -- "${FLAGS_ARGV}"
+
+# Die on any errors.
+switch_to_strict_mode
+
+if [[ $# -eq 0 ]]; then
+  set -- "${packages_default[@]}"
+fi
+# --
+
+function my_board_emerge() {
+	PORTAGE_CONFIGROOT="/build/${FLAGS_board}" SYSROOT="${SYSROOT:-/build/${FLAGS_board}}" ROOT="/build/${FLAGS_board}" sudo -E emerge --root-deps=rdeps "${@}"
+}
+# --
+
+pkg_build_list="$(mktemp)"
+pkg_skipped_list="${pkg_build_list}-skip"
+trap 'rm -f "${pkg_build_list}" "${pkg_skipped_list}"' EXIT
+
+info "Collecting list of binpkgs to build"
+
+my_board_emerge --pretend --root-deps=rdeps --emptytree ${@}  \
+  | grep '\[ebuild' \
+  | sed 's/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/' \
+  | while read pkg; do
+  if [ -f "/build/${FLAGS_board}/var/lib/portage/pkgs/${pkg}.tbz2" ] ; then
+		continue
+	fi
+  skip=""
+  for s in ${FLAGS_skip_packages//,/ }; do
+    if [[ ${pkg} = ${s}-* ]] ; then
+    	echo -n "${pkg} " >> "${pkg_skipped_list}"
+        skip="true"
+        break
+    fi
+  done
+  [[ -z ${skip} ]] || continue
+  echo "=${pkg}" | tee -a "${pkg_build_list}" | sed 's/^/      /'
+done
+# --
+
+if [ -f "${pkg_skipped_list}" ] ; then
+  info "Skipping binpkgs '$(cat "${pkg_skipped_list}")' because these are in the skip list."
+fi
+
+pretend=""
+if [[ "${FLAGS_pretend}" -eq "${FLAGS_TRUE}" ]]; then
+	pretend="--pretend"
+fi
+
+my_board_emerge --buildpkg ${pretend} $(cat "${pkg_build_list}")
