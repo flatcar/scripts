@@ -63,7 +63,8 @@ PATCHES=(
 	"${FILESDIR}/0019-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
 	"${FILESDIR}/0020-usr-share-oem-oem.patch"
 	"${FILESDIR}/0021-internal-exec-stages-mount-Mount-oem.patch"
-	"${FILESDIR}/0022-sgdisk-Run-partprobe-after-partition-changes.patch"
+	"${FILESDIR}/0022-disks-Refuse-to-modify-disks-partitions-in-use.patch"
+	"${FILESDIR}/0023-sgdisk-Run-partx-after-partition-changes.patch"
 )
 
 src_compile() {
