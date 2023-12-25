@@ -88,7 +88,7 @@ RDEPEND="
 "
 
 DEPEND="${RDEPEND}
-	>=sys-kernel/linux-headers-6.6
+	>=sys-kernel/linux-headers-5.10
 	java? ( virtual/jdk )
 "
 
