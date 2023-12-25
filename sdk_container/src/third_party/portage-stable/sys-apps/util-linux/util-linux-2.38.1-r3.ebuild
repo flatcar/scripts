@@ -3,9 +3,9 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{9..11} )
 
-inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 usr-ldscript \
+inherit toolchain-funcs autotools flag-o-matic bash-completion-r1 usr-ldscript \
 	pam python-r1 multilib-minimal multiprocessing systemd
 
 MY_PV="${PV/_/-}"
@@ -19,7 +19,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -55,15 +55,13 @@ RDEPEND="
 	rtas? ( sys-libs/librtas )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
 	slang? ( sys-libs/slang )
-	!build? ( systemd? ( sys-apps/systemd ) )
-	udev? ( virtual/libudev:= )
-"
+	!build? (
+		systemd? ( sys-apps/systemd )
+		udev? ( virtual/libudev:= )
+	)"
 BDEPEND="
 	virtual/pkgconfig
-	nls? (
-		app-text/po4a
-		sys-devel/gettext
-	)
+	nls? ( sys-devel/gettext )
 	test? ( sys-devel/bc )
 "
 DEPEND="
@@ -89,14 +87,15 @@ if [[ ${PV} == 9999 ]] ; then
 	# Required for man-page generation
 	BDEPEND+=" dev-ruby/asciidoctor"
 else
-	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-karelzak-20230517 )"
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-karelzak )"
 fi
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
+	"${FILESDIR}"/${P}-more-posix-exit-on-eof.patch
+	"${FILESDIR}"/util-linux-2.38.1-check-for-sys-pidfd.h.patch
 )
 
 pkg_pretend() {
@@ -134,19 +133,19 @@ src_prepare() {
 	default
 
 	if use test ; then
+		# Prevent uuidd test failure due to socket path limit, bug #593304
+		sed -i \
+			-e "s|UUIDD_SOCKET=\"\$(mktemp -u \"\${TS_OUTDIR}/uuiddXXXXXXXXXXXXX\")\"|UUIDD_SOCKET=\"\$(mktemp -u \"${T}/uuiddXXXXXXXXXXXXX.sock\")\"|g" \
+			tests/ts/uuid/uuidd || die "Failed to fix uuidd test"
+
 		# Known-failing tests
 		# TODO: investigate these
 		local known_failing_tests=(
 			# Subtest 'options-maximum-size-8192' fails
 			hardlink/options
 
-			# Fails in sandbox
-			lsns/ioctl_ns
-
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
-			# Fails with network-sandbox at least in nspawn
-			lsfd/option-inet
 		)
 
 		local known_failing_test
@@ -154,14 +153,10 @@ src_prepare() {
 			einfo "Removing known-failing test: ${known_failing_test}"
 			rm tests/ts/${known_failing_test} || die
 		done
+
 	fi
 
-	if [[ ${PV} == 9999 ]] ; then
-		po/update-potfiles
-		eautoreconf
-	else
-		elibtoolize
-	fi
+	eautoreconf
 }
 
 python_configure() {
@@ -203,13 +198,7 @@ multilib_src_configure() {
 
 	# configure args shared by python and non-python builds
 	local commonargs=(
-		--localstatedir="${EPREFIX}/var"
-		--runstatedir="${EPREFIX}/run"
 		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
-
-		# Temporary workaround until ~2.39.2. 2.39.x introduced a big rewrite.
-		# https://github.com/util-linux/util-linux/issues/2287#issuecomment-1576640373
-		--disable-libmount-mountfd-support
 	)
 
 	local myeconfargs=(
@@ -220,20 +209,29 @@ multilib_src_configure() {
 		$(multilib_native_use_enable suid makeinstall-setuid)
 		$(multilib_native_use_with readline)
 		$(multilib_native_use_with slang)
-		$(multilib_native_use_with systemd)
-		$(multilib_native_use_with udev)
 		$(multilib_native_usex ncurses "$(use_with magic libmagic)" '--without-libmagic')
 		$(multilib_native_usex ncurses "$(use_with unicode ncursesw)" '--without-ncursesw')
 		$(multilib_native_usex ncurses "$(use_with !unicode ncurses)" '--without-ncurses')
 		$(multilib_native_use_with audit)
 		$(tc-has-tls || echo --disable-tls)
 		$(use_enable nls)
-		$(use_enable nls poman)
 		$(use_enable unicode widechar)
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
 	)
+
+	if use build ; then
+		myeconfargs+=(
+			--without-systemd
+			--without-udev
+		)
+	else
+		myeconfargs+=(
+			$(multilib_native_use_with systemd)
+			$(multilib_native_use_with udev)
+		)
+	fi
 
 	if multilib_is_native_abi ; then
 		myeconfargs+=(
@@ -277,7 +275,6 @@ multilib_src_configure() {
 			--disable-asciidoc
 			--disable-bash-completion
 			--without-systemdsystemunitdir
-			--disable-poman
 
 			# build libraries
 			--enable-libuuid
