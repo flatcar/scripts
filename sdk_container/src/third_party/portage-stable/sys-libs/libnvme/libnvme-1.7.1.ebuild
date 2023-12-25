@@ -12,7 +12,7 @@ SRC_URI="https://github.com/linux-nvme/libnvme/archive/refs/tags/v${PV}.tar.gz -
 
 LICENSE="LGPL-2.1+"
 SLOT="0/1"
-KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~loong ~mips ~ppc ppc64 ~riscv x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 IUSE="dbus +json keyutils python ssl test +uuid"
 RESTRICT="!test? ( test )"
 
@@ -34,11 +34,6 @@ RDEPEND="
 BDEPEND="
 	dev-lang/swig
 "
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-1.6-musl.patch
-	"${FILESDIR}"/${P}-lld-17.patch
-)
 
 src_configure() {
 	local emesonargs=(
