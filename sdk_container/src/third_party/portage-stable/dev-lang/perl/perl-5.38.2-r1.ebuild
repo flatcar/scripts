@@ -6,11 +6,11 @@ EAPI=7
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
 PATCH_VER=1
-CROSS_VER=1.5.1
+CROSS_VER=1.5.2
 PATCH_BASE="perl-5.38.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
-DIST_AUTHOR=RJBS
+DIST_AUTHOR=PEVANS
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
@@ -53,7 +53,7 @@ LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 IUSE="berkdb debug doc gdbm ithreads minimal quadmath"
@@ -75,6 +75,7 @@ PDEPEND="
 		>=virtual/perl-Encode-3.120.0
 		>=virtual/perl-File-Temp-0.230.400-r2
 		>=virtual/perl-Data-Dumper-2.154.0
+		>=virtual/perl-Math-BigInt-1.999.842
 		virtual/perl-Test-Harness
 	)
 "
@@ -92,7 +93,7 @@ dual_scripts() {
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.510.0       xsubpp
 	src_remove_dual      perl-core/IO-Compress        2.204.0       zipdetails
 	src_remove_dual      perl-core/JSON-PP            4.160.0        json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.311.250 corelist
+	src_remove_dual      perl-core/Module-CoreList    5.202.311.290 corelist
 	src_remove_dual      perl-core/Pod-Checker        1.750.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
 	src_remove_dual      perl-core/Pod-Usage          2.30.0       pod2usage
@@ -536,6 +537,10 @@ src_configure() {
 	filter-lto
 
 	use sparc && myconf -Ud_longdbl
+
+	# This urgently needs debugging - on m68k, miniperl crashes during
+	# build otherwise..
+	use m68k && append-ldflags -Wl,-z,norelro
 
 	export BUILD_BZIP2=0
 	export BZIP2_INCLUDE=${EROOT}/usr/include
