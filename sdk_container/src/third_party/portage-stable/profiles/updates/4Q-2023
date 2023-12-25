@@ -33,3 +33,9 @@ move kde-frameworks/kactivities-stats kde-plasma/plasma-activities-stats
 move kde-frameworks/kactivities kde-plasma/plasma-activities
 slotmove kde-frameworks/extra-cmake-modules 5 0
 move kde-frameworks/kwayland kde-plasma/kwayland
+move dev-java/aqute-bnd-annotation dev-java/bnd-annotation
+move dev-python/pycson dev-python/cson
+move dev-python/blake3-py dev-python/blake3
+move games-action/minetest games-engines/minetest
+move app-laptop/tuxedo-keyboard app-laptop/tuxedo-drivers
+move dev-libs/clhpp dev-cpp/clhpp

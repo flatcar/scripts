@@ -123,7 +123,6 @@ kde-apps/plasma-telepathy-meta:5
 kde-misc/kio-gdrive
 kde-misc/tellico:5
 kde-misc/zanshin:5
-mail-client/kube
 media-gfx/digikam:5
 media-gfx/luminance-hdr
 media-sound/frescobaldi
@@ -149,11 +148,6 @@ media-video/jellyfin-media-player
 # Binary-only with no x32 support
 app-office/libreoffice-bin
 app-office/libreoffice-bin-debug
-
-# Marek Szuba <marecki@gentoo.org> (2020-05-08)
-# Requires sys-cluster/ceph, which is masked in this profile as well
-# (see below)
-net-libs/xrootd-ceph
 
 # Hasan ÇALIŞIR <hasan.calisir@psauxit.com> (2019-10-28)
 # requires net-libs/nodejs | sys-apps/yarn

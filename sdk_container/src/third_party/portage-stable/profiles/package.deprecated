@@ -17,6 +17,17 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2023-12-10)
+# Superseded by dev-python/psycopg:0 (version 3).
+dev-python/psycopg:2
+
+# Petr Vaněk <arkamar@gentoo.org> (2023-10-26)
+# dev-libs/hyperscan upstream is inactive [1], please switch to more portable,
+# drop-in replacement dev-libs/vectorscan. dev-libs/hyperscan will be
+# last-rited when all its revdeps are gone.
+# [1] https://github.com/intel/hyperscan/issues/421
+dev-libs/hyperscan
+
 # Matt Whitlock <gentoo@mattwhitlock.name> (2023-10-24)
 # Transitional meta packages. Please update dependencies:
 #   dev-util/bitcoin-tx          -> net-p2p/bitcoin-core
@@ -75,12 +86,6 @@ dev-ruby/sass-listen
 # net-misc/gsasl[client] for the client.
 net-libs/libgsasl
 virtual/gsasl
-
-# Michał Górny <mgorny@gentoo.org> (2023-02-03)
-# The same functionality is supported by dev-python/setuptools-scm-7.
-# See: https://github.com/pypa/setuptools_scm/#git-archives
-# https://github.com/Changaco/setuptools_scm_git_archive/#readme
-dev-python/setuptools_scm_git_archive
 
 # Michał Górny <mgorny@gentoo.org> (2023-01-30)
 # The package is on keep-alive by Debian.  Nevertheless, they can't
