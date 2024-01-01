@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/portage.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -36,6 +36,10 @@ RESTRICT="!test? ( test )"
 BDEPEND="
 	${PYTHON_DEPS}
 	>=dev-util/meson-1.2.1-r1
+	|| (
+		>=dev-util/meson-1.3.0-r1
+		<dev-util/meson-1.3.0
+	)
 	$(python_gen_cond_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
 	' python3_12)
@@ -70,7 +74,7 @@ RDEPEND="
 	>=app-misc/pax-utils-0.1.17
 	dev-lang/python-exec:2
 	>=sys-apps/baselayout-2.9
-	>=sys-apps/findutils-4.4
+	>=sys-apps/findutils-4.9
 	!build? (
 		>=app-admin/eselect-1.2
 		app-portage/getuto
@@ -205,6 +209,10 @@ pkg_preinst() {
 		env -u FEATURES -u PORTAGE_REPOSITORIES \
 			PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
 			"${PYTHON}" -m portage._compat_upgrade.binpkg_multi_instance || die
+
+		env -u BINPKG_FORMAT \
+			PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
+			"${PYTHON}" -m portage._compat_upgrade.binpkg_format || die
 	fi
 
 	# elog dir must exist to avoid logrotate error for bug #415911.
