@@ -55,8 +55,11 @@ RDEPEND="
 	rtas? ( sys-libs/librtas )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
 	slang? ( sys-libs/slang )
-	!build? ( systemd? ( sys-apps/systemd ) )
-	udev? ( virtual/libudev:= )"
+	!build? (
+		systemd? ( sys-apps/systemd )
+		udev? ( virtual/libudev:= )
+	)
+"
 BDEPEND="
 	virtual/pkgconfig
 	nls? (
@@ -95,8 +98,9 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.39.1-mount-no-statx.patch
-	"${FILESDIR}"/${PN}-2.39.1-wall-no-tty.patch
+	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
+	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
+	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
 )
 
 pkg_pretend() {
@@ -134,11 +138,6 @@ src_prepare() {
 	default
 
 	if use test ; then
-		# Prevent uuidd test failure due to socket path limit, bug #593304
-		sed -i \
-			-e "s|UUIDD_SOCKET=\"\$(mktemp -u \"\${TS_OUTDIR}/uuiddXXXXXXXXXXXXX\")\"|UUIDD_SOCKET=\"\$(mktemp -u \"${T}/uuiddXXXXXXXXXXXXX.sock\")\"|g" \
-			tests/ts/uuid/uuidd || die "Failed to fix uuidd test"
-
 		# Known-failing tests
 		# TODO: investigate these
 		local known_failing_tests=(
@@ -150,6 +149,9 @@ src_prepare() {
 
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
+			# Fails with network-sandbox at least in nspawn
+			lsfd/option-inet
+			utmp/last-ipv6
 		)
 
 		local known_failing_test
@@ -157,7 +159,6 @@ src_prepare() {
 			einfo "Removing known-failing test: ${known_failing_test}"
 			rm tests/ts/${known_failing_test} || die
 		done
-
 	fi
 
 	if [[ ${PV} == 9999 ]] ; then
@@ -224,8 +225,6 @@ multilib_src_configure() {
 		$(multilib_native_use_enable suid makeinstall-setuid)
 		$(multilib_native_use_with readline)
 		$(multilib_native_use_with slang)
-		$(multilib_native_use_with systemd)
-		$(multilib_native_use_with udev)
 		$(multilib_native_usex ncurses "$(use_with magic libmagic)" '--without-libmagic')
 		$(multilib_native_usex ncurses "$(use_with unicode ncursesw)" '--without-ncursesw')
 		$(multilib_native_usex ncurses "$(use_with !unicode ncurses)" '--without-ncurses')
@@ -238,6 +237,18 @@ multilib_src_configure() {
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
 	)
+
+	if use build ; then
+		myeconfargs+=(
+			--without-systemd
+			--without-udev
+		)
+	else
+		myeconfargs+=(
+			$(multilib_native_use_with systemd)
+			$(multilib_native_use_with udev)
+		)
+	fi
 
 	if multilib_is_native_abi ; then
 		myeconfargs+=(
