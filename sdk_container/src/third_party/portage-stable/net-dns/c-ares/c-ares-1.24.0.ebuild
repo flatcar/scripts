@@ -21,7 +21,10 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~
 IUSE="static-libs test"
 RESTRICT="!test? ( test )"
 
-BDEPEND="verify-sig? ( sec-keys/openpgp-keys-danielstenberg )"
+BDEPEND="
+	test? ( dev-cpp/gtest )
+	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
+"
 
 DOCS=( AUTHORS CHANGES NEWS README.md RELEASE-NOTES TODO )
 
@@ -40,6 +43,14 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	CloseSocket
 	ioctlsocket
 	bitncmp
+	ConvertInterfaceIndexToLuid
+	ConvertInterfaceLuidToNameA
+)
+
+PATCHES=(
+	"${FILESDIR}"/${P}-tests-symbol-hiding.patch
+	"${FILESDIR}"/${P}-getrandom.patch
+	"${FILESDIR}"/${P}-ares__iface_ips_enumerate-stub.patch
 )
 
 multilib_src_configure() {
