@@ -8,12 +8,15 @@
 # confirmation emails when I try to sign up.
 =sci-mathematics/giac-1.9.0.67 gui
 
-# Matt Turner <mattst88@gentoo.org> (2023-09-18)
-# Disabling gstreamer seems to be untested upstream and is often broken.
-# The gstreamer dependencies are trivial in compile time and disk usage
-# compared to webkit-gtk.
-# Bugs #911663, #914362
->=net-libs/webkit-gtk-2.42 gstreamer
+# Michael Orlitzky <mjo@gentoo.org> (2023-12-04)
+# This was originally forced because gstreamer-less builds are untested
+# upstream and are often broken (e.g. bugs 911663 and 914362). But from
+# the user's perspective, having it forced is worse than having it fail
+# to build; if it fails, you can always set USE=gstreamer for one
+# version, i.e. at least you have a choice. The two latest 2.42.x
+# ebuilds in the tree both build fine with gstreamer disabled, so it is
+# at least safe to re-enable for those. Older ebuilds, who knows.
+<net-libs/webkit-gtk-2.42 gstreamer
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2023-08-14)
 # OpenMW is only playtested with LuaJIT, and in fact unit tests fail with Lua-5.
@@ -29,11 +32,6 @@ games-engines/openmw lua_single_target_luajit
 # Done this way also avoids conflicts for users using another default.
 # [1] https://github.com/mpv-player/mpv/wiki/FAQ#why-does-mpv-not-support-lua-53-or-newer
 media-video/mpv lua_single_target_luajit
-
-# Joonas Niilola <juippis@gentoo.org> (2023-07-21)
-# -system-librnp is currently broken with upstream package.
-~mail-client/thunderbird-115.0 system-librnp
-~mail-client/thunderbird-115.0.1 system-librnp
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2023-07-08)
 # Uses attr even if disabling is requested, bug 910070
@@ -166,13 +164,6 @@ net-misc/wget ssl
 # is maintained for experts only.
 sys-libs/libcxx libcxxabi
 
-# Michał Górny <mgorny@gentoo.org> (2019-12-06)
-# Non-initramfs builds do not work with the default .config.  Force
-# the mask, so that users don't brick their systems.  If somebody wants
-# to avoid initramfs, he needs to use a custom .config and unforce
-# the flag.
-sys-kernel/vanilla-kernel initramfs
-
 # Matt Turner <mattst88@gentoo.org> (2019-09-01)
 # <dev-scheme/guile-2 is package.mask'd, so force USE=guile2
 media-sound/lilypond guile2
@@ -233,11 +224,6 @@ media-tv/kodi system-ffmpeg
 # Doesn't work without acl support
 # No patch yet, #516626
 >=net-fs/netatalk-3.1.3 acl
-
-# Pawel Hajdan jr <phajdan.jr@gentoo.org> (2014-06-12)
-# Chromium builds in PIC mode on most arches anyway,
-# i.e. this use flag has no effect on them.
-www-client/chromium pic
 
 # Zac Medico <zmedico@gentoo.org> (2012-12-04)
 # Force app-shells/bash[readline] in stage1 builds, so that compgen is

@@ -1,6 +1,11 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-12-18)
+# Experimental and only available on a subset of architectures
+sys-kernel/gentoo-kernel -generic-uki
+sys-kernel/gentoo-kernel-bin -generic-uki
+
 # Ionen Wolkens <ionen@gentoo.org> (2023-10-09)
 # media-libs/shaderc is keyworded here.
 media-libs/libplacebo -shaderc
@@ -89,10 +94,6 @@ sys-cluster/slurm nvml
 # Alfredo Tupone <tupone@gentoo.org> (2022-08-30)
 # ada bootstrap currently only available on amd64/x86
 sys-devel/gcc -ada
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-09-11)
-# media-libs/qtav not keyworded yet
-media-gfx/kphotoalbum qtav
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2022-08-15)
 # deps not keyworded
@@ -436,10 +437,6 @@ gnustep-base/gnustep-make -libobjc2
 # The SPICE server is only supported on 64-bit platforms and not on 32-bit
 # https://lists.freedesktop.org/archives/spice-devel/2015-September/021846.html
 app-emulation/qemu spice
-
-# Samuli Suominen <ssuominen@gentoo.org> (2011-12-06)
-# NuppelVideo support is x86 only
-media-video/transcode -nuv -pic
 
 # Davide Pesavento <pesa@gentoo.org> (2011-11-30)
 # The QML (V4) and JSC JITs are supported only on amd64/arm/x86,

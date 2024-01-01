@@ -17,6 +17,19 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2023-12-31)
+# Requires dev-libs/level-zero.
+dev-lang/ispc -gpu
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-12-18)
+# Experimental and only available on a subset of architectures
+sys-kernel/gentoo-kernel -generic-uki
+sys-kernel/gentoo-kernel-bin -generic-uki
+
+# Ionen Wolkens <ionen@gentoo.org> (2023-12-02)
+# dev-qt/qtwebengine:6 is keyworded here.
+dev-python/PyQt6 -pdfium
+
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2023-11-25)
 # media-libs/libdisplay-info (drm) and dev-libs/libliftoff (liftoff)
 # are only available for amd64 and riscv
@@ -25,6 +38,10 @@
 # Jimi Huotari <chiitoo@gentoo.org> (2023-11-22)
 # Unmask on amd64.
 media-video/obs-studio -qsv -websocket
+
+# Takuya Wakazono <pastalian46@gmail.com> (2023-11-21)
+# app-crypt/rpm-sequoia is keyworded here.
+app-arch/rpm -sequoia
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-11-20)
 # Qt6 is still experimental in freecad, currently the configure phase
@@ -239,10 +256,6 @@ app-text/texlive-core -xindy
 # static-pie works on amd64, #719444
 sys-libs/glibc -static-pie
 
-# Guilherme Amadio <amadio@gentoo.org> (2020-03-16)
-# media-libs/cudnn is keyworded on amd64
-sci-physics/root -cudnn
-
 # Thomas Deutschmann <whissi@gentoo.org> (2020-03-11)
 # Encrypted Media Extensions (eme-free) can be disabled on amd64
 mail-client/thunderbird -eme-free
@@ -390,10 +403,6 @@ sys-apps/systemd-utils -boot -ukify
 # Ben de Groot <yngwin@gentoo.org> (2015-03-15)
 # media-libs/libbdplus is keyworded on amd64, so unmask the useflag
 media-libs/libbluray -bdplus
-
-# Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org> (2014-04-24)
-# It's only supported on amd64
-dev-db/mariadb -tokudb
 
 # Samuli Suominen <ssuominen@gentoo.org> (2014-02-16)
 # Still considered experimental by upstream:

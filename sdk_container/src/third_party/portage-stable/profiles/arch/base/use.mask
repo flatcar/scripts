@@ -37,6 +37,10 @@ oci8
 cuda
 nvenc
 
+# Paul Zander <negril.nx+gentoo@gmail.com> (2023-12-10)
+# cuDNN only works on amd64
+cudnn
+
 # ROCm/HIP only works on amd64
 hip
 
@@ -84,7 +88,6 @@ cpu_flags_ppc_altivec
 cpu_flags_ppc_vsx
 cpu_flags_ppc_vsx2
 cpu_flags_ppc_vsx3
-ppcsha1
 
 # mips arch specific USE flags
 loongson2f
@@ -133,12 +136,10 @@ video_cards_geode
 # not needed on non-x86, non-amd64 systems
 input_devices_vmmouse
 video_cards_ast
-video_cards_crocus
 video_cards_d3d12
 video_cards_i915
 video_cards_i965
 video_cards_intel
-video_cards_iris
 video_cards_nvidia
 video_cards_vesa
 video_cards_via

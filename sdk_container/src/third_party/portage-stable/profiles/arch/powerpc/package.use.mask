@@ -1,10 +1,24 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# matoro <matoro_gentoo@matoro.tk> (2023-12-19)
+# JIT not supported here (#909826)
+dev-scheme/racket chez futures jit
+
+# Marek Szuba <marecki@gentoo.org> (2023-12-05)
+# Needs USE=video_cards_amdgpu, currently masked on all PowerPC
+# arches except ppc64le
+>=sys-apps/fwupd-1.9.10 amdgpu
+
+# matoro <matoro_gentoo@matoro.tk> (2023-11-25)
+# Casualty of dev-ruby/msgpack restriction to ruby32
+# Remove this once ruby32 is unmasked in base
+dev-ruby/activesupport msgpack test
+
 # matoro <matoro_gentoo@matoro.tk> (2023-11-22)
 # Broken on <dev-lang/ruby-3.2
 # https://github.com/msgpack/msgpack-ruby/pull/355
-dev-ruby/msgpack ruby_targets_ruby30 ruby_targets_ruby31
+dev-ruby/msgpack ruby_targets_ruby31
 
 # matoro <matoro_gentoo@matoro.tk> (2023-11-19)
 # VSX asm causes passing test suite on LE to fail
@@ -19,10 +33,6 @@ sys-apps/openrc s6
 # configure: ERROR: Unavailable JVM features explicitly enabled for 'server': 'dtrace'
 # https://github.com/openjdk/jdk17u-dev/commit/5b29c6ec93372b20016565b84d449860b7233d6c
 dev-java/openjdk:17 systemtap
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-09-20)
-# Libei not keyworded here yet
-x11-base/xwayland libei
 
 # Jon Janzen <jon@jonjanzen.com> (2023-09-11)
 # librttopo has not been tested on this arch
@@ -74,10 +84,6 @@ media-video/ffmpeg vmaf
 # Sam James <sam@gentoo.org> (2021-11-15)
 # librtas is available on (only) ppc*
 sys-apps/util-linux -rtas
-
-# Michael Seifert <m.seifert@digitalernachschub.de> (2021-10-23)
-# dev-python/furo isn't keyworded here
-dev-python/argon2-cffi doc
 
 # David Seifert <soap@gentoo.org> (2021-09-04)
 # dev-lang/go not keyworded here
@@ -296,7 +302,7 @@ dev-ruby/haml test
 
 # Anthony G. Basile <blueness@gentoo.org> (2014-08-14)
 # Mask these flags since mongodb is broken on ppc/ppc64
-dev-python/ipython doc matplotlib nbconvert notebook
+dev-python/ipython doc nbconvert notebook
 
 # Anthony G. Basile <blueness@gentoo.org> (2014-08-12)
 # Ultimately pulls in nodejs which is broken.
