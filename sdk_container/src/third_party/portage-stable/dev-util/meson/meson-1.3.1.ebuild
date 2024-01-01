@@ -54,6 +54,12 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.2.1-python-path.patch
+
+	# backport fix for hiding compiler warnings (such as Modern C) in vala and cython
+	"${FILESDIR}"/0001-ninja-backend-don-t-hide-all-compiler-warnings-for-t.patch
+
+	# backport revert for broken rpath changes: https://github.com/mesonbuild/meson/pull/12672
+	"${FILESDIR}"/0001-Revert-clike-Deduplicate-rpath-linker-flags.patch
 )
 
 python_prepare_all() {
@@ -65,12 +71,6 @@ python_prepare_all() {
 		# ASAN is unsupported on some targets
 		# https://bugs.gentoo.org/692822
 		-e 's/test_pch_with_address_sanitizer/_&/'
-
-		# https://github.com/mesonbuild/meson/issues/7203
-		-e 's/test_templates/_&/'
-
-		# Broken due to python2 wrapper
-		-e 's/test_python_module/_&/'
 	)
 
 	sed -i "${disable_unittests[@]}" unittests/*.py || die
@@ -92,6 +92,11 @@ src_test() {
 
 python_test() {
 	(
+		# remove unwanted python_wrapper_setup contents
+		# We actually do want to non-error if python2 is installed and tested.
+		remove="${T}/${EPYTHON}/bin:"
+		PATH=${PATH/${remove}/}
+
 		# test_meson_installed
 		unset PYTHONDONTWRITEBYTECODE
 
@@ -111,8 +116,7 @@ python_test() {
 		# value in JAVA_HOME, and the tests should get skipped.
 		export JAVA_HOME=$(java-config -O 2>/dev/null)
 
-		# Call python3 instead of EPYTHON to satisfy test_meson_uninstalled.
-		python3 run_tests.py
+		${EPYTHON} -u run_tests.py
 	) || die "Testing failed with ${EPYTHON}"
 }
 
