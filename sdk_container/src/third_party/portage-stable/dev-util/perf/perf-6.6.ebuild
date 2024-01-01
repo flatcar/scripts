@@ -30,7 +30,7 @@ SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
 IUSE="audit babeltrace bpf caps crypt debug +doc gtk java libpfm +libtraceevent +libtracefs lzma numa perl python slang systemtap tcmalloc unwind zstd"
 
 REQUIRED_USE="
@@ -88,7 +88,7 @@ RDEPEND="
 "
 
 DEPEND="${RDEPEND}
-	>=sys-kernel/linux-headers-6.6
+	>=sys-kernel/linux-headers-5.10
 	java? ( virtual/jdk )
 "
 
@@ -209,6 +209,20 @@ perf_make() {
 	local arch=$(tc-arch-kernel)
 	local java_dir
 	use java && java_dir="${EPREFIX}/etc/java-config-2/current-system-vm"
+
+	# sync this with the whitelist in tools/perf/Makefile.config
+	local disable_libdw
+	if ! use amd64 && ! use x86 && \
+	   ! use arm && \
+	   ! use arm64 && \
+	   ! use ppc && ! use ppc64 \
+	   ! use s390 && \
+	   ! use riscv && \
+	   ! use loong
+	then
+		disable_libdw=1
+	fi
+
 	# FIXME: NO_CORESIGHT
 	local emakeargs=(
 		V=1 VF=1
@@ -237,7 +251,7 @@ perf_make() {
 		NO_LIBBPF=$(puse bpf)
 		NO_LIBCAP=$(puse caps)
 		NO_LIBCRYPTO=$(puse crypt)
-		NO_LIBDW_DWARF_UNWIND=
+		NO_LIBDW_DWARF_UNWIND="${disable_libdw}"
 		NO_LIBELF=
 		NO_LIBNUMA=$(puse numa)
 		NO_LIBPERL=$(puse perl)
