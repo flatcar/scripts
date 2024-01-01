@@ -3,8 +3,6 @@
 
 EAPI=8
 
-inherit flag-o-matic
-
 MY_P="${P/-/_}"
 DESCRIPTION="Lists open files for running Unix processes"
 HOMEPAGE="https://github.com/lsof-org/lsof"
@@ -12,7 +10,7 @@ SRC_URI="https://github.com/lsof-org/lsof/releases/download/${PV}/${P}.tar.gz"
 
 LICENSE="lsof"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="rpc selinux"
 
 RDEPEND="
@@ -29,12 +27,9 @@ BDEPEND="
 RESTRICT="test"
 
 src_configure() {
-	export ac_cv_header_selinux_selinux_h=$(usex selinux)
-
-	[[ ${CHOST} == *-solaris2.11 ]] && append-cppflags -DHAS_PAD_MUTEX
-
 	local myeconfargs=(
 		$(use_with rpc libtirpc)
+		$(use_with selinux)
 	)
 
 	econf "${myeconfargs[@]}"
