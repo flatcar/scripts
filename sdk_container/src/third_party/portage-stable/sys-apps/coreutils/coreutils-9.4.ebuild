@@ -33,7 +33,7 @@ else
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
 
-	KEYWORDS="~alpha ~amd64 arm ~arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc ~x86 ~x86-linux"
+	KEYWORDS="~alpha ~amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc ~x86 ~x86-linux"
 fi
 
 SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
@@ -76,7 +76,6 @@ RDEPEND+="
 		!sys-apps/util-linux[kill]
 		!sys-process/procps[kill]
 	)
-	!app-misc/realpath
 	!<sys-apps/util-linux-2.13
 	!<sys-apps/sandbox-2.10-r4
 	!sys-apps/stat
