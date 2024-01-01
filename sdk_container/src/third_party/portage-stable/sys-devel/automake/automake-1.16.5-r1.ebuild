@@ -3,6 +3,11 @@
 
 EAPI=7
 
+# Bumping notes:
+# * Remember to modify LAST_KNOWN_AUTOMAKE_VER 'upstream' in sys-devel/automake-wrapper
+# on new automake (major) releases, as well as the dependency in RDEPEND below too.
+# * Update _WANT_AUTOMAKE and _automake_atom case statement in autotools.eclass.
+
 PYTHON_COMPAT=( python3_{10..11} )
 
 inherit python-any-r1
@@ -56,8 +61,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.16.5-py3-compile.patch
 	"${FILESDIR}"/${PN}-1.16.5-fix-instmany-python.sh-test.patch
 	"${FILESDIR}"/${PN}-1.16.5-fix-py-compile-basedir.sh-test.patch
-	# upstreamed
 	"${FILESDIR}"/${PN}-1.16.5-apostrophe-in-tests.patch
+	"${FILESDIR}"/${PN}-1.16.5-parallel-build.patch
 )
 
 pkg_setup() {
