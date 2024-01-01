@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 inherit python-r1 meson
 
 DESCRIPTION="C Library for NVM Express on Linux"
@@ -12,8 +12,9 @@ SRC_URI="https://github.com/linux-nvme/libnvme/archive/refs/tags/v${PV}.tar.gz -
 
 LICENSE="LGPL-2.1+"
 SLOT="0/1"
-KEYWORDS="amd64 arm arm64 ~loong ppc64 ~riscv x86"
-IUSE="dbus +json keyutils python ssl +uuid"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+IUSE="dbus +json keyutils python ssl test +uuid"
+RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	python? ( ${PYTHON_REQUIRED_USE} )
@@ -27,16 +28,17 @@ DEPEND="
 	ssl? ( >=dev-libs/openssl-1.1:= )
 	uuid? ( sys-apps/util-linux:= )
 "
-RDEPEND="${DEPEND}"
+RDEPEND="
+	${DEPEND}
+"
 BDEPEND="
 	dev-lang/swig
 "
 
-PATCHES=( "${FILESDIR}/${P}-free-segfault.patch" )
-
 src_configure() {
 	local emesonargs=(
 		-Dpython=false
+		$(meson_use test tests)
 		$(meson_feature json json-c)
 		$(meson_feature dbus libdbus)
 		$(meson_feature keyutils)
