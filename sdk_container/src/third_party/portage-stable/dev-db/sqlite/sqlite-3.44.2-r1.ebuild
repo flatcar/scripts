@@ -50,6 +50,10 @@ else
 	BDEPEND+=" app-arch/unzip"
 fi
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.44.2-tracker-regression.patch
+)
+
 _fossil_fetch() {
 	local distdir="${PORTAGE_ACTUAL_DISTDIR:-${DISTDIR}}"
 	local repo_id="${1}"
@@ -360,9 +364,10 @@ multilib_src_test() {
 	# e_uri.test tries to open files in /.
 	# bug #839798
 	local SANDBOX_PREDICT=${SANDBOX_PREDICT}
-	addpredict "/test.db:/ÿ.db"
+	addpredict "/test.db"
+	addpredict "/ÿ.db"
 
-	emake HAVE_TCL="$(usex tcl 1 "")" $(usex debug 'fulltest' 'test')
+	emake -Onone HAVE_TCL="$(usex tcl 1 "")" $(usex debug 'fulltest' 'test')
 }
 
 multilib_src_install() {
