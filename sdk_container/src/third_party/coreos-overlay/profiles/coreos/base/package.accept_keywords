@@ -62,6 +62,7 @@
 =dev-libs/libunistring-1.1-r1 ~arm64
 =dev-libs/libxml2-2.11.5-r1 ~amd64
 =dev-util/bpftool-6.5.7 ~arm64
+=dev-util/glib-utils-2.78.3 ~arm64
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 
 # Required for addressing CVE-2023-0361.
