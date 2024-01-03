@@ -3,7 +3,7 @@
 
 EAPI=7
 
-DESCRIPTION="CoreOS Secure Boot keys"
+DESCRIPTION="Flatcar Secure Boot keys"
 HOMEPAGE=""
 SRC_URI=""
 LICENSE="BSD"
@@ -21,4 +21,9 @@ src_install() {
 	newins "${FILESDIR}/KEK.crt" KEK.crt
 	newins "${FILESDIR}/DB.key" DB.key
 	newins "${FILESDIR}/DB.crt" DB.crt
+
+	# shim keys
+	newins "${FILESDIR}/shim.key" shim.key
+  	newins "${FILESDIR}/shim.der" shim.der
+  	newins "${FILESDIR}/shim.pem" shim.pem
 }
