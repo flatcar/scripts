@@ -39,7 +39,7 @@ net-firewall/ipset -modules
 dev-libs/glib -mime
 
 # keep grub build simple
-sys-boot/grub -multislot -nls -themes -fonts
+sys-boot/grub -multislot -themes -fonts
 
 # disable "high performance ssh" patch, turn on kerberos
 net-misc/openssh -hpn kerberos
@@ -72,9 +72,6 @@ sys-apps/portage -xattr -rsync-verify
 
 # Enable -M and -Z flags; -M is used by mayday
 sys-process/lsof rpc selinux
-
-# Prevent pulling in a ton of perl dependencies
-sys-apps/man-db -nls
 
 # Disable zstd to avoid adding it to prod images until something needs it
 sys-fs/btrfs-progs -zstd
