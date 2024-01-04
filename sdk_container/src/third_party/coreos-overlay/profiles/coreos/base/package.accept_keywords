@@ -50,7 +50,6 @@
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
 =dev-libs/glib-2.78.3 ~arm64
 =dev-libs/libdnet-1.16.2 ~arm64
-=dev-libs/libgcrypt-1.10.2 ~arm64
 =dev-libs/libsodium-1.0.19-r1 ~arm64
 =dev-libs/libunistring-1.1-r1 ~arm64
 =dev-libs/libxml2-2.11.5-r1 ~amd64
