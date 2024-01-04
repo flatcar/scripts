@@ -1,0 +1,85 @@
+From a4132f6d092b781b742679d2229c1c69f6ad7b16 Mon Sep 17 00:00:00 2001
+From: Alex Kiernan <alex.kiernan@gmail.com>
+Date: Sat, 30 Dec 2023 15:13:27 +0000
+Subject: [PATCH 1/2] Handle non-existent/empty <CARGO_HOME>/registry/src
+
+If remap-debuginfo is set but cargo isn't vendored into
+.cargo/registry/src, don't panic:
+
+| thread 'main' panicked at src/core/builder.rs:1795:26:
+| std::fs::read_dir(registry_src) failed with No such file or directory (os error 2)
+
+Signed-off-by: Alex Kiernan <alex.kiernan@gmail.com>
+---
+ src/bootstrap/src/core/builder.rs | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/src/bootstrap/src/core/builder.rs b/src/bootstrap/src/core/builder.rs
+index e85753a351232..08e7e0b348096 100644
+--- a/src/bootstrap/src/core/builder.rs
++++ b/src/bootstrap/src/core/builder.rs
+@@ -1812,15 +1812,19 @@ impl<'a> Builder<'a> {
+         if self.config.rust_remap_debuginfo {
+             // FIXME: handle vendored sources
+             let registry_src = t!(home::cargo_home()).join("registry").join("src");
+-            let mut env_var = OsString::new();
+-            for entry in t!(std::fs::read_dir(registry_src)) {
++            if registry_src.is_dir() {
++                let mut env_var = OsString::new();
++                for entry in t!(std::fs::read_dir(registry_src)) {
++                    if !env_var.is_empty() {
++                        env_var.push("\t");
++                    }
++                    env_var.push(t!(entry).path());
++                    env_var.push("=/rust/deps");
++                }
+                 if !env_var.is_empty() {
+-                    env_var.push("\t");
++                    cargo.env("RUSTC_CARGO_REGISTRY_SRC_TO_REMAP", env_var);
+                 }
+-                env_var.push(t!(entry).path());
+-                env_var.push("=/rust/deps");
+             }
+-            cargo.env("RUSTC_CARGO_REGISTRY_SRC_TO_REMAP", env_var);
+         }
+ 
+         // Enable usage of unstable features
+
+From 361f32e60788bb95011092a9b2a0472d4e6d38b1 Mon Sep 17 00:00:00 2001
+From: Alex Kiernan <alex.kiernan@gmail.com>
+Date: Sat, 30 Dec 2023 15:15:40 +0000
+Subject: [PATCH 2/2] Ignore blank
+ RUSTC_DEBUGINFO_MAP/RUSTC_CARGO_REGISTRY_SRC_TO_REMAP
+
+If RUSTC_DEBUGINFO_MAP or RUSTC_CARGO_REGISTRY_SRC_TO_REMAP are empty,
+avoid inserting `--remap-path-prefix` with no associated argument.
+
+Signed-off-by: Alex Kiernan <alex.kiernan@gmail.com>
+---
+ src/bootstrap/src/bin/rustc.rs | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/bootstrap/src/bin/rustc.rs b/src/bootstrap/src/bin/rustc.rs
+index 38c55b2034496..a9dd687b75653 100644
+--- a/src/bootstrap/src/bin/rustc.rs
++++ b/src/bootstrap/src/bin/rustc.rs
+@@ -161,13 +161,17 @@ fn main() {
+     }
+ 
+     if let Ok(map) = env::var("RUSTC_DEBUGINFO_MAP") {
+-        cmd.arg("--remap-path-prefix").arg(&map);
++        if !map.is_empty() {
++            cmd.arg("--remap-path-prefix").arg(&map);
++        }
+     }
+     // The remap flags for Cargo registry sources need to be passed after the remapping for the
+     // Rust source code directory, to handle cases when $CARGO_HOME is inside the source directory.
+     if let Ok(maps) = env::var("RUSTC_CARGO_REGISTRY_SRC_TO_REMAP") {
+         for map in maps.split('\t') {
+-            cmd.arg("--remap-path-prefix").arg(map);
++            if !map.is_empty() {
++                cmd.arg("--remap-path-prefix").arg(map);
++            }
+         }
+     }
+ 

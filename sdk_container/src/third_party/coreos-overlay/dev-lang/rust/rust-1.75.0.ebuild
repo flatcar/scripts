@@ -170,6 +170,7 @@ PATCHES=(
 	"${FILESDIR}"/1.70.0-ignore-broken-and-non-applicable-tests.patch
 	#"${FILESDIR}"/1.62.1-musl-dynamic-linking.patch  # Only used by upstream Gentoo, fails for 1.75
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
+	"${FILESDIR}"/1.75.0-119445.patch
 )
 
 S="${WORKDIR}/${MY_P}-src"
