@@ -74,7 +74,6 @@
 =sys-apps/coreutils-9.4 ~amd64
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/util-linux-2.39.2-r1 ~amd64
-=sys-block/thin-provisioning-tools-1.0.6 ~amd64
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
