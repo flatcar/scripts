@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="2c58396dcb97cc91bb14873c242b75bb8ebce0ad" # trunk
+	CROS_WORKON_COMMIT="efc55818aace4fa34b3d9169f3c5c77e71356796" # trunk
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -57,6 +57,7 @@ CRATES="
 	form_urlencoded-1.2.0
 	futures-channel-0.3.28
 	futures-core-0.3.28
+	futures-io-0.3.29
 	futures-sink-0.3.28
 	futures-task-0.3.28
 	futures-util-0.3.28
@@ -133,7 +134,8 @@ CRATES="
 	serde_derive-1.0.188
 	serde_json-1.0.105
 	serde_urlencoded-0.7.1
-	sha2-0.10.7
+	sha1-0.10.6
+	sha2-0.10.8
 	signature-2.1.0
 	slab-0.4.9
 	smallvec-1.11.0
@@ -151,7 +153,6 @@ CRATES="
 	tinyvec-1.6.0
 	tinyvec_macros-0.1.1
 	tokio-1.32.0
-	tokio-macros-2.1.0
 	tokio-native-tls-0.3.1
 	tokio-util-0.7.8
 	tower-service-0.3.2
