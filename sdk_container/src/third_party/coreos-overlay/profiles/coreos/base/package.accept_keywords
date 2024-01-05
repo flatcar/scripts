@@ -24,6 +24,9 @@
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 
+# Needed for addressing CVE-2023-50246 and CVE-2023-50268.
+=app-misc/jq-1.7.1 ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =app-misc/pax-utils-1.3.7 ~amd64
 
