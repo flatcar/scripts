@@ -1,0 +1,1 @@
+- openssh ([CVE-2023-48795](https://nvd.nist.gov/vuln/detail/CVE-2023-48795))
