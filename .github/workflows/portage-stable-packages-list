@@ -484,7 +484,9 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
-sys-boot/gnu-efi
+# Updating to 3.0.17 breaks building of sys-boot/shim.
+#
+# sys-boot/gnu-efi
 
 sys-devel/autoconf
 sys-devel/autoconf-archive
