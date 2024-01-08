@@ -1,4 +1,4 @@
-# Copyright 2019-2023 Gentoo Authors
+# Copyright 2019-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,22 +11,39 @@ SRC_URI="https://github.com/projg2/installkernel-gentoo/archive/v${PV}.tar.gz
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x86-linux"
-IUSE="grub"
+IUSE="+dracut grub uki ukify"
 
 RDEPEND="
 	>=sys-apps/debianutils-4.9-r1
 	!<sys-apps/debianutils-4.9-r1[installkernel(+)]
-	!sys-kernel/installkernel-systemd"
+	!sys-kernel/installkernel-systemd
+"
 
 src_install() {
 	into /
 	dosbin installkernel
 	doman installkernel.8
 	keepdir /etc/kernel/postinst.d
+	keepdir /etc/kernel/preinst.d
+
+	if use dracut; then
+		exeinto /etc/kernel/preinst.d
+		doexe hooks/50-dracut.install
+	fi
 
 	if use grub; then
 		exeinto /etc/kernel/postinst.d
 		doexe hooks/91-grub-mkconfig.install
+	fi
+
+	if use uki; then
+		exeinto /etc/kernel/postinst.d
+		doexe hooks/90-uki-copy.install
+	fi
+
+	if use ukify; then
+		exeinto /etc/kernel/preinst.d
+		doexe hooks/60-ukify.install
 	fi
 }
 
