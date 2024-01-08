@@ -1,4 +1,4 @@
-# Copyright 2005-2024 Gentoo Authors
+# Copyright 2005-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -6,14 +6,14 @@ EAPI=8
 # Generate using https://github.com/thesamesam/sam-gentoo-scripts/blob/main/niche/generate-libunwind-docs
 # Set to 1 if prebuilt, 0 if not
 # (the construct below is to allow overriding from env for script)
-: ${LIBUNWIND_DOCS_PREBUILT:=1}
+: ${LIBUNWIND_DOCS_PREBUILT:=0}
 
 LIBUNWIND_DOCS_PREBUILT_DEV=sam
 LIBUNWIND_DOCS_VERSION=1.7.1
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 LIBUNWIND_DOCS_USEFLAG="+doc"
 
-inherit multilib-minimal
+inherit autotools multilib-minimal
 
 DESCRIPTION="Portable and efficient API to determine the call-chain of a program"
 HOMEPAGE="https://savannah.nongnu.org/projects/libunwind"
@@ -24,12 +24,15 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/libunwind/libunwind"
 	inherit autotools git-r3
 else
-	SRC_URI="https://github.com/libunwind/libunwind/releases/download/v${PV}/${P}.tar.gz"
+	SRC_URI="https://github.com/libunwind/libunwind/releases/download/v${PV/_rc/-rc}/${P/_rc/-rc}.tar.gz"
 	if [[ ${LIBUNWIND_DOCS_PREBUILT} == 1 ]] ; then
 		SRC_URI+=" !doc? ( https://dev.gentoo.org/~${LIBUNWIND_DOCS_PREBUILT_DEV}/distfiles/${CATEGORY}/${PN}/${PN}-${LIBUNWIND_DOCS_VERSION}-docs.tar.xz )"
 	fi
+	S="${WORKDIR}"/${P/_rc/-rc}
 
-	KEYWORDS="amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 -sparc x86 ~amd64-linux ~x86-linux"
+	if [[ ${PV} != *_rc* ]] ; then
+		KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 -sparc ~x86 ~amd64-linux ~x86-linux"
+	fi
 fi
 
 [[ ${LIBUNWIND_DOCS_PREBUILT} == 1 ]] && LIBUNWIND_DOCS_USEFLAG="doc"
@@ -53,8 +56,6 @@ DEPEND="
 	libatomic? ( dev-libs/libatomic_ops[${MULTILIB_USEDEP}] )
 "
 
-PATCHES=( "${FILESDIR}/${PN}-1.7.2-backport-pr521.patch" )
-
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/libunwind.h
 
@@ -73,14 +74,21 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/libunwind-x86_64.h
 )
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.8.0_rc1-configure-bashism.patch
+)
+
 src_prepare() {
 	default
 
 	chmod +x src/ia64/mk_cursor_i || die
 
-	if [[ ${PV} == 9999 ]] ; then
-		eautoreconf
-	fi
+	#if [[ ${PV} == 9999 ]] ; then
+	#	eautoreconf
+	#fi
+
+	# temporarily for bashism patch
+	eautoreconf
 }
 
 multilib_src_configure() {
