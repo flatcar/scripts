@@ -1,7 +1,12 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
+
+# Bumping notes:
+# * Remember to modify LAST_KNOWN_VER 'upstream' in sys-devel/autoconf-wrapper
+# on new autoconf releases, as well as the dependency in RDEPEND below too.
+# * Update _WANT_AUTOCONF and _autoconf_atom case statement in autotools.eclass.
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/autoconf.git"
@@ -12,16 +17,22 @@ else
 	MY_P="${PN}-${MY_PV}"
 	#PATCH_TARBALL_NAME="${PN}-2.70-patches-01"
 
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/zackweinberg.asc
+	inherit verify-sig
+
 	SRC_URI="
 		mirror://gnu/${PN}/${MY_P}.tar.xz
 		https://alpha.gnu.org/pub/gnu/${PN}/${MY_P}.tar.xz
 		https://meyering.net/ac/${P}.tar.xz
+		verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.xz.sig )
 	"
-	 S="${WORKDIR}"/${MY_P}
+	S="${WORKDIR}"/${MY_P}
 
 	if [[ ${PV} != *_beta* ]] && ! [[ $(ver_cut 3) =~ [a-z] ]] ; then
 		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
+
+	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-zackweinberg )"
 fi
 
 inherit toolchain-autoconf
@@ -33,13 +44,13 @@ LICENSE="GPL-3+"
 SLOT="$(ver_cut 1-2)"
 IUSE="emacs"
 
-BDEPEND="
+BDEPEND+="
 	>=dev-lang/perl-5.10
 	>=sys-devel/m4-1.4.16
 "
 RDEPEND="
 	${BDEPEND}
-	>=sys-devel/autoconf-wrapper-15
+	>=sys-devel/autoconf-wrapper-20231224
 	sys-devel/gnuconfig
 	!~sys-devel/${P}:2.5
 "
