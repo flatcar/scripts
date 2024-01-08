@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -21,7 +21,10 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~
 IUSE="static-libs test"
 RESTRICT="!test? ( test )"
 
-BDEPEND="verify-sig? ( sec-keys/openpgp-keys-danielstenberg )"
+BDEPEND="
+	test? ( dev-cpp/gtest )
+	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
+"
 
 DOCS=( AUTHORS CHANGES NEWS README.md RELEASE-NOTES TODO )
 
@@ -29,7 +32,7 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/ares_build.h
 )
 
-QA_CONFIG_IMPL_DECL_SKIP=(
+A__QA_CONFIG_IMPL_DECL_SKIP=(
 	# Checking for obsolete headers
 	malloc
 	calloc
@@ -40,27 +43,12 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	CloseSocket
 	ioctlsocket
 	bitncmp
+	ConvertInterfaceIndexToLuid
+	ConvertInterfaceLuidToNameA
 )
 
 multilib_src_configure() {
-	# These configure tests take a long time to run. The args one runs in O(n^4).
-	export ac_cv_func_getnameinfo='yes'
-	export ac_cv_func_recvfrom='yes'
-	export ac_cv_func_recv='yes'
-	export ac_cv_func_send='yes'
-	export curl_cv_func_getnameinfo_args='const struct sockaddr *,socklen_t,size_t,int'
-	export curl_cv_func_recv_args='int,void *,size_t,int,int'
-	export curl_cv_func_recvfrom_args='int,void *,size_t,int,struct sockaddr *,socklen_t *,int'
-	export curl_cv_func_send_args='int,const void *,size_t,int,int'
-	export curl_cv_getnameinfo='yes'
-	export curl_cv_recv='yes'
-	export curl_cv_recvfrom='yes'
-	export curl_cv_send='yes'
-
 	local myeconfargs=(
-		--cache-file="${BUILD_DIR}"/config.cache
-
-		--enable-nonblocking
 		--enable-symbol-hiding
 		$(use_enable static-libs static)
 		$(use_enable test tests)
