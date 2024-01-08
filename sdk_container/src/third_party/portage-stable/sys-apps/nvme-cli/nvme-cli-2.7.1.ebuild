@@ -11,16 +11,14 @@ SRC_URI="https://github.com/linux-nvme/nvme-cli/archive/v${PV}.tar.gz -> ${P}.gh
 
 LICENSE="GPL-2 GPL-2+"
 SLOT="0"
-KEYWORDS="amd64 arm64 ~loong ppc64 ~riscv x86"
-IUSE="hugepages +json"
+KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc ~x86"
+IUSE="+json"
 
 RDEPEND="
-	>=sys-libs/libnvme-1.2:=[json(+)=]
-	hugepages? ( sys-libs/libhugetlbfs:= )
+	>=sys-libs/libnvme-1.7:=[json?]
 	json? ( dev-libs/json-c:= )
 	sys-libs/zlib:=
 "
-
 DEPEND="
 	${RDEPEND}
 "
@@ -28,21 +26,22 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-PATCHES=(
-	"${FILESDIR}/nvme-cli-2.2-docdir.patch"
-)
-
 src_configure() {
-	local unitdir="$(systemd_get_systemunitdir)"
 	local emesonargs=(
+		-Dversion-tag="${PV}"
 		-Ddocs=all
-		-Dhtmldir="${EPREFIX}/usr/share/doc/${P}/html"
-		-Dsystemddir="${unitdir%/system}"
-		-Dudevrulesdir="${EPREFIX}$(get_udevdir)"
+		-Dhtmldir="${EPREFIX}/usr/share/doc/${PF}/html"
+		-Dsystemddir="$(systemd_get_systemunitdir)"
+		-Dudevrulesdir="${EPREFIX}$(get_udevdir)/rules.d"
+		$(meson_feature json json-c)
 	)
 	meson_src_configure
 }
 
-src_install() {
-	meson_src_install
+pkg_postinst() {
+	udev_reload
+}
+
+pkg_postrm() {
+	udev_reload
 }
