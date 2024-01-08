@@ -15,7 +15,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit autotools git-r3
 else
 	inherit libtool gnome.org
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="MIT"
@@ -37,6 +37,10 @@ MULTILIB_CHOST_TOOLS=(
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/libxslt/xsltconfig.h
+)
+
+PATCHES=(
+	"${FILESDIR}"/${P}-libxml2-2.11-tests.patch
 )
 
 src_prepare() {
