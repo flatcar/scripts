@@ -1,5 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org> (2024-01-02)
+# dev-libs/capstone not keyworded here
+dev-lang/php capstone
 
 # matoro <matoro_gentoo@matoro.tk> (2023-11-24)
 # dev-util/glslang not keyworded here.
@@ -21,10 +25,6 @@ dev-util/cmake gui
 # Violet Purcell <vimproved@inventati.org> (2023-10-12)
 # dev-util/samurai is not keyworded here.
 app-alternatives/ninja samurai
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-09-20)
-# Libei not keyworded here yet
-x11-base/xwayland libei
 
 # matoro <matoro_gentoo@matoro.tk> (2023-06-29)
 # Test failures in dev-libs/weston, although not as bad as big-endian
@@ -138,10 +138,6 @@ dev-python/scipy fortran
 # Test suite is very fragile and doesn't even run on amd64.
 # No real point in running it here right now, bug #804115.
 dev-cpp/eigen test
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2021-10-24)
-# dev-ruby/furo isn't keyworded here
-dev-python/argon2-cffi doc
 
 # Sam James <sam@gentoo.org> (2021-09-12)
 # dev-ruby/asciidoctor isn't keyworded here
@@ -289,6 +285,7 @@ media-video/ffmpeg dav1d libaribb24 libtesseract
 
 # Andrey Utkin <andrey_utkin@gentoo.org> (2020-03-11)
 # USE=bpf depends on sys-devel/clang which is not keyworded on alpha.
+media-libs/libv4l bpf
 media-tv/v4l-utils bpf
 
 # Patrick McLean <chutzpah@gentoo.org> (2020-02-15)
@@ -341,7 +338,6 @@ net-analyzer/wireshark doc
 # Masked due to missing deps. Some *could* have their deps keyworded,
 # but we're trying to keep the maintenance load low.
 app-metrics/collectd collectd_plugins_amqp
-app-metrics/collectd collectd_plugins_gmond
 app-metrics/collectd collectd_plugins_gps
 app-metrics/collectd collectd_plugins_ipmi
 app-metrics/collectd collectd_plugins_modbus

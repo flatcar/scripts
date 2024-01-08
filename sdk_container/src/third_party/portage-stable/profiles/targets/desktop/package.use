@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-11-12)
@@ -16,7 +16,7 @@ dev-qt/qtgui:5 accessibility egl libinput
 # on desktop profiles and CMake is unavoidable, it feels a shame to drag in
 # Qt 6 just for something people are unlikely to want. Plus, it avoids a
 # circular dependency out of the box.
-dev-util/cmake -gui -qt5
+dev-util/cmake -gui -qt5 -qt6
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-07-29)
 # Required by dev-python/PyQt5[multimedia]
@@ -34,10 +34,6 @@ dev-lang/python -bluetooth
 # Andreas Sturmlechner <asturm@gentoo.org> (2021-12-18)
 # Required by media-gfx/digikam, kde-apps/libkexiv2
 media-gfx/exiv2 xmp
-
-# Marek Szuba <marecki@gentoo.org> (2020-12-24)
-# Required by qt5
-media-gfx/gmic fftw
 
 # Lars Wendler <polynomial-c@gentoo.org> (2020-08-06)
 # USE="qt5" and USE="libnotify" are mutually exclusive in this package

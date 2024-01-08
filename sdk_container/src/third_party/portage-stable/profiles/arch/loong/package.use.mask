@@ -1,6 +1,10 @@
-# Copyright 2022-2023 Gentoo Authors
+# Copyright 2022-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
- 
+
+# WANG Xuerui <xen0n@gentoo.org> (2024-01-03)
+# app-crypt/rpm-sequoia is keyworded here.
+app-arch/rpm -sequoia
+
 # Violet Purcell <vimproved@inventati.org> (2023-10-12)
 # dev-util/samurai is not keyworded here.
 app-alternatives/ninja samurai
@@ -42,7 +46,7 @@ dev-python/ruamel-std-pathlib test
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-08-30)
 # Avoid having to keyword more Qt deps
-dev-python/pyside2 3d datavis script location scxml
+dev-python/pyside2 3d datavis location scxml
 
 # WANG Xuerui <xen0n@gentoo.org> (2023-07-26)
 # no llvm:15 or lld:16 on loong
@@ -206,10 +210,6 @@ sys-boot/grub:2 grub_platforms_coreboot grub_platforms_efi-32 grub_platforms_iee
 # Oct 2023), hence no virtual/pandoc and friends.
 sys-apps/eza man
 www-apps/hugo test
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-11-30)
-# Test phase apparently requires an ocamlopt port.
-dev-lang/ocaml test
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-11-29)
 # Dep media-plugins/libvisual-plugins fails to build, seems too hairy to fix.
