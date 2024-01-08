@@ -117,6 +117,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-5.2_p15-random-ub.patch
 	"${FILESDIR}"/${PN}-5.2_p15-configure-clang16.patch
 	"${FILESDIR}"/${PN}-5.2_p21-wpointer-to-int.patch
+	"${FILESDIR}"/${PN}-5.2_p21-configure-strtold.patch
 )
 
 pkg_setup() {
