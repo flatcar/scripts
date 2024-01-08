@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: python-utils-r1.eclass
@@ -151,17 +151,6 @@ _python_set_impls() {
 					fi
 			esac
 		done
-	fi
-
-	if [[ -n ${obsolete[@]} && ${EBUILD_PHASE} == setup ]]; then
-		# complain if people don't clean up old impls while touching
-		# the ebuilds recently.  use the copyright year to infer last
-		# modification
-		# NB: this check doesn't have to work reliably
-		if [[ $(head -n 1 "${EBUILD}" 2>/dev/null) == *2022* ]]; then
-			eqawarn "Please clean PYTHON_COMPAT of obsolete implementations:"
-			eqawarn "  ${obsolete[*]}"
-		fi
 	fi
 
 	local supp=() unsupp=()
@@ -1307,6 +1296,16 @@ _python_check_occluded_packages() {
 # parameter, when calling epytest.  The listed files will be entirely
 # skipped from test collection.
 
+# @ECLASS_VARIABLE: EPYTEST_TIMEOUT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# If set to a non-empty value, enables pytest-timeout plugin and sets
+# test timeout to the specified value.  This variable can be either set
+# in ebuilds that are known to hang, or by user to prevent hangs
+# in automated test environments.  If this variable is set prior
+# to calling distutils_enable_tests in distutils-r1, a test dependency
+# on dev-python/pytest-timeout is added automatically.
+
 # @ECLASS_VARIABLE: EPYTEST_XDIST
 # @DEFAULT_UNSET
 # @DESCRIPTION:
@@ -1336,15 +1335,8 @@ epytest() {
 	_python_check_EPYTHON
 	_python_check_occluded_packages
 
-	local color
-	case ${NOCOLOR} in
-		true|yes)
-			color=no
-			;;
-		*)
-			color=yes
-			;;
-	esac
+	local color=yes
+	[[ ${NO_COLOR} ]] && color=no
 
 	local args=(
 		# verbose progress reporting and tracebacks
@@ -1362,6 +1354,11 @@ epytest() {
 		# count is more precise when we're dealing with a large number
 		# of tests
 		-o console_output_style=count
+		# minimize the temporary directory retention, the test suites
+		# of some packages can grow them pretty large and normally
+		# we don't need to preserve them
+		-o tmp_path_retention_count=0
+		-o tmp_path_retention_policy=failed
 	)
 
 	if [[ ! ${PYTEST_DISABLE_PLUGIN_AUTOLOAD} ]]; then
@@ -1389,6 +1386,20 @@ epytest() {
 			-p no:pytest-describe
 			-p no:plus
 			-p no:tavern
+			# does something to logging
+			-p no:salt-factories
+		)
+	fi
+
+	if [[ -n ${EPYTEST_TIMEOUT} ]]; then
+		if [[ ${PYTEST_PLUGINS} != *pytest_timeout* ]]; then
+			args+=(
+				-p timeout
+			)
+		fi
+
+		args+=(
+			"--timeout=${EPYTEST_TIMEOUT}"
 		)
 	fi
 
