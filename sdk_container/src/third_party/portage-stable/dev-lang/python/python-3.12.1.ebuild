@@ -1,13 +1,13 @@
 # Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI="8"
 WANT_LIBTOOL="none"
 
 inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
 inherit python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_beta/b}
+MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm libedit lto
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -137,6 +137,70 @@ src_prepare() {
 	eautoreconf
 }
 
+build_cbuild_python() {
+	# Hack to workaround get_libdir not being able to handle CBUILD, bug #794181
+	local cbuild_libdir=$(unset PKG_CONFIG_PATH ; $(tc-getBUILD_PKG_CONFIG) --keep-system-libs --libs-only-L libffi)
+
+	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
+	# propagated to sysconfig for built extensions
+	#
+	# -fno-lto to avoid bug #700012 (not like it matters for mini-CBUILD Python anyway)
+	local -x CFLAGS_NODIST="${BUILD_CFLAGS} -fno-lto"
+	local -x LDFLAGS_NODIST=${BUILD_LDFLAGS}
+	local -x CFLAGS= LDFLAGS=
+	local -x BUILD_CFLAGS="${CFLAGS_NODIST}"
+	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
+
+	# We need to build our own Python on CBUILD first, and feed it in.
+	# bug #847910
+	local myeconfargs_cbuild=(
+		"${myeconfargs[@]}"
+
+		--prefix="${BROOT}"/usr
+		--libdir="${cbuild_libdir:2}"
+
+		# Avoid needing to load the right libpython.so.
+		--disable-shared
+
+		# As minimal as possible for the mini CBUILD Python
+		# we build just for cross to satisfy --with-build-python.
+		--without-lto
+		--without-readline
+		--disable-optimizations
+	)
+
+	mkdir "${WORKDIR}"/${P}-${CBUILD} || die
+	pushd "${WORKDIR}"/${P}-${CBUILD} &> /dev/null || die
+
+	# Avoid as many dependencies as possible for the cross build.
+	mkdir Modules || die
+	cat > Modules/Setup.local <<-EOF || die
+		*disabled*
+		nis
+		_dbm _gdbm
+		_sqlite3
+		_hashlib _ssl
+		_curses _curses_panel
+		readline
+		_tkinter
+		pyexpat
+		zlib
+		# We disabled these for CBUILD because Python's setup.py can't handle locating
+		# libdir correctly for cross. This should be rechecked for the pure Makefile approach,
+		# and uncommented if needed.
+		#_ctypes _crypt
+	EOF
+
+	ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
+
+	# Unfortunately, we do have to build this immediately, and
+	# not in src_compile, because CHOST configure for Python
+	# will check the existence of the --with-build-python value
+	# immediately.
+	emake
+	popd &> /dev/null || die
+}
+
 src_configure() {
 	local disable
 	# disable automagic bluetooth headers detection
@@ -226,77 +290,29 @@ src_configure() {
 		$(use_with readline readline "$(usex libedit editline readline)")
 		$(use_with valgrind)
 	)
+	# Force-disable modules we don't want built.
+	# See Modules/Setup for docs on how this works. Setup.local contains our local deviations.
+	cat > Modules/Setup.local <<-EOF || die
+		*disabled*
+		nis
+		$(usev !gdbm '_gdbm _dbm')
+		$(usev !sqlite '_sqlite3')
+		$(usev !ssl '_hashlib _ssl')
+		$(usev !ncurses '_curses _curses_panel')
+		$(usev !readline 'readline')
+		$(usev !tk '_tkinter')
+	EOF
 
 	# disable implicit optimization/debugging flags
 	local -x OPT=
 
 	if tc-is-cross-compiler ; then
-		# Hack to workaround get_libdir not being able to handle CBUILD, bug #794181
-		local cbuild_libdir=$(unset PKG_CONFIG_PATH ; $(tc-getBUILD_PKG_CONFIG) --keep-system-libs --libs-only-L libffi)
-
-		# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
-		# propagated to sysconfig for built extensions
-		#
-		# -fno-lto to avoid bug #700012 (not like it matters for mini-CBUILD Python anyway)
-		local -x CFLAGS_NODIST="${BUILD_CFLAGS} -fno-lto"
-		local -x LDFLAGS_NODIST=${BUILD_LDFLAGS}
-		local -x CFLAGS= LDFLAGS=
-		local -x BUILD_CFLAGS="${CFLAGS_NODIST}"
-		local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
-
-		# We need to build our own Python on CBUILD first, and feed it in.
-		# bug #847910
-		local myeconfargs_cbuild=(
-			"${myeconfargs[@]}"
-
-			--libdir="${cbuild_libdir:2}"
-
-			# Avoid needing to load the right libpython.so.
-			--disable-shared
-
-			# As minimal as possible for the mini CBUILD Python
-			# we build just for cross to satisfy --with-build-python.
-			--without-lto
-			--without-readline
-			--disable-optimizations
-		)
-
+		build_cbuild_python
 		myeconfargs+=(
 			# Point the imminent CHOST build to the Python we just
 			# built for CBUILD.
 			--with-build-python="${WORKDIR}"/${P}-${CBUILD}/python
 		)
-
-		mkdir "${WORKDIR}"/${P}-${CBUILD} || die
-		pushd "${WORKDIR}"/${P}-${CBUILD} &> /dev/null || die
-		# We disable _ctypes and _crypt for CBUILD because Python's setup.py can't handle locating
-		# libdir correctly for cross.
-		PYTHON_DISABLE_MODULES="${PYTHON_DISABLE_MODULES} _ctypes _crypt" \
-			ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
-
-		# Avoid as many dependencies as possible for the cross build.
-		cat >> Makefile <<-EOF || die
-			MODULE_NIS_STATE=disabled
-			MODULE__DBM_STATE=disabled
-			MODULE__GDBM_STATE=disabled
-			MODULE__DBM_STATE=disabled
-			MODULE__SQLITE3_STATE=disabled
-			MODULE__HASHLIB_STATE=disabled
-			MODULE__SSL_STATE=disabled
-			MODULE__CURSES_STATE=disabled
-			MODULE__CURSES_PANEL_STATE=disabled
-			MODULE_READLINE_STATE=disabled
-			MODULE__TKINTER_STATE=disabled
-			MODULE_PYEXPAT_STATE=disabled
-			MODULE_ZLIB_STATE=disabled
-		EOF
-
-		# Unfortunately, we do have to build this immediately, and
-		# not in src_compile, because CHOST configure for Python
-		# will check the existence of the --with-build-python value
-		# immediately.
-		PYTHON_DISABLE_MODULES="${PYTHON_DISABLE_MODULES} _ctypes _crypt" emake
-		popd &> /dev/null || die
 	fi
 
 	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
@@ -317,20 +333,6 @@ src_configure() {
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
 	fi
-
-	# force-disable modules we don't want built
-	local disable_modules=( NIS )
-	use gdbm || disable_modules+=( _GDBM _DBM )
-	use sqlite || disable_modules+=( _SQLITE3 )
-	use ssl || disable_modules+=( _HASHLIB _SSL )
-	use ncurses || disable_modules+=( _CURSES _CURSES_PANEL )
-	use readline || disable_modules+=( READLINE )
-	use tk || disable_modules+=( _TKINTER )
-
-	local mod
-	for mod in "${disable_modules[@]}"; do
-		echo "MODULE_${mod}_STATE=disabled"
-	done >> Makefile || die
 
 	# install epython.py as part of stdlib
 	echo "EPYTHON='python${PYVER}'" > Lib/epython.py || die
