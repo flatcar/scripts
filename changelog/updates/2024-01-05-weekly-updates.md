@@ -16,6 +16,7 @@
 - kmod ([31](https://github.com/kmod-project/kmod/blob/v31/NEWS))
 - libarchive ([3.7.2](https://github.com/libarchive/libarchive/releases/tag/v3.7.2))
 - libksba ([1.6.5](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libksba.git;a=blob;f=NEWS;h=369cfb5d91bf232685a6c5b156453a624e11ed67;hb=7b3e4785e54280d1a13c5bc839bdc6722d898ac7))
+- libdnet ([1.16.4](https://github.com/ofalk/libdnet/releases/tag/libdnet-1.16.4))
 - libnsl ([2.0.1](https://github.com/thkukuk/libnsl/releases/tag/v2.0.1))
 - libxslt ([1.1.39](https://gitlab.gnome.org/GNOME/libxslt/-/releases/v1.1.39))
 - lsof ([4.99.0](https://github.com/lsof-org/lsof/blob/4.99.0/00DIST#L5523))
