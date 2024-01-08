@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Preprocessor for 'less'. Used when this environment variable is set:
@@ -22,6 +22,42 @@ guesscompress() {
 		*.zst)      echo "zstdcat" ;;
 		*)          echo "cat" ;;
 	esac
+}
+
+crl_filter() {
+	if command -v certtool &>/dev/null; then
+		certtool --crl-info --text --infile "$1"
+	else
+		openssl crl -hash -text -noout -in "$1"
+	fi
+}
+
+csr_filter() {
+	if command -v certtool &>/dev/null; then
+		certtool --crq-info --text --infile "$1"
+	else
+		openssl req -text -noout -in "$1"
+	fi
+}
+
+crt_filter() {
+	if command -v certtool &>/dev/null; then
+		certtool --certificate-info --text --infile "$1"
+	else
+		openssl x509 -hash -text -noout -in "$1"
+	fi
+}
+
+jks_filter() {
+	if command -v keytool &>/dev/null; then
+		keytool -list -keystore "$1"
+	else
+		cat "$1"
+	fi
+}
+
+p12_filter() {
+	openssl pkcs12 -nokeys -info -in "$1"
 }
 
 lesspipe_file() {
@@ -56,6 +92,16 @@ lesspipe() {
 	if [[ -x ~/.lessfilter ]] ; then
 		~/.lessfilter "$1" && exit 0
 	fi
+
+	# System filters
+	shopt -s nullglob
+	local f
+	for f in "${XDG_CONFIG_HOME:-~/.config}"/lessfilter.d/* /etc/lessfilter.d/* /usr/lib/lessfilter.d/*; do
+		if [[ -x ${f} ]]; then
+			"${f}" "$1" && exit 0
+		fi
+	done
+	shopt -u nullglob
 
 	local ignore
 	for ignore in ${LESSIGNORE} ; do
@@ -199,9 +245,11 @@ lesspipe() {
 		;;
 
 	### Encryption stuff ###
-	*.crl) openssl crl -hash -text -noout -in "$1" ;;
-	*.csr) openssl req -text -noout -in "$1" ;;
-	*.crt|*.pem) openssl x509 -hash -text -noout -in "$1" ;;
+	*.crl) crl_filter "$1" ;;
+	*.csr) csr_filter "$1" ;;
+	*.crt|*.pem) crt_filter "$1" ;;
+	*.jks) jks_filter "$1" ;;
+	*.p12|*.pfx) p12_filter "$1" ;;
 
 # May not be such a good idea :)
 #	### Device nodes ###
@@ -253,7 +301,7 @@ if [[ $# -eq 0 ]] ; then
 elif [[ $1 == "-V" || $1 == "--version" ]] ; then
 	cat <<-EOF
 		lesspipe (git)
-		Copyright 1999-2019 Gentoo Authors
+		Copyright 1999-2023 Gentoo Authors
 		Mike Frysinger <vapier@gentoo.org>
 		     (with plenty of ideas stolen from other projects/distros)
 
