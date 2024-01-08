@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: cargo.eclass
@@ -35,11 +35,6 @@ case ${EAPI} in
 		# 1.52 may need setting RUSTC_BOOTSTRAP envvar for some crates
 		# 1.53 added cargo update --offline, can be used to update vulnerable crates from pre-fetched registry without editing toml
 		RUST_DEPEND=">=virtual/rust-1.53"
-
-		if [[ -z ${CRATES} && "${PV}" != *9999* ]]; then
-			eerror "undefined CRATES variable in non-live EAPI=8 ebuild"
-			die "CRATES variable not defined"
-		fi
 		;;
 esac
 
@@ -180,6 +175,9 @@ ECARGO_VENDOR="${ECARGO_HOME}/gentoo"
 # If no arguments are provided, it uses the CRATES variable.
 # The value is set as CARGO_CRATE_URIS.
 _cargo_set_crate_uris() {
+	# when called by pkgbump, do not fetch crates
+	[[ ${PKGBUMPING} == ${PVR} ]] && return
+
 	local -r regex='^([a-zA-Z0-9_\-]+)-([0-9]+\.[0-9]+\.[0-9]+.*)$'
 	local crates=${1}
 	local crate
@@ -336,6 +334,9 @@ cargo_src_unpack() {
 	for archive in ${A}; do
 		case "${archive}" in
 			*.crate)
+				# when called by pkgdiff-mg, do not unpack crates
+				[[ ${PKGBUMPING} == ${PVR} ]] && continue
+
 				ebegin "Loading ${archive} into Cargo registry"
 				tar -xf "${DISTDIR}"/${archive} -C "${ECARGO_VENDOR}/" || die
 				# generate sha256sum of the crate itself as cargo needs this
