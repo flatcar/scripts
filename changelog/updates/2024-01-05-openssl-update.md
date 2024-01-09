@@ -1,0 +1,1 @@
+- openssl ([3.0.12](https://github.com/openssl/openssl/blob/openssl-3.0.12/NEWS.md#major-changes-between-openssl-3011-and-openssl-3012-24-oct-2023))

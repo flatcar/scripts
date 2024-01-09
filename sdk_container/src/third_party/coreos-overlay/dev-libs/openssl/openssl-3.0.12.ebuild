@@ -3,7 +3,7 @@
 
 EAPI=8
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/openssl.org.asc
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
 TMPFILES_OPTIONAL=1
 inherit edo flag-o-matic linux-info toolchain-funcs
 inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig tmpfiles
@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -45,7 +45,7 @@ BDEPEND="
 		sys-devel/bc
 		sys-process/procps
 	)
-	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20230207 )"
+	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20230801 )"
 
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -53,11 +53,6 @@ PDEPEND="app-misc/ca-certificates"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
-)
-
-PATCHES=(
-	"${FILESDIR}"/${P}-CVE-2023-2975.patch
-	"${FILESDIR}"/${P}-CVE-2023-3446.patch
 )
 
 pkg_setup() {
@@ -91,7 +86,7 @@ src_unpack() {
 	# Can delete this once test fix patch is dropped
 	if use verify-sig ; then
 		# Needed for downloaded patch (which is unsigned, which is fine)
-		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.gz{,.asc}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.gz{,.asc}
 	fi
 
 	default
@@ -133,6 +128,7 @@ src_configure() {
 	# code. This has been in the ebuild for > 10 years but even in 2022,
 	# it's still relevant:
 	# - https://github.com/llvm/llvm-project/issues/55255
+	# - https://github.com/openssl/openssl/issues/12247
 	# - https://github.com/openssl/openssl/issues/18225
 	# - https://github.com/openssl/openssl/issues/18663#issuecomment-1181478057
 	# Don't remove the no strict aliasing bits below!
@@ -231,16 +227,18 @@ multilib_src_test() {
 }
 
 multilib_src_install() {
-	emake DESTDIR="${D}" install_sw
+	# Only -j1 is supported for the install targets:
+	# https://github.com/openssl/openssl/issues/21999#issuecomment-1771150305
+	emake DESTDIR="${D}" -j1 install_sw
 	if use fips; then
-		emake DESTDIR="${D}" install_fips
+		emake DESTDIR="${D}" -j1 install_fips
 		# Regen this in pkg_preinst, bug 900625
 		rm "${ED}${SSL_CNF_DIR}"/fipsmodule.cnf || die
 	fi
 
 	if multilib_is_native_abi; then
-		emake DESTDIR="${D}" install_ssldirs
-		emake DESTDIR="${D}" DOCDIR='$(INSTALLTOP)'/share/doc/${PF} install_docs
+		emake DESTDIR="${D}" -j1 install_ssldirs
+		emake DESTDIR="${D}" DOCDIR='$(INSTALLTOP)'/share/doc/${PF} -j1 install_docs
 	fi
 
 	# This is crappy in that the static archives are still built even
