@@ -1,0 +1,7 @@
+# texinfo checks if iconv converts EUC-CN encoding to UTF-8. It does
+# it by compiling and running a test program, which obviously won't
+# fly during cross-compilation. On SDK (for which a native compilation
+# is done) the conversion does not happen, so we parrot it for the
+# cross-compilation case too.
+
+export texinfo_cv_sys_iconv_converts_euc_cn='no'
