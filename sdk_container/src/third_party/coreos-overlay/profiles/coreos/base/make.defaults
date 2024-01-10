@@ -130,3 +130,6 @@ BINPKG_COMPRESS=bzip2
 
 # Enable cgo by default. Required for the docker device-mapper driver to compile.
 CGO_ENABLED=1
+
+# Keep using old binary format for now.
+BINPKG_FORMAT=xpak
