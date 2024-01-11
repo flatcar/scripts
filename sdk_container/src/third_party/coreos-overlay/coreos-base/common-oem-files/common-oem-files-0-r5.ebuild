@@ -31,7 +31,6 @@ fi
 COMMON_OEMIDS=(
     ami
     azure
-    gce
     openstack
     packet
     qemu
@@ -42,6 +41,7 @@ ARM64_ONLY_OEMIDS=(
 
 AMD64_ONLY_OEMIDS=(
     digitalocean
+    gce
     vmware
 )
 
