@@ -5,4 +5,3 @@
 - gnutls ([CVE-2023-5981](https://nvd.nist.gov/vuln/detail/CVE-2023-5981))
 - curl ([CVE-2023-46218](https://nvd.nist.gov/vuln/detail/CVE-2023-46218), [CVE-2023-46219](https://nvd.nist.gov/vuln/detail/CVE-2023-46219))
 - binutils ([CVE-2023-1972](https://nvd.nist.gov/vuln/detail/CVE-2023-1972))
-- zlib ([CVE-2023-45853](https://nvd.nist.gov/vuln/detail/CVE-2023-45853))
