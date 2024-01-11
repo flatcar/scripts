@@ -1,0 +1,1 @@
+- glibc ([2.38](https://sourceware.org/pipermail/libc-alpha/2023-July/150524.html))
