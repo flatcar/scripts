@@ -4,7 +4,7 @@
 USE="cros-debug acpi usb symlink-usr cryptsetup policykit"
 USE="${USE} -split-usr -cros_host -expat -cairo -X -man"
 USE="${USE} -acl -gpm -python"
-USE="${USE} -fortran -abiword -perl -cups -poppler-data -nls"
+USE="${USE} -fortran -abiword -perl -cups -poppler-data"
 
 # Exclude documentation
 FEATURES="nodoc noinfo noman"

@@ -1,0 +1,8 @@
+- vim ([CVE-2023-5344](https://nvd.nist.gov/vuln/detail/CVE-2023-5344), [CVE-2023-5441](https://nvd.nist.gov/vuln/detail/CVE-2023-5441), [CVE-2023-5535](https://nvd.nist.gov/vuln/detail/CVE-2023-5535), [CVE-2023-46246](https://nvd.nist.gov/vuln/detail/CVE-2023-46246))
+- perl ([CVE-2023-47038](https://nvd.nist.gov/vuln/detail/CVE-2023-47038))
+- libxml2 ([CVE-2023-45322](https://nvd.nist.gov/vuln/detail/CVE-2023-45322))
+- traceroute ([CVE-2023-46316](https://nvd.nist.gov/vuln/detail/CVE-2023-46316))
+- gnutls ([CVE-2023-5981](https://nvd.nist.gov/vuln/detail/CVE-2023-5981))
+- curl ([CVE-2023-46218](https://nvd.nist.gov/vuln/detail/CVE-2023-46218), [CVE-2023-46219](https://nvd.nist.gov/vuln/detail/CVE-2023-46219))
+- binutils ([CVE-2023-1972](https://nvd.nist.gov/vuln/detail/CVE-2023-1972))
+- zlib ([CVE-2023-45853](https://nvd.nist.gov/vuln/detail/CVE-2023-45853))

@@ -42,11 +42,6 @@ sys-apps/smcipmitool
 # Uses dev-util/nvidia-cuda-sdk
 dev-libs/cutlass
 
-# Sam James <sam@gentoo.org> (2023-01-02)
-# Uses error.h, bug #888956
-=sys-libs/liburing-2.3
-=sys-libs/liburing-2.3-r1
-
 # Conrad Kostecki <conikost@gentoo.org> (2022-12-31)
 # RTLD_DEEPBIND does not exist on musl
 dev-libs/intel-compute-runtime
@@ -214,7 +209,6 @@ games-server/ut2004-ded
 games-simulation/slime-rancher
 games-strategy/darwinia
 games-strategy/darwinia-demo
-games-strategy/defcon-demo
 games-strategy/knights-demo
 games-strategy/majesty-demo
 gnome-extra/nautilus-dropbox
@@ -236,7 +230,6 @@ net-im/rocketchat-desktop-bin
 net-im/skypeforlinux
 net-im/slack
 net-im/telegram-desktop-bin
-net-im/wazzapp-bin
 net-im/whatsapp-desktop-bin
 net-im/zoom
 net-misc/chrome-remote-desktop
@@ -338,6 +331,16 @@ app-editors/jasspa-microemacs
 sys-apps/unscd
 sys-auth/libnss-nis
 sys-auth/sssd
+net-nds/nsscache
+sys-auth/libnss-cache
+sys-auth/libnss-mysql
+sys-auth/libnss-nis
+sys-auth/libnss-pgsql
+sys-auth/nss-mdns
+sys-auth/nss-myhostname
+sys-auth/nss-pam-ldapd
+sys-auth/nss_ldap
+sys-libs/nss-usrfiles
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-03-21)
 # Needs a port to musl. Uses glibc-specific termio and __getppid.

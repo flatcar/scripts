@@ -68,6 +68,7 @@ app-alternatives/bzip2
 app-alternatives/cpio
 app-alternatives/gzip
 app-alternatives/lex
+app-alternatives/ninja
 app-alternatives/sh
 app-alternatives/tar
 app-alternatives/yacc
@@ -134,6 +135,7 @@ app-misc/zisofs-tools
 
 app-portage/elt-patches
 app-portage/gentoolkit
+app-portage/getuto
 app-portage/portage-utils
 
 app-shells/bash
@@ -217,20 +219,20 @@ dev-libs/userspace-rcu
 dev-libs/xmlsec
 
 dev-perl/File-Slurp
-dev-perl/Locale-gettext
 dev-perl/Parse-Yapp
 
 dev-python/autocommand
 dev-python/boto
-dev-python/certifi
 dev-python/crcmod
 dev-python/cython
 dev-python/distro
 dev-python/docutils
+dev-python/editables
 dev-python/fasteners
 dev-python/flit-core
 dev-python/gentoo-common
 dev-python/gpep517
+dev-python/hatchling
 dev-python/inflect
 dev-python/installer
 dev-python/jaraco-context
@@ -244,7 +246,9 @@ dev-python/more-itertools
 dev-python/nspektr
 dev-python/ordered-set
 dev-python/packaging
+dev-python/pathspec
 dev-python/platformdirs
+dev-python/pluggy
 dev-python/pydecomp
 dev-python/pygments
 dev-python/pyparsing
@@ -253,6 +257,7 @@ dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
 dev-python/tomli
+dev-python/trove-classifiers
 dev-python/typing-extensions
 dev-python/wheel
 
@@ -479,7 +484,9 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
-sys-boot/gnu-efi
+# Updating to 3.0.17 breaks building of sys-boot/shim.
+#
+# sys-boot/gnu-efi
 
 sys-devel/autoconf
 sys-devel/autoconf-archive
@@ -568,6 +575,7 @@ virtual/perl-File-Spec
 virtual/perl-File-Temp
 virtual/perl-Getopt-Long
 virtual/perl-IO
+virtual/perl-Unicode-Collate
 virtual/pkgconfig
 virtual/service-manager
 virtual/ssh
