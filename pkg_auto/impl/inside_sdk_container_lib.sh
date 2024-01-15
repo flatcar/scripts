@@ -328,7 +328,10 @@ function ignore_crossdev_stuff() {
     dirname_out "${ics_path}" ics_dir
 
     sudo mkdir -p "${ics_dir}"
-    env --chdir="${crossdev_repo_path}" find -L . -name '*.ebuild' | sed 's#^./\([^/]*/[^/]*\).*#\1-9999#' | sort -u | sudo tee "${ics_path}" >/dev/null
+    env --chdir="${crossdev_repo_path}" find . -type l | \
+        cut -d/ -f2-3 | \
+        sed -e 's/$/-9999/' | \
+        sudo tee "${ics_path}" >/dev/null
 }
 
 # Reverts effects of the ignore_crossdev_stuff function.
