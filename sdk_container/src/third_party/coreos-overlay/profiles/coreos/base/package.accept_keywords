@@ -92,6 +92,9 @@
 # Keep linux headers in sync with used kernel
 =sys-kernel/linux-headers-6.6 ~amd64 ~arm64
 
+# Keep versions on both arches in sync.
+=sys-libs/binutils-libs-2.41-r3 ~arm64
+
 # Needed to fix CVE-2023-29491.
 =sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
 
