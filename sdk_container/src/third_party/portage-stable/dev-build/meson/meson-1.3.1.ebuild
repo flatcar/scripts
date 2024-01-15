@@ -1,4 +1,4 @@
-# Copyright 2016-2023 Gentoo Authors
+# Copyright 2016-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -42,7 +42,7 @@ DEPEND="
 	test? (
 		dev-libs/glib:2
 		dev-libs/gobject-introspection
-		dev-util/ninja
+		app-alternatives/ninja
 		dev-vcs/git
 		sys-libs/zlib[static-libs(+)]
 		virtual/pkgconfig
@@ -54,6 +54,7 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.2.1-python-path.patch
+	"${FILESDIR}"/${PN}-1.3.1-xtools-support.patch
 
 	# backport fix for hiding compiler warnings (such as Modern C) in vala and cython
 	"${FILESDIR}"/0001-ninja-backend-don-t-hide-all-compiler-warnings-for-t.patch
