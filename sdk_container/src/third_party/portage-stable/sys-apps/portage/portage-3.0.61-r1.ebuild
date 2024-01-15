@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/portage.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -35,10 +35,10 @@ RESTRICT="!test? ( test )"
 # >=meson-1.2.1-r1 for bug #912051
 BDEPEND="
 	${PYTHON_DEPS}
-	>=dev-util/meson-1.2.1-r1
+	>=dev-build/meson-1.2.1-r1
 	|| (
-		>=dev-util/meson-1.3.0-r1
-		<dev-util/meson-1.3.0
+		>=dev-build/meson-1.3.0-r1
+		<dev-build/meson-1.3.0
 	)
 	$(python_gen_cond_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
@@ -165,8 +165,6 @@ src_compile() {
 
 src_test() {
 	local -x PYTEST_ADDOPTS="-vv -ra -l -o console_output_style=count -n $(makeopts_jobs) --dist=worksteal"
-	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-	local -x PYTEST_PLUGINS=xdist.plugin
 
 	python_foreach_impl meson_src_test --no-rebuild --verbose
 }
@@ -187,8 +185,8 @@ my_src_install() {
 	)
 
 	meson_src_install
-	python_optimize "${pydirs[@]}"
 	python_fix_shebang "${pydirs[@]}"
+	python_optimize "${pydirs[@]}"
 }
 
 pkg_preinst() {
@@ -211,6 +209,10 @@ pkg_preinst() {
 		env -u FEATURES -u PORTAGE_REPOSITORIES \
 			PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
 			"${PYTHON}" -m portage._compat_upgrade.binpkg_multi_instance || die
+
+		env -u BINPKG_FORMAT \
+			PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
+			"${PYTHON}" -m portage._compat_upgrade.binpkg_format || die
 	fi
 
 	# elog dir must exist to avoid logrotate error for bug #415911.
