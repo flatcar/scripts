@@ -96,10 +96,10 @@ BDEPEND="${PYTHON_DEPS}
 	)
 	system-bootstrap? ( ${BOOTSTRAP_DEPEND} )
 	!system-llvm? (
-		>=dev-util/cmake-3.13.4
-		dev-util/ninja
+		>=dev-build/cmake-3.13.4
+		dev-build/ninja
 	)
-	test? ( sys-devel/gdb )
+	test? ( dev-debug/gdb )
 	verify-sig? ( sec-keys/openpgp-keys-rust )
 "
 
@@ -773,7 +773,7 @@ src_install() {
 pkg_postinst() {
 	eselect rust update
 
-	if has_version sys-devel/gdb || has_version dev-util/lldb; then
+	if has_version dev-debug/gdb || has_version dev-debug/lldb; then
 		elog "Rust installs a helper script for calling GDB and LLDB,"
 		elog "for your convenience it is installed under /usr/bin/rust-{gdb,lldb}-${PV}."
 	fi

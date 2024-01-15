@@ -19,6 +19,7 @@ RDEPEND="
 	app-portage/gentoolkit
 	coreos-base/coreos
 	coreos-base/emerge-gitclone
+	dev-debug/gdb
 	dev-lang/python
 	dev-util/pahole
 	dev-util/strace
@@ -41,7 +42,6 @@ RDEPEND="
 	sys-apps/smartmontools
 	sys-apps/which
 	sys-devel/gcc
-	sys-devel/gdb
 	sys-fs/lvm2
 	sys-fs/squashfs-tools
 	sys-process/procps
