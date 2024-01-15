@@ -529,7 +529,6 @@ sys-fs/quota
 sys-fs/squashfs-tools
 sys-fs/xfsprogs
 
-sys-kernel/installkernel-gentoo
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs
