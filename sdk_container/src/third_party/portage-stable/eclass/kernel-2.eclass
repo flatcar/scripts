@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kernel-2.eclass
@@ -653,12 +653,12 @@ kernel_is() {
 # Capture the sources type and set DEPENDs
 if [[ ${ETYPE} == sources ]]; then
 	RDEPEND="!build? (
-		app-arch/cpio
+		app-alternatives/cpio
 		dev-lang/perl
-		sys-devel/bc
-		sys-devel/bison
-		sys-devel/flex
-		sys-devel/make
+		app-alternatives/bc
+		app-alternatives/yacc
+		app-alternatives/lex
+		dev-build/make
 		>=sys-libs/ncurses-5.2
 		virtual/libelf
 		virtual/pkgconfig
