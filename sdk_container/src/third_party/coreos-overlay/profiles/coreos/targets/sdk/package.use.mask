@@ -1,2 +1,5 @@
 # Allow smartcard support in the SDK for image signing
 app-crypt/gnupg -smartcard
+
+# Do not pull unnecessary installkernel stuff
+sys-apps/debianutils installkernel
