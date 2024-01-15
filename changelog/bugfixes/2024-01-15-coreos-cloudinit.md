@@ -1,0 +1,1 @@
+- Fixed a bug resulting in coreos-cloudinit resetting the instance hostname to 'localhost' if no metadata could be found ([coreos-cloudinit#25](https://github.com/flatcar/coreos-cloudinit/pull/25))
