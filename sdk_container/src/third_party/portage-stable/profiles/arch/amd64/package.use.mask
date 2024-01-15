@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # When you add an entry to the top of this file, add your name, the date, and
@@ -16,6 +16,10 @@
 #
 
 #--- END OF EXAMPLES ---
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-13)
+# Unmask only where grub is keyworded
+sys-kernel/installkernel -grub
 
 # Michał Górny <mgorny@gentoo.org> (2023-12-31)
 # Requires dev-libs/level-zero.
@@ -83,7 +87,7 @@ net-misc/curl -nghttp3
 
 # Sam James <sam@gentoo.org> (2023-07-18)
 # dev-cpp/cppdap is not keyworded in most places
-dev-util/cmake -dap
+dev-build/cmake -dap
 
 # Marek Szuba <marecki@gentoo.org> (2023-06-29)
 # Now that we globally unmask USE=qt6 for amd64, the mask set
@@ -142,7 +146,6 @@ media-libs/gst-plugins-bad -qsv
 # WANG Xuerui <xen0n@gentoo.org> (2022-10-07)
 # sys-libs/libsmbios is available here.
 app-laptop/pbbuttonsd -macbook
-sys-apps/fwupd -dell
 
 # Alfredo Tupone <tupone@gentoo.org> (2022-08-30)
 # ada bootstrap currently only available on amd64/x86
@@ -399,6 +402,7 @@ sys-boot/grub:2 -grub_platforms_xen-32
 # sd-boot is not supported on all archs.
 sys-apps/systemd -boot -gnuefi -ukify
 sys-apps/systemd-utils -boot -ukify
+sys-kernel/installkernel -ukify
 
 # Ben de Groot <yngwin@gentoo.org> (2015-03-15)
 # media-libs/libbdplus is keyworded on amd64, so unmask the useflag
@@ -508,7 +512,7 @@ media-libs/smpeg cpu_flags_x86_mmx
 
 # x86_64 opts are enabled with USE sse. so masking the rest
 media-sound/mpg123 cpu_flags_x86_mmx cpu_flags_x86_3dnow cpu_flags_x86_3dnowext
-media-libs/libmpg123 cpu_flags_x86_mmx cpu_flags_x86_3dnow cpu_flags_x86_3dnowext
+media-sound/mpg123-base cpu_flags_x86_mmx cpu_flags_x86_3dnow cpu_flags_x86_3dnowext
 
 # Alexis Ballier <aballier@gentoo.org> (2008-08-08)
 # x86 asm only, it won't be built on amd64 if mmx useflag is enabled but that
