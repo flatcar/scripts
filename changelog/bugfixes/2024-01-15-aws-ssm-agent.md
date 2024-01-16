@@ -1,0 +1,1 @@
+- AWS: Fixed the Amazon SSM agent that was crashing. ([Flatcar#1307](https://github.com/flatcar/Flatcar/issues/1307))
