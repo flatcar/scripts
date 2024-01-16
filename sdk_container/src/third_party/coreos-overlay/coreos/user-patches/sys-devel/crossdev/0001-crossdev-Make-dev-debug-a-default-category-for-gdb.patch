@@ -1,0 +1,29 @@
+From fc3f635e1912b5c8d84c0e9bcf643e5ef6bbc83d Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 16 Jan 2024 17:21:11 +0100
+Subject: [PATCH] crossdev: Make dev-debug a default category for gdb
+
+The sys-devel/gdb package was moved to dev-debug category, so reflect
+this change in the script.
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ crossdev | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/crossdev b/crossdev
+index f6ad232..a937796 100755
+--- a/crossdev
++++ b/crossdev
+@@ -852,7 +852,7 @@ BCAT="sys-devel"  ; BPKG="binutils"      ; BVER="" BUSE="" BENV="" BOVL="" BMASK
+ GCAT="sys-devel"  ; GPKG="gcc"           ; GVER="" GUSE="" GENV="" GOVL="" GMASK="" GFORCE=""
+ KCAT="sys-kernel" ; KPKG="linux-headers" ; KVER="" KUSE="" KENV="" KOVL="" KMASK="" KFORCE=""
+ LCAT="sys-libs"   ; LPKG="[none]"        ; LVER="" LUSE="" LENV="" LOVL="" LMASK="" LFORCE=""
+-DCAT="sys-devel"  ; DPKG="gdb"           ; DVER="" DUSE="" DENV="" DOVL="" DMASK="" DFORCE=""
++DCAT="dev-debug"  ; DPKG="gdb"           ; DVER="" DUSE="" DENV="" DOVL="" DMASK="" DFORCE=""
+ RCAT="sys-libs"   ; RPKG="compiler-rt"   ; RVER="" RUSE="" RENV="" ROVL="" RMASK="" RFORCE=""
+ CCAT="sys-devel"  ; CPKG="clang-crossdev-wrappers" ; CVER="" CUSE="" CENV="" COVL="" CMASK="" CFORCE=""
+ XPKGS=() XVERS=() XUSES=() XENVS=() XOVLS=() XMASKS=() XFORCES=()
+-- 
+2.34.1
+
