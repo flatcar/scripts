@@ -55,7 +55,6 @@
 
 # Keep versions on both arches in sync.
 =dev-util/bpftool-6.5.7 ~arm64
-=dev-util/gdbus-codegen-2.78.3 ~arm64
 =dev-util/glib-utils-2.78.3 ~arm64
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 
