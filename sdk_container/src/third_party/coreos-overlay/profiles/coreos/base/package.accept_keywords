@@ -31,7 +31,7 @@
 =app-misc/pax-utils-1.3.7 ~amd64
 
 # Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p21-r1 ~amd64 ~arm64
+=app-shells/bash-5.2_p21-r2 ~amd64 ~arm64
 
 # No keyword for arm64 yet.
 =coreos-devel/fero-client-0.1.1 **
