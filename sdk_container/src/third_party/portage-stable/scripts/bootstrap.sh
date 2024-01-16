@@ -1,10 +1,10 @@
 #!/bin/bash
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Maintainer: releng@gentoo.org
 
-file_version="2021.0"		# update manually: <year>.<counter>
+file_version="2024.0"		# update manually: <year>.<counter>
 
 # people who were here:
 # (drobbins, 06 Jun 2003)
@@ -137,7 +137,7 @@ if [[ ! -d ${MYPROFILEDIR} ]] ; then
 	exit 1
 fi
 
-echo -e "\n${GOOD}Gentoo Linux; ${BRACKET}http://www.gentoo.org/${NORMAL}"
+echo -e "\n${GOOD}Gentoo Linux; ${BRACKET}https://www.gentoo.org/${NORMAL}"
 echo -e "${file_copyright}; Distributed under the GPLv2"
 if [[ " ${STRAP_EMERGE_OPTS} " == *" -f "* ]] ; then
 	echo "Fetching all bootstrap-related archives ..."
@@ -227,23 +227,8 @@ for opt in ${ORIGUSE} ; do
 			USE_NLS=1
 			ALLOWED_USE="${ALLOWED_USE} nls"
 			;;
-		nptl)
-			export MYARCH=$(portageq envvar ARCH)
- 			if [[ -z $(portageq best_visible / '>=sys-kernel/linux-headers-2.6.0') ]] ; then
-				eerror "You need to have >=sys-kernel/linux-headers-2.6.0 unmasked!"
-				eerror "Please edit the latest >=sys-kernel/linux-headers-2.6.0 package,"
-				eerror "and add your ARCH to KEYWORDS or change your make.profile link"
-				eerror "to a profile which does not have 2.6 headers masked."
-				echo
-				cleanup 1
-			fi
-			USE_NPTL=1
-			;;
 		multilib)
 			ALLOWED_USE="${ALLOWED_USE} multilib"
-			;;
-		userlocales)
-			ALLOWED_USE="${ALLOWED_USE} userlocales"
 			;;
 	esac
 done
@@ -277,20 +262,10 @@ for atom in portage.settings.packages:
 [[ -z ${myTEXINFO}    ]] && myTEXINFO="sys-apps/texinfo"
 [[ -z ${myZLIB}       ]] && myZLIB="sys-libs/zlib"
 [[ -z ${myNCURSES}    ]] && myNCURSES="sys-libs/ncurses"
-# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
-[[ -z ${myCURL}       ]] && myCURL="net-misc/curl"
-# Flatcar: upgrade to openssl-3 before system rebuild in stage3
-[[ -z ${myOPENSSL}    ]] && myOPENSSL="dev-libs/openssl"
+[[ -z ${myOS_HEADERS} ]] && myOS_HEADERS="$(portageq expand_virtual / virtual/os-headers)"
 
 # Do we really want gettext/nls?
 [[ ${USE_NLS} != 1 ]] && myGETTEXT=
-
-if [[ ${USE_NPTL} = "1" ]] ; then
-	myOS_HEADERS="$(portageq best_visible / '>=sys-kernel/linux-headers-2.6.0')"
-	[[ -n ${myOS_HEADERS} ]] && myOS_HEADERS=">=${myOS_HEADERS}"
-	ALLOWED_USE="${ALLOWED_USE} nptl"
-fi
-[[ -z ${myOS_HEADERS} ]] && myOS_HEADERS="$(portageq expand_virtual / virtual/os-headers)"
 
 einfo "Using baselayout : ${myBASELAYOUT}"
 einfo "Using portage    : ${myPORTAGE}"
@@ -302,10 +277,6 @@ einfo "Using libc       : ${myLIBC}"
 einfo "Using texinfo    : ${myTEXINFO}"
 einfo "Using zlib       : ${myZLIB}"
 einfo "Using ncurses    : ${myNCURSES}"
-# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
-einfo "Using curl       : ${myCURL}"
-# Flatcar: upgrade to openssl-3 before system rebuild in stage3
-einfo "Using openssl    : ${myOPENSSL}"
 echo -------------------------------------------------------------------------------
 show_status 1 Configuring environment
 echo -------------------------------------------------------------------------------
@@ -330,9 +301,6 @@ if [ ${BOOTSTRAP_STAGE} -le 1 ] ; then
 fi
 export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE}"
 
-# We can't unmerge headers which may or may not exist yet. If your
-# trying to use nptl, it may be needed to flush out any old headers
-# before fully bootstrapping.
 if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 	show_status 3 Emerging packages
 	if [[ ${RESUME} -eq 1 ]] ; then
@@ -340,12 +308,9 @@ if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 		STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} --resume"
 		cp /var/run/bootstrap-mtimedb /var/cache/edb
 	else
-		# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
 		STRAP_EMERGE_POSARGS="\
 			${myOS_HEADERS} ${myTEXINFO} ${myGETTEXT} ${myBINUTILS} \
-			${myGCC} ${myLIBC} ${myCURL} ${myBASELAYOUT} ${myZLIB}"
-		# Flatcar: upgrade to openssl-3 before system rebuild in stage3
-		STRAP_EMERGE_POSARGS="${STRAP_EMERGE_POSARGS} ${myOPENSSL}"
+			${myGCC} ${myLIBC} ${myBASELAYOUT} ${myZLIB}"
 	fi
 	${V_ECHO} emerge ${STRAP_EMERGE_OPTS} ${STRAP_EMERGE_POSARGS} || cleanup 1
 	echo -------------------------------------------------------------------------------
@@ -362,7 +327,7 @@ if [[ -n ${STRAP_RUN} ]] ; then
 		fi
 		if [[ "${output}" = *'All selected packages:'* ]] ; then
 			# Make sure we get the old gcc unmerged ...
-			${V_ECHO} emerge ${STRAP_EMERGE_OPTS} --prune sys-devel/gcc || cleanup 1
+			${V_ECHO} emerge ${STRAP_EMERGE_OPTS} --prune sys-devel/gcc
 			# Make sure the profile and /lib/cpp and /usr/bin/cc are valid ...
 			${GCC_CONFIG} "$(${GCC_CONFIG} --get-current-profile)" &>/dev/null
 		fi
