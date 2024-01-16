@@ -1,0 +1,1 @@
+- Fixed the handling of OEM update payloads in a Nebraska response with self-hosted packages ([ue-rs#49](https://github.com/flatcar/ue-rs/pull/49))
