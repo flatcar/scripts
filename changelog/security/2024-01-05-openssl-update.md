@@ -1,1 +1,1 @@
-- openssl ([CVE-2023-3817](https://nvd.nist.gov/vuln/detail/CVE-2023-3817), [CVE-2023-5363](https://nvd.nist.gov/vuln/detail/CVE-2023-5363), [CVE-2023-5678](https://nvd.nist.gov/vuln/detail/CVE-2023-5678))
+- openssl ([CVE-2023-3817](https://nvd.nist.gov/vuln/detail/CVE-2023-3817), [CVE-2023-5363](https://nvd.nist.gov/vuln/detail/CVE-2023-5363), [CVE-2023-5678](https://nvd.nist.gov/vuln/detail/CVE-2023-5678), [CVE-2023-6237](https://nvd.nist.gov/vuln/detail/CVE-2023-6237))
