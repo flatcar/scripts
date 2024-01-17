@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="ed885772b4626ecf8a34e25c93be6b63b326a2e0" # v5.5.0
+	CROS_WORKON_COMMIT="0fdf617edee3050828d404e6074e1c227d5b10bb" # v5.5.1
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -21,28 +21,28 @@ CRATES="
 	adler32-1.2.0
 	aho-corasick-1.1.2
 	anstyle-1.0.4
-	anyhow-1.0.75
+	anyhow-1.0.79
 	arc-swap-1.6.0
 	assert-json-diff-2.0.2
 	async-broadcast-0.5.1
-	async-channel-2.1.0
-	async-executor-1.7.2
+	async-channel-2.1.1
+	async-executor-1.8.0
 	async-fs-1.6.0
 	async-io-1.13.0
-	async-io-2.2.0
+	async-io-2.2.2
 	async-lock-2.8.0
-	async-lock-3.1.1
+	async-lock-3.3.0
 	async-process-1.8.1
 	async-recursion-1.0.5
 	async-signal-0.2.5
-	async-task-4.5.0
-	async-trait-0.1.74
+	async-task-4.7.0
+	async-trait-0.1.77
 	atomic-waker-1.1.2
 	atty-0.2.14
 	autocfg-1.1.0
 	backtrace-0.3.69
 	base64-0.13.1
-	base64-0.21.5
+	base64-0.21.7
 	bitflags-1.3.2
 	bitflags-2.4.1
 	block-buffer-0.10.4
@@ -53,21 +53,21 @@ CRATES="
 	cc-1.0.83
 	cfg-if-1.0.0
 	charset-0.1.3
-	clap-4.4.8
-	clap_builder-4.4.8
+	clap-4.4.16
+	clap_builder-4.4.16
 	clap_derive-4.4.7
 	clap_lex-0.6.0
-	colored-2.0.4
-	concurrent-queue-2.3.0
-	core-foundation-0.9.3
-	core-foundation-sys-0.8.4
-	cpufeatures-0.2.11
+	colored-2.1.0
+	concurrent-queue-2.4.0
+	core-foundation-0.9.4
+	core-foundation-sys-0.8.6
+	cpufeatures-0.2.12
 	crc32fast-1.3.2
-	crossbeam-channel-0.5.8
-	crossbeam-utils-0.8.16
+	crossbeam-channel-0.5.11
+	crossbeam-utils-0.8.19
 	crypto-common-0.1.6
 	data-encoding-2.5.0
-	deranged-0.3.9
+	deranged-0.3.11
 	derivative-2.2.0
 	digest-0.10.7
 	dirs-next-2.0.0
@@ -76,43 +76,43 @@ CRATES="
 	enumflags2-0.7.8
 	enumflags2_derive-0.7.8
 	equivalent-1.0.1
-	errno-0.3.7
+	errno-0.3.8
 	event-listener-2.5.3
 	event-listener-3.1.0
-	event-listener-strategy-0.3.0
+	event-listener-4.0.3
+	event-listener-strategy-0.4.0
 	fastrand-1.9.0
 	fastrand-2.0.1
 	fnv-1.0.7
 	foreign-types-0.3.2
 	foreign-types-shared-0.1.1
 	form_urlencoded-1.2.1
-	futures-0.3.29
-	futures-channel-0.3.29
-	futures-core-0.3.29
-	futures-executor-0.3.29
-	futures-io-0.3.29
+	futures-0.3.30
+	futures-channel-0.3.30
+	futures-core-0.3.30
+	futures-executor-0.3.30
+	futures-io-0.3.30
 	futures-lite-1.13.0
-	futures-lite-2.0.1
-	futures-macro-0.3.29
-	futures-sink-0.3.29
-	futures-task-0.3.29
-	futures-util-0.3.29
+	futures-lite-2.2.0
+	futures-macro-0.3.30
+	futures-sink-0.3.30
+	futures-task-0.3.30
+	futures-util-0.3.30
 	generic-array-0.14.7
-	getrandom-0.2.11
-	gimli-0.28.0
-	h2-0.3.22
-	hashbrown-0.14.2
+	getrandom-0.2.12
+	gimli-0.28.1
+	h2-0.3.23
+	hashbrown-0.14.3
 	heck-0.4.1
 	hermit-abi-0.1.19
 	hermit-abi-0.3.3
 	hex-0.4.3
 	hmac-0.12.1
-	hostname-0.3.1
 	http-0.2.11
-	http-body-0.4.5
+	http-body-0.4.6
 	httparse-1.8.0
 	httpdate-1.0.3
-	hyper-0.14.27
+	hyper-0.14.28
 	hyper-tls-0.5.0
 	idna-0.5.0
 	indexmap-2.1.0
@@ -120,30 +120,28 @@ CRATES="
 	io-lifetimes-1.0.11
 	ipnet-2.9.0
 	ipnetwork-0.20.0
-	is-terminal-0.4.9
-	itoa-1.0.9
-	js-sys-0.3.65
+	itoa-1.0.10
+	js-sys-0.3.66
 	lazy_static-1.4.0
-	libc-0.2.150
+	libc-0.2.152
 	libflate-1.4.0
 	libflate_lz77-1.2.0
 	libredox-0.0.1
 	libsystemd-0.7.0
 	linux-raw-sys-0.3.8
-	linux-raw-sys-0.4.11
+	linux-raw-sys-0.4.12
 	lock_api-0.4.11
 	log-0.4.20
 	mailparse-0.14.0
 	maplit-1.0.2
-	match_cfg-0.1.0
 	md-5-0.10.6
-	memchr-2.6.4
+	memchr-2.7.1
 	memoffset-0.7.1
 	memoffset-0.9.0
 	mime-0.3.17
 	minimal-lexical-0.2.1
 	miniz_oxide-0.7.1
-	mio-0.8.9
+	mio-0.8.10
 	mockito-1.2.0
 	native-tls-0.2.11
 	nix-0.26.4
@@ -152,13 +150,13 @@ CRATES="
 	nom-7.1.3
 	num_cpus-1.16.0
 	num_threads-0.1.6
-	object-0.32.1
-	once_cell-1.18.0
+	object-0.32.2
+	once_cell-1.19.0
 	openssh-keys-0.6.2
-	openssl-0.10.60
+	openssl-0.10.62
 	openssl-macros-0.1.1
 	openssl-probe-0.1.5
-	openssl-sys-0.9.96
+	openssl-sys-0.9.98
 	ordered-stream-0.2.0
 	parking-2.2.0
 	parking_lot-0.12.1
@@ -167,17 +165,17 @@ CRATES="
 	pin-project-lite-0.2.13
 	pin-utils-0.1.0
 	piper-0.2.1
-	pkg-config-0.3.27
+	pkg-config-0.3.28
 	pnet_base-0.34.0
 	pnet_datalink-0.34.0
 	pnet_sys-0.34.0
 	polling-2.8.0
-	polling-3.3.0
+	polling-3.3.1
 	powerfmt-0.2.0
 	ppv-lite86-0.2.17
 	proc-macro-crate-1.3.1
-	proc-macro2-1.0.69
-	quote-1.0.33
+	proc-macro2-1.0.76
+	quote-1.0.35
 	quoted_printable-0.4.8
 	rand-0.8.5
 	rand_chacha-0.3.1
@@ -187,28 +185,28 @@ CRATES="
 	regex-1.10.2
 	regex-automata-0.4.3
 	regex-syntax-0.8.2
-	reqwest-0.11.22
+	reqwest-0.11.23
 	rle-decode-fast-1.0.3
 	rustc-demangle-0.1.23
 	rustix-0.37.27
-	rustix-0.38.25
+	rustix-0.38.28
 	rustversion-1.0.14
-	ryu-1.0.15
-	schannel-0.1.22
+	ryu-1.0.16
+	schannel-0.1.23
 	scopeguard-1.2.0
 	security-framework-2.9.2
 	security-framework-sys-2.9.1
-	serde-1.0.193
+	serde-1.0.195
 	serde-xml-rs-0.6.0
-	serde_derive-1.0.193
-	serde_json-1.0.108
-	serde_repr-0.1.17
+	serde_derive-1.0.195
+	serde_json-1.0.111
+	serde_repr-0.1.18
 	serde_urlencoded-0.7.1
-	serde_yaml-0.9.27
+	serde_yaml-0.9.30
 	sha1-0.10.6
 	sha2-0.10.8
 	signal-hook-registry-1.4.1
-	similar-2.3.0
+	similar-2.4.0
 	slab-0.4.9
 	slog-2.7.0
 	slog-async-2.8.0
@@ -221,22 +219,22 @@ CRATES="
 	strsim-0.10.0
 	subtle-2.5.0
 	syn-1.0.109
-	syn-2.0.39
+	syn-2.0.48
 	system-configuration-0.5.1
 	system-configuration-sys-0.5.0
 	take_mut-0.2.2
-	tempfile-3.8.1
+	tempfile-3.9.0
 	term-0.7.0
 	terminal_size-0.3.0
-	thiserror-1.0.50
-	thiserror-impl-1.0.50
+	thiserror-1.0.56
+	thiserror-impl-1.0.56
 	thread_local-1.1.7
-	time-0.3.30
+	time-0.3.31
 	time-core-0.1.2
-	time-macros-0.2.15
+	time-macros-0.2.16
 	tinyvec-1.6.0
 	tinyvec_macros-0.1.1
-	tokio-1.34.0
+	tokio-1.35.1
 	tokio-macros-2.2.0
 	tokio-native-tls-0.3.1
 	tokio-util-0.7.10
@@ -246,13 +244,13 @@ CRATES="
 	tracing-0.1.40
 	tracing-attributes-0.1.27
 	tracing-core-0.1.32
-	try-lock-0.2.4
+	try-lock-0.2.5
 	typenum-1.17.0
-	uds_windows-1.0.2
-	unicode-bidi-0.3.13
+	uds_windows-1.1.0
+	unicode-bidi-0.3.14
 	unicode-ident-1.0.12
 	unicode-normalization-0.1.22
-	unsafe-libyaml-0.2.9
+	unsafe-libyaml-0.2.10
 	url-2.5.0
 	uuid-1.6.1
 	uzers-0.11.3
@@ -262,26 +260,35 @@ CRATES="
 	waker-fn-1.1.1
 	want-0.3.1
 	wasi-0.11.0+wasi-snapshot-preview1
-	wasm-bindgen-0.2.88
-	wasm-bindgen-backend-0.2.88
-	wasm-bindgen-futures-0.4.38
-	wasm-bindgen-macro-0.2.88
-	wasm-bindgen-macro-support-0.2.88
-	wasm-bindgen-shared-0.2.88
-	web-sys-0.3.65
+	wasm-bindgen-0.2.89
+	wasm-bindgen-backend-0.2.89
+	wasm-bindgen-futures-0.4.39
+	wasm-bindgen-macro-0.2.89
+	wasm-bindgen-macro-support-0.2.89
+	wasm-bindgen-shared-0.2.89
+	web-sys-0.3.66
 	winapi-0.3.9
 	winapi-i686-pc-windows-gnu-0.4.0
 	winapi-x86_64-pc-windows-gnu-0.4.0
 	windows-sys-0.48.0
+	windows-sys-0.52.0
 	windows-targets-0.48.5
+	windows-targets-0.52.0
 	windows_aarch64_gnullvm-0.48.5
+	windows_aarch64_gnullvm-0.52.0
 	windows_aarch64_msvc-0.48.5
+	windows_aarch64_msvc-0.52.0
 	windows_i686_gnu-0.48.5
+	windows_i686_gnu-0.52.0
 	windows_i686_msvc-0.48.5
+	windows_i686_msvc-0.52.0
 	windows_x86_64_gnu-0.48.5
+	windows_x86_64_gnu-0.52.0
 	windows_x86_64_gnullvm-0.48.5
+	windows_x86_64_gnullvm-0.52.0
 	windows_x86_64_msvc-0.48.5
-	winnow-0.5.19
+	windows_x86_64_msvc-0.52.0
+	winnow-0.5.34
 	winreg-0.50.0
 	xdg-home-1.0.0
 	xml-rs-0.8.19
@@ -312,8 +319,7 @@ RDEPEND="
 PATCHES=(
 	"${FILESDIR}"/0001-Revert-remove-cl-legacy-feature.patch
 	"${FILESDIR}"/0002-util-cmdline-Handle-the-cmdline-flags-as-list-of-sup.patch
-	"${FILESDIR}"/0003-vmware-arm64-unsupported.patch
-	"${FILESDIR}"/0004-cargo-reduce-binary-size-for-release-profile.patch
+	"${FILESDIR}"/0003-cargo-reduce-binary-size-for-release-profile.patch
 )
 
 src_unpack() {
