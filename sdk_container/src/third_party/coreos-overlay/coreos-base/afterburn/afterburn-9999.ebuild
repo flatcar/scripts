@@ -108,6 +108,7 @@ CRATES="
 	hermit-abi-0.3.3
 	hex-0.4.3
 	hmac-0.12.1
+	hostname-0.3.1
 	http-0.2.11
 	http-body-0.4.6
 	httparse-1.8.0
@@ -134,6 +135,7 @@ CRATES="
 	log-0.4.20
 	mailparse-0.14.0
 	maplit-1.0.2
+	match_cfg-0.1.0
 	md-5-0.10.6
 	memchr-2.7.1
 	memoffset-0.7.1
