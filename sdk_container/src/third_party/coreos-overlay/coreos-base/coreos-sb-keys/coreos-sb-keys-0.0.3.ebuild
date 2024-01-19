@@ -15,16 +15,16 @@ IUSE=""
 S="${WORKDIR}"
 
 src_install() {
-	insinto /usr/share/sb_keys
-	newins "${FILESDIR}/PK.key" PK.key
-	newins "${FILESDIR}/PK.crt" PK.crt
-	newins "${FILESDIR}/KEK.key" KEK.key
-	newins "${FILESDIR}/KEK.crt" KEK.crt
-	newins "${FILESDIR}/DB.key" DB.key
-	newins "${FILESDIR}/DB.crt" DB.crt
+  insinto /usr/share/sb_keys
+  newins "${FILESDIR}/PK.key" PK.key
+  newins "${FILESDIR}/PK.crt" PK.crt
+  newins "${FILESDIR}/KEK.key" KEK.key
+  newins "${FILESDIR}/KEK.crt" KEK.crt
+  newins "${FILESDIR}/DB.key" DB.key
+  newins "${FILESDIR}/DB.crt" DB.crt
 
-	# shim keys
-	newins "${FILESDIR}/shim.key" shim.key
+  # shim keys
+  newins "${FILESDIR}/shim.key" shim.key
   newins "${FILESDIR}/shim.der" shim.der
   newins "${FILESDIR}/shim.pem" shim.pem
 }

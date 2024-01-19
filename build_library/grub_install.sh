@@ -60,7 +60,7 @@ case "${FLAGS_target}" in
         CORE_NAME="core.img"
         ;;
     x86_64-efi)
-	CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp )
+        CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp )
         CORE_NAME="core.efi"
         SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
@@ -168,7 +168,7 @@ if [[ ! -f "${ESP_DIR}/flatcar/grub/grub.cfg.tar" ]]; then
     fi
 
     sudo tar cf "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
-	 -C "${GRUB_TEMP_DIR}" "grub.cfg"
+      -C "${GRUB_TEMP_DIR}" "grub.cfg"
 fi
 
 info "Generating ${GRUB_DIR}/${CORE_NAME}"
@@ -197,8 +197,8 @@ case "${FLAGS_target}" in
     x86_64-efi)
         info "Installing default x86_64 UEFI bootloader."
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
-	    # Use the test keys for signing unofficial builds
-	    if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+        # Use the test keys for signing unofficial builds
+        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
             # Sign the GRUB with the shim-embedded key
             sudo sbsign --key /usr/share/sb_keys/shim.key \
                 --cert /usr/share/sb_keys/shim.pem \
@@ -221,7 +221,7 @@ case "${FLAGS_target}" in
                 "${ESP_DIR}/EFI/boot/grub.efi"
             sudo cp "/usr/lib/shim/shim.efi" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
-	fi
+        fi
         # copying from vfat so ignore permissions
         if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
             cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grubx64.efi" \
