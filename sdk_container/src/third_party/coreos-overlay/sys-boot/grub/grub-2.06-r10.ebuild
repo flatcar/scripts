@@ -324,7 +324,7 @@ src_install() {
 
 	# SBAT format documentation https://github.com/rhboot/shim/blob/main/SBAT.md
 	dodir /usr/share/grub
-	sed -e "s/@@UPSTREAM_VERSION@@/${PV}/" -e "s/@@VERSION@@/${PVR}/" "${FILESDIR}"/sbat.csv.in >"${ED}/usr/share/grub/sbat.csv"
+	sed -e "s/@@UPSTREAM_VERSION@@/${PV}/" -e "s/@@VERSION@@/${PVR}/" "${FILESDIR}"/sbat.csv.in >"${ED}/usr/share/grub/sbat.csv" || die
 
 }
 
