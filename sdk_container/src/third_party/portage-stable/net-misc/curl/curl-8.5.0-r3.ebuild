@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -17,15 +17,15 @@ else
 		https://curl.se/download/${P}.tar.xz
 		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
 SLOT="0"
-IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap kerberos ldap mbedtls +openssl +pop3 +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+IUSE="+adns +alt-svc brotli +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
+IUSE+=" +psl +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
 # These select the default SSL implementation
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
-IUSE+=" nghttp3"
 RESTRICT="!test? ( test )"
 
 # Only one default ssl provider can be enabled
@@ -44,34 +44,38 @@ REQUIRED_USE="
 	curl_ssl_mbedtls? ( mbedtls )
 	curl_ssl_openssl? ( openssl )
 	curl_ssl_rustls? ( rustls )
-	nghttp3? ( !openssl )
+	nghttp3? (
+		!openssl
+		alt-svc )
 "
 
 # cURL's docs and CI/CD are great resources for confirming supported versions
 # particulary for fast-moving targets like HTTP/2 and TCP/2 e.g.:
-# - https://github.com/curl/curl/blob/master/docs/HTTP3.md
-# - https://github.com/curl/curl/blob/master/.github/workflows/quiche-linux.yml
+# - https://github.com/curl/curl/blob/master/docs/INTERNALS.md (core dependencies + minimum versions)
+# - https://github.com/curl/curl/blob/master/docs/HTTP3.md (example of a feature that moves quickly)
+# - https://github.com/curl/curl/blob/master/.github/workflows/quiche-linux.yml (CI/CD for TCP/2)
 # However 'supported' vs 'works' are two entirely different things; be sane but
 # don't be afraid to require a later version.
 
 RDEPEND="
-	sys-libs/zlib[${MULTILIB_USEDEP}]
+	>=sys-libs/zlib-1.1.4[${MULTILIB_USEDEP}]
 	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.12.0:=[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
-	ldap? ( net-nds/openldap:=[static-libs?,${MULTILIB_USEDEP}] )
+	ldap? ( >=net-nds/openldap-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
 	nghttp3? (
 		>=net-libs/nghttp3-0.15.0[${MULTILIB_USEDEP}]
 		>=net-libs/ngtcp2-0.19.1[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
 	)
+	psl? ( net-libs/libpsl[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
-	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
+	ssh? ( >=net-libs/libssh2-1.0.0[${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
 			app-misc/ca-certificates
-			net-libs/gnutls:=[static-libs?,${MULTILIB_USEDEP}]
+			>=net-libs/gnutls-3.1.10:=[static-libs?,${MULTILIB_USEDEP}]
 			dev-libs/nettle:=[${MULTILIB_USEDEP}]
 		)
 		mbedtls? (
@@ -79,7 +83,7 @@ RDEPEND="
 			net-libs/mbedtls:=[${MULTILIB_USEDEP}]
 		)
 		openssl? (
-			dev-libs/openssl:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
+			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		rustls? (
 			net-libs/rustls-ffi:=[${MULTILIB_USEDEP}]
@@ -120,14 +124,14 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	IoctlSocket
 	mach_absolute_time
 	setmode
+	_fseeki64
 )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${P}-tests-arm-musl.patch
-	"${FILESDIR}"/${P}-CVE-2023-38545.patch
-	"${FILESDIR}"/${P}-CVE-2023-38546.patch
+	"${FILESDIR}"/${P}-ipv6-configure-c99.patch
+	"${FILESDIR}"/${P}-mpd-stream-http-adjust_pollset.patch
 )
 
 src_prepare() {
@@ -253,7 +257,7 @@ multilib_src_configure() {
 		$(use_with idn libidn2)
 		$(use_with kerberos gssapi "${EPREFIX}"/usr)
 		--without-libgsasl
-		--without-libpsl
+		$(use_with psl libpsl)
 		--without-msh3
 		$(use_with nghttp3)
 		$(use_with nghttp3 ngtcp2)
@@ -344,7 +348,9 @@ multilib_src_test() {
 	# this ends up breaking when nproc is huge (like -j80).
 	# The network sandbox causes tests 241 and 1083 to fail; these are typically skipped
 	# as most gentoo users don't have an 'ip6-localhost'
-	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083"
+	# Required deps for 1477 are not included in the release tarball for 8.5.0
+	# 1474 is flaky and has been removed upstream after the 8.5.0 release.
+	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083 !1477 !1474"
 }
 
 multilib_src_install() {
