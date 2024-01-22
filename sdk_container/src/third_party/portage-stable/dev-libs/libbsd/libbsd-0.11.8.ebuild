@@ -4,7 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/guillemjover.asc
-inherit autotools multilib multilib-minimal verify-sig flag-o-matic
+inherit flag-o-matic multilib multilib-minimal verify-sig
 
 DESCRIPTION="Library to provide useful functions commonly found on BSD systems"
 HOMEPAGE="https://libbsd.freedesktop.org/wiki/ https://gitlab.freedesktop.org/libbsd/libbsd"
@@ -13,32 +13,21 @@ SRC_URI+=" verify-sig? ( https://${PN}.freedesktop.org/releases/${P}.tar.xz.asc 
 
 LICENSE="BEER-WARE BSD BSD-2 BSD-4 ISC MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="static-libs"
 
 RDEPEND="app-crypt/libmd[${MULTILIB_USEDEP}]"
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	>=sys-kernel/linux-headers-3.17
 "
 BDEPEND="verify-sig? ( sec-keys/openpgp-keys-guillemjover )"
-
-PATCHES=(
-	"${FILESDIR}/libbsd-build-Fix-version-script-linker-support-detection.patch"
-	"${FILESDIR}/libbsd-0.11.7-musl-lfs.patch"
-)
-
-src_prepare() {
-	default
-
-	# Drop on next release, only needed for lld patch
-	eautoreconf
-}
 
 multilib_src_configure() {
 	# Broken (still) with lld-17 (bug #922342, bug #915068)
 	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
-	# bug 911726, https://gitlab.freedesktop.org/libbsd/libbsd/-/issues/26
+	# bug #911726
 	filter-flags -fno-semantic-interposition
 
 	# The build system will install libbsd-ctor.a despite USE="-static-libs"
