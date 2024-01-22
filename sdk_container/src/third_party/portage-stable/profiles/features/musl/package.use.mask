@@ -1,5 +1,16 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-12)
+# The systemd flag is globally masked on musl. But we need
+# systemd's kernel-install to use systemd-boot which is still
+# possible on musl via systemd-utils[boot].
+sys-kernel/installkernel -systemd
+
+# Alfredo Tupone <tupone@gentoo.org> (2024-01-09)
+# linked against glibc
+sci-libs/caffe2 mkl
+dev-libs/oneDNN mkl
 
 # Michał Górny <mgorny@gentoo.org> (2023-12-31)
 # Requires dev-libs/level-zero.
@@ -45,7 +56,6 @@ app-admin/sudo sssd
 # Sam James <sam@gentoo.org> (2022-10-04)
 # sys-libs/libsmbios is masked on musl
 app-laptop/pbbuttonsd macbook
-sys-apps/fwupd dell
 
 # Sam James <sam@gentoo.org> (2022-10-04)
 # Needs masked net-misc/netkit-telnetd
@@ -142,6 +152,3 @@ app-shells/bash mem-scramble
 
 # static linking works with musl
 app-shells/mksh -static
-
-# linked against glibc
-sci-libs/caffe2 mkl

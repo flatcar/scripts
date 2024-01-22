@@ -1,8 +1,16 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # NOTE: When masking a USE flag due to missing keywords, please file a keyword
 # request bug for the hppa arch.
+
+# Leonardo Hernández Hernández <leohdz172@proton.me> (2024-01-06)
+# net-libs/grpc not keyworded here
+app-admin/syslog-ng grpc
+
+# Sam James <sam@gentoo.org> (2024-01-02)
+# dev-libs/capstone not keyworded here
+dev-lang/php capstone
 
 # Mart Raudsepp <leio@gentoo.org> (2023-12-25)
 # sys-apps/xdg-desktop-portal not keyworded here yet
@@ -17,7 +25,7 @@ media-libs/libv4l bpf
 media-video/ffmpeg glslang shaderc vulkan
 
 # Violet Purcell <vimproved@inventati.org> (2023-10-12)
-# dev-util/samurai is not keyworded here.
+# dev-build/samurai is not keyworded here.
 app-alternatives/ninja samurai
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-10-09)
@@ -36,11 +44,11 @@ sys-apps/openrc s6
 
 # Sam James <sam@gentoo.org> (2023-09-24)
 # Qt not keyworded here.
-app-doc/doxygen gui
+app-text/doxygen gui
 
 # Sam James <sam@gentoo.org> (2023-09-22)
 # Qt 6 not keyworded here.
-dev-util/cmake gui
+dev-build/cmake gui
 
 # Sam James <sam@gentoo.org> (2023-09-18)
 # x11-libs/gtksourceview:4 not keyworded here
@@ -292,7 +300,7 @@ net-analyzer/wireshark ilbc
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2019-07-19)
 # gdbserver is not implemented yet for hppa target.
-sys-devel/gdb server
+dev-debug/gdb server
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2019-07-07)
 # Test dependencies are no longer keyworded due to dropped Rails

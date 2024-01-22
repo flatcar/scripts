@@ -1,5 +1,13 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Michal Privoznik <michal.privoznik@gmail.com> (2024-01-18)
+# No sys-block/nbdkit on arm, yet
+app-emulation/libvirt nbd
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-13)
+# Unmask only where grub is keyworded
+sys-kernel/installkernel -grub
 
 # Marek Szuba <marecki@gentoo.org> (2023-12-05)
 # Needs USE=video_cards_amdgpu, currently masked on this arch
@@ -139,6 +147,7 @@ net-im/prosody selinux
 # bug #729720
 sys-apps/systemd -boot -gnuefi -ukify
 sys-apps/systemd-utils -boot -ukify
+sys-kernel/installkernel -ukify
 
 # Joonas Niilola <juippis@gentoo.org> (2021-01-15)
 # Dependency not keyworded on this arch.
@@ -217,10 +226,6 @@ sys-cluster/ceph babeltrace lttng
 # pending re-keyword request, bug 615400
 net-analyzer/rrdtool rados
 www-servers/uwsgi uwsgi_plugins_rados
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2019-02-25)
-# (SM)BIOS outside of amd64/x86? - citation needed
-sys-apps/fwupd dell
 
 # Thomas Deutschmann <whissi@gentoo.org> (2018-10-12)
 # Requires www-client/firefox which isn't available on ARM yet
@@ -330,7 +335,6 @@ media-sound/moc timidity
 # Markus Meier <maekke@gentoo.org> (2015-11-22)
 # unmask scanner for net-print/hplip, bug #518456
 net-print/hplip -scanner kde
-media-gfx/xsane ocr
 
 # Pacho Ramos <pacho@gentoo.org> (2015-11-15)
 # Missing keywords
