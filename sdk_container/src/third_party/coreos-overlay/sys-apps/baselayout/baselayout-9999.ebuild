@@ -9,7 +9,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="a482cb4b69ffa5cf92d9cd719409e7abd7f382a3" # flatcar-master
+	CROS_WORKON_COMMIT="937a45faef0f7fa88d3d2c3f7ba60a7f3e2e82f7" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -182,6 +182,12 @@ src_install() {
 	# sssd not yet building on arm64
 	if use arm64; then
 		sed -i -e '/pam_sss.so/d' "${D}"/usr/lib/pam.d/* || die
+	fi
+
+	if use cros_host; then
+		# inject custom SSL configuration required for signing payloads from the SDK container using OpenSSL.
+		insinto "/etc/ssl/"
+		doins "${S}/baselayout/pkcs11.cnf"
 	fi
 }
 

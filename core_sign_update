@@ -136,7 +136,7 @@ i=1
 signature_sizes=""
 for key in "${private_keys[@]}"; do
 	if [[ "${key}" == pkcs11* ]]; then
-		openssl rsautl -engine pkcs11 -pkcs -sign -inkey ${key} -keyform engine -in update.pkcs11-padhash -out update.sig.${i}
+		OPENSSL_CONF=/etc/ssl/pkcs11.cnf openssl pkeyutl -engine pkcs11 -sign -keyform engine -inkey "${key}" -in update.pkcs11-padhash -out "update.sig.${i}"
 	elif [[ "${key}" == fero* ]]; then
 		fero-client \
 			--address $FLAGS_signing_server_address \
@@ -163,8 +163,13 @@ delta_generator --signature_file ${files} --in_file update --out_file update.sig
 
 i=1
 for key in "${public_keys[@]}"; do
+	version="${i}"
+	if [ ${#public_keys[@]} == 1 ]; then
+		version=2
+	fi
+
 	delta_generator \
-		--public_key_version "${i}" \
+		--public_key_version "${version}" \
 		--public_key "${key}" \
 		--in_file update.signed
 
