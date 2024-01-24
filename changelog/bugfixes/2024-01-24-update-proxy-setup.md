@@ -1,0 +1,1 @@
+- Forwarded the proxy environment variables of `update-engine.service` to the postinstall script to support fetching OEM systemd-sysext payloads through a proxy ([Flatcar#1326](https://github.com/flatcar/Flatcar/issues/1326))
