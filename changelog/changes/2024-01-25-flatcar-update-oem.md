@@ -1,0 +1,1 @@
+- Added a `flatcar-update --oem-payloads <yes|no>` flag to skip providing OEM payloads, e.g., for downgrades ([init#114](https://github.com/flatcar/init/pull/114))
