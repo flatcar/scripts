@@ -159,9 +159,17 @@ app-text/xmlto
 
 app-vim/gentoo-syntax
 
+dev-build/cmake
+dev-build/make
+dev-build/meson
+dev-build/meson-format-array
+dev-build/ninja
+
 dev-cpp/gtest
 
 dev-db/sqlite
+
+dev-debug/gdb
 
 dev-lang/duktape
 dev-lang/go-bootstrap
@@ -271,16 +279,12 @@ dev-python/wheel
 dev-util/bpftool
 dev-util/catalyst
 dev-util/checkbashisms
-dev-util/cmake
 dev-util/cmocka
 dev-util/desktop-file-utils
 dev-util/gdbus-codegen
 dev-util/glib-utils
 dev-util/gperf
 dev-util/gtk-doc-am
-dev-util/meson
-dev-util/meson-format-array
-dev-util/ninja
 dev-util/pahole
 dev-util/patchelf
 dev-util/patchutils
@@ -509,7 +513,6 @@ sys-devel/crossdev
 sys-devel/flex
 sys-devel/gcc
 sys-devel/gcc-config
-sys-devel/gdb
 sys-devel/gettext
 sys-devel/gnuconfig
 sys-devel/libtool
@@ -534,7 +537,6 @@ sys-fs/quota
 sys-fs/squashfs-tools
 sys-fs/xfsprogs
 
-sys-kernel/installkernel-gentoo
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs

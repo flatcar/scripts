@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -279,7 +279,7 @@ PPC_FIRMWARE_DEPEND="
 BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
-	>=dev-util/meson-0.63.0
+	>=dev-build/meson-0.63.0
 	dev-python/pip[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
@@ -289,7 +289,7 @@ BDEPEND="
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
 		dev-libs/glib[utils]
-		sys-devel/bc
+		app-alternatives/bc
 	)
 "
 CDEPEND="

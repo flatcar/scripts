@@ -330,7 +330,7 @@ _get_cross_pkgs_for_emerge_and_crossdev() {
     local -n gcpfeac_emerge_atoms_var_ref="${gcpfeac_emerge_atoms_var_name}"
     local -n gcpfeac_crossdev_pkg_flags_var_ref="${gcpfeac_crossdev_pkg_flags_var_name}"
 
-    local -a all_pkgs=( "${TOOLCHAIN_PKGS[@]}" sys-devel/gdb )
+    local -a all_pkgs=( "${TOOLCHAIN_PKGS[@]}" dev-debug/gdb )
     local -A crossdev_flags_map=(
         [binutils]=--binutils
         [gdb]=--gdb

@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -30,11 +30,13 @@ RDEPEND="
 	sys-devel/gnuconfig
 	>=sys-devel/autoconf-2.69:*
 	>=sys-devel/automake-1.13:*
-	>=dev-libs/libltdl-2.4.7
 "
 DEPEND="${RDEPEND}"
 [[ ${PV} == *9999 ]] && BDEPEND="sys-apps/help2man"
 
+# Note that we have more patches in https://gitweb.gentoo.org/proj/elt-patches.git/
+# for package builds. The patches here are just those which are definitely fine
+# for the system-wide libtool installation as well.
 PATCHES=(
 	# bug #109105
 	"${FILESDIR}"/${PN}-2.4.3-use-linux-version-in-fbsd.patch
@@ -43,7 +45,6 @@ PATCHES=(
 
 	"${FILESDIR}"/${PN}-2.2.6a-darwin-module-bundle.patch
 	"${FILESDIR}"/${PN}-2.4.6-darwin-use-linux-version.patch
-	"${FILESDIR}"/${PN}-2.4.7-grep-3.8.patch
 )
 
 src_prepare() {

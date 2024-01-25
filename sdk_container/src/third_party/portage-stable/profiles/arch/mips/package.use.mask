@@ -1,5 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org> (2024-01-02)
+# dev-libs/capstone not keyworded here
+dev-lang/php capstone
 
 # matoro <matoro_gentoo@matoro.tk> (2023-12-22)
 # Overflows R_MIPS_TLS_GOTTPREL with LTO
@@ -52,7 +56,7 @@ x11-misc/xscreensaver new-login
 app-i18n/ibus gtk4
 
 # Violet Purcell <vimproved@inventati.org> (2023-10-12)
-# dev-util/samurai is not keyworded here.
+# dev-build/samurai is not keyworded here.
 app-alternatives/ninja samurai
 
 # matoro <matoro_gentoo@matoro.tk> (2023-06-18)
@@ -212,7 +216,7 @@ dev-python/numpydoc test
 
 # Matthias Maier <tamiko@gentoo.org> (2014-12-24)
 # sys-devel/clang is not keyworded
-app-doc/doxygen clang
+app-text/doxygen clang
 
 # Ryan Hill <dirtyepic@gentoo.org> (2014-01-07)
 # req net-libs/webkit-gtk:2

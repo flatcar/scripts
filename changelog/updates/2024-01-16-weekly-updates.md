@@ -1,0 +1,5 @@
+- git ([2.43.0](https://github.com/git/git/blob/v2.43.0/Documentation/RelNotes/2.43.0.txt) (includes [2.42.0](https://github.com/git/git/blob/v2.42.0/Documentation/RelNotes/2.42.0.txt)))
+- iperf ([3.16](https://github.com/esnet/iperf/releases/tag/3.16))
+- libuv ([1.47.0](https://github.com/libuv/libuv/releases/tag/v1.47.0))
+- make ([4.4.1](https://lists.gnu.org/archive/html/info-gnu/2023-02/msg00011.html) (includes [4.4](https://lists.gnu.org/archive/html/help-make/2022-10/msg00020.html)))
+- portage ([3.0.61](https://gitweb.gentoo.org/proj/portage.git/tree/NEWS?h=portage-3.0.61))

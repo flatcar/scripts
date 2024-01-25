@@ -24,7 +24,7 @@ SLOT="0"
 IUSE=""
 
 DEPEND=">=dev-libs/protobuf-3.0.0
-        dev-util/cmake"
+        dev-build/cmake"
 RDEPEND=">=dev-libs/protobuf-3.0.0"
 
 src_unpack() {
