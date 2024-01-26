@@ -8,10 +8,27 @@
 #
 # garbage_collect() should be called after sourcing.
 #
+# The garbage collector will remove artifacts of all NON-RELEASE versions from the build cache
+# which BOTH
+#   * exceed the number of builds to keep (defaults to 50)
+#   AND
+#   * are older than the minimum purge age (14 days by default)
+#
+# Note that the min age threshold can lead to MORE than 50 builds being kept if this script
+#   is run with its default values.
+#
+# Additionally, the garbage collector will remove all artifacts and directories that do not have
+# a version TAG in the scripts repository.
+#
 #  OPTIONAL INPUT
 #  - Number of (recent) versions to keep. Defaults to 50.
+#           Explicitly setting this value will reset the minimum age (see below) to 0 days.
+#  - Minimum age of version tag to be purged, in days. Defaults to 14.
 #  - PURGE_VERSIONS (Env variable). Space-separated list of versions to purge
 #            instead of all but the 50 most recent ones.
+#            Setting this will IGNORE minimum age and number of versions to keep.
+#            NOTE that only dev versions (not official releases) may be specified.
+#            This is to prevent accidental deletion of official release tags from the git repo.
 #  - DRY_RUN (Env variable). Set to "y" to just list what would be done but not
 #            actually purge anything.
 
@@ -38,26 +55,60 @@ function garbage_collect() {
 # --
 
 function _garbage_collect_impl() {
-    local keep="${1:-50}"
+    local keep="${1:-}"
+    local min_age_days="${2:-}"
     local dry_run="${DRY_RUN:-}"
     local purge_versions="${PURGE_VERSIONS:-}"
 
-    local versions_detected="$(git tag -l --sort=-committerdate \
-                | grep -E '(main|alpha|beta|stable|lts)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
-                | grep -vE '(-pro)$')"
+    # Set defaults; user-provided 'keep' has priority over default 'min_age_days'
+    if [ -n "${keep}" -a -z "${min_age_days}" ] ; then
+        min_age_days="0"
+    elif [ -z "${keep}" ] ; then
+        keep="50"
+    fi
+    if [ -z "${min_age_days}" ] ; then
+        min_age_days="14"
+    fi
 
-    echo "######## Full list of version(s) found ########"
-    echo "${versions_detected}" | awk '{printf "%5d %s\n", NR, $0}'
+    local min_age_date="$(date -d "${min_age_days} days ago" +'%Y-%m-%d')"
+    echo "######## Garbage collector starting ########"
+    echo
+    if [ -z "${purge_versions}" ] ; then
+        echo "Number of versions to keep: '${keep}'"
+        echo "Keep newer than: '${min_age_date}' (overrides number of versions to keep)"
+    fi
+    echo
 
     if [ -z "${purge_versions}" ] ; then
-        keep="$((keep + 1))" # for tail -n+...
+        # Generate a list "<timestamp> | <tagname>" from all repo tags that look like dev versions
+        local versions_detected="$(git tag -l --sort=-committerdate \
+                                          --format="%(creatordate:format:%Y-%m-%d) | %(refname:strip=2)" \
+                | grep -E '.*\| (main|alpha|beta|stable|lts)-[0-9]+\.[0-9]+\.[0-9]+-.*' \
+                | grep -vE '(-pro)$')"
+
+        echo "######## Full list of version(s) and their creation dates ########"
+        echo
+        echo "${versions_detected}" | awk '{printf "%5d %s\n", NR, $0}'
+
+        # Filter minimum number of versions to keep, min age
         purge_versions="$(echo "${versions_detected}" \
-                            | tail -n+"${keep}")"
+                            | awk -v keep="${keep}" -v min_age="${min_age_date}" '{
+                                if (keep > 0) {
+                                    keep = keep - 1
+                                    next
+                                }
+
+                                if ($1 > min_age)
+                                    next
+
+                                print $3
+                                }')"
     else
-        # make sure we only accept dev versions
+        # User-provided version list, make sure we only accept dev versions
         purge_versions="$(echo "${purge_versions}" | sed 's/ /\n/g' \
                             | grep -E '(main|alpha|beta|stable|lts)-[0-9]+\.[0-9]+\.[0-9]+\-.*' \
                             | grep -vE '(-pro)$')"
+        keep=0
     fi
 
     source ci-automation/ci_automation_common.sh
@@ -71,7 +122,7 @@ function _garbage_collect_impl() {
         echo "(NOTE this is just a dry run since DRY_RUN=y)"
         echo
     fi
-    echo "${purge_versions}" | awk -v keep="${keep}" '{if ($0 == "") next; printf "%5d %s\n", NR + keep - 1, $0}'
+    echo "${purge_versions}" | awk '{if ($0 == "") next; printf "%5d %s\n", NR, $0}'
     echo
     echo
 
@@ -90,7 +141,7 @@ function _garbage_collect_impl() {
         local os_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_VERSION}")"
 
         # Remove container image tarballs and SDK tarball (if applicable)
-        #
+        # Keep in sync with "orphaned direcrories" clean-up below.
         local rmpat=""
         rmpat="${BUILDCACHE_PATH_PREFIX}/sdk/*/${os_vernum}/"
         rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-sdk-*"
@@ -142,6 +193,54 @@ function _garbage_collect_impl() {
         else
             echo "## (DRY_RUN=y so not doing anything) ##"
         fi
+    done
+
+    echo
+    echo "########################################"
+    echo
+    echo    Checking for orphaned directories
+    echo
+
+    local dir=""
+    for dir in  "sdk/amd64" \
+                "containers" \
+                "boards/amd64-usr" \
+                "boards/arm64-usr" \
+                "images/amd64" \
+                "images/arm64" \
+                "testing" \
+                ; do
+        local fullpath="${BUILDCACHE_PATH_PREFIX}/${dir}"
+        echo
+        echo "## Processing '${fullpath}'"
+        echo "---------------------------"
+        local version=""
+        for version in $($sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" "ls -1 ${BUILDCACHE_PATH_PREFIX}/${dir}"); do
+            if [ "${dir}" = "containers" ] && echo "${version/+/-}" | grep -qE '.*-github-.*'; then
+                echo "Ignoring github CI SDK container in '${fullpath}/${version}'."
+                echo "Github CI SDK artifacts are handled by 'garbage_collect_github_ci_sdk.sh'"
+                echo " in a later step".
+                continue
+            fi
+            if ! git tag -l | grep -q "${version/+/-}"; then
+                local o_fullpath="${fullpath}/${version}"
+                echo
+                echo "## No tag '${version/+/-}' for orphan directory '${o_fullpath}'; removing."
+                echo "## The following files will be removed ##"
+                $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
+                    "ls -la ${o_fullpath} || true"
+
+                if [ "$dry_run" != "y" ] ; then
+                    set -x
+                    $sshcmd "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}" \
+                        "rm -rf ${o_fullpath} || true"
+                    set +x
+                else
+                    echo "## (DRY_RUN=y so not doing anything) ##"
+                fi
+                echo
+            fi
+         done
     done
 
     echo
