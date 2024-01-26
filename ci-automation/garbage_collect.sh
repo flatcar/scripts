@@ -24,6 +24,8 @@
 #  - Number of (recent) versions to keep. Defaults to 50.
 #           Explicitly setting this value will reset the minimum age (see below) to 0 days.
 #  - Minimum age of version tag to be purged, in days. Defaults to 14.
+#           Only artifacts older than this AND exceeding the builds to keep threshold
+#           will be removed.
 #  - PURGE_VERSIONS (Env variable). Space-separated list of versions to purge
 #            instead of all but the 50 most recent ones.
 #            Setting this will IGNORE minimum age and number of versions to keep.
@@ -269,6 +271,6 @@ function _garbage_collect_impl() {
     echo
 
     source ci-automation/garbage_collect_github_ci_sdk.sh
-    garbage_collect_github_ci
+    garbage_collect_github_ci 1 "${min_age_days}"
 }
 # --
