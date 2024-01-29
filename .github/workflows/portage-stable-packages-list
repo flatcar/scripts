@@ -105,8 +105,8 @@ app-containers/runc
 
 app-crypt/adcli
 app-crypt/argon2
-app-crypt/efitools
 app-crypt/ccid
+app-crypt/efitools
 app-crypt/libb2
 app-crypt/libmd
 app-crypt/mhash
@@ -159,7 +159,14 @@ app-text/xmlto
 
 app-vim/gentoo-syntax
 
+dev-build/autoconf
+dev-build/autoconf-archive
+dev-build/autoconf-wrapper
+dev-build/automake
+dev-build/automake-wrapper
 dev-build/cmake
+dev-build/gtk-doc-am
+dev-build/libtool
 dev-build/make
 dev-build/meson
 dev-build/meson-format-array
@@ -170,6 +177,7 @@ dev-cpp/gtest
 dev-db/sqlite
 
 dev-debug/gdb
+dev-debug/strace
 
 dev-lang/duktape
 dev-lang/go-bootstrap
@@ -207,10 +215,10 @@ dev-libs/liblinear
 dev-libs/libltdl
 dev-libs/libmspack
 dev-libs/libnl
+dev-libs/libp11
 dev-libs/libpcre
 dev-libs/libpcre2
 dev-libs/libpipeline
-dev-libs/libp11
 dev-libs/libsodium
 dev-libs/libtasn1
 dev-libs/libunistring
@@ -284,14 +292,12 @@ dev-util/desktop-file-utils
 dev-util/gdbus-codegen
 dev-util/glib-utils
 dev-util/gperf
-dev-util/gtk-doc-am
 dev-util/pahole
 dev-util/patchelf
 dev-util/patchutils
 dev-util/perf
 dev-util/pkgconf
 dev-util/re2c
-dev-util/strace
 
 dev-vcs/git
 dev-vcs/repo
@@ -500,11 +506,6 @@ sys-boot/efibootmgr
 #
 # sys-boot/gnu-efi
 
-sys-devel/autoconf
-sys-devel/autoconf-archive
-sys-devel/autoconf-wrapper
-sys-devel/automake
-sys-devel/automake-wrapper
 sys-devel/bc
 sys-devel/binutils
 sys-devel/binutils-config
@@ -515,7 +516,6 @@ sys-devel/gcc
 sys-devel/gcc-config
 sys-devel/gettext
 sys-devel/gnuconfig
-sys-devel/libtool
 sys-devel/m4
 sys-devel/patch
 
