@@ -1,10 +1,10 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 # Bumping notes:
-# * Remember to modify LAST_KNOWN_AUTOMAKE_VER 'upstream' in sys-devel/automake-wrapper
+# * Remember to modify LAST_KNOWN_AUTOMAKE_VER 'upstream' in dev-build/automake-wrapper
 # on new automake (major) releases, as well as the dependency in RDEPEND below too.
 # * Update _WANT_AUTOMAKE and _automake_atom case statement in autotools.eclass.
 
@@ -43,8 +43,8 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=dev-lang/perl-5.6
-	>=sys-devel/automake-wrapper-11
-	>=sys-devel/autoconf-2.69:*
+	>=dev-build/automake-wrapper-11
+	>=dev-build/autoconf-2.69:*
 	sys-devel/gnuconfig
 "
 DEPEND="${RDEPEND}"
@@ -125,4 +125,6 @@ src_install() {
 	newenvd - "06automake${idx}" <<-EOF
 	INFOPATH="${infopath}"
 	EOF
+
+	docompress "${MY_INFODIR}"
 }

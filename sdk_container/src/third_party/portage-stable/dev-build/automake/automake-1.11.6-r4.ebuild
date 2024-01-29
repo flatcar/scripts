@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -16,8 +16,8 @@ RESTRICT="test !test? ( test )"
 
 RDEPEND="
 	>=dev-lang/perl-5.6
-	>=sys-devel/automake-wrapper-10
-	>=sys-devel/autoconf-2.69:*
+	>=dev-build/automake-wrapper-10
+	>=dev-build/autoconf-2.69:*
 	sys-devel/gnuconfig
 "
 DEPEND="
@@ -88,4 +88,6 @@ src_install() {
 	newenvd - "06automake${idx}" <<-EOF
 	INFOPATH="${MY_INFODIR}"
 	EOF
+
+	docompress "${MY_INFODIR}"
 }
