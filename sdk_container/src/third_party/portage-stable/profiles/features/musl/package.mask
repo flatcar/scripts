@@ -1,11 +1,19 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Fabian Groffen <grobian@gentoo.org> (2024-01-11)
-# Fails to compile: https://bugs.gentoo.org/908961
-=app-editors/vim-core-9.0.2092
-=app-editors/vim-9.0.2092
-=app-editors/gvim-9.0.2092
+# Christopher Fore <csfore@posteo.net> (2024-01-24)
+# >=sys-fs/bcachefs-tools-1.4.1 uses functions currently not in Musl
+# https://github.com/koverstreet/bcachefs-tools/issues/213
+>=sys-fs/bcachefs-tools-1.4.1
+
+# Conrad Kostecki <conikost@gentoo.org> (2024-01-23)
+# Uses glibc function getsourcefilter(),
+# which are not available on musl.
+net-misc/mcproxy
+
+# Giuseppe Foti  <foti.giuseppe@gmail.com> (2024-01-22)
+# Binary package, which is compiled against glibc
+app-office/drawio-desktop-bin
 
 # Maciej Barć <xgqt@gentoo.org> (2024-01-06)
 # Binary package, which is compiled against glibc
@@ -142,7 +150,7 @@ www-client/chromium
 net-misc/netkit-telnetd
 net-misc/sitecopy
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2022-01-05)
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-20)
 # Binary package linked to glibc (rolling mask, use for all such binpkgs)
 app-admin/awscli-bin
 app-admin/bitwarden-desktop-bin
@@ -151,7 +159,9 @@ app-admin/puppetserver
 app-arch/rar
 app-backup/tsm
 app-benchmarks/geekbench
+app-benchmarks/geekbench-ml
 app-crypt/rainbowcrack
+app-crypt/yubioath-flutter-bin
 app-editors/sublime-text
 app-editors/vscode
 app-editors/vscodium

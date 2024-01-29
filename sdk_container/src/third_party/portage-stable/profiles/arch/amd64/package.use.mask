@@ -17,6 +17,14 @@
 
 #--- END OF EXAMPLES ---
 
+# Ionen Wolkens <ionen@gentoo.org> (2024-01-27)
+# dev-python/PyQt6 and dev-python/pyside6 are keyworded here
+dev-python/QtPy -pyqt6 -pyside6
+
+# Michal Privoznik <michal.privoznik@gmail.com> (2024-01-21)
+# virtiofsd is available here
+app-emulation/libvirt -virtiofsd
+
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-13)
 # Unmask only where grub is keyworded
 sys-kernel/installkernel -grub
@@ -434,7 +442,6 @@ sys-apps/hwloc -gl -nvml
 # Michał Górny <mgorny@gentoo.org> (2013-07-22)
 # Meaningless on amd64 (it controls the 32-bit x86 JIT).
 dev-python/pypy-exe cpu_flags_x86_sse2
-dev-python/pypy3-exe cpu_flags_x86_sse2
 
 # Diego Elio Pettenò <flameeyes@gentoo.org> (2012-11-03)
 # Unmask here, as it's masked in base.
