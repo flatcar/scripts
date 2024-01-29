@@ -54,13 +54,15 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.2.1-python-path.patch
-	"${FILESDIR}"/${PN}-1.3.1-xtools-support.patch
 
 	# backport fix for hiding compiler warnings (such as Modern C) in vala and cython
 	"${FILESDIR}"/0001-ninja-backend-don-t-hide-all-compiler-warnings-for-t.patch
 
 	# backport revert for broken rpath changes: https://github.com/mesonbuild/meson/pull/12672
 	"${FILESDIR}"/0001-Revert-clike-Deduplicate-rpath-linker-flags.patch
+
+	# backport macos Prefix fix: https://github.com/mesonbuild/meson/pull/12747
+	"${FILESDIR}"/meson-1.3.1-xtools-support.patch
 )
 
 python_prepare_all() {
