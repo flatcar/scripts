@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -23,7 +23,7 @@ BDEPEND="
 RDEPEND="
 	${BDEPEND}
 	sys-apps/texinfo
-	>=sys-devel/autoconf-wrapper-13
+	>=dev-build/autoconf-wrapper-13
 "
 
 PATCHES=(
@@ -33,6 +33,7 @@ PATCHES=(
 	"${FILESDIR}"/${P}-perl-5.26.patch
 	"${FILESDIR}"/${P}-K-R-decls-clang.patch
 	"${FILESDIR}"/${P}-Clang-16-fixes-for-various-tests.patch
+	"${FILESDIR}"/${P}-skip-AC_FUNC_GETLOADAVG-test.patch
 )
 
 src_configure() {

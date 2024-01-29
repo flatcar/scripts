@@ -1,10 +1,10 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 # Bumping notes:
-# * Remember to modify LAST_KNOWN_VER 'upstream' in sys-devel/autoconf-wrapper
+# * Remember to modify LAST_KNOWN_VER 'upstream' in dev-build/autoconf-wrapper
 # on new autoconf releases, as well as the dependency in RDEPEND below too.
 # * Update _WANT_AUTOCONF and _autoconf_atom case statement in autotools.eclass.
 
@@ -35,7 +35,7 @@ else
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-zackweinberg )"
 fi
 
-inherit toolchain-autoconf
+inherit toolchain-autoconf multiprocessing
 
 DESCRIPTION="Used to create autoconfiguration files"
 HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
@@ -50,7 +50,7 @@ BDEPEND+="
 "
 RDEPEND="
 	${BDEPEND}
-	>=sys-devel/autoconf-wrapper-20231224
+	>=dev-build/autoconf-wrapper-20231224
 	sys-devel/gnuconfig
 	!~sys-devel/${P}:2.5
 "
@@ -83,7 +83,7 @@ src_prepare() {
 }
 
 src_test() {
-	emake check
+	emake check TESTSUITEFLAGS="--jobs=$(get_makeopts_jobs)"
 }
 
 src_install() {
