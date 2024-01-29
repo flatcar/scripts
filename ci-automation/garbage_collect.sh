@@ -143,7 +143,7 @@ function _garbage_collect_impl() {
         local os_docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_VERSION}")"
 
         # Remove container image tarballs and SDK tarball (if applicable)
-        # Keep in sync with "orphaned direcrories" clean-up below.
+        # Keep in sync with "orphaned directories" clean-up below.
         local rmpat=""
         rmpat="${BUILDCACHE_PATH_PREFIX}/sdk/*/${os_vernum}/"
         rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-sdk-*"
