@@ -117,11 +117,11 @@ RDEPEND="${RDEPEND}
 	coreos-base/update_engine
 	coreos-base/ue-rs
 	dev-db/etcdctl
+	dev-debug/strace
 	dev-libs/libsodium
 	dev-libs/openssl
 	dev-util/bpftool
 	dev-util/bsdiff
-	dev-util/strace
 	dev-vcs/git
 	net-analyzer/nmap
 	net-analyzer/tcpdump

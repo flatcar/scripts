@@ -22,11 +22,11 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
+	dev-build/gtk-doc-am
 	>=dev-libs/expat-2.1.0-r3
 	>=dev-libs/glib-2.40:2
 	>=sys-apps/dbus-1.8
 	>=dev-util/glib-utils-2.40
-	>=dev-util/gtk-doc-am-1.14
 	virtual/pkgconfig
 " # CBUILD dependencies are needed to make a native tool while cross-compiling.
 

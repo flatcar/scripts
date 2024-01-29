@@ -80,7 +80,7 @@ RDEPEND="${DEPEND}
 	"
 # Flatcar: require only autoconf:2.69
 BDEPEND="
-	sys-devel/autoconf:2.69
+	dev-build/autoconf:2.69
 	doc? ( app-doc/doxygen )
 	test? (
 		dev-libs/check

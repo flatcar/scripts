@@ -72,7 +72,7 @@ RDEPEND="
 "
 # Weird dep construct for newer gcc-config for bug #872416
 BDEPEND="
-	sys-devel/autoconf
+	dev-build/autoconf
 	virtual/pkgconfig
 	|| (
 		>=sys-devel/gcc-config-2.6

@@ -34,6 +34,7 @@ RDEPEND="${RDEPEND}
 	app-emulation/qemu
 	app-text/asciidoc
 	app-text/xmlto
+	dev-build/gtk-doc-am
 	dev-lang/go-bootstrap
 	dev-lang/go:1.19
 	dev-lang/go:1.20
@@ -55,7 +56,6 @@ RDEPEND="${RDEPEND}
 	dev-python/wheel
 	dev-util/gdbus-codegen
 	dev-util/gperf
-	>=dev-util/gtk-doc-am-1.13
 	dev-util/patchutils
 	>=dev-vcs/git-1.7.2
 	net-libs/libtirpc
