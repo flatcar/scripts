@@ -10,6 +10,9 @@
 #
 #  OPTIONAL INPUT
 #  - Number of (recent) Github SDK builds to keep. Defaults to 20.
+#  - Minimum age of version tag to be purged, in days. Defaults to 14.
+#           Only artifacts older than this AND exceeding the builds to keep threshold
+#           will be removed.
 #  - DRY_RUN (Env variable). Set to "y" to just list what would be done but not
 #            actually purge anything.
 
@@ -34,8 +37,10 @@ function garbage_collect_github_ci() {
 
 function _garbage_collect_github_ci_impl() {
     local keep="${1:-20}"
+    local min_age_days="${2:-14}"
     local dry_run="${DRY_RUN:-}"
 
+    local min_age_date="$(date -d "${min_age_days} days ago" +'%Y_%m_%d')"
     # Example version string
     #   <a href="./3598.0.0-nightly-20230508-2100-github-2023_05_09__08_06_54/">
     #   <a href="./3598.0.0-nightly-20230508-2100-github-pr-12345-2023_05_09__08_06_54/">
@@ -49,15 +54,30 @@ function _garbage_collect_github_ci_impl() {
     # 3. remove the "/"
    local versions_sorted="$(echo "${versions_detected}" \
                         | sed 's/\(-github\(-pr-[0-9]*\)*-\)/\1\//' \
-                        | sort -k 2 -t / \
+                        | sort -k 2 -t / -r \
                         | sed 's:/::')"
+
+    echo
+    echo "Number of versions to keep: '${keep}'"
+    echo "Keep newer than: '${min_age_date}'"
+    echo
 
     echo "######## Full list of version(s) found ########"
     echo "${versions_sorted}" | awk '{printf "%5d %s\n", NR, $0}'
 
-    local tail_keep="$((keep + 1))" # for tail -n+...
     local purge_versions
-    mapfile -t purge_versions < <(tail -n+"${tail_keep}" <<<"${versions_sorted}")
+    mapfile -t purge_versions < <(echo "${versions_sorted}" \
+            | awk -v keep="${keep}" -v min_age="${min_age_date}" '{
+                if (keep > 0) {
+                    keep = keep - 1
+                    next
+                }
+                ts = gensub(".*-github-([0-9_]+)__.*","\\1","g",$1)
+                if (ts > min_age)
+                    next
+
+                print $1
+                }')
 
     source ci-automation/ci_automation_common.sh
     local sshcmd="$(gen_sshcmd)"
@@ -69,7 +89,7 @@ function _garbage_collect_github_ci_impl() {
         echo "(NOTE this is just a dry run since DRY_RUN=y)"
         echo
     fi
-    printf '%s\n' "${purge_versions[@]}" | awk -v keep="${keep}" '{if ($0 == "") next; printf "%5d %s\n", NR + keep, $0}'
+    printf '%s\n' "${purge_versions[@]}" | awk '{if ($0 == "") next; printf "%5d %s\n", NR, $0}'
     echo
     echo
 
