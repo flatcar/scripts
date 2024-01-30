@@ -272,5 +272,13 @@ function _garbage_collect_impl() {
 
     source ci-automation/garbage_collect_github_ci_sdk.sh
     garbage_collect_github_ci 1 "${min_age_days}"
+
+    echo
+    echo "########################################"
+    echo
+    echo    Running Release Artifacts cache garbage collector
+    echo
+    source ci-automation/garbage_collect_releases.sh
+    garbage_collect_releases
 }
 # --
