@@ -66,7 +66,8 @@ function _garbage_collect_github_ci_impl() {
     echo "${versions_sorted}" | awk '{printf "%5d %s\n", NR, $0}'
 
     local purge_versions
-    mapfile -t purge_versions < <(echo "${versions_sorted}" \
+    mapfile -t purge_versions < <(unset POSIXLY_CORRECT; \
+            echo "${versions_sorted}" \
             | awk -v keep="${keep}" -v min_age="${min_age_date}" '{
                 if (keep > 0) {
                     keep = keep - 1
