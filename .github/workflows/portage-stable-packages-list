@@ -337,6 +337,8 @@ eclass/linux-info.eclass
 eclass/linux-mod.eclass
 eclass/llvm.eclass
 eclass/ltprune.eclass
+eclass/lua-single.eclass
+eclass/lua-utils.eclass
 eclass/meson-multilib.eclass
 eclass/meson.eclass
 eclass/mount-boot.eclass
@@ -361,6 +363,8 @@ eclass/python-r1.eclass
 eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
 eclass/readme.gentoo-r1.eclass
+eclass/ruby-single.eclass
+eclass/ruby-utils.eclass
 eclass/savedconfig.eclass
 eclass/selinux-policy-2.eclass
 eclass/strip-linguas.eclass
