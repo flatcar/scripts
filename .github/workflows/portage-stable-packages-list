@@ -399,6 +399,7 @@ net-analyzer/traceroute
 net-dns/bind-tools
 net-dns/c-ares
 net-dns/dnsmasq
+net-dns/libidn2
 
 net-firewall/ipset
 
@@ -416,6 +417,7 @@ net-libs/libnfnetlink
 net-libs/libnftnl
 net-libs/libnsl
 net-libs/libpcap
+net-libs/libpsl
 net-libs/libslirp
 net-libs/libssh2
 net-libs/nghttp2
