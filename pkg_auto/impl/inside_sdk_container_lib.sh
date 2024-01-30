@@ -6,6 +6,12 @@ __INSIDE_SDK_CONTAINER_LIB_SH_INCLUDED__=x
 source "$(dirname "${BASH_SOURCE[0]}")/stuff.sh"
 
 function emerge_pretend() {
+    local -a extra_args=()
+
+    if [[ ${#} -gt 2 ]]; then
+        extra_args=( "${@:1:$((${#} - 2))}" )
+        shift $((${#} - 2))
+    fi
     local root package
     root=${1}; shift
     package=${1}; shift
@@ -38,6 +44,7 @@ function emerge_pretend() {
         --ignore-built-slot-operator-deps y
         --selective n
         --keep-going y
+        "${extra_args[@]}"
     )
     local rv
     rv=0
@@ -52,11 +59,18 @@ function package_info_for_sdk() {
     root='/'
 
     ignore_crossdev_stuff "${root}"
-    emerge_pretend "${root}" coreos-devel/sdk-depends
+    emerge_pretend "${@}" "${root}" coreos-devel/sdk-depends
     revert_crossdev_stuff "${root}"
 }
 
 function package_info_for_board() {
+    local -a extra_args=()
+
+    if [[ ${#} -gt 1 ]]; then
+        extra_args=( "${@:1:$((${#} - 1))}" )
+        shift $((${#} - 1))
+    fi
+
     local arch
     arch=${1}; shift
 
@@ -67,7 +81,7 @@ function package_info_for_board() {
     # may query SDK stuff for the board packages.
     ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
-    emerge_pretend "${root}" coreos-devel/board-packages
+    emerge_pretend "${extra_args[@]}" "${root}" coreos-devel/board-packages
     revert_crossdev_stuff "${root}"
     revert_crossdev_stuff /
 }
