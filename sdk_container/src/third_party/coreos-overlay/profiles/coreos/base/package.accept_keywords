@@ -72,7 +72,6 @@
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-apps/coreutils-9.4 ~amd64
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/util-linux-2.39.2-r1 ~amd64
 
