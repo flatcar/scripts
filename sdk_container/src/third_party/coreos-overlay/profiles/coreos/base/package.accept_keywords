@@ -53,6 +53,7 @@
 =dev-libs/libdnet-1.16.4 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
+=dev-libs/opensc-0.23.0-r3 ~arm64
 =dev-util/bpftool-6.5.7 ~arm64
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 
