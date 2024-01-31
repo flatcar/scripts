@@ -1,0 +1,1 @@
+- Backported the OEM payload support to update-engine to avoid the fallback download path for clients on a restricted network and rather use the URLs passed from `flatcar-update -E` or with self-hosted Nebraska payloads ([Flatcar#1332](https://github.com/flatcar/Flatcar/issues/1332), [Flatcar#1326](https://github.com/flatcar/Flatcar/issues/1326))
