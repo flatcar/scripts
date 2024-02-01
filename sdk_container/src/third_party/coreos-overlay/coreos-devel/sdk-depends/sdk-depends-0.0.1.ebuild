@@ -26,6 +26,7 @@ DEPEND="
 	app-misc/jq
 	app-shells/bash-completion
 	app-text/mandoc
+	coreos-base/acct
 	coreos-base/hard-host-depends
 	coreos-base/coreos-sb-keys
 	coreos-devel/fero-client
