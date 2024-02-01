@@ -109,6 +109,7 @@ RDEPEND="${RDEPEND}
 	app-misc/jq
 	app-misc/pax-utils
 	app-shells/bash
+	coreos-base/acct
 	coreos-base/afterburn
 	coreos-base/coreos-cloudinit
 	coreos-base/coreos-init
