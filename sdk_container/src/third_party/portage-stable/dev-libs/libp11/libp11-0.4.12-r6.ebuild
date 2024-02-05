@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,19 +11,25 @@ SRC_URI="https://github.com/OpenSC/${PN}/releases/download/${P}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="doc static-libs test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	<dev-libs/openssl-3.1.4:=[bindist(+)]
+	dev-libs/openssl:=[bindist(+)]
+	!~dev-libs/openssl-3.2.0
+	!=dev-libs/openssl-3.2.1-r0
+	|| (
+		>=dev-libs/openssl-3.1.5-r1
+		<dev-libs/openssl-3.0.12
+	)
 "
 DEPEND="${RDEPEND}
 	test? ( dev-libs/softhsm )
 "
 BDEPEND="
 	virtual/pkgconfig
-	doc? ( app-doc/doxygen )
+	doc? ( app-text/doxygen )
 	test? ( >=dev-libs/opensc-0.23.0-r2 )
 "
 
