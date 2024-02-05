@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file specifies packages that are considered deprecated (but not
@@ -16,6 +16,11 @@
 ## dev-foo/foo
 
 #--- END OF EXAMPLES ---
+
+# Michał Górny <mgorny@gentoo.org> (2024-01-23)
+# Unmaintained, very hacky package.  Its replacement, berkeleydb,
+# was so bad that we've lastrited it.
+dev-python/bsddb3
 
 # Michał Górny <mgorny@gentoo.org> (2023-12-10)
 # Superseded by dev-python/psycopg:0 (version 3).
@@ -60,16 +65,6 @@ dev-perl/Type-Tie
 # which ensures a sound server is installed via PDEPEND.
 media-sound/pulseaudio
 
-# Michał Górny <mgorny@gentoo.org> (2023-05-29)
-# Use the following snippet instead:
-#
-#   $(python_gen_cond_dep '
-#       dev-python/cffi[${PYTHON_USEDEP}]
-#   ' 'python*')
-#
-# Possibly adding version constraints if package declares them.
-virtual/python-cffi
-
 # Sam James <sam@gentoo.org> (2023-04-07)
 # Inactive upstream, doesn't support newer Rubies.
 # Please port your package to use dev-ruby/erubis instead.
@@ -100,10 +95,6 @@ dev-python/python-distutils-extra
 # if using sys-apps/edac-utils. See app-admin/rasdaemon's README for the technical
 # details. Please migrate to app-admin/rasdaemon instead.
 sys-apps/edac-utils
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2022-12-26)
-# Last-rites pending and waiting for revdeps, bug 877311
-x11-libs/snorenotify
 
 # Michał Górny <mgorny@gentoo.org> (2022-12-24)
 # Unmaintained with last release in 2019.  We already patched it to work

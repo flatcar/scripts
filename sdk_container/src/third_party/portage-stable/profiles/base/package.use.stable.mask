@@ -1,8 +1,12 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
+
+# Nick Sarnie <sarnex@gentoo.org> (2024-01-31)
+# Test dependencies are not stable
+dev-util/vulkan-utility-libraries test
 
 # Joonas Niilola <juippis@gentoo.org> (2023-07-14)
 # Calendar is broken with some languages on 115.0 release with <icu-75.
@@ -20,10 +24,6 @@ dev-lang/python-exec -python_targets_python3_12
 # Michał Górny <mgorny@gentoo.org> (2023-06-11)
 # xfce-base/libxfce4windowing is not ready to go stable (4.19 branch).
 xfce-extra/xfce4-pulseaudio-plugin libxfce4windowing
-
-# Alfredo Tupone <tupone@gentoo.org> (2023-04-02)
-# For doc, dev-python/sphinxcontrib-bibtex is required
-sci-mathematics/why3-for-spark doc
 
 # Daniel Pielmeier <billie@gentoo.org> (2023-03-04)
 # For docs, app-text/pandoc is required. For details see:
@@ -137,7 +137,7 @@ app-emulation/winetricks test
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2019-12-21)
 # For bleeding edge features and testing, not generally suitable
 # for stable systems
-dev-lang/rust nightly profiler system-bootstrap
+dev-lang/rust nightly system-bootstrap
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2019-12-09)
 # Declared experimental, and dev-cpp/websocketpp not stable yet
@@ -172,6 +172,7 @@ media-plugins/grilo-plugins chromaprint
 # Mikle Kolyada <zlogene@gentoo.org> (2018-11-07)
 # sssd is only stable for amd64 and x86
 app-admin/sudo sssd
+sys-auth/pambase sssd
 
 # Thomas Deutschmann <whissi@gentoo.org> (2018-06-01)
 # Needs dev-ruby/asciidoctor which has a lot of unstable deps

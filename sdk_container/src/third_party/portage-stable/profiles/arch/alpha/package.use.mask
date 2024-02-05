@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# matoro <matoro_gentoo@matoro.tk> (2024-01-24)
+# No LLVM on alpha.
+dev-util/perf bpf
+
 # Sam James <sam@gentoo.org> (2024-01-02)
 # dev-libs/capstone not keyworded here
 dev-lang/php capstone
@@ -317,6 +321,7 @@ dev-db/percona-server cjk
 # Mikle Kolyada <zlogene@gentoo.org> (2018-10-05)
 # Not keyworded (see bug #540540c#8)
 app-admin/sudo sssd
+sys-auth/pambase sssd
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2018-09-30)
 # Optional dependency blocking security cleanup, bug #627316
