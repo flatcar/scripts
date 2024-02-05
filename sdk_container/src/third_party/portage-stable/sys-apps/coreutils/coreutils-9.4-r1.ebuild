@@ -1,35 +1,60 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_10 )
+# Try to keep an eye on Fedora's packaging: https://src.fedoraproject.org/rpms/coreutils
+# The upstream coreutils maintainers also maintain the package in Fedora and may
+# backport fixes which we want to pick up.
+#
+# Also recommend subscribing to the coreutils and bug-coreutils MLs.
 
-inherit flag-o-matic python-any-r1 toolchain-funcs
+PYTHON_COMPAT=( python3_{10..11} )
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/coreutils.asc
+inherit flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
-PATCH="${PN}-8.30-patches-01"
+MY_PATCH="${PN}-9.4-patches"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
 HOMEPAGE="https://www.gnu.org/software/coreutils/"
-SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
-	!vanilla? (
-		mirror://gentoo/${PATCH}.tar.xz
-		https://dev.gentoo.org/~polynomial-c/dist/${PATCH}.tar.xz
-	)
-"
+
+if [[ ${PV} == 9999 ]] ; then
+	EGIT_REPO_URI="https://git.savannah.gnu.org/git/coreutils.git"
+	inherit git-r3
+elif [[ ${PV} == *_p* ]] ; then
+	# Note: could put this in devspace, but if it's gone, we don't want
+	# it in tree anyway. It's just for testing.
+	MY_SNAPSHOT="$(ver_cut 1-2).156-b3afb"
+	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
+	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
+	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
+else
+	SRC_URI="
+		mirror://gnu/${PN}/${P}.tar.xz
+		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
+	"
+
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+fi
+
+SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x86-linux"
-IUSE="acl caps gmp hostname kill multicall nls selinux +split-usr static test vanilla xattr"
+IUSE="acl caps gmp hostname kill multicall nls +openssl selinux +split-usr static test vanilla xattr"
 RESTRICT="!test? ( test )"
 
-LIB_DEPEND="acl? ( sys-apps/acl[static-libs] )
+LIB_DEPEND="
+	acl? ( sys-apps/acl[static-libs] )
 	caps? ( sys-libs/libcap )
 	gmp? ( dev-libs/gmp:=[static-libs] )
-	xattr? ( sys-apps/attr[static-libs] )"
-RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs]} )
+	openssl? ( dev-libs/openssl:=[static-libs] )
+	xattr? ( sys-apps/attr[static-libs] )
+"
+RDEPEND="
+	!static? ( ${LIB_DEPEND//\[static-libs]} )
 	selinux? ( sys-libs/libselinux )
-	nls? ( virtual/libintl )"
+	nls? ( virtual/libintl )
+"
 DEPEND="
 	${RDEPEND}
 	static? ( ${LIB_DEPEND} )
@@ -43,6 +68,7 @@ BDEPEND="
 		dev-perl/Expect
 		${PYTHON_DEPS}
 	)
+	verify-sig? ( sec-keys/openpgp-keys-coreutils )
 "
 RDEPEND+="
 	hostname? ( !sys-apps/net-tools[hostname] )
@@ -64,14 +90,32 @@ pkg_setup() {
 	fi
 }
 
+src_unpack() {
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+
+		cd "${S}" || die
+		./bootstrap || die
+
+		sed -i -e "s:submodule-checks ?= no-submodule-changes public-submodule-commit:submodule-checks ?= no-submodule-changes:" gnulib/top/maint.mk || die
+	elif use verify-sig ; then
+		# Needed for downloaded patch (which is unsigned, which is fine)
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.xz{,.sig}
+	fi
+
+	default
+}
+
 src_prepare() {
+	# TODO: past 2025, we may need to add our own hack for bug #907474.
 	local PATCHES=(
-		"${FILESDIR}"/coreutils-8.32-ls-restore-8.31-behavior.patch
+		# Upstream patches
+		"${FILESDIR}"/${P}-gnulib-openssl-1.1.patch
+		"${FILESDIR}"/${P}-CVE-2024-0684.patch
 	)
 
-	if ! use vanilla ; then
-		PATCHES+=( "${WORKDIR}"/patch )
-		PATCHES+=( "${FILESDIR}"/${PN}-8.32-sandbox-env-test.patch )
+	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
+		PATCHES+=( "${WORKDIR}"/${MY_PATCH} )
 	fi
 
 	default
@@ -93,6 +137,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# TODO: in future (>9.4?), we may want to wire up USE=systemd:
+	# still experimental at the moment, but:
+	# https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=85edb4afbd119fb69a0d53e1beb71f46c9525dd0
 	local myconf=(
 		--with-packager="Gentoo"
 		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
@@ -102,14 +149,18 @@ src_configure() {
 		# hostname    - net-tools
 		--enable-install-program="arch,$(usev hostname),$(usev kill)"
 		--enable-no-install-program="groups,$(usev !hostname),$(usev !kill),su,uptime"
-		--enable-largefile
-		$(usex caps '' --disable-libcap)
+		$(usev !caps --disable-libcap)
 		$(use_enable nls)
 		$(use_enable acl)
 		$(use_enable multicall single-binary)
 		$(use_enable xattr)
-		$(use_with gmp)
+		$(use_with gmp libgmp)
+		$(use_with openssl)
 	)
+
+	if use gmp ; then
+		myconf+=( --with-libgmp-prefix="${ESYSROOT}"/usr )
+	fi
 
 	if tc-is-cross-compiler && [[ ${CHOST} == *linux* ]] ; then
 		# bug #311569
@@ -171,8 +222,8 @@ src_test() {
 	addwrite /dev/full
 	#export RUN_EXPENSIVE_TESTS="yes"
 	#export COREUTILS_GROUPS="portage wheel"
-	env PATH="${T}/mount-wrappers:${PATH}" \
-	emake -j1 -k check
+	env PATH="${T}/mount-wrappers:${PATH}" gl_public_submodule_commit= \
+		emake -k check VERBOSE=yes
 }
 
 src_install() {
