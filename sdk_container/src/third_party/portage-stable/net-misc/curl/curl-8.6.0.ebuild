@@ -23,7 +23,7 @@ fi
 LICENSE="BSD curl ISC test? ( BSD-4 )"
 SLOT="0"
 IUSE="+adns +alt-svc brotli +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
-IUSE+=" +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+IUSE+=" +psl +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
 # These select the default SSL implementation
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
 RESTRICT="!test? ( test )"
@@ -69,6 +69,7 @@ RDEPEND="
 		>=net-libs/nghttp3-0.15.0[${MULTILIB_USEDEP}]
 		>=net-libs/ngtcp2-0.19.1[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
 	)
+	psl? ( net-libs/libpsl[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
 	ssh? ( >=net-libs/libssh2-1.0.0[${MULTILIB_USEDEP}] )
 	ssl? (
@@ -123,12 +124,12 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	IoctlSocket
 	mach_absolute_time
 	setmode
+	_fseeki64
 )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${P}-ipv6-configure-c99.patch
 )
 
 src_prepare() {
@@ -254,7 +255,7 @@ multilib_src_configure() {
 		$(use_with idn libidn2)
 		$(use_with kerberos gssapi "${EPREFIX}"/usr)
 		--without-libgsasl
-		--without-libpsl
+		$(use_with psl libpsl)
 		--without-msh3
 		$(use_with nghttp3)
 		$(use_with nghttp3 ngtcp2)
@@ -345,8 +346,7 @@ multilib_src_test() {
 	# this ends up breaking when nproc is huge (like -j80).
 	# The network sandbox causes tests 241 and 1083 to fail; these are typically skipped
 	# as most gentoo users don't have an 'ip6-localhost'
-	# Required deps for 1477 are not included in the release tarball for 8.5.0
-	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083 !1477"
+	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083"
 }
 
 multilib_src_install() {
