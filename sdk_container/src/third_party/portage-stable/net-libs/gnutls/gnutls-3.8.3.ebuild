@@ -1,7 +1,7 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnutls.asc
 inherit libtool multilib-minimal verify-sig
@@ -12,29 +12,35 @@ SRC_URI="mirror://gnupg/gnutls/v$(ver_cut 1-2)/${P}.tar.xz"
 SRC_URI+=" verify-sig? ( mirror://gnupg/gnutls/v$(ver_cut 1-2)/${P}.tar.xz.sig )"
 
 LICENSE="GPL-3 LGPL-2.1+"
-SLOT="0/30.30" # <libgnutls.so number>.<libgnutlsxx.so number>
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-IUSE="brotli +cxx dane doc examples guile +idn nls +openssl pkcs11 seccomp sslv2 sslv3 static-libs test test-full +tls-heartbeat tools zlib zstd"
-
-REQUIRED_USE="test-full? ( cxx dane doc examples guile idn nls openssl pkcs11 seccomp tls-heartbeat tools )"
+# As of 3.8.0, the C++ library is header-only, but we won't drop the subslot
+# component for it until libgnutls.so breaks ABI, to avoid pointless rebuilds.
+# Subslot format:
+# <libgnutls.so number>.<libgnutlsxx.so number>
+SLOT="0/30.30"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+IUSE="brotli +cxx dane doc examples +idn nls +openssl pkcs11 seccomp sslv2 sslv3 static-libs test test-full +tls-heartbeat tools zlib zstd"
+REQUIRED_USE="test-full? ( cxx dane doc examples idn nls openssl pkcs11 seccomp tls-heartbeat tools )"
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
+RDEPEND="
+	>=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
 	dev-libs/libunistring:=[${MULTILIB_USEDEP}]
 	>=dev-libs/nettle-3.6:=[gmp,${MULTILIB_USEDEP}]
 	>=dev-libs/gmp-5.1.3-r1:=[${MULTILIB_USEDEP}]
 	brotli? ( >=app-arch/brotli-1.0.0:=[${MULTILIB_USEDEP}] )
 	dane? ( >=net-dns/unbound-1.4.20:=[${MULTILIB_USEDEP}] )
-	guile? ( >=dev-scheme/guile-2:=[networking] )
 	nls? ( >=virtual/libintl-0-r1:=[${MULTILIB_USEDEP}] )
 	pkcs11? ( >=app-crypt/p11-kit-0.23.1[${MULTILIB_USEDEP}] )
 	idn? ( >=net-dns/libidn2-0.16-r1:=[${MULTILIB_USEDEP}] )
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
-	zstd? ( >=app-arch/zstd-1.3.0:=[${MULTILIB_USEDEP}] )"
-DEPEND="${RDEPEND}
+	zstd? ( >=app-arch/zstd-1.3.0:=[${MULTILIB_USEDEP}] )
+"
+DEPEND="
+	${RDEPEND}
 	test? (
 		seccomp? ( sys-libs/libseccomp )
-	)"
+	)
+"
 BDEPEND="
 	dev-build/gtk-doc-am
 	>=virtual/pkgconfig-0-r1
@@ -42,28 +48,32 @@ BDEPEND="
 	nls? ( sys-devel/gettext )
 	test-full? (
 		app-crypt/dieharder
-		>=app-misc/datefudge-1.22
+		|| ( sys-libs/libfaketime >=app-misc/datefudge-1.22 )
 		dev-libs/softhsm:2[-bindist(-)]
 		net-dialup/ppp
 		net-misc/socat
 	)
-	verify-sig? ( >=sec-keys/openpgp-keys-gnutls-20220320 )"
+	verify-sig? ( >=sec-keys/openpgp-keys-gnutls-20231129 )
+"
 
 DOCS=( README.md doc/certtool.cfg )
 
 HTML_DOCS=()
 
-pkg_setup() {
-	# bug #520818
-	export TZ=UTC
-
-	use doc && HTML_DOCS+=(
-		doc/gnutls.html
-	)
-}
+QA_CONFIG_IMPL_DECL_SKIP=(
+	# gnulib FPs
+	MIN
+	alignof
+	static_assert
+)
 
 src_prepare() {
 	default
+
+	# bug #520818
+	export TZ=UTC
+
+	use doc && HTML_DOCS+=( doc/gnutls.html )
 
 	# don't try to use system certificate store on macOS, it is
 	# confusingly ignoring our ca-certificates and more importantly
@@ -101,7 +111,6 @@ multilib_src_configure() {
 		$(multilib_native_enable manpages)
 		$(multilib_native_use_enable doc gtk-doc)
 		$(multilib_native_use_enable doc)
-		$(multilib_native_use_enable guile)
 		$(multilib_native_use_enable seccomp seccomp-tests)
 		$(multilib_native_use_enable test tests)
 		$(multilib_native_use_enable test-full full-test-suite)
@@ -125,6 +134,7 @@ multilib_src_configure() {
 		--without-included-libtasn1
 		$("${S}/configure" --help | grep -o -- '--without-.*-prefix')
 	)
+
 	ECONF_SOURCE="${S}" econf "${libconf[@]}" "${myeconfargs[@]}"
 }
 
