@@ -1,8 +1,8 @@
-# Copyright 2011-2023 Gentoo Authors
+# Copyright 2011-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -23,10 +23,10 @@ else
 	MY_P=${MY_PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
-inherit bash-completion-r1 linux-info meson-multilib pam python-single-r1
+inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-single-r1
 inherit secureboot systemd toolchain-funcs udev usr-ldscript
 
 DESCRIPTION="System and service manager for Linux"
@@ -36,9 +36,9 @@ LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
 	acl apparmor audit boot cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnutls homed http idn importd iptables +kmod
+	fido2 +gcrypt gnutls homed http idn importd iptables +kernel-install +kmod
 	+lz4 lzma +openssl pam pcre pkcs11 policykit pwquality qrcode
-	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd
+	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm ukify vanilla xkb +zstd
 "
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
@@ -47,6 +47,8 @@ REQUIRED_USE="
 	homed? ( cryptsetup pam openssl )
 	importd? ( curl lzma || ( gcrypt openssl ) )
 	pwquality? ( homed )
+	boot? ( kernel-install )
+	ukify? ( boot )
 "
 RESTRICT="!test? ( test )"
 
@@ -124,7 +126,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
-	boot? (
+	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
 	)
@@ -153,7 +155,7 @@ PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
 BDEPEND="
 	app-arch/xz-utils:0
 	dev-util/gperf
-	>=dev-util/meson-0.46
+	>=dev-build/meson-0.46
 	>=sys-apps/coreutils-8.16
 	sys-devel/gettext
 	virtual/pkgconfig
@@ -170,10 +172,8 @@ BDEPEND="
 	$(python_gen_cond_dep "
 		dev-python/jinja[\${PYTHON_USEDEP}]
 		dev-python/lxml[\${PYTHON_USEDEP}]
-		boot? (
-			>=dev-python/pyelftools-0.30[\${PYTHON_USEDEP}]
-			test? ( ${PEFILE_DEPEND} )
-		)
+		boot? ( >=dev-python/pyelftools-0.30[\${PYTHON_USEDEP}] )
+		ukify? ( test? ( ${PEFILE_DEPEND} ) )
 	")
 "
 
@@ -302,6 +302,7 @@ multilib_src_configure() {
 		$(meson_native_use_bool importd)
 		$(meson_native_use_bool importd bzip2)
 		$(meson_native_use_bool importd zlib)
+		$(meson_native_use_bool kernel-install)
 		$(meson_native_use_bool kmod)
 		$(meson_use lz4)
 		$(meson_use lzma xz)
@@ -319,6 +320,7 @@ multilib_src_configure() {
 		$(meson_native_use_bool selinux)
 		$(meson_native_use_bool tpm tpm2)
 		$(meson_native_use_bool test dbus)
+		$(meson_native_use_bool ukify)
 		$(meson_native_use_bool xkb xkbcommon)
 		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
@@ -408,10 +410,13 @@ multilib_src_install_all() {
 
 	gen_usr_ldscript -a systemd udev
 
-	if use boot; then
-		python_fix_shebang "${ED}"
-		secureboot_auto_sign
+	if use kernel-install; then
+		# Dummy config, remove to make room for sys-kernel/installkernel
+		rm "${ED}/usr/lib/kernel/install.conf" || die
 	fi
+
+	use ukify && python_fix_shebang "${ED}"
+	use boot && secureboot_auto_sign
 }
 
 migrate_locale() {
@@ -514,6 +519,15 @@ pkg_postinst() {
 		eerror "for errors. You may need to clean up your system and/or try installing"
 		eerror "systemd again."
 		eerror
+	fi
+
+	if use boot; then
+		optfeature "automatically installing the kernels in systemd-boot's native layout and updating the bootloader configuration" \
+			"sys-kernel/installkernel[systemd-boot]"
+	fi
+	if use ukify; then
+		optfeature "automatically generating an unified kernel image on each kernel installation" \
+			"sys-kernel/installkernel[ukify]"
 	fi
 }
 

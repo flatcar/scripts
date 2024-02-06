@@ -1,8 +1,8 @@
-# Copyright 2011-2023 Gentoo Authors
+# Copyright 2011-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -23,11 +23,14 @@ else
 	MY_P=${MY_PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+
+	if [[ ${PV} != *rc* ]] ; then
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	fi
 fi
 
-inherit bash-completion-r1 linux-info meson-multilib pam python-any-r1
-inherit secureboot systemd toolchain-funcs udev usr-ldscript
+inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-single-r1
+inherit secureboot systemd toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="http://systemd.io/"
@@ -35,31 +38,34 @@ HOMEPAGE="http://systemd.io/"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
-	acl apparmor audit cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnuefi gnutls homed http idn importd iptables +kmod
+	acl apparmor audit boot cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
+	fido2 +gcrypt gnutls homed http idn importd iptables +kernel-install +kmod
 	+lz4 lzma +openssl pam pcre pkcs11 policykit pwquality qrcode
-	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm vanilla xkb +zstd
+	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm ukify vanilla xkb +zstd
 "
 REQUIRED_USE="
+	${PYTHON_REQUIRED_USE}
 	dns-over-tls? ( || ( gnutls openssl ) )
 	fido2? ( cryptsetup openssl )
 	homed? ( cryptsetup pam openssl )
 	importd? ( curl lzma || ( gcrypt openssl ) )
 	pwquality? ( homed )
+	boot? ( kernel-install )
+	ukify? ( boot )
 "
 RESTRICT="!test? ( test )"
 
 MINKV="4.15"
 
 COMMON_DEPEND="
-	>=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
+	>=sys-apps/util-linux-2.32:0=[${MULTILIB_USEDEP}]
 	sys-libs/libcap:0=[${MULTILIB_USEDEP}]
 	virtual/libcrypt:=[${MULTILIB_USEDEP}]
 	acl? ( sys-apps/acl:0= )
-	apparmor? ( sys-libs/libapparmor:0= )
+	apparmor? ( >=sys-libs/libapparmor-2.13:0= )
 	audit? ( >=sys-process/audit-2:0= )
 	cryptsetup? ( >=sys-fs/cryptsetup-2.0.1:0= )
-	curl? ( net-misc/curl:0= )
+	curl? ( >=net-misc/curl-7.32.0:0= )
 	elfutils? ( >=dev-libs/elfutils-0.158:0= )
 	fido2? ( dev-libs/libfido2:0= )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5:0=[${MULTILIB_USEDEP}] )
@@ -76,12 +82,12 @@ COMMON_DEPEND="
 	iptables? ( net-firewall/iptables:0= )
 	openssl? ( >=dev-libs/openssl-1.1.0:0= )
 	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
-	pkcs11? ( app-crypt/p11-kit:0= )
+	pkcs11? ( >=app-crypt/p11-kit-0.23.3:0= )
 	pcre? ( dev-libs/libpcre2 )
-	pwquality? ( dev-libs/libpwquality:0= )
-	qrcode? ( media-gfx/qrencode:0= )
+	pwquality? ( >=dev-libs/libpwquality-1.4.1:0= )
+	qrcode? ( >=media-gfx/qrencode-3:0= )
 	seccomp? ( >=sys-libs/libseccomp-2.3.3:0= )
-	selinux? ( sys-libs/libselinux:0= )
+	selinux? ( >=sys-libs/libselinux-2.1.9:0= )
 	tpm? ( app-crypt/tpm2-tss:0= )
 	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )
 	zstd? ( >=app-arch/zstd-1.4.0:0=[${MULTILIB_USEDEP}] )
@@ -90,8 +96,9 @@ COMMON_DEPEND="
 # Newer linux-headers needed by ia64, bug #480218
 DEPEND="${COMMON_DEPEND}
 	>=sys-kernel/linux-headers-${MINKV}
-	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
 "
+
+PEFILE_DEPEND='dev-python/pefile[${PYTHON_USEDEP}]'
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
@@ -122,6 +129,10 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
+	ukify? (
+		${PYTHON_DEPS}
+		$(python_gen_cond_dep "${PEFILE_DEPEND}")
+	)
 	selinux? (
 		sec-policy/selinux-base-policy[systemd]
 		sec-policy/selinux-ntp
@@ -147,7 +158,7 @@ PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
 BDEPEND="
 	app-arch/xz-utils:0
 	dev-util/gperf
-	>=dev-util/meson-0.46
+	>=dev-build/meson-0.46
 	>=sys-apps/coreutils-8.16
 	sys-devel/gettext
 	virtual/pkgconfig
@@ -160,19 +171,24 @@ BDEPEND="
 	app-text/docbook-xml-dtd:4.5
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt:0
-	$(python_gen_any_dep 'dev-python/jinja[${PYTHON_USEDEP}]')
-	$(python_gen_any_dep 'dev-python/lxml[${PYTHON_USEDEP}]')
+	${PYTHON_DEPS}
+	$(python_gen_cond_dep "
+		dev-python/jinja[\${PYTHON_USEDEP}]
+		dev-python/lxml[\${PYTHON_USEDEP}]
+		boot? ( >=dev-python/pyelftools-0.30[\${PYTHON_USEDEP}] )
+		ukify? ( test? ( ${PEFILE_DEPEND} ) )
+	")
 "
-
-python_check_deps() {
-	python_has_version "dev-python/jinja[${PYTHON_USEDEP}]" &&
-	python_has_version "dev-python/lxml[${PYTHON_USEDEP}]"
-}
 
 QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
 QA_EXECSTACK="usr/lib/systemd/boot/efi/*"
 
 pkg_pretend() {
+	if use split-usr; then
+		eerror "Please complete the migration to merged-usr."
+		eerror "https://wiki.gentoo.org/wiki/Merge-usr"
+		die "systemd no longer supports split-usr"
+	fi
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
 		if use test && has pid-sandbox ${FEATURES}; then
 			ewarn "Tests are known to fail with PID sandboxing enabled."
@@ -222,7 +238,7 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	use gnuefi && secureboot_pkg_setup
+	use boot && secureboot_pkg_setup
 }
 
 src_unpack() {
@@ -232,7 +248,6 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-253-initrd-generators.patch"
 	)
 
 	if ! use vanilla; then
@@ -241,9 +256,6 @@ src_prepare() {
 			"${FILESDIR}/gentoo-journald-audit-r1.patch"
 		)
 	fi
-
-	# Fails with split-usr.
-	sed -i -e '2i exit 77' test/test-rpm-macros.sh || die
 
 	default
 }
@@ -260,14 +272,13 @@ src_configure() {
 multilib_src_configure() {
 	local myconf=(
 		--localstatedir="${EPREFIX}/var"
+		# default is developer, bug 918671
+		-Dmode=release
 		-Dsupport-url="https://gentoo.org/support/"
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
-		$(meson_use split-usr)
-		$(meson_use split-usr split-bin)
-		-Drootprefix="$(usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr")"
-		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
+		-Dsplit-bin=false
 		# Disable compatibility with sysvinit
 		-Dsysvinit-path=
 		-Dsysvrcnd-path=
@@ -280,22 +291,21 @@ multilib_src_configure() {
 		$(meson_native_use_bool acl)
 		$(meson_native_use_bool apparmor)
 		$(meson_native_use_bool audit)
+		$(meson_native_use_bool boot bootloader)
 		$(meson_native_use_bool cryptsetup libcryptsetup)
 		$(meson_native_use_bool curl libcurl)
 		$(meson_native_use_bool dns-over-tls dns-over-tls)
 		$(meson_native_use_bool elfutils)
 		$(meson_native_use_bool fido2 libfido2)
 		$(meson_use gcrypt)
-		$(meson_native_use_bool gnuefi gnu-efi)
 		$(meson_native_use_bool gnutls)
-		-Defi-includedir="${ESYSROOT}/usr/include/efi"
-		-Defi-libdir="${ESYSROOT}/usr/$(get_libdir)"
 		$(meson_native_use_bool homed)
 		$(meson_native_use_bool http microhttpd)
 		$(meson_native_use_bool idn)
 		$(meson_native_use_bool importd)
 		$(meson_native_use_bool importd bzip2)
 		$(meson_native_use_bool importd zlib)
+		$(meson_native_use_bool kernel-install)
 		$(meson_native_use_bool kmod)
 		$(meson_use lz4)
 		$(meson_use lzma xz)
@@ -313,6 +323,7 @@ multilib_src_configure() {
 		$(meson_native_use_bool selinux)
 		$(meson_native_use_bool tpm tpm2)
 		$(meson_native_use_bool test dbus)
+		$(meson_native_use_bool ukify)
 		$(meson_native_use_bool xkb xkbcommon)
 		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
@@ -339,6 +350,7 @@ multilib_src_configure() {
 		$(meson_native_true timesyncd)
 		$(meson_native_true tmpfiles)
 		$(meson_native_true vconsole)
+		$(meson_native_enabled vmspawn)
 	)
 
 	meson_src_configure "${myconf[@]}"
@@ -351,9 +363,6 @@ multilib_src_test() {
 }
 
 multilib_src_install_all() {
-	local rootprefix=$(usex split-usr '' /usr)
-	local sbin=$(usex split-usr sbin bin)
-
 	# meson doesn't know about docdir
 	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
 
@@ -364,17 +373,13 @@ multilib_src_install_all() {
 	doins "${FILESDIR}"/legacy.conf
 
 	if ! use resolvconf; then
-		rm -f "${ED}${rootprefix}/${sbin}"/resolvconf || die
+		rm -f "${ED}"/usr/bin/resolvconf || die
 	fi
 
 	if ! use sysv-utils; then
-		rm "${ED}${rootprefix}/${sbin}"/{halt,init,poweroff,reboot,shutdown} || die
+		rm "${ED}"/usr/bin/{halt,init,poweroff,reboot,shutdown} || die
 		rm "${ED}"/usr/share/man/man1/init.1 || die
 		rm "${ED}"/usr/share/man/man8/{halt,poweroff,reboot,shutdown}.8 || die
-	fi
-
-	if ! use resolvconf && ! use sysv-utils && use split-usr; then
-		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
 
 	# https://bugs.gentoo.org/761763
@@ -388,28 +393,23 @@ multilib_src_install_all() {
 
 	keepdir /etc/udev/hwdb.d
 
-	keepdir "${rootprefix}"/lib/systemd/{system-sleep,system-shutdown}
+	keepdir /usr/lib/systemd/{system-sleep,system-shutdown}
 	keepdir /usr/lib/{binfmt.d,modules-load.d}
 	keepdir /usr/lib/systemd/user-generators
 	keepdir /var/lib/systemd
 	keepdir /var/log/journal
 
-	# Symlink /etc/sysctl.conf for easy migration.
-	dosym ../../../etc/sysctl.conf /usr/lib/sysctl.d/99-sysctl.conf
-
 	if use pam; then
 		newpamd "${FILESDIR}"/systemd-user.pam systemd-user
 	fi
 
-	if use split-usr; then
-		# Avoid breaking boot/reboot
-		dosym ../../../lib/systemd/systemd /usr/lib/systemd/systemd
-		dosym ../../../lib/systemd/systemd-shutdown /usr/lib/systemd/systemd-shutdown
+	if use kernel-install; then
+		# Dummy config, remove to make room for sys-kernel/installkernel
+		rm "${ED}/usr/lib/kernel/install.conf" || die
 	fi
 
-	gen_usr_ldscript -a systemd udev
-
-	use gnuefi && secureboot_auto_sign
+	use ukify && python_fix_shebang "${ED}"
+	use boot && secureboot_auto_sign
 }
 
 migrate_locale() {
@@ -457,19 +457,14 @@ migrate_locale() {
 }
 
 pkg_preinst() {
-	if ! use split-usr; then
-		local dir
-		for dir in bin sbin lib usr/sbin; do
-			if [[ ! -L ${EROOT}/${dir} ]]; then
-				eerror "'${EROOT}/${dir}' is not a symbolic link."
-				FAIL=1
-			fi
-		done
-		if [[ ${FAIL} ]]; then
-			eerror "Migration to system layout with merged directories must be performed before"
-			eerror "installing ${CATEGORY}/${PN} with USE=\"-split-usr\" to avoid run-time breakage."
-			die "System layout with split directories still used"
-		fi
+	if [[ -e ${EROOT}/etc/sysctl.conf ]]; then
+		# Symlink /etc/sysctl.conf for easy migration.
+		dosym ../../../etc/sysctl.conf /usr/lib/sysctl.d/99-sysctl.conf
+	fi
+
+	if ! use boot && has_version "sys-apps/systemd[gnuefi(-)]"; then
+		ewarn "The 'gnuefi' USE flag has been renamed to 'boot'."
+		ewarn "Make sure to enable the 'boot' USE flag if you use systemd-boot."
 	fi
 }
 
@@ -498,11 +493,26 @@ pkg_postinst() {
 		rm "${EROOT}/var/lib/systemd/timesync"
 	fi
 
+	if [[ -z ${ROOT} && -d /run/systemd/system ]]; then
+		ebegin "Reexecuting system manager (systemd)"
+		systemctl daemon-reexec
+		eend $? || FAIL=1
+	fi
+
 	if [[ ${FAIL} ]]; then
 		eerror "One of the postinst commands failed. Please check the postinst output"
 		eerror "for errors. You may need to clean up your system and/or try installing"
 		eerror "systemd again."
 		eerror
+	fi
+
+	if use boot; then
+		optfeature "automatically installing the kernels in systemd-boot's native layout and updating the bootloader configuration" \
+			"sys-kernel/installkernel[systemd-boot]"
+	fi
+	if use ukify; then
+		optfeature "automatically generating an unified kernel image on each kernel installation" \
+			"sys-kernel/installkernel[ukify]"
 	fi
 }
 
