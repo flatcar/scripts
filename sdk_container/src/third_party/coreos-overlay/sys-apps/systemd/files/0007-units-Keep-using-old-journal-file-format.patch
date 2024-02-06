@@ -1,0 +1,42 @@
+From 44374d98fb65ff5fdbc2a7d07a076b50b8f2b003 Mon Sep 17 00:00:00 2001
+From: Adrian Vladu <avladu@cloudbasesolutions.com>
+Date: Fri, 16 Feb 2024 11:29:04 +0000
+Subject: [PATCH] [PATCH 7/7] units: Keep using old journal file format
+
+Systemd 252 made an incompatible change in journal file format. Temporarily
+force journald to use the old journal format to give logging containers more
+time to adapt to the new format.
+
+Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
+---
+ units/systemd-journald.service.in  | 1 +
+ units/systemd-journald@.service.in | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/units/systemd-journald.service.in b/units/systemd-journald.service.in
+index 37eeabc510..e5030a81bd 100644
+--- a/units/systemd-journald.service.in
++++ b/units/systemd-journald.service.in
+@@ -27,6 +27,7 @@ IgnoreOnIsolate=yes
+ 
+ [Service]
+ DeviceAllow=char-* rw
++Environment=SYSTEMD_JOURNAL_COMPACT=0
+ ExecStart={{LIBEXECDIR}}/systemd-journald
+ FileDescriptorStoreMax=4224
+ IPAddressDeny=any
+diff --git a/units/systemd-journald@.service.in b/units/systemd-journald@.service.in
+index c3bcb08533..8780783cf6 100644
+--- a/units/systemd-journald@.service.in
++++ b/units/systemd-journald@.service.in
+@@ -21,6 +21,7 @@ Conflicts=soft-reboot.target
+ [Service]
+ CapabilityBoundingSet=CAP_SYS_ADMIN CAP_DAC_OVERRIDE CAP_SYS_PTRACE CAP_CHOWN CAP_DAC_READ_SEARCH CAP_FOWNER CAP_SETUID CAP_SETGID CAP_MAC_OVERRIDE
+ DevicePolicy=closed
++Environment=SYSTEMD_JOURNAL_COMPACT=0
+ ExecStart={{LIBEXECDIR}}/systemd-journald %i
+ FileDescriptorStoreMax=4224
+ Group=systemd-journal
+-- 
+2.34.1
+
