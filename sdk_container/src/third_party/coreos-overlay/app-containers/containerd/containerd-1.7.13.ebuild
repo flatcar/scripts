@@ -3,7 +3,7 @@
 
 EAPI=8
 inherit go-module systemd
-GIT_REVISION=1ef721890e131f77b3ed03e3d6a6ddfe53596b06
+GIT_REVISION=99b8088b873ba42b788f29ccd0dc26ebb6952f1e
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -11,7 +11,7 @@ SRC_URI="https://github.com/containerd/containerd/archive/v${PV}.tar.gz -> ${P}.
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
+KEYWORDS="amd64 ~arm arm64 ~ppc64 ~riscv ~x86"
 IUSE="apparmor btrfs device-mapper +cri hardened +seccomp selinux test"
 
 DEPEND="
@@ -22,7 +22,7 @@ DEPEND="
 # recommended version of runc is found in script/setup/runc-version
 RDEPEND="
 	${DEPEND}
-	~app-containers/runc-1.1.9[apparmor?,seccomp?]
+	~app-containers/runc-1.1.12[apparmor?,seccomp?]
 "
 
 BDEPEND="
