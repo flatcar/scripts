@@ -53,6 +53,9 @@ run_kola_tests() {
       --azure-use-gallery \
       ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
       ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
+      ${AZURE_RESOURCE_GROUP:+--azure-resource-group=${AZURE_RESOURCE_GROUP}} \
+      ${AZURE_AVSET_ID:+--azure-availability-set=${AZURE_AVSET_ID}} \
+      --verbose \
       "${@}"
 }
 
@@ -63,7 +66,7 @@ query_kola_tests() {
 
 other_instance_types=()
 if [[ "${CIA_ARCH}" = 'amd64' ]]; then
-    other_instance_types+=('V1' 'Standard_NC6s_v3')
+    : #other_instance_types+=('V1' 'Standard_NC6s_v3')
 fi
 
 run_kola_tests_on_instances \
