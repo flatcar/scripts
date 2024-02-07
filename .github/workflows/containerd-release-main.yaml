@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out scripts
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: scripts
@@ -38,7 +38,7 @@ jobs:
           TARGET_BRANCH: main
         run: scripts/.github/workflows/containerd-apply-patch.sh
       - name: Create pull request for main
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}

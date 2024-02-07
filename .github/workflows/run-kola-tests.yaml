@@ -54,7 +54,7 @@ jobs:
           sudo iptables -I FORWARD -o $DEFAULT_ROUTE_DEVICE -j ACCEPT
           sudo iptables -I FORWARD -i $DEFAULT_ROUTE_DEVICE -j ACCEPT
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: scripts
           fetch-depth: 0
@@ -77,25 +77,25 @@ jobs:
 
       - name: Download binpkgs
         if: ${{ !inputs.workflow_run_id }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.arch }}-binpkgs
 
       - name: Download test update image
         if: ${{ !inputs.workflow_run_id }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.arch }}-test-update
 
       - name: Download generic image
         if: ${{ !inputs.workflow_run_id }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.arch }}-generic-image
 
       - name: Download developer container
         if: ${{ !inputs.workflow_run_id }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.arch }}-devcontainer
 
@@ -222,7 +222,7 @@ jobs:
 
       - name: Upload detailed test logs
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch }}-test-logs-and-results
           path: |
@@ -234,7 +234,7 @@ jobs:
 
       - name: Upload raw TAP files of all runs for later merging
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch }}-raw-tapfiles
           path: |
@@ -261,7 +261,7 @@ jobs:
           sudo ln -s /bin/bash /bin/sh
           sudo apt-get install -y ca-certificates curl gnupg lsb-release git bzip2 jq sqlite3
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: scripts
           fetch-depth: 0
@@ -286,13 +286,13 @@ jobs:
       # This is clunky. Haven't figured out how to re-use matrix.arch here for downloads,
       #  so we download each arch individually.
       - name: Download amd64 tapfiles
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: amd64-raw-tapfiles
           path: scripts/__TAP__/amd64
 
       - name: Download arm64 tapfiles
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: arm64-raw-tapfiles
           path: scripts/__TAP__/arm64

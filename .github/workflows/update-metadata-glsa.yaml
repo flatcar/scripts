@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out scripts
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
       - name: Update GLSA metadata
@@ -22,7 +22,7 @@ jobs:
           todaydate=$(date +%Y-%m-%d)
           echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
       - name: Create pull request for main branch
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           branch: buildbot/monthly-glsa-metadata-updates-${{steps.update-glsa-metadata.outputs.TODAYDATE }}

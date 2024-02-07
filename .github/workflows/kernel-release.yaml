@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out main scripts branch for GitHub workflow scripts only
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: gha
@@ -23,7 +23,7 @@ jobs:
         run: gha/.github/workflows/figure-out-branch.sh '${{ matrix.channel }}'
       - name: Check out work scripts branch for updating
         if: steps.figure-out-branch.outputs.SKIP == 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: work
@@ -58,7 +58,7 @@ jobs:
         run: gha/.github/workflows/kernel-apply-patch.sh
       - name: Create pull request
         if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: work
