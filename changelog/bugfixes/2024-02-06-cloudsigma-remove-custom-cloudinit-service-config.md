@@ -1,0 +1,1 @@
+- Removed custom CloudSigma coreos-cloudinit service configuration since it will be called with the cloudsigma oem anyway. The restart of the service can also cause the serial port to be stuck in an nondeterministic state which breaks future runs.

@@ -1,19 +1,6 @@
 #cloud-config
 
 coreos:
-  units:
-    - name: oem-cloudinit.service
-      command: restart
-      runtime: yes
-      content: |
-        [Unit]
-        Description=Cloudinit from CloudSigma metadata
-
-        [Service]
-        Type=oneshot
-        ExecStartPre=stty -F /dev/ttyS1 raw -echo
-        ExecStart=/usr/bin/coreos-cloudinit --oem=cloudsigma
-
   oem:
     id: cloudsigma
     name: CloudSigma
