@@ -173,7 +173,7 @@ for arch in amd64 arm64; do
             info "Loading ${packages_image_name} into docker"
             for ((cmd_i=1; ; ++cmd_i)); do
                 declare -n cmd=${ext}_${cmd_i}
-                if [[ -n ${cmd:-} ]]; then
+                if [[ -z ${cmd:-} ]]; then
                     fail "Failed to extract ${tb@Q} - no known tool to extract it"
                 fi
                 if ! command -v "${cmd}" >/dev/null; then
@@ -181,7 +181,7 @@ for arch in amd64 arm64; do
                     continue
                 fi
                 info "Using ${cmd@Q} to extract the tarball"
-                ${cmd} -d -c "${tb}" | docker load
+                "${cmd}" -d -c "${tb}" | docker load
                 add_cleanup "docker rmi ${packages_image_name@Q}"
                 unset -n cmd
                 break
