@@ -171,7 +171,7 @@ for arch in amd64 arm64; do
                 fi
             done
             info "Loading ${packages_image_name} into docker"
-            for ((cmd_i=1; :; ++cmd_i)); do
+            for ((cmd_i=1; ; ++cmd_i)); do
                 declare -n cmd=${ext}_${cmd_i}
                 if [[ -n ${cmd:-} ]]; then
                     fail "Failed to extract ${tb@Q} - no known tool to extract it"
