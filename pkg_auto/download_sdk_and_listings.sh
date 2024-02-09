@@ -167,8 +167,10 @@ for arch in amd64 arm64; do
             info "No ${packages_image_name} available in docker, pulling it from bincache"
             for ext in "${exts[@]}"; do
                 tb="${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.${ext}"
-                if [[ ! -e "${tb}" ]]; then
-                    add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/packages-sdk-${arch}.tar.${ext}"
+                if [[ -e ${tb} ]]; then
+                    break;
+                else
+                    add_cleanup "rm -f ${tb@Q}"
                     if download "https://bincache.flatcar-linux.net/containers/${ver_dash}/flatcar-packages-${arch}-${ver_dash}.tar.${ext}" "${tb}"; then
                         break
                     fi
@@ -176,7 +178,7 @@ for arch in amd64 arm64; do
             done
             info "Loading ${packages_image_name} into docker"
             for ((cmd_i=1; ; ++cmd_i)); do
-                declare -n cmd=${ext}_${cmd_i}
+                declare -n cmd=${ext}_cmd_${cmd_i}
                 if [[ -z ${cmd:-} ]]; then
                     fail "Failed to extract ${tb@Q} - no known tool to extract it"
                 fi
