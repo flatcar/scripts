@@ -167,7 +167,7 @@ for arch in amd64 arm64; do
             info "No ${packages_image_name} available in docker, pulling it from bincache"
             for ext in "${exts[@]}"; do
                 tb="${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.${ext}"
-                if [[ -e ${tb} ]]; then
+                if [[ -s ${tb} ]]; then
                     break;
                 else
                     add_cleanup "rm -f ${tb@Q}"
