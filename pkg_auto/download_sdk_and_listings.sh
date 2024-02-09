@@ -165,9 +165,11 @@ for arch in amd64 arm64; do
             info "No ${packages_image_name} available in docker, pulling it from bincache"
             for ext in "${exts[@]}"; do
                 tb="${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.${ext}"
-                add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/packages-sdk-${arch}.tar.${ext}"
-                if download "https://bincache.flatcar-linux.net/containers/${ver_dash}/flatcar-packages-${arch}-${ver_dash}.tar.${ext}" "${tb}"; then
-                    break
+                if [[ ! -e "${tb}" ]]; then
+                    add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/packages-sdk-${arch}.tar.${ext}"
+                    if download "https://bincache.flatcar-linux.net/containers/${ver_dash}/flatcar-packages-${arch}-${ver_dash}.tar.${ext}" "${tb}"; then
+                        break
+                    fi
                 fi
             done
             info "Loading ${packages_image_name} into docker"
