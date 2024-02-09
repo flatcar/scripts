@@ -143,13 +143,16 @@ if [[ -n ${SCRIPTS} ]]; then
     BUILD_ID=$(source "${SCRIPTS}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 fi
 
+ver_plus="${VERSION_ID}${BUILD_ID:++}${BUILD_ID}"
+ver_dash="${VERSION_ID}${BUILD_ID:+-}${BUILD_ID}"
+
 for arch in amd64 arm64; do
     if [[ -z ${SKIP_DOCKER} ]]; then
-        packages_image_name="flatcar-packages-${arch}:${VERSION_ID}-${BUILD_ID}"
+        packages_image_name="flatcar-packages-${arch}:${ver_dash}"
         if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q -x -F "${packages_image_name}"; then
             info "No ${packages_image_name} available in docker, pulling it from bincache"
             add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/packages-sdk-${arch}.tar.zst"
-            download "https://bincache.flatcar-linux.net/containers/${VERSION_ID}-${BUILD_ID}/flatcar-packages-${arch}-${VERSION_ID}-${BUILD_ID}.tar.zst" "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst"
+            download "https://bincache.flatcar-linux.net/containers/${ver_dash}/flatcar-packages-${arch}-${ver_dash}.tar.zst" "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst"
             info "Loading ${packages_image_name} into docker"
             zstd -d -c "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst" | docker load
             add_cleanup "docker rmi ${packages_image_name@Q}"
@@ -164,7 +167,7 @@ for arch in amd64 arm64; do
             info "Downloading ${listing} for ${arch}"
             listing_path="${listing_dir}/${listing}"
             add_cleanup "rm -f ${listing_path@Q}"
-            download "https://bincache.flatcar-linux.net/images/${arch}/${VERSION_ID}+${BUILD_ID}/${listing}" "${listing_path}"
+            download "https://bincache.flatcar-linux.net/images/${arch}/${ver_plus}/${listing}" "${listing_path}"
         done
     fi
 done
