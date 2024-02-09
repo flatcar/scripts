@@ -58,7 +58,7 @@ info "Collecting list of binpkgs to build"
 
 my_board_emerge --pretend --root-deps=rdeps --emptytree ${@}  \
   | grep '\[ebuild' \
-  | sed 's/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/' \
+  | sed 's/^\[[^]]\+\] \([^ :]\+\)*.*/\1/' \
   | while read pkg; do
   if [ -f "/build/${FLAGS_board}/var/lib/portage/pkgs/${pkg}.tbz2" ] ; then
 		continue
