@@ -124,6 +124,7 @@ function download() {
     url="${1}"; shift
     output="${1}"; shift
 
+    info "Downloading ${url}"
     curl \
         --fail \
         --show-error \
@@ -146,16 +147,45 @@ fi
 ver_plus="${VERSION_ID}${BUILD_ID:++}${BUILD_ID}"
 ver_dash="${VERSION_ID}${BUILD_ID:+-}${BUILD_ID}"
 
+exts=(zst bz2 gz)
+
+zst_cmd_1=zstd
+
+bz2_cmd_1=lbunzip2
+bz2_cmd_2=pbunzip2
+bz2_cmd_3=bunzip2
+
+gz_cmd_1=unpigz
+gz_cmd_2=gunzip
+
 for arch in amd64 arm64; do
     if [[ -z ${SKIP_DOCKER} ]]; then
         packages_image_name="flatcar-packages-${arch}:${ver_dash}"
         if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q -x -F "${packages_image_name}"; then
             info "No ${packages_image_name} available in docker, pulling it from bincache"
-            add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/packages-sdk-${arch}.tar.zst"
-            download "https://bincache.flatcar-linux.net/containers/${ver_dash}/flatcar-packages-${arch}-${ver_dash}.tar.zst" "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst"
+            for ext in "${exts[@]}"; do
+                tb="${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.${ext}"
+                add_cleanup "rm -f ${DOWNLOADS_DIR@Q}/packages-sdk-${arch}.tar.${ext}"
+                if download "https://bincache.flatcar-linux.net/containers/${ver_dash}/flatcar-packages-${arch}-${ver_dash}.tar.${ext}" "${tb}"; then
+                    break
+                fi
+            done
             info "Loading ${packages_image_name} into docker"
-            zstd -d -c "${DOWNLOADS_DIR}/packages-sdk-${arch}.tar.zst" | docker load
-            add_cleanup "docker rmi ${packages_image_name@Q}"
+            for ((cmd_i=1; :; ++cmd_i)); do
+                declare -n cmd=${ext}_${cmd_i}
+                if [[ -n ${cmd:-} ]]; then
+                    fail "Failed to extract ${tb@Q} - no known tool to extract it"
+                fi
+                if ! command -v "${cmd}" >/dev/null; then
+                    info "${cmd@Q} is not available"
+                    continue
+                fi
+                info "Using ${cmd@Q} to extract the tarball"
+                ${cmd} -d -c "${tb}" | docker load
+                add_cleanup "docker rmi ${packages_image_name@Q}"
+                unset -n cmd
+                break
+            done
         fi
     fi
 
