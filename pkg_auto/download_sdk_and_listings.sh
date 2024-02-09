@@ -116,8 +116,10 @@ else
     setup_cleanups ignore
 fi
 
-add_cleanup "rmdir ${DOWNLOADS_DIR@Q}"
-mkdir "${DOWNLOADS_DIR}"
+if [[ ! -d "${DOWNLOADS_DIR}" ]]; then
+    add_cleanup "rmdir ${DOWNLOADS_DIR@Q}"
+    mkdir "${DOWNLOADS_DIR}"
+fi
 
 function download() {
     local url output
