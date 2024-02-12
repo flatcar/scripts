@@ -314,6 +314,9 @@ src_configure() {
 
 			if use hardened ; then
 				myconf+=(
+					# TOOD: breaks glibc test suite
+					#--enable-error-execstack=yes
+					#--enable-error-rwx-segments=yes
 					--enable-default-execstack=no
 				)
 			fi
@@ -466,6 +469,8 @@ src_install() {
 
 	# Remove shared info pages
 	rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
+
+	docompress "${DATAPATH}"/{info,man}
 
 	# Trim all empty dirs
 	find "${ED}" -depth -type d -exec rmdir {} + 2>/dev/null
