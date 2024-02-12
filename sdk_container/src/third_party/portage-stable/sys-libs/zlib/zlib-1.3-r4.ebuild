@@ -6,7 +6,7 @@ EAPI=8
 # Worth keeping an eye on 'develop' branch upstream for possible backports.
 AUTOTOOLS_AUTO_DEPEND="no"
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/madler.asc
-inherit autotools edo multilib-minimal flag-o-matic usr-ldscript verify-sig
+inherit autotools edo multilib-minimal flag-o-matic verify-sig
 
 DESCRIPTION="Standard (de)compression library"
 HOMEPAGE="https://zlib.net/"
@@ -23,7 +23,7 @@ SRC_URI="
 
 LICENSE="ZLIB"
 SLOT="0/1" # subslot = SONAME
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="minizip static-libs"
 
 RDEPEND="!sys-libs/zlib-ng[compat]"
@@ -145,7 +145,6 @@ multilib_src_install() {
 
 		*)
 			emake install DESTDIR="${D}" LDCONFIG=:
-			gen_usr_ldscript -a z
 
 			;;
 	esac
