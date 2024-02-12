@@ -1,0 +1,1 @@
+- Added a workaround for old airgapped/proxied update-engine clients to be able to update to this release ([Flatcar#1332](https://github.com/flatcar/Flatcar/issues/1332), [update_engine#38](https://github.com/flatcar/update_engine/pull/38))
