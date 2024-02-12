@@ -42,7 +42,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc ppc64 ~riscv x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -154,7 +154,7 @@ ALL_DEPEND="
 	dev-libs/glib:2[static-libs(+)]
 	sys-libs/zlib[static-libs(+)]
 	python? ( ${PYTHON_DEPS} )
-	systemtap? ( dev-util/systemtap )
+	systemtap? ( dev-debug/systemtap )
 	xattr? ( sys-apps/attr[static-libs(+)] )
 "
 
