@@ -6,7 +6,7 @@
 
 EAPI=8
 
-inherit flag-o-matic libtool multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript
+inherit flag-o-matic libtool multilib multilib-minimal preserve-libs toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	# Per tukaani.org, git.tukaani.org is a mirror of github and
@@ -25,17 +25,17 @@ else
 
 	MY_P="${PN/-utils}-${PV/_}"
 	SRC_URI="
-		https://github.com/tukaani-project/xz/releases/download/v${PV}/${MY_P}.tar.gz
+		https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz
 		mirror://sourceforge/lzmautils/${MY_P}.tar.gz
 		https://tukaani.org/xz/${MY_P}.tar.gz
 		verify-sig? (
-			https://github.com/tukaani-project/xz/releases/download/v${PV}/${MY_P}.tar.gz.sig
+			https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz.sig
 			https://tukaani.org/xz/${MY_P}.tar.gz.sig
 		)
 	"
 
 	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 
 	S="${WORKDIR}/${MY_P}"
@@ -121,12 +121,6 @@ multilib_src_compile() {
 		emake clean
 		emake CFLAGS="${CFLAGS} ${pgo_use_flags}"
 	fi
-}
-
-multilib_src_install() {
-	default
-
-	gen_usr_ldscript -a lzma
 }
 
 multilib_src_install_all() {
