@@ -43,28 +43,33 @@ function _garbage_collect_releases_impl() {
     source ci-automation/ci_automation_common.sh
     local sshcmd="$(gen_sshcmd)"
 
-    local keep_versions
-    mapfile -t keep_versions < <(unset POSIXLY_CORRECT; \
+    local keep="$( 
+        # For some reasons this is set to the empty string in some environments and it makes gawk
+        #  behave like POSIX awk (i.e. no 'gensub').
+        unset POSIXLY_CORRECT
         curl -s "${RELEASES_JSON_FEED}" \
-        | jq -r 'keys_unsorted | .[] | match("[0-9]+\\.[0-9]+\\.[0-9]+") | .string' \
-        | sort -Vr \
-        | awk -v keep="${keep_per_chan}" -v lts="${keep_lts_releases}" '
-            {
-                version = $1
-                chan_num = gensub("[0-9]+\\.([0-9]+)\\.[0-9]+","\\1","g", version) + 0
-                major = gensub("([0-9]+)\\.[0-9]+\\.[0-9]+","\\1","g", version) + 0
+            | jq -r 'keys_unsorted | .[] | match("[0-9]+\\.[0-9]+\\.[0-9]+") | .string' \
+            | sort -Vr \
+            | awk -v keep="${keep_per_chan}" -v lts="${keep_lts_releases}" '
+                {
+                    version = $1
+                    chan_num = gensub("[0-9]+\\.([0-9]+)\\.[0-9]+","\\1","g", version) + 0
+                    major = gensub("([0-9]+)\\.[0-9]+\\.[0-9]+","\\1","g", version) + 0
 
-                if (chan_num <= 2) {
-                    if (chan_count[chan_num] < keep)
-                        print version
-                    chan_count[chan_num] = chan_count[chan_num] + 1
-                } else {
-                    if (    (chan_count["lts"][major] < keep) \
-                         && (length(chan_count["lts"]) <= lts) )
-                        print version
-                    chan_count["lts"][major] = chan_count["lts"][major] + 1
-                }
-            } ')
+                    if (chan_num <= 2) {
+                        if (chan_count[chan_num] < keep)
+                            print version
+                        chan_count[chan_num] = chan_count[chan_num] + 1
+                    } else {
+                        if (    (chan_count["lts"][major] < keep) \
+                             && (length(chan_count["lts"]) <= lts) )
+                            print version
+                        chan_count["lts"][major] = chan_count["lts"][major] + 1
+                    }
+                } '
+    )"
+
+    mapfile -t keep_versions <<<"${keep}"
 
     echo
     echo "######## The following version(s) will be kept ########"
@@ -115,8 +120,7 @@ function _garbage_collect_releases_impl() {
                     minor = gensub("[0-9]+\\.([0-9]+)\\.[0-9]+","\\1","g") + 0
                     patch = gensub("[0-9]+\\.[0-9]+\\.([0-9]+)","\\1","g") + 0
 
-                    if (   ((path == "sdk/amd64") || (path == "containers")) \
-                        && (vmajor == major) && (vminor == 0) && (vpatch == 0) ) {
+                    if ( (path == "sdk/amd64") && (vmajor == major) ) {
                         print ""
                         print "## Skipping " version " in " path " because it contains the SDK for release " $0 " in keep list."
                         ret = 0
