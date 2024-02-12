@@ -4,11 +4,13 @@
 EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
-PATCH_GCC_VER="14.0.0"
-MUSL_GCC_VER="14.0.0"
+PATCH_GCC_VER="11.4.0"
+PATCH_VER="12"
+MUSL_VER="2"
+MUSL_GCC_VER="11.4.0"
 
 if [[ ${PV} == *.9999 ]] ; then
-	MY_PV_2=$(ver_cut 3)
+	MY_PV_2=$(ver_cut 2)
 	MY_PV_3=1
 	if [[ ${MY_PV_2} == 0 ]] ; then
 		MY_PV_2=0
@@ -32,7 +34,7 @@ inherit toolchain
 
 if tc_is_live ; then
 	# Needs to be after inherit (for now?), bug #830908
-	EGIT_BRANCH=master
+	EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
 	# Don't keyword live ebuilds
 	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
