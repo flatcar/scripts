@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 The Flatcar Maintainers.
+# Copyright (c) 2024 The Flatcar Maintainers.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -10,7 +10,7 @@
 #
 #  OPTIONAL INPUT
 #  - Number releases to keep per channel. Defaults to 10.
-#  - Number of LTS channels to keep. Defaults to 3 (i.e. the current and the previous (deprecated) LTS).
+#  - Number of LTS channels to keep. Defaults to 2 (i.e. the current and the previous (deprecated) LTS).
 #  - DRY_RUN (Env variable). Set to "y" to just list what would be done but not
 #            actually purge anything.
 
@@ -46,8 +46,7 @@ function _garbage_collect_releases_impl() {
     local keep_versions
     mapfile -t keep_versions < <(unset POSIXLY_CORRECT; \
         curl -s "${RELEASES_JSON_FEED}" \
-        | jq '[keys]' \
-        | sed -n 's/.*"\([0-9]\+\.[0-9]\+\.[0-9]\+\)".*/\1/p' \
+        | jq -r 'keys_unsorted | .[] | match("[0-9]+\\.[0-9]+\\.[0-9]+") | .string' \
         | sort -Vr \
         | awk -v keep="${keep_per_chan}" -v lts="${keep_lts_releases}" '
             {
