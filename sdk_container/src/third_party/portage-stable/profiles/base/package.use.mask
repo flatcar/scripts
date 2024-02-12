@@ -6,6 +6,21 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Michael Orlitzky <mjo@gentoo.org> (2024-01-24)
+# A missing "-o pipefail" in the gap-pkg eclass caused me to
+# miss a few crashes in dev-gap packages when GAP itself is
+# built with kernel debugging enabled. These may not be the
+# only problems but it's hard to tell because they cascade:
+#
+#  * https://github.com/frankluebeck/EDIM/issues/24
+#  * https://github.com/gap-packages/io/issues/122
+#
+sci-mathematics/gap debug
+
+# Alfredo Tupone <tupone@gentoo.org> (2024-01-20)
+# Not working, bug #890756
+sci-mathematics/why3-for-spark doc
+
 # Arthur Zamarin <arthurzam@gentoo.org> (2023-12-22)
 # Requires sys-block/hpacucli
 net-analyzer/nagios-plugin-check_raid hpa
@@ -15,11 +30,6 @@ net-analyzer/nagios-plugin-check_raid hpa
 <dev-lang/ghc-9.4 llvm
 media-gfx/openvdb ax
 sys-devel/sparse llvm
-
-# Sam James <sam@gentoo.org> (2023-12-18)
-# libgrust build is broken for multilib
-# https://gcc.gnu.org/PR113056
->=sys-devel/gcc-14.0.0_pre20231217 rust
 
 # Takuya Wakazono <pastalian46@gmail.com> (2023-11-21)
 # app-crypt/rpm-sequoia is not keyworded on most architectures.
@@ -70,13 +80,6 @@ net-voip/yate dahdi
 # Matt Turner <mattst88@gentoo.org> (2023-09-14)
 # Not ported to libsoup:3.0
 app-office/abiword collab
-
-# WANG Xuerui <xen0n@gentoo.org> (2023-08-28)
-# Breaks multiple high-profile packages depending on outdated proc-macro2 when
-# USE=nightly and using an affected Rust version; keep until revdep problems
-# are gone.
-# See https://github.com/rust-lang/rust/issues/113152
->=dev-lang/rust-1.72.0 nightly
 
 # Michael Orlitzky <mjo@gentoo.org> (2023-08-23)
 # Polymake itself is masked for removal (bug 909570).

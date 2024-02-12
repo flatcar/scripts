@@ -1,6 +1,22 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ionen Wolkens <ionen@gentoo.org> (2024-02-07)
+# nvidia-powerd is only available for arm64 in 550+
+<x11-drivers/nvidia-drivers-550 powerd
+
+# Alexander Tsoy <alexander@tsoy.me> (2024-01-31)
+# Supports 64-bit NEON
+media-libs/zita-resampler -cpu_flags_arm_neon
+
+# Ionen Wolkens <ionen@gentoo.org> (2024-01-27)
+# dev-python/PyQt6 is keyworded here
+dev-python/QtPy -pyqt6
+
+# Michal Privoznik <michal.privoznik@gmail.com> (2024-01-18)
+# No sys-block/nbdkit on arm, yet
+app-emulation/libvirt nbd
+
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-13)
 # Unmask only where grub is keyworded
 sys-kernel/installkernel -grub
@@ -171,7 +187,7 @@ media-sound/bluez-alsa man
 # bug #729720
 sys-apps/systemd -boot -gnuefi -ukify
 sys-apps/systemd-utils -boot -ukify
-sys-kernel/installkernel -ukify
+sys-kernel/installkernel -systemd-boot -ukify
 
 # Joonas Niilola <juippis@gentoo.org> (2021-01-15)
 # Dependency not keyworded on this arch.

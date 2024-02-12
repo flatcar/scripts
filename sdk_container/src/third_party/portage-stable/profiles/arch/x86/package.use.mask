@@ -1,6 +1,16 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-02-09)
+# Refind is only available on a subset of arches
+sys-kernel/installkernel -refind
+
+# Marek Szuba <marecki@gentoo.org> (2024-02-01)
+# dev-libs/isa-l is seriously broken on x86 (Bugs #922193, #923425),
+# and upstream seems to have little to no interest in really
+# supporting this arch.
+net-libs/xrootd xrdec
+
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-13)
 # Unmask only where grub is keyworded
 sys-kernel/installkernel -grub
@@ -386,7 +396,7 @@ app-emulation/libvirt xen
 # sys-boot/gnu-efi is not supported on all archs.
 sys-apps/systemd -boot -gnuefi -ukify
 sys-apps/systemd-utils -boot -ukify
-sys-kernel/installkernel -ukify
+sys-kernel/installkernel -systemd-boot -ukify
 
 # Ben de Groot <yngwin@gentoo.org> (2015-03-15)
 # media-libs/libbdplus is keyworded on x86, so unmask the useflag
