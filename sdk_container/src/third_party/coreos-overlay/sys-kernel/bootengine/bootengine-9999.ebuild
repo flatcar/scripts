@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="10341079dde4bf7f8fbdb8a01a73b94da355c1ba" # flatcar-master
+	CROS_WORKON_COMMIT="0b32311f0067d6747eed12e8dd858ad4a6986974" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -35,6 +35,7 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/30disk-uuid/disk-uuid.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-generator \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup.sh \
+		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup-pre.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-kargs-helper \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
