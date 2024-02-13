@@ -422,7 +422,7 @@ function process_profile_updates_directory() {
     local -a fields
     local -A from_to_f=()
     mvm_declare ppud_to_from_set_mvm mvm_mvc_set
-    for bf in "${ordered_names[@]}"; do
+    for bf in "${ppud_ordered_names[@]}"; do
         # coreos-overlay updates may overwrite updates from
         # portage-stable, but only from the file of the same name
         ps_f=${NEW_PORTAGE_STABLE}/profiles/updates/${bf}
