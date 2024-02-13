@@ -86,6 +86,11 @@ function fail() {
     exit 1
 }
 
+function fail_lines() {
+    info_lines "${@}" >&2
+    exit 1
+}
+
 function yell() {
     echo
     echo '!!!!!!!!!!!!!!!!!!'

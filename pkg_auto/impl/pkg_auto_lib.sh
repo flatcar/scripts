@@ -407,98 +407,96 @@ function append_to_globals() {
     lines_to_file "${globals_file}" "${@}"
 }
 
-# TODO: docs
-function save_rename_maps_simple() {
-    # args are old to new name pairs
-    declare -A srms_old_to_new_map srms_new_to_old_map
-    srms_old_to_new_map=()
-    srms_new_to_old_map=()
-
-    local old new
-    while [[ $# -gt 1 ]]; do
-        old=${1}; shift
-        new=${1}; shift
-        # shellcheck disable=SC2034 # used by name below
-        srms_old_to_new_map["${old}"]=${new}
-        # shellcheck disable=SC2034 # used by name below
-        srms_new_to_old_map["${new}"]=${old}
-    done
-    if [[ $# -gt 0 ]]; then
-        fail 'odd number of parameters for saving rename maps, expected pairs only'
-    fi
-    save_rename_maps srms_old_to_new_map srms_new_to_old_map
-}
-
 # details
 
-function save_rename_maps() {
-    local old_to_new_map_var_name new_to_old_map_var_name
-    old_to_new_map_var_name=${1}; shift
-    new_to_old_map_var_name=${1}; shift
-    local -n old_to_new_map_ref="${old_to_new_map_var_name}"
-    local -n new_to_old_map_ref="${new_to_old_map_var_name}"
-
-    if [[ ${#old_to_new_map_ref[@]} -eq 0 ]] && [[ ${#new_to_old_map_ref[@]} -eq 0 ]]; then
-        # nothing to save
-        return 0
-    fi
-
+function process_profile_updates_directory() {
+    local from_to_map_var_name=${1}; shift
+    local to_from_map_var_name=${1}; shift
     # shellcheck disable=SC1090 # generated file
     source "${globals_file}"
 
-    local item mapped other_mapped
-    for item in "${!old_to_new_map_ref[@]}"; do
-        mapped=${old_to_new_map_ref["${item}"]}
-        other_mapped=${new_to_old_map_ref["${mapped}"]:-}
-        if [[ -z "${other_mapped}" ]]; then
-            fail "rename maps inconsistency, missing '${mapped}' from new to old map"
-        fi
-    done
-    for item in "${!new_to_old_map_ref[@]}"; do
-        mapped=${new_to_old_map_ref["${item}"]}
-        other_mapped=${old_to_new_map_ref["${mapped}"]:-}
-        if [[ -z "${other_mapped}" ]]; then
-            fail "rename maps inconsistency, missing '${mapped}' from new to old map"
-        fi
+    local -A names=()
+    local f
+
+    for f in "${NEW_PORTAGE_STABLE}/profiles/updates/"* "${NEW_COREOS_OVERLAY}/profiles/updates/"*; do
+        names["${f##*/}"]=x
     done
 
-    local map_file
-    # shellcheck disable=SC2153 # AUX_DIR is not a misspelling, comes from globals
-    map_file="${AUX_DIR}/rename-map"
-    add_cleanup "rm -f ${map_file@Q}"
-    {
-        for item in "${!old_to_new_map_ref[@]}"; do
-            mapped=${old_to_new_map_ref["${item}"]}
-            printf '%s:%s\n' "${item}" "${mapped}"
+    local -a ordered_names
+
+    # updates directory has files like Q1-2018, Q1-2023, Q2-2019 and
+    # so on. Need to sort them by year, then by quarter.
+    mapfile -t ordered_names < <(printf '%s\n' "${names[@]}" | sort --field-separator=- --key=2n --key=1n)
+
+    local bf ps_f co_f
+    local -a fields
+    local -A from_to_f=()
+
+    mvm_declare ppud_to_from_set_mvm mvm_mvc_set
+
+    local old new pkg
+    for bf in "${ordered_names[@]}"; do
+        # coreos-overlay updates may overwrite updates from
+        # portage-stable, but only from the file of the same name
+        ps_f=${NEW_PORTAGE_STABLE}/profiles/updates/${bf}
+        co_f=${NEW_COREOS_OVERLAY}/profiles/updates/${bf}
+        for f in "${ps_f}" "${co_f}"; do
+            while read -r line; do
+                if [[ ${line} != 'move '* ]]; then
+                    # other possibility is "slotmove" - we don't care
+                    # about those.
+                    continue
+                fi
+                mapfile -t fields <<<"${line// /$'\n'}"
+                if [[ ${#fields[@]} -ne 3 ]]; then
+                    fail_lines \
+                        "Malformed line ${line@Q} in updates file ${f@Q}." \
+                        "The line should have 3 fields, has ${#fields[*]}."
+                fi
+                from_to_f["${fields[1]}"]=${fields[2]}
+            done <"${f}"
         done
-    } >"${map_file}"
+        for old in "${!from_to_f[@]}"; do
+            new=${from_to_f["${old}"]}
+            update_rename_maps "${from_to_map_var_name}" ppud_to_from_set_mvm "${old}" "${new}"
+        done
+    done
+
+    mvm_unset ppud_to_from_set_mvm
 }
 
-function load_rename_maps() {
-    local old_to_new_map_var_name new_to_old_map_var_name
-    old_to_new_map_var_name=${1}; shift
-    new_to_old_map_var_name=${1}; shift
-    local -n old_to_new_map_ref="${old_to_new_map_var_name}"
-    local -n new_to_old_map_ref="${new_to_old_map_var_name}"
+function update_rename_maps() {
+    local ft_map_var_name=${1}; shift
+    local tf_set_mvm_var_name=${1}; shift
+    local old_name=${1}; shift
+    local new_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
-    source "${WORKDIR}/globals"
+    local -n ft_map=${ft_map_var_name}
+    local prev_new_name=${ft_map["${old_name}"]:-}
 
-    old_to_new_map_ref=()
-    new_to_old_map_ref=()
-
-    if [[ ! -e "${AUX_DIR}/rename-map" ]]; then
-        # no rename maps, maybe there was just a simple sync
-        return 0
+    if [[ -n ${prev_new_name} ]] && [[ ${prev_new_name} != ${new_name} ]]; then
+        fail_lines \
+            "Invalid package rename from ${old_name@Q} to ${new_name@Q}." \
+            "There was already a rename from ${old_name@Q} to ${prev_new_name@Q}."
     fi
 
-    local old new
-    while read -r line; do
-        old=${line%%:*}
-        new=${line##*:}
-        old_to_new_map_ref["${old}"]=${new}
-        new_to_old_map_ref["${new}"]=${old}
-    done <"${AUX_DIR}/rename-map"
+    local -a new_set=()
+
+    local utrm_set_var_name
+    mvm_get "${tf_set_mvm_var_name}" "${old_name}" utrm_set_var_name
+    if [[ -n ${utrm_set_var_name} ]]; then
+        local -n old_set=${utrm_set_var_name}
+        new_set+=( "${!old_set[@]}" )
+        unset -n old_set
+    fi
+    new_set+=( "${old_name}" )
+    mvm_add "${tf_set_mvm_var_name}" "${new_name}" "${new_set[@]}"
+    local old
+
+    for old in "${new_set[@]}"; do
+        ft_map["${old}"]=${new_name}
+    done
+    unset -n ft_map
 }
 
 function setup_worktree() {
@@ -611,10 +609,16 @@ function extend_globals_file() {
     old_portage_stable="${old_state}/${portage_stable_suffix}"
     new_portage_stable="${new_state}/${portage_stable_suffix}"
 
+    local coreos_overlay_suffix old_coreos_overlay new_coreos_overlay
+    coreos_overlay_suffix='sdk_container/src/third_party/coreos-overlay'
+    old_coreos_overlay="${old_state}/${coreos_overlay_suffix}"
+    new_coreos_overlay="${new_state}/${coreos_overlay_suffix}"
+
     cat <<EOF >>"${globals_file}"
 local SCRIPTS OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
 local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
 local NEW_STATE_PACKAGES_LIST AUX_DIR
+local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
 
 SCRIPTS=${scripts@Q}
 OLD_STATE=${old_state@Q}
@@ -625,6 +629,10 @@ PORTAGE_STABLE_SUFFIX=${portage_stable_suffix@Q}
 OLD_PORTAGE_STABLE=${old_portage_stable@Q}
 NEW_PORTAGE_STABLE=${new_portage_stable@Q}
 REPORTS_DIR=${reports_dir@Q}
+
+COREOS_OVERLAY_SUFFIX=${coreos_overlay_suffix@Q}
+OLD_COREOS_OVERLAY=${old_coreos_overlay@Q}
+NEW_COREOS_OVERLAY=${new_coreos_overlay@Q}
 
 NEW_STATE_PACKAGES_LIST="\${NEW_STATE}/.github/workflows/portage-stable-packages-list"
 
@@ -857,72 +865,69 @@ function handle_missing_in_gentoo() {
     local gentoo
     gentoo=${1}; shift
 
-    local -A hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
-    hmig_renamed_old_to_new_map=()
-    hmig_renamed_new_to_old_map=()
-
     local -a hmig_missing_in_gentoo
     hmig_missing_in_gentoo=()
     load_missing_in_gentoo hmig_missing_in_gentoo
 
+    if [[ ${#hmig_missing_in_gentoo[@]} -eq 0 ]]; then
+        return 0;
+    fi
+
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    if [[ ${#hmig_missing_in_gentoo[@]} -gt 0 ]]; then
-        local -a renamed_from renamed_to
-        renamed_from=()
-        renamed_to=()
+    local -A hmig_rename_map=()
+    process_profile_updates_directory hmig_rename_map
 
-        local -x "${GIT_ENV_VARS[@]}"
-        setup_git_env
+    local -a renamed_from renamed_to
+    renamed_from=()
+    renamed_to=()
 
-        local missing new_name old_basename new_basename ebuild ebuild_version_ext new_ebuild_filename
-        for missing in "${hmig_missing_in_gentoo[@]}"; do
-            new_name=$(xgrep --recursive --regexp="^move ${missing} " "${NEW_PORTAGE_STABLE}/profiles/updates/" | cut -d' ' -f3)
-            if [[ -z "${new_name}" ]]; then
-                manual "- package ${missing} is gone from Gentoo and no rename found"
-                continue
-            fi
-            mkdir -p "${NEW_PORTAGE_STABLE}/${new_name%/*}"
-            git -C "${NEW_STATE}" mv "${NEW_PORTAGE_STABLE}/${missing}" "${NEW_PORTAGE_STABLE}/${new_name}"
-            basename_out "${missing}" old_basename
-            basename_out "${new_name}" new_basename
-            if [[ "${old_basename}" != "${new_basename}" ]]; then
-                for ebuild in "${NEW_PORTAGE_STABLE}/${new_name}/${old_basename}-"*'.ebuild'; do
-                    # 1.2.3-r4.ebuild
-                    ebuild_version_ext=${ebuild##*/"${old_basename}-"}
-                    new_ebuild_filename="${new_basename}-${ebuild_version_ext}"
-                    git -C "${NEW_STATE}" mv "${ebuild}" "${NEW_PORTAGE_STABLE}/${new_name}/${new_ebuild_filename}"
-                done
-            fi
-            git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
-            env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${new_name}"
-            renamed_from+=("${missing}")
-            renamed_to+=("${new_name}")
-            # shellcheck disable=SC2034 # used by name at the bottom of the function
-            hmig_renamed_new_to_old_map["${new_name}"]="${missing}"
-            # shellcheck disable=SC2034 # used by name at the bottom of the function
-            hmig_renamed_old_to_new_map["${missing}"]="${new_name}"
-        done
+    local -x "${GIT_ENV_VARS[@]}"
+    setup_git_env
 
-        local dir renamed_re
-        if [[ ${#renamed_from[@]} -gt 0 ]]; then
-            dir="${WORKDIR}/missing_in_gentoo"
-            add_cleanup "rmdir ${dir@Q}"
-            mkdir "${dir}"
-            join_by renamed_re '\|' "${renamed_from[@]}"
-            add_cleanup "rm -f ${dir@Q}/pkg_list"
-            {
-                xgrep --invert-match --line-regexp --regexp="${renamed_re}" "${NEW_STATE_PACKAGES_LIST}"
-                printf '%s\n' "${renamed_to[@]}"
-            } >"${dir}/pkg_list"
-            "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
-            git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
-            git -C "${NEW_STATE}" commit -m '.github: Update package names in automation'
+    local missing new_name hmig_old_basename hmig_new_basename ebuild ebuild_version_ext new_ebuild_filename
+    for missing in "${hmig_missing_in_gentoo[@]}"; do
+        new_name=${hmig_rename_map["${missing}"]:-}
+        if [[ -z "${new_name}" ]]; then
+            manual "- package ${missing} is gone from Gentoo and no rename found"
+            continue
         fi
+        mkdir -p "${NEW_PORTAGE_STABLE}/${new_name%/*}"
+        git -C "${NEW_STATE}" mv "${NEW_PORTAGE_STABLE}/${missing}" "${NEW_PORTAGE_STABLE}/${new_name}"
+        basename_out "${missing}" hmig_old_basename
+        basename_out "${new_name}" hmig_new_basename
+        if [[ "${hmig_old_basename}" != "${hmig_new_basename}" ]]; then
+            for ebuild in "${NEW_PORTAGE_STABLE}/${new_name}/${hmig_old_basename}-"*'.ebuild'; do
+                # 1.2.3-r4.ebuild
+                ebuild_version_ext=${ebuild##*/"${hmig_old_basename}-"}
+                new_ebuild_filename="${hmig_new_basename}-${ebuild_version_ext}"
+                git -C "${NEW_STATE}" mv "${ebuild}" "${NEW_PORTAGE_STABLE}/${new_name}/${new_ebuild_filename}"
+            done
+        fi
+        git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
+        env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${new_name}"
+        renamed_from+=("${missing}")
+        renamed_to+=("${new_name}")
+    done
+
+    if [[ ${#renamed_from[@]} -eq 0 ]]; then
+        return 0
     fi
 
-    save_rename_maps hmig_renamed_old_to_new_map hmig_renamed_new_to_old_map
+    local dir renamed_re
+    dir="${WORKDIR}/missing_in_gentoo"
+    add_cleanup "rmdir ${dir@Q}"
+    mkdir "${dir}"
+    join_by renamed_re '\|' "${renamed_from[@]}"
+    add_cleanup "rm -f ${dir@Q}/pkg_list"
+    {
+        xgrep --invert-match --line-regexp --regexp="${renamed_re}" "${NEW_STATE_PACKAGES_LIST}"
+        printf '%s\n' "${renamed_to[@]}"
+    } >"${dir}/pkg_list"
+    "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
+    git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
+    git -C "${NEW_STATE}" commit -m '.github: Update package names in automation'
 }
 
 function process_listings() {
@@ -1600,13 +1605,10 @@ function read_package_sources() {
 }
 
 function handle_package_changes() {
-    local renamed_old_to_new_map_var_name renamed_new_to_old_map_var_name pkg_to_tags_mvm_var_name
+    local renamed_old_to_new_map_var_name pkg_to_tags_mvm_var_name
     renamed_old_to_new_map_var_name=${1}; shift
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n renamed_old_to_new_map_ref="${renamed_old_to_new_map_var_name}"
-    renamed_new_to_old_map_var_name=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
-    local -n renamed_new_to_old_map_ref="${renamed_new_to_old_map_var_name}"
     pkg_to_tags_mvm_var_name=${1}; shift
 
     # shellcheck disable=SC1091 # generated file
@@ -1637,7 +1639,13 @@ function handle_package_changes() {
     old_pkgs=()
     new_pkgs=()
 
+    local -A all_new_pkgs_set=()
     local pkg other
+    for pkg in "${!renamed_old_to_new_map_ref[@]}"; do
+        other=${renamed_old_to_new_map_ref["${pkg}"]:-}
+        all_new_pkgs_set["${other}"]=x
+    done
+
     for pkg in "${hpc_all_pkgs[@]}"; do
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
         if [[ -n "${other}" ]]; then
@@ -1645,8 +1653,7 @@ function handle_package_changes() {
             new_pkgs+=("${other}")
             continue
         fi
-        other=${renamed_new_to_old_map_ref["${pkg}"]:-}
-        if [[ -n "${other}" ]]; then
+        if [[ -n ${all_new_pkgs_set["${pkg}"]:-} ]]; then
             continue
         fi
         old_pkgs+=("${pkg}")
@@ -2344,14 +2351,10 @@ function handle_gentoo_sync() {
     mvm_declare hgs_pkg_to_tags_mvm
     process_listings hgs_pkg_to_tags_mvm
 
-    local -A hgs_renames_old_to_new_map hgs_renames_new_to_old_map
-    # shellcheck disable=SC2034 # it's passed by name
-    hgs_renames_old_to_new_map=()
-    # shellcheck disable=SC2034 # it's passed by name
-    hgs_renames_new_to_old_map=()
-    load_rename_maps hgs_renames_old_to_new_map hgs_renames_new_to_old_map
+    local -A hgs_renames_old_to_new_map=()
+    process_profile_updates_directory hgs_renames_old_to_new_map
 
-    handle_package_changes hgs_renames_old_to_new_map hgs_renames_new_to_old_map hgs_pkg_to_tags_mvm
+    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm
 
     mvm_unset hgs_pkg_to_tags_mvm
 
