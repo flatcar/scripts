@@ -1,0 +1,1 @@
+- glibc ([CVE-2023-5156](https://nvd.nist.gov/vuln/detail/CVE-2023-5156), [CVE-2023-6246](https://nvd.nist.gov/vuln/detail/CVE-2023-6246), [CVE-2023-6779](https://nvd.nist.gov/vuln/detail/CVE-2023-6779), [CVE-2023-6780](https://nvd.nist.gov/vuln/detail/CVE-2023-6780))
