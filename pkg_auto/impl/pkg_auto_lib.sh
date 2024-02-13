@@ -411,8 +411,9 @@ function append_to_globals() {
 
 function process_profile_updates_directory() {
     local from_to_map_var_name=${1}; shift
-    # shellcheck disable=SC1090 # generated file
-    source "${globals_file}"
+
+    # shellcheck disable=SC1091 # generated file
+    source "${WORKDIR}/globals"
 
     local -A names=()
     local f
