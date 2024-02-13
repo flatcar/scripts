@@ -428,6 +428,9 @@ function process_profile_updates_directory() {
         ps_f=${NEW_PORTAGE_STABLE}/profiles/updates/${bf}
         co_f=${NEW_COREOS_OVERLAY}/profiles/updates/${bf}
         for f in "${ps_f}" "${co_f}"; do
+            if [[ ! -f ${f} ]]; then
+                continue
+            fi
             while read -r line; do
                 if [[ ${line} != 'move '* ]]; then
                     # other possibility is "slotmove" - we don't care
