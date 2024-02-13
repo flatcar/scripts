@@ -412,29 +412,16 @@ function append_to_globals() {
 function process_profile_updates_directory() {
     local from_to_map_var_name=${1}; shift
 
+    local -a ppud_ordered_names
+    get_ordered_update_filenames ppud_ordered_names
+
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local -A names=()
-    local f
-
-    for f in "${NEW_PORTAGE_STABLE}/profiles/updates/"* "${NEW_COREOS_OVERLAY}/profiles/updates/"*; do
-        names["${f##*/}"]=x
-    done
-
-    local -a ordered_names
-
-    # updates directory has files like Q1-2018, Q1-2023, Q2-2019 and
-    # so on. Need to sort them by year, then by quarter.
-    mapfile -t ordered_names < <(printf '%s\n' "${names[@]}" | sort --field-separator=- --key=2n --key=1n)
-
-    local bf ps_f co_f
+    local bf ps_f co_f pkg f line old new
     local -a fields
     local -A from_to_f=()
-
     mvm_declare ppud_to_from_set_mvm mvm_mvc_set
-
-    local old new pkg
     for bf in "${ordered_names[@]}"; do
         # coreos-overlay updates may overwrite updates from
         # portage-stable, but only from the file of the same name
@@ -463,6 +450,24 @@ function process_profile_updates_directory() {
     done
 
     mvm_unset ppud_to_from_set_mvm
+}
+
+function get_ordered_update_filenames() {
+    local ordered_names_var_name=${1}; shift
+
+    # shellcheck disable=SC1091 # generated file
+    source "${WORKDIR}/globals"
+
+    local -A names_set=()
+    local f
+
+    for f in "${NEW_PORTAGE_STABLE}/profiles/updates/"* "${NEW_COREOS_OVERLAY}/profiles/updates/"*; do
+        names_set["${f##*/}"]=x
+    done
+
+    # updates directory has files like Q1-2018, Q1-2023, Q2-2019 and
+    # so on. Need to sort them by year, then by quarter.
+    mapfile -t "${ordered_names_var_name}" < <(printf '%s\n' "${!names_set[@]}" | sort --field-separator=- --key=2n --key=1n)
 }
 
 function update_rename_maps() {
