@@ -43,7 +43,7 @@ function _garbage_collect_releases_impl() {
     source ci-automation/ci_automation_common.sh
     local sshcmd="$(gen_sshcmd)"
 
-    local keep="$( 
+    local keep=$( 
         # For some reasons this is set to the empty string in some environments and it makes gawk
         #  behave like POSIX awk (i.e. no 'gensub').
         unset POSIXLY_CORRECT
@@ -67,7 +67,7 @@ function _garbage_collect_releases_impl() {
                         chan_count["lts"][major] = chan_count["lts"][major] + 1
                     }
                 } '
-    )"
+    )
 
     mapfile -t keep_versions <<<"${keep}"
 
