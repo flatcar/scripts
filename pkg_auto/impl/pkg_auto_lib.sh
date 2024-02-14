@@ -1693,6 +1693,11 @@ function handle_package_changes() {
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}
         new_name=${new_pkgs["${pkg_idx}"]}
+        if [[ ${old_name} = "${new_name}" ]]; then
+            info "handling update of ${new_name}"
+        else
+            info "handling update of ${new_name} (renamed from ${old_name})"
+        fi
         pkg_debug_enable "${old_name}" "${new_name}"
         pkg_debug 'handling updates'
         pkg_idx=$((pkg_idx + 1))
