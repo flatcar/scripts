@@ -2415,7 +2415,7 @@ function handle_gentoo_sync() {
                     fi
                     non_package_updates_set["${in_ps}"]=x
                     ;;
-                licenses|metadata|profiles)
+                licenses|metadata|profiles|scripts)
                     non_package_updates_set["${category}"]=x
                     ;;
                 virtual|*-*)
@@ -2435,17 +2435,17 @@ function handle_gentoo_sync() {
             eclass/*)
                 handle_eclass "${entry}"
                 ;;
-            profiles)
-                handle_profiles
-                ;;
             licenses)
                 handle_licenses
                 ;;
-            scripts)
-                handle_scripts
-                ;;
             metadata)
                 info "not handling metadata updates, skipping"
+                ;;
+            profiles)
+                handle_profiles
+                ;;
+            scripts)
+                handle_scripts
                 ;;
             *)
                 fail "unknown non-package update for ${entry}"
