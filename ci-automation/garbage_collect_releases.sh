@@ -98,58 +98,65 @@ function _garbage_collect_releases_impl() {
                                  "ls -1 ${BUILDCACHE_PATH_PREFIX}/${dir} | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$'"); do
             local o_fullpath="${fullpath}/${version}"
 
-            # skip if version is marked for keeping OR if it's a new release about to be published
+            # Go through all deletion candidate versions in directory
+            #   skip if candidate version is marked for keeping OR if it's a new release about to be published
+            #   or if it ships an SDK used by a version in the keep list.
             if printf "%s\n" "${keep_versions[@]}" \
-               | { unset POSIXLY_CORRECT ; awk -v version="${version}" -v path="${dir}" '
+               | { unset POSIXLY_CORRECT ; awk -v candidate_version="${version}" -v path="${dir}" '
                 BEGIN {
-                    vmajor = gensub("([0-9]+)\\.[0-9]+\\.[0-9]+","\\1","g", version) + 0
-                    vminor = gensub("[0-9]+\\.([0-9]+)\\.[0-9]+","\\1","g", version) + 0
-                    vpatch = gensub("[0-9]+\\.[0-9]+\\.([0-9]+)","\\1","g", version) + 0
+                    # Candidate version (from build cache directory) that was passed in candidate_version variable
+                    candidate_major = gensub("([0-9]+)\\.[0-9]+\\.[0-9]+","\\1","g", candidate_version) + 0
+                    candidate_minor = gensub("[0-9]+\\.([0-9]+)\\.[0-9]+","\\1","g", candidate_version) + 0
+                    candidate_patch = gensub("[0-9]+\\.[0-9]+\\.([0-9]+)","\\1","g", candidate_version) + 0
                     ret = 1
                 }
 
                 {
-                    if ($0 == version) {
+                    # The whole keep versions list is piped into AWK; match the candidate (build cache) version agains each entry.
+
+                    keep_list_entry = $0
+                    if (keep_list_entry == candidate_version) {
                         print ""
-                        print "## Skipping " version " because it is in the keep list."
+                        print "## Skipping " candidate_version " because it is in the keep list."
                         ret = 0
                         exit
                     }
 
-                    major = gensub("([0-9]+)\\.[0-9]+\\.[0-9]+","\\1","g") + 0
-                    minor = gensub("[0-9]+\\.([0-9]+)\\.[0-9]+","\\1","g") + 0
-                    patch = gensub("[0-9]+\\.[0-9]+\\.([0-9]+)","\\1","g") + 0
+                    keep_list_major = gensub("([0-9]+)\\.[0-9]+\\.[0-9]+","\\1","g", keep_list_entry) + 0
+                    keep_list_minor = gensub("[0-9]+\\.([0-9]+)\\.[0-9]+","\\1","g", keep_list_entry) + 0
+                    keep_list_patch = gensub("[0-9]+\\.[0-9]+\\.([0-9]+)","\\1","g", keep_list_entry) + 0
 
-                    if ( (path == "sdk/amd64") && (vmajor == major) ) {
+                    if ( (path == "sdk/amd64") && (candidate_major == keep_list_major) ) {
                         print ""
-                        print "## Skipping " version " in " path " because it contains the SDK for release " $0 " in keep list."
+                        print "## Skipping " candidate_version " in " path " because it contains the SDK for release " keep_list_entry " in keep list."
                         ret = 0
                         exit
                     }
 
-                    if (major_alpha == "")
-                        major_alpha = major
+                    # keep list piped into AWK is sorted (descending), so the very first (i.e. highest) version on top is the most recent Alpha release
+                    if (latest_alpha_major == "")
+                        latest_alpha_major = keep_list_major
 
-                    if (vmajor > major_alpha) {
+                    if (candidate_major > latest_alpha_major) {
                         print ""
-                        print "## Skipping " version " because major version is higher than the latest Alpha (" major_alpha ") in keep list."
+                        print "## Skipping " candidate_version " because major version is higher than the latest Alpha (" latest_alpha_major ") in keep list."
                         print "(I.e. this is an unpublished new Alpha release)"
                         ret = 0
                         exit
                     }
 
-                    if ((vmajor == major) && (vminor > minor)) {
+                    if ((candidate_major == keep_list_major) && (candidate_minor > keep_list_minor)) {
                         print ""
-                        print "## Skipping " version " because major version is in keep list and minor version is higher than the latest release."
-                        print "(I.e. this is an unpublished channel progression " $0 " -> " version ")"
+                        print "## Skipping " candidate_version " because major version is in keep list and minor version is higher than the latest release."
+                        print "(I.e. this is an unpublished channel progression " keep_list_entry " -> " candidate_version ")"
                         ret = 0
                         exit
                     }
 
-                    if ((vmajor == major) && (vminor == minor) && (vpatch > patch)) {
+                    if ((candidate_major == keep_list_major) && (candidate_minor == keep_list_minor) && (candidate_patch > keep_list_patch)) {
                         print ""
                         print "## Skipping " version " because major and minor versions are in keep list and patch version is higher than the latest release."
-                        print "(I.e. this is an unpublished new patch release " $0 " -> " version ")"
+                        print "(I.e. this is an unpublished new patch release " keep_list_entry " -> " candidate_version ")"
                         ret = 0
                         exit
                     }
