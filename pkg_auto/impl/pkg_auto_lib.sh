@@ -916,7 +916,6 @@ function handle_missing_in_gentoo() {
         fi
         git -C "${NEW_STATE}" commit --quiet --message "${new_name}: Renamed from ${missing}"
         info "renamed ${missing} to ${new_name}"
-        env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${new_name}"
         renamed_from+=("${missing}")
         renamed_to+=("${new_name}")
     done
