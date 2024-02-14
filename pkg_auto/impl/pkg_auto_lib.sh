@@ -913,7 +913,7 @@ function handle_missing_in_gentoo() {
                 git -C "${NEW_STATE}" mv "${ebuild}" "${NEW_PORTAGE_STABLE}/${new_name}/${new_ebuild_filename}"
             done
         fi
-        git -C "${NEW_STATE}" commit "${new_name}: Renamed from ${missing}"
+        git -C "${NEW_STATE}" commit -m "${new_name}: Renamed from ${missing}"
         env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${new_name}"
         renamed_from+=("${missing}")
         renamed_to+=("${new_name}")
