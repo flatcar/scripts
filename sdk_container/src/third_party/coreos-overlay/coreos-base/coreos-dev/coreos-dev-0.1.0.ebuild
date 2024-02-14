@@ -20,9 +20,9 @@ RDEPEND="
 	coreos-base/coreos
 	coreos-base/emerge-gitclone
 	dev-debug/gdb
+	dev-debug/strace
 	dev-lang/python
 	dev-util/pahole
-	dev-util/strace
 	dev-vcs/repo
 	net-analyzer/netperf
 	net-analyzer/traceroute

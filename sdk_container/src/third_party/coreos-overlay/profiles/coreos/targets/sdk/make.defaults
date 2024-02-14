@@ -16,3 +16,12 @@ QEMU_USER_TARGETS="aarch64"
 # add cros_host to bootstrapping USE flags so SDK / toolchains bootstrapping
 # will use vim's vimrc instead of baselayouts',
 BOOTSTRAP_USE="$BOOTSTRAP_USE cros_host"
+
+# The acct-user/pcscd package wants to add pcscd user to pcscd, openct
+# and usb groups. The first two are writable so it succeeds, the last
+# one, usb, is immutable - it's defined as a part of
+# baselayout. Temporarily drop the usb group from the list.
+#
+# TODO: Drop this hack when user and group databases are dropped from
+# baselayout.
+ACCT_USER_PCSCD_GROUPS="pcscd openct"

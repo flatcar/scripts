@@ -1,0 +1,3 @@
+- vim ([CVE-2023-48231](https://nvd.nist.gov/vuln/detail/CVE-2023-48231), [CVE-2023-48232](https://nvd.nist.gov/vuln/detail/CVE-2023-48232), [CVE-2023-48233](https://nvd.nist.gov/vuln/detail/CVE-2023-48233), [CVE-2023-48234](https://nvd.nist.gov/vuln/detail/CVE-2023-48234), [CVE-2023-48235](https://nvd.nist.gov/vuln/detail/CVE-2023-48235), [CVE-2023-48236](https://nvd.nist.gov/vuln/detail/CVE-2023-48236), [CVE-2023-48237](https://nvd.nist.gov/vuln/detail/CVE-2023-48237), [CVE-2023-48706](https://nvd.nist.gov/vuln/detail/CVE-2023-48706))
+- gnutls ([CVE-2024-0567](https://nvd.nist.gov/vuln/detail/CVE-2024-0567), [CVE-2024-0553](https://nvd.nist.gov/vuln/detail/CVE-2024-0553))
+- gcc ([CVE-2023-4039](https://nvd.nist.gov/vuln/detail/CVE-2023-4039))

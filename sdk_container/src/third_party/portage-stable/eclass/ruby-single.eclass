@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: ruby-single.eclass
@@ -7,7 +7,7 @@
 # @AUTHOR:
 # Author: Hans de Graaff <graaff@gentoo.org>
 # Based on python-single-r1 by: Michał Górny <mgorny@gentoo.org>
-# @SUPPORTED_EAPIS: 4 5 6 7 8
+# @SUPPORTED_EAPIS: 7 8
 # @PROVIDES: ruby-utils
 # @BLURB: An eclass for Ruby packages not installed for multiple implementations.
 # @DESCRIPTION:
@@ -18,27 +18,22 @@
 # pull in the dependency on the requested ruby targets.
 #
 # @CODE
-# USE_RUBY="ruby26 ruby27"
+# USE_RUBY="ruby27 ruby30"
 # inherit ruby-single
 # RDEPEND="${RUBY_DEPS}"
 # @CODE
 
-case "${EAPI:-0}" in
-	0|1|2|3)
-		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
-		;;
-	4|5|6|7|8)
-		;;
-	*)
-		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
-		;;
+case ${EAPI} in
+	7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-if [[ ! ${_RUBY_SINGLE} ]]; then
+if [[ ! ${_RUBY_SINGLE_ECLASS} ]]; then
+_RUBY_SINGLE_ECLASS=1
 
 inherit ruby-utils
 
-# @ECLASS-VARIABLE: USE_RUBY
+# @ECLASS_VARIABLE: USE_RUBY
 # @DEFAULT_UNSET
 # @PRE_INHERIT
 # @REQUIRED
@@ -48,7 +43,7 @@ inherit ruby-utils
 # default. All ebuilds are expected to set this variable.
 
 
-# @ECLASS-VARIABLE: RUBY_DEPS
+# @ECLASS_VARIABLE: RUBY_DEPS
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 #
@@ -67,20 +62,23 @@ inherit ruby-utils
 #
 # Example value:
 # @CODE
-# || ( dev-lang/ruby:2.7 dev-lang/ruby:2.6 ) virtual/rubygems
+# || ( dev-lang/ruby:3.0 dev-lang/ruby:2.7 ) virtual/rubygems
 # @CODE
 #
 # The order of dependencies will change over time to best match the
 # current state of ruby targets, e.g. stable version first.
 
 _ruby_single_implementations_depend() {
-	local depend
+	local _ruby_implementation depend
 	for _ruby_implementation in ${RUBY_TARGETS_PREFERENCE}; do
 		if [[ ${USE_RUBY} =~ ${_ruby_implementation} ]]; then
-			depend="${depend} $(_ruby_implementation_depend $_ruby_implementation)"
+			depend+=" ("
+			depend+=" $(_ruby_implementation_depend ${_ruby_implementation})"
+			depend+=" virtual/rubygems[ruby_targets_${_ruby_implementation}(-)]"
+			depend+=" )"
 		fi
 	done
-	echo "|| ( ${depend} ) virtual/rubygems"
+	echo "|| ( ${depend} )"
 }
 
 _ruby_single_set_globals() {
@@ -88,6 +86,4 @@ _ruby_single_set_globals() {
 }
 _ruby_single_set_globals
 
-
-_RUBY_SINGLE=1
 fi

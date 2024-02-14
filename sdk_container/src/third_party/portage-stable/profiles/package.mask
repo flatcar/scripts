@@ -33,6 +33,66 @@
 
 #--- END OF EXAMPLES ---
 
+# Fabian Groffen <grobian@gentoo.org> (2024-01-26)
+# compilation issues, no reverse dependencies in the tree
+# bugs #885057, #875410, #847211
+# Removal on 2024-02-26
+mail-filter/libsrs_alt
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-24)
+# app-misc/ddcutil-2.1.0 causes core-dump crashes in
+# kde-plasma/powerdevil[brightness-control].
+~app-misc/ddcutil-2.1.0
+~app-misc/ddcui-0.5.0
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-24)
+# The functionality of sys-kernel/installkernel-systemd has been
+# integrated into sys-kernel/installkernel[systemd].
+# Please install sys-kernel/installkernel and remove
+# sys-kernel/installkernel-systemd. See the news item entitled
+# "Merging of installkernel-gentoo and installkernel-systemd" for details.
+#
+# Removal on 2024-02-24
+sys-kernel/installkernel-systemd
+
+# Michał Górny <mgorny@gentoo.org> (2024-01-24)
+# Unmaintained, tests fail, requires discontinued dev-python/bsddb3.
+# No commits since 2022.  No reverse dependencies.
+# Removal on 2024-02-23.  Bug #894688.
+dev-python/pymilter
+
+# David Seifert <soap@gentoo.org> (2024-01-21)
+# Not required anymore since 4.14 is EOL, handled within the kernel
+# nowadays. Removal on 2024-02-20.
+net-wireless/crda
+
+# David Seifert <soap@gentoo.org> (2024-01-18)
+# Unmaintained set of packages. Overall, TensorFlow is ill-suited for
+# distro packaging, since it's entangled with tons of googleware and
+# continually breaks on minor dependency updates coupled with a
+# byzantine build system. These 5 packages together have a total of
+# 54 bugs reported against them, with zero activity from the maintainer.
+#
+# Unmasking this requires a sign-off from QA and treecleaners, since
+# these packages require a ton of mental bandwidth to keep up to date
+# and Google's general unwillingness to take community input quickly
+# leads to maintainer burnout.
+# Use sci-libs/pytorch as a modern alternative with better packaging.
+# Removal on 2024-02-17. Bug #922374
+dev-build/bazel
+sci-libs/keras
+sci-libs/tensorflow
+sci-libs/tensorflow-estimator
+sci-visualization/tensorboard
+
+# Michał Górny <mgorny@gentoo.org> (2024-01-17)
+# Unmaintained build systems with no reverse dependencies.
+# dev-build/cons was last released in 2001.
+# dev-build/tup was last released in 2021 and has a few bugs reported.
+# Removal on 2024-02-16.  Bug #922329.
+dev-build/cons
+dev-build/tup
+
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-01-15)
 # Old version of a Java library, presently without consumer.
 # Blocks removal of dev-java/osgi-core-api
@@ -97,15 +157,6 @@ x11-libs/snorenotify
 # remove in 30 days
 net-mail/courier-makedat
 
-# Michał Górny <mgorny@gentoo.org> (2024-01-01)
-# The version seems to introduce an ABI breakage that causes
-# incompatibility with extensions built using the previous version
-# https://github.com/pypy/pypy/issues/4816
-=dev-python/pypy3-7.3.14
-=dev-python/pypy3_10-7.3.14-r1
-=dev-python/pypy3_10-exe-7.3.14
-=dev-python/pypy3_10-exe-bin-7.3.14
-
 # Petr Vaněk <arkamar@gentoo.org> (2024-01-01)
 # Mirror restricted package, but the source code is no longer available.
 # Homepage gone. Moreover, there is multiple issues reported with modern
@@ -157,12 +208,6 @@ net-misc/monmotha
 # Unmaintained in Gentoo since 2015.  Use the original package instead.
 # Removal on 2024-01-30.  Bug #920659.
 net-firewall/sanewall
-
-# Petr Vaněk <arkamar@gentoo.org> (2023-12-27)
-# Unmaintained package with multiple open bugs. Upstream seems to be inactive.
-# Version bumps are available for 7 years but nobody seems to care.
-# Removal: 2024-01-26.  Bugs #303339, #712770, #732282, #782907, #870883, #898858.
-www-apache/anyterm
 
 # Michał Górny <mgorny@gentoo.org> (2023-12-27)
 # Broken with all versions of dev-python/snakeoil.  Archived upstream.
@@ -242,12 +287,6 @@ sys-block/hpacucli
 # Unmaintained.  EAPI 6.  Last commit in 2017.  No revdeps.
 # Removal on 2024-01-21.  Bug #919050.
 app-containers/go-secbench
-
-# Michał Górny <mgorny@gentoo.org> (2023-12-18)
-# A broken package that used to be a test dependency
-# of dev-python/ruamel-yaml.  No revdeps left.
-# Removal on 2024-01-17.  Bug #920271.
-dev-python/ruamel-std-pathlib
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-01-10)
 # KDE Plasma 6 RC1 (5.92) and Frameworks 6 RC1 (5.248) mask
@@ -414,6 +453,7 @@ dev-python/ruamel-std-pathlib
 ~dev-libs/kirigami-addons-0.11.90
 ~dev-libs/ktextaddons-1.5.3
 ~dev-libs/kweathercore-0.8.0
+~gui-apps/xwaylandvideobridge-0.4.0
 ~media-libs/libqaccessibilityclient-0.6.0
 ~media-libs/phonon-4.12.0
 ~media-libs/phonon-vlc-0.12.0
@@ -427,33 +467,10 @@ dev-python/ruamel-std-pathlib
 =net-libs/signond-8.61-r100
 ~sys-auth/polkit-qt-0.175.0
 
-# Hans de Graaff <graaff@gentoo.org> (2023-12-17)
-# Subslots added by accident. Please use the normal "7" or "8" slots
-# instead. Masked for removal on 2024-01-17.
-dev-ruby/elasticsearch:7.17.7
-dev-ruby/elasticsearch:8.8.0
-
 # Michał Górny <mgorny@gentoo.org> (2023-12-17)
 # Broken due to invalid use of tzdata.
 # https://github.com/sdispater/pendulum/issues/769
 =dev-python/pendulum-3.0.0
-
-# Michał Górny <mgorny@gentoo.org> (2023-12-15)
-# Superseded by dev-python/pypy3_10-exe{,-bin}.
-# Removal on 2024-01-14.  Bug #920036.
-dev-python/pypy3-exe
-dev-python/pypy3-exe-bin
-
-# Hans de Graaff <graaff@gentoo.org> (2023-12-15)
-# Last release in 2020. Does not work with current activesupport
-# versions. No reverse dependencies. Masked for removal on 2024-01-15.
-dev-ruby/gh
-
-# Hans de Graaff <graaff@gentoo.org> (2023-12-15)
-# Old slot without any remaining reverse dependencies. Does not work
-# with ruby32. Use the newer slot instead. Masked for removal on
-# 2024-01-15.
-dev-ruby/http:4
 
 # Sam James <sam@gentoo.org> (2023-12-14)
 # Gentoo's kernel maintainers have decided to discontinue gentoo-sources and
@@ -487,30 +504,10 @@ dev-ruby/http:4
 =sys-kernel/vanilla-kernel-6.1.64
 =sys-kernel/vanilla-kernel-6.1.65
 
-# Michał Górny <mgorny@gentoo.org> (2023-12-08)
-# The both remaining virtuals are deprecated in favor of using
-# python_gen_cond_dep directly, and no longer used in any packages
-# in ::gentoo.
-# Removal on 2024-01-07.  Bug #919467.
-virtual/python-cffi
-virtual/python-greenlet
-
-# Sam James <sam@gentoo.org> (2023-12-08)
-# Broken build system:
-# https://github.com/iovisor/bcc/issues/4823
-# https://github.com/iovisor/bcc/issues/4830
-=dev-util/bcc-0.29.0
-
 # Eli Schwartz <eschwartz93@gmail.com> (2023-12-02)
 # Has a bug that breaks sys-apps/portage. Upgrade to 1.3.0-r1 instead.
 # Bug #919072.
 =dev-build/meson-1.3.0
-
-# Michał Górny <mgorny@gentoo.org> (2023-11-30)
-# Last commit in 2020.  It was used exclusively by dev-python/ipython,
-# and it is used no more.
-# Removal on 2023-12-30.  Bug #916535.
-dev-python/backcall
 
 # Sam James <sam@gentoo.org> (2023-11-25)
 # Breaks desktop icon rendering, see bug #904468.
@@ -532,10 +529,6 @@ dev-python/backcall
 <sys-devel/gcc-11
 <sys-devel/kgcc64-11
 
-# Sam James <sam@gentoo.org> (2023-11-18)
-# Lots of applications need porting, bug #917537.
->=dev-libs/libxml2-2.12.0
-
 # Sam James <sam@gentoo.org> (2023-11-05)
 # Mask broken versions:
 # - sys-fs/btrfs-progs-6.6(-r0) was respun upstream.
@@ -550,10 +543,6 @@ dev-python/backcall
 # Tomáš Mózes <hydrapolic@gmail.com> (2023-11-02)
 # Performance regression. Bug #916713.
 =dev-db/mydumper-0.15.1.3
-
-# Ulrich Müller <ulm@gentoo.org> (2023-10-19)
-# Pretest versions, masked for testing.
-<app-editors/emacs-29.1.9999:29-vcs
 
 # Sam James <sam@gentoo.org> (2023-10-06)
 # Breaks building scipy: https://github.com/cython/cython/issues/5748
@@ -688,9 +677,9 @@ dev-tex/pdfannotextractor
 x11-drivers/nvidia-drivers:0/vulkan
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2021-09-18)
-# sys-devel/automake version 1.11 is EOL and is only useful for testing
+# dev-build/automake version 1.11 is EOL and is only useful for testing
 # old de-ANSI-fication/ansi2knr/AM_C_PROTOTYPES code. Please uninstall.
-sys-devel/automake:1.11
+dev-build/automake:1.11
 
 # Joonas Niilola <juippis@gentoo.org> (2021-07-29)
 # Upstream provided migration instructions from 2. -> 3. update,

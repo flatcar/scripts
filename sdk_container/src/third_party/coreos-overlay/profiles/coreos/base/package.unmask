@@ -7,7 +7,7 @@
 # libxcrypt, because we need to figure out how to solve the dep loop
 # that results from the migration (python -> virtual/libcrypt ->
 # libxcrypt -> glibc -> python).
-=virtual/libcrypt-1-r1
+<virtual/libcrypt-2
 
 # Overwrite portage-stable mask. We haven't seen LLVM related problems
 # with rust so far, so keep using 1.70.0.
