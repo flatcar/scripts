@@ -1701,8 +1701,24 @@ function handle_package_changes() {
         pkg_debug_enable "${old_name}" "${new_name}"
         pkg_debug 'handling updates'
         pkg_idx=$((pkg_idx + 1))
-        old_repo=${hpc_package_sources_map["${old_name}"]}
-        new_repo=${hpc_package_sources_map["${new_name}"]}
+        old_repo=${hpc_package_sources_map["${old_name}"]:-}
+        new_repo=${hpc_package_sources_map["${new_name}"]:-}
+        if [[ -z ${old_repo} ]]; then
+            pkg_warn \
+                '- package not in old state' \
+                "  - old package: ${old_name}" \
+                "  - new package: ${new_name}"
+            pkg_debug_disable
+            continue
+        fi
+        if [[ -z ${new_repo} ]]; then
+            pkg_warn \
+                '- package not in new state' \
+                "  - old package: ${old_name}" \
+                "  - new package: ${new_name}"
+            pkg_debug_disable
+            continue
+        fi
         if [[ ${old_repo} != "${new_repo}" ]]; then
             pkg_warn \
                 '- package has moved between repos? unsupported for now' \
