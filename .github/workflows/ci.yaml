@@ -65,13 +65,13 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
       - name: Checkout scripts
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: scripts
           fetch-depth: 0
 
       - name: Checkout build scripts
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: flatcar/flatcar-build-scripts
           path: flatcar-build-scripts
@@ -160,7 +160,7 @@ jobs:
 
       - name: Upload build logs
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-build-logs
@@ -240,7 +240,7 @@ jobs:
         run: .github/workflows/image_changes.sh ${{ matrix.arch }} nightly
 
       - name: Upload binpkgs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-binpkgs
@@ -248,7 +248,7 @@ jobs:
             scripts/binpkgs.tar
 
       - name: Upload update image (used with kola tests later)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-test-update
@@ -256,7 +256,7 @@ jobs:
             scripts/artifacts/images/flatcar_test_update.gz
 
       - name: Upload generic image
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-generic-image
@@ -271,7 +271,7 @@ jobs:
             scripts/artifacts/images/flatcar_production_*_efi_*.fd
 
       - name: Upload developer container
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-devcontainer
@@ -279,7 +279,7 @@ jobs:
             scripts/artifacts/images/flatcar_developer_container*
 
       - name: Upload reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-image-changes-reports
@@ -299,7 +299,7 @@ jobs:
                 artifacts/images/flatcar_production_update*
 
       - name: Upload vendor images
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-vm-images
