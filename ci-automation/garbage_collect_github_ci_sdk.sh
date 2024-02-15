@@ -41,10 +41,14 @@ function _garbage_collect_github_ci_impl() {
     local dry_run="${DRY_RUN:-}"
 
     local min_age_date="$(date -d "${min_age_days} days ago" +'%Y_%m_%d')"
+
+    source ci-automation/ci_automation_common.sh
+    local sshcmd="$(gen_sshcmd)"
+
     # Example version string
     #   <a href="./3598.0.0-nightly-20230508-2100-github-2023_05_09__08_06_54/">
     #   <a href="./3598.0.0-nightly-20230508-2100-github-pr-12345-2023_05_09__08_06_54/">
-    local versions_detected="$(curl -s https://bincache.flatcar-linux.net/containers/ \
+    local versions_detected="$(curl -s https://${BUILDCACHE_SERVER}/containers/ \
                 | grep -E '\<a href="\./[0-9]+\.[0-9]+.[0-9]+.+-github-.*/">' \
                 | sed 's:.*\"./\([^/]\+\)/".*:\1:' )"
 
@@ -66,7 +70,8 @@ function _garbage_collect_github_ci_impl() {
     echo "${versions_sorted}" | awk '{printf "%5d %s\n", NR, $0}'
 
     local purge_versions
-    mapfile -t purge_versions < <(echo "${versions_sorted}" \
+    mapfile -t purge_versions < <(unset POSIXLY_CORRECT; \
+            echo "${versions_sorted}" \
             | awk -v keep="${keep}" -v min_age="${min_age_date}" '{
                 if (keep > 0) {
                     keep = keep - 1
@@ -78,9 +83,6 @@ function _garbage_collect_github_ci_impl() {
 
                 print $1
                 }')
-
-    source ci-automation/ci_automation_common.sh
-    local sshcmd="$(gen_sshcmd)"
 
     echo
     echo "######## The following version(s) will be purged ########"
