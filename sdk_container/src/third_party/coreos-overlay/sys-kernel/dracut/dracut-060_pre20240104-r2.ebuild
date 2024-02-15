@@ -72,7 +72,7 @@ PATCHES=(
 	"${FILESDIR}"/dracut-060-grub-layout.patch
 	"${FILESDIR}"/dracut-060-systemd-255.patch
 	"${FILESDIR}"/dracut-059-install-new-systemd-hibernate-resume.service.patch
-        # Flatcar: override iscsi network dependency
+	# Flatcar: override iscsi network dependency
 	"${FILESDIR}"/050-change-network-dep-iscsi.patch
 )
 
