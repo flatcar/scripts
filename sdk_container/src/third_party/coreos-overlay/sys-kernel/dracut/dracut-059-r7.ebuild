@@ -72,6 +72,8 @@ PATCHES=(
 	"${FILESDIR}"/059-systemd-pcrphase.patch
 	"${FILESDIR}"/059-systemd-executor.patch
 	"${FILESDIR}"/dracut-059-install-new-systemd-hibernate-resume.service.patch
+	# Flatcar: override iscsi network dependency
+	"${FILESDIR}"/050-change-network-dep-iscsi.patch
 )
 
 src_configure() {
