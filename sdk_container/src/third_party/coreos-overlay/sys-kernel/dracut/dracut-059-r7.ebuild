@@ -1,31 +1,31 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit bash-completion-r1 linux-info optfeature systemd toolchain-funcs
+inherit bash-completion-r1 optfeature systemd toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dracutdevs/dracut"
 else
-	[[ "${PV}" = *_rc* ]] || \
-	KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~mips ppc ppc64 sparc x86"
-	SRC_URI="https://www.kernel.org/pub/linux/utils/boot/${PN}/${P}.tar.xz"
+	if [[ "${PV}" != *_rc* ]]; then
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
+	fi
+	SRC_URI="https://github.com/dracutdevs/dracut/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
 fi
 
 DESCRIPTION="Generic initramfs generation tool"
-HOMEPAGE="https://dracut.wiki.kernel.org"
+HOMEPAGE="https://github.com/dracutdevs/dracut/wiki"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="selinux"
+IUSE="selinux test"
 
-# Tests need root privileges, bug #298014
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
-	app-arch/cpio
+	app-alternatives/cpio
 	>=app-shells/bash-4.0:0
 	sys-apps/coreutils[xattr(-)]
 	>=sys-apps/kmod-23[tools]
@@ -33,6 +33,7 @@ RDEPEND="
 		>=sys-apps/sysvinit-2.87-r3
 		sys-apps/openrc[sysv-utils(-),selinux?]
 		sys-apps/systemd[sysv-utils]
+		sys-apps/s6-linux-init[sysv-utils(-)]
 	)
 	>=sys-apps/util-linux-2.21
 	virtual/pkgconfig
@@ -58,24 +59,19 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-DOCS=( AUTHORS HACKING NEWS README.md README.generic README.kernel README.modules
-	README.testsuite TODO )
-
 QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
-	"${FILESDIR}"/050-Makefile-merge-main-version-and-git-version-earlier.patch
-	"${FILESDIR}"/050-dracut.sh-don-t-call-fsfreeze-on-subvol-of-root-file.patch
-	"${FILESDIR}"/050-Makefile-fix-VERSION-again.patch
-	"${FILESDIR}"/050-btrfs-force-preload-btrfs-module.patch
-	"${FILESDIR}"/050-network-manager-ensure-that-nm-run.sh-is-executed-wh.patch
-	"${FILESDIR}"/050-dracut-lib.sh-quote-variables-in-parameter-expansion.patch
-	"${FILESDIR}"/050-busybox-module-fix.patch
-	"${FILESDIR}"/050-systemd-remove-obsolete-syslog-parameter.patch
-	"${FILESDIR}"/050-lvm-fix-removal-of-pvscan-from-udev-rules.patch
-	"${FILESDIR}"/050-gentoo-ldconfig-paths.patch
-	# Flatcar: override iscsi network dependency
-	"${FILESDIR}"/050-change-network-dep-iscsi.patch
+	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
+	"${FILESDIR}"/gentoo-network-r1.patch
+	"${FILESDIR}"/059-kernel-install-uki.patch
+	"${FILESDIR}"/059-uefi-split-usr.patch
+	"${FILESDIR}"/059-uki-systemd-254.patch
+	"${FILESDIR}"/059-gawk.patch
+	"${FILESDIR}"/dracut-059-dmsquash-live.patch
+	"${FILESDIR}"/059-systemd-pcrphase.patch
+	"${FILESDIR}"/059-systemd-executor.patch
+	"${FILESDIR}"/dracut-059-install-new-systemd-hibernate-resume.service.patch
 )
 
 src_configure() {
@@ -97,50 +93,38 @@ src_configure() {
 	fi
 }
 
-src_install() {
-	default
+src_test() {
+	if [[ ${EUID} != 0 ]]; then
+		# Tests need root privileges, bug #298014
+		ewarn "Skipping tests: Not running as root."
+	elif [[ ! -w /dev/kvm ]]; then
+		ewarn "Skipping tests: Unable to access /dev/kvm."
+	else
+		emake -C test check
+	fi
+}
 
-	insinto /etc/logrotate.d
-	newins dracut.logrotate dracut
+src_install() {
+	local DOCS=(
+		AUTHORS
+		NEWS.md
+		README.md
+		docs/README.cross
+		docs/README.generic
+		docs/README.kernel
+		docs/SECURITY.md
+	)
+
+	default
 
 	docinto html
 	dodoc dracut.html
 }
 
 pkg_postinst() {
-	if linux-info_get_any_version && linux_config_exists; then
-		ewarn ""
-		ewarn "If the following test report contains a missing kernel"
-		ewarn "configuration option, you should reconfigure and rebuild your"
-		ewarn "kernel before booting image generated with this Dracut version."
-		ewarn ""
-
-		local CONFIG_CHECK="~BLK_DEV_INITRD ~DEVTMPFS"
-
-		# Kernel configuration options descriptions:
-		local ERROR_DEVTMPFS='CONFIG_DEVTMPFS: "Maintain a devtmpfs filesystem to mount at /dev" '
-		ERROR_DEVTMPFS+='is missing and REQUIRED'
-		local ERROR_BLK_DEV_INITRD='CONFIG_BLK_DEV_INITRD: "Initial RAM filesystem and RAM disk '
-		ERROR_BLK_DEV_INITRD+='(initramfs/initrd) support" is missing and REQUIRED'
-
-		check_extra_config
-		echo
-	else
-		ewarn ""
-		ewarn "Your kernel configuration couldn't be checked."
-		ewarn "Please check manually if following options are enabled:"
-		ewarn ""
-		ewarn "  CONFIG_BLK_DEV_INITRD"
-		ewarn "  CONFIG_DEVTMPFS"
-		ewarn ""
-	fi
-
 	optfeature "Networking support" net-misc/networkmanager
 	optfeature "Legacy networking support" net-misc/curl "net-misc/dhcp[client]" \
 		sys-apps/iproute2 "net-misc/iputils[arping]"
-	optfeature \
-		"Measure performance of the boot process for later visualisation" \
-		app-benchmarks/bootchart2 app-admin/killproc sys-process/acct
 	optfeature "Scan for Btrfs on block devices"  sys-fs/btrfs-progs
 	optfeature "Load kernel modules and drop this privilege for real init" \
 		sys-libs/libcap
@@ -152,19 +136,29 @@ pkg_postinst() {
 	optfeature \
 		"Allows use of dash instead of default bash (on your own risk)" \
 		app-shells/dash
+	optfeature \
+		"Allows use of busybox instead of default bash (on your own risk)" \
+		sys-apps/busybox
 	optfeature "Support iSCSI" sys-block/open-iscsi
-	optfeature "Support Logical Volume Manager" sys-fs/lvm2
+	optfeature "Support Logical Volume Manager" sys-fs/lvm2[lvm]
 	optfeature "Support MD devices, also known as software RAID devices" \
-		sys-fs/mdadm
+		sys-fs/mdadm sys-fs/dmraid
 	optfeature "Support Device Mapper multipathing" sys-fs/multipath-tools
 	optfeature "Plymouth boot splash"  '>=sys-boot/plymouth-0.8.5-r5'
 	optfeature "Support network block devices" sys-block/nbd
 	optfeature "Support NFS" net-fs/nfs-utils net-nds/rpcbind
 	optfeature \
 		"Install ssh and scp along with config files and specified keys" \
-		net-misc/openssh
+		virtual/openssh
 	optfeature "Enable logging with rsyslog" app-admin/rsyslog
+	optfeature "Support Squashfs" sys-fs/squashfs-tools
+	optfeature "Support TPM 2.0 TSS" app-crypt/tpm2-tools
+	optfeature "Support Bluetooth (experimental)" net-wireless/bluez
+	optfeature "Support BIOS-given device names" sys-apps/biosdevname
+	optfeature "Support network NVMe" sys-apps/nvme-cli
 	optfeature \
 		"Enable rngd service to help generating entropy early during boot" \
 		sys-apps/rng-tools
+	optfeature "automatically generating an initramfs on each kernel installation" \
+		"sys-kernel/installkernel[dracut]"
 }
