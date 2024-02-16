@@ -67,6 +67,8 @@ PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths.patch
 	# Flatcar: override iscsi network dependency
 	"${FILESDIR}"/050-change-network-dep-iscsi.patch
+	# Add required systemd 255 binary
+	"${FILESDIR}"/059-systemd-executor.patch
 )
 
 src_configure() {
