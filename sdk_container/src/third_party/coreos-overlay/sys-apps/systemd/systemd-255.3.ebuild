@@ -187,11 +187,6 @@ QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
 QA_EXECSTACK="usr/lib/systemd/boot/efi/*"
 
 pkg_pretend() {
-	if use split-usr; then
-		eerror "Please complete the migration to merged-usr."
-		eerror "https://wiki.gentoo.org/wiki/Merge-usr"
-		die "systemd no longer supports split-usr"
-	fi
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
 		if use test && has pid-sandbox ${FEATURES}; then
 			ewarn "Tests are known to fail with PID sandboxing enabled."
@@ -565,7 +560,7 @@ multilib_src_install_all() {
 	# Flatcar: Use an empty preset file, because systemctl
 	# preset-all puts symlinks in /etc, not in /usr. We don't use
 	# /etc, because it is not autoupdated. We do the "preset" above.
-	rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
+	# rm "${ED}$(usex split-usr '' /usr)/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr '' /usr)/lib/systemd/system-preset
 	doins "${FILESDIR}"/99-default.preset
 
