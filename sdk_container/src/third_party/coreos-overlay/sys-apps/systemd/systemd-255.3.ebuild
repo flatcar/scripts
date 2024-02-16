@@ -133,6 +133,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
+	sys-apps/kbd
 	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
