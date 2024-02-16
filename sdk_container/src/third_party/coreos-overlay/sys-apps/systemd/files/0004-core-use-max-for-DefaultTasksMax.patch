@@ -1,7 +1,7 @@
-From 7f71d79cc1cac4dc509cecb2f5c00b6dcfd7732b Mon Sep 17 00:00:00 2001
-From: Sayan Chowdhury <sayan@kinvolk.io>
-Date: Thu, 22 Apr 2021 20:08:33 +0530
-Subject: [PATCH 4/7] core: use max for DefaultTasksMax
+From 4cdbcf5df9a2fd165385465bd5be9b8cdb78f83a Mon Sep 17 00:00:00 2001
+From: Adrian Vladu <avladu@cloudbasesolutions.com>
+Date: Fri, 16 Feb 2024 11:22:08 +0000
+Subject: [PATCH] [PATCH 4/7] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This
@@ -13,18 +13,18 @@ accommodate stale values.
 
 This change is built on previous patch by David Michael(dm0-).
 
-Signed-off-by: Sayan Chowdhury <sayan@kinvolk.io>
+Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
 ---
  man/systemd-system.conf.xml | 2 +-
- src/core/main.c             | 2 +-
+ src/core/manager.c          | 2 +-
  src/core/system.conf.in     | 2 +-
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index ac21c31d9a..39323f6a55 100644
+index 31b6421399..52819ae8b7 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
-@@ -461,7 +461,7 @@
+@@ -515,7 +515,7 @@
          <listitem><para>Configure the default value for the per-unit <varname>TasksMax=</varname> setting. See
          <citerefentry><refentrytitle>systemd.resource-control</refentrytitle><manvolnum>5</manvolnum></citerefentry>
          for details. This setting applies to all unit types that support resource control settings, with the exception
@@ -32,25 +32,25 @@ index ac21c31d9a..39323f6a55 100644
 +        of slice units. Defaults to 100% of the minimum of <varname>kernel.pid_max=</varname>, <varname>kernel.threads-max=</varname>
          and root cgroup <varname>pids.max</varname>.
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
-         For example with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
-diff --git a/src/core/main.c b/src/core/main.c
-index a3fdd1dfe1..9b79308397 100644
---- a/src/core/main.c
-+++ b/src/core/main.c
-@@ -100,7 +100,7 @@
- #include <sanitizer/lsan_interface.h>
- #endif
+         For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
+diff --git a/src/core/manager.c b/src/core/manager.c
+index e8c747d96d..df9269aab8 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -114,7 +114,7 @@
+ /* How many units and jobs to process of the bus queue before returning to the event loop. */
+ #define MANAGER_BUS_MESSAGE_BUDGET 100U
  
--#define DEFAULT_TASKS_MAX ((TasksMax) { 15U, 100U }) /* 15% */
-+#define DEFAULT_TASKS_MAX ((TasksMax) { 100U, 100U }) /* 100% */
+-#define DEFAULT_TASKS_MAX ((CGroupTasksMax) { 15U, 100U }) /* 15% */
++#define DEFAULT_TASKS_MAX ((CGroupTasksMax) { 100U, 100U }) /* 15% */
  
- static enum {
-         ACTION_RUN,
+ static int manager_dispatch_notify_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
+ static int manager_dispatch_cgroups_agent_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
 diff --git a/src/core/system.conf.in b/src/core/system.conf.in
-index 71a5869ec0..92fe35b2d6 100644
+index 9b89a6aa77..5a7e92ab5a 100644
 --- a/src/core/system.conf.in
 +++ b/src/core/system.conf.in
-@@ -56,7 +56,7 @@
+@@ -59,7 +59,7 @@
  #DefaultIPAccounting=no
  #DefaultMemoryAccounting={{ 'yes' if MEMORY_ACCOUNTING_DEFAULT else 'no' }}
  #DefaultTasksAccounting=yes
@@ -60,5 +60,5 @@ index 71a5869ec0..92fe35b2d6 100644
  #DefaultLimitFSIZE=
  #DefaultLimitDATA=
 -- 
-2.25.1
+2.34.1
 
