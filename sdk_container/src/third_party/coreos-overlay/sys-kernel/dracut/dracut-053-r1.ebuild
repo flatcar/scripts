@@ -69,6 +69,8 @@ PATCHES=(
 	"${FILESDIR}"/050-change-network-dep-iscsi.patch
 	# Add required systemd 255 binary
 	"${FILESDIR}"/059-systemd-executor.patch
+	# Add systemd vconsole setup fix using i118n
+	"${FILESDIR}"/0001-systemd-initrd-install-only-keymap-required-by-syste.patch
 )
 
 src_configure() {
