@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -16,9 +16,12 @@ SRC_URI="
 
 LICENSE="BSD BSD-2 BSD-4 public-domain"
 SLOT="0/13"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-IUSE="acl blake2 +bzip2 +e2fsprogs expat +iconv lz4 +lzma lzo nettle static-libs xattr zstd"
-VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/libarchive.org.asc
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+IUSE="
+	acl blake2 +bzip2 +e2fsprogs expat +iconv lz4 +lzma lzo nettle
+	static-libs test xattr zstd
+"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	sys-libs/zlib[${MULTILIB_USEDEP}]
@@ -43,11 +46,22 @@ DEPEND="${RDEPEND}
 		virtual/os-headers
 		e2fsprogs? ( sys-fs/e2fsprogs[${MULTILIB_USEDEP}] )
 	)
+	test? (
+		app-arch/lrzip
+		app-arch/lz4
+		app-arch/lzip
+		app-arch/lzop
+		app-arch/xz-utils
+		app-arch/zstd
+		lzma? ( app-arch/xz-utils[extra-filters(+)] )
+	)
 "
 BDEPEND="
 	verify-sig? ( >=sec-keys/openpgp-keys-libarchive-20221209 )
 	elibc_musl? ( sys-libs/queue-standalone )
 "
+
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/libarchive.org.asc
 
 # false positives (checks for libc-defined hash functions)
 QA_CONFIG_IMPL_DECL_SKIP=(
@@ -59,6 +73,9 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 PATCHES=(
 	# https://github.com/libarchive/libarchive/issues/1968
 	"${FILESDIR}/${P}-32bit-test.patch"
+	# https://github.com/libarchive/libarchive/issues/2069
+	# (we can simply update the command since we don't support old lrzip)
+	"${FILESDIR}/${P}-lrzip.patch"
 )
 
 multilib_src_configure() {
