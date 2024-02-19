@@ -140,6 +140,11 @@ GCCMINOR=$(ver_cut 2 ${GCC_PV})
 # @DESCRIPTION:
 # GCC micro version.
 GCCMICRO=$(ver_cut 3 ${GCC_PV})
+# @ECLASS_VARIABLE: GCC_RUN_FIXINCLUDES
+# @INTERNAL
+# @DESCRIPTION:
+# Controls whether fixincludes should be used.
+GCC_RUN_FIXINCLUDES=0
 
 tc_use_major_version_only() {
 	local use_major_version_only=0
@@ -580,7 +585,7 @@ toolchain_src_prepare() {
 	setup_multilib_osdirnames
 
 	local actual_version=$(< "${S}"/gcc/BASE-VER)
-	if [[ "${GCC_RELEASE_VER}" != "${actual_version}" ]] ; then
+	if ! tc_is_live && [[ "${GCC_RELEASE_VER}" != "${actual_version}" ]] ; then
 		eerror "'${S}/gcc/BASE-VER' contains '${actual_version}', expected '${GCC_RELEASE_VER}'"
 		die "Please set 'TOOLCHAIN_GCC_PV' to '${actual_version}'"
 	fi
@@ -1297,6 +1302,20 @@ toolchain_src_configure() {
 		)
 	fi
 
+	if tc_version_is_at_least 13.1 ; then
+		# Re-enable fixincludes for >= GCC 13 with older glibc
+		# https://gcc.gnu.org/PR107128
+		if ! is_crosscompile && use elibc_glibc && has_version "<sys-libs/glibc-2.38" ; then
+			GCC_RUN_FIXINCLUDES=1
+		fi
+
+		if [[ ${GCC_RUN_FIXINCLUDES} == 1 ]] ; then
+			confgcc+=( --enable-fixincludes )
+		else
+			confgcc+=( --disable-fixincludes )
+		fi
+	fi
+
 	# TODO: Ignore RCs here (but TOOLCHAIN_IS_RC isn't yet an eclass var)
 	if [[ ${PV} == *_p* && -f "${S}"/gcc/doc/gcc.info ]] ; then
 		# Safeguard against https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106899 being fixed
@@ -1712,7 +1731,7 @@ gcc_do_make() {
 		# The last known issues are with < GCC 4.9 or so, but it's easier
 		# to keep this bound somewhat fresh just to avoid problems. Ultimately,
 		# using not-O0 is just a build-time speed improvement anyway.
-		if tc-is-gcc && ver_test $(gcc-fullversion) -lt 10 ; then
+		if ! tc-is-gcc || ver_test $(gcc-fullversion) -lt 10 ; then
 			STAGE1_CFLAGS="-O0"
 		fi
 
@@ -1831,9 +1850,7 @@ toolchain_src_install() {
 	# Don't allow symlinks in private gcc include dir as this can break the build
 	find gcc/include*/ -type l -delete || die
 
-	# Re-enable fixincludes for >= GCC 13
-	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107128
-	if [[ ${GCCMAJOR} -lt 13 ]] ; then
+	if [[ ${GCC_RUN_FIXINCLUDES} == 0 ]] ; then
 		# We remove the generated fixincludes, as they can cause things to break
 		# (ncurses, openssl, etc).  We do not prevent them from being built, as
 		# in the following commit which we revert:
@@ -2003,6 +2020,7 @@ toolchain_src_install() {
 		'(' \
 			-name libstdc++.la -o \
 			-name libstdc++fs.la -o \
+			-name libstdc++exp.la -o \
 			-name libsupc++.la -o \
 			-name libcc1.la -o \
 			-name libcc1plugin.la -o \
