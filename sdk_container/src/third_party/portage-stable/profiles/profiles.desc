@@ -247,6 +247,19 @@ hppa		default/linux/hppa/17.0/systemd					exp
 hppa		default/linux/hppa/17.0/systemd/merged-usr			exp
 hppa		default/linux/hppa/17.0/desktop					stable
 hppa		default/linux/hppa/17.0/developer				exp
+hppa		default/linux/hppa/23.0/hppa1.1					exp
+hppa		default/linux/hppa/23.0/hppa1.1/systemd				exp
+hppa		default/linux/hppa/23.0/hppa1.1/desktop				exp
+hppa		default/linux/hppa/23.0/hppa1.1/desktop/systemd			exp
+hppa		default/linux/hppa/23.0/hppa1.1/split-usr			exp
+hppa		default/linux/hppa/23.0/hppa1.1/split-usr/desktop		exp
+hppa		default/linux/hppa/23.0/hppa2.0					exp
+hppa		default/linux/hppa/23.0/hppa2.0/systemd				exp
+hppa		default/linux/hppa/23.0/hppa2.0/desktop				exp
+hppa		default/linux/hppa/23.0/hppa2.0/desktop/systemd			exp
+hppa		default/linux/hppa/23.0/hppa2.0/split-usr			exp
+hppa		default/linux/hppa/23.0/hppa2.0/split-usr/desktop		exp
+
 
 # IA64 Profiles
 # @MAINTAINER: ia64@gentoo.org
@@ -340,6 +353,36 @@ mips		default/linux/mips/17.0/mipsel/multilib/n32/systemd/merged-usr	exp
 mips		default/linux/mips/17.0/mipsel/multilib/n64			exp
 mips		default/linux/mips/17.0/mipsel/multilib/n64/systemd		exp
 mips		default/linux/mips/17.0/mipsel/multilib/n64/systemd/merged-usr	exp
+mips		default/linux/mips/23.0/mipsel/o32_sf				exp
+mips		default/linux/mips/23.0/mipsel/o32_sf/systemd			exp
+mips		default/linux/mips/23.0/mipsel/o32				exp
+mips		default/linux/mips/23.0/mipsel/o32/systemd			exp
+mips		default/linux/mips/23.0/mipsel/n32				exp
+mips		default/linux/mips/23.0/mipsel/n32/systemd			exp
+mips		default/linux/mips/23.0/mipsel/n64				exp
+mips		default/linux/mips/23.0/mipsel/n64/systemd			exp
+mips		default/linux/mips/23.0/mipsel/multilib/n64			exp
+mips		default/linux/mips/23.0/mipsel/multilib/n64/systemd		exp
+mips		default/linux/mips/23.0/o32_sf					exp
+mips		default/linux/mips/23.0/o32_sf/systemd				exp
+mips		default/linux/mips/23.0/o32					exp
+mips		default/linux/mips/23.0/o32/systemd				exp
+mips		default/linux/mips/23.0/n32					exp
+mips		default/linux/mips/23.0/n32/systemd				exp
+mips		default/linux/mips/23.0/n64					exp
+mips		default/linux/mips/23.0/n64/systemd				exp
+mips		default/linux/mips/23.0/multilib/n64				exp
+mips		default/linux/mips/23.0/multilib/n64/systemd			exp
+mips		default/linux/mips/23.0/split-usr/mipsel/o32_sf			exp
+mips		default/linux/mips/23.0/split-usr/mipsel/o32			exp
+mips		default/linux/mips/23.0/split-usr/mipsel/n32			exp
+mips		default/linux/mips/23.0/split-usr/mipsel/n64			exp
+mips		default/linux/mips/23.0/split-usr/mipsel/multilib/n64		exp
+mips		default/linux/mips/23.0/split-usr/o32_sf			exp
+mips		default/linux/mips/23.0/split-usr/o32				exp
+mips		default/linux/mips/23.0/split-usr/n32				exp
+mips		default/linux/mips/23.0/split-usr/n64				exp
+mips		default/linux/mips/23.0/split-usr/multilib/n64			exp
 
 # Deprecated PPC64 Profiles
 # @MAINTAINER: ppc64@gentoo.org
@@ -386,6 +429,18 @@ ppc64		default/linux/ppc64/17.0/systemd/merged-usr			stable
 ppc64		default/linux/ppc64/17.0/developer				exp
 ppc64		default/linux/ppc64/17.0/musl					dev
 ppc64		default/linux/ppc64/17.0/musl/hardened				exp
+ppc64		default/linux/ppc64/23.0					exp
+ppc64		default/linux/ppc64/23.0/desktop				exp
+ppc64		default/linux/ppc64/23.0/desktop/gnome				exp
+ppc64		default/linux/ppc64/23.0/desktop/gnome/systemd			exp
+ppc64		default/linux/ppc64/23.0/systemd				exp
+ppc64		default/linux/ppc64/23.0/musl					exp
+ppc64		default/linux/ppc64/23.0/musl/hardened				exp
+ppc64		default/linux/ppc64/23.0/split-usr				exp
+ppc64		default/linux/ppc64/23.0/split-usr/desktop			exp
+ppc64		default/linux/ppc64/23.0/split-usr/desktop/gnome		exp
+ppc64		default/linux/ppc64/23.0/split-usr/musl				exp
+ppc64		default/linux/ppc64/23.0/split-usr/musl/hardened		exp
 
 # PPC64LE profiles
 # @MAINTAINER: gyakovlev@gentoo.org, ppc64@gentoo.org, musl@gentoo.org
@@ -405,6 +460,22 @@ ppc64		default/linux/ppc64le/17.0/developer				exp
 ppc64		default/linux/ppc64le/17.0/musl					dev
 ppc64		default/linux/ppc64le/17.0/musl/hardened			exp
 ppc64		default/linux/ppc64le/17.0/ieee-long-double			exp
+ppc64		default/linux/ppc64le/23.0					exp
+ppc64		default/linux/ppc64le/23.0/desktop				exp
+ppc64		default/linux/ppc64le/23.0/desktop/gnome			exp
+ppc64		default/linux/ppc64le/23.0/desktop/gnome/systemd		exp
+ppc64		default/linux/ppc64le/23.0/desktop/plasma			exp
+ppc64		default/linux/ppc64le/23.0/desktop/plasma/systemd		exp
+ppc64		default/linux/ppc64le/23.0/desktop/systemd			exp
+ppc64		default/linux/ppc64le/23.0/systemd				exp
+ppc64		default/linux/ppc64le/23.0/musl					exp
+ppc64		default/linux/ppc64le/23.0/musl/hardened			exp
+ppc64		default/linux/ppc64le/23.0/split-usr				exp
+ppc64		default/linux/ppc64le/23.0/split-usr/desktop			exp
+ppc64		default/linux/ppc64le/23.0/split-usr/desktop/gnome		exp
+ppc64		default/linux/ppc64le/23.0/split-usr/desktop/plasma		exp
+ppc64		default/linux/ppc64le/23.0/split-usr/musl			exp
+ppc64		default/linux/ppc64le/23.0/split-usr/musl/hardened		exp
 
 # RISC-V Profiles
 # @MAINTAINER: riscv@gentoo.org
@@ -592,6 +663,14 @@ mips		default/linux/mips/17.0/o32/musl				exp
 mips		default/linux/mips/17.0/n64/musl				exp
 mips		default/linux/mips/17.0/mipsel/o32/musl				exp
 mips		default/linux/mips/17.0/mipsel/n64/musl				exp
+mips		default/linux/mips/23.0/mipsel/o32/musl				exp
+mips		default/linux/mips/23.0/mipsel/n64/musl				exp
+mips		default/linux/mips/23.0/o32/musl				exp
+mips		default/linux/mips/23.0/n64/musl				exp
+mips		default/linux/mips/23.0/split-usr/mipsel/o32/musl		exp
+mips		default/linux/mips/23.0/split-usr/mipsel/n64/musl		exp
+mips		default/linux/mips/23.0/split-usr/o32/musl			exp
+mips		default/linux/mips/23.0/split-usr/n64/musl			exp
 riscv		default/linux/riscv/20.0/rv64gc/lp64d/musl			dev
 riscv		default/linux/riscv/20.0/rv64gc/lp64/musl			dev
 riscv		default/linux/riscv/23.0/rv64/lp64d/musl			exp
@@ -635,8 +714,9 @@ x86-linux	default/linux/x86/17.0/prefix/kernel-2.6.16+			exp
 arm-linux	default/linux/arm/17.0/armv7a/prefix/kernel-3.2+		exp
 arm64-linux	default/linux/arm64/17.0/prefix/kernel-3.2+			exp
 
-# Mac OS X Profiles
+# macOS Profiles
 ppc-macos	prefix/darwin/macos/10.5/ppc/gcc				exp
+x86-macos	prefix/darwin/macos/10.5/x86/gcc				exp
 x64-macos	prefix/darwin/macos/10.11/x64					exp
 x64-macos	prefix/darwin/macos/10.13/x64					exp
 x64-macos	prefix/darwin/macos/10.13/x64/gcc				exp

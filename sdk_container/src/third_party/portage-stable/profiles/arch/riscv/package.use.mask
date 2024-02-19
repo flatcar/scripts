@@ -42,7 +42,7 @@ media-video/mpv lua_single_target_luajit -lua_single_target_lua5-1
 # sd-boot should work here.
 sys-apps/systemd -boot -boot -ukify
 sys-apps/systemd-utils -boot -ukify
-sys-kernel/installkernel -ukify
+sys-kernel/installkernel -systemd-boot -ukify
 
 # Sam James <sam@gentoo.org> (2023-05-10)
 # sys-cluster/ceph not keyworded here
@@ -73,10 +73,6 @@ app-i18n/fcitx-libpinyin dictionary-manager
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2022-09-25)
 # Moved here from default/linux/...
 sys-devel/gcc -sanitize
-
-# Alexey Shvetsov <alexxy@gentoo.org> (2022-09-15)
-# Requires proprietary binary-only libraries only available for a handful of arches
-sys-cluster/slurm nvml
 
 # Jakov Smolić <jsmolic@gentoo.org> (2022-09-07)
 # Unkeyworded dependencies (xen-tools, aws stack), masking to reduce
@@ -243,8 +239,3 @@ sci-libs/opencascade vtk
 dev-libs/libpcre2 jit
 dev-libs/libpcre jit
 www-servers/nginx pcre-jit
-
-# Ian Jordan <immoloism@gmail.com> (2024-01-24)
-# Dependencies not keyworded yet:
-#  - dev-libs/libisoburn
-dev-util/catalyst iso
