@@ -14,24 +14,15 @@ SRC_URI="https://github.com/libffi/libffi/releases/download/v${MY_PV}/${MY_P}.ta
 S="${WORKDIR}"/${MY_P}
 
 LICENSE="MIT"
-# This is a core package which is depended on by e.g. Python
+# This is a core package which is depended on by e.g. Python.
 # Please use preserve-libs.eclass in pkg_{pre,post}inst to cover users
-# with FEATURES="-preserved-libs" or another package manager if SONAME
-# changes.
+# with FEATURES="-preserved-libs" or another package manager if SONAME changes.
 SLOT="0/8" # SONAME=libffi.so.8
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="debug exec-static-trampoline pax-kernel static-libs test"
 
 RESTRICT="!test? ( test )"
 BDEPEND="test? ( dev-util/dejagnu )"
-
-PATCHES=(
-	"${FILESDIR}"/${P}-hppa-large-struct.patch
-	"${FILESDIR}"/${P}-hppa-closure-function-ptrs.patch
-	"${FILESDIR}"/${P}-hppa-jump-table.patch
-	"${FILESDIR}"/${P}-sparc-float-typo.patch
-	"${FILESDIR}"/${P}-lld-17.patch
-)
 
 src_prepare() {
 	default
