@@ -40,7 +40,7 @@ RDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.11-static.patch"
+	"${FILESDIR}/${PN}-6.5-static.patch"
 )
 
 src_prepare() {
