@@ -24,7 +24,7 @@ else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/jpakkane.gpg
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -57,12 +57,6 @@ PATCHES=(
 
 	# backport fix for hiding compiler warnings (such as Modern C) in vala and cython
 	"${FILESDIR}"/0001-ninja-backend-don-t-hide-all-compiler-warnings-for-t.patch
-
-	# backport revert for broken rpath changes: https://github.com/mesonbuild/meson/pull/12672
-	"${FILESDIR}"/0001-Revert-clike-Deduplicate-rpath-linker-flags.patch
-
-	# backport macos Prefix fix: https://github.com/mesonbuild/meson/pull/12747
-	"${FILESDIR}"/meson-1.3.1-xtools-support.patch
 )
 
 python_prepare_all() {
