@@ -54,7 +54,7 @@
 
 # Keep versions on both arches in sync.
 =dev-libs/libp11-0.4.12-r6 ~arm64
-=dev-libs/opensc-0.23.0-r3 ~arm64
+=dev-libs/opensc-0.24.0 ~arm64
 =dev-util/bpftool-6.5.7 ~arm64
 =net-dns/bind-tools-9.16.48 ~arm64
 =net-dns/libidn2-2.3.7 ~arm64
