@@ -107,6 +107,7 @@ app-crypt/adcli
 app-crypt/argon2
 app-crypt/ccid
 app-crypt/efitools
+app-crypt/gnupg
 app-crypt/libb2
 app-crypt/libmd
 app-crypt/mhash
