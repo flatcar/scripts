@@ -164,7 +164,38 @@ die_notrace() {
   for line in "$@"; do
     error "${DIE_PREFIX}${line}"
   done
+  if [[ ! -e "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME" ]]; then
+      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
+      error "${DIE_PREFIX}!! BEGIN DEBUG OUTPUT: !!"
+      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
+      error
+      error "${DIE_PREFIX}== MOUNT =="
+      error "${DIE_PREFIX}==========="
+      error_command_output "${DIE_PREFIX}" mount
+      error
+      error "${DIE_PREFIX}== DF =="
+      error "${DIE_PREFIX}========"
+      error_command_output "${DIE_PREFIX}" df -h
+      error
+      error "${DIE_PREFIX}== DMESG =="
+      error "${DIE_PREFIX}==========="
+      error_command_output "${DIE_PREFIX}" sudo dmesg
+      error
+      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
+      error "${DIE_PREFIX}!! END DEBUG OUTPUT: !!"
+      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
+      touch "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME"
+  fi
   exit 1
+}
+
+error_command_output() {
+    local prefix=${1}; shift
+    # rest are a command to execute
+    local REPLY
+    while read -r; do
+        error "${prefix}${REPLY}"
+    done < <("${@}" 2>&1)
 }
 
 # Simple version comparison routine
@@ -295,6 +326,8 @@ SCRIPTS_DIR="${SRC_ROOT}/scripts"
 BUILD_LIBRARY_DIR="${SCRIPTS_DIR}/build_library"
 REPO_CACHE_DIR="${REPO_ROOT}/.cache"
 REPO_MANIFESTS_DIR="${REPO_ROOT}/.repo/manifests"
+
+rm -f "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME" || :
 
 # Source FLATCAR_VERSION_ID from manifest.
 if [[ -f "${REPO_MANIFESTS_DIR}/version.txt" ]]; then

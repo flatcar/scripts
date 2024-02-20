@@ -83,6 +83,10 @@ FLAGS "$@" || exit 1
 
 eval set -- "${FLAGS_ARGV}"
 
+# Only now can we die on error.  shflags functions leak non-zero error codes,
+# so will die prematurely if 'switch_to_strict_mode' is specified before now.
+switch_to_strict_mode -uo pipefail
+
 # Validate command line parameters
 
 SYSEXTNAME="${1:-}"
@@ -128,8 +132,6 @@ _get_sysext_arch() {
         die "Unknown board '${board}'"
     fi
 }
-
-set -euo pipefail
 
 cleanup() {
   local dirs=(
