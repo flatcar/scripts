@@ -12,7 +12,7 @@ inherit coreos-go cros-workon systemd udev
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="13f05b3c9f6221fb68234387ff2e4c2d63a39b63" # v2.15.0
+	CROS_WORKON_COMMIT="45e9d394a3e4f240e9d6745af0a83fa36179f510" # v2.17.0
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -43,10 +43,10 @@ RDEPEND+="${DEPEND}"
 
 PATCHES=(
 	"${FILESDIR}/0001-sed-s-coreos-flatcar.patch"
-	"${FILESDIR}/0002-mod-add-flatcar-ignition-0.36.2.patch"
-	"${FILESDIR}/0003-sum-go-mod-tidy.patch"
-	"${FILESDIR}/0004-vendor-go-mod-vendor.patch"
-	"${FILESDIR}/0005-config-add-ignition-translation.patch"
+	"${FILESDIR}/0002-config-add-ignition-translation.patch"
+	"${FILESDIR}/0003-mod-add-flatcar-ignition-0.36.2.patch"
+	"${FILESDIR}/0004-sum-go-mod-tidy.patch"
+	"${FILESDIR}/0005-vendor-go-mod-vendor.patch"
 	"${FILESDIR}/0006-config-v3_5-convert-ignition-2.x-to-3.x.patch"
 	"${FILESDIR}/0007-internal-prv-cmdline-backport-flatcar-patch.patch"
 	"${FILESDIR}/0008-provider-qemu-apply-fw_cfg-patch.patch"
@@ -57,13 +57,12 @@ PATCHES=(
 	"${FILESDIR}/0013-config-util-add-cloud-init-detection-to-initial-pars.patch"
 	"${FILESDIR}/0014-Revert-drop-OEM-URI-support.patch"
 	"${FILESDIR}/0015-internal-resource-url-support-btrfs-as-OEM-partition.patch"
-	"${FILESDIR}/0016-internal-exec-stages-disks-prevent-races-with-udev.patch"
-	"${FILESDIR}/0017-translation-support-OEM-and-oem.patch"
-	"${FILESDIR}/0018-revert-internal-oem-drop-noop-OEMs.patch"
-	"${FILESDIR}/0019-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
-	"${FILESDIR}/0020-usr-share-oem-oem.patch"
-	"${FILESDIR}/0021-internal-exec-stages-mount-Mount-oem.patch"
-	"${FILESDIR}/0022-sgdisk-Run-partprobe-after-partition-changes.patch"
+	"${FILESDIR}/0016-translation-support-OEM-and-oem.patch"
+	"${FILESDIR}/0017-revert-internal-oem-drop-noop-OEMs.patch"
+	"${FILESDIR}/0018-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
+	"${FILESDIR}/0019-usr-share-oem-oem.patch"
+	"${FILESDIR}/0020-internal-exec-stages-mount-Mount-oem.patch"
+	"${FILESDIR}/0021-sgdisk-Run-partprobe-after-partition-changes.patch"
 )
 
 src_compile() {

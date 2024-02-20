@@ -1,4 +1,4 @@
-From 35d2df7eb82eb83c015aaa714fd66ecddf65282b Mon Sep 17 00:00:00 2001
+From d83920b6c3b3bb186460a6e6fced1f4ed74cae2e Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 22 Sep 2021 14:53:49 +0200
 Subject: [PATCH 10/21] internal/disk/fs: ignore fs format mismatches for the
@@ -22,7 +22,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/internal/exec/stages/disks/filesystems.go b/internal/exec/stages/disks/filesystems.go
-index 18103f38..72baf50d 100644
+index 62dab634..2bd2debd 100644
 --- a/internal/exec/stages/disks/filesystems.go
 +++ b/internal/exec/stages/disks/filesystems.go
 @@ -126,7 +126,7 @@ func (s stage) createFilesystem(fs types.Filesystem) error {
@@ -35,5 +35,5 @@ index 18103f38..72baf50d 100644
  			(fs.UUID == nil || canonicalizeFilesystemUUID(info.Type, info.UUID) == canonicalizeFilesystemUUID(fileSystemFormat, *fs.UUID)) {
  			s.Logger.Info("filesystem at %q is already correctly formatted. Skipping mkfs...", fs.Device)
 -- 
-2.25.1
+2.43.0
 

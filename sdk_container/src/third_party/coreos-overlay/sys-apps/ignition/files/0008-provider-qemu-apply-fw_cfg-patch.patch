@@ -1,6 +1,6 @@
-From acd94e7ce33771252491f25a0dcb0e45ad5b908a Mon Sep 17 00:00:00 2001
+From 6233a0364d3a7aaa67b66d8d776708b61e7a4457 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Fri, 24 Feb 2023 09:40:01 +0100
+Date: Tue, 20 Feb 2024 10:02:28 +0100
 Subject: [PATCH 08/21] provider/qemu: apply fw_cfg patch
 
 we support both CoreOS and Flatcar fw_cfg path to ensure compatiblity
@@ -11,7 +11,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 63 insertions(+), 55 deletions(-)
 
 diff --git a/internal/providers/qemu/qemu_fwcfg.go b/internal/providers/qemu/qemu_fwcfg.go
-index f8bf820e..89515187 100644
+index a150869f..e233865a 100644
 --- a/internal/providers/qemu/qemu_fwcfg.go
 +++ b/internal/providers/qemu/qemu_fwcfg.go
 @@ -29,6 +29,7 @@ import (
@@ -20,9 +20,9 @@ index f8bf820e..89515187 100644
  
 +	iErrors "github.com/flatcar/ignition/v2/config/shared/errors"
  	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
- 	"github.com/flatcar/ignition/v2/internal/providers/util"
- 	"github.com/flatcar/ignition/v2/internal/resource"
-@@ -36,9 +37,11 @@ import (
+ 	"github.com/flatcar/ignition/v2/internal/distro"
+ 	"github.com/flatcar/ignition/v2/internal/platform"
+@@ -38,9 +39,11 @@ import (
  	"github.com/coreos/vcontext/report"
  )
  
@@ -36,8 +36,8 @@ index f8bf820e..89515187 100644
 +	}
  )
  
- func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
-@@ -48,63 +51,68 @@ func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
+ func init() {
+@@ -57,63 +60,68 @@ func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
  		return types.Config{}, report.Report{}, err
  	}
  
@@ -56,6 +56,20 @@ index f8bf820e..89515187 100644
 -		return types.Config{}, report.Report{}, err
 -	}
 +	for cfg, size := range firmwareConfigPaths {
++		// get size of firmware blob, if it exists
++		sizeBytes, err := os.ReadFile(size)
++		if os.IsNotExist(err) {
++			f.Logger.Info("QEMU firmware config was not found. Ignoring...")
++			continue
++		} else if err != nil {
++			f.Logger.Err("couldn't read QEMU firmware config size: %v", err)
++			return types.Config{}, report.Report{}, err
++		}
++		size, err := strconv.Atoi(strings.TrimSpace(string(sizeBytes)))
++		if err != nil {
++			f.Logger.Err("couldn't parse QEMU firmware config size: %v", err)
++			return types.Config{}, report.Report{}, err
++		}
  
 -	// Read firmware blob.  We need to make as few, large read() calls as
 -	// possible, since the qemu_fw_cfg kernel module takes O(offset)
@@ -76,21 +90,6 @@ index f8bf820e..89515187 100644
 -		// if size is correct, we will never call this at an offset
 -		// where it would return io.EOF
 -		n, err := fh.Read(data[len(data):cap(data)])
-+		// get size of firmware blob, if it exists
-+		sizeBytes, err := os.ReadFile(size)
-+		if os.IsNotExist(err) {
-+			f.Logger.Info("QEMU firmware config was not found. Ignoring...")
-+			continue
-+		} else if err != nil {
-+			f.Logger.Err("couldn't read QEMU firmware config size: %v", err)
-+			return types.Config{}, report.Report{}, err
-+		}
-+		size, err := strconv.Atoi(strings.TrimSpace(string(sizeBytes)))
-+		if err != nil {
-+			f.Logger.Err("couldn't parse QEMU firmware config size: %v", err)
-+			return types.Config{}, report.Report{}, err
-+		}
-+
 +		// Read firmware blob.  We need to make as few, large read() calls as
 +		// possible, since the qemu_fw_cfg kernel module takes O(offset)
 +		// time for each read syscall.  os.ReadFile() would eventually
@@ -157,7 +156,8 @@ index f8bf820e..89515187 100644
 -	// of the file so the extra read would be maximally expensive.
 -	return util.ParseConfig(f.Logger, data)
 +	return types.Config{}, report.Report{}, iErrors.ErrEmpty
++
  }
 -- 
-2.25.1
+2.43.0
 
