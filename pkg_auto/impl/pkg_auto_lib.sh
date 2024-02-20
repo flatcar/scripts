@@ -1266,8 +1266,8 @@ function read_reports() {
             done
         done
     done
-    local -n all_pkgs_ref="${all_pkgs_var_name}"
-    all_pkgs_ref=( "${!all_packages_set[@]}" )
+
+    mapfile -t "${all_pkgs_var_name}" < <(printf '%s\n' "${!all_packages_set[@]}" | sort)
 }
 
 function unset_report_mvms() {
