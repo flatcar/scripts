@@ -215,6 +215,7 @@ for package; do
     --sysroot="/build/${FLAGS_board}"  \
     --root-deps=rdeps \
     --usepkgonly \
+    --getbinpkg \
     --verbose \
     "${package}"
 done
