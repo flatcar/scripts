@@ -150,3 +150,9 @@ sys-apps/findutils selinux
 app-containers/containerd btrfs device-mapper
 app-containers/docker btrfs device-mapper overlay seccomp
 app-containers/docker-cli hardened
+
+# Drop python dependencies from some SELinux packages.
+#
+# The vanilla USE flag must be enabled if python is disabled.
+sys-apps/policycoreutils vanilla -python
+sys-libs/libsemanage -python
