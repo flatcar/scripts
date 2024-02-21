@@ -1,7 +1,7 @@
-From 338d08aaa3a001b0c6c9ba07c8c987cde055a8a2 Mon Sep 17 00:00:00 2001
+From 0274c54de01a38d93d1cfdf2a12572d7ecd76500 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Fri, 24 Feb 2023 09:14:24 +0100
-Subject: [PATCH 04/21] vendor: go mod vendor
+Date: Mon, 19 Feb 2024 18:06:45 +0100
+Subject: [PATCH 05/21] vendor: go mod vendor
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
@@ -17029,30 +17029,30 @@ index 00000000..1b1efb0f
 +	return
 +}
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 9b01b083..1e050725 100644
+index d1b9b406..879c8c1c 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -20,6 +20,9 @@ cloud.google.com/go/storage
  cloud.google.com/go/storage/internal
  cloud.google.com/go/storage/internal/apiv2
- cloud.google.com/go/storage/internal/apiv2/stubs
+ cloud.google.com/go/storage/internal/apiv2/storagepb
 +# github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437
 +## explicit
 +github.com/ajeddeloh/go-json
- # github.com/aws/aws-sdk-go v1.44.204
- ## explicit; go 1.11
+ # github.com/aws/aws-sdk-go v1.47.9
+ ## explicit; go 1.19
  github.com/aws/aws-sdk-go/aws
-@@ -82,6 +85,9 @@ github.com/coreos/go-json
+@@ -87,6 +90,9 @@ github.com/coreos/go-json
  # github.com/coreos/go-semver v0.3.1
  ## explicit; go 1.8
  github.com/coreos/go-semver/semver
-+# github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142
++# github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 +## explicit
 +github.com/coreos/go-systemd/unit
  # github.com/coreos/go-systemd/v22 v22.5.0
  ## explicit; go 1.12
  github.com/coreos/go-systemd/v22/dbus
-@@ -97,6 +103,27 @@ github.com/coreos/vcontext/validate
+@@ -102,6 +108,27 @@ github.com/coreos/vcontext/validate
  # github.com/davecgh/go-spew v1.1.1
  ## explicit
  github.com/davecgh/go-spew/spew
@@ -17080,16 +17080,16 @@ index 9b01b083..1e050725 100644
  # github.com/godbus/dbus/v5 v5.0.4
  ## explicit; go 1.12
  github.com/godbus/dbus/v5
-@@ -179,6 +206,9 @@ go.opencensus.io/trace
+@@ -213,6 +240,9 @@ go.opencensus.io/trace
  go.opencensus.io/trace/internal
  go.opencensus.io/trace/propagation
  go.opencensus.io/trace/tracestate
-+# go4.org v0.0.0-20160314031811-03efcb870d84
-+## explicit
++# go4.org v0.0.0-20230225012048-214862532bf5
++## explicit; go 1.13
 +go4.org/errorutil
- # golang.org/x/net v0.7.0
- ## explicit; go 1.17
- golang.org/x/net/context
+ # golang.org/x/crypto v0.15.0
+ ## explicit; go 1.18
+ golang.org/x/crypto/chacha20
 -- 
-2.25.1
+2.43.0
 

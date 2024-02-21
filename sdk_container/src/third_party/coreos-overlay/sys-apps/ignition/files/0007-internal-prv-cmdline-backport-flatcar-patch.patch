@@ -1,18 +1,18 @@
-From 049ed96101d50d0a5303d1b54b3e7fb8e543b513 Mon Sep 17 00:00:00 2001
-From: Mathieu Tortuyaux <mathieu@kinvolk.io>
-Date: Fri, 30 Jul 2021 14:21:31 +0200
+From cb1476e74d19664ed3a175d240610ebe5daed471 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Mon, 19 Feb 2024 18:12:22 +0100
 Subject: [PATCH 07/21] internal/prv/cmdline: backport flatcar patch
 
 this patch provides backward compatibility for various config
 key
 
-Signed-off-by: Mathieu Tortuyaux <mathieu@kinvolk.io>
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
  internal/providers/cmdline/cmdline.go | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/internal/providers/cmdline/cmdline.go b/internal/providers/cmdline/cmdline.go
-index f09e6fcb..b6de99d5 100644
+index eb8e2b45..0561438a 100644
 --- a/internal/providers/cmdline/cmdline.go
 +++ b/internal/providers/cmdline/cmdline.go
 @@ -33,7 +33,9 @@ import (
@@ -25,8 +25,8 @@ index f09e6fcb..b6de99d5 100644
 +	cmdlineUrlFlag             = "ignition.config.url"
  )
  
- func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
-@@ -82,7 +84,7 @@ func parseCmdline(cmdline []byte) (url string) {
+ var (
+@@ -91,7 +93,7 @@ func parseCmdline(cmdline []byte) (url string) {
  		parts := strings.SplitN(strings.TrimSpace(arg), "=", 2)
  		key := parts[0]
  
@@ -36,5 +36,5 @@ index f09e6fcb..b6de99d5 100644
  		}
  
 -- 
-2.25.1
+2.43.0
 

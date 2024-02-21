@@ -1,24 +1,19 @@
-From 469c4eddc01603ae65f7bbbc3e8233e99f4ac902 Mon Sep 17 00:00:00 2001
+From fb939eeea1cbcf1ec47b1eb83f0f0d1d725f3950 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:38:16 +0200
 Subject: [PATCH 14/21] Revert "*: drop OEM URI support"
 
 This reverts commit 0c088d6de77aa1b1f47b9252a07f51cb1e249df3.
 ---
- config/v3_0/types/url.go             |  2 +-
- config/v3_1/types/url.go             |  2 +-
- config/v3_2/types/url.go             |  2 +-
- config/v3_3/types/url.go             |  2 +-
- config/v3_4/types/url.go             |  2 +-
- docs/supported-platforms.md          |  1 +
- internal/distro/distro.go            | 11 +++-
- internal/resource/url.go             | 92 ++++++++++++++++++++++++++++
- tests/blackbox_test.go               | 14 ++++-
- tests/negative/files/missing_file.go | 27 ++++++++
- tests/negative/general/config.go     | 52 ++++++++++++++++
- tests/positive/files/remote.go       | 44 +++++++++++++
- tests/types/types.go                 |  1 +
- 13 files changed, 243 insertions(+), 9 deletions(-)
+ config/v3_0/types/url.go    |  2 +-
+ config/v3_1/types/url.go    |  2 +-
+ config/v3_2/types/url.go    |  2 +-
+ config/v3_3/types/url.go    |  2 +-
+ config/v3_4/types/url.go    |  2 +-
+ docs/supported-platforms.md |  1 +
+ internal/distro/distro.go   | 11 ++++-
+ internal/resource/url.go    | 92 +++++++++++++++++++++++++++++++++++++
+ 8 files changed, 107 insertions(+), 7 deletions(-)
 
 diff --git a/config/v3_0/types/url.go b/config/v3_0/types/url.go
 index 2d8c44b1..f560bc22 100644
@@ -86,10 +81,10 @@ index 9b2b4405..5258c3c6 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index 9ecb590a..f7bb4b40 100644
+index 1c9d63bb..39a098dc 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
-@@ -10,6 +10,7 @@ Ignition is currently only supported for the following platforms:
+@@ -11,6 +11,7 @@ Ignition is currently only supported for the following platforms:
  * [Amazon Web Services] (`aws`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [Microsoft Azure] (`azure`)- Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
  * [Microsoft Azure Stack] (`azurestack`) - Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
@@ -274,240 +269,6 @@ index 44253568..3f5fb4ab 100644
 +		"unmounting %q", oemMountPath,
 +	)
 +}
-diff --git a/tests/blackbox_test.go b/tests/blackbox_test.go
-index 7914738b..2fb15345 100644
---- a/tests/blackbox_test.go
-+++ b/tests/blackbox_test.go
-@@ -139,13 +139,19 @@ func outer(t *testing.T, test types.Test, negativeTests bool) error {
- 		return fmt.Errorf("failed to change mode of temp dir: %v", err)
- 	}
- 
-+	oemLookasideDir := filepath.Join(tmpDirectory, "oem-lookaside")
- 	systemConfigDir := filepath.Join(tmpDirectory, "system")
- 	var rootPartition *types.Partition
- 
- 	// Setup
--	err = createFilesFromSlice(systemConfigDir, test.SystemDirFiles)
-+	err = createFilesFromSlice(oemLookasideDir, test.OEMLookasideFiles)
- 	// Defer before the error handling because the createFilesFromSlice function
- 	// can fail after partially-creating things
-+	defer os.RemoveAll(oemLookasideDir)
-+	if err != nil {
-+		return err
-+	}
-+	err = createFilesFromSlice(systemConfigDir, test.SystemDirFiles)
- 	defer os.RemoveAll(systemConfigDir)
- 	if err != nil {
- 		return err
-@@ -275,7 +281,11 @@ func outer(t *testing.T, test types.Test, negativeTests bool) error {
- 
- 	// Ignition
- 	appendEnv := test.Env
--	appendEnv = append(appendEnv, "IGNITION_SYSTEM_CONFIG_DIR="+systemConfigDir)
-+	appendEnv = append(appendEnv, []string{
-+		"IGNITION_OEM_DEVICE=" + test.In[0].Partitions.GetPartition("OEM").Device,
-+		"IGNITION_OEM_LOOKASIDE_DIR=" + oemLookasideDir,
-+		"IGNITION_SYSTEM_CONFIG_DIR=" + systemConfigDir,
-+	}...)
- 
- 	if !negativeTests {
- 		if err := runIgnition(t, ctx, "fetch", "", tmpDirectory, appendEnv); err != nil {
-diff --git a/tests/negative/files/missing_file.go b/tests/negative/files/missing_file.go
-index 251f5593..4f6a9801 100644
---- a/tests/negative/files/missing_file.go
-+++ b/tests/negative/files/missing_file.go
-@@ -23,6 +23,7 @@ func init() {
- 	register.Register(register.NegativeTest, MissingRemoteContentsHTTP())
- 	register.Register(register.NegativeTest, InvalidHeaderRemoteContentsHTTP())
- 	register.Register(register.NegativeTest, MissingRemoteContentsTFTP())
-+	register.Register(register.NegativeTest, MissingRemoteContentsOEM())
- }
- 
- func MissingRemoteContentsHTTP() types.Test {
-@@ -103,3 +104,29 @@ func MissingRemoteContentsTFTP() types.Test {
- 		ConfigMinVersion: configMinVersion,
- 	}
- }
-+
-+func MissingRemoteContentsOEM() types.Test {
-+	name := "Create Files from Remote Contents - OEM"
-+	in := types.GetBaseDisk()
-+	out := in
-+	config := `{
-+	  "ignition": { "version": "$version" },
-+	  "storage": {
-+	    "files": [{
-+	      "path": "/foo/bar",
-+	      "contents": {
-+	        "source": "oem:///source"
-+	      }
-+	    }]
-+	  }
-+	}`
-+	configMinVersion := "3.0.0-experimental"
-+
-+	return types.Test{
-+		Name:             name,
-+		In:               in,
-+		Out:              out,
-+		Config:           config,
-+		ConfigMinVersion: configMinVersion,
-+	}
-+}
-diff --git a/tests/negative/general/config.go b/tests/negative/general/config.go
-index 6fcabe80..6d3cf848 100644
---- a/tests/negative/general/config.go
-+++ b/tests/negative/general/config.go
-@@ -29,12 +29,14 @@ func init() {
- 	register.Register(register.NegativeTest, ReplaceConfigWithMissingFileHTTP())
- 	register.Register(register.NegativeTest, ReplaceConfigWithInvalidHeaderHTTP())
- 	register.Register(register.NegativeTest, ReplaceConfigWithMissingFileTFTP())
-+	register.Register(register.NegativeTest, ReplaceConfigWithMissingFileOEM())
- 	register.Register(register.NegativeTest, AppendConfigWithMissingFileHTTP())
- 	register.Register(register.NegativeTest, AppendConfigWithInvalidHeaderHTTP())
- 	register.Register(register.NegativeTest, AppendConfigWithMissingFileTFTP())
- 	register.Register(register.NegativeTest, VersionOnlyConfig25())
- 	register.Register(register.NegativeTest, VersionOnlyConfig35())
- 	register.Register(register.NegativeTest, MergingCanFail())
-+	register.Register(register.NegativeTest, AppendConfigWithMissingFileOEM())
- }
- 
- func ReplaceConfigWithInvalidHash() types.Test {
-@@ -185,6 +187,31 @@ func ReplaceConfigWithMissingFileTFTP() types.Test {
- 	}
- }
- 
-+func ReplaceConfigWithMissingFileOEM() types.Test {
-+	name := "Replace Config with Missing File - OEM"
-+	in := types.GetBaseDisk()
-+	out := in
-+	config := `{
-+	  "ignition": {
-+	    "version": "$version",
-+	    "config": {
-+	      "replace": {
-+	        "source": "oem:///asdf"
-+	      }
-+	    }
-+	  }
-+	}`
-+	configMinVersion := "3.0.0-experimental"
-+
-+	return types.Test{
-+		Name:             name,
-+		In:               in,
-+		Out:              out,
-+		Config:           config,
-+		ConfigMinVersion: configMinVersion,
-+	}
-+}
-+
- func AppendConfigWithMissingFileHTTP() types.Test {
- 	name := "config.merge.http.notfound"
- 	in := types.GetBaseDisk()
-@@ -261,6 +288,31 @@ func AppendConfigWithMissingFileTFTP() types.Test {
- 	}
- }
- 
-+func AppendConfigWithMissingFileOEM() types.Test {
-+	name := "Append Config with Missing File - OEM"
-+	in := types.GetBaseDisk()
-+	out := in
-+	config := `{
-+	  "ignition": {
-+	    "version": "$version",
-+	    "config": {
-+	      "append": [{
-+	        "source": "oem:///asdf"
-+	      }]
-+	    }
-+	  }
-+	}`
-+	configMinVersion := "3.0.0-experimental"
-+
-+	return types.Test{
-+		Name:             name,
-+		In:               in,
-+		Out:              out,
-+		Config:           config,
-+		ConfigMinVersion: configMinVersion,
-+	}
-+}
-+
- func VersionOnlyConfig25() types.Test {
- 	name := "config.version.2.5.0-exp"
- 	in := types.GetBaseDisk()
-diff --git a/tests/positive/files/remote.go b/tests/positive/files/remote.go
-index 792bdae7..9117e651 100644
---- a/tests/positive/files/remote.go
-+++ b/tests/positive/files/remote.go
-@@ -29,6 +29,7 @@ func init() {
- 	register.Register(register.PositiveTest, CreateFileFromRemoteContentsHTTPUsingHeadersWithRedirect())
- 	register.Register(register.PositiveTest, CreateFileFromRemoteContentsHTTPUsingOverwrittenHeaders())
- 	register.Register(register.PositiveTest, CreateFileFromRemoteContentsTFTP())
-+	register.Register(register.PositiveTest, CreateFileFromRemoteContentsOEM())
- }
- 
- func CreateFileFromRemoteContentsHTTP() types.Test {
-@@ -252,3 +253,46 @@ func CreateFileFromRemoteContentsTFTP() types.Test {
- 		ConfigMinVersion: configMinVersion,
- 	}
- }
-+
-+func CreateFileFromRemoteContentsOEM() types.Test {
-+	name := "Create Files from Remote Contents - OEM"
-+	in := types.GetBaseDisk()
-+	out := types.GetBaseDisk()
-+	config := `{
-+	  "ignition": { "version": "$version" },
-+	  "storage": {
-+	    "files": [{
-+	      "path": "/foo/bar",
-+	      "contents": {
-+	        "source": "oem:///source"
-+	      }
-+	    }]
-+	  }
-+	}`
-+	in[0].Partitions.AddFiles("OEM", []types.File{
-+		{
-+			Node: types.Node{
-+				Name: "source",
-+			},
-+			Contents: "asdf\nfdsa",
-+		},
-+	})
-+	out[0].Partitions.AddFiles("ROOT", []types.File{
-+		{
-+			Node: types.Node{
-+				Name:      "bar",
-+				Directory: "foo",
-+			},
-+			Contents: "asdf\nfdsa",
-+		},
-+	})
-+	configMinVersion := "3.0.0-experimental"
-+
-+	return types.Test{
-+		Name:             name,
-+		In:               in,
-+		Out:              out,
-+		Config:           config,
-+		ConfigMinVersion: configMinVersion,
-+	}
-+}
-diff --git a/tests/types/types.go b/tests/types/types.go
-index d5bd3fe7..ea4ff6ab 100644
---- a/tests/types/types.go
-+++ b/tests/types/types.go
-@@ -97,6 +97,7 @@ type Test struct {
- 	In                []Disk // Disk state before running Ignition
- 	Out               []Disk // Expected disk state after running Ignition
- 	MntDevices        []MntDevice
-+	OEMLookasideFiles []File
- 	SystemDirFiles    []File
- 	Env               []string // Environment variables for Ignition
- 	Config            string
 -- 
-2.25.1
+2.43.0
 

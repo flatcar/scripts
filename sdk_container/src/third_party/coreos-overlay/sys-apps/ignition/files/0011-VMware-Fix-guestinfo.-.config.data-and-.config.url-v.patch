@@ -1,6 +1,6 @@
-From fb84b45f0499fc2cdc4cb7ea72cc7639bbcf7c98 Mon Sep 17 00:00:00 2001
+From f354144ff3e000e21a1050a03bba3b58f9ade4cb Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Wed, 25 May 2022 10:34:32 +0200
+Date: Tue, 20 Feb 2024 10:12:02 +0100
 Subject: [PATCH 11/21] VMware: Fix guestinfo.*.config.data and *.config.url
  variables
 MIME-Version: 1.0
@@ -20,12 +20,13 @@ never used to fetch the Ignition config.
 Thus, use guestinfo.*.config.url as fallback if no guestinfo.*.config.data variables are set.
 
 Co-authored-by: Kai Lüke <kailuke@microsoft.com>
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- internal/providers/vmware/vmware_amd64.go | 96 +++++++++++++++++------
- 1 file changed, 74 insertions(+), 22 deletions(-)
+ internal/providers/vmware/vmware_amd64.go | 93 +++++++++++++++++------
+ 1 file changed, 71 insertions(+), 22 deletions(-)
 
 diff --git a/internal/providers/vmware/vmware_amd64.go b/internal/providers/vmware/vmware_amd64.go
-index b41b54bc..5a660b6c 100644
+index 1d40249c..a0833794 100644
 --- a/internal/providers/vmware/vmware_amd64.go
 +++ b/internal/providers/vmware/vmware_amd64.go
 @@ -19,6 +19,7 @@ package vmware
@@ -35,18 +36,16 @@ index b41b54bc..5a660b6c 100644
 +	"net/url"
  
  	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
- 	"github.com/flatcar/ignition/v2/internal/providers"
-@@ -50,26 +51,85 @@ func FetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
- 		return types.Config{}, report.Report{}, providers.ErrNoProvider
+ 	"github.com/flatcar/ignition/v2/internal/platform"
+@@ -58,26 +59,83 @@ func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
+ 		return types.Config{}, report.Report{}, platform.ErrNoProvider
  	}
  
 -	config, err := fetchRawConfig(f)
 +	config, err := fetchDataConfig(f)
-+
 +	if err == nil && len(config) == 0 {
 +		config, err = fetchUrlConfig(f)
 +	}
-+
  	if err != nil {
  		return types.Config{}, report.Report{}, err
  	}
@@ -129,7 +128,7 @@ index b41b54bc..5a660b6c 100644
  
  	ovfEnv, err := info.String(GUESTINFO_OVF, "")
  	if err != nil {
-@@ -79,28 +139,20 @@ func fetchRawConfig(f *resource.Fetcher) (config, error) {
+@@ -87,28 +145,19 @@ func fetchRawConfig(f *resource.Fetcher) (config, error) {
  		env, err := ReadOvfEnvironment([]byte(ovfEnv))
  		if err != nil {
  			f.Logger.Warning("failed to parse OVF environment: %v. Continuing...", err)
@@ -161,10 +160,9 @@ index b41b54bc..5a660b6c 100644
 -		encoding: encoding,
 -	}, nil
 +	return data, nil
-+
  }
  
- func DelConfig(f *resource.Fetcher) error {
+ func delConfig(f *resource.Fetcher) error {
 -- 
-2.25.1
+2.43.0
 

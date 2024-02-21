@@ -1,4 +1,4 @@
-From ddbbaf9d0c3c997b0040d42e79055fc29bd63d19 Mon Sep 17 00:00:00 2001
+From d7119d2744c0f3c0071d5590c563f4a2b0de3162 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:20:09 +0200
 Subject: [PATCH 06/21] config/v3_5: convert ignition 2.x to 3.x
@@ -72,5 +72,5 @@ index f0d4bb84..dccc5c4c 100644
  		return Parse(raw)
  	}
 -- 
-2.25.1
+2.43.0
 
