@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="openssh ntp"
+IUSE="openssh ntp policycoreutils"
 
 # No source directory.
 S="${WORKDIR}"
@@ -23,15 +23,16 @@ S="${WORKDIR}"
 # net-misc/openssh must be installed on host for enabling its unit to
 # work during installation.
 DEPEND="
-	openssh? ( >=net-misc/openssh-9.4_p1 )
+        openssh? ( >=net-misc/openssh-9.4_p1 )
 "
 
 # Versions listed below are version of packages that shedded the
 # modifications in their ebuilds.
 RDEPEND="
-	${DEPEND}
-	>=app-shells/bash-5.2_p15-r2
-	ntp? ( >=net-misc/ntp-4.2.8_p17 )
+        ${DEPEND}
+        >=app-shells/bash-5.2_p15-r2
+        ntp? ( >=net-misc/ntp-4.2.8_p17 )
+        policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
 "
 
 declare -A CORE_BASH_SYMLINKS
@@ -169,6 +170,16 @@ src_install() {
         misc_files_install_dropin ntpd.service "${FILESDIR}/ntpd-always-restart.conf"
         misc_files_install_dropin ntpdate.service "${FILESDIR}/ntp-environment.conf"
         misc_files_install_dropin sntp.service "${FILESDIR}/ntp-environment.conf"
+    fi
+
+    if use policycoreutils; then
+        # Exceptionally, the location for policy definitions is set up
+        # in profiles/coreos/base/profile.bashrc. See the comment for
+        # cros_post_src_install_set_up_var_lib_selinux for reasoning.
+        #
+        # Recreate the symlink in /var in case of wiping the root
+        # filesystem.
+        dotmpfiles "${FILESDIR}/10-var-lib-selinux.conf"
     fi
 
     # Create a symlink for Kubernetes to redirect writes from /usr/libexec/... to /var/kubernetes/...
