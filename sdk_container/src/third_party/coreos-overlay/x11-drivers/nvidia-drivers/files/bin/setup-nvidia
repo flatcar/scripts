@@ -136,10 +136,15 @@ function verify_installation() {
 }
 
 function is_nvidia_probe_required() {
-  if [[ -z "$(lspci | grep -i "${NVIDIA_PRODUCT_TYPE}")" ]]; then
-    return 1
+  # Vendor: NVIDIA, Class: VGA compatible controller
+  if [[ -n "$(lspci -d 10de:*:0300)" ]]; then
+    return 0
   fi
-  return 0
+  # Vendor: NVIDIA, Class: 3D controller
+  if [[ -n "$(lspci -d 10de:*:0302)" ]]; then
+    return 0
+  fi
+  return 1
 }
 
 function is_nvidia_installation_required() {
