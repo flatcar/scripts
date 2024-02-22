@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 ~arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 ~arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc ~x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm libedit
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -40,11 +40,12 @@ RESTRICT="!test? ( test )"
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
+# <expat-2.6: https://github.com/python/cpython/issues/115133
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
 	app-crypt/libb2
-	>=dev-libs/expat-2.1:=
+	<dev-libs/expat-2.6:=
 	dev-libs/libffi:=
 	dev-python/gentoo-common
 	>=sys-libs/zlib-1.1.3:=

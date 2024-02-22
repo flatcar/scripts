@@ -40,6 +40,7 @@ PDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/ninja-cflags.patch
+	"${FILESDIR}"/ninja-cppflags.patch
 )
 
 run_for_build() {

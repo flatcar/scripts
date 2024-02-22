@@ -20,6 +20,3 @@
 # Python 3.12 is in portage-stable (currently testing), so avoid picking it
 # up. Update this to mask later versions when we switch to 3.11.
 >=dev-lang/python-3.12
-
-# Requires openssl version we don't have yet.
-=dev-libs/libp11-0.4.12-r5

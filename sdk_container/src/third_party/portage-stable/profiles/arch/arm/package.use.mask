@@ -1,6 +1,18 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Joonas Niilola <juippis@gentoo.org> (2024-02-16)
+# Test dependencies not keyworded on this arch.
+www-servers/nginx test
+
+# Eray Aslan <eras@gentoo.org> (2024-02-13)
+# tests require dev-db/mongodb which is not keyworded
+dev-libs/mongo-c-driver test
+
+# Alexander Tsoy <alexander@tsoy.me> (2024-01-31)
+# Supports only 64-bit NEON
+media-libs/zita-resampler cpu_flags_arm_neon
+
 # Michal Privoznik <michal.privoznik@gmail.com> (2024-01-18)
 # No sys-block/nbdkit on arm, yet
 app-emulation/libvirt nbd
@@ -147,7 +159,7 @@ net-im/prosody selinux
 # bug #729720
 sys-apps/systemd -boot -gnuefi -ukify
 sys-apps/systemd-utils -boot -ukify
-sys-kernel/installkernel -ukify
+sys-kernel/installkernel -systemd-boot -ukify
 
 # Joonas Niilola <juippis@gentoo.org> (2021-01-15)
 # Dependency not keyworded on this arch.
