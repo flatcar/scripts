@@ -105,6 +105,7 @@ RDEPEND="${RDEPEND}
 	app-editors/vim
 	app-emulation/actool
 	app-containers/cri-tools
+	app-containers/nvidia-container-toolkit
 	app-misc/ca-certificates
 	app-misc/jq
 	app-misc/pax-utils
