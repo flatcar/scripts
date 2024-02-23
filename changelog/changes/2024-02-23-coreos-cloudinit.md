@@ -1,0 +1,1 @@
+- ⚠ Removed coreos-cloudinit support for automatic keys conversion (e.g `reboot-strategy` -> `reboot_strategy`) ([scripts#1687](https://github.com/flatcar/scripts/pull/1687))
