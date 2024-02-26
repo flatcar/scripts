@@ -9,8 +9,10 @@
 	</maintainer>
 	<use>
 		<flag name="gssapi">Enable GSSAPI support</flag>
+		<flag name="io-uring">Enable support for io-uring. Doesn't need the library but needs at least kernel 5.1.</flag>
 	</use>
 	<upstream>
 		<remote-id type="github">linux-audit/audit-userspace</remote-id>
+		<remote-id type="cpe">cpe:/a:linux:audit</remote-id>
 	</upstream>
 </pkgmetadata>
