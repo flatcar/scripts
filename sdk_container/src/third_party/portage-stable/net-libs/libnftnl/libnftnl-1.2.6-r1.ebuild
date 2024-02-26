@@ -1,10 +1,10 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/netfilter.org.asc
-inherit linux-info usr-ldscript verify-sig
+inherit linux-info verify-sig
 
 DESCRIPTION="Netlink API to the in-kernel nf_tables subsystem"
 HOMEPAGE="https://netfilter.org/projects/nftables/"
@@ -17,7 +17,7 @@ else
 		https://netfilter.org/projects/${PN}/files/${P}.tar.xz
 		verify-sig? ( https://netfilter.org/projects/${PN}/files/${P}.tar.xz.sig )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 	BDEPEND+="verify-sig? ( sec-keys/openpgp-keys-netfilter )"
 fi
@@ -60,8 +60,6 @@ src_configure() {
 
 src_install() {
 	default
-
-	gen_usr_ldscript -a nftnl
 
 	find "${ED}" -type f -name '*.la' -delete || die
 
