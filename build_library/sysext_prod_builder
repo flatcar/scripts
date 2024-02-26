@@ -102,7 +102,7 @@ rm -rf "${sysext_workdir}" "${sysext_output_dir}"
 mkdir "${sysext_workdir}" "${sysext_output_dir}"
 
 info "creating temporary base OS squashfs"
-sudo mksquashfs "${root_fs_dir}" "${sysext_base}" -noappend
+sudo mksquashfs "${root_fs_dir}" "${sysext_base}" -noappend -xattrs-exclude '^btrfs.'
 
 # Build sysexts on top of root fs and mount sysexts' squashfs + pkginfo squashfs
 # for combined overlay later.
