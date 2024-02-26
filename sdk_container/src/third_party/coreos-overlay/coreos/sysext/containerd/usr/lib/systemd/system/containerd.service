@@ -5,6 +5,8 @@ After=network.target
 
 [Service]
 Delegate=yes
+# /opt/bin needs to be in path for nvidia-container-runtime
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/bin
 Environment=CONTAINERD_CONFIG=/usr/share/containerd/config.toml
 ExecStartPre=mkdir -p /run/docker/libcontainerd
 ExecStartPre=ln -fs /run/containerd/containerd.sock /run/docker/libcontainerd/docker-containerd.sock
