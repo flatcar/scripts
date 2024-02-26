@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="openssh ntp policycoreutils"
+IUSE="audit ntp openssh policycoreutils"
 
 # No source directory.
 S="${WORKDIR}"
@@ -33,6 +33,7 @@ RDEPEND="
         >=app-shells/bash-5.2_p15-r2
         ntp? ( >=net-misc/ntp-4.2.8_p17 )
         policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
+        audit? ( >=sys-process/audit-3.1.1 )
 "
 
 declare -A CORE_BASH_SYMLINKS
@@ -99,15 +100,23 @@ src_install() {
         ['/usr/lib/selinux/mcs']='/usr/share/flatcar/etc/selinux/mcs'
         ['/usr/lib/selinux/semanage.conf']='/usr/share/flatcar/etc/selinux/semanage.conf'
     )
-    if use openssh; then
+    if use audit; then
         compat_symlinks+=(
-            ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
-            ['/usr/share/ssh/sshd_config']='/usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf'
+            ['/usr/share/audit/rules.d/00-clear.rules']='/usr/share/flatcar/etc/audit/rules.d/00-clear.rules'
+            ['/usr/share/audit/rules.d/80-selinux.rules']='/usr/share/flatcar/etc/audit/rules.d/80-selinux.rules'
+            ['/usr/share/audit/rules.d/99-default.rules']='/usr/share/flatcar/etc/audit/rules.d/99-default.rules'
+            ['/usr/share/auditd/auditd.conf']='/usr/share/flatcar/etc/audit/auditd.conf'
         )
     fi
     if use ntp; then
         compat_symlinks+=(
             ['/usr/share/ntp/ntp.conf']='/usr/share/flatcar/etc/ntp.conf'
+        )
+    fi
+    if use openssh; then
+        compat_symlinks+=(
+            ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
+            ['/usr/share/ssh/sshd_config']='/usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf'
         )
     fi
 
@@ -148,6 +157,21 @@ src_install() {
         dosym "${target}" "${link}"
         fowners --no-dereference 500:500 "${link}"
     done
+
+    if use audit; then
+        # Install our rules.
+        insinto /etc/audit/rules.d
+        for name in 00-clear.rules 80-selinux.rules 99-default.rules; do
+            doins "${FILESDIR}/audit/${name}"
+            # Upstream wants these to have restrictive perms.
+            fperms 0640 "/etc/audit/rules.d/${name}"
+        done
+        # Install a service that loads the rules (it's possibly
+        # something that a deamon does, but in our case the daemon is
+        # disabled by default).
+        systemd_dounit "${FILESDIR}/audit/audit-rules.service"
+        systemd_enable_service multi-user.target audit-rules.service
+    fi
 
     if use ntp; then
         insinto /etc
