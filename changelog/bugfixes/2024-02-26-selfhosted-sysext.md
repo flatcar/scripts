@@ -1,0 +1,1 @@
+- Fixed the handling of OEM update payloads in a Nebraska response with self-hosted packages in an airgapped environment ([update_engine#39](https://github.com/flatcar/update_engine/pull/39))
