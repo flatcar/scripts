@@ -131,6 +131,8 @@ function install_and_load() {
     mknod -m 666 /dev/nvidia-uvm c $D 0
   fi
 
+  nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+
   if [ "${NVIDIA_PERSISTENCE_MODE}" = "on" ]; then
     nvidia-persistenced
   fi
