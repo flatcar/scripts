@@ -122,10 +122,10 @@ src_install() {
     done
 
     insinto '/etc/selinux/'
-    newins "${FILESDIR}/selinux-config" config
+    doins "${FILESDIR}/selinux/config"
 
     insinto '/etc/bash/bashrc.d'
-    doins "${FILESDIR}/99-flatcar-bcc"
+    doins "${FILESDIR}/bash/99-flatcar-bcc"
 
     insinto '/usr/share/flatcar'
     # The "oems" folder should contain a file "$OEMID" for each expected OEM sysext and
@@ -149,27 +149,27 @@ src_install() {
         fowners --no-dereference 500:500 "${link}"
     done
 
+    if use ntp; then
+        insinto /etc
+        doins "${FILESDIR}/ntp/ntp.conf"
+        misc_files_install_dropin ntpd.service "${FILESDIR}/ntp/ntpd-always-restart.conf"
+        misc_files_install_dropin ntpdate.service "${FILESDIR}/ntp/ntp-environment.conf"
+        misc_files_install_dropin sntp.service "${FILESDIR}/ntp/ntp-environment.conf"
+    fi
+
     if use openssh; then
         # Install our configuration snippets.
         insinto /etc/ssh/ssh_config.d
-        doins "${FILESDIR}/50-flatcar-ssh.conf"
+        doins "${FILESDIR}/openssh/50-flatcar-ssh.conf"
         insinto /etc/ssh/sshd_config.d
-        doins "${FILESDIR}/50-flatcar-sshd.conf"
+        doins "${FILESDIR}/openssh/50-flatcar-sshd.conf"
 
         # Install our socket drop-in file that disables the rate
         # limiting on the sshd socket.
-        misc_files_install_dropin sshd.socket "${FILESDIR}/no-trigger-limit-burst.conf"
+        misc_files_install_dropin sshd.socket "${FILESDIR}/openssh/no-trigger-limit-burst.conf"
 
         # Enable some sockets that aren't enabled by their own ebuilds.
         systemd_enable_service sockets.target sshd.socket
-    fi
-
-    if use ntp; then
-        insinto /etc
-        doins "${FILESDIR}/ntp.conf"
-        misc_files_install_dropin ntpd.service "${FILESDIR}/ntpd-always-restart.conf"
-        misc_files_install_dropin ntpdate.service "${FILESDIR}/ntp-environment.conf"
-        misc_files_install_dropin sntp.service "${FILESDIR}/ntp-environment.conf"
     fi
 
     if use policycoreutils; then
@@ -179,7 +179,7 @@ src_install() {
         #
         # Recreate the symlink in /var in case of wiping the root
         # filesystem.
-        dotmpfiles "${FILESDIR}/10-var-lib-selinux.conf"
+        dotmpfiles "${FILESDIR}/selinux/10-var-lib-selinux.conf"
     fi
 
     # Create a symlink for Kubernetes to redirect writes from /usr/libexec/... to /var/kubernetes/...
