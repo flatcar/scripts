@@ -28,4 +28,6 @@ src_compile() {
 
 src_install() {
 	dobin nvidia-container-runtime{-hook,.cdi,} nvidia-ctk
+	insinto "/etc/${PN}/"
+	doins "${FILESDIR}/config.toml"
 }
