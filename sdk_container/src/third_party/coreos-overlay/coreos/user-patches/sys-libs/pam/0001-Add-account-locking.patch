@@ -1,0 +1,28 @@
+From 15730679e629a4f70b98e11accfcaa43e769bbef Mon Sep 17 00:00:00 2001
+From: Matthew Garrett <mjg59@coreos.com>
+Date: Tue, 5 Apr 2016 22:15:56 -0700
+Subject: [PATCH] Add account locking
+
+A leading exclamation mark in the password field in /etc/shadow
+indicates a locked account.
+---
+ modules/pam_unix/support.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/modules/pam_unix/support.c b/modules/pam_unix/support.c
+index b95f95e6..947525ce 100644
+--- a/modules/pam_unix/support.c
++++ b/modules/pam_unix/support.c
+@@ -877,6 +877,9 @@ _unix_verify_user(pam_handle_t *pamh,
+         return retval;
+     }
+ 
++    if (pwent->pw_passwd != NULL && pwent->pw_passwd[0] == '!')
++        return PAM_PERM_DENIED;
++
+     if (retval == PAM_SUCCESS && spent == NULL)
+         return PAM_SUCCESS;
+ 
+-- 
+2.51.0
+
