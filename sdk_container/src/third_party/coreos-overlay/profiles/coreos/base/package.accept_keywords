@@ -27,7 +27,7 @@
 =app-crypt/gnupg-2.2.42-r2 ~arm64
 
 # Needed to fix CVE-2023-36054.
-=app-crypt/mit-krb5-1.21.2 ~amd64 ~arm64
+=app-crypt/mit-krb5-1.21.2 ~arm64
 
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
