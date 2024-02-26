@@ -50,7 +50,9 @@ CORE_NAME=
 
 # Whether the SDK's grub or the board root's grub is used. Once amd64 is
 # fixed up the board root's grub will always be used.
-BOARD_GRUB=0
+BOARD_GRUB=1
+
+SBAT_ARG=()
 
 case "${FLAGS_target}" in
     i386-pc)
@@ -58,8 +60,9 @@ case "${FLAGS_target}" in
         CORE_NAME="core.img"
         ;;
     x86_64-efi)
-	CORE_MODULES+=( serial efi_gop efinet pgp http tftp )
+        CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp )
         CORE_NAME="core.efi"
+        SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
     x86_64-xen)
         CORE_NAME="core.elf"
@@ -68,6 +71,7 @@ case "${FLAGS_target}" in
         CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp )
         CORE_NAME="core.efi"
         BOARD_GRUB=1
+        SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
     *)
         die_notrace "Unknown GRUB target ${FLAGS_target}"
@@ -164,7 +168,7 @@ if [[ ! -f "${ESP_DIR}/flatcar/grub/grub.cfg.tar" ]]; then
     fi
 
     sudo tar cf "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
-	 -C "${GRUB_TEMP_DIR}" "grub.cfg"
+      -C "${GRUB_TEMP_DIR}" "grub.cfg"
 fi
 
 info "Generating ${GRUB_DIR}/${CORE_NAME}"
@@ -174,6 +178,7 @@ sudo grub-mkimage \
     --directory "${GRUB_SRC}" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
     --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
+    "${SBAT_ARG[@]}" \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
     "${CORE_MODULES[@]}"
 
@@ -192,26 +197,36 @@ case "${FLAGS_target}" in
     x86_64-efi)
         info "Installing default x86_64 UEFI bootloader."
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
-	# Use the test keys for signing unofficial builds
-	if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-            sudo sbsign --key /usr/share/sb_keys/DB.key \
-		--cert /usr/share/sb_keys/DB.crt \
-                    "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+        # Use the test keys for signing unofficial builds
+        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+            # Sign the GRUB with the shim-embedded key
+            sudo sbsign --key /usr/share/sb_keys/shim.key \
+                --cert /usr/share/sb_keys/shim.pem \
+                "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
-                "${ESP_DIR}/EFI/boot/grub.efi"
+                "${ESP_DIR}/EFI/boot/grubx64.efi"
+            # Sign the mokmanager(mm) with the shim-embedded key
+            sudo sbsign --key /usr/share/sb_keys/shim.key \
+                --cert /usr/share/sb_keys/shim.pem \
+                "/usr/lib/shim/mmx64.efi"
+            sudo cp "/usr/lib/shim/mmx64.efi.signed" \
+                "${ESP_DIR}/EFI/boot/mmx64.efi"
+
             sudo sbsign --key /usr/share/sb_keys/DB.key \
-                 --cert /usr/share/sb_keys/DB.crt \
-                 --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
-                 "/usr/lib/shim/shim.efi"
+                --cert /usr/share/sb_keys/DB.crt \
+                --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
+                "/usr/lib/shim/shim.efi"
         else
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
-                "${ESP_DIR}/EFI/boot/grub.efi"
+                "${ESP_DIR}/EFI/boot/grubx64.efi"
             sudo cp "/usr/lib/shim/shim.efi" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
-	fi
+            sudo cp "/usr/lib/shim/mmx64.efi" \
+                "${ESP_DIR}/EFI/boot/mmx64.efi"
+        fi
         # copying from vfat so ignore permissions
         if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grub.efi" \
+            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grubx64.efi" \
                 "${FLAGS_copy_efi_grub}"
         fi
         if [[ -n "${FLAGS_copy_shim}" ]]; then

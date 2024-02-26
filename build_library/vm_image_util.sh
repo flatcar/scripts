@@ -807,14 +807,10 @@ _write_qemu_uefi_conf() {
             # Get edk2 files into local build workspace.
             info "Updating edk2 in /build/${BOARD}"
             emerge-${BOARD} --nodeps --select --verbose --update --getbinpkg --newuse sys-firmware/edk2-aarch64
-            # Create 64MiB flash device image files.
-            dd if=/dev/zero bs=1M count=64 of="$(_dst_dir)/${flash_rw}" \
-                status=none
-            cp "/build/${BOARD}/usr/share/edk2-aarch64/QEMU_EFI.fd" \
-                "$(_dst_dir)/${flash_ro}.work"
-            truncate --reference="$(_dst_dir)/${flash_rw}" \
-                "$(_dst_dir)/${flash_ro}.work"
-            mv "$(_dst_dir)/${flash_ro}.work" "$(_dst_dir)/${flash_ro}"
+            cp "${BOARD_ROOT}/usr/share/AAVMF/AAVMF_CODE.fd" "$(_dst_dir)/${flash_ro}"
+            cp "${BOARD_ROOT}/usr/share/AAVMF/AAVMF_VARS.fd" "$(_dst_dir)/${flash_rw}"
+            truncate -s 64M "$(_dst_dir)/${flash_ro}"
+            truncate -s 64M "$(_dst_dir)/${flash_rw}"
             ;;
     esac
 
@@ -825,14 +821,18 @@ _write_qemu_uefi_conf() {
 
 _write_qemu_uefi_secure_conf() {
     local flash_rw="$(_dst_name "_efi_vars.fd")"
+    local flash_ro="$(_dst_name "_efi_code.fd")"
+    local script="$(_dst_dir)/$(_dst_name ".sh")"
 
     _write_qemu_uefi_conf
+    cp "/usr/share/edk2-ovmf/OVMF_CODE.secboot.fd" "$(_dst_dir)/${flash_ro}"
     cert-to-efi-sig-list "/usr/share/sb_keys/PK.crt" "${VM_TMP_DIR}/PK.esl"
     cert-to-efi-sig-list "/usr/share/sb_keys/KEK.crt" "${VM_TMP_DIR}/KEK.esl"
     cert-to-efi-sig-list "/usr/share/sb_keys/DB.crt" "${VM_TMP_DIR}/DB.esl"
     flash-var "$(_dst_dir)/${flash_rw}" "PK" "${VM_TMP_DIR}/PK.esl"
     flash-var "$(_dst_dir)/${flash_rw}" "KEK" "${VM_TMP_DIR}/KEK.esl"
     flash-var "$(_dst_dir)/${flash_rw}" "db" "${VM_TMP_DIR}/DB.esl"
+    sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }
 
 _write_pxe_conf() {

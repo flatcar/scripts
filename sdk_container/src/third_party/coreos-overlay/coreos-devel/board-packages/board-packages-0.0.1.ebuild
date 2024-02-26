@@ -25,10 +25,7 @@ RDEPEND="
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
 	)
-	arm64? (
-		sys-boot/grub
-		sys-firmware/edk2-ovmf-bin
-	)
+	sys-boot/grub
 	app-containers/containerd
 	app-containers/docker
 	app-containers/docker-cli

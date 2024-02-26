@@ -364,6 +364,7 @@ eclass/python-utils-r1.eclass
 eclass/readme.gentoo-r1.eclass
 eclass/ruby-single.eclass
 eclass/ruby-utils.eclass
+eclass/rpm.eclass
 eclass/savedconfig.eclass
 eclass/selinux-policy-2.eclass
 eclass/strip-linguas.eclass
@@ -507,6 +508,7 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
+sys-boot/mokutil
 # Updating to 3.0.17 breaks building of sys-boot/shim.
 #
 # sys-boot/gnu-efi

@@ -1,0 +1,1 @@
+- A new format `qemu_uefi_secure` is introduced to test Flatcar for SecureBoot-enabled features. The format will be later merged into `qemu_uefi`.

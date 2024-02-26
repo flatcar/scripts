@@ -34,6 +34,13 @@ fi
 bios="${QEMU_BIOS}"
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
     bios="${QEMU_UEFI_BIOS}"
+fi
+
+if [ "${CIA_TESTSCRIPT}" = "qemu_uefi_secure.sh" ] ; then
+    bios="${QEMU_UEFI_SECURE_BIOS}"
+fi
+
+if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] || [ "${CIA_TESTSCRIPT}" = "qemu_uefi_secure.sh" ] ; then
     if [ -f "${bios}" ] ; then
         echo "++++ ${CIA_TESTSCRIPT}: Using existing ${bios} ++++"
     else
