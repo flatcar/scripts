@@ -77,4 +77,4 @@ jobs:
     uses: ./.github/workflows/ci.yaml
     with:
       custom_sdk_version: ${{ needs.update_sdk.outputs.sdk_version }}
-      image_formats: qemu_uefi
+      image_formats: qemu_uefi pxe
