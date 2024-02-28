@@ -1,0 +1,3 @@
+- libpsl ([0.21.5](https://github.com/rockdaboot/libpsl/blob/0.21.5/NEWS))
+- python ([3.11.8](https://www.get-python.org/downloads/release/python-3118/))
+- xz-utils ([5.4.6](https://github.com/tukaani-project/xz/releases/tag/v5.4.6))

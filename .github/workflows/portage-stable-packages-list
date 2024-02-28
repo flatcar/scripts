@@ -274,7 +274,6 @@ dev-python/platformdirs
 dev-python/pluggy
 dev-python/pydecomp
 dev-python/pygments
-dev-python/pyparsing
 dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
