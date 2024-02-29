@@ -1,0 +1,43 @@
+From f10087671538e8e052f035f011fc826f36f2af3b Mon Sep 17 00:00:00 2001
+From: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+Date: Thu, 29 Feb 2024 10:00:22 +0100
+Subject: [PATCH] Fix parallel build of gnu-efi
+
+When building with make 4.4.1, gnu-efi may be built twice and in parallel:
+
+  $ make -n -j ARCH=x86_64 2>&1 | tee build.log
+  $ grep -e 'make -C gnu-efi' build.log
+  make -C gnu-efi \
+  make -C gnu-efi \
+
+This has been seen to cause linking failures when building libgnuefi.a because
+some object files may end up truncated.
+
+The reason for this is that make interprets multiple targets in the same rule
+as independent and can run the rule multiple times. The solution is to define a
+grouped target with &:, which causes make to behave the way one expects: runs
+the rule once and expects it to create all targets.
+
+Grouped target support was added in make 4.3 released 4 years ago.
+
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 8283d56..bbf707b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -154,7 +154,7 @@ $(MMSONAME): $(MOK_OBJS) $(LIBS)
+ 	$(LD) -o $@ $(LDFLAGS) $^ $(EFI_LIBS) lib/lib.a
+ 
+ gnu-efi/$(ARCH_GNUEFI)/gnuefi/libgnuefi.a gnu-efi/$(ARCH_GNUEFI)/lib/libefi.a: CFLAGS+=-DGNU_EFI_USE_EXTERNAL_STDARG
+-gnu-efi/$(ARCH_GNUEFI)/gnuefi/libgnuefi.a gnu-efi/$(ARCH_GNUEFI)/lib/libefi.a:
++gnu-efi/$(ARCH_GNUEFI)/gnuefi/libgnuefi.a gnu-efi/$(ARCH_GNUEFI)/lib/libefi.a &:
+ 	mkdir -p gnu-efi/lib gnu-efi/gnuefi
+ 	$(MAKE) -C gnu-efi \
+ 		COMPILER="$(COMPILER)" \
+-- 
+2.39.2
+

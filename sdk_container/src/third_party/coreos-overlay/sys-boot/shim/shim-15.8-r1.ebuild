@@ -22,6 +22,11 @@ DEPEND="
   dev-libs/openssl
   coreos-base/coreos-sb-keys
 "
+
+PATCHES=(
+	"${FILESDIR}/0001-Fix-parallel-build-of-gnu-efi.patch"
+)
+
 src_compile() {
   local emake_args=(
     CROSS_COMPILE="${CHOST}-"
