@@ -1,0 +1,1 @@
+- dnsmasq ([CVE-2023-28450](https://nvd.nist.gov/vuln/detail/CVE-2023-28450), [CVE-2023-50387](https://nvd.nist.gov/vuln/detail/CVE-2023-50387), [CVE-2023-50868](https://nvd.nist.gov/vuln/detail/CVE-2023-50868))
