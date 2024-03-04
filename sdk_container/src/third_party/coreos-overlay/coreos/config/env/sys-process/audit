@@ -1,0 +1,11 @@
+# Do not install Gentoo-provided audit rules, we will install our own
+# in coreos-base/misc-files.
+INSTALL_MASK+="
+/etc/audit/audit.rules*
+"
+
+# Do not install legacy initscripts stuff
+INSTALL_MASK+="
+/usr/libexec/audit-functions
+/usr/libexec/initscripts
+"

@@ -1,0 +1,3 @@
+- policycoreutils ([3.6](https://github.com/SELinuxProject/selinux/releases/tag/3.6))
+- libsemanage ([3.6](https://github.com/SELinuxProject/selinux/releases/tag/3.6))
+- audit ([3.1.1](https://github.com/linux-audit/audit-userspace/releases/tag/v3.1.1))

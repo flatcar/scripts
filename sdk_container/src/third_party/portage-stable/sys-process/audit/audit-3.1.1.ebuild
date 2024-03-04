@@ -1,13 +1,15 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-# Flatcar: Support python 3.6.
-PYTHON_COMPAT=( python3_{6..11} )
+# As with sys-libs/libcap-ng, same maintainer in Fedora as upstream, so
+# check Fedora's packaging (https://src.fedoraproject.org/rpms/audit/tree/rawhide)
+# on bumps (or if hitting a bug) to see what they've done there.
 
-TMPFILES_OPTIONAL=1
-inherit autotools multilib-minimal toolchain-funcs python-r1 linux-info systemd usr-ldscript tmpfiles
+PYTHON_COMPAT=( python3_{9..11} )
+
+inherit autotools multilib-minimal toolchain-funcs python-r1 linux-info systemd usr-ldscript
 
 DESCRIPTION="Userspace utilities for storing and processing auditing records"
 HOMEPAGE="https://people.redhat.com/sgrubb/audit/"
@@ -15,23 +17,33 @@ SRC_URI="https://people.redhat.com/sgrubb/audit/${P}.tar.gz"
 
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="0"
-# Flatcar: Build amd64 and arm64 by default.
-KEYWORDS="amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="gssapi ldap python static-libs test"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+IUSE="gssapi io-uring ldap python static-libs test"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
-RDEPEND="gssapi? ( virtual/krb5 )
-	ldap? ( net-nds/openldap )
+RDEPEND="
 	sys-libs/libcap-ng
-	python? ( ${PYTHON_DEPS} )"
-DEPEND="${RDEPEND}
+	gssapi? ( virtual/krb5 )
+	ldap? ( net-nds/openldap:= )
+	python? ( ${PYTHON_DEPS} )
+"
+DEPEND="
+	${RDEPEND}
 	>=sys-kernel/linux-headers-2.6.34
-	test? ( dev-libs/check )"
-BDEPEND="python? ( dev-lang/swig:0 )"
+	test? ( dev-libs/check )
+"
+BDEPEND="python? ( dev-lang/swig )"
 
 CONFIG_CHECK="~AUDIT"
+
+PATCHES=(
+	# See bug #836702 before removing / verify builds fine w/ USE=python
+	# with latest kernel headers.
+	"${FILESDIR}"/${PN}-3.0.8-linux-headers-5.17.patch
+	"${FILESDIR}"/${PN}-3.0.8-musl-malloc.patch
+)
 
 src_prepare() {
 	# audisp-remote moved in multilib_src_install_all
@@ -40,51 +52,48 @@ src_prepare() {
 		audisp/plugins/remote/au-remote.conf || die
 
 	# Disable installing sample rules so they can be installed as docs.
-	echo -e '%:\n\t:' | tee rules/Makefile.{am,in} >/dev/null
-
-	# Flatcar: Some legacy stuff is being installed when systemd
-	# is enabled. Drop all the lines that try doing it.
-	sed -e '/${DESTDIR}${initdir}/d' \
-		-e '/${DESTDIR}${legacydir}/d' \
-		-i init.d/Makefile.am || die
-	# Flatcar: Do not build daemon stuff.
-	sed -e '/^sbin_PROGRAMS =/s/aureport//' \
-		-e '/^sbin_PROGRAMS =/s/ausearch//' \
-		-i src/Makefile.am || die
+	echo -e '%:\n\t:' | tee rules/Makefile.{am,in} >/dev/null || die
 
 	default
 	eautoreconf
 }
 
 multilib_src_configure() {
-	local -a myeconfargs=(
-		--sbindir="${EPREFIX}/sbin"
+	local myeconfargs=(
+		--sbindir="${EPREFIX}"/sbin
 		$(use_enable gssapi gssapi-krb5)
 		$(use_enable ldap zos-remote)
 		$(use_enable static-libs static)
+		$(use_with io-uring io_uring)
 		--enable-systemd
 		--without-golang
+		--without-libwrap
 		--without-python
 		--without-python3
 	)
 
-	ECONF_SOURCE=${S} econf "${myeconfargs[@]}"
+	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 
 	if multilib_is_native_abi && use python; then
 		python_configure() {
-			mkdir -p "${BUILD_DIR}"
+			mkdir -p "${BUILD_DIR}" || die
 			pushd "${BUILD_DIR}" &>/dev/null || die
-			ECONF_SOURCE=${S} econf "${myeconfargs[@]}" --with-python3
+
+			ECONF_SOURCE="${S}" econf "${myeconfargs[@]}" --with-python3
+
 			popd &>/dev/null || die
 		}
+
 		python_foreach_impl python_configure
 	fi
 }
 
 src_configure() {
 	tc-export_build_env BUILD_{CC,CPP}
+
 	local -x CC_FOR_BUILD="${BUILD_CC}"
 	local -x CPP_FOR_BUILD="${BUILD_CPP}"
+
 	multilib-minimal_src_configure
 }
 
@@ -93,10 +102,12 @@ multilib_src_compile() {
 		default
 
 		local native_build="${BUILD_DIR}"
+
 		python_compile() {
 			emake -C "${BUILD_DIR}"/bindings/swig top_builddir="${native_build}"
 			emake -C "${BUILD_DIR}"/bindings/python/python3 top_builddir="${native_build}"
 		}
+
 		use python && python_foreach_impl python_compile
 	else
 		emake -C common
@@ -110,14 +121,16 @@ multilib_src_install() {
 		emake DESTDIR="${D}" initdir="$(systemd_get_systemunitdir)" install
 
 		local native_build="${BUILD_DIR}"
+
 		python_install() {
 			emake -C "${BUILD_DIR}"/bindings/swig DESTDIR="${D}" top_builddir="${native_build}" install
 			emake -C "${BUILD_DIR}"/bindings/python/python3 DESTDIR="${D}" top_builddir="${native_build}" install
 			python_optimize
 		}
+
 		use python && python_foreach_impl python_install
 
-		# things like shadow use this so we need to be in /
+		# Things like shadow use this so we need to be in /
 		gen_usr_ldscript -a audit auparse
 	else
 		emake -C lib DESTDIR="${D}" install
@@ -129,35 +142,24 @@ multilib_src_install_all() {
 	dodoc AUTHORS ChangeLog README* THANKS
 	docinto contrib
 	dodoc contrib/avc_snap
-	# Flatcar: Do not install any plugin stuff, these are parts of
-	# auditd that we don't build and install anyway.
-	# docinto contrib/plugin
-	# dodoc contrib/plugin/*
+	docinto contrib/plugin
+	dodoc contrib/plugin/*
 	docinto rules
 	dodoc rules/*rules
 
-	# Flatcar: Do not install stuff auditd stuff.
-	# newinitd "${FILESDIR}"/auditd-init.d-2.4.3 auditd
-	# newconfd "${FILESDIR}"/auditd-conf.d-2.1.3 auditd
+	newinitd "${FILESDIR}"/auditd-init.d-2.4.3 auditd
+	newconfd "${FILESDIR}"/auditd-conf.d-2.1.3 auditd
 
-	# Flatcar: install sample configuration
-	insinto /usr/share/auditd
-	doins "${S}"/init.d/auditd.conf
+	if [[ -f "${ED}"/sbin/audisp-remote ]] ; then
+		dodir /usr/sbin
+		mv "${ED}"/{sbin,usr/sbin}/audisp-remote || die
+	fi
 
-
-	# Flatcar: We are not installing audisp too.
-	# [ -f "${ED}"/sbin/audisp-remote ] && \
-	# dodir /usr/sbin && \
-	# mv "${ED}"/{sbin,usr/sbin}/audisp-remote || die
-
-	# Flatcar: Do not install gentoo rules.
 	# Gentoo rules
-	# newins "${FILESDIR}"/audit.rules-2.1.3 audit.rules
-	# Flatcar: We are installing our own rules.
-	insinto /usr/share/audit/rules.d
-	doins "${FILESDIR}"/rules.d/*.rules
-	# Flatcar: Do not install deamon stuff.
-	# doins "${FILESDIR}"/audit.rules.stop*
+	insinto /etc/audit
+	newins "${FILESDIR}"/audit.rules-2.1.3 audit.rules
+	doins "${FILESDIR}"/audit.rules.stop*
+	keepdir /etc/audit/rules.d
 
 	# audit logs go here
 	keepdir /var/log/audit
@@ -166,14 +168,6 @@ multilib_src_install_all() {
 
 	# Security
 	lockdown_perms "${ED}"
-
-	# Flatcar: We add the systemd unit but don't enable it.
-	systemd_dounit init.d/auditd.service
-
-	# Flatcar: Our systemd stuff.
-	newtmpfiles "${FILESDIR}"/audit-rules.tmpfiles audit-rules.conf
-	systemd_dounit "${FILESDIR}"/audit-rules.service
-	systemd_enable_service multi-user.target audit-rules.service
 }
 
 pkg_postinst() {
@@ -183,13 +177,8 @@ pkg_postinst() {
 lockdown_perms() {
 	# Upstream wants these to have restrictive perms.
 	# Should not || die as not all paths may exist.
-	# Flatcar: We don't include ausearch and aureport
-	# so they're removed from the hardening list
 	local basedir="${1}"
-	# chmod 0750 "${basedir}"/sbin/au{ditctl,ditd,report,search,trace} 2>/dev/null
-	chmod 0750 "${basedir}"/sbin/au{ditctl,ditd,trace} 2>/dev/null
+	chmod 0750 "${basedir}"/sbin/au{ditctl,ditd,report,search,trace} 2>/dev/null
 	chmod 0750 "${basedir}"/var/log/audit 2>/dev/null
-	# chmod 0640 "${basedir}"/etc/audit/{auditd.conf,audit*.rules*} 2>/dev/null
-	rm -f  "${basedir}"/etc/audit/auditd.conf 2>/dev/null
-	:
+	chmod 0640 "${basedir}"/etc/audit/{auditd.conf,audit*.rules*} 2>/dev/null
 }

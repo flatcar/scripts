@@ -186,6 +186,7 @@ dev-lang/perl
 dev-lang/python
 dev-lang/python-exec
 dev-lang/python-exec-conf
+dev-lang/swig
 dev-lang/yasm
 
 dev-libs/cJSON
@@ -565,6 +566,7 @@ sys-libs/zlib
 
 sys-power/acpid
 
+sys-process/audit
 sys-process/lsof
 sys-process/procps
 sys-process/psmisc

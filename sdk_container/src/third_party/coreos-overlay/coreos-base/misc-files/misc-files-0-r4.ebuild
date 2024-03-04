@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="openssh ntp"
+IUSE="audit ntp openssh policycoreutils"
 
 # No source directory.
 S="${WORKDIR}"
@@ -23,15 +23,17 @@ S="${WORKDIR}"
 # net-misc/openssh must be installed on host for enabling its unit to
 # work during installation.
 DEPEND="
-	openssh? ( >=net-misc/openssh-9.4_p1 )
+        openssh? ( >=net-misc/openssh-9.4_p1 )
 "
 
 # Versions listed below are version of packages that shedded the
 # modifications in their ebuilds.
 RDEPEND="
-	${DEPEND}
-	>=app-shells/bash-5.2_p15-r2
-	ntp? ( >=net-misc/ntp-4.2.8_p17 )
+        ${DEPEND}
+        >=app-shells/bash-5.2_p15-r2
+        ntp? ( >=net-misc/ntp-4.2.8_p17 )
+        policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
+        audit? ( >=sys-process/audit-3.1.1 )
 "
 
 declare -A CORE_BASH_SYMLINKS
@@ -98,15 +100,23 @@ src_install() {
         ['/usr/lib/selinux/mcs']='/usr/share/flatcar/etc/selinux/mcs'
         ['/usr/lib/selinux/semanage.conf']='/usr/share/flatcar/etc/selinux/semanage.conf'
     )
-    if use openssh; then
+    if use audit; then
         compat_symlinks+=(
-            ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
-            ['/usr/share/ssh/sshd_config']='/usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf'
+            ['/usr/share/audit/rules.d/00-clear.rules']='/usr/share/flatcar/etc/audit/rules.d/00-clear.rules'
+            ['/usr/share/audit/rules.d/80-selinux.rules']='/usr/share/flatcar/etc/audit/rules.d/80-selinux.rules'
+            ['/usr/share/audit/rules.d/99-default.rules']='/usr/share/flatcar/etc/audit/rules.d/99-default.rules'
+            ['/usr/share/auditd/auditd.conf']='/usr/share/flatcar/etc/audit/auditd.conf'
         )
     fi
     if use ntp; then
         compat_symlinks+=(
             ['/usr/share/ntp/ntp.conf']='/usr/share/flatcar/etc/ntp.conf'
+        )
+    fi
+    if use openssh; then
+        compat_symlinks+=(
+            ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
+            ['/usr/share/ssh/sshd_config']='/usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf'
         )
     fi
 
@@ -121,10 +131,10 @@ src_install() {
     done
 
     insinto '/etc/selinux/'
-    newins "${FILESDIR}/selinux-config" config
+    doins "${FILESDIR}/selinux/config"
 
     insinto '/etc/bash/bashrc.d'
-    doins "${FILESDIR}/99-flatcar-bcc"
+    doins "${FILESDIR}/bash/99-flatcar-bcc"
 
     insinto '/usr/share/flatcar'
     # The "oems" folder should contain a file "$OEMID" for each expected OEM sysext and
@@ -148,27 +158,52 @@ src_install() {
         fowners --no-dereference 500:500 "${link}"
     done
 
+    if use audit; then
+        # Install our rules.
+        insinto /etc/audit/rules.d
+        for name in 00-clear.rules 80-selinux.rules 99-default.rules; do
+            doins "${FILESDIR}/audit/${name}"
+            # Upstream wants these to have restrictive perms.
+            fperms 0640 "/etc/audit/rules.d/${name}"
+        done
+        # Install a service that loads the rules (it's possibly
+        # something that a deamon does, but in our case the daemon is
+        # disabled by default).
+        systemd_dounit "${FILESDIR}/audit/audit-rules.service"
+        systemd_enable_service multi-user.target audit-rules.service
+    fi
+
+    if use ntp; then
+        insinto /etc
+        doins "${FILESDIR}/ntp/ntp.conf"
+        misc_files_install_dropin ntpd.service "${FILESDIR}/ntp/ntpd-always-restart.conf"
+        misc_files_install_dropin ntpdate.service "${FILESDIR}/ntp/ntp-environment.conf"
+        misc_files_install_dropin sntp.service "${FILESDIR}/ntp/ntp-environment.conf"
+    fi
+
     if use openssh; then
         # Install our configuration snippets.
         insinto /etc/ssh/ssh_config.d
-        doins "${FILESDIR}/50-flatcar-ssh.conf"
+        doins "${FILESDIR}/openssh/50-flatcar-ssh.conf"
         insinto /etc/ssh/sshd_config.d
-        doins "${FILESDIR}/50-flatcar-sshd.conf"
+        doins "${FILESDIR}/openssh/50-flatcar-sshd.conf"
 
         # Install our socket drop-in file that disables the rate
         # limiting on the sshd socket.
-        misc_files_install_dropin sshd.socket "${FILESDIR}/no-trigger-limit-burst.conf"
+        misc_files_install_dropin sshd.socket "${FILESDIR}/openssh/no-trigger-limit-burst.conf"
 
         # Enable some sockets that aren't enabled by their own ebuilds.
         systemd_enable_service sockets.target sshd.socket
     fi
 
-    if use ntp; then
-        insinto /etc
-        doins "${FILESDIR}/ntp.conf"
-        misc_files_install_dropin ntpd.service "${FILESDIR}/ntpd-always-restart.conf"
-        misc_files_install_dropin ntpdate.service "${FILESDIR}/ntp-environment.conf"
-        misc_files_install_dropin sntp.service "${FILESDIR}/ntp-environment.conf"
+    if use policycoreutils; then
+        # Exceptionally, the location for policy definitions is set up
+        # in profiles/coreos/base/profile.bashrc. See the comment for
+        # cros_post_src_install_set_up_var_lib_selinux for reasoning.
+        #
+        # Recreate the symlink in /var in case of wiping the root
+        # filesystem.
+        dotmpfiles "${FILESDIR}/selinux/10-var-lib-selinux.conf"
     fi
 
     # Create a symlink for Kubernetes to redirect writes from /usr/libexec/... to /var/kubernetes/...
