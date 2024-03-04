@@ -1,10 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnupg.asc
-inherit autotools flag-o-matic multilib-minimal toolchain-funcs verify-sig
+inherit autotools flag-o-matic linux-info multilib-minimal toolchain-funcs verify-sig
 
 DESCRIPTION="General purpose crypto library based on the code used in GnuPG"
 HOMEPAGE="https://www.gnupg.org/"
@@ -13,8 +13,8 @@ SRC_URI+=" verify-sig? ( mirror://gnupg/${PN}/${P}.tar.bz2.sig )"
 
 LICENSE="LGPL-2.1+ GPL-2+ MIT"
 SLOT="0/20" # subslot = soname major version
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-IUSE="+asm cpu_flags_arm_neon cpu_flags_arm_aes cpu_flags_arm_sha1 cpu_flags_arm_sha2 cpu_flags_ppc_altivec cpu_flags_ppc_vsx2 cpu_flags_ppc_vsx3 cpu_flags_x86_aes cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_padlock cpu_flags_x86_sha cpu_flags_x86_sse4_1 doc static-libs"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+IUSE="+asm cpu_flags_arm_neon cpu_flags_arm_aes cpu_flags_arm_sha1 cpu_flags_arm_sha2 cpu_flags_ppc_altivec cpu_flags_ppc_vsx2 cpu_flags_ppc_vsx3 cpu_flags_x86_aes cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_padlock cpu_flags_x86_sha cpu_flags_x86_sse4_1 doc +getentropy static-libs"
 
 # Build system only has --disable-arm-crypto-support right now
 # If changing this, update src_configure logic too.
@@ -30,21 +30,54 @@ REQUIRED_USE="
 	cpu_flags_ppc_vsx2? ( cpu_flags_ppc_altivec )
 "
 
-RDEPEND=">=dev-libs/libgpg-error-1.25[${MULTILIB_USEDEP}]"
+RDEPEND="
+	>=dev-libs/libgpg-error-1.25[${MULTILIB_USEDEP}]
+	getentropy? (
+		kernel_linux? (
+			elibc_glibc? ( >=sys-libs/glibc-2.25 )
+			elibc_musl? ( >=sys-libs/musl-1.1.20 )
+		)
+	)
+"
 DEPEND="${RDEPEND}"
-BDEPEND="doc? ( virtual/texi2dvi )
-	verify-sig? ( sec-keys/openpgp-keys-gnupg )"
+BDEPEND="
+	doc? ( virtual/texi2dvi )
+	verify-sig? ( sec-keys/openpgp-keys-gnupg )
+"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-multilib-syspath.patch
 	"${FILESDIR}"/${PN}-powerpc-darwin.patch
-	"${FILESDIR}"/${PN}-1.9.4-arm-neon-compile-fix.patch
 	"${FILESDIR}"/${PN}-1.9.4-no-fgrep-libgcrypt-config.patch
+	"${FILESDIR}"/${PN}-1.10.3-x86.patch
+	"${FILESDIR}"/${PN}-1.10.3-x86-refactor.patch
+	"${FILESDIR}"/${PN}-1.10.3-hppa.patch
 )
 
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/libgcrypt-config
 )
+
+pkg_pretend() {
+	if [[ ${MERGE_TYPE} == buildonly ]]; then
+		return
+	fi
+	if use kernel_linux && use getentropy; then
+		unset KV_FULL
+		get_running_version
+		if [[ -n ${KV_FULL} ]] && kernel_is -lt 3 17; then
+			eerror "The getentropy function requires the getrandom syscall."
+			eerror "This was introduced in Linux 3.17."
+			eerror "Your system is currently running Linux ${KV_FULL}."
+			eerror "Disable the 'getentropy' USE flag or upgrade your kernel."
+			die "Kernel is too old for getentropy"
+		fi
+	fi
+}
+
+pkg_setup() {
+	:
+}
 
 src_prepare() {
 	default
@@ -74,16 +107,12 @@ multilib_src_configure() {
 	# https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=commitdiff;h=0b399721ce9709ae25f9d2050360c5ab2115ae29
 	# https://dev.gnupg.org/T5581
 	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102124
-	if use arm64 && tc-is-gcc && (($(gcc-major-version) == 11)) && (($(gcc-minor-version) <= 2)) && (($(gcc-micro-version) == 0)) ; then
+	if use arm64 && tc-is-gcc && (($(gcc-major-version) == 11)) &&
+		(($(gcc-minor-version) <= 2)) && (($(gcc-micro-version) == 0)) ; then
 		append-flags -fno-tree-loop-vectorize
 	fi
 
-	# ideally we want !tc-ld-is-bfd for best future-proofing, but it needs
-	# https://github.com/gentoo/gentoo/pull/28355
-	# mold needs this too but right now tc-ld-is-mold is also not available
-	if tc-ld-is-lld; then
-		append-ldflags -Wl,--undefined-version
-	fi
+	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
 	local myeconfargs=(
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
@@ -113,6 +142,13 @@ multilib_src_configure() {
 
 		GPG_ERROR_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpg-error-config"
 	)
+
+	if use kernel_linux; then
+		# --enable-random=getentropy requires getentropy/getrandom.
+		# --enable-random=linux enables legacy code that tries getrandom
+		# and falls back to reading /dev/random.
+		myeconfargs+=( --enable-random=$(usex getentropy getentropy linux) )
+	fi
 
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}" \
 		$("${S}/configure" --help | grep -o -- '--without-.*-prefix')
