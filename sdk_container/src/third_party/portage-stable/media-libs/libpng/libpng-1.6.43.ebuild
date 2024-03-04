@@ -5,8 +5,8 @@ EAPI=8
 
 inherit libtool multilib-minimal
 
-APNG_REPO=libpng-apng # sometimes libpng-apng is more up to date
-APNG_VERSION="1.6.40"
+APNG_REPO=apng # sometimes libpng-apng is more up to date
+APNG_VERSION="1.6.43"
 DESCRIPTION="Portable Network Graphics library"
 HOMEPAGE="http://www.libpng.org/"
 SRC_URI="
@@ -27,10 +27,6 @@ RDEPEND=">=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
 
 DOCS=( ANNOUNCE CHANGES libpng-manual.txt README TODO )
-
-PATCHES=(
-	"${FILESDIR}"/${P}-png_check_sig-abi.patch
-)
 
 src_prepare() {
 	default
