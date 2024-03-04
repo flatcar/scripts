@@ -17,3 +17,7 @@
 # portage-stable masked catalyst-3, and has not provided a stable way to
 # update to catalyst-4 so overriding the change for now to use catalyst-3
 <dev-util/catalyst-4
+
+# Overwrite portage-stable mask. We still have one package that
+# depends on dev-python/boto.
+dev-python/boto
