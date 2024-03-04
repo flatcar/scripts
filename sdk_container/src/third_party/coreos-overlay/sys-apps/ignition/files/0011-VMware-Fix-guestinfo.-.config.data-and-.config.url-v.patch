@@ -1,4 +1,4 @@
-From f354144ff3e000e21a1050a03bba3b58f9ade4cb Mon Sep 17 00:00:00 2001
+From 7a1c08f0e2098687ce5756808872cf212408fdd3 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 20 Feb 2024 10:12:02 +0100
 Subject: [PATCH 11/21] VMware: Fix guestinfo.*.config.data and *.config.url

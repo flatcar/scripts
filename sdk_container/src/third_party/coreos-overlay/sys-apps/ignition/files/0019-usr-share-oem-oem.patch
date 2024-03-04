@@ -1,4 +1,4 @@
-From 9be71387c9b0ff2681f3f4902f508f9071cae988 Mon Sep 17 00:00:00 2001
+From b72d69ad5627d5963babc44e1a52a64fe047a35d Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 4 Apr 2023 12:12:42 +0200
 Subject: [PATCH 19/21] /usr/share/oem -> /oem

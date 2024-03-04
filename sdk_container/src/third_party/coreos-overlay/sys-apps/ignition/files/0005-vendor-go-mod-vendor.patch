@@ -1,6 +1,6 @@
-From 0274c54de01a38d93d1cfdf2a12572d7ecd76500 Mon Sep 17 00:00:00 2001
+From 59381307c3483608d300401208ad6f88d68c1cc6 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Mon, 19 Feb 2024 18:06:45 +0100
+Date: Mon, 4 Mar 2024 14:56:54 +0100
 Subject: [PATCH 05/21] vendor: go mod vendor
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
@@ -17029,7 +17029,7 @@ index 00000000..1b1efb0f
 +	return
 +}
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index d1b9b406..879c8c1c 100644
+index 8ce5cb4d..a4d3a6dd 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -20,6 +20,9 @@ cloud.google.com/go/storage
@@ -17039,23 +17039,23 @@ index d1b9b406..879c8c1c 100644
 +# github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437
 +## explicit
 +github.com/ajeddeloh/go-json
- # github.com/aws/aws-sdk-go v1.47.9
+ # github.com/aws/aws-sdk-go v1.50.25
  ## explicit; go 1.19
  github.com/aws/aws-sdk-go/aws
 @@ -87,6 +90,9 @@ github.com/coreos/go-json
  # github.com/coreos/go-semver v0.3.1
  ## explicit; go 1.8
  github.com/coreos/go-semver/semver
-+# github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
++# github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142
 +## explicit
 +github.com/coreos/go-systemd/unit
  # github.com/coreos/go-systemd/v22 v22.5.0
  ## explicit; go 1.12
  github.com/coreos/go-systemd/v22/dbus
-@@ -102,6 +108,27 @@ github.com/coreos/vcontext/validate
- # github.com/davecgh/go-spew v1.1.1
- ## explicit
- github.com/davecgh/go-spew/spew
+@@ -105,6 +111,27 @@ github.com/davecgh/go-spew/spew
+ # github.com/felixge/httpsnoop v1.0.4
+ ## explicit; go 1.13
+ github.com/felixge/httpsnoop
 +# github.com/flatcar/ignition v0.36.2
 +## explicit; go 1.16
 +github.com/flatcar/ignition/config/shared/errors
@@ -17077,17 +17077,17 @@ index d1b9b406..879c8c1c 100644
 +github.com/flatcar/ignition/config/validate/astjson
 +github.com/flatcar/ignition/config/validate/astnode
 +github.com/flatcar/ignition/config/validate/report
- # github.com/godbus/dbus/v5 v5.0.4
- ## explicit; go 1.12
- github.com/godbus/dbus/v5
-@@ -213,6 +240,9 @@ go.opencensus.io/trace
- go.opencensus.io/trace/internal
- go.opencensus.io/trace/propagation
- go.opencensus.io/trace/tracestate
-+# go4.org v0.0.0-20230225012048-214862532bf5
-+## explicit; go 1.13
+ # github.com/go-logr/logr v1.4.1
+ ## explicit; go 1.18
+ github.com/go-logr/logr
+@@ -253,6 +280,9 @@ go.opentelemetry.io/otel/metric/noop
+ ## explicit; go 1.20
+ go.opentelemetry.io/otel/trace
+ go.opentelemetry.io/otel/trace/embedded
++# go4.org v0.0.0-20160314031811-03efcb870d84
++## explicit
 +go4.org/errorutil
- # golang.org/x/crypto v0.15.0
+ # golang.org/x/crypto v0.19.0
  ## explicit; go 1.18
  golang.org/x/crypto/chacha20
 -- 

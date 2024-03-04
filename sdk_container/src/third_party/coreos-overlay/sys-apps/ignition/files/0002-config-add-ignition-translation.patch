@@ -1,4 +1,4 @@
-From efb34e37bd7e27ef8547e80718f386af0366b22e Mon Sep 17 00:00:00 2001
+From 716283d11f3ca67e5f1a17970fb7660fb05641ab Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 26 Sep 2022 12:12:04 +0200
 Subject: [PATCH 02/21] config: add ignition translation

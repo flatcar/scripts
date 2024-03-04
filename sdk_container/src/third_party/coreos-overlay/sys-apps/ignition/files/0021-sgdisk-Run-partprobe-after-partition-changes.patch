@@ -1,4 +1,4 @@
-From 7c3cfae0c00508c845c8408d5a8ec00bc32316a8 Mon Sep 17 00:00:00 2001
+From 850da330f5a01fae0e1dc2d44b0a2fcdcbac037a Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Fri, 29 Sep 2023 18:06:09 +0200
 Subject: [PATCH 21/21] sgdisk: Run partprobe after partition changes
@@ -15,10 +15,10 @@ kernel partition table, trigger the re-read with partprobe.
  3 files changed, 8 insertions(+)
 
 diff --git a/dracut/30ignition/module-setup.sh b/dracut/30ignition/module-setup.sh
-index 816e4b66..e59f8cdf 100755
+index 340452b9..e1390f6d 100755
 --- a/dracut/30ignition/module-setup.sh
 +++ b/dracut/30ignition/module-setup.sh
-@@ -33,6 +33,7 @@ install() {
+@@ -40,6 +40,7 @@ install() {
          mkfs.xfs \
          mkswap \
          sgdisk \

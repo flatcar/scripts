@@ -1,4 +1,4 @@
-From 6589dccde4a36ea42e38e410ca710e0034d6454a Mon Sep 17 00:00:00 2001
+From 2fb53dec351d8560cf8ebf6f9ab0edc897f99a22 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 16 May 2023 17:43:43 +0200
 Subject: [PATCH 20/21] internal/exec/stages/mount: Mount /oem
