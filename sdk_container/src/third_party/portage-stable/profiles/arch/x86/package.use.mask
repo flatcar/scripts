@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2024-03-04)
+# Miscompiles rust and fails to bootstrap (bug #923278)
+>=dev-lang/rust-1.74.1 lto
+
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2024-02-23)
 # net-libs/paho-mqtt-c is only available for amd64 and x86
 app-admin/syslog-ng -mqtt
@@ -76,8 +80,8 @@ dev-lang/idris2 test-full
 dev-python/cloudscraper test
 dev-python/QtPy test
 games-util/lgogdownloader gui
-kde-apps/kde-apps-meta:5 pim
-kde-apps/kdenetwork-meta:5 bittorrent telepathy
+kde-apps/kde-apps-meta pim
+kde-apps/kdenetwork-meta bittorrent
 kde-apps/kleopatra:5 pim
 kde-apps/umbrello:5 php
 kde-misc/kio-gdrive share
