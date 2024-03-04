@@ -75,7 +75,6 @@
 
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.24 ~arm64
-=sys-apps/util-linux-2.39.2-r1 ~amd64
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
