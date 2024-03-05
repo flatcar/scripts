@@ -273,6 +273,10 @@ all_fields=(
   "ARCHITECTURE=${ARCH}"
 )
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
+
+info "Removing opaque directory markers to always merge all contents"
+find "${BUILD_DIR}/install-root" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
+
 mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
                -noappend -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
