@@ -1,4 +1,4 @@
-From 4e6b04bb5ac529732e5814533ab1c0ef0b6c39e7 Mon Sep 17 00:00:00 2001
+From a5c1c025a4eaa12b22eb3093afe0a90350d3e097 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mathieu@kinvolk.io>
 Date: Thu, 2 Sep 2021 11:03:17 +0200
 Subject: [PATCH 09/21] config/3_5/test: add ignition 2.x test cases

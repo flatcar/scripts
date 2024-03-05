@@ -1,11 +1,11 @@
-From 854b82967946daf36c553c3ec45d13ca6738f812 Mon Sep 17 00:00:00 2001
+From 437c0f5da61e4195bcfc03da1de9b391cb76472c Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Mon, 19 Feb 2024 18:03:58 +0100
+Date: Mon, 4 Mar 2024 14:53:49 +0100
 Subject: [PATCH 01/21] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- .github/ISSUE_TEMPLATE/release-checklist.md   |  8 ++--
+ .github/ISSUE_TEMPLATE/release-checklist.md   |  8 +--
  .github/ISSUE_TEMPLATE/stabilize-checklist.md |  2 +-
  .github/workflows/container-rebuild.yml       |  2 +-
  .github/workflows/container.yml               |  2 +-
@@ -19,7 +19,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/doc/generate.go                        |  2 +-
  config/doc/schema.go                          |  2 +-
  config/merge/merge.go                         |  6 +--
- config/merge/merge_test.go                    |  8 ++--
+ config/merge/merge_test.go                    |  8 +--
  config/shared/validations/unit.go             |  2 +-
  config/translate/translate.go                 |  2 +-
  config/translate/translate_test.go            |  4 +-
@@ -49,7 +49,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_0/types/storage_test.go             |  4 +-
  config/v3_0/types/systemd.go                  |  6 +--
  config/v3_0/types/systemd_test.go             |  4 +-
- config/v3_0/types/unit.go                     |  8 ++--
+ config/v3_0/types/unit.go                     |  8 +--
  config/v3_0/types/unit_test.go                |  4 +-
  config/v3_0/types/url.go                      |  4 +-
  config/v3_0/types/url_test.go                 |  4 +-
@@ -57,7 +57,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_0/types/verification_test.go        |  2 +-
  config/v3_1/config.go                         | 14 +++---
  config/v3_1/config_test.go                    |  4 +-
- config/v3_1/translate/translate.go            |  8 ++--
+ config/v3_1/translate/translate.go            |  8 +--
  config/v3_1/translate/translate_test.go       |  4 +-
  config/v3_1/types/config.go                   |  4 +-
  config/v3_1/types/config_test.go              |  4 +-
@@ -86,7 +86,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_1/types/storage_test.go             |  4 +-
  config/v3_1/types/systemd.go                  |  6 +--
  config/v3_1/types/systemd_test.go             |  4 +-
- config/v3_1/types/unit.go                     |  8 ++--
+ config/v3_1/types/unit.go                     |  8 +--
  config/v3_1/types/unit_test.go                |  4 +-
  config/v3_1/types/url.go                      |  4 +-
  config/v3_1/types/url_test.go                 |  4 +-
@@ -126,7 +126,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_2/types/systemd.go                  |  6 +--
  config/v3_2/types/systemd_test.go             |  4 +-
  config/v3_2/types/tang.go                     |  4 +-
- config/v3_2/types/unit.go                     |  8 ++--
+ config/v3_2/types/unit.go                     |  8 +--
  config/v3_2/types/unit_test.go                |  4 +-
  config/v3_2/types/url.go                      |  4 +-
  config/v3_2/types/url_test.go                 |  4 +-
@@ -134,7 +134,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_2/types/verification_test.go        |  2 +-
  config/v3_3/config.go                         | 14 +++---
  config/v3_3/config_test.go                    |  4 +-
- config/v3_3/translate/translate.go            |  8 ++--
+ config/v3_3/translate/translate.go            |  8 +--
  config/v3_3/translate/translate_test.go       |  4 +-
  config/v3_3/types/clevis.go                   |  4 +-
  config/v3_3/types/clevis_test.go              |  4 +-
@@ -168,7 +168,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_3/types/systemd.go                  |  6 +--
  config/v3_3/types/systemd_test.go             |  4 +-
  config/v3_3/types/tang.go                     |  4 +-
- config/v3_3/types/unit.go                     |  8 ++--
+ config/v3_3/types/unit.go                     |  8 +--
  config/v3_3/types/unit_test.go                |  4 +-
  config/v3_3/types/url.go                      |  4 +-
  config/v3_3/types/url_test.go                 |  4 +-
@@ -176,7 +176,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_3/types/verification_test.go        |  2 +-
  config/v3_4/config.go                         | 14 +++---
  config/v3_4/config_test.go                    |  4 +-
- config/v3_4/translate/translate.go            |  8 ++--
+ config/v3_4/translate/translate.go            |  8 +--
  config/v3_4/translate/translate_test.go       |  4 +-
  config/v3_4/types/clevis.go                   |  4 +-
  config/v3_4/types/clevis_test.go              |  4 +-
@@ -211,7 +211,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_4/types/systemd_test.go             |  4 +-
  config/v3_4/types/tang.go                     |  4 +-
  config/v3_4/types/tang_test.go                |  4 +-
- config/v3_4/types/unit.go                     |  8 ++--
+ config/v3_4/types/unit.go                     |  8 +--
  config/v3_4/types/unit_test.go                |  4 +-
  config/v3_4/types/url.go                      |  4 +-
  config/v3_4/types/url_test.go                 |  4 +-
@@ -254,7 +254,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../v3_5_experimental/types/systemd_test.go   |  4 +-
  config/v3_5_experimental/types/tang.go        |  4 +-
  config/v3_5_experimental/types/tang_test.go   |  4 +-
- config/v3_5_experimental/types/unit.go        |  8 ++--
+ config/v3_5_experimental/types/unit.go        |  8 +--
  config/v3_5_experimental/types/unit_test.go   |  4 +-
  config/v3_5_experimental/types/url.go         |  4 +-
  config/v3_5_experimental/types/url_test.go    |  4 +-
@@ -275,18 +275,18 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  dracut/30ignition/ignition-subsequent.target  |  2 +-
  dracut/30ignition/module-setup.sh             |  2 +-
  go.mod                                        |  2 +-
- internal/apply/apply.go                       | 30 ++++++------
+ internal/apply/apply.go                       | 30 +++++------
  internal/distro/distro.go                     |  2 +-
  internal/doc/main.go                          | 14 +++---
  internal/exec/config_fetcher.go               | 18 +++----
- internal/exec/engine.go                       | 22 ++++-----
- internal/exec/stages/disks/disks.go           | 16 +++----
- internal/exec/stages/disks/filesystems.go     |  8 ++--
+ internal/exec/engine.go                       | 22 ++++----
+ internal/exec/stages/disks/disks.go           | 16 +++---
+ internal/exec/stages/disks/filesystems.go     |  8 +--
  internal/exec/stages/disks/luks.go            | 12 ++---
- internal/exec/stages/disks/partitions.go      |  8 ++--
+ internal/exec/stages/disks/partitions.go      |  8 +--
  internal/exec/stages/disks/raid.go            |  6 +--
  internal/exec/stages/fetch/fetch.go           | 12 ++---
- .../stages/fetch_offline/fetch-offline.go     | 16 +++----
+ .../stages/fetch_offline/fetch-offline.go     | 16 +++---
  .../fetch_offline/fetch_offline_test.go       |  4 +-
  internal/exec/stages/files/files.go           | 14 +++---
  internal/exec/stages/files/files_test.go      |  4 +-
@@ -295,54 +295,55 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  internal/exec/stages/files/units.go           | 12 ++---
  internal/exec/stages/files/units_test.go      |  4 +-
  internal/exec/stages/kargs/kargs.go           | 14 +++---
- internal/exec/stages/mount/mount.go           | 16 +++----
+ internal/exec/stages/mount/mount.go           | 16 +++---
  internal/exec/stages/stages.go                | 10 ++--
  internal/exec/stages/umount/umount.go         | 14 +++---
  internal/exec/util/blkid.go                   |  2 +-
  internal/exec/util/file.go                    | 10 ++--
- internal/exec/util/passwd.go                  |  8 ++--
+ internal/exec/util/passwd.go                  |  8 +--
  internal/exec/util/selinux.go                 |  2 +-
  internal/exec/util/unit.go                    |  4 +-
  internal/exec/util/user_group_lookup_test.go  |  2 +-
  internal/exec/util/util.go                    |  6 +--
  internal/main.go                              | 18 +++----
  internal/platform/platform.go                 | 10 ++--
- internal/providers/aliyun/aliyun.go           |  8 ++--
+ internal/providers/aliyun/aliyun.go           |  8 +--
  internal/providers/applehv/applehv.go         | 10 ++--
  internal/providers/aws/aws.go                 | 12 ++---
- internal/providers/azure/azure.go             | 14 +++---
- internal/providers/azurestack/azurestack.go   |  8 ++--
- internal/providers/cloudstack/cloudstack.go   | 16 +++----
+ internal/providers/azure/azure.go             | 16 +++---
+ internal/providers/azurestack/azurestack.go   |  8 +--
+ internal/providers/cloudstack/cloudstack.go   | 16 +++---
  internal/providers/cmdline/cmdline.go         | 12 ++---
- .../providers/digitalocean/digitalocean.go    |  8 ++--
- internal/providers/exoscale/exoscale.go       |  8 ++--
- internal/providers/file/file.go               |  8 ++--
- internal/providers/gcp/gcp.go                 |  8 ++--
- internal/providers/hetzner/hetzner.go         |  8 ++--
+ .../providers/digitalocean/digitalocean.go    |  8 +--
+ internal/providers/exoscale/exoscale.go       |  8 +--
+ internal/providers/file/file.go               |  8 +--
+ internal/providers/gcp/gcp.go                 |  8 +--
+ internal/providers/hetzner/hetzner.go         |  8 +--
  internal/providers/hyperv/kvp.go              | 12 ++---
  internal/providers/ibmcloud/ibmcloud.go       | 14 +++---
  internal/providers/kubevirt/kubevirt.go       | 14 +++---
- internal/providers/metal/metal.go             |  8 ++--
+ internal/providers/metal/metal.go             |  8 +--
  internal/providers/nutanix/nutanix.go         | 14 +++---
- internal/providers/openstack/openstack.go     | 16 +++----
- internal/providers/packet/packet.go           |  8 ++--
+ internal/providers/openstack/openstack.go     | 16 +++---
+ internal/providers/packet/packet.go           |  8 +--
  internal/providers/powervs/powervs.go         | 14 +++---
  internal/providers/qemu/qemu_blockdev.go      | 12 ++---
  internal/providers/qemu/qemu_fwcfg.go         | 10 ++--
+ internal/providers/scaleway/scaleway.go       |  8 +--
  internal/providers/system/system.go           | 14 +++---
  internal/providers/util/config.go             |  6 +--
  internal/providers/util/file.go               |  4 +-
  internal/providers/virtualbox/virtualbox.go   | 10 ++--
- internal/providers/vmware/vmware_amd64.go     |  8 ++--
+ internal/providers/vmware/vmware_amd64.go     |  8 +--
  .../providers/vmware/vmware_unsupported.go    |  6 +--
- internal/providers/vultr/vultr.go             |  8 ++--
+ internal/providers/vultr/vultr.go             |  8 +--
  internal/providers/zvm/zvm.go                 | 14 +++---
- internal/register/providers.go                | 48 +++++++++----------
+ internal/register/providers.go                | 50 +++++++++----------
  internal/register/stages.go                   | 14 +++---
  internal/resource/http.go                     | 12 ++---
  internal/resource/url.go                      |  6 +--
  internal/resource/url_test.go                 |  6 +--
- internal/sgdisk/sgdisk.go                     |  8 ++--
+ internal/sgdisk/sgdisk.go                     |  8 +--
  internal/state/state.go                       |  2 +-
  internal/util/tools/docs/docs.go              |  2 +-
  internal/util/verification.go                 |  2 +-
@@ -388,19 +389,19 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/positive/passwd/users.go                |  4 +-
  tests/positive/proxy/http.go                  |  4 +-
  tests/positive/regression/filesystem.go       |  4 +-
- tests/positive/security/tls.go                |  8 ++--
+ tests/positive/security/tls.go                |  8 +--
  tests/positive/systemd/create_unit.go         |  4 +-
  tests/positive/systemd/modify_service.go      |  4 +-
  tests/positive/timeouts/timeouts.go           |  4 +-
  tests/register/register.go                    | 14 +++---
- tests/registry/registry.go                    | 36 +++++++-------
+ tests/registry/registry.go                    | 36 ++++++-------
  tests/servers/servers.go                      |  2 +-
  tests/validator.go                            |  4 +-
  validate/main.go                              |  4 +-
- 392 files changed, 1051 insertions(+), 1051 deletions(-)
+ 393 files changed, 1057 insertions(+), 1057 deletions(-)
 
 diff --git a/.github/ISSUE_TEMPLATE/release-checklist.md b/.github/ISSUE_TEMPLATE/release-checklist.md
-index 9803e88a..75224dbb 100644
+index 2f542cbb..7277a70f 100644
 --- a/.github/ISSUE_TEMPLATE/release-checklist.md
 +++ b/.github/ISSUE_TEMPLATE/release-checklist.md
 @@ -6,9 +6,9 @@ Release checklist:
@@ -4314,7 +4315,7 @@ index 18eea933..4f77f19c 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/docs/_config.yml b/docs/_config.yml
-index 9c8859ff..0817bf9e 100644
+index e685a39f..d08e93ff 100644
 --- a/docs/_config.yml
 +++ b/docs/_config.yml
 @@ -23,7 +23,7 @@ color_scheme: coreos
@@ -4336,7 +4337,7 @@ index 9c8859ff..0817bf9e 100644
  gh_edit_source: docs
  gh_edit_view_mode: "tree"
 diff --git a/docs/development.md b/docs/development.md
-index 265ec5b2..4ebc74b9 100644
+index e4d2b82a..43885679 100644
 --- a/docs/development.md
 +++ b/docs/development.md
 @@ -24,7 +24,7 @@ See also the [Ignition rationale](rationale.md).
@@ -4383,10 +4384,10 @@ index 265ec5b2..4ebc74b9 100644
 -Create a new [stabilization checklist](https://github.com/coreos/ignition/issues/new?template=stabilize-checklist.md) and follow the steps there.
 +Create a new [stabilization checklist](https://github.com/flatcar/ignition/issues/new?template=stabilize-checklist.md) and follow the steps there.
 diff --git a/docs/distributor-notes.md b/docs/distributor-notes.md
-index b85b8f66..80917107 100644
+index 23f917f4..44443d7b 100644
 --- a/docs/distributor-notes.md
 +++ b/docs/distributor-notes.md
-@@ -10,8 +10,8 @@ nav_order: 10
+@@ -14,8 +14,8 @@ The distribution specific integration is responsible for ensuring that the ignit
  
  ## Kernel Arguments
  
@@ -4526,10 +4527,10 @@ index 95ae838f..4c734e43 100644
  Before=initrd.target
  
 diff --git a/dracut/30ignition/module-setup.sh b/dracut/30ignition/module-setup.sh
-index 15bb7276..816e4b66 100755
+index 51bec7e7..340452b9 100755
 --- a/dracut/30ignition/module-setup.sh
 +++ b/dracut/30ignition/module-setup.sh
-@@ -52,7 +52,7 @@ install() {
+@@ -59,7 +59,7 @@ install() {
          tpm2_createpolicy
  
      # Required by s390x's z/VM installation.
@@ -4539,14 +4540,14 @@ index 15bb7276..816e4b66 100755
  
      # Required on system using SELinux
 diff --git a/go.mod b/go.mod
-index 26182e42..5950d85a 100644
+index f749e0d5..c24348db 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,4 +1,4 @@
 -module github.com/coreos/ignition/v2
 +module github.com/flatcar/ignition/v2
  
- go 1.19
+ go 1.20
  
 diff --git a/internal/apply/apply.go b/internal/apply/apply.go
 index 33113c5c..e8675889 100644
@@ -4860,11 +4861,11 @@ index fb45e966..ea369f0c 100644
  	"github.com/stretchr/testify/assert"
  )
 diff --git a/internal/exec/stages/files/files.go b/internal/exec/stages/files/files.go
-index d5c04f29..22ca2955 100644
+index 5ab5242a..c7785c26 100644
 --- a/internal/exec/stages/files/files.go
 +++ b/internal/exec/stages/files/files.go
-@@ -19,13 +19,13 @@ import (
- 	"fmt"
+@@ -20,13 +20,13 @@ import (
+ 	"os"
  	"path/filepath"
  
 -	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
@@ -5319,7 +5320,7 @@ index 5ac3dcb6..aefc1d0c 100644
  	// TODO: investigate alternative solutions (adding a Retryer to the
  	// aws.Config, fetching the region from an HTTP URL, handle the
 diff --git a/internal/providers/azure/azure.go b/internal/providers/azure/azure.go
-index d3115f2b..ad26064a 100644
+index caddcff5..398ea8eb 100644
 --- a/internal/providers/azure/azure.go
 +++ b/internal/providers/azure/azure.go
 @@ -25,13 +25,13 @@ import (
@@ -5343,6 +5344,15 @@ index d3115f2b..ad26064a 100644
  
  	"github.com/coreos/vcontext/report"
  	"golang.org/x/sys/unix"
+@@ -115,7 +115,7 @@ func fetchFromIMDS(f *resource.Fetcher) ([]byte, error) {
+ 	// Azure IMDS expects some codes <500 to still be retried...
+ 	// Here, we match the cloud-init set.
+ 	// https://github.com/canonical/cloud-init/commit/c1a2047cf291
+-	// https://github.com/coreos/ignition/issues/1806
++	// https://github.com/flatcar/ignition/issues/1806
+ 	retryCodes := []int{
+ 		404, // not found
+ 		410, // gone
 diff --git a/internal/providers/azurestack/azurestack.go b/internal/providers/azurestack/azurestack.go
 index 26334dee..899f2199 100644
 --- a/internal/providers/azurestack/azurestack.go
@@ -5753,6 +5763,25 @@ index 9451981b..a150869f 100644
  
  	"github.com/coreos/vcontext/report"
  )
+diff --git a/internal/providers/scaleway/scaleway.go b/internal/providers/scaleway/scaleway.go
+index 230519fe..8fe61aa1 100644
+--- a/internal/providers/scaleway/scaleway.go
++++ b/internal/providers/scaleway/scaleway.go
+@@ -22,10 +22,10 @@ import (
+ 	"math/rand"
+ 	"net/url"
+ 
+-	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/internal/platform"
+-	"github.com/coreos/ignition/v2/internal/providers/util"
+-	"github.com/coreos/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/platform"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
+ 
+ 	"github.com/coreos/vcontext/report"
+ )
 diff --git a/internal/providers/system/system.go b/internal/providers/system/system.go
 index 8762c2a0..14df30e1 100644
 --- a/internal/providers/system/system.go
@@ -5912,10 +5941,10 @@ index 84f66ec3..d07f1ffc 100644
  )
  
 diff --git a/internal/register/providers.go b/internal/register/providers.go
-index ddebb8bb..a3ffb8b0 100644
+index e7a06b38..372ee32d 100644
 --- a/internal/register/providers.go
 +++ b/internal/register/providers.go
-@@ -15,28 +15,28 @@
+@@ -15,29 +15,29 @@
  package register
  
  import (
@@ -5939,6 +5968,7 @@ index ddebb8bb..a3ffb8b0 100644
 -	_ "github.com/coreos/ignition/v2/internal/providers/packet"
 -	_ "github.com/coreos/ignition/v2/internal/providers/powervs"
 -	_ "github.com/coreos/ignition/v2/internal/providers/qemu"
+-	_ "github.com/coreos/ignition/v2/internal/providers/scaleway"
 -	_ "github.com/coreos/ignition/v2/internal/providers/virtualbox"
 -	_ "github.com/coreos/ignition/v2/internal/providers/vmware"
 -	_ "github.com/coreos/ignition/v2/internal/providers/vultr"
@@ -5963,6 +5993,7 @@ index ddebb8bb..a3ffb8b0 100644
 +	_ "github.com/flatcar/ignition/v2/internal/providers/packet"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/powervs"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/qemu"
++	_ "github.com/flatcar/ignition/v2/internal/providers/scaleway"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/virtualbox"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/vmware"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/vultr"
@@ -5992,7 +6023,7 @@ index 98c05214..b8043835 100644
 +	_ "github.com/flatcar/ignition/v2/internal/exec/stages/umount"
  )
 diff --git a/internal/resource/http.go b/internal/resource/http.go
-index 0d8edace..b4b7c59f 100644
+index 872ce253..5a751018 100644
 --- a/internal/resource/http.go
 +++ b/internal/resource/http.go
 @@ -28,12 +28,12 @@ import (
@@ -6015,10 +6046,10 @@ index 0d8edace..b4b7c59f 100644
  	"github.com/vincent-petithory/dataurl"
  
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 58e0b9fc..44253568 100644
+index ad548a49..8ccf9399 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
-@@ -31,9 +31,9 @@ import (
+@@ -33,9 +33,9 @@ import (
  
  	"cloud.google.com/go/compute/metadata"
  	"cloud.google.com/go/storage"

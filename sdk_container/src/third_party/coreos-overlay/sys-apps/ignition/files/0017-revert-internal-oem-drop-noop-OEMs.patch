@@ -1,4 +1,4 @@
-From ae8a57a3b86eb03152cee167bbbcb245075b8590 Mon Sep 17 00:00:00 2001
+From 8c5952d20e569133ac34e7e6a37367e8276d24b6 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 20 Feb 2024 10:25:24 +0100
 Subject: [PATCH 17/21] revert: internal/oem: drop noop OEMs
