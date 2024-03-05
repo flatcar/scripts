@@ -7,7 +7,7 @@ on:
         description: |
           Space-separated vendor formats to build.
         required: true
-        default: qemu_uefi
+        default: qemu_uefi pxe
       custom_sdk_version:
         type: string
         required: false
@@ -21,7 +21,7 @@ on:
         description: |
           Space-separated vendor formats to build.
         required: true
-        default: qemu_uefi
+        default: qemu_uefi pxe
       custom_sdk_version:
         type: string
         required: false
@@ -96,7 +96,7 @@ jobs:
           arch="${{ matrix.arch }}"
           echo "arch=${arch}" >> $GITHUB_ENV
 
-          IMAGE_FORMATS="qemu_uefi"
+          IMAGE_FORMATS="qemu_uefi pxe"
           [ -z "${{ inputs.image_formats }}" ] || IMAGE_FORMATS="${{ inputs.image_formats }}"
           echo "IMAGE_FORMATS=${IMAGE_FORMATS}" >> $GITHUB_ENV
 
@@ -309,6 +309,8 @@ jobs:
             scripts/artifacts/images/flatcar_production_*_efi_*.fd
             scripts/artifacts/images/*.txt
             scripts/artifacts/images/flatcar_production_*.sh
+            scripts/artifacts/images/flatcar_production_pxe_image.cpio.gz
+            scripts/artifacts/images/flatcar_production_pxe.vmlinuz
 
   test:
     needs: packages
