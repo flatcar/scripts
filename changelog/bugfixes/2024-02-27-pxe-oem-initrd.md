@@ -1,0 +1,1 @@
+- Restored support for custom OEMs supplied in the PXE boot where `/usr/share/oem` brings the OEM partition contents ([Flatcar#1376](https://github.com/flatcar/Flatcar/issues/1376))
