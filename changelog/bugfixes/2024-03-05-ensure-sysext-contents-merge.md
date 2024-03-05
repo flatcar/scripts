@@ -1,0 +1,1 @@
+- Fixed that systemd-sysext images can extend directories where Flatcar extensions are also shipping files, e.g., that the sysext-bakery Kubernetes extension works when OEM extensions are present ([sysext-bakery#50](https://github.com/flatcar/sysext-bakery/issues/50))
