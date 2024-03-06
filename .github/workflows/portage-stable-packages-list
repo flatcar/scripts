@@ -246,7 +246,6 @@ dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
 dev-python/autocommand
-dev-python/boto
 dev-python/crcmod
 dev-python/cython
 dev-python/distro
