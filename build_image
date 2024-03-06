@@ -108,11 +108,13 @@ fi
 PROD_IMAGE=0
 PROD_TAR=0
 CONTAINER=0
+SYSEXT=0
 for arg in "$@"; do
   case "${arg}" in
     prod) PROD_IMAGE=1 ;;
     prodtar) PROD_IMAGE=1 PROD_TAR=1 ;;
     container) CONTAINER=1 ;;
+    sysext) SYSEXT=1 ;;
     *)    die_notrace "Unknown image type ${arg}" ;;
   esac
 done
@@ -176,6 +178,9 @@ if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   if [[ "${PROD_TAR}" -eq 1 ]]; then
     create_prod_tar ${FLATCAR_PRODUCTION_IMAGE_NAME}
   fi
+fi
+if [[ "${SYSEXT}" -eq 1 ]]; then
+  create_prod_sysexts "${FLATCAR_PRODUCTION_IMAGE_NAME}"
 fi
 
 if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]] || \
