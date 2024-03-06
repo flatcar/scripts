@@ -217,6 +217,7 @@ for package; do
     --usepkgonly \
     --getbinpkg \
     --verbose \
+    --jobs=${NUM_JOBS} \
     "${package}"
 done
 
