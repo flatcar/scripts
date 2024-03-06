@@ -1,0 +1,3 @@
+cros_pre_src_compile_pkgconfig() {
+	export PKG_CONFIG="$(tc-getPKG_CONFIG)"
+}
