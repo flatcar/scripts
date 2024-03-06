@@ -418,7 +418,6 @@ net-libs/libnsl
 net-libs/libpcap
 net-libs/libpsl
 net-libs/libslirp
-net-libs/libssh2
 net-libs/nghttp2
 net-libs/rpcsvc-proto
 
