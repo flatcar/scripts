@@ -247,3 +247,42 @@ create_prod_tar() {
   sudo losetup --detach "${lodev}"
   upload_image "${container}"
 }
+
+EXTRA_SYSEXTS=(
+  zfs:sys-fs/zfs
+)
+
+create_prod_sysexts() {
+  local image_name="$1"
+  local image_sysext_base="${image_name%.bin}_sysext.squashfs"
+  sudo rm -rf "${BUILD_DIR}/sysexts/*"
+  mkdir -p "${BUILD_DIR}/sysexts"
+  local to_upload=()
+  for sysext in "${EXTRA_SYSEXTS[@]}"; do
+    local name="flatcar-${sysext%:*}"
+    local pkg="${sysext#*:}"
+    local mangle_script="${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
+    if [[ ! -x "${mangle_script}" ]]; then
+      mangle_script=
+    fi
+    sudo "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
+        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+	--image_builddir="${BUILD_DIR}/sysexts" \
+	${mangle_script:+--manglefs_script=${mangle_script}} \
+	"${name}" "${pkg}"
+    delta_generator \
+      -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
+      -new_image "${BUILD_DIR}/sysexts/${name}.raw" \
+      -out_file "${BUILD_DIR}/sysexts/flatcar_test_update-${name}.gz"
+    to_upload+=(
+        "${BUILD_DIR}/sysexts/${name}.raw"
+        "${BUILD_DIR}/sysexts/${name}_contents.txt"
+        "${BUILD_DIR}/sysexts/${name}_contents_wtd.txt"
+        "${BUILD_DIR}/sysexts/${name}_disk_usage.txt"
+        "${BUILD_DIR}/sysexts/${name}_packages.txt"
+        "${BUILD_DIR}/sysexts/flatcar_test_update-${name}.gz"
+    )
+  done
+  upload_image -d ${BUILD_DIR}/sysexts/sysext.DIGESTS "${to_upload[@]}"
+}
+
