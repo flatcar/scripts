@@ -17,13 +17,6 @@ sys-libs/ncurses cxx
 # which is defined in portage-stable.
 app-editors/nano unicode
 
-# Overwrite portage-stable mask. We are delaying the transition to
-# libxcrypt, because we need to figure out how to solve the dep loop
-# that results from the migration (python -> virtual/libcrypt ->
-# libxcrypt -> glibc -> python), and also we need to update gcc to
-# version 10 or later.
-sys-libs/glibc -crypt
-
 # We don't use pip.
 dev-lang/python ensurepip
 
