@@ -572,6 +572,7 @@ sys-libs/libselinux
 sys-libs/libsepol
 sys-libs/libunwind
 sys-libs/liburing
+sys-libs/libxcrypt
 sys-libs/ncurses
 sys-libs/readline
 sys-libs/talloc
