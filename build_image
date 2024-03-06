@@ -126,7 +126,7 @@ if [[ ${skip_test_build_root} -ne 1 ]]; then
 fi
 
 # Handle existing directory.
-if [[ -e "${BUILD_DIR}" ]]; then
+if [[ -e "${BUILD_DIR}" ]] && [[ "${PROD_IMAGE}" = 1 ]]; then
   if [[ ${FLAGS_replace} -eq ${FLAGS_TRUE} ]]; then
     sudo rm -rf "${BUILD_DIR}"
   else
