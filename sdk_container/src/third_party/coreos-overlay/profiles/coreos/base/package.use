@@ -150,3 +150,5 @@ sys-apps/findutils selinux
 app-containers/containerd btrfs device-mapper
 app-containers/docker btrfs device-mapper overlay seccomp
 app-containers/docker-cli hardened
+
+sys-fs/zfs minimal -rootfs
