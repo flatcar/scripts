@@ -156,3 +156,5 @@ app-containers/docker-cli hardened
 # The vanilla USE flag must be enabled if python is disabled.
 sys-apps/policycoreutils vanilla -python
 sys-libs/libsemanage -python
+
+sys-fs/zfs minimal -rootfs

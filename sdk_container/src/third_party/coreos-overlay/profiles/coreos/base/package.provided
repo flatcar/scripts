@@ -3,3 +3,6 @@ virtual/mta-1
 
 # pulled in by dev-libs/cyrus-sasl
 net-mail/mailbase-1.1
+
+# Only installs openrc files
+sys-fs/udev-init-scripts-35
