@@ -144,9 +144,10 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 #  outdated "seed tarball" libraries which have been updated to newer versions in stage 1.
 
 stage_repo() {
-    local repo="$1"
-    local path="$2"
-    local dest="$3"
+    local repo=${1}
+    local path=${2}
+    local dest=${3}
+    local update_seed_file=${4}
     local gitname="$repo"
 
     if [ "$gitname" = "gentoo" ] ; then
@@ -173,7 +174,7 @@ stage_repo() {
             name=${hook##*/}
             name=${name%"-${gitname}.sh"}
             info "Invoking stage1 ${gitname} hook ${name} on ${dest}/${repo}"
-            "${hook}" "${dest}/${repo}" "${!repo_var}"
+            "${hook}" "${dest}/${repo}" "${!repo_var}" "${update_seed_file}"
         done
     )
 }
@@ -189,10 +190,14 @@ build_stage1() {
     rm -rf "$stage1_repos"
     mkdir "$stage1_repos"
 
+    # If the file exists and is not empty, seed will be updated.
+    # Stage1 hooks may decide that the seed SDK needs updating.
+    local update_seed_file="${TEMPDIR}/update_seed"
+
     # prepare ebuild repos for stage 1, either from the local SDK (default)
     #  or from custom paths specified via command line flags
-    stage_repo "gentoo" "${FLAGS_stage1_portage_path}" "$stage1_repos"
-    stage_repo "coreos-overlay" "${FLAGS_stage1_overlay_path}" "$stage1_repos"
+    stage_repo "gentoo" "${FLAGS_stage1_portage_path}" "$stage1_repos" "${update_seed_file}"
+    stage_repo "coreos-overlay" "${FLAGS_stage1_overlay_path}" "$stage1_repos" "${update_seed_file}"
 
     # Create a snapshot of "known-good" portage-stable repo copy for use in stage 1
     #  This requires us to create a custom catalyst config to point it to the
@@ -210,11 +215,12 @@ build_stage1() {
         "$TEMPDIR/stage1.spec"
 
     # If we are to use a custom path for either ebuild repo we want to update the stage1 seed SDK
-    if [ -n "${FLAGS_stage1_portage_path}" -o -n "${FLAGS_stage1_overlay_path}" ] ; then
+    if [[ -n ${FLAGS_stage1_portage_path} ]] || [[ -n ${FLAGS_stage1_overlay_path} ]] || [[ -s ${update_seed_file} ]]; then
         sed -i 's/^update_seed: no/update_seed: yes/' "$TEMPDIR/stage1.spec"
         echo "update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver --rebuild-exclude cross-*-cros-linux-gnu/* sys-devel/gcc " \
             >>"$TEMPDIR/stage1.spec"
     fi
+    rm -f "${update_seed_file}"
 
     # Finally, build stage 1
     build_stage stage1 "$SEED" "$TEMPDIR/catalyst-stage1.conf"
