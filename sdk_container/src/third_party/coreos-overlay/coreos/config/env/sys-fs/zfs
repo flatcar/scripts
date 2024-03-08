@@ -1,0 +1,4 @@
+cros_post_src_install_rm_systemd_masks() {
+	rm "${D}$(systemd_get_systemunitdir)"/zfs-load-key.service
+	rm "${D}$(systemd_get_systemunitdir)"/zfs-import.service
+}
