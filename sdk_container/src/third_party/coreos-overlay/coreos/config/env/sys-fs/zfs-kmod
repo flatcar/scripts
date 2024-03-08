@@ -1,0 +1,2 @@
+: ${MODULES_ROOT:=$(echo ${SYSROOT}/lib/modules/*)}
+KERNEL_DIR="${MODULES_ROOT}/build"
