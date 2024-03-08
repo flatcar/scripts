@@ -57,8 +57,13 @@ for pkg in "$@"; do
         if [[ "$FLAGS_portage" == rsync ]]; then
             FLAGS_portage="${FLAGS_rsync}"
         fi
-        mkdir -p "$pkg"
-        rsync $RSYNC_OPTS -v --exclude CVS "$FLAGS_portage/$pkg/" "$pkg"
+        if [[ "$pkg" =~ "eclass/"* ]]; then
+            slash=
+        else
+            slash="/"
+            mkdir -p "$pkg"
+        fi
+        rsync $RSYNC_OPTS -v --exclude CVS "$FLAGS_portage/$pkg${slash}" "$pkg"
     fi
 
     # Make sure we don't change the repo name to 'gentoo'
