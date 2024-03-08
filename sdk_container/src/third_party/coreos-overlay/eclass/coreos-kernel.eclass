@@ -243,6 +243,22 @@ install_build_source() {
 		--owner=root:root \
 		--dereference \
 		"${D}/usr/lib/modules/${KV_FULL}" || die
+	# ./build/source is a symbolic link so cpio ends up creating an empty dir.
+	# Restore the symlink.
+	pushd "${D}/usr/lib/modules/${KV_FULL}"
+	rmdir build/source || die
+	ln -sr source build || die
+	# Symlink includes into the build directory to resemble Ubuntu's /lib/modules
+	# layout. This lets the Nvidia driver build when passing SYSSRC=/lib/modules/../build
+	# instead of requiring SYSOUT/SYSSRC.
+	{
+		find source/include -mindepth 1 -maxdepth 1 -type d
+		find source/arch/${kernel_arch}/include -mindepth 1 -maxdepth 1 -type d
+	} | while read src; do
+		dst="${src/source/build}"
+		ln -sr "${src}" "${dst}" || die
+	done || die
+	popd
 }
 
 coreos-kernel_pkg_pretend() {
