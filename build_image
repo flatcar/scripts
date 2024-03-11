@@ -104,6 +104,7 @@ fi
 . "${BUILD_LIBRARY_DIR}/dev_container_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/test_image_content.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/vm_image_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/extra_sysexts.sh" || exit 1
 
 PROD_IMAGE=0
 PROD_TAR=0

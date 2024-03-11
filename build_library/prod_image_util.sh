@@ -248,10 +248,6 @@ create_prod_tar() {
   upload_image "${container}"
 }
 
-EXTRA_SYSEXTS=(
-  zfs:sys-fs/zfs
-)
-
 create_prod_sysexts() {
   local image_name="$1"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
