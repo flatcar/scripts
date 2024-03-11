@@ -107,3 +107,6 @@
 
 # Accept unstable host Rust compilers.
 =virtual/rust-1.76.0 ~amd64 ~arm64
+
+# All drivers are acceptable
+x11-drivers/nvidia-drivers ~amd64 ~arm64

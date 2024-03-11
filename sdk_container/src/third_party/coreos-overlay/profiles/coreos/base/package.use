@@ -151,4 +151,5 @@ app-containers/containerd btrfs device-mapper
 app-containers/docker btrfs device-mapper overlay seccomp
 app-containers/docker-cli hardened
 
+x11-drivers/nvidia-drivers persistenced -tools -static-libs
 sys-fs/zfs minimal -rootfs
