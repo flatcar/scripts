@@ -1,0 +1,2 @@
+- bpftool ([6.7.6](https://kernelnewbies.org/Linux_6.7#Tracing.2C_probing_and_BPF))
+- git ([2.43.2](https://github.com/git/git/blob/v2.43.2/Documentation/RelNotes/2.43.2.txt))
