@@ -30,7 +30,7 @@
 =app-misc/jq-1.7.1 ~amd64 ~arm64
 
 # Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p21-r2 ~amd64 ~arm64
+=app-shells/bash-5.2_p26 ~amd64 ~arm64
 
 # No keyword for arm64 yet.
 =coreos-devel/fero-client-0.1.1 **
