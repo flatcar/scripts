@@ -75,7 +75,7 @@
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
 # Needed for addressing CVE-2023-46218, CVE-2023-46219 and CVE-2024-0853
-=net-misc/curl-8.6.0-r1 ~amd64 ~arm64
+=net-misc/curl-8.6.0-r1 ~arm64
 
 # Required to allow us to override the sftp subsystem in sshd config.
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
