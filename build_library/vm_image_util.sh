@@ -28,6 +28,7 @@ VALID_IMG_TYPES=(
     rackspace
     rackspace_onmetal
     rackspace_vhd
+    scaleway
     vagrant
     vagrant_parallels
     vagrant_virtualbox
@@ -54,6 +55,7 @@ VALID_OEM_PACKAGES=(
     qemu
     rackspace
     rackspace-onmetal
+    scaleway
     vagrant
     vagrant-key
     vagrant-virtualbox
@@ -303,6 +305,13 @@ IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
 IMG_packet_OEM_PACKAGE=common-oem-files
 IMG_packet_OEM_SYSEXT=oem-packet
 IMG_packet_OEM_USE=packet
+
+## scaleway
+IMG_scaleway_DISK_FORMAT=qcow2
+IMG_scaleway_DISK_LAYOUT=vm
+IMG_scaleway_OEM_PACKAGE=common-oem-files
+IMG_scaleway_OEM_USE=scaleway
+IMG_scaleway_OEM_SYSEXT=oem-scaleway
 
 ###########################################################
 

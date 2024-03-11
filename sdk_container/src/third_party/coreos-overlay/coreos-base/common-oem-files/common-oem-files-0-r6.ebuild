@@ -34,6 +34,7 @@ COMMON_OEMIDS=(
     openstack
     packet
     qemu
+    scaleway
 )
 
 ARM64_ONLY_OEMIDS=(
