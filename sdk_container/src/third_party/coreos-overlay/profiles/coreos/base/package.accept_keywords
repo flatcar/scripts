@@ -91,7 +91,6 @@
 
 # Keep versions on both arches in sync.
 =sys-firmware/edk2-aarch64-18.02 **
-=sys-libs/binutils-libs-2.41-r5 ~arm64
 
 # Needed to fix CVE-2023-29491.
 =sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
