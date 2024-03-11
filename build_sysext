@@ -221,6 +221,9 @@ for package; do
     "${package}"
 done
 
+# Make squashfs generation more reproducible.
+export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release")
+
 # Unmount in order to get rid of the overlay
 umount "${BUILD_DIR}/install-root"
 umount "${BUILD_DIR}/fs-root"
