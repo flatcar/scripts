@@ -222,6 +222,8 @@ dev-libs/libpcre2
 dev-libs/libpipeline
 dev-libs/libsodium
 dev-libs/libtasn1
+dev-libs/libtraceevent
+dev-libs/libtracefs
 dev-libs/libunistring
 dev-libs/libusb
 dev-libs/libuv
