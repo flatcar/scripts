@@ -603,7 +603,7 @@ def Mount(options):
     if options.read_only or ('verity' in mount.get('features', []) and not options.writable_verity):
       mount_opts.append('ro')
       if mount.get('fs_type', None) == 'btrfs':
-        mount_opts.append('norecovery')
+        mount_opts.append('rescue=nologreplay')
 
     if mount.get('fs_subvolume', None):
       mount_opts.append('subvol=%s' % mount['fs_subvolume'])
