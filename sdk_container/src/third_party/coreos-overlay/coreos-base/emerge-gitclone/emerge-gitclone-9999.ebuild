@@ -10,7 +10,7 @@ CROS_WORKON_LOCALDIR="src/platform"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="9240efb80504da934b2315cc89bddb81b739b214" # flatcar-master
+	CROS_WORKON_COMMIT="00396595376d8d6a3c4b9251ba94e9de2d7a9e39" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -21,7 +21,7 @@ inherit cros-workon python-single-r1
 DESCRIPTION="emerge utilities for Flatcar developer images"
 HOMEPAGE="https://github.com/flatcar/flatcar-dev-util/"
 
-LICENSE="GPL-2"
+LICENSE="Apache-2.0"
 SLOT="0"
 IUSE=""
 
