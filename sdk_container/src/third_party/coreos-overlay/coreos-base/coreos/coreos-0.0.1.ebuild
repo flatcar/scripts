@@ -88,6 +88,7 @@ RDEPEND="${RDEPEND}
 	app-admin/sdnotify-proxy
 	app-admin/sudo
 	app-admin/toolbox
+	app-alternatives/awk
 	app-arch/gzip
 	app-arch/bzip2
 	app-arch/lbzip2
@@ -157,7 +158,6 @@ RDEPEND="${RDEPEND}
 	sys-apps/diffutils
 	sys-apps/ethtool
 	sys-apps/findutils
-	sys-apps/gawk
 	sys-apps/gptfdisk
 	sys-apps/grep
 	sys-apps/ignition

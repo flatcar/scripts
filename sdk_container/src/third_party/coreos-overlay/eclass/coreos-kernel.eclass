@@ -187,6 +187,7 @@ shred_keys() {
 # Populate /lib/modules/$(uname -r)/{build,source}
 install_build_source() {
 	local kernel_arch=$(tc-arch-kernel)
+	local host_kernel_arch=$(tc-ninja_magic_to_arch kern "${CBUILD}")
 
 	# NOTE: We have to get ${archabspaths} before removing symlinks under
 	# /usr/lib/modules. However, do not exclude "dt-bindings" for now,
@@ -232,6 +233,7 @@ install_build_source() {
 	# or arm64.
 	{
 		echo source/Makefile
+		find source/arch/${host_kernel_arch} -follow -maxdepth 1 -name 'Makefile*' -print
 		find source/arch/${kernel_arch} -follow -maxdepth 1 -name 'Makefile*' -print
 		find source/arch/${kernel_arch} -follow \( -name 'module.lds' -o -name 'Kbuild.platforms' -o -name 'Platform' \) -print
 		find $(find source/arch/${kernel_arch} -follow \( -name include -o -name scripts \) -follow -type d -print) -print
@@ -243,6 +245,22 @@ install_build_source() {
 		--owner=root:root \
 		--dereference \
 		"${D}/usr/lib/modules/${KV_FULL}" || die
+	# ./build/source is a symbolic link so cpio ends up creating an empty dir.
+	# Restore the symlink.
+	pushd "${D}/usr/lib/modules/${KV_FULL}"
+	rmdir build/source || die
+	ln -sr source build || die
+	# Symlink includes into the build directory to resemble Ubuntu's /lib/modules
+	# layout. This lets the Nvidia driver build when passing SYSSRC=/lib/modules/../build
+	# instead of requiring SYSOUT/SYSSRC.
+	{
+		find source/include -mindepth 1 -maxdepth 1 -type d
+		find source/arch/${kernel_arch}/include -mindepth 1 -maxdepth 1 -type d
+	} | while read src; do
+		dst="${src/source/build}"
+		ln -sr "${src}" "${dst}" || die
+	done || die
+	popd
 }
 
 coreos-kernel_pkg_pretend() {

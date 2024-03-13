@@ -104,15 +104,18 @@ fi
 . "${BUILD_LIBRARY_DIR}/dev_container_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/test_image_content.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/vm_image_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/extra_sysexts.sh" || exit 1
 
 PROD_IMAGE=0
 PROD_TAR=0
 CONTAINER=0
+SYSEXT=0
 for arg in "$@"; do
   case "${arg}" in
     prod) PROD_IMAGE=1 ;;
     prodtar) PROD_IMAGE=1 PROD_TAR=1 ;;
     container) CONTAINER=1 ;;
+    sysext) SYSEXT=1 ;;
     *)    die_notrace "Unknown image type ${arg}" ;;
   esac
 done
@@ -124,7 +127,7 @@ if [[ ${skip_test_build_root} -ne 1 ]]; then
 fi
 
 # Handle existing directory.
-if [[ -e "${BUILD_DIR}" ]]; then
+if [[ -e "${BUILD_DIR}" ]] && [[ "${PROD_IMAGE}" = 1 ]]; then
   if [[ ${FLAGS_replace} -eq ${FLAGS_TRUE} ]]; then
     sudo rm -rf "${BUILD_DIR}"
   else
@@ -176,6 +179,9 @@ if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   if [[ "${PROD_TAR}" -eq 1 ]]; then
     create_prod_tar ${FLATCAR_PRODUCTION_IMAGE_NAME}
   fi
+fi
+if [[ "${SYSEXT}" -eq 1 ]]; then
+  create_prod_sysexts "${FLATCAR_PRODUCTION_IMAGE_NAME}"
 fi
 
 if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]] || \

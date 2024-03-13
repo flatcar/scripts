@@ -185,7 +185,7 @@ jobs:
           ./run_sdk_container -n "${container_name}" \
                   ./build_image --board="${arch}-usr" --group="${channel}" \
                                 --output_root="${CI_CONTAINER_ARTIFACT_ROOT}" \
-                                prodtar container
+                                prodtar container sysext
 
       - name: Build VM image(s)
         shell: bash

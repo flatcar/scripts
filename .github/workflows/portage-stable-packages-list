@@ -312,6 +312,7 @@ eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/desktop.eclass
 eclass/distutils-r1.eclass
+eclass/dist-kernel-utils.eclass
 eclass/eapi7-ver.eclass
 eclass/eapi8-dosym.eclass
 eclass/edo.eclass
@@ -540,6 +541,8 @@ sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
 sys-fs/xfsprogs
+sys-fs/zfs
+sys-fs/zfs-kmod
 
 sys-kernel/linux-headers
 

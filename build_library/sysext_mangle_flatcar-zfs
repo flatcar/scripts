@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}"
+
+rm -rf ./usr/{lib/debug/,lib64/cmake/,include/}
+rm -rf ./usr/lib/dracut/
+rm -rf ./usr/share/initramfs-tools
+rm -rf ./usr/src
+
+mkdir -p ./usr/share/zfs/etc
+rm -rf ./etc/{csh.env,environment.d/,profile.env}
+cp -a ./etc/. ./usr/share/zfs/etc/
+
+pushd ./usr/lib/systemd/system
+while read cmd unit; do
+  if [ "$cmd" = enable ]; then
+    target=$(awk -F= '/WantedBy/ { print $2 }' $unit)
+    mkdir -p "${target}.wants"
+    ln -svr "${unit}" "${target}".wants/
+  fi
+done < <(grep -v '^#' "${rootfs}"/usr/lib/systemd/system-preset/50-zfs.preset)
+mkdir -p "multi-user.target.d"
+{ echo "[Unit]"; echo "Upholds=zfs.target"; } > "multi-user.target.d/10-zfs.conf"
+popd
+
+mkdir -p ./usr/lib/tmpfiles.d
+cat <<EOF >./usr/lib/tmpfiles.d/10-zfs.conf
+d  /etc/zfs                                                 0755  root  root  -  -
+L  /etc/zfs/zed.d                                           -     -     -     -  /usr/share/zfs/etc/zfs/zed.d
+L  /etc/zfs/zfs-functions                                   -     -     -     -  /usr/share/zfs/etc/zfs/zfs-functions
+L  /etc/zfs/zpool.d                                         -     -     -     -  /usr/share/zfs/etc/zfs/zpool.d
+C  /etc/systemd/system/systemd-udevd.service.d/10-zfs.conf  -     -     -     -  /usr/lib/systemd/system/systemd-udevd.service.d/10-zfs.conf
+EOF
+
+mkdir -p ./usr/lib/systemd/system/systemd-udevd.service.d
+cat <<EOF >./usr/lib/systemd/system/systemd-udevd.service.d/10-zfs.conf
+[Unit]
+After=systemd-sysext.service
+EOF
+popd
