@@ -15,7 +15,6 @@
 
 -*net-misc/iputils
 -*sys-apps/iproute2
--*sys-apps/kbd
 -*sys-fs/e2fsprogs
 -*virtual/dev-manager
 -*sys-apps/shadow
