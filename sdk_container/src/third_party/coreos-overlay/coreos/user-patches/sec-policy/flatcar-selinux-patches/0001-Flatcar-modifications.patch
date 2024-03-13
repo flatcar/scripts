@@ -1,4 +1,4 @@
-From 5293e66fafd5f5cf2872abc03d8b49ed5bc81b9a Mon Sep 17 00:00:00 2001
+From c86a7f21cdc596039a1a716b029d3839f169345f Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
@@ -11,9 +11,9 @@ Subject: [PATCH] Flatcar modifications
  policy/modules/kernel/kernel.te         |  73 ++++++++++++
  policy/modules/services/container.fc    |   6 +
  policy/modules/services/container.te    | 150 +++++++++++++++++++++++-
- policy/modules/system/init.te           |   8 ++
  policy/modules/system/locallogin.te     |   9 +-
  policy/modules/system/logging.te        |   9 ++
+ policy/modules/system/unconfined.te     |   8 ++
  10 files changed, 355 insertions(+), 3 deletions(-)
 
 diff --git a/refpolicy/policy/modules/admin/netutils.te b/refpolicy/policy/modules/admin/netutils.te
@@ -440,22 +440,6 @@ index a5ad4686d..ceaeb2dfc 100644
 +# avc:  denied  { map } for  pid=[0-9]* comm="uds" path="/opt/libexec/kubernetes/kubelet-plugins/volume/exec/nodeagent~uds/uds" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
 +#
 +allow container_t usr_t:file { execute execute_no_trans map };
-diff --git a/refpolicy/policy/modules/system/init.te b/refpolicy/policy/modules/system/init.te
-index c83d88b74..b55afabc0 100644
---- a/refpolicy/policy/modules/system/init.te
-+++ b/refpolicy/policy/modules/system/init.te
-@@ -1658,3 +1658,11 @@ optional_policy(`
- 	userdom_dontaudit_rw_all_users_stream_sockets(systemprocess)
- 	userdom_dontaudit_write_user_tmp_files(systemprocess)
- ')
-+
-+#
-+# FLATCAR:
-+#
-+# TODO: What AVC does this fix?
-+#
-+require { type unconfined_t; }
-+allow init_t unconfined_t:file exec_file_perms;
 diff --git a/refpolicy/policy/modules/system/locallogin.te b/refpolicy/policy/modules/system/locallogin.te
 index 4dc9981bc..ee68ba624 100644
 --- a/refpolicy/policy/modules/system/locallogin.te
@@ -496,6 +480,22 @@ index a7b6173d8..343ef1abc 100644
  	allow syslogd_t self:capability audit_control;
  	allow syslogd_t self:netlink_audit_socket connected_socket_perms;
  	allow syslogd_t self:capability2 audit_read;
+diff --git a/refpolicy/policy/modules/system/unconfined.te b/refpolicy/policy/modules/system/unconfined.te
+index 77a960177..933dd5143 100644
+--- a/refpolicy/policy/modules/system/unconfined.te
++++ b/refpolicy/policy/modules/system/unconfined.te
+@@ -257,3 +257,11 @@ ifdef(`distro_gentoo',`
+ 		rtorrent_role(unconfined_r, unconfined_t)
+ 	')
+ ')
++
++#
++# FLATCAR:
++#
++# TODO: What AVC does this fix?
++#
++require { type init_t; }
++allow init_t unconfined_t:file exec_file_perms;
 -- 
 2.34.1
 
