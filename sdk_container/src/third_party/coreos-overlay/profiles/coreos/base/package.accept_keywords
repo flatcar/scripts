@@ -45,6 +45,9 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
+# The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
+=dev-libs/luksmeta-9-r1 **
+
 # Keep versions on both arches in sync.
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
 
