@@ -54,7 +54,7 @@ selinux-policy-utils-prepare() {
 	if [[ -n ${path_to_patch} ]]; then
 		pushd "${s}" >/dev/null || die "Could not enter ${s}"
 		einfo "Applying SELinux policy updates ... "
-		eapply -p0 -- "${path_to_patch"
+		eapply -p0 -- "${path_to_patch}"
 		popd >/dev/null || die "Could not go back to old directory"
 	fi
 
