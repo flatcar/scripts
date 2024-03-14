@@ -1,0 +1,1 @@
+- Added Ignition Clevis support for encrypted disks unlocked with a TPM2 device or a Tang server ([scripts#1560](https://github.com/flatcar/scripts/pull/1560))
