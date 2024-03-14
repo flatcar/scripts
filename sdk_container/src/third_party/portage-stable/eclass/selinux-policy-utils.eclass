@@ -197,7 +197,7 @@ selinux-policy-utils-unload-policy-packages() {
 			fi
 		done
 		if [[ ${#args[@]} -gt 0 ]]; then
-			einfo "Removing the following modules from the ${pt} module store: ${dropped_mods}"
+			einfo "Removing the following modules from the ${pt} module store: ${dropped_mods[*]}"
 			semodule "${root_opts[@]}" -s "${pt}" "${args[@]}"
 			if [[ $? -ne 0 ]]; then
 				ewarn "SELinux module unload failed.";
@@ -348,6 +348,7 @@ _spu_relabel_with_portage_utils() {
 	if [[ ${#pkgs[@]} -eq 0 ]]; then
 		return 0
 	fi
+	einfo "Relabeling contents of the following packages: ${pkgs[*]}"
 	/usr/bin/qlist -C -d -o -s --showdebug "${pkgs[@]}" | sort -u | sed -e 's#/$##' | /sbin/restorecon -f -
 }
 
@@ -359,6 +360,7 @@ _spu_relabel_with_gentoolkit() {
 	if [[ ${#pkgs[@]} -eq 0 ]]; then
 		return 0
 	fi
+	einfo "Relabeling contents of the following packages: ${pkgs[*]}"
 	/usr/bin/equery -C -q files "${pkgs[@]}" | grep -v -x '[[:space:]]*' | /sbin/restorecon -f -
 }
 
