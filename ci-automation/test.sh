@@ -167,7 +167,7 @@ function _test_run_impl() {
         #  determine success based on test results (tapfile).
         set +e
         touch sdk_container/.env
-        docker run --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
+        docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
          bash -c "git config --global --add safe.directory /work && \
                   source sdk_container/.env && \
@@ -176,7 +176,7 @@ function _test_run_impl() {
         rm -f "${work_dir}/first_run"
 
         # Note: git safe.directory is not set in this run as it does not use git
-        docker run --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
+        docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${mantle_ref}" \
             ci-automation/test_update_reruns.sh \
                 "${arch}" "${vernum}" "${image}" "${retry}" \
