@@ -255,6 +255,20 @@ src_prepare() {
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
+		# Flatcar: These can be dropped when updating to 256.
+		"${FILESDIR}/0008-mount-util-Add-a-helper-for-remounting-a-bind-mount.patch"
+		"${FILESDIR}/0009-sysext-Do-not-log-failed-unmount-error-again.patch"
+		"${FILESDIR}/0010-sysext-Factor-out-adding-overlayfs-option.patch"
+		"${FILESDIR}/0011-sysext-Refactor-the-merge-hierarchy-code.patch"
+		"${FILESDIR}/0012-sysext-Add-minimal-support-for-optional-mutability-f.patch"
+		"${FILESDIR}/0013-sysext-Add-mutable-mode-flag.patch"
+		"${FILESDIR}/0014-sysext-Move-parsing-mutable-mode-to-a-separate-funct.patch"
+		"${FILESDIR}/0015-sysext-Add-support-for-mutable-mode-environment-vari.patch"
+		"${FILESDIR}/0016-sysext-Add-missing-mutable-mode-in-help-output.patch"
+		"${FILESDIR}/0017-sysext-Implement-ephemeral-mode.patch"
+		"${FILESDIR}/0018-sysext-Implement-ephemeral-import-mode.patch"
+		"${FILESDIR}/0019-sysext-Actually-fail-the-whole-operation-if-sd-merge.patch"
+		"${FILESDIR}/0020-sysext-Fail-when-trying-to-import-mutable-layer-that.patch"
 	)
 
 	if ! use vanilla; then

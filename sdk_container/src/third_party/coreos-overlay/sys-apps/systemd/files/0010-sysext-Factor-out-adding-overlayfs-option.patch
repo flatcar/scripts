@@ -1,0 +1,68 @@
+From 24065b346c90d7fc5cf103e2704f16c27ad50b7b Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Thu, 15 Feb 2024 15:01:20 +0100
+Subject: [PATCH 10/20] sysext: Factor out adding overlayfs option
+
+We will use it later when adding workdir and upperdir options for overlayfs
+mount operation.
+---
+ src/sysext/sysext.c | 36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
+
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index afd79c3868..1c65bd5f65 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -474,6 +474,31 @@ static int verb_status(int argc, char **argv, void *userdata) {
+         return ret;
+ }
+ 
++static int append_overlayfs_path_option(
++                char **options,
++                const char *separator,
++                const char *option,
++                const char *path) {
++
++        _cleanup_free_ char *escaped = NULL;
++
++        assert(options);
++        assert(separator);
++        assert(path);
++
++        escaped = shell_escape(path, ",:");
++        if (!escaped)
++                return log_oom();
++
++        if (option) {
++                if (!strextend(options, separator, option, "=", escaped))
++                        return log_oom();
++        } else if (!strextend(options, separator, escaped))
++                return log_oom();
++
++        return 0;
++}
++
+ static int mount_overlayfs(
+                 ImageClass image_class,
+                 int noexec,
+@@ -492,14 +517,9 @@ static int mount_overlayfs(
+                 return log_oom();
+ 
+         STRV_FOREACH(l, layers) {
+-                _cleanup_free_ char *escaped = NULL;
+-
+-                escaped = shell_escape(*l, ",:");
+-                if (!escaped)
+-                        return log_oom();
+-
+-                if (!strextend(&options, separator ? ":" : "", escaped))
+-                        return log_oom();
++                r = append_overlayfs_path_option(&options, separator ? ":" : "", NULL, *l);
++                if (r < 0)
++                        return r;
+ 
+                 separator = true;
+         }
+-- 
+2.34.1
+
