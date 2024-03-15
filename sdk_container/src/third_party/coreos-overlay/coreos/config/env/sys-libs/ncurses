@@ -1,0 +1,5 @@
+cros_post_src_install_tmux_terminfo() {
+	mkdir -p "${ED}/usr/share/terminfo/t"
+	cp "${ED}/usr/share/terminfo/"{s/screen,t/tmux}
+	cp "${ED}/usr/share/terminfo/"{s/screen-256color,t/tmux-256color}
+}

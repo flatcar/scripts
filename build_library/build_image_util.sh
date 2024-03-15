@@ -529,7 +529,8 @@ insert_extra_slsa() {
     if [ -f "${binpkg}" ]; then
       info "Found ${atom} at ${binpkg}"
       qtbz2 -O -t "${binpkg}" | \
-        sudo tar -C "${rootfs}" -xj --wildcards './usr/share/SLSA'
+        lbzcat -d -c - | \
+        sudo tar -C "${rootfs}" -x --wildcards './usr/share/SLSA'
       continue
     fi
     warn "Missing SLSA information for ${atom}"
