@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~hppa ppc ppc64 ~riscv ~s390 x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ppc ~ppc64 ~riscv ~s390 ~x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -40,6 +40,7 @@ BDEPEND="
 	test? (
 		$(python_gen_cond_dep '
 			dev-python/build[${PYTHON_USEDEP}]
+			dev-python/importlib-metadata[${PYTHON_USEDEP}]
 			>=dev-python/ini2toml-0.9[${PYTHON_USEDEP}]
 			>=dev-python/filelock-3.4.0[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-envs-2.2[${PYTHON_USEDEP}]
@@ -50,6 +51,7 @@ BDEPEND="
 			>=dev-python/pytest-home-0.5[${PYTHON_USEDEP}]
 			dev-python/pytest-timeout[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
+			dev-python/tomli[${PYTHON_USEDEP}]
 			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
 			>=dev-python/virtualenv-20[${PYTHON_USEDEP}]
 		' "${PYTHON_TESTED[@]}")
