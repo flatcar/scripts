@@ -2,15 +2,18 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
+
+LLVM_COMPAT=( 16 )
+LLVM_OPTIONAL=1
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
-inherit python-utils-r1 toolchain-funcs verify-sig
+inherit autotools check-reqs flag-o-matic llvm-r1 multiprocessing
+inherit pax-utils python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_rc/rc}
+MY_PV=${PV/_alpha/a}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-${MY_PV%_p*}_p2"
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
@@ -28,11 +31,11 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
-	bluetooth build debug +ensurepip examples gdbm libedit
+	bluetooth build debug +ensurepip examples gdbm jit libedit
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
 "
+REQUIRED_USE="jit? ( ${LLVM_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -40,12 +43,11 @@ RESTRICT="!test? ( test )"
 # run the bootstrap code on your dev box and include the results in the
 # patchset. See bug 447752.
 
-# <expat-2.6: https://github.com/python/cpython/issues/115133
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
 	app-crypt/libb2
-	<dev-libs/expat-2.6:=
+	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-python/gentoo-common
 	>=sys-libs/zlib-1.1.3:=
@@ -85,6 +87,12 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
+	jit? (
+		$(llvm_gen_dep '
+			sys-devel/clang:${LLVM_SLOT}
+			sys-devel/llvm:${LLVM_SLOT}
+		')
+	)
 	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 RDEPEND+="
@@ -110,6 +118,7 @@ pkg_pretend() {
 }
 
 pkg_setup() {
+	use jit && llvm-r1_pkg_setup
 	use test && check-reqs_pkg_setup
 }
 
@@ -238,6 +247,7 @@ src_configure() {
 			# They'll even hang here but be fine in src_test sometimes.
 			# bug #828535 (and related: bug #788022)
 			-x test_asyncio
+			-x test_concurrent_futures
 			-x test_httpservers
 			-x test_logging
 			-x test_multiprocessing_fork
@@ -281,6 +291,7 @@ src_configure() {
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with debug assertions)
+		$(use_enable jit experimental-jit)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
 		$(use_with valgrind)
@@ -358,7 +369,7 @@ src_compile() {
 		local -x COLUMNS=80
 		local -x PYTHONDONTWRITEBYTECODE=
 
-		addpredict "/usr/lib/python${PYVER}/site-packages"
+		addwrite "/usr/lib/python${PYVER}/site-packages"
 	fi
 
 	# also need to clear the flags explicitly here or they end up
@@ -393,6 +404,7 @@ src_test() {
 		-j "$(makeopts_jobs)"
 
 		# fails
+		-x test_concurrent_futures
 		-x test_gdb
 	)
 
@@ -415,7 +427,7 @@ src_test() {
 	# workaround https://bugs.gentoo.org/775416
 	addwrite "/usr/lib/python${PYVER}/site-packages"
 
-	nonfatal emake test EXTRATESTOPTS="${test_opts[*]}" \
+	nonfatal emake -Onone test EXTRATESTOPTS="${test_opts[*]}" \
 		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
 	local ret=${?}
 
@@ -510,8 +522,7 @@ src_install() {
 	EOF
 	chmod +x "${scriptdir}/python${pymajor}-config" || die
 	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
-	# 2to3, pydoc
-	ln -s "../../../bin/2to3-${PYVER}" "${scriptdir}/2to3" || die
+	# pydoc
 	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
 	# idle
 	if use tk; then
