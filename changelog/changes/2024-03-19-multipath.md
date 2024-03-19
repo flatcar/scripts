@@ -1,0 +1,1 @@
+- Disabled real-time priority for multipathd as it prevents the cgroups2 cpu controller from working. ([flatcar/scripts#1771](https://github.com/flatcar/scripts/pull/1771))
