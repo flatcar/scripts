@@ -1,0 +1,13 @@
+cros_post_src_install_add_dropin() {
+	mkdir -p "${D}$(systemd_get_systemunitdir)/multipathd.service.d"
+	cat <<EOF >"${D}$(systemd_get_systemunitdir)/multipathd.service.d/flatcar.conf"
+[Service]
+# Multipathd sets itself to sched_rr with highest priority.
+# Cgroups2 doesn't support realtime processes outside the root cgroup,
+# if any such process exists then cpu controller can't be enabled.
+# This poses a bit of a dilemma.
+# Block realtime control for the process, but give it highest non-rt priority.
+RestrictRealtime=yes
+Nice=-20
+EOF
+}
