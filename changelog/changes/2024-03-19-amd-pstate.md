@@ -1,0 +1,1 @@
+- Enabled amd-pstate,amd-pstate-epp cpufreq drivers for some AMD CPUs in the kernel. ([flatcar/scripts#1770](https://github.com/flatcar/scripts/pull/1770))
