@@ -17,6 +17,10 @@
 
 #--- END OF EXAMPLES ---
 
+# Ionen Wolkens <ionen@gentoo.org> (2024-03-08)
+# media-libs/libdovi is not stable here yet
+media-libs/libplacebo libdovi
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-01-27)
 # dev-python/pyside6 is not stable here yet
 dev-python/QtPy pyside6
@@ -65,7 +69,7 @@ sys-libs/libomp llvm_targets_AMDGPU
 net-misc/curl rustls curl_ssl_rustls
 
 # Sam James <sam@gentoo.org> (2022-12-07)
-# Needs unstable media-libs/oneVPL
+# Needs unstable media-libs/libvpl
 media-libs/gst-plugins-bad qsv
 media-video/ffmpeg qsv
 
