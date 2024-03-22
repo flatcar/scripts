@@ -1,0 +1,1 @@
+- Fixed `toolbox` to prevent mounted `ctr` snapshots from being garbage-collected ([toolbox#9](https://github.com/flatcar/toolbox/pull/9))
