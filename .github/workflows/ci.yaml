@@ -36,7 +36,7 @@ jobs:
     name: "Build Flatcar packages"
     runs-on:
       - self-hosted
-      - debian
+      - debian-12
       - build
       - x64
     strategy:
