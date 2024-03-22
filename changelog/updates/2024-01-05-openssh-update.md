@@ -1,0 +1,1 @@
+- openssh ([9.6p1](https://www.openssh.com/releasenotes.html#9.6p1))

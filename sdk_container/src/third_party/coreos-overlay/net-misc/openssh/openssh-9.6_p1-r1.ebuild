@@ -3,6 +3,7 @@
 
 EAPI=8
 
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssh.org.asc
 inherit user-info flag-o-matic autotools pam systemd toolchain-funcs verify-sig
 
 # Make it more portable between straight releases
@@ -13,13 +14,13 @@ DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
 SRC_URI="
 	mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
-	verify-sig? ( mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz.asc )"
-VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/openssh.org.asc
+	verify-sig? ( mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz.asc )
+"
 S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam +pie security-key selinux +ssl static test X xmss"
 
@@ -56,12 +57,14 @@ RDEPEND="
 	pam? ( sys-libs/pam )
 	kerberos? ( virtual/krb5 )
 "
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	virtual/os-headers
 	kernel_linux? ( !prefix-guest? ( >=sys-kernel/linux-headers-5.1 ) )
 	static? ( ${LIB_DEPEND} )
 "
-RDEPEND="${RDEPEND}
+RDEPEND="
+	${RDEPEND}
 	!net-misc/openssh-contrib
 	pam? ( >=sys-auth/pambase-20081028 )
 	!prefix? ( sys-apps/shadow )
@@ -81,8 +84,6 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-9.3_p1-GSSAPI-dns.patch" #165444 integrated into gsskex
-	"${FILESDIR}/${PN}-9.3_p1-openssl-ignore-status.patch"
 	"${FILESDIR}/${PN}-9.3_p1-disable-conch-interop-tests.patch"
 	"${FILESDIR}/${PN}-9.3_p1-fix-putty-tests.patch"
 	"${FILESDIR}/${PN}-9.3_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
@@ -134,11 +135,9 @@ src_prepare() {
 	# don't break .ssh/authorized_keys2 for fun
 	sed -i '/^AuthorizedKeysFile/s:^:#:' sshd_config || die
 
-	eapply -- "${PATCHES[@]}"
+	[[ -d ${WORKDIR}/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
 
-	[[ -d ${WORKDIR}/patches ]] && eapply "${WORKDIR}"/patches
-
-	eapply_user #473004
+	default
 
 	# These tests are currently incompatible with PORTAGE_TMPDIR/sandbox
 	sed -e '/\t\tpercent \\/ d' \
@@ -186,7 +185,25 @@ src_configure() {
 		--datadir="${EPREFIX}"/usr/share/openssh
 		--with-privsep-path="${EPREFIX}"/var/empty
 		--with-privsep-user=sshd
-		--with-hardening
+
+		# --with-hardening adds the following in addition to flags we
+		# already set in our toolchain:
+		# * -ftrapv (which is broken with GCC anyway),
+		# * -ftrivial-auto-var-init=zero (which is nice, but not the end of
+		#    the world to not have)
+		# * -fzero-call-used-regs=used (history of miscompilations with
+		#    Clang (bug #872548), ICEs on m68k (bug #920350, gcc PR113086,
+		#    gcc PR104820, gcc PR104817, gcc PR110934)).
+		#
+		# Furthermore, OSSH_CHECK_CFLAG_COMPILE does not use AC_CACHE_CHECK,
+		# so we cannot just disable -fzero-call-used-regs=used.
+		#
+		# Therefore, just pass --without-hardening, given it doesn't negate
+		# our already hardened toolchain defaults, and avoids adding flags
+		# which are known-broken in both Clang and GCC and haven't been
+		# proven reliable.
+		--without-hardening
+
 		$(use_with audit audit linux)
 		$(use_with kerberos kerberos5 "${EPREFIX}"/usr)
 		$(use_with ldns)
@@ -200,8 +217,7 @@ src_configure() {
 	)
 
 	if use elibc_musl; then
-		# musl defines bogus values for UTMP_FILE and WTMP_FILE
-		# https://bugs.gentoo.org/753230
+		# musl defines bogus values for UTMP_FILE and WTMP_FILE (bug #753230)
 		myconf+=( --disable-utmp --disable-wtmp )
 	fi
 
@@ -229,12 +245,8 @@ src_test() {
 }
 
 insert_include() {
-	local src_config="${1}" options="${2}" includedir="${3}"
+	local src_config=${1} options=${2} includedir=${3}
 	local name copy regexp_options regexp lineno comment_options
-
-	if [[ ! "${includedir}" =~ ^/.* ]]; then
-		die "includir must be an absolute path (i.e, starting with /). Got: ${includedir}"
-	fi
 
 	name=${src_config##*/}
 	copy="${T}/${name}"
@@ -255,7 +267,7 @@ insert_include() {
 		head -n "${lineno}" "${copy}" || die
 		cat <<-EOF || die
 		# Make sure that all ${comment_options} options are below this Include!
-		Include "${EPREFIX}${includedir}/*.conf"
+		Include "${includedir}/*.conf"
 
 		EOF
 		tail -n "+${lineno}" "${copy}" || die
@@ -277,8 +289,8 @@ tweak_ssh_configs() {
 
 	dodir /etc/ssh/ssh_config.d /etc/ssh/sshd_config.d
 
-	insert_include "${ED}"/etc/ssh/ssh_config 'Host,Match' '/etc/ssh/ssh_config.d'
-	insert_include "${ED}"/etc/ssh/sshd_config 'Match' '/etc/ssh/sshd_config.d'
+	insert_include "${ED}"/etc/ssh/ssh_config 'Host,Match' "${EPREFIX}"/etc/ssh/ssh_config.d
+	insert_include "${ED}"/etc/ssh/sshd_config 'Match' "${EPREFIX}"/etc/ssh/sshd_config.d
 
 	cat <<-EOF >> "${ED}"/etc/ssh/ssh_config.d/9999999gentoo.conf || die
 	# Send locale environment variables (bug #367017)
