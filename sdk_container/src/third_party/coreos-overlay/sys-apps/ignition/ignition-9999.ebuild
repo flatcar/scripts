@@ -63,6 +63,7 @@ PATCHES=(
 	"${FILESDIR}/0019-usr-share-oem-oem.patch"
 	"${FILESDIR}/0020-internal-exec-stages-mount-Mount-oem.patch"
 	"${FILESDIR}/0021-sgdisk-Run-partprobe-after-partition-changes.patch"
+	"${FILESDIR}/0022-feat-proxmoxve-initial-commit.patch"
 )
 
 src_compile() {

@@ -23,6 +23,8 @@ ConditionKernelCommandLine=|flatcar.oem.id=hetzner
 
 ConditionKernelCommandLine=|flatcar.oem.id=kubevirt
 
+ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
+
 Description=Flatcar Metadata Agent
 
 [Service]

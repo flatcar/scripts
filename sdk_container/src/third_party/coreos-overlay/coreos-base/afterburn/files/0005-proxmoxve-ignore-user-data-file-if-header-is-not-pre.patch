@@ -1,0 +1,175 @@
+From d14b1a7a912dc905eaf395fda461265b2754586b Mon Sep 17 00:00:00 2001
+From: Arthur Chaloin <arthur.chaloin@gmail.com>
+Date: Tue, 16 Apr 2024 12:19:23 +0000
+Subject: [PATCH 2/2] proxmoxve: ignore user-data file if header is not present
+
+---
+ src/providers/proxmoxve/cloudconfig.rs        | 42 +++++++++++++++----
+ src/providers/proxmoxve/tests.rs              | 10 +++++
+ .../proxmoxve/invalid-user-data/meta-data     |  1 +
+ .../invalid-user-data/network-config          | 30 +++++++++++++
+ .../proxmoxve/invalid-user-data/user-data     |  5 +++
+ .../proxmoxve/invalid-user-data/vendor-data   |  0
+ 6 files changed, 79 insertions(+), 9 deletions(-)
+ create mode 100644 tests/fixtures/proxmoxve/invalid-user-data/meta-data
+ create mode 100644 tests/fixtures/proxmoxve/invalid-user-data/network-config
+ create mode 100644 tests/fixtures/proxmoxve/invalid-user-data/user-data
+ create mode 100644 tests/fixtures/proxmoxve/invalid-user-data/vendor-data
+
+diff --git a/src/providers/proxmoxve/cloudconfig.rs b/src/providers/proxmoxve/cloudconfig.rs
+index 3535e26..a213e50 100644
+--- a/src/providers/proxmoxve/cloudconfig.rs
++++ b/src/providers/proxmoxve/cloudconfig.rs
+@@ -11,6 +11,7 @@ use slog_scope::warn;
+ use std::{
+     collections::HashMap,
+     fs::File,
++    io::{BufRead, BufReader},
+     net::{AddrParseError, IpAddr},
+     path::Path,
+     str::FromStr,
+@@ -19,7 +20,7 @@ use std::{
+ #[derive(Debug)]
+ pub struct ProxmoxVECloudConfig {
+     pub meta_data: ProxmoxVECloudMetaData,
+-    pub user_data: ProxmoxVECloudUserData,
++    pub user_data: Option<ProxmoxVECloudUserData>,
+     pub vendor_data: ProxmoxVECloudVendorData,
+     pub network_config: ProxmoxVECloudNetworkConfig,
+ }
+@@ -81,9 +82,26 @@ pub struct ProxmoxVECloudNetworkConfigSubnet {
+ 
+ impl ProxmoxVECloudConfig {
+     pub fn try_new(path: &Path) -> Result<Self> {
++        let user_data_file = BufReader::new(File::open(path.join("user-data"))?);
++        let mut user_data = None;
++
++        if let Some(first_line) = user_data_file.lines().next() {
++            if let Ok(first_line) = first_line {
++                if first_line.starts_with("#cloud-config") {
++                    user_data = serde_yaml::from_reader(File::open(path.join("user-data"))?)?;
++                }
++            }
++        }
++
++        if user_data.is_none() {
++            warn!(
++                "user-data does not have the expected header `#cloud-config`, ignoring this file"
++            );
++        }
++
+         Ok(Self {
++            user_data,
+             meta_data: serde_yaml::from_reader(File::open(path.join("meta-data"))?)?,
+-            user_data: serde_yaml::from_reader(File::open(path.join("user-data"))?)?,
+             vendor_data: serde_yaml::from_reader(File::open(path.join("vendor-data"))?)?,
+             network_config: serde_yaml::from_reader(File::open(path.join("network-config"))?)?,
+         })
+@@ -119,16 +137,22 @@ impl MetadataProvider for ProxmoxVECloudConfig {
+     }
+ 
+     fn hostname(&self) -> Result<Option<String>> {
+-        Ok(Some(self.user_data.hostname.clone()))
++        Ok(self
++            .user_data
++            .as_ref()
++            .map(|user_data| user_data.hostname.clone()))
+     }
+ 
+     fn ssh_keys(&self) -> Result<Vec<PublicKey>> {
+-        Ok(self
+-            .user_data
+-            .ssh_authorized_keys
+-            .iter()
+-            .map(|key| PublicKey::from_str(key))
+-            .collect::<Result<Vec<_>, _>>()?)
++        if let Some(user_data) = &self.user_data {
++            return Ok(user_data
++                .ssh_authorized_keys
++                .iter()
++                .map(|key| PublicKey::from_str(key))
++                .collect::<Result<Vec<_>, _>>()?);
++        }
++
++        Ok(vec![])
+     }
+ 
+     fn networks(&self) -> Result<Vec<network::Interface>> {
+diff --git a/src/providers/proxmoxve/tests.rs b/src/providers/proxmoxve/tests.rs
+index 060ee8d..ddef64b 100644
+--- a/src/providers/proxmoxve/tests.rs
++++ b/src/providers/proxmoxve/tests.rs
+@@ -141,3 +141,13 @@ fn test_network_static() {
+         ]
+     );
+ }
++
++#[test]
++fn test_invalid_user_data() {
++    let config =
++        ProxmoxVECloudConfig::try_new(Path::new("tests/fixtures/proxmoxve/invalid-user-data"))
++            .expect("cannot parse config");
++
++    assert_eq!(config.hostname().unwrap().is_none(), true);
++    assert_eq!(config.ssh_keys().unwrap(), vec![]);
++}
+diff --git a/tests/fixtures/proxmoxve/invalid-user-data/meta-data b/tests/fixtures/proxmoxve/invalid-user-data/meta-data
+new file mode 100644
+index 0000000..bd5926b
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/invalid-user-data/meta-data
+@@ -0,0 +1 @@
++instance-id: 15a9919cb91024fbd1d70fa07f0efa749cbba03b
+diff --git a/tests/fixtures/proxmoxve/invalid-user-data/network-config b/tests/fixtures/proxmoxve/invalid-user-data/network-config
+new file mode 100644
+index 0000000..e708ca1
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/invalid-user-data/network-config
+@@ -0,0 +1,30 @@
++version: 1
++config:
++    - type: physical
++      name: eth0
++      mac_address: '01:23:45:67:89:00'
++      subnets:
++          - type: static
++            address: '192.168.1.1'
++            netmask: '255.255.255.0'
++            gateway: '192.168.1.254'
++          - type: static6
++            address: '2001:0db8:85a3:0000:0000:8a2e:0370:0/24'
++            gateway: '2001:0db8:85a3:0000:0000:8a2e:0370:9999'
++    - type: physical
++      name: eth1
++      mac_address: '01:23:45:67:89:99'
++      subnets:
++          - type: static
++            address: '192.168.42.1'
++            netmask: '255.255.255.0'
++            gateway: '192.168.42.254'
++          - type: static6
++            address: '2001:0db8:85a3:0000:0000:8a2e:4242:0/24'
++            gateway: '2001:0db8:85a3:0000:0000:8a2e:4242:9999'
++    - type: nameserver
++      address:
++      - '1.1.1.1'
++      - '8.8.8.8'
++      search:
++      - 'local.com'
+diff --git a/tests/fixtures/proxmoxve/invalid-user-data/user-data b/tests/fixtures/proxmoxve/invalid-user-data/user-data
+new file mode 100644
+index 0000000..c1baeda
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/invalid-user-data/user-data
+@@ -0,0 +1,5 @@
++{
++  "some": {
++    "ignition": "config"
++  }
++}
+diff --git a/tests/fixtures/proxmoxve/invalid-user-data/vendor-data b/tests/fixtures/proxmoxve/invalid-user-data/vendor-data
+new file mode 100644
+index 0000000..e69de29
+-- 
+2.45.0
+

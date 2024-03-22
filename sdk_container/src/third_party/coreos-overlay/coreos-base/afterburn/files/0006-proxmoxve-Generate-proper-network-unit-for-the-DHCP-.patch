@@ -1,0 +1,305 @@
+From 57150985ad6fc47d03ccec1eec377377859267fb Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Mon, 6 May 2024 17:20:17 +0900
+Subject: [PATCH] proxmoxve: Generate proper network unit for the DHCP case
+
+When DHCP is not specified in a systemd network unit, the default is
+"no". For a "type: dhcp4" entry in the Proxmox VE network-config file
+the systemd network unit should set DHCP=ipv4, and similar for "dhcp6".
+---
+ src/network.rs                         | 62 ++++++++++++++++++++++++++
+ src/providers/digitalocean/mod.rs      |  1 +
+ src/providers/ibmcloud_classic/mod.rs  |  1 +
+ src/providers/packet/mod.rs            |  3 ++
+ src/providers/proxmoxve/cloudconfig.rs | 10 ++++-
+ src/providers/proxmoxve/tests.rs       |  5 ++-
+ 6 files changed, 80 insertions(+), 2 deletions(-)
+
+diff --git a/src/network.rs b/src/network.rs
+index 7795735..26c0a6f 100644
+--- a/src/network.rs
++++ b/src/network.rs
+@@ -79,6 +79,8 @@ pub struct Interface {
+     pub priority: u8,
+     pub nameservers: Vec<IpAddr>,
+     pub ip_addresses: Vec<IpNetwork>,
++    // Optionally enable DHCP
++    pub dhcp: Option<DhcpSetting>,
+     pub routes: Vec<NetworkRoute>,
+     pub bond: Option<String>,
+     pub unmanaged: bool,
+@@ -128,6 +130,31 @@ impl NetDevKind {
+     }
+ }
+ 
++/// Optional use of DHCP.
++#[allow(dead_code)]
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub enum DhcpSetting {
++    Both,
++    V4,
++    V6,
++}
++
++impl DhcpSetting {
++    /// Return DHCP setting according to `systemd.network`
++    ///
++    /// See [systemd documentation](dhcp) for the full list.
++    ///
++    /// dhcp: https://www.freedesktop.org/software/systemd/man/latest/systemd.network.html#DHCP=
++    fn sd_dhcp_setting(&self) -> String {
++        let setting = match *self {
++            DhcpSetting::Both => "yes",
++            DhcpSetting::V4 => "ipv4",
++            DhcpSetting::V6 => "ipv6",
++        };
++        setting.to_string()
++    }
++}
++
+ impl Interface {
+     /// Return a deterministic `systemd.network` unit name for this device.
+     pub fn sd_network_unit_name(&self) -> Result<String> {
+@@ -158,6 +185,9 @@ impl Interface {
+ 
+         // [Network] section
+         writeln!(config, "\n[Network]").unwrap();
++        if let Some(dhcp) = &self.dhcp {
++            writeln!(config, "DHCP={}", dhcp.sd_dhcp_setting()).unwrap();
++        }
+         for ns in &self.nameservers {
+             writeln!(config, "DNS={ns}").unwrap()
+         }
+@@ -246,6 +276,7 @@ mod tests {
+                     priority: 20,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
+@@ -261,6 +292,7 @@ mod tests {
+                     priority: 10,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
+@@ -276,6 +308,7 @@ mod tests {
+                     priority: 20,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
+@@ -291,6 +324,7 @@ mod tests {
+                     priority: 20,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
+@@ -306,6 +340,7 @@ mod tests {
+                     priority: 20,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
+@@ -330,6 +365,7 @@ mod tests {
+             priority: 20,
+             nameservers: vec![],
+             ip_addresses: vec![],
++            dhcp: None,
+             routes: vec![],
+             bond: None,
+             unmanaged: false,
+@@ -387,6 +423,7 @@ mod tests {
+                             Ipv6Network::new(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap(),
+                         ),
+                     ],
++                    dhcp: None,
+                     routes: vec![NetworkRoute {
+                         destination: IpNetwork::V4(
+                             Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 1), 8).unwrap(),
+@@ -428,6 +465,7 @@ Gateway=127.0.0.1
+                     priority: 10,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
+@@ -447,6 +485,7 @@ Gateway=127.0.0.1
+                     priority: 10,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: false,
+@@ -470,6 +509,7 @@ RequiredForOnline=no
+                     priority: 10,
+                     nameservers: vec![],
+                     ip_addresses: vec![],
++                    dhcp: None,
+                     routes: vec![],
+                     bond: None,
+                     unmanaged: true,
+@@ -482,6 +522,28 @@ Name=*
+ 
+ [Link]
+ Unmanaged=yes
++",
++            ),
++            // test the DHCP setting
++            (
++                Interface {
++                    name: Some("*".to_owned()),
++                    mac_address: None,
++                    path: None,
++                    priority: 10,
++                    nameservers: vec![],
++                    ip_addresses: vec![],
++                    dhcp: Some(DhcpSetting::V4),
++                    routes: vec![],
++                    bond: None,
++                    unmanaged: false,
++                    required_for_online: None,
++                },
++                "[Match]
++Name=*
++
++[Network]
++DHCP=ipv4
+ ",
+             ),
+         ];
+diff --git a/src/providers/digitalocean/mod.rs b/src/providers/digitalocean/mod.rs
+index 2583696..dd817dc 100644
+--- a/src/providers/digitalocean/mod.rs
++++ b/src/providers/digitalocean/mod.rs
+@@ -156,6 +156,7 @@ impl DigitalOceanProvider {
+                     mac_address: Some(mac),
+                     nameservers: self.dns.nameservers.clone(),
+                     ip_addresses: addrs,
++                    dhcp: None,
+                     routes,
+                     bond: None,
+                     name: None,
+diff --git a/src/providers/ibmcloud_classic/mod.rs b/src/providers/ibmcloud_classic/mod.rs
+index 6546f08..d210aca 100644
+--- a/src/providers/ibmcloud_classic/mod.rs
++++ b/src/providers/ibmcloud_classic/mod.rs
+@@ -247,6 +247,7 @@ impl IBMClassicProvider {
+                 priority: 10,
+                 nameservers: nameservers.clone(),
+                 ip_addresses: vec![ip_net],
++                dhcp: None,
+                 routes,
+                 bond: None,
+                 unmanaged: false,
+diff --git a/src/providers/packet/mod.rs b/src/providers/packet/mod.rs
+index 314c642..4a8ec35 100644
+--- a/src/providers/packet/mod.rs
++++ b/src/providers/packet/mod.rs
+@@ -216,6 +216,7 @@ impl PacketProvider {
+                 priority: 10,
+                 nameservers: Vec::new(),
+                 ip_addresses: Vec::new(),
++                dhcp: None,
+                 routes: Vec::new(),
+                 // the interface should be unmanaged if it doesn't have a bond
+                 // section
+@@ -241,6 +242,7 @@ impl PacketProvider {
+                     path: None,
+                     bond: None,
+                     ip_addresses: Vec::new(),
++                    dhcp: None,
+                     routes: Vec::new(),
+                     unmanaged: false,
+                     required_for_online: Some("degraded-carrier".to_owned()),
+@@ -334,6 +336,7 @@ impl PacketProvider {
+             bond: None,
+             nameservers: Vec::new(),
+             ip_addresses: Vec::new(),
++            dhcp: None,
+             routes: Vec::new(),
+             required_for_online: None,
+         };
+diff --git a/src/providers/proxmoxve/cloudconfig.rs b/src/providers/proxmoxve/cloudconfig.rs
+index a213e50..50bc42c 100644
+--- a/src/providers/proxmoxve/cloudconfig.rs
++++ b/src/providers/proxmoxve/cloudconfig.rs
+@@ -1,5 +1,5 @@
+ use crate::{
+-    network::{self, NetworkRoute},
++    network::{self, DhcpSetting, NetworkRoute},
+     providers::MetadataProvider,
+ };
+ use anyhow::Result;
+@@ -207,6 +207,8 @@ impl ProxmoxVECloudNetworkConfigEntry {
+             ip_addresses: vec![],
+             // filled below
+             routes: vec![],
++            // filled below
++            dhcp: None,
+             // filled below because Option::try_map doesn't exist yet
+             mac_address: None,
+ 
+@@ -257,6 +259,12 @@ impl ProxmoxVECloudNetworkConfigEntry {
+                 }
+             }
+ 
++            if subnet.subnet_type == "dhcp" || subnet.subnet_type == "dhcp4" {
++                iface.dhcp = Some(DhcpSetting::V4)
++            }
++            if subnet.subnet_type == "dhcp6" {
++                iface.dhcp = Some(DhcpSetting::V6)
++            }
+             if subnet.subnet_type == "ipv6_slaac" {
+                 warn!("subnet type \"ipv6_slaac\" not supported, ignoring");
+             }
+diff --git a/src/providers/proxmoxve/tests.rs b/src/providers/proxmoxve/tests.rs
+index ddef64b..e4171fe 100644
+--- a/src/providers/proxmoxve/tests.rs
++++ b/src/providers/proxmoxve/tests.rs
+@@ -1,6 +1,6 @@
+ use super::ProxmoxVECloudConfig;
+ use crate::{
+-    network::{self, NetworkRoute},
++    network::{self, DhcpSetting, NetworkRoute},
+     providers::MetadataProvider,
+ };
+ use ipnetwork::IpNetwork;
+@@ -64,6 +64,7 @@ fn test_network_dhcp() {
+             mac_address: Some(MacAddr::from_str("01:23:45:67:89:00").unwrap()),
+             path: None,
+             priority: 20,
++            dhcp: Some(DhcpSetting::V4),
+             nameservers: vec![
+                 IpAddr::from_str("1.1.1.1").unwrap(),
+                 IpAddr::from_str("8.8.8.8").unwrap()
+@@ -98,6 +99,7 @@ fn test_network_static() {
+                     IpNetwork::from_str("192.168.1.1/24").unwrap(),
+                     IpNetwork::from_str("2001:0db8:85a3:0000:0000:8a2e:0370:0/24").unwrap(),
+                 ],
++                dhcp: None,
+                 routes: vec![
+                     NetworkRoute {
+                         destination: IpNetwork::from_str("0.0.0.0/0").unwrap(),
+@@ -123,6 +125,7 @@ fn test_network_static() {
+                     IpNetwork::from_str("192.168.42.1/24").unwrap(),
+                     IpNetwork::from_str("2001:0db8:85a3:0000:0000:8a2e:4242:0/24").unwrap(),
+                 ],
++                dhcp: None,
+                 routes: vec![
+                     NetworkRoute {
+                         destination: IpNetwork::from_str("0.0.0.0/0").unwrap(),
+-- 
+2.45.0
+
