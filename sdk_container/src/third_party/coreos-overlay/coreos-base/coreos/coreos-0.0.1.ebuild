@@ -178,6 +178,7 @@ RDEPEND="${RDEPEND}
 	sys-apps/usbutils
 	sys-apps/util-linux
 	sys-apps/which
+	sys-apps/zram-generator
 	sys-auth/realmd
 	sys-auth/sssd
 	sys-block/open-iscsi
