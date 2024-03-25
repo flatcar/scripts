@@ -12,7 +12,7 @@ inherit cros-workon systemd toolchain-funcs udev coreos-go
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="a7bc5f0050ab3493807ec69977cda26b882b4aad" # flatcar-master
+	CROS_WORKON_COMMIT="f78b9f7b484497c610c8a159aa971234d384d215" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
