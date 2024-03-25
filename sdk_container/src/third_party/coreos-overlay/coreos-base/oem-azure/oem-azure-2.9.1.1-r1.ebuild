@@ -3,6 +3,8 @@
 
 EAPI=8
 
+inherit systemd tmpfiles
+
 DESCRIPTION="OEM suite for Azure"
 HOMEPAGE="https://azure.microsoft.com/"
 SRC_URI=""
@@ -14,7 +16,18 @@ IUSE=""
 
 RDEPEND="
   ~app-emulation/wa-linux-agent-${PV}
+  net-misc/chrony
 "
 
 # for coreos-base/common-oem-files
 OEM_NAME="Microsoft Azure"
+
+S="${WORKDIR}"
+
+src_install() {
+	systemd_enable_service multi-user.target chronyd.service
+	dotmpfiles "${FILESDIR}"/var-chrony.conf
+	dotmpfiles "${FILESDIR}"/etc-chrony.conf
+	insinto /usr/share/${PN}
+	doins "${FILESDIR}"/chrony.conf
+}

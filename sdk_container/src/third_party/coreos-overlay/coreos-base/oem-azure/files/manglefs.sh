@@ -18,5 +18,5 @@ ln -sf /usr/bin/true "${rootfs}/usr/bin/eject"
 # At runtime we need the agent to write systemd.service to /etc but during
 # package creation it needs to be /usr/lib. waagent uses the same function in
 # both cases, so mangle manually.
-mkdir -p "${rootfs}"/usr/lib/systemd
-mv "${rootfs}"/{etc,usr/lib}/systemd/system
+mkdir -p "${rootfs}"/usr/lib/systemd/system
+cp -a "${rootfs}"/{etc,usr/lib}/systemd/system/.
