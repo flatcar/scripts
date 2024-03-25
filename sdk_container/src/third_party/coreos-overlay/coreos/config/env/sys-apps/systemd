@@ -1,0 +1,13 @@
+cros_post_src_install_timesync() {
+  local dir="${D}$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
+  mkdir -p "${dir}"
+  pushd "${dir}"
+  cat <<EOF >flatcar.conf || die
+# Allow sysexts to ship timesyncd replacements which can have
+# a Conflicts=systemd-timesyncd directive that would result
+# in systemd-timesyncd not being started.
+[Unit]
+After=ensure-sysext.service
+EOF
+  popd
+}
