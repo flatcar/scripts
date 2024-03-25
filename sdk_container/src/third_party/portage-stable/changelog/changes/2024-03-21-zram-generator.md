@@ -1,1 +1,1 @@
-- Add zram-generator package to the image ([scripts#1772](https://github.com/flatcar/scripts/pull/1772))
+- Added zram-generator package to the image ([scripts#1772](https://github.com/flatcar/scripts/pull/1772))
