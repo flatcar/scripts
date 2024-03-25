@@ -30,4 +30,5 @@ src_install() {
 	insinto "$(systemd_get_systemunitdir)/multi-user.target.d"
 	doins "${FILESDIR}/10-oem-ami.conf"
 
+	systemd_enable_service multi-user.target ntpd.service
 }
