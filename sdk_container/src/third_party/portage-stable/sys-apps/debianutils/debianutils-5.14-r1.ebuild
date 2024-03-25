@@ -7,16 +7,13 @@ inherit autotools flag-o-matic
 
 DESCRIPTION="A selection of tools from Debian"
 HOMEPAGE="https://packages.qa.debian.org/d/debianutils.html"
-SRC_URI="mirror://debian/pool/main/d/${PN}/${PN}_${PV}.tar.xz"
+#SRC_URI="mirror://debian/pool/main/d/${PN}/${PN}_${PV}.tar.xz"
+SRC_URI="mirror://gentoo/e7/${PN}_${PV}.tar.xz"
 
 LICENSE="BSD GPL-2 SMAIL"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x86-linux"
-IUSE="+installkernel static"
-
-PDEPEND="
-	installkernel? ( sys-kernel/installkernel )
-"
+IUSE="static"
 
 PATCHES=( "${FILESDIR}"/${PN}-3.4.2-no-bs-namespace.patch )
 
