@@ -13,7 +13,7 @@ PYTHON_COMPAT=( python3_{10..11} )
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/coreutils.asc
 inherit flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
-MY_PATCH="${PN}-9.0_p20220409-patches-01"
+MY_PATCH="${PN}-9.5-patches"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
 HOMEPAGE="https://www.gnu.org/software/coreutils/"
 
@@ -23,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 elif [[ ${PV} == *_p* ]] ; then
 	# Note: could put this in devspace, but if it's gone, we don't want
 	# it in tree anyway. It's just for testing.
-	MY_SNAPSHOT="$(ver_cut 1-2).18-ffd62"
+	MY_SNAPSHOT="$(ver_cut 1-2).170-7b206"
 	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
 	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
@@ -33,7 +33,7 @@ else
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
 
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
 fi
 
 SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
@@ -82,7 +82,13 @@ RDEPEND+="
 	!net-mail/base64
 	!sys-apps/mktemp
 	!<app-forensics/tct-1.18-r1
-	!<net-fs/netatalk-2.0.3-r4"
+	!<net-fs/netatalk-2.0.3-r4
+"
+
+QA_CONFIG_IMPL_DECL_SKIP=(
+	# gnulib FPs (bug #898370)
+	unreachable MIN alignof static_assert
+)
 
 pkg_setup() {
 	if use test ; then
@@ -107,20 +113,16 @@ src_unpack() {
 }
 
 src_prepare() {
+	# TODO: past 2025, we may need to add our own hack for bug #907474.
 	local PATCHES=(
 		# Upstream patches
-		"${FILESDIR}"/${P}-cp-parents-preserve-permissions.patch
-		"${FILESDIR}"/${P}-old-kernel-copy_file_range.patch
 	)
 
-	if ! use vanilla && [[ -d "${WORKDIR}"/patch ]] ; then
-		PATCHES+=( "${WORKDIR}"/patch )
+	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
+		PATCHES+=( "${WORKDIR}"/${MY_PATCH} )
 	fi
 
 	default
-
-	# Just for ${P}-old-kernel-copy_file_range.patch
-	touch aclocal.m4 configure.ac Makefile.in gnulib-tests/Makefile.in configure || die
 
 	# Since we've patched many .c files, the make process will try to
 	# re-build the manpages by running `./bin --help`.  When doing a
@@ -139,10 +141,9 @@ src_prepare() {
 }
 
 src_configure() {
-	# On alpha at least, gnulib (as of 9.3) can't seem to figure out we need
-	# _F_O_B=64: https://debbugs.gnu.org/64123
-	append-lfs-flags
-
+	# TODO: in future (>9.4?), we may want to wire up USE=systemd:
+	# still experimental at the moment, but:
+	# https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=85edb4afbd119fb69a0d53e1beb71f46c9525dd0
 	local myconf=(
 		--with-packager="Gentoo"
 		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
@@ -152,7 +153,7 @@ src_configure() {
 		# hostname    - net-tools
 		--enable-install-program="arch,$(usev hostname),$(usev kill)"
 		--enable-no-install-program="groups,$(usev !hostname),$(usev !kill),su,uptime"
-		$(usex caps '' --disable-libcap)
+		$(usev !caps --disable-libcap)
 		$(use_enable nls)
 		$(use_enable acl)
 		$(use_enable multicall single-binary)
@@ -190,15 +191,6 @@ src_configure() {
 }
 
 src_test() {
-	# Known to fail with FEATURES=usersandbox (bug #439574):
-	#   -  tests/du/long-from-unreadable.sh} (bug #413621)
-	#   -  tests/rm/deep-2.sh (bug #413621)
-	#   -  tests/dd/no-allocate.sh (bug #629660)
-	if has usersandbox ${FEATURES} ; then
-		ewarn "You are emerging ${P} with 'usersandbox' enabled." \
-			"Expect some test failures or emerge with 'FEATURES=-usersandbox'!"
-	fi
-
 	# Non-root tests will fail if the full path isn't
 	# accessible to non-root users
 	chmod -R go-w "${WORKDIR}" || die
@@ -223,10 +215,44 @@ src_test() {
 	mkwrap mount umount
 
 	addwrite /dev/full
-	#export RUN_EXPENSIVE_TESTS="yes"
-	#export COREUTILS_GROUPS="portage wheel"
-	env PATH="${T}/mount-wrappers:${PATH}" gl_public_submodule_commit= \
-		emake -k check VERBOSE=yes
+
+	#local -x RUN_EXPENSIVE_TESTS="yes"
+	#local -x COREUTILS_GROUPS="portage wheel"
+	local -x PATH="${T}/mount-wrappers:${PATH}"
+	local -x gl_public_submodule_commit=
+
+	local xfail_tests=(
+		# bug #629660
+		#tests/dd/no-allocate.sh
+
+		# bug #675802
+		tests/env/env-S
+		tests/env/env-S.pl
+
+		# bug #413621 and bug #548250
+		tests/du/long-from-unreadable.sh
+		tests/ls/removed-directory
+		tests/ls/removed-directory.sh
+		tests/ls/stat-free-symlinks
+		tests/ls/stat-free-symlinks.sh
+		tests/rm/deep-2
+		tests/rm/deep-2.sh
+
+		# We have a patch which fixes this (bug #259876)
+		#tests/touch/not-owner
+		#tests/touch/not-owner.sh
+
+		# bug #910640
+		tests/tty/tty-eof.pl
+	)
+
+	# We set DISABLE_HARD_ERRORS because some of the tests hard error-out
+	# because of sandbox. They're skipped above but DISABLE_HARD_ERRORS is needed
+	# to downgrade them to FAIL.
+	emake -k check \
+		VERBOSE=yes \
+		DISABLE_HARD_ERRORS=yes \
+		XFAIL_TESTS="${xfail_tests[*]}"
 }
 
 src_install() {
