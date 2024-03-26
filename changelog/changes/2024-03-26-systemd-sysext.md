@@ -1,0 +1,1 @@
+- Backported systemd-sysext mutable overlays functionality from yet-unreleased systemd v256. ([flatcar/scripts#1753](https://github.com/flatcar/scripts/pull/1753))
