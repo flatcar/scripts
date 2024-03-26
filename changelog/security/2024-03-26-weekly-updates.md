@@ -1,0 +1,1 @@
+- c-ares ([CVE-2024-25629](https://nvd.nist.gov/vuln/detail/CVE-2024-25629))
