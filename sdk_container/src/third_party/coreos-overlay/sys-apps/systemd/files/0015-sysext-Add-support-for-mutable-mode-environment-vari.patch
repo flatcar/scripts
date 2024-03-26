@@ -1,0 +1,69 @@
+From dc31049133233015f186b3ca015d8871932ed16e Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 19 Mar 2024 14:01:00 +0100
+Subject: [PATCH 15/20] sysext: Add support for mutable mode environment
+ variables
+
+The environment variable names are SYSTEMD_SYSEXT_MUTABLE_MODE for
+systemd-sysext and SYSTEMD_CONFEXT_MUTABLE_MODE for systemd-confext. These
+override the default mutable mode setting, but can be still overridden by a
+command-line flag.
+---
+ src/sysext/sysext.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 6fa2c72bd5..2b65f87830 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -88,6 +88,7 @@ static const struct {
+         const char *level_env;
+         const char *scope_env;
+         const char *name_env;
++        const char *mode_env;
+         const ImagePolicy *default_image_policy;
+         unsigned long default_mount_flags;
+ } image_class_info[_IMAGE_CLASS_MAX] = {
+@@ -99,6 +100,7 @@ static const struct {
+                 .level_env = "SYSEXT_LEVEL",
+                 .scope_env = "SYSEXT_SCOPE",
+                 .name_env = "SYSTEMD_SYSEXT_HIERARCHIES",
++                .mode_env = "SYSTEMD_SYSEXT_MUTABLE_MODE",
+                 .default_image_policy = &image_policy_sysext,
+                 .default_mount_flags = MS_RDONLY|MS_NODEV,
+         },
+@@ -110,6 +112,7 @@ static const struct {
+                 .level_env = "CONFEXT_LEVEL",
+                 .scope_env = "CONFEXT_SCOPE",
+                 .name_env = "SYSTEMD_CONFEXT_HIERARCHIES",
++                .mode_env = "SYSTEMD_CONFEXT_MUTABLE_MODE",
+                 .default_image_policy = &image_policy_confext,
+                 .default_mount_flags = MS_RDONLY|MS_NODEV|MS_NOSUID|MS_NOEXEC,
+         }
+@@ -2151,12 +2154,23 @@ static int sysext_main(int argc, char *argv[]) {
+ }
+ 
+ static int run(int argc, char *argv[]) {
++        const char* env_var;
+         int r;
+ 
+         log_setup();
+ 
+         arg_image_class = invoked_as(argv, "systemd-confext") ? IMAGE_CONFEXT : IMAGE_SYSEXT;
+ 
++        env_var = getenv(image_class_info[arg_image_class].mode_env);
++        if (env_var) {
++                r = parse_mutable_mode(env_var);
++                if (r < 0)
++                        log_warning("Failed to parse %s environment variable value '%s'. Ignoring.",
++                                    image_class_info[arg_image_class].mode_env, env_var);
++                else
++                        arg_mutable = r;
++        }
++
+         r = parse_argv(argc, argv);
+         if (r <= 0)
+                 return r;
+-- 
+2.34.1
+
