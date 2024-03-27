@@ -1,0 +1,1 @@
+- Disabled user-configdrive.service on OpenStack when config drive is used, which caused the hostname to be overwritten. The coreos-cloudinit.service unit already runs on OpenStack if the system is not configured via ignition. ([Flatcar#1385](https://github.com/flatcar/Flatcar/issues/1385))
