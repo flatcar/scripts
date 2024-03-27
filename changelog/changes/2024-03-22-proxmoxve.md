@@ -1,0 +1,1 @@
+- Added Proxmox Virtual Environment images ([scripts#1783](https://github.com/flatcar/scripts/pull/1783))

@@ -33,6 +33,7 @@ COMMON_OEMIDS=(
     azure
     openstack
     packet
+    proxmoxve
     qemu
     scaleway
 )
