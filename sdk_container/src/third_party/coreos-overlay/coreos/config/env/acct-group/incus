@@ -1,0 +1,8 @@
+cros_post_src_install_add_userdb_record(){
+	insinto /usr/lib/userdb
+	newins - ${ACCT_GROUP_NAME}.group < <(
+		printf '{"groupName":"%q","gid":%q}\n' \
+			"${ACCT_GROUP_NAME}" \
+			"${_ACCT_GROUP_ID/#-*/-}"
+	)
+}
