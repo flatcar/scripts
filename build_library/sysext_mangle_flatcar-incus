@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}/usr/lib/systemd/system"
+mkdir -p "multi-user.target.d"
+{ echo "[Unit]"; echo "Upholds=incus.service; } > "multi-user.target.d/10-incus.conf"
+popd
