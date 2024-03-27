@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="19245b06d7634f1d2cea30c49f2a92e2462d8551" # flatcar-master
+	CROS_WORKON_COMMIT="77adbbe1ae91ae29efa11d7b46e4d71af351e154" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -31,6 +31,7 @@ src_install() {
 	# re-use existing filesystem permissions during initrd creation.
 	chmod +x "${D}"/usr/lib/dracut/modules.d/10*-generator/*-generator \
 		"${D}"/usr/lib/dracut/modules.d/10diskless-generator/diskless-btrfs \
+		"${D}"/usr/lib/dracut/modules.d/10networkd-dependency-generator/*-generator \
 		"${D}"/usr/lib/dracut/modules.d/03flatcar-network/parse-ip-for-networkd.sh \
 		"${D}"/usr/lib/dracut/modules.d/30disk-uuid/disk-uuid.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-generator \
@@ -38,7 +39,7 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup-pre.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-kargs-helper \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
-		"${D}"/usr/lib/dracut/modules.d/40networkd-dependency/*-generator \
+		"${D}"/usr/lib/dracut/modules.d/31decrypt-root/decrypt-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/gpg-agent-wrapper \
