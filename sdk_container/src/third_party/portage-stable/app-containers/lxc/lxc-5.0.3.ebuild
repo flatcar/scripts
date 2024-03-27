@@ -139,7 +139,7 @@ src_install() {
 
 	# Replace upstream sysvinit/systemd files.
 	if use systemd; then
-		rm -r "${D}$(systemd_get_systemunitdir)" || die "Failed to remove systemd lib dir"
+		rm -rf "${D}$(systemd_get_systemunitdir)" || die "Failed to remove systemd lib dir"
 	else
 		rm "${ED}"/etc/init.d/lxc-{containers,net} || die "Failed to remove sysvinit scripts"
 	fi
