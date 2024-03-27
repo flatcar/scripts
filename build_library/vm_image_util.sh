@@ -6,6 +6,7 @@
 # Default values use the format IMG_DEFAULT_<opt>.
 
 VALID_IMG_TYPES=(
+    akamai
     ami
     ami_vmdk
     azure
@@ -43,6 +44,7 @@ VALID_IMG_TYPES=(
 
 #list of oem package names, minus the oem- prefix
 VALID_OEM_PACKAGES=(
+    akamai
     azure
     cloudsigma
     cloudstack
@@ -312,6 +314,11 @@ IMG_scaleway_DISK_LAYOUT=vm
 IMG_scaleway_OEM_PACKAGE=common-oem-files
 IMG_scaleway_OEM_USE=scaleway
 IMG_scaleway_OEM_SYSEXT=oem-scaleway
+
+## akamai (Linode)
+IMG_akamai_OEM_PACKAGE=common-oem-files
+IMG_akamai_OEM_USE=akamai
+IMG_akamai_OEM_SYSEXT=oem-akamai
 
 ###########################################################
 
