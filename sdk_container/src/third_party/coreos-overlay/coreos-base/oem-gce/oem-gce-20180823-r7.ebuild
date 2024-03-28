@@ -30,6 +30,7 @@ src_install() {
     systemd_dounit "${FILESDIR}/units/oem-gce-enable-oslogin.service"
     systemd_dounit "${FILESDIR}/units/setup-oem.service"
     systemd_install_dropin "multi-user.target" "${FILESDIR}/units/10-oem-gce.conf"
+    systemd_enable_service "multi-user.target" "ntpd.service"
 
     dobin "${FILESDIR}/bin/enable-oslogin"
     dobin "${FILESDIR}/bin/init.sh"
