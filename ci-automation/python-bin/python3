@@ -3,4 +3,5 @@
 FOLDER="$(dirname "$(readlink -f "$1")")"
 docker pull docker.io/python:alpine 2>/dev/null >/dev/null
 # Map the current and the script folder, install the pip package needed for flatcar-build-scripts/show-fixed-kernel-cves.py
-exec docker run --rm -i -v "${FOLDER}:${FOLDER}" -v "${PWD}:${PWD}" -w "${PWD}" docker.io/python:alpine sh -c "pip install packaging 2>/dev/null >/dev/null; python3 $*"
+PACKAGES="packaging pyyaml urllib3"
+exec docker run --rm -i -v "${FOLDER}:${FOLDER}" -v "${PWD}:${PWD}" -w "${PWD}" docker.io/python:alpine sh -c "pip install ${PACKAGES} 2>/dev/null >/dev/null; python3 $*"
