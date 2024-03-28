@@ -12,10 +12,12 @@ if [[ -z ${_COREOS_CARGO_ECLASS} ]]; then
 _COREOS_CARGO_ECLASS=1
 
 # XXX: Don't require host dependencies to also be in the sysroot.
-CATEGORY=dev-util PN=cargo inherit cargo
-inherit toolchain-funcs
+if [[ -z ${_COREOS_CARGO_SKIP_INHERIT} ]]; then
+  CATEGORY=dev-util PN=cargo inherit cargo
+  inherit toolchain-funcs
 
-EXPORT_FUNCTIONS src_unpack
+  EXPORT_FUNCTIONS src_unpack
+fi
 
 # @FUNCTION: coreos-cargo_src_unpack
 # @DESCRIPTION:

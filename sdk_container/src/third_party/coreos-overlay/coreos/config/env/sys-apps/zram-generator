@@ -1,0 +1,8 @@
+cros_pre_src_unpack_coreos_unpack() {
+  local _COREOS_CARGO_SKIP_INHERIT=1
+  source "${CROS_ADDONS_TREE}"/../eclass/coreos-cargo.eclass
+  src_unpack() {
+    einfo "Running coreos-cargo_src_unpack"
+    coreos-cargo_src_unpack
+  }
+}
