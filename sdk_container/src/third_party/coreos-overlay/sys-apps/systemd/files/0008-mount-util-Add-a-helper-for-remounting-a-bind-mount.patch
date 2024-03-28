@@ -1,0 +1,77 @@
+From 48479e038f60347c2dd318887d9b787bb04a512d Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 23 Jan 2024 10:44:23 +0100
+Subject: [PATCH 08/20] mount-util: Add a helper for remounting a bind mount
+
+---
+ src/shared/mount-util.c    | 10 ++++++++++
+ src/shared/mount-util.h    |  1 +
+ src/test/test-mount-util.c | 19 +++++++++++++++++++
+ 3 files changed, 30 insertions(+)
+
+diff --git a/src/shared/mount-util.c b/src/shared/mount-util.c
+index 4f2acce513..dd9a995fb6 100644
+--- a/src/shared/mount-util.c
++++ b/src/shared/mount-util.c
+@@ -453,6 +453,16 @@ int bind_remount_one_with_mountinfo(
+         return 0;
+ }
+ 
++int bind_remount_one(const char *path, unsigned long new_flags, unsigned long flags_mask) {
++        _cleanup_fclose_ FILE *proc_self_mountinfo = NULL;
++
++        proc_self_mountinfo = fopen("/proc/self/mountinfo", "re");
++        if (!proc_self_mountinfo)
++                return log_debug_errno(errno, "Failed to open /proc/self/mountinfo: %m");
++
++        return bind_remount_one_with_mountinfo(path, new_flags, flags_mask, proc_self_mountinfo);
++}
++
+ static int mount_switch_root_pivot(int fd_newroot, const char *path) {
+         assert(fd_newroot >= 0);
+         assert(path);
+diff --git a/src/shared/mount-util.h b/src/shared/mount-util.h
+index ef31104900..679c94c950 100644
+--- a/src/shared/mount-util.h
++++ b/src/shared/mount-util.h
+@@ -26,6 +26,7 @@ static inline int bind_remount_recursive(const char *prefix, unsigned long new_f
+ }
+ 
+ int bind_remount_one_with_mountinfo(const char *path, unsigned long new_flags, unsigned long flags_mask, FILE *proc_self_mountinfo);
++int bind_remount_one(const char *path, unsigned long new_flags, unsigned long flags_mask);
+ 
+ int mount_switch_root_full(const char *path, unsigned long mount_propagation_flag, bool force_ms_move);
+ static inline int mount_switch_root(const char *path, unsigned long mount_propagation_flag) {
+diff --git a/src/test/test-mount-util.c b/src/test/test-mount-util.c
+index c3d0acb6af..73152ffd55 100644
+--- a/src/test/test-mount-util.c
++++ b/src/test/test-mount-util.c
+@@ -213,6 +213,25 @@ TEST(bind_remount_one) {
+                 _exit(EXIT_SUCCESS);
+         }
+ 
++        assert_se(wait_for_terminate_and_check("test-remount-one-with-mountinfo", pid, WAIT_LOG) == EXIT_SUCCESS);
++
++        pid = fork();
++        assert_se(pid >= 0);
++
++        if (pid == 0) {
++                /* child */
++
++                assert_se(detach_mount_namespace() >= 0);
++
++                assert_se(bind_remount_one("/run", MS_RDONLY, MS_RDONLY) >= 0);
++                assert_se(bind_remount_one("/run", MS_NOEXEC, MS_RDONLY|MS_NOEXEC) >= 0);
++                assert_se(bind_remount_one("/proc/idontexist", MS_RDONLY, MS_RDONLY) == -ENOENT);
++                assert_se(bind_remount_one("/proc/self", MS_RDONLY, MS_RDONLY) == -EINVAL);
++                assert_se(bind_remount_one("/", MS_RDONLY, MS_RDONLY) >= 0);
++
++                _exit(EXIT_SUCCESS);
++        }
++
+         assert_se(wait_for_terminate_and_check("test-remount-one", pid, WAIT_LOG) == EXIT_SUCCESS);
+ }
+ 
+-- 
+2.34.1
+

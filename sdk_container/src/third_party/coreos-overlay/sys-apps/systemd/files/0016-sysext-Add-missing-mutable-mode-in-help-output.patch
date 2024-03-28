@@ -1,0 +1,25 @@
+From 967bf4c5428040ffa7da5fee9a8a0f56664260f9 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 27 Feb 2024 16:29:08 +0100
+Subject: [PATCH 16/20] sysext: Add missing --mutable mode in help output
+
+---
+ src/sysext/sysext.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 2b65f87830..9f17a13a92 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -2004,6 +2004,8 @@ static int verb_help(int argc, char **argv, void *userdata) {
+                "  -h --help               Show this help\n"
+                "     --version            Show package version\n"
+                "\n%3$sOptions:%4$s\n"
++               "     --mutable=yes|no|auto|import\n"
++               "                          Specify a mutability mode of the merged hierarchy\n"
+                "     --no-pager           Do not pipe output into a pager\n"
+                "     --no-legend          Do not show the headers and footers\n"
+                "     --root=PATH          Operate relative to root path\n"
+-- 
+2.34.1
+

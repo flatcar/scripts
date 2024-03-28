@@ -1,0 +1,26 @@
+From d6533bce4a4ead63f720d7fff523a41533c0089b Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Thu, 15 Feb 2024 14:59:19 +0100
+Subject: [PATCH 09/20] sysext: Do not log failed unmount error again
+
+umount_verbose is already doing it for us.
+---
+ src/sysext/sysext.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 8dc515e4d5..afd79c3868 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -264,7 +264,7 @@ static int unmerge_hierarchy(
+ 
+                 r = umount_verbose(LOG_ERR, p, MNT_DETACH|UMOUNT_NOFOLLOW);
+                 if (r < 0)
+-                        return log_error_errno(r, "Failed to unmount file system '%s': %m", p);
++                        return r;
+ 
+                 log_info("Unmerged '%s'.", p);
+         }
+-- 
+2.34.1
+
