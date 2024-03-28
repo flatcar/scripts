@@ -1,0 +1,1 @@
+- Added support for unlocking the rootfs with a TPM set up by systemd-cryptenroll ([bootengine#93](https://github.com/flatcar/bootengine/pull/93))
