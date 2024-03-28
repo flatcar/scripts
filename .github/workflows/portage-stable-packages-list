@@ -114,6 +114,8 @@ app-crypt/mit-krb5
 app-crypt/pinentry
 app-crypt/rhash
 app-crypt/shash
+app-crypt/tpm2-tools
+app-crypt/tpm2-tss
 
 app-doc/eclass-manpages
 
@@ -204,13 +206,16 @@ dev-libs/json-c
 dev-libs/jsoncpp
 dev-libs/libaio
 dev-libs/libassuan
+dev-libs/libatasmart
 dev-libs/libbsd
+dev-libs/libbytesize
 dev-libs/libdnet
 dev-libs/libev
 dev-libs/libevent
 dev-libs/libffi
 dev-libs/libgcrypt
 dev-libs/libgpg-error
+dev-libs/libgudev
 dev-libs/libksba
 dev-libs/liblinear
 dev-libs/libltdl
@@ -220,6 +225,7 @@ dev-libs/libp11
 dev-libs/libpcre
 dev-libs/libpcre2
 dev-libs/libpipeline
+dev-libs/libpwquality
 dev-libs/libsodium
 dev-libs/libtasn1
 dev-libs/libtraceevent
@@ -502,6 +508,7 @@ sys-apps/texinfo
 sys-apps/usbutils
 sys-apps/util-linux
 sys-apps/which
+sys-apps/zram-generator
 
 sys-block/open-isns
 sys-block/parted
@@ -542,6 +549,7 @@ sys-fs/mtools
 sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
+sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
@@ -549,9 +557,11 @@ sys-fs/zfs-kmod
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs
+sys-libs/cracklib
 sys-libs/efivar
 sys-libs/gdbm
 sys-libs/ldb
+sys-libs/libblockdev
 sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libnvme
