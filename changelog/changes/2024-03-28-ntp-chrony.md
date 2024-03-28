@@ -1,0 +1,3 @@
+- Enabled ntpd by default on AWS & GCP, enabled chronyd by default on Azure. The native time sync source is used on each cloud. ([scripts#1792](https://github.com/flatcar/scripts/pull/1792))
+- Enabled the ptp_vmw module in the kernel.
+- Switched ptp_kvm from kernel builtin to module.
