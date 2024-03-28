@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="audit ntp openssh policycoreutils"
+IUSE="audit ntp openssh pam policycoreutils"
 
 # No source directory.
 S="${WORKDIR}"
@@ -33,6 +33,7 @@ RDEPEND="
         >=app-shells/bash-5.2_p15-r2
         ntp? ( >=net-misc/ntp-4.2.8_p17 )
         policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
+        pam? ( >=sys-libs/pam-1.5.3-r1 )
         audit? ( >=sys-process/audit-3.1.1 )
 "
 
@@ -117,6 +118,16 @@ src_install() {
         compat_symlinks+=(
             ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
             ['/usr/share/ssh/sshd_config']='/usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf'
+        )
+    fi
+    if use pam; then
+        compat_symlinks+=(
+            ['/usr/lib/pam/access.conf']='/usr/share/flatcar/etc/security/access.conf'
+            ['/usr/lib/pam/group.conf']='/usr/share/flatcar/etc/security/group.conf'
+            ['/usr/lib/pam/limits.conf']='/usr/share/flatcar/etc/security/limits.conf'
+            ['/usr/lib/pam/namespace.conf']='/usr/share/flatcar/etc/security/namespace.conf'
+            ['/usr/lib/pam/pam_env.conf']='/usr/share/flatcar/etc/security/pam_env.conf'
+            ['/usr/lib/pam/time.conf']='/usr/share/flatcar/etc/security/time.conf'
         )
     fi
 

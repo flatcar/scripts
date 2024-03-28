@@ -561,6 +561,7 @@ sys-libs/libsepol
 sys-libs/libunwind
 sys-libs/liburing
 sys-libs/ncurses
+sys-libs/pam
 sys-libs/readline
 sys-libs/talloc
 sys-libs/tdb
