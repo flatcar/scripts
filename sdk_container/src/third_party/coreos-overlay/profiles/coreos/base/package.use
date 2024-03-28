@@ -162,3 +162,16 @@ sys-fs/zfs minimal -rootfs
 # Do not pull in LLVM into production images. Also, we didn't use it
 # before anyway.
 dev-util/bpftool -llvm
+
+# required by app-containers/incus-0.5.1-r1::portage-stable
+# required by incus (argument)
+>=dev-libs/raft-0.19.1 lz4
+# required by app-containers/incus-0.5.1-r1::portage-stable
+# required by incus (argument)
+>=dev-util/xdelta-3.0.11-r1 lzma
+# required by app-containers/lxc-5.0.3::portage-stable[tools,caps]
+# required by app-containers/incus-0.5.1-r1::portage-stable
+# required by incus (argument)
+>=sys-libs/libcap-2.69 static-libs
+
+app-containers/lxc selinux -man
