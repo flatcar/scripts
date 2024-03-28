@@ -1,0 +1,1 @@
+- libcrypt is now provided by the libxcrypt library instead of glibc. Glibc libcrypt was deprecated long time ago.

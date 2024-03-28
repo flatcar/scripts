@@ -11,12 +11,6 @@
 # certificate store provided in NSS rather than the Gentoo/Debian package.
 >=app-misc/ca-certificates-20000000
 
-# Overwrite portage-stable mask. We are delaying the transition to
-# libxcrypt, because we need to figure out how to solve the dep loop
-# that results from the migration (python -> virtual/libcrypt ->
-# libxcrypt -> glibc -> python).
->=virtual/libcrypt-2
-
 # Python 3.12 is in portage-stable (currently testing), so avoid picking it
 # up. Update this to mask later versions when we switch to 3.11.
 >=dev-lang/python-3.12
