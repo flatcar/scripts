@@ -18,7 +18,6 @@ HOMEPAGE="
 SRC_URI="
 	https://github.com/lxml/lxml/archive/${P}.tar.gz
 		-> ${P}.gh.tar.gz
-	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-4.9.3-patches-2.tar.xz
 "
 S=${WORKDIR}/lxml-${P}
 
@@ -38,7 +37,7 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	>=dev-python/cython-3.0.7[${PYTHON_USEDEP}]
+	>=dev-python/cython-3.0.9[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
@@ -53,7 +52,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${WORKDIR}"/${PN}-4.9.3-patches-2/0001-Skip-tests-failing-on-PyPy.patch
+	"${FILESDIR}/${PN}-5.1.1-pypy.patch"
 )
 
 python_check_deps() {
