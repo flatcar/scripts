@@ -3,13 +3,16 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
-inherit toolchain-funcs autotools flag-o-matic bash-completion-r1 usr-ldscript \
+inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
 	pam python-r1 multilib-minimal multiprocessing systemd
 
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
+
+DESCRIPTION="Various useful Linux utilities"
+HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
@@ -19,7 +22,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos"
+		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -27,9 +30,6 @@ else
 fi
 
 S="${WORKDIR}/${MY_P}"
-
-DESCRIPTION="Various useful Linux utilities"
-HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
 
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
@@ -58,10 +58,14 @@ RDEPEND="
 	!build? (
 		systemd? ( sys-apps/systemd )
 		udev? ( virtual/libudev:= )
-	)"
+	)
+"
 BDEPEND="
 	virtual/pkgconfig
-	nls? ( sys-devel/gettext )
+	nls? (
+		app-text/po4a
+		sys-devel/gettext
+	)
 	test? ( app-alternatives/bc )
 "
 DEPEND="
@@ -87,15 +91,19 @@ if [[ ${PV} == 9999 ]] ; then
 	# Required for man-page generation
 	BDEPEND+=" dev-ruby/asciidoctor"
 else
-	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-karelzak )"
+	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-karelzak-20230517 )"
 fi
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-more-posix-exit-on-eof.patch
-	"${FILESDIR}"/util-linux-2.38.1-check-for-sys-pidfd.h.patch
+	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
+	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
+	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
+	"${FILESDIR}"/${PN}-2.39.3-libblkid-luks.patch
+	"${FILESDIR}"/${PN}-2.39.3-musl-1.2.5-basename.patch
+	"${FILESDIR}"/${PN}-2.39.3-libmount-Fix-export-of-mnt_context_is_lazy-and-mnt_c.patch
 )
 
 pkg_pretend() {
@@ -133,19 +141,20 @@ src_prepare() {
 	default
 
 	if use test ; then
-		# Prevent uuidd test failure due to socket path limit, bug #593304
-		sed -i \
-			-e "s|UUIDD_SOCKET=\"\$(mktemp -u \"\${TS_OUTDIR}/uuiddXXXXXXXXXXXXX\")\"|UUIDD_SOCKET=\"\$(mktemp -u \"${T}/uuiddXXXXXXXXXXXXX.sock\")\"|g" \
-			tests/ts/uuid/uuidd || die "Failed to fix uuidd test"
-
 		# Known-failing tests
 		# TODO: investigate these
 		local known_failing_tests=(
 			# Subtest 'options-maximum-size-8192' fails
 			hardlink/options
 
+			# Fails in sandbox
+			lsns/ioctl_ns
+
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
+			# Fails with network-sandbox at least in nspawn
+			lsfd/option-inet
+			utmp/last-ipv6
 		)
 
 		local known_failing_test
@@ -153,10 +162,14 @@ src_prepare() {
 			einfo "Removing known-failing test: ${known_failing_test}"
 			rm tests/ts/${known_failing_test} || die
 		done
-
 	fi
 
-	eautoreconf
+	if [[ ${PV} == 9999 ]] ; then
+		po/update-potfiles
+		eautoreconf
+	else
+		elibtoolize
+	fi
 }
 
 python_configure() {
@@ -198,7 +211,13 @@ multilib_src_configure() {
 
 	# configure args shared by python and non-python builds
 	local commonargs=(
+		--localstatedir="${EPREFIX}/var"
+		--runstatedir="${EPREFIX}/run"
 		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
+
+		# Temporary workaround until ~2.39.2. 2.39.x introduced a big rewrite.
+		# https://github.com/util-linux/util-linux/issues/2287#issuecomment-1576640373
+		--disable-libmount-mountfd-support
 	)
 
 	local myeconfargs=(
@@ -215,6 +234,7 @@ multilib_src_configure() {
 		$(multilib_native_use_with audit)
 		$(tc-has-tls || echo --disable-tls)
 		$(use_enable nls)
+		$(use_enable nls poman)
 		$(use_enable unicode widechar)
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
@@ -275,6 +295,7 @@ multilib_src_configure() {
 			--disable-asciidoc
 			--disable-bash-completion
 			--without-systemdsystemunitdir
+			--disable-poman
 
 			# build libraries
 			--enable-libuuid
@@ -338,15 +359,13 @@ multilib_src_install() {
 
 	# This needs to be called AFTER python_install call, bug #689190
 	emake DESTDIR="${D}" install
-
-	if multilib_is_native_abi ; then
-		# Need the libs in /
-		gen_usr_ldscript -a blkid fdisk mount smartcols uuid
-	fi
 }
 
 multilib_src_install_all() {
 	dodoc AUTHORS NEWS README* Documentation/{TODO,*.txt,releases/*}
+
+	dosym hexdump /usr/bin/hd
+	newman - hd.1 <<< '.so man1/hexdump.1'
 
 	# e2fsprogs-libs didn't install .la files, and .pc work fine
 	find "${ED}" -name "*.la" -delete || die
