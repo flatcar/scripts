@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-17)
+# Experimental, only keyworded for amd64 currently
+sys-kernel/installkernel efistub
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-03-08)
 # media-libs/libdovi has very few keywords and there is little interest
 # in adding extras unless requested (also needs rust+cargo-c)
@@ -76,10 +80,6 @@ media-video/pipewire roc
 # Sam James <sam@gentoo.org> (2023-07-18)
 # dev-cpp/cppdap is not keyworded in most places
 dev-build/cmake dap
-
-# Sam James <sam@gentoo.org> (2023-07-09)
-# sys-libs/libhugetlbfs is broken w/ newer glibc, bug #806079
-sys-apps/nvme-cli hugepages
 
 # Michał Górny <mgorny@gentoo.org> (2023-06-24)
 # dev-db/mongodb builds practically only on the authors' computer.
@@ -368,10 +368,6 @@ dev-db/percona-server tokudb tokudb-backup-plugin
 # Mask jdbc as most arches don't support java
 dev-db/mariadb jdbc
 
-# James Le Cuirot <chewi@gentoo.org> (2016-07-26)
-# Only available on some architectures.
-dev-java/icedtea shenandoah
-
 # Mike Gilbert <floppym@gentoo.org> (2016-06-23)
 # This flag only has meaning on amd64
 sys-boot/grub:2 grub_platforms_xen-32
@@ -396,7 +392,7 @@ media-video/mpv mmal
 
 # Mike Gilbert <floppym@gentoo.org> (2015-09-05)
 # sd-boot and ukify are not supported on all archs.
-sys-apps/systemd boot gnuefi ukify
+sys-apps/systemd boot ukify
 sys-apps/systemd-utils boot ukify
 sys-kernel/installkernel systemd-boot ukify uki
 

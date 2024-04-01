@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-19)
+# Requires dev-python/cryptography
+sys-kernel/installkernel efistub
+
 # Michał Górny <mgorny@gentoo.org> (2024-02-03)
 # Need dev-python/jsonschema (or its revdeps).
 dev-python/botocore test
@@ -115,7 +119,6 @@ net-vpn/networkmanager-vpnc gtk
 # Michał Górny <mgorny@gentoo.org> (2022-07-29)
 # More packages requiring dev-python/cryptography or its revdeps.
 app-admin/salt keyring neutron
-dev-python/boto test
 dev-python/dask test
 dev-python/docker test
 dev-python/google-api-python-client test
