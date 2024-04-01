@@ -5,7 +5,7 @@ EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
 PATCH_GCC_VER="14.0.0"
-PATCH_VER="23"
+PATCH_VER="25"
 MUSL_VER="1"
 MUSL_GCC_VER="14.0.0"
 PYTHON_COMPAT=( python3_{10..11} )
@@ -62,5 +62,6 @@ src_prepare() {
 	toolchain_src_prepare
 
 	eapply "${FILESDIR}"/${PN}-13-fix-cross-fixincludes.patch
+	eapply "${FILESDIR}"/${P}-PR114439.patch
 	eapply_user
 }
