@@ -12,7 +12,9 @@
 #
 EAPI=7
 
-inherit go-module systemd
+# Flatcar: inherit coreos-go-depend
+COREOS_GO_VERSION=go1.21
+inherit coreos-go-depend go-module systemd
 
 DESCRIPTION="Google Guest Agent"
 HOMEPAGE="https://github.com/GoogleCloudPlatform/guest-agent"
@@ -35,15 +37,22 @@ PATCHES=(
 	"${FILESDIR}/20231016.00-create-hostkey-and-instanceID-dirs.patch"
 )
 
+# Flatcar: export GO variables
+src_prepare() {
+	go_export
+	default
+}
+
 src_compile() {
 	export GOTRACEBACK="crash"
-	GO=$(tc-getGO)
 	pushd google_guest_agent || die
-	CGO_ENABLED=0 ${GO} build -ldflags="-s -w -X main.version=${PV}" \
+	# Flatcar: switch to EGO
+	CGO_ENABLED=0 ${EGO} build -ldflags="-s -w -X main.version=${PV}" \
 		-mod=readonly || die
 	popd || die
 	pushd google_metadata_script_runner || die
-	CGO_ENABLED=0 ${GO} build -ldflags="-s -w -X main.version=${PV}" \
+	# Flatcar: switch to EGO
+	CGO_ENABLED=0 ${EGO} build -ldflags="-s -w -X main.version=${PV}" \
 		-mod=readonly || die
 	popd || die
 }
