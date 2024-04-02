@@ -20,7 +20,6 @@ IUSE=""
 DEPEND=""
 RDEPEND="
 	amd64? (
-		app-emulation/google-compute-engine
 		app-emulation/open-vm-tools
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
