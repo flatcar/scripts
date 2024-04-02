@@ -4,4 +4,4 @@ set -euo pipefail
 
 rootfs="${1}"
 
-find "${rootfs}/"
+rm -rf "${rootfs}"/usr/lib/debug

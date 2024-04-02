@@ -29,5 +29,5 @@ RDEPEND="
 OEM_NAME="Google Compute Engine"
 
 src_install() {
-	:
+	systemd_enable_service timers.target google-oslogin-cache.timer
 }
