@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	# bug #272880 and bug #286068
 	BDEPEND="sys-devel/gettext >=dev-build/libtool-2"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/jiatan.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/lassecollin.asc
 	inherit verify-sig
 
 	MY_P="${PN/-utils}-${PV/_}"
@@ -35,7 +35,7 @@ else
 	"
 
 	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 
 	S="${WORKDIR}/${MY_P}"
@@ -50,7 +50,7 @@ SLOT="0"
 IUSE="doc +extra-filters pgo nls static-libs"
 
 if [[ ${PV} != 9999 ]] ; then
-	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-jiatan )"
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-lassecollin )"
 fi
 
 src_prepare() {
