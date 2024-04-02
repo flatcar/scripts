@@ -4,7 +4,8 @@
 
 EAPI=7
 
-inherit eutils pam flag-o-matic
+# Flatcar: remove eutils add toolchain-funcs
+inherit pam flag-o-matic toolchain-funcs
 
 DESCRIPTION="Google Compute Engine OS Login libraries, applications and configurations."
 HOMEPAGE="https://github.com/GoogleCloudPlatform/guest-oslogin"
@@ -32,6 +33,8 @@ PATCHES=(
 )
 
 src_compile() {
+	# Flatcar: export compile env
+	tc-export CC CXX
 	emake JSON_INCLUDE_PATH="${SYSROOT}/usr/include/json-c" VERSION="${PV}"
 }
 
