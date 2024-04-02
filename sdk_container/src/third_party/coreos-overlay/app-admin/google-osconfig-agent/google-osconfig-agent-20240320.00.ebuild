@@ -13,7 +13,9 @@
 
 EAPI=7
 
-inherit go-module systemd
+# Flatcar: inherit coreos-go-depend
+COREOS_GO_VERSION=go1.21
+inherit coreos-go-depend go-module systemd
 
 DESCRIPTION="Google OS Config Agent"
 HOMEPAGE="https://github.com/GoogleCloudPlatform/osconfig"
@@ -28,14 +30,19 @@ IUSE=""
 
 S="${WORKDIR}/osconfig-${PV}"
 
+# Flatcar: export GO variables
+src_prepare() {
+	go_export
+	default
+}
+
 src_compile() {
 	export GOTRACEBACK="crash"
-	GO=$(tc-getGO)
-	export GO
 	# These compilation flags are from packaging/debian/rules,
 	# packaging/google-osconfig-agent.spec, and
 	# packaging/googet/google-osconfig-agent.goospec in the osconfig source tree.
-	CGO_ENABLED=0 ${GO} build -ldflags="-s -w -X main.version=${PV}" \
+	# Flatcar: switch to EGO
+	CGO_ENABLED=0 ${EGO} build -ldflags="-s -w -X main.version=${PV}" \
 		-mod=readonly -o google_osconfig_agent || die
 }
 
