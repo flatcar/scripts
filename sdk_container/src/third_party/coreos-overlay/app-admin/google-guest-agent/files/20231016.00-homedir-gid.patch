@@ -1,0 +1,120 @@
+From a28e8fa46b5ef09c8a83763a6163d7b63d04f156 Mon Sep 17 00:00:00 2001
+From: Oleksandr Tymoshenko <ovt@google.com>
+Date: Thu, 2 Nov 2023 00:23:19 +0000
+Subject: [PATCH 1/2] Add stable gid for added users
+
+Use gid obtained from the home directory to create users with a
+volatile /etc directory.
+---
+ google_guest_agent/accounts_unix.go        | 17 +++++++++++++----
+ google_guest_agent/accounts_windows.go     |  6 +++---
+ google_guest_agent/non_windows_accounts.go |  6 +++---
+ google_guest_agent/windows_accounts.go     |  4 ++--
+ 4 files changed, 21 insertions(+), 12 deletions(-)
+
+diff --git a/google_guest_agent/accounts_unix.go b/google_guest_agent/accounts_unix.go
+index 94cedd3d480a..0cc6470f15f2 100644
+--- a/google_guest_agent/accounts_unix.go
++++ b/google_guest_agent/accounts_unix.go
+@@ -27,21 +27,30 @@ import (
+ 	"github.com/GoogleCloudPlatform/guest-agent/google_guest_agent/run"
+ )
+ 
+-func getUID(path string) string {
++func getUIDAndGID(path string) (string, string) {
+ 	if dir, err := os.Stat(path); err == nil {
+ 		if stat, ok := dir.Sys().(*syscall.Stat_t); ok {
+-			return fmt.Sprintf("%d", stat.Uid)
++			return fmt.Sprintf("%d", stat.Uid), fmt.Sprintf("%d", stat.Gid)
+ 		}
+ 	}
+-	return ""
++	return "", ""
+ }
+ 
+-func createUser(ctx context.Context, username, uid string) error {
++func createUser(ctx context.Context, username, uid, gid string) error {
+ 	config := cfg.Get()
+ 	useradd := config.Accounts.UserAddCmd
+ 	if uid != "" {
+ 		useradd = fmt.Sprintf("%s -u %s", useradd, uid)
+ 	}
++	if gid != "" {
++		groupadd := config.Accounts.GroupAddCmd
++		groupadd = fmt.Sprintf("%s -g %s", groupadd, gid)
++		cmd, args := createUserGroupCmd(groupadd, "", username)
++		if err := run.Quiet(ctx, cmd, args...); err != nil {
++			return err
++		}
++		useradd = fmt.Sprintf("%s -g %s", useradd, gid)
++	}
+ 	cmd, args := createUserGroupCmd(useradd, username, "")
+ 	return run.Quiet(ctx, cmd, args...)
+ }
+diff --git a/google_guest_agent/accounts_windows.go b/google_guest_agent/accounts_windows.go
+index 5f0087afd6eb..c66b3e6cc211 100644
+--- a/google_guest_agent/accounts_windows.go
++++ b/google_guest_agent/accounts_windows.go
+@@ -138,7 +138,7 @@ func addUserToGroup(ctx context.Context, username, group string) error {
+ 	return nil
+ }
+ 
+-func createUser(ctx context.Context, username, pwd string) error {
++func createUser(ctx context.Context, username, pwd, _ string) error {
+ 	uPtr, err := syscall.UTF16PtrFromString(username)
+ 	if err != nil {
+ 		return fmt.Errorf("error encoding username to UTF16: %v", err)
+@@ -184,6 +184,6 @@ func userExists(name string) (bool, error) {
+ 	return true, nil
+ }
+ 
+-func getUID(path string) string {
+-	return ""
++func getUIDAndGID(path string) (string, string) {
++	return "", ""
+ }
+diff --git a/google_guest_agent/non_windows_accounts.go b/google_guest_agent/non_windows_accounts.go
+index 2fa6f5de6487..c8640624064c 100644
+--- a/google_guest_agent/non_windows_accounts.go
++++ b/google_guest_agent/non_windows_accounts.go
+@@ -343,12 +343,12 @@ func createUserGroupCmd(cmd, user, group string) (string, []string) {
+ // createGoogleUser creates a Google managed user account if needed and adds it
+ // to the configured groups.
+ func createGoogleUser(ctx context.Context, config *cfg.Sections, user string) error {
+-	var uid string
++	var uid, gid string
+ 	if config.Accounts.ReuseHomedir {
+-		uid = getUID(fmt.Sprintf("/home/%s", user))
++		uid, gid = getUIDAndGID(fmt.Sprintf("/home/%s", user))
+ 	}
+ 
+-	if err := createUser(ctx, user, uid); err != nil {
++	if err := createUser(ctx, user, uid, gid); err != nil {
+ 		return err
+ 	}
+ 	groups := config.Accounts.Groups
+diff --git a/google_guest_agent/windows_accounts.go b/google_guest_agent/windows_accounts.go
+index 248bf399e436..a46b60759129 100644
+--- a/google_guest_agent/windows_accounts.go
++++ b/google_guest_agent/windows_accounts.go
+@@ -133,7 +133,7 @@ func createOrResetPwd(ctx context.Context, k metadata.WindowsKey) (*credsJSON, e
+ 		}
+ 	} else {
+ 		logger.Infof("Creating user %s", k.UserName)
+-		if err := createUser(ctx, k.UserName, pwd); err != nil {
++		if err := createUser(ctx, k.UserName, pwd, ""); err != nil {
+ 			return nil, fmt.Errorf("error running createUser: %v", err)
+ 		}
+ 		if k.AddToAdministrators == nil || *k.AddToAdministrators {
+@@ -155,7 +155,7 @@ func createSSHUser(ctx context.Context, user string) error {
+ 		return nil
+ 	}
+ 	logger.Infof("Creating user %s", user)
+-	if err := createUser(ctx, user, pwd); err != nil {
++	if err := createUser(ctx, user, pwd, ""); err != nil {
+ 		return fmt.Errorf("error running createUser: %v", err)
+ 	}
+ 
+-- 
+2.42.0.869.gea05f2083d-goog
+
