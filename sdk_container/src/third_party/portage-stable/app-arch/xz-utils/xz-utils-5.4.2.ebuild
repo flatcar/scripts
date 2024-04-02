@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Remember: we cannot leverage autotools in this ebuild in order
@@ -6,7 +6,7 @@
 
 EAPI=8
 
-inherit flag-o-matic libtool multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript
+inherit flag-o-matic libtool multilib multilib-minimal preserve-libs toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	# Per tukaani.org, git.tukaani.org is a mirror of github and
@@ -18,18 +18,18 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3 autotools
 
 	# bug #272880 and bug #286068
-	BDEPEND="sys-devel/gettext >=sys-devel/libtool-2"
+	BDEPEND="sys-devel/gettext >=dev-build/libtool-2"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/jiatan.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/lassecollin.asc
 	inherit verify-sig
 
 	MY_P="${PN/-utils}-${PV/_}"
 	SRC_URI="
-		https://github.com/tukaani-project/xz/releases/download/v${PV}/${MY_P}.tar.gz
+		https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz
 		mirror://sourceforge/lzmautils/${MY_P}.tar.gz
 		https://tukaani.org/xz/${MY_P}.tar.gz
 		verify-sig? (
-			https://github.com/tukaani-project/xz/releases/download/v${PV}/${MY_P}.tar.gz.sig
+			https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz.sig
 			https://tukaani.org/xz/${MY_P}.tar.gz.sig
 		)
 	"
@@ -50,7 +50,7 @@ SLOT="0"
 IUSE="doc +extra-filters pgo nls static-libs"
 
 if [[ ${PV} != 9999 ]] ; then
-	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-jiatan )"
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-lassecollin )"
 fi
 
 src_prepare() {
@@ -121,12 +121,6 @@ multilib_src_compile() {
 		emake clean
 		emake CFLAGS="${CFLAGS} ${pgo_use_flags}"
 	fi
-}
-
-multilib_src_install() {
-	default
-
-	gen_usr_ldscript -a lzma
 }
 
 multilib_src_install_all() {
