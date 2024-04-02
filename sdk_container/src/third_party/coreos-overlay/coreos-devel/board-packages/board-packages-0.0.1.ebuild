@@ -20,6 +20,10 @@ IUSE=""
 DEPEND=""
 RDEPEND="
 	amd64? (
+		app-admin/google-guest-agent
+		app-admin/google-guest-configs
+		app-admin/google-osconfig-agent
+		app-admin/oslogin
 		app-emulation/open-vm-tools
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
