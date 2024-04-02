@@ -44,4 +44,6 @@ src_install() {
 
 	exeinto /usr/bin
 	doexe "${S}"/src/usr/bin/google_set_multiqueue
+	# Flatcar: why don't they install this?
+	doexe "${S}"/src/usr/bin/google_optimize_local_ssd
 }
