@@ -21,7 +21,8 @@ DESCRIPTION="Google OS Config Agent"
 HOMEPAGE="https://github.com/GoogleCloudPlatform/osconfig"
 
 SRC_URI="https://github.com/GoogleCloudPlatform/osconfig/archive/${PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI+=" ${P}-deps.tar.xz"
+# Flatcar: explicitly reference mirror
+SRC_URI+=" https://commondatastorage.googleapis.com/cos-localmirror/distfiles/${P}-deps.tar.xz"
 
 LICENSE="Apache-2.0 BSD"
 SLOT="0"

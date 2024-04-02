@@ -20,7 +20,8 @@ DESCRIPTION="Google Guest Agent"
 HOMEPAGE="https://github.com/GoogleCloudPlatform/guest-agent"
 
 SRC_URI="https://github.com/GoogleCloudPlatform/guest-agent/archive/${PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI+=" ${P}-deps.tar.xz"
+# Flatcar: explicitly reference mirror
+SRC_URI+=" https://commondatastorage.googleapis.com/cos-localmirror/distfiles/${P}-deps.tar.xz"
 
 LICENSE="Apache-2.0 BSD ZLIB"
 SLOT="0"
