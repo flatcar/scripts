@@ -117,7 +117,6 @@ setup_disk_image "${FLAGS_disk_layout}"
 
 # Optionally install any OEM packages
 install_oem_package
-install_oem_aci
 install_oem_sysext
 run_fs_hook
 

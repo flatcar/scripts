@@ -1,0 +1,1 @@
+- Removed `actool` from the image and `acbuild` from the SDK as these tools are deprecated and not used ([scripts#1817](https://github.com/flatcar/scripts/pull/1817))
