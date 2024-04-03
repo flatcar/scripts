@@ -56,14 +56,17 @@
 
 # Needed to fix a build issue introduced by a wrong change in an older
 # version of the ebuild.
-=dev-libs/libdnet-1.16.4 ~amd64 ~arm64
+=dev-libs/libdnet-1.16.4 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-libs/libp11-0.4.12-r6 ~arm64
 =dev-libs/opensc-0.24.0 ~arm64
-=dev-util/bpftool-6.7.6-r1 ~arm64
 =dev-util/pahole-1.26 ~arm64
-=net-dns/dnsmasq-2.90 ~arm64
+
+# Needed for addressing CVE-2024-25629
+=net-dns/c-ares-1.27.0 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 
 # Required for addressing CVE-2023-0361, CVE-2023-5981, CVE-2024-0567
@@ -74,17 +77,12 @@
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# Needed for addressing CVE-2023-46218, CVE-2023-46219 and CVE-2024-0853
-=net-misc/curl-8.6.0-r1 ~arm64
-
 # Required to allow us to override the sftp subsystem in sshd config.
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
 
-# Needed for addressing CVE-2024-0684.
-=sys-apps/coreutils-9.4-r1 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.24 ~arm64
+=sys-apps/nvme-cli-2.8 ~arm64
 
 sys-apps/zram-generator ~amd64 ~arm64
 
@@ -96,6 +94,9 @@ sys-apps/zram-generator ~amd64 ~arm64
 
 # Needed to fix CVE-2023-29491.
 =sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
+=sys-libs/libnvme-1.8 ~arm64
 
 # A dependency of app-shells/bash version that we need for security
 # fixes.

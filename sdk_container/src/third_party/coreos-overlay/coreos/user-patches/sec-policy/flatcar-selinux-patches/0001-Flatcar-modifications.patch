@@ -1,20 +1,20 @@
-From 5293e66fafd5f5cf2872abc03d8b49ed5bc81b9a Mon Sep 17 00:00:00 2001
+From f646fccd3b737a79ae0e0d0de049166e531fb48b Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
 
 ---
- policy/modules/admin/netutils.te        |  20 ++++
+ policy/modules/admin/netutils.te        |  20 +++
  policy/modules/kernel/corenetwork.if.in |  26 ++++
  policy/modules/kernel/corenetwork.te.in |  12 +-
  policy/modules/kernel/files.if          |  45 +++++++
- policy/modules/kernel/kernel.te         |  73 ++++++++++++
+ policy/modules/kernel/kernel.te         |  84 +++++++++++++
  policy/modules/services/container.fc    |   6 +
- policy/modules/services/container.te    | 150 +++++++++++++++++++++++-
+ policy/modules/services/container.te    | 159 +++++++++++++++++++++++-
  policy/modules/system/init.te           |   8 ++
  policy/modules/system/locallogin.te     |   9 +-
  policy/modules/system/logging.te        |   9 ++
- 10 files changed, 355 insertions(+), 3 deletions(-)
+ 10 files changed, 375 insertions(+), 3 deletions(-)
 
 diff --git a/refpolicy/policy/modules/admin/netutils.te b/refpolicy/policy/modules/admin/netutils.te
 index 3c43a1d84..429c67220 100644
@@ -115,10 +115,10 @@ index 53bf7849c..9edac05e8 100644
  # Infiniband
  corenet_ib_access_all_pkeys(corenet_unconfined_type)
 diff --git a/refpolicy/policy/modules/kernel/files.if b/refpolicy/policy/modules/kernel/files.if
-index 370ac0931..098d0cd6c 100644
+index e0337d044..ffd6a25bf 100644
 --- a/refpolicy/policy/modules/kernel/files.if
 +++ b/refpolicy/policy/modules/kernel/files.if
-@@ -7911,3 +7911,48 @@ interface(`files_relabel_all_pidfiles',`
+@@ -8004,3 +8004,48 @@ interface(`files_relabel_all_pidfiles',`
  	relabel_files_pattern($1, pidfile, pidfile)
  	relabel_lnk_files_pattern($1, pidfile, pidfile)
  ')
@@ -168,10 +168,10 @@ index 370ac0931..098d0cd6c 100644
 +	relabelfrom_chr_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
 +')
 diff --git a/refpolicy/policy/modules/kernel/kernel.te b/refpolicy/policy/modules/kernel/kernel.te
-index 8156ac087..72a07e753 100644
+index a3dbeeeda..69d6bc9f0 100644
 --- a/refpolicy/policy/modules/kernel/kernel.te
 +++ b/refpolicy/policy/modules/kernel/kernel.te
-@@ -369,6 +369,79 @@ files_mounton_default(kernel_t)
+@@ -376,6 +376,90 @@ files_mounton_default(kernel_t)
  
  mcs_process_set_categories(kernel_t)
  
@@ -239,6 +239,17 @@ index 8156ac087..72a07e753 100644
 +#
 +# FLATCAR:
 +#
++# This one happens in several places, like coreos.selinux.enforce,
++# cl.network.initramfs.second-boot or coreos.ignition.once. Haven't
++# pinpointed the cause yet:
++#
++# avc:  denied  { checkpoint_restore } for  pid=[0-9]* comm="agetty" capability=40  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=0
++#
++allow kernel_t self:capability2 { checkpoint_restore };
++
++#
++# FLATCAR:
++#
 +# This one happens a lot in kubeadm.v<VERSION>.<CNI>.cgroupv1.base and
 +# kubeadm.v<VERSION>.<CNI>.base for cilium and calico.
 +#
@@ -252,7 +263,7 @@ index 8156ac087..72a07e753 100644
  mls_process_write_all_levels(kernel_t)
  mls_file_write_all_levels(kernel_t)
 diff --git a/refpolicy/policy/modules/services/container.fc b/refpolicy/policy/modules/services/container.fc
-index 49e5d59bb..3769ad311 100644
+index f98e68ba0..045b1b5b2 100644
 --- a/refpolicy/policy/modules/services/container.fc
 +++ b/refpolicy/policy/modules/services/container.fc
 @@ -38,6 +38,12 @@ HOME_DIR/\.docker(/.*)?		gen_context(system_u:object_r:container_conf_home_t,s0)
@@ -267,9 +278,9 @@ index 49e5d59bb..3769ad311 100644
 +/usr/share/containerd(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
  
  /run/containers(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
- /run/libpod(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
+ /run/crun(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
 diff --git a/refpolicy/policy/modules/services/container.te b/refpolicy/policy/modules/services/container.te
-index a5ad4686d..ceaeb2dfc 100644
+index 096d6c23d..4bbab3c69 100644
 --- a/refpolicy/policy/modules/services/container.te
 +++ b/refpolicy/policy/modules/services/container.te
 @@ -58,6 +58,52 @@ gen_tunable(container_use_dri, false)
@@ -334,7 +345,7 @@ index a5ad4686d..ceaeb2dfc 100644
  
  ## <desc>
  ##	<p>
-@@ -1088,3 +1134,105 @@ optional_policy(`
+@@ -1191,3 +1237,114 @@ optional_policy(`
         unconfined_domain_noaudit(spc_user_t)
         domain_ptrace_all_domains(spc_user_t)
  ')
@@ -440,11 +451,20 @@ index a5ad4686d..ceaeb2dfc 100644
 +# avc:  denied  { map } for  pid=[0-9]* comm="uds" path="/opt/libexec/kubernetes/kubelet-plugins/volume/exec/nodeagent~uds/uds" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
 +#
 +allow container_t usr_t:file { execute execute_no_trans map };
++
++#
++# FLATCAR:
++#
++# This one happens in kubeadm.v<VERSION>.cilium.base.
++#
++# avc:  denied  { map_create } for  pid=[0-9]* comm="cilium-operator" scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=bpf permissive=0
++#
++allow container_t self:bpf { map_create };
 diff --git a/refpolicy/policy/modules/system/init.te b/refpolicy/policy/modules/system/init.te
-index c83d88b74..b55afabc0 100644
+index 8f3772dcb..435f62db6 100644
 --- a/refpolicy/policy/modules/system/init.te
 +++ b/refpolicy/policy/modules/system/init.te
-@@ -1658,3 +1658,11 @@ optional_policy(`
+@@ -1674,3 +1674,11 @@ optional_policy(`
  	userdom_dontaudit_rw_all_users_stream_sockets(systemprocess)
  	userdom_dontaudit_write_user_tmp_files(systemprocess)
  ')

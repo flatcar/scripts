@@ -7,7 +7,9 @@ The following steps were needed to make these patches:
 - Apply the Gentoo patch:
   - See the sec-policy/selinux-base ebuild in portage-stable for the
     patch tarball URL.
-- Apply our changes.
+- Apply our changes:
+  - `git am -p2 <OUR_PATCH>` should do the trick. Try adding `-3` flag
+    in case of conflicts.
 - Generate the patch:
   - Since sec-policy/selinux- packages set their source directory to
     work directory (in Gentooese: `S=${WORKDIR}/`), the user patches

@@ -20,3 +20,6 @@
 # Python 3.12 is in portage-stable (currently testing), so avoid picking it
 # up. Update this to mask later versions when we switch to 3.11.
 >=dev-lang/python-3.12
+
+# Potentially compromised versions.
+>=app-arch/xz-utils-5.4.3
