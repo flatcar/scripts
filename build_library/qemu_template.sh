@@ -26,6 +26,8 @@ Options:
     -c FILE     Config drive as an iso or fat filesystem image.
     -a FILE     SSH public keys for login access. [~/.ssh/id_{dsa,rsa}.pub]
     -p PORT     The port on localhost to map to the VM's sshd. [2222]
+    -I FILE     Set a custom image file.
+    -M MB       Set VM memory in MBs.
     -s          Safe settings: single simple cpu and no KVM.
     -h          this ;-)
 
@@ -76,6 +78,12 @@ while [ $# -ge 1 ]; do
         -s|-safe)
             SAFE_ARGS=1
             shift ;;
+        -I|-image-file)
+            VM_IMAGE="$2"
+            shift 2 ;;
+        -M|-memory)
+            VM_MEMORY="$2"
+            shift 2 ;;
         -v|-verbose)
             set -x
             shift ;;
