@@ -119,7 +119,7 @@ IMG_DEFAULT_CONF_FORMAT=
 IMG_DEFAULT_BUNDLE_FORMAT=
 
 # Memory size to use in any config files
-IMG_DEFAULT_MEM=1024
+IMG_DEFAULT_MEM=2048
 
 # Number of CPUs to use in any config files
 IMG_DEFAULT_CPUS=2

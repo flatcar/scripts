@@ -17,6 +17,7 @@ SSH_KEYS=""
 CLOUD_CONFIG_FILE=""
 IGNITION_CONFIG_FILE=""
 CONFIG_IMAGE=""
+SWTPM_DIR=
 SAFE_ARGS=0
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
@@ -26,6 +27,16 @@ Options:
     -c FILE     Config drive as an iso or fat filesystem image.
     -a FILE     SSH public keys for login access. [~/.ssh/id_{dsa,rsa}.pub]
     -p PORT     The port on localhost to map to the VM's sshd. [2222]
+    -I FILE     Set a custom image file.
+    -M MB       Set VM memory in MBs.
+    -T DIR      Add a software TPM2 device through swtpm which stores secrets
+                and the control socket to the given directory. This may need
+                some configuration first with 'swtpm_setup --tpmstate DIR ...'
+                (see https://github.com/stefanberger/swtpm/wiki/Certificates-created-by-swtpm_setup).
+    -R FILE     Set up pflash ro content, e.g., for UEFI (with -W).
+    -W FILE     Set up pflash rw content, e.g., for UEFI (with -R).
+    -K FILE     Set kernel for direct boot used to simulate a PXE boot (with -R).
+    -R FILE     Set initrd for direct boot used to simulate a PXE boot (with -K).
     -s          Safe settings: single simple cpu and no KVM.
     -h          this ;-)
 
@@ -76,6 +87,27 @@ while [ $# -ge 1 ]; do
         -s|-safe)
             SAFE_ARGS=1
             shift ;;
+        -I|-image-file)
+            VM_IMAGE="$2"
+            shift 2 ;;
+        -M|-memory)
+            VM_MEMORY="$2"
+            shift 2 ;;
+        -T|-tpm)
+            SWTPM_DIR="$2"
+            shift 2 ;;
+        -R|-pflash-ro)
+            VM_PFLASH_RO="$2"
+            shift 2 ;;
+        -W|-pflash-rw)
+            VM_PFLASH_RW="$2"
+            shift 2 ;;
+        -K|-kernel-file)
+            VM_KERNEL="$2"
+            shift 2 ;;
+        -R|-initrd-file)
+            VM_INITRD="$2"
+            shift 2 ;;
         -v|-verbose)
             set -x
             shift ;;
@@ -109,6 +141,29 @@ write_ssh_keys() {
     sed -e 's/^/ - /'
 }
 
+if [ -n "${SWTPM_DIR}" ]; then
+    mkdir -p "${SWTPM_DIR}"
+    if ! command -v swtpm >/dev/null; then
+        echo "$0: swtpm command not found!" >&2
+        exit 1
+    fi
+    case "${VM_BOARD}" in
+        amd64-usr)
+            TPM_DEV=tpm-tis ;;
+        arm64-usr)
+            TPM_DEV=tpm-tis-device ;;
+        *) die "Unsupported arch" ;;
+    esac
+    SWTPM_SOCK="${SWTPM_DIR}/socket"
+    swtpm socket --tpmstate "dir=${SWTPM_DIR}" --ctrl "type=unixio,path=${SWTPM_SOCK},terminate" --tpm2 &
+    SWTPM_PROC=$!
+    PARENT=$$
+    # The swtpm process exits if qemu disconnects but if we never started qemu because
+    # this script fails or qemu failed to start, we need to kill the process.
+    # The EXIT trap is already in use by the config drive cleanup and anyway doesn't work with kill -9.
+    (while [ -e "/proc/${PARENT}" ]; do sleep 1; done; kill "${SWTPM_PROC}" 2>/dev/null; exit 0) &
+    set -- -chardev "socket,id=chrtpm,path=${SWTPM_SOCK}" -tpmdev emulator,id=tpm0,chardev=chrtpm -device "${TPM_DEV}",tpmdev=tpm0 "$@"
+fi
 
 if [ -z "${CONFIG_IMAGE}" ]; then
     CONFIG_DRIVE=$(mktemp -d)
