@@ -31,6 +31,8 @@ Options:
     -M MB       Set VM memory in MBs.
     -T DIR      Add a software TPM2 device through swtpm which stores secrets
                 and the control socket to the given directory.
+    -R FILE     Set up pflash ro content, e.g., for UEFI (with -W).
+    -W FILE     Set up pflash rw content, e.g., for UEFI (with -R).
     -s          Safe settings: single simple cpu and no KVM.
     -h          this ;-)
 
@@ -89,6 +91,12 @@ while [ $# -ge 1 ]; do
             shift 2 ;;
         -T|-tpm)
             SWTPM_DIR="$2"
+            shift 2 ;;
+        -R|-pflash-ro)
+            VM_PFLASH_RO="$2"
+            shift 2 ;;
+        -W|-pflash-rw)
+            VM_PFLASH_RW="$2"
             shift 2 ;;
         -v|-verbose)
             set -x
