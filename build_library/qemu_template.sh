@@ -30,7 +30,9 @@ Options:
     -I FILE     Set a custom image file.
     -M MB       Set VM memory in MBs.
     -T DIR      Add a software TPM2 device through swtpm which stores secrets
-                and the control socket to the given directory.
+                and the control socket to the given directory. This may need
+                some configuration first with 'swtpm_setup --tpmstate DIR ...'
+                (see https://github.com/stefanberger/swtpm/wiki/Certificates-created-by-swtpm_setup).
     -R FILE     Set up pflash ro content, e.g., for UEFI (with -W).
     -W FILE     Set up pflash rw content, e.g., for UEFI (with -R).
     -s          Safe settings: single simple cpu and no KVM.
