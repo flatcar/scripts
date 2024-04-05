@@ -115,7 +115,7 @@ index 00000000..66eae16e
 +        # User 'core' is not a sysuser.
 +        if username == 'core':
 +            return False
-+        return super(CoreOSUtil, self).is_sys_user(username)
++        return super(CoreosCommonUtil, self).is_sys_user(username)
 +
 +    def is_dhcp_enabled(self):
 +        return True
@@ -404,7 +404,7 @@ new file mode 100644
 index 00000000..d0d6f7c8
 --- /dev/null
 +++ b/init/flatcar/waagent.service
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,31 @@
 +[Unit]
 +Description=Microsoft Azure Linux Agent
 +Wants=network-online.target sshd.service sshd-keygen.service
@@ -419,6 +419,7 @@ index 00000000..d0d6f7c8
 +# /usr/share/flatcar/etc.
 +#
 +ExecStartPre=/bin/bash -c 'if [[ ! -e /etc/waagent.conf ]]; then ln -sf ../usr/share/waagent/waagent.conf /etc/waagent.conf; fi'
++ExecStartPre=/bin/bash -c 'if [[ ! -e /oem/waagent.conf ]]; then ln -sf /etc/waagent.conf /oem/waagent.conf; fi'
 +
 +# This could be done also with:
 +#
