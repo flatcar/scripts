@@ -15,6 +15,7 @@ VALID_IMG_TYPES=(
     digitalocean
     exoscale
     gce
+    hetzner
     hyperv
     hyperv_vhdx
     iso
@@ -48,6 +49,7 @@ VALID_OEM_PACKAGES=(
     digitalocean
     exoscale
     gce
+    hetzner
     hyperv
     openstack
     packet
@@ -277,6 +279,12 @@ IMG_azure_DISK_LAYOUT=azure
 IMG_azure_OEM_USE=azure
 IMG_azure_OEM_PACKAGE=common-oem-files
 IMG_azure_OEM_SYSEXT=oem-azure
+
+## hetzner
+IMG_hetzner_DISK_LAYOUT=vm
+IMG_hetzner_OEM_USE=hetzner
+IMG_hetzner_OEM_PACKAGE=common-oem-files
+IMG_hetzner_OEM_SYSEXT=oem-hetzner
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
