@@ -6,3 +6,7 @@ net-mail/mailbase-1.1
 
 # Only installs openrc files
 sys-fs/udev-init-scripts-35
+
+# A dependency of dev-libs/libtracefs. It's apparently for docs, that
+# we don't even include anywhere.
+dev-util/source-highlight-3.1.9-r2
