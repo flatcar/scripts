@@ -4,7 +4,7 @@
 EAPI=8
 
 ETYPE="headers"
-H_SUPPORTEDARCH="alpha amd64 arc arm arm64 csky hexagon hppa loong m68k microblaze mips nios2 openrisc ppc ppc64 riscv s390 sh sparc x86 xtensa"
+H_SUPPORTEDARCH="alpha amd64 arc arm arm64 csky hexagon hppa ia64 loong m68k microblaze mips nios2 openrisc ppc ppc64 riscv s390 sh sparc x86 xtensa"
 inherit kernel-2
 detect_version
 
@@ -17,15 +17,12 @@ SRC_URI="
 "
 S="${WORKDIR}/linux-${PV}"
 
-# Unkeyworded for testing
-#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa -ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 
 BDEPEND="
 	app-arch/xz-utils
 	dev-lang/perl
 "
-
-[[ -n ${PATCH_VER} ]] && PATCHES=( "${WORKDIR}"/${PATCH_PV} )
 
 src_unpack() {
 	# Avoid kernel-2_src_unpack
@@ -33,6 +30,10 @@ src_unpack() {
 }
 
 src_prepare() {
+	local PATCHES=()
+	[[ -n ${PATCH_VER} ]] && PATCHES+=( "${WORKDIR}"/${PATCH_PV} )
+	PATCHES+=( "${FILESDIR}"/${PN}-sparc-move-struct-termio-to-asm-termios.h.patch )
+
 	# TODO: May need forward porting to newer versions
 	use elibc_musl && PATCHES+=(
 		"${FILESDIR}"/${PN}-5.15-remove-inclusion-sysinfo.h.patch
