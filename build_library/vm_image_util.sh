@@ -22,9 +22,7 @@ VALID_IMG_TYPES=(
     packet
     parallels
     pxe
-    qemu
     qemu_uefi
-    qemu_uefi_secure
     rackspace
     rackspace_onmetal
     rackspace_vhd
@@ -125,26 +123,12 @@ IMG_DEFAULT_MEM=1024
 IMG_DEFAULT_CPUS=2
 
 ## qemu
-IMG_qemu_DISK_FORMAT=qcow2
-IMG_qemu_DISK_LAYOUT=vm
-IMG_qemu_CONF_FORMAT=qemu
-IMG_qemu_OEM_USE=qemu
-IMG_qemu_OEM_PACKAGE=common-oem-files
-IMG_qemu_OEM_SYSEXT=oem-qemu
-
 IMG_qemu_uefi_DISK_FORMAT=qcow2
 IMG_qemu_uefi_DISK_LAYOUT=vm
 IMG_qemu_uefi_CONF_FORMAT=qemu_uefi
 IMG_qemu_uefi_OEM_USE=qemu
 IMG_qemu_uefi_OEM_PACKAGE=common-oem-files
 IMG_qemu_uefi_OEM_SYSEXT=oem-qemu
-
-IMG_qemu_uefi_secure_DISK_FORMAT=qcow2
-IMG_qemu_uefi_secure_DISK_LAYOUT=vm
-IMG_qemu_uefi_secure_CONF_FORMAT=qemu_uefi_secure
-IMG_qemu_uefi_secure_OEM_USE=qemu
-IMG_qemu_uefi_secure_OEM_PACKAGE=common-oem-files
-IMG_qemu_uefi_secure_OEM_SYSEXT=oem-qemu
 
 ## xen
 IMG_xen_CONF_FORMAT=xl
@@ -320,7 +304,7 @@ get_default_vm_type() {
     local board="$1"
     case "$board" in
     amd64-usr)
-        echo "qemu"
+        echo "qemu_uefi"
         ;;
     arm64-usr)
         echo "qemu_uefi"
@@ -625,6 +609,18 @@ write_vm_disk() {
     info "Writing $disk_format image $(basename "${VM_DST_IMG}")"
     _write_${disk_format}_disk "${VM_TMP_IMG}" "${VM_DST_IMG}"
 
+    # We now only support building qemu_uefi and set up symlinks
+    # for the qemu and qemu_uefi_secure images
+    if [ "${VM_IMG_TYPE}" = qemu_uefi ]; then
+        local qemu="${VM_DST_IMG/qemu_uefi/qemu}"
+        local qemu_uefi_secure="${VM_DST_IMG/qemu_uefi/qemu_uefi_secure}"
+        local target_basename
+        target_basename=$(basename "${VM_DST_IMG}")
+        ln -fs "${target_basename}" "${qemu}"
+        ln -fs "${target_basename}" "${qemu_uefi_secure}"
+        VM_GENERATED_FILES+=( "${qemu}" "${qemu_uefi_secure}" )
+    fi
+
     # Add disk image to final file list if it isn't going to be bundled
     if [[ -z "$(_get_vm_opt BUNDLE_FORMAT)" ]]; then
         VM_GENERATED_FILES+=( "${VM_DST_IMG}" )
@@ -710,7 +706,7 @@ _write_cpio_disk() {
     local grub_name="$(_dst_name "_grub.efi")"
     _write_cpio_common $@
     # Pull the kernel and loader out of the filesystem
-    cp "${base_dir}"/boot/flatcar/vmlinuz-a "${dst_dir}/${vmlinuz_name}"
+    ln -fs flatcar_production_image.vmlinuz "${dst_dir}/${vmlinuz_name}"
 
     local grub_arch
     case $BOARD in
@@ -826,6 +822,13 @@ _write_qemu_uefi_conf() {
     sed -e "s%^VM_PFLASH_RO=.*%VM_PFLASH_RO='${flash_ro}'%" \
         -e "s%^VM_PFLASH_RW=.*%VM_PFLASH_RW='${flash_rw}'%" -i "${script}"
     VM_GENERATED_FILES+=( "$(_dst_dir)/${flash_ro}" "$(_dst_dir)/${flash_rw}" )
+
+    # We now only support building qemu_uefi and generate the
+    # other artifacts from here
+    if [ "${VM_IMG_TYPE}" = qemu_uefi ]; then
+      VM_IMG_TYPE=qemu _write_qemu_conf
+      VM_IMG_TYPE=qemu_uefi_secure _write_qemu_uefi_secure_conf
+    fi
 }
 
 _write_qemu_uefi_secure_conf() {
