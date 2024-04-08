@@ -28,11 +28,6 @@ else
     rm "${AZURE_IMAGE_NAME}.bz2"
 fi
 
-if [[ "${CIA_ARCH}" == "arm64" ]]; then
-  AZURE_USE_GALLERY="--azure-use-gallery"
-fi
-
-
 run_kola_tests() {
     local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
@@ -55,7 +50,7 @@ run_kola_tests() {
       --tapfile="${instance_tapfile}" \
       --azure-size="${instance_type}" \
       --azure-hyper-v-generation="${hyperv_gen}" \
-      ${AZURE_USE_GALLERY} \
+      --azure-use-gallery \
       ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
       ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
       "${@}"
