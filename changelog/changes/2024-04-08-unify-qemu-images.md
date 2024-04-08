@@ -1,0 +1,1 @@
+- SDK: Unified qemu image formats, so that the `qemu_uefi` build target provides the regular `qemu` and the `qemu_uefi_secure` artifacts ([scripts#1847](https://github.com/flatcar/scripts/pull/1847))
