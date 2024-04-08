@@ -31,20 +31,18 @@ RDEPEND="
 	>=dev-python/six-1.12.0[${PYTHON_USEDEP}]
 "
 
+# Flatcar: The call to distutils_enable_tests used to add "test" to
+# IUSE. With the call commented out, "test" is not in IUSE anymore,
+# making BDEPEND with "test" invalid. Dropping tests dependencies
+# then.
 BDEPEND="
 	${RDEPEND}
-	test? (
-		dev-python/httpretty[${PYTHON_USEDEP}]
-		dev-python/keyring[${PYTHON_USEDEP}]
-		dev-python/lxml[${PYTHON_USEDEP}]
-		dev-python/mock[${PYTHON_USEDEP}]
-		dev-python/paramiko[${PYTHON_USEDEP}]
-		dev-python/requests[${PYTHON_USEDEP}]
-		dev-python/rsa[${PYTHON_USEDEP}]
-		dev-python/selenium[${PYTHON_USEDEP}]
-	)"
+"
 
-distutils_enable_tests nose
+# Flatcar: There is no "nose" test runner any more. Also, we are not
+# running tests anyway.
+#
+# distutils_enable_tests nose
 
 src_prepare() {
 	# remove bundled libs.
@@ -58,6 +56,8 @@ src_prepare() {
 	distutils-r1_src_prepare
 }
 
-python_test() {
-	distutils-r1_python_test tests/unit
-}
+# Flatcar: Not running the tests.
+#
+# python_test() {
+# 	distutils-r1_python_test tests/unit
+# }
