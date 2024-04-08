@@ -1,0 +1,3 @@
+- coreutils ([9.5](https://lists.gnu.org/archive/html/info-gnu/2024-03/msg00006.html))
+- curl ([8.7.1](https://curl.se/changes.html#8_7_1) (includes [8.7.0](https://curl.se/changes.html#8_7_0)))
+- nghttp2 ([1.61.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.61.0) (includes [1.58.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.58.0), [1.59.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.59.0) and [1.60.0](https://github.com/nghttp2/nghttp2/releases/tag/v1.60.0)))
