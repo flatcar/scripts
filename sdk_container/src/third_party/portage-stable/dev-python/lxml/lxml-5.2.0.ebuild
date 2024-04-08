@@ -18,13 +18,12 @@ HOMEPAGE="
 SRC_URI="
 	https://github.com/lxml/lxml/archive/${P}.tar.gz
 		-> ${P}.gh.tar.gz
-	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-4.9.3-patches-2.tar.xz
 "
 S=${WORKDIR}/lxml-${P}
 
 LICENSE="BSD ElementTree GPL-2 PSF-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="doc examples +threads test"
 RESTRICT="!test? ( test )"
 
@@ -38,7 +37,7 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	>=dev-python/cython-0.29.35[${PYTHON_USEDEP}]
+	>=dev-python/cython-3.0.10[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
@@ -53,7 +52,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${WORKDIR}"/${PN}-4.9.3-patches-2
+	"${FILESDIR}/${PN}-5.1.1-pypy.patch"
 )
 
 python_check_deps() {
@@ -71,6 +70,9 @@ python_prepare_all() {
 	# don't use some random SDK on Darwin
 	sed -i -e '/_ldflags =/s/=.*isysroot.*darwin.*None/= None/' \
 		setupinfo.py || die
+
+	# don't depend on sys-apps/which
+	sed -i -e 's:which:command -v:' Makefile || die
 
 	distutils-r1_python_prepare_all
 }
@@ -97,7 +99,15 @@ python_test() {
 	cp -al src/lxml/html/tests "${dir}/html/" || die
 	ln -rs "${S}"/doc "${dir}"/../../ || die
 
-	"${EPYTHON}" test.py -vv --all-levels -p || die "Test ${test} fails with ${EPYTHON}"
+	# test_feedparser_data requires lxml_html_clean
+	# this is the *simplest* way of skipping these without breaking
+	# random other tests, sigh
+	sed -e '/lxml\.html\.clean/d' \
+		-i "${dir}"/html/tests/test_feedparser_data.py || die
+	rm -r "${dir}"/html/tests/*-data/*.data || die
+
+	"${EPYTHON}" test.py -vv --all-levels -p ||
+		die "Tests fail on ${EPYTHON}"
 }
 
 python_install_all() {

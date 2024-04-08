@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -18,7 +18,6 @@ HOMEPAGE="
 SRC_URI="
 	https://github.com/lxml/lxml/archive/${P}.tar.gz
 		-> ${P}.gh.tar.gz
-	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-4.9.3-patches-2.tar.xz
 "
 S=${WORKDIR}/lxml-${P}
 
@@ -38,7 +37,7 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	>=dev-python/cython-3.0.7[${PYTHON_USEDEP}]
+	>=dev-python/cython-3.0.10[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
@@ -53,7 +52,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${WORKDIR}"/${PN}-4.9.3-patches-2/0001-Skip-tests-failing-on-PyPy.patch
+	"${FILESDIR}/${PN}-5.1.1-pypy.patch"
 )
 
 python_check_deps() {
@@ -97,7 +96,15 @@ python_test() {
 	cp -al src/lxml/html/tests "${dir}/html/" || die
 	ln -rs "${S}"/doc "${dir}"/../../ || die
 
-	"${EPYTHON}" test.py -vv --all-levels -p || die "Test ${test} fails with ${EPYTHON}"
+	# test_feedparser_data requires lxml_html_clean
+	# this is the *simplest* way of skipping these without breaking
+	# random other tests, sigh
+	sed -e '/lxml\.html\.clean/d' \
+		-i "${dir}"/html/tests/test_feedparser_data.py || die
+	rm -r "${dir}"/html/tests/*-data/*.data || die
+
+	"${EPYTHON}" test.py -vv --all-levels -p ||
+		die "Tests fail on ${EPYTHON}"
 }
 
 python_install_all() {
