@@ -218,6 +218,9 @@ jobs:
           formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
 
           for format in ${formats}; do
+              if [ "${format}" = qemu ] || [ "${format}" = qemu_uefi_secure ]; then
+                  continue
+              fi
               echo " ###################  VENDOR '${format}' ################### "
               ./run_sdk_container -n "${container_name}" \
                   ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
@@ -225,6 +228,13 @@ jobs:
                       --image_compression_formats=bz2
           done
 
+          # Zip doesn't handle symlinks well, remove them
+          rm -f artifacts/${arch}-usr/latest/flatcar_production_{qemu,qemu_uefi_secure}_image.img*
+          # or create an explicit copy:
+          if [ -e artifacts/${arch}-usr/latest/flatcar_production_pxe.vmlinuz ]; then
+            rm -f artifacts/${arch}-usr/latest/flatcar_production_pxe.vmlinuz
+            cp artifacts/${arch}-usr/latest/flatcar_production_{image,pxe}.vmlinuz
+          fi
           # upload-artifacts cannot handle artifact uploads from sym-linked directories (no, really)
           #  so we move things around.
           mkdir -p artifacts/images

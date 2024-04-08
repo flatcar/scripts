@@ -125,6 +125,9 @@ function _vm_build_impl() {
             mv "${images_in}" "${CONTAINER_IMAGE_ROOT}/${arch}-usr/latest-input"
 
     for format in ${formats}; do
+        if [ "${format}" = qemu ] || [ "${format}" = qemu_uefi_secure ]; then
+           continue
+        fi
         echo " ###################  VENDOR '${format}' ################### "
         COMPRESSION_FORMAT="bz2"
         if [[ "${format}" =~ ^(openstack_mini|digitalocean)$ ]];then
