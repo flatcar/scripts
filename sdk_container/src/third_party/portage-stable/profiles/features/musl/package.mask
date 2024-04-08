@@ -1,6 +1,17 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Marek Szuba <marecki@gentoo.org> (2024-04-07)
+# Relies on musl-incompatible ldconfig behaviour to determine the list of host
+# library directories. More importantly however, protontricks is useless without
+# Steam and Steam will almost certainly never support musl (see e.g.
+# https://github.com/ValveSoftware/steam-for-linux/issues/9284).
+app-emulation/protontricks
+
+# Matthew Smith <matthew@gentoo.org> (2024-04-07)
+# Mask until execinfo.h use can be properly patched, bug #853856
+media-gfx/renderdoc
+
 # Maciej Barć <xgqt@gentoo.org> (2024-03-23)
 # Binary package, which is compiled against glibc
 www-apps/jellyfin-bin
@@ -290,6 +301,7 @@ media-gfx/brscan4
 media-libs/amdgpu-pro-vulkan
 media-sound/baudline
 media-sound/teamspeak-server
+media-tv/plex-media-server
 media-video/amdgpu-pro-amf
 media-video/dvbackup
 media-video/makemkv
