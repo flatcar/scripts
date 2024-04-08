@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	# bug #272880 and bug #286068
 	BDEPEND="sys-devel/gettext >=dev-build/libtool-2"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/lassecollin.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/jiatan.asc
 	inherit verify-sig
 
 	MY_P="${PN/-utils}-${PV/_}"
@@ -35,7 +35,7 @@ else
 	"
 
 	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 
 	S="${WORKDIR}/${MY_P}"
@@ -45,19 +45,16 @@ DESCRIPTION="Utils for managing LZMA compressed files"
 HOMEPAGE="https://tukaani.org/xz/"
 
 # See top-level COPYING file as it outlines the various pieces and their licenses.
-LICENSE="0BSD LGPL-2.1+ GPL-2+ doc? ( CC-BY-SA-4.0 )"
+LICENSE="public-domain LGPL-2.1+ GPL-2+"
 SLOT="0"
-IUSE="cpu_flags_arm_crc32 doc +extra-filters pgo nls static-libs"
+IUSE="doc +extra-filters pgo nls static-libs"
 
 if [[ ${PV} != 9999 ]] ; then
-	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-lassecollin-20230213 )"
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-jiatan )"
 fi
 
 src_prepare() {
 	default
-
-	# Delete known-compromised test data (bug #928134)
-	rm tests/files/bad-3-corrupt_lzma2.xz tests/files/good-large_compressed.lzma || die
 
 	if [[ ${PV} == 9999 ]] ; then
 		eautopoint
@@ -74,7 +71,6 @@ multilib_src_configure() {
 		$(multilib_native_use_enable doc)
 		$(use_enable nls)
 		$(use_enable static-libs static)
-		$(use_enable cpu_flags_arm_crc32 arm64-crc32)
 	)
 
 	if ! multilib_is_native_abi ; then
