@@ -11,6 +11,9 @@ inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
 
+DESCRIPTION="Various useful Linux utilities"
+HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
+
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
 	inherit autotools git-r3
@@ -19,7 +22,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
+		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -27,9 +30,6 @@ else
 fi
 
 S="${WORKDIR}/${MY_P}"
-
-DESCRIPTION="Various useful Linux utilities"
-HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
 
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"

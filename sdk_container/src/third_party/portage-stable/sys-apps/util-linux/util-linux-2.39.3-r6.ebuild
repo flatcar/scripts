@@ -11,6 +11,9 @@ inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
 
+DESCRIPTION="Various useful Linux utilities"
+HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
+
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
 	inherit autotools git-r3
@@ -27,9 +30,6 @@ else
 fi
 
 S="${WORKDIR}/${MY_P}"
-
-DESCRIPTION="Various useful Linux utilities"
-HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
 
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
@@ -101,6 +101,10 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
 	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
 	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
+	"${FILESDIR}"/${PN}-2.39.3-libblkid-luks.patch
+	"${FILESDIR}"/${PN}-2.39.3-musl-1.2.5-basename.patch
+	"${FILESDIR}"/${PN}-2.39.3-libmount-Fix-export-of-mnt_context_is_lazy-and-mnt_c.patch
+	"${FILESDIR}"/${PN}-2.39.3-CVE-2024-28085.patch
 )
 
 pkg_pretend() {
