@@ -75,9 +75,21 @@ compress_file() {
         ;;
     esac
 
-    ${IMAGE_ZIPPER} -f "${filepath}" 2>&1 >/dev/null || die "failed to compress ${filepath}"
+    # Check if symlink in which case we set up a "compressed" symlink
+    local compressed_name="${filepath}.${compression_format}"
+    if [ -L "${filepath}" ]; then
+        # We could also test if the target exists and otherwise do the compression
+        # but we might then end up with two different compressed artifacts
+        local link_target
+        link_target=$(readlink -f "${filepath}")
+        local target_basename
+        target_basename=$(basename "${link_target}")
+        ln -fs "${target_basename}.${compression_format}" "${compressed_name}"
+    else
+        ${IMAGE_ZIPPER} -f "${filepath}" 2>&1 >/dev/null || die "failed to compress ${filepath}"
+    fi
 
-    echo -n "${filepath}.${compression_format}"
+    echo -n "${compressed_name}"
 }
 
 compress_disk_images() {
@@ -93,7 +105,7 @@ compress_disk_images() {
     # Files that did not match the filter for disk images.
     local -n local_extra_files="$3"
 
-    info "Compressing images"
+    info "Compressing ${#local_files_to_evaluate[@]} images"
     # We want to compress images, but we also want to remove the uncompressed files
     # from the list of uploadable files.
     for filename in "${local_files_to_evaluate[@]}"; do
@@ -106,6 +118,9 @@ compress_disk_images() {
 
             # An associative array we set an element on whenever we process a format.
             # This way we don't process the same format twice. A unique for array elements.
+            # (But first we need to unset the previous loop or we can only compress a single
+            # file per list of files).
+            unset processed_format
             declare -A processed_format
             for format in "${FORMATS[@]}";do
                 if [ -z "${processed_format[${format}]}" ]; then
@@ -121,7 +136,10 @@ compress_disk_images() {
                [ "${filename##*/}" != "flatcar_production_image.bin" ] &&
                [ "${filename##*/}" != "flatcar_production_update.bin" ] &&
                ! echo "${FORMATS[@]}" | grep -q "none"; then
+                info "Removing ${filename}"
                 rm "${filename}"
+            else
+                info "Keeping ${filename}"
             fi
         else
             local_extra_files+=( "${filename}" )            
