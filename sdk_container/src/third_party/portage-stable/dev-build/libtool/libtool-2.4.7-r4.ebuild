@@ -98,11 +98,15 @@ src_configure() {
 	# to find a bash shell.  if /bin/sh is bash, it uses that.  this can
 	# cause problems for people who switch /bin/sh on the fly to other
 	# shells, so just force libtool to use /bin/bash all the time.
-	export CONFIG_SHELL="${EPREFIX}"/bin/bash
-
 	# Do not bother hardcoding the full path to sed.
 	# Just rely on $PATH. bug #574550
-	export ac_cv_path_SED="$(basename "$(type -P sed)")"
+	export CONFIG_SHELL="${EPREFIX}"/bin/bash
+	export ac_cv_path_SED="sed"
+	export ac_cv_path_EGREP="grep -E"
+	export ac_cv_path_EGREP_TRADITIONAL="grep -E"
+	export ac_cv_path_FGREP="grep -F"
+	export ac_cv_path_GREP="grep"
+	export ac_cv_path_lt_DD="dd"
 
 	[[ ${CHOST} == *-darwin* ]] && local myconf="--program-prefix=g"
 
