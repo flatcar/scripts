@@ -77,6 +77,9 @@
 # Required to allow us to override the sftp subsystem in sshd config.
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
 
+# Required to address coreutils-2024-03-28
+=sys-apps/coreutils-9.5 ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/nvme-cli-2.8 ~arm64
