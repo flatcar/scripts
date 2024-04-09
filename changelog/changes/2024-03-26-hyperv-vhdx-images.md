@@ -1,0 +1,1 @@
+- Added Hyper-V VHDX image ([flatcar/scripts#1791](https://github.com/flatcar/scripts/pull/1791))

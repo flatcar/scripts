@@ -16,6 +16,7 @@ VALID_IMG_TYPES=(
     exoscale
     gce
     hyperv
+    hyperv_vhdx
     iso
     openstack
     openstack_mini
@@ -297,6 +298,11 @@ IMG_azure_OEM_SYSEXT=oem-azure
 IMG_hyperv_DISK_FORMAT=vhd
 IMG_hyperv_OEM_PACKAGE=oem-hyperv
 
+## hyper-v vhdx
+IMG_hyperv_vhdx_DISK_FORMAT=vhdx
+IMG_hyperv_vhdx_OEM_PACKAGE=oem-hyperv
+
+
 ## cloudsigma
 IMG_cloudsigma_DISK_FORMAT=qcow2
 IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
@@ -431,7 +437,9 @@ _disk_ext() {
         vmdk_scsi) echo vmdk;;
         vmdk_stream) echo vmdk;;
         hdd) echo hdd;;
-        vhd*) echo vhd;;
+        vhd) echo vhd;;
+        vhd_fixed) echo vhd;;
+        vhdx) echo vhdx;;
         *) echo "${disk_format}";;
     esac
 }
@@ -618,6 +626,11 @@ _write_vhd_disk() {
 _write_vhd_fixed_disk() {
     qemu-img convert -f raw "$1" -O vpc -o subformat=fixed,force_size "$2"
     assert_image_size "$2" vpc
+}
+
+_write_vhdx_disk() {
+    qemu-img convert -f raw "$1" -O vhdx -o subformat=dynamic "$2"
+    assert_image_size "$2" vhdx
 }
 
 _write_vmdk_ide_disk() {
