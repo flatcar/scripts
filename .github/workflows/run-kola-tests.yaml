@@ -162,7 +162,6 @@ jobs:
           # Extract the generic image we'll use for qemu tests.
           # Note that the qemu[_uefi] tests use the generic image instead of the
           #  qemu vendor VM image ("Astronaut: [...] Always have been.").
-          bzip2 --decompress flatcar_production_image.bin.bz2
           mv flatcar_production_image.bin flatcar_production_qemu_uefi_efi_code.fd scripts/
 
           mv flatcar_test_update.gz scripts/
