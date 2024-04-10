@@ -211,7 +211,7 @@ jobs:
               ./run_sdk_container -n "${container_name}" \
                   ./image_to_vm.sh --format "${format}" --board="${arch}-usr" \
                       --from "${CI_CONTAINER_ARTIFACT_ROOT}/${arch}-usr/latest" \
-                      --image_compression_formats=bz2
+                      --image_compression_formats=none
           done
 
           # Zip doesn't handle symlinks well, remove them
@@ -257,7 +257,7 @@ jobs:
           retention-days: 7
           name: ${{ matrix.arch }}-generic-image
           path: |
-            scripts/artifacts/images/flatcar_production_image.bin.bz2
+            scripts/artifacts/images/flatcar_production_image.bin
             scripts/artifacts/images/flatcar_production_image.grub
             scripts/artifacts/images/flatcar_production_image.shim
             scripts/artifacts/images/flatcar_production_image.vmlinuz
@@ -300,8 +300,8 @@ jobs:
           retention-days: 7
           name: ${{ matrix.arch }}-vm-images
           path: |
-            scripts/artifacts/images/*.img.bz2
-            scripts/artifacts/images/*.bin.bz2
+            scripts/artifacts/images/*.img
+            scripts/artifacts/images/*.bin
             scripts/artifacts/images/flatcar_production_*_efi_*.fd
             scripts/artifacts/images/*.txt
             scripts/artifacts/images/flatcar_production_*.sh
