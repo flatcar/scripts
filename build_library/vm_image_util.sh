@@ -1004,9 +1004,9 @@ _write_xl_conf() {
     echo 'extra = "(hd0,0)/boot/grub/menu.lst"' >> "${pvgrub}"
 
     # The rest is the same
-    tee -a "${pygrub}" >> "${pvgrub}" <<EOF
+    tee -a "${pygrub}" "${pvgrub}" >/dev/null <<EOF
+type = "pvh"
 
-builder = "generic"
 name = "${VM_NAME}"
 
 memory = "${vm_mem}"

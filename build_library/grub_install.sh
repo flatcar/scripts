@@ -64,7 +64,7 @@ case "${FLAGS_target}" in
         CORE_NAME="core.efi"
         SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
-    x86_64-xen)
+    i386-xen_pvh)
         CORE_NAME="core.elf"
         ;;
     arm64-efi)
@@ -234,9 +234,10 @@ case "${FLAGS_target}" in
                 "${FLAGS_copy_shim}"
         fi
         ;;
-    x86_64-xen)
+    i386-xen_pvh)
         info "Installing default x86_64 Xen bootloader."
         sudo mkdir -p "${ESP_DIR}/xen" "${ESP_DIR}/boot/grub"
+        # keep the pvboot name for chainloading?
         sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
             "${ESP_DIR}/xen/pvboot-x86_64.elf"
         sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
