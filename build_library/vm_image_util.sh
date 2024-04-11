@@ -991,6 +991,7 @@ _write_xl_conf() {
     local src_name=$(basename "$VM_SRC_IMG")
     local dst_name=$(basename "$VM_DST_IMG")
     local dst_dir=$(dirname "$VM_DST_IMG")
+    local grub_name="flatcar_production_image-grub-xen_pvh.bin"
     local pygrub="${dst_dir}/$(_src_to_dst_name "${src_name}" "_pygrub.cfg")"
     local pvgrub="${dst_dir}/$(_src_to_dst_name "${src_name}" "_pvgrub.cfg")"
     local disk_format=$(_get_vm_opt DISK_FORMAT)
@@ -1000,8 +1001,7 @@ _write_xl_conf() {
     echo 'bootloader = "pygrub"' >> "${pygrub}"
 
     echo '# Xen PV config using pvgrub' > "${pvgrub}"
-    echo 'kernel = "/usr/lib/xen/boot/pv-grub-x86_64.gz"' >> "${pvgrub}"
-    echo 'extra = "(hd0,0)/boot/grub/menu.lst"' >> "${pvgrub}"
+    echo "kernel = \"${grub_name}\"" >> "${pvgrub}"
 
     # The rest is the same
     tee -a "${pygrub}" "${pvgrub}" >/dev/null <<EOF

@@ -26,6 +26,8 @@ DEFINE_string copy_efi_grub "" \
   "Copy the EFI GRUB image to the specified path."
 DEFINE_string copy_shim "" \
   "Copy the shim image to the specified path."
+DEFINE_string copy_xen_grub "" \
+  "Copy Xen PVH grub to the specified path."
 
 # Parse flags
 FLAGS "$@" || exit 1
@@ -242,6 +244,10 @@ case "${FLAGS_target}" in
             "${ESP_DIR}/xen/pvboot-x86_64.elf"
         sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
             "${ESP_DIR}/boot/grub/menu.lst"
+        if [[ -n "${FLAGS_copy_xen_grub}" ]]; then
+            cp --no-preserve=mode "${ESP_DIR}/xen/pvboot-x86_64.elf" \
+                "${FLAGS_copy_xen_grub}"
+        fi
         ;;
     arm64-efi)
         info "Installing default arm64 UEFI bootloader."

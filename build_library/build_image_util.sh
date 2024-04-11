@@ -874,6 +874,9 @@ EOF
       )
     fi
     for target in ${target_list}; do
+      if [[ "${target}" = "i386-xen_pvh" ]]; then
+        grub_args+=(--copy_xen_grub="${BUILD_DIR}/${image_grub%.grub}-grub-xen_pvh.bin")
+      fi
       ${BUILD_LIBRARY_DIR}/grub_install.sh \
           --board="${BOARD}" \
           --target="${target}" \
