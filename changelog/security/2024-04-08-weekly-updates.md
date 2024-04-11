@@ -1,0 +1,3 @@
+- coreutils ([coreutils-2024-03-28](https://lists.gnu.org/archive/html/info-gnu/2024-03/msg00006.html))
+- curl ([CVE-2024-2004](https://nvd.nist.gov/vuln/detail/CVE-2024-2004), [CVE-2024-2379](https://nvd.nist.gov/vuln/detail/CVE-2024-2379), [CVE-2024-2398](https://nvd.nist.gov/vuln/detail/CVE-2024-2398), [CVE-2024-2466](https://nvd.nist.gov/vuln/detail/CVE-2024-2466))
+- nghttp2 ([CVE-2024-28182](https://nvd.nist.gov/vuln/detail/CVE-2024-28182))

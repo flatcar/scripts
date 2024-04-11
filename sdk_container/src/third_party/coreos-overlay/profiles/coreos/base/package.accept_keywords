@@ -20,14 +20,11 @@
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2-r1 ~arm64
 
-# Needed to fix CVE-2023-36054.
-=app-crypt/mit-krb5-1.21.2 ~arm64
-
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 
 # Needed for addressing CVE-2023-50246, CVE-2023-50268
-=app-misc/jq-1.7.1 ~amd64 ~arm64
+=app-misc/jq-1.7.1 ~amd64
 
 # Required for addressing CVE-2022-3715.
 =app-shells/bash-5.2_p26 ~amd64 ~arm64
@@ -80,9 +77,13 @@
 # Required to allow us to override the sftp subsystem in sshd config.
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
 
+# Required to address coreutils-2024-03-28
+=sys-apps/coreutils-9.5 ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/nvme-cli-2.8 ~arm64
+=sys-apps/util-linux-2.39.3-r7 ~arm64
 
 sys-apps/zram-generator ~amd64 ~arm64
 
