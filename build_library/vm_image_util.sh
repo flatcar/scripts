@@ -994,6 +994,7 @@ _write_xl_conf() {
     local grub_name="flatcar_production_image-grub-xen_pvh.bin"
     local pygrub="${dst_dir}/$(_src_to_dst_name "${src_name}" "_pygrub.cfg")"
     local pvgrub="${dst_dir}/$(_src_to_dst_name "${src_name}" "_pvgrub.cfg")"
+    local hvm="${dst_dir}/$(_src_to_dst_name "${src_name}" "_hvm.cfg")"
     local disk_format=$(_get_vm_opt DISK_FORMAT)
 
     # Set up the few differences between pygrub and pvgrub
@@ -1003,9 +1004,14 @@ _write_xl_conf() {
     echo '# Xen PV config using pvgrub' > "${pvgrub}"
     echo "kernel = \"${grub_name}\"" >> "${pvgrub}"
 
+    echo 'type = "hvm"'> "${hvm}"
     # The rest is the same
     tee -a "${pygrub}" "${pvgrub}" >/dev/null <<EOF
 type = "pvh"
+EOF
+
+    # The rest is the same
+    tee -a "${pygrub}" "${hvm}" "${pvgrub}" >/dev/null <<EOF
 
 name = "${VM_NAME}"
 
@@ -1024,13 +1030,16 @@ xl create -c "${pygrub##*/}"
 Or with pvgrub instead:
 xl create -c "${pvgrub##*/}"
 
+For HVM:
+xl create -c "${hvm##*/}"
+
 Detach from the console with ^] and reattach with:
 xl console ${VM_NAME}
 
 Kill the vm with:
 xl destroy ${VM_NAME}
 EOF
-    VM_GENERATED_FILES+=( "${pygrub}" "${pvgrub}" "${VM_README}" )
+    VM_GENERATED_FILES+=( "${pygrub}" "${pvgrub}" "${hvm}" "${VM_README}" )
 }
 
 _write_ovf_virtualbox_conf() {
