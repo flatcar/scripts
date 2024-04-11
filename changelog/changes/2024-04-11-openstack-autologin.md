@@ -1,0 +1,1 @@
+- OpenStack, Brightbox: Added the `flatcar.autologin` kernel cmdline parameter by default as the hypervisor manages access to the console ([scripts#1866](https://github.com/flatcar/scripts/pull/1866))
