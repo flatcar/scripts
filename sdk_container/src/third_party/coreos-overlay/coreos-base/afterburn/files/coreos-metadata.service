@@ -19,6 +19,8 @@ ConditionKernelCommandLine=|coreos.oem.id=packet
 
 ConditionKernelCommandLine=|flatcar.oem.id=scaleway
 
+ConditionKernelCommandLine=|flatcar.oem.id=hetzner
+
 Description=Flatcar Metadata Agent
 
 [Service]
