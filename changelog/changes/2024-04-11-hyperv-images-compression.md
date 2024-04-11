@@ -1,0 +1,1 @@
+- Hyper-V images, both .vhd and .vhdx files are available as `zip` compressed, switching from `bzip2` to a built-in available Windows compression - `zip` ([scripts#1878](https://github.com/flatcar/scripts/pull/1878))
