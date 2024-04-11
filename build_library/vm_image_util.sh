@@ -133,6 +133,7 @@ IMG_qemu_uefi_OEM_SYSEXT=oem-qemu
 
 ## xen
 IMG_xen_CONF_FORMAT=xl
+IMG_xen_OEM_PACKAGE=oem-xen
 
 ## virtualbox
 IMG_virtualbox_DISK_FORMAT=vmdk_ide
