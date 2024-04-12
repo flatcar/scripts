@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="b61b2a721ba181c7891556b73ab8f541483adb3d" # trunk
+	CROS_WORKON_COMMIT="9b6ddb0226208450bcef9da4ac5ba8bc2a47a87c" # trunk
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -48,6 +48,7 @@ CRATES="
 	digest-0.10.7
 	encoding_rs-0.8.33
 	env_logger-0.10.0
+	equivalent-1.0.1
 	errno-0.3.3
 	errno-dragonfly-0.1.2
 	fastrand-2.0.0
@@ -65,18 +66,18 @@ CRATES="
 	getrandom-0.2.10
 	gimli-0.28.0
 	globset-0.4.13
-	h2-0.3.21
-	hashbrown-0.12.3
+	h2-0.3.26
+	hashbrown-0.14.3
 	hermit-abi-0.3.2
 	http-0.2.9
 	http-body-0.4.5
 	httparse-1.8.0
 	httpdate-1.0.3
 	humantime-2.1.0
-	hyper-0.14.27
+	hyper-0.14.28
 	hyper-tls-0.5.0
 	idna-0.4.0
-	indexmap-1.9.3
+	indexmap-2.2.1
 	ipnet-2.8.0
 	is-terminal-0.4.9
 	itoa-1.0.9
@@ -90,13 +91,12 @@ CRATES="
 	memchr-2.6.3
 	mime-0.3.17
 	miniz_oxide-0.7.1
-	mio-0.8.8
+	mio-0.8.11
 	native-tls-0.2.11
 	num-bigint-dig-0.8.4
 	num-integer-0.1.45
 	num-iter-0.1.43
 	num-traits-0.2.16
-	num_cpus-1.16.0
 	object-0.32.1
 	once_cell-1.18.0
 	openssl-0.10.60
@@ -122,10 +122,11 @@ CRATES="
 	regex-1.9.5
 	regex-automata-0.3.8
 	regex-syntax-0.7.5
-	reqwest-0.11.20
+	reqwest-0.11.26
 	rsa-0.9.2
 	rustc-demangle-0.1.23
 	rustix-0.38.23
+	rustls-pemfile-1.0.4
 	ryu-1.0.15
 	schannel-0.1.22
 	security-framework-2.9.2
@@ -139,13 +140,15 @@ CRATES="
 	signature-2.1.0
 	slab-0.4.9
 	smallvec-1.11.0
-	socket2-0.4.9
 	socket2-0.5.3
 	spin-0.5.2
 	spki-0.7.2
 	subtle-2.5.0
 	syn-1.0.109
 	syn-2.0.31
+	sync_wrapper-0.1.2
+	system-configuration-0.5.1
+	system-configuration-sys-0.5.0
 	tempfile-3.8.1
 	termcolor-1.2.0
 	thiserror-1.0.48
@@ -164,7 +167,7 @@ CRATES="
 	unicode-ident-1.0.11
 	unicode-normalization-0.1.22
 	url-2.4.1
-	uuid-1.4.1
+	uuid-1.8.0
 	vcpkg-0.2.15
 	version_check-0.9.4
 	want-0.3.1
