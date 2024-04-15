@@ -6,7 +6,7 @@ EAPI=8
 DISTUTILS_EXT=1
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit distutils-r1 multilib-minimal
 
@@ -20,7 +20,7 @@ if [[ ${PV} == *9999 ]] ; then
 else
 	SRC_URI="https://github.com/seccomp/libseccomp/releases/download/v${PV}/${P}.tar.gz
 		experimental-loong? ( https://dev.gentoo.org/~xen0n/distfiles/${PN}-2.5.5-loongarch64-20231204.patch.xz )"
-	KEYWORDS="-* ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="-* amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux"
 fi
 
 LICENSE="LGPL-2.1"
@@ -49,6 +49,7 @@ PATCHES=(
 	"${FILESDIR}"/libseccomp-python-shared.patch
 	"${FILESDIR}"/libseccomp-2.5.3-skip-valgrind.patch
 	"${FILESDIR}"/libseccomp-2.5.5-which-hunt.patch
+	"${FILESDIR}"/libseccomp-2.5.5-arch-syscall-check.patch
 )
 
 src_prepare() {
