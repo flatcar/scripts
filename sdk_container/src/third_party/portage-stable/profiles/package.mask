@@ -33,6 +33,39 @@
 
 #--- END OF EXAMPLES ---
 
+# Fabian Groffen <grobian@gentoo.org> (2024-04-13)
+# Python wrapper around liblmsensors, no reverse dependencies
+# Removal on 2024-05-13, bug #929495
+dev-python/PySensors
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-04-12)
+# EAPI6. Fails to compile with go versions in tree. Upstream is archived.
+# Uses deprecated go eclasses. Maintainer needed, no rev deps.
+# Removal: 2024-05-12.  Bugs #794913, #679348, #771072, #844607.
+app-emulation/runv
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-11)
+# Contains a bug that could render the kernel fail to boot.
+# https://lore.kernel.org/oe-lkp/202403221630.2692c998-oliver.sang@intel.com/
+# The fix is:
+# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e7d24c0aa8e678f41457d1304e2091cac6fd1a2e
+=sys-kernel/gentoo-kernel-6.6.26
+=sys-kernel/gentoo-kernel-bin-6.6.26
+=sys-kernel/vanilla-kernel-6.6.26
+=sys-kernel/vanilla-kernel-6.8.5
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-04-08)
+# Obsolete java-vm, bugs #848804 #830248.
+# Removal on 2024-05-08
+dev-java/icedtea-bin
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-04-08)
+# Java libraries without consumers.
+# Removal on 2024-05-08, bugs #853100 #716228.
+dev-java/gin
+dev-java/gwt
+dev-java/validation-api
+
 # Ben Kohler <bkohler@gentoo.org> (2024-04-07)
 # Abandoned upstream long ago in favor of Unifi Protect (running only on an
 # official Unifi appliance.  Likely contains lots of security holes in bundled
@@ -43,8 +76,8 @@ acct-user/unifi-video
 media-video/unifi-video
 
 # Ben Kohler <bkohler@gentoo.org> (2024-04-07)
-# Long ago forked to and obsoleted by sys-apps/memtest86+.  Upstream has 
-# abandoned this for their proprietary UEFI-based one (packaged in gentoo as 
+# Long ago forked to and obsoleted by sys-apps/memtest86+.  Upstream has
+# abandoned this for their proprietary UEFI-based one (packaged in gentoo as
 # as sys-apps/memtest86-bin).
 # Removal on 2024-05-07.  Bug #502464, #607494, #628528, #750677, #887003,
 # #912973, #920109
@@ -149,11 +182,6 @@ x11-libs/scw
 sys-firmware/bluez-firmware
 
 # Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Wrapper library that's stuck on Qt5.  No reverse dependencies left.
-# Removal on 2024-04-25.  Bug #926548.
-dev-python/anyqt
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
 # Unfinished package from 2021 that was added as a short-lived
 # dependency of dev-python/GitPython.  No reverse dependencies remain.
 # Removal on 2024-04-25.  Bug #924683.
@@ -235,133 +263,12 @@ dev-ruby/atomic
 # https://github.com/containers/buildah/issues/5320
 =app-containers/buildah-1.34.0
 
-# Eli Schwartz <eschwartz93@gmail.com> (2024-03-14)
-# Deprecated, doesn't work with python 3.12. Unmaintained with last
-# serious release in 2019, and another release in 2024 that claims
-# to support python 3.12 but fails tests if you actually do. No
-# route to making it work with python 3.13 at all, and upstream
-# explicitly states that future "like Python 2, is now done". The
-# package is entirely redundant to packages not supporting python
-# 2 anymore, and the ones that do support it should be using
-# dev-python/six instead, anyways.  Bug #888271
-# Removal on 2024-04-13.
-dev-python/future
-
-# Petr Vaněk <arkamar@gentoo.org> (2024-03-13)
-# dev-libs/hyperscan upstream is inactive [1], please switch to more portable,
-# drop-in replacement dev-libs/vectorscan.
-# [1] https://github.com/intel/hyperscan/issues/421
-# Removal: 2024-04-12.
-dev-libs/hyperscan
-
-# Alfredo Tupone <tupone@gentoo.org> (2024-03-12)
-# Not more needed, >=sci-visualization/dash-2.11 provide
-# direct integration with jupyter nodebook
-# Removal on 2024-04-11.
-sci-visualization/jupyter-dash
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-03-12)
-# Unused java libraries. Removal on 2024-04-11.
-dev-java/ant-eclipse-ecj
-
-# Matt Jolly <kangie@gentoo.org> (2024-03-11)
-# Obsolete, does not compile, archived upstream.
-# Removal: 2024-04-10.  Bugs #876977, #907705.
-media-video/obs-v4l2sink
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-03-10)
-# Unused java libraries. The ant tasks are now provided by dev-java/ant.
-# Removal on 2024-04-09.
-dev-java/ant-apache-regexp
-dev-java/ant-apache-log4j
-dev-java/ant-apache-xalan2
-dev-java/ant-commons-logging
-dev-java/ant-swing
-dev-java/ant-junit4
-dev-java/ant-testutil
-dev-java/ant-junitlauncher
-dev-java/ant-jai
-dev-java/ant-commons-net
-dev-java/ant-apache-bsf
-dev-java/ant-jmf
-dev-java/ant-apache-oro
-dev-java/ant-javamail
-dev-java/ant-junit
-dev-java/ant-jdepend
-dev-java/ant-antlr
-dev-java/ant-apache-bcel
-dev-java/ant-apache-resolver
-dev-java/ant-jsch
-dev-java/ant-xz
-dev-java/gnu-jaf
-dev-java/failureaccess
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-10)
-# Packages that still require <dev-python/cython-3 and do not promise
-# a fix anytime soon.
-#
-# dev-python/python-efl: econnman as revdep, bug #925692.
-# dev-python/pygame_sdl2: also py3.12, bug #911781
-# games-engines/renpy: also py3.12, bug #925693
-# sci-chemistry/mdtraj: also py3.12, PEP517, bug #911646.
-#
-# Includes their few reverse dependencies and their exclusive
-# dependencies without Python 3.12 support.
-#
-# Removal on 2024-04-09.
-dev-python/astunparse
-dev-python/pygame_sdl2
-dev-python/python-efl
-games-engines/renpy
-net-misc/econnman
-sci-chemistry/mdtraj
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-10)
-# Archived upstream, latest release is 3 years old. One test
-# failure with python 3.11, more with python 3.12.
-# Removal on: 2024-04-10.  Bug #920439
-sci-libs/scikit-optimize
-
 # Eray Aslan <eras@gentoo.org> (2024-03-10)
 # Mask experimental software
 =mail-mta/postfix-3.10*
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-09)
-# Requires pyside2/shiboken2, which is unmaintained upstream and
-# not compatible with llvm-16 and up or python-3.12 and up.
-# No upstream activity for 2 years.
-# dev-python/QtPy is an alternative that does support Qt6.
-# Removal on: 2024-04-09.  Bug #926548
-dev-python/anyqt
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2024-03-08)
-# A library without reverse dependencies.
-# Removal on: 2024-04-07.  Bug #926486.
-dev-libs/yascreen
-
-# Ulrich Müller <ulm@gentoo.org> (2024-03-06)
-# Inactive upstream maintainer. Needs porting to PEP 517 (or better,
-# from Python to Emacs Lisp) and from layman to repository.eselect.
-# Removal on 2024-05-05. Bug #909887, #909890.
-app-portage/g-sorcery
-app-portage/gs-elpa
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-02-28)
-# Stopped working after GMail changes some 1.5 years ago,
-# no more upstream development.
-# Removal on 2024-04-03.
-kde-misc/gmail-feed
-
-# Eli Schwartz <eschwartz93@gmail.com> (2024-02-29)
-# Ancient fork of gmp from 2017. Various build issues, fails tests. All
-# reverse dependencies turned out to be incorrect or preferred gmp
-# anyways. No path forward to keeping it buildable, no use case for
-# keeping it around.  Bug #812950, #874537, #925308
-# Removal on 2024-03-31.
-sci-libs/mpir
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-02-28)
-# KDE Plasma 6.0.3, Gear 24.02.1 and Frameworks 6.0.0 mask
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-04-14)
+# KDE Plasma 6.0.3, Gear 24.02.2 and Frameworks 6.1.0 mask
 #
 # Don't do anything unless you're intentionally moving to Plasma 6, which is
 # masked still for a reason. If you get this message just from conflicts where
@@ -379,77 +286,77 @@ sci-libs/mpir
 #   - file a bug after making sure none exists yet for your issue
 # - runtime bugs: https://community.kde.org/Plasma/Plasma_6#How_to_use/test_it
 #   - work with upstream and help test patches using /etc/portage/patches
-~kde-frameworks/frameworkintegration-6.0.0
-~kde-frameworks/attica-6.0.0
-~kde-frameworks/bluez-qt-6.0.0
-~kde-frameworks/breeze-icons-6.0.0
-~kde-frameworks/extra-cmake-modules-6.0.0
-~kde-frameworks/karchive-6.0.0
-~kde-frameworks/kcalendarcore-6.0.0
-~kde-frameworks/kcodecs-6.0.0
-~kde-frameworks/kconfig-6.0.0
-~kde-frameworks/kcoreaddons-6.0.0
-~kde-frameworks/kdbusaddons-6.0.0
-~kde-frameworks/kdnssd-6.0.0
-~kde-frameworks/kguiaddons-6.0.0
-~kde-frameworks/kholidays-6.0.0
-~kde-frameworks/ki18n-6.0.0
-~kde-frameworks/kidletime-6.0.0
-~kde-frameworks/kirigami-6.0.0
-~kde-frameworks/kitemmodels-6.0.0
-~kde-frameworks/kitemviews-6.0.0
-~kde-frameworks/kplotting-6.0.0
-~kde-frameworks/kquickcharts-6.0.0
-~kde-frameworks/ktexttemplate-6.0.0
-~kde-frameworks/kuserfeedback-6.0.0
-~kde-frameworks/kwidgetsaddons-6.0.0
-~kde-frameworks/kwindowsystem-6.0.0
-~kde-frameworks/modemmanager-qt-6.0.0
-~kde-frameworks/networkmanager-qt-6.0.0
-~kde-frameworks/prison-6.0.0
-~kde-frameworks/solid-6.0.0
-~kde-frameworks/sonnet-6.0.0
-~kde-frameworks/syntax-highlighting-6.0.0
-~kde-frameworks/threadweaver-6.0.0
-~kde-frameworks/kauth-6.0.0
-~kde-frameworks/kcolorscheme-6.0.0
-~kde-frameworks/kcompletion-6.0.0
-~kde-frameworks/kcontacts-6.0.0
-~kde-frameworks/kcrash-6.0.0
-~kde-frameworks/kdoctools-6.0.0
-~kde-frameworks/kfilemetadata-6.0.0
-~kde-frameworks/kimageformats-6.0.0
-~kde-frameworks/kjobwidgets-6.0.0
-~kde-frameworks/knotifications-6.0.0
-~kde-frameworks/kpackage-6.0.0
-~kde-frameworks/kpeople-6.0.0
-~kde-frameworks/kpty-6.0.0
-~kde-frameworks/kstatusnotifieritem-6.0.0
-~kde-frameworks/ksvg-6.0.0
-~kde-frameworks/kunitconversion-6.0.0
-~kde-frameworks/syndication-6.0.0
-~kde-frameworks/baloo-6.0.0
-~kde-frameworks/kbookmarks-6.0.0
-~kde-frameworks/kcmutils-6.0.0
-~kde-frameworks/kconfigwidgets-6.0.0
-~kde-frameworks/kdav-6.0.0
-~kde-frameworks/kdeclarative-6.0.0
-~kde-frameworks/kded-6.0.0
-~kde-frameworks/kdesu-6.0.0
-~kde-frameworks/kglobalaccel-6.0.0
-~kde-frameworks/kiconthemes-6.0.0
-~kde-frameworks/kio-6.0.0
-~kde-frameworks/knewstuff-6.0.0
-~kde-frameworks/knotifyconfig-6.0.0
-~kde-frameworks/kparts-6.0.0
-~kde-frameworks/krunner-6.0.0
-~kde-frameworks/kservice-6.0.0
-~kde-frameworks/ktexteditor-6.0.0
-~kde-frameworks/ktextwidgets-6.0.0
-~kde-frameworks/kwallet-6.0.0
-~kde-frameworks/kxmlgui-6.0.0
-~kde-frameworks/purpose-6.0.0
-~kde-frameworks/qqc2-desktop-style-6.0.0
+~kde-frameworks/frameworkintegration-6.1.0
+~kde-frameworks/attica-6.1.0
+~kde-frameworks/bluez-qt-6.1.0
+~kde-frameworks/breeze-icons-6.1.0
+~kde-frameworks/extra-cmake-modules-6.1.0
+~kde-frameworks/karchive-6.1.0
+~kde-frameworks/kcalendarcore-6.1.0
+~kde-frameworks/kcodecs-6.1.0
+~kde-frameworks/kconfig-6.1.0
+~kde-frameworks/kcoreaddons-6.1.0
+~kde-frameworks/kdbusaddons-6.1.0
+~kde-frameworks/kdnssd-6.1.0
+~kde-frameworks/kguiaddons-6.1.0
+~kde-frameworks/kholidays-6.1.0
+~kde-frameworks/ki18n-6.1.0
+~kde-frameworks/kidletime-6.1.0
+~kde-frameworks/kirigami-6.1.0
+~kde-frameworks/kitemmodels-6.1.0
+~kde-frameworks/kitemviews-6.1.0
+~kde-frameworks/kplotting-6.1.0
+~kde-frameworks/kquickcharts-6.1.0
+~kde-frameworks/ktexttemplate-6.1.0
+~kde-frameworks/kuserfeedback-6.1.0
+~kde-frameworks/kwidgetsaddons-6.1.0
+~kde-frameworks/kwindowsystem-6.1.0
+~kde-frameworks/modemmanager-qt-6.1.0
+~kde-frameworks/networkmanager-qt-6.1.0
+~kde-frameworks/prison-6.1.0
+~kde-frameworks/solid-6.1.0
+~kde-frameworks/sonnet-6.1.0
+~kde-frameworks/syntax-highlighting-6.1.0
+~kde-frameworks/threadweaver-6.1.0
+~kde-frameworks/kauth-6.1.0
+~kde-frameworks/kcolorscheme-6.1.0
+~kde-frameworks/kcompletion-6.1.0
+~kde-frameworks/kcontacts-6.1.0
+~kde-frameworks/kcrash-6.1.0
+~kde-frameworks/kdoctools-6.1.0
+~kde-frameworks/kfilemetadata-6.1.0
+~kde-frameworks/kimageformats-6.1.0
+~kde-frameworks/kjobwidgets-6.1.0
+~kde-frameworks/knotifications-6.1.0
+~kde-frameworks/kpackage-6.1.0
+~kde-frameworks/kpeople-6.1.0
+~kde-frameworks/kpty-6.1.0
+~kde-frameworks/kstatusnotifieritem-6.1.0
+~kde-frameworks/ksvg-6.1.0
+~kde-frameworks/kunitconversion-6.1.0
+~kde-frameworks/syndication-6.1.0
+~kde-frameworks/baloo-6.1.0
+~kde-frameworks/kbookmarks-6.1.0
+~kde-frameworks/kcmutils-6.1.0
+~kde-frameworks/kconfigwidgets-6.1.0
+~kde-frameworks/kdav-6.1.0
+~kde-frameworks/kdeclarative-6.1.0
+~kde-frameworks/kded-6.1.0
+~kde-frameworks/kdesu-6.1.0
+~kde-frameworks/kglobalaccel-6.1.0
+~kde-frameworks/kiconthemes-6.1.0
+~kde-frameworks/kio-6.1.0
+~kde-frameworks/knewstuff-6.1.0
+~kde-frameworks/knotifyconfig-6.1.0
+~kde-frameworks/kparts-6.1.0
+~kde-frameworks/krunner-6.1.0
+~kde-frameworks/kservice-6.1.0
+~kde-frameworks/ktexteditor-6.1.0
+~kde-frameworks/ktextwidgets-6.1.0
+~kde-frameworks/kwallet-6.1.0
+~kde-frameworks/kxmlgui-6.1.0
+~kde-frameworks/purpose-6.1.0
+~kde-frameworks/qqc2-desktop-style-6.1.0
 ~kde-plasma/bluedevil-6.0.3
 ~kde-plasma/breeze-6.0.3
 ~kde-plasma/breeze-grub-6.0.3
@@ -512,217 +419,217 @@ sci-libs/mpir
 ~kde-plasma/systemsettings-6.0.3
 ~kde-plasma/wacomtablet-6.0.3
 ~kde-plasma/xdg-desktop-portal-kde-6.0.3
-~kde-apps/baloo-widgets-24.02.1
-~kde-apps/dolphin-24.02.1
-~kde-apps/ffmpegthumbs-24.02.1
-~kde-apps/kate-24.02.1
-~kde-apps/kate-addons-24.02.1
-~kde-apps/kate-lib-24.02.1
-~kde-apps/kde-apps-meta-24.02.1
-~kde-apps/kdecore-meta-24.02.1
-~kde-apps/khelpcenter-24.02.1
-~kde-apps/konsole-24.02.1
-~kde-apps/kwrite-24.02.1
-~kde-apps/kdialog-24.02.1
-~kde-apps/keditbookmarks-24.02.1
-~kde-apps/kfind-24.02.1
-~kde-apps/konqueror-24.02.1
-~www-client/falkon-24.02.1
-~app-accessibility/kontrast-24.02.1
-~kde-apps/kdeaccessibility-meta-24.02.1
-~kde-apps/kmag-24.02.1
-~kde-apps/kmousetool-24.02.1
-~kde-apps/kmouth-24.02.1
-~kde-apps/kdeadmin-meta-24.02.1
-~kde-apps/kcron-24.02.1
-~kde-apps/ksystemlog-24.02.1
-~kde-apps/analitza-24.02.1
-~kde-apps/blinken-24.02.1
-~kde-apps/kalgebra-24.02.1
-~kde-apps/kanagram-24.02.1
-~kde-apps/kbruch-24.02.1
-~kde-apps/kdeedu-meta-24.02.1
-~kde-apps/kgeography-24.02.1
-~kde-apps/khangman-24.02.1
-~kde-apps/kiten-24.02.1
-~kde-apps/klettres-24.02.1
-~kde-apps/kturtle-24.02.1
-~kde-apps/kwordquiz-24.02.1
-~kde-apps/libkeduvocdocument-24.02.1
-~kde-apps/parley-24.02.1
-~kde-apps/bomber-24.02.1
-~kde-apps/bovo-24.02.1
-~kde-apps/granatier-24.02.1
-~kde-apps/kajongg-24.02.1
-~kde-apps/kapman-24.02.1
-~kde-apps/katomic-24.02.1
-~kde-apps/kblackbox-24.02.1
-~kde-apps/kblocks-24.02.1
-~kde-apps/kbounce-24.02.1
-~kde-apps/kbreakout-24.02.1
-~kde-apps/kdegames-meta-24.02.1
-~kde-apps/kdiamond-24.02.1
-~kde-apps/kfourinline-24.02.1
-~kde-apps/kgoldrunner-24.02.1
-~kde-apps/kigo-24.02.1
-~kde-apps/killbots-24.02.1
-~kde-apps/kiriki-24.02.1
-~kde-apps/kjumpingcube-24.02.1
-~kde-apps/klickety-24.02.1
-~kde-apps/klines-24.02.1
-~kde-apps/kmahjongg-24.02.1
-~kde-apps/kmines-24.02.1
-~kde-apps/knavalbattle-24.02.1
-~kde-apps/knetwalk-24.02.1
-~kde-apps/knights-24.02.1
-~kde-apps/kolf-24.02.1
-~kde-apps/kollision-24.02.1
-~kde-apps/konquest-24.02.1
-~kde-apps/kpat-24.02.1
-~kde-apps/kreversi-24.02.1
-~kde-apps/kshisen-24.02.1
-~kde-apps/ksirk-24.02.1
-~kde-apps/ksnakeduel-24.02.1
-~kde-apps/kspaceduel-24.02.1
-~kde-apps/ksquares-24.02.1
-~kde-apps/ksudoku-24.02.1
-~kde-apps/ktuberling-24.02.1
-~kde-apps/kubrick-24.02.1
-~kde-apps/libkdegames-24.02.1
-~kde-apps/libkmahjongg-24.02.1
-~kde-apps/lskat-24.02.1
-~kde-apps/palapeli-24.02.1
-~kde-apps/picmi-24.02.1
-~kde-apps/gwenview-24.02.1
-~kde-apps/kamera-24.02.1
-~kde-apps/kcolorchooser-24.02.1
-~kde-apps/kdegraphics-meta-24.02.1
-~kde-apps/kdegraphics-mobipocket-24.02.1
-~kde-apps/kruler-24.02.1
-~kde-apps/libkdcraw-24.02.1
-~kde-apps/libkexiv2-24.02.1
-~kde-apps/okular-24.02.1
-~kde-apps/spectacle-24.02.1
-~kde-apps/svgpart-24.02.1
-~kde-apps/thumbnailers-24.02.1
-~kde-misc/colord-kde-24.02.1
-~media-gfx/skanpage-24.02.1
-~media-libs/ksanecore-24.02.1
-~kde-apps/audiocd-kio-24.02.1
-~kde-apps/dragon-24.02.1
-~kde-apps/juk-24.02.1
-~kde-apps/kdemultimedia-meta-24.02.1
-~kde-apps/kdenlive-24.02.1
-~kde-apps/libkcddb-24.02.1
-~kde-apps/libkcompactdisc-24.02.1
-~media-sound/elisa-24.02.1
-~media-sound/kasts-24.02.1
-~media-sound/krecorder-24.02.1
-~kde-apps/dolphin-plugins-dropbox-24.02.1
-~kde-apps/kaccounts-integration-24.02.1
-~kde-apps/kaccounts-providers-24.02.1
-~kde-apps/kdenetwork-meta-24.02.1
-~kde-apps/kdenetwork-filesharing-24.02.1
-~kde-apps/kget-24.02.1
-~kde-apps/kio-extras-24.02.1
-~kde-apps/krfb-24.02.1
-~kde-apps/signon-kwallet-extension-24.02.1
-~kde-misc/kdeconnect-24.02.1
-~kde-misc/kio-gdrive-24.02.1
-~net-im/neochat-24.02.1
-~net-im/tokodon-24.02.1
-~net-irc/konversation-24.02.1
-~net-libs/libktorrent-24.02.1
-~net-misc/kio-zeroconf-24.02.1
-~net-news/alligator-24.02.1
-~net-p2p/ktorrent-24.02.1
-~app-office/merkuro-24.02.1
-~dev-libs/kopeninghours-24.02.1
-~dev-libs/kosmindoormap-24.02.1
-~dev-libs/kpublictransport-24.02.1
-~kde-apps/akonadi-24.02.1
-~kde-apps/akonadi-calendar-24.02.1
-~kde-apps/akonadi-contacts-24.02.1
-~kde-apps/akonadi-import-wizard-24.02.1
-~kde-apps/akonadi-mime-24.02.1
-~kde-apps/akonadi-notes-24.02.1
-~kde-apps/akonadi-search-24.02.1
-~kde-apps/akonadiconsole-24.02.1
-~kde-apps/akregator-24.02.1
-~kde-apps/calendarjanitor-24.02.1
-~kde-apps/calendarsupport-24.02.1
-~kde-apps/eventviews-24.02.1
-~kde-apps/grantlee-editor-24.02.1
-~kde-apps/grantleetheme-24.02.1
-~kde-apps/incidenceeditor-24.02.1
-~kde-apps/kaddressbook-24.02.1
-~kde-apps/kalarm-24.02.1
-~kde-apps/kcalutils-24.02.1
-~kde-apps/kdepim-addons-24.02.1
-~kde-apps/kdepim-meta-24.02.1
-~kde-apps/kdepim-runtime-24.02.1
-~kde-apps/kidentitymanagement-24.02.1
-~kde-apps/kimap-24.02.1
-~kde-apps/kitinerary-24.02.1
-~kde-apps/kldap-24.02.1
-~kde-apps/kleopatra-24.02.1
-~kde-apps/kmail-24.02.1
-~kde-apps/kmail-account-wizard-24.02.1
-~kde-apps/kmailtransport-24.02.1
-~kde-apps/kmbox-24.02.1
-~kde-apps/kmime-24.02.1
-~kde-apps/knotes-24.02.1
-~kde-apps/konsolekalendar-24.02.1
-~kde-apps/kontact-24.02.1
-~kde-apps/kontactinterface-24.02.1
-~kde-apps/korganizer-24.02.1
-~kde-apps/kpimtextedit-24.02.1
-~kde-apps/kpkpass-24.02.1
-~kde-apps/ksmtp-24.02.1
-~kde-apps/libgravatar-24.02.1
-~kde-apps/libkdepim-24.02.1
-~kde-apps/libkgapi-24.02.1
-~kde-apps/libkleo-24.02.1
-~kde-apps/libksieve-24.02.1
-~kde-apps/libktnef-24.02.1
-~kde-apps/mailcommon-24.02.1
-~kde-apps/mailimporter-24.02.1
-~kde-apps/mbox-importer-24.02.1
-~kde-apps/messagelib-24.02.1
-~kde-apps/mimetreeparser-24.02.1
-~kde-apps/pim-data-exporter-24.02.1
-~kde-apps/pim-sieve-editor-24.02.1
-~kde-apps/pimcommon-24.02.1
-~kde-misc/zanshin-24.02.1
-~kde-apps/dolphin-plugins-git-24.02.1
-~kde-apps/dolphin-plugins-mercurial-24.02.1
-~kde-apps/dolphin-plugins-subversion-24.02.1
-~kde-apps/kapptemplate-24.02.1
-~kde-apps/kcachegrind-24.02.1
-~kde-apps/kde-dev-utils-24.02.1
-~kde-apps/kdesdk-meta-24.02.1
-~app-cdr/dolphin-plugins-mountiso-24.02.1
-~app-cdr/isoimagewriter-24.02.1
-~app-crypt/keysmith-24.02.1
-~kde-apps/ark-24.02.1
-~kde-apps/filelight-24.02.1
-~kde-apps/kbackup-24.02.1
-~kde-apps/kcalc-24.02.1
-~kde-apps/kcharselect-24.02.1
-~kde-apps/kdebugsettings-24.02.1
-~kde-apps/kdeutils-meta-24.02.1
-~kde-apps/kdf-24.02.1
-~kde-apps/kgpg-24.02.1
-~kde-apps/kteatime-24.02.1
-~kde-apps/ktimer-24.02.1
-~kde-apps/kwalletmanager-24.02.1
-~kde-apps/sweeper-24.02.1
-~kde-apps/yakuake-24.02.1
-~kde-misc/kclock-24.02.1
-~kde-misc/kweather-24.02.1
-~kde-misc/markdownpart-24.02.1
-~sys-block/partitionmanager-24.02.1
-~sys-libs/kpmcore-24.02.1
+~kde-apps/baloo-widgets-24.02.2
+~kde-apps/dolphin-24.02.2
+~kde-apps/ffmpegthumbs-24.02.2
+~kde-apps/kate-24.02.2
+~kde-apps/kate-addons-24.02.2
+~kde-apps/kate-lib-24.02.2
+~kde-apps/kde-apps-meta-24.02.2
+~kde-apps/kdecore-meta-24.02.2
+~kde-apps/khelpcenter-24.02.2
+~kde-apps/konsole-24.02.2
+~kde-apps/kwrite-24.02.2
+~kde-apps/kdialog-24.02.2
+~kde-apps/keditbookmarks-24.02.2
+~kde-apps/kfind-24.02.2
+~kde-apps/konqueror-24.02.2
+~www-client/falkon-24.02.2
+~app-accessibility/kontrast-24.02.2
+~kde-apps/kdeaccessibility-meta-24.02.2
+~kde-apps/kmag-24.02.2
+~kde-apps/kmousetool-24.02.2
+~kde-apps/kmouth-24.02.2
+~kde-apps/kdeadmin-meta-24.02.2
+~kde-apps/kcron-24.02.2
+~kde-apps/ksystemlog-24.02.2
+~kde-apps/analitza-24.02.2
+~kde-apps/blinken-24.02.2
+~kde-apps/kalgebra-24.02.2
+~kde-apps/kanagram-24.02.2
+~kde-apps/kbruch-24.02.2
+~kde-apps/kdeedu-meta-24.02.2
+~kde-apps/kgeography-24.02.2
+~kde-apps/khangman-24.02.2
+~kde-apps/kiten-24.02.2
+~kde-apps/klettres-24.02.2
+~kde-apps/kturtle-24.02.2
+~kde-apps/kwordquiz-24.02.2
+~kde-apps/libkeduvocdocument-24.02.2
+~kde-apps/parley-24.02.2
+~kde-apps/bomber-24.02.2
+~kde-apps/bovo-24.02.2
+~kde-apps/granatier-24.02.2
+~kde-apps/kajongg-24.02.2
+~kde-apps/kapman-24.02.2
+~kde-apps/katomic-24.02.2
+~kde-apps/kblackbox-24.02.2
+~kde-apps/kblocks-24.02.2
+~kde-apps/kbounce-24.02.2
+~kde-apps/kbreakout-24.02.2
+~kde-apps/kdegames-meta-24.02.2
+~kde-apps/kdiamond-24.02.2
+~kde-apps/kfourinline-24.02.2
+~kde-apps/kgoldrunner-24.02.2
+~kde-apps/kigo-24.02.2
+~kde-apps/killbots-24.02.2
+~kde-apps/kiriki-24.02.2
+~kde-apps/kjumpingcube-24.02.2
+~kde-apps/klickety-24.02.2
+~kde-apps/klines-24.02.2
+~kde-apps/kmahjongg-24.02.2
+~kde-apps/kmines-24.02.2
+~kde-apps/knavalbattle-24.02.2
+~kde-apps/knetwalk-24.02.2
+~kde-apps/knights-24.02.2
+~kde-apps/kolf-24.02.2
+~kde-apps/kollision-24.02.2
+~kde-apps/konquest-24.02.2
+~kde-apps/kpat-24.02.2
+~kde-apps/kreversi-24.02.2
+~kde-apps/kshisen-24.02.2
+~kde-apps/ksirk-24.02.2
+~kde-apps/ksnakeduel-24.02.2
+~kde-apps/kspaceduel-24.02.2
+~kde-apps/ksquares-24.02.2
+~kde-apps/ksudoku-24.02.2
+~kde-apps/ktuberling-24.02.2
+~kde-apps/kubrick-24.02.2
+~kde-apps/libkdegames-24.02.2
+~kde-apps/libkmahjongg-24.02.2
+~kde-apps/lskat-24.02.2
+~kde-apps/palapeli-24.02.2
+~kde-apps/picmi-24.02.2
+~kde-apps/gwenview-24.02.2
+~kde-apps/kamera-24.02.2
+~kde-apps/kcolorchooser-24.02.2
+~kde-apps/kdegraphics-meta-24.02.2
+~kde-apps/kdegraphics-mobipocket-24.02.2
+~kde-apps/kruler-24.02.2
+~kde-apps/libkdcraw-24.02.2
+~kde-apps/libkexiv2-24.02.2
+~kde-apps/okular-24.02.2
+~kde-apps/spectacle-24.02.2
+~kde-apps/svgpart-24.02.2
+~kde-apps/thumbnailers-24.02.2
+~kde-misc/colord-kde-24.02.2
+~media-gfx/skanpage-24.02.2
+~media-libs/ksanecore-24.02.2
+~kde-apps/audiocd-kio-24.02.2
+~kde-apps/dragon-24.02.2
+~kde-apps/juk-24.02.2
+~kde-apps/kdemultimedia-meta-24.02.2
+~kde-apps/kdenlive-24.02.2
+~kde-apps/libkcddb-24.02.2
+~kde-apps/libkcompactdisc-24.02.2
+~media-sound/elisa-24.02.2
+~media-sound/kasts-24.02.2
+~media-sound/krecorder-24.02.2
+~kde-apps/dolphin-plugins-dropbox-24.02.2
+~kde-apps/kaccounts-integration-24.02.2
+~kde-apps/kaccounts-providers-24.02.2
+~kde-apps/kdenetwork-meta-24.02.2
+~kde-apps/kdenetwork-filesharing-24.02.2
+~kde-apps/kget-24.02.2
+~kde-apps/kio-extras-24.02.2
+~kde-apps/krfb-24.02.2
+~kde-apps/signon-kwallet-extension-24.02.2
+~kde-misc/kdeconnect-24.02.2
+~kde-misc/kio-gdrive-24.02.2
+~net-im/neochat-24.02.2
+~net-im/tokodon-24.02.2
+~net-irc/konversation-24.02.2
+~net-libs/libktorrent-24.02.2
+~net-misc/kio-zeroconf-24.02.2
+~net-news/alligator-24.02.2
+~net-p2p/ktorrent-24.02.2
+~app-office/merkuro-24.02.2
+~dev-libs/kopeninghours-24.02.2
+~dev-libs/kosmindoormap-24.02.2
+~dev-libs/kpublictransport-24.02.2
+~kde-apps/akonadi-24.02.2
+~kde-apps/akonadi-calendar-24.02.2
+~kde-apps/akonadi-contacts-24.02.2
+~kde-apps/akonadi-import-wizard-24.02.2
+~kde-apps/akonadi-mime-24.02.2
+~kde-apps/akonadi-notes-24.02.2
+~kde-apps/akonadi-search-24.02.2
+~kde-apps/akonadiconsole-24.02.2
+~kde-apps/akregator-24.02.2
+~kde-apps/calendarjanitor-24.02.2
+~kde-apps/calendarsupport-24.02.2
+~kde-apps/eventviews-24.02.2
+~kde-apps/grantlee-editor-24.02.2
+~kde-apps/grantleetheme-24.02.2
+~kde-apps/incidenceeditor-24.02.2
+~kde-apps/kaddressbook-24.02.2
+~kde-apps/kalarm-24.02.2
+~kde-apps/kcalutils-24.02.2
+~kde-apps/kdepim-addons-24.02.2
+~kde-apps/kdepim-meta-24.02.2
+~kde-apps/kdepim-runtime-24.02.2
+~kde-apps/kidentitymanagement-24.02.2
+~kde-apps/kimap-24.02.2
+~kde-apps/kitinerary-24.02.2
+~kde-apps/kldap-24.02.2
+~kde-apps/kleopatra-24.02.2
+~kde-apps/kmail-24.02.2
+~kde-apps/kmail-account-wizard-24.02.2
+~kde-apps/kmailtransport-24.02.2
+~kde-apps/kmbox-24.02.2
+~kde-apps/kmime-24.02.2
+~kde-apps/knotes-24.02.2
+~kde-apps/konsolekalendar-24.02.2
+~kde-apps/kontact-24.02.2
+~kde-apps/kontactinterface-24.02.2
+~kde-apps/korganizer-24.02.2
+~kde-apps/kpimtextedit-24.02.2
+~kde-apps/kpkpass-24.02.2
+~kde-apps/ksmtp-24.02.2
+~kde-apps/libgravatar-24.02.2
+~kde-apps/libkdepim-24.02.2
+~kde-apps/libkgapi-24.02.2
+~kde-apps/libkleo-24.02.2
+~kde-apps/libksieve-24.02.2
+~kde-apps/libktnef-24.02.2
+~kde-apps/mailcommon-24.02.2
+~kde-apps/mailimporter-24.02.2
+~kde-apps/mbox-importer-24.02.2
+~kde-apps/messagelib-24.02.2
+~kde-apps/mimetreeparser-24.02.2
+~kde-apps/pim-data-exporter-24.02.2
+~kde-apps/pim-sieve-editor-24.02.2
+~kde-apps/pimcommon-24.02.2
+~kde-misc/zanshin-24.02.2
+~kde-apps/dolphin-plugins-git-24.02.2
+~kde-apps/dolphin-plugins-mercurial-24.02.2
+~kde-apps/dolphin-plugins-subversion-24.02.2
+~kde-apps/kapptemplate-24.02.2
+~kde-apps/kcachegrind-24.02.2
+~kde-apps/kde-dev-utils-24.02.2
+~kde-apps/kdesdk-meta-24.02.2
+~app-cdr/dolphin-plugins-mountiso-24.02.2
+~app-cdr/isoimagewriter-24.02.2
+~app-crypt/keysmith-24.02.2
+~kde-apps/ark-24.02.2
+~kde-apps/filelight-24.02.2
+~kde-apps/kbackup-24.02.2
+~kde-apps/kcalc-24.02.2
+~kde-apps/kcharselect-24.02.2
+~kde-apps/kdebugsettings-24.02.2
+~kde-apps/kdeutils-meta-24.02.2
+~kde-apps/kdf-24.02.2
+~kde-apps/kgpg-24.02.2
+~kde-apps/kteatime-24.02.2
+~kde-apps/ktimer-24.02.2
+~kde-apps/kwalletmanager-24.02.2
+~kde-apps/sweeper-24.02.2
+~kde-apps/yakuake-24.02.2
+~kde-misc/kclock-24.02.2
+~kde-misc/kweather-24.02.2
+~kde-misc/markdownpart-24.02.2
+~sys-block/partitionmanager-24.02.2
+~sys-libs/kpmcore-24.02.2
 =kde-apps/kio-extras-23.08.5-r100
 =kde-apps/libkgapi-23.08.5-r100
 =kde-misc/kio-gdrive-23.08.5-r1
@@ -768,12 +675,6 @@ sci-libs/mpir
 # Masked for testing.
 # Test failure in watchpoints.dem, undefined function FresnelC.
 ~sci-visualization/gnuplot-6.0.0
-
-# Michał Górny <mgorny@gentoo.org> (2024-02-07)
-# Does not build anymore.  Carries a large stack of patches already.
-# Last upstream activity in late 2020.  No reverse dependencies left.
-# Removal on 2024-03-08.  Bug #806079.
-sys-libs/libhugetlbfs
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-24)
 # app-misc/ddcutil-2.1.0 causes core-dump crashes in
@@ -864,19 +765,6 @@ sys-libs/libhugetlbfs
 # Sam James <sam@gentoo.org> (2023-10-06)
 # Breaks building scipy: https://github.com/cython/cython/issues/5748
 =dev-python/cython-3.0.3
-
-# Jaco Kroon <jaco@uls.co.za> (2023-09-19)
-# Joonas Niilola <juippis@gentoo.org> (2023-09-21)
-# DAHDI is not suited for a rolling-release distribution. Upstream releases new
-# versions sporadically and it may take multiple years between them. Old
-# versions are constantly broken with newer kernels, requiring heavy patching
-# downstream. Has no active maintainer in Gentoo. If you use DAHDI and have
-# some ideas how to help, please see bug #914477.
-# Removal on 2024-03-01.
-net-libs/libpri
-net-misc/dahdi
-net-misc/dahdi-tools
-net-misc/openr2
 
 # Sam James <sam@gentoo.org> (2023-09-09)
 # OpenSSL 1.1.x is EOL on 2023-09-11. Please upgrade immediately to >= OpenSSL 3.
