@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+#set -x
 set -euo pipefail
 
 source ci-automation/image_changes.sh
