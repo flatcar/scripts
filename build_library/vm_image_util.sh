@@ -812,10 +812,14 @@ _write_qemu_uefi_conf() {
     # We now only support building qemu_uefi and generate the
     # other artifacts from here
     if [ "${VM_IMG_TYPE}" = qemu_uefi ]; then
+      local qemu="${VM_DST_IMG/qemu_uefi/qemu}"
+      local qemu_uefi_secure="${VM_DST_IMG/qemu_uefi/qemu_uefi_secure}"
+      local qemu_name="${VM_NAME/qemu_uefi/qemu}"
+      local qemu_uefi_secure_name="${VM_NAME/qemu_uefi/qemu_uefi_secure}"
       if [ "${BOARD}" = amd64-usr ]; then
-        VM_IMG_TYPE=qemu _write_qemu_conf
+        VM_IMG_TYPE=qemu VM_DST_IMG="${qemu}" VM_NAME="${qemu_name}" _write_qemu_conf
       fi
-      VM_IMG_TYPE=qemu_uefi_secure _write_qemu_uefi_secure_conf
+      VM_IMG_TYPE=qemu_uefi_secure VM_DST_IMG="${qemu_uefi_secure}" VM_NAME="${qemu_uefi_secure_name}" _write_qemu_uefi_secure_conf
     fi
 }
 
