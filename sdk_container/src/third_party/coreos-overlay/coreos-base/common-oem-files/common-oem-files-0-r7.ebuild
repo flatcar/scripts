@@ -31,6 +31,7 @@ fi
 COMMON_OEMIDS=(
     ami
     azure
+    hetzner
     openstack
     packet
     qemu
