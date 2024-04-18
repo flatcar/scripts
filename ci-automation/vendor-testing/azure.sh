@@ -66,6 +66,7 @@ run_kola_tests() {
       ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
       ${AZURE_RESOURCE_GROUP:+--azure-resource-group=${AZURE_RESOURCE_GROUP}} \
       ${AZURE_AVSET_ID:+--azure-availability-set=${AZURE_AVSET_ID}} \
+      ${AZURE_TRUSTED_LAUNCH:+--azure-trusted-launch=true} \
       --verbose \
       "${@}"
 }
