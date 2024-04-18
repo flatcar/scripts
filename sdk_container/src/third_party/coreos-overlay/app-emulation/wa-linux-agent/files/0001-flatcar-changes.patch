@@ -172,7 +172,7 @@ new file mode 100644
 index 00000000..e31b2923
 --- /dev/null
 +++ b/azurelinuxagent/common/osutil/flatcar.py
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,80 @@
 +#
 +# Copyright 2023 Microsoft Corporation
 +#
@@ -240,6 +240,8 @@ index 00000000..e31b2923
 +        Restart an interface by bouncing the link. systemd-networkd observes
 +        this event, and forces a renew of DHCP.
 +        """
++        logger.info("not restarting interface {}".format(ifname))
++        return
 +        retry_limit = retries + 1
 +        for attempt in range(1, retry_limit):
 +            return_code = shellutil.run("ip link set {0} down && ip link set {0} up".format(ifname))
