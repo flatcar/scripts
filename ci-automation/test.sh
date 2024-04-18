@@ -129,6 +129,9 @@ function _test_run_impl() {
     get_git_channel >"${work_dir}/git_channel"
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
+    if [[ -n "${JOB_NAME}" ]]; then
+        container_name+="-${JOB_NAME}"
+    fi
     local mantle_ref
     mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
 
