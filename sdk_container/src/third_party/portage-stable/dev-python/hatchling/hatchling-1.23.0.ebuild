@@ -24,12 +24,13 @@ S=${WORKDIR}/${MY_P}/backend
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 # deps are listed in backend/src/hatchling/ouroboros.py
+# editables are optional but required for editable installs
 RDEPEND="
 	>=dev-python/editables-0.3[${PYTHON_USEDEP}]
-	>=dev-python/packaging-21.3[${PYTHON_USEDEP}]
+	>=dev-python/packaging-23.2[${PYTHON_USEDEP}]
 	>=dev-python/pathspec-0.10.1[${PYTHON_USEDEP}]
 	>=dev-python/pluggy-1.0.0[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
@@ -75,7 +76,7 @@ python_test() {
 		tests/backend/dep/test_core.py::test_unknown_extra
 		tests/backend/dep/test_core.py::test_version_unmet
 		# broken if CARGO is set
-		tests/backend/builders/test_app.py::TestBuildBootstrap::test_no_cargo
+		tests/backend/builders/test_binary.py::TestBuildBootstrap::test_no_cargo
 	)
 
 	# top-level "tests" directory contains tests both for hatch
