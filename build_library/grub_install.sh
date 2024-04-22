@@ -140,6 +140,7 @@ info "Generating ${GRUB_DIR}/load.cfg"
 # The existing $root value is given as a hint so it is searched first.
 ESP_FSID=$(sudo grub-probe -t fs_uuid -d "${LOOP_DEV}p1")
 sudo_clobber "${ESP_DIR}/${GRUB_DIR}/load.cfg" <<EOF
+set debug=all
 search.fs_uuid ${ESP_FSID} root \$root
 set prefix=(memdisk)
 set
