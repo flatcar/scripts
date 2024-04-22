@@ -35,13 +35,6 @@ dev-python/shiboken2
 # Superseded by dev-python/psycopg:0 (version 3).
 dev-python/psycopg:2
 
-# Petr Vaněk <arkamar@gentoo.org> (2023-10-26)
-# dev-libs/hyperscan upstream is inactive [1], please switch to more portable,
-# drop-in replacement dev-libs/vectorscan. dev-libs/hyperscan will be
-# last-rited when all its revdeps are gone.
-# [1] https://github.com/intel/hyperscan/issues/421
-dev-libs/hyperscan
-
 # Matt Whitlock <gentoo@mattwhitlock.name> (2023-10-24)
 # Transitional meta packages. Please update dependencies:
 #   dev-util/bitcoin-tx          -> net-p2p/bitcoin-core
@@ -99,13 +92,6 @@ dev-python/python-distutils-extra
 # if using sys-apps/edac-utils. See app-admin/rasdaemon's README for the technical
 # details. Please migrate to app-admin/rasdaemon instead.
 sys-apps/edac-utils
-
-# Michał Górny <mgorny@gentoo.org> (2022-12-24)
-# Unmaintained with last release in 2019.  We already patched it to work
-# with Python 3.9+.  The upstream code is also vulnerable
-# to CVE-2022-40899.  Above all, this library is completely redundant
-# to packages not supporting Python 2 anymore.
-dev-python/future
 
 # Matt Turner <mattst88@gentoo.org> (2022-10-02)
 # Dummy packages, now merged into app-accessibility/at-spi2-core.

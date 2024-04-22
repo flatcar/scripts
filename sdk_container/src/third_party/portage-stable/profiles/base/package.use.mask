@@ -6,6 +6,10 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Mike Gilbert <floppym@gentoo.org> (2024-04-18)
+# Wayland client is broken/deprecated by upstream. Bug 930197.
+>=net-misc/freerdp-3 wayland
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-04-06)
 # Depends on last-rited kde-apps/ktp-accounts-kcm
 dev-util/kdevelop reviewboard
@@ -30,13 +34,6 @@ app-crypt/pinentry qt6
 # Suffers from unaligned accesses, upstream's working on it.
 # https://github.com/psycopg/psycopg/issues/734
 <=dev-python/psycopg-3.1.18 native-extensions
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-03-10)
-# These packages have RESTRICT="test" and depend on dev-java/ant-junit
-# which is going away. Remove this mask when ebuilds are updated.
-dev-java/ant-ivy test
-dev-java/rhino test
-www-servers/tomcat test
 
 # Guilherme Amadio <amadio@gentoo.org> (2024-03-09)
 # Requires manually installing dependencies, see bug #791802
@@ -179,6 +176,9 @@ app-admin/ansible-molecule doc
 
 # William Hubbs <williamh@gentoo.org> (2023-06-30)
 # multiple repeated issues: Bug: #909394
+# Joonas Niilola <juippis@gentoo.org> (2024-04-22)
+# Can break reverse dependencies (Chromium, Firefox), debugging not always 
+# obvious.
 net-libs/nodejs lto
 
 # Sam James <sam@gentoo.org> (2023-06-29)
@@ -625,10 +625,6 @@ dev-python/autobahn xbr
 # Stephan Hartmann <stha09@googlemail.com> (2020-06-28)
 # Mostly intended for development and not for general use.
 >=www-client/chromium-84 headless
-
-# Mikle Kolyada <zlogene@gentoo.org> (2020-06-21)
-# Multiple runtime crashes, see bug #724672
-media-gfx/inkscape jemalloc
 
 # Ben Kohler <bkohler@gentoo.org> (2020-04-29)
 # Dependency pam_wrapper missing for tests, and RESTRICT=test is already set
