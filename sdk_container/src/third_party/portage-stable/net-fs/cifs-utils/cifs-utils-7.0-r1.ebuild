@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{9..12} )
 
 inherit autotools bash-completion-r1 flag-o-matic linux-info pam python-single-r1
 
@@ -37,7 +37,6 @@ PDEPEND="
 "
 
 REQUIRED_USE="
-	acl? ( ads )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
 
