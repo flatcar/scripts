@@ -11,18 +11,17 @@ SRC_URI="https://github.com/OpenSC/${PN}/releases/download/${P}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="doc static-libs test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	dev-libs/openssl:=[bindist(+)]
+	>=dev-libs/openssl-3.0.0:=[bindist(+)]
 	!~dev-libs/openssl-3.2.0
 	!=dev-libs/openssl-3.2.1-r0
-	|| (
-		>=dev-libs/openssl-3.1.5-r1
-		<dev-libs/openssl-3.0.12
-	)
+	!=dev-libs/openssl-3.0.13-r1
+	!=dev-libs/openssl-3.0.13-r0
+	!~dev-libs/openssl-3.0.12
 "
 DEPEND="${RDEPEND}
 	test? ( dev-libs/softhsm )
