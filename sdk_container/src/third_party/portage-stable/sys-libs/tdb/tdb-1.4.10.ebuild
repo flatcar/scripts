@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="threads(+)"
 inherit waf-utils multilib-minimal python-single-r1
 
@@ -13,10 +13,11 @@ SRC_URI="https://samba.org/ftp/tdb/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
-IUSE="python"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+IUSE="python test"
+
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
@@ -33,23 +34,28 @@ BDEPEND="
 
 WAF_BINARY="${S}/buildtools/bin/waf"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-1.4.7-configure-clang16.patch
-)
-
-pkg_setup() {
-	python-single-r1_pkg_setup
-	export PYTHONHASHSEED=1
-}
-
 src_prepare() {
 	default
+
 	python_fix_shebang .
+
+	if use test ; then
+		# TODO: Fix python tests to run w/ USE=python.
+		truncate -s0 python/tests/simple.py || die
+	fi
+
 	multilib_copy_sources
 }
 
 multilib_src_configure() {
-	local extra_opts=()
+	#MAKEOPTS+=" -j1"
+
+	local extra_opts=(
+		--libdir="${EPREFIX}/usr/$(get_libdir)"
+		--disable-dependency-tracking
+		--disable-warnings-as-errors
+	)
+
 	if ! multilib_is_native_abi || ! use python ; then
 		extra_opts+=( --disable-python )
 	fi
@@ -58,8 +64,6 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	# need to avoid parallel building, this looks like the sanest way with waf-utils/multiprocessing eclasses
-	unset MAKEOPTS
 	waf-utils_src_compile
 }
 
