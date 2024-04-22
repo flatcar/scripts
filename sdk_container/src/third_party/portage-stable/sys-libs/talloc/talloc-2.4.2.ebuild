@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="threads(+)"
 inherit waf-utils python-single-r1 multilib-minimal
 
@@ -13,11 +13,11 @@ SRC_URI="https://www.samba.org/ftp/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3 LGPL-3+ LGPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
-IUSE="compat +python"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+IUSE="compat +python test valgrind"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!elibc_SunOS? (
@@ -27,8 +27,13 @@ RDEPEND="
 	)
 	python? ( ${PYTHON_DEPS} )
 "
-DEPEND="${RDEPEND}"
-BDEPEND="${PYTHON_DEPS}
+# Valgrind is automagic here but it's a build-only dep so it's not so bad.
+DEPEND="
+	${RDEPEND}
+	valgrind? ( dev-debug/valgrind )
+"
+BDEPEND="
+	${PYTHON_DEPS}
 	dev-libs/libxslt
 	sys-devel/gettext
 "
@@ -41,10 +46,9 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 pkg_setup() {
-	# try to turn off distcc and ccache for people that have a problem with it
+	# Try to turn off distcc and ccache for people that have a problem with it
 	export DISTCC_DISABLE=1
 	export CCACHE_DISABLE=1
-	export PYTHONHASHSEED=1
 
 	python-single-r1_pkg_setup
 }
@@ -59,16 +63,26 @@ src_prepare() {
 		sed -i "s/name = bld.pyembed_libname('pytalloc-util')/name = 'pytalloc-util'/" wscript || die
 	fi
 
-	# what would you expect of waf? i won't even waste time trying.
+	if use test ; then
+		# TODO: Fix python tests to run w/ USE=python.
+		truncate -s0 test_pytalloc.py || die
+	fi
+
+	# WAF
 	multilib_copy_sources
 }
 
 multilib_src_configure() {
 	local extra_opts=(
-		$(usex compat --enable-talloc-compat1 '')
+		--libdir="${EPREFIX}/usr/$(get_libdir)"
+		--disable-dependency-tracking
+		--disable-warnings-as-errors
+
+		$(usev compat --enable-talloc-compat1)
 		$(multilib_native_usex python '' --disable-python)
 		$([[ ${CHOST} == *-solaris* ]] && echo '--disable-symbol-versions')
 	)
+
 	waf-utils_src_configure "${extra_opts[@]}"
 }
 
