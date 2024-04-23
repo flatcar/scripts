@@ -140,6 +140,8 @@ function _vm_build_impl() {
             COMPRESSION_FORMAT="zip"
         elif [[ "${format}" =~ ^(scaleway|kubevirt)$ ]];then
             COMPRESSION_FORMAT="none"
+        elif [[ "${format}" =~ ^(akamai)$ ]];then
+            COMPRESSION_FORMAT="gz"
         fi
         ./run_sdk_container -n "${vms_container}" -C "${packages_image}" \
             -v "${vernum}" \
