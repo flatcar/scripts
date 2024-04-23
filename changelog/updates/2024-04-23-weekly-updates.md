@@ -1,0 +1,5 @@
+- expat ([2.6.2](https://github.com/libexpat/libexpat/blob/R_2_6_2/expat/Changes) (includes [2.6.1](https://github.com/libexpat/libexpat/blob/R_2_6_1/expat/Changes) and [2.6.0](https://github.com/libexpat/libexpat/blob/R_2_6_0/expat/Changes)))
+- gnutls ([3.8.5](https://lists.gnupg.org/pipermail/gnutls-help/2024-April/004846.html) (includes [3.8.4](https://lists.gnupg.org/pipermail/gnutls-help/2024-March/004845.html)))
+- intel-microcode ([20240312](https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-20240312))
+- libunistring ([1.2](https://savannah.gnu.org/news/?id=10599))
+- python ([3.11.9](https://www.get-python.org/downloads/release/python-3119/))
