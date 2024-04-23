@@ -88,7 +88,6 @@
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.24 ~arm64
 =sys-apps/nvme-cli-2.8 ~arm64
-=sys-apps/util-linux-2.39.3-r7 ~arm64
 
 sys-apps/zram-generator ~amd64 ~arm64
 
