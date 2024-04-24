@@ -141,10 +141,11 @@ done
 info "Generating ${GRUB_DIR}/load.cfg"
 # Include a small initial config in the core image to search for the ESP
 # by filesystem ID in case the platform doesn't provide the boot disk.
-# The existing $root value is given as a hint so it is searched first.
+# $root points to memdisk here so instead use hd0,gpt1 as a hint so it is
+# searched first.
 ESP_FSID=$(sudo grub-probe -t fs_uuid -d "${LOOP_DEV}p1")
 sudo_clobber "${ESP_DIR}/${GRUB_DIR}/load.cfg" <<EOF
-search.fs_uuid ${ESP_FSID} root \$root
+search.fs_uuid ${ESP_FSID} root hd0,gpt1
 set prefix=(memdisk)
 set
 EOF
