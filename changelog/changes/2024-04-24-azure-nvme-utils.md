@@ -1,0 +1,1 @@
+- Added azure-nvme-utils to the image, which is used by udev to create symlinks for NVMe disks on Azure v6 instances under /dev/disk/azure/. ([scripts#1950](https://github.com/flatcar/scripts/pull/1950))
