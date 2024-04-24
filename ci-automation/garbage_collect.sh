@@ -256,6 +256,7 @@ function _garbage_collect_impl() {
     docker run --pull always --rm --net host \
       --env AZURE_AUTH_CREDENTIALS --env AZURE_PROFILE \
       --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY \
+      --env AWS_CREDENTIALS \
       --env DIGITALOCEAN_TOKEN_JSON \
       --env EQUINIXMETAL_KEY --env EQUINIXMETAL_PROJECT \
       --env GCP_JSON_KEY \
