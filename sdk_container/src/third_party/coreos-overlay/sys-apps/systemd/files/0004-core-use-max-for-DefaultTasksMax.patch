@@ -1,7 +1,7 @@
-From 4cdbcf5df9a2fd165385465bd5be9b8cdb78f83a Mon Sep 17 00:00:00 2001
+From d21ebfcf17ffc1dba635389193f10d2b93eba730 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
-Subject: [PATCH] [PATCH 4/7] core: use max for DefaultTasksMax
+Subject: [PATCH 4/8] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This
@@ -21,10 +21,10 @@ Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index 31b6421399..52819ae8b7 100644
+index 3c06b65f93..71f38692b6 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
-@@ -515,7 +515,7 @@
+@@ -501,7 +501,7 @@
          <listitem><para>Configure the default value for the per-unit <varname>TasksMax=</varname> setting. See
          <citerefentry><refentrytitle>systemd.resource-control</refentrytitle><manvolnum>5</manvolnum></citerefentry>
          for details. This setting applies to all unit types that support resource control settings, with the exception
@@ -34,7 +34,7 @@ index 31b6421399..52819ae8b7 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/manager.c b/src/core/manager.c
-index e8c747d96d..df9269aab8 100644
+index 88eebfc626..8992c8c3e3 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
 @@ -114,7 +114,7 @@
@@ -47,10 +47,10 @@ index e8c747d96d..df9269aab8 100644
  static int manager_dispatch_notify_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
  static int manager_dispatch_cgroups_agent_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
 diff --git a/src/core/system.conf.in b/src/core/system.conf.in
-index 9b89a6aa77..5a7e92ab5a 100644
+index 05eb681270..94d0365244 100644
 --- a/src/core/system.conf.in
 +++ b/src/core/system.conf.in
-@@ -59,7 +59,7 @@
+@@ -58,7 +58,7 @@
  #DefaultIPAccounting=no
  #DefaultMemoryAccounting={{ 'yes' if MEMORY_ACCOUNTING_DEFAULT else 'no' }}
  #DefaultTasksAccounting=yes

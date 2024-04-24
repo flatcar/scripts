@@ -24,8 +24,10 @@ else
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
 
-	# Flatcar: mark as stable
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	if [[ ${PV} != *rc* ]] ; then
+		# Flatcar: mark as stable
+		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	fi
 fi
 
 inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-single-r1
@@ -105,6 +107,9 @@ PEFILE_DEPEND='dev-python/pefile[${PYTHON_USEDEP}]'
 # flag). The image stage fails with "Failed to resolve
 # typeattributeset statement at
 # /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
+#
+# Flatcar: Added a dep on sys-apps/kbd. It provides a loadkeys binary
+# needed by dracut's systemd-vconsole-setup module.
 RDEPEND="${COMMON_DEPEND}
 	>=acct-group/adm-0-r1
 	>=acct-group/wheel-0-r1
@@ -188,6 +193,12 @@ QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
 QA_EXECSTACK="usr/lib/systemd/boot/efi/*"
 
 pkg_pretend() {
+	# Flatcar: We keep using split-usr for SDK.
+	# if use split-usr; then
+	# 	eerror "Please complete the migration to merged-usr."
+	# 	eerror "https://wiki.gentoo.org/wiki/Merge-usr"
+	# 	die "systemd no longer supports split-usr"
+	# fi
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
 		if use test && has pid-sandbox ${FEATURES}; then
 			ewarn "Tests are known to fail with PID sandboxing enabled."
@@ -247,6 +258,7 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
+		"${FILESDIR}"/255-install-format-overflow.patch
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
@@ -255,6 +267,8 @@ src_prepare() {
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
+		# Flatcar: This can be dropped when updating to 256.
+		"${FILESDIR}/0008-sysext-Mutable-overlays.patch"
 	)
 
 	if ! use vanilla; then
@@ -297,14 +311,18 @@ src_configure() {
 get_rootprefix() {
 	usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr"
 }
+
 multilib_src_configure() {
 	local myconf=(
 		--localstatedir="${EPREFIX}/var"
+		# default is developer, bug 918671
+		-Dmode=release
 		# Flatcar: Point to our user mailing list.
 		-Dsupport-url="https://groups.google.com/forum/#!forum/flatcar-linux-user"
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
+		# Flatcar: We keep using split-usr in SDK.
 		$(meson_use split-usr)
 		# Flatcar: Always set split-bin to true, we always
 		# have separate bin and sbin directories
@@ -312,6 +330,9 @@ multilib_src_configure() {
 		# Flatcar: Use get_rootprefix. No functional change
 		# from upstream, just refactoring the common code used
 		# in some places.
+		#
+		# TODO: Drop -Drootprefix and -Drootlibdir we get rid
+		# of split-usr in SDK
 		-Drootprefix="$(get_rootprefix)"
 		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
 		# Disable compatibility with sysvinit
@@ -322,6 +343,9 @@ multilib_src_configure() {
 		# no deps
 		-Dima=true
 		-Ddefault-hierarchy=$(usex cgroup-hybrid hybrid unified)
+		# Match /etc/shells, bug 919749
+		-Ddebug-shell="${EPREFIX}/bin/sh"
+		-Ddefault-user-shell="${EPREFIX}/bin/bash"
 		# Optional components/dependencies
 		$(meson_native_use_bool acl)
 		$(meson_native_use_bool apparmor)
@@ -436,9 +460,6 @@ multilib_src_test() {
 }
 
 multilib_src_install_all() {
-	# Flatcar: We always have bin separate from sbin
-	# local sbin=$(usex split-usr sbin bin)
-	local sbin='sbin'
 	# meson doesn't know about docdir
 	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
 
@@ -480,7 +501,7 @@ multilib_src_install_all() {
 	# keepdir /var/log/journal
 
 	# if use pam; then
-		# newpamd "${FILESDIR}"/systemd-user.pam systemd-user
+	# 	newpamd "${FILESDIR}"/systemd-user.pam systemd-user
 	# fi
 
 	if use kernel-install; then
@@ -651,6 +672,8 @@ pkg_preinst() {
 		dosym ../../../etc/sysctl.conf /usr/lib/sysctl.d/99-sysctl.conf
 	fi
 
+	# Flatcar: This used to be in upstream ebuild, but now it's
+	# gone. We should drop it once we get rid of split-usr in SDK.
 	if ! use split-usr; then
 		local dir
 		# Flatcar: We still use separate bin and sbin, so drop usr/sbin from the list.
@@ -713,11 +736,11 @@ pkg_postinst() {
 	fi
 
 	if use boot; then
-		optfeature "automatically installing the kernels in systemd-boot's native layout and updating the bootloader configuration" \
+		optfeature "installing kernels in systemd-boot's native layout and update loader entries" \
 			"sys-kernel/installkernel[systemd-boot]"
 	fi
 	if use ukify; then
-		optfeature "automatically generating an unified kernel image on each kernel installation" \
+		optfeature "generating unified kernel image on each kernel installation" \
 			"sys-kernel/installkernel[ukify]"
 	fi
 }
