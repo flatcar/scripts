@@ -313,6 +313,7 @@ IMG_scaleway_DISK_LAYOUT=vm
 IMG_scaleway_OEM_PACKAGE=common-oem-files
 IMG_scaleway_OEM_USE=scaleway
 IMG_scaleway_OEM_SYSEXT=oem-scaleway
+IMG_scaleway_DISK_EXTENSION=qcow2
 
 ###########################################################
 
