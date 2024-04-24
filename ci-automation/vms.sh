@@ -136,6 +136,8 @@ function _vm_build_impl() {
             COMPRESSION_FORMAT="gz,bz2,none"
         elif [[ "${format}" =~ ^(qemu|qemu_uefi)$ ]];then
             COMPRESSION_FORMAT="bz2,none"
+        elif [[ "${format}" =~ ^(scaleway)$ ]];then
+            COMPRESSION_FORMAT="none"
         fi
         ./run_sdk_container -n "${vms_container}" -C "${packages_image}" \
             -v "${vernum}" \
