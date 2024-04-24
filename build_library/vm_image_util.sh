@@ -107,6 +107,9 @@ IMG_DEFAULT_FS_HOOK=
 # May be raw, qcow2 (qemu), or vmdk (vmware, virtualbox)
 IMG_DEFAULT_DISK_FORMAT=raw
 
+# Extension to set before the compression extension.
+IMG_DEFAULT_DISK_EXTENSION=
+
 # Name of the partition layout from disk_layout.json
 IMG_DEFAULT_DISK_LAYOUT=base
 
@@ -407,6 +410,11 @@ _dst_path() {
 # Get the proper disk format extension.
 _disk_ext() {
     local disk_format=$(_get_vm_opt DISK_FORMAT)
+    local disk_extension=$(_get_vm_opt DISK_EXTENSION)
+    if [[ -n ${disk_extension} ]]; then
+	echo "${disk_extension}"
+	return 0
+    fi
     case ${disk_format} in
         raw) echo bin;;
         qcow2) echo img;;
