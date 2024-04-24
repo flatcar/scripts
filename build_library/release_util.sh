@@ -101,7 +101,7 @@ compress_disk_images() {
     # We want to compress images, but we also want to remove the uncompressed files
     # from the list of uploadable files.
     for filename in "${local_files_to_evaluate[@]}"; do
-        if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk)$ ]]; then
+        if [[ "${filename}" =~ \.(img|bin|vdi|vhd|vmdk|qcow[2]?)$ ]]; then
             # Parse the formats as an array. This will yield an extra empty
             # array element at the end.
             readarray -td, FORMATS<<<"${FLAGS_image_compression_formats},"
