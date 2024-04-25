@@ -183,6 +183,12 @@ sudo grub-mkimage \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
     "${CORE_MODULES[@]}"
 
+if [[ "${FLAGS_target}" != i386-pc ]]; then
+    for mod in "${CORE_MODULES[@]}"; do
+      sudo rm "${ESP_DIR}/${GRUB_DIR}/${mod}.mod"
+    done
+fi
+
 # Now target specific steps to make the system bootable
 case "${FLAGS_target}" in
     i386-pc)
