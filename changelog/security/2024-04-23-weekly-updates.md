@@ -1,0 +1,5 @@
+- expat ([CVE-2023-52425](https://nvd.nist.gov/vuln/detail/CVE-2023-52425), [CVE-2024-28757](https://nvd.nist.gov/vuln/detail/CVE-2024-28757))
+- gnutls ([CVE-2024-28834](https://nvd.nist.gov/vuln/detail/CVE-2024-28834), [CVE-2024-28835](https://nvd.nist.gov/vuln/detail/CVE-2024-28835))
+- intel-microcode ([CVE-2023-22655](https://nvd.nist.gov/vuln/detail/CVE-2023-22655), [CVE-2023-28746](https://nvd.nist.gov/vuln/detail/CVE-2023-28746), [CVE-2023-38575](https://nvd.nist.gov/vuln/detail/CVE-2023-38575), [CVE-2023-39368](https://nvd.nist.gov/vuln/detail/CVE-2023-39368), [CVE-2023-43490](https://nvd.nist.gov/vuln/detail/CVE-2023-43490))
+- less ([CVE-2024-32487](https://nvd.nist.gov/vuln/detail/CVE-2024-32487))
+- python ([CVE-2023-6597](https://nvd.nist.gov/vuln/detail/CVE-2023-6597), [CVE-2024-0450](https://nvd.nist.gov/vuln/detail/CVE-2024-0450), [gh-81194](https://github.com/python/cpython/issues/81194), [gh-113659](https://github.com/python/cpython/issues/113659), [gh-102388](https://github.com/python/cpython/issues/102388), [gh-114572](https://github.com/python/cpython/issues/114572), [gh-115243](https://github.com/python/cpython/issues/115243))
