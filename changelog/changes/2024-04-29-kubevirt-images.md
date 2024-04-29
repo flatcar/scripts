@@ -1,0 +1,1 @@
+- Added KubeVirt qcow2 image for amd64/arm64 ([flatcar/scripts#1962](https://github.com/flatcar/scripts/pull/1962))
