@@ -65,7 +65,7 @@ elif is_release ; then
 
 			# Add in the mirror URL too.
 			SRC_URI+=" ${patch_url/${upstream_url_base}/${mirror_url_base}}"
-			SRC_URI+=" verify-sig? ( ${patch_url/${upstream_url_base}/${mirror_url_base}} )"
+			SRC_URI+=" verify-sig? ( ${patch_url/${upstream_url_base}/${mirror_url_base}}.sig )"
 
 			MY_PATCHES+=( "${DISTDIR}"/${mangled_patch_ver} )
 		done
@@ -80,6 +80,8 @@ fi
 if [[ -n ${GENTOO_PATCH_VER} ]] ; then
 	SRC_URI+=" https://dev.gentoo.org/~${GENTOO_PATCH_DEV}/distfiles/${CATEGORY}/${PN}/${PN}-${GENTOO_PATCH_VER}-patches.tar.xz"
 fi
+
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3+"
 SLOT="0"
@@ -103,8 +105,6 @@ BDEPEND="
 	pgo? ( dev-util/gperf )
 	verify-sig? ( sec-keys/openpgp-keys-chetramey )
 "
-
-S="${WORKDIR}/${MY_P}"
 
 # EAPI 8 tries to append it but it doesn't exist here
 QA_CONFIGURE_OPTIONS="--disable-static"
@@ -296,16 +296,26 @@ src_install() {
 
 	default
 
+	my_prefixify() {
+		while read -r; do
+			if [[ $REPLY == *$1* ]]; then
+				REPLY=${REPLY/"/etc/"/"${EPREFIX}/etc/"}
+			fi
+			printf '%s\n' "${REPLY}" || ! break
+		done < "$2" || die
+	}
+
 	dodir /bin
 	mv "${ED}"/usr/bin/bash "${ED}"/bin/ || die
 	dosym bash /bin/rbash
 
 	insinto /etc/bash
 	doins "${FILESDIR}"/bash_logout
-	newins "$(prefixify_ro "${FILESDIR}"/bashrc-r1)" bashrc
+	my_prefixify bashrc.d "${FILESDIR}"/bashrc-r1 | newins - bashrc
 
 	insinto /etc/bash/bashrc.d
-	doins "${FILESDIR}"/bashrc.d/*.bash
+	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color.bash | newins - 10-gentoo-color.bash
+	doins "${FILESDIR}"/bashrc.d/10-gentoo-title.bash
 
 	insinto /etc/skel
 	for f in bash{_logout,_profile,rc} ; do
