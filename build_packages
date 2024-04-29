@@ -38,6 +38,8 @@ DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
   "Don't run the chroot upgrade automatically; use with care."
 DEFINE_boolean only_resolve_circular_deps "${FLAGS_FALSE}" \
   "Don't build all packages; only resolve circular dependencies, then stop."
+DEFINE_boolean debug_emerge "${FLAGS_FALSE}" \
+  "Enable debug output for emerge."
 
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
@@ -161,6 +163,10 @@ REBUILD_FLAGS+=( "--jobs=${NUM_JOBS}" )
 
 if [[ "${FLAGS_rebuild}" -eq "${FLAGS_TRUE}" ]]; then
   EMERGE_FLAGS+=( --rebuild-if-unbuilt )
+fi
+
+if [[ "${FLAGS_debug_emerge}" -eq "${FLAGS_TRUE}" ]]; then
+  EMERGE_FLAGS+=( --debug )
 fi
 
 # Build cros_workon packages when they are changed.

@@ -553,6 +553,8 @@ sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
+app-containers/podman
+net-misc/passt
 
 sys-kernel/linux-headers
 

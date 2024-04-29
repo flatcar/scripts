@@ -137,9 +137,7 @@ multilib_src_configure() {
 		--disable-kqueue
 		$(use_enable elogind)
 		$(use_enable systemd)
-		# Flatcar: disable user sessions
-		# $(use_enable systemd user-session)
-		--disable-user-session
+		$(use_enable systemd user-session)
 		--disable-embedded-tests
 		--disable-modular-tests
 		$(use_enable debug stats)
