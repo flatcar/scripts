@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}"
+
+rm -rf ./usr/{lib/debug/,lib64/cmake/,lib64/pkgconfig,include/,share/fish,share/aclocal,share/SLSA}
+
+mkdir -p ./usr/share/podman/etc
+cp -a ./etc/{fuse.conf,containers} ./usr/share/podman/etc/
+
+cat <<EOF >>./usr/lib/tmpfiles.d/podman.conf
+C /etc/containers - - - - /usr/share/podman/etc/containers
+C /etc/fuse.conf - - - - /usr/share/podman/etc/fuse.conf
+w /etc/subuid - - - - core:1065536:65536
+w /etc/subgid - - - - core:1065536:65536
+EOF
+
+popd

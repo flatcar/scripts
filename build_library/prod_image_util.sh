@@ -255,7 +255,8 @@ create_prod_sysexts() {
   local to_upload=()
   for sysext in "${EXTRA_SYSEXTS[@]}"; do
     local name="flatcar-${sysext%:*}"
-    local pkg="${sysext#*:}"
+    local pkgs="${sysext#*:}"
+    local pkg_array=(${pkgs//,/ })
     local mangle_script="${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
     if [[ ! -x "${mangle_script}" ]]; then
       mangle_script=
@@ -267,7 +268,7 @@ create_prod_sysexts() {
         --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
 	--image_builddir="${BUILD_DIR}" \
 	${mangle_script:+--manglefs_script=${mangle_script}} \
-	"${name}" "${pkg}"
+	"${name}" "${pkg_array[@]}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \
