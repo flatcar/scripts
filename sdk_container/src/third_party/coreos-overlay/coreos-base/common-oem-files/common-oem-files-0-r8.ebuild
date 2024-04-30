@@ -36,6 +36,7 @@ COMMON_OEMIDS=(
     packet
     qemu
     scaleway
+    kubevirt
 )
 
 ARM64_ONLY_OEMIDS=(

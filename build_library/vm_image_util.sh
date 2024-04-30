@@ -19,6 +19,7 @@ VALID_IMG_TYPES=(
     hyperv
     hyperv_vhdx
     iso
+    kubevirt
     openstack
     openstack_mini
     packet
@@ -51,6 +52,7 @@ VALID_OEM_PACKAGES=(
     gce
     hetzner
     hyperv
+    kubevirt
     openstack
     packet
     qemu
@@ -314,6 +316,14 @@ IMG_scaleway_OEM_PACKAGE=common-oem-files
 IMG_scaleway_OEM_USE=scaleway
 IMG_scaleway_OEM_SYSEXT=oem-scaleway
 IMG_scaleway_DISK_EXTENSION=qcow2
+
+## kubevirt
+IMG_kubevirt_DISK_FORMAT=qcow2
+IMG_kubevirt_DISK_LAYOUT=vm
+IMG_kubevirt_OEM_PACKAGE=common-oem-files
+IMG_kubevirt_OEM_USE=kubevirt
+IMG_kubevirt_OEM_SYSEXT=oem-kubevirt
+IMG_kubevirt_DISK_EXTENSION=qcow2
 
 ###########################################################
 
