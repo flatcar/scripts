@@ -319,6 +319,7 @@ jobs:
             scripts/artifacts/images/*.bin
             scripts/artifacts/images/flatcar_production_*_efi_*.fd
             scripts/artifacts/images/*.txt
+            scripts/artifacts/images/flatcar-*.raw
             scripts/artifacts/images/flatcar_production_*.sh
             scripts/artifacts/images/flatcar_production_pxe_image.cpio.gz
             scripts/artifacts/images/flatcar_production_pxe.vmlinuz
