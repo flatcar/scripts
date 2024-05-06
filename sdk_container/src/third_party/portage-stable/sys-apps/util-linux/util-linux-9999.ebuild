@@ -133,19 +133,23 @@ src_prepare() {
 
 	if use test ; then
 		# Known-failing tests
-		# TODO: investigate these
 		local known_failing_tests=(
 			# Subtest 'options-maximum-size-8192' fails
 			hardlink/options
 
 			# Fails in sandbox
+			# re ioctl_ns: https://github.com/util-linux/util-linux/issues/2967
 			lsns/ioctl_ns
-
+			lsfd/mkfds-inotify
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
 			# Fails with network-sandbox at least in nspawn
 			lsfd/option-inet
 			utmp/last-ipv6
+
+			# Permission issues on /dev/random
+			lsfd/mkfds-eventpoll
+			lsfd/column-xmode
 		)
 
 		local known_failing_test
@@ -226,6 +230,13 @@ multilib_src_configure() {
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
+
+		# TODO: Wire this up (bug #931118)
+		--without-econf
+
+		# TODO: investigate build failure w/ 2.40.1_rc1
+		--disable-liblastlog2
+		--disable-pam-lastlog2
 	)
 
 	if use build ; then
@@ -257,6 +268,7 @@ multilib_src_configure() {
 			--enable-rfkill
 			--enable-schedutils
 			--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+			--with-tmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d
 			$(use_enable caps setpriv)
 			$(use_enable cramfs)
 			$(use_enable fdformat)

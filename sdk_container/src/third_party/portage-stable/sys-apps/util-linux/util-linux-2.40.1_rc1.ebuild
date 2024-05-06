@@ -22,7 +22,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -97,15 +97,6 @@ fi
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
-	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
-	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
-	"${FILESDIR}"/${PN}-2.39.3-libblkid-luks.patch
-	"${FILESDIR}"/${PN}-2.39.3-musl-1.2.5-basename.patch
-	"${FILESDIR}"/${PN}-2.39.3-libmount-Fix-export-of-mnt_context_is_lazy-and-mnt_c.patch
-)
-
 pkg_pretend() {
 	if use su && ! use suid ; then
 		elog "su will be installed as suid despite USE=-suid (bug #832092)"
@@ -142,19 +133,23 @@ src_prepare() {
 
 	if use test ; then
 		# Known-failing tests
-		# TODO: investigate these
 		local known_failing_tests=(
 			# Subtest 'options-maximum-size-8192' fails
 			hardlink/options
 
 			# Fails in sandbox
+			# re ioctl_ns: https://github.com/util-linux/util-linux/issues/2967
 			lsns/ioctl_ns
-
+			lsfd/mkfds-inotify
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
 			# Fails with network-sandbox at least in nspawn
 			lsfd/option-inet
 			utmp/last-ipv6
+
+			# Permission issues on /dev/random
+			lsfd/mkfds-eventpoll
+			lsfd/column-xmode
 		)
 
 		local known_failing_test
@@ -214,10 +209,6 @@ multilib_src_configure() {
 		--localstatedir="${EPREFIX}/var"
 		--runstatedir="${EPREFIX}/run"
 		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
-
-		# Temporary workaround until ~2.39.2. 2.39.x introduced a big rewrite.
-		# https://github.com/util-linux/util-linux/issues/2287#issuecomment-1576640373
-		--disable-libmount-mountfd-support
 	)
 
 	local myeconfargs=(
@@ -239,6 +230,13 @@ multilib_src_configure() {
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
+
+		# TODO: Wire this up (bug #931118)
+		--without-econf
+
+		# TODO: investigate build failure w/ 2.40.1_rc1
+		--disable-liblastlog2
+		--disable-pam-lastlog2
 	)
 
 	if use build ; then
@@ -270,6 +268,7 @@ multilib_src_configure() {
 			--enable-rfkill
 			--enable-schedutils
 			--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+			--with-tmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d
 			$(use_enable caps setpriv)
 			$(use_enable cramfs)
 			$(use_enable fdformat)

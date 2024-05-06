@@ -99,12 +99,10 @@ RESTRICT="!test? ( test )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
-	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
 	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
-	"${FILESDIR}"/${PN}-2.39.3-libblkid-luks.patch
 	"${FILESDIR}"/${PN}-2.39.3-musl-1.2.5-basename.patch
 	"${FILESDIR}"/${PN}-2.39.3-libmount-Fix-export-of-mnt_context_is_lazy-and-mnt_c.patch
-	"${FILESDIR}"/${PN}-2.39.3-CVE-2024-28085.patch
+	"${FILESDIR}"/${PN}-2.39.3-fix-use-after-free.patch
 )
 
 pkg_pretend() {
@@ -240,6 +238,9 @@ multilib_src_configure() {
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
+
+		# TODO: Wire this up (bug #931118)
+		--without-econf
 	)
 
 	if use build ; then
