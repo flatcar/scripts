@@ -25,14 +25,17 @@ KEYWORDS="amd64 arm arm64 hppa ~ia64 ~m68k ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
+# check */_vendor/vendored.txt
 RDEPEND="
 	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/more-itertools-8.12.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/ordered-set-4.0.2-r1[${PYTHON_USEDEP}]
-	>=dev-python/packaging-23.2[${PYTHON_USEDEP}]
+	>=dev-python/packaging-24[${PYTHON_USEDEP}]
 	>=dev-python/platformdirs-2.6.2-r1[${PYTHON_USEDEP}]
-	>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
 	>=dev-python/wheel-0.37.1-r1[${PYTHON_USEDEP}]
+	$(python_gen_cond_dep '
+		>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
+	' python3_10 pypy3)
 "
 BDEPEND="
 	${RDEPEND}
@@ -51,9 +54,11 @@ BDEPEND="
 			dev-python/pytest-timeout[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 			dev-python/tomli[${PYTHON_USEDEP}]
-			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
 			>=dev-python/virtualenv-20[${PYTHON_USEDEP}]
 		' "${PYTHON_TESTED[@]}")
+		$(python_gen_cond_dep '
+			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
+		' python3_10 pypy3)
 	)
 "
 # setuptools-scm is here because installing plugins apparently breaks stuff at
@@ -69,6 +74,9 @@ src_prepare() {
 	)
 
 	distutils-r1_src_prepare
+
+	# breaks tests
+	sed -i -e '/--import-mode/d' pytest.ini || die
 
 	# remove bundled dependencies
 	rm -r */_vendor || die
