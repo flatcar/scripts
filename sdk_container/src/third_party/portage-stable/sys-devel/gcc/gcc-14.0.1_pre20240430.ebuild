@@ -3,12 +3,13 @@
 
 EAPI=8
 
+TOOLCHAIN_GCC_RC=1
 TOOLCHAIN_PATCH_DEV="sam"
 PATCH_GCC_VER="14.0.0"
 PATCH_VER="26"
 MUSL_VER="1"
 MUSL_GCC_VER="14.0.0"
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 if [[ ${PV} == *.9999 ]] ; then
 	MY_PV_2=$(ver_cut 2)
