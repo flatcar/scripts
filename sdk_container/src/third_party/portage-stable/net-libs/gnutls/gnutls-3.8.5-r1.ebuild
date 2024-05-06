@@ -67,6 +67,12 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	static_assert
 )
 
+PATCHES=(
+	# Should no longer be needed for the next release
+	# bug #930529
+	"${FILESDIR}"/${PN}-3.8.5-fix-rsaes-pkcs1-systemd-wide-config.patch
+)
+
 src_prepare() {
 	default
 
