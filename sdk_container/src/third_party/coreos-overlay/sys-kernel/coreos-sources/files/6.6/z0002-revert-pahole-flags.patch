@@ -8,9 +8,9 @@ index 6d35728b94b2..9ae94bf60971 100644
  	depends on !RANDSTRUCT
 -	depends on !DEBUG_INFO_BTF || PAHOLE_HAS_LANG_EXCLUDE
 +	depends on !DEBUG_INFO_BTF
- 	select CONSTRUCTORS
  	help
  	  Enables Rust support in the kernel.
+ 
 diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
 index fa307f93fa2e..f18386d4712f 100644
 --- a/lib/Kconfig.debug
