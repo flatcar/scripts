@@ -138,7 +138,7 @@ function _vm_build_impl() {
             COMPRESSION_FORMAT="bz2,none"
         elif [[ "${format}" =~ ^(hyperv|hyperv_vhdx)$ ]];then
             COMPRESSION_FORMAT="zip"
-        elif [[ "${format}" =~ ^(scaleway)$ ]];then
+        elif [[ "${format}" =~ ^(scaleway|kubevirt)$ ]];then
             COMPRESSION_FORMAT="none"
         fi
         ./run_sdk_container -n "${vms_container}" -C "${packages_image}" \
