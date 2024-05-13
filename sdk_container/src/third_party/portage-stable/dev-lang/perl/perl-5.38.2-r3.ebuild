@@ -39,6 +39,8 @@ MY_PV="${DIST_VERSION%-RC*}"
 
 DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 
+HOMEPAGE="https://www.perl.org/"
+
 SRC_URI="
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
 	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
@@ -47,16 +49,17 @@ SRC_URI="
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
 "
 
-HOMEPAGE="https://www.perl.org/"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="|| ( Artistic GPL-1+ )"
+
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
 	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
-IUSE="berkdb debug doc gdbm ithreads minimal quadmath"
+IUSE="berkdb perl_features_debug doc gdbm perl_features_ithreads minimal perl_features_quadmath"
 
 RDEPEND="
 	berkdb? ( sys-libs/db:= )
@@ -81,8 +84,6 @@ PDEPEND="
 "
 # bug 390719, bug 523624
 # virtual/perl-Test-Harness is here for the bundled ExtUtils::MakeMaker
-
-S="${WORKDIR}/${MY_P}"
 
 dual_scripts() {
 	src_remove_dual      perl-core/Archive-Tar        2.400.0       ptar ptardiff ptargrep
@@ -129,17 +130,46 @@ check_rebuild() {
 
 	# Reinstall w/ USE Change
 	elif
-		 (   use ithreads && ! has_version dev-lang/perl[ithreads] ) || \
-		 ( ! use ithreads &&   has_version dev-lang/perl[ithreads] ) || \
-		 (   use quadmath && ! has_version dev-lang/perl[quadmath] ) || \
-		 ( ! use quadmath &&   has_version dev-lang/perl[quadmath] ) || \
-		 (   use debug    && ! has_version dev-lang/perl[debug]    ) || \
-		 ( ! use debug    &&   has_version dev-lang/perl[debug]    ) ; then
+		 (   use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_ithreads]' ) ) || \
+		 ( ! use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_ithreads]'  ) ) || \
+		 (   use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_quadmath]' ) ) || \
+		 ( ! use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_quadmath]'  ) ) || \
+		 (   use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[-debug]'    || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_debug]'    ) ) || \
+		 ( ! use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[debug]'     || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_debug]'     ) ) ; then
 		echo ""
-		ewarn "TOGGLED USE-FLAGS WARNING:"
-		ewarn "You changed one of the use-flags ithreads, quadmath, or debug."
-		ewarn "You must rebuild all perl-modules installed."
+		ewarn "TOGGLED PERL FEATURES WARNING:"
+		ewarn "You changed one of the PERL_FEATURES flags ithreads, quadmath, or debug."
+		ewarn "You must rebuild all perl-modules installed. Mostly this should be done automatically"
+		ewarn "via the flag changes of the packages. If the rebuild fails, use perl-cleaner."
 		ewarn "Use: perl-cleaner --modules ; perl-cleaner --force --libperl"
+		ewarn
+		ewarn "NOTE: Previous to perl-5.38.2-r3, these flags were useflags for dev-lang/perl."
+		ewarn "If you just upgraded and do not intend to change anything, carry the same settings over"
+		ewarn "into a global PERL_FEATURES variable set in make.conf. E.g., "
+		ewarn "dev-lang/perl[ithreads,quadmath] becomes PERL_FEATURES=\"ithreads quadmath\""
+	fi
+}
+
+pkg_pretend() {
+	if \
+		 (   use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' ) || \
+		 ( ! use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  ) || \
+		 (   use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' ) || \
+		 ( ! use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  ) || \
+		 (   use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[-debug]'    ) || \
+		 ( ! use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[debug]'     ) ;  \
+	then
+		echo ""
+		ewarn "As of dev-lang/perl-5.38.2-r3, the useflags debug, ithreads, quadmath move into"
+		ewarn "a use-expand variable PERL_FEATURES, which should be set globally in make.conf."
+		ewarn "It appears that you have not set this variable properly yet."
+		ewarn ""
+		ewarn "Giving you a chance to abort and read the corresponding news item now..."
+		for n in 10 9 8 7 6 5 4 3 2 1 ; do
+			echo -n "${n} "
+			sleep 2
+		done;
+		echo "continuing."
 	fi
 }
 
@@ -151,13 +181,13 @@ pkg_setup() {
 	esac
 
 	myarch="${CHOST%%-*}-${osname}"
-	if use debug ; then
+	if use perl_features_debug ; then
 		myarch+="-debug"
 	fi
-	if use quadmath ; then
+	if use perl_features_quadmath ; then
 		myarch+="-quadmath"
 	fi
-	if use ithreads ; then
+	if use perl_features_ithreads ; then
 		mythreading="-multi"
 		myarch+="-thread"
 	fi
@@ -581,11 +611,11 @@ src_configure() {
 		myconf -Ui_db -Ui_ndbm
 	fi
 
-	use ithreads && myconf -Dusethreads
+	use perl_features_ithreads && myconf -Dusethreads
 
-	use quadmath && myconf -Dusequadmath
+	use perl_features_quadmath && myconf -Dusequadmath
 
-	if use debug ; then
+	if use perl_features_debug ; then
 		append-cflags "-g"
 		myconf -DDEBUGGING
 	elif [[ ${CFLAGS} == *-g* ]] ; then
