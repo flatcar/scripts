@@ -33,6 +33,241 @@
 
 #--- END OF EXAMPLES ---
 
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-05-11)
+# EAPI=6, uses deprecated go eclass, archived upstream. Update to
+# usage of go-module.eclass isn't simple.
+# Removal: 2024-06-10.  Bugs #931745, #844598.
+app-emulation/docker-machine
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-05-11)
+# EAPI=6, library only without any reverse dependencies, uses
+# deprecated go eclasses.
+# Removal: 2024-06-10.  Bug #931725.
+dev-go/fuzzy
+dev-go/go-bindata-assetfs
+dev-go/godebug-pretty
+dev-go/sanitized-anchor-name
+
+# Eli Schwartz <eschwartz93@gmail.com> (2024-05-08)
+# Fails to configure with GCC 14, fails to install with older
+# gcc, unmaintained, upstream website vanished.
+# Bug #731180, #861461, #888577, #889930.
+# Removal on 2024-06-08.
+net-irc/ninja
+
+# Sam James <sam@gentoo.org> (2024-05-06)
+# Long-deprecated upstream, replaced by (unpackaged) Twitter::API.
+# Twitter's API has changed at least once since the last release of Net::Twitter.
+# Removal on 2024-06-05.  Bug #931295.
+dev-perl/Net-Twitter
+
+# Sam James <sam@gentoo.org> (2024-05-06)
+# Incompatible with latest last.fm APIs, hence useless.
+# Removal on 2024-06-05.  Bug #928115.
+media-libs/lastfmlib
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-05)
+# A library last bumped in 2010.  Homepage gone.  No revdeps.
+# Removal on 2024-06-04.  Bug #909527.
+dev-games/poker-eval
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-05)
+# A library last bumped in 2004.  Homepage gone.  Carries patches
+# and hacks already.  No reverse dependencies.
+# Removal on 2024-06-04.  Bug #909581.
+dev-games/hawknl
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-05)
+# An unmaintained fork of an unmaintained DNS server.  All successive
+# homepages are gone.  Last commit in 2014.  Already carries a lot
+# of patches and hacks.
+# Removal on 2024-06-04.  Bug #928942.
+net-dns/mydns
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-04)
+# A really bad quality package with a never-ending stream of unclear
+# test failures, and blocked keywording and stabilization bugs.
+# The bump to the most recent release is blocked by a ton of test
+# regressions.  No reverse dependencies left.
+# Removal on 2024-06-03.  Bug #931151.
+dev-python/dask
+dev-python/dask-expr
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2024-05-01)
+# Outdated package, now part of dev-perl/Type-Tiny. Removal in 30 days.
+dev-perl/Type-Tie
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-01)
+# Effectively unmaintained.  EAPI 6.  Keyworded for PowerPC only.
+# Might not work anymore (when I run it, it hangs input to X11 entirely).
+# Removal on 2024-05-31.  Bug #930195.
+sys-apps/mouseemu
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-01)
+# Unmaintained in Gentoo.  Multiple releases behind upstream.  No tests.
+# No Python 3.12.  No (unconditional) reverse dependencies.
+# Removal on 2024-05-31.  Bug #904945.
+dev-python/grpcio
+dev-python/grpcio-testing
+dev-python/grpcio-tools
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-30)
+# NumPy 2 introduces lots of API changes and an ABI change.  Masked
+# for testing and getting <dev-python/numpy-2 where necessary.
+>=dev-python/numexpr-2.10
+>=dev-python/numpy-2
+
+# Jason Zaman <perfinion@gentoo.org> (2024-04-28)
+# TensorFlow was removed from the tree in feb, Keras applications and
+# preprocessing no longer have any revdeps in the tree. For ML, the
+# recommendation is to install from pip in a venv.
+# Removal in 30 days. Bug #930830
+sci-libs/keras-applications
+sci-libs/keras-preprocessing
+
+# Sam James <sam@gentoo.org> (2024-04-28)
+# Masked for testing. Tracker bug: bug #930805.
+>=sys-libs/ncurses-6.5
+
+# Jason Zaman <perfinion@gentoo.org> (2024-04-27)
+# Sandboxfs was only experimental in Bazel. It was fully removed in Bazel-7
+# Bazel was removed from gentoo in Feb.
+# Removal in 30 days. Bug #930790
+sys-fs/sandboxfs
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-04-27)
+# EAPI=6 package, has issues with implicit function declarations, has
+# issues with incompatible types and more. The only reverse dependency
+# is virtual/skkserv, which has other better candidates.
+# Removal on 2024-05-27, bug #930781
+app-i18n/skkserv
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-04-26)
+# Broken and reported as such upstream. EAPI=6.
+# Removal: 2024-05-26.  Bug #912842.
+net-misc/ttytter
+
+# Maciej Barć <xgqt@gentoo.org> (2024-04-25)
+# Mask "app-emacs/windows" and reverse dependencies.
+# Very old package failing to compile with modern GNU Emacs.
+# Additionally all 3 packages do not have any definitive repository nor VCS.
+# Open bugs: #930655
+# Removal on 2024-05-25.
+app-emacs/basic-toolkit
+app-emacs/buffer-extension
+app-emacs/windows
+
+# Matt Turner <mattst88@gentoo.org> (2024-04-25)
+# Masked for testing
+=dev-util/intel_clc-24.1*
+=media-libs/mesa-24.1*
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# No py3.12, no tests, no maintainer.  Also no revdeps.
+# Removal on 2024-05-23.  Bug #929513.
+dev-python/sphinxcontrib-newsfeed
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Integrated into >=dev-python/pytest-5.0.  No revdeps.
+# Removal on 2024-05-23.  Bug #929496.
+dev-python/pytest-faulthandler
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Broken with py3.12.  Last commit upstream in 2021.  No revdeps.
+# Removal on 2024-05-23.  Bug #929484.
+dev-python/pyannotate
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# No py3.12, broken.  Upstream literally tells people to use a fork
+# "for the time being".  No revdeps.
+# Removal on 2024-05-23.  Bug #929461.
+dev-python/kafka-python
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Unmaintained.  No py3.12, failing tests.  Last upstream activity
+# in 2020, triggered by our previous last rites.  No revdeps.
+# Removal on 2024-05-23.  Bug #929445.
+dev-python/cgroup-utils
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Unmaintained Sphinx theme.  Last commit in 2021.  No revdeps.
+# Removal on 2024-05-23.  Bug #929458.
+dev-python/guzzle_sphinx_theme
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Unmaintained in Gentoo.  Lacking tests, py3.12 support, outdated.
+# No revdeps.  The alternatives are dev-python/{llfuse,pyfuse3}.
+# Removal on 2024-05-23.  Bug #929453.
+dev-python/fuse-python
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Unmaintained.  Last release in 2003.  Carries a ton of patches.
+# Removal on 2024-05-23.  Bug #928731.
+net-analyzer/tcpstat
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Added in 2005 and not updated since.  Homepage and source mirrors
+# are gone.  Needs patches to even build.
+# Removal on 2024-05-23.  Bug #928594.
+media-video/vstrip
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Obsolete Pidgin plugin.  Last supported in 2008, removed from plugin
+# list in 2019.
+# Removal on 2024-05-23.  Bug #928578.
+net-im/librvp
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Unmaintained GTK+2 application.  Last update in 2005.
+# Alternatives include media-sound/fmit and media-sound/lingot.
+# Removal on 2024-05-23.  Bug #928512.
+media-sound/pitchtune
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Ancient.  Homepage gone.  There are many alternative network testing
+# tools, such as net-misc/iperf.
+# Removal on 2024-05-23.  Bug #928133.
+net-analyzer/gensink
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# An old, unmaintained theme.  The last revdep stopped using it.
+# Removal on 2024-05-23.  Bug #927764.
+dev-python/sphinx-py3doc-enhanced-theme
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Unmaintained in Gentoo and seriously outdated.  EAPI 6.  No revdeps.
+# There seem to be an up-to-date ebuilds in ::mva.
+# Removal on 2024-05-23.  Bug #928070.
+dev-util/android-ndk
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Unmaintained in Gentoo and seriously outdated.  Its only reverse
+# dependency is app-admin/testdisk, and the current TestDisk versions
+# do not build against this version anyway
+# Removal on 2024-05-23.  Bug #927076.
+app-forensics/libewf
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# Superseded by dev-python/tinycss2.  No revdeps.
+# Removal on 2024-05-23.  Bug #930503.
+dev-python/tinycss
+
+# Matthew Smith <matthew@gentoo.org> (2024-04-23)
+# Security issues (Bug #920682).
+# See the following link for breaking changes:
+# https://www.erlang.org/patches/otp-26.2#incompatibilities
+# Removal on 2024-05-23
+<dev-lang/elixir-1.14.5-r2
+=dev-lang/elixir-1.15.6
+<dev-lang/erlang-26.2.1
+
+# Matthew Smith <matthew@gentoo.org> (2024-04-23)
+# Security issues (Bug #918527) and blocking cleanup of vulnerable
+# dev-lang/erlang versions. Please upgrade.
+# https://www.rabbitmq.com/docs/upgrade
+# Removal on 2024-05-23
+<net-misc/rabbitmq-server-3.13.1
+
 # Arthur Zamarin <arthurzam@gentoo.org> (2024-04-20)
 # EAPI6 package, with no reverse dependencies. Not really maintained
 # since gentoo's transition to git. Distfile is fetch and mirror
@@ -89,85 +324,15 @@ app-emulation/runv
 =sys-kernel/vanilla-kernel-6.6.26
 =sys-kernel/vanilla-kernel-6.8.5
 
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-04-08)
-# Obsolete java-vm, bugs #848804 #830248.
-# Removal on 2024-05-08
-dev-java/icedtea-bin
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-04-08)
-# Java libraries without consumers.
-# Removal on 2024-05-08, bugs #853100 #716228.
-dev-java/gin
-dev-java/gwt
-dev-java/validation-api
-
-# Ben Kohler <bkohler@gentoo.org> (2024-04-07)
-# Abandoned upstream long ago in favor of Unifi Protect (running only on an
-# official Unifi appliance.  Likely contains lots of security holes in bundled
-# libs.
-# Removal on 2024-05-07.  Bug #928881
-acct-group/unifi-video
-acct-user/unifi-video
-media-video/unifi-video
-
-# Ben Kohler <bkohler@gentoo.org> (2024-04-07)
-# Long ago forked to and obsoleted by sys-apps/memtest86+.  Upstream has
-# abandoned this for their proprietary UEFI-based one (packaged in gentoo as
-# as sys-apps/memtest86-bin).
-# Removal on 2024-05-07.  Bug #502464, #607494, #628528, #750677, #887003,
-# #912973, #920109
-sys-apps/memtest86
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-04-06)
-# Dead upstream for many years, in a state of decay and no revdeps.
-# Removal on 2024-05-06.  Bug #926193, #891791
-net-im/telepathy-connection-managers
-net-libs/sofia-sip
-net-libs/telepathy-accounts-signon
-net-libs/telepathy-farstream
-net-libs/telepathy-qt
-net-voip/telepathy-gabble
-net-voip/telepathy-rakia
-net-voip/telepathy-salut
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-04-06)
-# Dead upstream, as is the whole telepathy stack. Some parts depend on
-# dev-qt/qtwebengine:5.
-# Removal on 2024-05-06.  Bug #926679
-kde-apps/ktp-accounts-kcm
-kde-apps/ktp-approver
-kde-apps/ktp-auth-handler
-kde-apps/ktp-common-internals
-kde-apps/ktp-contact-list
-kde-apps/ktp-contact-runner
-kde-apps/ktp-desktop-applets
-kde-apps/ktp-filetransfer-handler
-kde-apps/ktp-kded-module
-kde-apps/ktp-send-file
-kde-apps/ktp-text-ui
-kde-apps/plasma-telepathy-meta
-net-libs/telepathy-logger-qt
-
-# James Le Cuirot <chewi@gentoo.org> (2024-04-05)
-# Dead upstream and broken beyond repair. Removal on 2024-05-05. Bug #928591.
-games-board/xmille
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-30)
-# NIH package that was added for dev-python/setuptools but is no longer
-# used there.
-# Removal on 2024-04-29.  Bug #928270.
-dev-python/nspektr
-
-# James Le Cuirot <chewi@gentoo.org> (2024-03-30)
-# Old, ugly, broken, and requires OSS sound. Removal on 2024-04-30. Bug #928066.
-games-sports/gracer
-
 # Sam James <sam@gentoo.org> (2024-03-28)
-# Newer releases were signed by a potentially compromised upstream maintainer.
+# Newer 5.4.x releases were signed by a potentially compromised upstream maintainer.
 # There is no evidence that these releases contain malicious code, but masked
 # out of an abundance of caution. See bug #928134.
 sec-keys/openpgp-keys-jiatan
->=app-arch/xz-utils-5.4.3
+~app-arch/xz-utils-5.4.3
+~app-arch/xz-utils-5.4.4
+~app-arch/xz-utils-5.4.5
+~app-arch/xz-utils-5.4.6
 
 # Sam James <sam@gentoo.org> (2024-03-28)
 # Backdoor discovered in release tarballs. DOWNGRADE NOW.
@@ -177,126 +342,6 @@ sec-keys/openpgp-keys-jiatan
 ~app-arch/xz-utils-5.5.2_beta
 ~app-arch/xz-utils-5.6.0
 ~app-arch/xz-utils-5.6.1
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Last release in 2012.  No reverse dependencies.
-# Removal on 2024-04-25.  Bug #927524.
-dev-python/simplegeneric
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Unmaintained.  EAPI 6.  Homepage gone.  No keywords for modern
-# architectures.
-# Removal on 2024-04-25.  Bug #927208.
-net-misc/blinkperl
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Unmaintained.  Multiple bugs open.  The current version is from 2018,
-# and it has been discontinued as a separate package since.
-# Removal on 2024-04-25.  Bug #926861.
-net-misc/felix
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Unmaintained.  EAPI 6.  Homepage gone.
-# Removal on 2024-04-25.  Bug #926860.
-app-pda/iripdb
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Unfetchable proprietary fonts.  The alternatives include
-# media-fonts/jomolhari and "Noto Serif Tibetan" from media-fonts/noto.
-# Removal on 2024-04-25.  Bug #926836.
-media-fonts/dzongkha-fonts
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# A dead wiget library with no reverse dependencies.  Homepage gone.
-# Removal on 2024-04-25.  Bug #926604.
-x11-libs/scw
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Deprecated upstream and the URL no longer works.
-# Removal on 2024-04-25.  Bug #926550.
-sys-firmware/bluez-firmware
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Unfinished package from 2021 that was added as a short-lived
-# dependency of dev-python/GitPython.  No reverse dependencies remain.
-# Removal on 2024-04-25.  Bug #924683.
-dev-python/sumtypes
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Uses deprecated distutils-r1 API.  The current version is outdated,
-# from mid-2022.  No reverse dependencies.
-# Removal on 2024-04-25.  Bug #910015.
-sci-biology/HTSeq
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Uses deprecated distutils-r1 API.  Depends on dev-qt/qtwebengine:5.
-# Includes the libraries with no other reverse dependencies.
-# Removal on 2024-04-25.  Bug #909996.
-media-libs/libopenshot
-media-libs/libopenshot-audio
-media-video/openshot
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Issues with OpenSSL 3.  Unmaintained.  Last activity in 2019.
-# Removal on 2024-04-25.  Bug #892031.
-sys-auth/pam_ssh
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Fails to compile.  Unmaintained.  Last activity in 2016.
-# Depends on an old wxGTK slot.
-# Removal on 2024-04-25.  Bug #895222.
-app-misc/tek
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-26)
-# Bad C++ code.  Unmaintained.  Carries a number of patches already.
-# No reverse dependencies.
-# Removal on 2024-04-25.  Bug #924925.
-dev-libs/zthread
-
-# Eli Schwartz <eschwartz93@gmail.com> (2024-03-24)
-# Broken with modern compilers, broken with LTO. Upstream website no
-# longer exists. Unmaintained in Gentoo, no reverse dependencies.
-# Removal on 2024-04-23.  Bug #731942, #863041, #898298.
-sci-libs/xgks-pmel
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-23)
-# No maintainer.  Broken tests.  Not ported to PEP517 build.
-# No release since 2020, little activity since.  No revdeps.
-# Removal on 2024-04-22.  Bug #911780.
-dev-python/prov
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-23)
-# Apparently broken.  No tests.  Last code change in 2016.  No revdeps.
-# Removal on 2024-04-22.  Bug #892613.
-dev-python/sphinxcontrib-asyncio
-
-# Conrad Kostecki <conikost@gentoo.org> (2024-03-22)
-# Stuck on old EAPI6. Last stable release over 10 years ago.
-# Not compatible with PHP8. Removal on 2024-04-22.
-dev-php/onphp
-
-# Conrad Kostecki <conikost@gentoo.org> (2024-03-22)
-# Stuck on old EAPI6. PEAR channel long dead.
-# Removal on 2024-04-22.
-dev-php/mockery
-
-# Conrad Kostecki <conikost@gentoo.org> (2024-03-22)
-# Stuck on old EAPI6. Not compatible with PHP7 and newer.
-# Upstream stopped development.
-# Removal on 2024-04-22.
-dev-php/libchart
-
-# Hans de Graaff <graaff@gentoo.org> (2024-03-22)
-# Broken with modern compilers, bug 884249. No longer maintained
-# upstream, last release 5 years ago. No reverse dependencies left. Use
-# dev-ruby/concurrent-ruby instead.
-# Removal on 2024-04-22.
-dev-ruby/atomic
-
-# Rahil Bhimjiani <me@rahil.rocks> (2024-03-17)
-# buildah-1.34.0 isn't getting security fixes from upstream
-# https://github.com/containers/buildah/issues/5320
-=app-containers/buildah-1.34.0
 
 # Eray Aslan <eras@gentoo.org> (2024-03-10)
 # Mask experimental software
@@ -417,7 +462,7 @@ dev-ruby/atomic
 ~kde-plasma/kwallet-pam-6.0.4
 ~kde-plasma/kwayland-6.0.4
 ~kde-plasma/kwayland-integration-6.0.4
-~kde-plasma/kwin-6.0.4
+~kde-plasma/kwin-6.0.4.1
 ~kde-plasma/kwrited-6.0.4
 ~kde-plasma/layer-shell-qt-6.0.4
 ~kde-plasma/libkscreen-6.0.4
@@ -666,7 +711,6 @@ dev-ruby/atomic
 ~sys-block/partitionmanager-24.02.2
 ~sys-libs/kpmcore-24.02.2
 =kde-apps/kio-extras-23.08.5-r100
-=kde-apps/libkgapi-23.08.5-r100
 =kde-misc/kio-gdrive-23.08.5-r1
 =kde-plasma/print-manager-23.08.5-r100
 ~kde-misc/kio-fuse-5.1.0
@@ -696,26 +740,15 @@ dev-ruby/atomic
 =net-libs/signond-8.61-r100
 =net-misc/smb4k-3.2.5-r2
 ~sys-auth/polkit-qt-0.200.0
->=sys-libs/snapd-glib-1.64-r100
 
 # Sam James <sam@gentoo.org> (2024-02-18)
 # Lots of changes, including a port to a new build system. Needs lots of testing.
 =sys-apps/gentoo-functions-1*
 
-# Sam James <sam@gentoo.org> (2024-02-15)
-# May break on some arches b/c of visibility/map changes to ffi_type_longdouble
-=dev-libs/libffi-3.4.5
-
 # Ulrich Müller <ulm@gentoo.org> (2024-02-08)
 # Masked for testing.
 # Test failure in watchpoints.dem, undefined function FresnelC.
 ~sci-visualization/gnuplot-6.0.0
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-24)
-# app-misc/ddcutil-2.1.0 causes core-dump crashes in
-# kde-plasma/powerdevil[brightness-control].
-~app-misc/ddcutil-2.1.0
-~app-misc/ddcui-0.5.0
 
 # Patrick Lauer <patrick@gentoo.org> (2023-12-23)
 # ROCm-6 builds but has runtime issues for me
@@ -759,17 +792,6 @@ dev-ruby/atomic
 =sys-kernel/vanilla-sources-6.1.65
 =sys-kernel/vanilla-kernel-6.1.64
 =sys-kernel/vanilla-kernel-6.1.65
-
-# Eli Schwartz <eschwartz93@gmail.com> (2023-12-02)
-# Has a bug that breaks sys-apps/portage. Upgrade to 1.3.0-r1 instead.
-# Bug #919072.
-=dev-build/meson-1.3.0
-
-# Sam James <sam@gentoo.org> (2023-11-25)
-# Breaks desktop icon rendering, see bug #904468.
-# Upstream bug: https://gitlab.xfce.org/xfce/xfdesktop/-/issues/242
-=xfce-base/xfdesktop-4.19.2
-=xfce-base/xfdesktop-4.19.1
 
 # Sam James <sam@gentoo.org> (2023-11-22)
 # Further bugs with CoW via copy_file_range (bug #917224, https://github.com/openzfs/zfs/issues/15526).
