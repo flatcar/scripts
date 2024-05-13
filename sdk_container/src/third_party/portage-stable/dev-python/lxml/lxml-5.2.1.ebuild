@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} pypy3 )
+PYTHON_COMPAT=( python3_{10..13} pypy3 )
 
 inherit distutils-r1 optfeature toolchain-funcs
 
@@ -122,4 +122,5 @@ python_install_all() {
 pkg_postinst() {
 	optfeature "Support for BeautifulSoup as a parser backend" dev-python/beautifulsoup4
 	optfeature "Translates CSS selectors to XPath 1.0 expressions" dev-python/cssselect
+	optfeature "Support for lxml.html.clean sanitizer" dev-python/lxml-html-clean
 }
