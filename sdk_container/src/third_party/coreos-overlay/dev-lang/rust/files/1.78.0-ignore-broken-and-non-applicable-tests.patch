@@ -18,13 +18,13 @@ index c5c824ac58d..f3fe047a79c 100644
 --- a/tests/ui/env-funky-keys.rs
 +++ b/tests/ui/env-funky-keys.rs
 @@ -1,6 +1,7 @@
- // run-pass
+ //@ run-pass
  // Ignore this test on Android, because it segfaults there.
  
-+// ignore-test
- // ignore-android
- // ignore-windows
- // ignore-cloudabi no execve
++//@ ignore-test
+ //@ ignore-android
+ //@ ignore-windows
+ //@ ignore-wasm32 no execve
 -- 
 2.24.1
 
