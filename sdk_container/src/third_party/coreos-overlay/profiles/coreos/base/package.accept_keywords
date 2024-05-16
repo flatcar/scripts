@@ -106,6 +106,9 @@
 # CVE-2023-39368 and CVE-2023-43490.
 =sys-firmware/intel-microcode-20240312_p20240312 ~amd64
 
+# Keep versions on both arches in sync.
+=sys-libs/binutils-libs-2.42-r1 ~arm64
+
 # Needed to fix CVE-2023-29491.
 =sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
 
