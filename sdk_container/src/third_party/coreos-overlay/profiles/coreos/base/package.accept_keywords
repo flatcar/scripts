@@ -94,8 +94,7 @@
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.28 ~arm64
 =sys-apps/nvme-cli-2.8 ~arm64
-
-sys-apps/zram-generator ~amd64 ~arm64
+=sys-apps/zram-generator-1.1.2 ~arm64
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
