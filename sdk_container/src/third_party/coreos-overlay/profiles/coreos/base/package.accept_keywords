@@ -76,7 +76,7 @@
 
 # Required for addressing CVE-2023-0361, CVE-2023-5981, CVE-2024-0567,
 # CVE-2024-0553, CVE-2024-28834 and CVE-2024-28835.
-=net-libs/gnutls-3.8.5 ~amd64 ~arm64
+=net-libs/gnutls-3.8.5-r1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
