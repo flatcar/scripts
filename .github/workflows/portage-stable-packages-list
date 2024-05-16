@@ -285,7 +285,6 @@ dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
-dev-python/tomli
 dev-python/trove-classifiers
 dev-python/typing-extensions
 dev-python/wheel
