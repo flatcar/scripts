@@ -22,9 +22,10 @@
 
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2-r1 ~arm64
-
-# Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
+
+# Keep versions on both arches in sync.
+=app-emulation/qemu-guest-agent-8.2.0 ~arm64
 
 # Required for addressing CVE-2022-3715.
 =app-shells/bash-5.2_p26 ~amd64 ~arm64
