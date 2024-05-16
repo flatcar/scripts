@@ -100,6 +100,7 @@ app-cdr/cdrtools
 app-containers/cri-tools
 app-containers/docker
 app-containers/docker-cli
+app-containers/podman
 app-containers/runc
 
 app-crypt/adcli
@@ -317,8 +318,8 @@ eclass/cargo.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/desktop.eclass
-eclass/distutils-r1.eclass
 eclass/dist-kernel-utils.eclass
+eclass/distutils-r1.eclass
 eclass/eapi7-ver.eclass
 eclass/eapi8-dosym.eclass
 eclass/edo.eclass
@@ -367,9 +368,9 @@ eclass/python-r1.eclass
 eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
 eclass/readme.gentoo-r1.eclass
+eclass/rpm.eclass
 eclass/ruby-single.eclass
 eclass/ruby-utils.eclass
-eclass/rpm.eclass
 eclass/savedconfig.eclass
 eclass/selinux-policy-2.eclass
 eclass/strip-linguas.eclass
@@ -434,6 +435,7 @@ net-misc/ethertypes
 net-misc/iperf
 net-misc/iputils
 net-misc/ntp
+net-misc/passt
 net-misc/rsync
 net-misc/socat
 net-misc/wget
@@ -514,10 +516,10 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
-sys-boot/mokutil
 # Updating to 3.0.17 breaks building of sys-boot/shim.
 #
 # sys-boot/gnu-efi
+sys-boot/mokutil
 
 sys-devel/bc
 sys-devel/binutils
@@ -552,8 +554,6 @@ sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
-app-containers/podman
-net-misc/passt
 
 sys-kernel/linux-headers
 
