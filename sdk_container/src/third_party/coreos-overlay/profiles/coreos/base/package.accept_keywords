@@ -92,7 +92,7 @@
 =sys-apps/coreutils-9.5 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-apps/kexec-tools-2.0.24 ~arm64
+=sys-apps/kexec-tools-2.0.28 ~arm64
 =sys-apps/nvme-cli-2.8 ~arm64
 
 sys-apps/zram-generator ~amd64 ~arm64
