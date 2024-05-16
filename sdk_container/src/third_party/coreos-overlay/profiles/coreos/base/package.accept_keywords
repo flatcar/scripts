@@ -88,6 +88,9 @@
 # Required to allow us to override the sftp subsystem in sshd config.
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
 
+# Required for podman sysext, no ebuild at all is stable for now.
+=net-misc/passt-2024.05.10 ~amd64 ~arm64
+
 # Required to address coreutils-2024-03-28
 =sys-apps/coreutils-9.5 ~amd64 ~arm64
 
