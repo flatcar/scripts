@@ -28,7 +28,7 @@
 =app-emulation/qemu-guest-agent-8.2.0 ~arm64
 
 # Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p26 ~amd64 ~arm64
+=app-shells/bash-5.2_p26-r3 ~amd64 ~arm64
 
 # Needed by arm64-native SDK.
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
