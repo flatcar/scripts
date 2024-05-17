@@ -54,10 +54,7 @@
 
 # Keep versions on both arches in sync.
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
-
-# Needed to fix a build issue introduced by a wrong change in an older
-# version of the ebuild.
-=dev-libs/libdnet-1.16.4 ~arm64
+=dev-libs/libdnet-1.18.0 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-libs/libp11-0.4.12-r6 ~arm64
