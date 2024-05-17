@@ -20,7 +20,7 @@ SLOT="2.2"
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=10
+PATCH_VER=13
 PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
@@ -576,10 +576,12 @@ setup_env() {
 	# Reset CC and CXX to the value at start of emerge
 	export CC=${glibc__ORIG_CC:-${CC:-$(tc-getCC ${CTARGET})}}
 	export CXX=${glibc__ORIG_CXX:-${CXX:-$(tc-getCXX ${CTARGET})}}
+	export CPP=${glibc__ORIG_CPP:-${CPP:-$(tc-getCPP ${CTARGET})}}
 
 	# and make sure glibc__ORIG_CC and glibc__ORIG_CXX is defined now.
 	export glibc__ORIG_CC=${CC}
 	export glibc__ORIG_CXX=${CXX}
+	export glibc__ORIG_CPP=${CPP}
 
 	if tc-is-clang && ! use custom-cflags && ! is_crosscompile ; then
 		export glibc__force_gcc=yes
@@ -606,6 +608,7 @@ setup_env() {
 		export CC="${current_gcc_path}/gcc"
 		export CPP="${current_gcc_path}/cpp"
 		export CXX="${current_gcc_path}/g++"
+		export CPP="$(tc-getCPP ${CTARGET})"
 		export LD="${current_binutils_path}/ld.bfd"
 		export AR="${current_binutils_path}/ar"
 		export AS="${current_binutils_path}/as"
@@ -644,6 +647,7 @@ setup_env() {
 	# acts on CC?)
 	export glibc__GLIBC_CC=${CC}
 	export glibc__GLIBC_CXX=${CXX}
+	export glibc__GLIBC_CPP=${CPP}
 
 	export glibc__abi_CFLAGS="$(get_abi_CFLAGS)"
 
@@ -658,6 +662,8 @@ setup_env() {
 
 	# Some of the tests are written in C++, so we need to force our multlib abis in, bug 623548
 	export CXX="${glibc__GLIBC_CXX} ${glibc__abi_CFLAGS} ${CFLAGS}"
+
+	export CPP="${glibc__GLIBC_CPP} ${glibc__abi_CFLAGS} ${CFLAGS}"
 
 	if is_crosscompile; then
 		# Assume worst-case bootstrap: glibc is built for the first time
@@ -1265,6 +1271,11 @@ glibc_src_test() {
 		if [[ ${virt} == systemd-nspawn ]] ; then
 			ewarn "Skipping extra tests because in systemd-nspawn container"
 			XFAIL_TEST_LIST+=( "${XFAIL_NSPAWN_TEST_LIST[@]}" )
+		fi
+		if [[ "$(nice)" == "19" ]] ; then
+			# Expects to be able to increase niceness, which it can't do if
+			# already at the highest nice value
+			XFAIL_TEST_LIST+=( "tst-nice" )
 		fi
 
 		for myt in ${XFAIL_TEST_LIST[@]} ; do
