@@ -134,32 +134,13 @@ generate_update() {
   upload_legacy_digests "${update}.DIGESTS" compressed_images
 }
 
-# ldconfig cannot generate caches for non-native arches.
-# Use qemu & the native ldconfig to work around that.
-# http://code.google.com/p/chromium/issues/detail?id=378377
 run_ldconfig() {
-  local root_fs_dir=$1
-  case ${ARCH} in
-  arm64)
-    sudo qemu-aarch64 "${root_fs_dir}"/usr/sbin/ldconfig -r "${root_fs_dir}";;
-  x86|amd64)
-    sudo ldconfig -r "${root_fs_dir}";;
-  *)
-    die "Unable to run ldconfig for ARCH ${ARCH}"
-  esac
+  # This wrapper is created by setup_board.
+  sudo "ldconfig-${BOARD}" -r "$1"
 }
 
 run_localedef() {
-  local root_fs_dir="$1" loader=()
-  case ${ARCH} in
-  arm64)
-    loader=( qemu-aarch64 -L "${root_fs_dir}" );;
-  amd64)
-    loader=( "${root_fs_dir}/usr/lib64/ld-linux-x86-64.so.2" \
-               --library-path "${root_fs_dir}/usr/lib64" );;
-  *)
-    die "Unable to run localedef for ARCH ${ARCH}";;
-  esac
+  local root_fs_dir="$1"
   info "Generating C.UTF-8 locale..."
   local i18n="${root_fs_dir}/usr/share/i18n"
   # localedef will silently fall back to /usr/share/i18n if missing so
@@ -167,8 +148,8 @@ run_localedef() {
   [[ -f "${i18n}/charmaps/UTF-8.gz" ]] || die
   [[ -f "${i18n}/locales/C" ]] || die
   sudo mkdir -p "${root_fs_dir}/usr/lib/locale"
-  sudo I18NPATH="${i18n}" "${loader[@]}" "${root_fs_dir}/usr/bin/localedef" \
-      --prefix="${root_fs_dir}" --charmap=UTF-8 --inputfile=C C.UTF-8
+  sudo I18NPATH="${i18n}" "bwrap-${BOARD}" "${root_fs_dir}" /usr/bin/localedef \
+      --charmap=UTF-8 --inputfile=C C.UTF-8
 }
 
 # Basic command to emerge binary packages into the target image.
@@ -365,7 +346,7 @@ get_metadata() {
             local mirror="$(echo "${v}" | grep mirror:// | cut -d '/' -f 3)"
             if [ -n "${mirror}" ]; then
                 # Take only first mirror, those not working should be removed
-                local location="$(grep "^${mirror}"$'\t' /var/gentoo/repos/gentoo/profiles/thirdpartymirrors | cut -d $'\t' -f 2- | cut -d ' ' -f 1 | tr -d $'\t')"
+                local location="$(grep "^${mirror}"$'\t' /var/gentoo/repos/gentoo-subset/profiles/thirdpartymirrors | cut -d $'\t' -f 2- | cut -d ' ' -f 1 | tr -d $'\t')"
                 v="$(echo "${v}" | sed "s#mirror://${mirror}/#${location}#g")"
             fi
             new_val+="${v} "
@@ -489,8 +470,8 @@ EOF
     local license_list # define before assignment because it would mask any error
     license_list="$(jq -r '.[] | "\(.licenses | .[])"' "${json_input}" | sort | uniq)"
     local license_dirs=(
-        "/mnt/host/source/src/third_party/coreos-overlay/licenses/"
-        "/mnt/host/source/src/third_party/portage-stable/"
+        "/mnt/host/source/src/scripts/repos/flatcar-overlay/licenses/"
+        "/mnt/host/source/src/scripts/repos/gentoo-subset/licenses/"
         "/var/gentoo/repos/gentoo/licenses/"
         "none"
     )

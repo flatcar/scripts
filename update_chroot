@@ -61,10 +61,10 @@ if [[ -n "${FLAGS_dev_builds_sdk}" ]]; then
   FLATCAR_DEV_BUILDS_SDK="${FLAGS_dev_builds_sdk}"
 fi
 
-PORTAGE_STABLE_OVERLAY="${REPO_ROOT}/src/third_party/portage-stable"
+GENTOO_SUBSET_OVERLAY="${SCRIPTS_DIR}/repos/gentoo-subset"
 CROSSDEV_OVERLAY="/usr/local/portage/crossdev"
-COREOS_OVERLAY="${REPO_ROOT}/src/third_party/coreos-overlay"
-COREOS_CONFIG="${COREOS_OVERLAY}/coreos/config"
+FLATCAR_OVERLAY="${SCRIPTS_DIR}/repos/flatcar-overlay"
+COREOS_CONFIG="${FLATCAR_OVERLAY}/coreos/config"
 PORTAGE_BINHOST="$FLAGS_binhost $(get_sdk_binhost)"
 
 # PORTAGE_USERNAME may already be in the env but set just to be safe.
@@ -83,7 +83,7 @@ info "Setting up portage..."
 sudo mkdir -p "${REPO_CACHE_DIR}/distfiles"
 sudo chown "${PORTAGE_USERNAME}:portage" "${REPO_CACHE_DIR}/distfiles"
 sudo mkdir -p /etc/portage/repos.conf /var/lib/portage/pkgs
-sudo ln -sfT "${COREOS_OVERLAY}/coreos/user-patches" '/etc/portage/patches'
+sudo ln -sfT "${FLATCAR_OVERLAY}/coreos/user-patches" '/etc/portage/patches'
 sudo touch /etc/portage/make.conf.user
 
 sudo_clobber "/etc/portage/make.conf" <<EOF
@@ -103,15 +103,17 @@ EMERGE_DEFAULT_OPTS="--verbose --oneshot"
 source "/etc/portage/make.conf.user"
 EOF
 
-sudo_clobber "/etc/portage/repos.conf/coreos.conf" <<EOF
+sudo_clobber "/etc/portage/repos.conf/gentoo-subset.conf" <<EOF
 [DEFAULT]
-main-repo = portage-stable
+main-repo = gentoo-subset
 
-[coreos]
-location = ${COREOS_OVERLAY}
+[gentoo-subset]
+location = ${GENTOO_SUBSET_OVERLAY}
+EOF
 
-[portage-stable]
-location = ${PORTAGE_STABLE_OVERLAY}
+sudo_clobber "/etc/portage/repos.conf/flatcar-overlay.conf" <<EOF
+[flatcar-overlay]
+location = ${FLATCAR_OVERLAY}
 EOF
 
 # Automatically symlink any provided portage repo configurations into
@@ -132,13 +134,13 @@ if [[ -n $(sudo find /mnt/host/source/config/portage/repos \
   if [[ -n $(sudo find /mnt/host/source/config/portage/repos \
     -maxdepth 3 -mindepth 3 -path "*/repos.conf/*" -type f) ]]; then
     info "Symlinking portage repo configuration files into repos.conf dir..."
-    # Do not name any of your repo configs "coreos.conf" bad things will happen.
-    # We abort if any file matches config/portage/repos/*/repos.conf/coreos.conf
+    # Do not name any of your repo configs "flatcar-overlay.conf" bad things will happen.
+    # We abort if any file matches config/portage/repos/*/repos.conf/flatcar-overlay.conf
     if [[ -n $(sudo find /mnt/host/source/config/portage/repos \
-      -maxdepth 3 -mindepth 3 -path "*/repos.conf/*" -name "coreos.conf") ]]; then
+      -maxdepth 3 -mindepth 3 -path "*/repos.conf/*" -name "flatcar-overlay.conf") ]]; then
       die_notrace "One of the portage repo configuration files to be symlinked is " \
-        "named \"coreos.conf\" which will conflict with the main configuation file " \
-        "called \"coreos.conf\" which is created during the chroot build process."
+        "named \"flatcar-overlay.conf\" which will conflict with the main configuation file " \
+        "called \"flatcar-overlay.conf\" which is created during the chroot build process."
     fi
     # We run through all the other files matching config/portage/repos/*/repos.conf/*
     # and symlink them to the right place for portage.

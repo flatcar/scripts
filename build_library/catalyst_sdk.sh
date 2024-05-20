@@ -11,7 +11,7 @@ echo "Setting the default Python interpreter"
 eselect python update
 
 echo "Building cross toolchain for the SDK."
-configure_crossdev_overlay / /tmp/crossdev
+configure_crossdev_overlay / /usr/local/portage/crossdev
 
 for cross_chost in $(get_chost_list); do
     echo "Building cross toolchain for ${cross_chost}"
@@ -21,10 +21,10 @@ for cross_chost in $(get_chost_list); do
         install_cross_rust "${cross_chost}" ${clst_myemergeopts}
 done
 
-echo "Saving snapshot of coreos-overlay repo for future SDK bootstraps"
-# Copy coreos-overlay, which is in /var/gentoo/repos/local/, into a
-# local directory.  /var/gentoo/repos/local/ is removed before archiving
-# and we want to keep a snapshot. This snapshot is used - alongside
-# /var/gentoo/repos/gentoo - by stage 1 of future bootstraps.
-mkdir -p /var/gentoo/repos/coreos-overlay
-cp -R /var/gentoo/repos/local/* /var/gentoo/repos/coreos-overlay
+echo "Saving snapshot of repos for future SDK bootstraps"
+# Copy gentoo-subset and flatcar-overlay, which are under
+# /mnt/host/source/src/scripts/repos, into a local directory because they are
+# removed before archiving and we want to keep snapshots. These snapshots are
+# used by stage 1 in future bootstraps.
+mkdir -p /var/gentoo/repos
+cp -R /mnt/host/source/src/scripts/repos/{gentoo-subset,flatcar-overlay}/ /var/gentoo/repos/

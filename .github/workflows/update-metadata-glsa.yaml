@@ -15,7 +15,7 @@ jobs:
       - name: Update GLSA metadata
         id: update-glsa-metadata
         run: |
-          glsa_dir='sdk_container/src/third_party/portage-stable/metadata/glsa'
+          glsa_dir='repos/gentoo-subset/metadata/glsa'
           rm -rf "${glsa_dir}"
           mkdir --parents "${glsa_dir}"
           rsync --archive rsync://rsync.gentoo.org/gentoo-portage/metadata/glsa/* "${glsa_dir}"
@@ -30,6 +30,6 @@ jobs:
           base: main
           title: Monthly GLSA metadata ${{steps.update-glsa-metadata.outputs.TODAYDATE }}
           body: Updated GLSA metadata
-          commit-message: "portage-stable/metadata: Monthly GLSA metadata updates"
+          commit-message: "gentoo-subset/metadata: Monthly GLSA metadata updates"
           author: Flatcar Buildbot <buildbot@flatcar-linux.org>
           labels: main

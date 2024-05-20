@@ -14,9 +14,8 @@ if [[ ! -d "${WORK_SCRIPTS_DIR:-}" ]]; then
 fi
 
 readonly SDK_OUTER_TOPDIR="${WORK_SCRIPTS_DIR}"
-readonly SDK_OUTER_OVERLAY="${SDK_OUTER_TOPDIR}/sdk_container/src/third_party/coreos-overlay"
-readonly SDK_INNER_SRCDIR="/mnt/host/source/src"
-readonly SDK_INNER_OVERLAY="${SDK_INNER_SRCDIR}/third_party/coreos-overlay"
+readonly SDK_OUTER_OVERLAY="${SDK_OUTER_TOPDIR}/repos/flatcar-overlay"
+readonly SDK_INNER_OVERLAY="/mnt/host/source/src/scripts/repos/flatcar-overlay"
 
 readonly BUILDBOT_USERNAME="Flatcar Buildbot"
 readonly BUILDBOT_USEREMAIL="buildbot@flatcar-linux.org"

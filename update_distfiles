@@ -26,7 +26,7 @@ eval set -- "${FLAGS_ARGV}"
 switch_to_strict_mode
 
 if [[ $# -eq 0 ]]; then
-    eval set -- portage-stable coreos
+    eval set -- gentoo-subset coreos
 fi
 
 GSUTIL_OPTS=

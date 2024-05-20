@@ -25,13 +25,14 @@ BINPKGS=
 DISTDIR=
 TEMPDIR=
 STAGES=
+unset QEMU
 
 DEFINE_string catalyst_root "${DEFAULT_CATALYST_ROOT}" \
     "Path to directory for all catalyst images and other files."
-DEFINE_string portage_stable "${SRC_ROOT}/third_party/portage-stable" \
-    "Path to the portage-stable git checkout."
-DEFINE_string coreos_overlay "${SRC_ROOT}/third_party/coreos-overlay" \
-    "Path to the coreos-overlay git checkout."
+DEFINE_string gentoo_subset "${SCRIPTS_DIR}/repos/gentoo-subset" \
+    "Path to the gentoo-subset git checkout."
+DEFINE_string flatcar_overlay "${SCRIPTS_DIR}/repos/flatcar-overlay" \
+    "Path to the flatcar-overlay git checkout."
 DEFINE_string seed_tarball "${DEFAULT_SEED}" \
     "Path to an existing stage tarball to start from."
 DEFINE_string version "${FLATCAR_VERSION}" \
@@ -55,17 +56,15 @@ DEFINE_boolean debug ${FLAGS_FALSE} "Enable verbose output from catalyst."
 catalyst_conf() {
 cat <<EOF
 # catalyst.conf
-contents="auto"
-digests="md5 sha1 sha512 whirlpool"
-hash_function="crc32"
-options="pkgcache"
+digests=["md5", "sha1", "sha512", "blake2b"]
+options=["pkgcache"]
 sharedir="/usr/share/catalyst"
 storedir="$CATALYST_ROOT"
 distdir="$DISTDIR"
 envscript="$TEMPDIR/catalystrc"
 port_logdir="$CATALYST_ROOT/log"
-portdir="$FLAGS_portage_stable"
-snapshot_cache="$CATALYST_ROOT/tmp/snapshot_cache"
+repo_basedir="/mnt/host/source/src/scripts/repos"
+repo_name="gentoo-subset"
 EOF
 }
 
@@ -82,61 +81,49 @@ export ac_cv_posix_semaphores_enabled=yes
 EOF
 }
 
-repos_conf() {
-cat <<EOF
-[DEFAULT]
-main-repo = portage-stable
-
-[coreos]
-location = /var/gentoo/repos/local
-
-[portage-stable]
-location = /var/gentoo/repos/gentoo
-EOF
-}
-
 # Common values for all stage spec files
 catalyst_stage_default() {
 cat <<EOF
+target: stage$1
 subarch: $ARCH
 rel_type: $TYPE
 portage_confdir: $TEMPDIR/portage
-portage_overlay: $FLAGS_coreos_overlay
+repos: $FLAGS_flatcar_overlay
+keep_repos: gentoo-subset flatcar-overlay
 profile: $FLAGS_profile
-snapshot: $FLAGS_version
+snapshot_treeish: $FLAGS_version
 version_stamp: $FLAGS_version
 cflags: -O2 -pipe
 cxxflags: -O2 -pipe
 ldflags: -Wl,-O2 -Wl,--as-needed
+source_subpath: ${SEED}
+${QEMU+interpreter: $(type -P "${QEMU}")}
 EOF
 }
 
 # Config values for each stage
 catalyst_stage1() {
 cat <<EOF
-target: stage1
 # stage1 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
 update_seed: no
 EOF
-catalyst_stage_default
+catalyst_stage_default 1
 }
 
 catalyst_stage2() {
 cat <<EOF
-target: stage2
 # stage2 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage2-${ARCH}-packages
 EOF
-catalyst_stage_default
+catalyst_stage_default 2
 }
 
 catalyst_stage3() {
 cat <<EOF
-target: stage3
 pkgcache_path: $BINPKGS
 EOF
-catalyst_stage_default
+catalyst_stage_default 3
 }
 
 catalyst_stage4() {
@@ -207,8 +194,8 @@ catalyst_init() {
     # so far so good, expand path to work with weird comparison code below
     FLAGS_seed_tarball=$(readlink -f "$FLAGS_seed_tarball")
 
-    if [[ ! "$FLAGS_seed_tarball" =~ .*\.tar\.bz2 ]]; then
-        die_notrace "Seed tarball doesn't end in .tar.bz2 :-/"
+    if [[ ! "$FLAGS_seed_tarball" =~ .\.tar\.(bz2|xz) ]]; then
+        die_notrace "Seed tarball doesn't end in .tar.bz2 or .tar.xz :-/"
     fi
 
     # catalyst is obnoxious and wants the $TYPE/stage3-$VERSION part of the
@@ -216,48 +203,53 @@ catalyst_init() {
     # directory under $TEMPDIR instead, aka the SEEDCACHE feature.)
     if [[ "$FLAGS_seed_tarball" =~ "$CATALYST_ROOT/builds/".* ]]; then
         SEED="${FLAGS_seed_tarball#$CATALYST_ROOT/builds/}"
-        SEED="${SEED%.tar.bz2}"
+        SEED="${SEED%.tar.*}"
     else
         mkdir -p "$CATALYST_ROOT/builds/seed"
         cp -n "$FLAGS_seed_tarball" "$CATALYST_ROOT/builds/seed"
         SEED="seed/${FLAGS_seed_tarball##*/}"
-        SEED="${SEED%.tar.bz2}"
+        SEED="${SEED%.tar.*}"
+    fi
+
+    # Emulate the build, if needed. Note the SDK itself may already be emulated,
+    # so check the requested arch against the kernel's real arch, not uname -m.
+    if [[ ${ARCH} != $(get_portage_arch "$(< /proc/sys/kernel/arch)") ]]; then
+        case "${ARCH}" in
+            amd64) QEMU=qemu-x86_64 ;;
+            arm64) QEMU=qemu-aarch64 ;;
+            riscv) QEMU=qemu-riscv64 ;;
+        esac
     fi
 }
 
 write_configs() {
     info "Creating output directories..."
-    mkdir -m 775 -p "$TEMPDIR/portage/repos.conf" "$DISTDIR"
+    mkdir -m 775 -p "$DISTDIR"
     chown portage:portage "$DISTDIR"
     info "Writing out catalyst configs..."
     info "    catalyst.conf"
     catalyst_conf > "$TEMPDIR/catalyst.conf"
     info "    catalystrc"
     catalystrc > "$TEMPDIR/catalystrc"
-    info "    portage/repos.conf/coreos.conf"
-    repos_conf > "$TEMPDIR/portage/repos.conf/coreos.conf"
     info "    stage1.spec"
     catalyst_stage1 > "$TEMPDIR/stage1.spec"
-    info "    stage2.spec"
-    catalyst_stage2 > "$TEMPDIR/stage2.spec"
-    info "    stage3.spec"
-    catalyst_stage3 > "$TEMPDIR/stage3.spec"
-    info "    stage4.spec"
-    catalyst_stage4 > "$TEMPDIR/stage4.spec"
-    info "Putting a symlink to user patches..."
-    ln -sfT '/var/gentoo/repos/local/coreos/user-patches' \
-        "$TEMPDIR/portage/patches"
+
+    info "Configuring Portage..."
+    cp -r "${BUILD_LIBRARY_DIR}"/portage/ "${TEMPDIR}/"
+
+    ln -sfT '/var/gentoo/repos/flatcar-overlay/coreos/user-patches' \
+        "${TEMPDIR}"/portage/patches
+
+    [[ -n ${QEMU} ]] ||
+        rm "${TEMPDIR}"/portage/package.env/qemu
 }
 
 build_stage() {
-    local stage srcpath catalyst_conf target_tarball
+    local stage catalyst_conf target_tarball
 
     stage="$1"
-    srcpath="$2"
-    catalyst_conf="$3"
+    catalyst_conf="$TEMPDIR/catalyst.conf"
     target_tarball="${stage}-${ARCH}-${FLAGS_version}.tar.bz2"
-
-    [ -z "$catalyst_conf" ] && catalyst_conf="$TEMPDIR/catalyst.conf"
 
     if [[ -f "$BUILDS/${target_tarball}" && $FLAGS_rebuild == $FLAGS_FALSE ]]
     then
@@ -270,8 +262,7 @@ build_stage() {
         "${DEBUG[@]}" \
         --verbose \
         --config "$TEMPDIR/catalyst.conf" \
-        --file "$TEMPDIR/${stage}.spec" \
-        --cli "source_subpath=$srcpath"
+        --file "$TEMPDIR/${stage}.spec"
     # Catalyst does not clean up after itself...
     rm -rf "$TEMPDIR/$stage-${ARCH}-${FLAGS_version}"
     ln -sf "$stage-${ARCH}-${FLAGS_version}.tar.bz2" \
@@ -280,46 +271,19 @@ build_stage() {
 }
 
 build_snapshot() {
-    local catalyst_conf snapshot snapshots_dir snapshot_base snapshot_path
+    local repo_dir snapshot snapshots_dir snapshot_path
 
-    catalyst_conf=${1:-"${TEMPDIR}/catalyst.conf"}
+    repo_dir=${1:-"${FLAGS_gentoo_subset}"}
     snapshot=${2:-"${FLAGS_version}"}
     snapshots_dir="${CATALYST_ROOT}/snapshots"
-    snapshot_base="${snapshots_dir}/gentoo-${snapshot}"
-    snapshot_path="${snapshot_base}.tar.bz2"
-    if [[ -f "${snapshot_path}" && $FLAGS_rebuild == $FLAGS_FALSE ]]
+    snapshot_path="${snapshots_dir}/gentoo-subset-${snapshot}.sqfs"
+    if [[ -f ${snapshot_path} && $FLAGS_rebuild == $FLAGS_FALSE ]]
     then
         info "Skipping snapshot, ${snapshot_path} exists"
     else
         info "Creating snapshot ${snapshot_path}"
-        catalyst \
-            "${DEBUG[@]}" \
-            --verbose \
-            --config "${catalyst_conf}" \
-            --snapshot "${snapshot}"
-    fi
-    local f
-    local to_remove=()
-    # This will expand to at least our just built snapshot tarball, so
-    # no nullglob is needed here.
-    for f in "${snapshot_base}".*; do
-        case "${f}" in
-            "${snapshot_path}")
-                # Our snapshot, keep it as is.
-                :
-                ;;
-            *.CONTENTS|*.CONTENTS.gz|*.DIGESTS)
-                # These can stay, catalyst is not bothered by those.
-                :
-                ;;
-            *)
-                to_remove+=("${f}")
-                ;;
-        esac
-    done
-    if [[ ${#to_remove[@]} -gt 0 ]]; then
-        info "$(printf '%s\n' 'Found spurious files in snapshots directory that may confuse Catalyst, removing them:' "${to_remove[@]}")"
-        rm -rf "${to_remove[@]}"
+        mkdir -p "${snapshot_path%/*}"
+        tar -c -C "${repo_dir}" . | tar2sqfs "${snapshot_path}" -q -f -j1 -c gzip
     fi
 }
 
@@ -335,7 +299,7 @@ catalyst_build() {
 
     used_seed=0
     if [[ "$STAGES" =~ stage1 ]]; then
-        build_stage stage1 "$SEED"
+        build_stage stage1
         used_seed=1
     fi
 
@@ -343,7 +307,9 @@ catalyst_build() {
         if [[ $used_seed -eq 1 ]]; then
             SEED="${TYPE}/stage1-${ARCH}-latest"
         fi
-        build_stage stage2 "$SEED"
+        info "    stage2.spec"
+        catalyst_stage2 > "$TEMPDIR/stage2.spec"
+        build_stage stage2
         used_seed=1
     fi
 
@@ -351,7 +317,9 @@ catalyst_build() {
         if [[ $used_seed -eq 1 ]]; then
             SEED="${TYPE}/stage2-${ARCH}-latest"
         fi
-        build_stage stage3 "$SEED"
+        info "    stage3.spec"
+        catalyst_stage3 > "$TEMPDIR/stage3.spec"
+        build_stage stage3
         used_seed=1
     fi
 
@@ -359,10 +327,12 @@ catalyst_build() {
         if [[ $used_seed -eq 1 ]]; then
             SEED="${TYPE}/stage3-${ARCH}-latest"
         fi
-        build_stage stage4 "$SEED"
+        info "    stage4.spec"
+        catalyst_stage4 > "$TEMPDIR/stage4.spec"
+        build_stage stage4
         used_seed=1
     fi
 
     # Cleanup snapshots, we don't use them
-    rm -rf "$CATALYST_ROOT/snapshots/gentoo-${FLAGS_version}.tar.bz2"*
+    rm -rf "$CATALYST_ROOT/snapshots/${FLAGS_gentoo_subset##*/}-${FLAGS_version}.sqfs"*
 }
