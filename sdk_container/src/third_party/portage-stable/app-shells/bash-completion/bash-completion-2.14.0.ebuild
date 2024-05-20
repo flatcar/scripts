@@ -3,16 +3,23 @@
 
 EAPI=8
 
+BASHCOMP_P=bashcomp-2.0.3
 PYTHON_COMPAT=( python3_{10..12} )
 
-inherit autotools git-r3 python-any-r1
+inherit python-any-r1
 
 DESCRIPTION="Programmable Completion for bash"
 HOMEPAGE="https://github.com/scop/bash-completion"
-EGIT_REPO_URI="https://github.com/scop/bash-completion"
+SRC_URI="
+	https://github.com/scop/bash-completion/releases/download/${PV}/${P}.tar.xz
+	eselect? (
+		https://github.com/projg2/bashcomp2/releases/download/v${BASHCOMP_P#*-}/${BASHCOMP_P}.tar.gz
+	)
+"
 
 LICENSE="GPL-2+"
 SLOT="0"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="+eselect test"
 RESTRICT="!test? ( test )"
 
@@ -29,7 +36,6 @@ BDEPEND="
 		$(python_gen_any_dep '
 			dev-python/pexpect[${PYTHON_USEDEP}]
 			dev-python/pytest[${PYTHON_USEDEP}]
-			dev-python/pytest-forked[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		')
 	)
@@ -37,6 +43,10 @@ BDEPEND="
 PDEPEND="
 	>=app-shells/gentoo-bashcomp-20140911
 "
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.14.0-optimize-kernel-modules.patch
+)
 
 strip_completions() {
 	# Remove unwanted completions.
@@ -72,7 +82,6 @@ strip_completions() {
 python_check_deps() {
 	python_has_version "dev-python/pexpect[${PYTHON_USEDEP}]" &&
 	python_has_version "dev-python/pytest[${PYTHON_USEDEP}]" &&
-	python_has_version "dev-python/pytest-forked[${PYTHON_USEDEP}]" &&
 	python_has_version "dev-python/pytest-xdist[${PYTHON_USEDEP}]"
 }
 
@@ -80,24 +89,12 @@ pkg_setup() {
 	use test && python-any-r1_pkg_setup
 }
 
-src_unpack() {
-	use eselect && git-r3_fetch https://github.com/projg2/bashcomp2
-	git-r3_fetch
-
-	use eselect && git-r3_checkout https://github.com/projg2/bashcomp2 \
-		"${WORKDIR}"/bashcomp2
-	git-r3_checkout
-}
-
 src_prepare() {
 	if use eselect; then
-		# generate and apply patch
-		emake -C "${WORKDIR}"/bashcomp2 bash-completion-blacklist-support.patch
-		eapply "${WORKDIR}"/bashcomp2/bash-completion-blacklist-support.patch
+		eapply "${WORKDIR}/${BASHCOMP_P}/bash-completion-blacklist-support.patch"
 	fi
 
-	eapply_user
-	eautoreconf
+	default
 }
 
 src_test() {
@@ -123,7 +120,7 @@ src_test() {
 	# used in pytest tests
 	local -x NETWORK=none
 	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-	local -x PYTEST_PLUGINS=xdist.plugin,pytest_forked
+	local -x PYTEST_PLUGINS=xdist.plugin
 	emake -C completions check
 	epytest
 }
@@ -148,8 +145,9 @@ src_install() {
 
 	# install the eselect module
 	if use eselect; then
-		emake -C "${WORKDIR}"/bashcomp2 DESTDIR="${D}" \
-			PREFIX="${EPREFIX}/usr" install
+		insinto /usr/share/eselect/modules
+		doins "${WORKDIR}/${BASHCOMP_P}/bashcomp.eselect"
+		doman "${WORKDIR}/${BASHCOMP_P}/bashcomp.eselect.5"
 	fi
 }
 
