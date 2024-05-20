@@ -3,7 +3,7 @@
 This overlay contains Container Linux specific packages and Gentoo packages
 that differ from their upstream Gentoo versions.
 
-See the [portage-stable](https://github.com/coreos/portage-stable) repo
+See the [gentoo-subset](https://github.com/flatcar/scripts/repos/gentoo-subset) repo
 for packages which do not have Container Linux specific changes.
 
 Licensing information can be found in the respective files, so consult
@@ -29,7 +29,7 @@ development or production image, plus any OEM specific packages.
 that belong in the OEM partition. Any RDEPENDS from these packages should
 be copied to the RDEPENDS in `board-packages` to ensure they are built.
 
-`coreos-base/coreos-oem-*` are metapackages for OEM specific ACIs. 
+`coreos-base/coreos-oem-*` are metapackages for OEM specific ACIs.
 
 # Updating
 
@@ -39,7 +39,7 @@ To update follow the following steps:
   upstream Gentoo, not only resetting the ebuild file but also any additional
   files like patches or downstream additions under `files`.
 * Run `~/trunk/src/scripts/update_ebuilds --portage_stable . CATEGORY/PACKAGE`
-  in the `coreos-overlay` folder to import a new version from upstream Gentoo.
+  in the `flatcar-overlay` folder to import a new version from upstream Gentoo.
   Drop the ebuild files that you don't plan to use.
 * Commit the changes with a message like `CATEGORY/PACKAGE: Sync from Gentoo`,
   and mention the the commit ID in the body (`git show update_ebuilds/master`).

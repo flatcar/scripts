@@ -23,7 +23,7 @@ cleanup=""
 usage() {
     echo "  $0 - Update SDK container image."
     echo "       Create a new container image based on the current SDK ($base_sdk_version)"
-    echo "       with current changes from coreos-overlay and portage-stable."
+    echo "       with current changes from flatcar-overlay and gentoo-subset."
     echo
     echo "       Just like build_sdk_container_image the resulting container comes in 3 flavours:"
     echo "        1.    flatcar-sdk-all - includes both ARM64 and AMD64 support"

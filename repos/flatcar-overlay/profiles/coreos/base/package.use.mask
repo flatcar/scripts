@@ -14,7 +14,7 @@ sys-libs/ncurses cxx
 # stage1, because ncurses >= 6.2_p20210619 which does not have the USE
 # flag at all.
 # To fix that, exclude the unicode USE flag from packages.use.force list,
-# which is defined in portage-stable.
+# which is defined in gentoo-subset.
 app-editors/nano unicode
 
 # Pulls dev-python/sphinx, which in turn pulls a lot of other python stuff.

@@ -81,8 +81,8 @@ function ricj_callback() {
         "PATH=${PATH}:${PWD}/ci-automation/python-bin"
         # Override the default locations of repositories.
         "SCRIPTS_REPO=."
-        "COREOS_OVERLAY_REPO=../coreos-overlay"
-        "PORTAGE_STABLE_REPO=../portage-stable"
+        "FLATCAR_OVERLAY_REPO=../flatcar-overlay"
+        "GENTOO_SUBSET_REPO=../gentoo-subset"
     )
     show_changes_params+=(
         # The show-changes script expects a tag name, so using git tag
@@ -251,7 +251,7 @@ function get_oem_id_list() {
     arch=${1}; shift
     list_var_name=${1}; shift
 
-    local -a ebuilds=("${scripts_repo}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/common-oem-files-"*'.ebuild')
+    local -a ebuilds=("${scripts_repo}/repos/flatcar-overlay/coreos-base/common-oem-files/common-oem-files-"*'.ebuild')
     if [[ ${#ebuilds[@]} -eq 0 ]] || [[ ! -e ${ebuilds[0]} ]]; then
         echo "No coreos-base/common-oem-files ebuilds?!" >&2
         exit 1

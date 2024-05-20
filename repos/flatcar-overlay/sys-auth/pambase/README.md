@@ -1,5 +1,5 @@
 This is a not-really-a-fork of gentoo's `sys-auth/pambase`
-package. The main reasons for having it in `coreos-overlay` are:
+package. The main reasons for having it in `flatcar-overlay` are:
 
 1. The `sys-apps/baselayout` package replaced it, so this package
    became a stub.

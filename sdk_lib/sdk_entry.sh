@@ -10,13 +10,8 @@ fi
 
 chown -R sdk:sdk /home/sdk
 
-# Fix up SDK repo configuration to use the new coreos-overlay name.
-sed -i -r 's/^\[coreos\]/[coreos-overlay]/' /etc/portage/repos.conf/coreos.conf 2>/dev/null
-sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/crossdev/metadata/layout.conf 2>/dev/null
-
-# Check if the OS image version we're working on is newer than
-#  the SDK container version and if it is, update the boards
-#  chroot portage conf to point to the correct binhost.
+# Check if the OS image version we're working on is newer than the SDK container
+# version and if it is, update the configuration for the SDK and the boards.
 (
     source /etc/lsb-release # SDK version in DISTRIB_RELEASE
     source /mnt/host/source/.repo/manifests/version.txt # OS image version in FLATCAR_VERSION_ID
@@ -29,6 +24,9 @@ sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/c
     fi
 
     if [ "${version}" != "${DISTRIB_RELEASE}" ] ; then
+        # Fix up SDK repo configuration to use the new layout.
+        sudo su sdk -l -c "/home/sdk/trunk/src/scripts/update_chroot --setuponly"
+
         for target in amd64-usr arm64-usr; do
             if [ ! -d "/build/$target" ] ; then
                 continue

@@ -1,6 +1,6 @@
 The patch for configure.ac is not upstreamable at all, we either need
 to modify the ebuild or the build system. We went with the latter, so
-the ebuild could eventually be moved to portage-stable.
+the ebuild could eventually be moved to gentoo-subset.
 
 Git repo of open-vm-tools has a different layout of files than the
 tarball. The files that are in toplevel directory in tarball (like

@@ -1,2 +1,2 @@
-portage-stable:default/linux/amd64/17.1/no-multilib/hardened
+gentoo-subset:default/linux/amd64/17.1/no-multilib/hardened
 :coreos/base

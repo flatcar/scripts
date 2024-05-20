@@ -30,8 +30,4 @@ function clone_version() {
 sudo chown -R sdk:sdk /home/sdk /mnt/host/source
 
 version="$(source /mnt/host/source/.repo/manifests/version.txt; echo $FLATCAR_VERSION)"
-
-rmdir /mnt/host/source/src/third_party
-ln -s /mnt/host/source/src/scripts/sdk_container/src/third_party /mnt/host/source/src/
-
 clone_version scripts /home/sdk/trunk/src/scripts "$version"

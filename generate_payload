@@ -388,7 +388,7 @@ for d in ./data/*/*; do
     for FILE_PATH in "${DATA_DIR}"/*.sig; do
       gpg --verify "${FILE_PATH}"
     done
-    
+
     echo "Generating extension payloads for ${DATA_DIR}"
     shopt -s nullglob
     for EXTENSION_PATH in "${DATA_DIR}/flatcar-"*.raw "${DATA_DIR}/oem-"*.raw; do
@@ -401,7 +401,7 @@ for d in ./data/*/*; do
           --image "${EXTENSION_PATH}" \
           --output "${OUTPUT_PATH}" \
           --private_keys "${PRIVATE_KEYS}" \
-          --public_keys "/mnt/host/source/src/scripts/sdk_container/src/third_party/coreos-overlay/coreos-base/coreos-au-key/files/official-v2.pub.pem" \
+          --public_keys "/mnt/host/source/src/scripts/repos/flatcar-overlay/coreos-base/coreos-au-key/files/official-v2.pub.pem" \
           --keys_separator "+"
       else
         echo "ERROR: Found update payload already: ${OUTPUT_PATH}."
@@ -409,10 +409,10 @@ for d in ./data/*/*; do
       fi
     done
     shopt -u nullglob
-    
+
     echo "Extracting flatcar_production_update.bin.bz2 for ${DATA_DIR}"
     bunzip2 -f -k "${DATA_DIR}/flatcar_production_update.bin.bz2"
-    
+
     echo "Generating generic update payload for ${DATA_DIR}"
     OUTPUT_PATH="${DATA_DIR}/flatcar_production_update.gz"
     if [ ! -f "${OUTPUT_PATH}" ]; then
@@ -422,12 +422,12 @@ for d in ./data/*/*; do
             --kernel "${DATA_DIR}/flatcar_production_image.vmlinuz" \
             --output "${OUTPUT_PATH}" \
             --private_keys "${PRIVATE_KEYS}" \
-            --public_keys "/mnt/host/source/src/scripts/sdk_container/src/third_party/coreos-overlay/coreos-base/coreos-au-key/files/official-v2.pub.pem" \
+            --public_keys "/mnt/host/source/src/scripts/repos/flatcar-overlay/coreos-base/coreos-au-key/files/official-v2.pub.pem" \
             --keys_separator "+"
     else
         echo "ERROR: Found update payload already: ${OUTPUT_PATH}."
         exit 1
     fi
-    
+
     echo "Payload generated: ${OUTPUT_PATH}"
 done

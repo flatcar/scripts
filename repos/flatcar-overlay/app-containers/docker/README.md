@@ -1,1 +1,1 @@
-This is a temporary overlay over portage-stable until Gentoo catches up with package versions.
+This is a temporary overlay over gentoo-subset until Gentoo catches up with package versions.
