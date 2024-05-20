@@ -1,7 +1,7 @@
 We keep this package in overlay, because we carry one extra patch for
 the unit generator. It was posted upstream and remains
 unacknowledged. We could try sending the patch to gentoo, so we can
-bring this package back to portage-stable.
+bring this package back to gentoo-subset.
 
 The lvm2-activation(-early).service was triggered multiple times which
 if done too quickly leads to a failure like this:

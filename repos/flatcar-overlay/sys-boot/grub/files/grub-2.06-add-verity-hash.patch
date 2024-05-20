@@ -8,7 +8,7 @@ system via the kernel command line
 
 The patch is prepared using the coreos/grub PRs, picking the only
 required ones, and dropping the others. The README.md file in the
-coreos-overlay/sys-boot/grub/ contains more contexual information
+flatcar-overlay/sys-boot/grub/ contains more contexual information
 along with the commits used to create the patch.
 
 Authored-by: Matthew Garrett <mjg59@coreos.com>

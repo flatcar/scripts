@@ -1,4 +1,4 @@
-name: Keep portage-stable packages updated
+name: Keep gentoo-subset packages updated
 on:
   schedule:
     - cron:  '0 7 * * 1'
@@ -35,10 +35,10 @@ jobs:
           git config --global user.name "Flatcar Buildbot"
           git config --global user.email "buildbot@flatcar-linux.org"
           old_head=$(git -C scripts rev-parse HEAD)
-          packages_list=$(realpath scripts/.github/workflows/portage-stable-packages-list)
+          packages_list=$(realpath scripts/.github/workflows/gentoo-subset-packages-list)
           gentoo_repo=$(realpath gentoo)
           build_scripts=$(realpath flatcar-build-scripts)
-          pushd scripts/sdk_container/src/third_party/portage-stable
+          pushd scripts/repos/gentoo-subset
           while read -r package; do
               if [[ ! -e "${package}" ]]; then
                   # If this happens, it means that the package was moved to overlay
@@ -50,7 +50,7 @@ jobs:
                   # If this happens, it means that the package was obsoleted or moved
                   # in Gentoo. The obsoletion needs to be handled in the case-by-case
                   # manner, while move should be handled by doing the same move
-                  # in portage-stable. The build should not break because of the move,
+                  # in gentoo-subset. The build should not break because of the move,
                   # because most likely it's already reflected in the profiles/updates
                   # directory.
                   echo "::warning title=${package}::Obsolete or moved package"
@@ -73,10 +73,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: scripts
-          branch: buildbot/weekly-portage-stable-package-updates-${{steps.update-listed-packages.outputs.TODAYDATE }}
+          branch: buildbot/weekly-gentoo-subset-package-updates-${{steps.update-listed-packages.outputs.TODAYDATE }}
           delete-branch: true
           base: main
-          title: Weekly portage-stable package updates ${{steps.update-listed-packages.outputs.TODAYDATE }}
+          title: Weekly gentoo-subset package updates ${{steps.update-listed-packages.outputs.TODAYDATE }}
           body: |
             CI: TODO
 

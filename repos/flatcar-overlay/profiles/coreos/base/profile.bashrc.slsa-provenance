@@ -123,7 +123,7 @@ __slsa_provenance_resolved_dependencies() {
     einfo "    Provenance: recording ebuild material (input) '${spm_repo}/${ebuild}'"
 
     local repo_uri uri
-    repo_uri="https://raw.githubusercontent.com/flatcar/scripts/${scripts_hash}/sdk_container/src/third_party/${spm_repo}"
+    repo_uri="https://raw.githubusercontent.com/flatcar/scripts/${scripts_hash}/repos/${spm_repo}"
     uri="${repo_uri}/${ebuild}"
     __slsa_rd_printf "${uri}" 'sha1' "${csum}"
 

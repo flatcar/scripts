@@ -17,13 +17,13 @@ usage() {
     echo "  Usage:"
     echo "  $0 [-t|-b] [-n] [-u <strategy>] <tag-or-branch>"
     echo "       Check our a tag or branch and synchronise git submodules"
-    echo "          coreos-overlay and portage-stable."
+    echo "          flatcar-overlay and gentoo-subset."
     echo "       By default, $0 tries to auto-detect whether to handle a tag or a branch,"
     echo "         with tags being prioritised over branches of the same name."
     echo
     echo "       <tag-or-branch> Name of the tag or branch to check out."
-    echo "                       BRANCH: Check out the branch in scripts, coreos-overlay"
-    echo "                                and portage-stable, and fast-forward to the"
+    echo "                       BRANCH: Check out the branch in scripts, flatcar-overlay"
+    echo "                                and gentoo-subset, and fast-forward to the"
     echo "                                latest changes by default (but see '-u' below)."
     echo "                       TAG:    Check out the tag in scripts, and update submodules."
     echo
@@ -90,8 +90,8 @@ esac
 
 # make sure submodules are initialised
 git submodule init
-for dir in sdk_container/src/third_party/coreos-overlay \
-           sdk_container/src/third_party/portage-stable ; do
+for dir in repos/flatcar-overlay \
+           repos/gentoo-subset ; do
     if [ ! -f "$dir"/.git ] ; then
         git submodule update -N "$dir"
     fi
@@ -111,10 +111,10 @@ function check_all() {
         return
     fi
 
-    local overlay="$(git -C sdk_container/src/third_party/coreos-overlay $gitcmd \
+    local overlay="$(git -C repos/flatcar-overlay $gitcmd \
                         | sed -e 's/^[[:space:]]*//' -e 's:remotes/[^/]\+/::' \
                         | grep -m1 -E "^$name\$")"
-    local portage="$(git -C sdk_container/src/third_party/portage-stable $gitcmd \
+    local portage="$(git -C repos/gentoo-subset $gitcmd \
                         | sed -e 's/^[[:space:]]*//' -e 's:remotes/[^/]\+/::' \
                         | grep -m1 -E "^$name\$")"
 
@@ -129,8 +129,8 @@ function check_all() {
 #
 if ! $force_branch; then
     for dir in . \
-        sdk_container/src/third_party/coreos-overlay \
-        sdk_container/src/third_party/portage-stable ; do
+        repos/flatcar-overlay \
+        repos/gentoo-subset ; do
         git -C "$dir" fetch --tags --force --prune --prune-tags
     done
     tag="$(check_all 'tag -l' "$name")"
@@ -166,8 +166,8 @@ echo
 echo "Checking out BRANCH '$branch'"
 echo "----------------------------------"
 for dir in . \
-    sdk_container/src/third_party/coreos-overlay \
-    sdk_container/src/third_party/portage-stable ; do
+    repos/flatcar-overlay \
+    repos/gentoo-subset ; do
 
     git -C "$dir" checkout "$branch"
     if [ -n "$update_strategy" ] ; then
@@ -175,4 +175,3 @@ for dir in . \
         git -C "$dir" pull "$update_strategy"
     fi
 done
-

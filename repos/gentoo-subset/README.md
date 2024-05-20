@@ -22,7 +22,7 @@ If you'd prefer to use a local copy of the portage tree, you can point
 Licensing information can be found in the respective files, so consult
 them directly. Most ebuilds are licensed under the GPL version 2.
 
-Upstream Gentoo sources: http://sources.gentoo.org/gentoo-x86/
+Upstream Gentoo sources: https://gitweb.gentoo.org/repo/gentoo.git/
 
 # Removing packages
 
@@ -55,7 +55,7 @@ Furthermore, the SDK bootstrapping process uses a list of packages defined the b
 file. Install `dev-util/catalyst` and run `/usr/lib64/catalyst/targets/stage1/build.py` to get a list of packages
 needed for the boostrapping process, then run `emerge --emptytree` on that list.
 
-A package's ebuild must be removed from `portage-stable` _and_ the package must be removed locally. If only the
+A package's ebuild must be removed from `gentoo-subset` _and_ the package must be removed locally. If only the
 ebuild is removed, the package will be silently elided in the `emerge --emptytree` dependency list.
 To see if there are any packages installed without ebuilds run `eix -tTc`. There are no `eix-<arch>-usr` wrappers, so double
 check the packages are also unmerged via the `emerge-<arch>-usr` commands. Make sure to run
@@ -72,9 +72,9 @@ See [this bug](https://bugs.gentoo.org/127956).
 ## grep, git grep, repo grep, ripgrep, find, etc
 
 Use your favorite grep variant to see if the package is used anywhere. Good places to double check are
-coreos-overlay, manifest, scripts, and portage-stable, as well as anything specific to the package.
+flatcar-overlay, manifest, scripts, and gentoo-subset, as well as anything specific to the package.
 
-Be sure to check `coreos-overlay` to ensure there are no use flags, accept_keywords, or other leftover bits
+Be sure to check `flatcar-overlay` to ensure there are no use flags, accept_keywords, or other leftover bits
 relating to the package being removed.
 
 ## Updating the metadata cache
@@ -82,9 +82,9 @@ relating to the package being removed.
 If you remove a package, make sure to delete the corresponding files in
 metadata/md5cache, or run use egencache to do it for you:
 ```
-    egencache --update --repo portage-stable
+    egencache --update --repo gentoo-subset
 ```
-There is also `scripts/update_metadata` which will update both `portage-stable` and `coreos-overlay`
+There is also `scripts/update_metadata` which will update both `gentoo-subset` and `flatcar-overlay`
 and optionally generate a commit message.
 
 ## Testing changes

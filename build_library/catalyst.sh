@@ -28,10 +28,10 @@ STAGES=
 
 DEFINE_string catalyst_root "${DEFAULT_CATALYST_ROOT}" \
     "Path to directory for all catalyst images and other files."
-DEFINE_string portage_stable "${SRC_ROOT}/third_party/portage-stable" \
-    "Path to the portage-stable git checkout."
-DEFINE_string coreos_overlay "${SRC_ROOT}/third_party/coreos-overlay" \
-    "Path to the coreos-overlay git checkout."
+DEFINE_string gentoo_subset "${SCRIPTS_DIR}/repos/gentoo-subset" \
+    "Path to the gentoo-subset git checkout."
+DEFINE_string flatcar_overlay "${SCRIPTS_DIR}/repos/flatcar-overlay" \
+    "Path to the flatcar-overlay git checkout."
 DEFINE_string seed_tarball "${DEFAULT_SEED}" \
     "Path to an existing stage tarball to start from."
 DEFINE_string version "${FLATCAR_VERSION}" \
@@ -62,8 +62,8 @@ storedir="$CATALYST_ROOT"
 distdir="$DISTDIR"
 envscript="$TEMPDIR/catalystrc"
 port_logdir="$CATALYST_ROOT/log"
-repo_basedir="/mnt/host/source/src/third_party"
-repo_name="portage-stable"
+repo_basedir="/mnt/host/source/src/scripts/repos"
+repo_name="gentoo-subset"
 EOF
 }
 
@@ -87,8 +87,8 @@ target: stage$1
 subarch: $ARCH
 rel_type: $TYPE
 portage_confdir: $TEMPDIR/portage
-repos: $FLAGS_coreos_overlay
-keep_repos: portage-stable coreos-overlay
+repos: $FLAGS_flatcar_overlay
+keep_repos: gentoo-subset flatcar-overlay
 profile: $FLAGS_profile
 snapshot_treeish: $FLAGS_version
 version_stamp: $FLAGS_version
@@ -231,7 +231,7 @@ write_configs() {
     info "Configuring Portage..."
     cp -r "${BUILD_LIBRARY_DIR}"/portage/ "${TEMPDIR}/"
 
-    ln -sfT '/mnt/host/source/src/third_party/coreos-overlay/coreos/user-patches' \
+    ln -sfT '/mnt/host/source/src/scripts/repos/flatcar-overlay/coreos/user-patches' \
         "${TEMPDIR}"/portage/patches
 }
 
@@ -264,10 +264,10 @@ build_stage() {
 build_snapshot() {
     local repo_dir snapshot snapshots_dir snapshot_path
 
-    repo_dir=${1:-"${FLAGS_portage_stable}"}
+    repo_dir=${1:-"${FLAGS_gentoo_subset}"}
     snapshot=${2:-"${FLAGS_version}"}
     snapshots_dir="${CATALYST_ROOT}/snapshots"
-    snapshot_path="${snapshots_dir}/portage-stable-${snapshot}.sqfs"
+    snapshot_path="${snapshots_dir}/gentoo-subset-${snapshot}.sqfs"
     if [[ -f ${snapshot_path} && $FLAGS_rebuild == $FLAGS_FALSE ]]
     then
         info "Skipping snapshot, ${snapshot_path} exists"
@@ -325,5 +325,5 @@ catalyst_build() {
     fi
 
     # Cleanup snapshots, we don't use them
-    rm -rf "$CATALYST_ROOT/snapshots/${FLAGS_portage_stable##*/}-${FLAGS_version}.sqfs"*
+    rm -rf "$CATALYST_ROOT/snapshots/${FLAGS_gentoo_subset##*/}-${FLAGS_version}.sqfs"*
 }

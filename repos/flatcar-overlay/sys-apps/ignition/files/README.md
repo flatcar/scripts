@@ -12,7 +12,7 @@ For this, we can just apply the current patches and fix any broken stuff:
 git clone https://github.com/coreos/ignition
 cd ignition
 git checkout "${RELEASE}"
-git am --3way /path/to/coreos-overlay/sys-apps/ignition/files/00*
+git am --3way /path/to/flatcar-overlay/sys-apps/ignition/files/00*
 ```
 
 Once done, we can generate the new set of patches:
@@ -20,9 +20,9 @@ Once done, we can generate the new set of patches:
 git format-patch "${RELEASE}"
 ```
 
-Copy the new patches to `::coreos-overlay`
+Copy the new patches to `::flatcar-overlay`
 ```
-cp 00* /path/to/coreos-overlay/sys-apps/ignition/files/
+cp 00* /path/to/flatcar-overlay/sys-apps/ignition/files/
 ```
 
 :warning: We might need to update the applied patches' names in the Ignition ebuild.

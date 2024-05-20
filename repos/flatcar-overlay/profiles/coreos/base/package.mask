@@ -11,7 +11,7 @@
 # certificate store provided in NSS rather than the Gentoo/Debian package.
 >=app-misc/ca-certificates-20000000
 
-# Python 3.12 is in portage-stable (currently testing), so avoid picking it
+# Python 3.12 is in gentoo-subset (currently testing), so avoid picking it
 # up. Update this to mask later versions when we switch to 3.11.
 >=dev-lang/python-3.12
 

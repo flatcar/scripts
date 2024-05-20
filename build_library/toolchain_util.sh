@@ -14,18 +14,18 @@ TOOLCHAIN_PKGS=(
 # This is only used as an intermediate step to be able to use the cross
 # compiler to build a full native toolchain. Packages are not uploaded.
 declare -A CROSS_PROFILES
-CROSS_PROFILES["x86_64-cros-linux-gnu"]="coreos-overlay:coreos/amd64/generic"
-CROSS_PROFILES["aarch64-cros-linux-gnu"]="coreos-overlay:coreos/arm64/generic"
+CROSS_PROFILES["x86_64-cros-linux-gnu"]="flatcar-overlay:coreos/amd64/generic"
+CROSS_PROFILES["aarch64-cros-linux-gnu"]="flatcar-overlay:coreos/arm64/generic"
 
 # Map board names to CHOSTs and portage profiles. This is the
 # definitive list, there is assorted code new and old that either
 # guesses or hard-code these. All that should migrate to this list.
 declare -A BOARD_CHOSTS BOARD_PROFILES
 BOARD_CHOSTS["amd64-usr"]="x86_64-cros-linux-gnu"
-BOARD_PROFILES["amd64-usr"]="coreos-overlay:coreos/amd64/generic"
+BOARD_PROFILES["amd64-usr"]="flatcar-overlay:coreos/amd64/generic"
 
 BOARD_CHOSTS["arm64-usr"]="aarch64-cros-linux-gnu"
-BOARD_PROFILES["arm64-usr"]="coreos-overlay:coreos/arm64/generic"
+BOARD_PROFILES["arm64-usr"]="flatcar-overlay:coreos/arm64/generic"
 
 BOARD_NAMES=( "${!BOARD_CHOSTS[@]}" )
 
@@ -169,7 +169,7 @@ get_sdk_arch() {
 }
 
 get_sdk_profile() {
-    echo "coreos-overlay:coreos/$(get_sdk_arch)/sdk"
+    echo "flatcar-overlay:coreos/$(get_sdk_arch)/sdk"
 }
 
 get_sdk_libdir() {
@@ -244,7 +244,7 @@ configure_crossdev_overlay() {
     echo "x-crossdev" | \
         "${sudo[@]}" tee "${root}${location}/profiles/repo_name" > /dev/null
     "${sudo[@]}" tee "${root}${location}/metadata/layout.conf" > /dev/null <<EOF
-masters = portage-stable coreos-overlay
+masters = gentoo-subset flatcar-overlay
 use-manifests = true
 thin-manifests = true
 EOF
@@ -271,7 +271,7 @@ _get_dependency_list() {
 
 # Configure a new ROOT
 # Values are copied from the environment or the current host configuration.
-# Usage: CBUILD=foo-bar-linux-gnu ROOT=/foo/bar SYSROOT=/foo/bar configure_portage coreos-overlay:some/profile
+# Usage: CBUILD=foo-bar-linux-gnu ROOT=/foo/bar SYSROOT=/foo/bar configure_portage flatcar-overlay:some/profile
 # Note: if using portageq to get CBUILD it must be called before CHOST is set.
 _configure_sysroot() {
     local profile="$1"
@@ -287,7 +287,7 @@ _configure_sysroot() {
     "${sudo[@]}" eselect profile set --force "$profile"
 
     local coreos_path
-    coreos_path=$(portageq get_repo_path "${ROOT}" coreos-overlay)
+    coreos_path=$(portageq get_repo_path "${ROOT}" flatcar-overlay)
     "${sudo[@]}" ln -sfT "${coreos_path}/coreos/user-patches" "${ROOT}/etc/portage/patches"
 
     echo "Writing make.conf for the sysroot ${SYSROOT}, root ${ROOT}"

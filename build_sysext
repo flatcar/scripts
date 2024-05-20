@@ -65,7 +65,7 @@ metapackage 'coreos-base/oem-azure' for the arm64 squashfs base at
 sudo build_sysext \\
      --board=arm64-usr \\
      --metapkgs=coreos-base/oem-azure \\
-     --mangle_fs=sdk_container/src/third_party/coreos-overlay/coreos-base/oem-azure/files/manglefs.sh \\
+     --mangle_fs=repos/flatcar-overlay/coreos-base/oem-azure/files/manglefs.sh \\
      --squashfs_base=build/artifacts/flatcar_production_image_sysext.squashfs \\
      --image_builddir=oem-images \\
      oem-azure
@@ -244,7 +244,7 @@ ROOT="${BUILD_DIR}/install-root" PORTAGE_CONFIGROOT="${BUILD_DIR}/install-root" 
 if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
     chost="$("portageq-${BOARD}" envvar CHOST)"
     strip="${chost}-strip"
-    
+
     info "Stripping all non-stripped binaries in sysext using '${strip}'"
 
     # Find all non-stripped binaries, remove ':' from filepath, and strip 'em

@@ -12,14 +12,14 @@ RSYNC_OPTS="--recursive --links --safe-links --perms --times --compress --force 
 
 DEFINE_string portage "git" \
     "Path to a local portage tree or 'rsync' or 'git' to fetch from remote."
-DEFINE_string portage_stable "${SRC_ROOT}/third_party/portage-stable" \
-    "Path to the portage-stable git checkout."
+DEFINE_string gentoo_subset "${SCRIPT_ROOT}/repos/gentoo-subset" \
+    "Path to the gentoo-subset git checkout."
 DEFINE_string git "https://github.com/gentoo/gentoo.git" \
     "git location for the gentoo portage repo (for use with --portage=git)"
 DEFINE_string rsync "rsync://rsync.gentoo.org/gentoo-portage" \
     "Rsync location for gentoo-portage to use with --portage=rsync"
 DEFINE_boolean commit ${FLAGS_FALSE} \
-    "Commit all changes after updating portage-stable."
+    "Commit all changes after updating gentoo-subset."
 
 
 # Parse flags
@@ -36,7 +36,7 @@ if [[ -z "$*" ]]; then
     die "No packages provided"
 fi
 
-cd "$FLAGS_portage_stable"
+cd "$FLAGS_gentoo_subset"
 
 for pkg in "$@"; do
     # Only allow packages, not categories or the whole tree
@@ -68,7 +68,7 @@ for pkg in "$@"; do
 
     # Make sure we don't change the repo name to 'gentoo'
     if [[ "$pkg" =~ ^profiles ]]; then
-        echo portage-stable > profiles/repo_name
+        echo gentoo-subset > profiles/repo_name
     fi
 
     git add -A "$pkg"
@@ -90,4 +90,3 @@ EOF
 else
     git status
 fi
-

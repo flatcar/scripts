@@ -37,7 +37,7 @@ if [[ "${DEFAULT_MANIFEST}" != master.xml ]]; then
     DEFAULT_MAJOR=${CURRENT_VERSION[0]}
     DEFAULT_BRANCH=${FLAGS_TRUE}
 else
-    DEFAULT_BRANCH_PROJECTS='coreos-overlay portage-stable scripts'
+    DEFAULT_BRANCH_PROJECTS='flatcar-overlay gentoo-subset scripts'
 fi
 
 # Increment $MINOR if we already made a major release.

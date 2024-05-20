@@ -154,8 +154,8 @@ fi
 get_board_and_variant $FLAGS_board $FLAGS_variant
 
 # Locations we will need
-COREOS_OVERLAY="${REPO_ROOT}/src/third_party/coreos-overlay"
-COREOS_CONFIG="${COREOS_OVERLAY}/coreos/config"
+FLATCAR_OVERLAY="${SCRIPTS_DIR}/repos/flatcar-overlay"
+COREOS_CONFIG="${FLATCAR_OVERLAY}/coreos/config"
 BOARD_ROOT="/build/${BOARD_VARIANT}"
 BOARD_ETC="${BOARD_ROOT}/etc"
 BOARD_ARCH=$(get_board_arch "$BOARD")
@@ -232,10 +232,10 @@ if [[ ! -L "${BOARD_ROOT}/packages" ]]; then
 fi
 
 info "Configuring portage in ${BOARD_ROOT}"
-sudo mkdir -p "${BOARD_ETC}/portage/"{profile,repos.conf}
-sudo ln -sfT "$(portageq get_repo_path / coreos-overlay)/coreos/user-patches" \
+sudo mkdir -p "${BOARD_ETC}"/portage/profile
+sudo ln -sfT "$(portageq get_repo_path / flatcar-overlay)/coreos/user-patches" \
    "${BOARD_ETC}/portage/patches"
-sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
+sudo rsync --archive --delete /etc/portage/repos.conf/ "${BOARD_ETC}"/portage/repos.conf/
 sudo ROOT="${BOARD_ROOT}" eselect profile set --force "${PORTAGE_PROFILE}"
 
 # Cleanup/migrate from older make.conf files

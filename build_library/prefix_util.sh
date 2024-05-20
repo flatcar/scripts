@@ -67,7 +67,7 @@ function setup_prefix_dirs() {
   sudo cp -vR "${prefix_repo}/skel/etc/portage" "${STAGINGROOT}${EPREFIX}/etc/"
   sudo cp -vR "${prefix_repo}/skel/etc/portage" "${FINALROOT}${EPREFIX}/etc/"
 
-  local profile="/mnt/host/source/src/third_party/portage-stable/profiles/default/linux"
+  local profile="/mnt/host/source/src/scripts/repos/gentoo-subset/profiles/default/linux"
   case "${PREFIX_BOARD}" in
     amd64-usr) profile="${profile}/amd64/17.1/no-multilib/prefix/kernel-3.2+";;
     arm64-usr) profile="${profile}/arm64/17.0/prefix/kernel-3.2+";;

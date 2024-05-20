@@ -13,9 +13,10 @@ if [[ ! -d "${WORK_SCRIPTS_DIR:-}" ]]; then
   fail "WORK_SCRIPTS_DIR env var does not point to a directory. It should point to the scripts repo which will be updated."
 fi
 
+# Update these to use the new repo location once LTS has migrated.
 readonly SDK_OUTER_TOPDIR="${WORK_SCRIPTS_DIR}"
 readonly SDK_OUTER_OVERLAY="${SDK_OUTER_TOPDIR}/sdk_container/src/third_party/coreos-overlay"
-readonly SDK_INNER_SRCDIR="/mnt/host/source/src"
+readonly SDK_INNER_SRCDIR="/mnt/host/source/src/scripts/sdk_container/src"
 readonly SDK_INNER_OVERLAY="${SDK_INNER_SRCDIR}/third_party/coreos-overlay"
 
 readonly BUILDBOT_USERNAME="Flatcar Buildbot"

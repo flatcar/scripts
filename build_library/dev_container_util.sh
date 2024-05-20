@@ -20,11 +20,11 @@ configure_dev_portage() {
 
     # Need profiles at the bare minimum
     local repo
-    for repo in portage-stable coreos-overlay; do
+    for repo in gentoo-subset flatcar-overlay; do
         sudo mkdir -p "${root_fs_dir}/var/lib/portage/${repo}"
         sudo rsync -rtl --exclude=md5-cache \
-            "${SRC_ROOT}/third_party/${repo}/metadata" \
-            "${SRC_ROOT}/third_party/${repo}/profiles" \
+            "${SRC_ROOT}/scripts/repos/${repo}/metadata" \
+            "${SRC_ROOT}/scripts/repos/${repo}/profiles" \
             "${root_fs_dir}/var/lib/portage/${repo}"
     done
 
@@ -42,26 +42,26 @@ PORTAGE_BINHOST="$(get_binhost_url "${binhost}" "${update_group}" 'pkgs')
 $(get_binhost_url "${binhost}" "${update_group}" 'toolchain')"
 EOF
 
-    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/portage-stable.conf" <<EOF
+    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/gentoo-subset.conf" <<EOF
 [DEFAULT]
-main-repo = portage-stable
+main-repo = gentoo-subset
 
-[portage-stable]
-location = /var/lib/portage/portage-stable
+[gentoo-subset]
+location = /var/lib/portage/gentoo-subset
 EOF
 
-    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
-[coreos-overlay]
-location = /var/lib/portage/coreos-overlay
+    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/flatcar-overlay.conf" <<EOF
+[flatcar-overlay]
+location = /var/lib/portage/flatcar-overlay
 EOF
 
     # Now set the correct profile, we do not use the eselect tool - it
     # does not seem to be usable outside of the chroot without using
     # deprecated PORTDIR and PORTDIR_OVERLAY environment variables.
     local profile_name=$(get_board_profile "${BOARD}")
-    # Turn coreos-overlay:coreos/amd64/generic into coreos/amd64/generic/dev
+    # Turn flatcar-overlay:coreos/amd64/generic into coreos/amd64/generic/dev
     profile_name="${profile_name#*:}/dev"
-    local profile_directory="${root_fs_dir}/var/lib/portage/coreos-overlay/profiles/${profile_name}"
+    local profile_directory="${root_fs_dir}/var/lib/portage/flatcar-overlay/profiles/${profile_name}"
     if [[ ! -d "${profile_directory}" ]]; then
         die "Not a valid profile: ${profile_name}"
     fi

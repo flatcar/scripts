@@ -117,11 +117,11 @@ then
 fi
 if [[ -n "${OVERLAY_REF}" ]]
 then
-        setup_manifest_ref coreos-overlay "${OVERLAY_REF}"
+        setup_manifest_ref flatcar-overlay "${OVERLAY_REF}"
 fi
 if [[ -n "${PORTAGE_REF}" ]]
 then
-        setup_manifest_ref portage-stable "${PORTAGE_REF}"
+        setup_manifest_ref gentoo-subset "${PORTAGE_REF}"
 fi
 
 ln -fns "${FLATCAR_BUILD_ID}.xml" manifest/default.xml

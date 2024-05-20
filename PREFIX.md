@@ -35,7 +35,7 @@ Prefix uses a _staging environment_ to build binary packages, then installs thes
 The _staging environment_ contains toolchains and all build tools required to create binary packages (a full `@system`).
 The _final environment_ only contains run-time dependencies.
 
-Packages are built from ebuilds in coreos-overlay, portage-stable, and prefix-overlay.
+Packages are built from ebuilds in flatcar-overlay, gentoo-subset, and prefix-overlay.
 
 A QoL `emerge` wrapper is included to install packages to the prefix.
 

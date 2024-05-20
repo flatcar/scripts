@@ -553,7 +553,7 @@ install_oem_sysext() {
         --metapkgs="${metapkg}"
     )
     local overlay_path mangle_fs
-    overlay_path=$(portageq get_repo_path / coreos-overlay)
+    overlay_path=$(portageq get_repo_path / flatcar-overlay)
     mangle_fs="${overlay_path}/${metapkg}/files/manglefs.sh"
     if [[ -x "${mangle_fs}" ]]; then
         build_sysext_flags+=(
