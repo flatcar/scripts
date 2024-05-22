@@ -101,9 +101,6 @@
 # Keep versions on both arches in sync.
 =sys-libs/binutils-libs-2.42-r1 ~arm64
 
-# Needed to fix CVE-2023-29491.
-=sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =sys-libs/libnvme-1.8 ~arm64
 
