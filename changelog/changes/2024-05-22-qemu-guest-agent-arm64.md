@@ -1,0 +1,1 @@
+- Add qemu-guest-agent to all arm64 images ([scripts#1982](https://github.com/flatcar/scripts/pull/1982))
