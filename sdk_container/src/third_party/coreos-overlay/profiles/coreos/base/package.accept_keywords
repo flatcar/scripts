@@ -95,6 +95,7 @@
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-devel/binutils-2.42-r1 ~arm64
 =sys-firmware/edk2-aarch64-18.02 **
 
 # Needed to fix CVE-2023-22655, CVE-2023-28746, CVE-2023-38575,
