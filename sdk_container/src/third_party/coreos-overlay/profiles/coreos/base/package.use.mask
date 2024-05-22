@@ -19,3 +19,9 @@ app-editors/nano unicode
 
 # Pulls dev-python/sphinx, which in turn pulls a lot of other python stuff.
 sys-fs/btrfs-progs man
+
+# The dev-python/pillow package is pulled in by dev-python/docutils.
+# As the name suggests, it's for generating docs, which we don't even
+# put anywhere. Thus avoid pulling more dependencies than necessary
+# for throw-away things.
+dev-python/pillow jpeg
