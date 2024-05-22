@@ -255,6 +255,7 @@ dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
 dev-python/autocommand
+dev-python/backports-tarfile
 dev-python/crcmod
 dev-python/cython
 dev-python/distro
@@ -278,9 +279,11 @@ dev-python/lazy-object-proxy
 dev-python/lxml
 dev-python/markupsafe
 dev-python/more-itertools
+dev-python/olefile
 dev-python/ordered-set
 dev-python/packaging
 dev-python/pathspec
+dev-python/pillow
 dev-python/platformdirs
 dev-python/pluggy
 dev-python/pydecomp
