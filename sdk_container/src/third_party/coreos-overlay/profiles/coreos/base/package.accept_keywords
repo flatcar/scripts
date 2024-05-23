@@ -7,10 +7,26 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
+# Handled by automation
 =app-containers/containerd-1.7.17 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-05-17 08:17:19
+
+# These seem to be the versions we initially got, but the
+# modifications made to the ebuilds were clobbered, so these are here
+# to keep using the same version. Can be dropped when these or newer
+# get stabilized in Gentoo.
 =app-containers/containers-common-0.58.0-r1 ~amd64 ~arm64
+
+# Handled by automation?
 =app-containers/cri-tools-1.27.0 ~amd64 ~arm64
+
+# These seem to be the versions we initially got, but the
+# modifications made to the ebuilds were clobbered, so these are here
+# to keep using the same version. Can be dropped when these or newer
+# get stabilized in Gentoo.
+=app-containers/crun-1.14.3 ~amd64 ~arm64
 =app-containers/podman-5.0.2 ~amd64 ~arm64
+
+# Handled by automation?
 =app-containers/runc-1.1.12 ~amd64 ~arm64
 
 # Seems to be the only available ebuild in portage-stable right now.
