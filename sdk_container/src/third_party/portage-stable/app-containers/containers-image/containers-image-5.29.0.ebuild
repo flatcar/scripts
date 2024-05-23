@@ -12,19 +12,18 @@ if [[ ${PV} == 9999* ]]; then
 else
 	SRC_URI="https://github.com/containers/image/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/${P#containers-}"
-	KEYWORDS="amd64 arm64 ~riscv"
+	KEYWORDS="amd64 ~arm64 ~riscv"
 fi
 
 LICENSE="Apache-2.0"
 SLOT="0"
 
-# https://github.com/gentoo/gentoo/pull/35012#discussion_r1473740969
-RESTRICT='test'
-BDEPEND=">=dev-go/go-md2man-2.0.3"
-RDEPEND="!<=app-containers/containers-common-0.57.0"
-PATCHES=(
-	"${FILESDIR}"/fix-warnings.patch
-)
+BDEPEND=">=dev-go/go-md2man-2.0.2"
+
+src_prepare() {
+	default
+	eapply "${FILESDIR}/fix-warnings.patch"
+}
 
 src_compile() {
 	emake docs
