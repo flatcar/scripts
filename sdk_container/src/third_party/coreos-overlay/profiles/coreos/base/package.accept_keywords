@@ -77,6 +77,14 @@
 # Keep versions on both arches in sync.
 =dev-libs/libp11-0.4.12-r6 ~arm64
 =dev-libs/opensc-0.24.0 ~arm64
+
+# These seem to be the versions we initially got, but the
+# modifications made to the ebuilds were clobbered, so these are here
+# to keep using the same version. Can be dropped when these or newer
+# get stabilized in Gentoo.
+=dev-libs/yajl-2.1.0-r5 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =dev-python/cython-3.0.10 ~arm64
 =dev-python/lxml-5.2.1 ~arm64
 
