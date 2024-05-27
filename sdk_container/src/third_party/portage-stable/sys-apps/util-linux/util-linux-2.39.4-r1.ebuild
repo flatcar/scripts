@@ -22,7 +22,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -99,11 +99,11 @@ RESTRICT="!test? ( test )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
-	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
 	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
-	"${FILESDIR}"/${PN}-2.39.3-libblkid-luks.patch
 	"${FILESDIR}"/${PN}-2.39.3-musl-1.2.5-basename.patch
 	"${FILESDIR}"/${PN}-2.39.3-libmount-Fix-export-of-mnt_context_is_lazy-and-mnt_c.patch
+	"${FILESDIR}"/${PN}-2.39.3-fix-use-after-free.patch
+	"${FILESDIR}"/${PN}-2.39.4-umount-readonly.patch
 )
 
 pkg_pretend() {
@@ -155,6 +155,9 @@ src_prepare() {
 			# Fails with network-sandbox at least in nspawn
 			lsfd/option-inet
 			utmp/last-ipv6
+
+			# Flaky
+			rename/subdir
 		)
 
 		local known_failing_test
@@ -239,6 +242,9 @@ multilib_src_configure() {
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
+
+		# TODO: Wire this up (bug #931118)
+		--without-econf
 	)
 
 	if use build ; then
