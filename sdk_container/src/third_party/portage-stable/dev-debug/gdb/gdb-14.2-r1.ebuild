@@ -6,7 +6,7 @@ EAPI=8
 # See https://sourceware.org/gdb/wiki/DistroAdvice for general packaging
 # tips & notes.
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 inherit flag-o-matic python-single-r1 strip-linguas toolchain-funcs
 
 export CTARGET=${CTARGET:-${CHOST}}
@@ -64,8 +64,8 @@ PATCH_DEV=""
 PATCH_VER=""
 DESCRIPTION="GNU debugger"
 HOMEPAGE="https://sourceware.org/gdb/"
-SRC_URI="
-	${SRC_URI}
+SRC_URI+="
+	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-sim-modern-c99.patch.xz
 	${PATCH_DEV:+https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${CATEGORY}/${PN}/${P}-patches-${PATCH_VER}.tar.xz}
 	${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz}
 "
@@ -74,7 +74,7 @@ LICENSE="GPL-3+ LGPL-2.1+"
 SLOT="0"
 IUSE="cet debuginfod guile lzma multitarget nls +python +server sim source-highlight test vanilla xml xxhash zstd"
 if [[ -n ${REGULAR_RELEASE} ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 fi
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
@@ -111,9 +111,13 @@ BDEPEND="
 	test? ( dev-util/dejagnu )
 "
 
+QA_CONFIG_IMPL_DECL_SKIP=(
+	MIN # gnulib FP (bug #898688)
+)
+
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.3.1-verbose-build.patch
-	"${FILESDIR}"/${P}-fix-sparc-debugging.patch
+	"${WORKDIR}"/${PN}-14.2-sim-modern-c99.patch
 )
 
 pkg_setup() {
@@ -128,6 +132,14 @@ src_prepare() {
 	# Avoid using ancient termcap from host on Prefix systems
 	sed -i -e 's/termcap tinfow/tinfow/g' \
 		gdb/configure{.ac,} || die
+	if [[ ${CHOST} == *-solaris* ]] ; then
+		# code relies on C++11, so make sure we get that selected
+		# due to Python 3.11 pymacro.h doing stuff to work around
+		# versioning mess based on the C version, while we're compiling
+		# C++ here, so we need to make it clear we're doing C++11/C11
+		# because Solaris system headers act on these
+		sed -i -e 's/-x c++/-std=c++11/' gdb/Makefile.in || die
+	fi
 }
 
 gdb_branding() {
@@ -144,9 +156,6 @@ gdb_branding() {
 
 src_configure() {
 	strip-unsupported-flags
-
-	# https://sourceware.org/PR22395, bug #853898
-	filter-lto
 
 	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
 	# Avoid really confusing logs from subconfigure spam, makes logs far
