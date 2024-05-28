@@ -336,11 +336,14 @@ eclass/app-alternatives.eclass
 eclass/autotools.eclass
 eclass/bash-completion-r1.eclass
 eclass/cargo.eclass
+eclass/check-reqs.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
+eclass/crossdev.eclass
+eclass/db-use.eclass
 eclass/desktop.eclass
-eclass/distutils-r1.eclass
 eclass/dist-kernel-utils.eclass
+eclass/distutils-r1.eclass
 eclass/eapi7-ver.eclass
 eclass/eapi8-dosym.eclass
 eclass/edo.eclass
@@ -354,21 +357,32 @@ eclass/fcaps.eclass
 eclass/flag-o-matic.eclass
 eclass/git-r3.eclass
 eclass/gnome.org.eclass
+eclass/gnome2-utils.eclass
 eclass/gnuconfig.eclass
+eclass/go-env.eclass
+eclass/go-module.eclass
+eclass/golang-base.eclass
+eclass/golang-vcs-snapshot.eclass
+eclass/golang-vcs.eclass
 eclass/java-pkg-opt-2.eclass
 eclass/java-utils-2.eclass
 eclass/kernel-2.eclass
 eclass/libtool.eclass
 eclass/linux-info.eclass
+eclass/linux-mod-r1.eclass
 eclass/linux-mod.eclass
+eclass/llvm-r1.eclass
+eclass/llvm-utils.eclass
 eclass/llvm.eclass
 eclass/ltprune.eclass
 eclass/lua-single.eclass
 eclass/lua-utils.eclass
+eclass/mercurial.eclass
 eclass/meson-multilib.eclass
 eclass/meson.eclass
-eclass/mount-boot.eclass
+eclass/mono-env.eclass
 eclass/mount-boot-utils.eclass
+eclass/mount-boot.eclass
 eclass/multibuild.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
@@ -377,9 +391,11 @@ eclass/multiprocessing.eclass
 eclass/ninja-utils.eclass
 eclass/optfeature.eclass
 eclass/out-of-source-utils.eclass
+eclass/out-of-source.eclass
 eclass/pam.eclass
 eclass/pax-utils.eclass
 eclass/perl-functions.eclass
+eclass/perl-module.eclass
 eclass/plocale.eclass
 eclass/portability.eclass
 eclass/prefix.eclass
@@ -389,14 +405,19 @@ eclass/python-any-r1.eclass
 eclass/python-r1.eclass
 eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
+eclass/qmake-utils.eclass
 eclass/readme.gentoo-r1.eclass
+eclass/rpm.eclass
 eclass/ruby-single.eclass
 eclass/ruby-utils.eclass
 eclass/rust-toolchain.eclass
-eclass/rpm.eclass
 eclass/savedconfig.eclass
+eclass/secureboot.eclass
 eclass/selinux-policy-2.eclass
+eclass/sgml-catalog-r1.eclass
+eclass/ssl-cert.eclass
 eclass/strip-linguas.eclass
+eclass/subversion.eclass
 eclass/systemd.eclass
 eclass/tmpfiles.eclass
 eclass/toolchain-autoconf.eclass
@@ -409,6 +430,7 @@ eclass/user-info.eclass
 #
 # eclass/usr-ldscript.eclass
 eclass/vcs-clean.eclass
+eclass/vcs-snapshot.eclass
 eclass/verify-sig.eclass
 eclass/versionator.eclass
 eclass/vim-doc.eclass
@@ -417,6 +439,7 @@ eclass/virtualx.eclass
 eclass/waf-utils.eclass
 eclass/wrapper.eclass
 eclass/xdg-utils.eclass
+eclass/xdg.eclass
 eclass/xorg-3.eclass
 
 licenses
@@ -461,6 +484,7 @@ net-misc/iperf
 net-misc/iputils
 net-misc/ntp
 net-misc/openssh
+net-misc/passt
 net-misc/rsync
 net-misc/socat
 net-misc/wget
@@ -474,6 +498,7 @@ net-vpn/wireguard-tools
 perl-core/File-Temp
 
 profiles
+
 scripts
 
 sec-keys/openpgp-keys-gentoo-release
@@ -539,10 +564,10 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
-sys-boot/mokutil
 # Updating to 3.0.17 breaks building of sys-boot/shim.
 #
 # sys-boot/gnu-efi
+sys-boot/mokutil
 
 sys-devel/bc
 sys-devel/binutils
@@ -579,7 +604,6 @@ sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
-net-misc/passt
 
 sys-kernel/linux-headers
 
