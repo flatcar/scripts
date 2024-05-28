@@ -1,0 +1,1 @@
+- OpenStack: Changed metadata hostname source order. The service first tries with the config drive then fallback on the metadata service. ([bootengine#96](https://github.com/flatcar/bootengine/pull/96))
