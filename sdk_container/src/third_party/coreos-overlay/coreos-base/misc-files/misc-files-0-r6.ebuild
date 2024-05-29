@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="audit ntp openssh policycoreutils"
+IUSE="audit mdadm ntp openssh policycoreutils"
 
 # No source directory.
 S="${WORKDIR}"
@@ -31,6 +31,7 @@ DEPEND="
 RDEPEND="
         ${DEPEND}
         >=app-shells/bash-5.2_p15-r2
+        mdadm? ( >=sys-fs/mdadm-4.2-r3 )
         ntp? ( >=net-misc/ntp-4.2.8_p17 )
         policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
         audit? ( >=sys-process/audit-3.1.1 )
@@ -171,6 +172,13 @@ src_install() {
         # disabled by default).
         systemd_dounit "${FILESDIR}/audit/audit-rules.service"
         systemd_enable_service multi-user.target audit-rules.service
+    fi
+
+    if use mdadm; then
+        # This is a replacement of Gentoo's weekly cron file.
+        systemd_dounit "${FILESDIR}"/mdadm.service
+        systemd_dounit "${FILESDIR}"/mdadm.timer
+        systemd_enable_service timers.target mdadm.timer
     fi
 
     if use ntp; then
