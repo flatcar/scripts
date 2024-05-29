@@ -8,10 +8,10 @@ CROS_WORKON_LOCALNAME="fero"
 CROS_WORKON_REPO="https://github.com"
 
 if [[ ${PV} == 9999 ]]; then
-	KEYWORDS="~amd64"
+	KEYWORDS="~amd64 ~arm64"
 else
 	CROS_WORKON_COMMIT="1fb33da499e51b2699394d158b0b66d36fc52974" # v0.1.1
-	KEYWORDS="amd64"
+	KEYWORDS="amd64 arm64"
 fi
 
 inherit cargo cros-workon
