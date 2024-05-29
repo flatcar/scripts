@@ -1,0 +1,2 @@
+# Mask cron stuff, we will be installing our own systemd timer instead.
+INSTALL_MASK+=" /etc/cron.weekly"
