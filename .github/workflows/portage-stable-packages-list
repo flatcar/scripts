@@ -556,6 +556,7 @@ sys-firmware/ipxe
 sys-firmware/seabios-bin
 sys-firmware/sgabios
 
+sys-fs/btrfs-progs
 sys-fs/cryptsetup
 sys-fs/dosfstools
 sys-fs/e2fsprogs
@@ -563,10 +564,13 @@ sys-fs/fuse
 sys-fs/fuse-common
 sys-fs/fuse-overlayfs
 sys-fs/lsscsi
+sys-fs/lvm2
+sys-fs/mdadm
 sys-fs/mtools
 sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
+sys-fs/udev-init-scripts
 sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
