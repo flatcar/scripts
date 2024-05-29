@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}"
+
+rm -rf ./usr/{lib/debug,share,include,lib64/pkgconfig}
+
+popd

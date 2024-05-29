@@ -17,8 +17,5 @@ sys-libs/ncurses cxx
 # which is defined in portage-stable.
 app-editors/nano unicode
 
-# We don't use pip.
-dev-lang/python ensurepip
-
 # Pulls dev-python/sphinx, which in turn pulls a lot of other python stuff.
 sys-fs/btrfs-progs man
