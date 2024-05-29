@@ -29,9 +29,6 @@
 # Required for addressing CVE-2022-3715.
 =app-shells/bash-5.2_p26 ~amd64 ~arm64
 
-# No keyword for arm64 yet.
-=coreos-devel/fero-client-0.1.1 **
-
 # Needed by arm64-native SDK.
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
 =dev-lang/nasm-2.15.05 ~arm64
