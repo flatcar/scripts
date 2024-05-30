@@ -176,8 +176,8 @@ src_install() {
 
     if use mdadm; then
         # This is a replacement of Gentoo's weekly cron file.
-        systemd_dounit "${FILESDIR}"/mdadm.service
-        systemd_dounit "${FILESDIR}"/mdadm.timer
+        systemd_dounit "${FILESDIR}"/mdadm/mdadm.service
+        systemd_dounit "${FILESDIR}"/mdadm/mdadm.timer
         systemd_enable_service timers.target mdadm.timer
     fi
 
