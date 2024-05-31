@@ -3,13 +3,15 @@
 
 EAPI=8
 
-inherit flag-o-matic
+inherit autotools flag-o-matic
 
 DESCRIPTION="Network performance benchmark"
-HOMEPAGE="http://www.netperf.org/"
-SRC_URI="ftp://ftp.netperf.org/${PN}/${P}.tar.bz2"
+HOMEPAGE="https://github.com/HewlettPackard/netperf"
+EGIT_COMMIT="3bc455b23f901dae377ca0a558e1e32aa56b31c4"
+SRC_URI="https://github.com/HewlettPackard/${PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 
-LICENSE="netperf"
+
+LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm64 ~hppa ~ia64 ppc ppc64 ~riscv sparc x86"
 IUSE="demo sctp"
@@ -25,12 +27,11 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-fix-scripts.patch
-	"${FILESDIR}"/${PN}-2.6.0-log-dir.patch
 	"${FILESDIR}"/${PN}-2.7.0-includes.patch
-	"${FILESDIR}"/${PN}-2.7.0-space.patch
-	"${FILESDIR}"/${PN}-2.7.0-inline.patch
 	"${FILESDIR}"/${PN}-2.7.0-fcommon.patch
 )
+
+S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
 
 src_prepare() {
 	# Fixing paths in scripts
@@ -45,6 +46,11 @@ src_prepare() {
 		|| die
 
 	default
+	# from autogen.sh
+	eaclocal -I src/missing/m4
+	eautomake
+	eautoconf
+	eautoheader
 }
 
 src_configure() {
