@@ -96,13 +96,6 @@ python_test() {
 	cp -al src/lxml/html/tests "${dir}/html/" || die
 	ln -rs "${S}"/doc "${dir}"/../../ || die
 
-	# test_feedparser_data requires lxml_html_clean
-	# this is the *simplest* way of skipping these without breaking
-	# random other tests, sigh
-	sed -e '/lxml\.html\.clean/d' \
-		-i "${dir}"/html/tests/test_feedparser_data.py || die
-	rm -r "${dir}"/html/tests/*-data/*.data || die
-
 	"${EPYTHON}" test.py -vv --all-levels -p ||
 		die "Tests fail on ${EPYTHON}"
 }
