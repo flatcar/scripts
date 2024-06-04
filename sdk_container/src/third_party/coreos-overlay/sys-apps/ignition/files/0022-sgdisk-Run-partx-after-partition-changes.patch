@@ -1,0 +1,162 @@
+From f721e943de2044d7005fb5037701fdf8ce82ac0a Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Fri, 29 Sep 2023 18:06:09 +0200
+Subject: [PATCH 2/2] sgdisk: Run partx after partition changes
+
+The sgdisk tool does not update the kernel partition table with BLKPG in
+contrast to other similar tools but only uses BLKRRPART which fails as
+soon as one partition of the disk is mounted.
+Update the kernel partition table with partx when we know that a
+partition of the disk is in use.
+---
+ docs/release-notes.md                    |  5 ++++
+ dracut/30ignition/module-setup.sh        |  1 +
+ internal/distro/distro.go                |  2 ++
+ internal/exec/stages/disks/partitions.go | 34 ++++++++++++++++++++++++
+ 4 files changed, 42 insertions(+)
+
+diff --git a/docs/release-notes.md b/docs/release-notes.md
+index 6510ccde..d7bb4c4c 100644
+--- a/docs/release-notes.md
++++ b/docs/release-notes.md
+@@ -10,8 +10,13 @@ nav_order: 9
+ 
+ ### Features
+ 
++- Support Akamai Connected Cloud (Linode)
++- Support partitioning disk with mounted partitions
++
+ ### Changes
+ 
++- The Dracut module now installs partx
++
+ ### Bug fixes
+ 
+ ## Ignition 2.18.0 (2024-03-01)
+diff --git a/dracut/30ignition/module-setup.sh b/dracut/30ignition/module-setup.sh
+index 340452b9..7d239340 100755
+--- a/dracut/30ignition/module-setup.sh
++++ b/dracut/30ignition/module-setup.sh
+@@ -39,6 +39,7 @@ install() {
+         mkfs.fat \
+         mkfs.xfs \
+         mkswap \
++        partx \
+         sgdisk \
+         useradd \
+         userdel \
+diff --git a/internal/distro/distro.go b/internal/distro/distro.go
+index 9e96166e..4814f386 100644
+--- a/internal/distro/distro.go
++++ b/internal/distro/distro.go
+@@ -43,6 +43,7 @@ var (
+ 	groupdelCmd  = "groupdel"
+ 	mdadmCmd     = "mdadm"
+ 	mountCmd     = "mount"
++	partxCmd     = "partx"
+ 	sgdiskCmd    = "sgdisk"
+ 	modprobeCmd  = "modprobe"
+ 	udevadmCmd   = "udevadm"
+@@ -99,6 +100,7 @@ func GroupaddCmd() string  { return groupaddCmd }
+ func GroupdelCmd() string  { return groupdelCmd }
+ func MdadmCmd() string     { return mdadmCmd }
+ func MountCmd() string     { return mountCmd }
++func PartxCmd() string     { return partxCmd }
+ func SgdiskCmd() string    { return sgdiskCmd }
+ func ModprobeCmd() string  { return modprobeCmd }
+ func UdevadmCmd() string   { return udevadmCmd }
+diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
+index 213e34a9..63a41d03 100644
+--- a/internal/exec/stages/disks/partitions.go
++++ b/internal/exec/stages/disks/partitions.go
+@@ -23,6 +23,7 @@ import (
+ 	"errors"
+ 	"fmt"
+ 	"os"
++	"os/exec"
+ 	"path/filepath"
+ 	"regexp"
+ 	"sort"
+@@ -31,6 +32,7 @@ import (
+ 
+ 	cutil "github.com/flatcar/ignition/v2/config/util"
+ 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
+ 	"github.com/flatcar/ignition/v2/internal/exec/util"
+ 	"github.com/flatcar/ignition/v2/internal/sgdisk"
+ 	iutil "github.com/flatcar/ignition/v2/internal/util"
+@@ -472,6 +474,10 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 		return err
+ 	}
+ 
++	var partxAdd []uint64
++	var partxDelete []uint64
++	var partxUpdate []uint64
++
+ 	for _, part := range resolvedPartitions {
+ 		shouldExist := partitionShouldExist(part)
+ 		info, exists := diskInfo.GetPartition(part.Number)
+@@ -492,11 +498,13 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 		case !exists && shouldExist:
+ 			op.CreatePartition(part)
+ 			modification = true
++			partxAdd = append(partxAdd, uint64(part.Number))
+ 		case exists && !shouldExist && !wipeEntry:
+ 			return fmt.Errorf("partition %d exists but is specified as nonexistant and wipePartitionEntry is false", part.Number)
+ 		case exists && !shouldExist && wipeEntry:
+ 			op.DeletePartition(part.Number)
+ 			modification = true
++			partxDelete = append(partxDelete, uint64(part.Number))
+ 		case exists && shouldExist && matches:
+ 			s.Logger.Info("partition %d found with correct specifications", part.Number)
+ 		case exists && shouldExist && !wipeEntry && !matches:
+@@ -510,6 +518,7 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 				part.StartSector = &info.StartSector
+ 				op.CreatePartition(part)
+ 				modification = true
++				partxUpdate = append(partxUpdate, uint64(part.Number))
+ 			} else {
+ 				return fmt.Errorf("Partition %d didn't match: %v", part.Number, matchErr)
+ 			}
+@@ -518,6 +527,7 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 			op.DeletePartition(part.Number)
+ 			op.CreatePartition(part)
+ 			modification = true
++			partxUpdate = append(partxUpdate, uint64(part.Number))
+ 		default:
+ 			// unfortunatey, golang doesn't check that all cases are handled exhaustively
+ 			return fmt.Errorf("Unreachable code reached when processing partition %d. golang--", part.Number)
+@@ -532,6 +542,30 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 		return fmt.Errorf("commit failure: %v", err)
+ 	}
+ 
++	// In contrast to similar tools, sgdisk does not trigger the update of the
++	// kernel partition table with BLKPG but only uses BLKRRPART which fails
++	// as soon as one partition of the disk is mounted
++	if len(activeParts) > 0 {
++		runPartxCommand := func(op string, partitions []uint64) error {
++			for _, partNr := range partitions {
++				cmd := exec.Command(distro.PartxCmd(), "--"+op, "--nr", strconv.FormatUint(partNr, 10), blockDevResolved)
++				if _, err := s.Logger.LogCmd(cmd, "triggering partition %d %s on %q", partNr, op, devAlias); err != nil {
++					return fmt.Errorf("partition %s failed: %v", op, err)
++				}
++			}
++			return nil
++		}
++		if err := runPartxCommand("delete", partxDelete); err != nil {
++			return err
++		}
++		if err := runPartxCommand("update", partxUpdate); err != nil {
++			return err
++		}
++		if err := runPartxCommand("add", partxAdd); err != nil {
++			return err
++		}
++	}
++
+ 	// It's best to wait here for the /dev/ABC entries to be
+ 	// (re)created, not only for other parts of the initramfs but
+ 	// also because s.waitOnDevices() can still race with udev's
+-- 
+2.45.0
+
