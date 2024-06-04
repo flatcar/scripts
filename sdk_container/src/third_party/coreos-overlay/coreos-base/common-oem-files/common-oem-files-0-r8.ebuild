@@ -34,6 +34,7 @@ COMMON_OEMIDS=(
     hetzner
     openstack
     packet
+    proxmoxve
     qemu
     scaleway
     kubevirt

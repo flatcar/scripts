@@ -24,6 +24,7 @@ VALID_IMG_TYPES=(
     openstack_mini
     packet
     parallels
+    proxmoxve
     pxe
     qemu_uefi
     rackspace
@@ -55,6 +56,7 @@ VALID_OEM_PACKAGES=(
     kubevirt
     openstack
     packet
+    proxmoxve
     qemu
     rackspace
     rackspace-onmetal
@@ -308,6 +310,13 @@ IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
 IMG_packet_OEM_PACKAGE=common-oem-files
 IMG_packet_OEM_SYSEXT=oem-packet
 IMG_packet_OEM_USE=packet
+
+## proxmoxve
+IMG_proxmoxve_DISK_FORMAT=qcow2
+IMG_proxmoxve_DISK_LAYOUT=vm
+IMG_proxmoxve_OEM_PACKAGE=common-oem-files
+IMG_proxmoxve_OEM_USE=proxmoxve
+IMG_proxmoxve_OEM_SYSEXT=oem-proxmoxve
 
 ## scaleway
 IMG_scaleway_DISK_FORMAT=qcow2

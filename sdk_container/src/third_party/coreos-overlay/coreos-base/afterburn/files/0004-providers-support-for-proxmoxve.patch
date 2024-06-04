@@ -1,0 +1,758 @@
+From 3b5d32200d192cd980dd4ada3329b601d249f745 Mon Sep 17 00:00:00 2001
+From: Arthur Chaloin <arthur.chaloin@gmail.com>
+Date: Wed, 10 Jan 2024 14:13:39 +0000
+Subject: [PATCH 1/2] providers: support for proxmoxve
+
+---
+ docs/platforms.md                             |   5 +
+ docs/release-notes.md                         |   2 +
+ docs/usage/attributes.md                      |   5 +
+ dracut/30afterburn/afterburn-hostname.service |   1 +
+ src/metadata.rs                               |   2 +
+ src/providers/mod.rs                          |   1 +
+ src/providers/proxmoxve/cloudconfig.rs        | 247 ++++++++++++++++++
+ src/providers/proxmoxve/configdrive.rs        |  66 +++++
+ src/providers/proxmoxve/mod.rs                |  22 ++
+ src/providers/proxmoxve/tests.rs              | 143 ++++++++++
+ systemd/afterburn-sshkeys@.service.in         |   1 +
+ tests/fixtures/proxmoxve/dhcp/meta-data       |   1 +
+ tests/fixtures/proxmoxve/dhcp/network-config  |  13 +
+ tests/fixtures/proxmoxve/dhcp/user-data       |  13 +
+ tests/fixtures/proxmoxve/dhcp/vendor-data     |   0
+ tests/fixtures/proxmoxve/static/meta-data     |   1 +
+ .../fixtures/proxmoxve/static/network-config  |  30 +++
+ tests/fixtures/proxmoxve/static/user-data     |  13 +
+ tests/fixtures/proxmoxve/static/vendor-data   |   0
+ 19 files changed, 566 insertions(+)
+ create mode 100644 src/providers/proxmoxve/cloudconfig.rs
+ create mode 100644 src/providers/proxmoxve/configdrive.rs
+ create mode 100644 src/providers/proxmoxve/mod.rs
+ create mode 100644 src/providers/proxmoxve/tests.rs
+ create mode 100644 tests/fixtures/proxmoxve/dhcp/meta-data
+ create mode 100644 tests/fixtures/proxmoxve/dhcp/network-config
+ create mode 100644 tests/fixtures/proxmoxve/dhcp/user-data
+ create mode 100644 tests/fixtures/proxmoxve/dhcp/vendor-data
+ create mode 100644 tests/fixtures/proxmoxve/static/meta-data
+ create mode 100644 tests/fixtures/proxmoxve/static/network-config
+ create mode 100644 tests/fixtures/proxmoxve/static/user-data
+ create mode 100644 tests/fixtures/proxmoxve/static/vendor-data
+
+diff --git a/docs/platforms.md b/docs/platforms.md
+index d279573..53bee97 100644
+--- a/docs/platforms.md
++++ b/docs/platforms.md
+@@ -61,6 +61,11 @@ The following platforms are supported, with a different set of features availabl
+ * powervs
+   - Attributes
+   - SSH keys
++* proxmoxve
++  - Attributes
++  - Hostname
++  - SSH keys
++  - Network configuration
+ * scaleway
+   - Attributes
+   - Boot check-in
+diff --git a/docs/release-notes.md b/docs/release-notes.md
+index b488bfc..acee039 100644
+--- a/docs/release-notes.md
++++ b/docs/release-notes.md
+@@ -8,6 +8,8 @@ nav_order: 8
+ 
+ Major changes:
+ 
++- Add support for Proxmox VE
++
+ Minor changes:
+ 
+ Packaging changes:
+diff --git a/docs/usage/attributes.md b/docs/usage/attributes.md
+index f3868f9..d6d030d 100644
+--- a/docs/usage/attributes.md
++++ b/docs/usage/attributes.md
+@@ -121,6 +121,11 @@ Cloud providers with supported metadata endpoints and their respective attribute
+ * powervs
+   - AFTERBURN_POWERVS_INSTANCE_ID
+   - AFTERBURN_POWERVS_LOCAL_HOSTNAME
++* proxmoxve
++  - AFTERBURN_PROXMOXVE_HOSTNAME
++  - AFTERBURN_PROXMOXVE_INSTANCE_ID
++  - AFTERBURN_PROXMOXVE_IPV4
++  - AFTERBURN_PROXMOXVE_IPV6
+ * scaleway
+   - AFTERBURN_SCALEWAY_HOSTNAME
+   - AFTERBURN_SCALEWAY_INSTANCE_ID
+diff --git a/dracut/30afterburn/afterburn-hostname.service b/dracut/30afterburn/afterburn-hostname.service
+index 485cd82..268522b 100644
+--- a/dracut/30afterburn/afterburn-hostname.service
++++ b/dracut/30afterburn/afterburn-hostname.service
+@@ -12,6 +12,7 @@ ConditionKernelCommandLine=|ignition.platform.id=exoscale
+ ConditionKernelCommandLine=|ignition.platform.id=hetzner
+ ConditionKernelCommandLine=|ignition.platform.id=ibmcloud
+ ConditionKernelCommandLine=|ignition.platform.id=kubevirt
++ConditionKernelCommandLine=|ignition.platform.id=proxmoxve
+ ConditionKernelCommandLine=|ignition.platform.id=scaleway
+ ConditionKernelCommandLine=|ignition.platform.id=vultr
+ 
+diff --git a/src/metadata.rs b/src/metadata.rs
+index 0d93c84..bcc2a28 100644
+--- a/src/metadata.rs
++++ b/src/metadata.rs
+@@ -34,6 +34,7 @@ use crate::providers::packet::PacketProvider;
+ use crate::providers::powervs::PowerVSProvider;
+ #[cfg(feature = "cl-legacy")]
+ use crate::providers::vagrant_virtualbox::VagrantVirtualboxProvider;
++use crate::providers::proxmoxve::ProxmoxVEConfigDrive;
+ use crate::providers::scaleway::ScalewayProvider;
+ use crate::providers::vmware::VmwareProvider;
+ use crate::providers::vultr::VultrProvider;
+@@ -76,6 +77,7 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
+         "powervs" => box_result!(PowerVSProvider::try_new()?),
+         #[cfg(feature = "cl-legacy")]
+         "vagrant-virtualbox" => box_result!(VagrantVirtualboxProvider::new()),
++        "proxmoxve" => box_result!(ProxmoxVEConfigDrive::try_new()?),
+         "scaleway" => box_result!(ScalewayProvider::try_new()?),
+         "vmware" => box_result!(VmwareProvider::try_new()?),
+         "vultr" => box_result!(VultrProvider::try_new()?),
+diff --git a/src/providers/mod.rs b/src/providers/mod.rs
+index 589ae46..1cd3305 100644
+--- a/src/providers/mod.rs
++++ b/src/providers/mod.rs
+@@ -39,6 +39,7 @@ pub mod packet;
+ pub mod powervs;
+ #[cfg(feature = "cl-legacy")]
+ pub mod vagrant_virtualbox;
++pub mod proxmoxve;
+ pub mod scaleway;
+ pub mod vmware;
+ pub mod vultr;
+diff --git a/src/providers/proxmoxve/cloudconfig.rs b/src/providers/proxmoxve/cloudconfig.rs
+new file mode 100644
+index 0000000..3535e26
+--- /dev/null
++++ b/src/providers/proxmoxve/cloudconfig.rs
+@@ -0,0 +1,247 @@
++use crate::{
++    network::{self, NetworkRoute},
++    providers::MetadataProvider,
++};
++use anyhow::Result;
++use ipnetwork::IpNetwork;
++use openssh_keys::PublicKey;
++use pnet_base::MacAddr;
++use serde::Deserialize;
++use slog_scope::warn;
++use std::{
++    collections::HashMap,
++    fs::File,
++    net::{AddrParseError, IpAddr},
++    path::Path,
++    str::FromStr,
++};
++
++#[derive(Debug)]
++pub struct ProxmoxVECloudConfig {
++    pub meta_data: ProxmoxVECloudMetaData,
++    pub user_data: ProxmoxVECloudUserData,
++    pub vendor_data: ProxmoxVECloudVendorData,
++    pub network_config: ProxmoxVECloudNetworkConfig,
++}
++
++#[derive(Debug, Deserialize)]
++pub struct ProxmoxVECloudMetaData {
++    #[serde(rename = "instance-id")]
++    pub instance_id: String,
++}
++
++#[derive(Debug, Deserialize)]
++pub struct ProxmoxVECloudUserData {
++    pub hostname: String,
++    pub manage_etc_hosts: bool,
++    pub fqdn: String,
++    pub chpasswd: ProxmoxVECloudChpasswdConfig,
++    pub users: Vec<String>,
++    pub package_upgrade: bool,
++    #[serde(default)]
++    pub ssh_authorized_keys: Vec<String>,
++}
++
++#[derive(Debug, Deserialize)]
++pub struct ProxmoxVECloudChpasswdConfig {
++    pub expire: bool,
++}
++
++#[derive(Debug, Deserialize)]
++pub struct ProxmoxVECloudVendorData {}
++
++#[derive(Debug, Deserialize)]
++pub struct ProxmoxVECloudNetworkConfig {
++    pub version: u32,
++    pub config: Vec<ProxmoxVECloudNetworkConfigEntry>,
++}
++
++#[derive(Debug, Deserialize)]
++pub struct ProxmoxVECloudNetworkConfigEntry {
++    #[serde(rename = "type")]
++    pub network_type: String,
++    pub name: Option<String>,
++    pub mac_address: Option<String>,
++    #[serde(default)]
++    pub address: Vec<String>,
++    #[serde(default)]
++    pub search: Vec<String>,
++    #[serde(default)]
++    pub subnets: Vec<ProxmoxVECloudNetworkConfigSubnet>,
++}
++
++#[derive(Debug, Deserialize)]
++pub struct ProxmoxVECloudNetworkConfigSubnet {
++    #[serde(rename = "type")]
++    pub subnet_type: String,
++    pub address: Option<String>,
++    pub netmask: Option<String>,
++    pub gateway: Option<String>,
++}
++
++impl ProxmoxVECloudConfig {
++    pub fn try_new(path: &Path) -> Result<Self> {
++        Ok(Self {
++            meta_data: serde_yaml::from_reader(File::open(path.join("meta-data"))?)?,
++            user_data: serde_yaml::from_reader(File::open(path.join("user-data"))?)?,
++            vendor_data: serde_yaml::from_reader(File::open(path.join("vendor-data"))?)?,
++            network_config: serde_yaml::from_reader(File::open(path.join("network-config"))?)?,
++        })
++    }
++}
++
++impl MetadataProvider for ProxmoxVECloudConfig {
++    fn attributes(&self) -> Result<HashMap<String, String>> {
++        let mut out = HashMap::new();
++
++        out.insert(
++            "PROXMOXVE_HOSTNAME".to_owned(),
++            self.hostname()?.unwrap_or_default(),
++        );
++
++        out.insert(
++            "PROXMOXVE_INSTANCE_ID".to_owned(),
++            self.meta_data.instance_id.clone(),
++        );
++
++        if let Some(first_interface) = self.networks()?.first() {
++            first_interface.ip_addresses.iter().for_each(|ip| match ip {
++                IpNetwork::V4(network) => {
++                    out.insert("PROXMOXVE_IPV4".to_owned(), network.ip().to_string());
++                }
++                IpNetwork::V6(network) => {
++                    out.insert("PROXMOXVE_IPV6".to_owned(), network.ip().to_string());
++                }
++            });
++        }
++
++        Ok(out)
++    }
++
++    fn hostname(&self) -> Result<Option<String>> {
++        Ok(Some(self.user_data.hostname.clone()))
++    }
++
++    fn ssh_keys(&self) -> Result<Vec<PublicKey>> {
++        Ok(self
++            .user_data
++            .ssh_authorized_keys
++            .iter()
++            .map(|key| PublicKey::from_str(key))
++            .collect::<Result<Vec<_>, _>>()?)
++    }
++
++    fn networks(&self) -> Result<Vec<network::Interface>> {
++        let nameservers = self
++            .network_config
++            .config
++            .iter()
++            .filter(|config| config.network_type == "nameserver")
++            .collect::<Vec<_>>();
++
++        if nameservers.len() > 1 {
++            return Err(anyhow::anyhow!("too many nameservers, only one supported"));
++        }
++
++        let mut interfaces = self
++            .network_config
++            .config
++            .iter()
++            .filter(|config| config.network_type == "physical")
++            .map(|entry| entry.to_interface())
++            .collect::<Result<Vec<_>, _>>()?;
++
++        if let Some(iface) = interfaces.first_mut() {
++            if let Some(nameserver) = nameservers.first() {
++                iface.nameservers = nameserver
++                    .address
++                    .iter()
++                    .map(|ip| IpAddr::from_str(ip))
++                    .collect::<Result<Vec<IpAddr>, AddrParseError>>()?;
++            }
++        }
++
++        Ok(interfaces)
++    }
++}
++
++impl ProxmoxVECloudNetworkConfigEntry {
++    pub fn to_interface(&self) -> Result<network::Interface> {
++        if self.network_type != "physical" {
++            return Err(anyhow::anyhow!(
++                "cannot convert config to interface: unsupported config type \"{}\"",
++                self.network_type
++            ));
++        }
++
++        let mut iface = network::Interface {
++            name: self.name.clone(),
++
++            // filled later
++            nameservers: vec![],
++            // filled below
++            ip_addresses: vec![],
++            // filled below
++            routes: vec![],
++            // filled below because Option::try_map doesn't exist yet
++            mac_address: None,
++
++            // unsupported by proxmox ve
++            bond: None,
++
++            // default values
++            path: None,
++            priority: 20,
++            unmanaged: false,
++            required_for_online: None,
++        };
++
++        for subnet in &self.subnets {
++            if subnet.subnet_type.contains("static") {
++                if subnet.address.is_none() {
++                    return Err(anyhow::anyhow!(
++                        "cannot convert static subnet to interface: missing address"
++                    ));
++                }
++
++                if let Some(netmask) = &subnet.netmask {
++                    iface.ip_addresses.push(IpNetwork::with_netmask(
++                        IpAddr::from_str(subnet.address.as_ref().unwrap())?,
++                        IpAddr::from_str(netmask)?,
++                    )?);
++                } else {
++                    iface
++                        .ip_addresses
++                        .push(IpNetwork::from_str(subnet.address.as_ref().unwrap())?);
++                }
++
++                if let Some(gateway) = &subnet.gateway {
++                    let gateway = IpAddr::from_str(gateway)?;
++
++                    let destination = if gateway.is_ipv6() {
++                        IpNetwork::from_str("::/0")?
++                    } else {
++                        IpNetwork::from_str("0.0.0.0/0")?
++                    };
++
++                    iface.routes.push(NetworkRoute {
++                        destination,
++                        gateway,
++                    });
++                } else {
++                    warn!("found subnet type \"static\" without gateway");
++                }
++            }
++
++            if subnet.subnet_type == "ipv6_slaac" {
++                warn!("subnet type \"ipv6_slaac\" not supported, ignoring");
++            }
++        }
++
++        if let Some(mac) = &self.mac_address {
++            iface.mac_address = Some(MacAddr::from_str(mac)?);
++        }
++
++        Ok(iface)
++    }
++}
+diff --git a/src/providers/proxmoxve/configdrive.rs b/src/providers/proxmoxve/configdrive.rs
+new file mode 100644
+index 0000000..37f8e4c
+--- /dev/null
++++ b/src/providers/proxmoxve/configdrive.rs
+@@ -0,0 +1,66 @@
++use super::ProxmoxVECloudConfig;
++use crate::{network, providers::MetadataProvider};
++use anyhow::{Context, Result};
++use openssh_keys::PublicKey;
++use slog_scope::error;
++use std::{
++    collections::HashMap,
++    path::{Path, PathBuf},
++};
++
++#[derive(Debug)]
++pub struct ProxmoxVEConfigDrive {
++    mount_path: PathBuf,
++    config: ProxmoxVECloudConfig,
++}
++
++impl ProxmoxVEConfigDrive {
++    pub fn try_new() -> Result<Self> {
++        const CONFIG_DRIVE_LABEL: &str = "cidata";
++        const TARGET_FS: &str = "iso9660";
++
++        let target = tempfile::Builder::new()
++            .prefix("afterburn-")
++            .tempdir()
++            .context("failed to create temporary directory")?;
++
++        crate::util::mount_ro(
++            &Path::new("/dev/disk/by-label/").join(CONFIG_DRIVE_LABEL),
++            target.path(),
++            TARGET_FS,
++            3,
++        )?;
++
++        let mount_path = target.path().to_owned();
++        Ok(Self {
++            config: ProxmoxVECloudConfig::try_new(&mount_path)?,
++            mount_path,
++        })
++    }
++}
++
++impl MetadataProvider for ProxmoxVEConfigDrive {
++    fn attributes(&self) -> Result<HashMap<String, String>> {
++        self.config.attributes()
++    }
++
++    fn hostname(&self) -> Result<Option<String>> {
++        self.config.hostname()
++    }
++
++    fn ssh_keys(&self) -> Result<Vec<PublicKey>> {
++        self.config.ssh_keys()
++    }
++
++    fn networks(&self) -> Result<Vec<network::Interface>> {
++        self.config.networks()
++    }
++}
++
++impl Drop for ProxmoxVEConfigDrive {
++    fn drop(&mut self) {
++        if let Err(e) = crate::util::unmount(&self.mount_path, 3) {
++            error!("failed to cleanup Proxmox VE config-drive: {:?}", e);
++        };
++    }
++}
+diff --git a/src/providers/proxmoxve/mod.rs b/src/providers/proxmoxve/mod.rs
+new file mode 100644
+index 0000000..14146b0
+--- /dev/null
++++ b/src/providers/proxmoxve/mod.rs
+@@ -0,0 +1,22 @@
++// Copyright 2017 CoreOS, Inc.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//     http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++mod configdrive;
++pub use configdrive::*;
++
++mod cloudconfig;
++pub use cloudconfig::*;
++
++#[cfg(test)]
++mod tests;
+diff --git a/src/providers/proxmoxve/tests.rs b/src/providers/proxmoxve/tests.rs
+new file mode 100644
+index 0000000..060ee8d
+--- /dev/null
++++ b/src/providers/proxmoxve/tests.rs
+@@ -0,0 +1,143 @@
++use super::ProxmoxVECloudConfig;
++use crate::{
++    network::{self, NetworkRoute},
++    providers::MetadataProvider,
++};
++use ipnetwork::IpNetwork;
++use openssh_keys::PublicKey;
++use pnet_base::MacAddr;
++use std::{net::IpAddr, path::Path, str::FromStr};
++
++#[test]
++fn test_attributes() {
++    let config = ProxmoxVECloudConfig::try_new(Path::new("tests/fixtures/proxmoxve/static"))
++        .expect("cannot parse config");
++    let attributes = config.attributes().expect("cannot get hostname");
++
++    assert_eq!(attributes["PROXMOXVE_HOSTNAME"], "dummy".to_string());
++
++    assert_eq!(
++        attributes["PROXMOXVE_INSTANCE_ID"],
++        "15a9919cb91024fbd1d70fa07f0efa749cbba03b".to_string()
++    );
++
++    assert_eq!(attributes["PROXMOXVE_IPV4"], "192.168.1.1".to_string());
++
++    assert_eq!(
++        attributes["PROXMOXVE_IPV6"],
++        "2001:db8:85a3::8a2e:370:0".to_string()
++    );
++}
++
++#[test]
++fn test_hostname() {
++    let config = ProxmoxVECloudConfig::try_new(Path::new("tests/fixtures/proxmoxve/dhcp"))
++        .expect("cannot parse config");
++
++    assert_eq!(
++        config.hostname().expect("cannot get hostname"),
++        Some("dummy".to_string())
++    );
++}
++
++#[test]
++fn test_ssh_keys() {
++    let test_ssh_key = PublicKey::from_str("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDd1hElre4j44sbmULXyO5j6dRnkRFCMjEGtRSy2SuvFD8WyB5uectcEMvz7ORhQIVbPlz94wFjpSX5wl/gmSKL/7GOyerJo0Y2cvyjJJahuDn+JnIL0tT0HS1pJ5iJqQpxXeOAzMK5Heum+uGw9BzbiUHnRzjJr8Ltx4CAGMfubevD4SX32Q8BTQiaU4ZnGtdHo16pWwRsq1f6/UtL4gDCni9vm8QmmGDRloi/pBn1csjKw+volFyu/kSEmGLWow6NuT6TrhGAbMKas5HfYq0Mn3LGPZL7XjqJQ6CO0TzkG/BNplZT2tiwHtsvXsbePTp4ZUi4dkCMz2xR4eikaI1V dummy@dummy.local").unwrap();
++    let config = ProxmoxVECloudConfig::try_new(Path::new("tests/fixtures/proxmoxve/dhcp"))
++        .expect("cannot parse config");
++
++    assert_eq!(
++        config.ssh_keys().expect("cannot get ssh keys"),
++        vec![test_ssh_key]
++    );
++}
++
++#[test]
++fn test_network_dhcp() {
++    let config = ProxmoxVECloudConfig::try_new(Path::new("tests/fixtures/proxmoxve/dhcp"))
++        .expect("cannot parse config");
++
++    assert_eq!(
++        config.networks().expect("cannot get networks"),
++        vec![network::Interface {
++            name: Some("eth0".to_owned()),
++            mac_address: Some(MacAddr::from_str("01:23:45:67:89:00").unwrap()),
++            path: None,
++            priority: 20,
++            nameservers: vec![
++                IpAddr::from_str("1.1.1.1").unwrap(),
++                IpAddr::from_str("8.8.8.8").unwrap()
++            ],
++            ip_addresses: vec![],
++            routes: vec![],
++            bond: None,
++            unmanaged: false,
++            required_for_online: None
++        }]
++    );
++}
++
++#[test]
++fn test_network_static() {
++    let config = ProxmoxVECloudConfig::try_new(Path::new("tests/fixtures/proxmoxve/static"))
++        .expect("cannot parse config");
++
++    assert_eq!(
++        config.networks().expect("cannot get networks"),
++        vec![
++            network::Interface {
++                name: Some("eth0".to_owned()),
++                mac_address: Some(MacAddr::from_str("01:23:45:67:89:00").unwrap()),
++                path: None,
++                priority: 20,
++                nameservers: vec![
++                    IpAddr::from_str("1.1.1.1").unwrap(),
++                    IpAddr::from_str("8.8.8.8").unwrap()
++                ],
++                ip_addresses: vec![
++                    IpNetwork::from_str("192.168.1.1/24").unwrap(),
++                    IpNetwork::from_str("2001:0db8:85a3:0000:0000:8a2e:0370:0/24").unwrap(),
++                ],
++                routes: vec![
++                    NetworkRoute {
++                        destination: IpNetwork::from_str("0.0.0.0/0").unwrap(),
++                        gateway: IpAddr::from_str("192.168.1.254").unwrap(),
++                    },
++                    NetworkRoute {
++                        destination: IpNetwork::from_str("::/0").unwrap(),
++                        gateway: IpAddr::from_str("2001:0db8:85a3:0000:0000:8a2e:0370:9999")
++                            .unwrap(),
++                    },
++                ],
++                bond: None,
++                unmanaged: false,
++                required_for_online: None
++            },
++            network::Interface {
++                name: Some("eth1".to_owned()),
++                mac_address: Some(MacAddr::from_str("01:23:45:67:89:99").unwrap()),
++                path: None,
++                priority: 20,
++                nameservers: vec![],
++                ip_addresses: vec![
++                    IpNetwork::from_str("192.168.42.1/24").unwrap(),
++                    IpNetwork::from_str("2001:0db8:85a3:0000:0000:8a2e:4242:0/24").unwrap(),
++                ],
++                routes: vec![
++                    NetworkRoute {
++                        destination: IpNetwork::from_str("0.0.0.0/0").unwrap(),
++                        gateway: IpAddr::from_str("192.168.42.254").unwrap(),
++                    },
++                    NetworkRoute {
++                        destination: IpNetwork::from_str("::/0").unwrap(),
++                        gateway: IpAddr::from_str("2001:0db8:85a3:0000:0000:8a2e:4242:9999")
++                            .unwrap(),
++                    },
++                ],
++                bond: None,
++                unmanaged: false,
++                required_for_online: None
++            },
++        ]
++    );
++}
+diff --git a/systemd/afterburn-sshkeys@.service.in b/systemd/afterburn-sshkeys@.service.in
+index 9e889fb..d8382dc 100644
+--- a/systemd/afterburn-sshkeys@.service.in
++++ b/systemd/afterburn-sshkeys@.service.in
+@@ -15,6 +15,7 @@ ConditionKernelCommandLine=|ignition.platform.id=gcp
+ ConditionKernelCommandLine=|ignition.platform.id=hetzner
+ ConditionKernelCommandLine=|ignition.platform.id=ibmcloud
+ ConditionKernelCommandLine=|ignition.platform.id=openstack
++ConditionKernelCommandLine=|ignition.platform.id=proxmoxve
+ ConditionKernelCommandLine=|ignition.platform.id=scaleway
+ ConditionKernelCommandLine=|ignition.platform.id=packet
+ ConditionKernelCommandLine=|ignition.platform.id=powervs
+diff --git a/tests/fixtures/proxmoxve/dhcp/meta-data b/tests/fixtures/proxmoxve/dhcp/meta-data
+new file mode 100644
+index 0000000..bd5926b
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/dhcp/meta-data
+@@ -0,0 +1 @@
++instance-id: 15a9919cb91024fbd1d70fa07f0efa749cbba03b
+diff --git a/tests/fixtures/proxmoxve/dhcp/network-config b/tests/fixtures/proxmoxve/dhcp/network-config
+new file mode 100644
+index 0000000..4031d02
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/dhcp/network-config
+@@ -0,0 +1,13 @@
++version: 1
++config:
++    - type: physical
++      name: eth0
++      mac_address: '01:23:45:67:89:00'
++      subnets:
++      - type: dhcp4
++    - type: nameserver
++      address:
++      - '1.1.1.1'
++      - '8.8.8.8'
++      search:
++      - 'local.com'
+diff --git a/tests/fixtures/proxmoxve/dhcp/user-data b/tests/fixtures/proxmoxve/dhcp/user-data
+new file mode 100644
+index 0000000..e62a3e6
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/dhcp/user-data
+@@ -0,0 +1,13 @@
++#cloud-config
++hostname: dummy
++manage_etc_hosts: true
++fqdn: dummy.local.com
++user: dummy-user
++password: $5$6LDowW6p$.RyFu8lVH7Cw3AB.pPS/K2lmB8IczVs99A7gbcUCLV2
++ssh_authorized_keys:
++  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDd1hElre4j44sbmULXyO5j6dRnkRFCMjEGtRSy2SuvFD8WyB5uectcEMvz7ORhQIVbPlz94wFjpSX5wl/gmSKL/7GOyerJo0Y2cvyjJJahuDn+JnIL0tT0HS1pJ5iJqQpxXeOAzMK5Heum+uGw9BzbiUHnRzjJr8Ltx4CAGMfubevD4SX32Q8BTQiaU4ZnGtdHo16pWwRsq1f6/UtL4gDCni9vm8QmmGDRloi/pBn1csjKw+volFyu/kSEmGLWow6NuT6TrhGAbMKas5HfYq0Mn3LGPZL7XjqJQ6CO0TzkG/BNplZT2tiwHtsvXsbePTp4ZUi4dkCMz2xR4eikaI1V dummy@dummy.local
++chpasswd:
++  expire: False
++users:
++  - default
++package_upgrade: true
+diff --git a/tests/fixtures/proxmoxve/dhcp/vendor-data b/tests/fixtures/proxmoxve/dhcp/vendor-data
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/fixtures/proxmoxve/static/meta-data b/tests/fixtures/proxmoxve/static/meta-data
+new file mode 100644
+index 0000000..bd5926b
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/static/meta-data
+@@ -0,0 +1 @@
++instance-id: 15a9919cb91024fbd1d70fa07f0efa749cbba03b
+diff --git a/tests/fixtures/proxmoxve/static/network-config b/tests/fixtures/proxmoxve/static/network-config
+new file mode 100644
+index 0000000..e708ca1
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/static/network-config
+@@ -0,0 +1,30 @@
++version: 1
++config:
++    - type: physical
++      name: eth0
++      mac_address: '01:23:45:67:89:00'
++      subnets:
++          - type: static
++            address: '192.168.1.1'
++            netmask: '255.255.255.0'
++            gateway: '192.168.1.254'
++          - type: static6
++            address: '2001:0db8:85a3:0000:0000:8a2e:0370:0/24'
++            gateway: '2001:0db8:85a3:0000:0000:8a2e:0370:9999'
++    - type: physical
++      name: eth1
++      mac_address: '01:23:45:67:89:99'
++      subnets:
++          - type: static
++            address: '192.168.42.1'
++            netmask: '255.255.255.0'
++            gateway: '192.168.42.254'
++          - type: static6
++            address: '2001:0db8:85a3:0000:0000:8a2e:4242:0/24'
++            gateway: '2001:0db8:85a3:0000:0000:8a2e:4242:9999'
++    - type: nameserver
++      address:
++      - '1.1.1.1'
++      - '8.8.8.8'
++      search:
++      - 'local.com'
+diff --git a/tests/fixtures/proxmoxve/static/user-data b/tests/fixtures/proxmoxve/static/user-data
+new file mode 100644
+index 0000000..e62a3e6
+--- /dev/null
++++ b/tests/fixtures/proxmoxve/static/user-data
+@@ -0,0 +1,13 @@
++#cloud-config
++hostname: dummy
++manage_etc_hosts: true
++fqdn: dummy.local.com
++user: dummy-user
++password: $5$6LDowW6p$.RyFu8lVH7Cw3AB.pPS/K2lmB8IczVs99A7gbcUCLV2
++ssh_authorized_keys:
++  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDd1hElre4j44sbmULXyO5j6dRnkRFCMjEGtRSy2SuvFD8WyB5uectcEMvz7ORhQIVbPlz94wFjpSX5wl/gmSKL/7GOyerJo0Y2cvyjJJahuDn+JnIL0tT0HS1pJ5iJqQpxXeOAzMK5Heum+uGw9BzbiUHnRzjJr8Ltx4CAGMfubevD4SX32Q8BTQiaU4ZnGtdHo16pWwRsq1f6/UtL4gDCni9vm8QmmGDRloi/pBn1csjKw+volFyu/kSEmGLWow6NuT6TrhGAbMKas5HfYq0Mn3LGPZL7XjqJQ6CO0TzkG/BNplZT2tiwHtsvXsbePTp4ZUi4dkCMz2xR4eikaI1V dummy@dummy.local
++chpasswd:
++  expire: False
++users:
++  - default
++package_upgrade: true
+diff --git a/tests/fixtures/proxmoxve/static/vendor-data b/tests/fixtures/proxmoxve/static/vendor-data
+new file mode 100644
+index 0000000..e69de29
+-- 
+2.45.0
+
