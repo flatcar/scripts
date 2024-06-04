@@ -16,7 +16,7 @@ SRC_URI="http://wiki.qemu.org/download/${MY_P}.tar.xz"
 
 LICENSE="GPL-2 BSD-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc ~ppc64 ~x86"
+KEYWORDS="amd64 ~arm64 ~ppc ~ppc64 x86"
 
 RDEPEND="dev-libs/glib"
 DEPEND="${RDEPEND}"
@@ -51,6 +51,9 @@ src_configure() {
 		--cxx="$(tc-getCXX)"
 		--host-cc="$(tc-getBUILD_CC)"
 	)
+
+	# Meson will not use a cross-file unless cross_prefix is set.
+	tc-is-cross-compiler && myconf+=( --cross-prefix="${CHOST}-" )
 
 	edo ./configure "${myconf[@]}"
 }

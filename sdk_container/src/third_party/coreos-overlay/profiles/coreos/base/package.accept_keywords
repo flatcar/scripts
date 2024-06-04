@@ -7,8 +7,26 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
+# Handled by automation
 =app-containers/containerd-1.7.17 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-05-17 08:17:19
+
+# These seem to be the versions we initially got, but the
+# modifications made to the ebuilds were clobbered, so these are here
+# to keep using the same version. Can be dropped when these or newer
+# get stabilized in Gentoo.
+=app-containers/containers-common-0.58.0-r1 ~amd64 ~arm64
+
+# Handled by automation?
 =app-containers/cri-tools-1.27.0 ~amd64 ~arm64
+
+# These seem to be the versions we initially got, but the
+# modifications made to the ebuilds were clobbered, so these are here
+# to keep using the same version. Can be dropped when these or newer
+# get stabilized in Gentoo.
+=app-containers/crun-1.14.3 ~amd64 ~arm64
+=app-containers/podman-5.0.2 ~amd64 ~arm64
+
+# Handled by automation?
 =app-containers/runc-1.1.12 ~amd64 ~arm64
 
 # Seems to be the only available ebuild in portage-stable right now.
@@ -22,19 +40,17 @@
 
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2-r1 ~arm64
-
-# Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 
+# Keep versions on both arches in sync.
+=app-emulation/qemu-guest-agent-8.2.0 ~arm64
+
 # Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p26 ~amd64 ~arm64
+=app-shells/bash-5.2_p26-r3 ~amd64 ~arm64
 
 # Needed by arm64-native SDK.
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
 =dev-lang/nasm-2.15.05 ~arm64
-
-# Keep versions on both arches in sync.
-=dev-lang/python-3.11.9 ~amd64
 
 # Accept unstable host Rust compilers.
 =dev-lang/rust-1.78.0 ~amd64 ~arm64
@@ -48,21 +64,34 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
+# Keep versions on both arches in sync.
+=dev-libs/libusb-1.0.27-r1 ~arm64
+
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
-
-# Needed to fix a build issue introduced by a wrong change in an older
-# version of the ebuild.
-=dev-libs/libdnet-1.16.4 ~arm64
+=dev-libs/libdnet-1.18.0 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-libs/libp11-0.4.12-r6 ~arm64
 =dev-libs/opensc-0.24.0 ~arm64
+
+# These seem to be the versions we initially got, but the
+# modifications made to the ebuilds were clobbered, so these are here
+# to keep using the same version. Can be dropped when these or newer
+# get stabilized in Gentoo.
+=dev-libs/yajl-2.1.0-r5 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =dev-python/cython-3.0.10 ~arm64
 =dev-python/lxml-5.2.1 ~arm64
+
+# Brought in to fix documentation build, which was not backported to 6.7.6-r1
+=dev-util/bpftool-6.8.2 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =dev-util/pahole-1.26 ~arm64
 
 # Needed for addressing CVE-2024-25629
@@ -73,39 +102,35 @@
 
 # Required for addressing CVE-2023-0361, CVE-2023-5981, CVE-2024-0567,
 # CVE-2024-0553, CVE-2024-28834 and CVE-2024-28835.
-=net-libs/gnutls-3.8.5 ~amd64 ~arm64
+=net-libs/gnutls-3.8.5-r1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# Keep versions on both arches in sync.
-=net-misc/curl-8.7.1-r3 ~arm64
-
 # Required to allow us to override the sftp subsystem in sshd config.
 =net-misc/openssh-9.4_p1 ~amd64 ~arm64
+
+# Required for podman sysext, no ebuild at all is stable for now.
+=net-misc/passt-2024.05.10 ~amd64 ~arm64
 
 # Required to address coreutils-2024-03-28
 =sys-apps/coreutils-9.5 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-apps/kexec-tools-2.0.24 ~arm64
+=sys-apps/kexec-tools-2.0.28 ~arm64
 =sys-apps/nvme-cli-2.8 ~arm64
-
-sys-apps/zram-generator ~amd64 ~arm64
+=sys-apps/zram-generator-1.1.2 ~arm64
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-devel/binutils-2.42-r1 ~arm64
 =sys-firmware/edk2-aarch64-18.02 **
 
-# Needed to fix CVE-2023-22655, CVE-2023-28746, CVE-2023-38575,
-# CVE-2023-39368 and CVE-2023-43490.
-=sys-firmware/intel-microcode-20240312_p20240312 ~amd64
-
-# Needed to fix CVE-2023-29491.
-=sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
+# Keep versions on both arches in sync.
+=sys-libs/binutils-libs-2.42-r1 ~arm64
 
 # Keep versions on both arches in sync.
 =sys-libs/libnvme-1.8 ~arm64

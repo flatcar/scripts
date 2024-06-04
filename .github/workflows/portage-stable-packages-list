@@ -97,9 +97,19 @@ app-arch/zstd
 
 app-cdr/cdrtools
 
+app-containers/aardvark-dns
+app-containers/catatonit
+app-containers/conmon
+app-containers/containers-common
+app-containers/containers-image
+app-containers/containers-shortnames
+app-containers/containers-storage
 app-containers/cri-tools
+app-containers/crun
 app-containers/docker
 app-containers/docker-cli
+app-containers/netavark
+app-containers/podman
 app-containers/runc
 
 app-crypt/adcli
@@ -107,6 +117,7 @@ app-crypt/argon2
 app-crypt/ccid
 app-crypt/efitools
 app-crypt/gnupg
+app-crypt/gpgme
 app-crypt/libb2
 app-crypt/libmd
 app-crypt/mhash
@@ -181,6 +192,8 @@ dev-db/sqlite
 dev-debug/gdb
 dev-debug/strace
 
+dev-go/go-md2man
+
 dev-lang/duktape
 dev-lang/go-bootstrap
 dev-lang/lua
@@ -249,11 +262,13 @@ dev-libs/popt
 dev-libs/protobuf
 dev-libs/userspace-rcu
 dev-libs/xmlsec
+dev-libs/yajl
 
 dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
 dev-python/autocommand
+dev-python/backports-tarfile
 dev-python/crcmod
 dev-python/cython
 dev-python/distro
@@ -274,9 +289,11 @@ dev-python/lazy-object-proxy
 dev-python/lxml
 dev-python/markupsafe
 dev-python/more-itertools
+dev-python/olefile
 dev-python/ordered-set
 dev-python/packaging
 dev-python/pathspec
+dev-python/pillow
 dev-python/platformdirs
 dev-python/pluggy
 dev-python/pydecomp
@@ -285,7 +302,6 @@ dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
-dev-python/tomli
 dev-python/trove-classifiers
 dev-python/typing-extensions
 dev-python/wheel
@@ -318,8 +334,8 @@ eclass/cargo.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/desktop.eclass
-eclass/distutils-r1.eclass
 eclass/dist-kernel-utils.eclass
+eclass/distutils-r1.eclass
 eclass/eapi7-ver.eclass
 eclass/eapi8-dosym.eclass
 eclass/edo.eclass
@@ -368,9 +384,9 @@ eclass/python-r1.eclass
 eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
 eclass/readme.gentoo-r1.eclass
+eclass/rpm.eclass
 eclass/ruby-single.eclass
 eclass/ruby-utils.eclass
-eclass/rpm.eclass
 eclass/savedconfig.eclass
 eclass/selinux-policy-2.eclass
 eclass/strip-linguas.eclass
@@ -435,6 +451,7 @@ net-misc/ethertypes
 net-misc/iperf
 net-misc/iputils
 net-misc/ntp
+net-misc/passt
 net-misc/rsync
 net-misc/socat
 net-misc/wget
@@ -515,10 +532,10 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
-sys-boot/mokutil
 # Updating to 3.0.17 breaks building of sys-boot/shim.
 #
 # sys-boot/gnu-efi
+sys-boot/mokutil
 
 sys-devel/bc
 sys-devel/binutils
@@ -539,22 +556,25 @@ sys-firmware/ipxe
 sys-firmware/seabios-bin
 sys-firmware/sgabios
 
+sys-fs/btrfs-progs
 sys-fs/cryptsetup
 sys-fs/dosfstools
 sys-fs/e2fsprogs
 sys-fs/fuse
 sys-fs/fuse-common
+sys-fs/fuse-overlayfs
 sys-fs/lsscsi
+sys-fs/lvm2
+sys-fs/mdadm
 sys-fs/mtools
 sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
+sys-fs/udev-init-scripts
 sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
-app-containers/podman
-net-misc/passt
 
 sys-kernel/linux-headers
 

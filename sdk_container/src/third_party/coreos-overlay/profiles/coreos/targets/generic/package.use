@@ -10,7 +10,9 @@ app-editors/vim-core	minimal
 # Install our modifications and compatibility symlinks for ssh and ntp
 #
 # Install a SELinux policy directory symlink
-coreos-base/misc-files audit ntp openssh policycoreutils
+#
+# Install systemd timer for mdadm
+coreos-base/misc-files audit mdadm ntp openssh policycoreutils
 
 dev-lang/python		gdbm
 dev-libs/dbus-glib	tools
@@ -21,7 +23,7 @@ net-misc/dhcp	        -server
 net-misc/ntp            caps
 sys-apps/smartmontools	-daemon -update-drivedb -systemd
 sys-block/parted        device-mapper
-sys-fs/lvm2		-readline
+sys-fs/lvm2		-readline thin lvm
 sys-libs/ncurses	minimal
 sys-libs/pam		audit
 

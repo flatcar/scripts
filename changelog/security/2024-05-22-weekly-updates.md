@@ -1,0 +1,2 @@
+- glib ([CVE-2024-34397](https://nvd.nist.gov/vuln/detail/CVE-2024-34397))
+- tpm2-{tools,tss} ([CVE-2024-29038](https://nvd.nist.gov/vuln/detail/CVE-2024-29038), [CVE-2024-29039](https://nvd.nist.gov/vuln/detail/CVE-2024-29039), [CVE-2024-29040](https://nvd.nist.gov/vuln/detail/CVE-2024-29040))

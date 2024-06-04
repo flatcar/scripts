@@ -6,6 +6,25 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Sam James <sam@gentoo.org> (2024-05-09)
+# Experimental option upstream which seems undertested and underdocumented.
+# Fails to build with stricter C compilers too (bug #919685).
+net-misc/openssh xmss
+
+# Matt Turner <mattst88@gentoo.org> (2024-05-08)
+# Brand new, introduces lots of new aspects to the build.
+# Masked for further testing.
+media-libs/mesa video_cards_nvk
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-27)
+# dev-python/uv is nowhere near ready to be stabilized.
+dev-python/build test-rust
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# app-forensics/libewf is being removed (TestDisk does not build
+# successfully with our version anyway).
+app-admin/testdisk ewf
+
 # Mike Gilbert <floppym@gentoo.org> (2024-04-18)
 # Wayland client is broken/deprecated by upstream. Bug 930197.
 >=net-misc/freerdp-3 wayland
@@ -595,10 +614,6 @@ app-office/abiword ots
 <dev-ml/llvm-ocaml-17 llvm_targets_Xtensa
 <sys-devel/clang-17 llvm_targets_Xtensa
 <sys-devel/llvm-17 llvm_targets_Xtensa
-
-# Michał Górny <mgorny@gentoo.org> (2020-09-27)
-# The respective dependencies are masked for removal.
-net-im/telepathy-connection-managers gadu icq meanwhile steam yahoo
 
 # Joonas Niilola <juippis@gentoo.org> (2020-09-23)
 # Highly experimental, may cause breakages when updating. Use with

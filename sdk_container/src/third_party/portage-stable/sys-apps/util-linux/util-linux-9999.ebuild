@@ -4,9 +4,10 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
+TMPFILES_OPTIONAL=1
 
 inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
-	pam python-r1 multilib-minimal multiprocessing systemd
+	pam python-r1 multilib-minimal multiprocessing systemd tmpfiles
 
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
@@ -33,7 +34,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
-IUSE="audit build caps +cramfs cryptsetup fdformat +hardlink kill +logger magic ncurses nls pam python +readline rtas selinux slang static-libs +su +suid systemd test tty-helpers udev unicode"
+IUSE="audit build caps +cramfs cryptsetup fdformat +hardlink kill +logger magic ncurses nls pam python +readline rtas selinux slang static-libs +su +suid systemd test tty-helpers udev unicode uuidd"
 
 # Most lib deps here are related to programs rather than our libs,
 # so we rarely need to specify ${MULTILIB_USEDEP}.
@@ -84,6 +85,10 @@ RDEPEND+="
 		!<sys-apps/shadow-4.7-r2
 		!>=sys-apps/shadow-4.7-r2[su]
 	)
+	uuidd? (
+		acct-user/uuidd
+		virtual/tmpfiles
+	)
 	!net-wireless/rfkill
 "
 
@@ -133,19 +138,23 @@ src_prepare() {
 
 	if use test ; then
 		# Known-failing tests
-		# TODO: investigate these
 		local known_failing_tests=(
 			# Subtest 'options-maximum-size-8192' fails
 			hardlink/options
 
 			# Fails in sandbox
+			# re ioctl_ns: https://github.com/util-linux/util-linux/issues/2967
 			lsns/ioctl_ns
-
+			lsfd/mkfds-inotify
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
 			# Fails with network-sandbox at least in nspawn
 			lsfd/option-inet
 			utmp/last-ipv6
+
+			# Permission issues on /dev/random
+			lsfd/mkfds-eventpoll
+			lsfd/column-xmode
 		)
 
 		local known_failing_test
@@ -226,6 +235,15 @@ multilib_src_configure() {
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
+		$(multilib_native_use_enable uuidd)
+
+		# TODO: Wire this up (bug #931118)
+		--without-econf
+
+		# TODO: Wire this up (bug #931297)
+		# TODO: investigate build failure w/ 2.40.1_rc1
+		--disable-liblastlog2
+		--disable-pam-lastlog2
 	)
 
 	if use build ; then
@@ -257,6 +275,7 @@ multilib_src_configure() {
 			--enable-rfkill
 			--enable-schedutils
 			--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+			--with-tmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d
 			$(use_enable caps setpriv)
 			$(use_enable cramfs)
 			$(use_enable fdformat)
@@ -290,6 +309,9 @@ multilib_src_configure() {
 			--enable-libsmartcols
 			--enable-libfdisk
 			--enable-libmount
+
+			# Support uuidd for non-native libuuid
+			$(use_enable uuidd libuuid-force-uuidd)
 		)
 	fi
 
@@ -374,6 +396,10 @@ multilib_src_install_all() {
 		fperms u+s /bin/su
 	fi
 
+	if use uuidd; then
+		newinitd "${FILESDIR}/uuidd.initd" uuidd
+	fi
+
 	# Note:
 	# Bash completion for "runuser" command is provided by same file which
 	# would also provide bash completion for "su" command. However, we don't
@@ -397,5 +423,9 @@ pkg_postinst() {
 	if [[ -z ${REPLACING_VERSIONS} ]] ; then
 		elog "The agetty util now clears the terminal by default. You"
 		elog "might want to add --noclear to your /etc/inittab lines."
+	fi
+
+	if use uuidd; then
+		tmpfiles_process uuidd-tmpfiles.conf
 	fi
 }
