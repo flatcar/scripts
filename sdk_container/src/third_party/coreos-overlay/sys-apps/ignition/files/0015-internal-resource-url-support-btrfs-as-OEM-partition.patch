@@ -1,4 +1,4 @@
-From 1b90dc1f23b4b1f17fa6caf0722f63e750eab888 Mon Sep 17 00:00:00 2001
+From 7d1b3ded6d9f252cef23198c9e309d3120a2aee0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kai=20L=C3=BCke?= <kailuke@microsoft.com>
 Date: Wed, 7 Jul 2021 18:40:52 +0200
 Subject: [PATCH 15/21] internal/resource/url: support btrfs as OEM partition
@@ -35,5 +35,5 @@ index 7b13c242..6b9f20c6 100644
  
  	return nil
 -- 
-2.43.0
+2.43.2
 

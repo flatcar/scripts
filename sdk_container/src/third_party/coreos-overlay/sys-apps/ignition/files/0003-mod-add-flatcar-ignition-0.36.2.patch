@@ -1,6 +1,6 @@
-From 37cff851d08cd24c8590ef4072436aa5184b9a36 Mon Sep 17 00:00:00 2001
+From a0b0b93a5794d15ac1dcf9cf504bc3b3bafd03ba Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Mon, 4 Mar 2024 14:55:33 +0100
+Date: Fri, 7 Jun 2024 09:09:18 +0200
 Subject: [PATCH 03/21] mod: add flatcar/ignition@0.36.2
 
 it's required for Ignition conversion.
@@ -11,7 +11,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/go.mod b/go.mod
-index c24348db..5f74f954 100644
+index 42f7800d..5eb792c3 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -11,6 +11,7 @@ require (
@@ -22,24 +22,24 @@ index c24348db..5f74f954 100644
  	github.com/google/renameio/v2 v2.0.0
  	github.com/google/uuid v1.6.0
  	github.com/mdlayher/vsock v1.2.1
-@@ -31,7 +32,9 @@ require (
- 	cloud.google.com/go v0.112.0 // indirect
- 	cloud.google.com/go/compute v1.23.4 // indirect
- 	cloud.google.com/go/iam v1.1.6 // indirect
+@@ -32,7 +33,9 @@ require (
+ 	cloud.google.com/go/auth v0.4.1 // indirect
+ 	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
+ 	cloud.google.com/go/iam v1.1.8 // indirect
 +	github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437 // indirect
  	github.com/coreos/go-json v0.0.0-20230131223807-18775e0fb4fb // indirect
 +	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect
  	github.com/davecgh/go-spew v1.1.1 // indirect
  	github.com/felixge/httpsnoop v1.0.4 // indirect
  	github.com/go-logr/logr v1.4.1 // indirect
-@@ -52,6 +55,7 @@ require (
- 	go.opentelemetry.io/otel v1.23.0 // indirect
- 	go.opentelemetry.io/otel/metric v1.23.0 // indirect
- 	go.opentelemetry.io/otel/trace v1.23.0 // indirect
+@@ -53,6 +56,7 @@ require (
+ 	go.opentelemetry.io/otel v1.24.0 // indirect
+ 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
+ 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 +	go4.org v0.0.0-20160314031811-03efcb870d84 // indirect
- 	golang.org/x/crypto v0.19.0 // indirect
- 	golang.org/x/sync v0.6.0 // indirect
- 	golang.org/x/text v0.14.0 // indirect
+ 	golang.org/x/crypto v0.23.0 // indirect
+ 	golang.org/x/sync v0.7.0 // indirect
+ 	golang.org/x/text v0.15.0 // indirect
 -- 
-2.43.0
+2.43.2
 

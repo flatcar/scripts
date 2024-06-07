@@ -1,21 +1,15 @@
-From 437c0f5da61e4195bcfc03da1de9b391cb76472c Mon Sep 17 00:00:00 2001
+From 6cd70e07fca9cb3d436a084110d11636f6b745eb Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Mon, 4 Mar 2024 14:53:49 +0100
+Date: Fri, 7 Jun 2024 09:08:51 +0200
 Subject: [PATCH 01/21] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- .github/ISSUE_TEMPLATE/release-checklist.md   |  8 +--
- .github/ISSUE_TEMPLATE/stabilize-checklist.md |  2 +-
- .github/workflows/container-rebuild.yml       |  2 +-
- .github/workflows/container.yml               |  2 +-
- .github/workflows/ignition-validate.yml       |  2 +-
- README.md                                     | 10 ++--
- build                                         |  4 +-
+ build                                         |  2 +-
  build_blackbox_tests                          | 10 ++--
  build_for_container                           |  2 +-
  config/config.go                              |  4 +-
- config/config_test.go                         | 14 +++---
+ config/config_test.go                         | 14 ++---
  config/doc/generate.go                        |  2 +-
  config/doc/schema.go                          |  2 +-
  config/merge/merge.go                         |  6 +--
@@ -55,7 +49,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_0/types/url_test.go                 |  4 +-
  config/v3_0/types/verification.go             |  2 +-
  config/v3_0/types/verification_test.go        |  2 +-
- config/v3_1/config.go                         | 14 +++---
+ config/v3_1/config.go                         | 14 ++---
  config/v3_1/config_test.go                    |  4 +-
  config/v3_1/translate/translate.go            |  8 +--
  config/v3_1/translate/translate_test.go       |  4 +-
@@ -92,7 +86,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_1/types/url_test.go                 |  4 +-
  config/v3_1/types/verification.go             |  2 +-
  config/v3_1/types/verification_test.go        |  2 +-
- config/v3_2/config.go                         | 14 +++---
+ config/v3_2/config.go                         | 14 ++---
  config/v3_2/config_test.go                    |  4 +-
  config/v3_2/translate/translate.go            |  6 +--
  config/v3_2/translate/translate_test.go       |  4 +-
@@ -132,7 +126,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_2/types/url_test.go                 |  4 +-
  config/v3_2/types/verification.go             |  2 +-
  config/v3_2/types/verification_test.go        |  2 +-
- config/v3_3/config.go                         | 14 +++---
+ config/v3_3/config.go                         | 14 ++---
  config/v3_3/config_test.go                    |  4 +-
  config/v3_3/translate/translate.go            |  8 +--
  config/v3_3/translate/translate_test.go       |  4 +-
@@ -174,7 +168,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_3/types/url_test.go                 |  4 +-
  config/v3_3/types/verification.go             |  2 +-
  config/v3_3/types/verification_test.go        |  2 +-
- config/v3_4/config.go                         | 14 +++---
+ config/v3_4/config.go                         | 14 ++---
  config/v3_4/config_test.go                    |  4 +-
  config/v3_4/translate/translate.go            |  8 +--
  config/v3_4/translate/translate_test.go       |  4 +-
@@ -217,10 +211,12 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_4/types/url_test.go                 |  4 +-
  config/v3_4/types/verification.go             |  2 +-
  config/v3_4/types/verification_test.go        |  2 +-
- config/v3_5_experimental/config.go            | 14 +++---
+ config/v3_5_experimental/config.go            | 14 ++---
  config/v3_5_experimental/config_test.go       |  4 +-
  .../v3_5_experimental/translate/translate.go  |  6 +--
  .../translate/translate_test.go               |  4 +-
+ config/v3_5_experimental/types/cex.go         |  2 +-
+ config/v3_5_experimental/types/cex_test.go    |  2 +-
  config/v3_5_experimental/types/clevis.go      |  4 +-
  config/v3_5_experimental/types/clevis_test.go |  4 +-
  config/v3_5_experimental/types/config.go      |  4 +-
@@ -277,7 +273,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  go.mod                                        |  2 +-
  internal/apply/apply.go                       | 30 +++++------
  internal/distro/distro.go                     |  2 +-
- internal/doc/main.go                          | 14 +++---
+ internal/doc/main.go                          | 14 ++---
  internal/exec/config_fetcher.go               | 18 +++----
  internal/exec/engine.go                       | 22 ++++----
  internal/exec/stages/disks/disks.go           | 16 +++---
@@ -288,16 +284,16 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  internal/exec/stages/fetch/fetch.go           | 12 ++---
  .../stages/fetch_offline/fetch-offline.go     | 16 +++---
  .../fetch_offline/fetch_offline_test.go       |  4 +-
- internal/exec/stages/files/files.go           | 14 +++---
+ internal/exec/stages/files/files.go           | 14 ++---
  internal/exec/stages/files/files_test.go      |  4 +-
  .../exec/stages/files/filesystemEntries.go    | 12 ++---
  internal/exec/stages/files/passwd.go          |  4 +-
  internal/exec/stages/files/units.go           | 12 ++---
  internal/exec/stages/files/units_test.go      |  4 +-
- internal/exec/stages/kargs/kargs.go           | 14 +++---
+ internal/exec/stages/kargs/kargs.go           | 14 ++---
  internal/exec/stages/mount/mount.go           | 16 +++---
  internal/exec/stages/stages.go                | 10 ++--
- internal/exec/stages/umount/umount.go         | 14 +++---
+ internal/exec/stages/umount/umount.go         | 14 ++---
  internal/exec/util/blkid.go                   |  2 +-
  internal/exec/util/file.go                    | 10 ++--
  internal/exec/util/passwd.go                  |  8 +--
@@ -307,6 +303,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  internal/exec/util/util.go                    |  6 +--
  internal/main.go                              | 18 +++----
  internal/platform/platform.go                 | 10 ++--
+ internal/providers/akamai/akamai.go           |  8 +--
  internal/providers/aliyun/aliyun.go           |  8 +--
  internal/providers/applehv/applehv.go         | 10 ++--
  internal/providers/aws/aws.go                 | 12 ++---
@@ -320,26 +317,26 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  internal/providers/gcp/gcp.go                 |  8 +--
  internal/providers/hetzner/hetzner.go         |  8 +--
  internal/providers/hyperv/kvp.go              | 12 ++---
- internal/providers/ibmcloud/ibmcloud.go       | 14 +++---
- internal/providers/kubevirt/kubevirt.go       | 14 +++---
+ internal/providers/ibmcloud/ibmcloud.go       | 14 ++---
+ internal/providers/kubevirt/kubevirt.go       | 14 ++---
  internal/providers/metal/metal.go             |  8 +--
- internal/providers/nutanix/nutanix.go         | 14 +++---
+ internal/providers/nutanix/nutanix.go         | 14 ++---
  internal/providers/openstack/openstack.go     | 16 +++---
  internal/providers/packet/packet.go           |  8 +--
- internal/providers/powervs/powervs.go         | 14 +++---
+ internal/providers/powervs/powervs.go         | 14 ++---
  internal/providers/qemu/qemu_blockdev.go      | 12 ++---
  internal/providers/qemu/qemu_fwcfg.go         | 10 ++--
  internal/providers/scaleway/scaleway.go       |  8 +--
- internal/providers/system/system.go           | 14 +++---
+ internal/providers/system/system.go           | 14 ++---
  internal/providers/util/config.go             |  6 +--
  internal/providers/util/file.go               |  4 +-
  internal/providers/virtualbox/virtualbox.go   | 10 ++--
  internal/providers/vmware/vmware_amd64.go     |  8 +--
  .../providers/vmware/vmware_unsupported.go    |  6 +--
  internal/providers/vultr/vultr.go             |  8 +--
- internal/providers/zvm/zvm.go                 | 14 +++---
- internal/register/providers.go                | 50 +++++++++----------
- internal/register/stages.go                   | 14 +++---
+ internal/providers/zvm/zvm.go                 | 14 ++---
+ internal/register/providers.go                | 52 +++++++++----------
+ internal/register/stages.go                   | 14 ++---
  internal/resource/http.go                     | 12 ++---
  internal/resource/url.go                      |  6 +--
  internal/resource/url_test.go                 |  6 +--
@@ -393,137 +390,17 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/positive/systemd/create_unit.go         |  4 +-
  tests/positive/systemd/modify_service.go      |  4 +-
  tests/positive/timeouts/timeouts.go           |  4 +-
- tests/register/register.go                    | 14 +++---
+ tests/register/register.go                    | 14 ++---
  tests/registry/registry.go                    | 36 ++++++-------
  tests/servers/servers.go                      |  2 +-
  tests/validator.go                            |  4 +-
  validate/main.go                              |  4 +-
- 393 files changed, 1057 insertions(+), 1057 deletions(-)
+ 390 files changed, 1050 insertions(+), 1050 deletions(-)
 
-diff --git a/.github/ISSUE_TEMPLATE/release-checklist.md b/.github/ISSUE_TEMPLATE/release-checklist.md
-index 2f542cbb..7277a70f 100644
---- a/.github/ISSUE_TEMPLATE/release-checklist.md
-+++ b/.github/ISSUE_TEMPLATE/release-checklist.md
-@@ -6,9 +6,9 @@ Release checklist:
- 
- Tagging:
-  - [ ] Write release notes in `docs/release-notes.md`. Get them reviewed and merged
--   - [ ] If the release signing key has changed because a new Fedora release has gone stable, note the change as done [here](https://github.com/coreos/ignition/releases/tag/v2.10.1).
-+   - [ ] If the release signing key has changed because a new Fedora release has gone stable, note the change as done [here](https://github.com/flatcar/ignition/releases/tag/v2.10.1).
-    - [ ] If doing a branched release, also include a PR to merge the `docs/release-notes.md` changes into main
-- - [ ] Ensure your local copy is up to date with the upstream main branch (`git@github.com:coreos/ignition.git`)
-+ - [ ] Ensure your local copy is up to date with the upstream main branch (`git@github.com:flatcar/ignition.git`)
-  - [ ] Ensure your working directory is clean (`git clean -fdx`)
-  - [ ] Ensure you can sign commits and any yubikeys/smartcards are plugged in
-  - [ ] Run `./tag_release.sh <vX.Y.z> <git commit hash>`
-@@ -51,13 +51,13 @@ GitHub release:
-  - [ ] Wait for the ticket to be closed
-  - [ ] Download the artifacts and signatures
-  - [ ] Verify the signatures
-- - [ ] Find the new tag in the [GitHub tag list](https://github.com/coreos/ignition/tags) and click the triple dots menu, and create a draft release for it.
-+ - [ ] Find the new tag in the [GitHub tag list](https://github.com/flatcar/ignition/tags) and click the triple dots menu, and create a draft release for it.
-  - [ ] Copy and paste the release notes from `docs/release-notes.md`
-  - [ ] Upload all the release artifacts and their signatures
-  - [ ] Publish the release
- 
- Quay release:
-- - [ ] Visit the [Quay tags page](https://quay.io/repository/coreos/ignition-validate?tab=tags) and wait for a versioned tag to appear
-+ - [ ] Visit the [Quay tags page](https://quay.io/repository/flatcar/ignition-validate?tab=tags) and wait for a versioned tag to appear
-  - [ ] Click the gear next to the tag, select "Add New Tag", enter `release`, and confirm
- 
- RHCOS packaging for the current RHCOS development release:
-diff --git a/.github/ISSUE_TEMPLATE/stabilize-checklist.md b/.github/ISSUE_TEMPLATE/stabilize-checklist.md
-index 795dc509..bf4ab32c 100644
---- a/.github/ISSUE_TEMPLATE/stabilize-checklist.md
-+++ b/.github/ISSUE_TEMPLATE/stabilize-checklist.md
-@@ -64,7 +64,7 @@ If there are any external kola tests that are not part of the Ignition repo (e.g
- 
- ## Other packages
- 
--- [ ] Add a stable spec to [ignition-config-rs](https://github.com/coreos/ignition-config-rs) and [regenerate schema](https://github.com/coreos/ignition-config-rs/blob/main/docs/development.md#regenerating-schemars).
-+- [ ] Add a stable spec to [ignition-config-rs](https://github.com/flatcar/ignition-config-rs) and [regenerate schema](https://github.com/coreos/ignition-config-rs/blob/main/docs/development.md#regenerating-schemars).
-   - [ ] Put out a new release.
- - [ ] Bump ignition-config-rs in coreos-installer to support the new spec in `iso customize` and `pxe customize`. Update release notes.
-   - [ ] Put out a new coreos-installer release.
-diff --git a/.github/workflows/container-rebuild.yml b/.github/workflows/container-rebuild.yml
-index 85df49d0..06618f17 100644
---- a/.github/workflows/container-rebuild.yml
-+++ b/.github/workflows/container-rebuild.yml
-@@ -42,6 +42,6 @@ jobs:
-         with:
-           credentials: ${{ secrets.QUAY_AUTH }}
-           file: Dockerfile.validate
--          push: quay.io/coreos/ignition-validate
-+          push: quay.io/flatcar/ignition-validate
-           arches: amd64 arm64
-           tags: ${{ github.event.inputs.docker-tag }} release
-diff --git a/.github/workflows/container.yml b/.github/workflows/container.yml
-index 4840ff3e..2048673f 100644
---- a/.github/workflows/container.yml
-+++ b/.github/workflows/container.yml
-@@ -38,7 +38,7 @@ jobs:
-         with:
-           credentials: ${{ secrets.QUAY_AUTH }}
-           file: Dockerfile.validate
--          push: quay.io/coreos/ignition-validate
-+          push: quay.io/flatcar/ignition-validate
-           arches: amd64 arm64
-           # Speed up PR CI by skipping non-amd64
-           pr-arches: amd64
-diff --git a/.github/workflows/ignition-validate.yml b/.github/workflows/ignition-validate.yml
-index 488bc1c4..544cb218 100644
---- a/.github/workflows/ignition-validate.yml
-+++ b/.github/workflows/ignition-validate.yml
-@@ -32,7 +32,7 @@ jobs:
-       uses: actions/checkout@v3
-     - name: Build ignition-validate
-       shell: bash
--      run: go build -o ignition-validate github.com/coreos/ignition/v2/validate
-+      run: go build -o ignition-validate github.com/flatcar/ignition/v2/validate
-     - name: Test ignition-validate
-       shell: bash
-       run: |
-diff --git a/README.md b/README.md
-index b3c26460..69c14cbc 100644
---- a/README.md
-+++ b/README.md
-@@ -16,18 +16,18 @@ Odds are good that you don't want to invoke Ignition directly. In fact, it isn't
- 
- See [CONTRIBUTING](CONTRIBUTING.md) for details on submitting patches and the contribution workflow.
- 
--To help triage or fix bugs, see the current [Ignition issues](https://github.com/coreos/ignition/issues/).
-+To help triage or fix bugs, see the current [Ignition issues](https://github.com/flatcar/ignition/issues/).
- 
- ## Config Validation
- 
--To validate a config for Ignition there are binaries for a cli tool called `ignition-validate` available [on the releases page][releases]. There is also an ignition-validate container: `quay.io/coreos/ignition-validate`.
-+To validate a config for Ignition there are binaries for a cli tool called `ignition-validate` available [on the releases page][releases]. There is also an ignition-validate container: `quay.io/flatcar/ignition-validate`.
- 
- Example:
- ```
- # This example uses podman, but docker can be used too
--podman run --pull=always --rm -i quay.io/coreos/ignition-validate:release - < myconfig.ign
-+podman run --pull=always --rm -i quay.io/flatcar/ignition-validate:release - < myconfig.ign
- ```
- 
- [getting started]: docs/getting-started.md
--[issues]: https://github.com/coreos/ignition/issues/new/choose
--[releases]: https://github.com/coreos/ignition/releases
-+[issues]: https://github.com/flatcar/ignition/issues/new/choose
-+[releases]: https://github.com/flatcar/ignition/releases
 diff --git a/build b/build
-index dba50388..b8f0a049 100755
+index dba50388..661f0eba 100755
 --- a/build
 +++ b/build
-@@ -5,7 +5,7 @@ set -eu
- export GO111MODULE=on
- 
- NAME="ignition"
--ORG_PATH="github.com/coreos"
-+ORG_PATH="github.com/flatcar"
- REPO_PATH="${ORG_PATH}/${NAME}/v2"
- GLDFLAGS=${GLDFLAGS:-}
- export GOFLAGS=-mod=vendor
 @@ -15,7 +15,7 @@ if [ -z ${VERSION+a} ]; then
  	echo "Using version from git: $VERSION"
  fi
@@ -3682,7 +3559,7 @@ index a56b4b3a..7e10866e 100644
  )
  
 diff --git a/config/v3_5_experimental/translate/translate.go b/config/v3_5_experimental/translate/translate.go
-index 5647e629..fd801170 100644
+index 19f6da5d..dbaac4c3 100644
 --- a/config/v3_5_experimental/translate/translate.go
 +++ b/config/v3_5_experimental/translate/translate.go
 @@ -15,9 +15,9 @@
@@ -3713,6 +3590,32 @@ index 7896facc..c6afaa31 100644
  )
  
  // Check that we have valid translators for the complete config struct
+diff --git a/config/v3_5_experimental/types/cex.go b/config/v3_5_experimental/types/cex.go
+index b34f5f52..6f58b373 100644
+--- a/config/v3_5_experimental/types/cex.go
++++ b/config/v3_5_experimental/types/cex.go
+@@ -15,7 +15,7 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_5_experimental/types/cex_test.go b/config/v3_5_experimental/types/cex_test.go
+index 35d562d8..e856a93f 100644
+--- a/config/v3_5_experimental/types/cex_test.go
++++ b/config/v3_5_experimental/types/cex_test.go
+@@ -18,7 +18,7 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_5_experimental/types/clevis.go b/config/v3_5_experimental/types/clevis.go
 index 68887d43..564154f6 100644
 --- a/config/v3_5_experimental/types/clevis.go
@@ -3901,7 +3804,7 @@ index 1a258727..a79c037a 100644
  
  func TestKernelArgumentsValidate(t *testing.T) {
 diff --git a/config/v3_5_experimental/types/luks.go b/config/v3_5_experimental/types/luks.go
-index 90d72387..2862ebae 100644
+index e4c1d681..ce9d087f 100644
 --- a/config/v3_5_experimental/types/luks.go
 +++ b/config/v3_5_experimental/types/luks.go
 @@ -17,8 +17,8 @@ package types
@@ -4315,7 +4218,7 @@ index 18eea933..4f77f19c 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/docs/_config.yml b/docs/_config.yml
-index e685a39f..d08e93ff 100644
+index 2e918bd0..6f51601a 100644
 --- a/docs/_config.yml
 +++ b/docs/_config.yml
 @@ -23,7 +23,7 @@ color_scheme: coreos
@@ -4527,7 +4430,7 @@ index 95ae838f..4c734e43 100644
  Before=initrd.target
  
 diff --git a/dracut/30ignition/module-setup.sh b/dracut/30ignition/module-setup.sh
-index 51bec7e7..340452b9 100755
+index e1d3e480..3ac9c11c 100755
 --- a/dracut/30ignition/module-setup.sh
 +++ b/dracut/30ignition/module-setup.sh
 @@ -59,7 +59,7 @@ install() {
@@ -4536,11 +4439,11 @@ index 51bec7e7..340452b9 100755
      # Required by s390x's z/VM installation.
 -    # Supporting https://github.com/coreos/ignition/pull/865
 +    # Supporting https://github.com/flatcar/ignition/pull/865
-     inst_multiple -o chccwdev vmur
+     if [[ ${DRACUT_ARCH:-$(uname -m)} == s390x ]]; then
+         inst_multiple chccwdev vmur zkey zkey-cryptsetup
  
-     # Required on system using SELinux
 diff --git a/go.mod b/go.mod
-index f749e0d5..c24348db 100644
+index 1abba79c..42f7800d 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,4 +1,4 @@
@@ -4591,7 +4494,7 @@ index 33113c5c..e8675889 100644
  
  type Flags struct {
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 61ca87ae..703385ea 100644
+index 4879f805..35c65721 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -20,7 +20,7 @@ import (
@@ -4737,11 +4640,11 @@ index d33c1153..62dab634 100644
  
  var (
 diff --git a/internal/exec/stages/disks/luks.go b/internal/exec/stages/disks/luks.go
-index 5117234e..5783b95a 100644
+index 9a1943fb..661f7f43 100644
 --- a/internal/exec/stages/disks/luks.go
 +++ b/internal/exec/stages/disks/luks.go
-@@ -26,12 +26,12 @@ import (
- 	"path"
+@@ -29,12 +29,12 @@ import (
+ 	"strconv"
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/util"
@@ -4861,7 +4764,7 @@ index fb45e966..ea369f0c 100644
  	"github.com/stretchr/testify/assert"
  )
 diff --git a/internal/exec/stages/files/files.go b/internal/exec/stages/files/files.go
-index 5ab5242a..c7785c26 100644
+index ba6b9bf6..cb3601d8 100644
 --- a/internal/exec/stages/files/files.go
 +++ b/internal/exec/stages/files/files.go
 @@ -20,13 +20,13 @@ import (
@@ -4901,7 +4804,7 @@ index 31741541..5bd23e44 100644
  
  func TestEntrySort(t *testing.T) {
 diff --git a/internal/exec/stages/files/filesystemEntries.go b/internal/exec/stages/files/filesystemEntries.go
-index 4df1f00c..1ca48c9a 100644
+index a6e0588f..e2ca484e 100644
 --- a/internal/exec/stages/files/filesystemEntries.go
 +++ b/internal/exec/stages/files/filesystemEntries.go
 @@ -24,11 +24,11 @@ import (
@@ -5183,7 +5086,7 @@ index 2482d710..8893157a 100644
  
  // tempBase() slaps together a minimal /etc/{passwd,group} for the lookup test.
 diff --git a/internal/exec/util/util.go b/internal/exec/util/util.go
-index 4a81f776..bd73adf4 100644
+index 7e880e3b..f1865474 100644
 --- a/internal/exec/util/util.go
 +++ b/internal/exec/util/util.go
 @@ -18,9 +18,9 @@ import (
@@ -5246,6 +5149,25 @@ index 48d60615..ff31a267 100644
 +	"github.com/flatcar/ignition/v2/internal/registry"
 +	"github.com/flatcar/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/internal/state"
+ 
+ 	"github.com/coreos/vcontext/report"
+ )
+diff --git a/internal/providers/akamai/akamai.go b/internal/providers/akamai/akamai.go
+index c7debf3b..ffc1e5a0 100644
+--- a/internal/providers/akamai/akamai.go
++++ b/internal/providers/akamai/akamai.go
+@@ -24,10 +24,10 @@ import (
+ 	"net/http"
+ 	"net/url"
+ 
+-	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/internal/platform"
+-	"github.com/coreos/ignition/v2/internal/providers/util"
+-	"github.com/coreos/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/platform"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
@@ -5941,13 +5863,14 @@ index 84f66ec3..d07f1ffc 100644
  )
  
 diff --git a/internal/register/providers.go b/internal/register/providers.go
-index e7a06b38..372ee32d 100644
+index 5382e2f3..eaf3fb18 100644
 --- a/internal/register/providers.go
 +++ b/internal/register/providers.go
-@@ -15,29 +15,29 @@
+@@ -15,30 +15,30 @@
  package register
  
  import (
+-	_ "github.com/coreos/ignition/v2/internal/providers/akamai"
 -	_ "github.com/coreos/ignition/v2/internal/providers/aliyun"
 -	_ "github.com/coreos/ignition/v2/internal/providers/applehv"
 -	_ "github.com/coreos/ignition/v2/internal/providers/aws"
@@ -5973,6 +5896,7 @@ index e7a06b38..372ee32d 100644
 -	_ "github.com/coreos/ignition/v2/internal/providers/vmware"
 -	_ "github.com/coreos/ignition/v2/internal/providers/vultr"
 -	_ "github.com/coreos/ignition/v2/internal/providers/zvm"
++	_ "github.com/flatcar/ignition/v2/internal/providers/akamai"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/aliyun"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/applehv"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/aws"
@@ -6099,7 +6023,7 @@ index 29915809..136aca67 100644
  
  type Operation struct {
 diff --git a/internal/state/state.go b/internal/state/state.go
-index 0adff2e8..4d4c42e1 100644
+index 462cc4d2..8b57aa36 100644
 --- a/internal/state/state.go
 +++ b/internal/state/state.go
 @@ -20,7 +20,7 @@ import (
@@ -6972,5 +6896,5 @@ index bec64866..ed027604 100644
  
  var (
 -- 
-2.43.0
+2.43.2
 

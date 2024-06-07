@@ -1,4 +1,4 @@
-From 8c5952d20e569133ac34e7e6a37367e8276d24b6 Mon Sep 17 00:00:00 2001
+From 20943aff39cc77fd27b61e17e0799d4d1c9c6b6e Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 20 Feb 2024 10:25:24 +0100
 Subject: [PATCH 17/21] revert: internal/oem: drop noop OEMs
@@ -42,5 +42,5 @@ index 8a5c2362..9b764e09 100644
  
  func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
 -- 
-2.43.0
+2.43.2
 

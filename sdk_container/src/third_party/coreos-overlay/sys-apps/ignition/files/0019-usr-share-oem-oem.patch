@@ -1,4 +1,4 @@
-From b72d69ad5627d5963babc44e1a52a64fe047a35d Mon Sep 17 00:00:00 2001
+From 7a40967779d03da8604ae13890db5b06230b9bc9 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 4 Apr 2023 12:12:42 +0200
 Subject: [PATCH 19/21] /usr/share/oem -> /oem
@@ -22,7 +22,7 @@ index 347d148c..d4c057b2 100644
  			// generate a new path
  			fsMap[name] = "/tmp/" + name + "-ign" + strconv.FormatUint(addedSuffixCounter, 10)
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 644c42c4..9e96166e 100644
+index 3886ab56..79fa8712 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -32,7 +32,10 @@ var (
@@ -38,5 +38,5 @@ index 644c42c4..9e96166e 100644
  
  	// Helper programs
 -- 
-2.43.0
+2.43.2
 
