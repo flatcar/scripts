@@ -1,4 +1,4 @@
-From 77f3bc5ddd558f75c3239ebf35ee6f430bcda016 Mon Sep 17 00:00:00 2001
+From 3e06976d9deb99b7979638505541d2166d00f8d9 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 20 Feb 2024 10:02:28 +0100
 Subject: [PATCH 08/21] provider/qemu: apply fw_cfg patch
@@ -159,5 +159,5 @@ index a150869f..e233865a 100644
 +
  }
 -- 
-2.43.0
+2.43.2
 

@@ -1,4 +1,4 @@
-From 9d97af5dd7cb5f6f301e970cdc24126d8a764c19 Mon Sep 17 00:00:00 2001
+From 618ac3e4556fc03eae599b736eff2086d9a95722 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 19 Feb 2024 18:12:22 +0100
 Subject: [PATCH 07/21] internal/prv/cmdline: backport flatcar patch
@@ -36,5 +36,5 @@ index eb8e2b45..0561438a 100644
  		}
  
 -- 
-2.43.0
+2.43.2
 

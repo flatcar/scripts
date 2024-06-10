@@ -1,4 +1,4 @@
-From cda121656f3e45efe9b034718b7f0928c5fcdfe8 Mon Sep 17 00:00:00 2001
+From 21f26593b93415a632449d05e787237d29c79ba3 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:38:16 +0200
 Subject: [PATCH 14/21] Revert "*: drop OEM URI support"
@@ -81,10 +81,10 @@ index 9b2b4405..5258c3c6 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index f0318339..88da2a8e 100644
+index 8dc0feb1..e7dd1dd4 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
-@@ -11,6 +11,7 @@ Ignition is currently only supported for the following platforms:
+@@ -12,6 +12,7 @@ Ignition is currently only supported for the following platforms:
  * [Amazon Web Services] (`aws`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [Microsoft Azure] (`azure`)- Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
  * [Microsoft Azure Stack] (`azurestack`) - Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
@@ -93,7 +93,7 @@ index f0318339..88da2a8e 100644
  * [CloudStack] (`cloudstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.
  * [DigitalOcean] (`digitalocean`) - Ignition will read its configuration from the droplet userdata. Cloud SSH keys and network configuration are handled separately.
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 703385ea..644c42c4 100644
+index 35c65721..3886ab56 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -23,13 +23,17 @@ import (
@@ -115,8 +115,8 @@ index 703385ea..644c42c4 100644
  
  	// Helper programs
  	groupaddCmd  = "groupadd"
-@@ -79,11 +83,14 @@ var (
- 	resultFilePath          = "/etc/.ignition-result.json"
+@@ -82,11 +86,14 @@ var (
+ 	luksCexSecureKeyRepo    = "/etc/zkey/repository/"
  )
  
 -func DiskByLabelDir() string { return diskByLabelDir }
@@ -271,5 +271,5 @@ index 8ccf9399..7b13c242 100644
 +	)
 +}
 -- 
-2.43.0
+2.43.2
 

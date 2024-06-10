@@ -1,4 +1,4 @@
-From 9ef66f2c472d90b1040a07722c135937a42cc092 Mon Sep 17 00:00:00 2001
+From 0e91455c9075e7605e72f5ca4a932ca94ee24635 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 10 Nov 2022 11:58:49 +0100
 Subject: [PATCH 16/21] translation: support OEM and oem
@@ -157,5 +157,5 @@ index e81f6bed..68c07109 100644
 +	}
 +}
 -- 
-2.43.0
+2.43.2
 
