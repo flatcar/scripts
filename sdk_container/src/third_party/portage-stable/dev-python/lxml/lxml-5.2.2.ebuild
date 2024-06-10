@@ -23,7 +23,7 @@ S=${WORKDIR}/lxml-${P}
 
 LICENSE="BSD ElementTree GPL-2 PSF-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="doc examples +threads test"
 RESTRICT="!test? ( test )"
 
@@ -95,13 +95,6 @@ python_test() {
 	cp -al src/lxml/tests "${dir}/" || die
 	cp -al src/lxml/html/tests "${dir}/html/" || die
 	ln -rs "${S}"/doc "${dir}"/../../ || die
-
-	# test_feedparser_data requires lxml_html_clean
-	# this is the *simplest* way of skipping these without breaking
-	# random other tests, sigh
-	sed -e '/lxml\.html\.clean/d' \
-		-i "${dir}"/html/tests/test_feedparser_data.py || die
-	rm -r "${dir}"/html/tests/*-data/*.data || die
 
 	"${EPYTHON}" test.py -vv --all-levels -p ||
 		die "Tests fail on ${EPYTHON}"
