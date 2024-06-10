@@ -40,7 +40,7 @@ inherit multiprocessing toolchain-funcs
 # All supported Python implementations, most preferred last.
 _PYTHON_ALL_IMPLS=(
 	pypy3
-	python3_{10..12}
+	python3_{10..13}
 )
 readonly _PYTHON_ALL_IMPLS
 
@@ -80,7 +80,7 @@ _python_verify_patterns() {
 	local impl pattern
 	for pattern; do
 		case ${pattern} in
-			-[23]|3.[89]|3.1[012])
+			-[23]|3.[89]|3.1[0-3])
 				continue
 				;;
 		esac
@@ -136,7 +136,7 @@ _python_set_impls() {
 			# please keep them in sync with _PYTHON_ALL_IMPLS
 			# and _PYTHON_HISTORICAL_IMPLS
 			case ${i} in
-				pypy3|python3_9|python3_1[0-2])
+				pypy3|python3_9|python3_1[0-3])
 					;;
 				jython2_7|pypy|pypy1_[89]|pypy2_0|python2_[5-7]|python3_[1-9])
 					obsolete+=( "${i}" )
@@ -231,7 +231,7 @@ _python_impl_matches() {
 				[[ ${impl} == python${pattern/./_} || ${impl} == pypy3 ]] &&
 					return 0
 				;;
-			3.8|3.9|3.1[1-2])
+			3.8|3.9|3.1[1-3])
 				[[ ${impl} == python${pattern/./_} ]] && return 0
 				;;
 			*)
@@ -1321,6 +1321,15 @@ _python_check_occluded_packages() {
 # Specifies the number of jobs for parallel (pytest-xdist) test runs.
 # When unset, defaults to -j from MAKEOPTS, or the current nproc.
 
+# @ECLASS_VARIABLE: EPYTEST_FLAGS
+# @USER_VARIABLE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Additional flags to pass to pytest.  This is intended to be set
+# in the environment when debugging packages (options such as -x or -s
+# are useful here), rather than globally.  It must not be set
+# in ebuilds.
+
 # @FUNCTION: epytest
 # @USAGE: [<args>...]
 # @DESCRIPTION:
@@ -1432,10 +1441,10 @@ epytest() {
 	for x in "${EPYTEST_IGNORE[@]}"; do
 		args+=( --ignore "${x}" )
 	done
-	set -- "${EPYTHON}" -m pytest "${args[@]}" "${@}"
+	set -- "${EPYTHON}" -m pytest "${args[@]}" "${@}" ${EPYTEST_FLAGS}
 
 	echo "${@}" >&2
-	"${@}" || die -n "pytest failed with ${EPYTHON}"
+	"${@}"
 	local ret=${?}
 
 	# remove common temporary directories left over by pytest plugins
@@ -1446,6 +1455,7 @@ epytest() {
 		find "${BUILD_DIR}" -name '*-pytest-*.pyc' -delete || die
 	fi
 
+	[[ ${ret} -ne 0 ]] && die -n "pytest failed with ${EPYTHON}"
 	return ${ret}
 }
 
