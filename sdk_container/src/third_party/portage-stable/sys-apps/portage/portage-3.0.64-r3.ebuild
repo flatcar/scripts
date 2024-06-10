@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( pypy3 python3_{10..13} )
+PYTHON_COMPAT=( pypy3 python3_{10..12} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 TMPFILES_OPTIONAL=1
 
@@ -103,6 +103,11 @@ PDEPEND="
 		>=sys-apps/file-5.44-r3
 	)
 "
+
+PATCHES=(
+	"${FILESDIR}"/${P}-clang-splitdebug.patch
+	"${FILESDIR}"/0001-install-qa-checks.d-suppress-some-gnulib-implicit-co.patch
+)
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
