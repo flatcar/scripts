@@ -128,7 +128,6 @@ EMERGE_DEFAULT_OPTS=${emerge_opts@Q}
 
 USE="
 -desktop
--ensurepip
 -installkernel
 -llvm
 -nls

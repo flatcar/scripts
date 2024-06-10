@@ -259,6 +259,9 @@ dev-python/cython
 dev-python/distro
 dev-python/docutils
 dev-python/editables
+dev-python/ensurepip-pip
+dev-python/ensurepip-setuptools
+dev-python/ensurepip-wheels
 dev-python/fasteners
 dev-python/flit-core
 dev-python/gentoo-common
