@@ -34,7 +34,7 @@ elif (( gentoo_color == 16777216 )); then
 	export COLORTERM=truecolor
 fi
 
-if (( gentoo_color <= 0 )); then
+if (( gentoo_color <= 0 )) || ! genfun_has_readline; then
 	# Define a prompt without color.
 	PS1='\u@\h \w \$ '
 elif (( EUID == 0 )); then
@@ -46,8 +46,8 @@ else
 fi
 
 if (( gentoo_color > 0 )); then
-	# Colorize the output of grep and several coreutils utilities.
-	for _ in diff dir egrep fgrep grep ls vdir; do
+	# Colorize the output of diff(1), grep(1) and a few coreutils utilities.
+	for _ in diff dir grep ls vdir; do
 		alias "$_=$_ --color=auto"
 	done
 
