@@ -6,6 +6,33 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Alfredo Tupone <tupone@gentoo.org> (2024-05-28)
+# Not working, bug #931046
+>=sci-libs/caffe2-2.3.0 rocm
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-18)
+# dev-python/aesara is being removed.
+dev-python/sympy aesara
+
+# Sam James <sam@gentoo.org> (2024-05-09)
+# Experimental option upstream which seems undertested and underdocumented.
+# Fails to build with stricter C compilers too (bug #919685).
+net-misc/openssh xmss
+
+# Matt Turner <mattst88@gentoo.org> (2024-05-08)
+# Brand new, introduces lots of new aspects to the build.
+# Masked for further testing.
+media-libs/mesa video_cards_nvk
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-27)
+# dev-python/uv is nowhere near ready to be stabilized.
+dev-python/build test-rust
+
+# Michał Górny <mgorny@gentoo.org> (2024-04-23)
+# app-forensics/libewf is being removed (TestDisk does not build
+# successfully with our version anyway).
+app-admin/testdisk ewf
+
 # Mike Gilbert <floppym@gentoo.org> (2024-04-18)
 # Wayland client is broken/deprecated by upstream. Bug 930197.
 >=net-misc/freerdp-3 wayland
@@ -29,11 +56,6 @@ app-admin/calamares qt6
 # Sam James <sam@gentoo.org> (2024-03-18)
 # Needs masked KF6 for Wayland at least.
 app-crypt/pinentry qt6
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-17)
-# Suffers from unaligned accesses, upstream's working on it.
-# https://github.com/psycopg/psycopg/issues/734
-<=dev-python/psycopg-3.1.18 native-extensions
 
 # Guilherme Amadio <amadio@gentoo.org> (2024-03-09)
 # Requires manually installing dependencies, see bug #791802
@@ -250,10 +272,6 @@ sci-libs/vtk debug
 # See also: https://bugs.gentoo.org/891499
 sys-libs/libomp llvm_targets_AMDGPU
 
-# Sam James <sam@gentoo.org> (2023-01-21)
-# Fails to compile: https://github.com/libffi/libffi/issues/760
-<dev-libs/libffi-3.4.4-r4 exec-static-trampoline
-
 # Joonas Niilola <juippis@gentoo.org> (2023-01-08)
 # Doesn't compile currently, bug #853094.
 >=net-dialup/freeradius-3.2.0 oracle
@@ -270,10 +288,6 @@ app-misc/pax-utils seccomp
 # Sam James <sam@gentoo.org> (2022-12-17)
 # Broken when trying to use sys-libs/binutils-libs header, bug #879067
 >=x11-libs/cairo-1.17.6 debug
-
-# Joonas Niilola <juippis@gentoo.org> (2022-11-25)
-# x11-wm/stumpwm-22.05_p20220818[doc] is totally broken. Bug #882935
-x11-wm/stumpwm doc
 
 # Bernd Waibel <waebbl-gentoo@posteo.net> (2022-11-25)
 # USE=tbb is broken in 7.7.0
@@ -596,10 +610,6 @@ app-office/abiword ots
 <sys-devel/clang-17 llvm_targets_Xtensa
 <sys-devel/llvm-17 llvm_targets_Xtensa
 
-# Michał Górny <mgorny@gentoo.org> (2020-09-27)
-# The respective dependencies are masked for removal.
-net-im/telepathy-connection-managers gadu icq meanwhile steam yahoo
-
 # Joonas Niilola <juippis@gentoo.org> (2020-09-23)
 # Highly experimental, may cause breakages when updating. Use with
 # caution!
@@ -788,7 +798,6 @@ app-emulation/libvirt openvz
 # need or even advantage to set custom compiler flags at all.
 # Example: bug #619628
 sys-boot/gnu-efi custom-cflags
-sys-boot/refind custom-cflags
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2017-05-29)
 # Does not build
