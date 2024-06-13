@@ -18,13 +18,9 @@ export GCLIENT_ROOT=$(readlink -f "${SCRIPT_ROOT}/../../")
 DEFINE_string image "" "The filesystem image of /usr"
 DEFINE_string kernel "" "The kernel image"
 DEFINE_string output "" "Output file"
-DEFINE_string private_keys "" "Path, pkcs11 URI, or fero:<keyname> for private keys."
+DEFINE_string private_keys "" "Path or pkcs11 URI for private keys."
 DEFINE_string public_keys "" "Path to public keys in .pem format."
 DEFINE_string keys_separator ":" "Separator for the above keys"
-DEFINE_string user_signatures "" \
-    "Colon-separated paths to user signatures to provide to signing server"
-DEFINE_string signing_server_address "" "Hostname of the signing server"
-DEFINE_integer signing_server_port "50051" "Port of the signing server"
 
 # Parse command line
 FLAGS "$@" || exit 1
@@ -67,16 +63,6 @@ for key in "${private_keys[@]}"; do
 	let "i += 1"
 done
 signature_sizes="${signature_sizes:1:${#signature_sizes}}"
-
-# We don't need to maintain backwards compatibility with old `sign.sh` scripts here, so we only
-# allow colon-separated values for user signature files.
-IFS=":" read -a user_signatures <<< "$FLAGS_user_signatures"
-
-user_signatures_arg=""
-for user_signature in "${user_signatures[@]}"; do
-    user_signatures_arg="${user_signatures_arg} --signature ${user_signature}"
-done
-user_signatures_arg="${user_signatures_arg:1:${#user_signatures_arg}}"
 
 delta_generator \
 	--signature_size ${signature_sizes} \
@@ -137,15 +123,6 @@ signature_sizes=""
 for key in "${private_keys[@]}"; do
 	if [[ "${key}" == pkcs11* ]]; then
 		sudo OPENSSL_CONF=/etc/ssl/pkcs11.cnf openssl pkeyutl -engine pkcs11 -sign -keyform engine -inkey "${key}" -in update.pkcs11-padhash -out "update.sig.${i}"
-	elif [[ "${key}" == fero* ]]; then
-		fero-client \
-			--address $FLAGS_signing_server_address \
-			--port $FLAGS_signing_server_port \
-			sign --pkcs1 \
-			--file update.hash \
-			--output update.sig.${i} \
-			--secret-key ${key:5:${#key}} \
-			${user_signatures_arg}
 	else
 		openssl rsautl -raw -sign -inkey ${key} -in update.padhash -out update.sig.${i}
 	fi
