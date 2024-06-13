@@ -1,0 +1,20 @@
+# sbin and bin are still separate directories and the build system of
+# kmod puts the tool symlinks into bin, whereas most places that use
+# absolute paths to the tools expect them to be in sbin. Move them
+# there. This can be removed if we merge bin and sbin directories
+# (likely to happen when we migrate to 23.0 profiles).
+cros_post_src_install_move_kmod_tools_symlinks() {
+    local kmod tool
+
+    # path to kmod relative to sbin
+    if [[ -x "${ED}/usr/sbin/kmod" ]]; then
+        kmod=kmod
+    else
+        kmod=../bin/kmod
+    fi
+    mkdir -p "${ED}/usr/sbin"
+    for tool in modprobe rmmod insmod depmod; do
+        rm -f "${ED}/usr/bin/${tool}" "${ED}/bin/${tool}"
+        ln -sf "${kmod}" "${ED}/usr/sbin/${tool}"
+    done
+}
