@@ -8,7 +8,7 @@ of the Container Linux build and are exact copies of upstream Gentoo packages.
 Use `src/scripts/update_ebuilds` to fetch the latest copy from Gentoo:
 
     cd ~/trunk/src/scripts
-    repo start update-foo ../third-party/portage-stable
+    git checkout -b update-foo
     ./update_ebuilds --commit app-fun/foo
 
 Note: `update_ebuilds` can fetch from either Gentoo's Github mirror or

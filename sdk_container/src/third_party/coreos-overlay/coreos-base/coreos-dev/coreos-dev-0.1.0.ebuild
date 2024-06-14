@@ -23,7 +23,6 @@ RDEPEND="
 	dev-debug/strace
 	dev-lang/python
 	dev-util/pahole
-	dev-vcs/repo
 	net-analyzer/netperf
 	net-analyzer/traceroute
 	net-dialup/minicom

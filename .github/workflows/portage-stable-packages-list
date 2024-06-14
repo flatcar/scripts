@@ -309,7 +309,6 @@ dev-util/pkgconf
 dev-util/re2c
 
 dev-vcs/git
-dev-vcs/repo
 
 eclass/acct-group.eclass
 eclass/acct-user.eclass
