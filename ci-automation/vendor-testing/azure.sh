@@ -22,23 +22,11 @@ azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
 if [ ! -f "${AZURE_IMAGE_NAME}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${AZURE_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${AZURE_IMAGE_NAME}.bz2" .
-    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/version.txt" .
     cp --sparse=always <(lbzcat "${AZURE_IMAGE_NAME}.bz2") "${AZURE_IMAGE_NAME}"
     rm "${AZURE_IMAGE_NAME}.bz2"
-    # ore gc will clean this up within 5h
-    imgid=$(ore azure create-gallery-image --azure-identity \
-      --azure-location "${AZURE_LOCATION}" \
-      --file "${AZURE_IMAGE_NAME}" \
-      --hyper-v-generation V2 \
-      --board="${board}" | sed 's/{/\n{/' | tail -n1 | jq -r .ID)
-    rm -f "${AZURE_IMAGE_NAME}"
-    touch "${AZURE_IMAGE_NAME}"
-    echo "Using gallery image: $imgid"
-    echo "$imgid" >"azure.img"
+else
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${AZURE_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 fi
-
-read -r imgid <"azure.img"
-echo "++++ ${CIA_TESTSCRIPT}: Using existing $imgid for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 
 run_kola_tests() {
     local instance_type="${1}"; shift
@@ -57,11 +45,12 @@ run_kola_tests() {
       --parallel="${AZURE_PARALLEL}" \
       --offering=basic \
       --platform=azure \
-      --azure-disk-uri="${imgid}" \
+      --azure-image-file="${AZURE_IMAGE_NAME}" \
       --azure-location="${AZURE_LOCATION}" \
       --tapfile="${instance_tapfile}" \
       --azure-size="${instance_type}" \
       --azure-hyper-v-generation="${hyperv_gen}" \
+      --azure-use-gallery \
       ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
       ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
       ${AZURE_RESOURCE_GROUP:+--azure-resource-group=${AZURE_RESOURCE_GROUP}} \
