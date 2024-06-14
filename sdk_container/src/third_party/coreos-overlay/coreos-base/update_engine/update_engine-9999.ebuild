@@ -21,7 +21,7 @@ SRC_URI=""
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="cros-debug cros_host -delta_generator symlink-usr"
+IUSE="cros_host +debug -delta_generator symlink-usr"
 
 RDEPEND="!coreos-base/coreos-installer
 	app-arch/bzip2
@@ -62,7 +62,7 @@ src_configure() {
 	append-flags -Wno-unused-function
 
 	local myconf=(
-		$(use_enable cros-debug debug)
+		$(use_enable debug)
 		$(use_enable delta_generator)
 	)
 
