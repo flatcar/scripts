@@ -340,14 +340,13 @@ get_metadata() {
         if [ -z "${val}" ]; then
             # The grep invocation gives errors when the ebuild file is not present.
             # This can happen when the binary packages from ./build_packages are outdated.
-            val="$(grep "CROS_WORKON_PROJECT=" "${ebuild_path}" | cut -d '"' -f 2)"
+            val="$(grep "EGIT_REPO_URI=" "${ebuild_path}" | cut -d '"' -f 2)"
             if [ -n "${val}" ]; then
-                val="https://github.com/${val}"
                 # All github.com/flatcar projects specify their commit
                 local commit=""
-                commit="$(grep "CROS_WORKON_COMMIT=" "${ebuild_path}" | cut -d '"' -f 2)"
+                commit="$(grep "EGIT_COMMIT=" "${ebuild_path}" | cut -d '"' -f 2)"
                 if [ -n "${commit}" ]; then
-                    val="${val}/commit/${commit}"
+                    val="${val%.git}/commit/${commit}"
                 fi
             fi
         fi
@@ -539,7 +538,7 @@ insert_extra_slsa() {
 
 # Add an entry to the image's package.provided
 package_provided() {
-    local p profile="${BUILD_DIR}/configroot/etc/portage/profile"    
+    local p profile="${BUILD_DIR}/configroot/etc/portage/profile"
     for p in "$@"; do
         info "Writing $p to package.provided and soname.provided"
         echo "$p" >> "${profile}/package.provided"

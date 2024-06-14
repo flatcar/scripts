@@ -2,22 +2,20 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="kinvolk/sdnotify-proxy"
-CROS_WORKON_LOCALNAME="sdnotify-proxy"
-CROS_WORKON_REPO="https://github.com"
-COREOS_GO_PACKAGE="github.com/coreos/sdnotify-proxy"
+EGIT_REPO_URI="https://github.com/flatcar/sdnotify-proxy.git"
+COREOS_GO_PACKAGE="github.com/flatcar/sdnotify-proxy"
 COREOS_GO_GO111MODULE="off"
-inherit coreos-go cros-workon
+inherit coreos-go git-r3
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="0f8ef1aa86c59fc6d54eadaffb248feaccd1018b" # master
+	EGIT_COMMIT="0f8ef1aa86c59fc6d54eadaffb248feaccd1018b" # master
 	KEYWORDS="amd64 arm64"
 fi
 
 DESCRIPTION="sdnotify-proxy"
-HOMEPAGE="https://github.com/coreos/sdnotify-proxy"
+HOMEPAGE="https://github.com/flatcar/sdnotify-proxy"
 SRC_URI=""
 
 LICENSE="Apache-2.0"

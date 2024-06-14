@@ -2,18 +2,16 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/nss-altfiles"
-CROS_WORKON_LOCALNAME="nss-altfiles"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/nss-altfiles.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="c8e05a08a2e28eb48c6c788e3007d94f8d8de5cd" # flatcar-master
+	EGIT_COMMIT="c8e05a08a2e28eb48c6c788e3007d94f8d8de5cd" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit cros-workon toolchain-funcs
+inherit git-r3 toolchain-funcs
 
 DESCRIPTION="NSS module for data sources under /usr on for CoreOS"
 HOMEPAGE="https://github.com/coreos/nss-altfiles"

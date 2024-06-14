@@ -3,14 +3,12 @@
 
 EAPI=8
 
-CROS_WORKON_PROJECT="flatcar/update-ssh-keys"
-CROS_WORKON_LOCALNAME="update-ssh-keys"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/update-ssh-keys.git"
 
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="2a2aa89cd6eda6202de62b8870ca50945c836c54" # flatcar-master
+	EGIT_COMMIT="2a2aa89cd6eda6202de62b8870ca50945c836c54" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -65,7 +63,7 @@ CRATES="
 	windows_x86_64_msvc@0.48.5
 "
 
-inherit cargo cros-workon
+inherit cargo git-r3
 
 DESCRIPTION="Utility for managing OpenSSH authorized public keys"
 HOMEPAGE="https://github.com/flatcar/update-ssh-keys"
@@ -80,6 +78,6 @@ SLOT="0"
 RDEPEND="!<coreos-base/coreos-init-0.0.1-r152"
 
 src_unpack() {
-	cros-workon_src_unpack
+	git-r3_src_unpack
 	cargo_src_unpack
 }

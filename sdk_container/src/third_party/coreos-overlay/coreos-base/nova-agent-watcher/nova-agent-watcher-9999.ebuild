@@ -2,17 +2,15 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="coreos/nova-agent-watcher"
-CROS_WORKON_LOCALNAME="nova-agent-watcher"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/coreos/nova-agent-watcher.git"
 COREOS_GO_PACKAGE="github.com/coreos/nova-agent-watcher"
 COREOS_GO_GO111MODULE="off"
-inherit cros-workon systemd coreos-go
+inherit git-r3 systemd coreos-go
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64  ~arm64"
 else
-	CROS_WORKON_COMMIT="2262401fe363cfdcc4c6f02144622466d506de43"
+	EGIT_COMMIT="2262401fe363cfdcc4c6f02144622466d506de43"
 	KEYWORDS="amd64 arm64"
 fi
 

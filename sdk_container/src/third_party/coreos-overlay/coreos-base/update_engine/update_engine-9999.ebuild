@@ -2,18 +2,17 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/update_engine"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/update_engine.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="541576a4dcd56397597abef7d9ce4c539631ed65" # flatcar-master
+	EGIT_COMMIT="541576a4dcd56397597abef7d9ce4c539631ed65" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
 TMPFILES_OPTIONAL=1
-inherit autotools flag-o-matic toolchain-funcs cros-workon systemd tmpfiles
+inherit autotools flag-o-matic toolchain-funcs git-r3 systemd tmpfiles
 
 DESCRIPTION="CoreOS OS Update Engine"
 HOMEPAGE="https://github.com/coreos/update_engine"

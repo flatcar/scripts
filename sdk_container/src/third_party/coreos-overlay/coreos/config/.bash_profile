@@ -5,5 +5,4 @@
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 
 # Chromium OS build environment settings
-export CROS_WORKON_SRCROOT="/home/${USER}/trunk"
 export PORTAGE_USERNAME="${USER}"

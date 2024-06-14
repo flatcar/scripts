@@ -2,19 +2,16 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/bootengine"
-CROS_WORKON_LOCALNAME="bootengine"
-CROS_WORKON_OUTOFTREE_BUILD=1
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="fb2631ce5e6a21d044c8dca73f59db01f9d5abcf" # flatcar-master
+	EGIT_COMMIT="fb2631ce5e6a21d044c8dca73f59db01f9d5abcf" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit cros-workon
+inherit git-r3
 
 DESCRIPTION="CoreOS Bootengine"
 SRC_URI=""

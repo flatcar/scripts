@@ -3,14 +3,12 @@
 
 EAPI=8
 
-CROS_WORKON_PROJECT="coreos/afterburn"
-CROS_WORKON_LOCALNAME="afterburn"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/coreos/afterburn.git"
 
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="aa1be7dba724403457dee0fabed16e15be3ef4e0" # v5.6.0
+	EGIT_COMMIT="aa1be7dba724403457dee0fabed16e15be3ef4e0" # v5.6.0
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -349,7 +347,7 @@ CRATES="
 	zvariant_utils@1.0.1
 "
 
-inherit cargo cros-workon systemd
+inherit cargo git-r3 systemd
 
 DESCRIPTION="A tool for collecting instance metadata from various providers"
 HOMEPAGE="https://github.com/coreos/afterburn"
@@ -372,7 +370,7 @@ PATCHES=(
 )
 
 src_unpack() {
-	cros-workon_src_unpack
+	git-r3_src_unpack
 	cargo_src_unpack
 }
 

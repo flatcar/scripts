@@ -3,14 +3,12 @@
 
 EAPI=8
 
-CROS_WORKON_PROJECT="flatcar/ue-rs"
-CROS_WORKON_LOCALNAME="ue-rs"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/ue-rs.git"
 
 if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="9b6ddb0226208450bcef9da4ac5ba8bc2a47a87c" # trunk
+	EGIT_COMMIT="9b6ddb0226208450bcef9da4ac5ba8bc2a47a87c" # trunk
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -197,7 +195,7 @@ CRATES="
 	zeroize@1.6.0
 "
 
-inherit cargo cros-workon
+inherit cargo git-r3
 
 DESCRIPTION="Prototype Omaha Rust implementation"
 HOMEPAGE="https://github.com/flatcar/ue-rs"
@@ -214,7 +212,7 @@ RDEPEND="
 "
 
 src_unpack() {
-	cros-workon_src_unpack
+	git-r3_src_unpack
 	cargo_src_unpack
 }
 

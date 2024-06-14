@@ -2,17 +2,16 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/seismograph"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/seismograph.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="0d57463de18df81741375d628852c521542b6836" # flatcar-master
+	EGIT_COMMIT="0d57463de18df81741375d628852c521542b6836" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit autotools cros-workon
+inherit autotools git-r3
 
 DESCRIPTION="CoreOS Disk Utilities (e.g. cgpt)"
 LICENSE="BSD"
