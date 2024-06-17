@@ -6,7 +6,7 @@
 
 EAPI=8
 
-inherit libtool multilib multilib-minimal preserve-libs toolchain-funcs
+inherit flag-o-matic libtool multilib multilib-minimal preserve-libs toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	# Per tukaani.org, git.tukaani.org is a mirror of github and
@@ -66,10 +66,6 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	# Workaround for bug #934370 (libtool-2.5.0), drop when dist tarball
-	# uses newer libtool with the fix.
-	export ac_cv_prog_ac_ct_FILECMD='file' FILECMD='file'
-
 	local myconf=(
 		--enable-threads
 		$(multilib_native_use_enable doc)
@@ -93,9 +89,7 @@ multilib_src_configure() {
 			# those are used by default, depending on preset
 			--enable-match-finders=hc3,hc4,bt4
 
-			# CRC64 is used by default, though 7-Zip uses CRC32 by default.
-			# Also, XZ Embedded in Linux doesn't support CRC64, so
-			# kernel modules and friends are CRC32.
+			# CRC64 is used by default, though some (old?) files use CRC32
 			--enable-checks=crc32,crc64
 		)
 	fi
@@ -103,7 +97,7 @@ multilib_src_configure() {
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		export gl_cv_posix_shell="${EPREFIX}"/bin/sh
 
-		# Undo Solaris-based defaults pointing to /usr/xpg4/bin
+		# Undo Solaris-based defaults pointing to /usr/xpg5/bin
 		myconf+=( --disable-path-for-script )
 	fi
 
@@ -111,8 +105,11 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	local pgo_generate_flags=$(usev pgo "-fprofile-update=atomic -fprofile-dir=${T}/${ABI}-pgo -fprofile-generate=${T}/${ABI}-pgo")
-	local pgo_use_flags=$(usev pgo "-fprofile-use=${T}/${ABI}-pgo -fprofile-dir=${T}/${ABI}-pgo")
+	# -fprofile-partial-training because upstream note the test suite isn't super comprehensive
+	# TODO: revisit that now we have the tar/xz loop below?
+	# See https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html#sec-gcc10-pgo
+	local pgo_generate_flags=$(usev pgo "-fprofile-update=atomic -fprofile-dir=${T}/${ABI}-pgo -fprofile-generate=${T}/${ABI}-pgo $(test-flags-CC -fprofile-partial-training)")
+	local pgo_use_flags=$(usev pgo "-fprofile-use=${T}/${ABI}-pgo -fprofile-dir=${T}/${ABI}-pgo $(test-flags-CC -fprofile-partial-training)")
 
 	emake CFLAGS="${CFLAGS} ${pgo_generate_flags}"
 
@@ -155,14 +152,11 @@ multilib_src_compile() {
 
 				# Our own variants
 				''
-				'-e'
 				'-9e'
-				"$(usev extra-filters '--x86 --lzma2=preset=6e')"
 				"$(usev extra-filters '--x86 --lzma2=preset=9e')"
 			)
 			local test_variant
 			for test_variant in "${test_variants[@]}" ; do
-				einfo "Testing '${test_variant}' variant"
 				"${BUILD_DIR}"/src/xz/xz -c ${test_variant} xz-pgo-test-01.tar | "${BUILD_DIR}"/src/xz/xz -c -d - > /dev/null
 				assert "Testing '${test_variant}' variant failed"
 			done
@@ -174,17 +168,6 @@ multilib_src_compile() {
 
 		emake clean
 		emake CFLAGS="${CFLAGS} ${pgo_use_flags}"
-	fi
-}
-
-multilib_src_install() {
-	default
-
-	# bug #934370 and bug #450436
-	if ! tc-is-static-only && [[ ! -f "${ED}/usr/$(get_libdir)/liblzma.so" ]] ; then
-		eerror "Sanity check for liblzma.so failed."
-		eerror "Shared library wasn't built, possible libtool bug"
-		[[ -z ${I_KNOW_WHAT_I_AM_DOING} ]] && die "liblzma.so not found in build, aborting"
 	fi
 }
 
