@@ -3,9 +3,11 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 DISTUTILS_EXT=1
 DISTUTILS_OPTIONAL=1
+DISTUTILS_USE_PEP517=setuptools
+
 inherit autotools distutils-r1
 
 DESCRIPTION="Simplified, portable interface to several low-level networking routines"
@@ -26,7 +28,10 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
-	python? ( dev-python/cython[${PYTHON_USEDEP}] )
+	python? (
+		${DISTUTILS_DEPS}
+		dev-python/cython[${PYTHON_USEDEP}]
+	)
 	test? ( dev-libs/check )
 "
 
