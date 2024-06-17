@@ -26,7 +26,6 @@ DEPEND="
 	app-text/mandoc
 	coreos-base/hard-host-depends
 	coreos-base/coreos-sb-keys
-	coreos-devel/fero-client
 	dev-libs/gobject-introspection
 	dev-python/setuptools
 	dev-python/six

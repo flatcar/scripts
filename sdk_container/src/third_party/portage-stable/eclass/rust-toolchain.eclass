@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: rust-toolchain.eclass
@@ -7,16 +7,13 @@
 # @SUPPORTED_EAPIS: 8
 # @BLURB: helps map gentoo arches to rust ABIs
 # @DESCRIPTION:
-# This eclass contains a src_unpack default phase function, and
-# helper functions, to aid in proper rust-ABI handling for various
-# gentoo arches.
+# This eclass contains helper functions, to aid in proper rust-ABI handling for
+# various gentoo arches.
 
 case ${EAPI} in
 	8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
-
-inherit multilib-build
 
 # @ECLASS_VARIABLE: RUST_TOOLCHAIN_BASEURL
 # @DESCRIPTION:
@@ -48,30 +45,13 @@ rust_abi() {
 		powerpc64le*) echo powerpc64le-unknown-linux-gnu;;
 		powerpc64*)   echo powerpc64-unknown-linux-gnu;;
 		powerpc*)     echo powerpc-unknown-linux-gnu;;
-		riscv64*)     echo riscv64gc-unknown-linux-gnu;;
+		riscv64*gnu)  echo riscv64gc-unknown-linux-gnu;;
+		riscv64*musl) echo riscv64gc-unknown-linux-musl;;
 		s390x*)       echo s390x-unknown-linux-gnu;;
 		x86_64*gnu)   echo x86_64-unknown-linux-gnu;;
 		x86_64*musl)  echo x86_64-unknown-linux-musl;;
 		*)            echo ${CTARGET};;
   esac
-}
-
-# @FUNCTION: rust_all_abis
-# @DESCRIPTION:
-# Outputs a list of all the enabled Rust ABIs
-rust_all_abis() {
-	if use multilib; then
-		local abi
-		local ALL_ABIS=()
-		for abi in $(multilib_get_enabled_abis); do
-			ALL_ABIS+=( $(rust_abi $(get_abi_CHOST ${abi})) )
-		done
-		local abi_list
-		IFS=, eval 'abi_list=${ALL_ABIS[*]}'
-		echo ${abi_list}
-	else
-		rust_abi
-	fi
 }
 
 # @FUNCTION: rust_arch_uri
@@ -127,7 +107,9 @@ rust_all_arch_uris()
 		big-endian?  ( $(rust_arch_uri powerpc64-unknown-linux-gnu   "$@") )
 		!big-endian? ( $(rust_arch_uri powerpc64le-unknown-linux-gnu "$@") )
 	)
-	riscv? ( $(rust_arch_uri riscv64gc-unknown-linux-gnu "$@") )
+	riscv? (
+		elibc_glibc? ( $(rust_arch_uri riscv64gc-unknown-linux-gnu "$@") )
+	)
 	s390?  ( $(rust_arch_uri s390x-unknown-linux-gnu     "$@") )
 	"
 

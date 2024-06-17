@@ -60,16 +60,6 @@ devsign() {
     git -C "${SIGDIR}" commit -m "Add sigs from ${USER} for ${channel} ${version}"
 }
 
-sign() {
-    local channel="$1"
-    local version="$2"
-    local board="$3"
-
-    "$(dirname $0)/sign.sh" \
-        "${BASEDIR}/${board}/${version}" \
-        "${SIGDIR}/${board}/${version}"
-}
-
 upload() {
     local channel="$1"
     local version="$2"
@@ -181,7 +171,7 @@ roll() {
 
 usage() {
     echo "Usage: $0 {download|upload} <ARTIFACT-DIR> [{-a|-b|-s} <VERSION>]..." >&2
-    echo "Usage: $0 {devsign|sign} <ARTIFACT-DIR> <SIG-DIR> [{-a|-b|-s} <VERSION> <BOARD>]..." >&2
+    echo "Usage: $0 devsign <ARTIFACT-DIR> <SIG-DIR> [{-a|-b|-s} <VERSION> <BOARD>]..." >&2
     echo "Usage: $0 ready [{-a|-b|-s} <VERSION>]..." >&2
     echo "Usage: $0 roll [{-a|-b|-s} <HOURS-TO-100-PERCENT>]..." >&2
     exit 1
@@ -191,7 +181,7 @@ usage() {
 CMD="${1:-}"
 shift ||:
 case "${CMD}" in
-    download|devsign|sign)
+    download|devsign)
         ;;
     upload|ready|roll)
         if [[ -e "${HOME}/.config/roller.conf" ]]; then
@@ -210,7 +200,7 @@ esac
 
 # Parse fixed args if necessary.
 case "${CMD}" in
-    download|devsign|sign|upload)
+    download|devsign|upload)
         BASEDIR="${1:-}"
         shift ||:
         if [[ -z "${BASEDIR}" ]]; then
@@ -219,7 +209,7 @@ case "${CMD}" in
         ;;
 esac
 case "${CMD}" in
-    devsign|sign)
+    devsign)
         SIGDIR="${1:-}"
         shift ||:
         if [[ -z "${SIGDIR}" ]]; then
@@ -230,7 +220,7 @@ esac
 
 # Sync SIGDIR exactly once.
 case "${CMD}" in
-    devsign|sign)
+    devsign)
         echo "Updating ${SIGDIR}..."
         git -C "${SIGDIR}" pull -r
         ;;

@@ -373,6 +373,7 @@ eclass/python-utils-r1.eclass
 eclass/readme.gentoo-r1.eclass
 eclass/ruby-single.eclass
 eclass/ruby-utils.eclass
+eclass/rust-toolchain.eclass
 eclass/rpm.eclass
 eclass/savedconfig.eclass
 eclass/selinux-policy-2.eclass
