@@ -25,7 +25,7 @@ FSF-APPROVED @GPL-COMPATIBLE AFL-2.1 AFL-3.0 Apache-1.0 Apache-1.1 APSL-2 BSD-4 
 # Note that the FSF lists these as nonfree: Artistic NOSA Watcom-1.0
 # We exclude NOSA and Watcom-1.0, but we keep Artistic because Debian
 # considers it DFSG-free.
-OSI-APPROVED-FREE 0BSD AFL-3.0 AGPL-3 AGPL-3+ Apache-1.1 Apache-2.0 APL-1.0 APSL-2 Artistic Artistic-2 Boost-1.0 BSD BSD-2 CDDL CNRI CPAL-1.0 CPL-1.0 ECL-2.0 EPL-1.0 EPL-2.0 EUPL-1.1 EUPL-1.2 GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ HPND IBM IPAfont ISC LGPL-2 LGPL-2+ LGPL-2.1 LGPL-2.1+ LGPL-3 LGPL-3+ LPL-1.02 LPPL-1.3c MirOS MIT MIT-0 MPL-1.0 MPL-1.1 MPL-2.0 Ms-PL Ms-RL nethack OFL-1.1 OSL-2.1 PHP-3 PHP-3.01 POSTGRESQL PSF-2 QPL-1.0 Sleepycat Unicode-DFS-2016 Unlicense UPL-1.0 UoI-NCSA W3C wxWinLL-3 ZLIB ZPL
+OSI-APPROVED-FREE 0BSD AFL-3.0 AGPL-3 AGPL-3+ Apache-1.1 Apache-2.0 APL-1.0 APSL-2 Artistic Artistic-2 Boost-1.0 BSD BSD-2 CDDL CNRI CPAL-1.0 CPL-1.0 ECL-2.0 EPL-1.0 EPL-2.0 EUPL-1.1 EUPL-1.2 GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ HPND IBM IPAfont ISC LGPL-2 LGPL-2+ LGPL-2.1 LGPL-2.1+ LGPL-3 LGPL-3+ LPL-1.02 LPPL-1.3c MirOS MIT MIT-0 MPL-1.0 MPL-1.1 MPL-2.0 Ms-PL Ms-RL nethack OFL-1.1 OSL-2.1 PHP-3 PHP-3.01 POSTGRESQL PSF-2 QPL-1.0 Sleepycat Unicode-3.0 Unicode-DFS-2016 Unlicense UPL-1.0 UoI-NCSA W3C wxWinLL-3 ZLIB ZPL
 
 # Misc licenses that are probably free software, i.e. follow the
 # Free Software Definition at https://www.gnu.org/philosophy/free-sw.html
@@ -43,7 +43,7 @@ FREE-SOFTWARE @FSF-APPROVED @OSI-APPROVED-FREE @MISC-FREE
 
 # FSF-approved licenses for "free documentation" and "works of
 # practical use besides software and documentation" (including fonts)
-FSF-APPROVED-OTHER Arphic CC-BY-2.0 CC-BY-2.5 CC-BY-3.0 CC-BY-4.0 CC-BY-SA-2.0 CC-BY-SA-2.5 CC-BY-SA-3.0 CC-BY-SA-4.0 FDL-1.1 FDL-1.1+ FDL-1.2 FDL-1.2+ FDL-1.3 FDL-1.3+ Free-Art-1.2 Free-Art-1.3 GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ IPAfont OFL OFL-1.1 OPL
+FSF-APPROVED-OTHER Arphic CC-BY-2.0 CC-BY-2.5 CC-BY-3.0 CC-BY-4.0 CC-BY-SA-2.0 CC-BY-SA-2.5 CC-BY-SA-3.0 CC-BY-SA-4.0 FDL-1.1 FDL-1.1+ FDL-1.2 FDL-1.2+ FDL-1.3 FDL-1.3+ Free-Art-1.2 Free-Art-1.3 GPL-1 GPL-1+ GPL-2 GPL-2+ GPL-3 GPL-3+ IPAfont OFL OFL-1.0 OFL-1.1 OPL
 
 # Misc licenses for free documents and other works (including fonts)
 # that follow the definition at https://freedomdefined.org/ but are NOT
@@ -69,7 +69,7 @@ FREE @FREE-SOFTWARE @FREE-DOCUMENTS
 # - IF (and only if) there is an explicit inclusion requirement,
 #   USE=bindist MUST cause a copy of the license to be installed
 #   in a file location compliant with the license
-BINARY-REDISTRIBUTABLE @FREE Atmel AVASYS bh-luxi bonnie Broadcom freedist intel-ucode ipw2100-fw ipw2200-fw ipw3945 ISSL JSON linux-fw-redistributable LSI-tw_cli Mellanox-AS-IS MicroChip-SDCC no-source-code NOSA NVIDIA-r1 NVIDIA-r2 qlogic-fibre-channel-firmware shmux unRAR
+BINARY-REDISTRIBUTABLE @FREE Atmel AVASYS bh-luxi bonnie Broadcom freedist intel-ucode ipw2100-fw ipw2200-fw ISSL JSON linux-fw-redistributable LSI-tw_cli Mellanox-AS-IS MicroChip-SDCC no-source-code NOSA NVIDIA-r1 NVIDIA-r2 qlogic-fibre-channel-firmware shmux unRAR
 
 ######################################################################
 
@@ -84,7 +84,7 @@ OSI-APPROVED @OSI-APPROVED-FREE @OSI-APPROVED-NONFREE
 EULA 2dboy-EULA AMD-GPU-PRO-EULA android AnyDesk-TOS Aseprite-EULA baudline bestcrypt CAPYBARA-EULA Coherent-Graphics Dell-EULA ETQW f.lux FAH-EULA-2014 Flightradar24 Gameplay-Group-EULA geekbench genymotion GIMPS GOG-EULA google-chrome Intel-SDP Introversion JoyPixels LOKI-EULA MakeMKV-EULA Microsemi microsoft-edge Microsoft-vscode Mojang MTA-0.5 NVIDIA-CUDA NVIDIA-SDK Ookla OPERA-2018 PAPERS-PLEASE PassMark-EULA PICO-8 Primate-Plunge PUEL-11 Q3AEULA-20000111 QUAKE4 RAR sfpg SPS Steam supermicro Synology teamspeak3 teamspeak5 TeamViewer THINKTANKS TIK ubiquiti ut2003 ut2003-demo Vivaldi worklog-assistant WPS-EULA zi-labone
 
 # Deprecated license labels, used by repoman and pkgcheck
-#DEPRECATED (currently none)
+DEPRECATED OFL
 
 # Local Variables:
 # mode: conf-space

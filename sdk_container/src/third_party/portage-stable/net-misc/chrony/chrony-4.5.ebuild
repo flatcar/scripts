@@ -19,7 +19,7 @@ else
 	SRC_URI+=" verify-sig? ( https://chrony-project.org/releases/${P/_/-}-tar-gz-asc.txt -> ${P/_/-}.tar.gz.asc )"
 
 	if [[ ${PV} != *_pre* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv sparc x86"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv sparc x86"
 	fi
 fi
 
@@ -79,6 +79,11 @@ fi
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.5-pool-vendor-gentoo.patch
 	"${FILESDIR}"/${PN}-4.2-systemd-gentoo.patch
+)
+
+QA_CONFIG_IMPL_DECL_SKIP=(
+	# FP, checks with macro afterwards (bug #907877)
+	recvmmsg
 )
 
 src_prepare() {
