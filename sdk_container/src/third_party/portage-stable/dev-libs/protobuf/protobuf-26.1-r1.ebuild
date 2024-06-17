@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit cmake-multilib elisp-common flag-o-matic toolchain-funcs
+inherit cmake-multilib elisp-common toolchain-funcs
 
 if [[ "${PV}" == *9999 ]]; then
 	inherit git-r3
@@ -25,30 +25,22 @@ RESTRICT="!test? ( test )"
 
 BDEPEND="emacs? ( app-editors/emacs:* )"
 DEPEND="
-	>=dev-cpp/abseil-cpp-20230125:=[${MULTILIB_USEDEP}]
+	>=dev-cpp/abseil-cpp-20230125.3:=[${MULTILIB_USEDEP}]
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
 	test? ( >=dev-cpp/gtest-1.9[${MULTILIB_USEDEP}] )
 "
 RDEPEND="
-	>=dev-cpp/abseil-cpp-20230125:=[${MULTILIB_USEDEP}]
+	>=dev-cpp/abseil-cpp-20230125.3:=[${MULTILIB_USEDEP}]
 	emacs? ( app-editors/emacs:* )
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-23.3-disable-32-bit-tests.patch"
+	"${FILESDIR}/${P}-disable-32-bit-tests.patch"
 	"${FILESDIR}/${PN}-23.3-static_assert-failure.patch"
-	"${FILESDIR}/${P}-fix-missing-PROTOBUF_EXPORT-for-public-symbols.patch"
-	"${FILESDIR}/${P}-Use-the-same-ABI-for-static-and-shared-libraries-on-.patch"
 )
 
 DOCS=( CONTRIBUTORS.txt README.md )
-
-src_prepare() {
-	eapply_user
-	append-cxxflags -std=c++17
-	cmake_src_prepare
-}
 
 src_configure() {
 	if tc-ld-is-gold; then
@@ -61,7 +53,6 @@ src_configure() {
 
 multilib_src_configure() {
 	local mycmakeargs=(
-		-DCMAKE_CXX_STANDARD=17
 		-Dprotobuf_DISABLE_RTTI=ON
 		-Dprotobuf_BUILD_EXAMPLES=$(usex examples)
 		-Dprotobuf_WITH_ZLIB=$(usex zlib)
@@ -79,6 +70,11 @@ src_compile() {
 	if use emacs; then
 		elisp-compile editors/protobuf-mode.el
 	fi
+}
+
+src_test() {
+	local -x srcdir="${S}"/src
+	cmake-multilib_src_test
 }
 
 multilib_src_install_all() {
