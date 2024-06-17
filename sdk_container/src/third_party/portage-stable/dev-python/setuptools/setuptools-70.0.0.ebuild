@@ -7,7 +7,7 @@ EAPI=8
 # please bump dev-python/ensurepip-setuptools along with this package!
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_TESTED=( python3_{10..12} pypy3 )
+PYTHON_TESTED=( python3_{10..13} pypy3 )
 PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" )
 PYTHON_REQ_USE="xml(+)"
 
@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -32,29 +32,34 @@ RDEPEND="
 	>=dev-python/ordered-set-4.0.2-r1[${PYTHON_USEDEP}]
 	>=dev-python/packaging-24[${PYTHON_USEDEP}]
 	>=dev-python/platformdirs-2.6.2-r1[${PYTHON_USEDEP}]
-	>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
 	>=dev-python/wheel-0.37.1-r1[${PYTHON_USEDEP}]
+	$(python_gen_cond_dep '
+		>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
+	' 3.10)
 "
 BDEPEND="
 	${RDEPEND}
 	test? (
 		$(python_gen_cond_dep '
-			dev-python/build[${PYTHON_USEDEP}]
-			dev-python/importlib-metadata[${PYTHON_USEDEP}]
-			>=dev-python/ini2toml-0.9[${PYTHON_USEDEP}]
+			>=dev-python/build-1.0.3[${PYTHON_USEDEP}]
+			>=dev-python/ini2toml-0.14[${PYTHON_USEDEP}]
 			>=dev-python/filelock-3.4.0[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-envs-2.2[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-path-3.2.0[${PYTHON_USEDEP}]
 			dev-python/pip[${PYTHON_USEDEP}]
 			dev-python/pip-run[${PYTHON_USEDEP}]
+			dev-python/pyproject-hooks[${PYTHON_USEDEP}]
 			dev-python/pytest[${PYTHON_USEDEP}]
 			>=dev-python/pytest-home-0.5[${PYTHON_USEDEP}]
+			dev-python/pytest-subprocess[${PYTHON_USEDEP}]
 			dev-python/pytest-timeout[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 			dev-python/tomli[${PYTHON_USEDEP}]
-			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
 			>=dev-python/virtualenv-20[${PYTHON_USEDEP}]
 		' "${PYTHON_TESTED[@]}")
+		$(python_gen_cond_dep '
+			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
+		' 3.10)
 	)
 "
 # setuptools-scm is here because installing plugins apparently breaks stuff at
@@ -66,7 +71,7 @@ PDEPEND="
 src_prepare() {
 	local PATCHES=(
 		# TODO: remove this when we're 100% PEP517 mode
-		"${FILESDIR}"/setuptools-62.4.0-py-compile.patch
+		"${FILESDIR}/setuptools-62.4.0-py-compile.patch"
 	)
 
 	distutils-r1_src_prepare
