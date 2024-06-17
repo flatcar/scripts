@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm +ncurses pgo
 	+readline +sqlite +ssl test tk valgrind
@@ -45,6 +45,7 @@ RDEPEND="
 	app-arch/xz-utils:=
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
+	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libcrypt:=
@@ -167,6 +168,7 @@ src_configure() {
 		--without-lto
 		--with-system-expat
 		--with-system-ffi
+		--with-system-libmpdec
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with debug assertions)
