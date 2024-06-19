@@ -1,4 +1,4 @@
-From 4ba9549019683e4ece7bd1ddb27da67f8b260ea7 Mon Sep 17 00:00:00 2001
+From 82dd31e721ea568416f0e5d4a894bd76d4da93fb Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 29 Mar 2022 16:01:19 +0200
 Subject: [PATCH 2/3] util/cmdline: Handle the cmdline flags as list of
@@ -14,7 +14,7 @@ list takes precedence, any other present names are ignored.
  1 file changed, 36 insertions(+), 28 deletions(-)
 
 diff --git a/src/util/cmdline.rs b/src/util/cmdline.rs
-index e7b5550..5c1cfda 100644
+index 2e96ce4..89e85d4 100644
 --- a/src/util/cmdline.rs
 +++ b/src/util/cmdline.rs
 @@ -24,29 +24,36 @@ use slog_scope::trace;
@@ -107,5 +107,5 @@ index e7b5550..5c1cfda 100644
      }
  
 -- 
-2.34.1
+2.44.2
 
