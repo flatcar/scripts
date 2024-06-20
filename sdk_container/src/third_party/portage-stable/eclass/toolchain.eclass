@@ -86,8 +86,8 @@ tc_version_is_between() {
 
 # @ECLASS_VARIABLE: TOOLCHAIN_GCC_VALIDATE_FAILURES_VERSION
 # @DESCRIPTION:
-# Version of test comparison script (validate_fails.py) to use.
-: "${GCC_VALIDATE_FAILURES_VERSION:=7bbfb01a32b73842f8908de028703510a0e12057}"
+# Version of test comparison script (validate_failures.py) to use.
+: "${GCC_VALIDATE_FAILURES_VERSION:=a447cd6dee206facb66720bdacf0c765a8b09f33}"
 
 # @ECLASS_VARIABLE: TOOLCHAIN_USE_GIT_PATCHES
 # @DEFAULT_UNSET
@@ -300,7 +300,7 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	IUSE+=" go"
 	IUSE+=" +sanitize"  TC_FEATURES+=( sanitize )
 	IUSE+=" graphite" TC_FEATURES+=( graphite )
-	IUSE+=" ada"
+	IUSE+=" ada" TC_FEATURES+=( ada )
 	IUSE+=" vtv"
 	IUSE+=" jit"
 	IUSE+=" +pie +ssp pch"
@@ -320,7 +320,7 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	# See https://gcc.gnu.org/pipermail/gcc-patches/2023-April/615944.html
 	# and https://rust-gcc.github.io/2023/04/24/gccrs-and-gcc13-release.html for why
 	# it was disabled in 13.
-	tc_version_is_at_least 14.0.0_pre20230423 ${PV} && IUSE+=" rust"
+	tc_version_is_at_least 14.0.0_pre20230423 ${PV} && IUSE+=" rust" TC_FEATURES+=( rust )
 fi
 
 if tc_version_is_at_least 10; then
@@ -393,7 +393,7 @@ fi
 
 # TODO: Add a pkg_setup & pkg_pretend check for whether the active compiler
 # supports Ada.
-if tc_has_feature ada ; then
+if [[ ${PN} != gnat-gpl ]] && tc_has_feature ada ; then
 	BDEPEND+=" ada? ( || ( sys-devel/gcc[ada] dev-lang/gnat-gpl[ada] ) )"
 fi
 
@@ -536,7 +536,7 @@ get_gcc_src_uri() {
 	[[ -n ${MUSL_VER} ]] && \
 		GCC_SRC_URI+=" $(gentoo_urls gcc-${MUSL_GCC_VER}-musl-patches-${MUSL_VER}.tar.${TOOLCHAIN_PATCH_SUFFIX})"
 
-	GCC_SRC_URI+=" test? ( https://gitweb.gentoo.org/proj/gcc-patches.git/plain/scripts/testsuite-management/validate_failures.py?id=${GCC_VALIDATE_FAILURES_VERSION} -> ${PN}-validate-failures-${GCC_VALIDATE_FAILURES_VERSION}.py )"
+	GCC_SRC_URI+=" test? ( https://gitweb.gentoo.org/proj/gcc-patches.git/plain/scripts/testsuite-management/validate_failures.py?id=${GCC_VALIDATE_FAILURES_VERSION} -> gcc-validate-failures-${GCC_VALIDATE_FAILURES_VERSION}.py )"
 
 	echo "${GCC_SRC_URI}"
 }
@@ -589,7 +589,7 @@ toolchain_fetch_git_patches() {
 	mkdir "${WORKDIR}"/patch || die
 	mv "${WORKDIR}"/patch.tmp/${PATCH_GCC_VER}/gentoo/* "${WORKDIR}"/patch || die
 
-	if [[ -n ${MUSL_VER} || -d "${WORKDIR}"/musl ]] && [[ ${CTARGET} == *musl* ]] ; then
+	if [[ -z ${MUSL_VER} || -d "${WORKDIR}"/musl ]] && [[ ${CTARGET} == *musl* ]] ; then
 		mkdir "${WORKDIR}"/musl || die
 		mv "${WORKDIR}"/patch.tmp/${PATCH_GCC_VER}/musl/* "${WORKDIR}"/musl || die
 	fi
@@ -633,7 +633,7 @@ toolchain_src_prepare() {
 	fi
 
 	if use test ; then
-		cp "${DISTDIR}"/${PN}-validate-failures-${GCC_VALIDATE_FAILURES_VERSION}.py "${T}"/validate_failures.py || die
+		cp "${DISTDIR}"/gcc-validate-failures-${GCC_VALIDATE_FAILURES_VERSION}.py "${T}"/validate_failures.py || die
 		chmod +x "${T}"/validate_failures.py || die
 	fi
 
@@ -1893,6 +1893,8 @@ gcc_do_make() {
 
 #---->> src_test <<----
 
+# TODO: add JIT testing
+# TODO: add multilib testing
 toolchain_src_test() {
 	# GCC's testsuite is a special case.
 	#
@@ -1930,7 +1932,17 @@ toolchain_src_test() {
 		--manifest="${T}"/${CHOST}.xfail \
 		--produce_manifest &> /dev/null
 
-	local manifest="${GCC_TESTS_COMPARISON_DIR}/${GCC_TESTS_COMPARISON_SLOT}/${CHOST}.xfail"
+	# If there's no manifest available, check older slots, as it's better
+	# than nothing. We start with 10 for the fallback as the first version
+	# we started using --with-major-version-only.
+	local possible_slot
+	for possible_slot in "${GCC_TESTS_COMPARISON_SLOT}" $(seq ${SLOT} -1 10) ; do
+		[[ -f "${GCC_TESTS_COMPARISON_DIR}/${possible_slot}/${CHOST}.xfail" ]] && break
+	done
+	if [[ ${possible_slot} != "${GCC_TESTS_COMPARISON_SLOT}" ]] ; then
+		ewarn "Couldn't find manifest for ${GCC_TESTS_COMPARISON_SLOT}; falling back to ${possible_slot}"
+	fi
+	local manifest="${GCC_TESTS_COMPARISON_DIR}/${possible_slot}/${CHOST}.xfail"
 
 	if [[ -f "${manifest}" ]] ; then
 		# TODO: Distribute some baseline results in e.g. gcc-patches.git?
@@ -2507,7 +2519,7 @@ _tc_use_if_iuse() {
 
 is_ada() {
 	gcc-lang-supported ada || return 1
-	_tc_use_if_iuse ada
+	_tc_use_if_iuse cxx && _tc_use_if_iuse ada
 }
 
 is_cxx() {

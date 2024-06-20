@@ -17,9 +17,13 @@
 
 #--- END OF EXAMPLES ---
 
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-04-25)
+# ROCm and Level-Zero are amd64-only at the moment
+sys-apps/hwloc -rocm -l0
+
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-20)
 # only keyworded for amd64 currently
-media-gfx/blender -gnome
+media-gfx/blender -gnome -oneapi -renderdoc -vulkan
 
 # Ionen Wolkens <ionen@gentoo.org> (2024-04-16)
 # dev-qt/qtlanguageserver:6 is keyworded here
@@ -75,11 +79,6 @@ sys-kernel/gentoo-kernel-bin -generic-uki
 # dev-qt/qtwebengine:6 is keyworded here.
 dev-python/PyQt6 -pdfium
 
-# Leonardo Hernández Hernández <leohdz172@proton.me> (2023-11-25)
-# media-libs/libdisplay-info (drm) and dev-libs/libliftoff (liftoff)
-# are only available for amd64, arm64 and riscv
->=gui-libs/wlroots-0.17.0 -drm -liftoff
-
 # Jimi Huotari <chiitoo@gentoo.org> (2023-11-22)
 # Unmask on amd64.
 media-video/obs-studio -qsv -websocket
@@ -131,6 +130,7 @@ www-servers/apache -apache2_modules_tls
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-04-22)
 # snap only works on amd64
+gnome-extra/gnome-software -snap
 kde-plasma/discover -snap
 
 # Sam James <sam@gentoo.org> (2023-04-17)
@@ -168,7 +168,6 @@ net-misc/curl -rustls -curl_ssl_rustls
 # Quick Sync Video (through intel-mediasdk or libvpl) is
 # only keyworded on amd64
 media-video/ffmpeg -qsv
-media-libs/gst-plugins-bad -qsv
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-10-07)
 # sys-libs/libsmbios is available here.
@@ -246,6 +245,7 @@ sys-libs/compiler-rt-sanitizers -asan -dfsan -lsan -msan -hwasan -tsan
 sys-libs/compiler-rt-sanitizers -ubsan -safestack -cfi -scudo
 sys-libs/compiler-rt-sanitizers -gwp-asan
 sys-libs/compiler-rt-sanitizers -libfuzzer -memprof -orc -profile -xray
+sys-libs/compiler-rt-sanitizers -ctx-profile
 
 # Sam James <sam@gentoo.org> (2020-10-24)
 # asm redc is only available on amd64,

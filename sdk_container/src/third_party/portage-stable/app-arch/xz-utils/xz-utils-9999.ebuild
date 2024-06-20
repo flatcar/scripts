@@ -6,7 +6,7 @@
 
 EAPI=8
 
-inherit flag-o-matic libtool multilib multilib-minimal preserve-libs toolchain-funcs
+inherit libtool multilib multilib-minimal preserve-libs toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	# Per tukaani.org, git.tukaani.org is a mirror of github and
@@ -26,7 +26,7 @@ else
 	MY_P="${PN/-utils}-${PV/_}"
 	SRC_URI="
 		https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz
-		mirror://sourceforge/lzmautils/${MY_P}.tar.gz
+		https://downloads.sourceforge.net/lzmautils/${MY_P}.tar.gz
 		https://tukaani.org/xz/${MY_P}.tar.gz
 		verify-sig? (
 			https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz.sig
@@ -50,7 +50,7 @@ SLOT="0"
 IUSE="cpu_flags_arm_crc32 doc +extra-filters pgo nls static-libs"
 
 if [[ ${PV} != 9999 ]] ; then
-	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-lassecollin-20230213 )"
+	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-lassecollin-20240529 )"
 fi
 
 src_prepare() {
@@ -66,6 +66,10 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# Workaround for bug #934370 (libtool-2.5.0), drop when dist tarball
+	# uses newer libtool with the fix.
+	export ac_cv_prog_ac_ct_FILECMD='file' FILECMD='file'
+
 	local myconf=(
 		--enable-threads
 		$(multilib_native_use_enable doc)
@@ -89,7 +93,9 @@ multilib_src_configure() {
 			# those are used by default, depending on preset
 			--enable-match-finders=hc3,hc4,bt4
 
-			# CRC64 is used by default, though some (old?) files use CRC32
+			# CRC64 is used by default, though 7-Zip uses CRC32 by default.
+			# Also, XZ Embedded in Linux doesn't support CRC64, so
+			# kernel modules and friends are CRC32.
 			--enable-checks=crc32,crc64
 		)
 	fi
@@ -97,7 +103,7 @@ multilib_src_configure() {
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		export gl_cv_posix_shell="${EPREFIX}"/bin/sh
 
-		# Undo Solaris-based defaults pointing to /usr/xpg5/bin
+		# Undo Solaris-based defaults pointing to /usr/xpg4/bin
 		myconf+=( --disable-path-for-script )
 	fi
 
@@ -105,31 +111,37 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	# -fprofile-partial-training because upstream note the test suite isn't super comprehensive
-	# TODO: revisit that now we have the tar/xz loop below?
-	# See https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html#sec-gcc10-pgo
-	local pgo_generate_flags=$(usev pgo "-fprofile-update=atomic -fprofile-dir=${T}/${ABI}-pgo -fprofile-generate=${T}/${ABI}-pgo $(test-flags-CC -fprofile-partial-training)")
-	local pgo_use_flags=$(usev pgo "-fprofile-use=${T}/${ABI}-pgo -fprofile-dir=${T}/${ABI}-pgo $(test-flags-CC -fprofile-partial-training)")
+	local pgo_generate_flags=$(usev pgo "-fprofile-update=atomic -fprofile-dir=${T}/${ABI}-pgo -fprofile-generate=${T}/${ABI}-pgo")
+	local pgo_use_flags=$(usev pgo "-fprofile-use=${T}/${ABI}-pgo -fprofile-dir=${T}/${ABI}-pgo")
 
 	emake CFLAGS="${CFLAGS} ${pgo_generate_flags}"
 
 	if use pgo ; then
 		emake CFLAGS="${CFLAGS} ${pgo_generate_flags}" -k check
 
+		local tar_pgo_args=()
+
+		if has_version -b "app-alternatives/tar[gnu]" ; then
+			tar_pgo_args+=(
+				--mtime=@2718281828
+				--sort=name
+			)
+		fi
+
 		if multilib_is_native_abi ; then
 			(
 				shopt -s globstar
 
 				tar \
-					--sort=name --mtime=@2718281828 \
+					"${tar_pgo_args[@]}" \
 					-cf xz-pgo-test-01.tar \
 					{"${S}","${BUILD_DIR}"}/**/*.[cho] \
-					{"${S}","${BUILD_DIR}"}/**/*.so* \
+					{"${S}","${BUILD_DIR}"}/**/.libs/* \
 					{"${S}","${BUILD_DIR}"}/**/**.txt \
-					{"${S}","${BUILD_DIR}"}/tests/files \
+					{"${S}","${BUILD_DIR}"}/tests/files
 
-				stat --printf="xz-pgo-test-01.tar.tar size: %s\n" xz-pgo-test-01.tar
-				md5sum xz-pgo-test-01.tar
+				stat --printf="xz-pgo-test-01.tar.tar size: %s\n" xz-pgo-test-01.tar || die
+				md5sum xz-pgo-test-01.tar || die
 			)
 
 			local test_variants=(
@@ -137,17 +149,20 @@ multilib_src_compile() {
 				# https://packages.altlinux.org/en/sisyphus/srpms/xz/specfiles/#line-80
 				'-0 -C none'
 				'-2 -C crc32'
-				'-6 --arm --lzma2 -C crc64'
-				'-6 --x86 --lzma2=lc=4 -C sha256'
+				"$(usev extra-filters '-6 --arm --lzma2 -C crc64')"
+				"$(usev extra-filters '-6 --x86 --lzma2=lc=4 -C sha256')"
 				'-7e --format=lzma'
 
 				# Our own variants
 				''
+				'-e'
 				'-9e'
-				'--x86 --lzma2=preset=9e'
+				"$(usev extra-filters '--x86 --lzma2=preset=6e')"
+				"$(usev extra-filters '--x86 --lzma2=preset=9e')"
 			)
 			local test_variant
 			for test_variant in "${test_variants[@]}" ; do
+				einfo "Testing '${test_variant}' variant"
 				"${BUILD_DIR}"/src/xz/xz -c ${test_variant} xz-pgo-test-01.tar | "${BUILD_DIR}"/src/xz/xz -c -d - > /dev/null
 				assert "Testing '${test_variant}' variant failed"
 			done
@@ -159,6 +174,17 @@ multilib_src_compile() {
 
 		emake clean
 		emake CFLAGS="${CFLAGS} ${pgo_use_flags}"
+	fi
+}
+
+multilib_src_install() {
+	default
+
+	# bug #934370 and bug #450436
+	if ! tc-is-static-only && [[ ! -f "${ED}/usr/$(get_libdir)/liblzma.so" ]] ; then
+		eerror "Sanity check for liblzma.so failed."
+		eerror "Shared library wasn't built, possible libtool bug"
+		[[ -z ${I_KNOW_WHAT_I_AM_DOING} ]] && die "liblzma.so not found in build, aborting"
 	fi
 }
 
