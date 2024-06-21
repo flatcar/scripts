@@ -183,6 +183,10 @@ sudo grub-mkimage \
     --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
     "${CORE_MODULES[@]}"
 
+for mod in "${CORE_MODULES[@]}"; do
+    sudo rm "${ESP_DIR}/${GRUB_DIR}/${mod}.mod"
+done
+
 # Now target specific steps to make the system bootable
 case "${FLAGS_target}" in
     i386-pc)
@@ -204,8 +208,9 @@ case "${FLAGS_target}" in
             sudo sbsign --key /usr/share/sb_keys/shim.key \
                 --cert /usr/share/sb_keys/shim.pem \
                 "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
-            sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
+            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
+            sudo rm "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             # Sign the mokmanager(mm) with the shim-embedded key
             sudo sbsign --key /usr/share/sb_keys/shim.key \
                 --cert /usr/share/sb_keys/shim.pem \
@@ -218,7 +223,7 @@ case "${FLAGS_target}" in
                 --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
                 "/usr/lib/shim/shim.efi"
         else
-            sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
             sudo cp "/usr/lib/shim/shim.efi" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
@@ -238,7 +243,7 @@ case "${FLAGS_target}" in
     x86_64-xen)
         info "Installing default x86_64 Xen bootloader."
         sudo mkdir -p "${ESP_DIR}/xen" "${ESP_DIR}/boot/grub"
-        sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+        sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
             "${ESP_DIR}/xen/pvboot-x86_64.elf"
         sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
             "${ESP_DIR}/boot/grub/menu.lst"
@@ -247,7 +252,7 @@ case "${FLAGS_target}" in
         info "Installing default arm64 UEFI bootloader."
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
         #FIXME(andrejro): shim not ported to aarch64
-        sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+        sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
             "${ESP_DIR}/EFI/boot/bootaa64.efi"
         if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
             # copying from vfat so ignore permissions

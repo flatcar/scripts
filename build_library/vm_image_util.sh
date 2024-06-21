@@ -728,13 +728,13 @@ _write_cpio_disk() {
     # Pull the kernel and loader out of the filesystem
     ln -fs flatcar_production_image.vmlinuz "${dst_dir}/${vmlinuz_name}"
 
-    local grub_arch
+    local efi_file
     case $BOARD in
-        amd64-usr) grub_arch="x86_64-efi" ;;
-        arm64-usr) grub_arch="arm64-efi" ;;
+        amd64-usr) efi_file="grubx64.efi" ;;
+        arm64-usr) efi_file="bootaa64.efi" ;;
     esac
 
-    cp "${base_dir}/boot/flatcar/grub/${grub_arch}/core.efi" "${dst_dir}/${grub_name}"
+    cp "${base_dir}/boot/EFI/boot/${efi_file}" "${dst_dir}/${grub_name}"
     VM_GENERATED_FILES+=( "${dst_dir}/${vmlinuz_name}" "${dst_dir}/${grub_name}" )
 }
 
