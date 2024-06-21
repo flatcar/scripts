@@ -1,0 +1,172 @@
+#!/bin/bash
+# Copyright (c) 2024 The Flatcar Maintainers.
+# Distributed under the terms of the GNU General Public License v2
+
+. "${0%/*}"/common.sh || exit 1
+
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "The board to set package keywords for."
+
+FLAGS_HELP="usage: $0 <command> [flags] <atom>
+commands:
+  start:  Moves an ebuild to live (intended to support development)
+  stop:   Moves an ebuild to stable (use last known good)
+  list:   List of live ebuilds"
+FLAGS "$@" || { [[ ${FLAGS_help} = "${FLAGS_TRUE}" ]] && exit 0; } || exit 1
+eval set -- "${FLAGS_ARGV}"
+
+set -euo pipefail
+
+# /etc/portage under either / or /build/<board>.
+ETC_PORTAGE=${FLAGS_board+/build/${FLAGS_board}}/etc/portage
+
+# If the board dir doesn't exist yet, we don't want to create it as that'll
+# screw up ./setup_board later on.
+[[ -d ${ETC_PORTAGE} ]] ||
+  die "${FLAGS_board} has not been setup yet"
+
+find_ebuild() {
+  if [[ -z ${1-} ]]; then
+    flags_help
+    exit 1
+  fi
+
+  # Exact atom does not need to be given. Resolve to an ebuild with equery.
+  EBUILD=$(equery which --include-masked "$1")
+
+  [[ -n ${EBUILD} ]] ||
+    die "Package matching \"$1\" could not be found."
+
+  PN=${EBUILD%/*}
+  PN=${PN##*/}
+
+  CAT=${EBUILD%/*/*}
+  CAT=${CAT##*/}
+
+  CP=${CAT}/${PN}
+}
+
+add_if_needed() {
+  grep -Fxq "$1" "$2" 2>/dev/null || sudo tee -a "$2" >/dev/null <<< "$1"
+}
+
+start() {
+  export PORTAGE_TMPDIR
+  PORTAGE_TMPDIR=$(mktemp -d)
+  trap 'rm -rf -- "${PORTAGE_TMPDIR}"' EXIT
+
+  # Load the ebuild environment to reliably pull out variables.
+  "ebuild${FLAGS_board+-}${FLAGS_board-}" "${EBUILD}" setup
+  # shellcheck disable=SC1090
+  . "${PORTAGE_TMPDIR}"/portage/*/*/temp/environment
+
+  [[ -n ${EGIT_REPO_URI-} ]] ||
+    die "${EBUILD} is not live because it does not set EGIT_REPO_URI."
+
+  [[ -z ${EGIT_COMMIT-} ]] ||
+    die "${EBUILD} is not live because it sets EGIT_COMMIT."
+
+  ### v--- Taken from git-r3.eclass ---v
+
+  if [[ $(declare -p EGIT_REPO_URI) == "declare -a"* ]]; then
+    repos=( "${EGIT_REPO_URI[@]}" )
+  else
+    # shellcheck disable=SC2206
+    repos=( ${EGIT_REPO_URI} )
+  fi
+
+  repo_name=${repos[0]#*://*/}
+
+  # strip the trailing slash
+  repo_name=${repo_name%/}
+
+  # strip common prefixes to make paths more likely to match
+  # e.g. git://X/Y.git vs https://X/git/Y.git
+  # (but just one of the prefixes)
+  case "${repo_name}" in
+    # gnome.org... who else?
+    browse/*) repo_name=${repo_name#browse/};;
+    # cgit can proxy requests to git
+    cgit/*) repo_name=${repo_name#cgit/};;
+    # pretty common
+    git/*) repo_name=${repo_name#git/};;
+    # gentoo.org
+    gitroot/*) repo_name=${repo_name#gitroot/};;
+    # sourceforge
+    p/*) repo_name=${repo_name#p/};;
+    # kernel.org
+    pub/scm/*) repo_name=${repo_name#pub/scm/};;
+  esac
+  # ensure a .git suffix, same reason
+  repo_name=${repo_name%.git}.git
+  # now replace all the slashes
+  repo_name=${repo_name//\//_}
+
+  # get the name and do some more processing:
+  # 1) kill .git suffix,
+  # 2) underscore (remaining) non-variable characters,
+  # 3) add preceding underscore if it starts with a digit,
+  # 4) uppercase.
+  override_name=${repo_name##*/}
+  override_name=${override_name%.git}
+  override_name=${override_name//[^a-zA-Z0-9_]/_}
+  override_name=${override_name^^}
+
+  ### ^--- Taken from git-r3.eclass ---^
+
+  GIT_WORKTREE=/home/sdk/trunk/src/scripts/workon/${repo_name}
+  sudo mkdir -p "${ETC_PORTAGE}"/{env,package.accept_keywords,package.env}
+
+  add_if_needed \
+    "EGIT_OVERRIDE_REPO_${override_name}=\"${GIT_WORKTREE}\" # ${CP}" \
+    "${ETC_PORTAGE}"/env/workon.conf
+
+  add_if_needed \
+    "${CP} workon.conf" \
+    "${ETC_PORTAGE}"/package.env/workon.conf
+
+  add_if_needed \
+    "${CP} **" \
+    "${ETC_PORTAGE}"/package.accept_keywords/workon.conf
+
+  if [[ ! -e ${GIT_WORKTREE} ]]; then
+    mkdir -p "${GIT_WORKTREE%/*}"
+    git clone "${repos[0]}" "${GIT_WORKTREE}"
+  fi
+
+  return 0
+}
+
+stop() {
+  [[ -e ${ETC_PORTAGE}/env/workon.conf ]] &&
+    sudo sed -i "/# ${CP//\//\\/}\$/d" "${ETC_PORTAGE}"/env/workon.conf
+
+  [[ -e ${ETC_PORTAGE}/package.accept_keywords/workon.conf ]] &&
+    sudo sed -i "/^${CP//\//\\/} /d" "${ETC_PORTAGE}"/package.accept_keywords/workon.conf
+
+  [[ -e ${ETC_PORTAGE}/package.env/workon.conf ]] &&
+    sudo sed -i "/^${CP//\//\\/} /d" "${ETC_PORTAGE}"/package.env/workon.conf
+
+  return 0
+}
+
+list() {
+  [[ -e ${ETC_PORTAGE}/package.env/workon.conf ]] &&
+    sed '/\bworkon\.conf\b/s:\s.*::' "${ETC_PORTAGE}"/package.env/workon.conf
+
+  return 0
+}
+
+case "$1" in
+  start)
+    find_ebuild "${2-}"
+    start ;;
+  stop)
+    find_ebuild "${2-}"
+    stop ;;
+  list)
+    list ;;
+  *)
+    flags_help
+    die "$0: command \"$1\" not recognized" ;;
+esac

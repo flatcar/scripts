@@ -1,10 +1,8 @@
 # Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-# ChromeOS-specific: CROS_WORKON_TREE for cros-workon
-#                    TESTS USE_EXPAND for autotest
-USE_EXPAND="${USE_EXPAND} CROS_WORKON_TREE TESTS"
-USE_EXPAND_HIDDEN="${USE_EXPAND_HIDDEN} CROS_WORKON_TREE"
+# ChromeOS-specific: TESTS USE_EXPAND for autotest
+USE_EXPAND="${USE_EXPAND} TESTS"
 
 # Use go_version_* flags to indicate which major version was used.
 # For now this is only informational and set by coreos-go.eclass

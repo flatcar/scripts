@@ -232,11 +232,17 @@ if [[ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" && \
   done
 fi
 
-# Build cros_workon packages when they are changed.
-if [ "${FLAGS_workon}" -eq "${FLAGS_TRUE}" ]; then
-  for pkg in $("${SRC_ROOT}/scripts/cros_workon" list --host); do
-    EMERGE_FLAGS+=( "--reinstall-atoms=${pkg}" "--usepkg-exclude=${pkg}" )
-  done
+# Build flatcar_workon packages when they are changed.
+WORKON_PKGS=()
+if [[ ${FLAGS_workon} -eq "${FLAGS_TRUE}" ]]; then
+  mapfile -t WORKON_PKGS < <("${SRC_ROOT}"/scripts/flatcar_workon list)
+fi
+
+if [[ ${#WORKON_PKGS[@]} -gt 0 ]]; then
+  EMERGE_FLAGS+=(
+    --reinstall-atoms="${WORKON_PKGS[*]}"
+    --usepkg-exclude="${WORKON_PKGS[*]}"
+  )
 fi
 
 sudo_e_emerge() {

@@ -27,7 +27,7 @@ DEFINE_string getbinpkgver "" \
 DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
   "Use binary packages only for the board toolchain."
 DEFINE_boolean workon "${FLAGS_TRUE}" \
-  "Automatically rebuild updated cros-workon packages."
+  "Automatically rebuild updated flatcar-workon packages."
 DEFINE_boolean fetchonly "${FLAGS_FALSE}" \
   "Don't build anything, instead only fetch what is needed."
 DEFINE_boolean rebuild "${FLAGS_FALSE}" \
@@ -169,16 +169,16 @@ if [[ "${FLAGS_debug_emerge}" -eq "${FLAGS_TRUE}" ]]; then
   EMERGE_FLAGS+=( --debug )
 fi
 
-# Build cros_workon packages when they are changed.
-CROS_WORKON_PKGS=()
-if [ "${FLAGS_workon}" -eq "${FLAGS_TRUE}" ]; then
-  CROS_WORKON_PKGS+=( $("${SRC_ROOT}/scripts/cros_workon" list --board=${FLAGS_board}) )
+# Build flatcar_workon packages when they are changed.
+WORKON_PKGS=()
+if [[ ${FLAGS_workon} -eq "${FLAGS_TRUE}" ]]; then
+  mapfile -t WORKON_PKGS < <("${SRC_ROOT}"/scripts/flatcar_workon list --board="${FLAGS_board}")
 fi
 
-if [[ ${#CROS_WORKON_PKGS[@]} -gt 0 ]]; then
+if [[ ${#WORKON_PKGS[@]} -gt 0 ]]; then
   EMERGE_FLAGS+=(
-    --reinstall-atoms="${CROS_WORKON_PKGS[*]}"
-    --usepkg-exclude="${CROS_WORKON_PKGS[*]}"
+    --reinstall-atoms="${WORKON_PKGS[*]}"
+    --usepkg-exclude="${WORKON_PKGS[*]}"
   )
 fi
 

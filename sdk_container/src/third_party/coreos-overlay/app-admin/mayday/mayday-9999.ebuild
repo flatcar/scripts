@@ -2,16 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/mayday"
-CROS_WORKON_LOCALNAME="mayday"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/mayday.git"
 COREOS_GO_PACKAGE="github.com/flatcar/mayday"
-inherit coreos-go cros-workon
+inherit coreos-go git-r3
 
 if [[ "${PV}" == 9999 ]]; then
     KEYWORDS="~amd64 ~arm64"
 else
-    CROS_WORKON_COMMIT="9de08c8f9f4360fe52cb3a56a7fb8f4bc4e75dcc" # flatcar-master
+    EGIT_COMMIT="9de08c8f9f4360fe52cb3a56a7fb8f4bc4e75dcc" # flatcar-master
     KEYWORDS="amd64 arm64"
 fi
 

@@ -3,20 +3,18 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/init"
-CROS_WORKON_LOCALNAME="init"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/init.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="05e3d8b9c0f8e95d5044db5133b3e75d205f6d91" # flatcar-master
+	EGIT_COMMIT="05e3d8b9c0f8e95d5044db5133b3e75d205f6d91" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
 PYTHON_COMPAT=( python3_{9..11} )
 
-inherit cros-workon systemd python-any-r1
+inherit git-r3 systemd python-any-r1
 
 DESCRIPTION="Init scripts for CoreOS"
 HOMEPAGE="http://www.coreos.com/"

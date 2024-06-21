@@ -97,10 +97,10 @@ generate_all_wrappers() {
     _generate_wrapper ${wrapper}
   done
 
-  wrapper="/usr/local/bin/cros_workon-${BOARD_VARIANT}"
+  wrapper="/usr/local/bin/flatcar_workon-${BOARD_VARIANT}"
   sudo_clobber "${wrapper}" <<EOF
 #!/bin/bash
-exec "${SRC_ROOT}/scripts/cros_workon" --board ${BOARD_VARIANT} "\$@"
+exec "${SRC_ROOT}/scripts/flatcar_workon" --board ${BOARD_VARIANT} "\$@"
 EOF
   wrappers+=( "${wrapper}" )
 
@@ -349,10 +349,7 @@ fi
 command_completed
 info "The SYSROOT is: ${BOARD_ROOT}"
 
-# NOTE: Printing the working-on ebuilds does not only serve the informative
-# purpose. It also causes the ${BOARD_ROOT}/etc/portage/package.* files to be
-# regenerated.
-WORKING_ON=$("${SRC_ROOT}/scripts/cros_workon" --board=${FLAGS_board} list)
+WORKING_ON=$("${SRC_ROOT}"/scripts/flatcar_workon list --board="${FLAGS_board}")
 if [ -n "${WORKING_ON}" ]; then
   info
   info "Currently working on the following ebuilds for this board:"

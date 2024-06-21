@@ -2,21 +2,18 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/flatcar-dev-util"
-CROS_WORKON_REPO="https://github.com"
-CROS_WORKON_LOCALNAME="dev"
-CROS_WORKON_LOCALDIR="src/platform"
+EGIT_REPO_URI="https://github.com/flatcar/flatcar-dev-util.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="00396595376d8d6a3c4b9251ba94e9de2d7a9e39" # flatcar-master
+	EGIT_COMMIT="00396595376d8d6a3c4b9251ba94e9de2d7a9e39" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
 PYTHON_COMPAT=( python3_{6..11} )
 
-inherit cros-workon python-single-r1
+inherit git-r3 python-single-r1
 
 DESCRIPTION="emerge utilities for Flatcar developer images"
 HOMEPAGE="https://github.com/flatcar/flatcar-dev-util/"

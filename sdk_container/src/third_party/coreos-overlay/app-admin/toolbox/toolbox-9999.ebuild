@@ -2,18 +2,16 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-CROS_WORKON_PROJECT="flatcar/toolbox"
-CROS_WORKON_LOCALNAME="toolbox"
-CROS_WORKON_REPO="https://github.com"
+EGIT_REPO_URI="https://github.com/flatcar/toolbox.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	CROS_WORKON_COMMIT="fce9ba2bbd55e1835af72952bfbb7aed6be75606" # flatcar-master
+	EGIT_COMMIT="fce9ba2bbd55e1835af72952bfbb7aed6be75606" # flatcar-master
 	KEYWORDS="amd64 arm64"
 fi
 
-inherit cros-workon
+inherit git-r3
 
 DESCRIPTION="toolbox"
 HOMEPAGE="https://github.com/flatcar/toolbox"
