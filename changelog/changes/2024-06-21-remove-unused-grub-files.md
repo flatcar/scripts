@@ -1,0 +1,1 @@
+- Removed unused grub executable duplicate files and removed grub modules that are already assembled in the grub executable ([#1955](https://github.com/flatcar/scripts/pull/1955)).
