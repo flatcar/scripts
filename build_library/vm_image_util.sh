@@ -142,6 +142,7 @@ IMG_qemu_uefi_OEM_SYSEXT=oem-qemu
 
 ## xen
 IMG_xen_CONF_FORMAT=xl
+IMG_xen_OEM_PACKAGE=oem-xen
 
 ## virtualbox
 IMG_virtualbox_DISK_FORMAT=vmdk_ide
@@ -1028,8 +1029,10 @@ _write_xl_conf() {
     local src_name=$(basename "$VM_SRC_IMG")
     local dst_name=$(basename "$VM_DST_IMG")
     local dst_dir=$(dirname "$VM_DST_IMG")
+    local grub_name="flatcar_production_image-grub-xen_pvh.bin"
     local pygrub="${dst_dir}/$(_src_to_dst_name "${src_name}" "_pygrub.cfg")"
     local pvgrub="${dst_dir}/$(_src_to_dst_name "${src_name}" "_pvgrub.cfg")"
+    local hvm="${dst_dir}/$(_src_to_dst_name "${src_name}" "_hvm.cfg")"
     local disk_format=$(_get_vm_opt DISK_FORMAT)
 
     # Set up the few differences between pygrub and pvgrub
@@ -1037,13 +1040,17 @@ _write_xl_conf() {
     echo 'bootloader = "pygrub"' >> "${pygrub}"
 
     echo '# Xen PV config using pvgrub' > "${pvgrub}"
-    echo 'kernel = "/usr/lib/xen/boot/pv-grub-x86_64.gz"' >> "${pvgrub}"
-    echo 'extra = "(hd0,0)/boot/grub/menu.lst"' >> "${pvgrub}"
+    echo "kernel = \"${grub_name}\"" >> "${pvgrub}"
+
+    echo 'type = "hvm"'> "${hvm}"
+    # The rest is the same
+    tee -a "${pygrub}" "${pvgrub}" >/dev/null <<EOF
+type = "pvh"
+EOF
 
     # The rest is the same
-    tee -a "${pygrub}" >> "${pvgrub}" <<EOF
+    tee -a "${pygrub}" "${hvm}" "${pvgrub}" >/dev/null <<EOF
 
-builder = "generic"
 name = "${VM_NAME}"
 
 memory = "${vm_mem}"
@@ -1061,13 +1068,16 @@ xl create -c "${pygrub##*/}"
 Or with pvgrub instead:
 xl create -c "${pvgrub##*/}"
 
+For HVM:
+xl create -c "${hvm##*/}"
+
 Detach from the console with ^] and reattach with:
 xl console ${VM_NAME}
 
 Kill the vm with:
 xl destroy ${VM_NAME}
 EOF
-    VM_GENERATED_FILES+=( "${pygrub}" "${pvgrub}" "${VM_README}" )
+    VM_GENERATED_FILES+=( "${pygrub}" "${pvgrub}" "${hvm}" "${VM_README}" )
 }
 
 _write_ovf_virtualbox_conf() {

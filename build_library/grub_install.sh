@@ -26,6 +26,8 @@ DEFINE_string copy_efi_grub "" \
   "Copy the EFI GRUB image to the specified path."
 DEFINE_string copy_shim "" \
   "Copy the shim image to the specified path."
+DEFINE_string copy_xen_grub "" \
+  "Copy Xen PVH grub to the specified path."
 
 # Parse flags
 FLAGS "$@" || exit 1
@@ -64,7 +66,7 @@ case "${FLAGS_target}" in
         CORE_NAME="core.efi"
         SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
-    x86_64-xen)
+    i386-xen_pvh)
         CORE_NAME="core.elf"
         ;;
     arm64-efi)
@@ -235,13 +237,18 @@ case "${FLAGS_target}" in
                 "${FLAGS_copy_shim}"
         fi
         ;;
-    x86_64-xen)
+    i386-xen_pvh)
         info "Installing default x86_64 Xen bootloader."
         sudo mkdir -p "${ESP_DIR}/xen" "${ESP_DIR}/boot/grub"
+        # keep the pvboot name for chainloading?
         sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
             "${ESP_DIR}/xen/pvboot-x86_64.elf"
         sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
             "${ESP_DIR}/boot/grub/menu.lst"
+        if [[ -n "${FLAGS_copy_xen_grub}" ]]; then
+            cp --no-preserve=mode "${ESP_DIR}/xen/pvboot-x86_64.elf" \
+                "${FLAGS_copy_xen_grub}"
+        fi
         ;;
     arm64-efi)
         info "Installing default arm64 UEFI bootloader."

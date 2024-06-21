@@ -857,7 +857,7 @@ EOF
   # This script must mount the ESP partition differently, so run it after unmount
   if [[ "${install_grub}" -eq 1 ]]; then
     local target
-    local target_list="i386-pc x86_64-efi x86_64-xen"
+    local target_list="i386-pc x86_64-efi i386-xen_pvh"
     if [[ ${BOARD} == "arm64-usr" ]]; then
       target_list="arm64-efi"
     fi
@@ -874,6 +874,9 @@ EOF
       )
     fi
     for target in ${target_list}; do
+      if [[ "${target}" = "i386-xen_pvh" ]]; then
+        grub_args+=(--copy_xen_grub="${BUILD_DIR}/${image_grub%.grub}-grub-xen_pvh.bin")
+      fi
       ${BUILD_LIBRARY_DIR}/grub_install.sh \
           --board="${BOARD}" \
           --target="${target}" \

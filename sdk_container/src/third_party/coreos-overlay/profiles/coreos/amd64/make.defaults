@@ -5,4 +5,4 @@ BOOTSTRAP_USE="${BOOTSTRAP_USE} -pax_kernel -xtpax"
 USE="-pax_kernel -urandom -xtpax"
 
 # Enable our assorted Grub targets
-GRUB_PLATFORMS="efi-64 pc xen"
+GRUB_PLATFORMS="efi-64 pc xen-pvh"
