@@ -29,6 +29,7 @@ if [[ ${1:-} = 'flatcar-local-variables' ]]; then
 fi
 
 COMMON_OEMIDS=(
+    akamai
     ami
     azure
     hetzner

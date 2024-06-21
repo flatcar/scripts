@@ -6,6 +6,7 @@
 # Default values use the format IMG_DEFAULT_<opt>.
 
 VALID_IMG_TYPES=(
+    akamai
     ami
     ami_vmdk
     azure
@@ -44,6 +45,7 @@ VALID_IMG_TYPES=(
 
 #list of oem package names, minus the oem- prefix
 VALID_OEM_PACKAGES=(
+    akamai
     azure
     cloudsigma
     cloudstack
@@ -324,6 +326,11 @@ IMG_kubevirt_OEM_PACKAGE=common-oem-files
 IMG_kubevirt_OEM_USE=kubevirt
 IMG_kubevirt_OEM_SYSEXT=oem-kubevirt
 IMG_kubevirt_DISK_EXTENSION=qcow2
+
+## akamai (Linode)
+IMG_akamai_OEM_PACKAGE=common-oem-files
+IMG_akamai_OEM_USE=akamai
+IMG_akamai_OEM_SYSEXT=oem-akamai
 
 ###########################################################
 
