@@ -1,8 +1,10 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GIT_COMMIT=ced0996600
+
+GIT_COMMIT=9714adc6c797755f63053726c56bc1c17c0c9204
+
 EGO_PN="github.com/docker/cli"
 MY_PV=${PV/_/-}
 inherit bash-completion-r1  golang-vcs-snapshot
