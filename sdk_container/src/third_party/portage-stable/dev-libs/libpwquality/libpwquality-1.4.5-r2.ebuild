@@ -3,8 +3,11 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
-inherit libtool pam python-r1
+PYTHON_COMPAT=( python3_{10..12} )
+DISTUTILS_EXT=1
+DISTUTILS_OPTIONAL=1
+DISTUTILS_USE_PEP517=setuptools
+inherit libtool pam distutils-r1
 
 DESCRIPTION="Library for password quality checking and generating random passwords"
 HOMEPAGE="https://github.com/libpwquality/libpwquality"
@@ -19,6 +22,10 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 BDEPEND="
 	>=sys-devel/gettext-0.18.2
 	virtual/pkgconfig
+	python? (
+		${DISTUTILS_DEPS}
+		${PYTHON_DEPS}
+	)
 "
 RDEPEND="
 	>=sys-libs/cracklib-2.8:=[static-libs(+)?]
@@ -32,44 +39,52 @@ src_prepare() {
 	elibtoolize
 
 	if use python ; then
-		# bug #830397
-		export SETUPTOOLS_USE_DISTUTILS=stdlib
-		python_copy_sources
+		cd python || die
+		distutils-r1_src_prepare
 	fi
 }
 
 src_configure() {
 	# Install library in /lib for pam
-	configuring() {
-		local sitedir
-		econf \
-			--libdir="${EPREFIX}/usr/$(get_libdir)" \
-			$(use_enable pam) \
-			--with-securedir="${EPREFIX}/$(getpam_mod_dir)" \
-			$(use_enable python python-bindings) \
-			$(usex python "--with-pythonsitedir=$(use python && python_get_sitedir)" "") \
-			$(use_enable static-libs static)
-	}
-	if_use_python_python_foreach_impl configuring
+	local myeconfargs=(
+		--libdir="${EPREFIX}/usr/$(get_libdir)"
+		$(use_enable pam)
+		--with-securedir="${EPREFIX}/$(getpam_mod_dir)"
+		--disable-python-bindings
+		$(use_enable static-libs static)
+	)
+
+	econf "${myeconfargs[@]}"
+
+	if use python; then
+		cd python || die
+		distutils-r1_src_configure
+	fi
 }
 
 src_compile() {
-	if_use_python_python_foreach_impl default
+	default
+	if use python; then
+		cd python || die
+		distutils-r1_src_compile
+	fi
 }
 
 src_test() {
-	if_use_python_python_foreach_impl default
+	default
+	if use python; then
+		cd python || die
+		distutils-r1_src_test
+	fi
 }
 
 src_install() {
-	if_use_python_python_foreach_impl default
-	find "${ED}" -name '*.la' -delete || die
-}
+	default
 
-if_use_python_python_foreach_impl() {
 	if use python; then
-		python_foreach_impl run_in_build_dir "$@"
-	else
-		"$@"
+		cd python || die
+		distutils-r1_src_install
 	fi
+
+	find "${ED}" -name '*.la' -delete || die
 }
