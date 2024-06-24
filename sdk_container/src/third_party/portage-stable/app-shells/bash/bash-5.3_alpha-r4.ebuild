@@ -15,7 +15,7 @@ MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 MY_PATCHES=()
 
-# Determine the patchlevel.
+# Determine the patchlevel. See ftp://ftp.gnu.org/gnu/bash/bash-5.3-patches/.
 case ${PV} in
 	*_p*)
 		PLEVEL=${PV##*_p}
@@ -311,6 +311,9 @@ src_install() {
 	insinto /etc/bash/bashrc.d
 	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color.bash | newins - 10-gentoo-color.bash
 	doins "${FILESDIR}"/bashrc.d/10-gentoo-title.bash
+	if [[ ! ${EPREFIX} ]]; then
+		doins "${FILESDIR}"/bashrc.d/15-gentoo-bashrc-check.bash
+	fi
 
 	insinto /etc/skel
 	for f in bash{_logout,_profile,rc}; do
