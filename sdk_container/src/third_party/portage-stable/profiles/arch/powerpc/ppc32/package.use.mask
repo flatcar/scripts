@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2024-05-19)
+# media-libs/jasper not yet keyworded here: https://bugs.gentoo.org/921559
+media-gfx/graphicsmagick jpeg2k
+
 # Sam James <sam@gentoo.org> (2024-03-23)
 # sys-libs/libomp does not support ppc32 (bug #907213).
 sys-devel/clang-runtime openmp
@@ -13,6 +17,7 @@ app-antivirus/clamav system-mspack
 # The generated code is too large and it takes ages to build, bug #922249.
 dev-python/mypy native-extensions
 
+# Marek Szuba <marecki@gentoo.org> (2024-04-24)
 # Sam James <sam@gentoo.org> (2024-01-05)
 # sys-apps/keyutils not stable here, because of test failures. bug #636252
 app-benchmarks/stress-ng keyutils
@@ -20,7 +25,7 @@ app-crypt/mit-krb5 keyutils
 app-emulation/qemu keyutils
 net-fs/cifs-utils ads creds pam
 net-fs/samba ads
-sys-auth/sssd keyutils
+>=sys-libs/libblockdev-3.0.0 cryptsetup
 sys-libs/libnvme keyutils
 
 # Michał Górny <mgorny@gentoo.org> (2023-10-15)

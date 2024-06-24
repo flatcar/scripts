@@ -1,6 +1,15 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2024-06-13)
+# Needs as-yet-unkeyworded KF6 (bug #934215)
+app-crypt/pinentry qt6
+app-office/libreoffice qt6
+
+# Sam James <sam@gentoo.org> (2024-05-19)
+# media-libs/jasper not yet keyworded here: https://bugs.gentoo.org/921559
+media-gfx/graphicsmagick jpeg2k
+
 # José de Paula R. N. Assis <espinafre@gmail.com> (2024-03-25)
 # No PyQt6 (which is needed by USE=qt6 for qscintilla-python) on ppc64.
 >=dev-python/qscintilla-python-2.14.1-r1 qt6
@@ -20,11 +29,6 @@ media-libs/libplacebo -shaderc
 # Sam James <sam@gentoo.org> (2023-09-22)
 # Qt 6 not keyworded here.
 dev-build/cmake gui
-
-# Joonas Niilola <juippis@gentoo.org> (2023-08-24)
-# media-video/libva-utils is masked on ppc64, so hwaccel on Firefox
-# wouldn't work.
-www-client/firefox hwaccel
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2023-08-14)
 # OpenMW is only playtested with LuaJIT, and in fact unit tests fail with Lua-5.
