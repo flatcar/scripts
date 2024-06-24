@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11,12} )
+PYTHON_COMPAT=( python3_{11..13} )
 
 inherit go-module python-any-r1 tmpfiles toolchain-funcs linux-info
 
@@ -51,7 +51,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/seccomp-toggle-4.7.0.patch"
+	"${T}"/togglable-seccomp.patch
 )
 
 CONFIG_CHECK="
@@ -65,6 +65,19 @@ pkg_setup() {
 }
 
 src_prepare() {
+	cat <<'EOF' > "${T}"/togglable-seccomp.patch || die
+--- a/Makefile
++++ b/Makefile
+@@ -56,7 +56,6 @@ BUILDTAGS ?= \
+	$(shell hack/systemd_tag.sh) \
+	$(shell hack/libsubid_tag.sh) \
+	exclude_graphdriver_devicemapper \
+-	seccomp
+ # allow downstreams to easily add build tags while keeping our defaults
+ BUILDTAGS += ${EXTRA_BUILDTAGS}
+ # N/B: This value is managed by Renovate, manual changes are
+EOF
+
 	default
 
 	# assure necessary files are present
@@ -101,8 +114,7 @@ src_compile() {
 		tc-export PKG_CONFIG
 	fi
 
-	# BUILD_SECCOMP is used in the patch to toggle seccomp
-	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" BUILD_SECCOMP="$(usex seccomp)" \
+	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" EXTRA_BUILDTAGS="$(usev seccomp)" \
 		  all $(usev wrapper docker-docs)
 }
 
