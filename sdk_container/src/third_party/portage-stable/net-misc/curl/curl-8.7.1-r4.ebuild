@@ -3,6 +3,10 @@
 
 EAPI=8
 
+# Maintainers should subscribe to the 'curl-distros' ML for backports etc
+# https://daniel.haxx.se/blog/2024/03/25/curl-distro-report/
+# https://lists.haxx.se/listinfo/curl-distros
+
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielstenberg.asc
 inherit autotools multilib-minimal multiprocessing prefix toolchain-funcs verify-sig
 
@@ -17,7 +21,7 @@ else
 		https://curl.se/download/${P}.tar.xz
 		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
@@ -85,8 +89,8 @@ RDEPEND="
 		openssl? (
 			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
-		rustls? (
-			~net-libs/rustls-ffi-0.10.0:=[${MULTILIB_USEDEP}]
+		rustls? ( >=net-libs/rustls-ffi-0.12.1:=[${MULTILIB_USEDEP}]
+			<net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
 		)
 	)
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
@@ -125,13 +129,17 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	mach_absolute_time
 	setmode
 	_fseeki64
+	# custom AC_LINK_IFELSE code fails to link even without -Werror
+	OSSL_QUIC_client_method
 )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${P}-vtls-revert-receive-max-buffer-add-test-case.patch
-	"${FILESDIR}"/${P}-rustls-fixes.patch
+	"${FILESDIR}"/${PN}-8.7.1-rustls-fixes.patch
+	"${FILESDIR}"/${P}-chunked-post.patch
+	"${FILESDIR}"/${P}-fix-compress-option.patch
+	"${FILESDIR}"/${P}-http2-git-clone.patch
 )
 
 src_prepare() {
