@@ -10,7 +10,7 @@ EAPI=8
 # any subsequent ones linked within so you're covered for a while.)
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnupg.asc
-inherit autotools multilib-minimal toolchain-funcs verify-sig
+inherit multilib-minimal toolchain-funcs verify-sig
 
 DESCRIPTION="Contains error handling functions used by GnuPG software"
 HOMEPAGE="https://www.gnupg.org/related_software/libgpg-error"
@@ -19,7 +19,7 @@ SRC_URI+=" verify-sig? ( mirror://gnupg/${PN}/${P}.tar.bz2.sig )"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="common-lisp nls static-libs test"
 RESTRICT="!test? ( test )"
 
@@ -41,7 +41,7 @@ MULTILIB_CHOST_TOOLS=(
 )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-1.48-remove_broken_check.patch"
+	"${FILESDIR}"/${P}-environ.patch
 )
 
 src_prepare() {
@@ -49,14 +49,20 @@ src_prepare() {
 
 	if use prefix ; then
 		# don't hardcode /usr/xpg4/bin/sh as shell on Solaris
-		sed -i -e 's/solaris\*/disabled/' configure.ac || die
+		sed -i -e 's:INSTALLSHELLPATH=/usr/xpg4/bin/sh:INSTALLSHELLPATH=/bin/sh:g' configure.ac configure || die
 	fi
+
+	# This check breaks multilib
+	cat <<-EOF > src/gpg-error-config-test.sh.in || die
+	#!@INSTALLSHELLPATH@
+	exit 0
+	EOF
 
 	# only necessary for as long as we run eautoreconf, configure.ac
 	# uses ./autogen.sh to generate PACKAGE_VERSION, but autogen.sh is
 	# not a pure /bin/sh script, so it fails on some hosts
-	sed -i -e "1s:.*:#\!${BASH}:" autogen.sh || die
-	eautoreconf
+	#sed -i -e "1s:.*:#\!${BASH}:" autogen.sh || die
+	#eautoreconf
 }
 
 multilib_src_configure() {
