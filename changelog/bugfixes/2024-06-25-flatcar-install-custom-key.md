@@ -1,0 +1,1 @@
+- Fixed bad usage of gpg that prevented flatcar-install from being used with custom signing keys ([Flatcar#1471](https://github.com/flatcar/flatcar/pull/1471))
