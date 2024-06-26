@@ -46,6 +46,7 @@ RDEPEND="${DEPEND}"
 PDEPEND=">=sys-auth/pambase-20200616"
 
 PATCHES=(
+	"${FILESDIR}"/${PN}-1.5.0-locked-accounts.patch
 	"${FILESDIR}/${P}-termios.patch"
 )
 
@@ -101,6 +102,7 @@ multilib_src_configure() {
 		$(use_enable nis)
 		$(use_enable selinux)
 		--enable-isadir='.' # bug #464016
+		--enable-vendordir="/usr/lib/pam/"
 	)
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }
@@ -117,10 +119,18 @@ multilib_src_install() {
 multilib_src_install_all() {
 	find "${ED}" -type f -name '*.la' -delete || die
 
+	# Flatcar: The pam_unix module needs to check the password of
+	# the user which requires read access to /etc/shadow
+	# only. Make it suid instead of using CAP_DAC_OVERRIDE to
+	# avoid a pam -> libcap -> pam dependency loop.
+	fperms 4711 /sbin/unix_chkpwd
+
 	# tmpfiles.eclass is impossible to use because
 	# there is the pam -> tmpfiles -> systemd -> pam dependency loop
 	dodir /usr/lib/tmpfiles.d
 
+	rm "${D}/etc/environment"
+	cp "${FILESDIR}/tmpfiles.d/pam.conf" "${D}"/usr/lib/tmpfiles.d/${CATEGORY}-${PN}-config.conf
 	cat ->>  "${D}"/usr/lib/tmpfiles.d/${CATEGORY}-${PN}.conf <<-_EOF_
 		d /run/faillock 0755 root root
 	_EOF_
@@ -146,8 +156,4 @@ pkg_postinst() {
 	ewarn "  lsof / | grep -E -i 'del.*libpam\\.so'"
 	ewarn ""
 	ewarn "Alternatively, simply reboot your system."
-
-	# The pam_unix module needs to check the password of the user which requires
-	# read access to /etc/shadow only.
-	fcaps cap_dac_override sbin/unix_chkpwd
 }
