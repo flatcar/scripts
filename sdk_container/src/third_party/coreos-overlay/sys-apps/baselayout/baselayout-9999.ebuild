@@ -1,137 +1,59 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 EGIT_REPO_URI="https://github.com/flatcar/baselayout.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	inherit git-r3
-	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
+	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="937a45faef0f7fa88d3d2c3f7ba60a7f3e2e82f7" # flatcar-master
+	EGIT_COMMIT="1ad3846c507888ffbb4209f6eaf294a60cda5fe6" # flatcar-master
 	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
-	KEYWORDS="amd64 arm arm64 x86"
+	KEYWORDS="amd64 arm64"
 fi
 
-TMPFILES_OPTIONAL=1
-inherit multilib systemd tmpfiles
+inherit multilib
 
-DESCRIPTION="Filesystem baselayout for CoreOS"
-HOMEPAGE="http://www.coreos.com/"
+DESCRIPTION="Filesystem baselayout for Flatcar"
+HOMEPAGE="https://www.flatcar.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="cros_host symlink-usr"
-
-# This version of baselayout replaces coreos-base
-DEPEND="sys-apps/systemd
-	net-dns/libidn2:=
-	!coreos-base/coreos-base
-	!<sys-libs/glibc-2.17-r1
-	!<=sys-libs/nss-usrfiles-2.18.1_pre"
+IUSE="cros_host"
 
 # Make sure coreos-init is not installed in the SDK
-RDEPEND="${DEPEND}
+RDEPEND="
 	>=sys-apps/gentoo-functions-0.10
-	cros_host? ( !coreos-base/coreos-init )"
+	cros_host? ( !coreos-base/coreos-init )
+"
 
-MOUNT_POINTS=(
-	/dev
-	/proc
-	/sys
-)
-
-declare -A USR_SYMS		# list of /foo->usr/foo symlinks
-declare -a BASE_DIRS	# list of absolute paths that should be directories
-
-# Check that a pre-existing symlink is correct
-check_sym() {
-	local path="$1" value="$2"
-	local real_path=$(readlink -f "${ROOT}${path}")
-	local real_value=$(readlink -f "${ROOT}${path%/*}/${value}")
-	if [[ -e "${read_path}" && "${read_path}" != "${read_value}" ]]; then
-		die "${path} is not a symlink to ${value}"
-	fi
-}
-
-pkg_setup() {
-	local libdirs=$(get_all_libdirs)
-
-	if [[ -z "${libdirs}" ]]; then
-		die "your DEFAULT_ABI=$DEFAULT_ABI appears to be invalid"
-	fi
-
-	# figure out which paths should be symlinks and which should be directories
-	local d
-	for d in bin sbin ${libdirs} ; do
-		if use symlink-usr; then
-			USR_SYMS["/$d"]="usr/$d"
-			BASE_DIRS+=( "/usr/$d" "/usr/local/$d" )
-		else
-			BASE_DIRS+=( "/$d" "/usr/$d" "/usr/local/$d" )
-		fi
-	done
-
-	# make sure any pre-existing symlinks map to the expected locations.
-	local sym
-	if use symlink-usr; then
-		for sym in "${!USR_SYMS[@]}" ; do
-			check_sym "${sym}" "${USR_SYMS[$sym]}"
-		done
-	fi
-}
-
-src_compile() {
+src_prepare() {
 	default
 
-	# generate a tmpfiles.d config to cover our /usr symlinks
-	if use symlink-usr; then
-		local tmpfiles="${T}/baselayout-usr.conf"
-		echo -n > ${tmpfiles} || die
-		for sym in "${!USR_SYMS[@]}" ; do
-			echo "L+	${sym}	-	-	-	-	${USR_SYMS[$sym]}" >> ${tmpfiles}
-		done
-	fi
-}
-
-src_install() {
-	dodir "${BASE_DIRS[@]}"
-
 	if use cros_host; then
-		# Since later systemd-tmpfiles --root is used only users from
-		# /etc/passwd are considered but we don't want to add core there
-		# because it would make emerge overwrite the system's database on
-		# installation when the SDK user is already there. Instead, just
-		# create the folder manually and remove the tmpfile directive.
-		rm "${S}/tmpfiles.d/baselayout-home.conf"
-		mkdir -p "${D}"/home/core
-		chown 500:500 "${D}"/home/core
+		# Undesirable in the SDK
+		rm -f lib/tmpfiles.d/baselayout-etc-profile-flatcar-profile.conf || die
+		# Provided by vim in the SDK
+		rm -f lib/tmpfiles.d/baselayout-etc-vim.conf || die
+		# Don't initialize /etc/passwd, group, and friends on boot.
+		rm -rf bin || die
+		rm -rf lib/systemd || die
+		# Inject custom SSL configuration required for signing
+		# payloads from the SDK container using OpenSSL.
+		mkdir -p etc/ssl || die
+		cp -a share/baselayout/pkcs11.cnf etc/ssl || die
 	else
-		# Initialize /etc/passwd, group, and friends now, so
-		# systemd-tmpfiles can resolve user information in ${D}
-		# rootfs.
-		bash "scripts/flatcar-tmpfiles" "${D}" "${S}/baselayout" || die
+		# Don't install /etc/issue since it is handled by coreos-init right now
+		rm -f lib/tmpfiles.d/baselayout-etc-issue.conf || die
 	fi
 
-	if use symlink-usr; then
-		dotmpfiles "${T}/baselayout-usr.conf"
-		systemd-tmpfiles --root="${D}" --create
+	# sssd not yet building on arm64
+	if use arm64; then
+		sed -i -e 's/ sss//' share/baselayout/nsswitch.conf || die
+		sed -i -e '/pam_sss.so/d' lib/pam.d/* || die
 	fi
-
-	emake DESTDIR="${D}" install
-
-	# Fill in all other paths defined in tmpfiles configs
-	systemd-tmpfiles --root="${D}" --create
-
-	# The above created a few mount points but leave those out of the
-	# package since they may be mounted read-only. postinst can make them.
-	local mnt
-	for mnt in "${MOUNT_POINTS[@]}"; do
-		rmdir "${D}${mnt}" || die
-	done
-
-	doenvd "env.d/99flatcar_ldpath"
 
 	# handle multilib paths.  do it here because we want this behavior
 	# regardless of the C library that you're using.  we do explicitly
@@ -141,9 +63,10 @@ src_install() {
 	# path and the symlinked path doesn't change the resulting cache.
 	local libdir ldpaths
 	for libdir in $(get_all_libdirs) ; do
-		ldpaths+=":/${libdir}:/usr/${libdir}:/usr/local/${libdir}"
+		ldpaths+=":${EPREFIX}/usr/${libdir}"
+		ldpaths+=":${EPREFIX}/usr/local/${libdir}"
 	done
-	echo "LDPATH='${ldpaths#:}'" >> "${D}"/etc/env.d/00basic || die
+	echo "LDPATH='${ldpaths#:}'" >> etc/env.d/00basic || die
 
 	# Add oem/lib64 to search path towards end of the system's list.
 	# This simplifies the configuration of OEMs with dynamic libs.
@@ -151,70 +74,40 @@ src_install() {
 	for libdir in $(get_all_libdirs) ; do
 		ldpaths+=":/oem/${libdir}"
 	done
-	echo "LDPATH='${ldpaths#:}'" >> "${D}"/etc/env.d/80oem || die
+	echo "LDPATH='${ldpaths#:}'" >> etc/env.d/80oem || die
+}
 
-	if ! use symlink-usr ; then
-		# modprobe uses /lib instead of /usr/lib
-		mv "${D}"/usr/lib/modprobe.d "${D}"/lib/modprobe.d || die
-	fi
+src_compile() {
+	local libdirs
 
-	if use arm64; then
-		sed -i 's/ sss//' "${D}"/usr/share/baselayout/nsswitch.conf || die
-	fi
+	libdirs=$(get_all_libdirs)
+	emake LIBDIRS="${libdirs}" all
+}
 
-	if use cros_host; then
-		# Provided by vim in the SDK
-		rm -r "${D}"/etc/vim || die
-		# Undesirable in the SDK
-		rm "${D}"/etc/profile.d/flatcar-profile.sh || die
-	else
-		# Don't install /etc/issue since it is handled by coreos-init right now
-		rm "${D}"/etc/issue || die
-		sed -i -e '/\/etc\/issue/d' \
-			"${D}"/usr/lib/tmpfiles.d/baselayout-etc.conf || die
+src_install() {
+	emake DESTDIR="${ED}" install
+	# GID 190 is taken from acct-group/systemd-journal eclass
+	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 DESTDIR=${D} ./dumb-tmpfiles-proc.sh --exclude d "${ED}/usr/lib/tmpfiles.d" || die
 
-		# Initialize /etc/passwd, group, and friends on boot.
-		dosbin "scripts/flatcar-tmpfiles"
-		systemd_dounit "scripts/flatcar-tmpfiles.service"
-		systemd_enable_service sysinit.target flatcar-tmpfiles.service
-	fi
+	insinto /usr/share/baselayout
+	doins Makefile
+	exeinto /usr/share/baselayout
+	doexe dumb-tmpfiles-proc.sh
+}
 
-	# sssd not yet building on arm64
-	if use arm64; then
-		sed -i -e '/pam_sss.so/d' "${D}"/usr/lib/pam.d/* || die
-	fi
+pkg_preinst() {
+	local libdirs
+	libdirs=$(get_all_libdirs)
+	emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
+	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
+	rm -f "${ED}/usr/share/${PN}/Makefile" "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" || die
 
-	if use cros_host; then
-		# inject custom SSL configuration required for signing payloads from the SDK container using OpenSSL.
-		insinto "/etc/ssl/"
-		doins "${S}/baselayout/pkcs11.cnf"
-	fi
+	# The default passwd/group files must exist for some ebuilds
+	touch "${ED}/etc/"{group,gshadow,passwd,shadow}
+	chmod 640 "${ED}/etc/"{gshadow,shadow}
 }
 
 pkg_postinst() {
-	# best-effort creation of mount points
-	local mnt
-	for mnt in "${MOUNT_POINTS[@]}"; do
-		[[ -d "${ROOT}${mnt}" ]] || mkdir "${ROOT}${mnt}"
-	done
-	# Set up /usr/lib/debug to match the root filesystem layout
-	# FIXME: This is done in postinst right now and all errors are ignored
-	# as a transitional scheme, this isn't important enough to migrate
-	# existing SDK environments.
-	local dir
-	for dir in "${BASE_DIRS[@]}"; do
-		mkdir -p "${ROOT}/usr/lib/debug/${dir}"
-	done
-	if use symlink-usr; then
-		for sym in "${!USR_SYMS[@]}" ; do
-			ln -sfT "${USR_SYMS[$sym]}" "${ROOT}/usr/lib/debug/${sym}"
-		done
-	fi
-	# The default passwd/group files must exist in the SDK for some ebuilds
-	if use cros_host; then
-		touch "${ROOT}/etc/"{group,gshadow,passwd,shadow}
-		chmod 640 "${ROOT}/etc/"{gshadow,shadow}
-	fi
 	# compat symlink for packages that haven't migrated to gentoo-functions
 	local func=../../lib/gentoo/functions.sh
 	if [[ "$(readlink "${ROOT}/etc/init.d/functions.sh")" != "${func}" ]]; then
