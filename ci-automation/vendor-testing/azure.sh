@@ -51,6 +51,7 @@ run_kola_tests() {
       --azure-size="${instance_type}" \
       --azure-hyper-v-generation="${hyperv_gen}" \
       --azure-use-gallery \
+      ${AZURE_KOLA_VNET:+--azure-kola-vnet=${AZURE_KOLA_VNET}} \
       ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
       ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
       ${AZURE_RESOURCE_GROUP:+--azure-resource-group=${AZURE_RESOURCE_GROUP}} \
