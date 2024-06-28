@@ -1,73 +1,84 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
+
+MY_P="Linux-${PN^^}-${PV}"
 
 # Avoid QA warnings
 # Can reconsider w/ EAPI 8 and IDEPEND, bug #810979
 TMPFILES_OPTIONAL=1
 
-inherit autotools db-use toolchain-funcs usr-ldscript multilib-minimal
-
-GIT_COMMIT="fe1307512fb8892b5ceb3d884c793af8dbd4c16a"
-DOC_SNAPSHOT="20210610"
+inherit db-use fcaps flag-o-matic toolchain-funcs multilib-minimal
 
 DESCRIPTION="Linux-PAM (Pluggable Authentication Modules)"
 HOMEPAGE="https://github.com/linux-pam/linux-pam"
-
-SRC_URI="https://github.com/linux-pam/linux-pam/archive/${GIT_COMMIT}.tar.gz -> ${P}.tar.gz
-	https://dev.gentoo.org/~zlogene/distfiles/${CATEGORY}/${PN}/${PN}-doc-${PV%_p*}_p${DOC_SNAPSHOT}.tar.xz"
+SRC_URI="
+	https://github.com/linux-pam/linux-pam/releases/download/v${PV}/${MY_P}.tar.xz
+	https://github.com/linux-pam/linux-pam/releases/download/v${PV}/${MY_P}-docs.tar.xz
+"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 IUSE="audit berkdb debug nis selinux"
 
 BDEPEND="
 	app-alternatives/yacc
 	dev-libs/libxslt
-	sys-devel/flex
+	app-alternatives/lex
 	sys-devel/gettext
 	virtual/pkgconfig
 "
-
 DEPEND="
 	virtual/libcrypt:=[${MULTILIB_USEDEP}]
 	>=virtual/libintl-0-r1[${MULTILIB_USEDEP}]
 	audit? ( >=sys-process/audit-2.2.2[${MULTILIB_USEDEP}] )
 	berkdb? ( >=sys-libs/db-4.8.30-r1:=[${MULTILIB_USEDEP}] )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
-	nis? ( net-libs/libnsl:=[${MULTILIB_USEDEP}]
-	>=net-libs/libtirpc-0.2.4-r2:=[${MULTILIB_USEDEP}] )"
-
+	nis? (
+		net-libs/libnsl:=[${MULTILIB_USEDEP}]
+		>=net-libs/libtirpc-0.2.4-r2:=[${MULTILIB_USEDEP}]
+	)
+"
 RDEPEND="${DEPEND}"
-
 PDEPEND=">=sys-auth/pambase-20200616"
-
-S="${WORKDIR}/linux-${PN}-${GIT_COMMIT}"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.5.0-locked-accounts.patch
-	"${FILESDIR}"/${PN}-1.5.1-musl.patch
+	"${FILESDIR}/${P}-termios.patch"
 )
 
 src_prepare() {
 	default
 	touch ChangeLog || die
-	eautoreconf
 }
 
 multilib_src_configure() {
-	# Do not let user's BROWSER setting mess us up. #549684
+	# Do not let user's BROWSER setting mess us up, bug #549684
 	unset BROWSER
+
+	# This whole weird has_version libxcrypt block can go once
+	# musl systems have libxcrypt[system] if we ever make
+	# that mandatory. See bug #867991.
+	if use elibc_musl && ! has_version sys-libs/libxcrypt[system] ; then
+		# Avoid picking up symbol-versioned compat symbol on musl systems
+		export ac_cv_search_crypt_gensalt_rn=no
+
+		# Need to avoid picking up the libxcrypt headers which define
+		# CRYPT_GENSALT_IMPLEMENTS_AUTO_ENTROPY.
+		cp "${ESYSROOT}"/usr/include/crypt.h "${T}"/crypt.h || die
+		append-cppflags -I"${T}"
+	fi
 
 	local myconf=(
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 		--with-db-uniquename=-$(db_findver sys-libs/db)
-		--with-xml-catalog=/etc/xml/catalog
-		--enable-securedir=/$(get_libdir)/security
-		--includedir=/usr/include/security
-		--libdir=/usr/$(get_libdir)
+		--with-xml-catalog="${EPREFIX}"/etc/xml/catalog
+		--enable-securedir="${EPREFIX}"/$(get_libdir)/security
+		--includedir="${EPREFIX}"/usr/include/security
+		--libdir="${EPREFIX}"/usr/$(get_libdir)
 		--enable-pie
 		--enable-unix
 		--disable-prelude
@@ -75,14 +86,24 @@ multilib_src_configure() {
 		--disable-regenerate-docu
 		--disable-static
 		--disable-Werror
+		# TODO: wire this up now it's more useful as of 1.5.3 (bug #931117)
+		--disable-econf
+
+		# TODO: add elogind support (bug #931115)
+		# lastlog is enabled again for now by us until logind support
+		# is handled. Even then, disabling lastlog will probably need
+		# a news item.
+		--disable-logind
+		--enable-lastlog
+
 		$(use_enable audit)
 		$(use_enable berkdb db)
 		$(use_enable debug)
 		$(use_enable nis)
 		$(use_enable selinux)
-		--enable-isadir='.' #464016
-		--enable-sconfigdir="/usr/lib/pam/"
-		)
+		--enable-isadir='.' # bug #464016
+		--enable-vendordir="/usr/lib/pam/"
+	)
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }
 
@@ -106,7 +127,6 @@ multilib_src_install_all() {
 
 	# tmpfiles.eclass is impossible to use because
 	# there is the pam -> tmpfiles -> systemd -> pam dependency loop
-
 	dodir /usr/lib/tmpfiles.d
 
 	rm "${D}/etc/environment"
@@ -120,7 +140,7 @@ multilib_src_install_all() {
 
 	local page
 
-	for page in "${WORKDIR}"/man/*.{3,5,8} ; do
+	for page in doc/man/*.{3,5,8} modules/*/*.{5,8} ; do
 		doman ${page}
 	done
 }
@@ -133,7 +153,7 @@ pkg_postinst() {
 	ewarn "restart the software manually after the update."
 	ewarn ""
 	ewarn "You can get a list of such software running a command like"
-	ewarn "  lsof / | egrep -i 'del.*libpam\\.so'"
+	ewarn "  lsof / | grep -E -i 'del.*libpam\\.so'"
 	ewarn ""
 	ewarn "Alternatively, simply reboot your system."
 }
