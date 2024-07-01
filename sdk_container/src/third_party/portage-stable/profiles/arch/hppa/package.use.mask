@@ -4,6 +4,24 @@
 # NOTE: When masking a USE flag due to missing keywords, please file a keyword
 # request bug for the hppa arch.
 
+# Sam James <sam@gentoo.org> (2024-06-19)
+# The systemd implementation of installkernel doesn't currently support
+# updating the 'initramfs.img' and 'vmlinuz' symlinks that palo needs,
+# and palo is the only bootloader for HPPA.
+sys-kernel/installkernel systemd
+
+# Holger Hoffstätte <holger@applied-asynchrony.com> (2024-05-19)
+# media-libs/jasper not yet keyworded here: https://bugs.gentoo.org/921559
+media-gfx/graphicsmagick jpeg2k
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-05-13)
+# Requires dev-util/shelltestrunner
+app-arch/mt-st test
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-08)
+# Requires sys-devel/{clang,llvm}:16.
+dev-lang/python jit
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-01-23)
 # Needs dev-qt/qtquick3d:6 which itself needs media-libs/assimp that
 # is not keyworded here and currently fails tests (bug #919896).
@@ -57,10 +75,6 @@ dev-build/cmake gui
 # Sam James <sam@gentoo.org> (2023-09-18)
 # x11-libs/gtksourceview:4 not keyworded here
 media-gfx/inkscape sourceview
-
-# Rich Freeman <rich0@gentoo.org> (2023-09-13)
-# Tests require shellcheck which is not currently available on hppa
-sys-process/systemd-cron test
 
 # Matt Turner <mattst88@gentoo.org> (2023-05-30)
 # sys-apps/dbus-broker is not keyworded
@@ -242,7 +256,7 @@ dev-libs/efl avif lua_single_target_luajit physics
 
 # Matt Turner <mattst88@gentoo.org> (2020-08-11)
 # No drivers on this architecture support Vulkan
-media-libs/mesa vulkan vulkan-overlay zink
+media-libs/mesa video_cards_zink vulkan vulkan-overlay zink
 
 # Robin H. Johnson <robbat2@gentoo.org> (2020-07-02)
 # Mask io-uring & zbc pending keywording

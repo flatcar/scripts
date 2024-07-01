@@ -1,6 +1,22 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (2024-06-29)
+# Disabling GIL (enabling freethreading) is experimental and prone
+# to break packages.  Should you choose to test it, please do not file
+# Gentoo bugs and report any issues you hit upstream.
+dev-lang/python gil
+
+# Sam James <sam@gentoo.org> (2024-06-03)
+# Poor rendering performance otherwise (bug #931215).
+kde-plasma/kwin caps
+
+# James Le Cuirot <chewi@gentoo.org> (2024-06-02)
+# Requires FFmpeg 7.0, which we don't have yet, so force Chromium fork.
+>=dev-libs/nwjs-0.88.0 ffmpeg-chromium
+>=www-client/vivaldi-6.8.3371.4 ffmpeg-chromium
+>=www-client/vivaldi-snapshot-6.8.3371.4 ffmpeg-chromium
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-04-10)
 # Flipping the zstd USE state is unsafe and can break *tons* of Qt revdeps
 # including many KDE packages and Qt itself without rebuilds due to losing
@@ -174,10 +190,6 @@ net-misc/wget ssl
 # is maintained for experts only.
 sys-libs/libcxx libcxxabi
 
-# Matt Turner <mattst88@gentoo.org> (2019-09-01)
-# <dev-scheme/guile-2 is package.mask'd, so force USE=guile2
-media-sound/lilypond guile2
-
 # Sergei Trofimovich <slyfox@gentoo.org> (2019-08-17)
 # USE=-cxx us a sure way to break native install as modern gcc
 # requires C++ to bootstrap. But in rare cases it's useful
@@ -241,6 +253,7 @@ app-shells/bash:0 readline
 dev-lang/python-exec python_targets_python3_10
 dev-lang/python-exec python_targets_python3_11
 dev-lang/python-exec python_targets_python3_12
+dev-lang/python-exec python_targets_python3_13
 dev-lang/python-exec python_targets_pypy3
 
 # Zac Medico <zmedico@gentoo.org> (2010-10-20)
