@@ -21,6 +21,8 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
+PATCHES=( "${FILESDIR}/${PN}-bash-completion.patch" )
+
 DOCS=( ChangeLog INSTALL README UPGRADE )
 
 # configurable from outside, e.g. /etc/portage/make.conf
@@ -102,7 +104,7 @@ src_install() {
 
 	find "${ED}" -name '*.la' -delete || die
 
-	newinitd "${FILESDIR}"/ipset.initd-r6 ${PN}
+	newinitd "${FILESDIR}"/ipset.initd-r7 ${PN}
 	newconfd "${FILESDIR}"/ipset.confd-r1 ${PN}
 	systemd_newunit "${FILESDIR}"/ipset.systemd-r1 ${PN}.service
 	keepdir /var/lib/ipset
