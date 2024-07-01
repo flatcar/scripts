@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 PYTHON_REQ_USE="threads(+)"
 inherit python-single-r1 waf-utils multilib-minimal
 
@@ -21,9 +21,9 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 
 RESTRICT="!test? ( test )"
 
-TALLOC_VERSION="2.3.4"
-TDB_VERSION="1.4.7"
-TEVENT_VERSION="0.13.0"
+TALLOC_VERSION="2.4.1"
+TDB_VERSION="1.4.9"
+TEVENT_VERSION="0.15.0"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
@@ -60,6 +60,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.1.31-fix_PKGCONFIGDIR-when-python-disabled.patch
 	"${FILESDIR}"/${PN}-2.4.2-skip-32bit-time_t-tests.patch
 	"${FILESDIR}"/${PN}-2.5.2-skip-waf-tevent-check.patch
+	"${FILESDIR}"/cmocka-config_h.patch
 )
 
 pkg_setup() {
