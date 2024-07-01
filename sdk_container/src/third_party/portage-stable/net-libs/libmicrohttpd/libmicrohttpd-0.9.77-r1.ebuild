@@ -3,27 +3,33 @@
 
 EAPI="8"
 
-inherit linux-info multilib-minimal
+inherit linux-info multilib-minimal verify-sig
 
 MY_P="${P/_/}"
 
 DESCRIPTION="Small C library to run an HTTP server as part of another application"
 HOMEPAGE="https://www.gnu.org/software/libmicrohttpd/"
-SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz"
+SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz
+	verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.gz.sig )"
 S="${WORKDIR}"/${MY_P}
 
 LICENSE="|| ( LGPL-2.1+ !ssl? ( GPL-2+-with-eCos-exception-2 ) )"
 SLOT="0/12"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
-IUSE="+epoll +eventfd ssl static-libs test +thread-names"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+IUSE="+epoll +eventfd ssl static-libs test +thread-names verify-sig"
 REQUIRED_USE="epoll? ( kernel_linux )"
 RESTRICT="!test? ( test )"
+
+KEYRING_VER=201906
 
 RDEPEND="ssl? ( >net-libs/gnutls-2.12.20:=[${MULTILIB_USEDEP}] )"
 # libcurl and the curl binary are used during tests on CHOST
 DEPEND="${RDEPEND}
 	test? ( net-misc/curl[ssl?] )"
-BDEPEND="ssl? ( virtual/pkgconfig )"
+BDEPEND="ssl? ( virtual/pkgconfig )
+	verify-sig? ( ~sec-keys/openpgp-keys-libmicrohttpd-${KEYRING_VER} )"
+
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/libmicrohttpd-${KEYRING_VER}.asc
 
 DOCS=( AUTHORS NEWS COPYING README ChangeLog )
 
