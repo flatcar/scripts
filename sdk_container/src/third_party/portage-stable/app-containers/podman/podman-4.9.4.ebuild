@@ -16,8 +16,9 @@ if [[ ${PV} == 9999* ]]; then
 else
 	SRC_URI="https://github.com/containers/podman/archive/v${PV/_rc/-rc}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/${P/_rc/-rc}"
-	[[ ${PV} != *rc* ]] && \
-		KEYWORDS="~amd64 ~arm64 ~riscv"
+	if [[ ${PV} != *rc* ]] ; then
+		KEYWORDS="amd64 arm64 ~riscv"
+	fi
 fi
 
 # main pkg
@@ -25,21 +26,25 @@ LICENSE="Apache-2.0"
 # deps
 LICENSE+=" BSD BSD-2 CC-BY-SA-4.0 ISC MIT MPL-2.0"
 SLOT="0"
-IUSE="apparmor btrfs +seccomp selinux systemd wrapper"
+IUSE="apparmor btrfs cgroup-hybrid wrapper +fuse +init +rootless +seccomp selinux systemd"
 RESTRICT="test"
 
 RDEPEND="
-	app-containers/catatonit
-	>=app-containers/conmon-2.1.10
-	>=app-containers/containers-common-0.58.0-r1
 	app-crypt/gpgme:=
+	>=app-containers/conmon-2.0.0
+	>=app-containers/containers-common-0.56.0
 	dev-libs/libassuan:=
 	dev-libs/libgpg-error:=
 	sys-apps/shadow:=
 
 	apparmor? ( sys-libs/libapparmor )
 	btrfs? ( sys-fs/btrfs-progs )
+	cgroup-hybrid? ( >=app-containers/runc-1.0.0_rc6  )
+	!cgroup-hybrid? ( app-containers/crun )
 	wrapper? ( !app-containers/docker-cli )
+	fuse? ( sys-fs/fuse-overlayfs )
+	init? ( app-containers/catatonit )
+	rootless? ( app-containers/slirp4netns )
 	seccomp? ( sys-libs/libseccomp:= )
 	selinux? ( sec-policy/selinux-podman sys-libs/libselinux:= )
 	systemd? ( sys-apps/systemd:= )
@@ -91,6 +96,9 @@ src_prepare() {
 src_compile() {
 	export PREFIX="${EPREFIX}/usr"
 
+	# bug 906073
+	use elibc_musl && export CGO_CFLAGS="-D_LARGEFILE64_SOURCE"
+
 	# For non-live versions, prevent git operations which causes sandbox violations
 	# https://github.com/gentoo/gentoo/pull/33531#issuecomment-1786107493
 	[[ ${PV} != 9999* ]] && export COMMIT_NO="" GIT_COMMIT="" EPOCH_TEST_COMMIT=""
@@ -102,12 +110,14 @@ src_compile() {
 	fi
 
 	# BUILD_SECCOMP is used in the patch to toggle seccomp
-	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" BUILD_SECCOMP="$(usex seccomp)" \
-		  all $(usev wrapper docker-docs)
+	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" BUILD_SECCOMP="$(usex seccomp)" all $(usev wrapper docker-docs)
 }
 
 src_install() {
 	emake DESTDIR="${D}" install install.completions $(usev wrapper install.docker-full)
+
+	insinto /etc/cni/net.d
+	doins cni/87-podman-bridge.conflist
 
 	if use !systemd; then
 		newconfd "${FILESDIR}"/podman-5.0.0_rc4.confd podman
@@ -129,6 +139,24 @@ src_install() {
 	keepdir /var/lib/containers
 }
 
+pkg_preinst() {
+	PODMAN_ROOTLESS_UPGRADE=false
+	if use rootless; then
+		has_version 'app-containers/podman[rootless]' || PODMAN_ROOTLESS_UPGRADE=true
+	fi
+}
+
 pkg_postinst() {
 	tmpfiles_process podman.conf $(usev wrapper podman-docker.conf)
+
+	local want_newline=false
+	if [[ ${PODMAN_ROOTLESS_UPGRADE} == true ]] ; then
+		${want_newline} && elog ""
+		elog "For rootless operation, you need to configure subuid/subgid"
+		elog "for user running podman. In case subuid/subgid has only been"
+		elog "configured for root, run:"
+		elog "usermod --add-subuids 1065536-1131071 <user>"
+		elog "usermod --add-subgids 1065536-1131071 <user>"
+		want_newline=true
+	fi
 }
