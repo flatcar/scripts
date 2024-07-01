@@ -1,0 +1,1 @@
+- Replace nmap netcat with openbsd variant. The license didn't get an exception from CNCF. Something about the definition of "derivative works" being too broad.
