@@ -4,9 +4,10 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
+TMPFILES_OPTIONAL=1
 
 inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
-	pam python-r1 multilib-minimal multiprocessing systemd
+	pam python-r1 multilib-minimal multiprocessing systemd tmpfiles
 
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
@@ -33,7 +34,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
-IUSE="audit build caps +cramfs cryptsetup fdformat +hardlink kill +logger magic ncurses nls pam python +readline rtas selinux slang static-libs +su +suid systemd test tty-helpers udev unicode"
+IUSE="audit build caps +cramfs cryptsetup fdformat +hardlink kill +logger magic ncurses nls pam python +readline rtas selinux slang static-libs +su +suid systemd test tty-helpers udev unicode uuidd"
 
 # Most lib deps here are related to programs rather than our libs,
 # so we rarely need to specify ${MULTILIB_USEDEP}.
@@ -84,6 +85,10 @@ RDEPEND+="
 		!<sys-apps/shadow-4.7-r2
 		!>=sys-apps/shadow-4.7-r2[su]
 	)
+	uuidd? (
+		acct-user/uuidd
+		systemd? ( virtual/tmpfiles )
+	)
 	!net-wireless/rfkill
 "
 
@@ -97,16 +102,6 @@ fi
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
-	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
-	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
-	"${FILESDIR}"/${PN}-2.39.3-libblkid-luks.patch
-	"${FILESDIR}"/${PN}-2.39.3-musl-1.2.5-basename.patch
-	"${FILESDIR}"/${PN}-2.39.3-libmount-Fix-export-of-mnt_context_is_lazy-and-mnt_c.patch
-	"${FILESDIR}"/${PN}-2.39.3-CVE-2024-28085.patch
-)
-
 pkg_pretend() {
 	if use su && ! use suid ; then
 		elog "su will be installed as suid despite USE=-suid (bug #832092)"
@@ -115,27 +110,20 @@ pkg_pretend() {
 }
 
 src_unpack() {
-	if [[ ${PV} == 9999 ]] ; then
-		git-r3_src_unpack
-		return
+        if [[ ${PV} == 9999 ]] ; then
+                git-r3_src_unpack
+                return
+        fi
+
+	# Upstream sign the decompressed .tar
+	if use verify-sig; then
+		einfo "Unpacking ${MY_P}.tar.xz ..."
+		verify-sig_verify_detached - "${DISTDIR}"/${MY_P}.tar.sign \
+			< <(xz -cd "${DISTDIR}"/${MY_P}.tar.xz | tee >(tar -x))
+		assert "Unpack failed"
+	else
+		default
 	fi
-
-	if use verify-sig ; then
-		mkdir "${T}"/verify-sig || die
-		pushd "${T}"/verify-sig &>/dev/null || die
-
-		# Upstream sign the decompressed .tar
-		# Let's do it separately in ${T} then cleanup to avoid external
-		# effects on normal unpack.
-		cp "${DISTDIR}"/${MY_P}.tar.xz . || die
-		xz -d ${MY_P}.tar.xz || die
-		verify-sig_verify_detached ${MY_P}.tar "${DISTDIR}"/${MY_P}.tar.sign
-
-		popd &>/dev/null || die
-		rm -r "${T}"/verify-sig || die
-	fi
-
-	default
 }
 
 src_prepare() {
@@ -143,19 +131,26 @@ src_prepare() {
 
 	if use test ; then
 		# Known-failing tests
-		# TODO: investigate these
 		local known_failing_tests=(
 			# Subtest 'options-maximum-size-8192' fails
 			hardlink/options
 
 			# Fails in sandbox
+			# re ioctl_ns: https://github.com/util-linux/util-linux/issues/2967
 			lsns/ioctl_ns
-
+			lsfd/mkfds-inotify
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
 			# Fails with network-sandbox at least in nspawn
 			lsfd/option-inet
 			utmp/last-ipv6
+
+			# Flaky
+			rename/subdir
+
+			# Permission issues on /dev/random
+			lsfd/mkfds-eventpoll
+			lsfd/column-xmode
 		)
 
 		local known_failing_test
@@ -215,10 +210,6 @@ multilib_src_configure() {
 		--localstatedir="${EPREFIX}/var"
 		--runstatedir="${EPREFIX}/run"
 		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
-
-		# Temporary workaround until ~2.39.2. 2.39.x introduced a big rewrite.
-		# https://github.com/util-linux/util-linux/issues/2287#issuecomment-1576640373
-		--disable-libmount-mountfd-support
 	)
 
 	local myeconfargs=(
@@ -240,6 +231,15 @@ multilib_src_configure() {
 		$(use_enable static-libs static)
 		$(use_with ncurses tinfo)
 		$(use_with selinux)
+		$(multilib_native_use_enable uuidd)
+
+		# TODO: Wire this up (bug #931118)
+		--without-econf
+
+		# TODO: Wire this up (bug #931297)
+		# TODO: investigate build failure w/ 2.40.1_rc1
+		--disable-liblastlog2
+		--disable-pam-lastlog2
 	)
 
 	if use build ; then
@@ -271,6 +271,7 @@ multilib_src_configure() {
 			--enable-rfkill
 			--enable-schedutils
 			--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+			--with-tmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d
 			$(use_enable caps setpriv)
 			$(use_enable cramfs)
 			$(use_enable fdformat)
@@ -304,6 +305,9 @@ multilib_src_configure() {
 			--enable-libsmartcols
 			--enable-libfdisk
 			--enable-libmount
+
+			# Support uuidd for non-native libuuid
+			$(use_enable uuidd libuuid-force-uuidd)
 		)
 	fi
 
@@ -359,7 +363,8 @@ multilib_src_install() {
 	fi
 
 	# This needs to be called AFTER python_install call, bug #689190
-	emake DESTDIR="${D}" install
+	# XXX: -j1 as temporary workaround for bug #931301
+	emake DESTDIR="${D}" install -j1
 }
 
 multilib_src_install_all() {
@@ -388,6 +393,10 @@ multilib_src_install_all() {
 		fperms u+s /bin/su
 	fi
 
+	if use uuidd; then
+		newinitd "${FILESDIR}/uuidd.initd" uuidd
+	fi
+
 	# Note:
 	# Bash completion for "runuser" command is provided by same file which
 	# would also provide bash completion for "su" command. However, we don't
@@ -411,5 +420,9 @@ pkg_postinst() {
 	if [[ -z ${REPLACING_VERSIONS} ]] ; then
 		elog "The agetty util now clears the terminal by default. You"
 		elog "might want to add --noclear to your /etc/inittab lines."
+	fi
+
+	if use systemd && use uuidd; then
+		tmpfiles_process uuidd-tmpfiles.conf
 	fi
 }
