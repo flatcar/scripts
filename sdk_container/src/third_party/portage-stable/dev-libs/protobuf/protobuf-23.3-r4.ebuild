@@ -1,4 +1,4 @@
-# Copyright 2008-2023 Gentoo Authors
+# Copyright 2008-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,7 +12,7 @@ if [[ "${PV}" == *9999 ]]; then
 	EGIT_SUBMODULES=()
 else
 	SRC_URI="https://github.com/protocolbuffers/protobuf/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos"
+	KEYWORDS="~alpha amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
 fi
 
 DESCRIPTION="Google's Protocol Buffers - Extensible mechanism for serializing structured data"
@@ -25,11 +25,13 @@ RESTRICT="!test? ( test )"
 
 BDEPEND="emacs? ( app-editors/emacs:* )"
 DEPEND="
+	<dev-cpp/abseil-cpp-20240116.2:=[${MULTILIB_USEDEP}]
 	>=dev-cpp/abseil-cpp-20230125.3:=[${MULTILIB_USEDEP}]
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
 	test? ( >=dev-cpp/gtest-1.9[${MULTILIB_USEDEP}] )
 "
 RDEPEND="
+	<dev-cpp/abseil-cpp-20240116.2:=[${MULTILIB_USEDEP}]
 	>=dev-cpp/abseil-cpp-20230125.3:=[${MULTILIB_USEDEP}]
 	emacs? ( app-editors/emacs:* )
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )
@@ -38,6 +40,7 @@ RDEPEND="
 PATCHES=(
 	"${FILESDIR}/${PN}-23.3-disable-32-bit-tests.patch"
 	"${FILESDIR}/${PN}-23.3-static_assert-failure.patch"
+	"${FILESDIR}/${PN}-23.3-messages_lite-template-instances.patch"
 )
 
 DOCS=( CONTRIBUTORS.txt README.md )
@@ -70,6 +73,11 @@ src_compile() {
 	if use emacs; then
 		elisp-compile editors/protobuf-mode.el
 	fi
+}
+
+src_test() {
+	local -x srcdir="${S}"/src
+	cmake-multilib_src_test
 }
 
 multilib_src_install_all() {
