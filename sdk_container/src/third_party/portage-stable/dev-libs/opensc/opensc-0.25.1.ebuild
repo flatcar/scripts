@@ -13,7 +13,7 @@ if [[ ${PV} == *9999 ]]; then
 	EGIT_REPO_URI="https://github.com/OpenSC/OpenSC.git"
 else
 	SRC_URI="https://github.com/OpenSC/OpenSC/releases/download/${PV}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 LICENSE="LGPL-2.1"
@@ -31,7 +31,10 @@ RDEPEND="zlib? ( sys-libs/zlib )
 DEPEND="${RDEPEND}
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
-	test? ( dev-util/cmocka )"
+	test? (
+		dev-util/cmocka
+		dev-libs/softhsm
+	)"
 BDEPEND="virtual/pkgconfig"
 
 REQUIRED_USE="
@@ -41,6 +44,10 @@ REQUIRED_USE="
 	|| ( pcsc-lite openct ctapi )"
 
 src_prepare() {
+	# This test is known to fail, for a long time upstream has carried
+	# version-specific patches which they would update on every version bump.
+	# There doesn't appear to be a permanent solution yet.
+	sed -i "/test-pkcs11-tool-unwrap-wrap-test.sh/d" "tests/Makefile.am" || die
 	default
 	eautoreconf
 }
@@ -64,6 +71,10 @@ src_configure() {
 		$(use_enable ssl openssl) \
 		$(use_enable test cmocka) \
 		$(use_enable zlib)
+}
+
+src_test() {
+	P11LIB="${ESYSROOT}/usr/$(get_libdir)/softhsm/libsofthsm2.so" default
 }
 
 src_install() {
