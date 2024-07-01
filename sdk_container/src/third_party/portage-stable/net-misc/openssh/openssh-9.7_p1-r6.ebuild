@@ -70,7 +70,7 @@ RDEPEND="
 	!prefix? ( sys-apps/shadow )
 "
 BDEPEND="
-	dev-build/autoconf
+	sys-devel/autoconf
 	virtual/pkgconfig
 	verify-sig? ( sec-keys/openpgp-keys-openssh )
 "
