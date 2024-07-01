@@ -23,17 +23,17 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="bzip2 doc ldap nls readline selinux +smartcard ssl test tofu tools usb user-socket wks-server"
 RESTRICT="!test? ( test )"
 
 # Existence of executables is checked during configuration.
 # Note: On each bump, update dep bounds on each version from configure.ac!
 DEPEND="
-	>=dev-libs/libassuan-2.5.0
+	>=dev-libs/libassuan-2.5.0:=
 	>=dev-libs/libgcrypt-1.8.0:=
 	>=dev-libs/libgpg-error-1.38
-	>=dev-libs/libksba-1.3.5
+	>=dev-libs/libksba-1.4.0
 	>=dev-libs/npth-1.2
 	>=net-misc/curl-7.10
 	sys-libs/zlib
@@ -67,7 +67,6 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
-	"${FILESDIR}"/${PN}-2.2.42-bug923248-insecure-backup.patch
 )
 
 src_prepare() {
