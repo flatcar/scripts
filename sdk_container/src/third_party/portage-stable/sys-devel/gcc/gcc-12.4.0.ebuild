@@ -4,11 +4,11 @@
 EAPI=8
 
 TOOLCHAIN_PATCH_DEV="sam"
-PATCH_GCC_VER="11.4.0"
-PATCH_VER="12"
-MUSL_VER="2"
-MUSL_GCC_VER="11.4.0"
-PYTHON_COMPAT=( python3_{10..11} )
+PATCH_GCC_VER="12.3.0"
+PATCH_VER="3"
+MUSL_VER="1"
+MUSL_GCC_VER="12.3.0"
+PYTHON_COMPAT=( python3_{10..12} )
 
 if [[ ${PV} == *.9999 ]] ; then
 	MY_PV_2=$(ver_cut 2)
@@ -17,7 +17,7 @@ if [[ ${PV} == *.9999 ]] ; then
 		MY_PV_2=0
 		MY_PV_3=0
 	else
-		MY_PV_2=$((${MY_PV_2} - 1))
+	        MY_PV_2=$((${MY_PV_2} - 1))
 	fi
 
 	# e.g. 12.2.9999 -> 12.1.1
