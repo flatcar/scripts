@@ -24,7 +24,7 @@ else
 	"
 	S="${WORKDIR}/${PN}-src-${SRC_PV}"
 
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="public-domain"
@@ -52,7 +52,6 @@ fi
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.45.1-ppc64-ptr.patch
-	"${FILESDIR}"/${P}-lto.patch
 )
 
 _fossil_fetch() {
@@ -318,18 +317,6 @@ multilib_src_configure() {
 			append-cflags -mfpmath=sse
 		else
 			append-cflags -ffloat-store
-		fi
-
-		# Skip known-broken test for now
-		# https://sqlite.org/forum/forumpost/d97caf168f
-		# https://sqlite.org/forum/forumpost/50f136d91d
-		# Quoting Fedora's spec:
-		#  "The atof test is failing on the i686 architecture, when binary configured with
-		#  --enable-rtree option. Failing part is text->real conversion and
-		#  text->real->text conversion in lower significant values after decimal point in a number.
-		#  func4 tests fail for i686 on float<->int conversions."
-		if use test ; then
-			rm test/atof1.test test/func4.test || die
 		fi
 	fi
 
