@@ -64,8 +64,8 @@ PATCH_DEV=""
 PATCH_VER=""
 DESCRIPTION="GNU debugger"
 HOMEPAGE="https://sourceware.org/gdb/"
-SRC_URI="
-	${SRC_URI}
+SRC_URI+="
+	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-sim-modern-c99.patch.xz
 	${PATCH_DEV:+https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${CATEGORY}/${PN}/${P}-patches-${PATCH_VER}.tar.xz}
 	${PATCH_VER:+mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz}
 "
@@ -74,7 +74,7 @@ LICENSE="GPL-3+ LGPL-2.1+"
 SLOT="0"
 IUSE="cet debuginfod guile lzma multitarget nls +python +server sim source-highlight test vanilla xml xxhash zstd"
 if [[ -n ${REGULAR_RELEASE} ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 fi
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
@@ -117,9 +117,7 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.3.1-verbose-build.patch
-	"${FILESDIR}"/${PN}-14.1-fix-list-segfault.patch
-	"${FILESDIR}"/${PN}-14.1-fix-print-global-variable-stubs.patch
-	"${FILESDIR}"/${PN}-14.1-fix-dll-export-forwarding.patch
+	"${WORKDIR}"/${PN}-14.2-sim-modern-c99.patch
 )
 
 pkg_setup() {
