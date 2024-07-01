@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-06-29)
+# media-libs/libplacebo is not stable here
+media-video/ffmpeg libplacebo
+
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
 # Experimental, virt-firmware is keyworded only unstable
 sys-kernel/installkernel efistub
@@ -170,10 +174,6 @@ dev-db/mariadb jdbc
 # Ian Whyman <thev00d00@gentoo.org> (2016-05-22)
 # RPI support on arm
 dev-libs/libcec -raspberry-pi
-
-# Ilya Tumaykin <itumaykin+gentoo@gmail.com> (2016-04-13)
-# Requires special hardware to test and stabilize properly.
-media-video/mpv raspberry-pi
 
 # Brian Evans <grknight@gentoo.org> (2016-01-08)
 # net-misc/libteam is not yet stable on arm

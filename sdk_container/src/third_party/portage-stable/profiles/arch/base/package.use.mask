@@ -1,9 +1,23 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-06-23)
+# Pulls in kde-apps/kgpg which requires kde-apps/akonadi, which is as
+# part of the KDE PIM stack (big, requiring QtWebengine) only keyworded
+# on amd64 and arm64.
+>=kde-apps/kdeutils-meta-24.05.1 gpg
+
+# Jared Allard <jared@rgst.io> (2024-06-21)
+# uasm and jwasm include amd64-specific ASM
+app-arch/7zip uasm jwasm
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-04-25)
+# ROCm and Level-Zero are amd64-only at the moment
+sys-apps/hwloc rocm l0
+
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-20)
 # only keyworded for amd64 currently
-media-gfx/blender gnome
+media-gfx/blender gnome oneapi renderdoc vulkan
 
 # Ionen Wolkens <ionen@gentoo.org> (2024-04-16)
 # dev-qt/qtlanguageserver:6 currently has very few keywords
@@ -55,11 +69,6 @@ sys-kernel/gentoo-kernel-bin generic-uki
 # Needs dev-qt/qtwebengine:6 which has very few keywords.
 dev-python/PyQt6 pdfium
 
-# Leonardo Hernández Hernández <leohdz172@proton.me> (2023-11-25)
-# media-libs/libdisplay-info (drm) and dev-libs/libliftoff (liftoff)
-# are only available for amd64, arm64 and riscv
->=gui-libs/wlroots-0.17.0 drm liftoff
-
 # Jimi Huotari <chiitoo@gentoo.org> (2023-11-22)
 # media-libs/libvpl is only keyworded for amd64 at this time.
 media-video/obs-studio qsv
@@ -103,16 +112,13 @@ www-servers/apache apache2_modules_tls
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-04-22)
 # snap only works on amd64
+gnome-extra/gnome-software snap
 kde-plasma/discover snap
 
 # Sam James <sam@gentoo.org> (2023-04-03)
 # Needs dev-python/py-cpuinfo which is not ported to all of our platforms
 # See bug #894078.
 dev-python/tables cpudetection
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2023-03-09)
-# media-libs/libplacebo is not keyworded anywhere except amd64/ppc64/x86 yet
-media-video/ffmpeg libplacebo
 
 # Michał Górny <mgorny@gentoo.org> (2023-01-24)
 # libomptarget is only supported on 64-bit architectures.
@@ -131,7 +137,6 @@ net-misc/curl rustls curl_ssl_rustls
 # Quick Sync Video (through intel-mediasdk or oneVPL) is
 # only keyworded on amd64
 media-video/ffmpeg qsv
-media-libs/gst-plugins-bad qsv
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2022-12-01)
 # Only supported on ppc64le.
@@ -231,6 +236,7 @@ sys-libs/compiler-rt-sanitizers asan dfsan lsan msan hwasan tsan
 sys-libs/compiler-rt-sanitizers ubsan safestack cfi scudo
 sys-libs/compiler-rt-sanitizers shadowcallstack gwp-asan
 sys-libs/compiler-rt-sanitizers libfuzzer memprof orc profile xray
+sys-libs/compiler-rt-sanitizers ctx-profile
 
 # Sam James <sam@gentoo.org> (2020-10-24)
 # asm redc is only available on amd64,
@@ -303,10 +309,6 @@ dev-java/openjdk:11 javafx
 # Matt Turner <mattst88@gentoo.org> (2019-06-20)
 # dev-lang/spidermonkey:60[jit] fails to build on most platforms
 >=dev-lang/spidermonkey-60 jit
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2019-05-09)
-# media-libs/libplacebo is not keyworded anywhere except amd64/ppc64/x86 yet
-media-video/vlc libplacebo
 
 # Denis Lisov <dennis.lissov@gmail.com> (2019-05-09)
 # Overlay can only be built on amd64 and x86
@@ -384,19 +386,12 @@ dev-db/mariadb jdbc
 # This flag only has meaning on amd64
 sys-boot/grub:2 grub_platforms_xen-32
 
-# Ian Delaney <idella4@gentoo.org> (2016-04-06)
-# on behalf of Ilya Tumaykin <itumaykin+gentoo@gmail.com>
-# Raspberry Pi support is only available on arm.
-# Mask raspberry-pi USE globally, unmask on arm.
-media-video/mpv raspberry-pi
-
 # Alexis Ballier <aballier@gentoo.org> (2015-11-14)
 # MMAL is only available on the Raspberry Pi:
 # Mask it globally, unmask it on arm.
 media-video/motion mmal
 media-video/ffmpeg mmal
 media-video/ffmpeg-chromium mmal
-media-video/mpv mmal
 
 # Brian Evans <grknight@gentoo.org> (2015-09-14)
 # Mask new USE flags for mariadb which all arches do not yet have dependencies

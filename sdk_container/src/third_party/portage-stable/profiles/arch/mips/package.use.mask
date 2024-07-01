@@ -1,6 +1,32 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-07-01)
+# simplify the dep tree
+dev-python/click doc
+dev-python/cython doc
+dev-python/flake8 doc
+dev-python/flask doc
+dev-python/flit doc
+dev-python/greenlet doc
+dev-python/outcome doc
+dev-python/pytest-cov doc
+dev-python/pytest-trio doc
+dev-python/stevedore doc
+dev-python/sphinx-autodoc-typehints test
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-06-29)
+# media-libs/libplacebo is not keyworded
+media-video/ffmpeg libplacebo
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-08)
+# Requires sys-devel/{clang,llvm}:16.
+dev-lang/python jit
+
+# matoro <matoro_gentoo@matoro.tk> (2024-05-01)
+# Sanitizers supported on both 32-bit and 64-bit mips, #779742
+sys-libs/compiler-rt-sanitizers -asan -profile -ubsan -safestack -scudo -xray
+
 # matoro <matoro_gentoo@matoro.tk> (2024-03-21)
 # Test suite is very fragile and doesn't even run on amd64.
 # No real point in running it here right now, bug #804115.
@@ -99,10 +125,6 @@ net-dns/ddclient test
 dev-lang/gnat-gpl -fixed-point
 sys-devel/gcc -fixed-point
 
-# matoro <matoro_gentoo@matoro.tk> (2022-09-14)
-# Not broken, but better wait on profiles: bug #515694
-dev-lang/rust system-llvm
-
 # Matt Turner <mattst88@gentoo.org> (2022-04-18)
 # app-text/nuspell is not keyworded
 app-text/enchant nuspell
@@ -138,14 +160,6 @@ dev-libs/libgudev test
 # Matt Turner <mattst88@gentoo.org> (2021-06-10)
 # dev-python/django is not keyworded here
 dev-python/diskcache test
-
-# Joshua Kinard <kumba@gentoo.org> (2021-05-20)
-# mask USE 'test' on MIPS for setuptools  and jaraco-path due to
-# the very deep dependency chain that is enabled.  Will unmask
-# on a future date.
-# Bug #774216
-dev-python/jaraco-path test
-dev-python/setuptools test
 
 # Sam James <sam@gentoo.org> (2021-02-06)
 # media-sound/sndio is not yet keyworded here
@@ -264,9 +278,6 @@ media-video/mplayer ladspa
 # Richard Brown <rbrown@gentoo.org> (2007-12-23)
 # app-xemacs/ruby-modes is not keyworded on this arch
 dev-lang/ruby xemacs
-
-# deps missing keywords
-games-strategy/freeciv auth
 
 # Mart Raudsepp <leio@gentoo.org> (2010-09-27)
 # Extra functionality that has external unkeyworded dependencies

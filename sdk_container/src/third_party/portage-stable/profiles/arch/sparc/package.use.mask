@@ -1,6 +1,30 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-06-29)
+# media-libs/libplacebo is not keyworded here
+media-video/ffmpeg libplacebo
+
+# Sam James <sam@gentoo.org> (2024-06-23)
+# app-crypt/gcr:4[gtk] is not available here
+app-crypt/pinentry gtk
+
+# matoro <matoro_gentoo@matoro.tk> (2024-06-11)
+# net-misc/memcached casualties, #636552
+# https://github.com/memcached/memcached/issues/902
+dev-python/pylibmc test
+dev-python/pytest-services test
+net-ftp/proftpd memcache
+dev-ruby/dalli test
+
+# Sam James <sam@gentoo.org> (2024-05-19)
+# media-libs/jasper not yet keyworded here: https://bugs.gentoo.org/921559
+media-gfx/graphicsmagick jpeg2k
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-05-13)
+# Requires dev-util/shelltestrunner
+app-arch/mt-st test
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-04-02)
 # dev-qt/qtsvg:6 is not keyworded here yet (bug #918896)
 dev-qt/qtdeclarative:6 svg
@@ -32,6 +56,7 @@ sys-kernel/installkernel -grub
 net-libs/pjproject srtp
 net-misc/asterisk srtp
 
+# Marek Szuba <marecki@gentoo.org> (2024-04-24)
 # Sam James <sam@gentoo.org> (2024-01-05)
 # sys-apps/keyutils not stable here, because of test failures. bug #636252
 app-benchmarks/stress-ng keyutils
@@ -39,7 +64,7 @@ app-crypt/mit-krb5 keyutils
 app-emulation/qemu keyutils
 net-fs/samba ads
 net-fs/cifs-utils ads creds pam
-sys-auth/sssd keyutils
+>=sys-libs/libblockdev-3.0.0 cryptsetup
 sys-libs/libnvme keyutils
 
 # Sam James <sam@gentoo.org> (2024-01-02)
@@ -85,10 +110,6 @@ sys-apps/openrc s6
 # Sam James <sam@gentoo.org> (2023-09-22)
 # Qt 6 not keyworded here.
 dev-build/cmake gui
-
-# Rich Freeman <rich0@gentoo.org> (2023-09-13)
-# Tests require shellcheck which is not currently available
-sys-process/systemd-cron test
 
 # Sam James <sam@gentoo.org> (2023-07-21)
 # Requires app-emulation/qemu.
@@ -301,7 +322,7 @@ media-libs/libsdl2 fcitx4
 
 # Matt Turner <mattst88@gentoo.org> (2020-08-11)
 # No drivers on this architecture support Vulkan
-media-libs/mesa vulkan vulkan-overlay zink
+media-libs/mesa video_cards_zink vulkan vulkan-overlay zink
 
 # Robin H. Johnson <robbat2@gentoo.org> (2020-07-02)
 # Mask io-uring & zbc pending keywording
@@ -605,10 +626,6 @@ gnome-base/gnome classic extras
 # Pacho Ramos <pacho@gentoo.org> (2013-12-02)
 # Missing keywords, bug #493156
 media-libs/libgphoto2 serial
-
-# Pacho Ramos <pacho@gentoo.org> (2013-11-28)
-# Missing keywords, bug #492820
-net-im/telepathy-connection-managers sipe
 
 # Pacho Ramos <pacho@gentoo.org> (2013-07-20)
 # Keywords pending, bug #476710
