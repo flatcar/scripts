@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -64,6 +64,11 @@ src_prepare() {
 }
 
 src_configure() {
+	# -fanalyzer substantially slows down the build and isn't useful for
+	# us. It's useful for upstream as it's static analysis, but it's not
+	# useful when just getting something built.
+	export gl_cv_warn_c__fanalyzer=no
+
 	local myconf=(
 		$(use_enable debug)
 		$(use_enable device-mapper)
