@@ -60,6 +60,10 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="
 	doc? ( sys-apps/texinfo )
+	pgo? (
+		dev-util/dejagnu
+		app-alternatives/bc
+	)
 	test? (
 		dev-util/dejagnu
 		app-alternatives/bc
@@ -172,8 +176,6 @@ src_configure() {
 	strip-flags
 	use cet && filter-flags -mindirect-branch -mindirect-branch=*
 	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
-
-	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
 	local x
 	echo
@@ -372,10 +374,6 @@ src_compile() {
 
 src_test() {
 	cd "${MY_BUILDDIR}" || die
-
-	# https://sourceware.org/PR31327
-	local -x XZ_OPT="-T1"
-	local -x XZ_DEFAULTS="-T1"
 
 	(
 		# Tests don't expect LTO
