@@ -124,6 +124,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-8.9_p1-allow-ppoll_time64.patch" #834019
 	"${FILESDIR}/${PN}-8.9_p1-gss-use-HOST_NAME_MAX.patch" #834044
 	"${FILESDIR}/${PN}-9.1_p1-build-tests.patch"
+	"${FILESDIR}/${PN}-9.1_p1-CVE-2024-6387.patch"
 )
 
 pkg_pretend() {
