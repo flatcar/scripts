@@ -14,6 +14,7 @@ SLOT="0/1.14" # 1.<SONAME>
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="debug hpack-tools jemalloc static-libs systemd test utils xml"
 
+REQUIRED_USE="test? ( static-libs )"
 RESTRICT="!test? ( test )"
 
 SSL_DEPEND="
@@ -34,9 +35,12 @@ DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
 multilib_src_configure() {
+	#TODO: enable HTTP3
+	#requires quictls/openssl, libngtcp2, libngtcp2_crypto_quictls, libnghttp3
 	local mycmakeargs=(
 		-DENABLE_EXAMPLES=OFF
 		-DENABLE_FAILMALLOC=OFF
+		-DENABLE_HTTP3=OFF
 		-DENABLE_WERROR=OFF
 		-DENABLE_THREADS=ON
 		-DENABLE_DEBUG=$(usex debug)
@@ -44,6 +48,7 @@ multilib_src_configure() {
 		$(cmake_use_find_package hpack-tools Jansson)
 		-DWITH_JEMALLOC=$(multilib_native_usex jemalloc)
 		-DBUILD_STATIC_LIBS=$(usex static-libs)
+		-DBUILD_TESTING=$(usex test)
 		$(cmake_use_find_package systemd Systemd)
 		-DENABLE_APP=$(multilib_native_usex utils)
 		-DWITH_LIBXML2=$(multilib_native_usex xml)
