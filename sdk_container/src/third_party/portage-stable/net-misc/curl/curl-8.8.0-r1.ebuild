@@ -3,6 +3,10 @@
 
 EAPI=8
 
+# Maintainers should subscribe to the 'curl-distros' ML for backports etc
+# https://daniel.haxx.se/blog/2024/03/25/curl-distro-report/
+# https://lists.haxx.se/listinfo/curl-distros
+
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielstenberg.asc
 inherit autotools multilib-minimal multiprocessing prefix toolchain-funcs verify-sig
 
@@ -17,12 +21,12 @@ else
 		https://curl.se/download/${P}.tar.xz
 		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
 SLOT="0"
-IUSE="+adns +alt-svc brotli +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
+IUSE="+adns +alt-svc brotli debug +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
 IUSE+=" +psl +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
 # These select the default SSL implementation
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
@@ -59,15 +63,15 @@ REQUIRED_USE="
 
 RDEPEND="
 	>=sys-libs/zlib-1.1.4[${MULTILIB_USEDEP}]
-	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
+	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.12.0:=[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	ldap? ( >=net-nds/openldap-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
 	nghttp3? (
-		>=net-libs/nghttp3-0.15.0[${MULTILIB_USEDEP}]
-		>=net-libs/ngtcp2-0.19.1[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
+		>=net-libs/nghttp3-1.1.0[${MULTILIB_USEDEP}]
+		>=net-libs/ngtcp2-1.2.0[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
 	)
 	psl? ( net-libs/libpsl[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
@@ -86,7 +90,7 @@ RDEPEND="
 			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		rustls? (
-			~net-libs/rustls-ffi-0.10.0:=[${MULTILIB_USEDEP}]
+			>=net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
 		)
 	)
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
@@ -125,14 +129,16 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	mach_absolute_time
 	setmode
 	_fseeki64
+	# custom AC_LINK_IFELSE code fails to link even without -Werror
+	OSSL_QUIC_client_method
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-prefix.patch
+	"${FILESDIR}"/${PN}-prefix-2.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${P}-ipv6-configure-c99.patch
-	"${FILESDIR}"/${P}-mpd-stream-http-adjust_pollset.patch
-	"${FILESDIR}"/${PN}-8.6.0-rustls-fixes.patch
+	"${FILESDIR}"/${P}-install-manpage.patch
+	"${FILESDIR}"/${P}-mbedtls.patch
+	"${FILESDIR}"/${P}-multi_wait-timeout.patch
 )
 
 src_prepare() {
@@ -219,7 +225,6 @@ multilib_src_configure() {
 		$(use_enable ldap)
 		$(use_enable ldap ldaps)
 		--enable-ntlm
-		--disable-ntlm-wb
 		$(use_enable pop3)
 		--enable-rt
 		--enable-rtsp
@@ -276,6 +281,12 @@ multilib_src_configure() {
 		$(use_with zstd)
 		--with-zsh-functions-dir="${EPREFIX}"/usr/share/zsh/site-functions
 	)
+
+	if use debug; then
+		myconf+=(
+			--enable-debug
+		)
+	fi
 
 	if use test && multilib_is_native_abi && ( use http2 || use nghttp3 ); then
 		myconf+=(
@@ -349,9 +360,7 @@ multilib_src_test() {
 	# this ends up breaking when nproc is huge (like -j80).
 	# The network sandbox causes tests 241 and 1083 to fail; these are typically skipped
 	# as most gentoo users don't have an 'ip6-localhost'
-	# Required deps for 1477 are not included in the release tarball for 8.5.0
-	# 1474 is flaky and has been removed upstream after the 8.5.0 release.
-	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083 !1477 !1474"
+	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083"
 }
 
 multilib_src_install() {
@@ -367,4 +376,12 @@ multilib_src_install_all() {
 	einstalldocs
 	find "${ED}" -type f -name '*.la' -delete || die
 	rm -rf "${ED}"/etc/ || die
+}
+
+pkg_postinst() {
+	if use debug; then
+		ewarn "USE=debug has been selected, enabling debug codepaths and making cURL extra verbose."
+		ewarn "Use this _only_ for testing. Debug builds should _not_ be used in anger."
+		ewarn "hic sunt dracones; you have been warned."
+	fi
 }

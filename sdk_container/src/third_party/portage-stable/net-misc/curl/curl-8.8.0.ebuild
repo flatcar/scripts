@@ -3,6 +3,10 @@
 
 EAPI=8
 
+# Maintainers should subscribe to the 'curl-distros' ML for backports etc
+# https://daniel.haxx.se/blog/2024/03/25/curl-distro-report/
+# https://lists.haxx.se/listinfo/curl-distros
+
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielstenberg.asc
 inherit autotools multilib-minimal multiprocessing prefix toolchain-funcs verify-sig
 
@@ -17,7 +21,7 @@ else
 		https://curl.se/download/${P}.tar.xz
 		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
@@ -59,15 +63,15 @@ REQUIRED_USE="
 
 RDEPEND="
 	>=sys-libs/zlib-1.1.4[${MULTILIB_USEDEP}]
-	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
+	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.12.0:=[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	ldap? ( >=net-nds/openldap-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
 	nghttp3? (
-		>=net-libs/nghttp3-0.15.0[${MULTILIB_USEDEP}]
-		>=net-libs/ngtcp2-0.19.1[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
+		>=net-libs/nghttp3-1.1.0[${MULTILIB_USEDEP}]
+		>=net-libs/ngtcp2-1.2.0[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
 	)
 	psl? ( net-libs/libpsl[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
@@ -85,8 +89,8 @@ RDEPEND="
 		openssl? (
 			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
-		rustls? ( >=net-libs/rustls-ffi-0.12.1:=[${MULTILIB_USEDEP}]
-			<net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
+		rustls? (
+			>=net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
 		)
 	)
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
@@ -125,12 +129,15 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	mach_absolute_time
 	setmode
 	_fseeki64
+	# custom AC_LINK_IFELSE code fails to link even without -Werror
+	OSSL_QUIC_client_method
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-prefix.patch
+	"${FILESDIR}"/${PN}-prefix-2.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${PN}-8.7.1-rustls-fixes.patch
+	"${FILESDIR}"/${P}-install-manpage.patch
+	"${FILESDIR}"/${P}-mbedtls.patch
 )
 
 src_prepare() {
@@ -217,7 +224,6 @@ multilib_src_configure() {
 		$(use_enable ldap)
 		$(use_enable ldap ldaps)
 		--enable-ntlm
-		--disable-ntlm-wb
 		$(use_enable pop3)
 		--enable-rt
 		--enable-rtsp
