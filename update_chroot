@@ -235,7 +235,7 @@ fi
 # Build flatcar_workon packages when they are changed.
 WORKON_PKGS=()
 if [[ ${FLAGS_workon} -eq "${FLAGS_TRUE}" ]]; then
-  mapfile -t WORKON_PKGS < <("${SRC_ROOT}"/scripts/flatcar_workon list)
+  mapfile -t WORKON_PKGS < <("${SRC_ROOT}"/scripts/flatcar_workon --host list)
 fi
 
 if [[ ${#WORKON_PKGS[@]} -gt 0 ]]; then
