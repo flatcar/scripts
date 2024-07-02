@@ -108,7 +108,6 @@ function _inside_mantle() {
           --debug \
           --platform="${platform}" \
           --aws-credentials="${aws_credentials_config_file}" \
-          --azure-identity \
           --gce-json-key=none \
           --board="${arch}-usr" \
           --channel="${CHANNEL}" \
@@ -137,7 +136,6 @@ function _inside_mantle() {
         --publish-marketplace \
         --access-role-arn="${AWS_MARKETPLACE_ARN}" \
         --product-ids="${pid}" \
-        --azure-identity \
         --gce-json-key="${gcp_json_key_path}" \
         --gce-release-key="${google_release_credentials_file}" \
         --board="${arch}-usr" \
