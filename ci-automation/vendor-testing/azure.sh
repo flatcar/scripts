@@ -52,7 +52,6 @@ run_kola_tests() {
       --platform=azure \
       --azure-image-file="${AZURE_IMAGE_NAME}" \
       --azure-location="${AZURE_LOCATION}" \
-      --azure-identity \
       --tapfile="${instance_tapfile}" \
       --azure-size="${instance_type}" \
       --azure-hyper-v-generation="${hyperv_gen}" \
