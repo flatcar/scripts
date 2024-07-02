@@ -7,3 +7,23 @@ coreos:
     version-id: @@OEM_VERSION_ID@@
     home-url: https://www.cloudsigma.com/
     bug-report-url: https://issues.flatcar.org
+  units:
+    - name: za-dhcp-no-rapid-commit.network
+      content: |
+        [Network]
+        DHCP=yes
+        KeepConfiguration=dhcp-on-stop
+        IPv6AcceptRA=true
+
+        [Match]
+        Name=*
+        Type=!loopback bridge tunnel vxlan wireguard
+        Driver=!veth dummy
+
+        [DHCP]
+        UseMTU=true
+        UseDomains=true
+
+        [DHCPv4]
+        RoutesToDNS=false
+        RapidCommit=false
