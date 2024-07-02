@@ -1,0 +1,11 @@
+[Unit]
+Description=Delete recipe database used by osconfig-agent before it starts
+Before=google-osconfig-agent.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/rm -f /var/lib/google/osconfig_recipedb
+RemainAfterExit=yes
+
+[Install]
+WantedBy=google-osconfig-agent.service
