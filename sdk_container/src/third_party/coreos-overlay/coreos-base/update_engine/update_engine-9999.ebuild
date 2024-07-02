@@ -20,7 +20,7 @@ SRC_URI=""
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="cros_host +debug -delta_generator symlink-usr"
+IUSE="cros_host +debug -delta_generator"
 
 RDEPEND="!coreos-base/coreos-installer
 	app-arch/bzip2
@@ -85,11 +85,7 @@ src_test() {
 src_install() {
 	default
 
-	if use symlink-usr; then
-		dosym sbin/flatcar-postinst /usr/postinst
-	else
-		dosym usr/sbin/flatcar-postinst /postinst
-	fi
+	dosym usr/sbin/flatcar-postinst /postinst
 
 	systemd_dounit systemd/update-engine.service
 	systemd_dounit systemd/update-engine-stub.service

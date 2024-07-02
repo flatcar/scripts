@@ -240,6 +240,9 @@ src_install() {
 	# Flatcar: Remove sudo.conf as it is shipped via baselayout
 	rm "${ED}/etc/sudo.conf" || die
 
+	# Flatcar: Build system installs /etc/sudoers.d, let's make
+	# sure we keep having it.
+	keepdir /etc/sudoers.d
 }
 
 pkg_postinst() {

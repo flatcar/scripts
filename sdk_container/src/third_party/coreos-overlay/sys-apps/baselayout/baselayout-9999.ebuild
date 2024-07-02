@@ -1,7 +1,7 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 EGIT_REPO_URI="https://github.com/flatcar/baselayout.git"
 
 if [[ "${PV}" == 9999 ]]; then
@@ -20,7 +20,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="cros_host symlink-usr"
+IUSE="cros_host"
 
 # This version of baselayout replaces coreos-base
 DEPEND="sys-apps/systemd
@@ -41,6 +41,7 @@ MOUNT_POINTS=(
 )
 
 declare -A USR_SYMS		# list of /foo->usr/foo symlinks
+declare -A EXTRA_SYMS		# list of additional symlinks baked inside /usr
 declare -a BASE_DIRS	# list of absolute paths that should be directories
 
 # Check that a pre-existing symlink is correct
@@ -62,39 +63,45 @@ pkg_setup() {
 
 	# figure out which paths should be symlinks and which should be directories
 	local d
-	for d in bin sbin ${libdirs} ; do
-		if use symlink-usr; then
-			USR_SYMS["/$d"]="usr/$d"
-			BASE_DIRS+=( "/usr/$d" "/usr/local/$d" )
-		else
-			BASE_DIRS+=( "/$d" "/usr/$d" "/usr/local/$d" )
-		fi
+	for d in bin ${libdirs} ; do
+		USR_SYMS["/$d"]="usr/$d"
+		BASE_DIRS+=( "/usr/$d" "/usr/local/$d" )
 	done
+	# sbin is special - /usr/sbin and /usr/local/sbin are not
+	# directories, but symlinks pointing to their bin
+	# counterparts, so sbin is not a part of BASE_DIRS.
+	USR_SYMS["/sbin"]='usr/sbin'
+	EXTRA_SYMS['/usr/sbin']='bin'
+	EXTRA_SYMS['/usr/local/sbin']='bin'
 
 	# make sure any pre-existing symlinks map to the expected locations.
 	local sym
-	if use symlink-usr; then
-		for sym in "${!USR_SYMS[@]}" ; do
-			check_sym "${sym}" "${USR_SYMS[$sym]}"
-		done
-	fi
+	for sym in "${!USR_SYMS[@]}"; do
+		check_sym "${sym}" "${USR_SYMS[$sym]}"
+	done
+	for sym in "${!EXTRA_SYMS[@]}"; do
+		check_sym "${sym}" "${EXTRA_SYMS[$sym]}"
+	done
 }
 
 src_compile() {
 	default
 
 	# generate a tmpfiles.d config to cover our /usr symlinks
-	if use symlink-usr; then
-		local tmpfiles="${T}/baselayout-usr.conf"
-		echo -n > ${tmpfiles} || die
-		for sym in "${!USR_SYMS[@]}" ; do
-			echo "L+	${sym}	-	-	-	-	${USR_SYMS[$sym]}" >> ${tmpfiles}
-		done
-	fi
+	local tmpfiles="${T}/baselayout-usr.conf"
+	echo -n > ${tmpfiles} || die
+	for sym in "${!USR_SYMS[@]}" ; do
+		echo "L+	${sym}	-	-	-	-	${USR_SYMS[$sym]}" >> ${tmpfiles}
+	done
 }
 
 src_install() {
 	dodir "${BASE_DIRS[@]}"
+	local sym target
+	for sym in "${!EXTRA_SYMS[@]}"; do
+		target=${EXTRA_SYMS["${sym}"]}
+		dosym "${target}" "${sym}"
+	done
 
 	if use cros_host; then
 		# Since later systemd-tmpfiles --root is used only users from
@@ -112,10 +119,8 @@ src_install() {
 		bash "scripts/flatcar-tmpfiles" "${D}" "${S}/baselayout" || die
 	fi
 
-	if use symlink-usr; then
-		dotmpfiles "${T}/baselayout-usr.conf"
-		systemd-tmpfiles --root="${D}" --create
-	fi
+	dotmpfiles "${T}/baselayout-usr.conf"
+	systemd-tmpfiles --root="${D}" --create
 
 	emake DESTDIR="${D}" install
 
@@ -150,11 +155,6 @@ src_install() {
 		ldpaths+=":/oem/${libdir}"
 	done
 	echo "LDPATH='${ldpaths#:}'" >> "${D}"/etc/env.d/80oem || die
-
-	if ! use symlink-usr ; then
-		# modprobe uses /lib instead of /usr/lib
-		mv "${D}"/usr/lib/modprobe.d "${D}"/lib/modprobe.d || die
-	fi
 
 	if use arm64; then
 		sed -i 's/ sss//' "${D}"/usr/share/baselayout/nsswitch.conf || die
@@ -199,15 +199,16 @@ pkg_postinst() {
 	# FIXME: This is done in postinst right now and all errors are ignored
 	# as a transitional scheme, this isn't important enough to migrate
 	# existing SDK environments.
-	local dir
+	local dir sym
 	for dir in "${BASE_DIRS[@]}"; do
 		mkdir -p "${ROOT}/usr/lib/debug/${dir}"
 	done
-	if use symlink-usr; then
-		for sym in "${!USR_SYMS[@]}" ; do
-			ln -sfT "${USR_SYMS[$sym]}" "${ROOT}/usr/lib/debug/${sym}"
-		done
-	fi
+	for sym in "${!USR_SYMS[@]}" ; do
+		ln -sfT "${USR_SYMS[$sym]}" "${ROOT}/usr/lib/debug/${sym}"
+	done
+	for sym in "${!EXTRA_SYMS[@]}" ; do
+		ln -sfT "${EXTRA_SYMS[$sym]}" "${ROOT}/usr/lib/debug/${sym}"
+	done
 	# The default passwd/group files must exist in the SDK for some ebuilds
 	if use cros_host; then
 		touch "${ROOT}/etc/"{group,gshadow,passwd,shadow}

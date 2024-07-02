@@ -19,3 +19,11 @@ python_single_target_python3_12
 # We don't care about i10n, takes too much space, pulls in too many
 # extra dependencies.
 nls
+
+# We don't have a separate /{bin,lib} and /usr/{bin,lib}. But the base
+# profile in portage-stable forces split-usr, so in use.force we
+# unforce it and here we mask it.
+#
+# TODO: Drop it when we move to
+# default/linux/{amd64,arm64}/23.0/hardened/selinux/systemd profile
+split-usr

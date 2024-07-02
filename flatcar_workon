@@ -6,6 +6,8 @@
 
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to set package keywords for."
+DEFINE_boolean host "${FLAGS_FALSE}" \
+  "Uses the host instead of board"
 
 FLAGS_HELP="usage: $0 <command> [flags] <atom>
 commands:
@@ -16,6 +18,13 @@ FLAGS "$@" || { [[ ${FLAGS_help} = "${FLAGS_TRUE}" ]] && exit 0; } || exit 1
 eval set -- "${FLAGS_ARGV}"
 
 set -euo pipefail
+
+# If both board and host are specified, just use host, because board
+# does not have to be specified and may come from default, in which
+# case there's no way to override.
+if [[ -n ${FLAGS_board} ]] && [[ ${FLAGS_host} = "${FLAGS_TRUE}" ]]; then
+  unset FLAGS_board # kill board
+fi
 
 # /etc/portage under either / or /build/<board>.
 ETC_PORTAGE=${FLAGS_board+/build/${FLAGS_board}}/etc/portage

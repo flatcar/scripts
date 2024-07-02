@@ -8,8 +8,7 @@ USE_EXPAND="${USE_EXPAND} TESTS"
 # For now this is only informational and set by coreos-go.eclass
 USE_EXPAND="${USE_EXPAND} GO_VERSION"
 
-# Extra use flags for CoreOS SDK
-USE="${USE} cros_host expat -cracklib -introspection -cups -tcpd -berkdb"
+USE="${USE} -cracklib -introspection -cups -tcpd -berkdb"
 
 # Only net-analyzer/nmap uses lua and it's compatible only with lua5-4.
 LUA_SINGLE_TARGET="lua5-4"
