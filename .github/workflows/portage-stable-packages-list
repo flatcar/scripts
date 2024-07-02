@@ -183,7 +183,6 @@ dev-debug/strace
 
 dev-lang/duktape
 dev-lang/go-bootstrap
-dev-lang/lua
 dev-lang/perl
 dev-lang/python
 dev-lang/python-exec
@@ -403,7 +402,6 @@ licenses
 media-libs/libpng
 
 net-analyzer/netperf
-net-analyzer/nmap
 net-analyzer/traceroute
 
 net-dns/bind-tools

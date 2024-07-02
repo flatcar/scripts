@@ -126,7 +126,6 @@ RDEPEND="${RDEPEND}
 	dev-util/bpftool
 	dev-util/bsdiff
 	dev-vcs/git
-	net-analyzer/nmap
 	net-analyzer/tcpdump
 	net-analyzer/traceroute
 	net-dns/bind-tools
