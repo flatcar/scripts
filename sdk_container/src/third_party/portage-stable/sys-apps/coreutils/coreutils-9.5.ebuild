@@ -33,7 +33,7 @@ else
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86 ~x86-linux"
 fi
 
 SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
@@ -88,6 +88,8 @@ RDEPEND+="
 QA_CONFIG_IMPL_DECL_SKIP=(
 	# gnulib FPs (bug #898370)
 	unreachable MIN alignof static_assert
+	# ... and on musl
+	_exit fpurge statvfs64 re_set_syntax re_compile_pattern re_search re_match
 )
 
 pkg_setup() {
@@ -223,7 +225,7 @@ src_test() {
 
 	local xfail_tests=(
 		# bug #629660
-		#tests/dd/no-allocate.sh
+		tests/dd/no-allocate.sh
 
 		# bug #675802
 		tests/env/env-S

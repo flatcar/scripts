@@ -1,6 +1,23 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-06-23)
+# Pulls in kde-apps/kgpg is keyworded here
+>=kde-apps/kdeutils-meta-24.05.1 -gpg
+
+# Sam James <sam@gentoo.org> (2024-06-13)
+# Needs as-yet-unkeyworded KF6 (bug #934215)
+app-crypt/pinentry qt6
+app-office/libreoffice qt6
+
+# Ionen Wolkens <ionen@gentoo.org> (2024-05-19)
+# jit is supported here
+>=dev-qt/qtdeclarative-6 -jit
+
+# Matt Turner <mattst88@gentoo.org> (2024-05-09)
+# Unmask for keywording bug #931634
+x11-libs/libdrm -video_cards_vmware
+
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-12)
 # Supports 64-bit NEON
 media-libs/opencv -cpu_flags_arm_neon
@@ -12,11 +29,6 @@ media-libs/openpgl -cpu_flags_arm_neon
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
 # virt-firmware is keyworded here
 sys-kernel/installkernel -efistub
-
-# Mart Raudsepp <leio@gentoo.org> (2024-03-03)
-# media-libs/libdisplay-info (drm) and dev-libs/libliftoff (liftoff)
-# are only available for amd64, arm64 and riscv
->=gui-libs/wlroots-0.17.0 -drm -liftoff
 
 # Joonas Niilola <juippis@gentoo.org> (2024-02-16)
 # Test dependencies not keyworded on this arch.
@@ -469,10 +481,6 @@ app-text/evince dvi nautilus postscript xps
 # Markus Meier <maekke@gentoo.org> (2013-12-26)
 # Unkeyworded deps, bug #488724
 app-office/gnumeric libgda
-
-# Pacho Ramos <pacho@gentoo.org> (2013-11-28)
-# Missing keywords, bug #492820
-net-im/telepathy-connection-managers sipe
 
 # Sergey Popov <pinkbyte@gentoo.org> (2013-09-06)
 # sci-libs/hdf does not build properly on arm

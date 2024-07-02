@@ -5,14 +5,22 @@ if [[ $- != *i* ]]; then
 	return
 fi
 
-# Disable completion when the input buffer is empty. Requires readline support.
-shopt -s no_empty_cmd_completion 2>/dev/null
+# Disable errexit in case the user enabled it then chose to re-source this file.
+shopt -u -o errexit
 
-# Append to HISTFILE rather than overwrite upon exiting, per bug #139609.
+# Disable completion when the input buffer is empty. Mute STDERR because this
+# option is only present in the case that bash was built with readline support.
+shopt -s no_empty_cmd_completion 2>/dev/null &&
+
+# Append to HISTFILE rather than overwrite upon exiting, per bug #139609. This
+# option also requires for bash to have been built with readline support.
 shopt -s histappend
 
 # Initialise PROMPT_COMMAND as an array, which is permitted as of bash 5.1.
 PROMPT_COMMAND=()
+
+# Don't let the user influence the order of sourcing for bash 5.3 or greater.
+unset -v GLOBSORT
 
 for _ in /etc/bash/bashrc.d/*; do
 	if [[ $_ == *.@(bash|sh) && -r $_ ]]; then
