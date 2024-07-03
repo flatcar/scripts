@@ -256,7 +256,6 @@ src_unpack() {
 src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}/systemd-test-process-util.patch"
-		"${FILESDIR}"/255-install-format-overflow.patch
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
