@@ -7,7 +7,7 @@ inherit autotools linux-info pam systemd udev
 
 DESCRIPTION="Tools for VMware guests"
 HOMEPAGE="https://github.com/vmware/open-vm-tools"
-MY_P="${P}-23259341"
+MY_P="${P}-23787635"
 SRC_URI="https://github.com/vmware/open-vm-tools/releases/download/stable-${PV}/${MY_P}.tar.gz"
 
 LICENSE="LGPL-2.1"
