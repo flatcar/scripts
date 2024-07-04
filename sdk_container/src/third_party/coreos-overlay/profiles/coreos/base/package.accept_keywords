@@ -83,9 +83,6 @@ dev-util/catalyst ~amd64 ~arm64
 # Needed for the MIT License
 =net-analyzer/netperf-2.7.0_p20210121 ~amd64 ~arm64
 
-# Needed for addressing CVE-2024-25629
-=net-dns/c-ares-1.27.0 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.6-r1 ~arm64
 
