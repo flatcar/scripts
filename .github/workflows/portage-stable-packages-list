@@ -185,6 +185,7 @@ dev-build/meson
 dev-build/meson-format-array
 dev-build/ninja
 
+dev-cpp/abseil-cpp
 dev-cpp/gtest
 
 dev-db/sqlite
