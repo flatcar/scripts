@@ -77,7 +77,6 @@ dev-util/catalyst ~amd64 ~arm64
 =dev-libs/yajl-2.1.0-r5 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=dev-python/cython-3.0.10 ~arm64
 =dev-python/lxml-5.2.1 ~arm64
 =dev-util/pahole-1.26 ~arm64
 
