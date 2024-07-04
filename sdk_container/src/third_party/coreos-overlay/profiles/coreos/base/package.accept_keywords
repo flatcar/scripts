@@ -63,10 +63,6 @@ dev-util/catalyst ~amd64 ~arm64
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
-# Needed to fix a build issue introduced by a wrong change in an older
-# version of the ebuild.
-=dev-libs/libdnet-1.16.4 ~arm64
-
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
