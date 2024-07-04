@@ -14,3 +14,7 @@
 # Python 3.12 is in portage-stable (currently testing), so avoid picking it
 # up. Update this to mask later versions when we switch to 3.11.
 >=dev-lang/python-3.12
+
+# Samba sticks with the old ldb for now. Can be dropped when we update
+# samba to 4.19.x.
+>=sys-libs/ldb-2.8
