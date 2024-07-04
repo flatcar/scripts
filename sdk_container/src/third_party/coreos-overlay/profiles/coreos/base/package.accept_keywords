@@ -118,7 +118,7 @@ sys-apps/zram-generator ~amd64 ~arm64
 =sys-libs/ncurses-6.4_p20230527 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-libs/libnvme-1.8 ~arm64
+=sys-libs/libnvme-1.9 ~arm64
 
 # A dependency of app-shells/bash version that we need for security
 # fixes.
