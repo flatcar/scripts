@@ -41,9 +41,6 @@ dev-util/catalyst ~amd64 ~arm64
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 
-# Required for addressing CVE-2022-3715.
-=app-shells/bash-5.2_p26 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =dev-cpp/abseil-cpp-20230125.3-r3 ~arm64
 
