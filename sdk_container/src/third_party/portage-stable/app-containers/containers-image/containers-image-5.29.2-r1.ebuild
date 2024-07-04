@@ -23,7 +23,8 @@ RESTRICT='test'
 BDEPEND=">=dev-go/go-md2man-2.0.3"
 RDEPEND="!<=app-containers/containers-common-0.57.0"
 PATCHES=(
-	"${FILESDIR}"/fix-warnings.patch
+	"${FILESDIR}"/moving-policy-json-default-yaml.patch
+	"${FILESDIR}"/prevent-downloading-mods-5.29.2.patch
 )
 
 src_compile() {
