@@ -12,16 +12,17 @@ if [[ ${PV} == 9999* ]]; then
 else
 	SRC_URI="https://github.com/containers/common/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/${P#containers-}"
-	KEYWORDS="~amd64 ~arm64 ~riscv"
+	KEYWORDS="amd64 arm64 ~riscv"
 fi
 
 LICENSE="Apache-2.0"
 SLOT="0"
 RESTRICT="test"
 RDEPEND="
-	app-containers/containers-image
+	>=app-containers/containers-image-5.29.2
 	app-containers/containers-storage
 	app-containers/containers-shortnames
+	!<app-containers/podman-4.5.0-r1
 	net-firewall/nftables
 	net-firewall/iptables[nftables]
 	|| ( app-containers/crun app-containers/runc )
@@ -32,18 +33,17 @@ RDEPEND="
 "
 
 BDEPEND="
-	>=dev-go/go-md2man-2.0.3
+	>=dev-go/go-md2man-2.0.2
 "
-
-PATCHES=(
-	"${FILESDIR}/examplify-mounts-conf.patch"
-)
 
 src_prepare() {
 	default
 
 	[[ -f docs/Makefile && -f Makefile ]] || die
 	sed -i -e 's|/usr/local|/usr|g;' docs/Makefile Makefile || die
+
+	# add comments to mounts.conf
+	eapply "${FILESDIR}/examplify-mounts-conf.patch"
 }
 
 src_compile() {
