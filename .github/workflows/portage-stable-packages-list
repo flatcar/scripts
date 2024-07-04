@@ -253,6 +253,7 @@ dev-libs/libxslt
 dev-libs/libyaml
 dev-libs/lzo
 dev-libs/mpc
+dev-libs/mpdecimal
 dev-libs/mpfr
 dev-libs/nettle
 dev-libs/npth
