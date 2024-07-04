@@ -68,7 +68,6 @@ dev-util/catalyst ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-libs/libp11-0.4.12-r6 ~arm64
-=dev-libs/opensc-0.24.0 ~arm64
 =dev-libs/protobuf-23.3-r4 ~arm64
 
 # These seem to be the versions we initially got, but the
