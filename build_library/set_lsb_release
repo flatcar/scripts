@@ -45,6 +45,7 @@ sudo ln -sf "../usr/share/flatcar/lsb-release" "${ROOT_FS_DIR}/etc/lsb-release"
 
 # And the new standard, os-release
 # https://www.freedesktop.org/software/systemd/man/os-release.html
+sudo mkdir -p "${ROOT_FS_DIR}/usr/lib"
 sudo_clobber "${ROOT_FS_DIR}/usr/lib/os-release" <<EOF
 NAME="$OS_NAME"
 ID=$OS_ID
