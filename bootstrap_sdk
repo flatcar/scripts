@@ -59,12 +59,6 @@ TYPE="flatcar-sdk"
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
 
 
-DEFINE_string stage1_portage_path "" \
-  "Path to custom portage ebuilds tree to use in stage 1 (DANGEROUS; USE WITH CAUTION)"
-DEFINE_string stage1_overlay_path "" \
-  "Path to custom overlay ebuilds tree to use in stage 1 (DANGEROUS; USE WITH CAUTION)"
-
-
 ## Define the stage4 config template
 catalyst_stage4() {
 cat <<EOF
@@ -141,85 +135,6 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 #  produced in stage 1 are linked against libraries in the seed tarball, NOT libraries produced
 #  by stage one. Therefore, these binaries will cease to work in stage 2 when linked against
 #  outdated "seed tarball" libraries which have been updated to newer versions in stage 1.
-
-stage_repo() {
-    local repo=${1}
-    local path=${2}
-    local dest=${3}
-    local update_seed_file=${4}
-
-    if [ -z "$path" ]; then
-        cp -R --reflink=auto "/var/gentoo/repos/${repo}" "$dest"
-        info "Using local SDK's ebuild repo '$repo' in stage 1."
-    else
-        mkdir "$dest/$repo"
-        cp -R --reflink=auto "${path}/"* "$dest/${repo}/"
-        info "Using custom path '$path' for ebuild repo '$repo' in stage 1."
-        info "This may break stage 2. YOU HAVE BEEN WARNED. You break it, you keep it."
-    fi
-    (
-        set -euo pipefail
-        local repo_var hook name
-
-        # FLAGS_flatcar_overlay for flatcar-overlay
-        repo_var="FLAGS_${repo//-/_}"
-        shopt -s nullglob
-        for hook in "${FLAGS_flatcar_overlay}/coreos/stage1_hooks/"*"-${repo}.sh"; do
-            name=${hook##*/}
-            name=${name%"-${repo}.sh"}
-            info "Invoking stage1 ${repo} hook ${name} on ${dest}/${repo}"
-            "${hook}" "${dest}/${repo}" "${!repo_var}" "${update_seed_file}"
-        done
-    )
-}
-
-build_stage1() {
-    # First, write out the default catalyst configuration files
-    write_configs
-
-    # Prepare local copies of both the "known-good" gentoo-subset and the
-    #  "known-good" flatcar-overlay ebuild repos
-    local stage1_repos="$TEMPDIR/stage1-ebuild-repos"
-    info "Creating stage 1 ebuild repos and stage 1 snapshot in '$stage1_repos'"
-    rm -rf "$stage1_repos"
-    mkdir "$stage1_repos"
-
-    # If the file exists and is not empty, seed will be updated.
-    # Stage1 hooks may decide that the seed SDK needs updating.
-    local update_seed_file="${TEMPDIR}/update_seed"
-
-    # prepare ebuild repos for stage 1, either from the local SDK (default)
-    #  or from custom paths specified via command line flags
-    stage_repo "gentoo-subset" "${FLAGS_stage1_portage_path}" "$stage1_repos" "${update_seed_file}"
-    stage_repo "flatcar-overlay" "${FLAGS_stage1_overlay_path}" "$stage1_repos" "${update_seed_file}"
-
-    # take the "portage directory" (gentoo-subset copy) snapshot
-    build_snapshot "$stage1_repos/gentoo-subset" "${FLAGS_version}-stage1"
-
-    # Update the stage 1 spec to use the "known-good" gentoo-subset snapshot
-    #  and flatcar-overlay copy repository versions from above.
-    sed -i -e "s/^snapshot_treeish:.*/snapshot_treeish: $FLAGS_version-stage1/" \
-           -e "s,^repos:.*,repos: $stage1_repos/flatcar-overlay," \
-        "$TEMPDIR/stage1.spec"
-
-    # If we are to use a custom path for either ebuild repo we want to update the stage1 seed SDK
-    if [[ -n ${FLAGS_stage1_portage_path} ]] || [[ -n ${FLAGS_stage1_overlay_path} ]] || [[ -s ${update_seed_file} ]]; then
-        sed -i 's/^update_seed: no/update_seed: yes/' "$TEMPDIR/stage1.spec"
-        echo "update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver --rebuild-exclude cross-*-cros-linux-gnu/* sys-devel/gcc " \
-            >>"$TEMPDIR/stage1.spec"
-    fi
-
-    rm -f "${update_seed_file}"
-
-    # Finally, build stage 1
-    build_stage stage1
-}
-
-if [[ "$STAGES" =~ stage1 ]]; then
-    build_stage1
-    STAGES="${STAGES/stage1/}"
-    SEED="${TYPE}/stage1-${ARCH}-latest"
-fi
 
 catalyst_build
 
