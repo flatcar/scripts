@@ -1,0 +1,3 @@
+cros_post_src_install_ncat_symlink() {
+	ln -sfn nc "${D}/bin/ncat"
+}
