@@ -65,16 +65,7 @@ ROOT_OVERLAY=${TEMPDIR}/stage4_overlay
 if [[ "$STAGES" =~ stage4 ]]; then
     info "Setting release to ${FLATCAR_VERSION}"
     rm -rf "${ROOT_OVERLAY}"
-    # need to setup the lib->lib64 symlink correctly
-    libdir=$(get_sdk_libdir)
-    mkdir -p "${ROOT_OVERLAY}/usr/${libdir}"
-    if [[ "${libdir}" != lib ]]; then
-        if [[ "$(get_sdk_symlink_lib)" == "yes" ]]; then
-            ln -s "${libdir}" "${ROOT_OVERLAY}/usr/lib"
-        else
-            mkdir -p "${ROOT_OVERLAY}/usr/lib"
-        fi
-    fi
+    mkdir -p "${ROOT_OVERLAY}"
     "${BUILD_LIBRARY_DIR}/set_lsb_release" \
         --root "${ROOT_OVERLAY}"
 fi
