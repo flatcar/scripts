@@ -18,3 +18,6 @@
 # Samba sticks with the old ldb for now. Can be dropped when we update
 # samba to 4.19.x.
 >=sys-libs/ldb-2.8
+
+# Update engine needs updating to use a newer version of protobuf.
+>=dev-libs/protobuf-22.0
