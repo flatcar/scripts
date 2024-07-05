@@ -112,10 +112,6 @@ sys-apps/zram-generator ~amd64 ~arm64
 # Keep versions on both arches in sync.
 =sys-firmware/edk2-aarch64-18.02 **
 
-# Needed to fix CVE-2023-22655, CVE-2023-28746, CVE-2023-38575,
-# CVE-2023-39368 and CVE-2023-43490.
-=sys-firmware/intel-microcode-20240312_p20240312 ~amd64
-
 # Keep versions on both arches in sync.
 =sys-libs/libnvme-1.9 ~arm64
 
