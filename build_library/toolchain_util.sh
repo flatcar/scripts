@@ -164,10 +164,6 @@ get_sdk_libdir() {
     portageq envvar "LIBDIR_$(get_sdk_arch)"
 }
 
-get_sdk_symlink_lib() {
-    portageq envvar "SYMLINK_LIB"
-}
-
 # Usage: get_sdk_binhost [version...]
 # If no versions are specified the current and SDK versions are used.
 get_sdk_binhost() {
