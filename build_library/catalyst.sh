@@ -112,14 +112,6 @@ EOF
 catalyst_stage_default 1
 }
 
-catalyst_stage2() {
-cat <<EOF
-# stage2 packages aren't published, save in tmp
-pkgcache_path: ${TEMPDIR}/stage2-${ARCH}-packages
-EOF
-catalyst_stage_default 2
-}
-
 catalyst_stage3() {
 cat <<EOF
 pkgcache_path: $BINPKGS
@@ -150,7 +142,7 @@ catalyst_init() {
     if [[ -n "${FORCE_STAGES}" ]]; then
         STAGES="${FORCE_STAGES}"
     elif [[ $# -eq 0 ]]; then
-        STAGES="stage1 stage2 stage3 stage4"
+        STAGES="stage1 stage3 stage4"
     else
         for stage in "$@"; do
             if [[ ! "$stage" =~ ^stage[1234]$ ]]; then
@@ -304,19 +296,9 @@ catalyst_build() {
         used_seed=1
     fi
 
-    if [[ "$STAGES" =~ stage2 ]]; then
-        if [[ $used_seed -eq 1 ]]; then
-            SEED="${TYPE}/stage1-${ARCH}-latest"
-        fi
-        info "    stage2.spec"
-        catalyst_stage2 > "$TEMPDIR/stage2.spec"
-        build_stage stage2
-        used_seed=1
-    fi
-
     if [[ "$STAGES" =~ stage3 ]]; then
         if [[ $used_seed -eq 1 ]]; then
-            SEED="${TYPE}/stage2-${ARCH}-latest"
+            SEED="${TYPE}/stage1-${ARCH}-latest"
         fi
         info "    stage3.spec"
         catalyst_stage3 > "$TEMPDIR/stage3.spec"

@@ -29,13 +29,7 @@
 #     Command line option refs need caution though, since
 #     stage1 must not contain updated ebuilds (see build_stage1 below).
 #
-# 3. stage2: Run gentoo-subset/scripts/bootstrap.sh
-#     This rebuilds the toolchain using Gentoo bootstrapping, ensuring it's not linked
-#     to or otherwise influenced by whatever was in the "seed" tarball.
-#     The toolchain rebuild may contain updated package ebuilds from
-#     repos/(gentoo-subset|flatcar-overlay).
-#     This and all following stages use gentoo-subset and flatcar-overlay
-#     from repos/... (see 1.)
+# 3. stage2: This is skipped as recommended by upstream Gentoo.
 #
 # 4. stage3: Run emerge -e system to rebuild everything using the fresh updated
 #     toolchain from 3., using the normal USE flags provided by the profile. This
@@ -45,7 +39,7 @@
 # 5. stage4: Install any extra packages or other desired tweaks. For the
 #     sdk we just install all the packages normally make_chroot.sh does.
 #
-# Usage: bootstrap_sdk [stage1 stage2 etc]
+# Usage: bootstrap_sdk [stage1 stage3 etc]
 # By default all four stages will be built using the latest stage4 as a seed.
 
 SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
@@ -107,7 +101,7 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 
 
 # Stage 1 uses "known-good" ebuilds (from both flatcar-overlay and gentoo-subset)
-#  to build a minimal toolchain (USE="-*") for stage 2.
+#  to build a minimal toolchain (USE="-*") for stage 3.
 #
 # No package updates must happen in stage 1, so we use the gentoo-subset and
 #  flatcar-overlay paths included with the current SDK (from the SDK chroot's
@@ -115,14 +109,14 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 #  'cork enter', i.e. the SDK we run ./bootstrap_sdk in.
 #
 # Using ebuilds from the above mentioned sources will ensure that stage 1 builds
-#  a minimal stage 2 from known-good ebuild versions - the same ebuild versions
+#  a stage 3 from known-good ebuild versions - the same ebuild versions
 #  that were used to build the very SDK we run ./bootstrap_sdk in.
 #
 # DANGER ZONE
 #
 # Stage 1 lacks proper isolation and will link all packages built for
-#  stage 2 against its own seed libraries ("/" in the catalyst chroot) instead of against libraries
-#  installed into the FS root of the stage 2 seed ("/tmp/stage1root" in the catalyst chroot).
+#  stage 3 against its own seed libraries ("/" in the catalyst chroot) instead of against libraries
+#  installed into the FS root of the stage 3 seed ("/tmp/stage1root" in the catalyst chroot).
 #  This is why we must prevent any updated package ebuilds to "leak" into stage 1, hence we use
 #  "known good" ebuild repo versions outlined above.
 #
@@ -130,10 +124,10 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 #  for either (or both) portage and overlay. The command line options
 #  --stage1-portage-path and --stage1-overlay-path may be used to specify
 #  a repo path known to work for stage1. In that case the stage1 seed (i.e. the seed SDK)
-#  will be updated prior to starting to build stage 2.
+#  will be updated prior to starting to build stage 3.
 #  NOTE that this should never be used to introduce library updates in stage 1. All binaries
 #  produced in stage 1 are linked against libraries in the seed tarball, NOT libraries produced
-#  by stage one. Therefore, these binaries will cease to work in stage 2 when linked against
+#  by stage 1. Therefore, these binaries will cease to work in stage 3 when linked against
 #  outdated "seed tarball" libraries which have been updated to newer versions in stage 1.
 
 catalyst_build
