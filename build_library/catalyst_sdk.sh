@@ -20,12 +20,3 @@ for cross_chost in $(get_chost_list); do
     PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
         install_cross_rust "${cross_chost}" ${clst_myemergeopts}
 done
-
-echo "Saving snapshot of repos for future SDK bootstraps"
-# Copy portage-stable and coreos-overlay, which are under
-# /mnt/host/source/src/third_party, into a local directory because they are
-# removed before archiving and we want to keep snapshots. These snapshots are
-# used by stage 1 in future bootstraps.
-mkdir -p /var/gentoo/repos/{gentoo,coreos-overlay}
-cp -R /mnt/host/source/src/third_party/portage-stable/* /var/gentoo/repos/gentoo/
-cp -R /mnt/host/source/src/third_party/coreos-overlay/* /var/gentoo/repos/coreos-overlay/

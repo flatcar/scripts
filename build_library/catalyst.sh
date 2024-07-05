@@ -104,7 +104,8 @@ catalyst_stage1() {
 cat <<EOF
 # stage1 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
-update_seed: no
+update_seed: yes
+update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/rust --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
 EOF
 catalyst_stage_default 1
 }
@@ -225,7 +226,7 @@ write_configs() {
     info "Configuring Portage..."
     cp -r "${BUILD_LIBRARY_DIR}"/portage/ "${TEMPDIR}/"
 
-    ln -sfT '/var/gentoo/repos/coreos-overlay/coreos/user-patches' \
+    ln -sfT '/mnt/host/source/src/third_party/coreos-overlay/coreos/user-patches' \
         "${TEMPDIR}"/portage/patches
 }
 
