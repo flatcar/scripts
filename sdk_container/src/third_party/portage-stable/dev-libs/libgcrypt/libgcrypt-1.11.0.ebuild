@@ -13,8 +13,11 @@ SRC_URI+=" verify-sig? ( mirror://gnupg/${PN}/${P}.tar.bz2.sig )"
 
 LICENSE="LGPL-2.1+ GPL-2+ MIT"
 SLOT="0/20" # subslot = soname major version
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-IUSE="+asm cpu_flags_arm_neon cpu_flags_arm_aes cpu_flags_arm_sha1 cpu_flags_arm_sha2 cpu_flags_ppc_altivec cpu_flags_ppc_vsx2 cpu_flags_ppc_vsx3 cpu_flags_x86_aes cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_padlock cpu_flags_x86_sha cpu_flags_x86_sse4_1 doc +getentropy static-libs"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+IUSE="+asm doc +getentropy static-libs"
+IUSE+=" cpu_flags_arm_neon cpu_flags_arm_aes cpu_flags_arm_sha1 cpu_flags_arm_sha2 cpu_flags_arm_sve"
+IUSE+=" cpu_flags_ppc_altivec cpu_flags_ppc_vsx2 cpu_flags_ppc_vsx3"
+IUSE+=" cpu_flags_x86_aes cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_avx512f cpu_flags_x86_padlock cpu_flags_x86_sha cpu_flags_x86_sse4_1"
 
 # Build system only has --disable-arm-crypto-support right now
 # If changing this, update src_configure logic too.
@@ -31,7 +34,7 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-	>=dev-libs/libgpg-error-1.25[${MULTILIB_USEDEP}]
+	>=dev-libs/libgpg-error-1.49[${MULTILIB_USEDEP}]
 	getentropy? (
 		kernel_linux? (
 			elibc_glibc? ( >=sys-libs/glibc-2.25 )
@@ -48,10 +51,8 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/${PN}-multilib-syspath.patch
 	"${FILESDIR}"/${PN}-powerpc-darwin.patch
-	"${FILESDIR}"/${PN}-1.9.4-no-fgrep-libgcrypt-config.patch
-	"${FILESDIR}"/${PN}-1.10.3-x86.patch
-	"${FILESDIR}"/${PN}-1.10.3-x86-refactor.patch
-	"${FILESDIR}"/${PN}-1.10.3-hppa.patch
+	"${FILESDIR}"/${P}-s390x.patch
+	"${FILESDIR}"/${P}-o-flag-munging.patch
 )
 
 MULTILIB_CHOST_TOOLS=(
@@ -129,10 +130,12 @@ multilib_src_configure() {
 		$(use_enable cpu_flags_arm_neon neon-support)
 		# See REQUIRED_USE comment above
 		$(use_enable cpu_flags_arm_aes arm-crypto-support)
+		$(use_enable cpu_flags_arm_sve sve-support)
 		$(use_enable cpu_flags_ppc_vsx2 ppc-crypto-support)
 		$(use_enable cpu_flags_x86_aes aesni-support)
 		$(use_enable cpu_flags_x86_avx avx-support)
 		$(use_enable cpu_flags_x86_avx2 avx2-support)
+		$(use_enable cpu_flags_x86_avx512f avx512-support)
 		$(use_enable cpu_flags_x86_padlock padlock-support)
 		$(use_enable cpu_flags_x86_sha shaext-support)
 		$(use_enable cpu_flags_x86_sse4_1 sse41-support)
