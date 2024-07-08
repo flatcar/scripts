@@ -240,8 +240,9 @@ if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_TRUE}" ]; then
   UPDATE_ARGS+=" --skip_toolchain_update"
 fi
 if [ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ] ; then
-  "${SRC_ROOT}/scripts"/update_chroot ${UPDATE_ARGS}
+	:
 fi
+"${SRC_ROOT}/scripts"/update_chroot ${UPDATE_ARGS}
 
 # Migrate board roots that were created before the package location
 # was standardized to /var/lib/portage/pkgs, build_image will fail if we

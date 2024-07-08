@@ -103,15 +103,13 @@ EMERGE_DEFAULT_OPTS="--verbose --oneshot"
 source "/etc/portage/make.conf.user"
 EOF
 
-sudo_clobber "/etc/portage/repos.conf/gentoo-subset.conf" <<EOF
+sudo_clobber "/etc/portage/repos.conf/coreos.conf" <<EOF
 [DEFAULT]
 main-repo = gentoo-subset
 
 [gentoo-subset]
 location = ${GENTOO_SUBSET_OVERLAY}
-EOF
 
-sudo_clobber "/etc/portage/repos.conf/flatcar-overlay.conf" <<EOF
 [flatcar-overlay]
 location = ${FLATCAR_OVERLAY}
 EOF
