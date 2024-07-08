@@ -18,13 +18,12 @@ FORCE_STAGES="stage4"
 ## Define the stage4 config template
 catalyst_stage4() {
 cat <<EOF
-target: stage4
 pkgcache_path: $BINPKGS
 stage4/packages: @system
 stage4/fsscript: ${BUILD_LIBRARY_DIR}/catalyst_toolchains.sh
 stage4/root_overlay: ${ROOT_OVERLAY}
 EOF
-catalyst_stage_default
+catalyst_stage_default 4
 }
 create_provenance_overlay() {
   local root_overlay="$1"

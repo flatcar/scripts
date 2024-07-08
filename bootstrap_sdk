@@ -7,9 +7,9 @@
 # This uses Gentoo's catalyst for very thoroughly building images from
 # scratch. Using images based on this will eliminate some of the hackery
 # in make_chroot.sh for building up the sdk from a stock stage3 tarball.
-# 
+#
 # For reference the procedure it performs is this:
-# 
+#
 # 1. snapshot: Grab a snapshot of the portage-stable repo from
 #     the current SDK's /var/lib/gentoo/repos/gentoo.
 #     Alternatively, check out a git ref specified via --portage-ref.
@@ -68,15 +68,14 @@ DEFINE_string stage1_overlay_path "" \
 ## Define the stage4 config template
 catalyst_stage4() {
 cat <<EOF
-target: stage4
 pkgcache_path: $BINPKGS
 stage4/packages: coreos-devel/sdk-depends
 stage4/fsscript: ${BUILD_LIBRARY_DIR}/catalyst_sdk.sh
 stage4/root_overlay: ${ROOT_OVERLAY}
-stage4/empty: /etc/portage/repos.conf /root /usr/portage /var/cache/edb
+stage4/empty: /root /var/cache/edb
 stage4/rm: /etc/machine-id /etc/resolv.conf
 EOF
-catalyst_stage_default
+catalyst_stage_default 4
 }
 
 # Switch to HTTP because early boostrap stages do not have SSL support.
@@ -118,7 +117,7 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 #
 # No package updates must happen in stage 1, so we use the portage-stable and
 #  coreos-overlay paths included with the current SDK (from the SDK chroot's
-#  /var/lib/gentoo/repos/). "Current SDK" refers to the SDK we entered with
+#  /var/gentoo/repos/). "Current SDK" refers to the SDK we entered with
 #  'cork enter', i.e. the SDK we run ./bootstrap_sdk in.
 #
 # Using ebuilds from the above mentioned sources will ensure that stage 1 builds
@@ -148,39 +147,39 @@ stage_repo() {
     local path=${2}
     local dest=${3}
     local update_seed_file=${4}
-    local gitname="$repo"
 
-    if [ "$gitname" = "gentoo" ] ; then
-        gitname="portage-stable"
-    fi
+    mkdir "$dest/$repo"
 
     if [ -z "$path" ]; then
-        cp -R "/var/gentoo/repos/${repo}" "$dest"
-        info "Using local SDK's ebuild repo '$repo' ('$gitname') in stage 1."
+        case "$repo" in
+            portage-stable) path=gentoo ;;
+            *) path=${repo} ;;
+        esac
+        cp -R --reflink=auto "/var/gentoo/repos/${path}/"* "$dest/${repo}/"
+        info "Using local SDK's ebuild repo '$repo' in stage 1."
     else
-        mkdir "$dest/$repo"
-        cp -R "${path}/"* "$dest/${repo}/"
-        info "Using custom path '$path' for ebuild repo '$repo' ('$gitname') in stage 1."
+        cp -R --reflink=auto "${path}/"* "$dest/${repo}/"
+        info "Using custom path '$path' for ebuild repo '$repo' in stage 1."
         info "This may break stage 2. YOU HAVE BEEN WARNED. You break it, you keep it."
     fi
     (
         set -euo pipefail
         local repo_var hook name
 
-        # FLAGS_coreos_overlay for gitname coreos-overlay
-        repo_var="FLAGS_${gitname//-/_}"
+        # FLAGS_coreos_overlay for coreos-overlay
+        repo_var="FLAGS_${repo//-/_}"
         shopt -s nullglob
-        for hook in "${FLAGS_coreos_overlay}/coreos/stage1_hooks/"*"-${gitname}.sh"; do
+        for hook in "${FLAGS_coreos_overlay}/coreos/stage1_hooks/"*"-${repo}.sh"; do
             name=${hook##*/}
-            name=${name%"-${gitname}.sh"}
-            info "Invoking stage1 ${gitname} hook ${name} on ${dest}/${repo}"
+            name=${name%"-${repo}.sh"}
+            info "Invoking stage1 ${repo} hook ${name} on ${dest}/${repo}"
             "${hook}" "${dest}/${repo}" "${!repo_var}" "${update_seed_file}"
         done
     )
 }
 
 build_stage1() {
-    # First, write out the default 4-stage catalyst configuration files
+    # First, write out the default catalyst configuration files
     write_configs
 
     # Prepare local copies of both the "known-good" portage-stable and the
@@ -196,22 +195,16 @@ build_stage1() {
 
     # prepare ebuild repos for stage 1, either from the local SDK (default)
     #  or from custom paths specified via command line flags
-    stage_repo "gentoo" "${FLAGS_stage1_portage_path}" "$stage1_repos" "${update_seed_file}"
+    stage_repo "portage-stable" "${FLAGS_stage1_portage_path}" "$stage1_repos" "${update_seed_file}"
     stage_repo "coreos-overlay" "${FLAGS_stage1_overlay_path}" "$stage1_repos" "${update_seed_file}"
 
-    # Create a snapshot of "known-good" portage-stable repo copy for use in stage 1
-    #  This requires us to create a custom catalyst config to point it to the
-    #  repo copy we just created, for snapshotting.
-    catalyst_conf > "$TEMPDIR/catalyst-stage1.conf"
-    sed -i "s:^portdir.*:portdir=\"$stage1_repos/gentoo\":" \
-         "$TEMPDIR/catalyst-stage1.conf"
     # take the "portage directory" (portage-stable copy) snapshot
-    build_snapshot "${TEMPDIR}/catalyst-stage1.conf" "${FLAGS_version}-stage1"
+    build_snapshot "$stage1_repos/portage-stable" "${FLAGS_version}-stage1"
 
     # Update the stage 1 spec to use the "known-good" portage-stable snapshot
     #  and coreos-overlay copy repository versions from above.
-    sed -i -e "s/^snapshot:.*/snapshot: $FLAGS_version-stage1/" \
-           -e "s,^portage_overlay:.*,portage_overlay: $stage1_repos/coreos-overlay," \
+    sed -i -e "s/^snapshot_treeish:.*/snapshot_treeish: $FLAGS_version-stage1/" \
+           -e "s,^repos:.*,repos: $stage1_repos/coreos-overlay," \
         "$TEMPDIR/stage1.spec"
 
     # If we are to use a custom path for either ebuild repo we want to update the stage1 seed SDK
@@ -220,10 +213,11 @@ build_stage1() {
         echo "update_seed_command: --update --deep --newuse --complete-graph --rebuild-if-new-ver --rebuild-exclude cross-*-cros-linux-gnu/* sys-devel/gcc " \
             >>"$TEMPDIR/stage1.spec"
     fi
+
     rm -f "${update_seed_file}"
 
     # Finally, build stage 1
-    build_stage stage1 "$SEED" "$TEMPDIR/catalyst-stage1.conf"
+    build_stage stage1
 }
 
 if [[ "$STAGES" =~ stage1 ]]; then
