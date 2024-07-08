@@ -129,6 +129,10 @@ _setup-allowed-flags() {
 		# needed for arm64 (and in particular SCS)
 		-ffixed-x18
 
+		# needed for riscv (to prevent unaligned vector access)
+		# See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115789
+		-mstrict-align -mvector-strict-align
+
 		# gcc 4.5
 		-mno-fma4 -mno-movbe -mno-xop -mno-lwp
 		# gcc 4.6
@@ -139,6 +143,8 @@ _setup-allowed-flags() {
 		-mno-fxsr -mno-hle -mno-rtm -mno-xsave -mno-xsaveopt
 		# gcc 4.9
 		-mno-avx512cd -mno-avx512er -mno-avx512f -mno-avx512pf -mno-sha
+
+		-mevex512 -mno-evex512
 	)
 
 	# Allow some safe individual flags. Should come along with the bug reference.
