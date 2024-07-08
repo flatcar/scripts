@@ -1,6 +1,14 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2024-07-03)
+# kde-frameworks/kservice not keyworded here
+x11-misc/xdg-utils plasma
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-08)
+# Requires sys-devel/{clang,llvm}:16.
+dev-lang/python jit
+
 # NRK <nrk@disroot.org> (2024-04-08)
 # media-libs/libraw is not keyworded
 media-libs/imlib2 raw
@@ -202,7 +210,7 @@ dev-python/diskcache test
 
 # Matt Turner <mattst88@gentoo.org> (2020-08-11)
 # No drivers on this architecture support Vulkan
-media-libs/mesa vulkan vulkan-overlay zink
+media-libs/mesa video_cards_zink vulkan vulkan-overlay zink
 
 # Hans de Graaff <graaff@gentoo.org> (2019-04-08)
 # Obsolete ruby version, no newer versions keyworded or stable.
