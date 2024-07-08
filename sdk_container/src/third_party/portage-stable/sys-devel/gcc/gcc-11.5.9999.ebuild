@@ -6,7 +6,7 @@ EAPI=8
 TOOLCHAIN_PATCH_DEV="sam"
 PATCH_GCC_VER="11.4.0"
 MUSL_GCC_VER="11.4.0"
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 if [[ ${PV} == *.9999 ]] ; then
 	MY_PV_2=$(ver_cut 2)
@@ -45,7 +45,6 @@ if [[ ${CATEGORY} != cross-* ]] ; then
 	# bug #830454
 	RDEPEND="elibc_glibc? ( sys-libs/glibc[cet(-)?] )"
 	DEPEND="${RDEPEND}"
-	BDEPEND="amd64? ( >=${CATEGORY}/binutils-2.30[cet(-)?] )"
 fi
 
 src_prepare() {
