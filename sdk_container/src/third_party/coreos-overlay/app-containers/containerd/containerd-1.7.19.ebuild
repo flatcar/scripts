@@ -22,7 +22,7 @@ DEPEND="
 # recommended version of runc is found in script/setup/runc-version
 RDEPEND="
 	${DEPEND}
-	~app-containers/runc-1.1.12[apparmor?,seccomp?]
+	~app-containers/runc-1.1.13[apparmor?,seccomp?]
 "
 
 BDEPEND="
