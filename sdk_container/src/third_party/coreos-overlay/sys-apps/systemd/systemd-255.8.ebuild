@@ -184,8 +184,10 @@ BDEPEND="
 	$(python_gen_cond_dep "
 		dev-python/jinja[\${PYTHON_USEDEP}]
 		dev-python/lxml[\${PYTHON_USEDEP}]
-		boot? ( >=dev-python/pyelftools-0.30[\${PYTHON_USEDEP}] )
-		ukify? ( test? ( ${PEFILE_DEPEND} ) )
+		boot? (
+			>=dev-python/pyelftools-0.30[\${PYTHON_USEDEP}]
+			test? ( ${PEFILE_DEPEND} )
+		)
 	")
 "
 
@@ -200,11 +202,6 @@ pkg_pretend() {
 	# 	die "systemd no longer supports split-usr"
 	# fi
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
-		if use test && has pid-sandbox ${FEATURES}; then
-			ewarn "Tests are known to fail with PID sandboxing enabled."
-			ewarn "See https://bugs.gentoo.org/674458."
-		fi
-
 		local CONFIG_CHECK="~BLK_DEV_BSG ~CGROUPS
 			~CGROUP_BPF ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
@@ -258,7 +255,7 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}"/255-install-format-overflow.patch
+		"${FILESDIR}/systemd-test-process-util.patch"
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
@@ -454,9 +451,15 @@ multilib_src_configure() {
 }
 
 multilib_src_test() {
-	unset DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
-	local -x COLUMNS=80
-	meson_src_test
+	(
+		unset DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
+		export COLUMNS=80
+		addpredict /dev
+		addpredict /proc
+		addpredict /run
+		addpredict /sys/fs/cgroup
+		meson_src_test --timeout-multiplier=10
+	) || die
 }
 
 multilib_src_install_all() {
@@ -726,6 +729,11 @@ pkg_postinst() {
 		ebegin "Reexecuting system manager (systemd)"
 		systemctl daemon-reexec
 		eend $? || FAIL=1
+
+		# https://lists.freedesktop.org/archives/systemd-devel/2024-June/050466.html
+		ebegin "Signaling user managers to reexec"
+		systemctl kill --kill-whom='main' --signal='SIGRTMIN+25' 'user@*.service'
+		eend $?
 	fi
 
 	if [[ ${FAIL} ]]; then
