@@ -4,7 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/philiphazel.asc
-inherit libtool multilib-minimal verify-sig
+inherit libtool multilib multilib-minimal toolchain-funcs verify-sig
 
 MY_P="pcre2-${PV/_rc/-RC}"
 
@@ -15,13 +15,14 @@ SRC_URI="
 	https://ftp.pcre.org/pub/pcre/${MY_P}.tar.bz2
 	verify-sig? ( https://github.com/PCRE2Project/pcre2/releases/download/${MY_P}/${MY_P}.tar.bz2.sig )
 "
+SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-32bit-tests.patch.xz"
 
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="BSD"
 SLOT="0/3" # libpcre2-posix.so version
 if [[ ${PV} != *_rc* ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="bzip2 +jit libedit +pcre16 +pcre32 +readline static-libs unicode valgrind zlib"
 REQUIRED_USE="?? ( libedit readline )"
@@ -47,8 +48,17 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-10.10-000-Fix-multilib.patch
-	"${FILESDIR}"/${PN}-10.43-fix-loong-sljit.patch
+	"${WORKDIR}"/${P}-32bit-tests.patch
 )
+
+src_unpack() {
+	if use verify-sig ; then
+		# Needed for downloaded patch (which is unsigned, which is fine)
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.bz2{,.sig}
+	fi
+
+	default
+}
 
 src_prepare() {
 	default
@@ -57,6 +67,10 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# Workaround for bug #934977 (libtool-2.5.0), drop when dist tarball
+	# uses newer libtool with the fix.
+	export ac_cv_prog_ac_ct_FILECMD='file' FILECMD='file'
+
 	local myeconfargs=(
 		--enable-pcre2-8
 		--enable-shared
@@ -89,6 +103,13 @@ multilib_src_install() {
 		DESTDIR="${D}" \
 		$(multilib_is_native_abi || echo "bin_PROGRAMS= dist_html_DATA=") \
 		install
+
+	# bug #934977
+	if ! tc-is-static-only && [[ ! -f "${ED}/usr/$(get_libdir)/libpcre2-8$(get_libname)" ]] ; then
+		eerror "Sanity check for libpcre2-8$(get_libname) failed."
+		eerror "Shared library wasn't built, possible libtool bug"
+		[[ -z ${I_KNOW_WHAT_I_AM_DOING} ]] && die "libpcre2-8$(get_libname) not found in build, aborting"
+	fi
 }
 
 multilib_src_install_all() {
