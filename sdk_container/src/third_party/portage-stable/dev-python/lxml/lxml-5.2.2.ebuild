@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} pypy3 )
+PYTHON_COMPAT=( python3_{10..13} pypy3 )
 
 inherit distutils-r1 optfeature toolchain-funcs
 
@@ -37,7 +37,7 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	>=dev-python/cython-3.0.7[${PYTHON_USEDEP}]
+	>=dev-python/cython-3.0.10[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
@@ -52,7 +52,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${P}-pypy.patch"
+	"${FILESDIR}/${PN}-5.1.1-pypy.patch"
 )
 
 python_check_deps() {
@@ -96,7 +96,8 @@ python_test() {
 	cp -al src/lxml/html/tests "${dir}/html/" || die
 	ln -rs "${S}"/doc "${dir}"/../../ || die
 
-	"${EPYTHON}" test.py -vv --all-levels -p || die "Test ${test} fails with ${EPYTHON}"
+	"${EPYTHON}" test.py -vv --all-levels -p ||
+		die "Tests fail on ${EPYTHON}"
 }
 
 python_install_all() {
@@ -114,4 +115,5 @@ python_install_all() {
 pkg_postinst() {
 	optfeature "Support for BeautifulSoup as a parser backend" dev-python/beautifulsoup4
 	optfeature "Translates CSS selectors to XPath 1.0 expressions" dev-python/cssselect
+	optfeature "Support for lxml.html.clean sanitizer" dev-python/lxml-html-clean
 }
