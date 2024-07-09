@@ -31,7 +31,6 @@
 
 # Needed by arm64-native SDK.
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
-=dev-lang/nasm-2.15.05 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-lang/python-3.11.9 ~amd64

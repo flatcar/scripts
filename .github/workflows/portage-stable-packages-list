@@ -184,6 +184,7 @@ dev-debug/strace
 dev-lang/duktape
 dev-lang/go-bootstrap
 dev-lang/lua
+dev-lang/nasm
 dev-lang/perl
 dev-lang/python
 dev-lang/python-exec
