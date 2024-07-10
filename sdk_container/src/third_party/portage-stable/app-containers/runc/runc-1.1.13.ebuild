@@ -1,12 +1,12 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 inherit go-module linux-info
 
-# update on bump, look for https://github.com/docker\
-# docker-ce/blob/<docker ver OR branch>/components/engine/hack/dockerfile/install/runc.installer
-RUNC_COMMIT=4ffc61430bbe6d3d405bdf357b766bf303ff3cc5
+# update on bump, look for commit ID on release tag.
+# https://github.com/opencontainers/runc
+RUNC_COMMIT=58aa9203c123022138b22cf96540c284876a7910
 CONFIG_CHECK="~USER_NS"
 
 DESCRIPTION="runc container cli tools"
@@ -16,7 +16,7 @@ SRC_URI="https://github.com/opencontainers/${PN}/archive/v${MY_PV}.tar.gz -> ${P
 
 LICENSE="Apache-2.0 BSD-2 BSD MIT"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
 IUSE="apparmor hardened +kmem +seccomp selinux test"
 
 DEPEND="seccomp? ( sys-libs/libseccomp )"
@@ -42,8 +42,8 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 src_compile() {
 	# Taken from app-containers/docker-1.7.0-r1
-	export CGO_CFLAGS="-I${ESYSROOT}/usr/include"
-	export CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')
+	CGO_CFLAGS+=" -I${ESYSROOT}/usr/include"
+	CGO_LDFLAGS+=" $(usex hardened '-fno-PIC ' '')
 		-L${ESYSROOT}/usr/$(get_libdir)"
 
 	# build up optional flags
