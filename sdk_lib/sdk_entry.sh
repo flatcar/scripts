@@ -10,6 +10,10 @@ fi
 
 chown -R sdk:sdk /home/sdk
 
+# Fix up SDK repo configuration to use the new coreos-overlay name.
+sed -i -r 's/^\[coreos\]/[coreos-overlay]/' /etc/portage/repos.conf/coreos.conf 2>/dev/null
+sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/crossdev/metadata/layout.conf 2>/dev/null
+
 # Check if the OS image version we're working on is newer than
 #  the SDK container version and if it is, update the boards
 #  chroot portage conf to point to the correct binhost.
