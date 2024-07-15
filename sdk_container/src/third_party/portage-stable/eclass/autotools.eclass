@@ -33,6 +33,7 @@ _AUTOTOOLS_ECLASS=1
 
 [[ ${EAPI} == 6 ]] && inherit eqawarn
 
+GNUCONFIG_AUTO_DEPEND=no
 inherit gnuconfig libtool
 
 # @ECLASS_VARIABLE: WANT_AUTOCONF
@@ -93,7 +94,7 @@ _LATEST_AUTOCONF=( 2.72-r1:2.72 2.71-r6:2.71 )
 # Do NOT change this variable in your ebuilds!
 # If you want to force a newer minor version, you can specify the correct
 # WANT value by using a colon:  <PV>:<WANT_AUTOMAKE>
-_LATEST_AUTOMAKE=( 1.16.5:1.16 )
+_LATEST_AUTOMAKE=( 1.17-r1:1.17 1.16.5:1.16 )
 
 _automake_atom="dev-build/automake"
 _autoconf_atom="dev-build/autoconf"
@@ -164,9 +165,12 @@ fi
 # @DESCRIPTION:
 # Contains the combination of requested automake/autoconf/libtool
 # versions in *DEPEND format.
-AUTOTOOLS_DEPEND="${_automake_atom}
+AUTOTOOLS_DEPEND="
+	${GNUCONFIG_DEPEND}
+	${_automake_atom}
 	${_autoconf_atom}
-	${_libtool_atom}"
+	${_libtool_atom}
+"
 RDEPEND=""
 
 # @ECLASS_VARIABLE: AUTOTOOLS_AUTO_DEPEND
