@@ -365,7 +365,7 @@ get_metadata() {
             local mirror="$(echo "${v}" | grep mirror:// | cut -d '/' -f 3)"
             if [ -n "${mirror}" ]; then
                 # Take only first mirror, those not working should be removed
-                local location="$(grep "^${mirror}"$'\t' /var/gentoo/repos/gentoo/profiles/thirdpartymirrors | cut -d $'\t' -f 2- | cut -d ' ' -f 1 | tr -d $'\t')"
+                local location="$(grep "^${mirror}"$'\t' /mnt/host/source/src/third_party/portage-stable/profiles/thirdpartymirrors | cut -d $'\t' -f 2- | cut -d ' ' -f 1 | tr -d $'\t')"
                 v="$(echo "${v}" | sed "s#mirror://${mirror}/#${location}#g")"
             fi
             new_val+="${v} "
@@ -490,8 +490,7 @@ EOF
     license_list="$(jq -r '.[] | "\(.licenses | .[])"' "${json_input}" | sort | uniq)"
     local license_dirs=(
         "/mnt/host/source/src/third_party/coreos-overlay/licenses/"
-        "/mnt/host/source/src/third_party/portage-stable/"
-        "/var/gentoo/repos/gentoo/licenses/"
+        "/mnt/host/source/src/third_party/portage-stable/licenses/"
         "none"
     )
     for license_file in ${license_list}; do

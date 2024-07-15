@@ -7,6 +7,9 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
+# Catalyst 4 is not stable yet, but earlier versions are masked now.
+dev-util/catalyst ~amd64 ~arm64
+
 =app-containers/containerd-1.7.19 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-07-05 08:17:23
 =app-containers/cri-tools-1.27.0 ~amd64 ~arm64
 =app-containers/runc-1.1.13 ~amd64 ~arm64

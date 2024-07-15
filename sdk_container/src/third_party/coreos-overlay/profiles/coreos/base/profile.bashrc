@@ -71,23 +71,6 @@ cros_setup_hooks() {
 }
 cros_setup_hooks
 
-# Packages that use python will run a small python script to find the
-# pythondir. Unfortunately, they query the host python to find out the
-# paths for things, which means they inevitably guess wrong.  Export
-# the cached values ourselves and since we know these are going through
-# autoconf, we can leverage ${libdir} that econf sets up automatically.
-cros_pre_src_unpack_python_multilib_setup() {
-	# Avoid executing multiple times in a single build.
-	[[ ${am_cv_python_version:+set} == "set" ]] && return
-
-	local py=${PYTHON:-python}
-	local py_ver=$(${py} -c 'import sys;sys.stdout.write(sys.version[:4])')
-
-	export am_cv_python_version=${py_ver}
-	export am_cv_python_pythondir="\${libdir}/python${py_ver}/site-packages"
-	export am_cv_python_pyexecdir=${am_cv_python_pythondir}
-}
-
 # Since we're storing the wrappers in a board sysroot, make sure that
 # is actually in our PATH.
 cros_pre_pkg_setup_sysroot_build_bin_dir() {

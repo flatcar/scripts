@@ -37,7 +37,7 @@ build_target_toolchain() {
         run_merge -u --root="$ROOT" --sysroot="$ROOT" "${TOOLCHAIN_PKGS[@]}"
 }
 
-configure_crossdev_overlay / /tmp/crossdev
+configure_crossdev_overlay / /usr/local/portage/crossdev
 
 for board in $(get_board_list); do
     echo "Building native toolchain for ${board}"

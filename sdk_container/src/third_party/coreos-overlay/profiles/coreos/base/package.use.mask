@@ -1,8 +1,8 @@
 # We don't ship GnuTLS by default, and smartcard has a dep loop
 app-crypt/gnupg smartcard ssl
 
-# not needed, requires dev-lang/python-exec
-sys-apps/util-linux python
+# Our ISOs are not built with Catalyst.
+dev-util/catalyst iso
 
 # not needed, requires lots of Perl
 sys-boot/syslinux perl

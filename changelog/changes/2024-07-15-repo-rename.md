@@ -1,0 +1,1 @@
+- As part of the update to Catalyst 4 (used to build the SDK), the coreos package repository has been renamed to coreos-overlay to match its directory name. This will be reflected in package listings and package manager output. ([flatcar/scripts#2115](https://github.com/flatcar/scripts/pull/2115))

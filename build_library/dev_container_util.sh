@@ -42,22 +42,24 @@ PORTAGE_BINHOST="$(get_binhost_url "${binhost}" "${update_group}" 'pkgs')
 $(get_binhost_url "${binhost}" "${update_group}" 'toolchain')"
 EOF
 
-    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/coreos.conf" <<EOF
+    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/portage-stable.conf" <<EOF
 [DEFAULT]
 main-repo = portage-stable
 
-[coreos]
-location = /var/lib/portage/coreos-overlay
-
 [portage-stable]
 location = /var/lib/portage/portage-stable
+EOF
+
+    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
+[coreos-overlay]
+location = /var/lib/portage/coreos-overlay
 EOF
 
     # Now set the correct profile, we do not use the eselect tool - it
     # does not seem to be usable outside of the chroot without using
     # deprecated PORTDIR and PORTDIR_OVERLAY environment variables.
     local profile_name=$(get_board_profile "${BOARD}")
-    # Turn coreos:coreos/amd64/generic into coreos/amd64/generic/dev
+    # Turn coreos-overlay:coreos/amd64/generic into coreos/amd64/generic/dev
     profile_name="${profile_name#*:}/dev"
     local profile_directory="${root_fs_dir}/var/lib/portage/coreos-overlay/profiles/${profile_name}"
     if [[ ! -d "${profile_directory}" ]]; then

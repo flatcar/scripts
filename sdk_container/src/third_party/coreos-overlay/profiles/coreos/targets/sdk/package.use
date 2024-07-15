@@ -1,3 +1,6 @@
+# Needed by Catalyst.
+sys-apps/util-linux python
+
 coreos-base/update_engine delta_generator
 
 dev-vcs/git pcre

@@ -103,15 +103,17 @@ EMERGE_DEFAULT_OPTS="--verbose --oneshot"
 source "/etc/portage/make.conf.user"
 EOF
 
-sudo_clobber "/etc/portage/repos.conf/coreos.conf" <<EOF
+sudo_clobber "/etc/portage/repos.conf/portage-stable.conf" <<EOF
 [DEFAULT]
 main-repo = portage-stable
 
-[coreos]
-location = ${COREOS_OVERLAY}
-
 [portage-stable]
 location = ${PORTAGE_STABLE_OVERLAY}
+EOF
+
+sudo_clobber "/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
+[coreos-overlay]
+location = ${COREOS_OVERLAY}
 EOF
 
 # Automatically symlink any provided portage repo configurations into
@@ -132,13 +134,13 @@ if [[ -n $(sudo find /mnt/host/source/config/portage/repos \
   if [[ -n $(sudo find /mnt/host/source/config/portage/repos \
     -maxdepth 3 -mindepth 3 -path "*/repos.conf/*" -type f) ]]; then
     info "Symlinking portage repo configuration files into repos.conf dir..."
-    # Do not name any of your repo configs "coreos.conf" bad things will happen.
-    # We abort if any file matches config/portage/repos/*/repos.conf/coreos.conf
+    # Do not name any of your repo configs "coreos-overlay.conf" bad things will happen.
+    # We abort if any file matches config/portage/repos/*/repos.conf/coreos-overlay.conf
     if [[ -n $(sudo find /mnt/host/source/config/portage/repos \
-      -maxdepth 3 -mindepth 3 -path "*/repos.conf/*" -name "coreos.conf") ]]; then
+      -maxdepth 3 -mindepth 3 -path "*/repos.conf/*" -name "coreos-overlay.conf") ]]; then
       die_notrace "One of the portage repo configuration files to be symlinked is " \
-        "named \"coreos.conf\" which will conflict with the main configuation file " \
-        "called \"coreos.conf\" which is created during the chroot build process."
+        "named \"coreos-overlay.conf\" which will conflict with the main configuation file " \
+        "called \"coreos-overlay.conf\" which is created during the chroot build process."
     fi
     # We run through all the other files matching config/portage/repos/*/repos.conf/*
     # and symlink them to the right place for portage.
