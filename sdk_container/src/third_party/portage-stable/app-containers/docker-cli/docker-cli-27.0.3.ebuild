@@ -2,7 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GIT_COMMIT=29cf629222
+
+GIT_COMMIT=7d4bcd863a4c863e650eed02a550dfeb98560b83
+
 EGO_PN="github.com/docker/cli"
 MY_PV=${PV/_/-}
 inherit bash-completion-r1  golang-vcs-snapshot
@@ -42,8 +44,8 @@ src_compile() {
 	export GOPATH="${WORKDIR}/${P}"
 	# setup CFLAGS and LDFLAGS for separate build target
 	# see https://github.com/tianon/docker-overlay/pull/10
-	export CGO_CFLAGS="-I${ESYSROOT}/usr/include"
-	export CGO_LDFLAGS="-L${ESYSROOT}/usr/$(get_libdir)"
+	CGO_CFLAGS+=" -I${ESYSROOT}/usr/include"
+	CGO_LDFLAGS+=" -L${ESYSROOT}/usr/$(get_libdir)"
 		emake \
 		LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')" \
 		VERSION="${PV}" \
