@@ -3,13 +3,16 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
 	pam python-r1 multilib-minimal multiprocessing systemd
 
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
+
+DESCRIPTION="Various useful Linux utilities"
+HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
@@ -19,7 +22,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -27,9 +30,6 @@ else
 fi
 
 S="${WORKDIR}/${MY_P}"
-
-DESCRIPTION="Various useful Linux utilities"
-HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/util-linux/util-linux"
 
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
@@ -99,8 +99,11 @@ RESTRICT="!test? ( test )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.39.2-fincore-test.patch
-	"${FILESDIR}"/${PN}-2.39.2-backport-pr2251.patch
 	"${FILESDIR}"/${PN}-2.39.2-backport-1d4456d.patch
+	"${FILESDIR}"/${PN}-2.39.3-musl-1.2.5-basename.patch
+	"${FILESDIR}"/${PN}-2.39.3-libmount-Fix-export-of-mnt_context_is_lazy-and-mnt_c.patch
+	"${FILESDIR}"/${PN}-2.39.3-fix-use-after-free.patch
+	"${FILESDIR}"/${PN}-2.39.4-umount-readonly.patch
 )
 
 pkg_pretend() {
@@ -152,6 +155,9 @@ src_prepare() {
 			# Fails with network-sandbox at least in nspawn
 			lsfd/option-inet
 			utmp/last-ipv6
+
+			# Flaky
+			rename/subdir
 		)
 
 		local known_failing_test
@@ -363,6 +369,9 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	dodoc AUTHORS NEWS README* Documentation/{TODO,*.txt,releases/*}
+
+	dosym hexdump /usr/bin/hd
+	newman - hd.1 <<< '.so man1/hexdump.1'
 
 	# e2fsprogs-libs didn't install .la files, and .pc work fine
 	find "${ED}" -name "*.la" -delete || die
