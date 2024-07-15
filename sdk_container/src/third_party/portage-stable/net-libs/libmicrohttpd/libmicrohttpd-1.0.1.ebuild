@@ -3,7 +3,7 @@
 
 EAPI="8"
 
-inherit multilib-minimal
+inherit linux-info multilib-minimal
 
 MY_P="${P/_/}"
 
@@ -14,8 +14,9 @@ S="${WORKDIR}"/${MY_P}
 
 LICENSE="|| ( LGPL-2.1+ !ssl? ( GPL-2+-with-eCos-exception-2 ) )"
 SLOT="0/12"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
-IUSE="+epoll ssl static-libs test +thread-names"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+IUSE="debug +epoll +eventfd ssl static-libs test +thread-names"
+REQUIRED_USE="epoll? ( kernel_linux )"
 RESTRICT="!test? ( test )"
 
 RDEPEND="ssl? ( >net-libs/gnutls-2.12.20:=[${MULTILIB_USEDEP}] )"
@@ -26,67 +27,51 @@ BDEPEND="ssl? ( virtual/pkgconfig )"
 
 DOCS=( AUTHORS NEWS COPYING README ChangeLog )
 
-PATCHES=( "${FILESDIR}"/${PN}-0.9.75-fix-testsuite-with-lto.patch )
-
 # All checks in libmicrohttpd's configure are correct
-# Gentoo Bug #898662
 # Gentoo Bug #923760
 QA_CONFIG_IMPL_DECL_SKIP=(
-	'pthread_sigmask'
-	'CreateThread'
-	'pthread_attr_init'
-	'pthread_attr_setname_np'
-	'pthread_setname_np'
-	'__builtin_bswap32'
-	'__builtin_bswap64'
-	'WSAPoll'
-	'epoll_create1'
-	'eventfd'
-	'pipe'
-	'pipe2'
-	'socketpair'
-	'gmtime_s'
-	'host_get_clock_service'
-	'clock_get_time'
-	'mach_port_deallocate'
-	'gethrtime'
-	'timespec_get'
-	'gettimeofday'
-	'sendfile'
-	'gnutls_privkey_import_x509_raw'
-	'calloc'
-	'fork'
-	'waitpid'
-	'random'
-	'rand'
-	'getsockname'
-	'sysconf'
-	'sysctl'
-	'sysctlbyname'
-	'usleep'
-	'nanosleep'
 	'stpncpy'
 )
 
+pkg_pretend() {
+	if use kernel_linux ; then
+		CONFIG_CHECK=""
+		use epoll && CONFIG_CHECK+=" ~EPOLL"
+		ERROR_EPOLL="EPOLL is not enabled in kernel, but enabled in libmicrohttpd."
+		ERROR_EPOLL+=" libmicrohttpd will fail to start with 'automatic' configuration."
+		use eventfd && CONFIG_CHECK+=" ~EVENTFD"
+		ERROR_EVENTFD="EVENTFD is not enabled in kernel, but enabled in libmicrohttpd."
+		ERROR_EVENTFD+=" libmicrohttpd will not work."
+		check_extra_config
+	fi
+}
+
 multilib_src_configure() {
+	local itc_type
+	if use eventfd; then
+		itc_type="eventfd"
+	else
+		itc_type="pipe"
+	fi
 	ECONF_SOURCE="${S}" \
 	econf \
 		--enable-shared \
 		$(use_enable static-libs static) \
-		--disable-nls \
 		--enable-bauth \
 		--enable-dauth \
-		--disable-examples \
 		--enable-messages \
 		--enable-postprocessor \
 		--enable-httpupgrade \
+		--disable-examples \
+		--disable-tools \
 		--disable-experimental \
 		--disable-heavy-tests \
+		--enable-itc=${itc_type} \
+		$(use_enable debug asserts) \
 		$(use_enable thread-names) \
 		$(use_enable epoll) \
 		$(use_enable test curl) \
-		$(use_enable ssl https) \
-		$(use_with ssl gnutls)
+		$(use_enable ssl https)
 }
 
 multilib_src_install_all() {
