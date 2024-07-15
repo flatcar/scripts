@@ -51,9 +51,6 @@ fi
 # Turn on bash debug support if available for backtraces.
 shopt -s extdebug 2>/dev/null
 
-# Source qemu library path
-. /etc/profile.d/qemu-aarch64.sh 2> /dev/null || true
-
 # Output a backtrace all the way back to the raw invocation, suppressing
 # only the _dump_trace frame itself.
 _dump_trace() {
@@ -991,39 +988,4 @@ failboat() {
 BOAT
   echo -e "${V_VIDOFF}"
   die "$* failed"
-}
-
-# The binfmt_misc support in the kernel is required.
-# The aarch64 binaries should be executed through
-# "/usr/bin/qemu-aarch64-static"
-setup_qemu_static() {
-  local root_fs_dir="$1"
-  case "${BOARD}" in
-    amd64-usr) return 0;;
-    arm64-usr)
-      if [[ -f "${root_fs_dir}/sbin/ldconfig" ]]; then
-        sudo cp /usr/bin/qemu-aarch64 "${root_fs_dir}"/usr/bin/qemu-aarch64-static
-        echo export QEMU_LD_PREFIX=\"/build/arm64-usr/\" | sudo tee /etc/profile.d/qemu-aarch64.sh
-        . /etc/profile.d/qemu-aarch64.sh
-      else
-        die "Missing basic layout in target rootfs"
-      fi
-    ;;
-    *) die "Unsupported arch" ;;
-  esac
-}
-
-clean_qemu_static() {
-  local root_fs_dir="$1"
-  case "${BOARD}" in
-    amd64-usr) return 0;;
-    arm64-usr)
-      if [[ -f "${root_fs_dir}/usr/bin/qemu-aarch64-static" ]]; then
-        sudo rm "${root_fs_dir}"/usr/bin/qemu-aarch64-static
-      else
-        die "File not found"
-      fi
-    ;;
-    *) die "Unsupported arch" ;;
-  esac
 }
