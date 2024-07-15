@@ -5,7 +5,7 @@ EAPI=8
 
 # Uncomment when introducing a patch which touches configure
 RSYNC_NEEDS_AUTOCONF=1
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{9..11} )
 inherit flag-o-matic prefix python-single-r1 systemd
 
 DESCRIPTION="File transfer program to keep remote files into sync"
@@ -76,6 +76,12 @@ else
 	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-waynedavison )"
 fi
 
+PATCHES=(
+	"${FILESDIR}"/${P}-flist-memcmp-ub.patch
+	"${FILESDIR}"/${P}-fortify-source-3.patch
+	"${FILESDIR}"/${PN}-3.2.7-ipv6-configure-c99.patch
+)
+
 pkg_setup() {
 	# - USE=examples needs Python itself at runtime, but nothing else
 	# - 9999 needs commonmark at build time
@@ -143,7 +149,7 @@ src_install() {
 	dodoc NEWS.md README.md TODO tech_report.tex
 
 	insinto /etc
-	newins "${FILESDIR}"/rsyncd.conf-3.0.9-r1 rsyncd.conf
+	newins "${FILESDIR}"/rsyncd.conf-3.2.7-r5 rsyncd.conf
 
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/rsyncd.logrotate rsyncd

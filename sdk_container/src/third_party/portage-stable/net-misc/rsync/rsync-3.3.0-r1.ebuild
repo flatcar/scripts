@@ -143,7 +143,7 @@ src_install() {
 	dodoc NEWS.md README.md TODO tech_report.tex
 
 	insinto /etc
-	newins "${FILESDIR}"/rsyncd.conf-3.0.9-r1 rsyncd.conf
+	newins "${FILESDIR}"/rsyncd.conf-3.2.7-r5 rsyncd.conf
 
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/rsyncd.logrotate rsyncd
