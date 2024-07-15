@@ -1,39 +1,64 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=8
 
-inherit linux-info mount-boot
+inherit dist-kernel-utils linux-info mount-boot
 
 # Find updates by searching and clicking the first link (hopefully it's the one):
 # https://www.intel.com/content/www/us/en/search.html?keyword=Processor+Microcode+Data+File
+#
+#
+# Package Maintenance instructions:
+# 1. The ebuild is in the form of intel-microcode-<INTEL_SNAPSHOT>_p<COLLECTION_SNAPSHOT>.ebuild
+# 2. The INTEL_SNAPSHOT upstream is located at: https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files
+# 3. The COLLECTION_SNAPSHOT is created manually using the following steps:
+#   a. Clone the repository https://github.com/platomav/CPUMicrocodes
+#   b. Rename the Intel directory to intel-microcode-collection-<YYYYMMDD>
+#   c. From the CPUMicrocodes directory tar and xz compress the contents of intel-microcode-collection-<YYYYMMDD>:
+#      tar -cJf intel-microcode-collection-<YYYYMMDD>.tar.xz intel-microcode-collection-<YYYYMMDD>/
+#   d. This file can go in your devspace, add the URL to SRC_URI if it's not there
+#      https://dev.gentoo.org/~<dev nick>/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
+#
+# PV:
+# * the first date is upstream
+# * the second date is snapshot (use last commit date in repo) from intel-microcode-collection
 
 COLLECTION_SNAPSHOT="${PV##*_p}"
 INTEL_SNAPSHOT="${PV/_p*}"
 #NUM="28087"
+
 #https://downloadcenter.intel.com/Detail_Desc.aspx?DwnldID=${NUM}
 #https://downloadmirror.intel.com/${NUM}/eng/microcode-${INTEL_SNAPSHOT}.tgz
+
 DESCRIPTION="Intel IA32/IA64 microcode update data"
-HOMEPAGE="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files http://inertiawar.com/microcode/"
-SRC_URI="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/archive/microcode-${INTEL_SNAPSHOT}.tar.gz
+HOMEPAGE="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files https://github.com/platomav/CPUMicrocodes http://inertiawar.com/microcode/"
+SRC_URI="
+	https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/archive/microcode-${INTEL_SNAPSHOT}.tar.gz
 	https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/raw/437f382b1be4412b9d03e2bbdcda46d83d581242/intel-ucode/06-4e-03 -> intel-ucode-sig_0x406e3-rev_0xd6.bin
 	https://dev.gentoo.org/~mpagano/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
-	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz"
+	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
+"
+S="${WORKDIR}"
 
 LICENSE="intel-ucode"
 SLOT="0"
-KEYWORDS="-* amd64 x86"
-IUSE="hostonly initramfs +split-ucode vanilla"
-REQUIRED_USE="|| ( initramfs split-ucode )"
-
-BDEPEND=">=sys-apps/iucode_tool-2.3"
-
-# !<sys-apps/microcode-ctl-1.17-r2 due to bug #268586
-RDEPEND="hostonly? ( sys-apps/iucode_tool )"
-
+KEYWORDS="-* ~amd64 ~x86"
+IUSE="dist-kernel hostonly +initramfs +split-ucode vanilla"
+REQUIRED_USE="!dist-kernel? ( || ( initramfs split-ucode ) )"
 RESTRICT="binchecks strip"
 
-S=${WORKDIR}
+BDEPEND=">=sys-apps/iucode_tool-2.3"
+# !<sys-apps/microcode-ctl-1.17-r2 due to bug #268586
+RDEPEND="
+	dist-kernel? ( virtual/dist-kernel )
+	hostonly? ( sys-apps/iucode_tool )
+"
+IDEPEND="
+	dist-kernel? (
+		initramfs? ( sys-kernel/installkernel )
+	)
+"
 
 # Blacklist bad microcode here.
 # 0x000406f1 aka 06-4f-01 aka CPUID 406F1 require newer microcode loader
@@ -57,19 +82,16 @@ MICROCODE_SIGNATURES_DEFAULT=""
 # only specific CPU: MICROCODE_SIGNATURES="-s 0x00000f4a -s 0x00010676"
 # exclude specific CPU: MICROCODE_SIGNATURES="-s !0x00000686"
 
-# Package Maintenance instructions :
-# 1. The ebuild is in the form of intel-microcode-<INTEL_SNAPSHOT>_p<COLLECTION_SNAPSHOT>.ebuild
-# 2. The INTEL_SNAPSHOT upstream is located at: https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files\
-# 3. The COLLECTION_SNAPSHOT is created manually using the following steps:
-#   a. Clone the repository https://github.com/platomav/CPUMicrocodes
-#   b. Rename the Intel directory to intel-microcode-collection-<YYYYMMDD>
-#   c. From the CPUMicrocodes directory tar and xz compress the contents of intel-microcode-collection-<YYYYMMDD>:
-#      tar -cJf intel-microcode-collection-<YYYYMMDD>.tar.xz intel-microcode-collection-<YYYYMMDD>/
-#   d. This file can go in your devspace, add the URL to SRC_URI if it's not there
-#      https://dev.gentoo.org/~<dev nick>/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
-
 pkg_pretend() {
-	use initramfs && mount-boot_pkg_pretend
+	if use initramfs; then
+		if [[ -z ${ROOT} ]] && use dist-kernel; then
+			# Check, but don't die because we can fix the problem and then
+			# emerge --config ... to re-run installation.
+			nonfatal mount-boot_check_status
+		else
+			mount-boot_pkg_pretend
+		fi
+	fi
 }
 
 src_prepare() {
@@ -132,9 +154,28 @@ src_install() {
 		--list
 	)
 
+	# Instruct Dracut on whether or not we want the microcode in initramfs
+	# Use here 15 instead of 10, intel-microcode overwrites linux-firmware
+	(
+		insinto /usr/lib/dracut/dracut.conf.d
+		newins - 15-${PN}.conf <<<"early_microcode=$(usex initramfs)"
+	)
+	if use initramfs; then
+		# Install installkernel/kernel-install hooks for non-dracut initramfs
+		# generators that don't bundled the microcode
+		(
+			exeinto /usr/lib/kernel/preinst.d
+			doexe "${FILESDIR}/35-intel-microcode.install"
+			exeinto /usr/lib/kernel/install.d
+			doexe "${FILESDIR}/35-intel-microcode-systemd.install"
+		)
+	fi
+
 	# The earlyfw cpio needs to be in /boot because it must be loaded before
 	# rootfs is mounted.
-	use initramfs && dodir /boot && opts+=( --write-earlyfw="${ED}/boot/intel-uc.img" )
+	if ! use dist-kernel && use initramfs; then
+		dodir /boot && opts+=( --write-earlyfw="${ED}/boot/intel-uc.img" )
+	fi
 
 	keepdir /lib/firmware/intel-ucode
 	opts+=( --write-firmware="${ED}/lib/firmware/intel-ucode" )
@@ -158,7 +199,7 @@ pkg_preinst() {
 	fi
 
 	# Make sure /boot is available if needed.
-	use initramfs && mount-boot_pkg_preinst
+	use initramfs && ! use dist-kernel && mount-boot_pkg_preinst
 
 	local _initramfs_file="${ED}/boot/intel-uc.img"
 
@@ -188,7 +229,9 @@ pkg_preinst() {
 
 		# The earlyfw cpio needs to be in /boot because it must be loaded before
 		# rootfs is mounted.
-		use initramfs && opts+=( --write-earlyfw=${_initramfs_file} )
+		if ! use dist-kernel && use initramfs; then
+			opts+=( --write-earlyfw=${_initramfs_file} )
+		fi
 
 		if use split-ucode; then
 			opts+=( --write-firmware="${ED}/lib/firmware/intel-ucode" )
@@ -249,17 +292,23 @@ pkg_preinst() {
 
 pkg_prerm() {
 	# Make sure /boot is mounted so that we can remove /boot/intel-uc.img!
-	use initramfs && mount-boot_pkg_prerm
+	use initramfs && ! use dist-kernel && mount-boot_pkg_prerm
 }
 
 pkg_postrm() {
 	# Don't forget to umount /boot if it was previously mounted by us.
-	use initramfs && mount-boot_pkg_postrm
+	use initramfs && ! use dist-kernel && mount-boot_pkg_postrm
 }
 
 pkg_postinst() {
-	# Don't forget to umount /boot if it was previously mounted by us.
-	use initramfs && mount-boot_pkg_postinst
+	if use initramfs; then
+		if [[ -z ${ROOT} ]] && use dist-kernel; then
+			dist-kernel_reinstall_initramfs "${KV_DIR}" "${KV_FULL}"
+		else
+			# Don't forget to umount /boot if it was previously mounted by us.
+			mount-boot_pkg_postinst
+		fi
+	fi
 
 	# We cannot give detailed information if user is affected or not:
 	# If MICROCODE_BLACKLIST wasn't modified, user can still use MICROCODE_SIGNATURES
