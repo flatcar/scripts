@@ -1,6 +1,14 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Thomas Bettler <thomas.bettler@gmail.com> (2024-06-10)
+# requires dev-libs/apache-arrow which is net yet keyworded
+sci-libs/gdal parquet
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-05-13)
+# Requires dev-util/shelltestrunner
+app-arch/mt-st test
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-03-31)
 # MPV currently[1] has no plans to support >=lua5-3 making luajit
 # the only choice for maintained lua. Apply mask/force to override
@@ -13,6 +21,7 @@ media-video/mpv -lua_single_target_lua5-1 lua_single_target_luajit
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-03-24)
 # Requires unkeyworded dev-qt/qtwebengine (and revdeps)
 kde-apps/kleopatra pim
+kde-plasma/plasma-nm openconnect
 net-irc/quassel urlpreview
 net-p2p/ktorrent rss
 
@@ -72,6 +81,7 @@ dev-db/spatialite rttopo
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-08-30)
 # Avoid keywordming more Qt stuff
 dev-python/pyside2 3d datavis scxml
+dev-python/pyside6 3d scxml
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-03-07)
 # nbval/nbclassic docs require pandoc which is not keyworded here yet
@@ -178,10 +188,6 @@ www-client/chromium widevine
 # requires media-libs/sdl2-image, which is not yet keyworded
 app-emulation/qemu sdl-image
 
-# Georgy Yakovlev <gyakovlev@gentoo.org> (2020-01-25)
-# requires fwupd, which is not yet keyworded
-kde-plasma/discover firmware
-
 # Rick Farina <zerochaos@gentoo.org> (2020-01-03)
 # ubertooth needs net-libs/libbtbb and net-wireless/ubertooth which aren't keyworded
 net-wireless/kismet ubertooth
@@ -266,14 +272,6 @@ app-i18n/fcitx-libpinyin dictionary-manager
 # Requires java
 app-forensics/sleuthkit java
 
-# Michał Górny <mgorny@gentoo.org> (2017-08-10)
-# Requires USE=ipmi which is masked in this profile.
-sys-power/nut ups_drivers_nut-ipmipsu
-
-# Michał Górny <mgorny@gentoo.org> (2017-08-08)
-# Requires USE=opencl that is masked in this profile.
-net-misc/bfgminer adl lm-sensors
-
 # Michał Górny <mgorny@gentoo.org> (2017-03-24)
 # libcxx fails to compile on ppc*, #595744.
 sys-devel/clang-common default-libcxx
@@ -346,10 +344,6 @@ media-libs/opencv vtk
 # Pacho Ramos <pacho@gentoo.org> (2013-02-22)
 # Missing keywords, bug #495250
 >=gnome-base/gnome-extra-apps-3.10 tracker
-
-# Pacho Ramos <pacho@gentoo.org> (2013-11-28)
-# Missing keywords, bug #492820
-net-im/telepathy-connection-managers sipe
 
 # Pacho Ramos <pacho@gentoo.org> (2013-10-31)
 # Missing keywords, bug #478254

@@ -5,10 +5,6 @@
 # This code assumes 32-bit longs and must therefore be built as a 32-bit binary.
 sys-fs/atari-fdisk
 
-# David Seifert <soap@gentoo.org> (2018-01-03)
-# Requires 32-bit multilib compatibility
-sys-block/megamgr
-
 # James Le Cuirot <chewi@gentoo.org> (2016-08-13)
 # Steam requires amd64 multilib. These are steam-overlay packages.
 dev-util/adobe-air-runtime
@@ -27,7 +23,6 @@ app-emulation/crossover-bin
 app-emulation/q4wine
 dev-embedded/libftd2xx
 dev-embedded/openocd
-dev-util/android-ndk
 dev-util/android-sdk-update-manager
 dev-util/biew
 games-action/badland
@@ -83,7 +78,6 @@ games-rpg/eschalon-book-1-demo
 games-rpg/wasteland2
 games-server/etqw-ded
 games-strategy/darwinia
-games-strategy/darwinia-demo
 games-strategy/dominions2
 games-strategy/knights-demo
 games-strategy/majesty-demo

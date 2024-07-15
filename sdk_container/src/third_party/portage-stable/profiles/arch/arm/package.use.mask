@@ -1,6 +1,28 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# matoro <matoro_gentoo@matoro.tk> (2024-07-14)
+# Abandoned upstream, does not take bug reports, unsupported in Gentoo.
+# Only remaining use is as a requirement for dev-lang/go on arm{,64}.
+# See #934149, #934151, #936022, #936021
+sys-devel/binutils -gold
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-07-01)
+# USE="kf6compat,kaccounts" depends on kde-frameworks/purpose:6[webengine]
+# which is package.use.mask'ed on these arches. We cannot mask the
+# combination specifically but in reality kaccounts is useless without
+# additional dev-qt/qtwebengine revdeps.
+kde-frameworks/purpose:5 kaccounts
+
+# Sam James <sam@gentoo.org> (2024-06-13)
+# Needs as-yet-unkeyworded KF6 (bug #934215)
+app-crypt/pinentry qt6
+app-office/libreoffice qt6
+
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-06-01)
+# qtnetworkauth not yet keyworded here
+dev-python/pyside6 network-auth
+
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
 # virt-firmware is keyworded here
 sys-kernel/installkernel -efistub
@@ -74,11 +96,7 @@ dev-lang/idris2 test-full
 dev-python/cloudscraper test
 dev-python/QtPy test
 games-util/lgogdownloader gui
-kde-apps/kde-apps-meta pim
-kde-apps/kdenetwork-meta bittorrent
-kde-apps/kleopatra pim
-kde-apps/umbrello php
-kde-misc/kio-gdrive share
+kde-plasma/plasma-nm openconnect
 net-irc/quassel urlpreview
 net-misc/fatrat bittorrent
 net-misc/seafile-client shibboleth
@@ -113,10 +131,6 @@ app-text/enchant nuspell
 # Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
 # Untested useflag on other arches, needs keywording
 media-video/ffmpeg vmaf
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2022-03-13)
-# Not yet keyworded. Bug #835037
-kde-frameworks/kfilemetadata mobi
 
 # Sam James <sam@gentoo.org> (2022-03-10)
 # Boost has support for ARM32
@@ -259,10 +273,6 @@ dev-ruby/capybara test
 # pre-built, no ARM support
 net-wireless/gr-osmosdr sdrplay
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2018-06-03)
-# net-wireless/soapysdr not keyworded
-net-wireless/gr-osmosdr soapy
-
 # Markus Meier <maekke@gentoo.org> (2018-05-30)
 # unkeyworded deps for bug #621434
 net-analyzer/zmap mongo
@@ -279,22 +289,10 @@ net-libs/gnutls test-full
 # Moved from use.mask since they are flags local to one package.
 media-tv/tvheadend hdhomerun
 
-# Patrice Clement <monsieurp@gentoo.org> (2017-09-24)
-# Unmask Raspberry Pi support on arm.
-media-video/mpv -raspberry-pi
-
 # James Le Cuirot <chewi@gentoo.org> (2017-09-20)
 # media-sound/mac's executable segfaults when compressing all but the
 # smallest wav files.
 media-sound/xmms2 mac
-
-# Michał Górny <mgorny@gentoo.org> (2017-08-10)
-# Requires USE=ipmi which is masked in this profile.
-sys-power/nut ups_drivers_nut-ipmipsu
-
-# Michał Górny <mgorny@gentoo.org> (2017-08-08)
-# Requires USE=opencl that is masked in this profile.
-net-misc/bfgminer adl lm-sensors
 
 # Patrice Clement <monsieurp@gentoo.org> (2017-04-09)
 # Enable MQTT support on supported architectures
@@ -368,7 +366,6 @@ net-print/hplip -scanner kde
 # MMAL is available on the Raspberry Pi (armv6 & armv7 so far)
 media-video/ffmpeg -mmal
 media-video/ffmpeg-chromium -mmal
-media-video/mpv -mmal
 
 # Alexis Ballier <aballier@gentoo.org> (2015-04-02)
 # Needs ilmbase (openexr), which does not build and is masked on arm.
@@ -432,10 +429,6 @@ app-emulation/xen-tools doc
 # Markus Meier <maekke@gentoo.org> (2013-12-26)
 # Unkeyworded deps, bug #488724
 app-office/gnumeric libgda
-
-# Pacho Ramos <pacho@gentoo.org> (2013-11-28)
-# Missing keywords, bug #492820
-net-im/telepathy-connection-managers sipe
 
 # Pacho Ramos <pacho@gentoo.org> (2013-10-31)
 # Missing keywords, bug #478254

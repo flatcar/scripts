@@ -1,6 +1,15 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# James Le Cuirot <chewi@gentoo.org> (2024-07-13)
+# These tests pass, but the net-misc/memcached tests do not, so we should not
+# keyword memcached-related packages such as dev-python/pylibmc.
+dev-python/pytest-services test
+
+# Michał Górny <mgorny@gentoo.org> (2024-05-08)
+# Requires sys-devel/{clang,llvm}:16.
+dev-lang/python jit
+
 # James Le Cuirot (2023-12-12)
 # USE=bpf depends on sys-devel/clang which is not keyworded on m68k
 media-libs/libv4l bpf
