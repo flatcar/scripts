@@ -1,16 +1,16 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
-PATCH_VER=1
-CROSS_VER=1.5.2
-PATCH_BASE="perl-5.38.0-patches-${PATCH_VER}"
+PATCH_VER=2
+CROSS_VER=1.5.3
+PATCH_BASE="perl-5.40.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
-DIST_AUTHOR=PEVANS
+DIST_AUTHOR=HAARG
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
@@ -18,7 +18,7 @@ DIST_AUTHOR=PEVANS
 PERL_BIN_OLDVERSEN=""
 
 if [[ "${PV##*.}" == "9999" ]]; then
-	DIST_VERSION=5.30.0
+	DIST_VERSION=5.40.0
 else
 	DIST_VERSION="${PV/_rc/-RC}"
 fi
@@ -39,24 +39,26 @@ MY_PV="${DIST_VERSION%-RC*}"
 
 DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 
+HOMEPAGE="https://www.perl.org/"
+
 SRC_URI="
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
 	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
-	https://github.com/gentoo-perl/perl-patchset/archive/refs/tags/${PATCH_BASE}.tar.gz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.gz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.xz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
 "
 
-HOMEPAGE="https://www.perl.org/"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="|| ( Artistic GPL-1+ )"
+
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
-IUSE="berkdb debug doc gdbm ithreads minimal quadmath"
+IUSE="berkdb perl_features_debug doc gdbm perl_features_ithreads minimal perl_features_quadmath"
 
 RDEPEND="
 	berkdb? ( sys-libs/db:= )
@@ -67,10 +69,9 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="${RDEPEND}"
-
 PDEPEND="
-	>=app-admin/perl-cleaner-2.30
 	!minimal? (
+		>=app-admin/perl-cleaner-2.31
 		>=virtual/perl-CPAN-2.290.0
 		>=virtual/perl-Encode-3.120.0
 		>=virtual/perl-File-Temp-0.230.400-r2
@@ -79,27 +80,26 @@ PDEPEND="
 		virtual/perl-Test-Harness
 	)
 "
+
 # bug 390719, bug 523624
 # virtual/perl-Test-Harness is here for the bundled ExtUtils::MakeMaker
 
-S="${WORKDIR}/${MY_P}"
-
 dual_scripts() {
-	src_remove_dual      perl-core/Archive-Tar        2.400.0       ptar ptardiff ptargrep
+	src_remove_dual      perl-core/Archive-Tar        3.20.10_rc    ptar ptardiff ptargrep
 	src_remove_dual      perl-core/CPAN               2.360.0       cpan
 	src_remove_dual      perl-core/Digest-SHA         6.40.0        shasum
-	src_remove_dual      perl-core/Encode             3.190.0       enc2xs piconv
+	src_remove_dual      perl-core/Encode             3.210.0       enc2xs piconv
 	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.700.0       instmodsh
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.510.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.204.0       zipdetails
-	src_remove_dual      perl-core/JSON-PP            4.160.0        json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.311.290 corelist
-	src_remove_dual      perl-core/Pod-Checker        1.750.0       podchecker
+	src_remove_dual      perl-core/IO-Compress        2.212.0       zipdetails
+	src_remove_dual      perl-core/JSON-PP            4.160.0       json_pp
+	src_remove_dual      perl-core/Module-CoreList    5.202.406.90  corelist
+	src_remove_dual      perl-core/Pod-Checker        1.770.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
-	src_remove_dual      perl-core/Pod-Usage          2.30.0       pod2usage
-	src_remove_dual      perl-core/Test-Harness       3.440.0       prove
-	src_remove_dual      perl-core/podlators          5.10.0       pod2man pod2text
-	src_remove_dual_man  perl-core/podlators          5.10.0       /usr/share/man/man1/perlpodstyle.1
+	src_remove_dual      perl-core/Pod-Usage          2.30.0        pod2usage
+	src_remove_dual      perl-core/Test-Harness       3.480.0       prove
+	src_remove_dual      perl-core/podlators          5.10.200_rc   pod2man pod2text
+	src_remove_dual_man  perl-core/podlators          5.10.200_rc   /usr/share/man/man1/perlpodstyle.1
 }
 
 check_rebuild() {
@@ -129,17 +129,46 @@ check_rebuild() {
 
 	# Reinstall w/ USE Change
 	elif
-		 (   use ithreads && ! has_version dev-lang/perl[ithreads] ) || \
-		 ( ! use ithreads &&   has_version dev-lang/perl[ithreads] ) || \
-		 (   use quadmath && ! has_version dev-lang/perl[quadmath] ) || \
-		 ( ! use quadmath &&   has_version dev-lang/perl[quadmath] ) || \
-		 (   use debug    && ! has_version dev-lang/perl[debug]    ) || \
-		 ( ! use debug    &&   has_version dev-lang/perl[debug]    ) ; then
+		 (   use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_ithreads]' ) ) || \
+		 ( ! use perl_features_ithreads && ( has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_ithreads]'  ) ) || \
+		 (   use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_quadmath]' ) ) || \
+		 ( ! use perl_features_quadmath && ( has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_quadmath]'  ) ) || \
+		 (   use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[-debug]'    || has_version '>=dev-lang/perl-5.38.2-r3[-perl_features_debug]'    ) ) || \
+		 ( ! use perl_features_debug    && ( has_version '<dev-lang/perl-5.38.2-r3[debug]'     || has_version '>=dev-lang/perl-5.38.2-r3[perl_features_debug]'     ) ) ; then
 		echo ""
-		ewarn "TOGGLED USE-FLAGS WARNING:"
-		ewarn "You changed one of the use-flags ithreads, quadmath, or debug."
-		ewarn "You must rebuild all perl-modules installed."
+		ewarn "TOGGLED PERL FEATURES WARNING:"
+		ewarn "You changed one of the PERL_FEATURES flags ithreads, quadmath, or debug."
+		ewarn "You must rebuild all perl-modules installed. Mostly this should be done automatically"
+		ewarn "via the flag changes of the packages. If the rebuild fails, use perl-cleaner."
 		ewarn "Use: perl-cleaner --modules ; perl-cleaner --force --libperl"
+		ewarn
+		ewarn "NOTE: Previous to perl-5.38.2-r3, these flags were useflags for dev-lang/perl."
+		ewarn "If you just upgraded and do not intend to change anything, carry the same settings over"
+		ewarn "into a global PERL_FEATURES variable set in make.conf. E.g., "
+		ewarn "dev-lang/perl[ithreads,quadmath] becomes PERL_FEATURES=\"ithreads quadmath\""
+	fi
+}
+
+pkg_pretend() {
+	if \
+		 (   use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[-ithreads]' ) || \
+		 ( ! use perl_features_ithreads && has_version '<dev-lang/perl-5.38.2-r3[ithreads]'  ) || \
+		 (   use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[-quadmath]' ) || \
+		 ( ! use perl_features_quadmath && has_version '<dev-lang/perl-5.38.2-r3[quadmath]'  ) || \
+		 (   use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[-debug]'    ) || \
+		 ( ! use perl_features_debug    && has_version '<dev-lang/perl-5.38.2-r3[debug]'     ) ;  \
+	then
+		echo ""
+		ewarn "As of dev-lang/perl-5.38.2-r3, the useflags debug, ithreads, quadmath move into"
+		ewarn "a use-expand variable PERL_FEATURES, which should be set globally in make.conf."
+		ewarn "It appears that you have not set this variable properly yet."
+		ewarn ""
+		ewarn "Giving you a chance to abort and read the corresponding news item now..."
+		for n in 10 9 8 7 6 5 4 3 2 1 ; do
+			echo -n "${n} "
+			sleep 2
+		done;
+		echo "continuing."
 	fi
 }
 
@@ -151,13 +180,13 @@ pkg_setup() {
 	esac
 
 	myarch="${CHOST%%-*}-${osname}"
-	if use debug ; then
+	if use perl_features_debug ; then
 		myarch+="-debug"
 	fi
-	if use quadmath ; then
+	if use perl_features_quadmath ; then
 		myarch+="-quadmath"
 	fi
-	if use ithreads ; then
+	if use perl_features_ithreads ; then
 		mythreading="-multi"
 		myarch+="-thread"
 	fi
@@ -387,8 +416,8 @@ src_prepare() {
 
 	local patchdir="${WORKDIR}/patches"
 
-	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patches" "${WORKDIR}/patches" || die
-	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patch-info" "${WORKDIR}/patch-info" || die
+	# mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patches" "${WORKDIR}/patches" || die
+	# mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patch-info" "${WORKDIR}/patch-info" || die
 
 	# Prepare Patch dir with additional patches / remove unwanted patches
 	# Inject bug/desc entries for perl -V
@@ -396,10 +425,6 @@ src_prepare() {
 	# add_patch "${FILESDIR}/${PN}-5.26.2-hppa.patch" "100-5.26.2-hppa.patch"\
 	#		"Fix broken miniperl on hppa"\
 	#		"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
-	add_patch "${FILESDIR}/${PN}-5.36.0-fix-configure-for-clang.patch" \
-			"100-5.36.0-fix-configure-for-clang.patch" \
-			"Fix clang check in configure" \
-			"https://github.com/Perl/perl5/issues/21099"
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
@@ -534,11 +559,11 @@ src_configure() {
 	# However, the darwin prefix people have no locale.h ...
 	use elibc_glibc && myconf -Ui_xlocale
 
+	# Perl relies on -fwrapv semantics
+	filter-flags -ftrapv
+
 	# This flag makes compiling crash in interesting ways
 	filter-flags "-malign-double"
-
-	# Generic LTO broken since 5.28, triggers EUMM failures
-	filter-lto
 
 	# On musl we dont want to use largefile *64 types, since 1) normal
 	# types are 64bit / largefile anyway and 2) the *64 types are going
@@ -577,15 +602,15 @@ src_configure() {
 	myconf "-${myndbm}i_ndbm" "-${mygdbm}i_gdbm" "-${mydb}i_db"
 
 	if use alpha && [[ "$(tc-getCC)" = "ccc" ]] ; then
-		ewarn "Perl will not be built with berkdb support, use gcc if you needed it..."
+		ewarn "Perl will not be built with berkdb support, use gcc if you need it..."
 		myconf -Ui_db -Ui_ndbm
 	fi
 
-	use ithreads && myconf -Dusethreads
+	use perl_features_ithreads && myconf -Dusethreads
 
-	use quadmath && myconf -Dusequadmath
+	use perl_features_quadmath && myconf -Dusequadmath
 
-	if use debug ; then
+	if use perl_features_debug ; then
 		append-cflags "-g"
 		myconf -DDEBUGGING
 	elif [[ ${CFLAGS} == *-g* ]] ; then
@@ -597,6 +622,9 @@ src_configure() {
 	# modifying 'optimize' prevents cross configure script from appending required flags
 	if tc-is-cross-compiler; then
 		append-cflags "-fwrapv"
+
+		# Needed for the CHOST build too (bug #932385)
+		export CFLAGS="${CFLAGS} -D_GNU_SOURCE"
 
 		# bug #913171
 		export HOSTCFLAGS="${CFLAGS_FOR_BUILD} -D_GNU_SOURCE"
@@ -650,7 +678,7 @@ src_configure() {
 	if use prefix ; then
 		# Set a hook to check for each detected library whether it actually works.
 		export libscheck="
-			( echo 'main(){}' > '${T}'/conftest.c &&
+			( echo 'int main(){}' > '${T}'/conftest.c &&
 				$(tc-getCC) -o '${T}'/conftest '${T}'/conftest.c -l\$thislib >/dev/null 2>/dev/null
 			) || xxx=/dev/null"
 
@@ -678,15 +706,14 @@ src_configure() {
 	# allow fiddling via EXTRA_ECONF, bug 558070
 	eval "local -a EXTRA_ECONF=(${EXTRA_ECONF})"
 
-	# setting -Dld= to tc-getLD breaks perl and all perl things
-	# https://github.com/Perl/perl5/issues/17791#issuecomment-630145202
 	myconf \
 		-Duseshrplib \
 		-Darchname="${myarch}" \
-		-Dcc="$(tc-getCC)" \
 		-Dar="$(tc-getAR)" \
-		-Dnm="$(tc-getNM)" \
+		-Dcc="$(tc-getCC)" \
 		-Dcpp="$(tc-getCPP)" \
+		-Dld="$(tc-getCC)" \
+		-Dnm="$(tc-getNM)" \
 		-Dranlib="$(tc-getRANLIB)" \
 		-Accflags="${CFLAGS} -DNO_PERL_RAND_SEED" \
 		-Doptimize="${CFLAGS}" \
