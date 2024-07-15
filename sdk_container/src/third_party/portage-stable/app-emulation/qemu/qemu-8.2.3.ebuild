@@ -47,7 +47,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -280,6 +280,7 @@ BDEPEND="
 	$(python_gen_impl_dep)
 	dev-lang/perl
 	>=dev-build/meson-0.63.0
+	app-alternatives/ninja
 	dev-python/pip[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
