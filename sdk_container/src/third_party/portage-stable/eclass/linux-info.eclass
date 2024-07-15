@@ -6,7 +6,7 @@
 # kernel@gentoo.org
 # @AUTHOR:
 # Original author: John Mylchreest <johnm@gentoo.org>
-# @SUPPORTED_EAPIS: 6 7 8
+# @SUPPORTED_EAPIS: 7 8
 # @BLURB: eclass used for accessing kernel related information
 # @DESCRIPTION:
 # This eclass is used as a central eclass for accessing kernel
@@ -28,7 +28,7 @@
 # get_running_version
 
 case ${EAPI} in
-	6|7|8) ;;
+	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -37,7 +37,6 @@ _LINUX_INFO_ECLASS=1
 
 # A Couple of env vars are available to effect usage of this eclass
 # These are as follows:
-
 
 # @ECLASS_VARIABLE: CHECKCONFIG_DONOTHING
 # @USER_VARIABLE
@@ -51,7 +50,7 @@ _LINUX_INFO_ECLASS=1
 # @DESCRIPTION:
 # A string containing the directory of the target kernel sources. The default value is
 # "/usr/src/linux"
-KERNEL_DIR="${KERNEL_DIR:-${ROOT%/}/usr/src/linux}"
+KERNEL_DIR="${KERNEL_DIR:-${ROOT}/usr/src/linux}"
 
 # @ECLASS_VARIABLE: CONFIG_CHECK
 # @DEFAULT_UNSET
@@ -87,7 +86,6 @@ KERNEL_DIR="${KERNEL_DIR:-${ROOT%/}/usr/src/linux}"
 # CONFIG_CHECK="CFG" with ERROR_<CFG>="Error Message" will die
 # CONFIG_CHECK="~CFG" with ERROR_<CFG>="Error Message" calls eerror without dying
 # CONFIG_CHECK="~CFG" with WARNING_<CFG>="Warning Message" calls ewarn without dying
-
 
 # @ECLASS_VARIABLE: KBUILD_OUTPUT
 # @DEFAULT_UNSET
@@ -158,15 +156,16 @@ KERNEL_DIR="${KERNEL_DIR:-${ROOT%/}/usr/src/linux}"
 # This is a user flag and should under _no circumstances_ be set in the ebuild.
 : "${SKIP_KERNEL_CHECK:=""}"
 
+# @ECLASS_VARIABLE: SKIP_KERNEL_BINPKG_ENV_RESET
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# If set, do not reset the kernel environment variables when merging a package
+# as a binpkg.
+# Main use-case is for kernel modules, i.e. linux-mod-r1.eclass.
+# This should be set before running linux-info_pkg_setup
+
 # And to ensure all the weirdness with crosscompile
 inherit toolchain-funcs
-[[ ${EAPI} == 6 ]] && inherit eapi7-ver
-
-# bug #75034
-case ${ARCH} in
-	ppc)	BUILD_FIXES="${BUILD_FIXES} TOUT=${T}/.tmp_gas_check";;
-	ppc64)	BUILD_FIXES="${BUILD_FIXES} TOUT=${T}/.tmp_gas_check";;
-esac
 
 # @FUNCTION: set_arch_to_kernel
 # @DESCRIPTION:
@@ -240,8 +239,7 @@ getfilevar() {
 		# Pass dot-config=0 to avoid the config check in kernels prior to 5.4.
 		echo -e "e:\\n\\t@echo \$(${1})\\ninclude ${basefname}" | \
 			nonfatal emake -C "${basedname}" --no-print-directory M="${T}" \
-			dot-config=0 need-config= need-compiler= \
-			${BUILD_FIXES} -s -f - 2>/dev/null
+			dot-config=0 need-config= need-compiler= -s -f - 2>/dev/null
 
 		ARCH=${myARCH}
 	fi
@@ -634,7 +632,7 @@ get_version() {
 	# caught before this if they are.
 	if [[ -z ${OUTPUT_DIR} ]] ; then
 		# Try to locate a kernel that is most relevant for us.
-		for OUTPUT_DIR in "${SYSROOT}" "${ROOT%/}" "" ; do
+		for OUTPUT_DIR in "${SYSROOT}" "${ROOT}" "" ; do
 			OUTPUT_DIR+="/lib/modules/${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}${KV_LOCAL}/build"
 			if [[ -e ${OUTPUT_DIR} ]] ; then
 				break
@@ -662,10 +660,10 @@ get_running_version() {
 
 	local kv=$(uname -r)
 
-	if [[ -f ${ROOT%/}/lib/modules/${kv}/source/Makefile ]]; then
-		KERNEL_DIR=$(readlink -f "${ROOT%/}/lib/modules/${kv}/source")
-		if [[ -f ${ROOT%/}/lib/modules/${kv}/build/Makefile ]]; then
-			KBUILD_OUTPUT=$(readlink -f "${ROOT%/}/lib/modules/${kv}/build")
+	if [[ -f ${ROOT}/lib/modules/${kv}/source/Makefile ]]; then
+		KERNEL_DIR=$(readlink -f "${ROOT}/lib/modules/${kv}/source")
+		if [[ -f ${ROOT}/lib/modules/${kv}/build/Makefile ]]; then
+			KBUILD_OUTPUT=$(readlink -f "${ROOT}/lib/modules/${kv}/build")
 		fi
 		get_version && return 0
 	fi
@@ -696,12 +694,12 @@ linux-info_get_any_version() {
 		die "${FUNCNAME}() called on non-Linux system, please fix the ebuild"
 	fi
 
-	if [[ ${MERGE_TYPE} == binary && -z ${LINUX_INFO_BINARY_RESET} ]]; then
+	if [[ ${MERGE_TYPE} == binary && -z ${SKIP_KERNEL_BINPKG_ENV_RESET} ]]; then
 		unset KV_FULL _LINUX_CONFIG_EXISTS_DONE KV_OUT_DIR
-		LINUX_INFO_BINARY_RESET=1
+		SKIP_KERNEL_BINPKG_ENV_RESET=1
 	fi
 
-	if [[ ${MERGE_TYPE} != binary ]] && ! get_version; then
+	if ! get_version; then
 		ewarn "Unable to calculate Linux Kernel version for build, attempting to use running version"
 	fi
 
@@ -709,7 +707,6 @@ linux-info_get_any_version() {
 		die "Unable to determine any Linux Kernel version, please report a bug"
 	fi
 }
-
 
 # ebuild check functions
 # ---------------------------------------
