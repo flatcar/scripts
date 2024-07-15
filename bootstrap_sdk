@@ -89,9 +89,11 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 
 catalyst_build
 
-if [[ "$STAGES" =~ stage4 ]]; then
+def_upload_path="${UPLOAD_ROOT}/sdk/${ARCH}/${FLAGS_version}"
+
+if [[ $STAGES =~ stage3 ]]; then
     info "Build complete! Changing output name to something more sensible."
-    build_name="stage4-${ARCH}-${FLAGS_version}.tar.bz2"
+    build_name="stage3-${ARCH}-${FLAGS_version}.tar.bz2"
     release_name="${TYPE}-${ARCH}-${FLAGS_version}.tar.bz2"
     build_image="${BUILDS}/${build_name}"
     release_image="${BUILDS}/${release_name}"
@@ -109,9 +111,11 @@ if [[ "$STAGES" =~ stage4 ]]; then
 
     info "SDK ready: ${release_image}"
 
-    def_upload_path="${UPLOAD_ROOT}/sdk/${ARCH}/${FLAGS_version}"
     sign_and_upload_files "tarball" "${def_upload_path}" "" \
         "${release_image}" "${release_contents}" "${release_digests}"
+fi
+
+if [[ $STAGES =~ stage4 ]]; then
     sign_and_upload_files "packages" "${def_upload_path}" "pkgs/" \
         "${BINPKGS}"/*
 
