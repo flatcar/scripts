@@ -3,7 +3,7 @@
 
 EAPI=8
 PYTHON_REQ_USE="xml(+)"
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit gnome.org gnome2-utils linux-info meson-multilib multilib python-any-r1 toolchain-funcs xdg
 
@@ -51,6 +51,9 @@ BDEPEND="
 		app-text/docbook-xml-dtd:4.5 )
 	systemtap? ( >=dev-debug/systemtap-1.3 )
 	${PYTHON_DEPS}
+	$(python_gen_any_dep '
+		dev-python/packaging[${PYTHON_USEDEP}]
+	')
 	test? ( >=sys-apps/dbus-1.2.14 )
 	virtual/pkgconfig
 "
@@ -69,7 +72,12 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
+	"${FILESDIR}"/${PN}-2.78.4-distutils.patch
 )
+
+python_check_deps() {
+	python_has_version "dev-python/packaging[${PYTHON_USEDEP}]"
+}
 
 pkg_setup() {
 	if use kernel_linux ; then
@@ -179,7 +187,7 @@ multilib_src_configure() {
 	#fi
 
 	local emesonargs=(
-		-Dbuildtype=$(usex debug debug plain)
+		$(meson_feature debug glib_debug)
 		-Ddefault_library=$(usex static-libs both shared)
 		-Druntime_dir="${EPREFIX}"/run
 		$(meson_feature selinux)
