@@ -30,10 +30,10 @@ RESTRICT="!test? ( test )"
 # Existence of executables is checked during configuration.
 # Note: On each bump, update dep bounds on each version from configure.ac!
 DEPEND="
-	>=dev-libs/libassuan-2.5.0
+	>=dev-libs/libassuan-2.5.0:=
 	>=dev-libs/libgcrypt-1.8.0:=
 	>=dev-libs/libgpg-error-1.38
-	>=dev-libs/libksba-1.3.5
+	>=dev-libs/libksba-1.4.0
 	>=dev-libs/npth-1.2
 	>=net-misc/curl-7.10
 	sys-libs/zlib
@@ -67,7 +67,6 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
-	"${FILESDIR}"/${PN}-2.2.42-bug923248-insecure-backup.patch
 )
 
 src_prepare() {
