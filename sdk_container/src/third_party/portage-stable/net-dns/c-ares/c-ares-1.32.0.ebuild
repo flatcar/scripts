@@ -3,14 +3,15 @@
 
 EAPI=8
 
-VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielstenberg.asc
+# Both Daniel and Brad are listed as possible signers on the homepage
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/bradhouse.asc
 inherit edo multilib-minimal verify-sig
 
 DESCRIPTION="C library that resolves names asynchronously"
 HOMEPAGE="https://c-ares.org/"
 SRC_URI="
-	https://c-ares.org/download/${P}.tar.gz
-	verify-sig? ( https://c-ares.org/download/${P}.tar.gz.asc )
+	https://github.com/c-ares/c-ares/releases/download/v${PV}/${P}.tar.gz
+	verify-sig? ( https://github.com/c-ares/c-ares/releases/download/v${PV}/${P}.tar.gz.asc )
 "
 
 # ISC for lib/{bitncmp.c,inet_ntop.c,inet_net_pton.c} (bug #912405)
@@ -23,10 +24,10 @@ RESTRICT="!test? ( test )"
 
 BDEPEND="
 	test? ( dev-cpp/gtest )
-	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
+	verify-sig? ( sec-keys/openpgp-keys-bradhouse )
 "
 
-DOCS=( AUTHORS CHANGES NEWS README.md RELEASE-NOTES.md TODO )
+DOCS=( AUTHORS README.md RELEASE-NOTES.md )
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/ares_build.h
