@@ -2,15 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
-
-LLVM_COMPAT=( 16 )
-LLVM_OPTIONAL=1
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic llvm-r1 multiprocessing
-inherit pax-utils python-utils-r1 toolchain-funcs verify-sig
+inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
+inherit python-utils-r1 toolchain-funcs verify-sig
 
-MY_PV=${PV/_alpha/a}
+MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -31,11 +28,11 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
-	bluetooth build debug +ensurepip examples gdbm jit libedit
+	bluetooth build debug +ensurepip examples gdbm libedit
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
 "
-REQUIRED_USE="jit? ( ${LLVM_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -49,6 +46,7 @@ RDEPEND="
 	app-crypt/libb2
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
+	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libcrypt:=
@@ -87,12 +85,6 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	jit? (
-		$(llvm_gen_dep '
-			sys-devel/clang:${LLVM_SLOT}
-			sys-devel/llvm:${LLVM_SLOT}
-		')
-	)
 	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 RDEPEND+="
@@ -118,7 +110,6 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	use jit && llvm-r1_pkg_setup
 	use test && check-reqs_pkg_setup
 }
 
@@ -143,6 +134,9 @@ src_prepare() {
 	# force the correct number of jobs
 	# https://bugs.gentoo.org/737660
 	sed -i -e "s:-j0:-j$(makeopts_jobs):" Makefile.pre.in || die
+
+	# breaks tests when using --with-wheel-pkg-dir
+	rm -r Lib/test/wheeldata || die
 
 	eautoreconf
 }
@@ -259,6 +253,22 @@ src_configure() {
 			-x test_tools
 		)
 
+		# musl-specific skips
+		use elibc_musl && profile_task_flags+=(
+			# various musl locale deficiencies
+			-x test__locale
+			-x test_c_locale_coercion
+			-x test_locale
+			-x test_re
+
+			# known issues with find_library on musl
+			# https://bugs.python.org/issue21622
+			-x test_ctypes
+
+			# fpathconf, ttyname errno values
+			-x test_os
+		)
+
 		if has_version "app-arch/rpm" ; then
 			# Avoid sandbox failure (attempts to write to /var/lib/rpm)
 			profile_task_flags+=(
@@ -286,12 +296,12 @@ src_configure() {
 		--without-ensurepip
 		--without-lto
 		--with-system-expat
+		--with-system-libmpdec
 		--with-platlibdir=lib
 		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with debug assertions)
-		$(use_enable jit experimental-jit)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
 		$(use_with valgrind)
@@ -369,7 +379,7 @@ src_compile() {
 		local -x COLUMNS=80
 		local -x PYTHONDONTWRITEBYTECODE=
 
-		addwrite "/usr/lib/python${PYVER}/site-packages"
+		addpredict "/usr/lib/python${PYVER}/site-packages"
 	fi
 
 	# also need to clear the flags explicitly here or they end up
@@ -415,6 +425,22 @@ src_test() {
 			-x test_multiprocessing_forkserver
 		)
 	fi
+
+	# musl-specific skips
+	use elibc_musl && test_opts+=(
+		# various musl locale deficiencies
+		-x test__locale
+		-x test_c_locale_coercion
+		-x test_locale
+		-x test_re
+
+		# known issues with find_library on musl
+		# https://bugs.python.org/issue21622
+		-x test_ctypes
+
+		# fpathconf, ttyname errno values
+		-x test_os
+	)
 
 	# workaround docutils breaking tests
 	cat > Lib/docutils.py <<-EOF || die
@@ -522,26 +548,11 @@ src_install() {
 	EOF
 	chmod +x "${scriptdir}/python${pymajor}-config" || die
 	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
-	# pydoc
+	# 2to3, pydoc
+	ln -s "../../../bin/2to3-${PYVER}" "${scriptdir}/2to3" || die
 	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
 	fi
-}
-
-pkg_postinst() {
-	local v
-	for v in ${REPLACING_VERSIONS}; do
-		if ver_test "${v}" -lt 3.11.0_beta4-r2; then
-			ewarn "Python 3.11.0b4 has changed its module ABI.  The .pyc files"
-			ewarn "installed previously are no longer valid and will be regenerated"
-			ewarn "(or ignored) on the next import.  This may cause sandbox failures"
-			ewarn "when installing some packages and checksum mismatches when removing"
-			ewarn "old versions.  To actively prevent this, rebuild all packages"
-			ewarn "installing Python 3.11 modules, e.g. using:"
-			ewarn
-			ewarn "  emerge -1v /usr/lib/python3.11/site-packages"
-		fi
-	done
 }
