@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( pypy3 python3_{10..12} )
+PYTHON_COMPAT=( pypy3 python3_{10..13} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 TMPFILES_OPTIONAL=1
 
@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/portage.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -75,7 +75,7 @@ RDEPEND="
 		>=app-admin/eselect-1.2
 		app-portage/getuto
 		>=app-shells/bash-5.0:0
-		>=sec-keys/openpgp-keys-gentoo-release-20230329
+		>=sec-keys/openpgp-keys-gentoo-release-20240703
 		>=sys-apps/sed-4.0.5
 		rsync-verify? (
 			>=app-crypt/gnupg-2.2.4-r2[ssl(-)]
@@ -103,11 +103,6 @@ PDEPEND="
 		>=sys-apps/file-5.44-r3
 	)
 "
-
-PATCHES=(
-	"${FILESDIR}"/${P}-clang-splitdebug.patch
-	"${FILESDIR}"/0001-install-qa-checks.d-suppress-some-gnulib-implicit-co.patch
-)
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
