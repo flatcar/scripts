@@ -5,18 +5,20 @@ EAPI=7
 EGIT_REPO_URI="https://github.com/flatcar/baselayout.git"
 
 if [[ "${PV}" == 9999 ]]; then
+	inherit git-r3
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
 	EGIT_COMMIT="937a45faef0f7fa88d3d2c3f7ba60a7f3e2e82f7" # flatcar-master
+	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
+	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
 TMPFILES_OPTIONAL=1
-inherit git-r3 multilib systemd tmpfiles
+inherit multilib systemd tmpfiles
 
 DESCRIPTION="Filesystem baselayout for CoreOS"
 HOMEPAGE="http://www.coreos.com/"
-SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="0"
