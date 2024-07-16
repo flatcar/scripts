@@ -1,7 +1,7 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 # There's no standard way of versioning the point releases upstream
 # make anyway, so while this was added for RC versions, it's fine
@@ -61,7 +61,7 @@ elif is_release ; then
 
 			# Add in the mirror URL too.
 			SRC_URI+=" ${patch_url/${upstream_url_base}/${mirror_url_base}}"
-			SRC_URI+=" verify-sig? ( ${patch_url/${upstream_url_base}/${mirror_url_base}} )"
+			SRC_URI+=" verify-sig? ( ${patch_url/${upstream_url_base}/${mirror_url_base}}.sig )"
 
 			MY_PATCHES+=( "${DISTDIR}"/${mangled_patch_ver} )
 		done
@@ -72,6 +72,8 @@ else
 	SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz ftp://ftp.cwru.edu/pub/readline/${MY_P}.tar.gz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.gz.sig ftp://ftp.cwru.edu/pub/readline/${MY_P}.tar.gz.sig )"
 fi
+
+S="${WORKDIR}/${MY_P}"
 
 if ! is_release ; then
 	inherit autotools
@@ -86,14 +88,13 @@ IUSE="static-libs +unicode utils"
 
 RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,unicode(+)?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig
-	verify-sig? ( sec-keys/openpgp-keys-chetramey )"
-
-S="${WORKDIR}/${MY_P}"
+BDEPEND="
+	virtual/pkgconfig
+	verify-sig? ( sec-keys/openpgp-keys-chetramey )
+"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.0-no_rpath.patch
-	"${FILESDIR}"/${PN}-6.2-rlfe-tgoto.patch # bug #385091
 	"${FILESDIR}"/${PN}-7.0-headers.patch
 	"${FILESDIR}"/${PN}-8.0-headers.patch
 
@@ -102,13 +103,24 @@ PATCHES=(
 )
 
 src_unpack() {
-	if [[ ${PV} == 9999 ]] ; then
+	local patch
+
+	if [[ ${PV} == 9999 ]]; then
 		git-r3_src_unpack
 	else
-		# Needed because we don't want the patches being unpacked
-		# (which emits annoying and useless error messages)
-		verify-sig_src_unpack
-		unpack ${MY_P}.tar.gz
+		if use verify-sig; then
+			verify-sig_verify_detached "${DISTDIR}/${MY_P}.tar.gz"{,.sig}
+
+			for patch in "${MY_PATCHES[@]}"; do
+				verify-sig_verify_detached "${patch}"{,.sig}
+			done
+		fi
+
+		unpack "${MY_P}.tar.gz"
+
+		#if [[ ${GENTOO_PATCH_VER} ]]; then
+		#	unpack "${PN}-${GENTOO_PATCH_VER}-patches.tar.xz"
+		#fi
 	fi
 }
 

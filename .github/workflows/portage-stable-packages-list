@@ -97,9 +97,19 @@ app-arch/zstd
 
 app-cdr/cdrtools
 
+app-containers/aardvark-dns
+app-containers/catatonit
+app-containers/conmon
+app-containers/containers-common
+app-containers/containers-image
+app-containers/containers-shortnames
+app-containers/containers-storage
 app-containers/cri-tools
+app-containers/crun
 app-containers/docker
 app-containers/docker-cli
+app-containers/netavark
+app-containers/podman
 app-containers/runc
 
 app-crypt/adcli
@@ -107,6 +117,7 @@ app-crypt/argon2
 app-crypt/ccid
 app-crypt/efitools
 app-crypt/gnupg
+app-crypt/gpgme
 app-crypt/libb2
 app-crypt/libmd
 app-crypt/mhash
@@ -174,12 +185,15 @@ dev-build/meson
 dev-build/meson-format-array
 dev-build/ninja
 
+dev-cpp/abseil-cpp
 dev-cpp/gtest
 
 dev-db/sqlite
 
 dev-debug/gdb
 dev-debug/strace
+
+dev-go/go-md2man
 
 dev-lang/duktape
 dev-lang/go-bootstrap
@@ -240,6 +254,7 @@ dev-libs/libxslt
 dev-libs/libyaml
 dev-libs/lzo
 dev-libs/mpc
+dev-libs/mpdecimal
 dev-libs/mpfr
 dev-libs/nettle
 dev-libs/npth
@@ -250,11 +265,13 @@ dev-libs/popt
 dev-libs/protobuf
 dev-libs/userspace-rcu
 dev-libs/xmlsec
+dev-libs/yajl
 
 dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
 dev-python/autocommand
+dev-python/backports-tarfile
 dev-python/crcmod
 dev-python/cython
 dev-python/distro
@@ -268,7 +285,6 @@ dev-python/flit-core
 dev-python/gentoo-common
 dev-python/gpep517
 dev-python/hatchling
-dev-python/inflect
 dev-python/installer
 dev-python/jaraco-context
 dev-python/jaraco-functools
@@ -278,9 +294,11 @@ dev-python/lazy-object-proxy
 dev-python/lxml
 dev-python/markupsafe
 dev-python/more-itertools
+dev-python/olefile
 dev-python/ordered-set
 dev-python/packaging
 dev-python/pathspec
+dev-python/pillow
 dev-python/platformdirs
 dev-python/pluggy
 dev-python/pydecomp
@@ -289,9 +307,7 @@ dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
-dev-python/tomli
 dev-python/trove-classifiers
-dev-python/typing-extensions
 dev-python/wheel
 
 dev-util/bpftool
@@ -350,6 +366,7 @@ eclass/lua-utils.eclass
 eclass/meson-multilib.eclass
 eclass/meson.eclass
 eclass/mount-boot.eclass
+eclass/mount-boot-utils.eclass
 eclass/multibuild.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
@@ -384,6 +401,7 @@ eclass/toolchain-autoconf.eclass
 eclass/toolchain-funcs.eclass
 eclass/toolchain.eclass
 eclass/udev.eclass
+eclass/unpacker.eclass
 eclass/user-info.eclass
 # This file is modified by us to be an empty file, so can't be synced for now.
 #
@@ -465,6 +483,7 @@ sec-policy/selinux-base
 sec-policy/selinux-base-policy
 sec-policy/selinux-container
 sec-policy/selinux-dbus
+sec-policy/selinux-policykit
 sec-policy/selinux-sssd
 sec-policy/selinux-unconfined
 
@@ -550,6 +569,7 @@ sys-fs/dosfstools
 sys-fs/e2fsprogs
 sys-fs/fuse
 sys-fs/fuse-common
+sys-fs/fuse-overlayfs
 sys-fs/lsscsi
 sys-fs/mtools
 sys-fs/multipath-tools
@@ -559,7 +579,6 @@ sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
-app-containers/podman
 net-misc/passt
 
 sys-kernel/linux-headers

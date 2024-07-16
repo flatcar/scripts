@@ -13,7 +13,6 @@ EGIT_REPO_URI="https://github.com/scop/bash-completion"
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS=""
 IUSE="+eselect test"
 RESTRICT="!test? ( test )"
 
@@ -21,6 +20,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	>=app-shells/bash-4.3_p30-r1:0
 	sys-apps/miscfiles
+	!<app-text/tree-2.1.1-r1
 	!!net-fs/mc
 "
 BDEPEND="
@@ -29,12 +29,17 @@ BDEPEND="
 		$(python_gen_any_dep '
 			dev-python/pexpect[${PYTHON_USEDEP}]
 			dev-python/pytest[${PYTHON_USEDEP}]
+			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		')
 	)
 "
 PDEPEND="
 	>=app-shells/gentoo-bashcomp-20140911
 "
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.14.0-optimize-kernel-modules.patch
+)
 
 strip_completions() {
 	# Remove unwanted completions.
@@ -55,7 +60,16 @@ strip_completions() {
 		# FreeBSD
 		freebsd-update kldload kldunload portinstall portsnap
 		pkg_deinstall pkg_delete pkg_info
+
+		# For GNU mailman, which isn't packaged. If mailman isn't installed,
+		# it triggers a QA warning.
 	)
+
+	if [[ ${CHOST} = *solaris* ]]; then
+		# Triggers QA warning since it only defines a completion on Solaris,
+		# to avoid defining a bad one on macOS.
+		strip_completions+=(pkgutil)
+	fi
 
 	local file
 	for file in "${strip_completions[@]}"; do
@@ -69,7 +83,8 @@ strip_completions() {
 
 python_check_deps() {
 	python_has_version "dev-python/pexpect[${PYTHON_USEDEP}]" &&
-	python_has_version "dev-python/pytest[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/pytest[${PYTHON_USEDEP}]" &&
+	python_has_version "dev-python/pytest-xdist[${PYTHON_USEDEP}]"
 }
 
 pkg_setup() {
@@ -92,7 +107,7 @@ src_prepare() {
 		eapply "${WORKDIR}"/bashcomp2/bash-completion-blacklist-support.patch
 	fi
 
-	eapply_user
+	default
 	eautoreconf
 }
 
@@ -102,7 +117,16 @@ src_test() {
 		test/t/test_if{down,up}.py
 		# not available for icedtea
 		test/t/test_javaws.py
+		# TODO
+		test/t/test_vi.py::TestVi::test_2
+		test/t/test_xmlwf.py::TestXmlwf::test_2 #bug 886159
+		test/t/test_xrandr.py::TestXrandr::test_output_filter
 	)
+	local EPYTEST_IGNORE=(
+		# stupid test that async tests work
+		test/fixtures/pytest/test_async.py
+	)
+	local EPYTEST_XDIST=1
 
 	# portage's HOME override breaks tests
 	local -x HOME=$(unset HOME; echo ~)
@@ -110,6 +134,7 @@ src_test() {
 	# used in pytest tests
 	local -x NETWORK=none
 	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+	local -x PYTEST_PLUGINS=xdist.plugin
 	emake -C completions check
 	epytest
 }
@@ -122,7 +147,15 @@ src_install() {
 
 	strip_completions
 
-	dodoc AUTHORS CHANGES CONTRIBUTING.md README.md
+	dodoc AUTHORS CHANGELOG.md CONTRIBUTING.md README.md
+
+	# install the python completions for all targets, bug #622892
+	local TARGET
+	for TARGET in "${PYTHON_COMPAT[@]}"; do
+		if [[ ! -e "${ED}"/usr/share/bash-completion/completions/${TARGET/_/.} ]]; then
+			dosym python "${ED}"/usr/share/bash-completion/completions/${TARGET/_/.}
+		fi
+	done
 
 	# install the eselect module
 	if use eselect; then

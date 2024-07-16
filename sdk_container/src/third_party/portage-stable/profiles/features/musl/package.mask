@@ -1,6 +1,16 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Robert Förster <Dessa@gmake.de> (2024-05-06)
+# needs mongodb
+net-wireless/unifi
+
+# Robert Förster <Dessa@gmake.de> (2024-05-06)
+# bundles old gperftools not supporting musl,
+# among not being buildable itself
+# bug #906782, #716296, et al.
+dev-db/mongodb
+
 # Akinori Hattori <hattya@gentoo.org> (2024-04-14)
 # musl iconv does not implement required encodings.
 app-i18n/nkf
@@ -160,7 +170,6 @@ net-analyzer/openvas-scanner
 net-analyzer/ospd-openvas
 net-misc/grive
 net-print/pnm2ppa
-net-wireless/neard
 sys-apps/noexec
 
 # Giuseppe Foti <foti.giuseppe@gmail.com> (2023-05-19)
@@ -302,6 +311,7 @@ games-strategy/knights-demo
 games-strategy/majesty-demo
 gnome-extra/nautilus-dropbox
 kde-apps/dolphin-plugins-dropbox
+mail-client/thunderbird-bin
 mate-extra/caja-dropbox
 media-gfx/brscan4
 media-libs/amdgpu-pro-vulkan
@@ -332,24 +342,23 @@ net-nntp/sabnzbd
 net-p2p/resilio-sync
 net-print/cnijfilter2
 net-print/hplip-plugin
+net-vpn/microsoft-azurevpnclient
 sci-chemistry/cara-bin
 sci-electronics/eagle
 sci-electronics/labone
+sci-libs/mkl
 sci-mathematics/gimps
 sci-misc/jupyterlab-desktop-bin
 sci-misc/netlogo-bin
-sci-libs/mkl
+sys-apps/intune-portal
 sys-apps/ipmicfg
 sys-apps/tas
 sys-block/hpssacli
 sys-block/megacli
 www-apps/chromedriver-bin
 www-apps/grafana-bin
-www-apps/jellyfin
 www-apps/kibana-bin
-www-apps/prowlarr
-www-apps/radarr
-www-apps/readarr
+www-client/firefox-bin
 www-client/google-chrome
 www-client/google-chrome-beta
 www-client/google-chrome-unstable
@@ -459,5 +468,3 @@ sys-block/wait-for-dri-devices-rules
 
 # rust-bin isn't available on all platforms
 dev-lang/rust-bin
-mail-client/thunderbird-bin
-www-client/firefox-bin

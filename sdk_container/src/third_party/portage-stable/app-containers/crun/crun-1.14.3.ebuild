@@ -15,7 +15,7 @@ if [[ "$PV" == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/containers/${PN}.git"
 else
 	SRC_URI="https://github.com/containers/${PN}/releases/download/${PV}/${P}.tar.xz"
-	KEYWORDS="amd64 ~arm arm64 ~ppc64 ~riscv"
+	KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv"
 fi
 
 LICENSE="GPL-2+ LGPL-2.1+"
@@ -27,6 +27,7 @@ DEPEND="
 	sys-kernel/linux-headers
 	caps? ( sys-libs/libcap )
 	criu? ( >=sys-process/criu-3.15 )
+	elibc_musl? ( sys-libs/argp-standalone[static-libs] )
 	seccomp? ( sys-libs/libseccomp )
 	systemd? ( sys-apps/systemd:= )
 "

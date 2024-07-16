@@ -3,6 +3,10 @@
 
 EAPI=8
 
+# Maintainers should subscribe to the 'curl-distros' ML for backports etc
+# https://daniel.haxx.se/blog/2024/03/25/curl-distro-report/
+# https://lists.haxx.se/listinfo/curl-distros
+
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielstenberg.asc
 inherit autotools multilib-minimal multiprocessing prefix toolchain-funcs verify-sig
 
@@ -22,16 +26,22 @@ fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
 SLOT="0"
-IUSE="+adns +alt-svc brotli +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
-IUSE+=" +psl +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
-# These select the default SSL implementation
-IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
+IUSE="+adns +alt-svc brotli debug +ftp gnutls gopher +hsts +http2 http3 idn +imap kerberos ldap mbedtls +openssl +pop3"
+IUSE+=" +psl +progress-meter quic rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+# These select the default tls implementation / which quic impl to use
+IUSE+=" curl_quic_openssl curl_quic_ngtcp2 curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
 RESTRICT="!test? ( test )"
 
-# Only one default ssl provider can be enabled
-# The default ssl provider needs its USE satisfied
-# nghttp3 = https://bugs.gentoo.org/912029
+# Only one default ssl / quic provider can be enabled
+# The default provider needs its USE satisfied
 REQUIRED_USE="
+	quic? (
+		^^ (
+			curl_quic_openssl
+			curl_quic_ngtcp2
+		)
+		http3
+	)
 	ssl? (
 		^^ (
 			curl_ssl_gnutls
@@ -40,13 +50,13 @@ REQUIRED_USE="
 			curl_ssl_rustls
 		)
 	)
+	curl_quic_openssl? ( openssl )
+	curl_quic_ngtcp2? ( gnutls )
 	curl_ssl_gnutls? ( gnutls )
 	curl_ssl_mbedtls? ( mbedtls )
 	curl_ssl_openssl? ( openssl )
 	curl_ssl_rustls? ( rustls )
-	nghttp3? (
-		!openssl
-		alt-svc )
+	http3? ( alt-svc quic )
 "
 
 # cURL's docs and CI/CD are great resources for confirming supported versions
@@ -56,20 +66,21 @@ REQUIRED_USE="
 # - https://github.com/curl/curl/blob/master/.github/workflows/quiche-linux.yml (CI/CD for TCP/2)
 # However 'supported' vs 'works' are two entirely different things; be sane but
 # don't be afraid to require a later version.
-
+# ngtcp2 = https://bugs.gentoo.org/912029 - can only build with one tls backend at a time.
 RDEPEND="
 	>=sys-libs/zlib-1.1.4[${MULTILIB_USEDEP}]
-	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
+	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.12.0:=[${MULTILIB_USEDEP}] )
+	http3? ( >=net-libs/nghttp3-1.1.0[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	ldap? ( >=net-nds/openldap-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
-	nghttp3? (
-		>=net-libs/nghttp3-0.15.0[${MULTILIB_USEDEP}]
-		>=net-libs/ngtcp2-0.19.1[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
-	)
 	psl? ( net-libs/libpsl[${MULTILIB_USEDEP}] )
+	quic? (
+		curl_quic_openssl? ( >=dev-libs/openssl-3.3.0:=[quic,${MULTILIB_USEDEP}] )
+		curl_quic_ngtcp2? ( >=net-libs/ngtcp2-1.2.0[gnutls,ssl,-openssl,${MULTILIB_USEDEP}] )
+	)
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
 	ssh? ( >=net-libs/libssh2-1.0.0[${MULTILIB_USEDEP}] )
 	ssl? (
@@ -86,7 +97,7 @@ RDEPEND="
 			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		rustls? (
-			net-libs/rustls-ffi:=[${MULTILIB_USEDEP}]
+			>=net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
 		)
 	)
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
@@ -100,7 +111,7 @@ BDEPEND="
 	test? (
 		sys-apps/diffutils
 		http2? ( >=net-libs/nghttp2-1.15.0:=[utils,${MULTILIB_USEDEP}] )
-		nghttp3? ( net-libs/nghttp2:=[utils,${MULTILIB_USEDEP}] )
+		http3? ( net-libs/nghttp2:=[utils,${MULTILIB_USEDEP}] )
 	)
 	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
 "
@@ -125,10 +136,12 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	mach_absolute_time
 	setmode
 	_fseeki64
+	# custom AC_LINK_IFELSE code fails to link even without -Werror
+	OSSL_QUIC_client_method
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-prefix.patch
+	"${FILESDIR}"/${PN}-prefix-2.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
 )
 
@@ -216,7 +229,6 @@ multilib_src_configure() {
 		$(use_enable ldap)
 		$(use_enable ldap ldaps)
 		--enable-ntlm
-		--disable-ntlm-wb
 		$(use_enable pop3)
 		--enable-rt
 		--enable-rtsp
@@ -257,8 +269,9 @@ multilib_src_configure() {
 		--without-libgsasl
 		$(use_with psl libpsl)
 		--without-msh3
-		$(use_with nghttp3)
-		$(use_with nghttp3 ngtcp2)
+		$(use_with http3 nghttp3)
+		$(use_with curl_quic_ngtcp2 ngtcp2)
+		$(use_with curl_quic_openssl openssl-quic)
 		--without-quiche
 		$(use_with rtmp librtmp)
 		--without-schannel
@@ -274,7 +287,13 @@ multilib_src_configure() {
 		--with-zsh-functions-dir="${EPREFIX}"/usr/share/zsh/site-functions
 	)
 
-	if use test && multilib_is_native_abi && ( use http2 || use nghttp3 ); then
+	if use debug; then
+		myconf+=(
+			--enable-debug
+		)
+	fi
+
+	if use test && multilib_is_native_abi && ( use http2 || use http3 ); then
 		myconf+=(
 			--with-test-nghttpx="${BROOT}/usr/bin/nghttpx"
 		)
@@ -294,30 +313,6 @@ multilib_src_configure() {
 		sed -i -e '/SUBDIRS/s:scripts::' Makefile || die
 	fi
 
-	# Fix up the pkg-config file to be more robust.
-	# https://github.com/curl/curl/issues/864
-	local priv=() libs=()
-	# We always enable zlib.
-	libs+=( "-lz" )
-	priv+=( "zlib" )
-	if use http2; then
-		libs+=( "-lnghttp2" )
-		priv+=( "libnghttp2" )
-	fi
-	if use nghttp3; then
-		libs+=( "-lnghttp3" "-lngtcp2" )
-		priv+=( "libnghttp3" "libngtcp2" )
-	fi
-	if use ssl && use curl_ssl_openssl; then
-		libs+=( "-lssl" "-lcrypto" )
-		priv+=( "openssl" )
-	fi
-	grep -q Requires.private libcurl.pc && die "need to update ebuild"
-	libs=$(printf '|%s' "${libs[@]}")
-	sed -i -r \
-		-e "/^Libs.private/s:(${libs#|})( |$)::g" \
-		libcurl.pc || die
-	echo "Requires.private: ${priv[*]}" >> libcurl.pc || die
 }
 
 multilib_src_compile() {
@@ -362,4 +357,12 @@ multilib_src_install_all() {
 	einstalldocs
 	find "${ED}" -type f -name '*.la' -delete || die
 	rm -rf "${ED}"/etc/ || die
+}
+
+pkg_postinst() {
+	if use debug; then
+		ewarn "USE=debug has been selected, enabling debug codepaths and making cURL extra verbose."
+		ewarn "Use this _only_ for testing. Debug builds should _not_ be used in anger."
+		ewarn "hic sunt dracones; you have been warned."
+	fi
 }

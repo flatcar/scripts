@@ -1,0 +1,7 @@
+- libarchive ([CVE-2024-26256](https://nvd.nist.gov/vuln/detail/CVE-2024-26256), [CVE-2024-37407](https://nvd.nist.gov/vuln/detail/CVE-2024-37407))
+- mit-krb5 ([CVE-2024-26461](https://nvd.nist.gov/vuln/detail/CVE-2024-26461), [CVE-2024-26462](https://nvd.nist.gov/vuln/detail/CVE-2024-26462), [CVE-2024-37370](https://nvd.nist.gov/vuln/detail/CVE-2024-37370), [CVE-2024-37371](https://nvd.nist.gov/vuln/detail/CVE-2024-37371))
+- tpm2-tools ([CVE-2024-29038](https://nvd.nist.gov/vuln/detail/CVE-2024-29038), [CVE-2024-29039](https://nvd.nist.gov/vuln/detail/CVE-2024-29039), [CVE-2024-29040](https://nvd.nist.gov/vuln/detail/CVE-2024-29040))
+- glib ([CVE-2024-34397](https://nvd.nist.gov/vuln/detail/CVE-2024-34397))
+- libxml2 ([CVE-2024-34459](https://nvd.nist.gov/vuln/detail/CVE-2024-34459))
+- git ([CVE-2024-32002](https://nvd.nist.gov/vuln/detail/CVE-2024-32002), [CVE-2024-32004](https://nvd.nist.gov/vuln/detail/CVE-2024-32004), [CVE-2024-32020](https://nvd.nist.gov/vuln/detail/CVE-2024-32020), [CVE-2024-32021](https://nvd.nist.gov/vuln/detail/CVE-2024-32021), [CVE-2024-32465](https://nvd.nist.gov/vuln/detail/CVE-2024-32465))
+- intel-microcode ([CVE-2023-45733](https://nvd.nist.gov/vuln/detail/CVE-2023-45733), [CVE-2023-45745](https://nvd.nist.gov/vuln/detail/CVE-2023-45745), [CVE-2023-46103](https://nvd.nist.gov/vuln/detail/CVE-2023-46103), [CVE-2023-47855](https://nvd.nist.gov/vuln/detail/CVE-2023-47855))

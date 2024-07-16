@@ -1,9 +1,7 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-
-inherit flag-o-matic
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/nano.git"
@@ -19,19 +17,14 @@ HOMEPAGE="https://www.nano-editor.org/ https://wiki.gentoo.org/wiki/Nano/Guide"
 
 LICENSE="GPL-3+ LGPL-2.1+ || ( GPL-3+ FDL-1.2+ )"
 SLOT="0"
-IUSE="debug justify magic minimal ncurses nls +spell static unicode"
+IUSE="debug justify magic minimal ncurses nls +spell unicode"
 
-LIB_DEPEND="
+RDEPEND="
 	>=sys-libs/ncurses-5.9-r1:=[unicode(+)?]
-	sys-libs/ncurses:=[static-libs(+)]
-	magic? ( sys-apps/file[static-libs(+)] )
+	magic? ( sys-apps/file )
 	nls? ( virtual/libintl )
 "
-RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
-DEPEND="
-	${RDEPEND}
-	static? ( ${LIB_DEPEND} )
-"
+DEPEND="${RDEPEND}"
 BDEPEND="
 	nls? ( sys-devel/gettext )
 	virtual/pkgconfig
@@ -40,6 +33,9 @@ BDEPEND="
 REQUIRED_USE="
 	magic? ( !minimal )
 "
+
+# gnulib FPs
+QA_CONFIG_IMPL_DECL_SKIP=( unreachable MIN static_assert )
 
 src_prepare() {
 	default
@@ -50,8 +46,6 @@ src_prepare() {
 }
 
 src_configure() {
-	use static && append-ldflags -static
-
 	local myconfargs=(
 		--bindir="${EPREFIX}"/bin
 		--htmldir=/trash
