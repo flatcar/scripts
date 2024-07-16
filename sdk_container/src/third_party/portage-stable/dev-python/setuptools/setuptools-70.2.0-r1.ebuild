@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 hppa ~ia64 ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -42,38 +42,41 @@ BDEPEND="
 	${RDEPEND}
 	test? (
 		$(python_gen_cond_dep '
-			dev-python/build[${PYTHON_USEDEP}]
-			>=dev-python/ini2toml-0.9[${PYTHON_USEDEP}]
+			>=dev-python/build-1.0.3[${PYTHON_USEDEP}]
+			>=dev-python/ini2toml-0.14[${PYTHON_USEDEP}]
 			>=dev-python/filelock-3.4.0[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-envs-2.2[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-path-3.2.0[${PYTHON_USEDEP}]
+			dev-python/jaraco-test[${PYTHON_USEDEP}]
 			dev-python/pip[${PYTHON_USEDEP}]
 			dev-python/pip-run[${PYTHON_USEDEP}]
+			dev-python/pyproject-hooks[${PYTHON_USEDEP}]
 			dev-python/pytest[${PYTHON_USEDEP}]
 			>=dev-python/pytest-home-0.5[${PYTHON_USEDEP}]
+			dev-python/pytest-subprocess[${PYTHON_USEDEP}]
 			dev-python/pytest-timeout[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
-			dev-python/tomli[${PYTHON_USEDEP}]
+			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
 			>=dev-python/virtualenv-20[${PYTHON_USEDEP}]
 		' "${PYTHON_TESTED[@]}")
-		$(python_gen_cond_dep '
-			>=dev-python/tomli-w-1.0.0[${PYTHON_USEDEP}]
-		' python3_10 pypy3)
 	)
 "
 # setuptools-scm is here because installing plugins apparently breaks stuff at
 # runtime, so let's pull it early. See bug #663324.
+#
+# trove-classifiers are optionally used in validation, if they are
+# installed.  Since we really oughtn't block them, let's always enforce
+# the newest version for the time being to avoid errors.
+# https://github.com/pypa/setuptools/issues/4459
 PDEPEND="
 	dev-python/setuptools-scm[${PYTHON_USEDEP}]
+	>=dev-python/trove-classifiers-2024.7.2[${PYTHON_USEDEP}]
 "
 
 src_prepare() {
 	local PATCHES=(
 		# TODO: remove this when we're 100% PEP517 mode
 		"${FILESDIR}/setuptools-62.4.0-py-compile.patch"
-
-		# https://github.com/pypa/setuptools/pull/4357
-		"${FILESDIR}/${P}-py313.patch"
 	)
 
 	distutils-r1_src_prepare
@@ -82,12 +85,13 @@ src_prepare() {
 	sed -i -e '/--import-mode/d' pytest.ini || die
 
 	# remove bundled dependencies
-	rm -r */_vendor || die
+	rm -r */_vendor setuptools/_distutils/_vendor || die
 
 	# remove the ugly */extern hack that breaks on unvendored deps
 	rm -r */extern || die
 	find -name '*.py' -exec sed \
 		-e 's:from \w*[.]\+extern ::' -e 's:\w*[.]\+extern[.]::' \
+		-e 's:from [.]_vendor[.]:from :' \
 		-i {} + || die
 }
 
@@ -121,6 +125,9 @@ python_test() {
 		setuptools/tests/config/test_setupcfg.py::TestOptions::test_cmdclass
 		# Internet, sigh
 		setuptools/tests/test_integration.py
+		# flaky
+		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_transitive_extra_dependency
+		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_distutils_command_dep
 	)
 
 	case ${EPYTHON} in
