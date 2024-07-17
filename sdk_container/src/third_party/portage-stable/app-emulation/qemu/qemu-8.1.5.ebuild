@@ -60,7 +60,7 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	ncurses nfs nls numa opengl +oss pam +pin-upstream-blobs pipewire
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
-	smartcard snappy spice ssh static-user systemtap test udev usb
+	smartcard snappy spice ssh +static-user systemtap test udev usb
 	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xen
 	zstd"
 

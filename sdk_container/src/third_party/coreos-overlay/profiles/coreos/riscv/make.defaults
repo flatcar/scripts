@@ -1,0 +1,2 @@
+# platform "pc" is not supported for target CPU "arm64"
+GRUB_PLATFORMS="efi-64"

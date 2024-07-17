@@ -16,6 +16,7 @@ TOOLCHAIN_PKGS=(
 declare -A CROSS_PROFILES
 CROSS_PROFILES["x86_64-cros-linux-gnu"]="coreos:coreos/amd64/generic"
 CROSS_PROFILES["aarch64-cros-linux-gnu"]="coreos:coreos/arm64/generic"
+CROSS_PROFILES["riscv64-cros-linux-gnu"]="coreos:coreos/riscv/generic"
 
 # Map board names to CHOSTs and portage profiles. This is the
 # definitive list, there is assorted code new and old that either
@@ -26,6 +27,9 @@ BOARD_PROFILES["amd64-usr"]="coreos:coreos/amd64/generic"
 
 BOARD_CHOSTS["arm64-usr"]="aarch64-cros-linux-gnu"
 BOARD_PROFILES["arm64-usr"]="coreos:coreos/arm64/generic"
+
+BOARD_CHOSTS["riscv-usr"]="riscv64-cros-linux-gnu"
+BOARD_PROFILES["riscv-usr"]="coreos:coreos/riscv/generic"
 
 BOARD_NAMES=( "${!BOARD_CHOSTS[@]}" )
 
@@ -57,6 +61,7 @@ get_portage_arch() {
         s390*)      echo s390;;
         sh*)        echo sh;;
         x86_64*)    echo amd64;;
+        riscv*)     echo riscv;;
         *)          die "Unknown CHOST '$1'";;
     esac
 }
@@ -79,6 +84,7 @@ get_kernel_arch() {
         s390*)      echo s390;;
         sh*)        echo sh;;
         x86_64*)    echo x86;;
+        riscv*)     echo riscv;;
         *)          die "Unknown CHOST '$1'";;
     esac
 }
@@ -486,6 +492,12 @@ install_cross_rust() {
         echo "Building Rust for arm64"
         # If no aarch64 folder exists, try to remove any existing Rust packages.
         [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ] && ("${sudo[@]}" emerge --unmerge dev-lang/rust || true)
+        "${sudo[@]}" emerge "${emerge_flags[@]}" dev-lang/rust
+    fi
+    if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = "riscv64-cros-linux-gnu" ]; then
+        echo "Building Rust for riscv64"
+        # If no aarch64 folder exists, try to remove any existing Rust packages.
+        [ ! -d /usr/lib/rustlib/riscv64-unknown-linux-gnu ] && ("${sudo[@]}" emerge --unmerge dev-lang/rust || true)
         "${sudo[@]}" emerge "${emerge_flags[@]}" dev-lang/rust
     fi
 }

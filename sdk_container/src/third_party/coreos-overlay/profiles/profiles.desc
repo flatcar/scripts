@@ -7,3 +7,8 @@ arm64   coreos/arm64/generic                dev
 arm64   coreos/arm64/generic/dev            dev
 arm64   coreos/arm64/generic/prod           dev
 arm64   coreos/arm64/sdk                    dev
+
+riscv   coreos/riscv/generic                dev
+riscv   coreos/riscv/generic/dev            dev
+riscv   coreos/riscv/generic/prod           dev
+riscv   coreos/riscv/sdk                    dev

@@ -1009,6 +1009,15 @@ setup_qemu_static() {
         die "Missing basic layout in target rootfs"
       fi
     ;;
+    riscv-usr)
+      if [[ -f "${root_fs_dir}/sbin/ldconfig" ]]; then
+        sudo cp /usr/bin/qemu-riscv64 "${root_fs_dir}"/usr/bin/qemu-riscv64-static
+        echo export QEMU_LD_PREFIX=\"/build/risc-usr/\" | sudo tee /etc/profile.d/qemu-riscv64.sh
+        . /etc/profile.d/qemu-riscv64.sh
+      else
+        die "Missing basic layout in target rootfs"
+      fi
+    ;;
     *) die "Unsupported arch" ;;
   esac
 }
@@ -1020,6 +1029,13 @@ clean_qemu_static() {
     arm64-usr)
       if [[ -f "${root_fs_dir}/usr/bin/qemu-aarch64-static" ]]; then
         sudo rm "${root_fs_dir}"/usr/bin/qemu-aarch64-static
+      else
+        die "File not found"
+      fi
+    ;;
+    arm64-usr)
+      if [[ -f "${root_fs_dir}/usr/bin/qemu-riscv64-static" ]]; then
+        sudo rm "${root_fs_dir}"/usr/bin/qemu-riscv64-static
       else
         die "File not found"
       fi

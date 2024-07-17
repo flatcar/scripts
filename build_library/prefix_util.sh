@@ -32,6 +32,10 @@ function set_prefix_vars() {
       PREFIX_CHOST="aarch64-cros-linux-gnu"
       PREFIX_KEYWORDS="arm64 -~arm64"
       ;;
+    riscv-usr)
+      PREFIX_CHOST="riscv64-cros-linux-gnu"
+      PREFIX_KEYWORDS="riscv -~riscv"
+      ;;
   esac
 
   export EPREFIX PREFIXNAME STAGINGDIR STAGINGROOT FINALDIR FINALROOT CB_ROOT \
@@ -71,6 +75,7 @@ function setup_prefix_dirs() {
   case "${PREFIX_BOARD}" in
     amd64-usr) profile="${profile}/amd64/17.1/no-multilib/prefix/kernel-3.2+";;
     arm64-usr) profile="${profile}/arm64/17.0/prefix/kernel-3.2+";;
+    riscv-usr) profile="${profile}/riscv/20.0/rv64gc/lp64d/prefix/kernel-3.2+";;
   esac
 
   sudo ln -s "${profile}" "${STAGINGROOT}${EPREFIX}/etc/portage/make.profile"
