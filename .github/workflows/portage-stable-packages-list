@@ -87,6 +87,7 @@ app-arch/lzop
 app-arch/ncompress
 app-arch/pbzip2
 app-arch/pigz
+app-arch/pixz
 app-arch/rpm2targz
 app-arch/sharutils
 app-arch/tar
@@ -307,6 +308,7 @@ dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
+dev-python/tomli
 dev-python/trove-classifiers
 dev-python/wheel
 
@@ -575,6 +577,7 @@ sys-fs/mtools
 sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
+sys-fs/squashfs-tools-ng
 sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
