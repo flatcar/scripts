@@ -3,11 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Before doing anything, ensure we have at least Catalyst 4.
-if catalyst --version | grep -q "Catalyst [0-3]\."; then
-    sudo emerge -v1 ">=dev-util/catalyst-4" || exit 1
-fi
-
 # common.sh should be sourced first
 [[ -n "${DEFAULT_BUILD_ROOT}" ]] || exit 1
 . "${SCRIPTS_DIR}/sdk_lib/sdk_util.sh" || exit 1
@@ -169,6 +164,11 @@ catalyst_init() {
 
     if ! command -v catalyst >/dev/null 2>&1; then
         die_notrace "catalyst not found, not installed or bad PATH?"
+    fi
+
+    # Before doing anything else, ensure we have at least Catalyst 4.
+    if catalyst --version | grep -q "Catalyst [0-3]\."; then
+        emerge --verbose "--jobs=${NUM_JOBS}" --oneshot ">=dev-util/catalyst-4" || exit 1
     fi
 
     DEBUG=()
