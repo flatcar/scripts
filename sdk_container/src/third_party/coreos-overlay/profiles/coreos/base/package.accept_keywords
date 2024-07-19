@@ -108,8 +108,5 @@ sys-apps/zram-generator ~amd64 ~arm64
 # Keep versions on both arches in sync.
 =sys-firmware/edk2-aarch64-18.02 **
 
-# Keep versions on both arches in sync.
-=sys-libs/libnvme-1.9 ~arm64
-
 # Accept unstable host Rust compilers.
 =virtual/rust-1.79.0 ~amd64 ~arm64
