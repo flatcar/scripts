@@ -18,6 +18,7 @@ azure_instance_type_var="AZURE_${CIA_ARCH}_MACHINE_SIZE"
 azure_instance_type="${!azure_instance_type_var}"
 azure_vnet_subnet_name="jenkins-vnet-${AZURE_LOCATION}"
 
+echo "find -name '${AZURE_IMAGE_NAME}' -delete" >>/work/ci-cleanup.sh
 # Fetch the Azure image if not present
 if [ ! -f "${AZURE_IMAGE_NAME}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${AZURE_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
