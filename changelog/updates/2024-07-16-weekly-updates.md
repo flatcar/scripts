@@ -1,0 +1,8 @@
+- sqlite ([3.46.0](https://www.sqlite.org/releaselog/3_46_0.html))
+- bpftool ([6.9.2](https://kernelnewbies.org/Linux_6.9#Tracing.2C_perf_and_BPF))
+- ipset ([7.22](https://ipset.netfilter.org/changelog.html))
+- curl ([8.8.0](https://curl.se/changes.html#8_8_0))
+- sysext-python: setuptools([70.1.1](https://setuptools.pypa.io/en/stable/history.html#v70-1-1) (includes [70.1.0](https://setuptools.pypa.io/en/stable/history.html#v70-1-0), [70.0.0](https://setuptools.pypa.io/en/stable/history.html#v70-0-0), [69.5.1](https://setuptools.pypa.io/en/stable/history.html#v69-5-1), [69.5.0](https://setuptools.pypa.io/en/stable/history.html#v69-5-0), [69.4.2](https://setuptools.pypa.io/en/stable/history.html#v69-4-2), [69.4.1](https://setuptools.pypa.io/en/stable/history.html#v69-4-1), [69.4.0](https://setuptools.pypa.io/en/stable/history.html#v69-4-0), [69.3.1](https://setuptools.pypa.io/en/stable/history.html#v69-3-1), [69.3.0](https://setuptools.pypa.io/en/stable/history.html#v69-3-0), [69.2.0](https://setuptools.pypa.io/en/stable/history.html#v69-2-0)))
+- sysext-python: jaraco-text ([3.12.1](https://github.com/jaraco/jaraco.text/compare/v3.12.0...v3.12.1))
+- sysext-python: trove-classifiers ([2024.7.2](https://github.com/pypa/trove-classifiers/compare/2024.5.22...2024.7.2))
+- SDK: portage ([3.0.65](https://github.com/gentoo/portage/blob/f03998622e0960388e903de0d6d24bdf6881e567/NEWS#L9))
