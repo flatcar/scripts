@@ -132,6 +132,8 @@ function _test_run_impl() {
     if [[ -n "${JOB_NAME}" ]]; then
         container_name+="-${JOB_NAME}"
     fi
+    local suf=$(sha1sum sdk_container/.env)
+    container_name+="-${suf:0:8}"
     local mantle_ref
     mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
 
