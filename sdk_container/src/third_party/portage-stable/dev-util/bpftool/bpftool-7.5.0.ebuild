@@ -4,28 +4,29 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
-inherit estack linux-info optfeature python-any-r1 bash-completion-r1 toolchain-funcs
 
-MY_PV="${PV/_/-}"
-MY_PV="${MY_PV/-pre/-git}"
+inherit estack linux-info optfeature python-any-r1 bash-completion-r1 toolchain-funcs
 
 DESCRIPTION="Tool for inspection and simple manipulation of eBPF programs and maps"
 HOMEPAGE="https://kernel.org/"
 
-LINUX_V="${PV:0:1}.x"
-LINUX_VER=$(ver_cut 1-2)
-LINUX_PATCH=patch-${PV}.xz
-SRC_URI="https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_PATCH}"
+# Use PV to indicate the full kernel version
+MY_PV=6.10
+LINUX_V="${MY_PV:0:1}.x"
+LINUX_VER=$(ver_cut 1-2 ${MY_PV})
 
 LINUX_SOURCES="linux-${LINUX_VER}.tar.xz"
-SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
+SRC_URI+="https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
+
+LINUX_PATCH=patch-${MY_PV}.xz
+SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_PATCH}"
 
 S_K="${WORKDIR}/linux-${LINUX_VER}"
 S="${S_K}/tools/bpf/bpftool"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 IUSE="caps +llvm"
 
 RDEPEND="
@@ -100,7 +101,7 @@ bpftool_make() {
 
 	emake V=1 VF=1 \
 		HOSTCC="$(tc-getBUILD_CC)" HOSTLD="$(tc-getBUILD_LD)" \
-		EXTRA_CFLAGS="${CFLAGS}" ARCH="${arch}" BPFTOOL_VERSION="${MY_PV}" \
+		EXTRA_CFLAGS="${CFLAGS}" ARCH="${arch}" \
 		prefix="${EPREFIX}"/usr \
 		bash_compdir="$(get_bashcompdir)" \
 		feature-libcap="$(usex caps 1 0)" \
