@@ -67,6 +67,7 @@ media-libs/libaom cpu_flags_ppc_vsx
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
+sys-apps/openrc-navi s6
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2023-09-21)
 # dtrace/systemtap not availabie on ppc platform for jdk
@@ -271,10 +272,6 @@ app-i18n/fcitx-libpinyin dictionary-manager
 # Göktürk Yüksek <gokturk@gentoo.org> (2017-08-15)
 # Requires java
 app-forensics/sleuthkit java
-
-# Michał Górny <mgorny@gentoo.org> (2017-08-08)
-# Requires USE=opencl that is masked in this profile.
-net-misc/bfgminer adl lm-sensors
 
 # Michał Górny <mgorny@gentoo.org> (2017-03-24)
 # libcxx fails to compile on ppc*, #595744.

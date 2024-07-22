@@ -17,8 +17,16 @@
 
 #--- END OF EXAMPLES ---
 
+# orbea <orbea@riseup.net> (2024-07-19)
+# Unmask the dynarec flag which has amd64 asm.
+games-emulation/rmg -dynarec
+
+# Zen <dev@pyl.onl> (2024-07-01)
+# Unmask the ugrd flag for installkernel. It is keyworded here
+sys-kernel/installkernel -ugrd
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-06-23)
-# Pulls in kde-apps/kgpg is keyworded here
+# Pulls in kde-apps/kgpg which is keyworded here
 >=kde-apps/kdeutils-meta-24.05.1 -gpg
 
 # Jared Allard <jared@rgst.io> (2024-06-21)
