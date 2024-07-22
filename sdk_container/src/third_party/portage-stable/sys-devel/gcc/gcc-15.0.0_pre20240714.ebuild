@@ -36,7 +36,6 @@ if [[ ${CATEGORY} != cross-* ]] ; then
 	# bug #830454
 	RDEPEND="elibc_glibc? ( sys-libs/glibc[cet(-)?] )"
 	DEPEND="${RDEPEND}"
-	BDEPEND="amd64? ( >=${CATEGORY}/binutils-2.30[cet(-)?] )"
 fi
 
 src_prepare() {
@@ -49,6 +48,5 @@ src_prepare() {
 
 	toolchain_src_prepare
 
-	eapply "${FILESDIR}"/${P}-PR115602.patch
 	eapply_user
 }
