@@ -12,7 +12,7 @@ SRC_URI="https://ipset.netfilter.org/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
+KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv x86"
 
 RDEPEND="
 	net-firewall/iptables
@@ -21,12 +21,16 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
-PATCHES=( "${FILESDIR}/${PN}-bash-completion.patch" )
-
 DOCS=( ChangeLog INSTALL README UPGRADE )
 
 # configurable from outside, e.g. /etc/portage/make.conf
 IP_NF_SET_MAX=${IP_NF_SET_MAX:-256}
+
+PATCHES=(
+	"${FILESDIR}/${PN}-bash-completion.patch"
+	"${FILESDIR}/${P}-asan-buffer-overflow.patch"
+	"${FILESDIR}/${P}-argv-bounds.patch"
+)
 
 src_prepare() {
 	default
