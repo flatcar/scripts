@@ -75,7 +75,7 @@ RDEPEND="
 		>=app-admin/eselect-1.2
 		app-portage/getuto
 		>=app-shells/bash-5.0:0
-		>=sec-keys/openpgp-keys-gentoo-release-20230329
+		>=sec-keys/openpgp-keys-gentoo-release-20240703
 		>=sys-apps/sed-4.0.5
 		rsync-verify? (
 			>=app-crypt/gnupg-2.2.4-r2[ssl(-)]
@@ -103,6 +103,11 @@ PDEPEND="
 		>=sys-apps/file-5.44-r3
 	)
 "
+
+PATCHES=(
+	"${FILESDIR}"/${P}-clang-splitdebug.patch
+	"${FILESDIR}"/0001-install-qa-checks.d-suppress-some-gnulib-implicit-co.patch
+)
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
