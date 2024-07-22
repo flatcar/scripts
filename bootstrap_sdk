@@ -18,13 +18,13 @@
 #     will be linked against the SEED SDK libraries, NOT against libraries built
 #     in stage 1.
 #
-# 3. stage2: Run portage-stable/scripts/bootstrap.sh
+# 3. stage2: Run gentoo-subset/scripts/bootstrap.sh
 #     This rebuilds the toolchain using Gentoo bootstrapping, ensuring it's not linked
 #     to or otherwise influenced by whatever was in the "seed" tarball.
 #     The toolchain rebuild may contain updated package ebuilds from
-#     third_party/(portage-stable|coreos-overlay).
-#     This and all following stages use portage-stable and coreos-overlay
-#     from third_party/... (see 1.)
+#     repos/(gentoo-subset|flatcar-overlay).
+#     This and all following stages use gentoo-subset and flatcar-overlay
+#     from repos/... (see 1.)
 #
 # 4. stage3: Run emerge -e system to rebuild everything using the fresh updated
 #     toolchain from 3., using the normal USE flags provided by the profile. This
@@ -95,13 +95,13 @@ chmod 1777 "${ROOT_OVERLAY}/tmp"
 cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 
 
-# Stage 1 uses "known-good" ebuilds (from both coreos-overlay and portage-stable)
+# Stage 1 uses "known-good" ebuilds (from both flatcar-overlay and gentoo-subset)
 #  to build a minimal toolchain (USE="-*") for stage 2.
 #
-# No package updates must happen in stage 1, so we use the portage-stable and
-#  coreos-overlay paths included with the current SDK (from the SDK chroot's
-#  /var/gentoo/repos/). "Current SDK" refers to the SDK we entered with
-#  'cork enter', i.e. the SDK we run ./bootstrap_sdk in.
+# No package updates must happen in stage 1, so we use the gentoo-subset and
+#  flatcar-overlay paths included with the current SDK (from the SDK chroot's
+#  /mnt/host/source/src/scripts/repos/). "Current SDK" refers to the SDK we
+#  entered with 'cork enter', i.e. the SDK we run ./bootstrap_sdk in.
 #
 # Using ebuilds from the above mentioned sources will ensure that stage 1 builds
 #  a minimal stage 2 from known-good ebuild versions - the same ebuild versions

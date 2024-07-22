@@ -25,8 +25,8 @@ function github_ricj_callback() {
     show_changes_env+=(
         # Override the default locations of repositories.
         "SCRIPTS_REPO=."
-        "COREOS_OVERLAY_REPO=../coreos-overlay"
-        "PORTAGE_STABLE_REPO=../portage-stable"
+        "FLATCAR_OVERLAY_REPO=../flatcar-overlay"
+        "GENTOO_SUBSET_REPO=../gentoo-subset"
     )
     show_changes_params+=(
         # We may not have a tag handy, so we tell show-changes

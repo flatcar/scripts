@@ -96,7 +96,7 @@ function check_force_dirs() {
 #
 
 set_prefix_vars "${name}" "${prefix}"
-prefix_repo="$(dirname "$(EPREFIX="" portageq get_repo_path / portage-stable)")/prefix-overlay"
+prefix_repo="$(dirname "$(EPREFIX="" portageq get_repo_path / gentoo-subset)")/prefix-overlay"
 
 if [ "${FLAGS_uninstall}" = "${FLAGS_TRUE}" ] ; then
   warn "Removing prefix '${name}' and all associated direcroties and wrappers."
