@@ -9,6 +9,7 @@ fi
 
 BOARD="${FLAGS_board}"
 BOARD_ROOT="/build/${BOARD}"
+: "${SYSROOT=${BOARD_ROOT}}"
 ARCH=$(get_board_arch ${BOARD})
 
 # What cross-build are we targeting?
