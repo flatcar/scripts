@@ -231,6 +231,8 @@ if [[ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" && \
     info "Updating cross ${cross_chost} toolchain"
     install_cross_toolchain "${cross_chost}" "${EMERGE_FLAGS[@]}"
   done
+
+  install_cross_rust "${EMERGE_FLAGS[@]}"
 fi
 
 # Build flatcar_workon packages when they are changed.

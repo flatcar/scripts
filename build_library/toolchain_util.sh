@@ -410,14 +410,6 @@ install_cross_toolchain() {
     else
         echo "Installing existing binaries"
         "${sudo[@]}" emerge "${emerge_flags[@]}" "${emerge_atoms[@]}"
-        if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = aarch64-cros-linux-gnu ] && \
-           [ ! -d /usr/lib/rust-*/rustlib/aarch64-unknown-linux-gnu ] && [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ]; then
-          # If no aarch64 folder exists, warn about the situation but don't compile Rust here or download it as binary package
-          echo "WARNING: No aarch64 cross-compilation Rust libraries found!"
-          echo "In case building fails, make sure the old Rust version is deleted with: sudo emerge --unmerge virtual/rust dev-lang/rust"
-          echo "Then install it again with: sudo emerge ${emerge_flags[@]} virtual/rust"
-          echo "This will download the binary package or build from source."
-        fi
     fi
 
     # Setup environment and wrappers for our shiny new toolchain
@@ -471,22 +463,22 @@ install_cross_libs() {
 }
 
 install_cross_rust() {
-    local cross_chost="$1"; shift
-    local emerge_flags=( "$@" --binpkg-respect-use=y --update )
-    local cbuild="$(portageq envvar CBUILD)"
-
     # may be called from either catalyst (root) or upgrade_chroot (user)
     local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
         sudo=("sudo" "-E")
     fi
 
-    if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = "aarch64-cros-linux-gnu" ]; then
-        echo "Building Rust for arm64"
-        # If no aarch64 folder exists, try to remove any existing Rust packages.
-        [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ] && ("${sudo[@]}" emerge --unmerge dev-lang/rust || true)
-        "${sudo[@]}" emerge "${emerge_flags[@]}" dev-lang/rust
-    fi
+    echo "Installing dev-lang/rust with (potentially outdated) cross targets."
+    "${sudo[@]}" emerge "${emerge_flags[@]}" --binpkg-respect-use=y --update dev-lang/rust
+
+    [[
+       -d /usr/lib/rustlib/x86_64-unknown-linux-gnu &&
+       -d /usr/lib/rustlib/aarch64-unknown-linux-gnu
+    ]] && return
+
+    echo "Rebuilding dev-lang/rust with updated cross targets."
+    "${sudo[@]}" emerge "${emerge_flags[@]}" --usepkg=n dev-lang/rust
 }
 
 # Update to the latest binutils profile for a given CHOST if required
