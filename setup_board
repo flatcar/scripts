@@ -265,6 +265,11 @@ PORT_LOGDIR="${BOARD_ROOT}/var/log/portage"
 PORTAGE_TMPDIR="${BOARD_ROOT}/var/tmp"
 PORTAGE_BINHOST="${BOARD_BINHOST}"
 
+# Tell the toolchain to use our sysroot.
+CPP="\${CHOST}-gcc -E --sysroot=\${SYSROOT}"
+CC="\${CHOST}-gcc --sysroot=\${SYSROOT}"
+CXX="\${CHOST}-g++ --sysroot=\${SYSROOT}"
+
 # Generally there isn't any need to add packages to @world by default.
 # You can use --select to override this.
 EMERGE_DEFAULT_OPTS="--oneshot --verbose"

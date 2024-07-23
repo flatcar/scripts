@@ -211,7 +211,6 @@ info "Updating basic system packages"
 sudo -E ${EMERGE_CMD} "${EMERGE_FLAGS[@]}" \
     sys-apps/portage \
     sys-devel/crossdev \
-    sys-devel/sysroot-wrappers \
     sys-libs/nss-usrfiles \
     "${TOOLCHAIN_PKGS[@]}"
 
