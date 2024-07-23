@@ -25,8 +25,13 @@ FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 switch_to_strict_mode
 
+declare -A repos=(
+    [portage-stable]="portage-stable"
+    [coreos-overlay]="coreos"
+)
+
 if [[ $# -eq 0 ]]; then
-    eval set -- portage-stable coreos-overlay
+    set -- "${!repos[@]}"
 fi
 
 GSUTIL_OPTS=
@@ -39,7 +44,7 @@ EXIT_CODE=0
 
 update_local_mirror() {
     local repo_name="$1"
-    local repo_mirror="${MIRROR_ROOT}/$repo_name"
+    local repo_mirror="${MIRROR_ROOT}/${repos[$repo_name]}"
     local extra_flags=""
 
     if [[ ${FLAGS_dry_run} == ${FLAGS_TRUE} ]]; then
@@ -84,8 +89,8 @@ update_local_mirror() {
 }
 upload_mirror() {
     local repo_name="$1"
-    local local_mirror="${MIRROR_ROOT}/$repo_name"
-    local remote_mirror="$2/$repo_name"
+    local local_mirror="${MIRROR_ROOT}/${repos[$repo_name]}"
+    local remote_mirror="$2/${repos[$repo_name]}"
 
     info "Uploading public distfiles for $repo_name"
     gsutil ${GSUTIL_OPTS} rsync -c \
@@ -98,8 +103,8 @@ upload_mirror() {
 }
 download_mirror() {
     local repo_name="$1"
-    local local_mirror="${MIRROR_ROOT}/$repo_name"
-    local remote_mirror="${UPLOAD_ROOT}/$repo_name"
+    local local_mirror="${MIRROR_ROOT}/${repos[$repo_name]}"
+    local remote_mirror="${UPLOAD_ROOT}/${repos[$repo_name]}"
 
     info "Downloading public distfiles for $repo_name"
     mkdir -p "${local_mirror}/"{distfiles,info}
