@@ -207,6 +207,7 @@ dev-lang/perl
 dev-lang/python
 dev-lang/python-exec
 dev-lang/python-exec-conf
+dev-lang/rust
 dev-lang/swig
 dev-lang/tcl
 dev-lang/yasm
@@ -688,6 +689,7 @@ virtual/perl-Getopt-Long
 virtual/perl-IO
 virtual/perl-Unicode-Collate
 virtual/pkgconfig
+virtual/rust
 virtual/service-manager
 virtual/ssh
 virtual/tmpfiles
