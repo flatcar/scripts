@@ -204,6 +204,7 @@ dev-lang/perl
 dev-lang/python
 dev-lang/python-exec
 dev-lang/python-exec-conf
+dev-lang/rust
 dev-lang/swig
 dev-lang/yasm
 
