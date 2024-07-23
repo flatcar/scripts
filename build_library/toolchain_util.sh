@@ -294,6 +294,9 @@ _configure_sysroot() {
     "${sudo[@]}" tee "${ROOT}/etc/portage/make.conf" <<EOF
 $(portageq envvar -v CHOST CBUILD ROOT DISTDIR PKGDIR)
 HOSTCC=\${CBUILD}-gcc
+CPP="\${CHOST}-gcc -E --sysroot=\${SYSROOT}"
+CC="\${CHOST}-gcc --sysroot=\${SYSROOT}"
+CXX="\${CHOST}-g++ --sysroot=\${SYSROOT}"
 PKG_CONFIG_PATH="\${SYSROOT}/usr/lib/pkgconfig/"
 # Enable provenance reporting by default. Produced files are in /usr/share/SLSA
 GENERATE_SLSA_PROVENANCE="true"
@@ -423,7 +426,6 @@ install_cross_toolchain() {
     # Setup environment and wrappers for our shiny new toolchain
     binutils_set_latest_profile "${cross_chost}"
     gcc_set_latest_profile "${cross_chost}"
-    "${sudo[@]}" CC_QUIET=1 sysroot-config --install-links "${cross_chost}"
 }
 
 # Build/install toolchain dependencies into the cross sysroot for a
