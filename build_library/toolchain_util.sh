@@ -473,25 +473,6 @@ install_cross_libs() {
     PORTAGE_CONFIGROOT="$ROOT" "${sudo[@]}" emerge --root="$ROOT" --sysroot="$ROOT" "$@" --update $cross_deps
 }
 
-install_cross_rust() {
-    local cross_chost="$1"; shift
-    local emerge_flags=( "$@" --binpkg-respect-use=y --update )
-    local cbuild="$(portageq envvar CBUILD)"
-
-    # may be called from either catalyst (root) or upgrade_chroot (user)
-    local sudo=("env")
-    if [[ $(id -u) -ne 0 ]]; then
-        sudo=("sudo" "-E")
-    fi
-
-    if [ "${cbuild}" = "x86_64-pc-linux-gnu" ] && [ "${cross_chost}" = "aarch64-cros-linux-gnu" ]; then
-        echo "Building Rust for arm64"
-        # If no aarch64 folder exists, try to remove any existing Rust packages.
-        [ ! -d /usr/lib/rustlib/aarch64-unknown-linux-gnu ] && ("${sudo[@]}" emerge --unmerge dev-lang/rust || true)
-        "${sudo[@]}" emerge "${emerge_flags[@]}" dev-lang/rust
-    fi
-}
-
 # Update to the latest binutils profile for a given CHOST if required
 # Usage: binutils_set_latest_profile chost
 binutils_set_latest_profile() {

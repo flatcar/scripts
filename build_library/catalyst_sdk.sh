@@ -17,6 +17,7 @@ for cross_chost in $(get_chost_list); do
     echo "Building cross toolchain for ${cross_chost}"
     PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
         install_cross_toolchain "${cross_chost}" ${clst_myemergeopts}
-    PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
-        install_cross_rust "${cross_chost}" ${clst_myemergeopts}
 done
+
+echo "Rebuilding dev-lang/rust with cross targets."
+PKGDIR="$(portageq envvar PKGDIR)/crossdev" run_merge dev-lang/rust
