@@ -110,12 +110,6 @@ cros_post_src_install_set_up_var_lib_selinux() {
 # Source hooks for SLSA build provenance report generation
 source "${BASH_SOURCE[0]}.slsa-provenance"
 
-# Insert our sysroot wrappers into the path
-SYSROOT_WRAPPERS_BIN="/usr/lib64/sysroot-wrappers/bin"
-if [[ "$PATH" != *"$SYSROOT_WRAPPERS_BIN"* ]]; then
-    export PATH="$SYSROOT_WRAPPERS_BIN:$PATH"
-fi
-
 # Improve the chance that ccache is valid across versions by making all
 # paths under $S relative to $S, avoiding encoding the package version
 # contained in the path into __FILE__ expansions and debug info.
