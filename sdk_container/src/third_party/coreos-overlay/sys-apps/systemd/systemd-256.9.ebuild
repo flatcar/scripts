@@ -260,14 +260,11 @@ src_prepare() {
 		"${FILESDIR}/256-bpf-gcc.patch"
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
-		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
 		"${FILESDIR}/0003-needs-update-don-t-require-strictly-newer-usr.patch"
 		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
-		# Flatcar: This can be dropped when updating to 256.
-		"${FILESDIR}/0008-sysext-Mutable-overlays.patch"
 	)
 
 	if ! use vanilla; then
