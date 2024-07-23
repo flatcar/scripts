@@ -3,7 +3,6 @@
 EAPI=7
 
 COREOS_GO_PACKAGE="${GITHUB_URI}"
-COREOS_GO_VERSION="go1.19"
 
 inherit coreos-go-depend golang-vcs-snapshot systemd
 
