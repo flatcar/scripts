@@ -36,8 +36,7 @@ RDEPEND="${RDEPEND}
 	app-text/xmlto
 	dev-build/gtk-doc-am
 	dev-lang/go-bootstrap
-	dev-lang/go:1.19
-	dev-lang/go:1.20
+	dev-lang/go:1.21
 	dev-lang/nasm
 	=dev-lang/python-3*
 	dev-lang/swig
