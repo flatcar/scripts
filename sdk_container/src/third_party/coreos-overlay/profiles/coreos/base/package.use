@@ -148,7 +148,7 @@ sys-apps/findutils selinux
 
 # Flatcar defaults formerly defined in coreos-overlay ebuilds
 app-containers/containerd btrfs device-mapper
-app-containers/docker btrfs device-mapper overlay seccomp
+app-containers/docker btrfs overlay seccomp
 app-containers/docker-cli hardened
 
 # Drop python dependencies from some SELinux packages.
