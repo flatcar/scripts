@@ -691,8 +691,6 @@ finish_image() {
   # Only configure bootloaders if there is a boot partition
   if mountpoint -q "${root_fs_dir}"/boot; then
     install_grub=1
-    ${BUILD_LIBRARY_DIR}/configure_bootloaders.sh \
-      --boot_dir="${root_fs_dir}"/usr/boot
 
     # Create first-boot flag for grub and Ignition
     info "Writing first-boot flag"
