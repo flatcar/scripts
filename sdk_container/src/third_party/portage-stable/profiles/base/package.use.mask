@@ -6,6 +6,14 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Viorel Munteanu <ceamac@gentoo.org> (2024-07-26)
+# Branch 7.1 needs a new BDEPEND for doc
+>=app-emulation/virtualbox-7.1 doc
+
+# orbea <orbea@riseup.net> (2024-07-19)
+# The dynarec is only supported upstream for amd64, arm, arm64 and x86.
+games-emulation/rmg dynarec
+
 # Maciej Mrozowski <reavertm@gentoo.org> (2024-07-14)
 # Fails with newer ffmpeg, bug #831486
 # Not needed by reverse deps as of 2024-07-14. Re-enable when
@@ -23,10 +31,6 @@ dev-lang/python jit
 # Breaks installed gems in hard-to-debug ways.
 # bug #887223, bug #891367, bug #903891, bug #917139
 dev-lang/ruby static-libs
-
-# Alfredo Tupone <tupone@gentoo.org> (2024-05-28)
-# Not working, bug #931046
->=sci-libs/caffe2-2.3.0 rocm
 
 # Sam James <sam@gentoo.org> (2024-05-09)
 # Experimental option upstream which seems undertested and underdocumented.
@@ -571,13 +575,9 @@ dev-php/fedora-autoloader test
 dev-php/json-schema test
 dev-php/jsonlint test
 dev-php/recaptcha test
-dev-php/symfony-config test
-dev-php/symfony-dependency-injection test
-dev-php/symfony-event-dispatcher test
 dev-php/symfony-filesystem test
 dev-php/symfony-finder test
 dev-php/symfony-process test
-dev-php/symfony-yaml test
 dev-php/theseer-Autoload test
 dev-php/twig test
 
@@ -644,10 +644,6 @@ dev-python/autobahn xbr
 # Ben Kohler <bkohler@gentoo.org> (2020-04-29)
 # Dependency pam_wrapper missing for tests, and RESTRICT=test is already set
 net-fs/samba test
-
-# Mike Gilbert <floppym@gentoo.org> (2020-04-23)
-# Tests are very sensitive to the host environment.
-dev-build/meson test
 
 # Alfredo Tupone <tupone@gentoo.org> (2020-04-04)
 # Ada support is not yet ready for sys-devel/gcc
