@@ -74,7 +74,7 @@ do_copy() {
 start_modify_image
 
 if [[ -n "${FLAGS_kernel_path}" ]]; then
-    do_copy "${FLAGS_kernel_path}" "/boot/flatcar/vmlinuz-a"
+    do_copy "${FLAGS_kernel_path}" "/usr/boot/vmlinuz"
 fi
 
 # FIXME(bgilbert): no shim on arm64
