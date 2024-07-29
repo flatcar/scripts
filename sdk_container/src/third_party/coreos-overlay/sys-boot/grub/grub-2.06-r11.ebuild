@@ -69,7 +69,6 @@ PATCHES=(
 	"${FILESDIR}"/grub-2.02_beta2-KERNEL_GLOBS.patch
 	"${FILESDIR}"/grub-2.06-test-words.patch
 	# Flatcar: Add our patches.
-	"${FILESDIR}"/grub-2.06-add-verity-hash.patch
 	"${FILESDIR}"/grub-2.06-add-gpt-partition-scheme.patch
 )
 

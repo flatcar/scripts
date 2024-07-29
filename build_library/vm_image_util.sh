@@ -748,7 +748,7 @@ _write_iso_disk() {
     pushd "${iso_target}" >/dev/null
     mkdir isolinux syslinux flatcar
     _write_cpio_common "$1" "${iso_target}/flatcar/cpio.gz"
-    cp "${VM_TMP_ROOT}"/boot/flatcar/vmlinuz-a "${iso_target}/flatcar/vmlinuz"
+    cp "${VM_TMP_ROOT}"/usr/boot/vmlinuz "${iso_target}/flatcar/vmlinuz"
     cp -R /usr/share/syslinux/* isolinux/
     cat<<EOF > isolinux/isolinux.cfg
 INCLUDE /syslinux/syslinux.cfg

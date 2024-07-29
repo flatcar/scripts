@@ -399,15 +399,6 @@ Date:   Thu Sep 22 11:18:42 2016 -0700
     the backup inaccessible to GRUB, then just skip writing the backup.
     When this happens the automatic call to `coreos-setgoodroot` after boot
     will take care of repairing the backup.
-
-commit 03b547c21ec3475980a54b71e909034ed5ed5254
-Author: Matthew Garrett <mjg59@coreos.com>
-Date:   Thu May 28 11:15:30 2015 -0700
-
-    Add verity hash passthrough
-
-    Read the verity hash from the kernel binary and pass it to the running
-    system via the kernel command line
 ```
 </details>
 
@@ -455,6 +446,5 @@ f19f5cc49 gpt: include backup-in-sync check in revalidation
 edd01f055 gpt: report all revalidation errors
 176fe49cf gpt: rename and update documentation for grub_gpt_update
 eb28d3208 gpt: write backup GPT first, skip if inaccessible.
-03b547c21 Add verity hash passthrough
 ```
 </details>

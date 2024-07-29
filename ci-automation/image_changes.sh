@@ -682,8 +682,8 @@ function print_image_reports() {
     fi
     echo
     echo "Take the total size difference with a grain of salt as normally initrd is compressed, so the actual difference will be smaller."
-    echo "To see the actual difference in size, see if there was a report for /boot/flatcar/vmlinuz-a."
-    echo "Note that vmlinuz-a also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
+    echo "To see the actual difference in size, see if there was a report for /usr/boot/vmlinuz."
+    echo "Note that vmlinuz also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
     echo
 
     local base_sysext
