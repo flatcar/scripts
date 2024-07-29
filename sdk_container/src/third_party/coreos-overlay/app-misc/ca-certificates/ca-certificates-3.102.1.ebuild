@@ -13,7 +13,7 @@ S="${WORKDIR}"
 
 DESCRIPTION="Mozilla's CA Certificate Store"
 HOMEPAGE="http://www.mozilla.org/en-US/about/governance/policies/security-group/certs/"
-SRC_URI="ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/${RTM_NAME}/src/${MY_P}.tar.gz"
+SRC_URI="https://archive.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/${MY_P}.tar.gz"
 
 # NSS is licensed under the MPL, files/certdata2pem.py is GPL
 LICENSE="MPL-2.0 GPL-2"
