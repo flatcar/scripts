@@ -806,7 +806,6 @@ def Verity(options):
       if options.root_hash != None:
           with open(options.root_hash, "w") as hash_file:
               hash_file.write(m.group(1))
-              hash_file.write("\n")
 
 
 def Extract(options):

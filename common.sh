@@ -362,6 +362,13 @@ else
   FLATCAR_VERSION="${FLATCAR_VERSION_ID}"
 fi
 
+# Set the "official" Portage USE flag appropriately.
+if [[ ${COREOS_OFFICIAL:-0} -ne 1 && -n "${FLATCAR_BUILD_ID}" ]]; then
+  export USE+=" -official"
+else
+  export USE+=" official"
+fi
+
 # Compatibility alias
 FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
 
