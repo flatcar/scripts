@@ -4,7 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnutls.asc
-inherit libtool multilib-minimal verify-sig
+inherit libtool multilib-minimal verify-sig flag-o-matic
 
 DESCRIPTION="A secure communications library implementing the SSL, TLS and DTLS protocols"
 HOMEPAGE="https://www.gnutls.org/"
@@ -22,10 +22,11 @@ IUSE="brotli +cxx dane doc examples +idn nls +openssl pkcs11 seccomp sslv2 sslv3
 REQUIRED_USE="test-full? ( cxx dane doc examples idn nls openssl pkcs11 seccomp tls-heartbeat tools )"
 RESTRICT="!test? ( test )"
 
+# >=nettle-3.10 as a workaround for bug #936011
 RDEPEND="
 	>=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
 	dev-libs/libunistring:=[${MULTILIB_USEDEP}]
-	>=dev-libs/nettle-3.6:=[gmp,${MULTILIB_USEDEP}]
+	>=dev-libs/nettle-3.10:=[gmp,${MULTILIB_USEDEP}]
 	>=dev-libs/gmp-5.1.3-r1:=[${MULTILIB_USEDEP}]
 	brotli? ( >=app-arch/brotli-1.0.0:=[${MULTILIB_USEDEP}] )
 	dane? ( >=net-dns/unbound-1.4.20:=[${MULTILIB_USEDEP}] )
@@ -100,6 +101,8 @@ multilib_src_configure() {
 	#   GNU-stack (as doesn't support that) and when that's removed ld
 	#   complains about duplicate symbols
 	[[ ${CHOST} == *-darwin* ]] && libconf+=( --disable-hardware-acceleration )
+	# should be gone on next release, for gnulib memset_s breakage
+	[[ ${CHOST} == *-solaris* ]] && append-cppflags -D__STDC_WANT_LIB_EXT1__=1
 
 	# -fanalyzer substantially slows down the build and isn't useful for
 	# us. It's useful for upstream as it's static analysis, but it's not
