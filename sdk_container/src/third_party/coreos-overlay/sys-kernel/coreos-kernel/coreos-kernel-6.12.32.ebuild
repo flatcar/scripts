@@ -7,6 +7,7 @@ inherit coreos-kernel toolchain-funcs
 
 DESCRIPTION="CoreOS Linux kernel"
 KEYWORDS="amd64 arm64"
+IUSE="official"
 RESTRICT="userpriv" # dracut (via bootengine) needs root
 
 RDEPEND="=sys-kernel/coreos-modules-${PVR}"
@@ -62,6 +63,7 @@ src_prepare() {
 	validate_sig_key
 
 	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
+	config_update "CONFIG_SYSTEM_TRUSTED_KEYS=\"/usr/share/sb_keys/$(usex official official unofficial)/shim.pem\""
 
 	# include all intel and amd microcode files, avoiding the signatures
 	local fw_dir="${ESYSROOT}/lib/firmware"
