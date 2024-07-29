@@ -20,8 +20,6 @@ DEFINE_string target "" \
   "The GRUB target to install such as i386-pc or x86_64-efi"
 DEFINE_string disk_image "" \
   "The disk image containing the EFI System partition."
-DEFINE_boolean verity ${FLAGS_FALSE} \
-  "Indicates that boot commands should enable dm-verity."
 DEFINE_string copy_efi_grub "" \
   "Copy the EFI GRUB image to the specified path."
 DEFINE_string copy_shim "" \
@@ -41,7 +39,34 @@ switch_to_strict_mode
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
 # Modules required to boot a standard CoreOS configuration
-CORE_MODULES=( normal search test fat part_gpt search_fs_uuid xzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
+CORE_MODULES=(
+    btrfs
+    configfile
+    echo
+    fat
+    gcry_rsa
+    gcry_sha256
+    gptprio
+    memdisk
+    normal
+    part_gpt
+    pgp
+    read
+    search
+    search_fs_uuid
+    search_part_label
+    tar
+    terminal
+    test
+    xzio
+)
+
+# GPG public keys for verifying the load scripts.
+if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+    GPG_KEYS=( /usr/share/sb_keys/unofficial/signing-*.gpg )
+else
+    GPG_KEYS=( /usr/share/sb_keys/official/signing-*.gpg )
+fi
 
 SBAT_ARG=()
 
@@ -101,9 +126,6 @@ cleanup() {
     if [[ -b "${LOOP_DEV}" ]]; then
         sudo losetup --detach "${LOOP_DEV}"
     fi
-    if [[ -n "${GRUB_TEMP_DIR}" && -e "${GRUB_TEMP_DIR}" ]]; then
-      rm -r "${GRUB_TEMP_DIR}"
-    fi
 }
 trap cleanup EXIT
 
@@ -144,37 +166,24 @@ case "${FLAGS_target}" in
 esac
 
 info "Generating ${GRUB_DIR}/load.cfg"
-# Include a small initial config in the core image to search for the ESP
-# by filesystem ID in case the platform doesn't provide the boot disk.
-# $root points to memdisk here so instead use hd0,gpt1 as a hint so it is
-# searched first.
+# Include a small initial config in the core image:
+# 1. To forcibly disable GPG signature checking. Embedding a GPG key enables
+#    enforcement, but we only want to verify specific files, not all of them.
+# 2. To search for the ESP by filesystem ID in case the platform doesn't provide
+#    the boot disk. $root points to memdisk here, so instead use hd0,gpt1 as a
+#    hint so it is searched first.
 ESP_FSID=$(sudo grub-probe -t fs_uuid -d "${LOOP_DEV}p1")
 sudo_clobber "${ESP_DIR}/${GRUB_DIR}/load.cfg" <<EOF
+set check_signatures=no
 search.fs_uuid ${ESP_FSID} root hd0,gpt1
 set prefix=(memdisk)
 set
 EOF
 
-# Generate a memdisk containing the appropriately generated grub.cfg. Doing
-# this because we need conflicting default behaviors between verity and
-# non-verity images.
-GRUB_TEMP_DIR=$(mktemp -d)
 if [[ ! -f "${ESP_DIR}/flatcar/grub/grub.cfg.tar" ]]; then
     info "Generating grub.cfg memdisk"
-
-    if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
-      # use dm-verity for /usr
-      cat "${BUILD_LIBRARY_DIR}/grub.cfg" | \
-        sed 's/@@MOUNTUSR@@/mount.usr=\/dev\/mapper\/usr verity.usr/' > \
-        "${GRUB_TEMP_DIR}/grub.cfg"
-    else
-      # uses standard systemd /usr mount
-      cat "${BUILD_LIBRARY_DIR}/grub.cfg" | \
-        sed 's/@@MOUNTUSR@@/mount.usr/' > "${GRUB_TEMP_DIR}/grub.cfg"
-    fi
-
     sudo tar cf "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
-      -C "${GRUB_TEMP_DIR}" "grub.cfg"
+      -C "${BUILD_LIBRARY_DIR}" "grub.cfg"
 fi
 
 info "Generating ${GRUB_IMAGE}"
@@ -184,6 +193,7 @@ sudo grub-mkimage \
     --directory "${GRUB_SRC}" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
     --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
+    "${GPG_KEYS[@]/#/--pubkey=}" \
     "${SBAT_ARG[@]}" \
     --output "${ESP_DIR}/${GRUB_IMAGE}" \
     "${CORE_MODULES[@]}"

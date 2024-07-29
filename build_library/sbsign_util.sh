@@ -5,9 +5,11 @@
 if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
     SBSIGN_KEY="/usr/share/sb_keys/unofficial/shim.key"
     SBSIGN_CERT="/usr/share/sb_keys/unofficial/shim.pem"
+    SBSIGN_GPG="/usr/share/sb_keys/unofficial/signing.gpg"
 else
     SBSIGN_KEY="pkcs11:token=flatcar-sb-dev-hsm-sign-2025"
     SBSIGN_CERT="/usr/share/sb_keys/official/signing.pem"
+    SBSIGN_GPG="/usr/share/sb_keys/official/signing.gpg"
 fi
 
 PKCS11_MODULE_PATH="$(pkg-config p11-kit-1 --variable p11_module_path)/azure-keyvault-pkcs11.so"
@@ -33,6 +35,17 @@ do_sbsign() {
         "${@}"
 }
 
+do_smime() {
+    if [[ ${SBSIGN_KEY} == pkcs11:* ]]; then
+        set -- --engine pkcs11 -keyform engine "${@}"
+    fi
+
+    env "${PKCS11_ENV[@]}" openssl smime \
+        -inkey "${SBSIGN_KEY}" \
+        -signer "${SBSIGN_CERT}" \
+        "${@}"
+}
+
 setup_gnupghome() {
     export GNUPGHOME
     GNUPGHOME=$(mktemp -d)
@@ -53,4 +66,13 @@ EOF
 
     # This fetches the private keys from AKV.
     gpg --card-status
+}
+
+do_gpg() {
+    (
+        export "${PKCS11_ENV[@]}"
+        setup_gnupghome
+        gpg --import "${SBSIGN_GPG}"
+        gpg "${@}"
+    )
 }

@@ -7,7 +7,8 @@ EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="26231c67c14aa6032a85c2d15c7a6c15c62348a5" # flatcar-master
+	EGIT_COMMIT="5473354df34524579341dd82165a3be55452237f"
+	EGIT_BRANCH="chewi/sd-veritysetup"
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -35,7 +36,6 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup-pre.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-kargs-helper \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/gpg-agent-wrapper \

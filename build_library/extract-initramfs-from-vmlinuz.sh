@@ -2,7 +2,7 @@
 
 # Does as it says on the tin.
 #
-# Example: extract-initramfs-from-vmlinuz /boot/flatcar/vmlinuz-a out-dir
+# Example: extract-initramfs-from-vmlinuz /usr/boot/vmlinuz out-dir
 #
 # This will create one or more out-dir/rootfs-N directories that contain the contents of the initramfs.
 

@@ -530,6 +530,53 @@ assert_image_size() {
   fi
 }
 
+setup_verity_and_load_scripts() {
+  # This only applies when there is a boot partition.
+  mountpoint -q "${root_fs_dir}"/boot || return 0
+
+  local image_name="$1"
+  local disk_layout="$2"
+  local root_fs_dir="$3"
+  local disable_read_write="$4"
+  local boot_dir="${root_fs_dir}/boot/flatcar"
+
+  # Make the filesystem un-mountable as read-write and setup verity.
+  if [[ ${disable_read_write} -eq ${FLAGS_TRUE} ]]; then
+    # Unmount /usr partition
+    sudo umount --recursive "${root_fs_dir}/usr" || exit 1
+
+    local usr_size root_hash
+    usr_size=$("${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" readfssize 3)
+    root_hash="${BUILD_DIR}/${image_name%.bin}_verity.txt"
+
+    "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
+        verity --root_hash="${root_hash}" "${BUILD_DIR}/${image_name}"
+
+    do_smime -sign -binary -noattr -in "${root_hash}" -outform DER |
+      sudo tee "${boot_dir}/verity-a.sig" >/dev/null
+
+    do_gpg --detach-sign --output - "${boot_dir}/verity-a.sig" |
+      sudo tee "${boot_dir}/verity-a.sig.sig" >/dev/null
+
+    sudo tee "${boot_dir}/load-a" <<EOF
+function run_slot {
+  verify_detached (\$root)/flatcar/verity-\$slot.sig (\$root)/flatcar/verity-\$slot.sig.sig
+  if [ \$? -ne 0 ]; then return 1; fi
+  linux\$suf (\$usr_device)/boot/vmlinuz \$linux_cmdline mount.usr=/dev/mapper/usr systemd.verity_usr_data=\$usr_ref systemd.verity_usr_hash=\$usr_ref systemd.verity_usr_options=panic-on-corruption,hash-offset=${usr_size},root-hash-signature=/boot/flatcar/verity-\$slot.sig usrhash=$(<"${root_hash}") dm_verity.require_signatures=1
+}
+EOF
+  else
+    sudo tee "${boot_dir}/load-a" <<EOF
+function run_slot {
+  linux\$suf (\$usr_device)/boot/vmlinuz \$linux_cmdline mount.usr=\$usr_ref
+}
+EOF
+  fi
+
+  do_gpg --detach-sign --output - "${boot_dir}/load-a" |
+    sudo tee "${boot_dir}/load-a.sig" >/dev/null
+}
+
 start_image() {
   local image_name="$1"
   local disk_layout="$2"
@@ -592,21 +639,6 @@ finish_image() {
     disable_read_write="${FLAGS_enable_rootfs_verification}"
   fi
 
-  # Only enable rootfs verification on supported boards.
-  case "${FLAGS_board}" in
-    amd64-usr) verity_offset=64 ;;
-    arm64-usr) verity_offset=512 ;;
-    *) disable_read_write=${FLAGS_FALSE} ;;
-  esac
-
-  # Copy kernel to the /boot partition to support dm-verity boots by embedding
-  # the hash of the /usr partition into the kernel.
-  # Remove the kernel from the /usr partition to save space.
-  sudo mkdir -p "${root_fs_dir}/boot/flatcar"
-  sudo cp "${root_fs_dir}/usr/boot/vmlinuz" \
-       "${root_fs_dir}/boot/flatcar/vmlinuz-a"
-  sudo rm "${root_fs_dir}/usr/boot/vmlinuz"*
-
   # Forbid dynamic user ID allocation because we want stable IDs
   local found=""
   # We want to forbid "-", "X:-" (.*:-), "-:X" (-:.*), "/X" (/.*)
@@ -662,6 +694,7 @@ finish_image() {
 
     # Create first-boot flag for grub and Ignition
     info "Writing first-boot flag"
+    sudo mkdir -p "${root_fs_dir}/boot/flatcar"
     sudo_clobber "${root_fs_dir}/boot/flatcar/first_boot" <<EOF
 If this file exists, Ignition will run and then delete the file.
 EOF
@@ -765,6 +798,24 @@ EOF
     sudo rm "${root_fs_dir}/etc/resolv.conf"
   fi
 
+  # Only sign kernel for unofficial builds as official builds get signed later.
+  if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+    do_sbsign --output "${root_fs_dir}/usr/boot/vmlinuz"{,}
+  fi
+
+  if [[ -n "${image_kernel}" ]]; then
+    cp \
+        "${root_fs_dir}/usr/boot/vmlinuz" \
+        "${BUILD_DIR}/${image_kernel}"
+  fi
+
+  if [[ -n "${pcr_policy}" ]]; then
+    mkdir -p "${BUILD_DIR}/pcrs"
+    ${BUILD_LIBRARY_DIR}/generate_kernel_hash.py \
+        "${root_fs_dir}/usr/boot/vmlinuz" ${FLATCAR_VERSION} \
+        >"${BUILD_DIR}/pcrs/kernel.config"
+  fi
+
   # Zero all fs free space to make it more compressible so auto-update
   # payloads become smaller, not fatal since it won't work on linux < 3.2
   sudo fstrim "${root_fs_dir}" || true
@@ -772,43 +823,10 @@ EOF
     sudo fstrim "${root_fs_dir}/usr" || true
   fi
 
-  # Make the filesystem un-mountable as read-write and setup verity.
-  if [[ ${disable_read_write} -eq ${FLAGS_TRUE} ]]; then
-    # Unmount /usr partition
-    sudo umount --recursive "${root_fs_dir}/usr" || exit 1
-
-    "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" verity \
-        --root_hash="${BUILD_DIR}/${image_name%.bin}_verity.txt" \
-        "${BUILD_DIR}/${image_name}"
-
-    # Magic alert!  Root hash injection works by writing the hash value to a
-    # known unused SHA256-sized location in the kernel image.
-    # For amd64 the rdev error message is used.
-    # For arm64 an area between the EFI headers and the kernel text is used.
-    # Our modified GRUB extracts the hash and adds it to the cmdline.
-    printf %s "$(cat ${BUILD_DIR}/${image_name%.bin}_verity.txt)" | \
-        sudo dd of="${root_fs_dir}/boot/flatcar/vmlinuz-a" conv=notrunc \
-        seek=${verity_offset} count=64 bs=1 status=none
-  fi
-
-  # Sign the kernel after /usr is in a consistent state and verity is
-  # calculated. Only for unofficial builds as official builds get signed later.
+  # Only setup verity and write signed load scripts for unofficial builds as
+  # official builds do all of this later once the kernel is signed.
   if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-    do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
-  fi
-
-  if [[ -n "${image_kernel}" ]]; then
-    # copying kernel from vfat so ignore the permissions
-    cp --no-preserve=mode \
-        "${root_fs_dir}/boot/flatcar/vmlinuz-a" \
-        "${BUILD_DIR}/${image_kernel}"
-  fi
-
-  if [[ -n "${pcr_policy}" ]]; then
-    mkdir -p "${BUILD_DIR}/pcrs"
-    ${BUILD_LIBRARY_DIR}/generate_kernel_hash.py \
-        "${root_fs_dir}/boot/flatcar/vmlinuz-a" ${FLATCAR_VERSION} \
-        >"${BUILD_DIR}/pcrs/kernel.config"
+    setup_verity_and_load_scripts "${image_name}" "${disk_layout}" "${root_fs_dir}" "${disable_read_write}"
   fi
 
   rm -rf "${BUILD_DIR}"/configroot
@@ -817,29 +835,18 @@ EOF
 
   # This script must mount the ESP partition differently, so run it after unmount
   if [[ "${install_grub}" -eq 1 ]]; then
-    local target
-    local target_list="i386-pc x86_64-efi x86_64-xen"
-    if [[ ${BOARD} == "arm64-usr" ]]; then
-      target_list="arm64-efi"
-    fi
-    local grub_args=()
-    if [[ ${disable_read_write} -eq ${FLAGS_TRUE} ]]; then
-      grub_args+=(--verity)
-    else
-      grub_args+=(--noverity)
-    fi
-    if [[ -n "${image_grub}" && -n "${image_shim}" ]]; then
-      grub_args+=(
-        --copy_efi_grub="${BUILD_DIR}/${image_grub}"
-        --copy_shim="${BUILD_DIR}/${image_shim}"
-      )
-    fi
+    local target target_list
+    case ${BOARD} in
+      amd64-usr) target_list="i386-pc x86_64-efi x86_64-xen" ;;
+      arm64-usr) target_list="arm64-efi" ;;
+    esac
     for target in ${target_list}; do
       ${BUILD_LIBRARY_DIR}/grub_install.sh \
           --board="${BOARD}" \
           --target="${target}" \
           --disk_image="${disk_img}" \
-          "${grub_args[@]}"
+          ${image_grub+--copy_efi_grub="${BUILD_DIR}/${image_grub}"} \
+          ${image_shim+--copy_shim="${BUILD_DIR}/${image_shim}"}
     done
   fi
 
@@ -863,7 +870,7 @@ EOF
   write_contents_with_technical_details "${root_fs_dir}" "${BUILD_DIR}/${image_contents_wtd}"
 
   if [[ -n "${image_initrd_contents}" ]] || [[ -n "${image_initrd_contents_wtd}" ]]; then
-      "${BUILD_LIBRARY_DIR}/extract-initramfs-from-vmlinuz.sh" "${root_fs_dir}/boot/flatcar/vmlinuz-a" "${BUILD_DIR}/tmp_initrd_contents"
+      "${BUILD_LIBRARY_DIR}/extract-initramfs-from-vmlinuz.sh" "${root_fs_dir}/usr/boot/vmlinuz" "${BUILD_DIR}/tmp_initrd_contents"
       if [[ -n "${image_initrd_contents}" ]]; then
           write_contents "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_initrd_contents}"
       fi
@@ -900,16 +907,16 @@ sbsign_image() {
   esac
 
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
-      mount "${disk_img}" "${root_fs_dir}"
+      mount --writable_verity "${disk_img}" "${root_fs_dir}"
   trap "cleanup_mounts '${root_fs_dir}'" EXIT
 
   # Sign the kernel with the shim-embedded key.
-  do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
+  do_sbsign --output "${root_fs_dir}/usr/boot/vmlinuz"{,}
 
   if [[ -n "${image_kernel}" ]]; then
     # copying kernel from vfat so ignore the permissions
     cp --no-preserve=mode \
-        "${root_fs_dir}/boot/flatcar/vmlinuz-a" \
+        "${root_fs_dir}/usr/boot/vmlinuz" \
         "${BUILD_DIR}/${image_kernel}"
   fi
 
@@ -926,9 +933,12 @@ sbsign_image() {
   if [[ -n "${pcr_policy}" ]]; then
     mkdir -p "${BUILD_DIR}/pcrs"
     "${BUILD_LIBRARY_DIR}"/generate_kernel_hash.py \
-        "${root_fs_dir}/boot/flatcar/vmlinuz-a" "${FLATCAR_VERSION}" \
+        "${root_fs_dir}/usr/boot/vmlinuz" "${FLATCAR_VERSION}" \
         >"${BUILD_DIR}/pcrs/kernel.config"
   fi
+
+  # Official prod image builds always have verity enabled.
+  setup_verity_and_load_scripts "${image_name}" "${disk_layout}" "${root_fs_dir}" "${FLAGS_TRUE}"
 
   cleanup_mounts "${root_fs_dir}"
   trap - EXIT

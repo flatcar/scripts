@@ -83,6 +83,12 @@ function _packages_build_impl() {
 
     source sdk_lib/sdk_container_common.sh
 
+    if is_official "${FLATCAR_VERSION}"; then
+        export COREOS_OFFICIAL=1
+    else
+        export COREOS_OFFICIAL=0
+    fi
+
     apply_local_patches
     # Build packages; store packages in container
     ./run_sdk_container -x ./ci-cleanup.sh  -n "${packages_container}" -v "${vernum}" \
