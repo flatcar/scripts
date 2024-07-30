@@ -322,6 +322,10 @@ PATCHES=(
 	"${FILESDIR}"/0001-Revert-remove-cl-legacy-feature.patch
 	"${FILESDIR}"/0002-util-cmdline-Handle-the-cmdline-flags-as-list-of-sup.patch
 	"${FILESDIR}"/0003-cargo-reduce-binary-size-for-release-profile.patch
+	# NOTE: For the next Afterburn upgrade, those two following patches can be dropped as they are
+	# already upstreamed.
+	"${FILESDIR}"/0004-providers-hetzner-fix-duplicate-attribute-prefix.patch
+	"${FILESDIR}"/0005-providers-hetzner-private-ipv4-addresses-in-attribut.patch
 )
 
 src_unpack() {
