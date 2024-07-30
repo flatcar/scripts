@@ -1689,7 +1689,7 @@ function handle_package_changes() {
             continue
         fi
         pkg_debug_enable "${pkg}"
-        if [[ -n ${added_pkg_to_index_map["${pkg}"]} ]]; then
+        if [[ -n ${added_pkg_to_index_map["${pkg}"]:-} ]]; then
             pkg_debug 'handled already through some rename'
         else
             pkg_debug "${pkg} is not renamed"
