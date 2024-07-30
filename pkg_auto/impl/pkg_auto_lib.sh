@@ -1673,7 +1673,7 @@ function handle_package_changes() {
         if [[ -n ${all_new_pkgs_set["${pkg}"]:-} ]]; then
             continue
         fi
-        pkg_debug_enable "${pkg}" "${other}"
+        pkg_debug_enable "${pkg}"
         pkg_debug "${pkg} is not renamed"
         pkg_debug_disable
         old_pkgs+=("${pkg}")
