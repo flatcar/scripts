@@ -80,7 +80,6 @@ dev-util/catalyst ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-python/lxml-5.2.1 ~arm64
-=dev-util/pahole-1.26 ~arm64
 
 # Needed for the MIT License
 =net-analyzer/netperf-2.7.0_p20210121 ~amd64 ~arm64
