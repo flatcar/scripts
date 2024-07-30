@@ -1226,7 +1226,7 @@ function pkginfo_c_process_file() {
         # shellcheck disable=SC2034 # it's a reference to external variable
         pkg_set_ref["${pkg}"]='x'
         mvm_add "${pkg_slots_set_mvm_var_name}" "${pkg}" "${s}"
-        pkg_debug_disable "${pkg}"
+        pkg_debug_disable
     done <"${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
 }
 
@@ -1654,19 +1654,28 @@ function handle_package_changes() {
     local pkg other
     for pkg in "${!renamed_old_to_new_map_ref[@]}"; do
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
+        pkg_debug_enable "${pkg}" "${other}"
+        pkg_debug "${pkg} is marked to be renamed to ${other}"
         all_new_pkgs_set["${other}"]=x
+        pkg_debug_disable
     done
 
     for pkg in "${hpc_all_pkgs[@]}"; do
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
         if [[ -n "${other}" ]]; then
+            pkg_debug_enable "${pkg}" "${other}"
+            pkg_debug "${pkg} actually got renamed to ${other}"
             old_pkgs+=("${pkg}")
             new_pkgs+=("${other}")
+            pkg_debug_disable
             continue
         fi
         if [[ -n ${all_new_pkgs_set["${pkg}"]:-} ]]; then
             continue
         fi
+        pkg_debug_enable "${pkg}" "${other}"
+        pkg_debug "${pkg} is not renamed"
+        pkg_debug_disable
         old_pkgs+=("${pkg}")
         new_pkgs+=("${pkg}")
     done
