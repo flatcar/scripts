@@ -1650,39 +1650,62 @@ function handle_package_changes() {
     old_pkgs=()
     new_pkgs=()
 
-    local -A all_new_pkgs_set=()
+    local -A added_pkg_to_index_map=()
     local pkg other
-    for pkg in "${!renamed_old_to_new_map_ref[@]}"; do
-        other=${renamed_old_to_new_map_ref["${pkg}"]:-}
-        pkg_debug_enable "${pkg}" "${other}"
-        pkg_debug "${pkg} is marked to be renamed to ${other}"
-        all_new_pkgs_set["${other}"]=x
-        pkg_debug_disable
-    done
-
     for pkg in "${hpc_all_pkgs[@]}"; do
         other=${renamed_old_to_new_map_ref["${pkg}"]:-}
         if [[ -n "${other}" ]]; then
             pkg_debug_enable "${pkg}" "${other}"
-            pkg_debug "${pkg} actually got renamed to ${other}"
+            pkg_debug "${pkg} renamed to ${other}"
+            pkg_debug_disable
+            local other_idx
+            other_idx=${added_pkg_to_index_map["${other}"]:-}
+            if [[ -n ${other_idx} ]]; then
+                local other_old
+                other_old=${old_pkgs["${other_idx}"]}
+                if [[ ${other_old} = "${other}" ]]; then
+                    old_pkgs["${other_idx}"]=${pkg}
+                else
+                    manual \
+                        '- there seem to be two old packages in our repos that are supposed to be renamed to the same name:' \
+                        "  - old package 1: ${pkg}" \
+                        "  - old package 2: ${other_old}" \
+                        "  - new package: ${other}"
+                fi
+                unset other_idx other_old
+                continue
+            else
+                unset other_idx
+            fi
+            local pkg_idx
+            # doesn't matter if it's length of new_pkgs or old_pkgs,
+            # both are assumed to have the same length
+            pkg_idx=${#old_pkgs[@]}
             old_pkgs+=("${pkg}")
             new_pkgs+=("${other}")
-            pkg_debug_disable
-            continue
-        fi
-        if [[ -n ${all_new_pkgs_set["${pkg}"]:-} ]]; then
+            added_pkg_to_index_map["${pkg}"]=${pkg_idx}
+            added_pkg_to_index_map["${other}"]=${pkg_idx}
+            unset pkg_idx
             continue
         fi
         pkg_debug_enable "${pkg}"
-        pkg_debug "${pkg} is not renamed"
+        if [[ -n ${added_pkg_to_index_map["${pkg}"]} ]]; then
+            pkg_debug 'handled already through some rename'
+        else
+            pkg_debug "${pkg} is not renamed"
+            local pkg_idx
+            # doesn't matter if it's length of new_pkgs or old_pkgs,
+            # both are assumed to have the same length
+            pkg_idx=${#old_pkgs[@]}
+            old_pkgs+=("${pkg}")
+            new_pkgs+=("${pkg}")
+            added_pkg_to_index_map["${pkg}"]=${pkg_idx}
+        fi
         pkg_debug_disable
-        old_pkgs+=("${pkg}")
-        new_pkgs+=("${pkg}")
     done
+    unset added_pkg_to_index_map
 
-    local pkg_idx
-    pkg_idx=0
-
+    local pkg_idx=0
     local old_name new_name old_repo new_repo
     local hpc_old_slots_set_var_name hpc_new_slots_set_var_name
     local hpc_old_slot_verminmax_map_var_name hpc_new_slot_verminmax_map_var_name
