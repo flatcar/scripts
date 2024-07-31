@@ -1,0 +1,38 @@
+#!/bin/bash
+# Copyright (c) 2024 The Flatcar Maintainers.
+# Distributed under the terms of the GNU General Public License v2
+
+# Generates a package.mask file clamping back an architecture with unstable
+# keywords (e.g. riscv) to roughly the same package versions as amd64-usr, which
+# has stable keywords.
+
+set -euo pipefail
+
+export PORTAGE_CONFIGROOT=/build/${1-none}
+
+if [[ ! -d ${PORTAGE_CONFIGROOT} ]]; then
+  echo "Usage: $0 <BOARD>" >&2
+  exit 1
+fi
+
+cd "$(portageq get_repo_path / portage-stable)"
+
+find * -maxdepth 3 -name "*.ebuild" -printf "%h\0" | sort -z -u | xargs -P16 -0 -i sh -ec '
+  PKG="{}"
+
+  # This will fail, skipping this package, if there is no amd64-usr ebuild,
+  # which is fine because there is nothing to mask in this case.
+  BEST_STABLE=$(PORTAGE_CONFIGROOT=/build/amd64-usr portageq best_visible /build/amd64-usr ebuild "${PKG}")
+
+  if ! BEST_UNSTABLE=$(portageq best_visible / ebuild "${PKG}"); then
+    echo "# ${PKG} is not keyworded for this architecture." >&2
+  fi
+
+  # Do not bother masking if the best versions match.
+  [ "${BEST_UNSTABLE}" = "${BEST_STABLE}" ] && exit
+
+  # Check if there is a keyworded ebuild at the same version or lower. If so,
+  # mask higher versions. If not, do not mask, allowing the best unstable.
+  portageq best_visible "${PORTAGE_CONFIGROOT}" ebuild "<=${BEST_STABLE}" >/dev/null
+  echo ">${BEST_STABLE}"
+' | sort
