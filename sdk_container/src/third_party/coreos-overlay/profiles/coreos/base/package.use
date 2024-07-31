@@ -73,9 +73,6 @@ sys-apps/portage -xattr -rsync-verify
 # Enable -M and -Z flags; -M is used by mayday
 sys-process/lsof rpc selinux
 
-# Disable zstd to avoid adding it to prod images until something needs it
-sys-fs/btrfs-progs -zstd
-
 # Enable SELinux for all targets
 coreos-base/coreos          selinux
 sys-apps/dbus               selinux
