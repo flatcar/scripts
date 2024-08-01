@@ -1,0 +1,40 @@
+From 9de91cfab8fc31fb043da1b15f7b2ce632a0e9ee Mon Sep 17 00:00:00 2001
+From: Oleksandr Tymoshenko <ovt@google.com>
+Date: Wed, 1 Nov 2023 05:01:59 +0000
+Subject: [PATCH] Make json-c include dir configurable
+
+---
+ src/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/Makefile b/src/Makefile
+index a633c7ca61cf..04d90d24a281 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -1,7 +1,7 @@
+ SHELL = /bin/sh
+ TOPDIR = $(realpath ..)
+ 
+-CPPFLAGS = -Iinclude -I/usr/include/json-c -I$(TOPDIR)/third_party/include
++CPPFLAGS = -Iinclude -I$(JSON_INCLUDE_PATH) -I$(TOPDIR)/third_party/include
+ FLAGS = -fPIC -Wall -g
+ CFLAGS = $(FLAGS) -Wstrict-prototypes
+ CXXFLAGS = $(FLAGS)
+@@ -52,12 +52,12 @@ $(NSS_CACHE_OSLOGIN): nss/nss_cache_oslogin.o nss/compat/getpwent_r.o oslogin_ut
+ 
+ # PAM modules
+ 
+-$(PAM_LOGIN): pam/pam_oslogin_login.o oslogin_sshca.o oslogin_utils.o include/oslogin_sshca.h
++$(PAM_LOGIN): pam/pam_oslogin_login.o oslogin_sshca.o oslogin_utils.o
+ 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -shared $^ -o $@ $(PAMLIBS)
+ 
+ # Utilities.
+ 
+-google_authorized_principals: authorized_principals/authorized_principals.o oslogin_utils.o oslogin_sshca.o include/oslogin_sshca.h
++google_authorized_principals: authorized_principals/authorized_principals.o oslogin_utils.o oslogin_sshca.o
+ 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $^ -o $@ $(LDLIBS)
+ 
+ google_authorized_keys: authorized_keys/authorized_keys.o oslogin_utils.o
+-- 
+2.42.0.820.g83a721a137-goog
+

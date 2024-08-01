@@ -1,0 +1,42 @@
+From e6ffb5fccf86931a79f551fdc960a659044042ce Mon Sep 17 00:00:00 2001
+From: Oleksandr Tymoshenko <ovt@google.com>
+Date: Wed, 8 Nov 2023 01:55:51 +0000
+Subject: [PATCH 2/2] Create missing directories
+
+Create missing directories for instance ID file and for SSH host key
+---
+ google_guest_agent/instance_setup.go | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/google_guest_agent/instance_setup.go b/google_guest_agent/instance_setup.go
+index d8cbc02bf94e..86b91b5c4636 100644
+--- a/google_guest_agent/instance_setup.go
++++ b/google_guest_agent/instance_setup.go
+@@ -171,7 +171,12 @@ func agentInit(ctx context.Context) {
+ 		// Check if instance ID has changed, and if so, consider this
+ 		// the first boot of the instance.
+ 		// TODO Also do this for windows. liamh@13-11-2019
+-		instanceIDFile := config.Instance.InstanceIDDir
++		instanceIDDir := config.Instance.InstanceIDDir
++		// Create the instance ID directory, if it doesn't exist.
++		if err := os.MkdirAll(instanceIDDir, 0755); err != nil {
++			logger.Warningf("Failed to create instance ID directory: %v", err)
++		}
++		instanceIDFile := instanceIDDir + "/google_instance_id"
+ 		instanceID, err := os.ReadFile(instanceIDFile)
+ 		if err != nil && !os.IsNotExist(err) {
+ 			logger.Warningf("Not running first-boot actions, error reading instance ID: %v", err)
+@@ -220,6 +225,10 @@ func agentInit(ctx context.Context) {
+ func generateSSHKeys(ctx context.Context) error {
+ 	config := cfg.Get()
+ 	hostKeyDir := config.InstanceSetup.HostKeyDir
++	// Create the host key directory, if it doesn't exist.
++	if err := os.MkdirAll(hostKeyDir, 0755); err != nil {
++		logger.Warningf("Failed to create host key directory: %v", err)
++	}
+ 	dir, err := os.Open(hostKeyDir)
+ 	if err != nil {
+ 		return err
+-- 
+2.42.0.869.gea05f2083d-goog
+
