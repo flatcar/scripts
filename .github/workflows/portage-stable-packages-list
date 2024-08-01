@@ -474,10 +474,7 @@ net-vpn/wireguard-tools
 perl-core/File-Temp
 
 profiles
-
-# The bootstrap script has some modifications, so we can't sync scripts directory yet.
-#
-# scripts
+scripts
 
 sec-keys/openpgp-keys-gentoo-release
 
