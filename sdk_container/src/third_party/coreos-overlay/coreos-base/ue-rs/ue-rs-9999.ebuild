@@ -9,7 +9,7 @@ if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 	CRATES=""
 else
-	EGIT_COMMIT="9b6ddb0226208450bcef9da4ac5ba8bc2a47a87c" # trunk
+	EGIT_COMMIT="21d64e53c559b318170081a9a49ed9198d1603f5" # trunk
 	KEYWORDS="amd64 arm64"
 
 	CRATES="
@@ -96,10 +96,10 @@ else
 		num-traits@0.2.16
 		object@0.32.1
 		once_cell@1.18.0
-		openssl@0.10.60
+		openssl@0.10.66
 		openssl-macros@0.1.1
 		openssl-probe@0.1.5
-		openssl-sys@0.9.96
+		openssl-sys@0.9.103
 		pem-rfc7468@0.7.0
 		percent-encoding@2.3.0
 		pin-project-lite@0.2.13
