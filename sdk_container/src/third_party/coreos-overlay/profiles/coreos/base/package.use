@@ -165,3 +165,16 @@ dev-util/bpftool -llvm
 
 # Do not tinker with /boot partition at installation time.
 sys-firmware/intel-microcode -initramfs
+
+app-containers/lxc selinux
+
+# required by app-containers/incus-6.0.1-r1::portage-stable
+# required by app-containers/incus (argument)
+>=dev-libs/raft-0.22.1 lz4
+# required by app-containers/incus-6.0.1-r1::portage-stable
+# required by app-containers/incus (argument)
+>=dev-util/xdelta-3.0.11-r1 lzma
+# required by app-containers/lxc-6.0.0-r2::portage-stable[caps,tools]
+# required by app-containers/incus-6.0.1-r1::portage-stable
+# required by app-containers/incus (argument)
+>=sys-libs/libcap-2.70 static-libs

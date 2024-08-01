@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}"
+
+pushd ./usr/lib/systemd/system
+mkdir -p "multi-user.target.d"
+{ echo "[Unit]"; echo "Upholds=incus.service"; } > "multi-user.target.d/10-incus.conf"
+popd
+
+mkdir -p ./usr/lib/tmpfiles.d
+pushd ./usr/lib/tmpfiles.d
+cat <<EOF >./10-incus.conf
+d  /var/lib/lxc/rootfs	0755  root  root  -  -
+EOF
+popd
+
+popd
