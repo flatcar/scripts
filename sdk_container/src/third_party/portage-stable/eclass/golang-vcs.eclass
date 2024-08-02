@@ -1,10 +1,10 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: golang-vcs.eclass
 # @MAINTAINER:
 # William Hubbs <williamh@gentoo.org>
-# @SUPPORTED_EAPIS: 6 7
+# @SUPPORTED_EAPIS: 7
 # @PROVIDES: golang-base
 # @BLURB: Eclass for fetching and unpacking go repositories.
 # @DEPRECATED: go-module.eclass
@@ -13,14 +13,13 @@
 # of software written in the Go programming language.
 
 case ${EAPI} in
-	6|7) ;;
+	7) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
 if [[ -z ${_GOLANG_VCS_ECLASS} ]]; then
 _GOLANG_VCS_ECLASS=1
 
-# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
 inherit estack golang-base go-env
 
 PROPERTIES+=" live"
@@ -87,7 +86,6 @@ _golang-vcs_env_setup() {
 		die "${ECLASS}: unable to create ${WORKDIR}/${P}"
 	return 0
 
-	# Flatcar: Keep this change until upstream has merged https://github.com/gentoo/gentoo/pull/33539
 	go-env_set_compile_environment
 }
 
