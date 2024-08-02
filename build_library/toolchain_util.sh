@@ -423,7 +423,6 @@ install_cross_toolchain() {
     # Setup environment and wrappers for our shiny new toolchain
     binutils_set_latest_profile "${cross_chost}"
     gcc_set_latest_profile "${cross_chost}"
-    "${sudo[@]}" CC_QUIET=1 sysroot-config --install-links "${cross_chost}"
 }
 
 # Build/install toolchain dependencies into the cross sysroot for a
