@@ -47,9 +47,6 @@
 # Keep versions on both arches in sync.
 =dev-cpp/glog-0.6.0 ~arm64
 
-# Needed by arm64-native SDK.
-=dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
-
 # Accept unstable host Rust compilers.
 =dev-lang/rust-1.80.0 ~amd64 ~arm64
 
