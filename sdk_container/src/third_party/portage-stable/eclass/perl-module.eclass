@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: perl-module.eclass
@@ -21,11 +21,11 @@
 
 case ${EAPI} in
 	7)
-		inherit multiprocessing perl-functions
+		inherit multiprocessing perl-functions toolchain-funcs
 		PERL_EXPF="src_prepare src_configure src_compile src_test src_install"
 		;;
 	8)
-		inherit multiprocessing perl-functions readme.gentoo-r1
+		inherit multiprocessing perl-functions readme.gentoo-r1 toolchain-funcs
 		PERL_EXPF="src_prepare src_configure src_compile src_test src_install"
 		;;
 	*)
@@ -44,6 +44,28 @@ esac
 # a use-conditional build time dependency on virtual/perl-Test-Simple, and
 # the required RESTRICT setting.
 
+# @ECLASS_VARIABLE: PERL_USEDEP
+# @OUTPUT_VARIABLE
+# @DESCRIPTION:
+# An eclass-generated USE-dependency string for the features of the
+# installed Perl. While by far not as critical as for Python, this should
+# be used to depend at least on Perl packages installing compiled
+# (binary) files.
+#
+# Example use:
+# @CODE
+# RDEPEND=dev-perl/DBI[${PERL_USEDEP}]
+# @CODE
+#
+# Example value:
+# @CODE
+# perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=
+# @CODE
+PERL_USEDEP="perl_features_debug=,perl_features_ithreads=,perl_features_quadmath="
+
+GENTOO_PERL_DEPSTRING=">=dev-lang/perl-5.38.2-r3[${PERL_USEDEP}]"
+GENTOO_PERL_USESTRING="perl_features_debug perl_features_ithreads perl_features_quadmath"
+
 case ${EAPI} in
 	7)
 		[[ ${CATEGORY} == perl-core ]] && \
@@ -51,14 +73,16 @@ case ${EAPI} in
 
 		case "${GENTOO_DEPEND_ON_PERL:-yes}" in
 			yes)
-				DEPEND="dev-lang/perl"
-				BDEPEND="dev-lang/perl"
-				RDEPEND="dev-lang/perl:="
+				IUSE=${GENTOO_PERL_USESTRING}
+				DEPEND=${GENTOO_PERL_DEPSTRING}
+				BDEPEND=${GENTOO_PERL_DEPSTRING}
+				RDEPEND="${GENTOO_PERL_DEPSTRING} dev-lang/perl:="
 				;;
 			noslotop)
-				DEPEND="dev-lang/perl"
-				BDEPEND="dev-lang/perl"
-				RDEPEND="dev-lang/perl"
+				IUSE=${GENTOO_PERL_USESTRING}
+				DEPEND=${GENTOO_PERL_DEPSTRING}
+				BDEPEND=${GENTOO_PERL_DEPSTRING}
+				RDEPEND=${GENTOO_PERL_DEPSTRING}
 				;;
 		esac
 
@@ -78,17 +102,18 @@ case ${EAPI} in
 
 		case "${GENTOO_DEPEND_ON_PERL:-yes}" in
 			yes|noslotop)
-				DEPEND="dev-lang/perl"
-				BDEPEND="dev-lang/perl
-					 test? ( virtual/perl-Test-Simple )"
-				IUSE="test"
+				IUSE=${GENTOO_PERL_USESTRING}
+				DEPEND=${GENTOO_PERL_DEPSTRING}
+				BDEPEND="${GENTOO_PERL_DEPSTRING}
+					 test? ( >=virtual/perl-Test-Simple-1 )"
+				IUSE+=" test"
 				RESTRICT="!test? ( test )"
 				;;&
 			yes)
-				RDEPEND="dev-lang/perl:="
+				RDEPEND="${GENTOO_PERL_DEPSTRING} dev-lang/perl:="
 				;;
 			noslotop)
-				RDEPEND="dev-lang/perl"
+				RDEPEND=${GENTOO_PERL_DEPSTRING}
 				;;
 		esac
 
@@ -209,6 +234,10 @@ perl-module_src_prepare() {
 perl-module_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
 
+	# Perl runs LD with LDFLAGS
+	export CCLD=$(tc-getCC)
+	unset LD
+
 	perl_check_env
 
 	perl_set_version
@@ -216,6 +245,8 @@ perl-module_src_configure() {
 	[[ -z ${pm_echovar} ]] && export PERL_MM_USE_DEFAULT=1
 	# Disable ExtUtils::AutoInstall from prompting
 	export PERL_EXTUTILS_AUTOINSTALL="--skipdeps"
+	# Noisy and not really appropriate to show to the user in a PM
+	export PERL_CANARY_STABILITY_DISABLE=1
 
 	if [[ $(declare -p myconf 2>&-) != "declare -a myconf="* ]]; then
 		local myconf_local=(${myconf})
@@ -241,8 +272,15 @@ perl-module_src_configure() {
 		set -- \
 			--installdirs=vendor \
 			--libdoc= \
-			--destdir="${D}" \
 			--create_packlist=1 \
+			--config ar="$(tc-getAR)" \
+			--config cc="$(tc-getCC)" \
+			--config cpp="$(tc-getCPP)" \
+			--config ld="$(tc-getCC)" \
+			--config nm="$(tc-getNM)" \
+			--config ranlib="$(tc-getRANLIB)" \
+			--config optimize="${CFLAGS}" \
+			--config ldflags="${LDFLAGS}" \
 			"${myconf_local[@]}"
 		einfo "perl Build.PL" "$@"
 		perl Build.PL "$@" <<< "${pm_echovar}" \
@@ -250,10 +288,17 @@ perl-module_src_configure() {
 	elif [[ -f Makefile.PL ]] ; then
 		einfo "Using ExtUtils::MakeMaker"
 		set -- \
-			PREFIX=${EPREFIX}/usr \
+			AR="$(tc-getAR)" \
+			CC="$(tc-getCC)" \
+			CPP="$(tc-getCPP)" \
+			LD="$(tc-getCC)" \
+			NM="$(tc-getNM)" \
+			RANLIB="$(tc-getRANLIB)" \
+			OPTIMIZE="${CFLAGS}" \
+			LDFLAGS="${LDFLAGS}" \
+			PREFIX="${EPREFIX}"/usr \
 			INSTALLDIRS=vendor \
 			INSTALLMAN3DIR='none' \
-			DESTDIR="${D}" \
 			"${myconf_local[@]}"
 		einfo "perl Makefile.PL" "$@"
 		perl Makefile.PL "$@" <<< "${pm_echovar}" \
@@ -329,6 +374,7 @@ perl-module_src_test() {
 
 	local my_test_control
 	local my_test_verbose
+	local my_test_makeopts
 
 	[[ -n "${DIST_TEST_OVERRIDE}" ]] && ewarn "DIST_TEST_OVERRIDE is set to ${DIST_TEST_OVERRIDE}"
 	my_test_control=${DIST_TEST_OVERRIDE:-${DIST_TEST:-do parallel}}
@@ -336,6 +382,10 @@ perl-module_src_test() {
 	if ! has 'do' ${my_test_control} && ! has 'parallel' ${my_test_control} ; then
 		einfo Skipping tests due to DIST_TEST=${my_test_control}
 		return 0
+	fi
+
+	if has 'do' ${my_test_control} && ! has 'parallel' ${my_test_control} ; then
+		my_test_makeopts="-j1"
 	fi
 
 	if has verbose ${my_test_control} ; then
@@ -354,6 +404,13 @@ perl-module_src_test() {
 		export NO_NETWORK_TESTING=1
 	fi
 
+	# See https://www.perlmonks.org/?node_id=1225311
+	# * AUTOMATED_TESTING appears inappropriate for us, as it affects
+	# exit codes and might mask failures if configuration is wrong.
+	# * EXTENDED_TESTING is something we could consider if we had
+	# some way to opt-in to expensive tests.
+	export NONINTERACTIVE_TESTING=1
+
 	case ${EAPI} in
 		7)
 			;;
@@ -370,7 +427,7 @@ perl-module_src_test() {
 	if [[ -f Build ]] ; then
 		./Build test verbose=${my_test_verbose} || die "test failed"
 	elif [[ -f Makefile ]] ; then
-		emake test TEST_VERBOSE=${my_test_verbose}
+		emake ${my_test_makeopts} test TEST_VERBOSE=${my_test_verbose}
 	fi
 }
 
@@ -387,7 +444,7 @@ perl-module_src_install() {
 
 	if [[ -f Build ]]; then
 		mytargets="${mytargets:-install}"
-		mbparams="${mbparams:---pure}"
+		mbparams="${mbparams:---destdir="${D}" --pure}"
 		einfo "./Build ${mytargets} ${mbparams}"
 		./Build ${mytargets} ${mbparams} \
 			|| die "./Build ${mytargets} ${mbparams} failed"
@@ -401,7 +458,7 @@ perl-module_src_install() {
 		else
 			local myinst_local=("${myinst[@]}")
 		fi
-		emake "${myinst_local[@]}" ${mytargets}
+		emake DESTDIR="${D}" "${myinst_local[@]}" ${mytargets}
 	fi
 
 	case ${EAPI} in
