@@ -26,10 +26,26 @@ LICENSE="MIT"
 # bundled deps
 LICENSE+=" Apache-2.0 BSD BSD-2 ISC LGPL-2.1+ MPL-2.0 PSF-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~sparc"
 IUSE="test-rust"
 
+# see src/pip/_vendor/vendor.txt
 RDEPEND="
+	>=dev-python/cachecontrol-0.14.0[${PYTHON_USEDEP}]
+	>=dev-python/distlib-0.3.8[${PYTHON_USEDEP}]
+	>=dev-python/distro-1.9.0[${PYTHON_USEDEP}]
+	>=dev-python/msgpack-1.0.8[${PYTHON_USEDEP}]
+	>=dev-python/packaging-24.1[${PYTHON_USEDEP}]
+	>=dev-python/platformdirs-4.2.1[${PYTHON_USEDEP}]
+	>=dev-python/pyproject-hooks-1.0.0[${PYTHON_USEDEP}]
+	>=dev-python/requests-2.32.0[${PYTHON_USEDEP}]
+	>=dev-python/rich-13.7.1[${PYTHON_USEDEP}]
+	>=dev-python/resolvelib-1.0.1[${PYTHON_USEDEP}]
+	>=dev-python/setuptools-69.5.1[${PYTHON_USEDEP}]
+	>=dev-python/tenacity-8.2.3[${PYTHON_USEDEP}]
+	>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
+	>=dev-python/truststore-0.9.1[${PYTHON_USEDEP}]
+
 	>=dev-python/setuptools-39.2.0[${PYTHON_USEDEP}]
 "
 BDEPEND="
@@ -49,6 +65,7 @@ BDEPEND="
 			test-rust? (
 				dev-python/cryptography[${PYTHON_USEDEP}]
 			)
+			dev-vcs/git
 		' "${PYTHON_TESTED[@]}")
 	)
 "
@@ -58,11 +75,20 @@ distutils_enable_tests pytest
 python_prepare_all() {
 	local PATCHES=(
 		"${FILESDIR}/pip-23.1-no-coverage.patch"
-		# https://github.com/pypa/pip/pull/12415
-		"${FILESDIR}/pip-23.3.1-no-color.patch"
+		# https://github.com/pypa/pip/issues/12786 (and more)
+		"${FILESDIR}/pip-24.1-test-offline.patch"
+		# prepare to unbundle dependencies
+		"${FILESDIR}/pip-24.1-unbundle.patch"
 	)
 
 	distutils-r1_python_prepare_all
+
+	# unbundle dependencies
+	rm -r src/pip/_vendor || die
+	find -name '*.py' -exec sed -i \
+		-e 's:from pip\._vendor import:import:g' \
+		-e 's:from pip\._vendor\.:from :g' \
+		{} + || die
 
 	if use test; then
 		local wheels=(
@@ -92,11 +118,28 @@ python_test() {
 		tests/functional/test_inspect.py::test_inspect_basic
 		# Internet
 		tests/functional/test_config_settings.py::test_backend_sees_config_via_sdist
-		tests/functional/test_config_settings.py::test_config_settings_implies_pep517
 		tests/functional/test_install.py::test_double_install_fail
-		tests/functional/test_install.py::test_editable_install__local_dir_setup_requires_with_pyproject
-		tests/functional/test_install.py::test_link_hash_in_dep_fails_require_hashes
 		tests/functional/test_install_config.py::test_prompt_for_keyring_if_needed
+		# broken by system site-packages use
+		tests/functional/test_check.py::test_basic_check_clean
+		tests/functional/test_check.py::test_check_skip_work_dir_pkg
+		tests/functional/test_check.py::test_check_complicated_name_clean
+		tests/functional/test_check.py::test_check_development_versions_are_also_considered
+		tests/functional/test_freeze.py::test_freeze_with_setuptools
+		tests/functional/test_pip_runner_script.py::test_runner_work_in_environments_with_no_pip
+		tests/functional/test_uninstall.py::test_basic_uninstall_distutils
+		tests/unit/test_base_command.py::test_base_command_global_tempdir_cleanup
+		tests/unit/test_base_command.py::test_base_command_local_tempdir_cleanup
+		tests/unit/test_base_command.py::test_base_command_provides_tempdir_helpers
+		# broken by unbundling
+		"tests/functional/test_debug.py::test_debug[vendored library versions:]"
+		tests/functional/test_debug.py::test_debug__library_versions
+		tests/functional/test_python_option.py::test_python_interpreter
+		tests/functional/test_uninstall.py::test_uninstall_non_local_distutils
+	)
+	local EPYTEST_IGNORE=(
+		# requires proxy.py
+		tests/functional/test_proxy.py
 	)
 
 	if ! has_version "dev-python/cryptography[${PYTHON_USEDEP}]"; then
@@ -109,21 +152,9 @@ python_test() {
 	fi
 
 	case ${EPYTHON} in
-		python3.13)
-			EPYTEST_DESELECT+=(
-				# hacky upstream time mocking stopped working, they have it
-				# failing on CI already too
-				tests/unit/test_base_command.py::test_log_command_success
-				tests/unit/test_base_command.py::test_log_command_error
-				tests/unit/test_base_command.py::test_log_file_command_error
-			)
-			;;
 		python3.10)
 			EPYTEST_DESELECT+=(
 				# no clue why they fail
-				tests/unit/test_base_command.py::test_base_command_global_tempdir_cleanup
-				tests/unit/test_base_command.py::test_base_command_local_tempdir_cleanup
-				tests/unit/test_base_command.py::test_base_command_provides_tempdir_helpers
 			)
 			;;
 	esac

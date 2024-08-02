@@ -26,7 +26,7 @@ LICENSE="MIT"
 # bundled deps
 LICENSE+=" Apache-2.0 BSD BSD-2 ISC LGPL-2.1+ MPL-2.0 PSF-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="test-rust"
 
 RDEPEND="
@@ -58,8 +58,8 @@ distutils_enable_tests pytest
 python_prepare_all() {
 	local PATCHES=(
 		"${FILESDIR}/pip-23.1-no-coverage.patch"
-		# https://github.com/pypa/pip/pull/12415
-		"${FILESDIR}/pip-23.3.1-no-color.patch"
+		# https://github.com/pypa/pip/issues/12786 (and more)
+		"${FILESDIR}/pip-24.1-test-offline.patch"
 	)
 
 	distutils-r1_python_prepare_all
@@ -92,11 +92,12 @@ python_test() {
 		tests/functional/test_inspect.py::test_inspect_basic
 		# Internet
 		tests/functional/test_config_settings.py::test_backend_sees_config_via_sdist
-		tests/functional/test_config_settings.py::test_config_settings_implies_pep517
 		tests/functional/test_install.py::test_double_install_fail
-		tests/functional/test_install.py::test_editable_install__local_dir_setup_requires_with_pyproject
-		tests/functional/test_install.py::test_link_hash_in_dep_fails_require_hashes
 		tests/functional/test_install_config.py::test_prompt_for_keyring_if_needed
+	)
+	local EPYTEST_IGNORE=(
+		# requires proxy.py
+		tests/functional/test_proxy.py
 	)
 
 	if ! has_version "dev-python/cryptography[${PYTHON_USEDEP}]"; then
@@ -109,15 +110,6 @@ python_test() {
 	fi
 
 	case ${EPYTHON} in
-		python3.13)
-			EPYTEST_DESELECT+=(
-				# hacky upstream time mocking stopped working, they have it
-				# failing on CI already too
-				tests/unit/test_base_command.py::test_log_command_success
-				tests/unit/test_base_command.py::test_log_command_error
-				tests/unit/test_base_command.py::test_log_file_command_error
-			)
-			;;
 		python3.10)
 			EPYTEST_DESELECT+=(
 				# no clue why they fail
