@@ -1,4 +1,4 @@
-# Copyright 2011-2022 Gentoo Authors
+# Copyright 2011-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
@@ -20,8 +20,8 @@ else
 fi
 
 LICENSE="BSD"
-SLOT="0"
-KEYWORDS="amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
+SLOT="0/1"
+KEYWORDS="amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ppc ~ppc64 ~riscv ~s390 sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="gflags +libunwind llvm-libunwind test"
 RESTRICT="!test? ( test )"
 
@@ -33,29 +33,17 @@ RDEPEND="gflags? ( dev-cpp/gflags:0=[${MULTILIB_USEDEP}] )
 DEPEND="${RDEPEND}
 	test? ( >=dev-cpp/gtest-1.8.0[${MULTILIB_USEDEP}] )"
 
-PATCHES=(
-	"${FILESDIR}/${P}-IsGoogleLoggingInitialized_public.patch"
-	"${FILESDIR}/${P}-vmodule_levels_changeability.patch"
-)
-
 src_configure() {
 	local mycmakeargs=(
 		-DBUILD_TESTING=$(usex test ON OFF)
-		-DWITH_CUSTOM_PREFIX=ON
 		-DWITH_GFLAGS=$(usex gflags ON OFF)
 		-DWITH_GTEST=$(usex test ON OFF)
 		-DWITH_UNWIND=$(usex libunwind ON OFF)
 	)
-	if use libunwind; then
-		mycmakeargs+=(
-			-DUnwind_PLATFORM_LIBRARY="${ESYSROOT}/usr/$(get_libdir)/libunwind.so"
-		)
-	fi
 
 	cmake-multilib_src_configure
 }
 
 src_test() {
-	# See bug #832355
 	cmake-multilib_src_test -j1
 }
