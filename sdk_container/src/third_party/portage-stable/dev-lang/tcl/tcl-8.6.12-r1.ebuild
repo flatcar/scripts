@@ -3,6 +3,8 @@
 
 EAPI=7
 
+# Please bump with dev-lang/tk!
+
 inherit autotools flag-o-matic multilib-minimal multilib toolchain-funcs
 
 MY_P="${PN}${PV}"
@@ -13,7 +15,7 @@ SRC_URI="https://downloads.sourceforge.net/tcl/${PN}-core${PV}-src.tar.gz"
 
 LICENSE="tcltk"
 SLOT="0/8.6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="debug +threads"
 
 RDEPEND=">=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]"
@@ -26,6 +28,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.6.10-multilib.patch
 	"${FILESDIR}"/${PN}-8.6.8-conf.patch # Bug 125971
 	"${FILESDIR}"/${PN}-8.6.9-include-spec.patch # Bug 731120
+	"${FILESDIR}"/${P}-configure-clang16.patch
 )
 
 src_prepare() {
@@ -118,19 +121,4 @@ multilib_src_install() {
 		dosym tclsh${v1} /usr/bin/tclsh
 		dodoc "${SPARENT}"/{ChangeLog*,README.md,changes}
 	fi
-}
-
-pkg_postinst() {
-	for version in ${REPLACING_VERSIONS}; do
-		if ver_test 8.6 -lt ${version}; then
-			echo
-			ewarn "You're upgrading from <${P}, you must recompile the other"
-			ewarn "packages on your system that link with tcl after the upgrade"
-			ewarn "completes. To perform this action, please run revdep-rebuild"
-			ewarn "in package app-portage/gentoolkit."
-			ewarn "If you have dev-lang/tk and dev-tcltk/tclx installed you should"
-			ewarn "upgrade them before this recompilation, too,"
-			echo
-		fi
-	done
 }

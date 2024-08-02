@@ -3,6 +3,8 @@
 
 EAPI=7
 
+# Please bump with dev-lang/tk!
+
 inherit autotools flag-o-matic multilib-minimal multilib toolchain-funcs
 
 MY_P="${PN}${PV}"
@@ -11,9 +13,9 @@ DESCRIPTION="Tool Command Language"
 HOMEPAGE="http://www.tcl.tk/"
 SRC_URI="https://downloads.sourceforge.net/tcl/${PN}-core${PV}-src.tar.gz"
 
-LICENSE="tcltk"
+LICENSE="tcltk Spencer-99"
 SLOT="0/8.6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="debug +threads"
 
 RDEPEND=">=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]"
@@ -26,9 +28,16 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.6.10-multilib.patch
 	"${FILESDIR}"/${PN}-8.6.8-conf.patch # Bug 125971
 	"${FILESDIR}"/${PN}-8.6.9-include-spec.patch # Bug 731120
+	"${FILESDIR}"/${PN}-8.6.13-tclConfig-TCL_PACKAGE_PATH-braces.patch # Bug 892029
+)
+
+QA_CONFIG_IMPL_DECL_SKIP=(
+	stat64 opendir64 rewinddir64 closedir64 # used to test for Large File Support
 )
 
 src_prepare() {
+	# By dropping the compat directory a lot of licensing and attribution burden
+	# (BSD-3, zlib,...) is lifted from the user
 	find \
 		"${SPARENT}"/compat/* \
 		"${SPARENT}"/doc/try.n \
@@ -118,19 +127,4 @@ multilib_src_install() {
 		dosym tclsh${v1} /usr/bin/tclsh
 		dodoc "${SPARENT}"/{ChangeLog*,README.md,changes}
 	fi
-}
-
-pkg_postinst() {
-	for version in ${REPLACING_VERSIONS}; do
-		if ver_test 8.6 -lt ${version}; then
-			echo
-			ewarn "You're upgrading from <${P}, you must recompile the other"
-			ewarn "packages on your system that link with tcl after the upgrade"
-			ewarn "completes. To perform this action, please run revdep-rebuild"
-			ewarn "in package app-portage/gentoolkit."
-			ewarn "If you have dev-lang/tk and dev-tcltk/tclx installed you should"
-			ewarn "upgrade them before this recompilation, too,"
-			echo
-		fi
-	done
 }
