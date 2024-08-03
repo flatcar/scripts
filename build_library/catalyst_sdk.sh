@@ -4,6 +4,9 @@ set -e
 source /tmp/chroot-functions.sh
 source /tmp/toolchain_util.sh
 
+ln -vsfT "$(portageq get_repo_path / coreos-overlay)/coreos/user-patches" \
+    /etc/portage/patches
+
 echo "Double checking everything is fresh and happy."
 run_merge -uDN --with-bdeps=y world
 
