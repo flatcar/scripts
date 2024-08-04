@@ -10,6 +10,9 @@ set -euo pipefail
 
 source ci-automation/vendor_test.sh
 
+enablesecureboot=""
+ovmf_vars=""
+
 # ARM64 qemu tests only supported on UEFI
 if [ "${CIA_ARCH}" = "arm64" ] && [ "${CIA_TESTSCRIPT}" != "qemu_uefi.sh" ] ; then
     echo "1..1" > "${CIA_TAPFILE}"
@@ -21,7 +24,7 @@ if [ "${CIA_ARCH}" = "arm64" ] && [ "${CIA_TESTSCRIPT}" != "qemu_uefi.sh" ] ; th
     exit 1
 fi
 
-# Fetch image and BIOS if not present
+# Fetch image and firmware if not present
 if [ -f "${QEMU_IMAGE_NAME}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ${QEMU_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
@@ -31,21 +34,30 @@ else
     lbunzip2 "${QEMU_IMAGE_NAME}.bz2"
 fi
 
-bios="${QEMU_BIOS}"
+firmware="${QEMU_FIRMWARE}"
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
-    bios="${QEMU_UEFI_BIOS}"
+  firmware="${QEMU_UEFI_FIRMWARE}"
+  ovmf_vars=${QEMU_UEFI_OVMF_VARS}"
 fi
 
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi_secure.sh" ] ; then
-    bios="${QEMU_UEFI_SECURE_BIOS}"
+  firmware="${QEMU_UEFI_SECURE_FIRMWARE}"
+  ovmf_vars=${QEMU_UEFI_SECURE_OVMF_VARS}"
+  enablesecureboot="--enable-secureboot"
 fi
 
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] || [ "${CIA_TESTSCRIPT}" = "qemu_uefi_secure.sh" ] ; then
-    if [ -f "${bios}" ] ; then
-        echo "++++ ${CIA_TESTSCRIPT}: Using existing ${bios} ++++"
+  if [ -f "${firmware}" ] ; then
+        echo "++++ ${CIA_TESTSCRIPT}: Using existing ${firmware} ++++"
     else
-        echo "++++ ${CIA_TESTSCRIPT}: downloading ${bios} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
-        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${bios}" .
+        echo "++++ ${CIA_TESTSCRIPT}: downloading ${firmware} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${firmware}" .
+    fi
+    if [ -f "${ovmf_vars}" ] ; then
+      echo "++++ ${CIA_TESTSCRIPT}: Using existing ${ovmf_vars} ++++"
+    else
+      echo "++++ ${CIA_TESTSCRIPT}: downloading ${ovmf_vars} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+      copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${ovmf_vars}" .
     fi
 fi
 
@@ -68,11 +80,13 @@ kola run \
     --board="${CIA_ARCH}-usr" \
     --parallel="${QEMU_PARALLEL}" \
     --platform=qemu \
-    --qemu-bios="${bios}" \
+    --qemu-firmware="${firmware}" \
     --qemu-image="${QEMU_IMAGE_NAME}" \
     --tapfile="${CIA_TAPFILE}" \
+    ${ovmf_vars} \
     ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
     "${devcontainer_opts[@]}" \
+    "${enablesecureboot}" \
     "${@}"
 
 set +x
