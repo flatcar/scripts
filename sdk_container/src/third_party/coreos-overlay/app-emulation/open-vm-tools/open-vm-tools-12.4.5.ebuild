@@ -1,14 +1,16 @@
-# Copyright 2007-2023 Gentoo Authors
+# Copyright 2007-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 inherit autotools linux-info pam systemd udev
 
+MY_P="${P}-23787635"
+
 DESCRIPTION="Tools for VMware guests"
 HOMEPAGE="https://github.com/vmware/open-vm-tools"
-MY_P="${P}-23787635"
 SRC_URI="https://github.com/vmware/open-vm-tools/releases/download/stable-${PV}/${MY_P}.tar.gz"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -31,57 +33,49 @@ RDEPEND="
 	fuse3? ( sys-fs/fuse:3 )
 	pam? ( sys-libs/pam )
 	!pam? ( virtual/libcrypt:= )
-	ssl? ( dev-libs/openssl:0= )
+	ssl? ( dev-libs/openssl:= )
 	vgauth? (
 		dev-libs/libxml2
 		dev-libs/xmlsec:=
 	)
 	X? (
-		x11-libs/libXext
-		multimon? ( x11-libs/libXinerama )
-		x11-libs/libXi
-		x11-libs/libXrender
-		x11-libs/libXrandr
-		x11-libs/libXtst
-		x11-libs/libSM
-		x11-libs/libXcomposite
 		x11-libs/gdk-pixbuf-xlib
 		x11-libs/gtk+:3
+		x11-libs/libSM
+		x11-libs/libXcomposite
+		x11-libs/libXext
+		x11-libs/libXi
+		x11-libs/libXrandr
+		x11-libs/libXrender
+		x11-libs/libXtst
 		gtkmm? (
 			dev-cpp/gtkmm:3.0
 			dev-libs/libsigc++:2
 		)
+		multimon? ( x11-libs/libXinerama )
 	)
 	dnet? ( dev-libs/libdnet )
 	icu? ( dev-libs/icu:= )
 	resolutionkms? (
 		x11-libs/libdrm[video_cards_vmware]
 		virtual/libudev
-	)
-"
-
+	)"
 DEPEND="${RDEPEND}
-	net-libs/rpcsvc-proto
-"
-
+	net-libs/rpcsvc-proto"
 BDEPEND="
 	dev-util/glib-utils
 	virtual/pkgconfig
-	doc? ( app-doc/doxygen )
-"
-
-S="${WORKDIR}/${MY_P}"
+	doc? ( app-text/doxygen )"
 
 PATCHES=(
-	"${FILESDIR}/10.1.0-Werror.patch"
-	"${FILESDIR}/11.3.5-icu.patch"
+	"${FILESDIR}"/10.1.0-Werror.patch
+	"${FILESDIR}"/11.3.5-icu.patch
+	"${FILESDIR}"/12.4.5-xmlsec1-pc.patch
 )
 
 pkg_setup() {
-	local CONFIG_CHECK="~VMWARE_BALLOON ~VMWARE_PVSCSI ~VMXNET3"
+	local CONFIG_CHECK="~VMWARE_BALLOON ~VMWARE_PVSCSI ~VMXNET3 ~VMWARE_VMCI ~VMWARE_VMCI_VSOCKETS ~FUSE_FS"
 	use X && CONFIG_CHECK+=" ~DRM_VMWGFX"
-	kernel_is -lt 3 9 || CONFIG_CHECK+=" ~VMWARE_VMCI ~VMWARE_VMCI_VSOCKETS"
-	kernel_is -lt 3 || CONFIG_CHECK+=" ~FUSE_FS"
 	kernel_is -lt 5 5 || CONFIG_CHECK+=" ~X86_IOPL_IOPERM"
 	linux-info_pkg_setup
 }
@@ -95,21 +89,20 @@ src_prepare() {
 src_configure() {
 	local myeconfargs=(
 		--disable-glibc-check
+		--disable-tests
 		--without-root-privileges
 		$(use_enable multimon)
 		$(use_with X x)
 		$(use_with X gtk3)
 		$(use_with gtkmm gtkmm3)
 		$(use_enable doc docs)
-		--disable-tests
 		$(use_enable resolutionkms)
-		--disable-static
 		$(use_enable deploypkg)
 		$(use_with pam)
 		$(use_enable vgauth)
 		$(use_with dnet)
 		$(use_with icu)
-		--with-udev-rules-dir="$(get_udevdir)/rules.d"
+		--with-udev-rules-dir="$(get_udevdir)"/rules.d
 		# Flatcar: TO UPSTREAM: explicitly specify fuse version
 		$(use_with fuse fuse 2)
 		$(use_with fuse3 fuse 3)
@@ -126,6 +119,10 @@ src_configure() {
 	)
 	# Avoid a bug in configure.ac
 	use ssl || myeconfargs+=( --without-ssl )
+
+	# Avoid relying on dnet-config script, which breaks cross-compiling. This
+	# library has no pkg-config file.
+	export CUSTOM_DNET_LIBS="-ldnet"
 
 	econf "${myeconfargs[@]}"
 }
