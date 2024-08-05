@@ -38,4 +38,5 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
 	${PATCH_DIR}/z0002-revert-pahole-flags.patch \
 	${PATCH_DIR}/z0003-Revert-x86-boot-Remove-the-bugger-off-message.patch \
+	${PATCH_DIR}/z0004-drop-bad-gso-csum_start-and-offset-in-virtio_net_hdr.patch \
 "
