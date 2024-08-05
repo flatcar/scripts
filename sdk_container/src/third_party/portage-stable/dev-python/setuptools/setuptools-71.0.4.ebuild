@@ -21,11 +21,10 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
-# check */_vendor/vendored.txt
 RDEPEND="
 	!!<dev-python/setuptools-rust-1.8.0
 	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
@@ -67,6 +66,7 @@ BDEPEND="
 # trove-classifiers are optionally used in validation, if they are
 # installed.  Since we really oughtn't block them, let's always enforce
 # the newest version for the time being to avoid errors.
+# https://github.com/pypa/setuptools/issues/4459
 PDEPEND="
 	dev-python/setuptools-scm[${PYTHON_USEDEP}]
 	>=dev-python/trove-classifiers-2024.7.2[${PYTHON_USEDEP}]
@@ -84,12 +84,10 @@ src_prepare() {
 	sed -i -e '/--import-mode/d' pytest.ini || die
 
 	# remove bundled dependencies
-	rm -r */_vendor || die
+	rm -r */_vendor setuptools/_distutils/_vendor || die
 
-	# remove the ugly */extern hack that breaks on unvendored deps
-	rm -r */extern || die
 	find -name '*.py' -exec sed \
-		-e 's:from \w*[.]\+extern ::' -e 's:\w*[.]\+extern[.]::' \
+		-e 's:from [.]_vendor[.]:from :' \
 		-i {} + || die
 }
 
@@ -100,20 +98,14 @@ python_test() {
 
 	local EPYTEST_DESELECT=(
 		# network
-		# TODO: see if PRE_BUILT_SETUPTOOLS_* helps
-		setuptools/tests/config/test_apply_pyprojecttoml.py::test_apply_pyproject_equivalent_to_setupcfg
-		setuptools/tests/integration/test_pip_install_sdist.py::test_install_sdist
 		setuptools/tests/test_build_meta.py::test_legacy_editable_install
 		setuptools/tests/test_distutils_adoption.py
 		setuptools/tests/test_editable_install.py
-		setuptools/tests/test_setuptools.py::test_its_own_wheel_does_not_contain_tests
-		setuptools/tests/test_virtualenv.py::test_clean_env_install
 		setuptools/tests/test_virtualenv.py::test_no_missing_dependencies
 		setuptools/tests/test_virtualenv.py::test_test_command_install_requirements
 		# TODO
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_basic
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_ignore_errors
-		setuptools/tests/test_extern.py::test_distribution_picklable
 		# expects bundled deps in virtualenv
 		setuptools/tests/config/test_apply_pyprojecttoml.py::TestMeta::test_example_file_in_sdist
 		setuptools/tests/config/test_apply_pyprojecttoml.py::TestMeta::test_example_file_not_in_wheel
@@ -121,22 +113,12 @@ python_test() {
 		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_allow_hosts
 		# TODO, probably some random package
 		setuptools/tests/config/test_setupcfg.py::TestOptions::test_cmdclass
-		# Internet, sigh
-		setuptools/tests/test_integration.py
-		# flaky
-		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_transitive_extra_dependency
-		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_distutils_command_dep
+		# broken by unbundling
+		setuptools/tests/test_setuptools.py::test_wheel_includes_vendored_metadata
 	)
 
-	case ${EPYTHON} in
-		python3.12)
-			EPYTEST_DESELECT+=(
-				# TODO
-				setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_distutils_command_dep
-				setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_transitive_extra_dependency
-			)
-	esac
-
 	local EPYTEST_XDIST=1
-	epytest -o tmp_path_retention_policy=all setuptools
+	local -x PRE_BUILT_SETUPTOOLS_WHEEL=${DISTUTILS_WHEEL_PATH}
+	epytest -o tmp_path_retention_policy=all \
+		-m "not uses_network" setuptools
 }
