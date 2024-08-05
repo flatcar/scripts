@@ -1,6 +1,14 @@
 # Copyright 2022-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ulrich Müller <ulm@gentoo.org> (2024-08-03)
+# Needs dev-libs/openspecfun which is not yet keyworded
+sci-visualization/gnuplot amos
+
+# Michał Górny <mgorny@gentoo.org> (2024-07-24)
+# Full testing requires www-client/firefox.
+dev-python/selenium test-rust
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-07-01)
 # USE="kf6compat,kaccounts" depends on kde-frameworks/purpose:6[webengine]
 # which is package.use.mask'ed on these arches. We cannot mask the
@@ -74,6 +82,7 @@ dev-db/postgresql llvm
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
+sys-apps/openrc-navi s6
 
 # WANG Xuerui <xen0n@gentoo.org> (2023-09-29)
 # no luajit for now

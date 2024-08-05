@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ulrich Müller <ulm@gentoo.org> (2024-08-03)
+# Needs dev-libs/openspecfun which is not yet keyworded
+sci-visualization/gnuplot amos
+
 # Thomas Bettler <thomas.bettler@gmail.com> (2024-06-10)
 # requires dev-libs/apache-arrow which is net yet keyworded
 sci-libs/gdal parquet
@@ -67,6 +71,7 @@ media-libs/libaom cpu_flags_ppc_vsx
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
+sys-apps/openrc-navi s6
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2023-09-21)
 # dtrace/systemtap not availabie on ppc platform for jdk
