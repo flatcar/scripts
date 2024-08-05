@@ -45,7 +45,7 @@ set -x
 
 timeout --signal=SIGQUIT 2h kola run \
   --board="${CIA_ARCH}-usr" \
-  --parallel="${BRIGHTBOX_PARALLEL}" \
+  --parallel="${HETZNER_PARALLEL}" \
   --tapfile="${CIA_TAPFILE}" \
   --channel="${CIA_CHANNEL}" \
   --basename="${kola_test_basename}" \
