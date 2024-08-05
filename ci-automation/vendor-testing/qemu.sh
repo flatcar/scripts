@@ -37,28 +37,28 @@ fi
 firmware="${QEMU_FIRMWARE}"
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] ; then
   firmware="${QEMU_UEFI_FIRMWARE}"
-  ovmf_vars=${QEMU_UEFI_OVMF_VARS}"
+  ovmf_vars="${QEMU_UEFI_OVMF_VARS}"
 fi
 
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi_secure.sh" ] ; then
   firmware="${QEMU_UEFI_SECURE_FIRMWARE}"
-  ovmf_vars=${QEMU_UEFI_SECURE_OVMF_VARS}"
+  ovmf_vars="${QEMU_UEFI_SECURE_OVMF_VARS}"
   enablesecureboot="--enable-secureboot"
 fi
 
 if [ "${CIA_TESTSCRIPT}" = "qemu_uefi.sh" ] || [ "${CIA_TESTSCRIPT}" = "qemu_uefi_secure.sh" ] ; then
   if [ -f "${firmware}" ] ; then
-        echo "++++ ${CIA_TESTSCRIPT}: Using existing ${firmware} ++++"
-    else
-        echo "++++ ${CIA_TESTSCRIPT}: downloading ${firmware} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
-        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${firmware}" .
-    fi
-    if [ -f "${ovmf_vars}" ] ; then
-      echo "++++ ${CIA_TESTSCRIPT}: Using existing ${ovmf_vars} ++++"
-    else
-      echo "++++ ${CIA_TESTSCRIPT}: downloading ${ovmf_vars} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
-      copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${ovmf_vars}" .
-    fi
+      echo "++++ ${CIA_TESTSCRIPT}: Using existing ${firmware} ++++"
+  else
+      echo "++++ ${CIA_TESTSCRIPT}: downloading ${firmware} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+      copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${firmware}" .
+  fi
+  if [ -f "${ovmf_vars}" ] ; then
+    echo "++++ ${CIA_TESTSCRIPT}: Using existing ${ovmf_vars} ++++"
+  else
+    echo "++++ ${CIA_TESTSCRIPT}: downloading ${ovmf_vars} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${ovmf_vars}" .
+  fi
 fi
 
 declare -a devcontainer_opts
@@ -83,7 +83,7 @@ kola run \
     --qemu-firmware="${firmware}" \
     --qemu-image="${QEMU_IMAGE_NAME}" \
     --tapfile="${CIA_TAPFILE}" \
-    ${ovmf_vars} \
+    --qemu-ovmf-vars="${ovmf_vars}" \
     ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
     "${devcontainer_opts[@]}" \
     "${enablesecureboot}" \
