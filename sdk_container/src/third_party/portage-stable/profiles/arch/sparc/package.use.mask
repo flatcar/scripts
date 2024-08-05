@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (2024-07-24)
+# Full testing requires www-client/firefox.
+dev-python/selenium test-rust
+
 # Sam James <sam@gentoo.org> (2024-07-03)
 # kde-frameworks/kservice not keyworded here
 x11-misc/xdg-utils plasma
@@ -110,6 +114,7 @@ dev-qt/qtgui vulkan
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
+sys-apps/openrc-navi s6
 
 # Sam James <sam@gentoo.org> (2023-09-22)
 # Qt 6 not keyworded here.
@@ -374,7 +379,6 @@ app-misc/tracker-miners test
 dev-ruby/rack-cache test
 dev-ruby/activemodel test
 dev-ruby/activerecord test
-dev-ruby/activesupport test
 dev-ruby/globalid test
 
 # Rolf Eike Beer <eike@sf-mail.de> (2020-04-18)

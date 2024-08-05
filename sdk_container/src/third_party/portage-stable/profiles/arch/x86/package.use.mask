@@ -1,12 +1,19 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-07-12)
-# Need as-yet-unkeyworded KF6-based counterparts (bug #934361)
-kde-apps/libkcddb kf6compat
-kde-apps/libkcompactdisc kf6compat
-kde-apps/libksane kf6compat
-net-misc/kio-zeroconf kf6compat
+# Matt Jolly <kangie@gentoo.org> (2023-08-10)
+# http3 is avilable via openssl[quic] on this arch.
+net-misc/curl -http3 -quic curl_quic_ngtcp2
+
+# orbea <orbea@riseup.net> (2024-07-19)
+# Unmask the dynarec flag which has x86 asm.
+games-emulation/rmg -dynarec
+
+# Matt Turner <mattst88@gentoo.org> (2024-07-17)
+# We only want to support spirv-llvm-translator >= 17 on x86, which is a
+# dependency of mesa.
+>=media-libs/mesa-24.1 llvm_slot_15 llvm_slot_16
+>=dev-util/intel_clc-24.1 llvm_slot_15 llvm_slot_16
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-07-12)
 # KDE PIM 6 is not being keyworded here

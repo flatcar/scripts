@@ -1,0 +1,2 @@
+- curl ([CVE-2024-6197](https://nvd.nist.gov/vuln/detail/CVE-2024-6197), [CVE-2024-6874](https://nvd.nist.gov/vuln/detail/CVE-2024-6874))
+- podman ([CVE-2024-3727](https://nvd.nist.gov/vuln/detail/CVE-2024-3727))

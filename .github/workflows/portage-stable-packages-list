@@ -563,6 +563,7 @@ sys-firmware/ipxe
 sys-firmware/seabios-bin
 sys-firmware/sgabios
 
+sys-fs/btrfs-progs
 sys-fs/cryptsetup
 sys-fs/dosfstools
 sys-fs/e2fsprogs

@@ -7,20 +7,19 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# Catalyst 4 is not stable yet, but earlier versions are masked now.
-dev-util/catalyst ~amd64 ~arm64
-
 # Handled by automation
 =app-containers/containerd-1.7.20 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-07-19 08:17:43
 
-# Handled by automation?
-=app-containers/cri-tools-1.27.0 ~amd64 ~arm64
+# Keep versions on both arches in sync.
+=app-containers/cri-tools-1.27.0 ~arm64
+
+# Needed to address CVE-2024-3727
+=app-containers/podman-5.0.3 ~amd64 ~arm64
 
 # These seem to be the versions we initially got, but the
 # modifications made to the ebuilds were clobbered, so these are here
 # to keep using the same version. Can be dropped when these or newer
 # get stabilized in Gentoo.
-=app-containers/podman-5.0.2 ~amd64 ~arm64
 =app-containers/runc-1.1.13 ~amd64 ~arm64
 
 # Seems to be the only available ebuild in portage-stable right now.
@@ -43,7 +42,7 @@ dev-util/catalyst ~amd64 ~arm64
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
-=dev-cpp/abseil-cpp-20230125.3-r3 ~arm64
+=dev-cpp/abseil-cpp-20230125.3-r4 ~arm64
 
 # Needed by arm64-native SDK.
 =dev-embedded/u-boot-tools-2021.04_rc2 ~arm64
@@ -67,7 +66,6 @@ dev-util/catalyst ~amd64 ~arm64
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
-=dev-libs/libp11-0.4.12-r6 ~arm64
 =dev-libs/protobuf-23.3-r4 ~arm64
 
 # These seem to be the versions we initially got, but the
@@ -76,9 +74,8 @@ dev-util/catalyst ~amd64 ~arm64
 # get stabilized in Gentoo.
 =dev-libs/yajl-2.1.0-r5 ~amd64 ~arm64
 
-# Keep versions on both arches in sync.
-=dev-python/lxml-5.2.1 ~arm64
-=dev-util/pahole-1.26 ~arm64
+# Catalyst 4 is not stable yet, but earlier versions are masked now.
+dev-util/catalyst ~amd64 ~arm64
 
 # Needed for the MIT License
 =net-analyzer/netperf-2.7.0_p20210121 ~amd64 ~arm64
@@ -94,19 +91,18 @@ dev-util/catalyst ~amd64 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
+# Needed to address CVE-2024-6197 and CVE-2024-6874.
+=net-misc/curl-8.9.0 ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.28 ~arm64
-
-sys-apps/zram-generator ~amd64 ~arm64
+=sys-apps/zram-generator-1.1.2 ~arm64
 
 # Upgrade to latest version for secureboot
 =sys-boot/mokutil-0.6.0 ~amd64
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
-
-# Keep versions on both arches in sync.
-=sys-firmware/edk2-aarch64-18.02 **
 
 # Accept unstable host Rust compilers.
 =virtual/rust-1.80.0 ~amd64 ~arm64
