@@ -5,7 +5,7 @@ EAPI="8"
 WANT_LIBTOOL="none"
 
 inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
-inherit python-utils-r1 toolchain-funcs verify-sig
+inherit prefix python-utils-r1 toolchain-funcs verify-sig
 
 MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm libedit
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -43,7 +43,6 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-crypt/libb2
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
@@ -51,7 +50,7 @@ RDEPEND="
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libcrypt:=
 	virtual/libintl
-	ensurepip? ( dev-python/ensurepip-pip )
+	ensurepip? ( dev-python/ensurepip-wheels )
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
@@ -72,20 +71,15 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
-	test? (
-		app-arch/xz-utils
-		dev-python/ensurepip-pip
-		dev-python/ensurepip-setuptools
-		dev-python/ensurepip-wheel
-	)
 	valgrind? ( dev-debug/valgrind )
+	test? ( app-arch/xz-utils )
 "
 # autoconf-archive needed to eautoreconf
 BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
+	verify-sig? ( sec-keys/openpgp-keys-python )
 "
 RDEPEND+="
 	!build? ( app-misc/mime-types )
@@ -122,8 +116,8 @@ src_unpack() {
 
 src_prepare() {
 	# Ensure that internal copies of expat and libffi are not used.
-	# TODO: Makefile has annoying deps on expat headers
-	#rm -r Modules/expat || die
+	rm -r Modules/expat || die
+	rm -r Modules/_ctypes/libffi* || die
 
 	local PATCHES=(
 		"${WORKDIR}/${PATCHSET}"
@@ -131,12 +125,14 @@ src_prepare() {
 
 	default
 
+	# https://bugs.gentoo.org/850151
+	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" setup.py || die
+
 	# force the correct number of jobs
 	# https://bugs.gentoo.org/737660
-	sed -i -e "s:-j0:-j$(makeopts_jobs):" Makefile.pre.in || die
-
-	# breaks tests when using --with-wheel-pkg-dir
-	rm -r Lib/test/wheeldata || die
+	local jobs=$(makeopts_jobs)
+	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
+	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
 
 	eautoreconf
 }
@@ -156,7 +152,7 @@ build_cbuild_python() {
 	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
 
 	# We need to build our own Python on CBUILD first, and feed it in.
-	# bug #847910
+	# bug #847910 and bug #864911.
 	local myeconfargs_cbuild=(
 		"${myeconfargs[@]}"
 
@@ -167,41 +163,40 @@ build_cbuild_python() {
 		--disable-shared
 
 		# As minimal as possible for the mini CBUILD Python
-		# we build just for cross to satisfy --with-build-python.
+		# we build just for cross.
 		--without-lto
-		--without-readline
 		--disable-optimizations
 	)
 
 	mkdir "${WORKDIR}"/${P}-${CBUILD} || die
 	pushd "${WORKDIR}"/${P}-${CBUILD} &> /dev/null || die
+	# We disable _ctypes and _crypt for CBUILD because Python's setup.py can't handle locating
+	# libdir correctly for cross.
+	PYTHON_DISABLE_MODULES+=" _ctypes _crypt" \
+		ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
 
 	# Avoid as many dependencies as possible for the cross build.
-	mkdir Modules || die
-	cat > Modules/Setup.local <<-EOF || die
-		*disabled*
-		nis
-		_dbm _gdbm
-		_sqlite3
-		_hashlib _ssl
-		_curses _curses_panel
-		readline
-		_tkinter
-		pyexpat
-		zlib
-		# We disabled these for CBUILD because Python's setup.py can't handle locating
-		# libdir correctly for cross. This should be rechecked for the pure Makefile approach,
-		# and uncommented if needed.
-		#_ctypes _crypt
+	cat >> Makefile <<-EOF || die
+		MODULE_NIS=disabled
+		MODULE__DBM=disabled
+		MODULE__GDBM=disabled
+		MODULE__DBM=disabled
+		MODULE__SQLITE3=disabled
+		MODULE__HASHLIB=disabled
+		MODULE__SSL=disabled
+		MODULE__CURSES=disabled
+		MODULE__CURSES_PANEL=disabled
+		MODULE_READLINE=disabled
+		MODULE__TKINTER=disabled
+		MODULE_PYEXPAT=disabled
+		MODULE_ZLIB=disabled
 	EOF
-
-	ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
 
 	# Unfortunately, we do have to build this immediately, and
 	# not in src_compile, because CHOST configure for Python
-	# will check the existence of the --with-build-python value
+	# will check the existence of the Python it was pointed to
 	# immediately.
-	emake
+	PYTHON_DISABLE_MODULES+=" _ctypes _crypt" emake
 	popd &> /dev/null || die
 }
 
@@ -209,6 +204,18 @@ src_configure() {
 	# disable automagic bluetooth headers detection
 	if ! use bluetooth; then
 		local -x ac_cv_header_bluetooth_bluetooth_h=no
+	fi
+	local disable
+	use gdbm      || disable+=" gdbm"
+	use ncurses   || disable+=" _curses _curses_panel"
+	use readline  || disable+=" readline"
+	use sqlite    || disable+=" _sqlite3"
+	use ssl       || export PYTHON_DISABLE_SSL="1"
+	use tk        || disable+=" _tkinter"
+	export PYTHON_DISABLE_MODULES="${disable}"
+
+	if [[ -n "${PYTHON_DISABLE_MODULES}" ]]; then
+		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
 	fi
 
 	append-flags -fwrapv
@@ -296,9 +303,8 @@ src_configure() {
 		--without-ensurepip
 		--without-lto
 		--with-system-expat
+		--with-system-ffi
 		--with-system-libmpdec
-		--with-platlibdir=lib
-		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with debug assertions)
@@ -306,6 +312,9 @@ src_configure() {
 		$(use_with readline readline "$(usex libedit editline readline)")
 		$(use_with valgrind)
 	)
+
+	# disable implicit optimization/debugging flags
+	local -x OPT=
 
 	# https://bugs.gentoo.org/700012
 	if tc-is-lto; then
@@ -315,29 +324,11 @@ src_configure() {
 		)
 	fi
 
-	# Force-disable modules we don't want built.
-	# See Modules/Setup for docs on how this works. Setup.local contains our local deviations.
-	cat > Modules/Setup.local <<-EOF || die
-		*disabled*
-		nis
-		$(usev !gdbm '_gdbm _dbm')
-		$(usev !sqlite '_sqlite3')
-		$(usev !ssl '_hashlib _ssl')
-		$(usev !ncurses '_curses _curses_panel')
-		$(usev !readline 'readline')
-		$(usev !tk '_tkinter')
-	EOF
-
-	# disable implicit optimization/debugging flags
-	local -x OPT=
-
 	if tc-is-cross-compiler ; then
 		build_cbuild_python
-		myeconfargs+=(
-			# Point the imminent CHOST build to the Python we just
-			# built for CBUILD.
-			--with-build-python="${WORKDIR}"/${P}-${CBUILD}/python
-		)
+		# Point the imminent CHOST build to the Python we just
+		# built for CBUILD.
+		export PATH="${WORKDIR}/${P}-${CBUILD}:${PATH}"
 	fi
 
 	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
@@ -351,6 +342,7 @@ src_configure() {
 		append-cppflags -I"${ESYSROOT}"/usr/include/ncursesw
 	fi
 
+	hprefixify setup.py
 	econf "${myeconfargs[@]}"
 
 	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
@@ -367,7 +359,9 @@ src_compile() {
 	# Ensure sed works as expected
 	# https://bugs.gentoo.org/594768
 	local -x LC_ALL=C
-	export PYTHONSTRICTEXTENSIONBUILD=1
+	# Prevent using distutils bundled by setuptools.
+	# https://bugs.gentoo.org/823728
+	export SETUPTOOLS_USE_DISTUTILS=stdlib
 
 	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
 	# end up writing bytecode & violating sandbox.
@@ -403,11 +397,6 @@ src_test() {
 		elog "Disabling tests due to crosscompiling."
 		return
 	fi
-
-	# this just happens to skip test_support.test_freeze that is broken
-	# without bundled expat
-	# TODO: get a proper skip for it upstream
-	local -x LOGNAME=buildbot
 
 	local test_opts=(
 		-u-network
@@ -465,12 +454,7 @@ src_test() {
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
 
-	# the Makefile rules are broken
-	# https://github.com/python/cpython/issues/100221
-	mkdir -p "${libdir}"/lib-dynload || die
-
-	# -j1 hack for now for bug #843458
-	emake -j1 DESTDIR="${D}" altinstall
+	emake DESTDIR="${D}" altinstall
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -500,7 +484,7 @@ src_install() {
 		rm -r "${libdir}"/ensurepip || die
 	fi
 	if ! use sqlite; then
-		rm -r "${libdir}/"sqlite3 || die
+		rm -r "${libdir}/"{sqlite3,test/test_sqlite*} || die
 	fi
 	if ! use tk; then
 		rm -r "${ED}/usr/bin/idle${PYVER}" || die
