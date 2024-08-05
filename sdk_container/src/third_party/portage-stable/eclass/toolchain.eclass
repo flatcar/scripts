@@ -1214,7 +1214,14 @@ toolchain_src_configure() {
 			# - https://git.musl-libc.org/cgit/musl/tree/INSTALL
 			# - bug #704784
 			# - https://gcc.gnu.org/PR93157
-			[[ ${CTARGET} == powerpc64-*-musl ]] && confgcc+=( --with-abi=elfv2 )
+			# musl additionally does not support libquadmath.  See:
+			# - https://gcc.gnu.org/PR116007
+			[[ ${CTARGET} == powerpc64-*-musl ]] && confgcc+=(
+				--with-abi=elfv2
+				--disable-libquadmath
+				--disable-libquadmath-support
+				--with-long-double-128=no
+			)
 
 			if in_iuse ieee-long-double; then
 				# musl requires 64-bit long double, not IBM double-double or IEEE quad.
@@ -1654,9 +1661,6 @@ gcc_do_filter_flags() {
 
 		# New in GCC 14.
 		filter-flags -Walloc-size
-	else
-		# Makes things painfully slow and no real benefit for the compiler.
-		append-flags $(test-flags-CC -fno-harden-control-flow-redundancy)
 	fi
 
 	# Please use USE=lto instead (bug #906007).
@@ -1919,9 +1923,44 @@ toolchain_src_test() {
 	# Controls running expensive tests in e.g. the torture testsuite.
 	local -x GCC_TEST_RUN_EXPENSIVE=1
 
-	# nonfatal here as we die if the comparison below fails. Also, note that
-	# the exit code of targets other than 'check' may be unreliable.
-	nonfatal emake -C "${WORKDIR}"/build -k "${GCC_TESTS_CHECK_TARGET}" RUNTESTFLAGS="${GCC_TESTS_RUNTESTFLAGS}"
+	# Use a subshell to allow meddling with flags just for the testsuite
+	(
+		# Workaround our -Wformat-security default which breaks
+		# various tests as it adds unexpected warning output.
+		append-flags -Wno-format-security -Wno-format
+		# Workaround our -Wtrampolines default which breaks
+		# tests too.
+		append-flags -Wno-trampolines
+
+		# Issues with Ada tests:
+		# gnat.dg/align_max.adb
+		# gnat.dg/trampoline4.adb
+		#
+		# A handful of Ada tests use -fstack-check and conflict
+		# with -fstack-clash-protection.
+		#
+		# TODO: This isn't ideal given it obv. affects codegen
+		# and we want to be sure it works.
+		append-flags -fno-stack-clash-protection
+		# A handful of Ada (and objc++?) tests need an executable stack
+		append-ldflags -Wl,--no-warn-execstack
+
+		# Go doesn't support this and causes noisy warnings
+		filter-flags -Wbuiltin-declaration-mismatch
+
+		# nonfatal here as we die if the comparison below fails. Also, note that
+		# the exit code of targets other than 'check' may be unreliable.
+		nonfatal emake -C "${WORKDIR}"/build -k "${GCC_TESTS_CHECK_TARGET}" \
+			RUNTESTFLAGS="${GCC_TESTS_RUNTESTFLAGS}" \
+			CFLAGS_FOR_TARGET="${CFLAGS_FOR_TARGET:-${CFLAGS}}" \
+			CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET:-${CXXFLAGS}}" \
+			LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET:-${LDFLAGS}}" \
+			CFLAGS="${CFLAGS}" \
+			CXXFLAGS="${CXXFLAGS}" \
+			FCFLAGS="${FCFLAGS}" \
+			FFLAGS="${FFLAGS}" \
+			LDFLAGS="${LDFLAGS}"
+	)
 
 	# Produce an updated failure manifest.
 	einfo "Generating a new failure manifest ${T}/${CHOST}.xfail"
