@@ -162,3 +162,4 @@ dev-util/bpftool -llvm
 
 # Do not tinker with /boot partition at installation time.
 sys-firmware/intel-microcode -initramfs
+sys-fs/zfs-kmod -initramfs
