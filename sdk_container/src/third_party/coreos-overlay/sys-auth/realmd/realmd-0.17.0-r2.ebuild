@@ -54,6 +54,7 @@ src_configure() {
 		--with-distro=defaults
 		--disable-doc
 		--disable-nls
+		KRB5_CONFIG="${ESYSROOT}"/usr/bin/krb5-config
 	)
 	econf "${myconf[@]}"
 }
