@@ -47,7 +47,8 @@ DEPEND="
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
 	dev-perl/Parse-Yapp
-	"
+	dev-util/pkgcheck
+"
 
 # Must match the build-time dependencies listed in selinux-policy-2.eclass
 DEPEND="${DEPEND}
