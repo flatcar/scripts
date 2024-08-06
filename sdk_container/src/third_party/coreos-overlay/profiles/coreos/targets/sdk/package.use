@@ -31,3 +31,6 @@ x11-libs/pixman static-libs
 
 # Enable gssapi for SDK
 net-dns/bind-tools           gssapi
+
+# for pkgcheck
+dev-libs/tree-sitter-bash python
