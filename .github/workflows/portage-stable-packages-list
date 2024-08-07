@@ -187,12 +187,16 @@ dev-build/meson-format-array
 dev-build/ninja
 
 dev-cpp/abseil-cpp
+dev-cpp/gflags
+dev-cpp/glog
 dev-cpp/gtest
 
 dev-db/sqlite
 
 dev-debug/gdb
 dev-debug/strace
+
+dev-embedded/u-boot-tools
 
 dev-go/go-md2man
 
@@ -205,6 +209,7 @@ dev-lang/python
 dev-lang/python-exec
 dev-lang/python-exec-conf
 dev-lang/swig
+dev-lang/tcl
 dev-lang/yasm
 
 dev-libs/cJSON
@@ -264,6 +269,8 @@ dev-libs/oniguruma
 dev-libs/opensc
 dev-libs/popt
 dev-libs/protobuf
+dev-libs/tree-sitter
+dev-libs/tree-sitter-bash
 dev-libs/userspace-rcu
 dev-libs/xmlsec
 dev-libs/yajl
@@ -271,10 +278,17 @@ dev-libs/yajl
 dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
+dev-python/PySocks
 dev-python/autocommand
 dev-python/backports-tarfile
+dev-python/cachecontrol
+dev-python/certifi
+dev-python/chardet
+dev-python/charset-normalizer
+dev-python/colorama
 dev-python/crcmod
 dev-python/cython
+dev-python/distlib
 dev-python/distro
 dev-python/docutils
 dev-python/editables
@@ -282,34 +296,52 @@ dev-python/ensurepip-pip
 dev-python/ensurepip-setuptools
 dev-python/ensurepip-wheels
 dev-python/fasteners
+dev-python/fastjsonschema
 dev-python/flit-core
 dev-python/gentoo-common
 dev-python/gpep517
 dev-python/hatchling
+dev-python/idna
 dev-python/installer
 dev-python/jaraco-context
 dev-python/jaraco-functools
 dev-python/jaraco-text
 dev-python/jinja
+dev-python/lark
 dev-python/lazy-object-proxy
+dev-python/linkify-it-py
 dev-python/lxml
+dev-python/markdown-it-py
 dev-python/markupsafe
+dev-python/mdurl
 dev-python/more-itertools
+dev-python/msgpack
 dev-python/olefile
 dev-python/ordered-set
 dev-python/packaging
 dev-python/pathspec
 dev-python/pillow
+dev-python/pip
 dev-python/platformdirs
 dev-python/pluggy
+dev-python/poetry-core
 dev-python/pydecomp
 dev-python/pygments
+dev-python/pyproject-hooks
+dev-python/requests
+dev-python/resolvelib
+dev-python/rich
 dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
+dev-python/tenacity
 dev-python/tomli
+dev-python/tree-sitter
 dev-python/trove-classifiers
+dev-python/truststore
+dev-python/uc-micro-py
+dev-python/urllib3
 dev-python/wheel
 
 dev-util/bpftool
@@ -324,6 +356,7 @@ dev-util/pahole
 dev-util/patchelf
 dev-util/patchutils
 dev-util/perf
+dev-util/pkgcheck
 dev-util/pkgconf
 dev-util/re2c
 
@@ -339,8 +372,8 @@ eclass/cargo.eclass
 eclass/cmake-multilib.eclass
 eclass/cmake.eclass
 eclass/desktop.eclass
-eclass/distutils-r1.eclass
 eclass/dist-kernel-utils.eclass
+eclass/distutils-r1.eclass
 eclass/eapi7-ver.eclass
 eclass/eapi8-dosym.eclass
 eclass/edo.eclass
@@ -367,8 +400,8 @@ eclass/lua-single.eclass
 eclass/lua-utils.eclass
 eclass/meson-multilib.eclass
 eclass/meson.eclass
-eclass/mount-boot.eclass
 eclass/mount-boot-utils.eclass
+eclass/mount-boot.eclass
 eclass/multibuild.eclass
 eclass/multilib-build.eclass
 eclass/multilib-minimal.eclass
@@ -390,10 +423,10 @@ eclass/python-r1.eclass
 eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
 eclass/readme.gentoo-r1.eclass
+eclass/rpm.eclass
 eclass/ruby-single.eclass
 eclass/ruby-utils.eclass
 eclass/rust-toolchain.eclass
-eclass/rpm.eclass
 eclass/savedconfig.eclass
 eclass/selinux-policy-2.eclass
 eclass/strip-linguas.eclass
@@ -402,6 +435,7 @@ eclass/tmpfiles.eclass
 eclass/toolchain-autoconf.eclass
 eclass/toolchain-funcs.eclass
 eclass/toolchain.eclass
+eclass/tree-sitter-grammar.eclass
 eclass/udev.eclass
 eclass/unpacker.eclass
 eclass/user-info.eclass
@@ -461,6 +495,7 @@ net-misc/iperf
 net-misc/iputils
 net-misc/ntp
 net-misc/openssh
+net-misc/passt
 net-misc/rsync
 net-misc/socat
 net-misc/wget
@@ -474,6 +509,7 @@ net-vpn/wireguard-tools
 perl-core/File-Temp
 
 profiles
+
 scripts
 
 sec-keys/openpgp-keys-gentoo-release
@@ -522,6 +558,7 @@ sys-apps/net-tools
 sys-apps/nvme-cli
 sys-apps/pciutils
 sys-apps/pcsc-lite
+sys-apps/pkgcore
 sys-apps/portage
 sys-apps/pv
 sys-apps/sandbox
@@ -539,10 +576,10 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
-sys-boot/mokutil
 # Updating to 3.0.17 breaks building of sys-boot/shim.
 #
 # sys-boot/gnu-efi
+sys-boot/mokutil
 
 sys-devel/bc
 sys-devel/binutils
@@ -580,7 +617,6 @@ sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
-net-misc/passt
 
 sys-kernel/linux-headers
 
