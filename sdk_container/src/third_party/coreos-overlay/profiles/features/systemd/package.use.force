@@ -6,3 +6,7 @@ sys-apps/systemd sysv-utils vanilla
 
 # dbus without systemd conflicts with systemd
 sys-apps/dbus systemd
+
+# use systemd as udev implementation
+virtual/libudev systemd
+virtual/udev systemd
