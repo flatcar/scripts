@@ -476,13 +476,18 @@ media-libs/libpng
 
 net-analyzer/openbsd-netcat
 net-analyzer/netperf
+net-analyzer/tcpdump
 net-analyzer/traceroute
+
+net-dialup/lrzsz
+net-dialup/minicom
 
 net-dns/bind-tools
 net-dns/c-ares
 net-dns/dnsmasq
 net-dns/libidn2
 
+net-firewall/conntrack-tools
 net-firewall/ipset
 
 net-fs/cifs-utils
@@ -593,9 +598,7 @@ sys-block/parted
 sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
-# Updating to 3.0.17 breaks building of sys-boot/shim.
-#
-# sys-boot/gnu-efi
+sys-boot/gnu-efi
 sys-boot/mokutil
 
 sys-devel/bc
@@ -670,14 +673,19 @@ sys-process/tini
 virtual/acl
 virtual/dev-manager
 virtual/editor
+virtual/krb5
 virtual/libc
 virtual/libcrypt
 virtual/libelf
+virtual/libiconv
+virtual/libintl
+virtual/libudev
 virtual/libusb
 virtual/man
 virtual/openssh
 virtual/os-headers
 virtual/package-manager
+virtual/pager
 virtual/perl-Carp
 virtual/perl-Data-Dumper
 virtual/perl-Encode
@@ -689,11 +697,16 @@ virtual/perl-Getopt-Long
 virtual/perl-IO
 virtual/perl-Unicode-Collate
 virtual/pkgconfig
+virtual/resolvconf
 virtual/rust
 virtual/service-manager
 virtual/ssh
 virtual/tmpfiles
+virtual/udev
 
 x11-base/xorg-proto
 
 x11-libs/pixman
+
+x11-misc/makedepend
+x11-misc/shared-mime-info
