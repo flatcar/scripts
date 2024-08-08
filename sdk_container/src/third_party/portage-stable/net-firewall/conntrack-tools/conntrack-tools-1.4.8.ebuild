@@ -1,13 +1,17 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit linux-info systemd
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/netfilter.org.asc
+inherit linux-info systemd verify-sig
 
 DESCRIPTION="Connection tracking userspace tools"
-HOMEPAGE="http://conntrack-tools.netfilter.org"
-SRC_URI="http://www.netfilter.org/projects/conntrack-tools/files/${P}.tar.bz2"
+HOMEPAGE="https://conntrack-tools.netfilter.org"
+SRC_URI="
+	https://www.netfilter.org/projects/conntrack-tools/files/${P}.tar.xz
+	verify-sig? ( https://www.netfilter.org/projects/conntrack-tools/files/${P}.tar.xz.sig )
+"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -16,7 +20,7 @@ IUSE="doc +cthelper +cttimeout systemd"
 
 RDEPEND="
 	>=net-libs/libmnl-1.0.3
-	>=net-libs/libnetfilter_conntrack-1.0.8
+	>=net-libs/libnetfilter_conntrack-1.0.9
 	>=net-libs/libnetfilter_queue-1.0.2
 	>=net-libs/libnfnetlink-1.0.1
 	net-libs/libtirpc
@@ -32,13 +36,14 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
-	sys-devel/bison
-	sys-devel/flex
+	app-alternatives/yacc
+	app-alternatives/lex
 	virtual/pkgconfig
 	doc? (
 		app-text/docbook-xml-dtd:4.1.2
 		app-text/xmlto
 	)
+	verify-sig? ( sec-keys/openpgp-keys-netfilter )
 "
 
 pkg_setup() {
@@ -48,7 +53,7 @@ pkg_setup() {
 		die "${PN} requires at least 2.6.18 kernel version"
 	fi
 
-	#netfilter core team has changed some option names with kernel 2.6.20
+	# netfilter core team has changed some option names with kernel 2.6.20
 	if kernel_is lt 2 6 20 ; then
 		CONFIG_CHECK="~IP_NF_CONNTRACK_NETLINK"
 	else
@@ -67,10 +72,10 @@ pkg_setup() {
 }
 
 src_prepare() {
+	default
+
 	# bug #474858
 	sed -i -e 's:/var/lock:/run/lock:' doc/stats/conntrackd.conf || die
-
-	default
 }
 
 src_configure() {
@@ -82,19 +87,20 @@ src_configure() {
 
 src_compile() {
 	default
+
 	use doc && emake -C doc/manual
 }
 
 src_install() {
 	default
 
-	newinitd "${FILESDIR}/conntrackd.initd-r3" conntrackd
-	newconfd "${FILESDIR}/conntrackd.confd-r2" conntrackd
+	newinitd "${FILESDIR}"/conntrackd.initd-r3 conntrackd
+	newconfd "${FILESDIR}"/conntrackd.confd-r2 conntrackd
 
 	insinto /etc/conntrackd
 	doins doc/stats/conntrackd.conf
 
-	systemd_dounit "${FILESDIR}/conntrackd.service"
+	systemd_dounit "${FILESDIR}"/conntrackd.service
 
 	dodoc -r doc/sync doc/stats AUTHORS TODO
 	use doc && dodoc doc/manual/${PN}.html
