@@ -2,10 +2,11 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>floppym@gentoo.org</email>
-		<name>Mike Gilbert</name>
+		<email>ceamac@gentoo.org</email>
+		<name>Viorel Munteanu</name>
 	</maintainer>
 	<upstream>
 		<remote-id type="sourceforge">gnu-efi</remote-id>
+		<remote-id type="github">ncroxon/gnu-efi</remote-id>
 	</upstream>
 </pkgmetadata>
