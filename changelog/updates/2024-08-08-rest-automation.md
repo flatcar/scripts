@@ -1,0 +1,3 @@
+- conntrack-tools ([1.4.8](https://lwn.net/Articles/945927/))
+- dev: minicom ([2.9](https://salsa.debian.org/minicom-team/minicom/-/releases/2.9))
+- tcpdump ([4.99.4](https://github.com/the-tcpdump-group/tcpdump/blob/tcpdump-4.99.4/CHANGES))
