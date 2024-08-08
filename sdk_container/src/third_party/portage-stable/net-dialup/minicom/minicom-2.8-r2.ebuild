@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit autotools
 
@@ -40,6 +40,9 @@ src_configure() {
 	# Lockdir must exist if not manually specified.
 	# '/var/lock' is created by OpenRC.
 	local myeconfargs=(
+		# See bug #788142
+		--sysconfdir="${EPREFIX}"/etc/${PN}
+
 		--disable-rpath
 		--enable-lock-dir="/var/lock"
 		$(use_enable nls)
@@ -51,10 +54,7 @@ src_configure() {
 src_install() {
 	default
 
+	# Needs to match --sysconfdir above
 	insinto /etc/minicom
 	doins "${FILESDIR}"/minirc.dfl
-}
-
-pkg_preinst() {
-	[[ -s "${EROOT}"/etc/minicom/minirc.dfl ]] && rm -f "${ED}"/etc/minicom/minirc.dfl
 }
