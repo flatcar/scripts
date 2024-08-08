@@ -28,7 +28,9 @@ REQUIRED_USE="
 QA_EXECSTACK="usr/*/lib*efi.a:* usr/*/crt*.o"
 RESTRICT="strip"
 
-PATCHES=( "${FILESDIR}"/${PN}-3.0.9-fix-clang-build.patch )
+PATCHES=(
+	"${FILESDIR}"/${P}-clang.patch
+)
 
 src_prepare() {
 	default
