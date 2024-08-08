@@ -16,19 +16,43 @@ SRC_URI="https://downloads.sourceforge.net/gnu-efi/${P}.tar.bz2"
 # - GPL-2+ : setjmp_ia32.S
 LICENSE="GPL-2+ BSD BSD-2"
 SLOT="0"
-KEYWORDS="-* amd64 arm arm64 ~ia64 ~riscv x86"
+KEYWORDS="-* ~amd64 ~arm ~arm64 ~ia64 ~riscv ~x86"
 IUSE="abi_x86_32 abi_x86_64 custom-cflags"
 REQUIRED_USE="
 	amd64? ( || ( abi_x86_32 abi_x86_64 ) )
 	x86? ( || ( abi_x86_32 abi_x86_64 ) )
 "
 
+# for ld.bfd and objcopy
+BDEPEND="sys-devel/binutils"
+
 # These objects get run early boot (i.e. not inside of Linux),
 # so doing these QA checks on them doesn't make sense.
 QA_EXECSTACK="usr/*/lib*efi.a:* usr/*/crt*.o"
 RESTRICT="strip"
 
-PATCHES=( "${FILESDIR}"/${PN}-3.0.9-fix-clang-build.patch )
+PATCHES=(
+	"${FILESDIR}"/${P}-clang.patch
+	"${FILESDIR}"/${PN}-3.0.18-remove-linux-headers.patch
+)
+
+check_and_set_objcopy() {
+	if [[ ${MERGE_TYPE} != "binary" ]]; then
+		# bug #931792
+		# llvm-objcopy does not support EFI target, try to use binutils objcopy or fail
+		tc-export OBJCOPY
+		OBJCOPY="${OBJCOPY/llvm-/}"
+		LANG=C LC_ALL=C "${OBJCOPY}" --help | grep -q '\<pei-' || die "${OBJCOPY} (objcopy) does not support EFI target"
+	fi
+}
+
+pkg_pretend() {
+	check_and_set_objcopy
+}
+
+pkg_setup() {
+	check_and_set_objcopy
+}
 
 src_prepare() {
 	default
