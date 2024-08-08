@@ -1,4 +1,4 @@
-# Copyright 2023 Gentoo Authors
+# Copyright 2023-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: linux-mod-r1.eclass
@@ -109,9 +109,9 @@ esac
 if [[ ! ${_LINUX_MOD_R1_ECLASS} ]]; then
 _LINUX_MOD_R1_ECLASS=1
 
-inherit edo linux-info multiprocessing toolchain-funcs
+inherit dist-kernel-utils edo linux-info multiprocessing toolchain-funcs
 
-IUSE="dist-kernel modules-sign +strip ${MODULES_OPTIONAL_IUSE}"
+IUSE="dist-kernel modules-compress modules-sign +strip ${MODULES_OPTIONAL_IUSE}"
 
 RDEPEND="
 	sys-apps/kmod[tools]
@@ -130,6 +130,16 @@ BDEPEND="
 IDEPEND="
 	sys-apps/kmod[tools]
 "
+
+if [[ ${MODULES_INITRAMFS_IUSE} ]]; then
+	inherit mount-boot-utils
+	IUSE+=" ${MODULES_INITRAMFS_IUSE}"
+	IDEPEND+="
+		${MODULES_INITRAMFS_IUSE#+}? (
+			sys-kernel/installkernel
+		)
+	"
+fi
 
 if [[ -n ${MODULES_OPTIONAL_IUSE} ]]; then
 	: "${MODULES_OPTIONAL_IUSE#+}? ( | )"
@@ -178,6 +188,22 @@ fi
 # that want the Makefile's values to be used by default.
 #
 # May want to look at KERNEL_CHOST before considering this.
+
+# @ECLASS_VARIABLE: MODULES_INITRAMFS_IUSE
+# @DEFAULT_UNSET
+# @PRE_INHERIT
+# @DESCRIPTION:
+# If set, adds the specified USE flag. When this flag is enabled the
+# installed kernel modules are registered for inclusion in the dracut
+# initramfs. Additionally, if distribution kernels are used
+# (USE="dist-kernel") then these kernels are re-installed.
+#
+# The typical recommended value is "initramfs" or "+initramfs" (global
+# IUSE).
+#
+# If MODULES_INITRAMFS_IUSE is not set, or the specified flag is not
+# enabled, then the installed kernel modules are omitted from the
+# dracut initramfs.
 
 # @ECLASS_VARIABLE: MODULES_SIGN_HASH
 # @USER_VARIABLE
@@ -303,9 +329,19 @@ fi
 #  3. perform various sanity checks to fail early on issues
 linux-mod-r1_pkg_setup() {
 	debug-print-function ${FUNCNAME[0]} "${@}"
-	[[ ${MERGE_TYPE} != binary ]] || return 0
 	_MODULES_GLOBAL[ran:pkg_setup]=1
 	_modules_check_function ${#} 0 0 || return 0
+
+	if [[ -z ${ROOT} && ${MODULES_INITRAMFS_IUSE} ]] &&
+		use dist-kernel && use ${MODULES_INITRAMFS_IUSE#+}
+	then
+		# Check, but don't die because we can fix the problem and then
+		# emerge --config ... to re-run installation.
+		nonfatal mount-boot_check_status
+	fi
+
+	[[ ${MERGE_TYPE} != binary ]] || return 0
+
 	_modules_check_migration
 
 	_modules_prepare_kernel
@@ -468,7 +504,21 @@ linux-mod-r1_pkg_postinst() {
 	debug-print-function ${FUNCNAME[0]} "${@}"
 	_modules_check_function ${#} 0 0 || return 0
 
+	dist-kernel_compressed_module_cleanup "${EROOT}/lib/modules/${KV_FULL}"
 	_modules_update_depmod
+
+	if [[ -z ${ROOT} && ${MODULES_INITRAMFS_IUSE} ]] &&
+		use dist-kernel && use ${MODULES_INITRAMFS_IUSE#+}
+	then
+		dist-kernel_reinstall_initramfs "${KV_DIR}" "${KV_FULL}"
+	fi
+
+	if has_version virtual/dist-kernel && ! use dist-kernel; then
+		ewarn "virtual/dist-kernel is installed, but USE=\"dist-kernel\""
+		ewarn "is not enabled for ${CATEGORY}/${PN}."
+		ewarn "It's recommended to globally enable the dist-kernel USE flag"
+		ewarn "to automatically trigger initramfs rebuilds on kernel updates"
+	fi
 
 	# post_process ensures modules were installed and that the eclass' USE
 	# are likely not no-ops (unfortunately postinst itself may be missed)
@@ -544,11 +594,13 @@ modules_post_process() {
 	(( ${#mods[@]} )) ||
 		die "${FUNCNAME[0]} was called with no installed modules under ${path}"
 
-	# TODO?: find way for sane use with dracut (its 90kernel-modules-extra
-	# parses depmod.d files directly and assumes should include its modules
-	# which can lead to unnecessarily increased size or stale modules)
-#	_modules_process_depmod.d "${mods[@]#"${path}/"}"
+	# TODO?: look into re-introducing after verifying it works as expected,
+	# formerly omitted because dracut's 90kernel-modules-extra parses depmod.d
+	# files directly and assumes should include its modules but we now create
+	# dracut omit files that *hopefully* prevent this
+#	_modules_process_depmod.d "${mods[@]##*/}"
 
+	_modules_process_dracut.conf.d "${mods[@]##*/}"
 	_modules_process_strip "${mods[@]}"
 	_modules_process_sign "${mods[@]}"
 	_modules_sanity_modversion "${mods[@]}" # after strip/sign in case broke it
@@ -621,6 +673,11 @@ _modules_check_migration() {
 # Handles linux-info bits to provide usable sources, KV_ variables,
 # and CONFIG_CHECK use.
 _modules_prepare_kernel() {
+	# The modules we build are specific to each kernel version, we don't
+	# want to reset the environment to use the user selected kernel version.
+	# Bug 931213, 926063
+	SKIP_KERNEL_BINPKG_ENV_RESET=1
+
 	get_version
 
 	# linux-info allows skipping checks if SKIP_KERNEL_CHECK is set and
@@ -793,7 +850,7 @@ _modules_prepare_toolchain() {
 	# can work but raises concerns about breaking packages that may use these
 	if linux_chkconfig_present LTO_CLANG_THIN && tc-ld-is-lld; then
 		KERNEL_LD=${T}/linux-mod-r1_ld.lld
-		printf '#!/usr/bin/env sh\nexec %s "${@}" --thinlto-cache-dir=\n' \
+		printf '#!/usr/bin/env sh\nexec %q "${@}" --thinlto-cache-dir=\n' \
 			"${LD}" > "${KERNEL_LD}" || die
 		chmod +x -- "${KERNEL_LD}" || die
 	fi
@@ -835,9 +892,18 @@ _modules_prepare_toolchain() {
 # If enabled in the kernel configuration, this compresses the given
 # modules using the same format.
 _modules_process_compress() {
+	use modules-compress || return 0
+
 	local -a compress
 	if linux_chkconfig_present MODULE_COMPRESS_XZ; then
-		compress=(xz -qT"$(makeopts_jobs)" --memlimit-compress=50%)
+		compress=(
+			xz -q
+			--memlimit-compress=50%
+			--threads="$(makeopts_jobs)"
+			# match options from kernel's Makefile.modinst (bug #920837)
+			--check=crc32
+			--lzma2=dict=1MiB
+		)
 	elif linux_chkconfig_present MODULE_COMPRESS_GZIP; then
 		if type -P pigz &>/dev/null; then
 			compress=(pigz -p"$(makeopts_jobs)")
@@ -846,13 +912,13 @@ _modules_process_compress() {
 		fi
 	elif linux_chkconfig_present MODULE_COMPRESS_ZSTD; then
 		compress=(zstd -qT"$(makeopts_jobs)" --rm)
+	else
+		die "USE=modules-compress enabled but no MODULE_COMPRESS* configured"
 	fi
 
-	if [[ -v compress ]]; then
-		# could fail, assumes have commands that were needed for the kernel
-		einfo "Compressing modules (matching the kernel configuration) ..."
-		edob "${compress[@]}" -- "${@}"
-	fi
+	# could fail, assumes have commands that were needed for the kernel
+	einfo "Compressing modules (matching the kernel configuration) ..."
+	edob "${compress[@]}" -- "${@}"
 }
 
 # @FUNCTION: _modules_process_depmod.d
@@ -873,6 +939,21 @@ _modules_process_depmod.d() {
 					echo "override ${BASH_REMATCH[2]} ${KV_FULL} ${BASH_REMATCH[1]}"
 			done
 		)
+	)
+}
+
+# @FUNCTION: _modules_process_dracut.conf.d
+# @USAGE: <module>...
+# @INTERNAL
+# @DESCRIPTION:
+# Create dracut.conf.d snippet defining if module should be included in the
+# initramfs.
+_modules_process_dracut.conf.d() {
+	(
+		insinto /usr/lib/dracut/dracut.conf.d
+		[[ ${MODULES_INITRAMFS_IUSE} ]] && use ${MODULES_INITRAMFS_IUSE#+} &&
+			: add || : omit
+		newins - 10-${PN}.conf <<<"${_}_drivers+=\" ${*%.ko} \""
 	)
 }
 
@@ -1056,7 +1137,10 @@ _modules_sanity_kernelbuilt() {
 # @DESCRIPTION:
 # Prints a warning if the kernel version is greater than to
 # MODULES_KERNEL_MAX (while only considering same amount of version
-# components), or aborts if it is less than MODULES_KERNEL_MIN
+# components), or aborts if it is less than MODULES_KERNEL_MIN.
+#
+# With USE=dist-kernel, also warn if virtual/dist-kernel is of a
+# different version than the one being built against.
 _modules_sanity_kernelversion() {
 	local kv=${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}
 
@@ -1105,6 +1189,24 @@ _modules_sanity_kernelversion() {
 			ewarn "[1] https://www.kernel.org/category/releases.html"
 			ewarn
 		fi
+	fi
+
+	if use dist-kernel &&
+		! has_version "~virtual/dist-kernel-${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}"
+	then
+		ewarn
+		ewarn "The kernel modules in ${CATEGORY}/${PN} are being built for"
+		ewarn "kernel version ${KV_FULL}. But this does not match the"
+		ewarn "installed version of virtual/dist-kernel."
+		ewarn
+		ewarn "If this is not intentional, the problem may be corrected by"
+		ewarn "using \"eselect kernel\" to set the default kernel version to"
+		ewarn "the same version as the installed version of virtual/dist-kernel."
+		ewarn
+		ewarn "If the distribution kernel is being downgraded, ensure that"
+		ewarn "virtual/dist-kernel is also downgraded to the same version"
+		ewarn "before rebuilding external kernel modules."
+		ewarn
 	fi
 }
 
@@ -1232,7 +1334,7 @@ _modules_update_depmod() {
 
 				# EROOT from -b is not used when looking for configuration
 				# directories, so pass the whole list from kmod's tools/depmod.c
-				--config="${EROOT}"/{etc,run,usr/local/lib,lib}/depmod.d
+				--config="${EROOT}"/{etc,run,{usr/{local/,},}lib}/depmod.d
 			)
 
 		nonfatal edob depmod "${depmodargs[@]}" && return 0
