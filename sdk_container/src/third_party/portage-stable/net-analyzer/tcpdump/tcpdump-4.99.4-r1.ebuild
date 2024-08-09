@@ -1,7 +1,7 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit autotools
 
@@ -13,13 +13,11 @@ if [[ ${PV} == *9999* ]] ; then
 
 	EGIT_REPO_URI="https://github.com/the-tcpdump-group/tcpdump"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/tcpdump.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/tcpdump.asc
 	inherit verify-sig
 
-	# Note: drop -upstream on bump, this is just because we switched to the official
-	# distfiles for verify-sig
-	SRC_URI="https://www.tcpdump.org/release/${P}.tar.gz -> ${P}-upstream.tar.gz"
-	SRC_URI+=" verify-sig? ( https://www.tcpdump.org/release/${P}.tar.gz.sig -> ${P}-upstream.tar.gz.sig )"
+	SRC_URI="https://www.tcpdump.org/release/${P}.tar.gz"
+	SRC_URI+=" verify-sig? ( https://www.tcpdump.org/release/${P}.tar.gz.sig )"
 
 	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 fi
@@ -28,10 +26,7 @@ LICENSE="BSD"
 SLOT="0"
 IUSE="+drop-root +smi +ssl +samba suid test"
 REQUIRED_USE="test? ( samba )"
-
 RESTRICT="!test? ( test )"
-# Assorted failures: bug #768498
-#RESTRICT="test"
 
 RDEPEND="
 	>=net-libs/libpcap-1.10.1
@@ -42,7 +37,7 @@ RDEPEND="
 	)
 	smi? ( net-libs/libsmi )
 	ssl? (
-		>=dev-libs/openssl-0.9.6m:0=
+		>=dev-libs/openssl-0.9.6m:=
 	)
 	suid? (
 		acct-group/pcap
@@ -63,6 +58,7 @@ fi
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-9999-libdir.patch
+	"${FILESDIR}"/${PN}-4.99.4-lfs.patch
 )
 
 src_prepare() {
