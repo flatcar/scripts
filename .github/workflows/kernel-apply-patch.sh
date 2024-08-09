@@ -68,6 +68,17 @@ done
 
 URL=$(get_lwn_link "${VERSION_NEW}")
 
+# Generate the security changelog
+curl -fsSL --retry-delay 1 --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 --remote-name \
+    https://raw.githubusercontent.com/flatcar/flatcar-build-scripts/master/show-fixed-kernel-cves.py
+
+pip install feedparser==6.0.11
+
+res=$(python show-fixed-kernel-cves.py --from_version "${VERSION_OLD}" --to_version "${VERSION_NEW}")
+if [[ "${res}" ]]; then
+    echo "${res}" > "changelog/security/$(date '+%Y-%m-%d')-linux.md"
+fi
+
 generate_update_changelog 'Linux' "${VERSION_NEW}" "${URL}" 'linux' "${OLD_VERSIONS_AND_URLS[@]}"
 
 commit_changes sys-kernel/coreos-sources "${VERSION_OLD}" "${VERSION_NEW}" \
