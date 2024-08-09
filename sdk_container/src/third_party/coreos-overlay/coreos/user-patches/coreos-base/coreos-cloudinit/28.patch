@@ -1,0 +1,34 @@
+From 39cd2a3347adc0decb361fd7b4bc7ffdb9646f14 Mon Sep 17 00:00:00 2001
+From: Rick Rackow <rick@codesphere.com>
+Date: Fri, 9 Aug 2024 16:54:45 +0200
+Subject: [PATCH] fix(metadata/packet): adjust packet metadata url and
+ apiVersion for new equinix api
+
+---
+ datasource/metadata/packet/metadata.go | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/datasource/metadata/packet/metadata.go b/datasource/metadata/packet/metadata.go
+index 3f2b78c..360a3ef 100644
+--- a/datasource/metadata/packet/metadata.go
++++ b/datasource/metadata/packet/metadata.go
+@@ -24,8 +24,8 @@ import (
+ )
+ 
+ const (
+-	DefaultAddress = "https://metadata.packet.net/"
+-	apiVersion     = ""
++	DefaultAddress = "https://metadata.platformequinix.com/"
++	apiVersion     = "metadata"
+ 	userdataUrl    = "userdata"
+ 	metadataPath   = "metadata"
+ )
+@@ -50,7 +50,7 @@ type NetworkData struct {
+ 	DNS        []net.IP   `json:"dns"`
+ }
+ 
+-// Metadata that will be pulled from the https://metadata.packet.net/metadata only. We have the opportunity to add more later.
++// Metadata that will be pulled from the https://metadata.platformequinix.com/metadata only. We have the opportunity to add more later.
+ type Metadata struct {
+ 	Hostname    string      `json:"hostname"`
+ 	SSHKeys     []string    `json:"ssh_keys"`
