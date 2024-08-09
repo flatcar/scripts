@@ -202,7 +202,6 @@ dev-go/go-md2man
 
 dev-lang/duktape
 dev-lang/go-bootstrap
-dev-lang/lua
 dev-lang/nasm
 dev-lang/perl
 dev-lang/python
@@ -474,8 +473,8 @@ licenses
 
 media-libs/libpng
 
+net-analyzer/openbsd-netcat
 net-analyzer/netperf
-net-analyzer/nmap
 net-analyzer/traceroute
 
 net-dns/bind-tools
