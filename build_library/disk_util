@@ -661,6 +661,7 @@ def ReadWriteSubvol(options, partition, disable_rw):
     btrfs_mount = tempfile.mkdtemp()
     Sudo(['mount', '-t', 'btrfs', loop_dev, btrfs_mount])
     try:
+      Sudo(['btrfs', 'balance', 'start', '-dusage=0', '-musage=0', btrfs_mount])
       Sudo(['btrfs', 'property', 'set', '-ts', btrfs_mount, 'ro', 'true' if disable_rw else 'false'])
     finally:
       Sudo(['umount', btrfs_mount])
