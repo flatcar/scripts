@@ -20,7 +20,6 @@ RDEPEND="${RDEPEND}
 	dev-embedded/u-boot-tools
 	!arm64? ( sys-boot/syslinux )
 	sys-devel/crossdev
-	sys-devel/sysroot-wrappers
 	sys-fs/dosfstools
 	"
 
