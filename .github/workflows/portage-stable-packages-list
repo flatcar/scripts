@@ -652,6 +652,7 @@ sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
 
+sys-kernel/dracut
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs
