@@ -16,13 +16,18 @@ inherit meson
 DESCRIPTION="Base functions required by all Gentoo systems"
 HOMEPAGE="https://gitweb.gentoo.org/proj/gentoo-functions.git"
 
-LICENSE="GPL-2 public-domain"
+LICENSE="GPL-2"
 SLOT="0"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
 # Specifically needs GNU find, as well.
 RDEPEND=">=sys-apps/findutils-4.9"
+
+PATCHES=(
+	"${FILESDIR}/${P}-relax-parameter-validation.patch"
+	"${FILESDIR}/${P}-add-warn-function.patch"
+)
 
 src_configure() {
 	local emesonargs=(
