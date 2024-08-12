@@ -19,8 +19,8 @@ CMAKE_DOCS_USEFLAG="+doc"
 # TODO ... but bootstrap sometimes(?) fails with ninja now. bug #834759.
 CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_REMOVE_MODULES_LIST=( none )
-inherit bash-completion-r1 cmake elisp-common flag-o-matic multiprocessing \
-	toolchain-funcs virtualx xdg-utils
+inherit bash-completion-r1 cmake flag-o-matic multiprocessing \
+	toolchain-funcs xdg-utils
 
 MY_P="${P/_/-}"
 
@@ -47,7 +47,7 @@ else
 			https://github.com/Kitware/CMake/releases/download/v$(ver_cut 1-3)/${MY_P}-SHA-256.txt.asc
 		)"
 
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 		BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20230817 )"
 	fi
@@ -59,7 +59,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="${CMAKE_DOCS_USEFLAG} dap emacs gui ncurses qt6 test"
+IUSE="${CMAKE_DOCS_USEFLAG} dap gui ncurses qt6 test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -72,7 +72,6 @@ RDEPEND="
 	sys-libs/zlib
 	virtual/pkgconfig
 	dap? ( dev-cpp/cppdap )
-	emacs? ( >=app-editors/emacs-23.1:* )
 	gui? (
 		!qt6? (
 			dev-qt/qtcore:5
@@ -102,12 +101,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0003-Prefer-pkgconfig-in-FindBLAS.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0004-Ensure-that-the-correct-version-of-Qt-is-always-used.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0005-Respect-Gentoo-s-Python-eclasses.patch
-	"${FILESDIR}"/${PN}-3.27.0_rc1-0006-Filter-out-distcc-warnings-to-avoid-confusing-CMake.patch
 
 	# Upstream fixes (can usually be removed with a version bump)
-	# pkgconf
-	# fixes https://github.com/pkgconf/pkgconf/issues/317
-	"${FILESDIR}"/${PN}-3.27.4-0001-FindPkgConfig-ignore-whitespace-separators-in-versio.patch
 )
 
 cmake_src_bootstrap() {
@@ -157,6 +152,14 @@ src_prepare() {
 		sed -i -e '/define CMAKE_USE_XCODE/s/XCODE/NO_XCODE/' \
 			-e '/cmGlobalXCodeGenerator.h/d' \
 			Source/cmake.cxx || die
+		# Disable system integration, bug #933744
+		sed -i -e 's/__APPLE__/__DISABLED__/' \
+			Source/cmFindProgramCommand.cxx \
+			Source/CPack/cmCPackGeneratorFactory.cxx || die
+		sed -i -e 's/__MAC_OS_X_VERSION_MIN_REQUIRED/__DISABLED__/' \
+			Source/cmMachO.cxx || die
+		sed -i -e 's:CPack/cmCPack\(Bundle\|DragNDrop\|PKG\|ProductBuild\)Generator.cxx::' \
+			Source/CMakeLists.txt || die
 
 		# Disable isysroot usage with GCC, we've properly instructed
 		# where things are via GCC configuration and ldwrapper
@@ -182,13 +185,9 @@ src_prepare() {
 		-e "s|@GENTOO_PORTAGE_EPREFIX@|${EPREFIX}/|g" \
 		Modules/Platform/{UnixPaths,Darwin}.cmake || die "sed failed"
 
-	if ! has_version -b \>=${CATEGORY}/${PN}-3.13 || ! cmake --version &>/dev/null ; then
-		CMAKE_BINARY="${S}/Bootstrap.cmk/cmake"
-		cmake_src_bootstrap
-	fi
-}
+	## in theory we could handle these flags in src_configure, as we do in many other packages. But we *must*
+	## handle them as part of bootstrapping, sadly.
 
-src_configure() {
 	# Fix linking on Solaris
 	[[ ${CHOST} == *-solaris* ]] && append-ldflags -lsocket -lnsl
 
@@ -196,6 +195,13 @@ src_configure() {
 	# https://gitlab.kitware.com/cmake/cmake/-/issues/20740
 	filter-lto
 
+	if ! has_version -b \>=${CATEGORY}/${PN}-3.13 || ! cmake --version &>/dev/null ; then
+		CMAKE_BINARY="${S}/Bootstrap.cmk/cmake"
+		cmake_src_bootstrap
+	fi
+}
+
+src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_USE_SYSTEM_LIBRARIES=ON
 		-DCMake_ENABLE_DEBUGGER=$(usex dap)
@@ -214,17 +220,14 @@ src_configure() {
 	cmake_src_configure
 }
 
-src_compile() {
-	cmake_src_compile
-	use emacs && elisp-compile Auxiliary/cmake-mode.el
-}
-
 src_test() {
 	# Fix OutDir and SelectLibraryConfigurations tests
 	# these are altered thanks to our eclass
 	sed -i -e 's:^#_cmake_modify_IGNORE ::g' \
 		"${S}"/Tests/{OutDir,CMakeOnly/SelectLibraryConfigurations}/CMakeLists.txt \
 		|| die
+
+	unset CLICOLOR CLICOLOR_FORCE CMAKE_COMPILER_COLOR_DIAGNOSTICS CMAKE_COLOR_DIAGNOSTICS
 
 	pushd "${BUILD_DIR}" > /dev/null || die
 
@@ -246,7 +249,9 @@ src_test() {
 		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM)|TestUpload|RunCMake.CMP0125)" \
 	)
 
-	virtx cmake_src_test
+	local -x QT_QPA_PLATFORM=offscreen
+
+	cmake_src_test
 }
 
 src_install() {
@@ -255,11 +260,6 @@ src_install() {
 	# If USE=doc, there'll be newly generated docs which we install instead.
 	if ! use doc && [[ ${CMAKE_DOCS_PREBUILT} == 1 ]] ; then
 		doman "${WORKDIR}"/${PN}-${CMAKE_DOCS_VERSION}-docs/man*/*.[0-8]
-	fi
-
-	if use emacs; then
-		elisp-install ${PN} Auxiliary/cmake-mode.el Auxiliary/cmake-mode.elc
-		elisp-site-file-install "${FILESDIR}/${SITEFILE}"
 	fi
 
 	insinto /usr/share/vim/vimfiles/syntax
@@ -275,8 +275,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	use emacs && elisp-site-regen
-
 	if use gui; then
 		xdg_icon_cache_update
 		xdg_desktop_database_update
@@ -285,8 +283,6 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	use emacs && elisp-site-regen
-
 	if use gui; then
 		xdg_icon_cache_update
 		xdg_desktop_database_update
