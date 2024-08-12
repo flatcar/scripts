@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 inherit bash-completion-r1 estack flag-o-matic linux-info llvm toolchain-funcs python-r1
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
@@ -34,7 +34,7 @@ S="${S_K}/tools/perf"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
-IUSE="abi_mips_o32 abi_mips_n32 abi_mips_n64 audit babeltrace big-endian bpf caps crypt debug +doc gtk java libpfm +libtraceevent +libtracefs lzma numa perl python slang systemtap tcmalloc unwind zstd"
+IUSE="abi_mips_o32 abi_mips_n32 abi_mips_n64 audit babeltrace capstone big-endian bpf caps crypt debug +doc gtk java libpfm +libtraceevent +libtracefs lzma numa perl python slang systemtap tcmalloc unwind zstd"
 
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
@@ -64,12 +64,11 @@ RDEPEND="
 		dev-libs/libbpf
 		dev-util/bpftool
 		dev-util/pahole
-	)
-	caps? ( sys-libs/libcap )
-	bpf? (
 		sys-devel/clang:=
 		sys-devel/llvm:=
 	)
+	caps? ( sys-libs/libcap )
+	capstone? ( dev-libs/capstone )
 	crypt? ( dev-libs/openssl:= )
 	gtk? ( x11-libs/gtk+:2 )
 	java? ( virtual/jre:* )
@@ -140,8 +139,10 @@ pkg_setup() {
 # it's building from the same tarball, please keep it in sync with bpftool
 src_unpack() {
 	local paths=(
-		kernel/bpf tools/{arch,bpf,build,include,lib,perf,scripts}
-		scripts include lib "arch/*/lib" "arch/*/tools"
+		'arch/*/include/*' 'arch/*/lib/*' 'arch/*/tools/*' 'include/*'
+		'kernel/bpf/*' 'lib/*' 'scripts/*' 'tools/arch/*' 'tools/bpf/*'
+		'tools/build/*' 'tools/include/*' 'tools/lib/*' 'tools/perf/*'
+		'tools/scripts/*'
 	)
 
 	# We expect the tar implementation to support the -j option (both
@@ -153,8 +154,9 @@ src_unpack() {
 	if [[ -n ${LINUX_PATCH} ]] ; then
 		eshopts_push -o noglob
 		ebegin "Filtering partial source patch"
-		filterdiff -p1 ${paths[@]/#/-i } -z "${DISTDIR}"/${LINUX_PATCH} \
-			> ${P}.patch
+		xzcat "${DISTDIR}"/${LINUX_PATCH} | filterdiff -p1 ${paths[@]/#/-i} > ${P}.patch
+		test -s ${P}.patch
+		assert -n "Unpacking to ${P} from ${DISTDIR}/${LINUX_PATCH} failed"
 		eend $? || die "filterdiff failed"
 		eshopts_pop
 	fi
@@ -177,7 +179,8 @@ src_prepare() {
 
 	pushd "${S_K}" >/dev/null || die
 	eapply "${FILESDIR}"/perf-6.4-libtracefs.patch
-	eapply "${FILESDIR}"/perf-6.7-expr.patch
+	eapply "${FILESDIR}"/perf-6.10-expr.patch
+	eapply "${FILESDIR}"/perf-6.10.3-bpf-capstone.patch
 	popd || die
 
 	# Drop some upstream too-developer-oriented flags and fix the
@@ -248,6 +251,7 @@ perf_make() {
 		V=1 VF=1
 		HOSTCC="$(tc-getBUILD_CC)" HOSTLD="$(tc-getBUILD_LD)"
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" AR="$(tc-getAR)" LD="${linker}" NM="$(tc-getNM)"
+		CLANG="${CHOST}-clang"
 		PKG_CONFIG="$(tc-getPKG_CONFIG)"
 		prefix="${EPREFIX}/usr" bindir_relative="bin"
 		tipdir="share/doc/${PF}"
@@ -262,6 +266,7 @@ perf_make() {
 		feature-gtk2-infobar=$(usex gtk 1 "")
 		NO_AUXTRACE=
 		NO_BACKTRACE=
+		NO_CAPSTONE=$(puse capstone)
 		NO_DEMANGLE=
 		NO_JEVENTS=$(puse python)
 		NO_JVMTI=$(puse java)
@@ -281,11 +286,13 @@ perf_make() {
 		NO_LIBUNWIND=$(puse unwind)
 		NO_LIBZSTD=$(puse zstd)
 		NO_SDT=$(puse systemtap)
+		NO_SHELLCHECK=1
 		NO_SLANG=$(puse slang)
 		NO_LZMA=$(puse lzma)
 		NO_ZLIB=
 		TCMALLOC=$(usex tcmalloc 1 "")
 		WERROR=0
+		DEBUG=$(usex debug 1 "")
 		LIBDIR="/usr/libexec/perf-core"
 		libdir="${EPREFIX}/usr/$(get_libdir)"
 		plugindir="${EPREFIX}/usr/$(get_libdir)/perf/plugins"
