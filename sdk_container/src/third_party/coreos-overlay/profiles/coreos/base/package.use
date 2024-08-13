@@ -10,7 +10,10 @@ dev-libs/libxml2	-python
 dev-libs/libxslt	-python
 dev-util/perf		-doc
 dev-vcs/git		webdav curl
-net-misc/curl		kerberos telnet
+
+# Mask support for http3 for now (unavailable on arm64 for now, and
+# I'm not sure we really need it.)
+net-misc/curl		kerberos telnet -http3 -quic -curl_quic_openssl
 net-misc/iputils	arping tracepath
 sys-devel/gettext	-git
 
