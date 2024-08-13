@@ -106,7 +106,3 @@ dev-util/catalyst ~amd64 ~arm64
 
 # Accept unstable host Rust compilers.
 =virtual/rust-1.80.0 ~amd64 ~arm64
-
-# Accept unstable aardvark-dns to fix 'time'
-# dependency compilation issue with Rust 1.80
-=app-containers/aardvark-dns-1.11.0 ~amd64 ~arm64
