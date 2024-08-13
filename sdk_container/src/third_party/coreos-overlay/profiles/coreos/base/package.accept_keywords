@@ -46,6 +46,7 @@
 
 # Keep versions on both arches in sync.
 =dev-cpp/glog-0.6.0 ~arm64
+=dev-lang/python-3.11.9_p1 ~amd64
 
 # Accept unstable host Rust compilers.
 =dev-lang/rust-1.80.0 ~amd64 ~arm64
