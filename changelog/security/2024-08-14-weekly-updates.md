@@ -1,0 +1,2 @@
+- SDK: re2c ([CVE-2022-23901](https://nvd.nist.gov/vuln/detail/CVE-2022-23901))
+- curl ([CVE-2024-7264](https://nvd.nist.gov/vuln/detail/CVE-2024-7264))

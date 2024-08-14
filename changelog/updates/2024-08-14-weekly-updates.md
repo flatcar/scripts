@@ -1,0 +1,6 @@
+- curl ([8.9.1](https://curl.se/ch/8.9.1.html))
+- elfutils ([0.191](https://inbox.sourceware.org/elfutils-devel/CAJDtP-SJhJ8cjTpkNpi+F0nzVJ2pZsEai8Ewpp4yJmsO_H5-NA@mail.gmail.com/T/#u))
+- gce, sysext-python: setuptools ([71.1.0](https://github.com/pypa/setuptools/blob/v71.1.0/NEWS.rst) (includes [71.0.0](https://github.com/pypa/setuptools/blob/v71.0.0/NEWS.rst)))
+- libmicrohttpd ([1.0.1](https://lists.gnu.org/archive/html/libmicrohttpd/2024-02/msg00005.html) (inlcudes [1.0.0](https://lists.gnu.org/archive/html/libmicrohttpd/2024-02/msg00000.html)))
+- lz4 ([1.10.0](https://github.com/lz4/lz4/releases/tag/v1.10.0))
+- npth ([1.7](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=npth.git;a=blob;f=NEWS;h=c1b631b4294eabfef29baefd60e1b0dfecce710d;hb=75c68399ef3bbb5d024f2a60474a7214fa479016))

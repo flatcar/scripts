@@ -22,9 +22,12 @@ IUSE="cet debuginfod doc gold gprofng hardened multitarget +nls pgo +plugins sta
 PATCH_VER=1
 PATCH_DEV=dilfridge
 
-if [[ ${PV} == 9999* ]]; then
+if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	SLOT=${PV}
+elif [[ ${PV} == *9999 ]]; then
+	inherit git-r3
+	SLOT=$(ver_cut 1-2)
 else
 	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
 	PATCH_DEV=${PATCH_DEV:-dilfridge}
@@ -79,12 +82,15 @@ RESTRICT="!test? ( test )"
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	if [[ ${PV} == 9999* ]] ; then
+	if [[ ${PV} == *9999 ]] ; then
 		EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git"
 		EGIT_CHECKOUT_DIR=${WORKDIR}/patches-git
 		git-r3_src_unpack
 		mv patches-git/9999 patch || die
 
+		if [[ ${PV} != 9999 ]] ; then
+			EGIT_BRANCH=binutils-$(ver_cut 1)_$(ver_cut 2)-branch
+		fi
 		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
 		S=${WORKDIR}/binutils
 		EGIT_CHECKOUT_DIR=${S}
@@ -108,13 +114,15 @@ src_unpack() {
 
 src_prepare() {
 	local patchsetname
-	if [[ ${PV} == 9999* ]] ; then
+	if [[ ${PV} == 9999 ]] ; then
 		patchsetname="from git master"
+	elif [[ ${PV} == *9999 ]] ; then
+		patchsetname="from git branch ${EGIT_BRANCH}"
 	else
 		patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
 	fi
 
-	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
+	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == *9999 ]] ; then
 		if ! use vanilla; then
 			einfo "Applying binutils patchset ${patchsetname}"
 			eapply "${WORKDIR}/patch"
@@ -123,8 +131,8 @@ src_prepare() {
 			# This is applied conditionally for now just out of caution.
 			# It should be okay on non-prefix systems though. See bug #892549.
 			if is_cross || use prefix; then
-				eapply "${FILESDIR}"/binutils-2.40-linker-search-path.patch \
-					   "${FILESDIR}"/binutils-2.41-linker-prefix.patch
+				eapply "${FILESDIR}"/binutils-2.43-linker-search-path.patch \
+					   "${FILESDIR}"/binutils-2.43-linker-prefix.patch
 			fi
 		fi
 	fi
