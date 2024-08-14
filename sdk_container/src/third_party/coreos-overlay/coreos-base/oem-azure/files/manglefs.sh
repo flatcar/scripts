@@ -20,3 +20,13 @@ ln -sf /usr/bin/true "${rootfs}/usr/bin/eject"
 # both cases, so mangle manually.
 mkdir -p "${rootfs}"/usr/lib/systemd/system
 cp -a "${rootfs}"/{etc,usr/lib}/systemd/system/.
+
+# Remove test stuff from python - it's quite large.
+for p in "${rootfs}"/usr/lib/python*; do
+    if [[ ! -d ${p} ]]; then
+        continue
+    fi
+    # find directories named tests or test and remove them (-prune
+    # avoids searching below those directories)
+    find "${p}" \( -name tests -o -name test \) -type d -prune -exec rm -rf '{}' '+'
+done
