@@ -148,15 +148,16 @@ function run_image_changes_job() {
     # invoke callback that should append necessary info to env and params variables
     "${cb}"
 
-    local -a oemids base_sysexts
+    local -a oemids base_sysexts extra_sysexts
     get_oem_id_list . "${arch}" oemids
     get_base_sysext_list . "${arch}" base_sysexts
+    get_extra_sysext_list . extra_sysexts
     generate_image_changes_report \
         "${version_description}" "${report_file_name}" "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
         "${size_changes_env[@]}" --- "${size_changes_params[@]}" -- \
         "${show_changes_env[@]}" --- "${show_changes_params[@]}" -- \
-        "${oemids[@]}" -- "${base_sysexts[@]}"
+        "${oemids[@]}" -- "${base_sysexts[@]}" -- "${extra_sysexts[@]}"
 }
 # --
 
@@ -287,6 +288,20 @@ function get_base_sysext_list() {
     done
 }
 
+function get_extra_sysext_list() {
+    local scripts_repo=${1}; shift
+    local -n list_var_ref=${1}; shift
+
+    # defined in the file we source below
+    local -a EXTRA_SYSEXTS
+    source "${scripts_repo}/build_library/extra_sysexts.sh"
+
+    list_var_ref=()
+    local entry
+    for entry in "${EXTRA_SYSEXTS[@]}"; do
+        list_var_ref+=( "${entry%%:*}" )
+    done
+}
 
 # Generates reports with passed parameters. The report is redirected
 # into the passed report file.
@@ -294,7 +309,7 @@ function get_base_sysext_list() {
 # 1 - version description (a free form string that describes a version of image that current version is compared against)
 # 2 - report file (can be relative), '-' for standard output
 # 3 - flatcar-build-scripts directory (can be relative, will be realpathed)
-# @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides -- list of OEM ids -- list of base sysext names
+# @ - package-diff env vars --- package-diff version B param -- size-change-report.sh env vars --- size-change-report.sh spec B param -- show-changes env vars --- show-changes param overrides -- list of OEM ids -- list of base sysext names -- list of extra sysext names
 #
 # Example:
 #
@@ -306,7 +321,7 @@ function get_base_sysext_list() {
 #     release:amd64-usr:3456.0.0 bincache:amd64:3478.0.0+my-changes -- \\
 #     "PATH=${PATH}:${PWD}/ci-automation/python-bin" --- \\
 #     NEW_VERSION=main-3478.0.0-my-changes NEW_CHANNEL=alpha NEW_CHANNEL_PREV_VERSION=3456.0.0 OLD_CHANNEL=alpha OLD_VERSION='' -- \\
-#     azure vmware -- containerd-flatcar docker-flatcar
+#     azure vmware -- containerd-flatcar docker-flatcar -- python podman zfs
 function generate_image_changes_report() (
     set -euo pipefail
 
@@ -588,7 +603,7 @@ function curl_to_stdout() {
 #       <env vars for package-diff> --- <parameters for package-diff> -- \\
 #       <env vars for size-change-report.sh> --- <parameters for size-change-report.sh> -- \\
 #       <env vars for show-changes> --- <parameters for show-changes> -- \\
-#       <list of OEM ids> -- <list of base sysexts>
+#       <list of OEM ids> -- <list of base sysexts> -- <list of extra sysexts>
 #
 # Env vars are passed to the called scripts verbatim. Parameters are
 # described below.
@@ -616,7 +631,7 @@ function print_image_reports() {
     local -a package_diff_env=() package_diff_params=()
     local -a size_change_report_env=() size_change_report_params=()
     local -a show_changes_env=() show_changes_params=()
-    local -a oemids base_sysexts
+    local -a oemids base_sysexts extra_sysexts
     local params_shift=0
 
     split_to_env_and_params \
@@ -634,6 +649,8 @@ function print_image_reports() {
     get_batch_of_args oemids params_shift "${@}"
     shift "${params_shift}"
     get_batch_of_args base_sysexts params_shift "${@}"
+    shift "${params_shift}"
+    get_batch_of_args extra_sysexts params_shift "${@}"
     shift "${params_shift}"
 
     flatcar_build_scripts_repo=$(realpath "${flatcar_build_scripts_repo}")
@@ -702,6 +719,25 @@ function print_image_reports() {
         underline "Image file size changes, compared to ${previous_version_description}:"
         if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:base-sysext-${base_sysext}-wtd}"; then
             "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:base-sysext-${base_sysext}-old}" 2>&1
+        fi
+    done
+
+    local extra_sysext
+    for extra_sysext in "${extra_sysexts[@]}"; do
+        yell "Extra sysext ${extra_sysext} changes compared to ${previous_version_description}"
+        underline "Package updates, compared to ${previous_version_description}:"
+        env \
+            "${package_diff_env[@]}" FILE="flatcar-${extra_sysext}_packages.txt" \
+            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
+
+        underline "Image file changes, compared to ${previous_version_description}:"
+        env \
+            "${package_diff_env[@]}" FILE="flatcar-${extra_sysext}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
+            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
+
+        underline "Image file size changes, compared to ${previous_version_description}:"
+        if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:extra-sysext-${extra_sysext}-wtd}"; then
+            "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:extra-sysext-${extra_sysext}-old}" 2>&1
         fi
     done
 
