@@ -20,6 +20,6 @@ for cross_chost in $(get_chost_list); do
     echo "Building cross toolchain for ${cross_chost}"
     PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
         install_cross_toolchain "${cross_chost}" ${clst_myemergeopts}
-    PKGDIR="$(portageq envvar PKGDIR)/crossdev" \
-        install_cross_rust "${cross_chost}" ${clst_myemergeopts}
 done
+
+PKGDIR="$(portageq envvar PKGDIR)/crossdev" install_cross_rust ${clst_myemergeopts}
