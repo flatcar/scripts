@@ -150,7 +150,7 @@ function run_image_changes_job() {
 
     local -a oemids base_sysexts extra_sysexts
     get_oem_id_list . "${arch}" oemids
-    get_base_sysext_list . "${arch}" base_sysexts
+    get_base_sysext_list . base_sysexts
     get_extra_sysext_list . extra_sysexts
     generate_image_changes_report \
         "${version_description}" "${report_file_name}" "${fbs_repo}" \
@@ -276,16 +276,11 @@ function get_oem_id_list() {
 
 function get_base_sysext_list() {
     local scripts_repo=${1}; shift
-    local arch=${1}; shift
     local -n list_var_ref=${1}; shift
 
     source "${scripts_repo}/ci-automation/base_sysexts.sh" 'local'
 
-    list_var_ref=()
-    local entry
-    for entry in "${ciabs_base_sysexts[@]}"; do
-        list_var_ref+=( "${entry%%:*}" )
-    done
+    list_var_ref=( "${ciabs_base_sysexts[@]%%:*}" )
 }
 
 function get_extra_sysext_list() {
@@ -296,11 +291,7 @@ function get_extra_sysext_list() {
     local -a EXTRA_SYSEXTS
     source "${scripts_repo}/build_library/extra_sysexts.sh"
 
-    list_var_ref=()
-    local entry
-    for entry in "${EXTRA_SYSEXTS[@]}"; do
-        list_var_ref+=( "${entry%%:*}" )
-    done
+    list_var_ref=( "${EXTRA_SYSEXTS[@]%%:*}" )
 }
 
 # Generates reports with passed parameters. The report is redirected
