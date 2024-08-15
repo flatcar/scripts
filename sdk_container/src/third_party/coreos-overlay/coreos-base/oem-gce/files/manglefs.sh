@@ -1,14 +1,11 @@
 #!/bin/bash
 
 set -euo pipefail
-rootfs="${1}"
 
-pushd "${rootfs}"
-
-rm -rf ./usr/{lib/debug,share,include,lib64/pkgconfig}
+rootfs=${1}
 
 # Remove test stuff from python - it's quite large.
-for p in ./usr/lib/python*; do
+for p in "${rootfs}"/usr/lib/python*; do
     if [[ ! -d ${p} ]]; then
         continue
     fi
@@ -16,5 +13,3 @@ for p in ./usr/lib/python*; do
     # avoids searching below those directories)
     find "${p}" \( -name tests -o -name test \) -type d -prune -exec rm -rf '{}' '+'
 done
-
-popd
