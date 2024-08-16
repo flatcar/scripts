@@ -1,0 +1,1 @@
+- Fixed the initrd option in the QEMU launcher script. It was -R, but this was already taken by the read-only pflash option, so use -r instead. ([scripts#2239](https://github.com/flatcar/scripts/pull/2239))

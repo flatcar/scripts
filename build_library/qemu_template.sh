@@ -35,8 +35,8 @@ Options:
                 (see https://github.com/stefanberger/swtpm/wiki/Certificates-created-by-swtpm_setup).
     -R FILE     Set up pflash ro content, e.g., for UEFI (with -W).
     -W FILE     Set up pflash rw content, e.g., for UEFI (with -R).
-    -K FILE     Set kernel for direct boot used to simulate a PXE boot (with -R).
-    -R FILE     Set initrd for direct boot used to simulate a PXE boot (with -K).
+    -K FILE     Set kernel for direct boot used to simulate a PXE boot (with -r).
+    -r FILE     Set initrd for direct boot used to simulate a PXE boot (with -K).
     -s          Safe settings: single simple cpu and no KVM.
     -h          this ;-)
 
@@ -105,7 +105,7 @@ while [ $# -ge 1 ]; do
         -K|-kernel-file)
             VM_KERNEL="$2"
             shift 2 ;;
-        -R|-initrd-file)
+        -r|-initrd-file)
             VM_INITRD="$2"
             shift 2 ;;
         -v|-verbose)
