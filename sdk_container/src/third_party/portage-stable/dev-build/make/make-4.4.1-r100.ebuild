@@ -98,4 +98,5 @@ src_install() {
 
 	dosym gmake /usr/bin/make
 	dosym gmake.1 /usr/share/man/man1/make.1
+	guile_unstrip_ccache
 }
