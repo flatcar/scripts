@@ -336,6 +336,7 @@ dev-python/tenacity
 dev-python/tomli
 dev-python/trove-classifiers
 dev-python/truststore
+dev-python/typing-extensions
 dev-python/uc-micro-py
 dev-python/urllib3
 dev-python/wheel
@@ -392,6 +393,8 @@ eclass/go-module.eclass
 eclass/golang-base.eclass
 eclass/golang-vcs-snapshot.eclass
 eclass/golang-vcs.eclass
+eclass/guile-single.eclass
+eclass/guile-utils.eclass
 eclass/java-pkg-opt-2.eclass
 eclass/java-utils-2.eclass
 eclass/kernel-2.eclass
