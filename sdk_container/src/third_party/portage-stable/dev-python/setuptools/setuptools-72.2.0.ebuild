@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -115,6 +115,8 @@ python_test() {
 		setuptools/tests/config/test_setupcfg.py::TestOptions::test_cmdclass
 		# broken by unbundling
 		setuptools/tests/test_setuptools.py::test_wheel_includes_vendored_metadata
+		# fails on normalized metadata, perhaps different dep version?
+		setuptools/tests/test_build_meta.py::TestBuildMetaBackend::test_build_with_pyproject_config
 	)
 
 	local EPYTEST_XDIST=1

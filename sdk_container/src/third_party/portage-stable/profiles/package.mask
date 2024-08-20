@@ -33,6 +33,25 @@
 
 #--- END OF EXAMPLES ---
 
+# Arsen Arsenović <arsen@gentoo.org> (2024-08-02)
+# Guile rework masks.  Mask all packages or package versions that are
+# being bumped as part of the Guile reslotting process.
+# Masked until the whole Guile ecosystem is updated.
+>=dev-scheme/slib-3.3.1-r100
+www-apps/haunt
+dev-scheme/guile-commonmark
+>=dev-scheme/guile-reader-0.6.3-r100
+dev-scheme/guile:2.2
+dev-scheme/guile:3.0
+>=dev-build/make-4.4.1-r100
+
+# Eli Schwartz <eschwartz@gentoo.org> (2024-08-15)
+# Abandoned upstream since 2011, unmaintained in gentoo since 2017. Tons of
+# patches, breaks again with GCC 14. Severe QA issues, automagic dependencies,
+# sole reverse dependency wants to remove it anyway.
+# Removal on 2024-09-14. Bug #829229, #854900, #863959, #880839, #882265, #931102, #914924.
+app-text/cuneiform
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-08-11)
 # >=1.1.14 enables usage of explicit sync (with >=nvidia-drivers-560
 # and compositors that supports like kwin-6), which currently seems
@@ -193,7 +212,6 @@ games-mud/gmudix
 games-mud/kildclient
 games-puzzle/color-lines
 games-puzzle/hangman
-games-puzzle/magiccube4d
 games-puzzle/scramble
 games-puzzle/zaz
 games-simulation/cannonsmash
@@ -203,36 +221,6 @@ games-strategy/crimson
 # Obsolete slot. Please use a newer slot instead. No reverse
 # dependencies left. Removal on 2024-08-17.
 dev-ruby/rmagick:4
-
-# Eli Schwartz <eschwartz@gentoo.org> (2024-07-15)
-# FreeWnn has no activity upstream on its (very slow!) development site
-# since 2015. Website is gone. Various build failures, fails to build
-# with gcc 14.  All of its reverse dependencies are even more dead, as
-# they do not even have distfiles anymore.
-# Removal on 2024-08-14.  Bug 936129.
-# Bug #829613, #854579, #871603, #874114, #934595.
-app-i18n/freewnn
-app-i18n/im-freewnn
-app-dicts/wnn-ldic
-app-i18n/kinput2
-
-# Hans de Graaff <graaff@gentoo.org> (2024-07-14)
-# Ancient package, last release ca. 2009. Upstream is gone. All
-# improvements are now available in dev-ruby/irb itself.
-# Removal on 2024-08-14.
-dev-ruby/wirble
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2024-07-13)
-# Maintainer-needed, depends on very old gui-libs/wlroots version,
-# no activity upstream since Jan 2022.
-# Removal on 2024-08-12.  Bugs #935921, #867808.
-gui-wm/hikari
-
-# Hans de Graaff <graaff@gentoo.org> (2024-07-12)
-# Test dependency that is no longer maintained, last release in
-# 2019. Broken in various ways. No reverse dependencies left.
-# Removal on 2024-08-12.
-dev-ruby/rspectacular
 
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2024-07-07)
 # New major ffmpeg version. Tracker bug #928905.
@@ -461,6 +449,7 @@ sec-keys/openpgp-keys-jiatan
 # Lots of package breakage as usual for new versions. Masked until most/all
 # reverse dependencies are fixed. Tracker bug is bug #906077.
 >=dev-libs/libfmt-10
+>=games-emulation/dolphin-2407
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-03-30)
 # NVIDIA dropped support for the 390.xx branch in December 2022[1].
