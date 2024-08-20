@@ -378,10 +378,8 @@ eclass/eapi8-dosym.eclass
 eclass/edo.eclass
 eclass/edos2unix.eclass
 eclass/elisp-common.eclass
-eclass/epatch.eclass
 eclass/eqawarn.eclass
 eclass/estack.eclass
-eclass/eutils.eclass
 eclass/fcaps.eclass
 eclass/flag-o-matic.eclass
 eclass/git-r3.eclass
@@ -405,7 +403,6 @@ eclass/linux-mod.eclass
 eclass/llvm-r1.eclass
 eclass/llvm-utils.eclass
 eclass/llvm.eclass
-eclass/ltprune.eclass
 eclass/lua-single.eclass
 eclass/lua-utils.eclass
 eclass/mercurial.eclass
