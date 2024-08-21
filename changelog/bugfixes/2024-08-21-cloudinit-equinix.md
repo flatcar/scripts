@@ -1,0 +1,1 @@
+- Fixed oem-cloudinit.service on Equinix Metal. The availability check now uses the https://metadata.platformequinix.com/metadata endpoint. ([scripts#2222](https://github.com/flatcar/scripts/pull/2222))
