@@ -1,44 +1,53 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit autotools linux-info
+EAPI=8
+
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/netfilter.org.asc
+inherit autotools linux-info systemd verify-sig
 
 DESCRIPTION="Connection tracking userspace tools"
-HOMEPAGE="http://conntrack-tools.netfilter.org"
-SRC_URI="http://www.netfilter.org/projects/conntrack-tools/files/${P}.tar.bz2"
+HOMEPAGE="https://conntrack-tools.netfilter.org"
+SRC_URI="https://www.netfilter.org/projects/conntrack-tools/files/${P}.tar.bz2
+	verify-sig? ( https://www.netfilter.org/projects/conntrack-tools/files/${P}.tar.bz2.sig )"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm64 ~hppa x86"
-IUSE="doc +cthelper +cttimeout +libtirpc"
+KEYWORDS="~alpha amd64 ~arm64 ~hppa ppc ppc64 ~riscv x86"
+IUSE="doc +cthelper +cttimeout systemd"
 
 RDEPEND="
 	>=net-libs/libmnl-1.0.3
-	>=net-libs/libnetfilter_conntrack-1.0.7
+	>=net-libs/libnetfilter_conntrack-1.0.9
+	>=net-libs/libnetfilter_queue-1.0.2
+	>=net-libs/libnfnetlink-1.0.1
+	net-libs/libtirpc
 	cthelper? (
 		>=net-libs/libnetfilter_cthelper-1.0.0
 	)
 	cttimeout? (
 		>=net-libs/libnetfilter_cttimeout-1.0.0
 	)
-	>=net-libs/libnetfilter_queue-1.0.2
-	>=net-libs/libnfnetlink-1.0.1
-	!libtirpc? ( sys-libs/glibc[rpc(-)] )
-	libtirpc? ( net-libs/libtirpc )
+	systemd? (
+		>=sys-apps/systemd-227
+	)
 "
-DEPEND="
-	${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
+	app-alternatives/yacc
+	app-alternatives/lex
+	virtual/pkgconfig
 	doc? (
 		app-text/docbook-xml-dtd:4.1.2
 		app-text/xmlto
 	)
-	virtual/pkgconfig
-	sys-devel/bison
-	sys-devel/flex
+	verify-sig? ( sec-keys/openpgp-keys-netfilter )
 "
+
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.4.5-rpc.patch
+	"${FILESDIR}"/${PN}-1.4.5-0001-Makefile.am-don-t-suppress-various-warnings.patch
+	"${FILESDIR}"/${PN}-1.4.5-0002-Fix-Wstrict-prototypes.patch
+	"${FILESDIR}"/${PN}-1.4.5-0003-Fix-Wimplicit-function-declaration.patch
 )
 
 pkg_setup() {
@@ -48,7 +57,7 @@ pkg_setup() {
 		die "${PN} requires at least 2.6.18 kernel version"
 	fi
 
-	#netfilter core team has changed some option names with kernel 2.6.20
+	# netfilter core team has changed some option names with kernel 2.6.20
 	if kernel_is lt 2 6 20 ; then
 		CONFIG_CHECK="~IP_NF_CONNTRACK_NETLINK"
 	else
@@ -72,6 +81,7 @@ src_prepare() {
 	# bug #474858
 	sed -i -e 's:/var/lock:/run/lock:' doc/stats/conntrackd.conf || die
 
+	# Drop once Clang 16 patches merged (implicit func decl, etc)
 	eautoreconf
 }
 
@@ -79,22 +89,25 @@ src_configure() {
 	econf \
 		$(use_enable cthelper) \
 		$(use_enable cttimeout) \
-		$(use_with libtirpc)
+		$(use_enable systemd)
 }
 
 src_compile() {
 	default
+
 	use doc && emake -C doc/manual
 }
 
 src_install() {
 	default
 
-	newinitd "${FILESDIR}/conntrackd.initd-r3" conntrackd
-	newconfd "${FILESDIR}/conntrackd.confd-r2" conntrackd
+	newinitd "${FILESDIR}"/conntrackd.initd-r3 conntrackd
+	newconfd "${FILESDIR}"/conntrackd.confd-r2 conntrackd
 
 	insinto /etc/conntrackd
 	doins doc/stats/conntrackd.conf
+
+	systemd_dounit "${FILESDIR}"/conntrackd.service
 
 	dodoc -r doc/sync doc/stats AUTHORS TODO
 	use doc && dodoc doc/manual/${PN}.html
