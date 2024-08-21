@@ -1,27 +1,26 @@
 # Copyright (c) 2016-2018 CoreOS, Inc. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
-inherit eutils
+PYTHON_COMPAT=( python3_11 )
+DISTUTILS_USE_PEP517=setuptools
+
+inherit distutils-r1
 
 DESCRIPTION="Linux Guest Environment for Google Compute Engine"
 HOMEPAGE="https://github.com/GoogleCloudPlatform/compute-image-packages"
-SRC_URI="https://github.com/GoogleCloudPlatform/compute-image-packages/archive/${PV}.tar.gz"
-
+SRC_URI="https://github.com/GoogleCloudPlatform/compute-image-packages/archive/${PV}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/compute-image-packages-${PV}"
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 x86"
-IUSE=""
-
-DEPEND="dev-python/setuptools"
+KEYWORDS="amd64"
 
 # These dependencies cover all commands called by the scripts.
 RDEPEND="
 	app-admin/sudo
-	dev-python/boto
-	dev-python/distro
-	dev-python/setuptools
+	dev-python/boto[${PYTHON_USEDEP}]
+	dev-python/distro[${PYTHON_USEDEP}]
 	sys-apps/ethtool
 	sys-apps/coreutils
 	sys-apps/gawk
@@ -29,13 +28,3 @@ RDEPEND="
 	sys-apps/iproute2
 	sys-apps/shadow
 "
-
-S="${WORKDIR}/compute-image-packages-${PV}"
-
-src_compile() {
-	(cd "${S}" && exec python3 setup.py build)
-}
-
-src_install() {
-	(cd "${S}" && exec python3 setup.py install -O1 --skip-build --root "${D}")
-}
