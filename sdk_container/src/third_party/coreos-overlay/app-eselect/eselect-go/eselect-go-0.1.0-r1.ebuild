@@ -1,12 +1,11 @@
 # Copyright 2016 CoreOS, Inc.
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
-EAPI=6
+EAPI=8
 
 DESCRIPTION="Eselect module for managing multiple Go versions"
 HOMEPAGE="https://github.com/coreos/eselect-go"
-SRC_URI="${HOMEPAGE}/releases/download/v${PV}/${P}.tar.gz"
+SRC_URI="https://github.com/coreos/eselect-go/releases/download/v${PV}/${P}.tar.gz"
 # Note for future releases: the tarball was generated via `make dist` and
 # uploaded to GitHub so there is no need for initializing autotools here.
 
@@ -14,6 +13,7 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 arm64"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
 DEPEND="test? ( dev-libs/glib )"
 RDEPEND="app-admin/eselect
