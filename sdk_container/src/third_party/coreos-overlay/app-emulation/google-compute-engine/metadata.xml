@@ -2,6 +2,6 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<upstream>
-		<remote-id type="github">flannel-io/flannel</remote-id>
+		<remote-id type="github">GoogleCloudPlatform/compute-image-packages</remote-id>
 	</upstream>
 </pkgmetadata>

@@ -1,14 +1,15 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
-inherit eutils toolchain-funcs
+inherit toolchain-funcs
 
 DESCRIPTION="SYSLINUX, PXELINUX, ISOLINUX, EXTLINUX and MEMDISK bootloaders"
 HOMEPAGE="https://syslinux.zytor.com/"
 SRC_URI_DIR="${PV:0:1}.xx"
 SRC_URI="https://www.kernel.org/pub/linux/utils/boot/syslinux/${SRC_URI_DIR}/${P/_/-}.tar.xz"
+S=${WORKDIR}/${P/_/-}
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -26,8 +27,6 @@ DEPEND="${RDEPEND}
 	dev-lang/nasm
 	virtual/os-headers"
 
-S=${WORKDIR}/${P/_/-}
-
 # This ebuild is a departure from the old way of rebuilding everything in syslinux
 # This departure is necessary since hpa doesn't support the rebuilding of anything other
 # than the installers.
@@ -38,7 +37,7 @@ src_unpack() {
 	unpack ${A}
 	cd "${S}"
 	# Fix building on hardened
-	epatch "${FILESDIR}"/${PN}-4.05-nopie.patch
+	eapply "${FILESDIR}"/${PN}-4.05-nopie.patch
 
 	rm -f gethostip #bug 137081
 
@@ -77,10 +76,10 @@ src_unpack() {
 }
 
 src_compile() {
-	emake CC="$(tc-getCC)" installer || die
+	emake CC="$(tc-getCC)" installer
 }
 
 src_install() {
-	emake INSTALLSUBDIRS=utils INSTALLROOT="${D}" MANDIR=/usr/share/man install || die
-	dodoc README NEWS doc/*.txt || die
+	emake INSTALLSUBDIRS=utils INSTALLROOT="${ED}" MANDIR='$(DATADIR)/man' install
+	dodoc README NEWS doc/*.txt
 }

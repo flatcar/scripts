@@ -6,4 +6,7 @@
 		packages or architectures that cannot upgrade to the same Go version
 		all at the same time. Gentoo doesn't support this use case.
 	</longdescription>
+	<upstream>
+		<remote-id type="github">coreos/eselect-go</remote-id>
+	</upstream>
 </pkgmetadata>
