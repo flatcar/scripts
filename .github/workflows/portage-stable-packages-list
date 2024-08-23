@@ -546,6 +546,7 @@ sec-policy/selinux-unconfined
 
 sys-apps/acl
 sys-apps/attr
+sys-apps/azure-nvme-util
 sys-apps/bubblewrap
 sys-apps/checkpolicy
 sys-apps/config-site
