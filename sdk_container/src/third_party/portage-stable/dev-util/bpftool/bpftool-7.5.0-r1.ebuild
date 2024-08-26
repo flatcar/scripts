@@ -27,14 +27,14 @@ S="${S_K}/tools/bpf/bpftool"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
-IUSE="caps +llvm"
+IUSE="caps llvm"
 
 RDEPEND="
-	sys-libs/binutils-libs:=
 	sys-libs/zlib:=
 	virtual/libelf:=
 	caps? ( sys-libs/libcap:= )
 	llvm? ( sys-devel/llvm:= )
+	!llvm? ( sys-libs/binutils-libs:= )
 "
 DEPEND="
 	${RDEPEND}
@@ -68,9 +68,9 @@ src_unpack() {
 		eshopts_push -o noglob
 		ebegin "Filtering partial source patch"
 		xzcat "${DISTDIR}"/${LINUX_PATCH} | filterdiff -p1 ${paths[@]/#/-i} > ${P}.patch
-		test -s ${P}.patch
 		assert -n "Unpacking to ${P} from ${DISTDIR}/${LINUX_PATCH} failed"
 		eend $? || die "filterdiff failed"
+		test -s ${P}.patch || die "patch is empty?!"
 		eshopts_pop
 	fi
 
