@@ -1,13 +1,12 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=7
 
 # Re cleanups:
 # 2.5.x is an LTS release so we want to keep it for a while.
 
-inherit autotools flag-o-matic multibuild multilib multilib-minimal preserve-libs
-inherit ssl-cert toolchain-funcs systemd tmpfiles
+inherit autotools flag-o-matic multilib multilib-minimal preserve-libs ssl-cert toolchain-funcs systemd tmpfiles
 
 MY_PV="$(ver_rs 1-2 _)"
 
@@ -30,21 +29,19 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv 
 
 IUSE_DAEMON="argon2 +cleartext crypt experimental minimal samba tcpd"
 IUSE_OVERLAY="overlays perl autoca"
-IUSE_OPTIONAL="debug gnutls iodbc odbc sasl ssl selinux static-libs +syslog test"
+IUSE_OPTIONAL="debug gnutls iodbc ipv6 odbc sasl ssl selinux static-libs +syslog test"
 IUSE_CONTRIB="kerberos kinit pbkdf2 sha2 smbkrb5passwd"
 IUSE_CONTRIB="${IUSE_CONTRIB} cxx"
 IUSE="systemd ${IUSE_DAEMON} ${IUSE_BACKEND} ${IUSE_OVERLAY} ${IUSE_OPTIONAL} ${IUSE_CONTRIB}"
-REQUIRED_USE="
-	cxx? ( sasl )
+REQUIRED_USE="cxx? ( sasl )
 	pbkdf2? ( ssl )
-	test? ( cleartext sasl )
+	test? ( cleartext debug sasl )
 	autoca? ( !gnutls )
 	?? ( test minimal )
-	kerberos? ( ?? ( kinit smbkrb5passwd ) )
-"
+	kerberos? ( ?? ( kinit smbkrb5passwd ) )"
 RESTRICT="!test? ( test )"
 
-SYSTEM_LMDB_VER=0.9.31
+SYSTEM_LMDB_VER=0.9.33
 # openssl is needed to generate lanman-passwords required by samba
 COMMON_DEPEND="
 	kernel_linux? ( sys-apps/util-linux )
@@ -59,7 +56,6 @@ COMMON_DEPEND="
 	)
 	sasl? ( dev-libs/cyrus-sasl:= )
 	!minimal? (
-		dev-libs/libevent:=
 		dev-libs/libltdl
 		sys-fs/e2fsprogs
 		>=dev-db/lmdb-${SYSTEM_LMDB_VER}:=
@@ -82,22 +78,19 @@ COMMON_DEPEND="
 		)
 	)
 "
-DEPEND="
-	${COMMON_DEPEND}
+DEPEND="${COMMON_DEPEND}
 	sys-apps/groff
 "
-RDEPEND="
-	${COMMON_DEPEND}
+RDEPEND="${COMMON_DEPEND}
 	selinux? ( sec-policy/selinux-ldap )
 "
 
 # The user/group are only used for running daemons which are
 # disabled in minimal builds, so elide the accounts too.
-BDEPEND="
-	!minimal? (
+BDEPEND="!minimal? (
 		acct-group/ldap
 		acct-user/ldap
-	)
+)
 "
 
 # for tracking versions
@@ -147,7 +140,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.6.1-system-mdb.patch
 	"${FILESDIR}"/${PN}-2.6.1-cloak.patch
 	"${FILESDIR}"/${PN}-2.6.1-flags.patch
-	"${FILESDIR}"/${PN}-2.6.1-fix-missing-mapping.patch
+	"${FILESDIR}"/${PN}-2.6.x-gnutls-pointer-error.patch
+	#"${FILESDIR}"/${PN}-2.6.x-slapd-pointer-types.patch # needs backport
 )
 
 openldap_filecount() {
@@ -242,7 +236,7 @@ openldap_find_versiontags() {
 		# This will not cover detection of cn=Config based configuration, but
 		# it's hopefully good enough.
 		if grep -sq '^backend.*shell' "${EROOT}"/etc/openldap/slapd.conf; then
-			eerror "    OpenLDAP >= 2.5.x has dropped support for Shell backend."
+			eerror "    OpenLDAP >= 2.6.x has dropped support for Shell backend."
 			eerror "	You will need to migrate per upstream's migration notes"
 			eerror "	at https://www.openldap.org/doc/admin25/appendix-upgrading.html."
 			eerror "	Your existing database will not be accessible until it is"
@@ -345,8 +339,10 @@ src_prepare() {
 	#
 	# Fish out MDB_VERSION_MAJOR/MDB_VERSION_MINOR/MDB_VERSION_PATCH from
 	# the bundled lmdb's header to find out the version.
-	local bundled_lmdb_version=$(sed -En '/^#define MDB_VERSION_(MAJOR|MINOR|PATCH)(\s+)?/{s/[^0-9.]//gp}' \
-		libraries/liblmdb/lmdb.h || die)
+	local bundled_lmdb_version=$(
+		sed -En '/^#define MDB_VERSION_(MAJOR|MINOR|PATCH)(\s+)?/{s/[^0-9.]//gp}' \
+		libraries/liblmdb/lmdb.h || die
+	)
 	printf -v bundled_lmdb_version "%s." ${bundled_lmdb_version}
 
 	if [[ ${SYSTEM_LMDB_VER}. != ${bundled_lmdb_version} ]] ; then
@@ -368,6 +364,7 @@ src_prepare() {
 	sed -i \
 		-e "s:\$(localstatedir)/run:${EPREFIX}/run:" \
 		-e '/MKDIR.*.(DESTDIR)\/run/d' \
+		-e '/MKDIR.*.(DESTDIR).*.(runstatedir)/d' \
 		servers/slapd/Makefile.in || die 'adjusting slapd Makefile.in failed'
 
 	pushd build &>/dev/null || die "pushd build"
@@ -404,15 +401,25 @@ multilib_src_configure() {
 		$(use_enable debug)
 		--enable-dynamic
 		$(use_enable syslog)
-		--enable-ipv6
+		$(use_enable ipv6)
 		--enable-local
 	)
 
 	# Optional Packages
 	myconf+=(
 		--without-fetch
-		$(multilib_native_use_with sasl cyrus-sasl)
 	)
+
+	# The configure scripts make some assumptions that aren't valid in newer GCC.
+	# https://bugs.gentoo.org/920380
+	append-flags $(test-flags-CC -Wno-error=implicit-int)
+	# conftest.c:113:16: error: passing argument 1 of 'pthread_detach' makes
+	# integer from pointer without a cast [-Wint-conversion]
+	append-flags $(test-flags-CC -Wno-error=int-conversion)
+	# error: passing argument 3 of ‘ldap_bv2rdn’ from incompatible pointer type
+	# [-Wincompatible-pointer-types]
+	# expected ‘char **’ but argument is of type ‘const char **’
+	#append-flags $(test-flags-CC -Wno-error=incompatible-pointer-types)
 
 	if use experimental ; then
 		# connectionless ldap per bug #342439
@@ -475,9 +482,6 @@ multilib_src_configure() {
 		# compile-in the syncprov
 		myconf+=( --enable-syncprov=yes )
 
-		# Build the standalone load balancer (lloadd) - also available as a slapd module; --enable-balancer=mod
-		myconf+=( --enable-balancer=yes )
-
 		# SLAPD Password Module Options
 		myconf+=(
 			$(use_enable argon2)
@@ -486,6 +490,7 @@ multilib_src_configure() {
 		# Optional Packages
 		myconf+=(
 			$(use_with systemd)
+			$(multilib_native_use_with sasl cyrus-sasl)
 		)
 	else
 		myconf+=(
@@ -679,7 +684,7 @@ multilib_src_test() {
 		# emake test => runs only lloadd & mdb, in serial; skips ldif,sql,wt,regression
 		# emake partests => runs ALL of the tests in parallel
 		# wt/WiredTiger is not supported in Gentoo
-		TESTS=( plloadd pmdb )
+		TESTS=( lloadd mdb )
 		#TESTS+=( pldif ) # not done by default, so also exclude here
 		#use odbc && TESTS+=( psql ) # not done by default, so also exclude here
 
@@ -718,7 +723,7 @@ multilib_src_install() {
 			sed -e "/###INSERTDYNAMICMODULESHERE###$/a# moduleload\t$(basename ${x})" -i "${configfile}" || die
 		done
 		sed -e "s:###INSERTDYNAMICMODULESHERE###$:# modulepath\t${EPREFIX}/usr/$(get_libdir)/openldap/openldap:" \
-			-i "${configfile}" || die
+			-i "${configfile}"
 		use prefix || fowners root:ldap /etc/openldap/slapd.conf
 		fperms 0640 /etc/openldap/slapd.conf
 		cp "${configfile}" "${configfile}".default || die
