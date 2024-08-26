@@ -1,0 +1,12 @@
+diff -Naur a/etc/iscsid.conf b/etc/iscsid.conf
+--- a/etc/iscsid.conf	2024-05-31 18:25:54.000000000 +0100
++++ b/etc/iscsid.conf	2024-08-23 17:57:43.556060413 +0100
+@@ -51,7 +51,7 @@
+ # node.startup = automatic
+ #
+ # To manually startup the session, use "manual". The default is manual.
+-node.startup = manual
++node.startup = automatic
+ 
+ # For "automatic" startup nodes, setting this to "Yes" will try logins on each
+ # available iface until one succeeds, and then stop.  The default "No" will try

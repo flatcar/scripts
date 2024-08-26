@@ -594,6 +594,7 @@ sys-apps/util-linux
 sys-apps/which
 sys-apps/zram-generator
 
+sys-block/open-iscsi
 sys-block/open-isns
 sys-block/parted
 sys-block/thin-provisioning-tools
