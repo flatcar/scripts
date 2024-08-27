@@ -1,0 +1,1 @@
+- azure-nmve-utils ([0.2.0](https://github.com/Azure/azure-nvme-utils/releases/tag/v0.2.0))
