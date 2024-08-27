@@ -75,6 +75,9 @@
 # get stabilized in Gentoo.
 =dev-libs/yajl-2.1.0-r5 ~amd64 ~arm64
 
+# Keep versions on both arches in sync.
+=dev-python/cython-3.0.11 ~arm64
+
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 dev-util/catalyst ~amd64 ~arm64
 
