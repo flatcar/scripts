@@ -7,6 +7,7 @@
 # Script to generate sysext. See systemd-sysext(8). Prerequisite is
 # that you've run build_packages and build_image.
 
+
 SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
@@ -183,7 +184,18 @@ mkdir "${BUILD_DIR}/install-root"
 mkdir "${BUILD_DIR}/workdir"
 mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
 
-VERSION_BOARD=$(grep "^VERSION=" ${BUILD_DIR}/fs-root/usr/lib/os-release | cut -d = -f 2-)
+REPO_BUILD_ID="$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_BUILD_ID")"
+REPO_FLATCAR_VERSION="$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_VERSION")"
+VERSION_BOARD=$(source "${BUILD_DIR}/fs-root/usr/lib/os-release" && echo "$VERSION")
+
+if [ -z "$REPO_BUILD_ID" ] ; then
+    BASE_SQUASHFS_BUILD_ID=$(source "${BUILD_DIR}/fs-root/usr/lib/os-release" && echo -n "$BUILD_ID")
+    info "This is a dev rebuild of an official release tag: No BUILD ID set in '${REPO_MANIFESTS_DIR}/version.txt'.  Will use base squasfs BUILD ID for version check."
+    info "Repo root FLATCAR_VERSION is '$REPO_FLATCAR_VERSION', squashfs build ID is '$BASE_SQUASHFS_BUILD_ID'"
+    FLATCAR_VERSION="${REPO_FLATCAR_VERSION}+${BASE_SQUASHFS_BUILD_ID}"
+    info "Setting FLATCAR_VERSION to '$FLATCAR_VERSION'"
+fi
+
 if [ "$VERSION_BOARD" != "$FLATCAR_VERSION" ]; then
   warn "Base squashfs version: $VERSION_BOARD"
   warn "SDK board packages version: $FLATCAR_VERSION"
