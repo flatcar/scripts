@@ -1,0 +1,1 @@
+- Added empty ignition.img placeholder file to ISO so that custom Ignition JSON can be embedded within it.

@@ -749,6 +749,7 @@ _write_iso_disk() {
     mkdir isolinux syslinux flatcar
     _write_cpio_common "$1" "${iso_target}/flatcar/cpio.gz"
     cp "${VM_TMP_ROOT}"/boot/flatcar/vmlinuz-a "${iso_target}/flatcar/vmlinuz"
+    dd if=/dev/zero of="${iso_target}/flatcar/ignition.img" bs=1024 count=256
     cp -R /usr/share/syslinux/* isolinux/
     cat<<EOF > isolinux/isolinux.cfg
 INCLUDE /syslinux/syslinux.cfg
@@ -761,7 +762,7 @@ timeout 15
 label flatcar
   menu default
   kernel /flatcar/vmlinuz
-  append initrd=/flatcar/cpio.gz flatcar.autologin
+  append initrd=/flatcar/cpio.gz,/flatcar/ignition.img flatcar.autologin
 EOF
     mkisofs -v -l -r -J -o $2 -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table .
     isohybrid $2
