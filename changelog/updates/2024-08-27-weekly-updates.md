@@ -1,0 +1,4 @@
+- pahole ([1.27](https://git.kernel.org/pub/scm/devel/pahole/pahole.git/tag/?h=v1.27))
+- sysext-python: more-itertools ([10.4.0](https://github.com/more-itertools/more-itertools/releases/tag/v10.4.0))
+- sysext-python: wheel ([0.44.0](https://github.com/pypa/wheel/releases/tag/0.44.0))
+- sysext-zfs: zfs ([2.2.5](https://github.com/openzfs/zfs/releases/tag/zfs-2.2.5) (includes [2.2.4](https://github.com/openzfs/zfs/releases/tag/zfs-2.2.4)))
