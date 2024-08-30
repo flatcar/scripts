@@ -295,6 +295,12 @@ printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-r
 info "Removing opaque directory markers to always merge all contents"
 find "${BUILD_DIR}/install-root" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
 
+info "Checking for invalid file ownership"
+invalid_files=$(find "${BUILD_DIR}/install-root" -user sdk -or -group sdk)
+if [[ -n "${invalid_files}" ]]; then
+  die "Invalid file ownership: ${invalid_files}"
+fi
+
 mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
                -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
