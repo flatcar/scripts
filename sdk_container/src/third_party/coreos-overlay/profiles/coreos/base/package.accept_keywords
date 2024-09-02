@@ -109,6 +109,10 @@ dev-util/catalyst ~amd64 ~arm64
 # Upgrade to latest version for secureboot
 =sys-boot/mokutil-0.6.0 ~amd64
 
+# Needed to address CVE-2023-42667, CVE-2023-49141, CVE-2024-24853,
+# CVE-2024-24980, CVE-2024-25939.
+=sys-firmware/intel-microcode-20240813_p20240815 ~amd64
+
 # Keep versions on both arches in sync.
 =sys-fs/zfs-2.2.5 ~arm64
 =sys-fs/zfs-kmod-2.2.5 ~arm64
