@@ -65,7 +65,7 @@ S=${WORKDIR}/${MY_P}
 LICENSE="GPL-3+"
 SLOT="0"
 if (( PLEVEL >= 0 )); then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="afs bashlogger examples mem-scramble +net nls plugins pgo +readline"
 
@@ -97,7 +97,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.2_p15-configure-clang16.patch"
 	"${FILESDIR}/${PN}-5.2_p21-wpointer-to-int.patch"
 	"${FILESDIR}/${PN}-5.2_p21-configure-strtold.patch"
-	"${FILESDIR}/${PN}-5.2_p26-memory-leaks.patch"
+	"${FILESDIR}/${PN}-5.2_p32-memory-leaks.patch"
+	"${FILESDIR}/${PN}-5.2_p32-read-delimiter-in-invalid-mbchar.patch"
 )
 
 pkg_setup() {
@@ -311,7 +312,7 @@ src_install() {
 
 	insinto /etc/bash/bashrc.d
 	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color.bash | newins - 10-gentoo-color.bash
-	doins "${FILESDIR}"/bashrc.d/10-gentoo-title.bash
+	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r1.bash 10-gentoo-title.bash
 	if [[ ! ${EPREFIX} ]]; then
 		doins "${FILESDIR}"/bashrc.d/15-gentoo-bashrc-check.bash
 	fi
@@ -372,26 +373,26 @@ pkg_postinst() {
 	read -r old_ver <<<"${REPLACING_VERSIONS}"
 	if [[ ! $old_ver ]]; then
 		:
-	elif ver_test "$old_ver" -ge "5.2" && ver_test "$old_ver" -ge "5.2_p26-r6"; then
-		return
-	elif ver_test "$old_ver" -lt "5.2" && ver_test "$old_ver" -ge "5.1_p16-r13"; then
+	elif ver_test "$old_ver" -ge "5.2" && ver_test "$old_ver" -ge "5.2_p26-r8"; then
 		return
 	fi
 
 	while read -r; do ewarn "${REPLY}"; done <<'EOF'
-Files situated under /etc/bash/bashrc.d must now have a suffix of .sh or .bash.
+Files under /etc/bash/bashrc.d must now have a suffix of .sh or .bash.
 
 Gentoo now defaults to defining PROMPT_COMMAND as an array. Depending on the
-characteristics of the operating environment, this array may contain a command
-to set the terminal's window title. Those already choosing to customise the
+characteristics of the operating environment, it may contain a command to set
+the terminal's window title. Those who were already choosing to customise the
 PROMPT_COMMAND variable are now advised to append their commands like so:
 
 PROMPT_COMMAND+=('custom command goes here')
 
-Gentoo no longer defaults to having bash manipulate the window title in the case
-that the terminal is controlled by sshd(8), unless screen or tmux are in use.
-Those wanting to set the title unconditionally may adjust ~/.bashrc - or create
-a custom /etc/bash/bashrc.d drop-in - to set PROMPT_COMMMAND like so:
+Gentoo no longer defaults to having bash set the window title in the case
+that the terminal is controlled by sshd(8), unless screen is launched on the
+remote side or the terminal reliably supports saving and restoring the title
+(as alacritty, foot and tmux do). Those wanting for the title to be set
+regardless may adjust ~/.bashrc - or create a custom /etc/bash/bashrc.d
+drop-in - to set PROMPT_COMMMAND like so:
 
 PROMPT_COMMAND=(genfun_set_win_title)
 
