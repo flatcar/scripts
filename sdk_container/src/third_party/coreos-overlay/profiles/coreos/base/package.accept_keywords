@@ -120,5 +120,13 @@ dev-util/catalyst ~amd64 ~arm64
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
+# Keep versions on both arches in sync.
+=virtual/perl-Data-Dumper-2.189.0 ~arm64
+=virtual/perl-Encode-3.210.0-r1 ~arm64
+=virtual/perl-Getopt-Long-2.570.0-r1 ~arm64
+=virtual/perl-Exporter-5.780.0 ~arm64
+=virtual/perl-File-Spec-3.900.0 ~arm64
+=virtual/perl-IO-1.550.0 ~arm64
+
 # Accept unstable host Rust compilers.
 =virtual/rust-1.80.1 ~amd64 ~arm64
