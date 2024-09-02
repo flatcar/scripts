@@ -5,7 +5,7 @@ EAPI=7
 EGO_PN=github.com/docker/docker
 MY_PV=${PV/_/-}
 inherit golang-vcs-snapshot linux-info systemd udev
-GIT_COMMIT=662f78c0b1bb5114172427cfcb40491d73159be2
+GIT_COMMIT=f9522e5e96c3ab5a6b8a643d15a92700ca864da6
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
@@ -33,8 +33,8 @@ RDEPEND="
 	sys-process/procps
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
-	>=app-containers/containerd-1.7.15[apparmor?,btrfs?,seccomp?]
-	>=app-containers/runc-1.1.12[apparmor?,seccomp?]
+	>=app-containers/containerd-1.7.20[apparmor?,btrfs?,seccomp?]
+	>=app-containers/runc-1.1.13[apparmor?,seccomp?]
 	!app-containers/docker-proxy
 	container-init? ( >=sys-process/tini-0.19.0[static] )
 	selinux? ( sec-policy/selinux-docker )
@@ -54,7 +54,6 @@ S="${WORKDIR}/${P}/src/${EGO_PN}"
 # https://bugs.gentoo.org/748984 https://github.com/etcd-io/etcd/pull/12552
 PATCHES=(
 	"${FILESDIR}/0001-Openrc-Depend-on-containerd-init-script.patch"
-	"${FILESDIR}/docker-26.1.0-automagic-systemd.patch"
 )
 
 pkg_setup() {
@@ -259,7 +258,7 @@ src_compile() {
 		fi
 	done
 
-	export SYSTEMD=$(usex systemd 1 0)
+	export EXCLUDE_AUTO_BUILDTAG_JOURNALD=$(usex systemd '' 'y')
 
 	# build binaries
 	./hack/make.sh dynbinary || die 'dynbinary failed'
