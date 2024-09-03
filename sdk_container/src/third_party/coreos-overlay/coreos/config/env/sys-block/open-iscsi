@@ -1,0 +1,18 @@
+cros_post_src_install_tmpfiles() {
+	keepdir /var/lib/iscsi/ifaces
+
+	dosym ../flatcar/etc/iscsi/iscsid.conf /usr/share/iscsi/iscsid.conf
+	insinto /usr/share/flatcar/etc/iscsi
+	newins - iscsid.conf
+
+	systemd_install_dropin iscsi-init.service - <<-EOF
+		[Unit]
+		After=systemd-tmpfiles-setup.service
+	EOF
+}
+
+# Masking initiatorname.iscsi.example prevents initiatorname.iscsi from being
+# generated and installed. We want the systemd unit to do this at runtime so
+# that we don't bake the value into Flatcar images.
+INSTALL_MASK+=" ${EPREFIX}/etc/iscsi/initiatorname.iscsi*"
+PKG_INSTALL_MASK+=" ${EPREFIX}/etc/iscsi/initiatorname.iscsi*"
