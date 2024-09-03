@@ -89,6 +89,9 @@ dev-util/catalyst ~amd64 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
+# Needed to address CVE-2023-7256 and CVE-2024-8006.
+=net-libs/libpcap-1.10.5 ~amd64 ~arm64
+
 # Needed to address CVE-2024-6197, CVE-2024-6874 and CVE-2024-7264.
 =net-misc/curl-8.9.1-r1 ~amd64 ~arm64
 
