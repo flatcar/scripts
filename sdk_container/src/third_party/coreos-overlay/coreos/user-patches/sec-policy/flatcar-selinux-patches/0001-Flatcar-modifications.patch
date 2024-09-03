@@ -1,4 +1,4 @@
-From f646fccd3b737a79ae0e0d0de049166e531fb48b Mon Sep 17 00:00:00 2001
+From 07cf1b05c8b3b9460b4afc2998a9f170881faa16 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
@@ -8,13 +8,13 @@ Subject: [PATCH] Flatcar modifications
  policy/modules/kernel/corenetwork.if.in |  26 ++++
  policy/modules/kernel/corenetwork.te.in |  12 +-
  policy/modules/kernel/files.if          |  45 +++++++
- policy/modules/kernel/kernel.te         |  84 +++++++++++++
+ policy/modules/kernel/kernel.te         |  84 ++++++++++++
  policy/modules/services/container.fc    |   6 +
- policy/modules/services/container.te    | 159 +++++++++++++++++++++++-
+ policy/modules/services/container.te    | 170 +++++++++++++++++++++++-
  policy/modules/system/init.te           |   8 ++
  policy/modules/system/locallogin.te     |   9 +-
  policy/modules/system/logging.te        |   9 ++
- 10 files changed, 375 insertions(+), 3 deletions(-)
+ 10 files changed, 386 insertions(+), 3 deletions(-)
 
 diff --git a/refpolicy/policy/modules/admin/netutils.te b/refpolicy/policy/modules/admin/netutils.te
 index 3c43a1d84..429c67220 100644
@@ -115,10 +115,10 @@ index 53bf7849c..9edac05e8 100644
  # Infiniband
  corenet_ib_access_all_pkeys(corenet_unconfined_type)
 diff --git a/refpolicy/policy/modules/kernel/files.if b/refpolicy/policy/modules/kernel/files.if
-index e0337d044..ffd6a25bf 100644
+index b9c451321..104dc1e3e 100644
 --- a/refpolicy/policy/modules/kernel/files.if
 +++ b/refpolicy/policy/modules/kernel/files.if
-@@ -8004,3 +8004,48 @@ interface(`files_relabel_all_pidfiles',`
+@@ -8023,3 +8023,48 @@ interface(`files_relabel_all_pidfiles',`
  	relabel_files_pattern($1, pidfile, pidfile)
  	relabel_lnk_files_pattern($1, pidfile, pidfile)
  ')
@@ -280,7 +280,7 @@ index f98e68ba0..045b1b5b2 100644
  /run/containers(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
  /run/crun(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
 diff --git a/refpolicy/policy/modules/services/container.te b/refpolicy/policy/modules/services/container.te
-index 096d6c23d..4bbab3c69 100644
+index 095308a13..7cd6e45e4 100644
 --- a/refpolicy/policy/modules/services/container.te
 +++ b/refpolicy/policy/modules/services/container.te
 @@ -58,6 +58,52 @@ gen_tunable(container_use_dri, false)
@@ -345,7 +345,7 @@ index 096d6c23d..4bbab3c69 100644
  
  ## <desc>
  ##	<p>
-@@ -1191,3 +1237,114 @@ optional_policy(`
+@@ -1192,3 +1238,125 @@ optional_policy(`
         unconfined_domain_noaudit(spc_user_t)
         domain_ptrace_all_domains(spc_user_t)
  ')
@@ -460,11 +460,22 @@ index 096d6c23d..4bbab3c69 100644
 +# avc:  denied  { map_create } for  pid=[0-9]* comm="cilium-operator" scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tclass=bpf permissive=0
 +#
 +allow container_t self:bpf { map_create };
++
++#
++# FLATCAR:
++#
++# These ones happen in docker.base, docker.network and docker.userns.
++# Basically tests that build some docker images. And these started
++# breaking after moving to buildx as a backend of docker build.
++#
++# avc:  denied  { read } for  pid=[0-9]* comm="echo, sleep, whatever" path="/lib64/libc.so.6" dev="vda9" ino=[0-9]* scontext=system_u:system_r:container_t:s0:c[0-9]*,c[0-9]* tcontext=system_u:object_r:tmp_t:s0 tclass=file permissive=0
++#
++allow container_t tmp_t:file { read };
 diff --git a/refpolicy/policy/modules/system/init.te b/refpolicy/policy/modules/system/init.te
-index 8f3772dcb..435f62db6 100644
+index 03d0de8ed..16b75d04d 100644
 --- a/refpolicy/policy/modules/system/init.te
 +++ b/refpolicy/policy/modules/system/init.te
-@@ -1674,3 +1674,11 @@ optional_policy(`
+@@ -1678,3 +1678,11 @@ optional_policy(`
  	userdom_dontaudit_rw_all_users_stream_sockets(systemprocess)
  	userdom_dontaudit_write_user_tmp_files(systemprocess)
  ')

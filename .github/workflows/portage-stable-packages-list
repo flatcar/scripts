@@ -108,6 +108,7 @@ app-containers/containers-storage
 app-containers/cri-tools
 app-containers/crun
 app-containers/docker
+app-containers/docker-buildx
 app-containers/docker-cli
 app-containers/netavark
 app-containers/podman
