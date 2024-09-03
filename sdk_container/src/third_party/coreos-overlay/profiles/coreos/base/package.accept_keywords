@@ -34,10 +34,6 @@
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2-r1 ~arm64
 
-# Needed to fix CVE-2024-26461, CVE-2024-26462, CVE-2024-37370,
-# CVE-2024-37371.
-=app-crypt/mit-krb5-1.21.3 ~arm64
-
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 
