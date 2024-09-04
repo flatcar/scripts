@@ -188,7 +188,7 @@ REPO_BUILD_ID=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_BUILD
 REPO_FLATCAR_VERSION=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_VERSION")
 VERSION_BOARD=$(source "${BUILD_DIR}/fs-root/usr/lib/os-release" && echo "$VERSION")
 
-if [[ -z $REPO_BUILD_ID ]] ; then
+if [[ -z $REPO_BUILD_ID ]] && [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
     BASE_SQUASHFS_BUILD_ID=$(source "${BUILD_DIR}/fs-root/usr/lib/os-release" && echo -n "$BUILD_ID")
     info "This is a dev rebuild of an official release tag: No BUILD ID set in '${REPO_MANIFESTS_DIR}/version.txt'.  Will use base squashfs BUILD ID for version check."
     info "Repo root FLATCAR_VERSION is '$REPO_FLATCAR_VERSION', squashfs build ID is '$BASE_SQUASHFS_BUILD_ID'"
