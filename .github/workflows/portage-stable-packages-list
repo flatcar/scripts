@@ -270,6 +270,8 @@ dev-libs/oniguruma
 dev-libs/opensc
 dev-libs/popt
 dev-libs/protobuf
+dev-libs/tree-sitter
+dev-libs/tree-sitter-bash
 dev-libs/userspace-rcu
 dev-libs/xmlsec
 dev-libs/yajl
@@ -282,6 +284,7 @@ dev-python/autocommand
 dev-python/backports-tarfile
 dev-python/cachecontrol
 dev-python/certifi
+dev-python/chardet
 dev-python/charset-normalizer
 dev-python/colorama
 dev-python/crcmod
@@ -335,6 +338,7 @@ dev-python/six
 dev-python/snakeoil
 dev-python/tenacity
 dev-python/tomli
+dev-python/tree-sitter
 dev-python/trove-classifiers
 dev-python/truststore
 dev-python/typing-extensions
@@ -354,6 +358,7 @@ dev-util/pahole
 dev-util/patchelf
 dev-util/patchutils
 dev-util/perf
+dev-util/pkgcheck
 dev-util/pkgconf
 dev-util/re2c
 
@@ -452,6 +457,7 @@ eclass/tmpfiles.eclass
 eclass/toolchain-autoconf.eclass
 eclass/toolchain-funcs.eclass
 eclass/toolchain.eclass
+eclass/tree-sitter-grammar.eclass
 eclass/udev.eclass
 eclass/unpacker.eclass
 eclass/user-info.eclass
@@ -583,6 +589,7 @@ sys-apps/net-tools
 sys-apps/nvme-cli
 sys-apps/pciutils
 sys-apps/pcsc-lite
+sys-apps/pkgcore
 sys-apps/portage
 sys-apps/pv
 sys-apps/sandbox
