@@ -1,0 +1,9 @@
+cros_post_src_install_create_default_config() {
+	dodir /etc/pkgcheck
+	# these must be indented with tabs, bash only strips leading
+	# tabs with "<<-", leading spaces won't do.
+	cat <<- EOF >"${ED}/etc/pkgcheck/pkgcheck.conf" || die
+	[DEFAULT]
+	keywords = -NonexistentDeps,-NonsolvableDepsInDev,-NonsolvableDepsInExp,-NonsolvableDepsInStable
+	EOF
+}
