@@ -42,6 +42,7 @@ src_compile() {
     emake_args+=( ARCH=aarch64 )
   fi
   emake_args+=( ENABLE_SBSIGN=1 )
+  emake_args+=( SBATPATH="${FILESDIR}/sbat.csv" )
 
   if use official; then
     if [ -z "${SHIM_SIGNING_CERTIFICATE}" ]; then
