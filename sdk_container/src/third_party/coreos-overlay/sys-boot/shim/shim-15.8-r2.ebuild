@@ -67,6 +67,6 @@ src_install() {
     suffix=aa64
   fi
   insinto /usr/lib/shim
-  newins "shim${suffix}.efi" 'shim.efi'
+  newins "shim${suffix}.efi" "shim${suffix}.efi"
   newins "mm${suffix}.efi" "mm${suffix}.efi"
 }
