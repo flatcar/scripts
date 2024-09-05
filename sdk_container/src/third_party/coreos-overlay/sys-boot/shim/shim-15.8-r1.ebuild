@@ -11,7 +11,7 @@ KEYWORDS="amd64 arm64"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE=""
+IUSE="production"
 
 RDEPEND=""
 # TODO: Would be ideal to depend on sys-boot/gnu-efi package, but
@@ -41,8 +41,16 @@ src_compile() {
   elif use arm64; then
     emake_args+=( ARCH=aarch64 )
   fi
-    emake_args+=( ENABLE_SBSIGN=1 )
+  emake_args+=( ENABLE_SBSIGN=1 )
+
+  if use production; then
+    if [ -z "${SHIM_SIGNING_CERTIFICATE}" ]; then
+      die "use production flag needs env SHIM_SIGNING_CERTIFICATE"
+    fi
+    emake_args+=( VENDOR_CERT_FILE="${SHIM_SIGNING_CERTIFICATE}" )
+  else
     emake_args+=( VENDOR_CERT_FILE="/usr/share/sb_keys/shim.der" )
+  fi
   emake "${emake_args[@]}" || die
 }
 
