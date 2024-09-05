@@ -113,9 +113,9 @@ kernel_target() {
 }
 
 kmake() {
-	local kernel_arch=$(tc-arch-kernel) kernel_cflags=
+	local kernel_arch=$(tc-arch-kernel) kernel_cflags="-Werror=misleading-indentation"
 	if gcc-specs-pie; then
-		kernel_cflags="-nopie -fstack-check=no"
+		kernel_cflags="-nopie -fstack-check=no ${kernel_cflags}"
 	fi
 	emake "--directory=${S}/source" \
 		ARCH="${kernel_arch}" \
