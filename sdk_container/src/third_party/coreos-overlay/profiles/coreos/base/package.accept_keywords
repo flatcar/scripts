@@ -103,7 +103,7 @@ dev-util/catalyst ~amd64 ~arm64
 =sys-apps/zram-generator-1.1.2 ~arm64
 
 # Upgrade to latest version for secureboot
-=sys-boot/mokutil-0.6.0 ~amd64
+=sys-boot/mokutil-0.6.0 **
 
 # Needed to address CVE-2023-42667, CVE-2023-49141, CVE-2024-24853,
 # CVE-2024-24980, CVE-2024-25939.
