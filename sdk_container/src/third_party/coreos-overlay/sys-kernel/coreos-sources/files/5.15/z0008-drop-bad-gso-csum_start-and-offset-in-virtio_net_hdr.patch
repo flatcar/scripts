@@ -1,4 +1,4 @@
-From ad7845124be4f4170a0378b2e7cdfe88bd19c75e Mon Sep 17 00:00:00 2001
+From 05295c0502788204024e507b3b8e4f7e8b095824 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 29 Aug 2024 16:03:18 +0200
 Subject: [PATCH] net: drop bad gso csum_start and offset in virtio_net_hdr
@@ -122,30 +122,30 @@ index 29b19d0a324c..d9410d97158d 100644
  		if (skb->len - nh_off > gso_size) {
  			shinfo->gso_size = gso_size;
 diff --git a/net/ipv4/tcp_offload.c b/net/ipv4/tcp_offload.c
-index fc61cd3fea65..76684cbd63a4 100644
+index fc61cd3fea65..9f169152568b 100644
 --- a/net/ipv4/tcp_offload.c
 +++ b/net/ipv4/tcp_offload.c
 @@ -71,6 +71,9 @@ struct sk_buff *tcp_gso_segment(struct sk_buff *skb,
  	if (thlen < sizeof(*th))
  		goto out;
  
-+    if (unlikely(skb_checksum_start(skb) != skb_transport_header(skb)))
-+        goto out;
++        if (unlikely(skb_checksum_start(skb) != skb_transport_header(skb)))
++                goto out;
 +
  	if (!pskb_may_pull(skb, thlen))
  		goto out;
  
 diff --git a/net/ipv4/udp_offload.c b/net/ipv4/udp_offload.c
-index c61268849948..61773a26fb34 100644
+index c61268849948..36f2454995bf 100644
 --- a/net/ipv4/udp_offload.c
 +++ b/net/ipv4/udp_offload.c
 @@ -279,6 +279,10 @@ struct sk_buff *__udp_gso_segment(struct sk_buff *gso_skb,
  	if (gso_skb->len <= sizeof(*uh) + mss)
  		return ERR_PTR(-EINVAL);
  
-+    if (unlikely(skb_checksum_start(gso_skb) !=
-+                skb_transport_header(gso_skb)))
-+        return ERR_PTR(-EINVAL);
++	if (unlikely(skb_checksum_start(gso_skb) !=
++		     skb_transport_header(gso_skb)))
++		return ERR_PTR(-EINVAL);
 +
  	skb_pull(gso_skb, sizeof(*uh));
  
