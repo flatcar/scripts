@@ -1,4 +1,7 @@
 # We don't have a separate /{bin,lib} and /usr/{bin,lib}. But the base
 # profile in portage-stable forces split-usr, so here we unforce it
 # and in use.mask we mask it.
+#
+# TODO: Drop it when we move to
+# default/linux/{amd64,arm64}/23.0/hardened/selinux/systemd profile
 -split-usr

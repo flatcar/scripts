@@ -35,7 +35,7 @@ src_compile() {
 }
 
 src_install() {
-	# Install modules to /usr, assuming USE=symlink-usr
+	# Install modules to /usr.
 	# Install firmware to a temporary (bogus) location.
 	# The linux-firmware package will be used instead.
 	# Stripping must be done here, not portage, to preserve sigs.
