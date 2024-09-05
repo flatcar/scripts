@@ -25,3 +25,6 @@ net-misc/curl ssl openssl curl_ssl_openssl
 # that cause the build in stage1 to fail. Pulling in asm too, as it is
 # required by cpudetection.
 dev-libs/gmp cpudetection asm
+
+# Disable gentoo-only bits.
+sys-apps/systemd vanilla

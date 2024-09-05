@@ -1,2 +1,3 @@
 portage-stable:default/linux/arm64/23.0/hardened
+portage-stable:targets/systemd
 :coreos/base
