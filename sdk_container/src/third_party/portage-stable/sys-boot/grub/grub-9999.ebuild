@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -21,24 +21,24 @@ if [[ ${PV} == 9999  ]]; then
 	GRUB_BOOTSTRAP=1
 fi
 
-GRUB_AUTOGEN=1
-GRUB_AUTORECONF=1
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 WANT_LIBTOOL=none
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/dkiper.gpg
-
-if [[ -n ${GRUB_AUTOGEN} || -n ${GRUB_BOOTSTRAP} ]]; then
-	inherit python-any-r1
-fi
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/dkiper.gpg
 
 if [[ -n ${GRUB_AUTORECONF} ]]; then
 	inherit autotools
 fi
 
-inherit bash-completion-r1 flag-o-matic multibuild optfeature toolchain-funcs verify-sig
+inherit bash-completion-r1 flag-o-matic multibuild optfeature python-any-r1
+inherit secureboot toolchain-funcs
+
+DESCRIPTION="GNU GRUB boot loader"
+HOMEPAGE="https://www.gnu.org/software/grub/"
 
 MY_P=${P}
 if [[ ${PV} != 9999 ]]; then
+	inherit verify-sig
+
 	if [[ ${PV} == *_alpha* || ${PV} == *_beta* || ${PV} == *_rc* ]]; then
 		# The quote style is to work with <=bash-4.2 and >=bash-4.3 #503860
 		MY_P=${P/_/'~'}
@@ -54,32 +54,23 @@ if [[ ${PV} != 9999 ]]; then
 		"
 		S=${WORKDIR}/${P%_*}
 	fi
-	# Flatcar: Mark as stable for arm64.
-	KEYWORDS="amd64 ~arm arm64 ~ia64 ~ppc ~ppc64 ~riscv ~sparc x86"
+	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-danielkiper )"
+	KEYWORDS="~amd64 ~arm ~arm64 ~ia64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/grub.git"
 fi
 
-SRC_URI+=" https://dev.gentoo.org/~floppym/dist/${P}-backports-r3.tar.xz"
-
 PATCHES=(
-	"${WORKDIR}/${P}-backports"
 	"${FILESDIR}"/gfxpayload.patch
 	"${FILESDIR}"/grub-2.02_beta2-KERNEL_GLOBS.patch
 	"${FILESDIR}"/grub-2.06-test-words.patch
-	# Flatcar: Add our patches.
-	"${FILESDIR}"/grub-2.06-add-verity-hash.patch
-	"${FILESDIR}"/grub-2.06-add-gpt-partition-scheme.patch
 )
 
 DEJAVU=dejavu-sans-ttf-2.37
-UNIFONT=unifont-12.1.02
+UNIFONT=unifont-15.0.06
 SRC_URI+=" fonts? ( mirror://gnu/unifont/${UNIFONT}/${UNIFONT}.pcf.gz )
-	themes? ( mirror://sourceforge/dejavu/${DEJAVU}.zip )"
-
-DESCRIPTION="GNU GRUB boot loader"
-HOMEPAGE="https://www.gnu.org/software/grub/"
+	themes? ( https://downloads.sourceforge.net/dejavu/${DEJAVU}.zip )"
 
 # Includes licenses for dejavu and unifont
 LICENSE="GPL-3+ BSD MIT fonts? ( GPL-2-with-font-exception ) themes? ( CC-BY-SA-3.0 BitstreamVera )"
@@ -88,9 +79,6 @@ IUSE="device-mapper doc efiemu +fonts mount nls sdl test +themes truetype libzfs
 
 GRUB_ALL_PLATFORMS=( coreboot efi-32 efi-64 emu ieee1275 loongson multiboot
 	qemu qemu-mips pc uboot xen xen-32 xen-pvh )
-
-# Flatcar: Add arm64 to the list of platforms
-GRUB_ALL_PLATFORMS+=( arm64 )
 IUSE+=" ${GRUB_ALL_PLATFORMS[@]/#/grub_platforms_}"
 
 REQUIRED_USE="
@@ -100,21 +88,19 @@ REQUIRED_USE="
 	grub_platforms_loongson? ( fonts )
 "
 
-# Flatcar: Add a dependency on aarch64 cross gcc for arm64 platform.
-BDEPEND="
+BDEPEND+="
 	${PYTHON_DEPS}
 	>=sys-devel/flex-2.5.35
 	sys-devel/bison
 	sys-apps/help2man
 	sys-apps/texinfo
-	grub_platforms_arm64? ( cross-aarch64-cros-linux-gnu/gcc )
 	fonts? (
 		media-libs/freetype:2
 		virtual/pkgconfig
 	)
 	test? (
 		app-admin/genromfs
-		app-arch/cpio
+		app-alternatives/cpio
 		app-arch/lzop
 		app-emulation/qemu
 		dev-libs/libisoburn
@@ -128,17 +114,16 @@ BDEPEND="
 		virtual/pkgconfig
 	)
 	truetype? ( virtual/pkgconfig )
-	verify-sig? ( sec-keys/openpgp-keys-danielkiper )
 "
 DEPEND="
 	app-arch/xz-utils
 	>=sys-libs/ncurses-5.2-r5:0=
 	grub_platforms_emu? (
-		sdl? ( media-libs/libsdl )
+		sdl? ( media-libs/libsdl2 )
 	)
 	device-mapper? ( >=sys-fs/lvm2-2.02.45 )
 	libzfs? ( sys-fs/zfs:= )
-	mount? ( sys-fs/fuse:0 )
+	mount? ( sys-fs/fuse:3 )
 	truetype? ( media-libs/freetype:2= )
 	ppc? ( >=sys-apps/ibm-powerpc-utils-1.3.5 )
 	ppc64? ( >=sys-apps/ibm-powerpc-utils-1.3.5 )
@@ -152,7 +137,7 @@ RDEPEND="${DEPEND}
 	nls? ( sys-devel/gettext )
 "
 
-RESTRICT="!test? ( test )"
+RESTRICT="!test? ( test ) test? ( userpriv )"
 
 QA_EXECSTACK="usr/bin/grub-emu* usr/lib/grub/*"
 QA_PRESTRIPPED="usr/lib/grub/.*"
@@ -181,11 +166,7 @@ src_unpack() {
 src_prepare() {
 	default
 
-	if [[ -n ${GRUB_AUTOGEN} || -n ${GRUB_BOOTSTRAP} ]]; then
-		python_setup
-	else
-		export PYTHON=true
-	fi
+	python_setup
 
 	if [[ -n ${GRUB_BOOTSTRAP} ]]; then
 		eautopoint --force
@@ -214,8 +195,6 @@ grub_configure() {
 		efi*) platform=efi ;;
 		xen-pvh) platform=xen_pvh ;;
 		xen*) platform=xen ;;
-		# Flatcar: Handle arm64 as efi platform
-		arm64*) platform=efi ;;
 		guessed) ;;
 		*) platform=${MULTIBUILD_VARIANT} ;;
 	esac
@@ -243,7 +222,8 @@ grub_configure() {
 		$(use_enable themes grub-themes)
 		$(use_enable truetype grub-mkfont)
 		$(use_enable libzfs)
-		$(use_enable sdl grub-emu-sdl)
+		--enable-grub-emu-sdl=no
+		$(use_enable sdl grub-emu-sdl2)
 		${platform:+--with-platform=}${platform}
 
 		# Let configure detect this where supported
@@ -298,7 +278,7 @@ src_configure() {
 
 src_compile() {
 	# Sandbox bug 404013.
-	use libzfs && addpredict /etc/dfs:/dev/zfs
+	use libzfs && { addpredict /etc/dfs; addpredict /dev/zfs; }
 
 	grub_do emake
 	use doc && grub_do_once emake -C docs html
@@ -307,7 +287,73 @@ src_compile() {
 src_test() {
 	# The qemu dependency is a bit complex.
 	# You will need to adjust QEMU_SOFTMMU_TARGETS to match the cpu/platform.
-	grub_do emake check
+	local SANDBOX_WRITE=${SANDBOX_WRITE}
+	addwrite /dev
+	grub_do emake -j1 check
+}
+
+grub_mkstandalone_secureboot() {
+	use secureboot || return
+
+	if tc-is-cross-compiler; then
+		ewarn "USE=secureboot is not supported when cross-compiling."
+		ewarn "No standalone EFI executable will be built."
+		return 1
+	fi
+
+	local standalone_targets
+
+	case ${CTARGET:-${CHOST}} in
+		i?86* | x86_64*)
+			use grub_platforms_efi-32 && standalone_targets+=( i386-efi )
+			use grub_platforms_efi-64 && standalone_targets+=( x86_64-efi )
+			;;
+		arm* | aarch64*)
+			use grub_platforms_efi-32 && standalone_targets+=( arm-efi )
+			use grub_platforms_efi-64 && standalone_targets+=( arm64-efi )
+			;;
+		riscv*)
+			use grub_platforms_efi-32 && standalone_targets+=( riscv32-efi )
+			use grub_platforms_efi-64 && standalone_targets+=( riscv64-efi )
+			;;
+		ia64*)
+			use grub_platforms_efi-64 && standalone_targets+=( ia64-efi )
+			;;
+		loongarch64*)
+			use grub_platforms_efi-64 && standalone_targets+=( loongarch64-efi )
+			;;
+	esac
+
+	if [[ ${#standalone_targets[@]} -eq 0 ]]; then
+		ewarn "USE=secureboot is enabled, but no suitable EFI target in GRUB_PLATFORMS."
+		ewarn "No standalone EFI executable will be built."
+		return 1
+	fi
+
+	local target mkstandalone_args
+
+	# grub-mkstandalone embeds a config file, make this config file chainload
+	# a config file in the same directory grub is installed in. This requires
+	# pre-loading the part_gpt and part_msdos modules.
+	echo 'configfile ${cmdpath}/grub.cfg' > "${T}/grub.cfg" || die
+	for target in "${standalone_targets[@]}"; do
+		ebegin "Building standalone EFI executable for ${target}"
+		mkstandalone_args=(
+			--verbose
+			--directory="${ED}/usr/lib/grub/${target}"
+			--locale-directory="${ED}/usr/share/locale"
+			--format="${target}"
+			--modules="part_gpt part_msdos"
+			--sbat="${ED}/usr/share/grub/sbat.csv"
+			--output="${ED}/usr/lib/grub/grub-${target%-efi}.efi"
+			"boot/grub/grub.cfg=${T}/grub.cfg"
+		)
+
+		"${ED}/usr/bin/grub-mkstandalone" "${mkstandalone_args[@]}"
+		eend ${?} || die "grub-mkstandalone failed to build EFI executable"
+	done
+
+	secureboot_auto_sign
 }
 
 src_install() {
@@ -322,10 +368,16 @@ src_install() {
 	# https://bugs.gentoo.org/231935
 	dostrip -x /usr/lib/grub
 
-	# SBAT format documentation https://github.com/rhboot/shim/blob/main/SBAT.md
-	dodir /usr/share/grub
-	sed -e "s/@@UPSTREAM_VERSION@@/${PV}/" -e "s/@@VERSION@@/${PVR}/" "${FILESDIR}"/sbat.csv.in >"${ED}/usr/share/grub/sbat.csv" || die
+	sed -e "s/%PV%/${PV}/" "${FILESDIR}/sbat.csv" > "${T}/sbat.csv" || die
+	insinto /usr/share/grub
+	doins "${T}/sbat.csv"
 
+	if use elibc_musl; then
+		# https://bugs.gentoo.org/900348
+		QA_CONFIG_IMPL_DECL_SKIP=( re_{compile_pattern,match,search,set_syntax} )
+	fi
+
+	grub_mkstandalone_secureboot
 }
 
 pkg_postinst() {
@@ -346,8 +398,9 @@ pkg_postinst() {
 	else
 		elog
 		optfeature "detecting other operating systems (grub-mkconfig)" sys-boot/os-prober
-		optfeature "creating rescue media (grub-mkrescue)" dev-libs/libisoburn
+		optfeature "creating rescue media (grub-mkrescue)" dev-libs/libisoburn sys-fs/mtools
 		optfeature "enabling RAID device detection" sys-fs/mdadm
+		optfeature "automatically updating GRUB's configuration on each kernel installation" "sys-kernel/installkernel[grub]"
 	fi
 
 	if has_version 'sys-boot/grub:0'; then
@@ -358,5 +411,22 @@ pkg_postinst() {
 	if has_version sys-boot/os-prober; then
 		ewarn "Due to security concerns, os-prober is disabled by default."
 		ewarn "Set GRUB_DISABLE_OS_PROBER=false in /etc/default/grub to enable it."
+	fi
+
+	if use secureboot; then
+		elog
+		elog "The signed standalone grub EFI executable(s) are available in:"
+		elog "    /usr/lib/grub/grub-<target>.efi(.signed)"
+		elog "These EFI executables should be copied to the usual location at:"
+		elog "    ESP/EFI/Gentoo/grub<arch>.efi"
+		elog "Note that 'grub-install' does not install these images."
+		elog
+		elog "These standalone grub executables read the grub config file from"
+		elog "the grub.cfg in the same directory instead of the default"
+		elog "/boot/grub/grub.cfg. When sys-kernel/installkernel[grub] is used,"
+		elog "the location of the grub.cfg may be overridden by setting the"
+		elog "GRUB_CFG environment variable:"
+		elog "     GRUB_CFG=ESP/EFI/Gentoo/grub.cfg"
+		elog
 	fi
 }

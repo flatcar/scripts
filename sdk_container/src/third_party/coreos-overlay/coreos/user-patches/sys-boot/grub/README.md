@@ -1,5 +1,5 @@
 Flatcar uses a patched version of the GRUB, which implements the functionality to
-read the [Flatcar Container Linux partition table](https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-disk-partitions/#partition-table)
+read the [Flatcar Container Linux partition table](https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-disk-partitions/#partition-table).
 
 ## History
 
@@ -11,14 +11,31 @@ and referenced in the Flatcar's coreos-overlay. Except for a few, now many chang
 where brought into the system.
 
 The repo was maintained at 2.02 version. During the 2.06 migration, the philosophy
-to use a separate repo was scraped, and a single patch file was created. The patch
+to use a separate repo was scrapped, and a single patch file was created. The patch
 files migrated only the essential commits, and dropped all the other commits, which
-were either half-baked, or redundant at the point of migration. The two patches are applied
-on top of the grub sources, and emerge is done.
+were either half-baked, or redundant at the point of migration.
 
-Given below are the list of commits that were referenced to create the two patches.
+From version 2.12, Flatcar has adopted Red Hat's large patch set and applies a
+further two patches on top. One is for additional GPT functionality, and the
+other is for extracting the verity root hash from the initrd. Gentoo's upstream
+ebuild is used, but Gentoo's patches are discarded because they conflict and are
+not relevant to Flatcar.
 
-## Summary of the patches
+## How to import the Red Hat patches
+
+At the time of writing, patches against 2.12 are only available from Fedora's
+RPM repository. The patches include changes to files only found in git, so these
+files also need to be patched in.
+
+```
+git clone https://src.fedoraproject.org/rpms/grub2.git fedora-rpms-grub2
+cd fedora-rpms-grub2
+git rm bootstrap bootstrap.conf gitignore
+git diff --staged -R | sed "s:/gitignore\b:/.gitignore:g" > grub-2.12-00-redhat.patch
+cat 0*.patch >> grub-2.12-00-redhat.patch
+```
+
+## Summary of the Flatcar patches
 
 The patch starts with adding a new implementation of reading the GPT instead
 of using the traditional module. It provides essential functionality to interact
@@ -33,9 +50,9 @@ partition booting. The `gptrepair` command implements the repair functions for
 GPT information on a specified device. Few other functions include searching
 devices by partition label or partition UUID.
 
-## Commits
+## Commits in the Flatcar patches
 
-Below are the commits that are picked to create the two patches for the grub. One is
+Below are the commits that are picked to create the two Flatcar patches. One is
 descriptive, and other is comprehensive.
 
 <details>
