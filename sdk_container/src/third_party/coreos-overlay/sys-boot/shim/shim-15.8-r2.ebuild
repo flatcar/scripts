@@ -31,6 +31,9 @@ src_compile() {
   local emake_args=(
     CROSS_COMPILE="${CHOST}-"
   )
+
+  sed -e "s/@@VERSION@@/${PVR}/" "${FILESDIR}"/sbat.csv.in >"${WORKDIR}/sbat.csv" || die
+
   # Apparently our environment already has the ARCH variable in
   # it, and Makefile picks it up instead of figuring it out
   # itself with the compiler -dumpmachine flag. But also it
@@ -42,7 +45,7 @@ src_compile() {
     emake_args+=( ARCH=aarch64 )
   fi
   emake_args+=( ENABLE_SBSIGN=1 )
-  emake_args+=( SBATPATH="${FILESDIR}/sbat.csv" )
+  emake_args+=( SBATPATH="${WORKDIR}/sbat.csv" )
 
   if use official; then
     if [ -z "${SHIM_SIGNING_CERTIFICATE}" ]; then
