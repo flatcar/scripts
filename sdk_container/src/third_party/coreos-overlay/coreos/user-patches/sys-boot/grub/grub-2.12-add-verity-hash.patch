@@ -7,76 +7,67 @@ Read the verity hash from the kernel binary and pass it to the running
 system via the kernel command line
 
 The patch is prepared using the coreos/grub PRs, picking the only
-required ones, and dropping the others. The README.md file in the
-coreos-overlay/sys-boot/grub/ contains more contexual information
-along with the commits used to create the patch.
+required ones, and dropping the others. The README.md file in this
+directory contains more contexual information along with the commits
+used to create the patch.
 
 Authored-by: Matthew Garrett <mjg59@coreos.com>
 Signed-off-by: Sayan Chowdhury <schowdhury@microsoft.com>
 ---
- grub-core/loader/arm64/linux.c |  6 +++-
- grub-core/loader/i386/linux.c  |  3 ++
- include/grub/verity-hash.h     | 51 ++++++++++++++++++++++++++++++++++
- 3 files changed, 59 insertions(+), 1 deletion(-)
- create mode 100644 include/grub/verity-hash.h
 
-diff --git a/grub-core/loader/arm64/linux.c b/grub-core/loader/arm64/linux.c
-index ef3e9f944..17bed4e15 100644
---- a/grub-core/loader/arm64/linux.c
-+++ b/grub-core/loader/arm64/linux.c
+diff -Naur a/grub-core/loader/efi/linux.c b/grub-core/loader/efi/linux.c
+--- a/grub-core/loader/efi/linux.c	2023-10-03 12:21:48.000000000 -0000
++++ b/grub-core/loader/efi/linux.c	2024-09-12 10:18:36.454803371 -0000
 @@ -34,6 +34,8 @@
  #include <grub/lib/cmdline.h>
  #include <grub/verify.h>
-
+ 
 +#include <grub/verity-hash.h>
 +
  GRUB_MOD_LICENSE ("GPLv3+");
-
+ 
  static grub_dl_t my_mod;
-@@ -333,7 +335,8 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
-
+@@ -533,7 +535,8 @@
+ 
    grub_dprintf ("linux", "kernel @ %p\n", kernel_addr);
-
+ 
 -  cmdline_size = grub_loader_cmdline_size (argc, argv) + sizeof (LINUX_IMAGE);
 +  cmdline_size = grub_loader_cmdline_size (argc, argv) + sizeof (LINUX_IMAGE)
 +	+ VERITY_CMDLINE_LENGTH;
    linux_args = grub_malloc (cmdline_size);
    if (!linux_args)
      {
-@@ -350,6 +353,7 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
-
+@@ -550,6 +553,7 @@
+ 
    if (grub_errno == GRUB_ERR_NONE)
      {
 +      grub_pass_verity_hash (kernel_addr, linux_args, cmdline_size);
        grub_loader_set (grub_linux_boot, grub_linux_unload, 0);
        loaded = 1;
      }
-diff --git a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
-index 9f74a96b1..1c76ac5bf 100644
---- a/grub-core/loader/i386/linux.c
-+++ b/grub-core/loader/i386/linux.c
+diff -Naur a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
+--- a/grub-core/loader/i386/linux.c	2023-10-03 12:21:48.000000000 -0000
++++ b/grub-core/loader/i386/linux.c	2024-09-12 10:28:05.571587951 -0000
 @@ -38,6 +38,8 @@
  #include <grub/machine/kernel.h>
  #include <grub/safemath.h>
-
+ 
 +#include <grub/verity-hash.h>
 +
  GRUB_MOD_LICENSE ("GPLv3+");
-
+ 
  #ifdef GRUB_MACHINE_PCBIOS
-@@ -1006,6 +1008,7 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
+@@ -1018,6 +1020,7 @@
        goto fail;
    }
-
-+  grub_pass_verity_hash(&lh, linux_cmdline, maximal_cmdline_size);
+ 
++  grub_pass_verity_hash (&lh, linux_cmdline, maximal_cmdline_size);
    len = prot_file_size;
    if (grub_file_read (file, prot_mode_mem, len) != len && !grub_errno)
      grub_error (GRUB_ERR_BAD_OS, N_("premature end of file %s"),
-diff --git a/include/grub/verity-hash.h b/include/grub/verity-hash.h
-new file mode 100644
-index 000000000..448d9aff0
---- /dev/null
-+++ b/include/grub/verity-hash.h
+diff -Naur a/include/grub/verity-hash.h b/include/grub/verity-hash.h
+--- a/include/grub/verity-hash.h	1970-01-01 00:00:00.000000000 -0000
++++ b/include/grub/verity-hash.h	2024-09-12 10:18:39.993826952 -0000
 @@ -0,0 +1,51 @@
 +/* CoreOS verity hash */
 +
@@ -129,6 +120,3 @@ index 000000000..448d9aff0
 +  cmdline_len += VERITY_HASH_LENGTH;
 +  cmdline[cmdline_len] = '\0';
 +}
---
-2.34.1
-

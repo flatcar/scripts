@@ -1,14 +1,14 @@
-PKG_INSTALL_MASK+=" /etc/grub.d/00_header
-                    /etc/grub.d/10_linux
-                    /etc/grub.d/30_os-prober
-                    /etc/grub.d/40_custom
-                    /etc/grub.d/README
-                    /lib64/grub/grub-mkconfig_lib
-                    /lib64/grub/update-grub_lib"
-INSTALL_MASK+=" /etc/grub.d/00_header
-                /etc/grub.d/10_linux
-                /etc/grub.d/30_os-prober
-                /etc/grub.d/40_custom
-                /etc/grub.d/README
-                /lib64/grub/grub-mkconfig_lib
-                /lib64/grub/update-grub_lib"
+# Replace Gentoo's SBAT with Flatcar's.
+cros_post_src_install_sbat() {
+	insinto /usr/share/grub
+	newins - sbat.csv <<-EOF
+		sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
+		grub,4,Free Software Foundation,grub,${PV},https://www.gnu.org/software/grub/
+		grub.flatcar,1,Flatcar,grub2,${PVR},https://github.com/flatcar/Flatcar
+	EOF
+}
+
+# Flatcar does not use grub-install or grub-mkconfig. All the files under /etc
+# relate to grub-mkconfig.
+INSTALL_MASK+=" ${EPREFIX}/etc/ *grub-install* *mkconfig*"
+PKG_INSTALL_MASK+=" ${EPREFIX}/etc/ *grub-install* *mkconfig*"
