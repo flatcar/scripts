@@ -225,7 +225,7 @@ case "${FLAGS_target}" in
         else
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
-            sudo cp "/usr/lib/shim/shim.efi" \
+            sudo cp "/usr/lib/shim/shimx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
             sudo cp "/usr/lib/shim/mmx64.efi" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
