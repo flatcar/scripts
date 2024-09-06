@@ -42,8 +42,6 @@ DEPEND="
 	amd64? ( sys-apps/iucode_tool )
 	sys-apps/seismograph
 	sys-boot/grub
-	amd64? ( sys-boot/shim )
-	amd64? ( sys-boot/shim-signed )
 	sys-firmware/edk2-ovmf-bin
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
