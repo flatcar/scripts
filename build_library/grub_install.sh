@@ -205,29 +205,29 @@ case "${FLAGS_target}" in
         # Use the test keys for signing unofficial builds
         if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
             # Sign the GRUB with the shim-embedded key
-            sudo sbsign --key /usr/share/sb_keys/shim.key \
-                --cert /usr/share/sb_keys/shim.pem \
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
+                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
                 "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
             sudo rm "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             # Sign the mokmanager(mm) with the shim-embedded key
-            sudo sbsign --key /usr/share/sb_keys/shim.key \
-                --cert /usr/share/sb_keys/shim.pem \
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
+                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
                 "/usr/lib/shim/mmx64.efi"
-            sudo cp "/usr/lib/shim/mmx64.efi.signed" \
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
 
-            sudo sbsign --key /usr/share/sb_keys/DB.key \
-                --cert /usr/share/sb_keys/DB.crt \
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/DB.key \
+                --cert ${BOARD_ROOT}/usr/share/sb_keys/DB.crt \
                 --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
                 "/usr/lib/shim/shim.efi"
         else
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
-            sudo cp "/usr/lib/shim/shimx64.efi.signed" \
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/shimx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
-            sudo cp "/usr/lib/shim/mmx64.efi" \
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmx64.efi" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
         fi
         # copying from vfat so ignore permissions
@@ -251,6 +251,34 @@ case "${FLAGS_target}" in
     arm64-efi)
         info "Installing default arm64 UEFI bootloader."
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
+        # Use the test keys for signing unofficial builds
+        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+            # Sign the GRUB with the shim-embedded key
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
+                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
+                "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
+                "${ESP_DIR}/EFI/boot/grubaa64.efi"
+            sudo rm "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+            # Sign the mokmanager(mm) with the shim-embedded key
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
+                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
+                "/usr/lib/shim/mmaa64.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmaa64.efi.signed" \
+                "${ESP_DIR}/EFI/boot/mmaa64.efi"
+
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/DB.key \
+                --cert ${BOARD_ROO}/usr/share/sb_keys/DB.crt \
+                --output "${ESP_DIR}/EFI/boot/bootaa64.efi" \
+                "/usr/lib/shim/shim.efi"
+        else
+            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+                "${ESP_DIR}/EFI/boot/grubaa64.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/shimaa64.efi.signed" \
+                "${ESP_DIR}/EFI/boot/bootaa64.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmaa64.efi" \
+                "${ESP_DIR}/EFI/boot/mmaa64.efi"
+        fi
         #FIXME(andrejro): shim not ported to aarch64
         sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
             "${ESP_DIR}/EFI/boot/bootaa64.efi"
