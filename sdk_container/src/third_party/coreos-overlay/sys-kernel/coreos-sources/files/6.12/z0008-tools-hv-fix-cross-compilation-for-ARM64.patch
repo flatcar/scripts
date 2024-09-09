@@ -1,0 +1,35 @@
+From 0890eb69da82aec12518a5c2998afea467a0e9d7 Mon Sep 17 00:00:00 2001
+From: Adrian Vladu <avladu@cloudbasesolutions.com>
+Date: Thu, 19 Sep 2024 07:59:59 +0000
+Subject: [PATCH] tools: hv: fix cross-compilation for ARM64
+
+---
+ tools/hv/Makefile | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tools/hv/Makefile b/tools/hv/Makefile
+index 2e60e2c212cd..d72554cedbf6 100644
+--- a/tools/hv/Makefile
++++ b/tools/hv/Makefile
+@@ -2,7 +2,9 @@
+ # Makefile for Hyper-V tools
+ include ../scripts/Makefile.include
+ 
++ifeq ($(ARCH),)
+ ARCH := $(shell uname -m 2>/dev/null)
++endif
+ sbindir ?= /usr/sbin
+ libexecdir ?= /usr/libexec
+ sharedstatedir ?= /var/lib
+@@ -20,7 +22,7 @@ override CFLAGS += -O2 -Wall -g -D_GNU_SOURCE -I$(OUTPUT)include
+ override CFLAGS += -Wno-address-of-packed-member
+ 
+ ALL_TARGETS := hv_kvp_daemon hv_vss_daemon
+-ifneq ($(ARCH), aarch64)
++ifeq ($(filter $(ARCH),aarch64 arm64),)
+ ALL_TARGETS += hv_fcopy_uio_daemon
+ endif
+ ALL_PROGRAMS := $(patsubst %,$(OUTPUT)%,$(ALL_TARGETS))
+-- 
+2.34.1
+
