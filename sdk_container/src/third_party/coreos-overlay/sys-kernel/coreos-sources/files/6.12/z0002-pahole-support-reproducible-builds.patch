@@ -1,0 +1,26 @@
+From 9faff3734e6456e7927c0914829a4764ec9f1b44 Mon Sep 17 00:00:00 2001
+From: Adrian Vladu <avladu@cloudbasesolutions.com>
+Date: Tue, 17 Sep 2024 13:44:14 +0000
+Subject: [PATCH] pahole: support reproducible builds
+
+---
+ scripts/Makefile.btf | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/scripts/Makefile.btf b/scripts/Makefile.btf
+index 2d6e5ed9081e..b2f88b0fcf37 100644
+--- a/scripts/Makefile.btf
++++ b/scripts/Makefile.btf
+@@ -23,6 +23,9 @@ else
+ # Switch to using --btf_features for v1.26 and later.
+ pahole-flags-$(call test-ge, $(pahole-ver), 126)  = -j --btf_features=encode_force,var,float,enum64,decl_tag,type_tag,optimized_func,consistent_func
+ 
++# Support reproducible builds.
++pahole-flags-$(call test-ge, $(pahole-ver), 127)  = -j --btf_features=encode_force,var,float,enum64,decl_tag,type_tag,optimized_func,consistent_func,reproducible_build
++
+ endif
+ 
+ pahole-flags-$(CONFIG_PAHOLE_HAS_LANG_EXCLUDE)		+= --lang_exclude=rust
+-- 
+2.34.1
+
