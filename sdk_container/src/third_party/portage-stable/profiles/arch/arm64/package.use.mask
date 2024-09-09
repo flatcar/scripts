@@ -237,7 +237,7 @@ app-text/enchant voikko
 sys-libs/compiler-rt-sanitizers -asan -dfsan -lsan -msan -hwasan -tsan
 sys-libs/compiler-rt-sanitizers -ubsan -safestack -cfi -scudo
 sys-libs/compiler-rt-sanitizers -gwp-asan -shadowcallstack
-sys-libs/compiler-rt-sanitizers -libfuzzer -profile -xray
+sys-libs/compiler-rt-sanitizers -libfuzzer -profile -xray -rtsan
 >=sys-libs/compiler-rt-sanitizers-16 -orc
 
 # Roy Bamford <neddyseagoon@gentoo.org> (2020-12-07)
@@ -280,11 +280,6 @@ media-video/ffmpeg -rav1e
 # Robin H. Johnson <robbat2@gentoo.org> (2020-07-02)
 # Mask io-uring & zbc pending keywording
 sys-block/fio -io-uring
-
-# Michał Górny <mgorny@gentoo.org> (2020-06-19)
-# Requires dev-util/pahole.
-sys-kernel/gentoo-kernel debug
-sys-kernel/vanilla-kernel debug
 
 # Sam James <sam@gentoo.org> (2020-06-11)
 # PGO works on arm64
