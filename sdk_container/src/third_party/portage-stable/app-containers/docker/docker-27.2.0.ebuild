@@ -4,8 +4,8 @@
 EAPI=7
 EGO_PN=github.com/docker/docker
 MY_PV=${PV/_/-}
-inherit golang-vcs-snapshot linux-info systemd udev
-GIT_COMMIT=662f78c0b1bb5114172427cfcb40491d73159be2
+inherit golang-vcs-snapshot linux-info optfeature systemd udev
+GIT_COMMIT=3ab5c7d0036ca8fc43141e83b167456ec79828aa
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
@@ -14,7 +14,7 @@ SRC_URI="https://github.com/moby/moby/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
-IUSE="apparmor btrfs +container-init overlay seccomp selinux systemd"
+IUSE="apparmor btrfs +container-init +overlay2 seccomp selinux systemd"
 
 DEPEND="
 	acct-group/docker
@@ -33,8 +33,8 @@ RDEPEND="
 	sys-process/procps
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
-	>=app-containers/containerd-1.7.15[apparmor?,btrfs?,seccomp?]
-	>=app-containers/runc-1.1.12[apparmor?,seccomp?]
+	>=app-containers/containerd-1.7.21[apparmor?,btrfs?,seccomp?]
+	>=app-containers/runc-1.1.13[apparmor?,seccomp?]
 	!app-containers/docker-proxy
 	container-init? ( >=sys-process/tini-0.19.0[static] )
 	selinux? ( sec-policy/selinux-docker )
@@ -54,7 +54,6 @@ S="${WORKDIR}/${P}/src/${EGO_PN}"
 # https://bugs.gentoo.org/748984 https://github.com/etcd-io/etcd/pull/12552
 PATCHES=(
 	"${FILESDIR}/0001-Openrc-Depend-on-containerd-init-script.patch"
-	"${FILESDIR}/docker-26.1.0-automagic-systemd.patch"
 )
 
 pkg_setup() {
@@ -247,7 +246,7 @@ src_compile() {
 
 	# let's set up some optional features :)
 	export DOCKER_BUILDTAGS=''
-	for gd in btrfs overlay; do
+	for gd in btrfs overlay2; do
 		if ! use $gd; then
 			DOCKER_BUILDTAGS+=" exclude_graphdriver_${gd//-/}"
 		fi
@@ -259,7 +258,7 @@ src_compile() {
 		fi
 	done
 
-	export SYSTEMD=$(usex systemd 1 0)
+	export EXCLUDE_AUTO_BUILDTAG_JOURNALD=$(usex systemd '' 'y')
 
 	# build binaries
 	./hack/make.sh dynbinary || die 'dynbinary failed'
@@ -272,6 +271,9 @@ src_install() {
 	use container-init && dosym tini /usr/bin/docker-init
 	dobin bundles/dynbinary-daemon/dockerd
 	dobin bundles/dynbinary-daemon/docker-proxy
+	for f in dockerd-rootless-setuptool.sh dockerd-rootless.sh; do
+		dosym ../share/docker/contrib/${f} /usr/bin/${f}
+	done
 
 	newinitd contrib/init/openrc/docker.initd docker
 	newconfd contrib/init/openrc/docker.confd docker
@@ -304,17 +306,16 @@ pkg_postinst() {
 	elog '  usermod -aG docker <youruser>'
 	elog
 
-	if use overlay; then
-		elog " Overlay storage driver/USEflag has been deprecated"
-		elog " in favor of overlay2 (enabled unconditionally)"
-		elog
-	fi
-
 	if has_version sys-fs/zfs; then
 		elog " ZFS storage driver is available"
 		elog " Check https://docs.docker.com/storage/storagedriver/zfs-driver for more info"
 		elog
 	fi
+
+	optfeature "rootless mode support" sys-apps/shadow
+	optfeature "rootless mode support" sys-apps/rootlesskit
+	optfeature_header "for rootless mode you also need a network stack"
+	optfeature "rootless mode network stack" app-containers/slirp4netns
 }
 
 pkg_postrm() {
