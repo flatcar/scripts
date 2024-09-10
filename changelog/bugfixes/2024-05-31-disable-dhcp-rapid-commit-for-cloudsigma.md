@@ -1,0 +1,1 @@
+- CloudSigma: Disabled the new DHCP RapidCommit feature which is enabled by default since systemd 255. CloudSigma provides an incompatible implementation which results in cloud-init not being applied as no IP is issued. See: ([flatcar/scripts#2016](https://github.com/flatcar/scripts/pull/2016))
