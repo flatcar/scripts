@@ -15,6 +15,7 @@ IUSE=""
 RDEPEND="${RDEPEND}
 	app-arch/lzop
 	app-arch/pigz
+	app-admin/perl-cleaner
 	app-admin/sudo
 	sys-apps/less
 	dev-embedded/u-boot-tools

@@ -1,6 +1,10 @@
 # Copyright 2022-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2024-08-31)
+# dnstap USE masked due to missing keywords
+net-dns/bind dnstap
+
 # Sam James <sam@gentoo.org> (2024-08-23)
 # dev-util/bpftool and/or sys-devel/bpf-toolchain not keyworded here
 sys-apps/systemd bpf
@@ -305,6 +309,7 @@ media-plugins/gst-plugins-meta libvisual
 >=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230705 -dfsan
 >=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230717 -profile -xray
 >sys-libs/compiler-rt-sanitizers-17.0.0_pre20230717 -libfuzzer
+>=sys-libs/compiler-rt-sanitizers-19 -cfi
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-07-08)
 # virtual/{jdk,jre} is not available on loong yet.

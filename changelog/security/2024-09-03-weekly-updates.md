@@ -1,0 +1,2 @@
+- intel-microcode ([CVE-2023-42667](https://nvd.nist.gov/vuln/detail/CVE-2023-42667), [CVE-2023-49141](https://nvd.nist.gov/vuln/detail/CVE-2023-49141), [CVE-2024-24853](https://nvd.nist.gov/vuln/detail/CVE-2024-24853), [CVE-2024-24980](https://nvd.nist.gov/vuln/detail/CVE-2024-24980), [CVE-2024-25939](https://nvd.nist.gov/vuln/detail/CVE-2024-25939))
+- libpcap ([CVE-2023-7256](https://nvd.nist.gov/vuln/detail/CVE-2023-7256), [CVE-2024-8006](https://nvd.nist.gov/vuln/detail/CVE-2024-8006))
