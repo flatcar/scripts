@@ -17,6 +17,7 @@ IUSE=""
 RDEPEND="
   ~app-emulation/wa-linux-agent-${PV}
   net-misc/chrony
+  app-emulation/hv-daemons
 "
 
 # for coreos-base/common-oem-files
