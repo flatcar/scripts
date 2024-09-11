@@ -1,7 +1,7 @@
 # Copyright 2044-2016 The Flatcar Maintainers
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 COREOS_SOURCE_REVISION=""
 inherit coreos-kernel savedconfig systemd
 
