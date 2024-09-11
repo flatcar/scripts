@@ -1,0 +1,9 @@
+[Unit]
+Description=Hyper-V FCOPY daemon
+ConditionPathExists=/dev/vmbus/hv_fcopy
+
+[Service]
+ExecStart=/usr/bin/hv_fcopy_daemon --no-daemon
+
+[Install]
+WantedBy=multi-user.target
