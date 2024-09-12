@@ -214,7 +214,7 @@ case "${FLAGS_target}" in
             # Sign the mokmanager(mm) with the shim-embedded key
             sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
                 --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
-                "/usr/lib/shim/mmx64.efi"
+                "${BOARD_ROOT}/usr/lib/shim/mmx64.efi"
             sudo cp "${BOARD_ROOT}/usr/lib/shim/mmx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
 
