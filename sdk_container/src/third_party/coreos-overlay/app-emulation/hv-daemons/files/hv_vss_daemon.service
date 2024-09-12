@@ -3,7 +3,6 @@ Description=Hyper-V VSS daemon
 ConditionPathExists=/dev/vmbus/hv_vss
 
 [Service]
-Type=exec
 ExecStart=/usr/bin/hv_vss_daemon --no-daemon
 
 [Install]

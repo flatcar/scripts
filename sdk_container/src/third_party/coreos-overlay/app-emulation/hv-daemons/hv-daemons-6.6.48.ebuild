@@ -2,7 +2,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-COREOS_SOURCE_REVISION=""
 inherit coreos-kernel savedconfig systemd
 
 DESCRIPTION="HyperV guest support daemons."
