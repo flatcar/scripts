@@ -15,6 +15,10 @@ IUSE=""
 # no source directory
 S="${WORKDIR}"
 
+RDEPEND="
+  app-emulation/hv-daemons
+"
+
 src_prepare() {
 	default
 	sed -e "s\\@@OEM_VERSION_ID@@\\${PVR}\\g" \
