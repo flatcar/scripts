@@ -11,6 +11,7 @@ if ! check_remote_branch "linux-${VERSION_NEW}-${TARGET_BRANCH}"; then
     exit 0
 fi
 
+# Dive into ebuild repo section of SDK
 pushd "${SDK_OUTER_OVERLAY}"
 
 # trim the 3rd part in the input semver, e.g. from 5.4.1 to 5.4
@@ -31,6 +32,12 @@ for pkg in sources modules kernel; do
     popd
 done
 
+# Update hyperv daemons ebuild soft-link to reflect new kernel version
+find -D exec app-emulation/hv-daemons/ -type l -exec rm '{}' \;
+ln -s app-emulation/hv-daemons/hv-daemons-9999.ebuild \
+      app-emulation/hv-daemons/hv-daemons-${VERSION_NEW}.ebuild
+
+# Leave ebuild repo section of SDK
 popd
 
 function get_lwn_link() {
@@ -72,7 +79,8 @@ generate_update_changelog 'Linux' "${VERSION_NEW}" "${URL}" 'linux' "${OLD_VERSI
 
 commit_changes sys-kernel/coreos-sources "${VERSION_OLD}" "${VERSION_NEW}" \
                sys-kernel/coreos-modules \
-               sys-kernel/coreos-kernel
+               sys-kernel/coreos-kernel \
+               app-emulation/hv-daemons
 
 cleanup_repo
 
