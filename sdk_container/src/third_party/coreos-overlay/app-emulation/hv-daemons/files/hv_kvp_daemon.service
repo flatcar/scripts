@@ -1,0 +1,9 @@
+[Unit]
+Description=Hyper-V KVP daemon
+ConditionPathExists=/dev/vmbus/hv_kvp
+
+[Service]
+ExecStart=/usr/bin/hv_kvp_daemon --no-daemon
+
+[Install]
+WantedBy=multi-user.target

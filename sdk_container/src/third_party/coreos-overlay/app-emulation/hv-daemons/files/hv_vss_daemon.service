@@ -1,0 +1,9 @@
+[Unit]
+Description=Hyper-V VSS daemon
+ConditionPathExists=/dev/vmbus/hv_vss
+
+[Service]
+ExecStart=/usr/bin/hv_vss_daemon --no-daemon
+
+[Install]
+WantedBy=multi-user.target
