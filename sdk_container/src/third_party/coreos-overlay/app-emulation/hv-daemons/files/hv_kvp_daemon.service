@@ -1,10 +1,8 @@
 [Unit]
 Description=Hyper-V KVP daemon
-BindsTo=sys-devices-virtual-misc-vmbus\x21hv_kvp.device
 ConditionPathExists=/dev/vmbus/hv_kvp
 
 [Service]
-Type=exec
 ExecStart=/usr/bin/hv_kvp_daemon --no-daemon
 
 [Install]
