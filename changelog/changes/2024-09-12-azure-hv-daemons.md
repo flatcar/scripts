@@ -1,1 +1,1 @@
-- oem-azure, oem-hyperv: Add daemons `kvp`, `vss`, and `fcopy` for better HyperV hypervisor integration with Flatcar guests ([scripts#2309](https://github.com/flatcar/scripts/pull/2309)).
+- Azure, HyperV: Added daemons `kvp`, `vss`, and `fcopy` for better HyperV hypervisor integration with Flatcar guests ([scripts#2309](https://github.com/flatcar/scripts/pull/2309)).
