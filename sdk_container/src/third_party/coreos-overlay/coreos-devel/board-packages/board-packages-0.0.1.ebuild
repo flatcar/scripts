@@ -30,6 +30,7 @@ RDEPEND="
 	app-containers/docker
 	app-containers/docker-cli
 	app-emulation/amazon-ssm-agent
+	app-emulation/hv-daemons
 	app-emulation/wa-linux-agent
 	coreos-base/coreos
 	coreos-base/coreos-dev
