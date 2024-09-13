@@ -8,7 +8,7 @@
 # (the following packages are "unstable" upstream; we're stabilising these)
 
 # Handled by automation
-=app-containers/containerd-1.7.21 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-08-30 08:19:45
+=app-containers/containerd-1.7.22 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-09-13 08:19:35
 
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
