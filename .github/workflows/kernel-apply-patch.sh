@@ -32,10 +32,12 @@ for pkg in sources modules kernel; do
     popd
 done
 
-# Update hyperv daemons ebuild soft-link to reflect new kernel version
-find -D exec app-emulation/hv-daemons/ -type l -exec rm '{}' \;
-ln -s app-emulation/hv-daemons/hv-daemons-9999.ebuild \
-      app-emulation/hv-daemons/hv-daemons-${VERSION_NEW}.ebuild
+if [[ -d app-emulation/hv-daemons ]]; then
+    # Update hyperv daemons ebuild soft-link to reflect new kernel version
+    find -D exec app-emulation/hv-daemons/ -type l -exec rm '{}' \;
+    ln -s app-emulation/hv-daemons/hv-daemons-9999.ebuild \
+          app-emulation/hv-daemons/hv-daemons-${VERSION_NEW}.ebuild
+fi
 
 # Leave ebuild repo section of SDK
 popd
