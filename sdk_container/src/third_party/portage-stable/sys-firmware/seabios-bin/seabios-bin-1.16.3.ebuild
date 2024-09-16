@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,12 +7,12 @@ BINPKG="${P/-bin/}-1"
 
 DESCRIPTION="Open Source implementation of a 16-bit x86 BIOS"
 HOMEPAGE="https://www.seabios.org/"
-SRC_URI="https://dev.gentoo.org/~ajak/distfiles/${BINPKG}.xpak"
+SRC_URI="https://dev.gentoo.org/~chewi/distfiles/${BINPKG}.xpak"
 S="${WORKDIR}"
 
 LICENSE="LGPL-3 GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 RDEPEND="!sys-firmware/seabios"
 
