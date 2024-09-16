@@ -11,12 +11,12 @@ inherit distutils-r1 pypi
 DESCRIPTION="A small Python module for determining appropriate platform-specific dirs"
 HOMEPAGE="
 	https://pypi.org/project/platformdirs/
-	https://github.com/platformdirs/platformdirs/
+	https://github.com/tox-dev/platformdirs/
 "
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 
 BDEPEND="
 	test? (
