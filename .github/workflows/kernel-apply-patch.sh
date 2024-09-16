@@ -25,6 +25,11 @@ if [[ "${VERSION_NEW}" = "${VERSION_OLD}" ]]; then
     exit 0
 fi
 
+extra_pkgs=(
+    sys-kernel/coreos-modules
+    sys-kernel/coreos-kernel
+)
+
 for pkg in sources modules kernel; do
     pushd "sys-kernel/coreos-${pkg}"
     git mv "coreos-${pkg}"-*.ebuild "coreos-${pkg}-${VERSION_NEW}.ebuild"
@@ -37,6 +42,7 @@ if [[ -d app-emulation/hv-daemons ]]; then
     find -D exec app-emulation/hv-daemons/ -type l -exec rm '{}' \;
     ln --relative -s app-emulation/hv-daemons/hv-daemons-9999.ebuild \
           app-emulation/hv-daemons/hv-daemons-${VERSION_NEW}.ebuild
+    extra_pkgs+=( app-emulation/hv-daemons )
 fi
 
 # Leave ebuild repo section of SDK
@@ -79,10 +85,7 @@ URL=$(get_lwn_link "${VERSION_NEW}")
 
 generate_update_changelog 'Linux' "${VERSION_NEW}" "${URL}" 'linux' "${OLD_VERSIONS_AND_URLS[@]}"
 
-commit_changes sys-kernel/coreos-sources "${VERSION_OLD}" "${VERSION_NEW}" \
-               sys-kernel/coreos-modules \
-               sys-kernel/coreos-kernel \
-               app-emulation/hv-daemons
+commit_changes sys-kernel/coreos-sources "${VERSION_OLD}" "${VERSION_NEW}" "${extra_pkgs[@]}"
 
 cleanup_repo
 
