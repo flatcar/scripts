@@ -21,21 +21,25 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!!<dev-python/setuptools-rust-1.8.0
+	dev-python/jaraco-collections[${PYTHON_USEDEP}]
+	dev-python/jaraco-functools[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/more-itertools-8.12.0-r1[${PYTHON_USEDEP}]
-	>=dev-python/ordered-set-4.0.2-r1[${PYTHON_USEDEP}]
 	>=dev-python/packaging-24[${PYTHON_USEDEP}]
 	>=dev-python/platformdirs-2.6.2-r1[${PYTHON_USEDEP}]
-	>=dev-python/wheel-0.37.1-r1[${PYTHON_USEDEP}]
+	>=dev-python/wheel-0.44.0[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
 		>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
 	' 3.10)
+	!!<=dev-libs/gobject-introspection-1.76.1-r0
+	!!=dev-libs/gobject-introspection-1.78.1-r0
+	!!=dev-libs/gobject-introspection-1.80.1-r1
 "
 BDEPEND="
 	${RDEPEND}
@@ -84,11 +88,7 @@ src_prepare() {
 	sed -i -e '/--import-mode/d' pytest.ini || die
 
 	# remove bundled dependencies
-	rm -r */_vendor setuptools/_distutils/_vendor || die
-
-	find -name '*.py' -exec sed \
-		-e 's:from [.]_vendor[.]:from :' \
-		-i {} + || die
+	rm -r */_vendor || die
 }
 
 python_test() {
@@ -117,6 +117,8 @@ python_test() {
 		setuptools/tests/test_setuptools.py::test_wheel_includes_vendored_metadata
 		# fails on normalized metadata, perhaps different dep version?
 		setuptools/tests/test_build_meta.py::TestBuildMetaBackend::test_build_with_pyproject_config
+		# TODO
+		setuptools/tests/test_sdist.py::test_sanity_check_setuptools_own_sdist
 	)
 
 	local EPYTEST_XDIST=1
