@@ -156,10 +156,6 @@ sys-libs/libsemanage -python
 
 sys-fs/zfs minimal -rootfs
 
-# Do not pull in LLVM into production images. Also, we didn't use it
-# before anyway.
-dev-util/bpftool -llvm
-
 # Do not tinker with /boot partition at installation time.
 sys-firmware/intel-microcode -initramfs
 sys-fs/zfs-kmod -initramfs
