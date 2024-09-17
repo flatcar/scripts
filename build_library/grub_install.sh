@@ -279,9 +279,6 @@ case "${FLAGS_target}" in
             sudo cp "${BOARD_ROOT}/usr/lib/shim/mmaa64.efi" \
                 "${ESP_DIR}/EFI/boot/mmaa64.efi"
         fi
-        #FIXME(andrejro): shim not ported to aarch64
-        sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
-            "${ESP_DIR}/EFI/boot/bootaa64.efi"
         if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
             # copying from vfat so ignore permissions
             cp --no-preserve=mode "${ESP_DIR}/EFI/boot/bootaa64.efi" \
