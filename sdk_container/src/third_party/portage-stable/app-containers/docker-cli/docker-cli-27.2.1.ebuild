@@ -12,7 +12,7 @@ inherit bash-completion-r1  golang-vcs-snapshot
 DESCRIPTION="the command line binary for docker"
 HOMEPAGE="https://www.docker.com/"
 SRC_URI="https://github.com/docker/cli/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI+=" https://dev.gentoo.org/~williamh/dist/${P}-man.tar.xz"
+# SRC_URI+=" https://dev.gentoo.org/~williamh/dist/${P}-man.tar.xz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -31,7 +31,8 @@ S="${WORKDIR}/${P}/src/${EGO_PN}"
 src_unpack() {
 	golang-vcs-snapshot_src_unpack
 	set -- ${A}
-	unpack ${2}
+	# Flatcar: skip unpacking temporarily
+	# unpack ${2}
 }
 
 src_prepare() {
@@ -55,7 +56,8 @@ src_compile() {
 
 src_install() {
 	dobin build/docker
-	doman "${WORKDIR}"/man/man?/*
+	# Flatcar: skip installing manpages temporarily
+	# doman "${WORKDIR}"/man/man?/*
 	dobashcomp contrib/completion/bash/*
 	bashcomp_alias docker dockerd
 	insinto /usr/share/fish/vendor_completions.d/
