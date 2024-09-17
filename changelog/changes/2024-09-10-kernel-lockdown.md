@@ -1,0 +1,1 @@
+- Kernel lockdown in integrity mode is now enabled when secure boot is enabled. This prevents loading unsigned kernel modules and matches the behavior of all major distros. ([scripts#2299](https://github.com/flatcar/scripts/pull/2299))

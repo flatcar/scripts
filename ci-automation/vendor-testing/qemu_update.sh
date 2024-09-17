@@ -68,9 +68,9 @@ else
     lbunzip2 -k -f tmp/flatcar_production_image_first_dual.bin.bz2
 fi
 
-bios="${QEMU_BIOS}"
+bios="${QEMU_FIRMWARE}"
 if [ "${CIA_ARCH}" = "arm64" ]; then
-    bios="${QEMU_UEFI_BIOS}"
+    bios="${QEMU_UEFI_FIRMWARE}"
     if [ -f "${bios}" ] ; then
         echo "++++ qemu_update.sh: Using existing ./${bios} ++++"
     else
@@ -114,7 +114,7 @@ run_kola_tests() {
       --board="${CIA_ARCH}-usr" \
       --parallel="${QEMU_PARALLEL}" \
       --platform=qemu \
-      --qemu-bios="${bios}" \
+      --qemu-firmware="${bios}" \
       --qemu-image="${image}" \
       --tapfile="${instance_tapfile}" \
       --update-payload="${QEMU_UPDATE_PAYLOAD}" \

@@ -162,7 +162,7 @@ jobs:
           # Extract the generic image we'll use for qemu tests.
           # Note that the qemu[_uefi] tests use the generic image instead of the
           #  qemu vendor VM image ("Astronaut: [...] Always have been.").
-          mv flatcar_production_image.bin flatcar_production_qemu_uefi_efi_code.fd scripts/
+          mv flatcar_production_image.bin flatcar_production_qemu_uefi_efi_code.fd flatcar_production_qemu_uefi_efi_vars.fd scripts/
 
           mv flatcar_test_update.gz scripts/
 
@@ -197,7 +197,8 @@ jobs:
           cat > sdk_container/.env <<EOF
           # export the QEMU_IMAGE_NAME to avoid to download it.
           export QEMU_IMAGE_NAME="/work/flatcar_production_image.bin"
-          export QEMU_UEFI_BIOS="/work/flatcar_production_qemu_uefi_efi_code.fd"
+          export QEMU_UEFI_FIRMWARE="/work/flatcar_production_qemu_uefi_efi_code.fd"
+          export QEMU_UEFI_OVMF_VARS="/work/flatcar_production_qemu_uefi_efi_vars.fd"
           export QEMU_UPDATE_PAYLOAD="/work/flatcar_test_update.gz"
           export QEMU_DEVCONTAINER_URL="http://${TESTS_WEBSERVER_IP}:${TESTS_WEBSERVER_PORT}"
           export QEMU_DEVCONTAINER_BINHOST_URL="http://${TESTS_WEBSERVER_IP}:${TESTS_WEBSERVER_PORT}"
