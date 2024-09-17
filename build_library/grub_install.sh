@@ -221,7 +221,7 @@ case "${FLAGS_target}" in
             sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/DB.key \
                 --cert ${BOARD_ROOT}/usr/share/sb_keys/DB.crt \
                 --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
-                "/usr/lib/shim/shim.efi"
+                "${BOARD_ROOT}/usr/lib/shim/shimx64.efi"
         else
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
@@ -270,7 +270,7 @@ case "${FLAGS_target}" in
             sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/DB.key \
                 --cert ${BOARD_ROO}/usr/share/sb_keys/DB.crt \
                 --output "${ESP_DIR}/EFI/boot/bootaa64.efi" \
-                "/usr/lib/shim/shim.efi"
+                "${BOARD_ROOT}/usr/lib/shim/shimaa64.efi"
         else
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/grubaa64.efi"
