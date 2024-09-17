@@ -38,7 +38,6 @@
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
-=dev-build/cmake-3.30.2 ~arm64
 =dev-cpp/abseil-cpp-20230125.3-r4 ~arm64
 
 # Keep versions on both arches in sync.
