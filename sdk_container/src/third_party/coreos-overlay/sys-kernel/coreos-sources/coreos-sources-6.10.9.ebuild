@@ -36,6 +36,6 @@ IUSE=""
 # local patches overlap with the upstream patch.
 UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
-	${PATCH_DIR}/z0002-pahole-remove-parallel-j-flag.patch \
+	${PATCH_DIR}/z0002-pahole-support-reproducible-builds.patch \
 	${PATCH_DIR}/z0003-Revert-x86-boot-Remove-the-bugger-off-message.patch \
 "
