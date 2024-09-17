@@ -1,5 +1,5 @@
 Flatcar uses a patched version of the GRUB, which implements the functionality to
-read the [Flatcar Container Linux partition table](https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-disk-partitions/#partition-table)
+read the [Flatcar Container Linux partition table](https://www.flatcar.org/docs/latest/reference/developer-guides/sdk-disk-partitions/#partition-table).
 
 ## History
 
@@ -11,14 +11,11 @@ and referenced in the Flatcar's coreos-overlay. Except for a few, now many chang
 where brought into the system.
 
 The repo was maintained at 2.02 version. During the 2.06 migration, the philosophy
-to use a separate repo was scraped, and a single patch file was created. The patch
+to use a separate repo was scrapped, and two patch files were created. The patch
 files migrated only the essential commits, and dropped all the other commits, which
-were either half-baked, or redundant at the point of migration. The two patches are applied
-on top of the grub sources, and emerge is done.
+were either half-baked, or redundant at the point of migration.
 
-Given below are the list of commits that were referenced to create the two patches.
-
-## Summary of the patches
+## Summary of the Flatcar patches
 
 The patch starts with adding a new implementation of reading the GPT instead
 of using the traditional module. It provides essential functionality to interact
@@ -33,9 +30,9 @@ partition booting. The `gptrepair` command implements the repair functions for
 GPT information on a specified device. Few other functions include searching
 devices by partition label or partition UUID.
 
-## Commits
+## Commits in the Flatcar patches
 
-Below are the commits that are picked to create the two patches for the grub. One is
+Below are the commits that are picked to create the two Flatcar patches. One is
 descriptive, and other is comprehensive.
 
 <details>

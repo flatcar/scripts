@@ -12,66 +12,42 @@ This patch also includes the supporting functions like gptprio,
 gptrepair, search commands.
 
 The patch is prepared using the coreos/grub PRs, picking the only
-required ones, and dropping the others. The README.md file in the
-coreos-overlay/sys-boot/grub/ contains more contexual information
-along with the commits used to create the patch.
+required ones, and dropping the others. The README.md file in this
+directory contains more contexual information along with the commits
+used to create the patch.
 
 Authored-by: Michael Marineau <michael.marineau@coreos.com>
 Signed-off-by: Sayan Chowdhury <schowdhury@microsoft.com>
 ---
- Makefile.util.def                      |  30 +
- grub-core/Makefile.core.def            |  25 +
- grub-core/commands/gptprio.c           | 223 +++++++
- grub-core/commands/gptrepair.c         | 110 ++++
- grub-core/commands/search.c            |  49 ++
- grub-core/commands/search_part_label.c |   5 +
- grub-core/commands/search_part_uuid.c  |   5 +
- grub-core/commands/search_wrap.c       |  12 +
- grub-core/lib/gpt.c                    | 757 +++++++++++++++++++++++
- include/grub/gpt_partition.h           | 211 ++++++-
- include/grub/search.h                  |   4 +
- tests/gpt_unit_test.c                  | 807 +++++++++++++++++++++++++
- tests/gptprio_test.in                  | 207 +++++++
- tests/gptrepair_test.in                | 102 ++++
- 14 files changed, 2530 insertions(+), 17 deletions(-)
- create mode 100644 grub-core/commands/gptprio.c
- create mode 100644 grub-core/commands/gptrepair.c
- create mode 100644 grub-core/commands/search_part_label.c
- create mode 100644 grub-core/commands/search_part_uuid.c
- create mode 100644 grub-core/lib/gpt.c
- create mode 100644 tests/gpt_unit_test.c
- create mode 100644 tests/gptprio_test.in
- create mode 100644 tests/gptrepair_test.in
 
-diff --git a/Makefile.util.def b/Makefile.util.def
-index f8b356cc1..07df521ec 100644
---- a/Makefile.util.def
-+++ b/Makefile.util.def
-@@ -1211,6 +1211,18 @@ script = {
-   common = tests/syslinux_test.in;
+diff -Naur a/Makefile.util.def b/Makefile.util.def
+--- a/Makefile.util.def	2024-09-05 16:04:35.405205341 -0000
++++ b/Makefile.util.def	2024-09-05 16:05:42.308358821 -0000
+@@ -1334,6 +1334,18 @@
+   common = tests/test_asn1.in;
  };
-
+ 
 +script = {
-+  testcase;
++  testcase = native;
 +  name = gptrepair_test;
 +  common = tests/gptrepair_test.in;
 +};
 +
 +script = {
-+  testcase;
++  testcase = native;
 +  name = gptprio_test;
 +  common = tests/gptprio_test.in;
 +};
 +
  program = {
-   testcase;
+   testcase = native;
    name = example_unit_test;
-@@ -1288,6 +1300,24 @@ program = {
+@@ -1411,6 +1423,24 @@
    ldadd = '$(LIBDEVMAPPER) $(LIBZFS) $(LIBNVPAIR) $(LIBGEOM)';
  };
-
+ 
 +program = {
-+  testcase;
++  testcase = native;
 +  name = gpt_unit_test;
 +  common = tests/gpt_unit_test.c;
 +  common = tests/lib/unit_test.c;
@@ -91,15 +67,13 @@ index f8b356cc1..07df521ec 100644
  program = {
    name = grub-menulst2cfg;
    mansection = 1;
-diff --git a/grub-core/Makefile.core.def b/grub-core/Makefile.core.def
-index 8022e1c0a..e9baa2144 100644
---- a/grub-core/Makefile.core.def
-+++ b/grub-core/Makefile.core.def
-@@ -897,6 +897,21 @@ module = {
-   common = commands/gptsync.c;
+diff -Naur a/grub-core/Makefile.core.def b/grub-core/Makefile.core.def
+--- a/grub-core/Makefile.core.def	2024-09-05 16:04:35.460205469 -0000
++++ b/grub-core/Makefile.core.def	2024-09-05 16:05:42.309358823 -0000
+@@ -968,6 +968,21 @@
  };
-
-+module = {
+ 
+ module = {
 +  name = gptrepair;
 +  common = commands/gptrepair.c;
 +};
@@ -114,14 +88,14 @@ index 8022e1c0a..e9baa2144 100644
 +  common = lib/gpt.c;
 +};
 +
- module = {
++module = {
    name = halt;
    nopc = commands/halt.c;
-@@ -1073,6 +1088,16 @@ module = {
-   common = commands/search_label.c;
+   i386_pc = commands/i386/pc/halt.c;
+@@ -1157,6 +1172,16 @@
  };
-
-+module = {
+ 
+ module = {
 +  name = search_part_uuid;
 +  common = commands/search_part_uuid.c;
 +};
@@ -131,14 +105,13 @@ index 8022e1c0a..e9baa2144 100644
 +  common = commands/search_part_label.c;
 +};
 +
- module = {
++module = {
    name = setpci;
    common = commands/setpci.c;
-diff --git a/grub-core/commands/gptprio.c b/grub-core/commands/gptprio.c
-new file mode 100644
-index 000000000..4a24fa62d
---- /dev/null
-+++ b/grub-core/commands/gptprio.c
+   enable = pci;
+diff -Naur a/grub-core/commands/gptprio.c b/grub-core/commands/gptprio.c
+--- a/grub-core/commands/gptprio.c	1970-01-01 00:00:00.000000000 -0000
++++ b/grub-core/commands/gptprio.c	2024-09-05 16:37:53.072065206 -0000
 @@ -0,0 +1,223 @@
 +/* gptprio.c - manage priority based partition selection.  */
 +/*
@@ -217,7 +190,7 @@ index 000000000..4a24fa62d
 +
 +static grub_err_t
 +grub_find_next (const char *disk_name,
-+		const grub_gpt_part_type_t *part_type,
++		const grub_packed_guid_t *part_type,
 +		char **part_name, char **part_guid)
 +{
 +  struct grub_gpt_partentry *part, *part_found = NULL;
@@ -304,7 +277,7 @@ index 000000000..4a24fa62d
 +  char *p, *root = NULL, *part_name = NULL, *part_guid = NULL;
 +
 +  /* TODO: Add a uuid parser and a command line flag for providing type.  */
-+  grub_gpt_part_type_t part_type = GRUB_GPT_PARTITION_TYPE_USR_X86_64;
++  grub_packed_guid_t part_type = GRUB_GPT_PARTITION_TYPE_USR_X86_64;
 +
 +  if (!state[NEXT_SET_DEVICE].set || !state[NEXT_SET_UUID].set)
 +    {
@@ -363,11 +336,9 @@ index 000000000..4a24fa62d
 +{
 +  grub_unregister_extcmd (cmd_next);
 +}
-diff --git a/grub-core/commands/gptrepair.c b/grub-core/commands/gptrepair.c
-new file mode 100644
-index 000000000..c17c7346c
---- /dev/null
-+++ b/grub-core/commands/gptrepair.c
+diff -Naur a/grub-core/commands/gptrepair.c b/grub-core/commands/gptrepair.c
+--- a/grub-core/commands/gptrepair.c	1970-01-01 00:00:00.000000000 -0000
++++ b/grub-core/commands/gptrepair.c	2024-09-05 16:05:42.309358823 -0000
 @@ -0,0 +1,110 @@
 +/* gptrepair.c - verify and restore GPT info from alternate location.  */
 +/*
@@ -479,21 +450,21 @@ index 000000000..c17c7346c
 +{
 +  grub_unregister_command (cmd);
 +}
-diff --git a/grub-core/commands/search.c b/grub-core/commands/search.c
-index ed090b3af..4ad72c5b4 100644
---- a/grub-core/commands/search.c
-+++ b/grub-core/commands/search.c
-@@ -30,6 +30,9 @@
- #include <grub/i18n.h>
- #include <grub/disk.h>
- #include <grub/partition.h>
+diff -Naur a/grub-core/commands/search.c b/grub-core/commands/search.c
+--- a/grub-core/commands/search.c	2024-09-05 16:04:35.464205478 -0000
++++ b/grub-core/commands/search.c	2024-09-05 16:14:56.337547508 -0000
+@@ -33,6 +33,10 @@
+ #include <grub/efi/api.h>
+ #include <grub/time.h>
+ 
 +#if defined(DO_SEARCH_PART_UUID) || defined(DO_SEARCH_PART_LABEL)
 +#include <grub/gpt_partition.h>
 +#endif
-
++
  GRUB_MOD_LICENSE ("GPLv3+");
-
-@@ -90,6 +93,44 @@ iterate_device (const char *name, void *data)
+ 
+ struct cache_entry
+@@ -264,6 +268,44 @@
  	}
        grub_free (buf);
      }
@@ -538,8 +509,8 @@ index ed090b3af..4ad72c5b4 100644
  #else
      {
        /* SEARCH_FS_UUID or SEARCH_LABEL */
-@@ -313,6 +354,10 @@ static grub_command_t cmd;
-
+@@ -487,6 +529,10 @@
+ 
  #ifdef DO_SEARCH_FILE
  GRUB_MOD_INIT(search_fs_file)
 +#elif defined(DO_SEARCH_PART_UUID)
@@ -549,8 +520,8 @@ index ed090b3af..4ad72c5b4 100644
  #elif defined (DO_SEARCH_FS_UUID)
  GRUB_MOD_INIT(search_fs_uuid)
  #else
-@@ -327,6 +372,10 @@ GRUB_MOD_INIT(search_label)
-
+@@ -501,6 +547,10 @@
+ 
  #ifdef DO_SEARCH_FILE
  GRUB_MOD_FINI(search_fs_file)
 +#elif defined(DO_SEARCH_PART_UUID)
@@ -560,33 +531,28 @@ index ed090b3af..4ad72c5b4 100644
  #elif defined (DO_SEARCH_FS_UUID)
  GRUB_MOD_FINI(search_fs_uuid)
  #else
-diff --git a/grub-core/commands/search_part_label.c b/grub-core/commands/search_part_label.c
-new file mode 100644
-index 000000000..ca906cbd9
---- /dev/null
-+++ b/grub-core/commands/search_part_label.c
+diff -Naur a/grub-core/commands/search_part_label.c b/grub-core/commands/search_part_label.c
+--- a/grub-core/commands/search_part_label.c	1970-01-01 00:00:00.000000000 -0000
++++ b/grub-core/commands/search_part_label.c	2024-09-05 16:05:42.310358826 -0000
 @@ -0,0 +1,5 @@
 +#define DO_SEARCH_PART_LABEL 1
 +#define FUNC_NAME grub_search_part_label
 +#define COMMAND_NAME "search.part_label"
 +#define HELP_MESSAGE N_("Search devices by partition label. If VARIABLE is specified, the first device found is set to a variable.")
 +#include "search.c"
-diff --git a/grub-core/commands/search_part_uuid.c b/grub-core/commands/search_part_uuid.c
-new file mode 100644
-index 000000000..2d1d3d0d7
---- /dev/null
-+++ b/grub-core/commands/search_part_uuid.c
+diff -Naur a/grub-core/commands/search_part_uuid.c b/grub-core/commands/search_part_uuid.c
+--- a/grub-core/commands/search_part_uuid.c	1970-01-01 00:00:00.000000000 -0000
++++ b/grub-core/commands/search_part_uuid.c	2024-09-05 16:05:42.310358826 -0000
 @@ -0,0 +1,5 @@
 +#define DO_SEARCH_PART_UUID 1
 +#define FUNC_NAME grub_search_part_uuid
 +#define COMMAND_NAME "search.part_uuid"
 +#define HELP_MESSAGE N_("Search devices by partition UUID. If VARIABLE is specified, the first device found is set to a variable.")
 +#include "search.c"
-diff --git a/grub-core/commands/search_wrap.c b/grub-core/commands/search_wrap.c
-index 47fc8eb99..d357454a9 100644
---- a/grub-core/commands/search_wrap.c
-+++ b/grub-core/commands/search_wrap.c
-@@ -36,6 +36,10 @@ static const struct grub_arg_option options[] =
+diff -Naur a/grub-core/commands/search_wrap.c b/grub-core/commands/search_wrap.c
+--- a/grub-core/commands/search_wrap.c	2024-09-05 16:04:35.438205418 -0000
++++ b/grub-core/commands/search_wrap.c	2024-09-05 16:12:58.537303529 -0000
+@@ -36,6 +36,10 @@
       0, 0},
      {"fs-uuid",		'u', 0, N_("Search devices by a filesystem UUID."),
       0, 0},
@@ -597,7 +563,7 @@ index 47fc8eb99..d357454a9 100644
      {"set",		's', GRUB_ARG_OPTION_OPTIONAL,
       N_("Set a variable to the first device found."), N_("VARNAME"),
       ARG_TYPE_STRING},
-@@ -71,6 +75,8 @@ enum options
+@@ -73,6 +77,8 @@
      SEARCH_FILE,
      SEARCH_LABEL,
      SEARCH_FS_UUID,
@@ -605,25 +571,21 @@ index 47fc8eb99..d357454a9 100644
 +    SEARCH_PART_UUID,
      SEARCH_SET,
      SEARCH_NO_FLOPPY,
-     SEARCH_HINT,
-@@ -186,6 +192,12 @@ grub_cmd_search (grub_extcmd_context_t ctxt, int argc, char **args)
+     SEARCH_EFIDISK_ONLY,
+@@ -198,6 +204,10 @@
+     grub_search_label (id, var, flags, hints, nhints);
    else if (state[SEARCH_FS_UUID].set)
-     grub_search_fs_uuid (id, var, state[SEARCH_NO_FLOPPY].set,
- 			 hints, nhints);
+     grub_search_fs_uuid (id, var, flags, hints, nhints);
 +  else if (state[SEARCH_PART_LABEL].set)
-+    grub_search_part_label (id, var, state[SEARCH_NO_FLOPPY].set,
-+			    hints, nhints);
++    grub_search_part_label (id, var, flags, hints, nhints);
 +  else if (state[SEARCH_PART_UUID].set)
-+    grub_search_part_uuid (id, var, state[SEARCH_NO_FLOPPY].set,
-+			   hints, nhints);
++    grub_search_part_uuid (id, var, flags, hints, nhints);
    else if (state[SEARCH_FILE].set)
-     grub_search_fs_file (id, var, state[SEARCH_NO_FLOPPY].set,
- 			 hints, nhints);
-diff --git a/grub-core/lib/gpt.c b/grub-core/lib/gpt.c
-new file mode 100644
-index 000000000..098fa65c4
---- /dev/null
-+++ b/grub-core/lib/gpt.c
+     grub_search_fs_file (id, var, flags, hints, nhints);
+   else
+diff -Naur a/grub-core/lib/gpt.c b/grub-core/lib/gpt.c
+--- a/grub-core/lib/gpt.c	1970-01-01 00:00:00.000000000 -0000
++++ b/grub-core/lib/gpt.c	2024-09-05 16:43:30.533499724 -0000
 @@ -0,0 +1,757 @@
 +/* gpt.c - Read/Verify/Write GUID Partition Tables (GPT).  */
 +/*
@@ -666,7 +628,7 @@ index 000000000..098fa65c4
 +		       grub_size_t *ret_entries_size);
 +
 +char *
-+grub_gpt_guid_to_str (grub_gpt_guid_t *guid)
++grub_gpt_guid_to_str (grub_packed_guid_t *guid)
 +{
 +  return grub_xasprintf ("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 +			 grub_le_to_cpu32 (guid->data1),
@@ -915,7 +877,7 @@ index 000000000..098fa65c4
 +    return 0;
 +
 +  return grub_memcmp(&gpt->primary.guid, &gpt->backup.guid,
-+                     sizeof(grub_gpt_guid_t)) == 0;
++                     sizeof(grub_packed_guid_t)) == 0;
 +}
 +
 +static grub_err_t
@@ -1312,7 +1274,7 @@ index 000000000..098fa65c4
 +
 +  if (grub_le_to_cpu32 (header->headersize) != sizeof (*header))
 +    return grub_error (GRUB_ERR_NOT_IMPLEMENTED_YET,
-+		       "Header size is %u, must be %u",
++		       "Header size is %u, must be %zu",
 +		       grub_le_to_cpu32 (header->headersize),
 +		       sizeof (*header));
 +
@@ -1382,30 +1344,20 @@ index 000000000..098fa65c4
 +  grub_free (gpt->entries);
 +  grub_free (gpt);
 +}
-diff --git a/include/grub/gpt_partition.h b/include/grub/gpt_partition.h
-index 7a93f4329..5c4372dce 100644
---- a/include/grub/gpt_partition.h
-+++ b/include/grub/gpt_partition.h
-@@ -21,6 +21,7 @@
-
+diff -Naur a/include/grub/gpt_partition.h b/include/grub/gpt_partition.h
+--- a/include/grub/gpt_partition.h	2023-11-22 17:52:44.000000000 -0000
++++ b/include/grub/gpt_partition.h	2024-09-05 16:43:04.107463044 -0000
+@@ -21,25 +21,45 @@
+ 
  #include <grub/types.h>
  #include <grub/partition.h>
 +#include <grub/msdos_partition.h>
-
- struct grub_gpt_part_guid
- {
-@@ -30,25 +31,46 @@ struct grub_gpt_part_guid
-   grub_uint8_t data4[8];
- } GRUB_PACKED;
- typedef struct grub_gpt_part_guid grub_gpt_part_guid_t;
-+typedef struct grub_gpt_part_guid grub_gpt_guid_t;
-+typedef struct grub_gpt_part_guid grub_gpt_part_type_t;
-
+ 
 -#define GRUB_GPT_PARTITION_TYPE_EMPTY \
 -  { 0x0, 0x0, 0x0, \
 -    { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } \
 +/* Format the raw little-endian GUID as a newly allocated string.  */
-+char * grub_gpt_guid_to_str (grub_gpt_guid_t *guid);
++char * grub_gpt_guid_to_str (grub_packed_guid_t *guid);
 +
 +
 +#define GRUB_GPT_GUID_INIT(a, b, c, d1, d2, d3, d4, d5, d6, d7, d8)  \
@@ -1415,7 +1367,7 @@ index 7a93f4329..5c4372dce 100644
 +    grub_cpu_to_le16_compile_time (c),	\
 +    { d1, d2, d3, d4, d5, d6, d7, d8 }	\
    }
-
+ 
 +#define GRUB_GPT_PARTITION_TYPE_EMPTY \
 +  GRUB_GPT_GUID_INIT (0x0, 0x0, 0x0,  \
 +      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0)
@@ -1432,7 +1384,7 @@ index 7a93f4329..5c4372dce 100644
 -  }
 +  GRUB_GPT_GUID_INIT (0x21686148, 0x6449, 0x6e6f, \
 +      0x74, 0x4e, 0x65, 0x65, 0x64, 0x45, 0x46, 0x49)
-
+ 
  #define GRUB_GPT_PARTITION_TYPE_LDM \
 -  { grub_cpu_to_le32_compile_time (0x5808C8AAU),\
 -      grub_cpu_to_le16_compile_time (0x7E8F), \
@@ -1451,10 +1403,10 @@ index 7a93f4329..5c4372dce 100644
 +
 +#define GRUB_GPT_HEADER_VERSION	\
 +  grub_cpu_to_le32_compile_time (0x00010000U)
-
+ 
  struct grub_gpt_header
  {
-@@ -57,11 +79,11 @@ struct grub_gpt_header
+@@ -48,11 +68,11 @@
    grub_uint32_t headersize;
    grub_uint32_t crc32;
    grub_uint32_t unused1;
@@ -1465,18 +1417,18 @@ index 7a93f4329..5c4372dce 100644
    grub_uint64_t start;
    grub_uint64_t end;
 -  grub_uint8_t guid[16];
-+  grub_gpt_part_guid_t guid;
++  grub_packed_guid_t guid;
    grub_uint64_t partitions;
    grub_uint32_t maxpart;
    grub_uint32_t partentry_size;
-@@ -75,13 +97,168 @@ struct grub_gpt_partentry
+@@ -66,13 +86,168 @@
    grub_uint64_t start;
    grub_uint64_t end;
    grub_uint64_t attrib;
 -  char name[72];
 +  grub_uint16_t name[36];
- } GRUB_PACKED;
-
+ };
+ 
 +enum grub_gpt_part_attr_offset
 +{
 +  /* Standard partition attribute bits defined by UEFI.  */
@@ -1527,7 +1479,7 @@ index 7a93f4329..5c4372dce 100644
  grub_gpt_partition_map_iterate (grub_disk_t disk,
  				grub_partition_iterate_hook_t hook,
  				void *hook_data);
-
+ 
 +/* Advanced GPT library.  */
 +
 +/* Status bits for the grub_gpt.status field.  */
@@ -1639,25 +1591,24 @@ index 7a93f4329..5c4372dce 100644
 +grub_err_t grub_gpt_part_uuid (grub_device_t device, char **uuid);
 
  #endif /* ! GRUB_GPT_PARTITION_HEADER */
-diff --git a/include/grub/search.h b/include/grub/search.h
-index d80347df3..c2f40abe9 100644
---- a/include/grub/search.h
-+++ b/include/grub/search.h
-@@ -25,5 +25,9 @@ void grub_search_fs_uuid (const char *key, const char *var, int no_floppy,
- 			  char **hints, unsigned nhints);
- void grub_search_label (const char *key, const char *var, int no_floppy,
+diff -Naur a/include/grub/search.h b/include/grub/search.h
+--- a/include/grub/search.h	2024-09-05 16:04:35.439205420 -0000
++++ b/include/grub/search.h	2024-09-05 16:05:42.312358830 -0000
+@@ -36,5 +36,11 @@
+ void grub_search_label (const char *key, const char *var,
+ 			enum search_flags flags,
  			char **hints, unsigned nhints);
-+void grub_search_part_uuid (const char *key, const char *var, int no_floppy,
-+			    char **hints, unsigned nhints);
-+void grub_search_part_label (const char *key, const char *var, int no_floppy,
-+			     char **hints, unsigned nhints);
++void grub_search_part_uuid (const char *key, const char *var,
++ 			enum search_flags flags,
++ 			char **hints, unsigned nhints);
++void grub_search_part_label (const char *key, const char *var,
++ 			enum search_flags flags,
++ 			char **hints, unsigned nhints);
 
  #endif
-diff --git a/tests/gpt_unit_test.c b/tests/gpt_unit_test.c
-new file mode 100644
-index 000000000..53f686912
---- /dev/null
-+++ b/tests/gpt_unit_test.c
+diff -Naur a/tests/gpt_unit_test.c b/tests/gpt_unit_test.c
+--- a/tests/gpt_unit_test.c	1970-01-01 00:00:00.000000000 -0000
++++ b/tests/gpt_unit_test.c	2024-09-05 16:05:42.313358833 -0000
 @@ -0,0 +1,807 @@
 +/*
 + *  GRUB  --  GRand Unified Bootloader
@@ -2466,11 +2417,9 @@ index 000000000..53f686912
 +  grub_test_unregister ("gpt_search_part_uuid_test");
 +  grub_fini_all ();
 +}
-diff --git a/tests/gptprio_test.in b/tests/gptprio_test.in
-new file mode 100644
-index 000000000..c5cf0f3b7
---- /dev/null
-+++ b/tests/gptprio_test.in
+diff -Naur a/tests/gptprio_test.in b/tests/gptprio_test.in
+--- a/tests/gptprio_test.in	1970-01-01 00:00:00.000000000 -0000
++++ b/tests/gptprio_test.in	2024-09-05 16:05:42.313358833 -0000
 @@ -0,0 +1,207 @@
 +#! /bin/bash
 +set -e
@@ -2679,11 +2628,9 @@ index 000000000..c5cf0f3b7
 +check_next 4 1 0 1
 +check_prio 2 3 0 0
 +check_prio 3 2 0 0
-diff --git a/tests/gptrepair_test.in b/tests/gptrepair_test.in
-new file mode 100644
-index 000000000..805dc171a
---- /dev/null
-+++ b/tests/gptrepair_test.in
+diff -Naur a/tests/gptrepair_test.in b/tests/gptrepair_test.in
+--- a/tests/gptrepair_test.in	1970-01-01 00:00:00.000000000 -0000
++++ b/tests/gptrepair_test.in	2024-09-05 16:05:42.313358833 -0000
 @@ -0,0 +1,102 @@
 +#! /bin/sh
 +set -e
@@ -2787,6 +2734,3 @@ index 000000000..805dc171a
 +do_repair
 +cmp "${img1}" "${img2}"
 +echo
---
-2.34.1
-

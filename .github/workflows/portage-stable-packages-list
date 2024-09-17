@@ -609,6 +609,7 @@ sys-block/thin-provisioning-tools
 
 sys-boot/efibootmgr
 sys-boot/gnu-efi
+sys-boot/grub
 sys-boot/mokutil
 
 sys-devel/bc
