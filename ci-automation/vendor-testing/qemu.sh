@@ -14,7 +14,7 @@ SECUREBOOT=""
 ovmf_vars=""
 
 # ARM64 qemu tests only supported on UEFI
-if [ "${CIA_ARCH}" = "arm64" ] && [ "${CIA_TESTSCRIPT}" != "qemu_uefi.sh" ] ; then
+if [ "${CIA_ARCH}" = "arm64" ] && [ "${CIA_TESTSCRIPT}" = "qemu.sh" ] ; then
     echo "1..1" > "${CIA_TAPFILE}"
     echo "not ok - all qemu tests" >> "${CIA_TAPFILE}"
     echo "  ---" >> "${CIA_TAPFILE}"
