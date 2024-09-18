@@ -38,4 +38,8 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
 	${PATCH_DIR}/z0002-pahole-support-reproducible-builds.patch \
 	${PATCH_DIR}/z0003-Revert-x86-boot-Remove-the-bugger-off-message.patch \
+	${PATCH_DIR}/z0004-efi-Add-an-EFI_SECURE_BOOT-flag-to-indicate-secure-b.patch \
+	${PATCH_DIR}/z0005-efi-Lock-down-the-kernel-if-booted-in-secure-boot-mo.patch \
+	${PATCH_DIR}/z0006-mtd-phram-slram-Disable-when-the-kernel-is-locked-do.patch \
+	${PATCH_DIR}/z0007-arm64-add-kernel-config-option-to-lock-down-when-in-.patch \
 "
