@@ -109,6 +109,3 @@ dev-util/catalyst ~amd64 ~arm64
 =virtual/perl-Exporter-5.780.0 ~arm64
 =virtual/perl-File-Spec-3.900.0 ~arm64
 =virtual/perl-IO-1.550.0 ~arm64
-
-# Accept unstable host Rust compilers.
-=virtual/rust-1.80.1 ~amd64 ~arm64
