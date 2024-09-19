@@ -18,12 +18,7 @@ src_compile() {
 }
 
 src_install() {
-    if [ -f "${S}/build/tools/hv/hv_fcopy_uio_daemon" ]; then
-        cp "${S}/build/tools/hv/hv_fcopy_uio_daemon" "${S}/build/tools/hv/hv_fcopy_daemon"
-    fi
-
-
-    HV_DAEMONS=(hv_vss_daemon hv_kvp_daemon hv_fcopy_daemon)
+    HV_DAEMONS=(hv_vss_daemon hv_kvp_daemon hv_fcopy_daemon hv_fcopy_uio_daemon)
     for HV_DAEMON in "$HV_DAEMONS[@]"
     do
         if [ -f "${S}/build/tools/hv/${HV_DAEMON}" ]; then
