@@ -10,7 +10,7 @@ CROS_WORKON_REPO="https://github.com"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	CROS_WORKON_COMMIT="fb2631ce5e6a21d044c8dca73f59db01f9d5abcf" # flatcar-master
+	CROS_WORKON_COMMIT="d2e22122e8e106a21f64c048992290edc7053384" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -39,7 +39,6 @@ src_install() {
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup-pre.sh \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-kargs-helper \
 		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
-		"${D}"/usr/lib/dracut/modules.d/31decrypt-root/decrypt-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/gpg-agent-wrapper \
