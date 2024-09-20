@@ -1,4 +1,4 @@
-From 82dd31e721ea568416f0e5d4a894bd76d4da93fb Mon Sep 17 00:00:00 2001
+From 9f375dc2b52d6cec2b0388af197048c048ed53a5 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 29 Mar 2022 16:01:19 +0200
 Subject: [PATCH 2/3] util/cmdline: Handle the cmdline flags as list of

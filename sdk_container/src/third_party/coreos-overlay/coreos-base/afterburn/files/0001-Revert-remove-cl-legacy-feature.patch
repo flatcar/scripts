@@ -1,12 +1,13 @@
-From 992e030fb76593eae6651e1b4b7535fe9dcd0578 Mon Sep 17 00:00:00 2001
+From c3aab3785e37c362131c0738178e0320435dca68 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Wed, 19 Jun 2024 09:05:12 +0200
+Date: Thu, 19 Sep 2024 09:53:18 +0200
 Subject: [PATCH 1/3] Revert "*: remove cl-legacy feature"
 
 This reverts commit 3e4b623b390ab756a6be963eec7198b3e7f44e20.
 
 (dpark: Re-add hostname crate and its dependencies, as they are not
  included by default in 5.5.)
+
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Signed-off-by: Dongsu Park <dpark@linux.microsoft.com>
 ---
@@ -20,7 +21,7 @@ Signed-off-by: Dongsu Park <dpark@linux.microsoft.com>
  create mode 100644 src/providers/vagrant_virtualbox/mod.rs
 
 diff --git a/Cargo.lock b/Cargo.lock
-index dbcffc6..3704b6a 100644
+index a4b7224..c2e3cc9 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
 @@ -31,13 +31,14 @@ dependencies = [
@@ -34,12 +35,12 @@ index dbcffc6..3704b6a 100644
   "mailparse",
   "maplit",
   "mockito",
-- "nix 0.26.4",
-+ "nix 0.27.1",
+- "nix 0.27.1",
++ "nix 0.29.0",
   "openssh-keys",
   "openssl",
-  "pnet_base 0.34.0",
-@@ -917,6 +918,17 @@ dependencies = [
+  "pnet_base",
+@@ -812,6 +813,17 @@ dependencies = [
   "digest",
  ]
  
@@ -56,8 +57,8 @@ index dbcffc6..3704b6a 100644
 +
  [[package]]
  name = "http"
- version = "0.2.12"
-@@ -2842,6 +2854,25 @@ version = "0.4.0"
+ version = "1.1.0"
+@@ -2478,6 +2490,25 @@ version = "0.4.0"
  source = "registry+https://github.com/rust-lang/crates.io-index"
  checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
  
@@ -68,7 +69,7 @@ index dbcffc6..3704b6a 100644
 +checksum = "e48a53791691ab099e5e2ad123536d0fff50652600abaf43bbf952894110d0be"
 +dependencies = [
 + "windows-core",
-+ "windows-targets 0.52.5",
++ "windows-targets 0.52.6",
 +]
 +
 +[[package]]
@@ -77,14 +78,14 @@ index dbcffc6..3704b6a 100644
 +source = "registry+https://github.com/rust-lang/crates.io-index"
 +checksum = "33ab640c8d7e35bf8ba19b884ba838ceb4fba93a4e8c65a9059d08afcfc683d9"
 +dependencies = [
-+ "windows-targets 0.52.5",
++ "windows-targets 0.52.6",
 +]
 +
  [[package]]
- name = "windows-sys"
- version = "0.48.0"
+ name = "windows-registry"
+ version = "0.2.0"
 diff --git a/Cargo.toml b/Cargo.toml
-index cfa2e6e..6710293 100644
+index 0929be8..7cd4b91 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
 @@ -33,11 +33,15 @@ path = "src/main.rs"
@@ -104,19 +105,19 @@ index cfa2e6e..6710293 100644
  libflate = "2.1"
  libsystemd = ">= 0.2.1, < 0.8.0"
 diff --git a/src/metadata.rs b/src/metadata.rs
-index b89bf5b..1b4da36 100644
+index 94f9238..2ad1c8e 100644
 --- a/src/metadata.rs
 +++ b/src/metadata.rs
-@@ -34,6 +34,8 @@ use crate::providers::openstack::network::OpenstackProviderNetwork;
- use crate::providers::packet::PacketProvider;
+@@ -35,6 +35,8 @@ use crate::providers::packet::PacketProvider;
  use crate::providers::powervs::PowerVSProvider;
+ use crate::providers::proxmoxve::ProxmoxVEConfigDrive;
  use crate::providers::scaleway::ScalewayProvider;
 +#[cfg(feature = "cl-legacy")]
 +use crate::providers::vagrant_virtualbox::VagrantVirtualboxProvider;
  use crate::providers::vmware::VmwareProvider;
  use crate::providers::vultr::VultrProvider;
  
-@@ -59,6 +61,10 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
+@@ -60,6 +62,10 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
          "cloudstack-configdrive" => box_result!(ConfigDrive::try_new()?),
          "digitalocean" => box_result!(DigitalOceanProvider::try_new()?),
          "exoscale" => box_result!(ExoscaleProvider::try_new()?),
@@ -127,9 +128,9 @@ index b89bf5b..1b4da36 100644
          "gcp" => box_result!(GcpProvider::try_new()?),
          "hetzner" => box_result!(HetznerProvider::try_new()?),
          // IBM Cloud - VPC Generation 2.
-@@ -71,6 +77,8 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
-         "packet" => box_result!(PacketProvider::try_new()?),
+@@ -73,6 +79,8 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
          "powervs" => box_result!(PowerVSProvider::try_new()?),
+         "proxmoxve" => box_result!(ProxmoxVEConfigDrive::try_new()?),
          "scaleway" => box_result!(ScalewayProvider::try_new()?),
 +        #[cfg(feature = "cl-legacy")]
 +        "vagrant-virtualbox" => box_result!(VagrantVirtualboxProvider::new()),
@@ -137,12 +138,12 @@ index b89bf5b..1b4da36 100644
          "vultr" => box_result!(VultrProvider::try_new()?),
          _ => bail!("unknown provider '{}'", provider),
 diff --git a/src/providers/mod.rs b/src/providers/mod.rs
-index ab9698a..c9338b4 100644
+index e17d551..6fe44b6 100644
 --- a/src/providers/mod.rs
 +++ b/src/providers/mod.rs
-@@ -39,6 +39,8 @@ pub mod openstack;
- pub mod packet;
+@@ -40,6 +40,8 @@ pub mod packet;
  pub mod powervs;
+ pub mod proxmoxve;
  pub mod scaleway;
 +#[cfg(feature = "cl-legacy")]
 +pub mod vagrant_virtualbox;
