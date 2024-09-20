@@ -371,6 +371,7 @@ PATCHES=(
 	# already upstreamed.
 	"${FILESDIR}"/0004-providers-hetzner-fix-duplicate-attribute-prefix.patch
 	"${FILESDIR}"/0005-providers-hetzner-private-ipv4-addresses-in-attribut.patch
+	"${FILESDIR}"/1023.patch
 )
 
 src_unpack() {

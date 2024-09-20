@@ -25,6 +25,7 @@ VALID_IMG_TYPES=(
     openstack_mini
     packet
     parallels
+    proxmoxve
     pxe
     qemu_uefi
     rackspace
@@ -57,6 +58,7 @@ VALID_OEM_PACKAGES=(
     kubevirt
     openstack
     packet
+    proxmoxve
     qemu
     rackspace
     rackspace-onmetal
@@ -331,6 +333,13 @@ IMG_kubevirt_DISK_EXTENSION=qcow2
 IMG_akamai_OEM_PACKAGE=common-oem-files
 IMG_akamai_OEM_USE=akamai
 IMG_akamai_OEM_SYSEXT=oem-akamai
+
+# proxmoxve
+IMG_proxmoxve_DISK_FORMAT=qcow2
+IMG_proxmoxve_DISK_LAYOUT=vm
+IMG_proxmoxve_OEM_PACKAGE=common-oem-files
+IMG_proxmoxve_OEM_USE=proxmoxve
+IMG_proxmoxve_OEM_SYSEXT=oem-proxmoxve
 
 ###########################################################
 

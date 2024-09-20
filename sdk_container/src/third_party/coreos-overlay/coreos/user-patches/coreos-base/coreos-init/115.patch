@@ -1,0 +1,27 @@
+From 67ac31d0fc9ed22d83f2fc5a6449c6e35a83a1df Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Fri, 22 Mar 2024 20:58:23 +0900
+Subject: [PATCH] Draft for Proxmox support
+
+This makes use of https://github.com/coreos/afterburn/pull/1023
+to set up the ssh keys from the metadata.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ systemd/system/sshkeys.service | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/systemd/system/sshkeys.service b/systemd/system/sshkeys.service
+index 7727185..9edf5cc 100644
+--- a/systemd/system/sshkeys.service
++++ b/systemd/system/sshkeys.service
+@@ -30,6 +30,9 @@ ConditionKernelCommandLine=|flatcar.oem.id=hetzner
+ ConditionKernelCommandLine=|ignition.platform.id=akamai
+ ConditionKernelCommandLine=|flatcar.oem.id=akamai
+ 
++ConditionKernelCommandLine=|ignition.platform.id=proxmoxve
++ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
++
+ [Service]
+ Type=oneshot
+ RemainAfterExit=yes
