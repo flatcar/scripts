@@ -25,10 +25,6 @@ DEPEND="${RDEPEND}"
 BDEPEND="nls? ( sys-devel/gettext )"
 RDEPEND+=" selinux? ( sec-policy/selinux-xfs )"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-5.3.0-libdir.patch
-)
-
 src_prepare() {
 	default
 
@@ -72,6 +68,8 @@ src_configure() {
 		--enable-static
 		# Doesn't do anything beyond adding -flto (bug #930947).
 		--disable-lto
+		# The default value causes double 'lib'
+		--localstatedir="${EPREFIX}/var"
 		--with-crond-dir="${EPREFIX}/etc/cron.d"
 		--with-systemd-unit-dir="$(systemd_get_systemunitdir)"
 		--with-udev-rule-dir="$(get_udevdir)/rules.d"
@@ -92,9 +90,15 @@ src_install() {
 	emake DIST_ROOT="${ED}" HAVE_ZIPPED_MANPAGES=false install
 	emake DIST_ROOT="${ED}" HAVE_ZIPPED_MANPAGES=false install-dev
 
+	# Not actually used but --localstatedir causes this empty dir
+	# to be installed.
+	rmdir "${ED}"/var/lib/xfsprogs "${ED}"/var/lib || die
+
 	if ! use static-libs; then
 		rm "${ED}/usr/$(get_libdir)/libhandle.a" || die
 	fi
+
+	find "${ED}" -name '*.la' -delete || die
 }
 
 pkg_postrm() {
