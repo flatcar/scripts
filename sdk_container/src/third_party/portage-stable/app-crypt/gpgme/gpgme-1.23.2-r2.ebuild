@@ -11,6 +11,7 @@ EAPI=8
 
 DISTUTILS_EXT=1
 DISTUTILS_OPTIONAL=1
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{10..13} )
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnupg.asc
 
@@ -33,7 +34,7 @@ LICENSE="GPL-2 LGPL-2.1"
 # Bump FUDGE if a release is made which breaks ABI without changing SONAME.
 # (Reset to 0 if FUDGE != 0 if libgpgme/libgpgmepp/libqpggme change.)
 SLOT="1/11.6.15.2"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="common-lisp static-libs +cxx python qt5 qt6 test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="
@@ -59,16 +60,19 @@ DEPEND="
 "
 #doc? ( app-text/doxygen[dot] )
 BDEPEND="
-	$(python_gen_cond_dep '
-		dev-python/setuptools[${PYTHON_USEDEP}]
-	' python3_12)
-	python? ( dev-lang/swig )
+	python? (
+		${PYTHON_DEPS}
+		${DISTUTILS_DEPS}
+		dev-lang/swig
+	)
 	verify-sig? ( sec-keys/openpgp-keys-gnupg )
 "
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.18.0-tests-start-stop-agent-use-command-v.patch
 	"${FILESDIR}"/${PN}-1.23.1-tests-gnupg-no-tofu.patch
+	# backport fix for setuptools 72.2 breakage
+	"${FILESDIR}"/ecd0c86d62351d267bdc9566286c532a394c711b.patch
 )
 
 src_prepare() {
