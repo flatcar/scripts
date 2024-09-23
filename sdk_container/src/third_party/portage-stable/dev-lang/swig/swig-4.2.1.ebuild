@@ -11,7 +11,7 @@ SRC_URI="https://downloads.sourceforge.net/${PN}/${P}.tar.gz"
 
 LICENSE="GPL-3+ BSD BSD-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="ccache doc pcre test"
 RESTRICT="!test? ( test )"
 
@@ -26,6 +26,13 @@ DEPEND="
 BDEPEND="virtual/pkgconfig"
 
 DOCS=( ANNOUNCE CHANGES CHANGES.current README TODO )
+
+src_prepare() {
+	default
+
+	# Delete after 4.2.1 (bug #900769, bug #935318)
+	sed -i -e 's:fpic:fPIC:' configure.ac configure || die
+}
 
 src_configure() {
 	# TODO: add USE for various langs? (https://bugs.gentoo.org/921504#c3)
