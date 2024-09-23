@@ -16,7 +16,7 @@ SRC_URI="
 
 LICENSE="BSD BSD-2 BSD-4 public-domain"
 SLOT="0/13"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="
 	acl blake2 +bzip2 +e2fsprogs expat +iconv lz4 +lzma lzo nettle
 	static-libs test xattr +zstd
@@ -24,22 +24,19 @@ IUSE="
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	sys-libs/zlib[${MULTILIB_USEDEP}]
-	acl? ( virtual/acl[${MULTILIB_USEDEP}] )
-	blake2? ( app-crypt/libb2[${MULTILIB_USEDEP}] )
-	bzip2? ( app-arch/bzip2[${MULTILIB_USEDEP}] )
-	expat? ( dev-libs/expat[${MULTILIB_USEDEP}] )
-	!expat? ( dev-libs/libxml2[${MULTILIB_USEDEP}] )
-	iconv? ( virtual/libiconv[${MULTILIB_USEDEP}] )
-	kernel_linux? (
-		xattr? ( sys-apps/attr[${MULTILIB_USEDEP}] )
-	)
-	dev-libs/openssl:0=[${MULTILIB_USEDEP}]
-	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
-	lzma? ( >=app-arch/xz-utils-5.2.5-r1[${MULTILIB_USEDEP}] )
-	lzo? ( >=dev-libs/lzo-2[${MULTILIB_USEDEP}] )
-	nettle? ( dev-libs/nettle:0=[${MULTILIB_USEDEP}] )
-	zstd? ( app-arch/zstd[${MULTILIB_USEDEP}] )
+	sys-libs/zlib:=[${MULTILIB_USEDEP}]
+	acl? ( virtual/acl:=[${MULTILIB_USEDEP}] )
+	blake2? ( app-crypt/libb2:=[${MULTILIB_USEDEP}] )
+	bzip2? ( app-arch/bzip2:=[${MULTILIB_USEDEP}] )
+	expat? ( dev-libs/expat:=[${MULTILIB_USEDEP}] )
+	!expat? ( dev-libs/libxml2:=[${MULTILIB_USEDEP}] )
+	iconv? ( virtual/libiconv:=[${MULTILIB_USEDEP}] )
+	dev-libs/openssl:=[${MULTILIB_USEDEP}]
+	lz4? ( >=app-arch/lz4-0_p131:=[${MULTILIB_USEDEP}] )
+	lzma? ( >=app-arch/xz-utils-5.2.5-r1:=[${MULTILIB_USEDEP}] )
+	lzo? ( >=dev-libs/lzo-2:=[${MULTILIB_USEDEP}] )
+	nettle? ( dev-libs/nettle:=[${MULTILIB_USEDEP}] )
+	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
 "
 DEPEND="${RDEPEND}
 	kernel_linux? (
@@ -74,8 +71,10 @@ PATCHES=(
 	# https://github.com/libarchive/libarchive/issues/2069
 	# (we can simply update the command since we don't support old lrzip)
 	"${FILESDIR}/${PN}-3.7.2-lrzip.patch"
-	# https://github.com/libarchive/libarchive/commit/6ff1cd1e487ddf545337b88da3f1f5ca69a2f958
-	"${FILESDIR}/${PN}-3.7.4-INT_MAX.patch"
+	# https://github.com/libarchive/libarchive/pull/2330
+	"${FILESDIR}/${P}-iso9660-times.patch"
+	# https://github.com/libarchive/libarchive/pull/2335
+	"${FILESDIR}/${P}-attr-dep.patch"
 )
 
 src_prepare() {
