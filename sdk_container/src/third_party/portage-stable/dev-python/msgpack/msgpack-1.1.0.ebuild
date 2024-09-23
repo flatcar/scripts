@@ -18,7 +18,7 @@ HOMEPAGE="
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~x64-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
 IUSE="+native-extensions"
 
 # extension code is relying on CPython implementation details
@@ -34,15 +34,23 @@ distutils_enable_tests pytest
 
 python_prepare_all() {
 	# Remove pre-generated cython files
-	rm msgpack/_cmsgpack.cpp || die
+	rm msgpack/_cmsgpack.c || die
 
 	# native-extensions are always disabled on PyPy
 	# https://github.com/msgpack/msgpack-python/blob/main/setup.py#L76
-	if ! use native-extensions ; then
+	if ! use native-extensions; then
 		export MSGPACK_PUREPYTHON=1
 	fi
 
 	distutils-r1_python_prepare_all
+}
+
+python_configure() {
+	if [[ ${EPYTHON} == python* && ! -f msgpack/_cmsgpack.c ]] &&
+		use native-extensions
+	then
+		cython -v msgpack/_cmsgpack.pyx || die
+	fi
 }
 
 python_test() {
