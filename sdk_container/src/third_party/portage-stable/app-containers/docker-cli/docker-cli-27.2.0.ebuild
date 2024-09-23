@@ -3,7 +3,7 @@
 
 EAPI=7
 
-GIT_COMMIT=d01f264bccd8bed2e3c038054a04b99533478ab8
+GIT_COMMIT=3ab42569583b58dbc6f167d842d5a3dd5972065f
 
 EGO_PN="github.com/docker/cli"
 MY_PV=${PV/_/-}
