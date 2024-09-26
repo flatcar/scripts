@@ -265,6 +265,7 @@ src_prepare() {
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
+		"${FILESDIR}/0009-initrd-parse-etc.service.patch"
 	)
 
 	if ! use vanilla; then
