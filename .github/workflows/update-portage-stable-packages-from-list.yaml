@@ -24,69 +24,18 @@ jobs:
           # that made the changes to the package.
           fetch-depth: 250000
           ref: master
-      - name: Check out build scripts
-        uses: actions/checkout@v4
-        with:
-          repository: flatcar/flatcar-build-scripts
-          path: flatcar-build-scripts
       - name: Update listed packages
         id: update-listed-packages
-        run: |
-          git config --global user.name "Flatcar Buildbot"
-          git config --global user.email "buildbot@flatcar-linux.org"
-          old_head=$(git -C scripts rev-parse HEAD)
-          packages_list=$(realpath scripts/.github/workflows/portage-stable-packages-list)
-          gentoo_repo=$(realpath gentoo)
-          build_scripts=$(realpath flatcar-build-scripts)
-          pushd scripts/sdk_container/src/third_party/portage-stable
-          while read -r package; do
-              if [[ ! -e "${package}" ]]; then
-                  # If this happens, it means that the package was moved to overlay
-                  # or dropped, the list ought to be updated.
-                  echo "::warning title=${package}::Nonexistent package"
-                  continue
-              fi
-              if [[ ! -e "${gentoo_repo}/${package}" ]]; then
-                  # If this happens, it means that the package was obsoleted or moved
-                  # in Gentoo. The obsoletion needs to be handled in the case-by-case
-                  # manner, while move should be handled by doing the same move
-                  # in portage-stable. The build should not break because of the move,
-                  # because most likely it's already reflected in the profiles/updates
-                  # directory.
-                  echo "::warning title=${package}::Obsolete or moved package"
-                  continue
-              fi
-              GENTOO_REPO="${gentoo_repo}" "${build_scripts}/sync-with-gentoo" "${package}"
-          done < <(grep '^[^#]' "${packages_list}")
-          popd
-          new_head=$(git -C scripts rev-parse HEAD)
-          updated=0
-          if [[ "${new_head}" != "${old_head}" ]]; then
-              updated=1
-          fi
-          todaydate=$(date +%Y-%m-%d)
-          echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
-          echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
+        run: ./scripts/.github/workflows/sync_packages.sh ./scripts main ./gentoo
       - name: Create pull request for main branch
         uses: peter-evans/create-pull-request@v6
         if: steps.update-listed-packages.outputs.UPDATED == 1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: scripts
-          branch: buildbot/weekly-portage-stable-package-updates-${{steps.update-listed-packages.outputs.TODAYDATE }}
-          delete-branch: true
+          branch: ${{steps.update-listed-packages.outputs.BRANCH }}
           base: main
           title: Weekly portage-stable package updates ${{steps.update-listed-packages.outputs.TODAYDATE }}
-          body: |
-            CI: TODO
-
-            --
-
-            TODO: Changes.
-
-            --
-
-            - [ ] changelog
-            - [ ] image diff
+          body-path: ${{steps.update-listed-packages.outputs.BODY_PATH }}
           labels: main
           draft: true

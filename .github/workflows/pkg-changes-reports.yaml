@@ -1,0 +1,149 @@
+name: "Run build"
+on:
+  pull_request:
+
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        type: string
+        description: Ref or commit SHA to base branch
+        required: true
+        default: main
+      updated_ref:
+        type: string
+        description: Ref or commit SHA to updated branch
+        required: true
+        default: main
+
+  workflow_call:
+    inputs:
+      base_ref:
+        type: string
+        description: Ref or commit SHA to base branch
+        required: true
+        default: main
+      updated_ref:
+        type: string
+        description: Ref or commit SHA to updated branch
+        required: true
+        default: main
+
+permissions:
+  pull-requests: write
+
+jobs:
+  packages:
+    name: "Generate package change reports"
+    runs-on:
+      - self-hosted
+      - debian
+      - build
+      - x64
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Prepare parameters
+        id: params
+        shell: bash
+        run: |
+          set -xeuo pipefail
+
+          if [[ ${{ github.event_name }} = 'pull_request' ]]; then
+            base=${{ github.event.pull_request.base.sha }}
+            updated=${{ github.event.pull_request.base.sha }}
+          else
+            base=${{ inputs.base_ref }}
+            updated=${{ inputs.updated_ref }}
+          fi
+          echo "BASE=${base}" >>"${GITHUB_OUTPUT}"
+          echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
+      - name: Prepare machine
+        if: always() && !cancelled()
+        shell: bash
+        run: |
+          set -xeuo pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates curl git gnupg lsb-release python3 python3-packaging zstd
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+      - name: Checkout pkg-auto scripts
+        if: always() && !cancelled()
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: pkg-auto-scripts
+          fetch-depth: 0
+
+      - name: Check if automation is in place
+        if: always() && !cancelled()
+        id: pkg-auto-in-place
+        shell: bash
+        run: |
+          set -xeuo pipefail
+
+          has_pkg_auto=0
+          if [[ -d pkg-auto-scripts/pkg_auto ]]; then has_pkg_auto=1; fi
+          echo "HAS_PKG_AUTO=${has_pkg_auto}" >>"${GITHUB_OUTPUT}"
+
+      - name: Checkout base scripts
+        if: steps.pkg-auto-in-place.outputs.HAS_PKG_AUTO == 1 && !cancelled()
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.params.outputs.BASE }}
+          path: scripts
+          fetch-depth: 0
+
+      - name: Checkout updated scripts
+        if: steps.pkg-auto-in-place.outputs.HAS_PKG_AUTO == 1 && !cancelled()
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.params.outputs.UPDATED }}
+          path: updated-scripts
+          fetch-depth: 0
+
+      - name: Prepare aux files
+        if: steps.pkg-auto-in-place.outputs.HAS_PKG_AUTO == 1 && !cancelled()
+        shell: bash
+        run: |
+          set -xeuo pipefail
+          pkg-auto-scripts/pkg_auto/download_sdk_and_listings.sh -s scripts -x aux-cleanup aux
+
+      - name: Generate config
+        if: steps.pkg-auto-in-place.outputs.HAS_PKG_AUTO == 1 && !cancelled()
+        shell: bash
+        run: |
+          set -xeuo pipefail
+          args=(
+            -a aux
+            -n "$(git -C updated-scripts rev-parse)"
+            -o "$(git -C scripts rev-parse)"
+            -r reports
+            -s scripts
+          )
+          pkg-auto-scripts/pkg_auto/generate_config.sh "${args[@]}" config
+
+      - name: Generate reports
+        if: steps.pkg-auto-in-place.outputs.HAS_PKG_AUTO == 1 && !cancelled()
+        shell: bash
+        run: |
+          set -xeuo pipefail
+          rc=0
+          pkg-auto-scripts/pkg-auto/pkg_auto/generate_reports.sh config || rc=$?
+          tar --zstd -cf reports.tar.zst reports
+
+      - name: Upload reports
+        if: steps.pkg-auto-in-place.outputs.HAS_PKG_AUTO == 1 && !cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 7
+          name: reports
+          path: |
+            reports.tar.zst
