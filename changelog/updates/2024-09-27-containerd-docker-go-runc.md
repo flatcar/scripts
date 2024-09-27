@@ -1,0 +1,4 @@
+- containerd ([1.7.22](https://github.com/containerd/containerd/releases/tag/v1.7.22))
+- docker ([27.2.1](https://docs.docker.com/engine/release-notes/27/#2721), includes changes from [26.1.0](https://docs.docker.com/engine/release-notes/26.1/#2610)))
+- Go ([1.22.7](https://go.dev/doc/devel/release#go1.22.7))
+- runc ([1.1.14](https://github.com/opencontainers/runc/releases/tag/v1.1.14))

@@ -1,1 +1,0 @@
-- containerd ([1.7.22](https://github.com/containerd/containerd/releases/tag/v1.7.22))
