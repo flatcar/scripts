@@ -16,7 +16,7 @@ SRC_URI="https://downloads.sourceforge.net/gnu-efi/${P}.tar.bz2"
 # - GPL-2+ : setjmp_ia32.S
 LICENSE="GPL-2+ BSD BSD-2"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~arm ~arm64 ~ia64 ~riscv ~x86"
+KEYWORDS="-* ~amd64 ~arm ~arm64 ~riscv ~x86"
 IUSE="abi_x86_32 abi_x86_64 custom-cflags"
 REQUIRED_USE="
 	amd64? ( || ( abi_x86_32 abi_x86_64 ) )
@@ -42,7 +42,22 @@ check_and_set_objcopy() {
 		# llvm-objcopy does not support EFI target, try to use binutils objcopy or fail
 		tc-export OBJCOPY
 		OBJCOPY="${OBJCOPY/llvm-/}"
-		LC_ALL=C "${OBJCOPY}" --help | grep -q '\<pei-' || die "${OBJCOPY} (objcopy) does not support EFI target"
+		# Test OBJCOPY to see if it supports EFI targets, and return if it does
+		LC_ALL=C "${OBJCOPY}" --help | grep -q '\<pei-' && return 0
+		# If OBJCOPY does not support EFI targets, it is possible that the 'objcopy' on our path is
+		# still LLVM if the 'binutils-plugin' USE flag is set. In this case, we check to see if the
+		# '(prefix)/usr/bin/objcopy' binary is available (it should be, it's a dependency), and if
+		# so, we use the absolute path explicitly.
+		local binutils_objcopy="${EPREFIX}"/usr/bin/"${OBJCOPY}"
+		if [[ -e "${binutils_objcopy}" ]]; then
+			OBJCOPY="${binutils_objcopy}"
+		fi
+		if ! use arm && ! use riscv; then
+			# bug #939338
+			# objcopy does not understand PE/COFF on these arches: arm32, riscv64 and mips64le
+			# gnu-efi containes a workaround
+			LC_ALL=C "${OBJCOPY}" --help | grep -q '\<pei-' || die "${OBJCOPY} (objcopy) does not support EFI target"
+		fi
 	fi
 }
 
