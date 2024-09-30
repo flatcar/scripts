@@ -21,7 +21,7 @@ else
 		https://curl.se/download/${P}.tar.xz
 		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
@@ -78,7 +78,7 @@ REQUIRED_USE="
 # particulary for fast-moving targets like HTTP/2 and TCP/2 e.g.:
 # - https://github.com/curl/curl/blob/master/docs/INTERNALS.md (core dependencies + minimum versions)
 # - https://github.com/curl/curl/blob/master/docs/HTTP3.md (example of a feature that moves quickly)
-# - https://github.com/curl/curl/blob/master/.github/workflows/quiche-linux.yml (CI/CD for TCP/2)
+# - https://github.com/curl/curl/blob/master/.github/workflows/http3-linux.yml (CI/CD for TCP/2)
 # However 'supported' vs 'works' are two entirely different things; be sane but
 # don't be afraid to require a later version.
 # ngtcp2 = https://bugs.gentoo.org/912029 - can only build with one tls backend at a time.
