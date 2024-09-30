@@ -27,7 +27,7 @@ SRC_URI+="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="brotli http2 test zstd"
 RESTRICT="!test? ( test )"
 
@@ -44,6 +44,7 @@ RDEPEND="
 	zstd? ( >=dev-python/zstandard-0.18.0[${PYTHON_USEDEP}] )
 "
 BDEPEND="
+	dev-python/hatch-vcs[${PYTHON_USEDEP}]
 	test? (
 		$(python_gen_cond_dep "
 			${RDEPEND}
@@ -84,8 +85,6 @@ python_test() {
 		# TODO: timeouts
 		test/contrib/test_pyopenssl.py::TestSocketClosing::test_timeout_errors_cause_retries
 		test/with_dummyserver/test_socketlevel.py::TestSocketClosing::test_timeout_errors_cause_retries
-		# TODO: random regression?
-		test/contrib/test_socks.py::TestSocks5Proxy::test_socket_timeout
 	)
 
 	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
