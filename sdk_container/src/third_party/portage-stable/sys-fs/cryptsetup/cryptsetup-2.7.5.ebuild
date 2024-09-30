@@ -14,7 +14,7 @@ S="${WORKDIR}"/${P/_/-}
 LICENSE="GPL-2+"
 SLOT="0/12" # libcryptsetup.so version
 if [[ ${PV} != *_rc* ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
@@ -25,7 +25,7 @@ RESTRICT="!test? ( test )"
 # bug #496612, bug #832711, bug #843863
 REQUIRED_USE="
 	^^ ( ${CRYPTO_BACKENDS//+/} )
-	static? ( !gcrypt !ssh !udev !fips )
+	static? ( !ssh !udev !fips )
 	fips? ( !kernel !nettle )
 "
 
