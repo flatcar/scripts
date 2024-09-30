@@ -66,7 +66,7 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
-	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xen
+	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xdp xen
 	zstd"
 
 COMMON_TARGETS="
@@ -141,6 +141,7 @@ REQUIRED_USE="
 	vte? ( gtk )
 	multipath? ( udev )
 	plugins? ( !static-user )
+	xdp? ( bpf )
 "
 for smname in ${IUSE_SOFTMMU_TARGETS} ; do
 	REQUIRED_USE+=" qemu_softmmu_targets_${smname}? ( kernel_linux? ( seccomp ) )"
@@ -235,12 +236,13 @@ SOFTMMU_TOOLS_DEPEND="
 	vde? ( net-misc/vde[static-libs(+)] )
 	virgl? ( media-libs/virglrenderer[static-libs(+)] )
 	virtfs? ( sys-libs/libcap )
+	xdp? ( net-libs/xdp-tools )
 	xen? ( app-emulation/xen-tools:= )
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
 
 EDK2_OVMF_VERSION="202202"
-SEABIOS_VERSION="1.16.0"
+SEABIOS_VERSION="1.16.3"
 
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
@@ -479,7 +481,7 @@ src_prepare() {
 	export WINDRES=${CHOST}-windres
 
 	# Workaround for bug #938302
-	if use systemtap && ! has_version "dev-debug/systemtap[dtrace-symlink(-)]" ; then
+	if use systemtap && has_version "dev-debug/systemtap[-dtrace-symlink(+)]" ; then
 		cat >> "${S}"/configs/meson/linux.txt <<-EOF || die
 		[binaries]
 		dtrace='stap-dtrace'
@@ -633,6 +635,7 @@ qemu_src_configure() {
 		$(conf_softmmu virtfs)
 		$(conf_notuser vnc)
 		$(conf_notuser vte)
+		$(conf_softmmu xdp af-xdp)
 		$(conf_notuser xen)
 		$(conf_notuser xen xen-pci-passthrough)
 		# use prebuilt keymaps, bug #759604
