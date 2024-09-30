@@ -50,7 +50,7 @@ if [[ ${PV} != *9999 ]]; then
 	SRC_URI+=" doc? ( ${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX} )"
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -333,6 +333,10 @@ src_compile() {
 		git_emake gitweb
 	fi
 
+	if use perl ; then
+		git_emake -C contrib/credential/netrc
+	fi
+
 	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
 		git_emake -C contrib/credential/osxkeychain
 	fi
@@ -482,6 +486,11 @@ src_test() {
 
 	# And bail if there was a problem
 	[[ ${rc} -eq 0 ]] || die "Tests failed. Please file a bug!"
+
+	popd &>/dev/null || die
+	if use perl ; then
+		emake -C contrib/credential/netrc testverbose
+	fi
 }
 
 src_install() {
@@ -606,6 +615,12 @@ src_install() {
 		done
 	else
 		rm -rf "${ED}"/usr/share/gitweb
+	fi
+
+	if use perl ; then
+		pushd contrib/credential/netrc &>/dev/null || die
+		dobin git-credential-netrc
+		popd &>/dev/null || die
 	fi
 
 	if ! use subversion ; then
