@@ -29,7 +29,7 @@ else
 	fi
 	S="${WORKDIR}"/${MY_P}
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-arnaldocarvalhodemelo )"
-	KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 LICENSE="GPL-2" # only
@@ -59,7 +59,7 @@ src_unpack() {
 	if use verify-sig; then
 		einfo "Unpacking ${MY_P}.tar.xz ..."
 		verify-sig_verify_detached - "${DISTDIR}"/${MY_P}.tar.sign \
-			< <(xz -cd "${DISTDIR}"/${MY_P}.tar.xz | tee >(tar -x))
+			< <(xz -cd "${DISTDIR}"/${MY_P}.tar.xz | tee >(tar -xf -))
 		assert "Unpack failed"
 	else
 		default
