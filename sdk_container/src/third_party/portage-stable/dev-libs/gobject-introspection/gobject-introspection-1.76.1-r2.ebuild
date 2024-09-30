@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 PYTHON_REQ_USE="xml(+)"
 inherit gnome.org meson python-single-r1 xdg
 
@@ -15,7 +15,7 @@ SLOT="0"
 IUSE="doctool gtk-doc test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 
 # virtual/pkgconfig needed at runtime, bug #505408
 RDEPEND="
@@ -49,6 +49,11 @@ BDEPEND="
 		')
 	)
 "
+
+PATCHES=(
+	# https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/490
+	"${FILESDIR}/${PN}-1.80.1-setuptools-74.patch"
+)
 
 pkg_setup() {
 	python-single-r1_pkg_setup
