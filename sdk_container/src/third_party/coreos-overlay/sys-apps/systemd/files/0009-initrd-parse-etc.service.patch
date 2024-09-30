@@ -1,0 +1,29 @@
+From 65e3f4e837001f6f00359a779b6c5801566aa750 Mon Sep 17 00:00:00 2001
+From: Adrian Vladu <avladu@cloudbasesolutions.com>
+Date: Wed, 25 Sep 2024 15:51:02 +0000
+Subject: [PATCH] Revert "Revert "initrd-parse-etc: override argv[0] to avoid
+ dracut issue""
+
+This reverts commit 1c585a4ccda3258088d7bc27b27a314e7ed8be80.
+---
+ units/initrd-parse-etc.service.in | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/units/initrd-parse-etc.service.in b/units/initrd-parse-etc.service.in
+index 1eef2bd9be..3dadab1123 100644
+--- a/units/initrd-parse-etc.service.in
++++ b/units/initrd-parse-etc.service.in
+@@ -23,7 +23,9 @@ OnFailureJobMode=replace-irreversibly
+ [Service]
+ Type=oneshot
+ 
+-ExecStart={{LIBEXECDIR}}/systemd-sysroot-fstab-check
++# FIXME: once dracut is patched to install the symlink, change to:
++# ExecStart={{LIBEXECDIR}}/systemd-sysroot-fstab-check
++ExecStart=@{{SYSTEM_GENERATOR_DIR}}/systemd-fstab-generator systemd-sysroot-fstab-check
+ 
+ # We want to enqueue initrd-cleanup.service/start after we finished the part
+ # above. It can't be part of the initial transaction, because non-oneshot units
+-- 
+2.34.1
+

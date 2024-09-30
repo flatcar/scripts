@@ -1,7 +1,6 @@
-From fa96a2ef86466da0a43756ee39ce3b1cb555a55a Mon Sep 17 00:00:00 2001
 From: Ben Hutchings <ben@decadent.org.uk>
 Date: Tue, 10 Sep 2019 11:54:28 +0100
-Subject: [PATCH 2/4] efi: Lock down the kernel if booted in secure boot mode
+Subject: efi: Lock down the kernel if booted in secure boot mode
 
 Based on an earlier patch by David Howells, who wrote the following
 description:
@@ -18,18 +17,16 @@ help text for LOCK_DOWN_IN_EFI_SECURE_BOOT was adjusted to mention that
 lockdown is triggered in integrity mode (https://bugs.debian.org/1025417)]
 Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
 ---
- arch/x86/kernel/setup.c           |  4 ++--
- drivers/firmware/efi/secureboot.c |  5 +++++
- include/linux/security.h          |  6 ++++++
- security/lockdown/Kconfig         | 15 +++++++++++++++
- security/lockdown/lockdown.c      |  2 +-
- 5 files changed, 29 insertions(+), 3 deletions(-)
+ arch/x86/kernel/setup.c           |    4 ++--
+ drivers/firmware/efi/secureboot.c |    3 +++
+ include/linux/security.h          |    6 ++++++
+ security/lockdown/Kconfig         |   15 +++++++++++++++
+ security/lockdown/lockdown.c      |    2 +-
+ 5 files changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 7c4a6697e39d..04e73973098e 100644
 --- a/arch/x86/kernel/setup.c
 +++ b/arch/x86/kernel/setup.c
-@@ -1028,6 +1028,8 @@ void __init setup_arch(char **cmdline_p)
+@@ -900,6 +900,8 @@ void __init setup_arch(char **cmdline_p)
  	if (efi_enabled(EFI_BOOT))
  		efi_init();
  
@@ -38,7 +35,7 @@ index 7c4a6697e39d..04e73973098e 100644
  	reserve_ibft_region();
  	x86_init.resources.dmi_setup();
  
-@@ -1190,8 +1192,6 @@ void __init setup_arch(char **cmdline_p)
+@@ -1061,8 +1063,6 @@ void __init setup_arch(char **cmdline_p)
  	/* Allocate bigger log buffer */
  	setup_log_buf(1);
  
@@ -47,8 +44,6 @@ index 7c4a6697e39d..04e73973098e 100644
  	reserve_initrd();
  
  	acpi_table_upgrade();
-diff --git a/drivers/firmware/efi/secureboot.c b/drivers/firmware/efi/secureboot.c
-index b6620669e32b..8f2554291fb1 100644
 --- a/drivers/firmware/efi/secureboot.c
 +++ b/drivers/firmware/efi/secureboot.c
 @@ -15,6 +15,7 @@
@@ -59,7 +54,7 @@ index b6620669e32b..8f2554291fb1 100644
  
  /*
   * Decide what to do when UEFI secure boot mode is enabled.
-@@ -28,6 +29,10 @@ void __init efi_set_secure_boot(enum efi_secureboot_mode mode)
+@@ -28,6 +29,10 @@ void __init efi_set_secure_boot(enum efi
  			break;
  		case efi_secureboot_mode_enabled:
  			set_bit(EFI_SECURE_BOOT, &efi.flags);
@@ -70,21 +65,19 @@ index b6620669e32b..8f2554291fb1 100644
  			pr_info("Secure boot enabled\n");
  			break;
  		default:
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 4bd0f6fc553e..08258ecbb5f9 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -486,6 +486,7 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
- int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
- int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+@@ -509,6 +509,7 @@ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
  int security_locked_down(enum lockdown_reason what);
+ int lsm_fill_user_ctx(struct lsm_ctx __user *uctx, u32 *uctx_len,
+ 		      void *val, size_t val_len, u64 id, u64 flags);
 +int lock_kernel_down(const char *where, enum lockdown_reason level);
  #else /* CONFIG_SECURITY */
  
  static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
-@@ -1404,6 +1405,11 @@ static inline int security_locked_down(enum lockdown_reason what)
+@@ -1483,6 +1484,11 @@ static inline int lsm_fill_user_ctx(struct lsm_ctx __user *uctx,
  {
- 	return 0;
+ 	return -EOPNOTSUPP;
  }
 +static inline int
 +lock_kernel_down(const char *where, enum lockdown_reason level)
@@ -94,11 +87,9 @@ index 4bd0f6fc553e..08258ecbb5f9 100644
  #endif	/* CONFIG_SECURITY */
  
  #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
-diff --git a/security/lockdown/Kconfig b/security/lockdown/Kconfig
-index e84ddf484010..4175b50b1e6e 100644
 --- a/security/lockdown/Kconfig
 +++ b/security/lockdown/Kconfig
-@@ -45,3 +45,18 @@ config LOCK_DOWN_KERNEL_FORCE_CONFIDENTIALITY
+@@ -45,3 +45,18 @@ config LOCK_DOWN_KERNEL_FORCE_CONFIDENTI
  	 disabled.
  
  endchoice
@@ -117,11 +108,9 @@ index e84ddf484010..4175b50b1e6e 100644
 +
 +	  Enabling this option results in kernel lockdown being
 +	  triggered in integrity mode if EFI Secure Boot is set.
-diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.c
-index 68d19632aeb7..67cc9839952f 100644
 --- a/security/lockdown/lockdown.c
 +++ b/security/lockdown/lockdown.c
-@@ -23,7 +23,7 @@ static const enum lockdown_reason lockdown_levels[] = {LOCKDOWN_NONE,
+@@ -24,7 +24,7 @@ static const enum lockdown_reason lockdo
  /*
   * Put the kernel into lock-down mode.
   */
@@ -130,6 +119,3 @@ index 68d19632aeb7..67cc9839952f 100644
  {
  	if (kernel_locked_down >= level)
  		return -EPERM;
--- 
-2.39.2
-

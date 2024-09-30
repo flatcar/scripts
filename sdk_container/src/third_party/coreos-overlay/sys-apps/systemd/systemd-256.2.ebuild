@@ -14,15 +14,10 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/systemd/systemd.git"
 	inherit git-r3
 else
-	if [[ ${PV} == *.* ]]; then
-		MY_PN=systemd-stable
-	else
-		MY_PN=systemd
-	fi
 	MY_PV=${PV/_/-}
-	MY_P=${MY_PN}-${MY_PV}
+	MY_P=${PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
-	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
+	SRC_URI="https://github.com/systemd/${PN}/archive/refs/tags/v${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 
 	if [[ ${PV} != *rc* ]] ; then
 		# Flatcar: mark as stable
@@ -34,7 +29,7 @@ inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-singl
 inherit secureboot systemd tmpfiles toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
-HOMEPAGE="http://systemd.io/"
+HOMEPAGE="https://systemd.io/"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
@@ -148,6 +143,7 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
+		!sys-apps/openrc-navi[sysv-utils(-)]
 		!sys-apps/sysvinit
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
@@ -258,19 +254,16 @@ src_prepare() {
 		"${FILESDIR}/systemd-test-process-util.patch"
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
-		"${FILESDIR}/0002-networkd-default-to-kernel-IPForwarding-setting.patch"
 		"${FILESDIR}/0003-needs-update-don-t-require-strictly-newer-usr.patch"
 		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
-		# Flatcar: This can be dropped when updating to 256.
-		"${FILESDIR}/0008-sysext-Mutable-overlays.patch"
+		"${FILESDIR}/0009-initrd-parse-etc.service.patch"
 	)
 
 	if ! use vanilla; then
 		PATCHES+=(
-			"${FILESDIR}/gentoo-generator-path-r2.patch"
 			"${FILESDIR}/gentoo-journald-audit-r1.patch"
 		)
 	fi
@@ -335,11 +328,8 @@ multilib_src_configure() {
 		# Disable compatibility with sysvinit
 		-Dsysvinit-path=
 		-Dsysvrcnd-path=
-		# Avoid infinite exec recursion, bug 642724
-		-Dtelinit-path="${EPREFIX}/lib/sysvinit/telinit"
 		# no deps
 		-Dima=true
-		-Ddefault-hierarchy=$(usex cgroup-hybrid hybrid unified)
 		# Match /etc/shells, bug 919749
 		-Ddebug-shell="${EPREFIX}/bin/sh"
 		-Ddefault-user-shell="${EPREFIX}/bin/bash"
@@ -446,6 +436,14 @@ multilib_src_configure() {
 		-Dquotacheck-path=/usr/sbin/quotacheck
 		-Ddefault-mdns=no
 	)
+
+	case $(tc-arch) in
+		amd64|arm|arm64|ppc|ppc64|s390|x86)
+			# src/vmspawn/vmspawn-util.h: QEMU_MACHINE_TYPE
+			myconf+=( $(meson_native_enabled vmspawn) ) ;;
+		*)
+			myconf+=( -Dvmspawn=disabled ) ;;
+	esac
 
 	meson_src_configure "${myconf[@]}"
 }
