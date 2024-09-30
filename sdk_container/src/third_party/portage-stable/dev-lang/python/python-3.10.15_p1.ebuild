@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm libedit
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -43,7 +43,6 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-crypt/libb2
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
@@ -72,8 +71,8 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
-	test? ( app-arch/xz-utils )
 	valgrind? ( dev-debug/valgrind )
+	test? ( app-arch/xz-utils )
 "
 # autoconf-archive needed to eautoreconf
 BDEPEND="
@@ -153,7 +152,7 @@ build_cbuild_python() {
 	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
 
 	# We need to build our own Python on CBUILD first, and feed it in.
-	# bug #847910
+	# bug #847910 and bug #864911.
 	local myeconfargs_cbuild=(
 		"${myeconfargs[@]}"
 
@@ -164,9 +163,8 @@ build_cbuild_python() {
 		--disable-shared
 
 		# As minimal as possible for the mini CBUILD Python
-		# we build just for cross to satisfy --with-build-python.
+		# we build just for cross.
 		--without-lto
-		--without-readline
 		--disable-optimizations
 	)
 
@@ -179,24 +177,24 @@ build_cbuild_python() {
 
 	# Avoid as many dependencies as possible for the cross build.
 	cat >> Makefile <<-EOF || die
-		MODULE_NIS_STATE=disabled
-		MODULE__DBM_STATE=disabled
-		MODULE__GDBM_STATE=disabled
-		MODULE__DBM_STATE=disabled
-		MODULE__SQLITE3_STATE=disabled
-		MODULE__HASHLIB_STATE=disabled
-		MODULE__SSL_STATE=disabled
-		MODULE__CURSES_STATE=disabled
-		MODULE__CURSES_PANEL_STATE=disabled
-		MODULE_READLINE_STATE=disabled
-		MODULE__TKINTER_STATE=disabled
-		MODULE_PYEXPAT_STATE=disabled
-		MODULE_ZLIB_STATE=disabled
+		MODULE_NIS=disabled
+		MODULE__DBM=disabled
+		MODULE__GDBM=disabled
+		MODULE__DBM=disabled
+		MODULE__SQLITE3=disabled
+		MODULE__HASHLIB=disabled
+		MODULE__SSL=disabled
+		MODULE__CURSES=disabled
+		MODULE__CURSES_PANEL=disabled
+		MODULE_READLINE=disabled
+		MODULE__TKINTER=disabled
+		MODULE_PYEXPAT=disabled
+		MODULE_ZLIB=disabled
 	EOF
 
 	# Unfortunately, we do have to build this immediately, and
 	# not in src_compile, because CHOST configure for Python
-	# will check the existence of the --with-build-python value
+	# will check the existence of the Python it was pointed to
 	# immediately.
 	PYTHON_DISABLE_MODULES+=" _ctypes _crypt" emake
 	popd &> /dev/null || die
@@ -206,6 +204,18 @@ src_configure() {
 	# disable automagic bluetooth headers detection
 	if ! use bluetooth; then
 		local -x ac_cv_header_bluetooth_bluetooth_h=no
+	fi
+	local disable
+	use gdbm      || disable+=" gdbm"
+	use ncurses   || disable+=" _curses _curses_panel"
+	use readline  || disable+=" readline"
+	use sqlite    || disable+=" _sqlite3"
+	use ssl       || export PYTHON_DISABLE_SSL="1"
+	use tk        || disable+=" _tkinter"
+	export PYTHON_DISABLE_MODULES="${disable}"
+
+	if [[ -n "${PYTHON_DISABLE_MODULES}" ]]; then
+		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
 	fi
 
 	append-flags -fwrapv
@@ -220,6 +230,77 @@ src_configure() {
 		dbmliborder+="${dbmliborder:+:}gdbm"
 	fi
 
+	# Set baseline test skip flags.
+	COMMON_TEST_SKIPS=(
+		-x test_gdb
+	)
+
+	# Arch-specific skips.  See #931888 for a collection of these.
+	case ${CHOST} in
+		alpha*)
+			COMMON_TEST_SKIPS+=(
+				-x test_builtin
+				-x test_capi
+				-x test_cmath
+				-x test_float
+				# timeout
+				-x test_free_threading
+				-x test_math
+				-x test_numeric_tower
+				-x test_random
+				-x test_statistics
+				# bug 653850
+				-x test_resource
+				-x test_strtod
+			)
+			;;
+		mips*)
+			COMMON_TEST_SKIPS+=(
+				-x test_ctypes
+				-x test_external_inspection
+				-x test_statistics
+			)
+			;;
+		powerpc64-*) # big endian
+			COMMON_TEST_SKIPS+=(
+				-x test_descr
+			)
+			;;
+		riscv*)
+			COMMON_TEST_SKIPS+=(
+				-x test_urllib2
+			)
+			;;
+		sparc*)
+			COMMON_TEST_SKIPS+=(
+				# bug 788022
+				-x test_multiprocessing_fork
+				-x test_multiprocessing_forkserver
+
+				-x test_ctypes
+				-x test_descr
+				# bug 931908
+				-x test_exceptions
+			)
+			;;
+	esac
+
+	# musl-specific skips
+	use elibc_musl && COMMON_TEST_SKIPS+=(
+		# various musl locale deficiencies
+		-x test__locale
+		-x test_c_locale_coercion
+		-x test_locale
+		-x test_re
+
+		# known issues with find_library on musl
+		# https://bugs.python.org/issue21622
+		-x test_ctypes
+
+		# fpathconf, ttyname errno values
+		-x test_os
+	)
+
 	if use pgo; then
 		local profile_task_flags=(
 			-m test
@@ -231,7 +312,8 @@ src_configure() {
 			# here. It also matches the default upstream PROFILE_TASK.
 			--timeout 1200
 
-			-x test_gdb
+			"${COMMON_TEST_SKIPS[@]}"
+
 			-x test_dtrace
 
 			# All of these seem to occasionally hang for PGO inconsistently
@@ -250,21 +332,33 @@ src_configure() {
 			-x test_tools
 		)
 
-		# musl-specific skips
-		use elibc_musl && profile_task_flags+=(
-			# various musl locale deficiencies
-			-x test__locale
-			-x test_c_locale_coercion
-			-x test_locale
-			-x test_re
-
-			# known issues with find_library on musl
-			# https://bugs.python.org/issue21622
-			-x test_ctypes
-
-			# fpathconf, ttyname errno values
-			-x test_os
-		)
+		# Arch-specific skips.  See #931888 for a collection of these.
+		case ${CHOST} in
+			alpha*)
+				profile_task_flags+=(
+					-x test_os
+				)
+				;;
+			hppa*)
+				profile_task_flags+=(
+					-x test_descr
+					# bug 931908
+					-x test_exceptions
+					-x test_os
+				)
+				;;
+			powerpc64-*) # big endian
+				profile_task_flags+=(
+					# bug 931908
+					-x test_exceptions
+				)
+				;;
+			riscv*)
+				profile_task_flags+=(
+					-x test_statistics
+				)
+				;;
+		esac
 
 		if has_version "app-arch/rpm" ; then
 			# Avoid sandbox failure (attempts to write to /var/lib/rpm)
@@ -295,8 +389,6 @@ src_configure() {
 		--with-system-expat
 		--with-system-ffi
 		--with-system-libmpdec
-		--with-platlibdir=lib
-		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
 
 		$(use_with debug assertions)
@@ -318,11 +410,9 @@ src_configure() {
 
 	if tc-is-cross-compiler ; then
 		build_cbuild_python
-		myeconfargs+=(
-			# Point the imminent CHOST build to the Python we just
-			# built for CBUILD.
-			--with-build-python="${WORKDIR}"/${P}-${CBUILD}/python
-		)
+		# Point the imminent CHOST build to the Python we just
+		# built for CBUILD.
+		export PATH="${WORKDIR}/${P}-${CBUILD}:${PATH}"
 	fi
 
 	# pass system CFLAGS & LDFLAGS as _NODIST, otherwise they'll get
@@ -345,20 +435,6 @@ src_configure() {
 		die "Broken sem_open function (bug 496328)"
 	fi
 
-	# force-disable modules we don't want built
-	local disable_modules=( NIS )
-	use gdbm || disable_modules+=( _GDBM _DBM )
-	use sqlite || disable_modules+=( _SQLITE3 )
-	use ssl || disable_modules+=( _HASHLIB _SSL )
-	use ncurses || disable_modules+=( _CURSES _CURSES_PANEL )
-	use readline || disable_modules+=( READLINE )
-	use tk || disable_modules+=( _TKINTER )
-
-	local mod
-	for mod in "${disable_modules[@]}"; do
-		echo "MODULE_${mod}_STATE=disabled"
-	done >> Makefile || die
-
 	# install epython.py as part of stdlib
 	echo "EPYTHON='python${PYVER}'" > Lib/epython.py || die
 }
@@ -370,19 +446,19 @@ src_compile() {
 	# Prevent using distutils bundled by setuptools.
 	# https://bugs.gentoo.org/823728
 	export SETUPTOOLS_USE_DISTUTILS=stdlib
-	export PYTHONSTRICTEXTENSIONBUILD=1
 
 	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
 	# end up writing bytecode & violating sandbox.
 	# bug #831897
 	local -x _PYTHONDONTWRITEBYTECODE=${PYTHONDONTWRITEBYTECODE}
 
+	# Gentoo hack to disable accessing system site-packages
+	export GENTOO_CPYTHON_BUILD=1
+
 	if use pgo ; then
 		# bug 660358
 		local -x COLUMNS=80
 		local -x PYTHONDONTWRITEBYTECODE=
-
-		addpredict "/usr/lib/python${PYVER}/site-packages"
 	fi
 
 	# also need to clear the flags explicitly here or they end up
@@ -407,60 +483,20 @@ src_test() {
 		return
 	fi
 
-	# this just happens to skip test_support.test_freeze that is broken
-	# without bundled expat
-	# TODO: get a proper skip for it upstream
-	local -x LOGNAME=buildbot
-
 	local test_opts=(
+		--verbose3
 		-u-network
 		-j "$(makeopts_jobs)"
-
-		# fails
-		-x test_concurrent_futures
-		-x test_gdb
+		"${COMMON_TEST_SKIPS[@]}"
 	)
-
-	if use sparc ; then
-		# bug #788022
-		test_opts+=(
-			-x test_multiprocessing_fork
-			-x test_multiprocessing_forkserver
-		)
-	fi
-
-	# musl-specific skips
-	use elibc_musl && test_opts+=(
-		# various musl locale deficiencies
-		-x test__locale
-		-x test_c_locale_coercion
-		-x test_locale
-		-x test_re
-
-		# known issues with find_library on musl
-		# https://bugs.python.org/issue21622
-		-x test_ctypes
-
-		# fpathconf, ttyname errno values
-		-x test_os
-	)
-
-	# workaround docutils breaking tests
-	cat > Lib/docutils.py <<-EOF || die
-		raise ImportError("Thou shalt not import!")
-	EOF
 
 	# bug 660358
 	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
-	# workaround https://bugs.gentoo.org/775416
-	addwrite "/usr/lib/python${PYVER}/site-packages"
 
 	nonfatal emake -Onone test EXTRATESTOPTS="${test_opts[*]}" \
 		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
 	local ret=${?}
-
-	rm Lib/docutils.py || die
 
 	[[ ${ret} -eq 0 ]] || die "emake test failed"
 }
@@ -468,8 +504,7 @@ src_test() {
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
 
-	# -j1 hack for now for bug #843458
-	emake -j1 DESTDIR="${D}" altinstall
+	emake DESTDIR="${D}" TEST_MODULES=no altinstall
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -503,7 +538,7 @@ src_install() {
 	fi
 	if ! use tk; then
 		rm -r "${ED}/usr/bin/idle${PYVER}" || die
-		rm -r "${libdir}/"{idlelib,tkinter,test/test_tk*} || die
+		rm -r "${libdir}/"{idlelib,tkinter} || die
 	fi
 
 	ln -s ../python/EXTERNALLY-MANAGED "${libdir}/EXTERNALLY-MANAGED" || die
@@ -554,20 +589,4 @@ src_install() {
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
 	fi
-}
-
-pkg_postinst() {
-	local v
-	for v in ${REPLACING_VERSIONS}; do
-		if ver_test "${v}" -lt 3.11.0_beta4-r2; then
-			ewarn "Python 3.11.0b4 has changed its module ABI.  The .pyc files"
-			ewarn "installed previously are no longer valid and will be regenerated"
-			ewarn "(or ignored) on the next import.  This may cause sandbox failures"
-			ewarn "when installing some packages and checksum mismatches when removing"
-			ewarn "old versions.  To actively prevent this, rebuild all packages"
-			ewarn "installing Python 3.11 modules, e.g. using:"
-			ewarn
-			ewarn "  emerge -1v /usr/lib/python3.11/site-packages"
-		fi
-	done
 }
