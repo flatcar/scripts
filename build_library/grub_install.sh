@@ -281,7 +281,7 @@ case "${FLAGS_target}" in
         fi
         if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
             # copying from vfat so ignore permissions
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/bootaa64.efi" \
+            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grubaa64.efi" \
                 "${FLAGS_copy_efi_grub}"
         fi
         ;;
