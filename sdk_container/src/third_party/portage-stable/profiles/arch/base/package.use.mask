@@ -60,10 +60,6 @@ app-admin/syslog-ng mqtt
 # Refind is only available on a subset of arches
 sys-kernel/installkernel refind
 
-# Ionen Wolkens <ionen@gentoo.org> (2024-01-27)
-# dev-python/PyQt6 and dev-python/pyside6 have very few keywords
-dev-python/QtPy pyqt6 pyside6
-
 # Michal Privoznik <michal.privoznik@gmail.com> (2024-01-21)
 # virtiofsd is only available on some arches
 app-emulation/libvirt virtiofsd
@@ -82,8 +78,8 @@ sys-kernel/gentoo-kernel generic-uki
 sys-kernel/gentoo-kernel-bin generic-uki
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-12-02)
-# Needs dev-qt/qtwebengine:6 which has very few keywords.
-dev-python/PyQt6 pdfium
+# dev-qt/qtwebengine:6 and dev-qt/qtremoteobjects:6 have few keywords.
+dev-python/PyQt6 pdfium remoteobjects
 
 # Jimi Huotari <chiitoo@gentoo.org> (2023-11-22)
 # media-libs/libvpl is only keyworded for amd64 at this time.

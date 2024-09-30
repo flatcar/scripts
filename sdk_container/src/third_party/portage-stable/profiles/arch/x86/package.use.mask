@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Patrick McLean <chutzpah@gentoo.org> (2024-09-23)
+# Only supported on x86/amd64 (bug #940014).
+net-misc/lldpd -seccomp
+
 # orbea <orbea@riseup.net> (2024-07-19)
 # Unmask the dynarec flag which has x86 asm.
 games-emulation/rmg -dynarec
@@ -30,14 +34,6 @@ dev-tex/abntex lyx
 # combination specifically but in reality kaccounts is useless without
 # additional dev-qt/qtwebengine revdeps.
 kde-frameworks/purpose:5 kaccounts
-
-# Paul Zander <negril.nx+gentoo@gmail.com> (2024-06-17)
-# missing keywords on dev-python/PyQt6
-sci-geosciences/qgis qt6
-
-# José de Paula R. N. Assis <espinafre@gmail.com> (2024-03-25)
-# No PyQt6 (which is needed by USE=qt6 for qscintilla-python) on x86.
->=dev-python/qscintilla-python-2.14.1-r1 qt6
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
 # virt-firmware is keyworded here
