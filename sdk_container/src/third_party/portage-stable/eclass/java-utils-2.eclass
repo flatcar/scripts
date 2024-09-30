@@ -17,13 +17,17 @@
 # that have optional Java support. In addition you can inherit java-ant-2 for
 # Ant-based packages.
 
-case ${EAPI} in
-	6|7|8) ;;
-	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-esac
-
 if [[ -z ${_JAVA_UTILS_2_ECLASS} ]] ; then
 _JAVA_UTILS_2_ECLASS=1
+
+case ${EAPI} in
+	6)
+		ewarn "${CATEGORY}/${PF}: ebuild uses ${ECLASS} with deprecated EAPI ${EAPI}!"
+		ewarn "${CATEGORY}/${PF}: Support will be removed on 2024-10-08. Please port to newer EAPI."
+		;;
+	7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
 # EAPI 7 has version functions built-in. Use eapi7-ver for all earlier EAPIs.
 # Keep versionator inheritance in case consumers are using it implicitly.
@@ -2248,29 +2252,6 @@ java-pkg_filter-compiler() {
 # OutOfMemoryErrors that may come up.
 java-pkg_force-compiler() {
 	JAVA_PKG_FORCE_COMPILER="$@"
-}
-
-# @FUNCTION: use_doc
-# @DESCRIPTION:
-#
-# Helper function for getting ant to build javadocs. If the user has USE=doc,
-# then 'javadoc' or the argument are returned. Otherwise, there is no return.
-#
-# The output of this should be passed to ant.
-# @CODE
-# Parameters:
-# $@ - Option value to return. Defaults to 'javadoc'
-#
-# Examples:
-# build javadocs by calling 'javadoc' target
-#	eant $(use_doc)
-#
-# build javadocs by calling 'apidoc' target
-#	eant $(use_doc apidoc)
-# @CODE
-# @RETURN string - Name of the target to create javadocs
-use_doc() {
-	use doc && echo ${@:-javadoc}
 }
 
 
