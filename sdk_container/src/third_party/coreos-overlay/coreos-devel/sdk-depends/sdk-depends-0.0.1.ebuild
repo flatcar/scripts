@@ -17,9 +17,9 @@ DEPEND="
 	app-admin/sudo
 	app-admin/updateservicectl
 	app-arch/pbzip2
-	app-crypt/efitools
 	app-crypt/sbsigntools
 	app-emulation/open-vmdk
+	app-emulation/virt-firmware
 	app-eselect/eselect-python
 	app-misc/jq
 	app-shells/bash-completion

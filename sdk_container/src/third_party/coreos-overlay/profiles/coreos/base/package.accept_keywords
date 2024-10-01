@@ -35,15 +35,15 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =app-crypt/clevis-19-r1 **
 
+# Needed in SDK for Secure Boot.
+=app-emulation/virt-firmware-24.7 ~amd64 ~arm64
+
 # Needed by arm64-native SDK.
-=app-crypt/efitools-1.9.2-r1 ~arm64
+=app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
 =app-crypt/gnupg-2.4.5-r2 ~arm64
 =app-crypt/pinentry-1.3.1 ~arm64
-
-# Needed by arm64-native SDK.
-=app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
 =app-portage/elt-patches-20240912
