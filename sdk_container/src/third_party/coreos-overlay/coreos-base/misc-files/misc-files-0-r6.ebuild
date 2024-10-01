@@ -33,7 +33,7 @@ RDEPEND="
         >=app-shells/bash-5.2_p15-r2
         ntp? ( >=net-misc/ntp-4.2.8_p17 )
         policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
-        audit? ( >=sys-process/audit-3.1.1 )
+        audit? ( >=sys-process/audit-4.0.1-r1 )
 "
 
 declare -A CORE_BASH_SYMLINKS
@@ -166,10 +166,7 @@ src_install() {
             # Upstream wants these to have restrictive perms.
             fperms 0640 "/etc/audit/rules.d/${name}"
         done
-        # Install a service that loads the rules (it's possibly
-        # something that a deamon does, but in our case the daemon is
-        # disabled by default).
-        systemd_dounit "${FILESDIR}/audit/audit-rules.service"
+        # Enable audit-rules.service by default.
         systemd_enable_service multi-user.target audit-rules.service
     fi
 
