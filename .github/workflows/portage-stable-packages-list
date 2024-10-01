@@ -117,7 +117,6 @@ app-containers/runc
 app-crypt/adcli
 app-crypt/argon2
 app-crypt/ccid
-app-crypt/efitools
 app-crypt/gnupg
 app-crypt/gpgme
 app-crypt/libb2
