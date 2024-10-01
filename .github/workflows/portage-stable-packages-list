@@ -138,6 +138,7 @@ app-editors/vim-core
 
 app-emulation/qemu
 app-emulation/qemu-guest-agent
+app-emulation/virt-firmware
 
 app-eselect/eselect-iptables
 app-eselect/eselect-lib-bin-symlink
@@ -284,10 +285,12 @@ dev-python/autocommand
 dev-python/backports-tarfile
 dev-python/cachecontrol
 dev-python/certifi
+dev-python/cffi
 dev-python/chardet
 dev-python/charset-normalizer
 dev-python/colorama
 dev-python/crcmod
+dev-python/cryptography
 dev-python/cython
 dev-python/distlib
 dev-python/distro
@@ -321,11 +324,14 @@ dev-python/olefile
 dev-python/ordered-set
 dev-python/packaging
 dev-python/pathspec
+dev-python/pefile
 dev-python/pillow
 dev-python/pip
 dev-python/platformdirs
 dev-python/pluggy
+dev-python/ply
 dev-python/poetry-core
+dev-python/pycparser
 dev-python/pydecomp
 dev-python/pygments
 dev-python/pyproject-hooks
@@ -354,6 +360,7 @@ dev-util/desktop-file-utils
 dev-util/gdbus-codegen
 dev-util/glib-utils
 dev-util/gperf
+dev-util/maturin
 dev-util/pahole
 dev-util/patchelf
 dev-util/patchutils
@@ -449,6 +456,7 @@ eclass/savedconfig.eclass
 eclass/secureboot.eclass
 eclass/selinux-policy-2.eclass
 eclass/sgml-catalog-r1.eclass
+eclass/shell-completion.eclass
 eclass/ssl-cert.eclass
 eclass/strip-linguas.eclass
 eclass/subversion.eclass
