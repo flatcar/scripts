@@ -37,6 +37,8 @@ PATCHES=(
 src_prepare() {
 	cmake_src_prepare
 
+	use ppc && eapply "${FILESDIR}/${PN}-atomic-patch"
+
 	# un-hardcode abseil compiler flags
 	sed -i \
 		-e '/"-maes",/d' \
@@ -65,4 +67,20 @@ multilib_src_configure() {
 	)
 
 	cmake_src_configure
+}
+
+multilib_src_test() {
+	if ! use amd64; then
+		CMAKE_SKIP_TESTS=(
+			absl_symbolize_test
+		)
+
+		if use ppc; then
+			CMAKE_SKIP_TESTS+=(
+				absl_failure_signal_handler_test
+			)
+		fi
+	fi
+
+	cmake_src_test
 }
