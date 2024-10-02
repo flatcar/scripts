@@ -43,7 +43,7 @@ DEPEND="
 	sys-apps/seismograph
 	sys-boot/grub
 	amd64? ( sys-boot/shim )
-	sys-firmware/edk2-ovmf-bin
+	sys-firmware/edk2-bin
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
 	dev-perl/Parse-Yapp

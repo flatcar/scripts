@@ -135,6 +135,11 @@ dev-util/catalyst ~amd64 ~arm64
 # Keep versions on both arches in sync.
 =sys-devel/binutils-config-5.5.2 ~arm64
 =sys-devel/gettext-0.22.5 ~arm64
+
+# Needed in SDK for Secure Boot on arm64.
+=sys-firmware/edk2-bin-202408 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =sys-fs/btrfs-progs-6.10.1 ~arm64
 =sys-fs/quota-4.09-r1 ~arm64
 =sys-libs/cracklib-2.10.2 ~arm64
