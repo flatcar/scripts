@@ -8,7 +8,7 @@
 # (the following packages are "unstable" upstream; we're stabilising these)
 
 # Handled by automation
-=app-containers/containerd-1.7.21 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-08-30 08:19:45
+=app-containers/containerd-1.7.22 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-09-13 08:19:35
 
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
@@ -20,7 +20,7 @@
 # modifications made to the ebuilds were clobbered, so these are here
 # to keep using the same version. Can be dropped when these or newer
 # get stabilized in Gentoo.
-=app-containers/runc-1.1.13 ~amd64 ~arm64
+=app-containers/runc-1.1.14 ~amd64 ~arm64
 
 # Seems to be the only available ebuild in portage-stable right now.
 =app-crypt/adcli-0.9.2 ~arm64
@@ -109,3 +109,7 @@ dev-util/catalyst ~amd64 ~arm64
 =virtual/perl-Exporter-5.780.0 ~arm64
 =virtual/perl-File-Spec-3.900.0 ~arm64
 =virtual/perl-IO-1.550.0 ~arm64
+
+# Accept unstable for Docker and its CLI.
+=app-containers/docker-27.2.1 ~amd64 ~arm64
+=app-containers/docker-cli-27.2.1 ~amd64 ~arm64
