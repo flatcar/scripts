@@ -7,7 +7,7 @@ if [ "${PLATFORM}" = qemu ]; then
   BIOS="bios-256k.bin"
 elif [ "${PLATFORM}" = qemu_uefi ]; then
   TIMEOUT="14h"
-  BIOS="/mnt/host/source/tmp/flatcar_production_qemu_uefi_efi_code.fd"
+  BIOS="/mnt/host/source/tmp/flatcar_production_qemu_uefi_efi_code.qcow2"
 else
   echo "Unknown platform: \"${PLATFORM}\""
 fi
