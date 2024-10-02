@@ -856,24 +856,27 @@ _write_qemu_uefi_secure_conf() {
     local flash_ro="$(_dst_name "_efi_code.qcow2")"
     local script="$(_dst_dir)/$(_dst_name ".sh")"
     local owner="00000000-0000-0000-0000-000000000000"
+    local flash_in
 
     _write_qemu_uefi_conf
 
     case $BOARD in
         amd64-usr)
             cp "/usr/share/edk2/OvmfX64/OVMF_CODE_4M.secboot.qcow2" "$(_dst_dir)/${flash_ro}"
+            flash_in="/usr/share/edk2/OvmfX64/OVMF_VARS_4M.secboot.qcow2"
             ;;
         arm64-usr)
             cp "/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_EFI.secboot_INSECURE.qcow2" "$(_dst_dir)/${flash_ro}"
+            flash_in="/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_VARS.secboot_INSECURE.qcow2"
             ;;
     esac
 
     virt-fw-vars \
-        --inplace "$(_dst_dir)/${flash_rw}" \
+        --input "${flash_in}" \
+        --output "$(_dst_dir)/${flash_rw}" \
         --set-pk  "${owner}" /usr/share/sb_keys/PK.crt \
         --add-kek "${owner}" /usr/share/sb_keys/KEK.crt \
-        --add-db  "${owner}" /usr/share/sb_keys/DB.crt \
-        --secure-boot --no-microsoft
+        --add-db  "${owner}" /usr/share/sb_keys/DB.crt
 
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }
