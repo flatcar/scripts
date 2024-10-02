@@ -274,8 +274,8 @@ fi
 
 if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
     set -- \
-        -drive if=pflash,unit=0,file="${SCRIPT_DIR}/${VM_PFLASH_RO}",format=raw,readonly=on \
-        -drive if=pflash,unit=1,file="${SCRIPT_DIR}/${VM_PFLASH_RW}",format=raw "$@"
+        -drive if=pflash,unit=0,file="${SCRIPT_DIR}/${VM_PFLASH_RO}",format=qcow2,readonly=on \
+        -drive if=pflash,unit=1,file="${SCRIPT_DIR}/${VM_PFLASH_RW}",format=qcow2 "$@"
 fi
 
 if [ -n "${IGNITION_CONFIG_FILE}" ]; then

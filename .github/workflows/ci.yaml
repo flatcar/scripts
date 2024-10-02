@@ -278,7 +278,7 @@ jobs:
             scripts/artifacts/images/flatcar_production_image*.txt
             scripts/artifacts/images/flatcar_production_image*.json
             scripts/artifacts/images/flatcar_production_image_pcr_policy.zip
-            scripts/artifacts/images/flatcar_production_*_efi_*.fd
+            scripts/artifacts/images/flatcar_production_*_efi_*.qcow2
             scripts/artifacts/images/flatcar_production_qemu.sh
 
       - name: Upload developer container
@@ -317,7 +317,7 @@ jobs:
           path: |
             scripts/artifacts/images/*.img
             scripts/artifacts/images/*.bin
-            scripts/artifacts/images/flatcar_production_*_efi_*.fd
+            scripts/artifacts/images/flatcar_production_*_efi_*.qcow2
             scripts/artifacts/images/*.txt
             scripts/artifacts/images/flatcar-*.raw
             scripts/artifacts/images/flatcar_production_*.sh
