@@ -42,7 +42,7 @@ DEPEND="
 	amd64? ( sys-apps/iucode_tool )
 	sys-apps/seismograph
 	sys-boot/grub
-	sys-firmware/edk2-ovmf-bin
+	sys-firmware/edk2-bin
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
 	dev-perl/Parse-Yapp
