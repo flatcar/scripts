@@ -13,12 +13,12 @@ if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/${P}.tar.xz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 LICENSE="LGPL-2"
 SLOT="0"
-IUSE="debug doc +lzma pkcs7 split-usr static-libs +tools +zlib +zstd"
+IUSE="debug doc +lzma pkcs7 static-libs +tools +zlib +zstd"
 
 # Upstream does not support running the test suite with custom configure flags.
 # I was also told that the test suite is intended for kmod developers.
@@ -49,12 +49,8 @@ BDEPEND="
 	zlib? ( virtual/pkgconfig )
 "
 if [[ ${PV} == 9999* ]]; then
-	BDEPEND+=" dev-libs/libxslt"
+	BDEPEND+=" app-text/scdoc"
 fi
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-31-musl-basename.patch
-)
 
 src_prepare() {
 	default
@@ -78,7 +74,11 @@ src_prepare() {
 }
 
 src_configure() {
+	# TODO: >=33 enables decompressing without libraries being built in
+	# as kmod defers to the kernel. How should the ebuild be adapted?
 	local myeconfargs=(
+		--bindir="${EPREFIX}/bin"
+		--sbindir="${EPREFIX}/sbin"
 		--enable-shared
 		--with-bashcompletiondir="$(get_bashcompdir)"
 		$(use_enable debug)
@@ -91,18 +91,30 @@ src_configure() {
 		$(use_with zstd)
 	)
 
+	if [[ ${PV} != 9999 ]] ; then
+		# See src_install
+		myeconfargs+=( --disable-manpages )
+	fi
+
 	econf "${myeconfargs[@]}"
 }
 
 src_install() {
 	default
 
+	if [[ ${PV} != 9999 ]] ; then
+		# The dist logic is broken but the files are in there (bug #937942)
+		emake -C man DESTDIR="${D}" install
+	fi
+
 	find "${ED}" -type f -name "*.la" -delete || die
 
-	if use tools && use split-usr; then
-		# Move modprobe to /sbin to match CONFIG_MODPROBE_PATH from kernel
-		rm "${ED}/usr/bin/modprobe" || die
-		dosym ../usr/bin/kmod /sbin/modprobe
+	if use tools; then
+		local cmd
+		for cmd in depmod insmod modprobe rmmod; do
+			rm "${ED}"/bin/${cmd} || die
+			dosym ../bin/kmod /sbin/${cmd}
+		done
 	fi
 
 	cat <<-EOF > "${T}"/usb-load-ehci-first.conf
