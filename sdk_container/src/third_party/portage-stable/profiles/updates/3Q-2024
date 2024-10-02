@@ -7,3 +7,5 @@ slotmove app-admin/calamares 5 0
 slotmove x11-misc/kronometer 5 0
 slotmove app-dicts/dikt 5 0
 slotmove app-cdr/kcdemu 5 0
+move sys-firmware/edk2-ovmf sys-firmware/edk2
+move sys-firmware/edk2-ovmf-bin sys-firmware/edk2-bin
