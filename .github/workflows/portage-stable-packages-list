@@ -631,7 +631,7 @@ sys-devel/gnuconfig
 sys-devel/m4
 sys-devel/patch
 
-sys-firmware/edk2-ovmf-bin
+sys-firmware/edk2-bin
 sys-firmware/intel-microcode
 sys-firmware/ipxe
 sys-firmware/seabios-bin
