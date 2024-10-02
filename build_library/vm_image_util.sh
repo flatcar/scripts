@@ -837,11 +837,8 @@ _write_qemu_uefi_conf() {
             cp "/usr/share/edk2/OvmfX64/OVMF_VARS_4M.qcow2" "$(_dst_dir)/${flash_rw}"
             ;;
         arm64-usr)
-            # Get edk2 files into local build workspace.
-            info "Updating edk2 in /build/${BOARD}"
-            emerge-${BOARD} --nodeps --select --verbose --update --getbinpkg --newuse sys-firmware/edk2-aarch64
-            cp "${BOARD_ROOT}/usr/share/edk2/aarch64/QEMU_EFI-silent-pflash.qcow2" "$(_dst_dir)/${flash_ro}"
-            cp "${BOARD_ROOT}/usr/share/edk2/aarch64/vars-template-pflash.qcow2" "$(_dst_dir)/${flash_rw}"
+            cp "/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_EFI.qcow2" "$(_dst_dir)/${flash_ro}"
+            cp "/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_VARS.qcow2" "$(_dst_dir)/${flash_rw}"
             ;;
     esac
 
@@ -870,7 +867,18 @@ _write_qemu_uefi_secure_conf() {
     local owner="00000000-0000-0000-0000-000000000000"
 
     _write_qemu_uefi_conf
-    cp "/usr/share/edk2/OvmfX64/OVMF_CODE_4M.secboot.qcow2" "$(_dst_dir)/${flash_ro}"
+
+    case $BOARD in
+        amd64-usr)
+            cp "/usr/share/edk2/OvmfX64/OVMF_CODE_4M.secboot.qcow2" "$(_dst_dir)/${flash_ro}"
+            ;;
+        arm64-usr)
+            # This firmware is not considered secure due to the lack of an SMM
+            # implementation, which is needed to protect the variable store, but
+            # it's only supposed to be used for testing anyway.
+            cp "/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_EFI.secboot_INSECURE.qcow2" "$(_dst_dir)/${flash_ro}"
+            ;;
+    esac
 
     virt-fw-vars \
         --inplace "$(_dst_dir)/${flash_rw}" \
