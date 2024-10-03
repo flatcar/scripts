@@ -15,6 +15,24 @@ to use a separate repo was scrapped, and two patch files were created. The patch
 files migrated only the essential commits, and dropped all the other commits, which
 were either half-baked, or redundant at the point of migration.
 
+From version 2.12, Flatcar has adopted Red Hat's large patch set. This fixes
+Secure Boot on arm64 and the TPM Event Log on amd64, among many other things.
+
+A further two patches are applied on top. One is for additional GPT
+functionality, and the other is for extracting the verity root hash from the
+initrd. Gentoo's upstream ebuild is used, but Gentoo's patches are discarded
+because they conflict and are not relevant to Flatcar.
+
+## How to import the Red Hat patches
+
+Red Hat maintains a fork of GRUB on GitHub with branches for each Fedora release. Generate a diff between the latest upstream release and the latest Fedora branch.
+
+```
+git clone https://github.com/rhboot/grub2.git grub
+cd grub
+git diff grub-<VERSION>..fedora-<VERSION> -- . ':(exclude).gitignore' ':(exclude)bootstrap.conf' > grub-2.12-00-redhat.patch
+```
+
 ## Summary of the Flatcar patches
 
 The patch starts with adding a new implementation of reading the GPT instead
