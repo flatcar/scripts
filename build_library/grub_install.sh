@@ -39,18 +39,11 @@ switch_to_strict_mode
 # Our GRUB lives under flatcar/grub so new pygrub versions cannot find grub.cfg
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
-# GRUB install location inside the SDK
-GRUB_SRC="/usr/lib/grub/${FLAGS_target}"
-
 # Modules required to boot a standard CoreOS configuration
 CORE_MODULES=( normal search test fat part_gpt search_fs_uuid gzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
 
 # Name of the core image, depends on target
 CORE_NAME=
-
-# Whether the SDK's grub or the board root's grub is used. Once amd64 is
-# fixed up the board root's grub will always be used.
-BOARD_GRUB=1
 
 SBAT_ARG=()
 
@@ -70,7 +63,6 @@ case "${FLAGS_target}" in
     arm64-efi)
         CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp tpm )
         CORE_NAME="core.efi"
-        BOARD_GRUB=1
         SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
     *)
@@ -78,13 +70,12 @@ case "${FLAGS_target}" in
         ;;
 esac
 
-if [[ $BOARD_GRUB -eq 1 ]]; then
-    info "Updating GRUB in ${BOARD_ROOT}"
-    emerge-${BOARD} \
-           --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
-           sys-boot/grub
-    GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
-fi
+info "Updating GRUB in ${BOARD_ROOT}"
+emerge-${BOARD} \
+        --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
+        sys-boot/grub
+
+GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
 [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
 
 # In order for grub-setup-bios to properly detect the layout of the disk
