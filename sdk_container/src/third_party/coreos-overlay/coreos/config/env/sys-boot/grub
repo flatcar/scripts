@@ -1,7 +1,11 @@
-# Bump the flatcar version stated here every time we or Gentoo change patches
+# Bump the flatcar version stated here every time we or Red Hat change patches
 # that modify parts of GRUB that are installed to the boot partition. Reset the
 # version back to 1 when the upstream GRUB version changes.
-FLATCAR_VERSION=flatcar2
+FLATCAR_VERSION=flatcar3
+
+# Gentoo's patches conflict with Red Hat's patches, and none of Gentoo's patches
+# affect Flatcar, so skip them all.
+PATCHES=()
 
 # Adjust the version string for Flatcar. This propagates throughout the source.
 cros_pre_src_prepare_adjust_version() {
