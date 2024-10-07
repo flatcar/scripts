@@ -8,7 +8,7 @@ EAPI=8
 # (the construct below is to allow overriding from env for script)
 QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
-QEMU_DOCS_VERSION=$(ver_cut 1-3)
+QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
@@ -84,6 +84,7 @@ COMMON_TARGETS="
 	mips64
 	mips64el
 	mipsel
+	nios2
 	or1k
 	ppc
 	ppc64
@@ -318,7 +319,7 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-9.0.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-9.1.0-capstone-include-path.patch
+	"${FILESDIR}"/${PN}-9.0.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-9.0.0-also-build-virtfs-proxy-helper.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
