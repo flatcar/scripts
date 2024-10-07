@@ -16,7 +16,7 @@ SRC_URI="
 
 LICENSE="|| ( public-domain MIT )"
 SLOT="0/26"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="doc test"
 RESTRICT="!test? ( test )"
 
@@ -24,6 +24,11 @@ BDEPEND="
 	${PYTHON_DEPS}
 	doc? ( app-text/doxygen )
 "
+
+PATCHES=(
+	# https://github.com/open-source-parsers/jsoncpp/pull/1570
+	"${FILESDIR}/${P}-cmake.patch"
+)
 
 multilib_src_configure() {
 	local emesonargs=(
