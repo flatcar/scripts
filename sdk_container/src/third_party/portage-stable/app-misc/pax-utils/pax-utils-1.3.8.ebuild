@@ -26,7 +26,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="caps +man python seccomp test"
+IUSE="caps man python seccomp test"
 REQUIRED_USE="
 	python? ( ${PYTHON_REQUIRED_USE} )
 	test? ( python )
