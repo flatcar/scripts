@@ -13,7 +13,7 @@ inherit autotools flag-o-matic prefix multiprocessing
 if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/libtool.git"
 	inherit git-r3
-elif ! [[ $(( $(ver_cut 2) % 2 )) -eq 0 ]] ; then
+elif false && ! [[ $(( $(ver_cut 2) % 2 )) -eq 0 ]] ; then
 	SRC_URI="https://alpha.gnu.org/gnu/${PN}/${P}.tar.xz"
 else
 	SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
@@ -27,7 +27,6 @@ LICENSE="GPL-2"
 SLOT="2"
 IUSE="vanilla"
 
-# Pull in libltdl directly until we convert packages to the new dep.
 RDEPEND="
 	sys-devel/gnuconfig
 	>=dev-build/autoconf-2.69:*
