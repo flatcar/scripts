@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 inherit autotools bash-completion-r1 flag-o-matic python-any-r1
 
 DESCRIPTION="Tools for the TPM 2.0 TSS"
@@ -38,6 +38,7 @@ BDEPEND="virtual/pkgconfig
 
 PATCHES=(
 	"${FILESDIR}/${PN}-5.6-Makefile-am-Dont-require-pandoc-for-tests.patch"
+	"${FILESDIR}/${PN}-5.7-tests-Eliminate-dependency-on-which.patch"
 )
 
 python_check_deps() {
