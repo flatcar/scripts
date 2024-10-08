@@ -62,6 +62,7 @@ PATCHES=(
 	"${FILESDIR}/0020-internal-exec-stages-mount-Mount-oem.patch"
 	"${FILESDIR}/0021-sgdisk-Run-partprobe-after-partition-changes.patch"
 	"${FILESDIR}/0022-akamai-fix-base64-decoding.patch"
+	"${FILESDIR}/1934.patch"
 )
 
 src_compile() {
