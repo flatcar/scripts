@@ -95,8 +95,8 @@ sys-kernel/coreos-firmware -savedconfig
 # Make kmod support kernel modules compressed via lzma(xz)
 sys-apps/kmod lzma
 
-# These (qmanifest and qtegrity) are new tools and they pull even more dependencies.
-app-portage/portage-utils -qmanifest -qtegrity
+# The qmanifest is a new tool and it pulls even more dependencies.
+app-portage/portage-utils -qmanifest
 
 # Disable unnecessary regedit in samba to minimize the package size.
 net-fs/samba -regedit
