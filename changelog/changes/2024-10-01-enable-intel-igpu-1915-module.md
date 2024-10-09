@@ -1,0 +1,1 @@
+- Build Intel iGPU i915 driver as module ([#2349](https://github.com/flatcar/scripts/pull/2349))
