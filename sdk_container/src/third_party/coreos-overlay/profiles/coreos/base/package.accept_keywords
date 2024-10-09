@@ -34,14 +34,22 @@
 # Needed by arm64-native SDK.
 =app-crypt/efitools-1.9.2-r1 ~arm64
 
+# Keep versions on both arches in sync.
+=app-crypt/gnupg-2.4.5-r2 ~arm64
+=app-crypt/pinentry-1.3.1 ~arm64
+
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
+
+# Keep versions on both arches in sync.
+=app-shells/bash-5.2_p37 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-cpp/abseil-cpp-20230125.3-r4 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-cpp/glog-0.6.0 ~arm64
+=dev-db/sqlite-3.46.1 ~arm64
 =dev-lang/perl-5.40.0 ~arm64
 
 # Needed by arm64-native SDK.
@@ -53,8 +61,16 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
+# Keep versions on both arches in sync.
+=dev-libs/libassuan-3.0.0 ~arm64
+=dev-libs/libgpg-error-1.50 ~arm64
+=dev-libs/libnl-3.10.0 ~arm64
+
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
+
+# Keep versions on both arches in sync.
+=dev-libs/userspace-rcu-0.14.1 ~arm64
 
 # These seem to be the versions we initially got, but the
 # modifications made to the ebuilds were clobbered, so these are here
@@ -68,32 +84,43 @@
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 dev-util/catalyst ~amd64 ~arm64
 
+# Keep versions on both arches in sync.
+=dev-util/pkgconf-2.3.0 ~arm64
+
 # Needed for the MIT License
 =net-analyzer/netperf-2.7.0_p20210121 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
+=net-analyzer/tcpdump-4.99.5 ~arm64
+=net-dns/c-ares-1.33.1 ~arm64
 =net-firewall/conntrack-tools-1.4.8 ~arm64
-
-# Required for addressing CVE-2023-0361, CVE-2023-5981, CVE-2024-0567,
-# CVE-2024-0553, CVE-2024-28834 and CVE-2024-28835.
-=net-libs/gnutls-3.8.5-r1 ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
+=net-firewall/ipset-7.22-r2 ~arm64
+=net-libs/gnutls-3.8.7.1-r1 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
 # Needed to address CVE-2023-7256 and CVE-2024-8006.
 =net-libs/libpcap-1.10.5 ~amd64 ~arm64
 
+# Keep versions on both arches in sync.
+=net-misc/chrony-4.6 ~arm64
+
 # Needed to address CVE-2024-6197, CVE-2024-6874 and CVE-2024-7264.
 =net-misc/curl-8.9.1-r1 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
+=net-misc/iperf-3.17.1 ~arm64
+=net-misc/openssh-9.8_p1-r2 ~arm64
 
 # Package has not been stabilised yet.
 =sys-apps/azure-nvme-utils-0.2.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.28 ~arm64
+=sys-apps/kmod-33 ~arm64
+=sys-apps/nvme-cli-2.10.2 ~arm64
 =sys-apps/zram-generator-1.1.2 ~arm64
+=sys-block/open-iscsi-2.1.10-r1 ~arm64
 
 # Upgrade to latest version for secureboot
 =sys-boot/mokutil-0.6.0 ~amd64
@@ -102,6 +129,13 @@ dev-util/catalyst ~amd64 ~arm64
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-devel/binutils-config-5.5.2 ~arm64
+=sys-devel/gettext-0.22.5 ~arm64
+=sys-fs/btrfs-progs-6.10.1 ~arm64
+=sys-fs/quota-4.09-r1 ~arm64
+=sys-libs/cracklib-2.10.2 ~arm64
+=sys-libs/efivar-39-r1 ~arm64
+=sys-libs/readline-8.2_p13 ~arm64
 =sys-process/audit-4.0.1-r1 ~arm64
 =virtual/perl-Data-Dumper-2.189.0 ~arm64
 =virtual/perl-Encode-3.210.0-r1 ~arm64
