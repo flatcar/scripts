@@ -13,6 +13,10 @@
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
 
+# Accept unstable for Docker and its CLI.
+=app-containers/docker-27.2.1 ~amd64 ~arm64
+=app-containers/docker-cli-27.2.1 ~amd64 ~arm64
+
 # Needed to address CVE-2024-3727
 =app-containers/podman-5.0.3 ~amd64 ~arm64
 
@@ -145,7 +149,3 @@ dev-util/catalyst ~amd64 ~arm64
 =virtual/perl-Exporter-5.780.0 ~arm64
 =virtual/perl-File-Spec-3.900.0 ~arm64
 =virtual/perl-IO-1.550.0 ~arm64
-
-# Accept unstable for Docker and its CLI.
-=app-containers/docker-27.2.1 ~amd64 ~arm64
-=app-containers/docker-cli-27.2.1 ~amd64 ~arm64
