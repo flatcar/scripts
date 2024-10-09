@@ -26,7 +26,7 @@ else
 	S="${WORKDIR}"/${PN}-${MY_PV}
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+		KEYWORDS="~alpha amd64 arm ~arm64 ~loong ~mips ~ppc ppc64 ~riscv ~sparc x86"
 	fi
 fi
 
@@ -102,7 +102,7 @@ if [[ ${PV} != 9999 ]]; then
 		if use verify-sig; then
 			einfo "Unpacking ${MY_P}.tar.xz ..."
 			verify-sig_verify_detached - "${DISTDIR}"/${MY_P}.tar.sign \
-				< <(xz -cd "${DISTDIR}"/${MY_P}.tar.xz | tee >(tar -x))
+				< <(xz -cd "${DISTDIR}"/${MY_P}.tar.xz | tee >(tar -xf -))
 			assert "Unpack failed"
 		else
 			default

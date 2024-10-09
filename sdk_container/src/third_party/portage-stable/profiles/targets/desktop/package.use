@@ -10,10 +10,6 @@ net-p2p/transmission -qt5
 # Required by kde-frameworks/kio:6
 dev-qt/qtbase libproxy
 
-# Alfred Wingate <parona@protonmail.com> (2023-12-25)
-# Prefer X over gbm with REQUIRED_USE: ^^ ( gbm wayland X )
->=media-tv/kodi-20.2 X -gbm
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-11-12)
 # NSS: Required by kde-apps/okular[pdf]
 # Boost: app-text/poppler[qt5] recommended w/ Boost (bug #795888)
@@ -23,6 +19,11 @@ app-text/poppler nss boost
 # egl, libinput required by kde-plasma/kwayland:5
 # accessibility required by kde-plasma/kwin:5
 dev-qt/qtgui:5 accessibility egl libinput
+
+# Mart Raudsepp <leio@gentoo.org> (2023-10-01)
+# kde-plasma/kwin and x11-wm/mutter[wayland] require xwayland[libei] for
+# emulated input portal for e.g. remote desktop remote input support
+x11-base/xwayland libei
 
 # Sam James <sam@gentoo.org> (2023-09-22)
 # Most people aren't going to use CMake's GUI. USE=gui is enabled by default
@@ -34,6 +35,13 @@ dev-build/cmake -gui -qt6
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-07-29)
 # Required by dev-python/PyQt5[multimedia]
 dev-qt/qtmultimedia:5 widgets
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-05-21)
+# Needed by a global USE=wayland right now (REQUIRED_USE conflicts)
+media-libs/clutter egl
+media-libs/cogl gles2
+media-libs/libsdl2 gles2
+<media-libs/mesa-24.1 gles2
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2022-12-27)
 # On desktops it's common to use browser to browse internet, which these
@@ -47,11 +55,6 @@ dev-lang/python -bluetooth
 # Andreas Sturmlechner <asturm@gentoo.org> (2021-12-18)
 # Required by media-gfx/digikam, kde-apps/libkexiv2
 media-gfx/exiv2 xmp
-
-# Lars Wendler <polynomial-c@gentoo.org> (2020-08-06)
-# USE="qt5" and USE="libnotify" are mutually exclusive in this package
-# Disable libnotify here to have a better user experience
-net-misc/dhcpcd-ui -libnotify
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2020-02-05)
 # Required by many packages, most notably Mozilla products

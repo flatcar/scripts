@@ -33,7 +33,9 @@ RDEPEND="
 	python? ( ${PYTHON_DEPS} )
 	yaml? ( >=dev-libs/libyaml-0.2.3 )
 "
-DEPEND="${RDEPEND}"
+DEPEND="
+	${RDEPEND}
+"
 
 DOCS=(
 	Documentation/dt-object-internal.txt
@@ -48,19 +50,12 @@ pkg_setup() {
 	fi
 }
 
-src_prepare() {
-	default
-
-	if ! use test ; then
-		sed -i -e "/subdir('tests')/d" meson.build || die
-	fi
-}
-
 src_configure() {
 	local emesonargs=(
 		-Dtools=true
 		-Dvalgrind=disabled # only used for some tests
 		$(meson_feature python)
+		$(meson_use test tests)
 		$(meson_feature yaml)
 	)
 
