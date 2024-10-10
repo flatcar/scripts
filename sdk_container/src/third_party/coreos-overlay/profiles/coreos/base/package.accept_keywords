@@ -76,7 +76,7 @@
 # modifications made to the ebuilds were clobbered, so these are here
 # to keep using the same version. Can be dropped when these or newer
 # get stabilized in Gentoo.
-=dev-libs/yajl-2.1.0-r5 ~amd64 ~arm64
+=dev-libs/yajl-2.1.0-r5 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-util/bpftool-7.5.0-r1 ~arm64
