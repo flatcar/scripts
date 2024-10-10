@@ -48,8 +48,7 @@
 # Keep versions on both arches in sync.
 =app-portage/elt-patches-20240912
 =app-shells/bash-5.2_p37 ~arm64
-
-# Keep versions on both arches in sync.
+=dev-build/ninja-1.12.1 ~arm64
 =dev-cpp/abseil-cpp-20230125.3-r4 ~arm64
 
 # Keep versions on both arches in sync.
