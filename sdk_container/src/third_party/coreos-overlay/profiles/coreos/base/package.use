@@ -13,7 +13,8 @@ dev-vcs/git		webdav curl
 
 # Mask support for http3 for now (unavailable on arm64 for now, and
 # I'm not sure we really need it.)
-net-misc/curl		kerberos telnet -http3 -quic -curl_quic_openssl
+# Disable websockets, we never had them, and now they are enabled by default.
+net-misc/curl		kerberos telnet -http3 -quic -curl_quic_openssl -websockets
 net-misc/iputils	arping tracepath
 sys-devel/gettext	-git
 
