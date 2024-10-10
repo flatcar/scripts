@@ -10,9 +10,3 @@ cros_post_src_install_tmpfiles() {
 		After=systemd-tmpfiles-setup.service
 	EOF
 }
-
-# Masking initiatorname.iscsi.example prevents initiatorname.iscsi from being
-# generated and installed. We want the systemd unit to do this at runtime so
-# that we don't bake the value into Flatcar images.
-INSTALL_MASK+=" ${EPREFIX}/etc/iscsi/initiatorname.iscsi*"
-PKG_INSTALL_MASK+=" ${EPREFIX}/etc/iscsi/initiatorname.iscsi*"
