@@ -112,7 +112,7 @@ dev-util/catalyst ~amd64 ~arm64
 
 # Needed to address CVE-2024-6197, CVE-2024-6874, CVE-2024-7264 and
 # CVE-2024-8096.
-=net-misc/curl-8.10.1-r1 ~amd64 ~arm64
+=net-misc/curl-8.10.1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =net-misc/iperf-3.17.1 ~arm64
