@@ -1,0 +1,102 @@
+#!/bin/bash
+# Copyright (c) 2024 by the Flatcar Maintainers.
+# Use of this source code is governed by the Apache 2.0 license.
+
+# Mangler script for the development sysext.
+# Called by build_image -> build_sysext.
+#
+# Mandatory positional arguments
+# 1. image_root  - root directory of the image (sysext + rootfs).
+#                  Passed by build_sysext.
+# 2. binhost_url - complete URL for binpackages.
+#                  Passed via --manglefs_script_args. 
+
+image_root="${1}"
+binhost_url="${2}"
+
+devext_basedir="/usr/share/flatcar/devext"
+
+# We're in build_library/, script root is one up
+SCRIPT_ROOT="$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd)"
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+switch_to_strict_mode
+
+# run_ldconfig, run_localedef
+source "${BUILD_LIBRARY_DIR}/build_image_util.sh" || exit 1
+# get_board_*
+source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
+
+info "running ldconfig, localedef."
+ARCH=$(get_board_arch $BOARD)
+CHOST=$(get_board_chost $BOARD)
+export ARCH CHOST
+
+
+pushd "${image_root}"
+
+# Prepare or mangle?
+if [[ "$2" = "prepare" ]] ; then
+    # We're running _before_ emerge is called
+
+    # Purge all package info to force a re-install.
+    # build_sysext will have been instructed to remove duplicates.
+    rm -rf ./var/db/pkg
+
+    info "prepare: Setting up dev profile"
+
+    # Remove base OS' package.provided, soname.provided
+    rm ./etc/portage/profile/*.provided
+
+    profile="./etc/portage/make.profile"
+    dev="$(readlink -f "${profile}")/dev"
+    rm -vf "${profile}"
+    ln -vs "${dev}" "${profile}"
+    exit 0
+fi
+
+# We're running _after_ emerge ran.
+
+run_ldconfig .
+run_localedef .
+
+files_dir="${SRC_ROOT}/third_party/coreos-overlay/coreos/sysext/devext"
+info "Installing extra files from '${files_dir}' to '${devext_basedir}'"
+# ATTENTION: don't preserve ownership as repo is owned by sdk user
+cp -vdR --preserve=mode,timestamps "${files_dir}/"* "."
+
+# OS image does not include 
+# Force an upcopy so it is preserved in the sysext.
+info "preserving /usr/include"
+find ./usr/include -exec sh -c 'touch {}' \;
+
+info "capturing portage state."
+mkdir -p .${devext_basedir}/var/db \
+         .${devext_basedir}/var/lib/portage \
+         .${devext_basedir}/etc/portage/repos.conf
+
+cp -R --dereference ./var/db/pkg .${devext_basedir}/var/db/
+cp -R --dereference ./etc/sandbox* .${devext_basedir}/etc
+
+info "copying ebuild repos."
+for src in portage-stable coreos-overlay; do
+	info " repo '${src}'"
+    mkdir -p ".${devext_basedir}/var/lib/portage/"
+    cp -R "${SRC_ROOT}/third_party/${src}" \
+          ".${devext_basedir}/var/lib/portage/"
+done
+
+export PORTAGE_BINHOST="${binhost_url}"
+envsubst >".${devext_basedir}/etc/portage/make.conf" \
+		 <"${files_dir}${devext_basedir}/etc/portage/make.conf.tmpl"
+
+profile=$(get_board_profile "${BOARD}")
+profile="${profile#*:}/dev"
+
+# /var/lib/portage will be overlay-mounted from ${devext_basedir} on devext initialisation
+ln -s "/var/lib/portage/coreos-overlay/profiles/${profile}" \
+        .${devext_basedir}/etc/portage/make.profile
+
+popd

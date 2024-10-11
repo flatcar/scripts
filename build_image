@@ -30,9 +30,9 @@ DEFINE_string getbinpkgver "" \
 DEFINE_boolean enable_rootfs_verification ${FLAGS_TRUE} \
   "Default all bootloaders to use kernel-based root fs integrity checking."
 DEFINE_string base_pkg "coreos-base/coreos" \
-  "The base portage package to base the build off of (only applies to prod images)"
+  "The base portage package to base the OS image build off of"
 DEFINE_string base_dev_pkg "coreos-base/coreos-dev" \
-  "The base portage package to base the build off of (only applies to dev containers)"
+  "The base portage package to base the development container / sysext build off of"
 DEFINE_string base_sysexts "containerd-flatcar:app-containers/containerd,docker-flatcar:app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx" \
   "Comma-separated list of name:package[&package[&package]] - build 'package' (a single package or a list of packages separated by '&') into sysext 'name', and include with OS image and update payload. Must be in order of dependencies, base sysexts come first."
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
@@ -60,10 +60,11 @@ different forms.  This scripts can be used to build the following:
 prod - Production image for CoreOS. This image is for booting (default if no argument is given).
 prodtar - Production container tar ball (implies prod). This can e.g. be used to run the Flatcar production image as a container (run machinectl import-tar or docker import).
 container - Developer image with single filesystem, bootable by nspawn.
+devext - Developer system extension including compiler and packaging tools.
 
 Examples:
 
-build_image --board=<board> [prod] [prodtar] [container] - builds developer and production images/tars.
+build_image --board=<board> [prod] [prodtar] [container] [devext] - builds developer and production images/tars.
 ...
 "
 show_help_if_requested "$@"
@@ -109,12 +110,14 @@ fi
 PROD_IMAGE=0
 PROD_TAR=0
 CONTAINER=0
+DEVEXT=0
 SYSEXT=0
 for arg in "$@"; do
   case "${arg}" in
     prod) PROD_IMAGE=1 ;;
     prodtar) PROD_IMAGE=1 PROD_TAR=1 ;;
     container) CONTAINER=1 ;;
+    devext) DEVEXT=1 ;;
     sysext) SYSEXT=1 ;;
     *)    die_notrace "Unknown image type ${arg}" ;;
   esac
@@ -167,6 +170,21 @@ if [[ "${CONTAINER}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="container"
   create_dev_container "${FLATCAR_DEVELOPER_CONTAINER_NAME}" "${CONTAINER_LAYOUT}" "${FLAGS_devcontainer_binhost}" "${FLAGS_group}" ${FLAGS_base_dev_pkg}
 fi
+
+# FIXME: glibc, linux-headers, and readline aren't properly installed
+#        on the base image (lack development files) so we need to force a re-install.
+if [[ "${DEVEXT}" -eq 1 ]]; then
+  sudo ${SCRIPT_ROOT}/build_sysext --mangle_with_base \
+                                   --preparefs_script build_library/sysext_mangle_devext \
+                                   --preparefs_script_args prepare \
+                                   --manglefs_script build_library/sysext_mangle_devext \
+                                   --manglefs_script_args "${FLAGS_devcontainer_binhost}" \
+                                   --remove_duplicate_files \
+                                   devext \
+                                   @system "${FLAGS_base_dev_pkg}"
+fi
+
+# sys-devel/gcc glibc linux-headers readline bzip
 
 if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="prod"

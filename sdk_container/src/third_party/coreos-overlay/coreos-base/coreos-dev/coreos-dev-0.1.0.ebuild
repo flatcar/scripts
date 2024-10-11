@@ -18,11 +18,13 @@ KEYWORDS="amd64 arm arm64 x86"
 RDEPEND="
 	app-portage/gentoolkit
 	coreos-base/coreos
-	coreos-base/emerge-gitclone
+    dev-build/make
 	dev-debug/gdb
 	dev-debug/strace
 	dev-lang/python
 	dev-util/pahole
+	dev-util/patchelf
+	dev-util/patchutils
 	net-analyzer/netperf
 	net-analyzer/traceroute
 	net-dialup/minicom
@@ -40,9 +42,14 @@ RDEPEND="
 	sys-apps/portage
 	sys-apps/smartmontools
 	sys-apps/which
+	sys-devel/binutils
 	sys-devel/gcc
+	sys-devel/patch
 	sys-fs/lvm2
 	sys-fs/squashfs-tools
+	sys-kernel/linux-headers
+    sys-libs/readline
+    sys-libs/glibc
 	sys-process/procps
 	sys-process/psmisc
 	"

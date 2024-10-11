@@ -1,0 +1,12 @@
+# make.conf for Flatcar development sysext
+ARCH=${ARCH}
+CHOST=${CHOST}
+
+# on-instance /var/lib/portage is an overlayfs backed by ${devext_basedir}/var
+DISTDIR="/var/lib/portage/distfiles"
+PKGDIR="/var/lib/portage/pkgs"
+PORT_LOGDIR="/var/log/portage"
+PORTAGE_BINHOST="${PORTAGE_BINHOST}"
+
+# Disable sandbox to keep messing with /etc to a minimum
+FEATURES="-sandbox -usersandbox"

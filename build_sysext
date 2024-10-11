@@ -22,14 +22,26 @@ DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build a sysext for."
 DEFINE_string metapkgs '' \
   "Comma-separated list of meta-packages to build from source and install into sysext image."
+DEFINE_string emerge_opts "" \
+  "Additional options to pass to emerge."
 DEFINE_string squashfs_base '' \
   "The path to the squashfs base image. Defaults to the most current image built in '${default_imagedir}/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}'."
 DEFINE_string image_builddir '' \
   "Custom directory to build the sysext in. Defaults to a 'sysext' sub-directory of the directory the squashfs base image resides in; '${default_imagedir}/sysext' by default."
 DEFINE_boolean strip_binaries "${FLAGS_FALSE}" \
   "After installation, scan sysext root for unstripped binaries and strip these. WARNING - this can subtly break some packages, e.g. Docker (see https://github.com/moby/moby/blob/master/project/PACKAGERS.md#stripping-binaries)."
+DEFINE_string preparefs_script '' \
+  "A path to executable that will set up the rootfs of the sysext image. Called before emerge."
+DEFINE_string preparefs_script_args '' \
+  "Additiona arguments to be passed to preparefs_script. (Arg 1 is always the image root)"
 DEFINE_string manglefs_script '' \
-  "A path to executable that will customize the rootfs of the sysext image."
+  "A path to executable that will customize the rootfs of the sysext image. Called after emerge."
+DEFINE_string manglefs_script_args '' \
+  "Additiona arguments to be passed to manglefs_script. (Arg 1 is always the image root)"
+DEFINE_boolean mangle_with_base "${FLAGS_FALSE}" \
+  "Run 'manglefs_script' with squashfs_base still merged. Makes both sysext and base files visible to mangle script."
+DEFINE_boolean remove_duplicate_files "${FLAGS_FALSE}" \
+  "Remove all files from the sysext files that are present (and identical) in squashfs_base."
 DEFINE_boolean generate_pkginfo "${FLAGS_FALSE}" \
   "Generate an additional squashfs '<sysext_name>_pkginfo.raw' with portage package meta-information (/var/db ...). Useful for creating sysext dependencies; see 'base_pkginfo' below."
 DEFINE_string base_pkginfo "" \
@@ -208,8 +220,18 @@ fi
 
 if [[ -n "${FLAGS_metapkgs}" ]]; then
   mapfile -t metapkgs < <(tr ',' '\n' <<<"${FLAGS_metapkgs}")
-  "emerge-${FLAGS_board}" --nodeps --buildpkgonly --usepkg n --verbose "${metapkgs[@]}"
+  "emerge-${FLAGS_board}" --nodeps --buildpkgonly --usepkg n --verbose ${FLAGS_emerge_opts} "${metapkgs[@]}"
   set -- "${metapkgs[@]}" "${@}"
+fi
+
+export BOARD="${FLAGS_board}"
+export BUILD_DIR
+
+if [[ -n "${FLAGS_preparefs_script}" ]]; then
+  if [[ ! -x "${FLAGS_preparefs_script}" ]]; then
+    die "${FLAGS_preparefs_script} is not executable"
+  fi
+  "${FLAGS_preparefs_script}" "${BUILD_DIR}/install-root" ${FLAGS_preparefs_script_args}
 fi
 
 if [[ ${#} -lt 1 ]]; then
@@ -219,9 +241,8 @@ fi
 
 info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
 
-for package; do
-  echo "Installing package into sysext image: $package"
-  FEATURES="-ebuild-locks" emerge \
+echo "Installing package(s) into sysext image: '$@'"
+FEATURES="-ebuild-locks" emerge \
     --root="${BUILD_DIR}/install-root" \
     --config-root="/build/${FLAGS_board}"  \
     --sysroot="/build/${FLAGS_board}"  \
@@ -230,14 +251,33 @@ for package; do
     --getbinpkg \
     --verbose \
     --jobs=${NUM_JOBS} \
-    "${package}"
-done
+    ${FLAGS_emerge_opts} \
+    "${@}"
+
+if [[ "${FLAGS_mangle_with_base}" == "${FLAGS_TRUE}" && -n "${FLAGS_manglefs_script}" ]]; then
+  if [[ ! -x "${FLAGS_manglefs_script}" ]]; then
+    die "${FLAGS_manglefs_script} is not executable"
+  fi
+  "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root" ${FLAGS_manglefs_script_args}
+fi
 
 # Make squashfs generation more reproducible.
 export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release")
 
 # Unmount in order to get rid of the overlay
 umount "${BUILD_DIR}/install-root"
+
+# Check for duplicates before unmounting the base squashfs
+if [[ "$FLAGS_remove_duplicate_files" = "${FLAGS_TRUE}" ]] ; then
+    info "Removing duplicate (identical) files."
+    find "${BUILD_DIR}/install-root" -type f | while read sysextfile; do
+            basefile="${BUILD_DIR}/fs-root/${sysextfile#${BUILD_DIR}/install-root/}"
+            if [ -f "${basefile}" ] && cmp --silent "${sysextfile}" "${basefile}" ; then
+                rm -vf "${sysextfile}"
+            fi
+     done
+fi
+
 umount "${BUILD_DIR}/fs-root"
 
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
@@ -268,11 +308,11 @@ if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
            done
 fi
 
-if [[ -n "${FLAGS_manglefs_script}" ]]; then
+if [[ "${FLAGS_mangle_with_base}" == "${FLAGS_FALSE}" && -n "${FLAGS_manglefs_script}" ]]; then
   if [[ ! -x "${FLAGS_manglefs_script}" ]]; then
     die "${FLAGS_manglefs_script} is not executable"
   fi
-  "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root"
+  "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root" ${FLAGS_manglefs_script_args}
 fi
 
 info "Removing non-/usr directories from sysext image"
@@ -294,6 +334,11 @@ printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-r
 
 info "Removing opaque directory markers to always merge all contents"
 find "${BUILD_DIR}/install-root" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
+info "Removing white-out files so sysexts don't accidentally remove base image files "
+find "${BUILD_DIR}/install-root" -type c -exec sh -c '\
+         if [ "$(stat -c "%t.%T" {} 2>/dev/null)" = "0.0" ]; then \
+            rm -fv {}; \
+         fi' \;
 
 info "Checking for invalid file ownership"
 invalid_files=$(find "${BUILD_DIR}/install-root" -user sdk -or -group sdk)
@@ -311,4 +356,5 @@ mount -rt squashfs -o loop,nodev "${BUILD_DIR}/${SYSEXTNAME}.raw" "${BUILD_DIR}/
 write_contents "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents.txt"
 write_contents_with_technical_details "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents_wtd.txt"
 write_disk_space_usage_in_paths "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_disk_usage.txt"
+
 umount "${BUILD_DIR}/img-rootfs"

@@ -1,0 +1,10 @@
+[Unit]
+Description=Flatcar developer system extension
+
+[Service]
+Type=oneshot
+ExecStart=/usr/share/flatcar/devext/devext-init.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
