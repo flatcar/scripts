@@ -11,7 +11,7 @@ MY_P="libtool-${PV}"
 
 DESCRIPTION="A shared library tool for developers"
 HOMEPAGE="https://www.gnu.org/software/libtool/"
-if ! [[ $(( $(ver_cut 2) % 2 )) -eq 0 ]] ; then
+if false && ! [[ $(( $(ver_cut 2) % 2 )) -eq 0 ]] ; then
 	SRC_URI="https://alpha.gnu.org/gnu/libtool/${MY_P}.tar.xz"
 else
 	SRC_URI="mirror://gnu/libtool/${MY_P}.tar.xz"
