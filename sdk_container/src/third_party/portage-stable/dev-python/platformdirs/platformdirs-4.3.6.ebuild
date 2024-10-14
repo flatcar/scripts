@@ -11,7 +11,7 @@ inherit distutils-r1 pypi
 DESCRIPTION="A small Python module for determining appropriate platform-specific dirs"
 HOMEPAGE="
 	https://pypi.org/project/platformdirs/
-	https://github.com/platformdirs/platformdirs/
+	https://github.com/tox-dev/platformdirs/
 "
 
 LICENSE="MIT"
