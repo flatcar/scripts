@@ -6,9 +6,8 @@ EAPI=8
 # See https://sourceware.org/gdb/wiki/DistroAdvice for general packaging
 # tips & notes.
 
-GUILE_COMPAT=( 2-2 3-0 )
 PYTHON_COMPAT=( python3_{10..13} )
-inherit flag-o-matic guile-single python-single-r1 strip-linguas toolchain-funcs
+inherit flag-o-matic python-single-r1 strip-linguas toolchain-funcs
 
 export CTARGET=${CTARGET:-${CHOST}}
 
@@ -75,12 +74,9 @@ LICENSE="GPL-3+ LGPL-2.1+"
 SLOT="0"
 IUSE="cet debuginfod guile lzma multitarget nls +python +server sim source-highlight test vanilla xml xxhash zstd"
 if [[ -n ${REGULAR_RELEASE} ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 fi
-REQUIRED_USE="
-	guile? ( ${GUILE_REQUIRED_USE} )
-	python? ( ${PYTHON_REQUIRED_USE} )
-"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -95,7 +91,7 @@ RDEPEND="
 	)
 	lzma? ( app-arch/xz-utils )
 	python? ( ${PYTHON_DEPS} )
-	guile? ( ${GUILE_DEPS} )
+	guile? ( >=dev-scheme/guile-2.0 )
 	xml? ( dev-libs/expat )
 	source-highlight? (
 		dev-util/source-highlight
@@ -119,35 +115,22 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	MIN # gnulib FP (bug #898688)
 )
 
-QA_PREBUILT="usr/share/gdb/guile/*"
-
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.3.1-verbose-build.patch
 )
 
 pkg_setup() {
-	use guile && guile-single_pkg_setup
 	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
 	default
 
-	use guile && guile_bump_sources
-
 	strip-linguas -u bfd/po opcodes/po
 
 	# Avoid using ancient termcap from host on Prefix systems
 	sed -i -e 's/termcap tinfow/tinfow/g' \
 		gdb/configure{.ac,} || die
-	if [[ ${CHOST} == *-solaris* ]] ; then
-		# code relies on C++11, so make sure we get that selected
-		# due to Python 3.11 pymacro.h doing stuff to work around
-		# versioning mess based on the C version, while we're compiling
-		# C++ here, so we need to make it clear we're doing C++11/C11
-		# because Solaris system headers act on these
-		sed -i -e 's/-x c++/-std=c++11/' gdb/Makefile.in || die
-	fi
 }
 
 gdb_branding() {
@@ -311,8 +294,6 @@ src_install() {
 
 	# Remove shared info pages
 	rm -f "${ED}"/usr/share/info/{annotate,bfd,configure,ctf-spec,standards}.info*
-
-	use guile && guile_unstrip_ccache
 
 	if use python ; then
 		python_optimize "${ED}"/usr/share/gdb/python/gdb
