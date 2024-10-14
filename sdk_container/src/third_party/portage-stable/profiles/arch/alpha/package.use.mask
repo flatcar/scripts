@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# David Roman <davidroman96@gmail.com> (2024-10-04)
+# dev-libs/libunibreak is not keyworded
+media-libs/libass libunibreak
+
 # Sam James <sam@gentoo.org> (2024-08-23)
 # dev-util/bpftool and/or sys-devel/bpf-toolchain not keyworded here
 sys-apps/systemd bpf
@@ -274,7 +278,7 @@ media-sound/fluidsynth lash
 
 # Arfrever Frehtes Taifersar Arahesis <arfrever.fta@gmail.com> (2020-10-14)
 # app-i18n/fcitx:4 not keyworded.
-media-libs/libsdl2 fcitx4
+media-libs/libsdl2 fcitx
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-09-18)
 # media-libs/libilbc is not ported to alpha
@@ -290,7 +294,6 @@ media-libs/mesa video_cards_zink vulkan vulkan-overlay zink
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-07-18)
 # net-libs/webkit-gtk has no alpha keywords
-app-editors/emacs xwidgets
 gnome-extra/evolution-data-server oauth-gtk3 oauth-gtk4
 # needs gnome-extra/sushi, depends on net-libs/webkit-gtk
 gnome-base/nautilus previewer
@@ -557,10 +560,6 @@ media-libs/gst-plugins-base ivorbis
 # Alexandre Rostovtsev <tetromino@gentoo.org> (2013-01-22)
 # remove mask if/when media-gfx/argyllcms is keywored here.
 x11-misc/colord argyllcms extra-print-profiles
-
-# Raúl Porcel <armin76@gentoo.org> (2012-12-30)
-# Needs testing
-media-libs/phonon gstreamer vlc
 
 # Raúl Porcel <armin76@gentoo.org> (2012-05-28)
 # Needs x11-misc/lightdm(which also requires some other deps)

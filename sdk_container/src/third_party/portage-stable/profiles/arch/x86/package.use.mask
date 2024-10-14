@@ -1,9 +1,9 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-12)
-# dev-python/PyQt6 and dev-python/pyside6 aren't keyworded here, bug #935070
-dev-python/QtPy pyqt6 pyside6
+# Patrick McLean <chutzpah@gentoo.org> (2024-09-23)
+# Only supported on x86/amd64 (bug #940014).
+net-misc/lldpd -seccomp
 
 # orbea <orbea@riseup.net> (2024-07-19)
 # Unmask the dynarec flag which has x86 asm.
@@ -14,10 +14,6 @@ games-emulation/rmg -dynarec
 # dependency of mesa.
 >=media-libs/mesa-24.1 llvm_slot_15 llvm_slot_16
 >=dev-util/intel_clc-24.1 llvm_slot_15 llvm_slot_16
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-07-12)
-# KDE PIM 6 is not being keyworded here
-kde-apps/libkgapi:5 kf6compat
 
 # Michael Orlitzky <mjo@gentoo.org> (2024-07-09)
 # The opcache extension fails to build on hardened x86, but only
@@ -34,14 +30,6 @@ dev-tex/abntex lyx
 # combination specifically but in reality kaccounts is useless without
 # additional dev-qt/qtwebengine revdeps.
 kde-frameworks/purpose:5 kaccounts
-
-# Paul Zander <negril.nx+gentoo@gmail.com> (2024-06-17)
-# missing keywords on dev-python/PyQt6
-sci-geosciences/qgis qt6
-
-# José de Paula R. N. Assis <espinafre@gmail.com> (2024-03-25)
-# No PyQt6 (which is needed by USE=qt6 for qscintilla-python) on x86.
->=dev-python/qscintilla-python-2.14.1-r1 qt6
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
 # virt-firmware is keyworded here
@@ -126,9 +114,6 @@ dev-python/QtPy test
 games-util/lgogdownloader gui
 kde-apps/kde-apps-meta pim
 kde-apps/kdenetwork-meta bittorrent
-kde-apps/kleopatra pim
-kde-apps/umbrello php
-kde-misc/kio-gdrive share
 kde-plasma/plasma-nm openconnect
 net-irc/quassel urlpreview
 net-misc/fatrat bittorrent

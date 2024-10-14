@@ -94,9 +94,9 @@ XTABLES_ADDONS="quota2 psd pknock lscan length2 ipv4options ipp2p iface geoip fu
 LCD_DEVICES="bayrad cfontz glk hd44780 lb216 lcdm001 mtxorb text"
 
 # Manuel Rüger <mrueg@gentoo.org> (2015-09-09)
-# Hans de Graaff <graaff@gentoo.org> (2024-05-20)
+# Hans de Graaff <graaff@gentoo.org> (2024-10-08)
 # Default Ruby build target(s)
-RUBY_TARGETS="ruby31 ruby32"
+RUBY_TARGETS="ruby32"
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2022-10-22)
 # These USE flags are what is common between the various sub-profiles. Stages 2
@@ -123,8 +123,7 @@ PYTHONDONTWRITEBYTECODE="1"
 # This MUST be kept in sync with the PYTHON_TARGETS below
 # Mike Gilbert <floppym@gentoo.org> (2018-05-23)
 # sys-apps/baselayout-2.5 needs split-usr enabled.
-# dev-lang/python:3.13 and later needs gil enabled
-BOOTSTRAP_USE="unicode pkg-config split-usr xml python_targets_python3_12 python_single_target_python3_12 gil"
+BOOTSTRAP_USE="unicode pkg-config split-usr xml python_targets_python3_12 python_single_target_python3_12"
 
 # Mike Gilbert <floppym@gentoo.org> (2012-05-15)
 # Default target(s) for python-r1.eclass
@@ -150,7 +149,7 @@ TWISTED_DISABLE_WRITING_OF_PLUGIN_CACHE="1"
 
 # Aaron W. Swenson <titanofold@gentoo.org> (2017-07-09)
 # Default target(s) for postgres{,-multi}.eclass
-POSTGRES_TARGETS="postgres15"
+POSTGRES_TARGETS="postgres16"
 
 # Michael Orlitzky <mjo@gentoo.org> (2017-11-17)
 #

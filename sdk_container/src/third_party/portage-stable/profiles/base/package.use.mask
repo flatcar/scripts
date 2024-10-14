@@ -3,8 +3,32 @@
 
 # New entries go on top.
 
+# Yongxiang Liang <tanekliang@gmail.com> (2024-10-10)
+# Fcitx 4 has been archived.
+app-i18n/mozc fcitx4
+
+# Michael Orlitzky <mjo@gentoo.org> (2024-10-07)
+# Disable "webservices" support for gthumb because it pulls in the old
+# libsoup2 slot of webkit-gtk. Upstream hasn't really budged on this in
+# over two years. Fedora has disabled webservices support already, and
+# that makes it OK if we do it too, right? Bug 893700.
+media-gfx/gthumb webkit
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-09-21)
+# openjfx for OpenJDK 23 is not yet available.
+dev-java/openjdk:23 javafx
+
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
+
+# Sam James <sam@gentoo.org> (2024-09-30)
+# gnat-gpl is purely for bootstrapping Ada and it's based on an old
+# version of GCC. Avoid risks of miscompilations.
+dev-lang/gnat-gpl pgo lto
+
+# Patrick McLean <chutzpah@gentoo.org> (2024-09-23)
+# Only supported on x86/amd64 (bug #940014).
+net-misc/lldpd seccomp
 
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-09-12)
 # No suitable version of dev-libs/protobuf available.
@@ -18,15 +42,6 @@ app-alternatives/yacc reference
 # Sam James <sam@gentoo.org> (2024-09-03)
 # Causes crashes with e.g. dlz+samba (bug #938955)
 net-dns/bind jemalloc
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-02)
-# kde-plasma/print-manager:5 and kde-apps/khelpcenter:5 cleanup
-kde-plasma/plasma-meta:5 cups handbook
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-02)
-# Prepare kde-apps/kaccounts-integration:5 cleanup
-kde-plasma/plasma-desktop:5 kaccounts
-kde-plasma/plasma-welcome:5 kaccounts
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-09-01)
 # Prepare for dev-util/kdevelop:5 removal
