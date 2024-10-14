@@ -6,32 +6,23 @@
 # java@gentoo.org
 # @AUTHOR:
 # Thomas Matthijs <axxo@gentoo.org>, Karl Trygve Kalleberg <karltk@gentoo.org>
-# @SUPPORTED_EAPIS: 6 7 8
+# @SUPPORTED_EAPIS: 7 8
 # @BLURB: Base eclass for Java packages
 # @DESCRIPTION:
-# This eclass provides functionality which is used by java-pkg-2.eclass,
-# java-pkg-opt-2.eclass and java-ant-2 eclass, as well as from ebuilds.
+# This eclass provides functionality which is used by java-pkg-2.eclass and
+# java-pkg-opt-2.eclass as well as from ebuilds.
 #
 # This eclass should not be inherited this directly from an ebuild. Instead,
 # you should inherit java-pkg-2 for Java packages or java-pkg-opt-2 for packages
-# that have optional Java support. In addition you can inherit java-ant-2 for
-# Ant-based packages.
+# that have optional Java support.
 
 if [[ -z ${_JAVA_UTILS_2_ECLASS} ]] ; then
 _JAVA_UTILS_2_ECLASS=1
 
 case ${EAPI} in
-	6)
-		ewarn "${CATEGORY}/${PF}: ebuild uses ${ECLASS} with deprecated EAPI ${EAPI}!"
-		ewarn "${CATEGORY}/${PF}: Support will be removed on 2024-10-08. Please port to newer EAPI."
-		;;
 	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
-
-# EAPI 7 has version functions built-in. Use eapi7-ver for all earlier EAPIs.
-# Keep versionator inheritance in case consumers are using it implicitly.
-[[ ${EAPI} == 6 ]] && inherit eapi7-ver eqawarn multilib versionator
 
 # Make sure we use java-config-2
 export WANT_JAVA_CONFIG="2"
@@ -101,7 +92,7 @@ JAVA_PKG_ALLOW_VM_CHANGE=${JAVA_PKG_ALLOW_VM_CHANGE:="yes"}
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Specify a non-standard Java source version for compilation (via javac -source
-# parameter or Ant equivalent via build.xml rewriting done by java-ant-2 eclass).
+# parameter).
 # Normally this is determined from the jdk version specified in DEPEND.
 # See java-pkg_get-source function below.
 #
@@ -204,9 +195,9 @@ JAVA_PKG_COMPILERS_CONF=${JAVA_PKG_COMPILERS_CONF:="/etc/java-config-2/build/com
 #
 # Useful for local testing.
 #
-# Use jikes and javac, in that order
+# Use <other compiler> and javac, in that order
 # @CODE
-#	JAVA_PKG_FORCE_COMPILER="jikes javac"
+#	JAVA_PKG_FORCE_COMPILER="<other compiler> javac"
 # @CODE
 
 # @ECLASS_VARIABLE: JAVA_PKG_FORCE_ANT_TASKS
@@ -300,12 +291,12 @@ java-pkg_doexamples() {
 		( # dont want to pollute calling env
 			insinto "${dest}"
 			doins -r ${1}/*
-		) || die "Installing examples failed"
+		)
 	else
 		( # dont want to pollute calling env
 			insinto "${dest}"
 			doins -r "$@"
-		) || die "Installing examples failed"
+		)
 	fi
 
 	# Let's make a symlink to the directory we have everything else under
@@ -430,7 +421,7 @@ java-pkg_dojar() {
 				(
 					insinto "${JAVA_PKG_JARDEST}"
 					doins "${jar}"
-				) || die "failed to install ${jar}"
+				)
 				java-pkg_append_ JAVA_PKG_CLASSPATH "${EPREFIX}${JAVA_PKG_JARDEST}/${jar_basename}"
 				debug-print "installed ${jar} to ${ED}${JAVA_PKG_JARDEST}"
 			# make a symlink to the original jar if it's symlink
@@ -578,7 +569,7 @@ java-pkg_doso() {
 					insinto "${JAVA_PKG_LIBDEST}"
 					insopts -m0755
 					doins "${lib}"
-				) || die "failed to install ${lib}"
+				)
 				java-pkg_append_ JAVA_PKG_LIBRARY "${JAVA_PKG_LIBDEST}"
 				debug-print "Installing ${lib} to ${JAVA_PKG_LIBDEST}"
 			# otherwise make a symlink to the symlink's origin
@@ -810,7 +801,7 @@ java-pkg_dosrc() {
 	(
 		insinto "${JAVA_PKG_SOURCESPATH}"
 		doins ${zip_path}
-	) || die "Failed to install source"
+	)
 
 	JAVA_SOURCES="${JAVA_PKG_SOURCESPATH}/${zip_name}"
 
@@ -1649,6 +1640,10 @@ java-pkg_set-current-vm() {
 	export GENTOO_VM=${1}
 }
 
+# @FUNCTION: java-pkg_current-vm-matches
+# @USAGE: <vm_string1> [<vm_string2> [<vm_string3>...]]
+# @RETURN: 0: the current vm matches any of the provided strings
+# @RETURN: 1: the current vm does not match any of the provided strings
 java-pkg_current-vm-matches() {
 	has $(java-pkg_get-current-vm) ${@}
 	return $?
@@ -1979,8 +1974,9 @@ etestng() {
 # src_prepare Searches for bundled jars
 # Don't call directly, but via java-pkg-2_src_prepare!
 java-utils-2_src_prepare() {
+	# have default_src_prepare starting from EAPI 9, see https://bugs.gentoo.org/780585
 	case ${EAPI} in
-		[678]) eapply_user ;;
+		[78]) eapply_user ;;
 		*) default_src_prepare ;;
 	esac
 
@@ -2307,9 +2303,6 @@ java-pkg_init() {
 
 	# TODO we will probably want to set JAVAC and JAVACFLAGS
 
-	# Do some QA checks
-	java-pkg_check-jikes
-
 	# Can't use unset here because Portage does not save the unset
 	# see https://bugs.gentoo.org/show_bug.cgi?id=189417#c11
 
@@ -2325,7 +2318,7 @@ java-pkg_init() {
 	export ANT_RESPECT_JAVA_HOME=
 }
 
-# @FUNCTION: java-pkg-init-compiler_
+# @FUNCTION: java-pkg_init-compiler_
 # @INTERNAL
 # @DESCRIPTION:
 # This function attempts to figure out what compiler should be used. It does
@@ -2346,9 +2339,7 @@ java-pkg_init() {
 # If the user doesn't defined anything in JAVA_PKG_COMPILERS_CONF, or no
 # suitable compiler was found there, then the default is to use javac provided
 # by the current VM.
-#
-#
-# @RETURN name of the compiler to use
+# @RETURN: name of the compiler to use
 java-pkg_init-compiler_() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -2950,6 +2941,12 @@ java-pkg_ensure-dep() {
 	fi
 }
 
+# @FUNCTION: java-pkg_check-phase
+# @INTERNAL
+# @USAGE: <phase_name>
+# @DESCRIPTION:
+# Checks whether the phase specified in $1 is the current active phase. If not,
+# a helpful QA message is displayed
 java-pkg_check-phase() {
 	local phase=${1}
 	local funcname=${FUNCNAME[1]}
@@ -2959,6 +2956,12 @@ java-pkg_check-phase() {
 	fi
 }
 
+# @FUNCTION: java-pkg_check-versioned-jar
+# @INTERNAL
+# @USAGE: <jar_filename>
+# @DESCRIPTION:
+# Checks whether the jar specified in $1 contains ${PV}. If it does, a helpful
+# QA message is displayed
 java-pkg_check-versioned-jar() {
 	local jar=${1}
 
@@ -2967,12 +2970,12 @@ java-pkg_check-versioned-jar() {
 	fi
 }
 
-java-pkg_check-jikes() {
-	if has jikes ${IUSE}; then
-		java-pkg_announce-qa-violation "deprecated USE flag 'jikes' in IUSE"
-	fi
-}
-
+# @FUNCTION: java-pkg_announce-qa-violation
+# @INTERNAL
+# @USAGE: [--nodie] <msg>
+# @DESCRIPTION:
+# Prints out the <msg> as a QA message. If ${JAVA_PKG_STRICT} is set, then die
+# is called. This can be overridden by providing --nodie
 java-pkg_announce-qa-violation() {
 	local nodie
 	if [[ ${1} == "--nodie" ]]; then
@@ -2989,6 +2992,10 @@ increment-qa-violations() {
 	export JAVA_PKG_QA_VIOLATIONS
 }
 
+# @FUNCTION: is-java-strict
+# @INTERNAL
+# @RETURN: 0: JAVA_PKG_STRICT is set
+# @RETURN: 1: JAVA_PKG_STRICT is not set
 is-java-strict() {
 	[[ -n ${JAVA_PKG_STRICT} ]]
 	return $?
@@ -3017,7 +3024,7 @@ java-pkg_clean() {
 # $1 - classpath variable either EANT_GENTOO_CLASSPATH or JAVA_GENTOO_CLASSPATH
 # @CODE
 java-pkg_gen-cp() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local atom
 	for atom in ${CP_DEPEND}; do
