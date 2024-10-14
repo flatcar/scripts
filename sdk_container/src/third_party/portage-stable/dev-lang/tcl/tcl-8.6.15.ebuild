@@ -1,7 +1,7 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 # Please bump with dev-lang/tk!
 
@@ -13,29 +13,40 @@ DESCRIPTION="Tool Command Language"
 HOMEPAGE="http://www.tcl.tk/"
 SRC_URI="https://downloads.sourceforge.net/tcl/${PN}-core${PV}-src.tar.gz"
 
-LICENSE="tcltk"
+SPARENT="${WORKDIR}/${MY_P}"
+S="${SPARENT}"/unix
+
+LICENSE="tcltk Spencer-99"
 SLOT="0/8.6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="debug +threads"
 
 RDEPEND=">=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
 
-SPARENT="${WORKDIR}/${MY_P}"
-S="${SPARENT}"/unix
-
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.6.10-multilib.patch
 	"${FILESDIR}"/${PN}-8.6.8-conf.patch # Bug 125971
 	"${FILESDIR}"/${PN}-8.6.9-include-spec.patch # Bug 731120
-	"${FILESDIR}"/${P}-configure-clang16.patch
+)
+
+QA_CONFIG_IMPL_DECL_SKIP=(
+	stat64 opendir64 rewinddir64 closedir64 # used to test for Large File Support
 )
 
 src_prepare() {
+	# By dropping the compat directory a lot of licensing and attribution burden
+	# (BSD-3, zlib,...) is lifted from the user
 	find \
 		"${SPARENT}"/compat/* \
 		"${SPARENT}"/doc/try.n \
 		-delete || die
+
+	# Drop -Werror
+	sed -i \
+		-e "s: -Werror::g" \
+		dltest/Makefile.in \
+		|| die
 
 	pushd "${SPARENT}" &>/dev/null || die
 	default
