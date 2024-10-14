@@ -253,7 +253,7 @@ src_prepare() {
 		# This patch neuters the "safe directory" detection.
 		# bugs #838271, #838223
 		PATCHES+=(
-			"${FILESDIR}"/git-2.37.2-unsafe-directory.patch
+			"${FILESDIR}"/git-2.46.2-unsafe-directory.patch
 		)
 	fi
 
@@ -331,6 +331,10 @@ src_compile() {
 
 	if use perl && use cgi ; then
 		git_emake gitweb
+	fi
+
+	if use perl ; then
+		git_emake -C contrib/credential/netrc
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
@@ -482,6 +486,11 @@ src_test() {
 
 	# And bail if there was a problem
 	[[ ${rc} -eq 0 ]] || die "Tests failed. Please file a bug!"
+
+	popd &>/dev/null || die
+	if use perl ; then
+		emake -C contrib/credential/netrc testverbose
+	fi
 }
 
 src_install() {
@@ -606,6 +615,12 @@ src_install() {
 		done
 	else
 		rm -rf "${ED}"/usr/share/gitweb
+	fi
+
+	if use perl ; then
+		pushd contrib/credential/netrc &>/dev/null || die
+		dobin git-credential-netrc
+		popd &>/dev/null || die
 	fi
 
 	if ! use subversion ; then
