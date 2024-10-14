@@ -13,7 +13,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="ipv6 readline ssl tcpd"
 
 DEPEND="
@@ -22,11 +22,6 @@ DEPEND="
 	tcpd? ( sys-apps/tcp-wrappers )
 "
 RDEPEND="${DEPEND}"
-
-# Tests are a large bash script
-# Hard to disable individual tests needing network or privileges
-# in 1.7.4.2: FAILED:  59 329
-#RESTRICT="test"
 
 DOCS=( BUGREPORTS CHANGES DEVELOPMENT EXAMPLES FAQ FILES PORTING README SECURITY )
 
