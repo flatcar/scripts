@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/portage.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 LICENSE="GPL-2"
@@ -29,21 +29,10 @@ IUSE="apidoc build doc gentoo-dev +ipc +native-extensions +rsync-verify selinux 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
-# setuptools is still needed as a workaround for Python 3.12+ for now.
-# https://github.com/mesonbuild/meson/issues/7702
-#
-# >=meson-1.2.1-r1 for bug #912051
 BDEPEND="
 	${PYTHON_DEPS}
 	>=app-arch/tar-1.27
-	>=dev-build/meson-1.2.1-r1
-	|| (
-		>=dev-build/meson-1.3.0-r1
-		<dev-build/meson-1.3.0
-	)
-	$(python_gen_cond_dep '
-		dev-python/setuptools[${PYTHON_USEDEP}]
-	' python3_12)
+	>=dev-build/meson-1.3.0-r1
 	>=sys-apps/sed-4.0.5
 	sys-devel/patch
 	!build? ( $(python_gen_impl_dep 'ssl(+)') )
@@ -89,10 +78,6 @@ RDEPEND="
 	xattr? ( kernel_linux? (
 		>=sys-apps/install-xattr-0.3
 	) )
-	!<app-admin/logrotate-3.8.0
-	!<app-portage/gentoolkit-0.4.6
-	!<app-portage/repoman-2.3.10
-	!~app-portage/repoman-3.0.0
 "
 # coreutils-6.4 rdep is for date format in emerge-webrsync #164532
 # NOTE: FEATURES=installsources requires debugedit and rsync
@@ -103,6 +88,10 @@ PDEPEND="
 		>=sys-apps/file-5.44-r3
 	)
 "
+
+PATCHES=(
+	"${FILESDIR}"/${P}-webrsync.patch
+)
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
