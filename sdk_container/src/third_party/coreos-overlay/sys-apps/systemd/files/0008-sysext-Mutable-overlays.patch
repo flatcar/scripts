@@ -1,7 +1,7 @@
-From b3e3257bfa07ae9ff63f5a139a1f7b72353a456b Mon Sep 17 00:00:00 2001
+From 6d55ebddee9676f68d23f1187f54a339bf7a0e7b Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 22 Apr 2024 16:43:38 +0200
-Subject: [PATCH 8/8] sysext: Mutable overlays
+Subject: [PATCH 08/11] sysext: Mutable overlays
 
 ---
  src/basic/path-util.c   |  12 +

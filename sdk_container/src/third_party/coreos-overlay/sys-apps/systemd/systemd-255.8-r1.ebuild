@@ -266,6 +266,13 @@ src_prepare() {
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
 		# Flatcar: This can be dropped when updating to 256.
 		"${FILESDIR}/0008-sysext-Mutable-overlays.patch"
+		# Flatcar: These can be dropped when updating to 257
+		# (or earlier if they'll get backported to some patch
+		# release)
+		"${FILESDIR}/0009-units-Order-ldconfig.service-after-systemd-confext.s.patch"
+		"${FILESDIR}/0010-units-Order-ldconfig-after-systemd-tmpfiles-setup.se.patch"
+		# Flatcar: This is a debug patch, can be dropped anytime.
+		"${FILESDIR}/0011-Add-debug-output-to-ldconfig.patch"
 	)
 
 	if ! use vanilla; then

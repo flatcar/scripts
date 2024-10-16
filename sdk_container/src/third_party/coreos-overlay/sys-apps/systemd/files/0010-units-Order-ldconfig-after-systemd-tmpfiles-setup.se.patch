@@ -1,0 +1,32 @@
+From 60865206af3e43a2a917f347c2c7bd4d46fd3702 Mon Sep 17 00:00:00 2001
+From: Daan De Meyer <daan.j.demeyer@gmail.com>
+Date: Mon, 23 Sep 2024 13:20:42 +0200
+Subject: [PATCH 10/11] units: Order ldconfig after
+ systemd-tmpfiles-setup.service
+
+tmpfiles might be linking the configuration for ldconfig into /etc
+so make sure it runs after it so that the configuration is guaranteed
+to be in place.
+---
+ units/ldconfig.service | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/units/ldconfig.service b/units/ldconfig.service
+index f5fb01ee23..404fa011d5 100644
+--- a/units/ldconfig.service
++++ b/units/ldconfig.service
+@@ -15,8 +15,9 @@ ConditionNeedsUpdate=|/etc
+ ConditionFileNotEmpty=|!/etc/ld.so.cache
+ 
+ DefaultDependencies=no
+-# systemd-confext.service might put the ld.so.conf configuration files in place so order this after that.
+-After=local-fs.target systemd-confext.service
++# systemd-confext.service or systemd-tmpfiles-setup.service might put the ld.so.conf configuration files in place so
++# order it after those.
++After=local-fs.target systemd-confext.service systemd-tmpfiles-setup.service
+ Before=sysinit.target systemd-update-done.service
+ Conflicts=shutdown.target initrd-switch-root.target
+ Before=shutdown.target initrd-switch-root.target
+-- 
+2.34.1
+
