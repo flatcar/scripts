@@ -13,7 +13,8 @@ dev-vcs/git		webdav curl
 
 # Mask support for http3 for now (unavailable on arm64 for now, and
 # I'm not sure we really need it.)
-net-misc/curl		kerberos telnet -http3 -quic -curl_quic_openssl
+# Disable websockets, we never had them, and now they are enabled by default.
+net-misc/curl		kerberos telnet -http3 -quic -curl_quic_openssl -websockets
 net-misc/iputils	arping tracepath
 sys-devel/gettext	-git
 
@@ -39,7 +40,7 @@ net-firewall/ipset -modules
 dev-libs/glib -mime
 
 # keep grub build simple
-sys-boot/grub -multislot -themes -fonts
+sys-boot/grub -multislot -themes -fonts -device-mapper
 
 # disable "high performance ssh" patch, turn on kerberos
 net-misc/openssh -hpn kerberos
@@ -95,8 +96,8 @@ sys-kernel/coreos-firmware -savedconfig
 # Make kmod support kernel modules compressed via lzma(xz)
 sys-apps/kmod lzma
 
-# These (qmanifest and qtegrity) are new tools and they pull even more dependencies.
-app-portage/portage-utils -qmanifest -qtegrity
+# The qmanifest is a new tool and it pulls even more dependencies.
+app-portage/portage-utils -qmanifest
 
 # Disable unnecessary regedit in samba to minimize the package size.
 net-fs/samba -regedit

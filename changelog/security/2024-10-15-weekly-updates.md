@@ -1,0 +1,3 @@
+- curl ([CVE-2024-8096](https://nvd.nist.gov/vuln/detail/CVE-2024-8096))
+- libarchive ([CVE-2024-26256](https://nvd.nist.gov/vuln/detail/CVE-2024-26256), [CVE-2024-48957](https://nvd.nist.gov/vuln/detail/CVE-2024-48957), [CVE-2024-48958](https://nvd.nist.gov/vuln/detail/CVE-2024-48958))
+- openssh ([CVE-2024-39894](https://nvd.nist.gov/vuln/detail/CVE-2024-39894))

@@ -1,6 +1,22 @@
 # Copyright 2022-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# David Roman <davidroman96@gmail.com> (2024-10-04)
+# dev-libs/libunibreak is not keyworded
+media-libs/libass libunibreak
+
+# WANG Xuerui <xen0n@gentoo.org> (2024-09-27)
+# media-libs/libilbc needs porting
+media-video/ffmpeg libilbc
+net-analyzer/wireshark ilbc
+net-libs/pjproject ilbc
+net-misc/asterisk ilbc
+net-voip/yate ilbc
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2024-09-14)
+# needs re-keywording and clean-up of media-libs/opencollada
+media-libs/assimp collada
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-09-13)
 # dev-python/pyside6 isn't keyworded here
 dev-python/QtPy pyside6
@@ -181,6 +197,7 @@ dev-util/perf python
 #
 # See https://github.com/openssl/openssl/issues/21340
 >=dev-libs/openssl-3.1 asm
+>=dev-libs/openssl-3.2 -asm
 
 # WANG Xuerui <xen0n@gentoo.org> (2023-06-03)
 # sys-cluster/knem not keyworded yet
@@ -253,7 +270,7 @@ app-cdr/brasero tracker
 # time being
 dev-cpp/libcmis man
 media-libs/opencv tesseract
-media-video/ffmpeg libilbc libtesseract
+media-video/ffmpeg libtesseract
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # sys-auth/sssd isn't keyworded here yet

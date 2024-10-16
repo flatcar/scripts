@@ -153,7 +153,7 @@ RDEPEND="${RDEPEND}
 	sec-policy/selinux-unconfined
 	sys-apps/acl
 	sys-apps/attr
-	sys-apps/azure-nvme-utils
+	sys-apps/azure-vm-utils
 	sys-apps/coreutils
 	sys-apps/checkpolicy
 	sys-apps/dbus
