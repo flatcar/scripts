@@ -5,7 +5,7 @@ EAPI=8
 
 inherit autotools linux-info pam systemd udev
 
-MY_P="${P}-23787635"
+MY_P="${P}-24276846"
 
 DESCRIPTION="Tools for VMware guests"
 HOMEPAGE="https://github.com/vmware/open-vm-tools"
