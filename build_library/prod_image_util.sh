@@ -92,6 +92,21 @@ create_prod_image() {
   run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
 
+  finish_image_common \
+      "${image_name}" \
+      "${disk_layout}" \
+      "${root_fs_dir}" \
+      "${image_contents}" \
+      "${image_contents_wtd}" \
+      "${image_kernel}" \
+      "${image_pcr_policy}" \
+      "${image_grub}" \
+      "${image_shim}" \
+      "${image_kconfig}" \
+      "${image_initrd_contents}" \
+      "${image_initrd_contents_wtd}" \
+      "${image_disk_usage}"
+
   local root_with_everything="${root_fs_dir}"
 
   # Call helper script for adding sysexts to the base OS.
