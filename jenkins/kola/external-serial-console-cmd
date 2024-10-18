@@ -1,0 +1,11 @@
+set -euo pipefail
+if [ "${IPADDR}" = "172.24.213.6" ]; then
+  HOST="bmc-a"
+elif [ "${IPADDR}" = "172.24.213.5" ]; then
+  HOST="bmc-b"
+else
+  echo "Unknown ${IPADDR}"
+  exit 1
+fi
+ipmitool -C3 -I lanplus -H "${HOST}" -U ADMIN -P ADMIN sol deactivate || true
+ipmitool -C3 -I lanplus -H "${HOST}" -U ADMIN -P ADMIN sol activate
