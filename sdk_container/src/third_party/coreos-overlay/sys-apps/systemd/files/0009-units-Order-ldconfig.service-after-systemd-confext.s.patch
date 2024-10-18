@@ -1,0 +1,31 @@
+From 525a726fb25de099186257971a7d6f51584756cf Mon Sep 17 00:00:00 2001
+From: Daan De Meyer <daan.j.demeyer@gmail.com>
+Date: Wed, 11 Sep 2024 21:29:25 +0200
+Subject: [PATCH 09/11] units: Order ldconfig.service after
+ systemd-confext.service
+
+The configuration files required by ldconfig could be put into
+place by systemd-confext.service (ldconfig only looks in /etc) so
+let's order the service after systemd-confext.service to make sure
+any config files are in place before the service runs.
+---
+ units/ldconfig.service | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/units/ldconfig.service b/units/ldconfig.service
+index 53c6d4ecb1..f5fb01ee23 100644
+--- a/units/ldconfig.service
++++ b/units/ldconfig.service
+@@ -15,7 +15,8 @@ ConditionNeedsUpdate=|/etc
+ ConditionFileNotEmpty=|!/etc/ld.so.cache
+ 
+ DefaultDependencies=no
+-After=local-fs.target
++# systemd-confext.service might put the ld.so.conf configuration files in place so order this after that.
++After=local-fs.target systemd-confext.service
+ Before=sysinit.target systemd-update-done.service
+ Conflicts=shutdown.target initrd-switch-root.target
+ Before=shutdown.target initrd-switch-root.target
+-- 
+2.34.1
+

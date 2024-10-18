@@ -1,7 +1,7 @@
-From d21ebfcf17ffc1dba635389193f10d2b93eba730 Mon Sep 17 00:00:00 2001
+From ad84669f3ff1afd2269b506ffc3160c75a0baa2e Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
-Subject: [PATCH 4/8] core: use max for DefaultTasksMax
+Subject: [PATCH 04/11] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This
@@ -34,7 +34,7 @@ index 3c06b65f93..71f38692b6 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/manager.c b/src/core/manager.c
-index 88eebfc626..8992c8c3e3 100644
+index 30cd8bcbea..e40076a18c 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
 @@ -114,7 +114,7 @@

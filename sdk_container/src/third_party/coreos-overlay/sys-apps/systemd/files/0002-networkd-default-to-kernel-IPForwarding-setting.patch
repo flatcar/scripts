@@ -1,7 +1,7 @@
-From e3fd50ec704b5d48e9d756c1cc5c40e72b7d1fa4 Mon Sep 17 00:00:00 2001
+From 4fe43bc57f7971d2a0eb76bdd2723e85bf381d77 Mon Sep 17 00:00:00 2001
 From: Nick Owens <nick.owens@coreos.com>
 Date: Tue, 2 Jun 2015 18:22:32 -0700
-Subject: [PATCH 2/8] networkd: default to "kernel" IPForwarding setting
+Subject: [PATCH 02/11] networkd: default to "kernel" IPForwarding setting
 
 ---
  src/network/networkd-network.c | 1 +
