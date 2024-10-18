@@ -11,7 +11,7 @@ KEYWORDS="amd64 arm64"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE=""
+IUSE="official"
 
 RDEPEND=""
 # TODO: Would be ideal to depend on sys-boot/gnu-efi package, but
@@ -31,6 +31,9 @@ src_compile() {
   local emake_args=(
     CROSS_COMPILE="${CHOST}-"
   )
+
+  sed -e "s/@@VERSION@@/${PVR}/" "${FILESDIR}"/sbat.csv.in >"${WORKDIR}/sbat.csv" || die
+
   # Apparently our environment already has the ARCH variable in
   # it, and Makefile picks it up instead of figuring it out
   # itself with the compiler -dumpmachine flag. But also it
@@ -41,8 +44,17 @@ src_compile() {
   elif use arm64; then
     emake_args+=( ARCH=aarch64 )
   fi
-    emake_args+=( ENABLE_SBSIGN=1 )
+  emake_args+=( ENABLE_SBSIGN=1 )
+  emake_args+=( SBATPATH="${WORKDIR}/sbat.csv" )
+
+  if use official; then
+    if [ -z "${SHIM_SIGNING_CERTIFICATE}" ]; then
+      die "use production flag needs env SHIM_SIGNING_CERTIFICATE"
+    fi
+    emake_args+=( VENDOR_CERT_FILE="${SHIM_SIGNING_CERTIFICATE}" )
+  else
     emake_args+=( VENDOR_CERT_FILE="/usr/share/sb_keys/shim.der" )
+  fi
   emake "${emake_args[@]}" || die
 }
 
@@ -55,6 +67,6 @@ src_install() {
     suffix=aa64
   fi
   insinto /usr/lib/shim
-  newins "shim${suffix}.efi" 'shim.efi'
+  newins "shim${suffix}.efi" "shim${suffix}.efi"
   newins "mm${suffix}.efi" "mm${suffix}.efi"
 }

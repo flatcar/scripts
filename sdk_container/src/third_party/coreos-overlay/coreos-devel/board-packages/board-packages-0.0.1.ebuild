@@ -26,6 +26,8 @@ RDEPEND="
 		coreos-base/nova-agent-watcher
 	)
 	sys-boot/grub
+	sys-boot/shim
+	sys-boot/shim-signed
 	app-containers/containerd
 	app-containers/docker
 	app-containers/docker-cli
