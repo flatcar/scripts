@@ -149,6 +149,9 @@ PATCHES=(
 
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
+
+	# Backport fix for git-maintenance
+	"${FILESDIR}"/${P}-maintenance.patch
 )
 
 pkg_setup() {
@@ -253,7 +256,7 @@ src_prepare() {
 		# This patch neuters the "safe directory" detection.
 		# bugs #838271, #838223
 		PATCHES+=(
-			"${FILESDIR}"/git-2.37.2-unsafe-directory.patch
+			"${FILESDIR}"/git-2.46.2-unsafe-directory.patch
 		)
 	fi
 
