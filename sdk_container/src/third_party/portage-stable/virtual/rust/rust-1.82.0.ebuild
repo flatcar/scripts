@@ -10,8 +10,8 @@ DESCRIPTION="Virtual for Rust language compiler"
 # adjust when rust upstream bumps internal llvm
 # we do not allow multiple llvm versions in dev-lang/rust for
 # neither system nor bundled, so we just hardcode it here.
-SLOT="0/llvm-18"
-KEYWORDS="amd64 arm arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
+SLOT="0/llvm-19"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="rustfmt profiler"
 
 RDEPEND="|| (
