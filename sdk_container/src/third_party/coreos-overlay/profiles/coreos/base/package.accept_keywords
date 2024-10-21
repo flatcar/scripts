@@ -19,6 +19,9 @@
 # Needed to address CVE-2024-3727.
 =app-containers/containers-image-5.32.2 ~amd64 ~arm64
 
+# Needed by updated app-containers/containers-common
+=app-containers/containers-storage-1.55.0 ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
 
@@ -28,6 +31,9 @@
 # Accept unstable for Docker and its CLI.
 =app-containers/docker-27.2.1 ~amd64 ~arm64
 =app-containers/docker-cli-27.2.1 ~amd64 ~arm64
+
+# Needed by updated app-containers/containers-common
+=app-containers/netavark-1.12.2 ~amd64 ~arm64
 
 # Needed to address CVE-2024-3727
 =app-containers/podman-5.0.3 ~amd64 ~arm64
@@ -125,6 +131,9 @@ dev-util/catalyst ~amd64 ~arm64
 =net-misc/iperf-3.17.1 ~arm64
 =net-misc/openssh-9.8_p1-r2 ~arm64
 
+# Needed by updated app-containers/containers-common
+=net-misc/passt-2024.09.06 ~amd64 ~arm64
+
 # Package has not been stabilised yet.
 =sys-apps/azure-vm-utils-0.3.0 ~amd64 ~arm64
 
@@ -153,6 +162,11 @@ dev-util/catalyst ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sys-fs/btrfs-progs-6.10.1 ~arm64
+
+# Needed by updated app-containers/containers-common
+=sys-fs/fuse-overlayfs-1.14 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =sys-fs/quota-4.09-r1 ~arm64
 =sys-libs/cracklib-2.10.2 ~arm64
 =sys-libs/efivar-39-r1 ~arm64
