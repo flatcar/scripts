@@ -16,7 +16,7 @@ SRC_URI="
 
 LICENSE="|| ( public-domain MIT )"
 SLOT="0/26"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="doc test"
 RESTRICT="!test? ( test )"
 
@@ -48,4 +48,10 @@ src_compile() {
 multilib_src_test() {
 	# increase test timeout due to failures on slower hardware
 	meson_src_test -t 2
+}
+
+multilib_src_install() {
+	meson_install
+	# https://bugs.gentoo.org/941642
+	rm -r "${ED}/usr/$(get_libdir)/cmake" || die
 }
