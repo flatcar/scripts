@@ -10,6 +10,12 @@
 # Handled by automation
 =app-containers/containerd-1.7.23 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-10-18 08:06:10
 
+# Needed to address CVE-2024-9341.
+=app-containers/containers-common-0.60.4 ~amd64 ~arm64
+
+# Needed to address CVE-2024-3727.
+=app-containers/containers-image-5.32.2 ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
 
@@ -136,7 +142,7 @@ dev-util/catalyst ~amd64 ~arm64
 =sys-devel/binutils-config-5.5.2 ~arm64
 =sys-devel/gettext-0.22.5 ~arm64
 
-# Needed in SDK for Secure Boot on arm64.
+# Needed in SDK for Secure Boot on arm64. Also addresses CVE-2024-1298.
 =sys-firmware/edk2-bin-202408 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
