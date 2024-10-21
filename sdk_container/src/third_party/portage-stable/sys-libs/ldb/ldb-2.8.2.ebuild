@@ -21,9 +21,9 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 
 RESTRICT="!test? ( test )"
 
-TALLOC_VERSION="2.4.2"
-TDB_VERSION="1.4.10"
-TEVENT_VERSION="0.16.1"
+TALLOC_VERSION="2.4.1"
+TDB_VERSION="1.4.9"
+TEVENT_VERSION="0.15.0"
 
 RDEPEND="
 	dev-libs/libbsd[${MULTILIB_USEDEP}]
@@ -56,10 +56,11 @@ WAF_BINARY="${S}/buildtools/bin/waf"
 MULTILIB_WRAPPED_HEADERS=( /usr/include/pyldb.h )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.9.0-optional_packages.patch
+	"${FILESDIR}"/${PN}-1.5.2-optional_packages.patch
 	"${FILESDIR}"/${PN}-1.1.31-fix_PKGCONFIGDIR-when-python-disabled.patch
 	"${FILESDIR}"/${PN}-2.4.2-skip-32bit-time_t-tests.patch
 	"${FILESDIR}"/${PN}-2.5.2-skip-waf-tevent-check.patch
+	"${FILESDIR}"/cmocka-config_h.patch
 )
 
 pkg_setup() {
