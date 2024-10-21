@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
+EGIT_REPO_URI="https://github.com/tuunit/flatcar-bootengine.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="f3c80fb02fe65dd3be2b0bb4727fc10985acfa9d" # flatcar-master
-	KEYWORDS="amd64 arm arm64 x86"
+	EGIT_COMMIT="dc60e2fcc09e99082e2f1c8287a7526328217391" # feat/ionoscloud-support
+	KEYWORDS="amd64 arm arm64 x86" 
 fi
 
 inherit git-r3

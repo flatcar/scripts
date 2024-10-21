@@ -38,6 +38,7 @@ COMMON_OEMIDS=(
     qemu
     scaleway
     kubevirt
+    ionoscloud
 )
 
 ARM64_ONLY_OEMIDS=(
