@@ -112,7 +112,6 @@
 
 # Keep versions on both arches in sync.
 =sys-devel/binutils-config-5.5.2 ~arm64
-=sys-devel/gettext-0.22.5 ~arm64
 
 # Needed in SDK for Secure Boot on arm64. Also addresses CVE-2024-1298.
 =sys-firmware/edk2-bin-202408 ~amd64 ~arm64
