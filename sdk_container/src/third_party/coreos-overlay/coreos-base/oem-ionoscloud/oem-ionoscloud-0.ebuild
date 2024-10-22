@@ -14,10 +14,12 @@ IUSE=""
 
 OEM_NAME="IONOS Cloud"
 
+S="${WORKDIR}"
+
 src_install() {
   dodir /etc/cloud/cloud.cfg.d/
   dodir /var/lib/cloud/seed/nocloud/
 
   insinto /etc/cloud
-  doins "${FILEDIRES}/cloud.cfg"
+  doins "${FILESDIR}/cloud.cfg"
 }
