@@ -72,7 +72,6 @@
 
 # Keep versions on both arches in sync.
 =dev-libs/jsoncpp-1.9.6-r2 ~arm64
-=dev-libs/libgpg-error-1.50 ~arm64
 =dev-libs/libnl-3.10.0 ~arm64
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
