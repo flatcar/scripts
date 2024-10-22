@@ -80,7 +80,7 @@
 =dev-util/bpftool-7.5.0-r1 ~arm64
 
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
-dev-util/catalyst ~amd64 ~arm64
+=dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-util/pkgconf-2.3.0 ~arm64
