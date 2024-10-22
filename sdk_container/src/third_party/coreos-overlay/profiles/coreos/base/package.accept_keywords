@@ -101,7 +101,6 @@
 =sys-apps/azure-vm-utils-0.3.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-apps/bubblewrap-0.10.0 ~arm64
 =sys-apps/dtc-1.7.1 ~arm64
 =sys-apps/kexec-tools-2.0.28 ~arm64
 =sys-apps/kmod-33 ~arm64
