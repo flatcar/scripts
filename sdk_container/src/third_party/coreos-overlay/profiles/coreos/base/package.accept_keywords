@@ -94,9 +94,6 @@
 # CVE-2024-8096.
 =net-misc/curl-8.10.1 ~amd64 ~arm64
 
-# Keep versions on both arches in sync.
-=net-misc/openssh-9.8_p1-r2 ~arm64
-
 # Needed by updated app-containers/containers-common
 =net-misc/passt-2024.09.06 ~amd64 ~arm64
 
