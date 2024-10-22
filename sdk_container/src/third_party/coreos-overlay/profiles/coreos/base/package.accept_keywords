@@ -82,9 +82,6 @@
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
-# Keep versions on both arches in sync.
-=dev-util/pkgconf-2.3.0 ~arm64
-
 # Needed for the MIT License
 =net-analyzer/netperf-2.7.0_p20210121 ~amd64 ~arm64
 
