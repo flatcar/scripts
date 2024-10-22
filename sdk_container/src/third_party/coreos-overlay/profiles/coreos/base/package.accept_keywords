@@ -95,7 +95,6 @@
 =net-misc/curl-8.10.1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=net-misc/iperf-3.17.1 ~arm64
 =net-misc/openssh-9.8_p1-r2 ~arm64
 
 # Needed by updated app-containers/containers-common
