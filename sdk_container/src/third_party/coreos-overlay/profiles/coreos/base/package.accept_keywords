@@ -120,7 +120,6 @@
 =sys-fs/fuse-overlayfs-1.14 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-fs/quota-4.09-r1 ~arm64
 =sys-libs/cracklib-2.10.2 ~arm64
 =sys-libs/efivar-39-r1 ~arm64
 =sys-libs/readline-8.2_p13 ~arm64
