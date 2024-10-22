@@ -102,7 +102,6 @@
 
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.28 ~arm64
-=sys-apps/nvme-cli-2.10.2 ~arm64
 =sys-apps/zram-generator-1.1.2 ~arm64
 =sys-block/open-iscsi-2.1.10-r1 ~arm64
 
