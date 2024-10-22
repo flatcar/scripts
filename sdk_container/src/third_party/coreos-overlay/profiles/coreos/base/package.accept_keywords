@@ -76,9 +76,6 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
-# Keep versions on both arches in sync.
-=dev-libs/userspace-rcu-0.14.1 ~arm64
-
 # These seem to be the versions we initially got, but the
 # modifications made to the ebuilds were clobbered, so these are here
 # to keep using the same version. Can be dropped when these or newer
