@@ -58,7 +58,6 @@
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
-=app-shells/bash-5.2_p37 ~arm64
 =dev-build/ninja-1.12.1 ~arm64
 =dev-cpp/abseil-cpp-20230125.3-r4 ~arm64
 
