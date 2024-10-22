@@ -118,6 +118,3 @@
 
 # Needed by updated app-containers/containers-common
 =sys-fs/fuse-overlayfs-1.14 ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
-=sys-process/audit-4.0.1-r1 ~arm64
