@@ -59,7 +59,6 @@
 
 # Keep versions on both arches in sync.
 =dev-build/meson-1.5.2 ~arm64
-=dev-build/ninja-1.12.1 ~arm64
 =dev-cpp/abseil-cpp-20230125.3-r4 ~arm64
 
 # Keep versions on both arches in sync.
