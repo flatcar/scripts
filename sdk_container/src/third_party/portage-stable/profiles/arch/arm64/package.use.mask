@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Benda Xu <heroxbd@gentoo.org> (2024-10-10)
+# dev-util/nvidia-cuda-toolkit or sys-cluster/ucx are not keyworded on arm64
+sys-cluster/slurm nvml ucx
+
 # orbea <orbea@riseup.net> (2024-07-19)
 # Unmask the dynarec flag which has arm64 asm.
 games-emulation/rmg -dynarec
@@ -30,10 +34,6 @@ x11-libs/libdrm -video_cards_vmware
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-12)
 # Supports 64-bit NEON
 media-libs/opencv -cpu_flags_arm_neon
-
-# Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-02)
-# Supports 64-bit NEON
-media-libs/openpgl -cpu_flags_arm_neon
 
 # Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
 # virt-firmware is keyworded here
@@ -458,10 +458,6 @@ media-gfx/pstoedit emf
 # openvz-sources are likely too old for any proper arm64 usage
 app-emulation/libvirt openvz
 
-# Alexis Ballier <aballier@gentoo.org> (2017-07-10)
-# Virtualbox is x86 only
-app-emulation/libvirt virtualbox
-
 # Alexis Ballier <aballier@gentoo.org> (2017-06-21)
 # net-fs/openafs-kernel does not recognize arm64 properly
 # Need to check if this has a chance to work with in-kernel drivers
@@ -501,5 +497,4 @@ sci-libs/linux-gpib firmware
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (2013-02-20)
 # Mask flags of calligra and dependencies due to lack of keywords
-app-office/calligra spacenav
 media-gfx/pstoedit emf
