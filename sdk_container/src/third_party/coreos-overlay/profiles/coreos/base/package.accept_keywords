@@ -144,3 +144,10 @@ dev-util/catalyst ~amd64 ~arm64
 =sys-libs/efivar-39-r1 ~arm64
 =sys-libs/readline-8.2_p13 ~arm64
 =sys-process/audit-4.0.1-r1 ~arm64
+
+# azure-kms
+=app-crypt/azure-kms-pkcs11-0_p20240923 ~amd64
+=dev-cpp/azure-core-1.13.0 ~amd64
+=dev-cpp/azure-security-keyvault-certificates-4.2.1 ~amd64
+=dev-cpp/azure-security-keyvault-keys-4.4.1 ~amd64
+=dev-cpp/azure-identity-1.9.0 ~amd64
