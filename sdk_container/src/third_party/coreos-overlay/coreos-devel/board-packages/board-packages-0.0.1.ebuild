@@ -32,6 +32,7 @@ RDEPEND="
 	app-containers/docker
 	app-containers/docker-cli
 	app-containers/docker-buildx
+	app-crypt/azure-kms-pkcs11
 	app-emulation/amazon-ssm-agent
 	app-emulation/hv-daemons
 	app-emulation/wa-linux-agent

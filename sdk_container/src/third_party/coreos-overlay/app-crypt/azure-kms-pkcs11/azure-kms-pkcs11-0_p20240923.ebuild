@@ -16,10 +16,10 @@ KEYWORDS="~amd64"
 
 # libcurl is only NEEDED because of the Azure SDK.
 RDEPEND="
-	dev-cpp/azure-core
-	dev-cpp/azure-identity
-	dev-cpp/azure-security-keyvault-certificates
-	dev-cpp/azure-security-keyvault-keys
+	dev-cpp/azure-core:=
+	dev-cpp/azure-identity:=
+	dev-cpp/azure-security-keyvault-certificates:=
+	dev-cpp/azure-security-keyvault-keys:=
 	dev-libs/json-c:=
 	dev-libs/openssl:=
 "
