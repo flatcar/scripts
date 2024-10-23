@@ -106,6 +106,7 @@ trap cleanup EXIT
 info "Installing GRUB ${FLAGS_target} in ${FLAGS_disk_image##*/}"
 LOOP_DEV=$(sudo losetup --find --show --partscan "${FLAGS_disk_image}")
 ESP_DIR=$(mktemp --directory)
+SIGN_CERT_DIR=$(mktemp --directory)
 MOUNTED=
 
 for (( i=0; i<5; ++i )); do
@@ -178,6 +179,7 @@ for mod in "${CORE_MODULES[@]}"; do
     sudo rm "${ESP_DIR}/${GRUB_DIR}/${mod}.mod"
 done
 
+
 # Now target specific steps to make the system bootable
 case "${FLAGS_target}" in
     i386-pc)
@@ -195,22 +197,29 @@ case "${FLAGS_target}" in
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
         # Use the test keys for signing unofficial builds
         if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+            az keyvault certificate download \
+              --file "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" --encoding PEM \
+              --vault-name=chewi-test --name flatcar-dev-cert
             # Sign the GRUB with the shim-embedded key
-            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
-                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
-                "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+            PKCS11_MODULE_PATH="${BOARD_ROOT}/usr/lib64/pkcs11/azure_kms_pkcs11.so" \
+            AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/" \
+            sudo sbsign --engine pkcs11 --key "pkcs11:token=flatcar-dev-cert" \
+                --cert "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
             sudo rm "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             # Sign the mokmanager(mm) with the shim-embedded key
-            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
-                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
-                "${BOARD_ROOT}/usr/lib/shim/mmx64.efi"
+            PKCS11_MODULE_PATH="${BOARD_ROOT}/usr/lib64/pkcs11/azure_kms_pkcs11.so" \
+            AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/" \
+            sudo sbsign --engine pkcs11 --key "pkcs11:token=flatcar-dev-cert" \
+                --cert "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" "${BOARD_ROOT}/usr/lib/shim/mmx64.efi"
             sudo cp "${BOARD_ROOT}/usr/lib/shim/mmx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
 
-            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/DB.key \
-                --cert ${BOARD_ROOT}/usr/share/sb_keys/DB.crt \
+            PKCS11_MODULE_PATH="${BOARD_ROOT}/usr/lib64/pkcs11/azure_kms_pkcs11.so" \
+            AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/" \
+            sudo sbsign --engine pkcs11 --key "pkcs11:token=flatcar-dev-cert" \
+                --cert "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" \
                 --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
                 "/usr/lib/shim/shim.efi"
         else
