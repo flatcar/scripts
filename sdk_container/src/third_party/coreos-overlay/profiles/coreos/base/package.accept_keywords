@@ -120,3 +120,10 @@
 
 # Needed by updated app-containers/containers-common
 =sys-fs/fuse-overlayfs-1.14 ~amd64 ~arm64
+
+# azure-keyvault-pkcs11
+=app-crypt/azure-keyvault-pkcs11-0_p20240923 ~amd64
+=dev-cpp/azure-core-1.14.0 ~amd64
+=dev-cpp/azure-security-keyvault-certificates-4.2.1 ~amd64
+=dev-cpp/azure-security-keyvault-keys-4.4.1 ~amd64
+=dev-cpp/azure-identity-1.10.0 ~amd64
