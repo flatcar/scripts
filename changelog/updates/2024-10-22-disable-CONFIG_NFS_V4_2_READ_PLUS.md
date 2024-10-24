@@ -1,0 +1,1 @@
+- Disable CONFIG_NFS_V4_2_READ_PLUS kernel config to fix nfs-ganesha ([#2390](https://github.com/flatcar/scripts/pull/2390))
