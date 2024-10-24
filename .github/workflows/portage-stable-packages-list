@@ -189,6 +189,7 @@ dev-build/ninja
 
 dev-cpp/abseil-cpp
 dev-cpp/azure-core
+dev-cpp/azure-security-keyvault-certificates
 dev-cpp/gflags
 dev-cpp/glog
 dev-cpp/gtest
