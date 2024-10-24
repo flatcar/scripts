@@ -1,0 +1,31 @@
+From 3e9ed06f6822c25d2b3edcc7a27dbbf4937bccf3 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Fri, 20 Sep 2024 14:01:53 +0100
+Subject: [PATCH] Fix etag.hpp comment that breaks Doxygen 1.12.0
+
+Unfortunately, "*" breaks Doxygen 1.12.0 with the following error:
+
+    error: end of comment block while expecting command </em>
+
+I have no idea why. Anything else like '*' or "x" works, but "*" was
+clearly intended here. The best I can suggest is: * in quotes.
+---
+ inc/azure/core/etag.hpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/inc/azure/core/etag.hpp b/inc/azure/core/etag.hpp
+index eec3945..5665885 100644
+--- a/inc/azure/core/etag.hpp
++++ b/inc/azure/core/etag.hpp
+@@ -181,7 +181,7 @@ public:
+ 
+   /**
+    * @brief #Azure::ETag representing everything.
+-   * @note The any #Azure::ETag is *, (unquoted).  It is NOT the same as "*".
++   * @note The any #Azure::ETag is *, (unquoted).  It is NOT the same as * in quotes.
+    */
+   static const ETag& Any();
+ };
+-- 
+2.46.0
+
