@@ -1,4 +1,4 @@
-From 64428b758960e3fce1389ee05930172a02b8b317 Mon Sep 17 00:00:00 2001
+From b4725fecc9298279266ecfd842536b1b1c03cdb0 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
@@ -8,13 +8,13 @@ Subject: [PATCH] Flatcar modifications
  policy/modules/kernel/corenetwork.if.in |  26 ++++
  policy/modules/kernel/corenetwork.te.in |  12 +-
  policy/modules/kernel/files.if          |  45 +++++++
- policy/modules/kernel/kernel.te         |  84 ++++++++++++
+ policy/modules/kernel/kernel.te         | 125 +++++++++++++++++
  policy/modules/services/container.fc    |   6 +
  policy/modules/services/container.te    | 170 +++++++++++++++++++++++-
  policy/modules/system/init.te           |   8 ++
  policy/modules/system/locallogin.te     |   9 +-
  policy/modules/system/logging.te        |   9 ++
- 10 files changed, 386 insertions(+), 3 deletions(-)
+ 10 files changed, 427 insertions(+), 3 deletions(-)
 
 diff --git a/refpolicy/policy/modules/admin/netutils.te b/refpolicy/policy/modules/admin/netutils.te
 index 63d2f9cb8..62dff5f94 100644
@@ -168,10 +168,10 @@ index 778e82713..d1bd353e0 100644
 +	relabelfrom_chr_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
 +')
 diff --git a/refpolicy/policy/modules/kernel/kernel.te b/refpolicy/policy/modules/kernel/kernel.te
-index b791ebc71..c0f754870 100644
+index b791ebc71..c80159473 100644
 --- a/refpolicy/policy/modules/kernel/kernel.te
 +++ b/refpolicy/policy/modules/kernel/kernel.te
-@@ -377,6 +377,90 @@ files_mounton_default(kernel_t)
+@@ -377,6 +377,131 @@ files_mounton_default(kernel_t)
  
  mcs_process_set_categories(kernel_t)
  
@@ -258,6 +258,47 @@ index b791ebc71..c0f754870 100644
 +optional_policy(`
 +	mount_watch_reads_runtime_files(kernel_t)
 +')
++
++#
++# FLATCAR:
++#
++# This one happens in cl.update.docker-btrfs-compat, cl.update.oem and cl.update.payload.
++#
++# avc:  denied  { perfmon } for  pid=[0-9]* comm="systemd" capability=38  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=1
++# avc:  denied  { perfmon } for  pid=[0-9]* comm="systemd" capability=38  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=0
++# avc:  denied  { perfmon } for  pid=[0-9]* comm="runc" capability=38  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=0
++#
++allow kernel_t self:capability2 { perfmon };
++
++#
++# FLATCAR:
++#
++# This one happens in sysext.zfs.reboot. The kernel module is a part
++# of sysext, and it probably is labeled wrong.
++#
++# avc:  denied  { module_load } for  pid=[0-9]* comm="modprobe" path="/usr/lib/modules/6.6.56-flatcar/extra/spl.ko" dev="overlay" ino=[0-9]* scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=system permissive=1
++#
++allow kernel_t unlabeled_t:system { module_load };
++
++#
++# FLATCAR:
++#
++# This one happens in cl.update.docker-btrfs-compat, cl.update.oem and cl.update.payload.
++#
++# avc:  denied  { confidentiality } for  pid=[0-9]* comm="systemd-udevd" lockdown_reason="use of tracefs" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=lockdown permissive=1
++#
++allow kernel_t self:lockdown { confidentiality };
++
++#
++# FLATCAR:
++#
++# This one happens in cl.update.docker-btrfs-compat, cl.update.oem and cl.update.payload.
++#
++# avc:  denied  { bpf } for  pid=[0-9]* comm="systemd" capability=39  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=1
++# avc:  denied  { bpf } for  pid=[0-9]* comm="systemd" capability=39  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=0
++# avc:  denied  { bpf } for  pid=[0-9]* comm="runc" capability=39  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=0
++#
++allow kernel_t self:capability2 { bpf };
 +
  mls_process_read_all_levels(kernel_t)
  mls_process_write_all_levels(kernel_t)
