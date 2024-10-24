@@ -1,7 +1,7 @@
-From 21f26593b93415a632449d05e787237d29c79ba3 Mon Sep 17 00:00:00 2001
+From 35bd1887b3d2837efbcee3de52e567c7d76e6669 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:38:16 +0200
-Subject: [PATCH 14/21] Revert "*: drop OEM URI support"
+Subject: [PATCH 14/20] Revert "*: drop OEM URI support"
 
 This reverts commit 0c088d6de77aa1b1f47b9252a07f51cb1e249df3.
 ---
@@ -81,10 +81,10 @@ index 9b2b4405..5258c3c6 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index 8dc0feb1..e7dd1dd4 100644
+index eef319b2..21ad376e 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
-@@ -12,6 +12,7 @@ Ignition is currently only supported for the following platforms:
+@@ -12,6 +12,7 @@ Ignition is currently supported for the following platforms:
  * [Amazon Web Services] (`aws`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [Microsoft Azure] (`azure`)- Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
  * [Microsoft Azure Stack] (`azurestack`) - Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
@@ -93,7 +93,7 @@ index 8dc0feb1..e7dd1dd4 100644
  * [CloudStack] (`cloudstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.
  * [DigitalOcean] (`digitalocean`) - Ignition will read its configuration from the droplet userdata. Cloud SSH keys and network configuration are handled separately.
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 35c65721..3886ab56 100644
+index eb4c3179..2726d705 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -23,13 +23,17 @@ import (
@@ -115,7 +115,7 @@ index 35c65721..3886ab56 100644
  
  	// Helper programs
  	groupaddCmd  = "groupadd"
-@@ -82,11 +86,14 @@ var (
+@@ -83,11 +87,14 @@ var (
  	luksCexSecureKeyRepo    = "/etc/zkey/repository/"
  )
  
@@ -132,7 +132,7 @@ index 35c65721..3886ab56 100644
  func GroupaddCmd() string  { return groupaddCmd }
  func GroupdelCmd() string  { return groupdelCmd }
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 8ccf9399..7b13c242 100644
+index 4f55dc2b..469857d0 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
 @@ -23,10 +23,12 @@ import (
@@ -271,5 +271,5 @@ index 8ccf9399..7b13c242 100644
 +	)
 +}
 -- 
-2.43.2
+2.44.2
 

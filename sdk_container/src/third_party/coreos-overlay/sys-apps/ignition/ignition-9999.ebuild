@@ -10,7 +10,7 @@ inherit coreos-go git-r3 systemd udev
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="09c99e0305adc1377b87964a39ad2d009aec9b12" # v2.19.0
+	EGIT_COMMIT="a204f429f13194ae379be9401d49e5241439660b" # v2.20.0
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -45,10 +45,10 @@ PATCHES=(
 	"${FILESDIR}/0003-mod-add-flatcar-ignition-0.36.2.patch"
 	"${FILESDIR}/0004-sum-go-mod-tidy.patch"
 	"${FILESDIR}/0005-vendor-go-mod-vendor.patch"
-	"${FILESDIR}/0006-config-v3_5-convert-ignition-2.x-to-3.x.patch"
+	"${FILESDIR}/0006-config-v3_6-convert-ignition-2.x-to-3.x.patch"
 	"${FILESDIR}/0007-internal-prv-cmdline-backport-flatcar-patch.patch"
 	"${FILESDIR}/0008-provider-qemu-apply-fw_cfg-patch.patch"
-	"${FILESDIR}/0009-config-3_5-test-add-ignition-2.x-test-cases.patch"
+	"${FILESDIR}/0009-config-3_6-test-add-ignition-2.x-test-cases.patch"
 	"${FILESDIR}/0010-internal-disk-fs-ignore-fs-format-mismatches-for-the.patch"
 	"${FILESDIR}/0011-VMware-Fix-guestinfo.-.config.data-and-.config.url-v.patch"
 	"${FILESDIR}/0012-config-version-handle-configuration-version-1.patch"

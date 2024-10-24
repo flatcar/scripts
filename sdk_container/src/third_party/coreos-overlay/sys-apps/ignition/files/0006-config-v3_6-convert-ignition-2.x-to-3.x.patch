@@ -1,24 +1,24 @@
-From 7ad89a545ac31d4308d94c11e5c808e04fd10ce1 Mon Sep 17 00:00:00 2001
+From b0c12492819ca9a6b0ef76549458fb99c7c8d93d Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Wed, 25 May 2022 10:20:09 +0200
-Subject: [PATCH 06/21] config/v3_5: convert ignition 2.x to 3.x
+Date: Thu, 24 Oct 2024 10:20:45 +0200
+Subject: [PATCH 06/20] config/v3_6: convert ignition 2.x to 3.x
 
 if the version of ignition is 2.x we convert it to 3.x using
 ign-converter.
 
-it should support any 2.x version (or at the least the last 2 releases)
+it should support any 2.x version
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- config/v3_5_experimental/config.go | 37 ++++++++++++++++++++++++++++++
+ config/v3_6_experimental/config.go | 37 ++++++++++++++++++++++++++++++
  1 file changed, 37 insertions(+)
 
-diff --git a/config/v3_5_experimental/config.go b/config/v3_5_experimental/config.go
-index f0d4bb84..dccc5c4c 100644
---- a/config/v3_5_experimental/config.go
-+++ b/config/v3_5_experimental/config.go
+diff --git a/config/v3_6_experimental/config.go b/config/v3_6_experimental/config.go
+index 3be26cae..ea367663 100644
+--- a/config/v3_6_experimental/config.go
++++ b/config/v3_6_experimental/config.go
 @@ -15,9 +15,14 @@
- package v3_5_experimental
+ package v3_6_experimental
  
  import (
 +	"encoding/json"
@@ -29,9 +29,9 @@ index f0d4bb84..dccc5c4c 100644
  	"github.com/flatcar/ignition/v2/config/shared/errors"
  	"github.com/flatcar/ignition/v2/config/util"
 +	"github.com/flatcar/ignition/v2/config/v24tov31"
- 	prev "github.com/flatcar/ignition/v2/config/v3_4"
- 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/translate"
- 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
+ 	prev "github.com/flatcar/ignition/v2/config/v3_5"
+ 	"github.com/flatcar/ignition/v2/config/v3_6_experimental/translate"
+ 	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 @@ -67,6 +72,38 @@ func ParseCompatibleVersion(raw []byte) (types.Config, report.Report, error) {
  		return types.Config{}, rpt, err
  	}
@@ -72,5 +72,5 @@ index f0d4bb84..dccc5c4c 100644
  		return Parse(raw)
  	}
 -- 
-2.43.2
+2.44.2
 

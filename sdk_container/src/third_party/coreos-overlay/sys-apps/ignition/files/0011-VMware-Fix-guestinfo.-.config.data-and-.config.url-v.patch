@@ -1,7 +1,7 @@
-From c805eca7a8627020e0c73c304aba339502edd71c Mon Sep 17 00:00:00 2001
+From 0bcc2592c3809a86c7649cd667bd481e5526af2e Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 20 Feb 2024 10:12:02 +0100
-Subject: [PATCH 11/21] VMware: Fix guestinfo.*.config.data and *.config.url
+Subject: [PATCH 11/20] VMware: Fix guestinfo.*.config.data and *.config.url
  variables
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -26,7 +26,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 71 insertions(+), 22 deletions(-)
 
 diff --git a/internal/providers/vmware/vmware_amd64.go b/internal/providers/vmware/vmware_amd64.go
-index 1d40249c..a0833794 100644
+index 597c33fd..3680a4cd 100644
 --- a/internal/providers/vmware/vmware_amd64.go
 +++ b/internal/providers/vmware/vmware_amd64.go
 @@ -19,6 +19,7 @@ package vmware
@@ -35,7 +35,7 @@ index 1d40249c..a0833794 100644
  	"fmt"
 +	"net/url"
  
- 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
+ 	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  	"github.com/flatcar/ignition/v2/internal/platform"
 @@ -58,26 +59,83 @@ func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
  		return types.Config{}, report.Report{}, platform.ErrNoProvider
@@ -164,5 +164,5 @@ index 1d40249c..a0833794 100644
  
  func delConfig(f *resource.Fetcher) error {
 -- 
-2.43.2
+2.44.2
 

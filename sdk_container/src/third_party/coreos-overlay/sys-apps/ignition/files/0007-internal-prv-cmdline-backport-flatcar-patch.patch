@@ -1,7 +1,7 @@
-From 618ac3e4556fc03eae599b736eff2086d9a95722 Mon Sep 17 00:00:00 2001
+From 2f5a68dc1c780e1e8647951e1e15c78d569b6ac4 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 19 Feb 2024 18:12:22 +0100
-Subject: [PATCH 07/21] internal/prv/cmdline: backport flatcar patch
+Subject: [PATCH 07/20] internal/prv/cmdline: backport flatcar patch
 
 this patch provides backward compatibility for various config
 key
@@ -12,7 +12,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/internal/providers/cmdline/cmdline.go b/internal/providers/cmdline/cmdline.go
-index eb8e2b45..0561438a 100644
+index 30203bff..86a5cb79 100644
 --- a/internal/providers/cmdline/cmdline.go
 +++ b/internal/providers/cmdline/cmdline.go
 @@ -33,7 +33,9 @@ import (
@@ -36,5 +36,5 @@ index eb8e2b45..0561438a 100644
  		}
  
 -- 
-2.43.2
+2.44.2
 
