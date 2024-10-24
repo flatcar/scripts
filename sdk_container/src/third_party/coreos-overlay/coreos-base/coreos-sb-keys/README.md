@@ -1,7 +1,5 @@
 ## Keys & Certificates
 
-- PK (Platform Key): The Platform Key is the key to the platform.
-- KEK (Key Exchange Key): The Key Exchange Key is used to update the signature database.
 - DB (Signature Database): The signature database is used to validate signed EFI binaries.
 - Shim Certificates: Our set of certificates
 

@@ -76,7 +76,6 @@ RDEPEND="${RDEPEND}
 	amd64? (
 		app-emulation/xenserver-pv-version
 		app-emulation/xenstore
-		sys-boot/mokutil
 	)"
 
 # sys-devel/gettext: it embeds 'envsubst' binary which is useful for simple file templating.
@@ -185,6 +184,7 @@ RDEPEND="${RDEPEND}
 	sys-block/open-iscsi
 	sys-block/parted
 	sys-boot/efibootmgr
+	sys-boot/mokutil
 	sys-cluster/ipvsadm
 	sys-devel/gettext
 	sys-fs/btrfs-progs

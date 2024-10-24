@@ -17,9 +17,9 @@ DEPEND="
 	app-admin/sudo
 	app-admin/updateservicectl
 	app-arch/pbzip2
-	app-crypt/efitools
 	app-crypt/sbsigntools
 	app-emulation/open-vmdk
+	app-emulation/virt-firmware
 	app-eselect/eselect-python
 	app-misc/jq
 	app-shells/bash-completion
@@ -42,8 +42,7 @@ DEPEND="
 	amd64? ( sys-apps/iucode_tool )
 	sys-apps/seismograph
 	sys-boot/grub
-	amd64? ( sys-boot/shim )
-	sys-firmware/edk2-ovmf-bin
+	sys-firmware/edk2-bin
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
 	dev-perl/Parse-Yapp

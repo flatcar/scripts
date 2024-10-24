@@ -24,8 +24,11 @@ RDEPEND="
 		app-emulation/open-vm-tools
 		coreos-base/nova-agent-container
 		coreos-base/nova-agent-watcher
+		app-crypt/azure-kms-pkcs11
 	)
 	sys-boot/grub
+	sys-boot/shim
+	sys-boot/shim-signed
 	app-containers/containerd
 	app-containers/docker
 	app-containers/docker-cli

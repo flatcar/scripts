@@ -71,11 +71,18 @@ fi
 bios="${QEMU_FIRMWARE}"
 if [ "${CIA_ARCH}" = "arm64" ]; then
     bios="${QEMU_UEFI_FIRMWARE}"
+    ovmf_vars="${QEMU_UEFI_OVMF_VARS}"
     if [ -f "${bios}" ] ; then
         echo "++++ qemu_update.sh: Using existing ./${bios} ++++"
     else
         echo "++++ qemu_update.sh: downloading ${bios} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
         copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${bios}" .
+    fi
+    if [ -f "${ovmf_vars}" ] ; then
+        echo "++++ ${CIA_TESTSCRIPT}: Using existing ${ovmf_vars} ++++"
+    else
+        echo "++++ ${CIA_TESTSCRIPT}: downloading ${ovmf_vars} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
+        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${ovmf_vars}" .
     fi
 fi
 
@@ -118,6 +125,7 @@ run_kola_tests() {
       --qemu-image="${image}" \
       --tapfile="${instance_tapfile}" \
       --update-payload="${QEMU_UPDATE_PAYLOAD}" \
+      "${ovmf_vars:+--qemu-ovmf-vars=${ovmf_vars}}" \
       ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
       "${tests[@]}"
 }

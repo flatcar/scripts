@@ -816,26 +816,20 @@ _write_qemu_conf() {
 }
 
 _write_qemu_uefi_conf() {
+    local flash_ro="$(_dst_name "_efi_code.qcow2")"
+    local flash_rw="$(_dst_name "_efi_vars.qcow2")"
     local script="$(_dst_dir)/$(_dst_name ".sh")"
 
     _write_qemu_conf
 
-    local flash_ro="$(_dst_name "_efi_code.fd")"
-    local flash_rw="$(_dst_name "_efi_vars.fd")"
-
     case $BOARD in
         amd64-usr)
-            cp "/usr/share/edk2-ovmf/OVMF_CODE.fd" "$(_dst_dir)/${flash_ro}"
-            cp "/usr/share/edk2-ovmf/OVMF_VARS.fd" "$(_dst_dir)/${flash_rw}"
+            cp "/usr/share/edk2/OvmfX64/OVMF_CODE_4M.qcow2" "$(_dst_dir)/${flash_ro}"
+            cp "/usr/share/edk2/OvmfX64/OVMF_VARS_4M.qcow2" "$(_dst_dir)/${flash_rw}"
             ;;
         arm64-usr)
-            # Get edk2 files into local build workspace.
-            info "Updating edk2 in /build/${BOARD}"
-            emerge-${BOARD} --nodeps --select --verbose --update --getbinpkg --newuse sys-firmware/edk2-aarch64
-            cp "${BOARD_ROOT}/usr/share/AAVMF/AAVMF_CODE.fd" "$(_dst_dir)/${flash_ro}"
-            cp "${BOARD_ROOT}/usr/share/AAVMF/AAVMF_VARS.fd" "$(_dst_dir)/${flash_rw}"
-            truncate -s 64M "$(_dst_dir)/${flash_ro}"
-            truncate -s 64M "$(_dst_dir)/${flash_rw}"
+            cp "/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_EFI.qcow2" "$(_dst_dir)/${flash_ro}"
+            cp "/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_VARS.qcow2" "$(_dst_dir)/${flash_rw}"
             ;;
     esac
 
@@ -858,18 +852,30 @@ _write_qemu_uefi_conf() {
 }
 
 _write_qemu_uefi_secure_conf() {
-    local flash_rw="$(_dst_name "_efi_vars.fd")"
-    local flash_ro="$(_dst_name "_efi_code.fd")"
+    local flash_rw="$(_dst_name "_efi_vars.qcow2")"
+    local flash_ro="$(_dst_name "_efi_code.qcow2")"
     local script="$(_dst_dir)/$(_dst_name ".sh")"
+    local owner="00000000-0000-0000-0000-000000000000"
+    local flash_in
 
     _write_qemu_uefi_conf
-    cp "/usr/share/edk2-ovmf/OVMF_CODE.secboot.fd" "$(_dst_dir)/${flash_ro}"
-    cert-to-efi-sig-list "/usr/share/sb_keys/PK.crt" "${VM_TMP_DIR}/PK.esl"
-    cert-to-efi-sig-list "/usr/share/sb_keys/KEK.crt" "${VM_TMP_DIR}/KEK.esl"
-    cert-to-efi-sig-list "/usr/share/sb_keys/DB.crt" "${VM_TMP_DIR}/DB.esl"
-    flash-var "$(_dst_dir)/${flash_rw}" "PK" "${VM_TMP_DIR}/PK.esl"
-    flash-var "$(_dst_dir)/${flash_rw}" "KEK" "${VM_TMP_DIR}/KEK.esl"
-    flash-var "$(_dst_dir)/${flash_rw}" "db" "${VM_TMP_DIR}/DB.esl"
+
+    case $BOARD in
+        amd64-usr)
+            cp "/usr/share/edk2/OvmfX64/OVMF_CODE_4M.secboot.qcow2" "$(_dst_dir)/${flash_ro}"
+            flash_in="/usr/share/edk2/OvmfX64/OVMF_VARS_4M.secboot.qcow2"
+            ;;
+        arm64-usr)
+            cp "/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_EFI.secboot_INSECURE.qcow2" "$(_dst_dir)/${flash_ro}"
+            flash_in="/usr/share/edk2/ArmVirtQemu-AARCH64/QEMU_VARS.secboot_INSECURE.qcow2"
+            ;;
+    esac
+
+    virt-fw-vars \
+        --input "${flash_in}" \
+        --output "$(_dst_dir)/${flash_rw}" \
+        --add-db  "${owner}" /usr/share/sb_keys/DB.crt
+
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }
 

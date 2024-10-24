@@ -39,18 +39,11 @@ switch_to_strict_mode
 # Our GRUB lives under flatcar/grub so new pygrub versions cannot find grub.cfg
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
-# GRUB install location inside the SDK
-GRUB_SRC="/usr/lib/grub/${FLAGS_target}"
-
 # Modules required to boot a standard CoreOS configuration
 CORE_MODULES=( normal search test fat part_gpt search_fs_uuid gzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
 
 # Name of the core image, depends on target
 CORE_NAME=
-
-# Whether the SDK's grub or the board root's grub is used. Once amd64 is
-# fixed up the board root's grub will always be used.
-BOARD_GRUB=1
 
 SBAT_ARG=()
 
@@ -70,7 +63,6 @@ case "${FLAGS_target}" in
     arm64-efi)
         CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp tpm )
         CORE_NAME="core.efi"
-        BOARD_GRUB=1
         SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
         ;;
     *)
@@ -78,13 +70,12 @@ case "${FLAGS_target}" in
         ;;
 esac
 
-if [[ $BOARD_GRUB -eq 1 ]]; then
-    info "Updating GRUB in ${BOARD_ROOT}"
-    emerge-${BOARD} \
-           --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
-           sys-boot/grub
-    GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
-fi
+info "Updating GRUB in ${BOARD_ROOT}"
+emerge-${BOARD} \
+        --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
+        sys-boot/grub
+
+GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
 [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
 
 # In order for grub-setup-bios to properly detect the layout of the disk
@@ -115,6 +106,7 @@ trap cleanup EXIT
 info "Installing GRUB ${FLAGS_target} in ${FLAGS_disk_image##*/}"
 LOOP_DEV=$(sudo losetup --find --show --partscan "${FLAGS_disk_image}")
 ESP_DIR=$(mktemp --directory)
+SIGN_CERT_DIR=$(mktemp --directory)
 MOUNTED=
 
 for (( i=0; i<5; ++i )); do
@@ -187,6 +179,7 @@ for mod in "${CORE_MODULES[@]}"; do
     sudo rm "${ESP_DIR}/${GRUB_DIR}/${mod}.mod"
 done
 
+
 # Now target specific steps to make the system bootable
 case "${FLAGS_target}" in
     i386-pc)
@@ -204,30 +197,37 @@ case "${FLAGS_target}" in
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
         # Use the test keys for signing unofficial builds
         if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+            az keyvault certificate download \
+              --file "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" --encoding PEM \
+              --vault-name=chewi-test --name flatcar-dev-cert
             # Sign the GRUB with the shim-embedded key
-            sudo sbsign --key /usr/share/sb_keys/shim.key \
-                --cert /usr/share/sb_keys/shim.pem \
-                "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+            PKCS11_MODULE_PATH="${BOARD_ROOT}/usr/lib64/pkcs11/azure_kms_pkcs11.so" \
+            AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/" \
+            sudo sbsign --engine pkcs11 --key "pkcs11:token=flatcar-dev-cert" \
+                --cert "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
             sudo rm "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
             # Sign the mokmanager(mm) with the shim-embedded key
-            sudo sbsign --key /usr/share/sb_keys/shim.key \
-                --cert /usr/share/sb_keys/shim.pem \
-                "/usr/lib/shim/mmx64.efi"
-            sudo cp "/usr/lib/shim/mmx64.efi.signed" \
+            PKCS11_MODULE_PATH="${BOARD_ROOT}/usr/lib64/pkcs11/azure_kms_pkcs11.so" \
+            AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/" \
+            sudo sbsign --engine pkcs11 --key "pkcs11:token=flatcar-dev-cert" \
+                --cert "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" "${BOARD_ROOT}/usr/lib/shim/mmx64.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
 
-            sudo sbsign --key /usr/share/sb_keys/DB.key \
-                --cert /usr/share/sb_keys/DB.crt \
+            PKCS11_MODULE_PATH="${BOARD_ROOT}/usr/lib64/pkcs11/azure_kms_pkcs11.so" \
+            AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/" \
+            sudo sbsign --engine pkcs11 --key "pkcs11:token=flatcar-dev-cert" \
+                --cert "${ESP_DIR}/${SIGN_CERT_DIR}"/flatcar-dev-cert.pem" \
                 --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
                 "/usr/lib/shim/shim.efi"
         else
             sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/grubx64.efi"
-            sudo cp "/usr/lib/shim/shim.efi" \
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/shimx64.efi.signed" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
-            sudo cp "/usr/lib/shim/mmx64.efi" \
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmx64.efi" \
                 "${ESP_DIR}/EFI/boot/mmx64.efi"
         fi
         # copying from vfat so ignore permissions
@@ -251,12 +251,40 @@ case "${FLAGS_target}" in
     arm64-efi)
         info "Installing default arm64 UEFI bootloader."
         sudo mkdir -p "${ESP_DIR}/EFI/boot"
+        # Use the test keys for signing unofficial builds
+        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+            # Sign the GRUB with the shim-embedded key
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
+                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
+                "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
+                "${ESP_DIR}/EFI/boot/grubaa64.efi"
+            sudo rm "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+            # Sign the mokmanager(mm) with the shim-embedded key
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/shim.key \
+                --cert ${BOARD_ROOT}/usr/share/sb_keys/shim.pem \
+                "/usr/lib/shim/mmaa64.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmaa64.efi.signed" \
+                "${ESP_DIR}/EFI/boot/mmaa64.efi"
+
+            sudo sbsign --key ${BOARD_ROOT}/usr/share/sb_keys/DB.key \
+                --cert ${BOARD_ROO}/usr/share/sb_keys/DB.crt \
+                --output "${ESP_DIR}/EFI/boot/bootaa64.efi" \
+                "/usr/lib/shim/shim.efi"
+        else
+            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+                "${ESP_DIR}/EFI/boot/grubaa64.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/shimaa64.efi.signed" \
+                "${ESP_DIR}/EFI/boot/bootaa64.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mmaa64.efi" \
+                "${ESP_DIR}/EFI/boot/mmaa64.efi"
+        fi
         #FIXME(andrejro): shim not ported to aarch64
         sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
             "${ESP_DIR}/EFI/boot/bootaa64.efi"
         if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
             # copying from vfat so ignore permissions
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/bootaa64.efi" \
+            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grubaa64.efi" \
                 "${FLAGS_copy_efi_grub}"
         fi
         ;;
