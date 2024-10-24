@@ -188,6 +188,7 @@ dev-build/meson-format-array
 dev-build/ninja
 
 dev-cpp/abseil-cpp
+dev-cpp/azure-core
 dev-cpp/gflags
 dev-cpp/glog
 dev-cpp/gtest
