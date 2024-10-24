@@ -1,15 +1,15 @@
-From 6cd70e07fca9cb3d436a084110d11636f6b745eb Mon Sep 17 00:00:00 2001
+From eae9a401894ccbb9be1f94c1d23726fa0cb1c480 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Fri, 7 Jun 2024 09:08:51 +0200
-Subject: [PATCH 01/21] *: sed `s/coreos/flatcar/`
+Date: Thu, 24 Oct 2024 10:01:18 +0200
+Subject: [PATCH 01/20] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- build                                         |  2 +-
+ build                                         |  4 +-
  build_blackbox_tests                          | 10 ++--
  build_for_container                           |  2 +-
  config/config.go                              |  4 +-
- config/config_test.go                         | 14 ++---
+ config/config_test.go                         | 16 +++---
  config/doc/generate.go                        |  2 +-
  config/doc/schema.go                          |  2 +-
  config/merge/merge.go                         |  6 +--
@@ -211,60 +211,98 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_4/types/url_test.go                 |  4 +-
  config/v3_4/types/verification.go             |  2 +-
  config/v3_4/types/verification_test.go        |  2 +-
- config/v3_5_experimental/config.go            | 14 ++---
- config/v3_5_experimental/config_test.go       |  4 +-
- .../v3_5_experimental/translate/translate.go  |  6 +--
+ config/v3_5/config.go                         | 14 ++---
+ config/v3_5/config_test.go                    |  4 +-
+ config/v3_5/translate/translate.go            |  6 +--
+ config/v3_5/translate/translate_test.go       |  4 +-
+ config/v3_5/types/cex.go                      |  2 +-
+ config/v3_5/types/cex_test.go                 |  2 +-
+ config/v3_5/types/clevis.go                   |  4 +-
+ config/v3_5/types/clevis_test.go              |  4 +-
+ config/v3_5/types/config.go                   |  4 +-
+ config/v3_5/types/config_test.go              |  4 +-
+ config/v3_5/types/disk.go                     |  4 +-
+ config/v3_5/types/file.go                     |  4 +-
+ config/v3_5/types/file_test.go                |  4 +-
+ config/v3_5/types/filesystem.go               |  4 +-
+ config/v3_5/types/filesystem_test.go          |  4 +-
+ config/v3_5/types/headers.go                  |  2 +-
+ config/v3_5/types/headers_test.go             |  2 +-
+ config/v3_5/types/ignition.go                 |  2 +-
+ config/v3_5/types/kargs_test.go               |  2 +-
+ config/v3_5/types/luks.go                     |  4 +-
+ config/v3_5/types/mode.go                     |  2 +-
+ config/v3_5/types/mode_test.go                |  4 +-
+ config/v3_5/types/node.go                     |  4 +-
+ config/v3_5/types/node_test.go                |  4 +-
+ config/v3_5/types/partition.go                |  4 +-
+ config/v3_5/types/partition_test.go           |  4 +-
+ config/v3_5/types/path.go                     |  4 +-
+ config/v3_5/types/path_test.go                |  2 +-
+ config/v3_5/types/proxy.go                    |  2 +-
+ config/v3_5/types/proxy_test.go               |  4 +-
+ config/v3_5/types/raid.go                     |  4 +-
+ config/v3_5/types/raid_test.go                |  4 +-
+ config/v3_5/types/resource.go                 |  4 +-
+ config/v3_5/types/storage.go                  |  4 +-
+ config/v3_5/types/storage_test.go             |  4 +-
+ config/v3_5/types/systemd.go                  |  6 +--
+ config/v3_5/types/systemd_test.go             |  4 +-
+ config/v3_5/types/tang.go                     |  4 +-
+ config/v3_5/types/tang_test.go                |  4 +-
+ config/v3_5/types/unit.go                     |  8 +--
+ config/v3_5/types/unit_test.go                |  4 +-
+ config/v3_5/types/url.go                      |  4 +-
+ config/v3_5/types/url_test.go                 |  4 +-
+ config/v3_5/types/verification.go             |  2 +-
+ config/v3_5/types/verification_test.go        |  2 +-
+ config/v3_6_experimental/config.go            | 14 ++---
+ config/v3_6_experimental/config_test.go       |  4 +-
+ .../v3_6_experimental/translate/translate.go  |  6 +--
  .../translate/translate_test.go               |  4 +-
- config/v3_5_experimental/types/cex.go         |  2 +-
- config/v3_5_experimental/types/cex_test.go    |  2 +-
- config/v3_5_experimental/types/clevis.go      |  4 +-
- config/v3_5_experimental/types/clevis_test.go |  4 +-
- config/v3_5_experimental/types/config.go      |  4 +-
- config/v3_5_experimental/types/config_test.go |  4 +-
- config/v3_5_experimental/types/disk.go        |  4 +-
- config/v3_5_experimental/types/file.go        |  4 +-
- config/v3_5_experimental/types/file_test.go   |  4 +-
- config/v3_5_experimental/types/filesystem.go  |  4 +-
+ config/v3_6_experimental/types/cex.go         |  2 +-
+ config/v3_6_experimental/types/cex_test.go    |  2 +-
+ config/v3_6_experimental/types/clevis.go      |  4 +-
+ config/v3_6_experimental/types/clevis_test.go |  4 +-
+ config/v3_6_experimental/types/config.go      |  4 +-
+ config/v3_6_experimental/types/config_test.go |  4 +-
+ config/v3_6_experimental/types/disk.go        |  4 +-
+ config/v3_6_experimental/types/file.go        |  4 +-
+ config/v3_6_experimental/types/file_test.go   |  4 +-
+ config/v3_6_experimental/types/filesystem.go  |  4 +-
  .../types/filesystem_test.go                  |  4 +-
- config/v3_5_experimental/types/headers.go     |  2 +-
- .../v3_5_experimental/types/headers_test.go   |  2 +-
- config/v3_5_experimental/types/ignition.go    |  2 +-
- config/v3_5_experimental/types/kargs_test.go  |  2 +-
- config/v3_5_experimental/types/luks.go        |  4 +-
- config/v3_5_experimental/types/mode.go        |  2 +-
- config/v3_5_experimental/types/mode_test.go   |  4 +-
- config/v3_5_experimental/types/node.go        |  4 +-
- config/v3_5_experimental/types/node_test.go   |  4 +-
- config/v3_5_experimental/types/partition.go   |  4 +-
- .../v3_5_experimental/types/partition_test.go |  4 +-
- config/v3_5_experimental/types/path.go        |  4 +-
- config/v3_5_experimental/types/path_test.go   |  2 +-
- config/v3_5_experimental/types/proxy.go       |  2 +-
- config/v3_5_experimental/types/proxy_test.go  |  4 +-
- config/v3_5_experimental/types/raid.go        |  4 +-
- config/v3_5_experimental/types/raid_test.go   |  4 +-
- config/v3_5_experimental/types/resource.go    |  4 +-
- config/v3_5_experimental/types/storage.go     |  4 +-
- .../v3_5_experimental/types/storage_test.go   |  4 +-
- config/v3_5_experimental/types/systemd.go     |  6 +--
- .../v3_5_experimental/types/systemd_test.go   |  4 +-
- config/v3_5_experimental/types/tang.go        |  4 +-
- config/v3_5_experimental/types/tang_test.go   |  4 +-
- config/v3_5_experimental/types/unit.go        |  8 +--
- config/v3_5_experimental/types/unit_test.go   |  4 +-
- config/v3_5_experimental/types/url.go         |  4 +-
- config/v3_5_experimental/types/url_test.go    |  4 +-
- .../v3_5_experimental/types/verification.go   |  2 +-
+ config/v3_6_experimental/types/headers.go     |  2 +-
+ .../v3_6_experimental/types/headers_test.go   |  2 +-
+ config/v3_6_experimental/types/ignition.go    |  2 +-
+ config/v3_6_experimental/types/kargs_test.go  |  2 +-
+ config/v3_6_experimental/types/luks.go        |  4 +-
+ config/v3_6_experimental/types/mode.go        |  2 +-
+ config/v3_6_experimental/types/mode_test.go   |  4 +-
+ config/v3_6_experimental/types/node.go        |  4 +-
+ config/v3_6_experimental/types/node_test.go   |  4 +-
+ config/v3_6_experimental/types/partition.go   |  4 +-
+ .../v3_6_experimental/types/partition_test.go |  4 +-
+ config/v3_6_experimental/types/path.go        |  4 +-
+ config/v3_6_experimental/types/path_test.go   |  2 +-
+ config/v3_6_experimental/types/proxy.go       |  2 +-
+ config/v3_6_experimental/types/proxy_test.go  |  4 +-
+ config/v3_6_experimental/types/raid.go        |  4 +-
+ config/v3_6_experimental/types/raid_test.go   |  4 +-
+ config/v3_6_experimental/types/resource.go    |  4 +-
+ config/v3_6_experimental/types/storage.go     |  4 +-
+ .../v3_6_experimental/types/storage_test.go   |  4 +-
+ config/v3_6_experimental/types/systemd.go     |  6 +--
+ .../v3_6_experimental/types/systemd_test.go   |  4 +-
+ config/v3_6_experimental/types/tang.go        |  4 +-
+ config/v3_6_experimental/types/tang_test.go   |  4 +-
+ config/v3_6_experimental/types/unit.go        |  8 +--
+ config/v3_6_experimental/types/unit_test.go   |  4 +-
+ config/v3_6_experimental/types/url.go         |  4 +-
+ config/v3_6_experimental/types/url_test.go    |  4 +-
+ .../v3_6_experimental/types/verification.go   |  2 +-
  .../types/verification_test.go                |  2 +-
  config/validate/validate.go                   |  4 +-
  config/validate/validate_test.go              |  2 +-
- docs/_config.yml                              |  4 +-
- docs/development.md                           | 12 ++---
- docs/distributor-notes.md                     |  6 +--
- docs/getting-started.md                       |  6 +--
- docs/index.md                                 |  6 +--
- docs/migrating-configs.md                     |  2 +-
- docs/specs.md                                 |  2 +-
  dracut/30ignition/ignition-complete.target    |  2 +-
  .../ignition-diskful-subsequent.target        |  2 +-
  dracut/30ignition/ignition-diskful.target     |  2 +-
@@ -273,13 +311,13 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  go.mod                                        |  2 +-
  internal/apply/apply.go                       | 30 +++++------
  internal/distro/distro.go                     |  2 +-
- internal/doc/main.go                          | 14 ++---
+ internal/doc/main.go                          | 16 +++---
  internal/exec/config_fetcher.go               | 18 +++----
  internal/exec/engine.go                       | 22 ++++----
  internal/exec/stages/disks/disks.go           | 16 +++---
  internal/exec/stages/disks/filesystems.go     |  8 +--
  internal/exec/stages/disks/luks.go            | 12 ++---
- internal/exec/stages/disks/partitions.go      |  8 +--
+ internal/exec/stages/disks/partitions.go      | 12 ++---
  internal/exec/stages/disks/raid.go            |  6 +--
  internal/exec/stages/fetch/fetch.go           | 12 ++---
  .../stages/fetch_offline/fetch-offline.go     | 16 +++---
@@ -324,18 +362,20 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  internal/providers/openstack/openstack.go     | 16 +++---
  internal/providers/packet/packet.go           |  8 +--
  internal/providers/powervs/powervs.go         | 14 ++---
+ internal/providers/proxmoxve/proxmoxve.go     | 14 ++---
  internal/providers/qemu/qemu_blockdev.go      | 12 ++---
  internal/providers/qemu/qemu_fwcfg.go         | 10 ++--
  internal/providers/scaleway/scaleway.go       |  8 +--
  internal/providers/system/system.go           | 14 ++---
  internal/providers/util/config.go             |  6 +--
  internal/providers/util/file.go               |  4 +-
+ internal/providers/util/unzip_test.go         |  2 +-
  internal/providers/virtualbox/virtualbox.go   | 10 ++--
  internal/providers/vmware/vmware_amd64.go     |  8 +--
  .../providers/vmware/vmware_unsupported.go    |  6 +--
  internal/providers/vultr/vultr.go             |  8 +--
  internal/providers/zvm/zvm.go                 | 14 ++---
- internal/register/providers.go                | 52 +++++++++----------
+ internal/register/providers.go                | 54 +++++++++----------
  internal/register/stages.go                   | 14 ++---
  internal/resource/http.go                     | 12 ++---
  internal/resource/url.go                      |  6 +--
@@ -345,7 +385,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  internal/util/tools/docs/docs.go              |  2 +-
  internal/util/verification.go                 |  2 +-
  internal/util/verification_test.go            |  2 +-
- tests/blackbox_test.go                        | 10 ++--
+ tests/blackbox_test.go                        | 12 ++---
  tests/filesystem.go                           |  4 +-
  tests/negative/files/invalid_hash.go          |  4 +-
  tests/negative/files/link.go                  |  4 +-
@@ -356,6 +396,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/negative/filesystems/no_device.go       |  4 +-
  tests/negative/filesystems/symlinks.go        |  4 +-
  tests/negative/general/config.go              |  4 +-
+ tests/negative/luks/creation.go               |  4 +-
  tests/negative/partitions/simple.go           |  4 +-
  tests/negative/partitions/zeroes.go           |  4 +-
  tests/negative/proxy/http.go                  |  4 +-
@@ -375,6 +416,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/positive/general/baseconfigsmerging.go  |  4 +-
  tests/positive/general/general.go             |  6 +--
  tests/positive/general/preemption.go          |  4 +-
+ tests/positive/luks/creation.go               |  4 +-
  tests/positive/partitions/complex-mb.go       |  4 +-
  tests/positive/partitions/creation-mb.go      |  4 +-
  tests/positive/partitions/deletion.go         |  4 +-
@@ -390,17 +432,26 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/positive/systemd/create_unit.go         |  4 +-
  tests/positive/systemd/modify_service.go      |  4 +-
  tests/positive/timeouts/timeouts.go           |  4 +-
- tests/register/register.go                    | 14 ++---
- tests/registry/registry.go                    | 36 ++++++-------
+ tests/register/register.go                    | 16 +++---
+ tests/registry/registry.go                    | 40 +++++++-------
  tests/servers/servers.go                      |  2 +-
  tests/validator.go                            |  4 +-
  validate/main.go                              |  4 +-
- 390 files changed, 1050 insertions(+), 1050 deletions(-)
+ 432 files changed, 1141 insertions(+), 1141 deletions(-)
 
 diff --git a/build b/build
-index dba50388..661f0eba 100755
+index 9bf93d61..5abdcf5f 100755
 --- a/build
 +++ b/build
+@@ -5,7 +5,7 @@ set -eu
+ export GO111MODULE=on
+ 
+ NAME="ignition"
+-ORG_PATH="github.com/coreos"
++ORG_PATH="github.com/flatcar"
+ REPO_PATH="${ORG_PATH}/${NAME}/v2"
+ GLDFLAGS=${GLDFLAGS:-}
+ export GOFLAGS=-mod=vendor
 @@ -15,7 +15,7 @@ if [ -z ${VERSION+a} ]; then
  	echo "Using version from git: $VERSION"
  fi
@@ -445,25 +496,25 @@ index 7ddfc55d..147a5ef0 100755
  if [[ -n "$(git status -s)" ]]; then
      echo "git repo not clean"
 diff --git a/config/config.go b/config/config.go
-index e4a2172d..d3e04176 100644
+index 47e82214..0cbdb15d 100644
 --- a/config/config.go
 +++ b/config/config.go
 @@ -15,8 +15,8 @@
  package config
  
  import (
--	exp "github.com/coreos/ignition/v2/config/v3_5_experimental"
--	types_exp "github.com/coreos/ignition/v2/config/v3_5_experimental/types"
-+	exp "github.com/flatcar/ignition/v2/config/v3_5_experimental"
-+	types_exp "github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
+-	exp "github.com/coreos/ignition/v2/config/v3_6_experimental"
+-	types_exp "github.com/coreos/ignition/v2/config/v3_6_experimental/types"
++	exp "github.com/flatcar/ignition/v2/config/v3_6_experimental"
++	types_exp "github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/config/config_test.go b/config/config_test.go
-index 1e35aee9..d396112d 100644
+index a38159de..c4c15145 100644
 --- a/config/config_test.go
 +++ b/config/config_test.go
-@@ -19,13 +19,13 @@ import (
+@@ -19,14 +19,14 @@ import (
  	"reflect"
  	"testing"
  
@@ -473,14 +524,16 @@ index 1e35aee9..d396112d 100644
 -	v3_2 "github.com/coreos/ignition/v2/config/v3_2/types"
 -	v3_3 "github.com/coreos/ignition/v2/config/v3_3/types"
 -	v3_4 "github.com/coreos/ignition/v2/config/v3_4/types"
--	v3_5 "github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	v3_5 "github.com/coreos/ignition/v2/config/v3_5/types"
+-	v3_6 "github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/util"
 +	v3_0 "github.com/flatcar/ignition/v2/config/v3_0/types"
 +	v3_1 "github.com/flatcar/ignition/v2/config/v3_1/types"
 +	v3_2 "github.com/flatcar/ignition/v2/config/v3_2/types"
 +	v3_3 "github.com/flatcar/ignition/v2/config/v3_3/types"
 +	v3_4 "github.com/flatcar/ignition/v2/config/v3_4/types"
-+	v3_5 "github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	v3_5 "github.com/flatcar/ignition/v2/config/v3_5/types"
++	v3_6 "github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  type typeSet map[reflect.Type]struct{}
@@ -542,7 +595,7 @@ index 1ba91b3d..f2bcc274 100644
  		}
  		transcribeOne(fromPath, toPath, transcript)
 diff --git a/config/merge/merge_test.go b/config/merge/merge_test.go
-index e1dbd936..f5d7dfa3 100644
+index ab122171..d59577fb 100644
 --- a/config/merge/merge_test.go
 +++ b/config/merge/merge_test.go
 @@ -17,9 +17,9 @@ package merge
@@ -551,10 +604,10 @@ index e1dbd936..f5d7dfa3 100644
  
 -	"github.com/coreos/ignition/v2/config/util"
 -	v3_2 "github.com/coreos/ignition/v2/config/v3_2/types"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/util"
 +	v3_2 "github.com/flatcar/ignition/v2/config/v3_2/types"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  
  	"github.com/coreos/vcontext/path"
  	"github.com/stretchr/testify/assert"
@@ -3518,67 +3571,67 @@ index 9a0914d0..f121b503 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/config.go b/config/v3_5_experimental/config.go
-index 9a92bf2a..f0d4bb84 100644
---- a/config/v3_5_experimental/config.go
-+++ b/config/v3_5_experimental/config.go
+diff --git a/config/v3_5/config.go b/config/v3_5/config.go
+index d6f8645b..f6724ea4 100644
+--- a/config/v3_5/config.go
++++ b/config/v3_5/config.go
 @@ -15,13 +15,13 @@
- package v3_5_experimental
+ package v3_5
  
  import (
 -	"github.com/coreos/ignition/v2/config/merge"
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/util"
 -	prev "github.com/coreos/ignition/v2/config/v3_4"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/translate"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_5/translate"
+-	"github.com/coreos/ignition/v2/config/v3_5/types"
 -	"github.com/coreos/ignition/v2/config/validate"
 +	"github.com/flatcar/ignition/v2/config/merge"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
 +	"github.com/flatcar/ignition/v2/config/util"
 +	prev "github.com/flatcar/ignition/v2/config/v3_4"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/translate"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_5/translate"
++	"github.com/flatcar/ignition/v2/config/v3_5/types"
 +	"github.com/flatcar/ignition/v2/config/validate"
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/config_test.go b/config/v3_5_experimental/config_test.go
-index a56b4b3a..7e10866e 100644
---- a/config/v3_5_experimental/config_test.go
-+++ b/config/v3_5_experimental/config_test.go
-@@ -17,8 +17,8 @@ package v3_5_experimental
+diff --git a/config/v3_5/config_test.go b/config/v3_5/config_test.go
+index 9786befc..425eb544 100644
+--- a/config/v3_5/config_test.go
++++ b/config/v3_5/config_test.go
+@@ -17,8 +17,8 @@ package v3_5
  import (
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_5/types"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_5/types"
  	"github.com/stretchr/testify/assert"
  )
  
-diff --git a/config/v3_5_experimental/translate/translate.go b/config/v3_5_experimental/translate/translate.go
-index 19f6da5d..dbaac4c3 100644
---- a/config/v3_5_experimental/translate/translate.go
-+++ b/config/v3_5_experimental/translate/translate.go
+diff --git a/config/v3_5/translate/translate.go b/config/v3_5/translate/translate.go
+index bc13973f..e0356672 100644
+--- a/config/v3_5/translate/translate.go
++++ b/config/v3_5/translate/translate.go
 @@ -15,9 +15,9 @@
  package translate
  
  import (
 -	"github.com/coreos/ignition/v2/config/translate"
 -	old_types "github.com/coreos/ignition/v2/config/v3_4/types"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_5/types"
 +	"github.com/flatcar/ignition/v2/config/translate"
 +	old_types "github.com/flatcar/ignition/v2/config/v3_4/types"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_5/types"
  )
  
  func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
-diff --git a/config/v3_5_experimental/translate/translate_test.go b/config/v3_5_experimental/translate/translate_test.go
+diff --git a/config/v3_5/translate/translate_test.go b/config/v3_5/translate/translate_test.go
 index 7896facc..c6afaa31 100644
---- a/config/v3_5_experimental/translate/translate_test.go
-+++ b/config/v3_5_experimental/translate/translate_test.go
+--- a/config/v3_5/translate/translate_test.go
++++ b/config/v3_5/translate/translate_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -3590,10 +3643,10 @@ index 7896facc..c6afaa31 100644
  )
  
  // Check that we have valid translators for the complete config struct
-diff --git a/config/v3_5_experimental/types/cex.go b/config/v3_5_experimental/types/cex.go
+diff --git a/config/v3_5/types/cex.go b/config/v3_5/types/cex.go
 index b34f5f52..6f58b373 100644
---- a/config/v3_5_experimental/types/cex.go
-+++ b/config/v3_5_experimental/types/cex.go
+--- a/config/v3_5/types/cex.go
++++ b/config/v3_5/types/cex.go
 @@ -15,7 +15,7 @@
  package types
  
@@ -3603,10 +3656,10 @@ index b34f5f52..6f58b373 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/cex_test.go b/config/v3_5_experimental/types/cex_test.go
+diff --git a/config/v3_5/types/cex_test.go b/config/v3_5/types/cex_test.go
 index 35d562d8..e856a93f 100644
---- a/config/v3_5_experimental/types/cex_test.go
-+++ b/config/v3_5_experimental/types/cex_test.go
+--- a/config/v3_5/types/cex_test.go
++++ b/config/v3_5/types/cex_test.go
 @@ -18,7 +18,7 @@ import (
  	"reflect"
  	"testing"
@@ -3616,10 +3669,10 @@ index 35d562d8..e856a93f 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/clevis.go b/config/v3_5_experimental/types/clevis.go
+diff --git a/config/v3_5/types/clevis.go b/config/v3_5/types/clevis.go
 index 68887d43..564154f6 100644
---- a/config/v3_5_experimental/types/clevis.go
-+++ b/config/v3_5_experimental/types/clevis.go
+--- a/config/v3_5/types/clevis.go
++++ b/config/v3_5/types/clevis.go
 @@ -15,8 +15,8 @@
  package types
  
@@ -3631,10 +3684,10 @@ index 68887d43..564154f6 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/clevis_test.go b/config/v3_5_experimental/types/clevis_test.go
+diff --git a/config/v3_5/types/clevis_test.go b/config/v3_5/types/clevis_test.go
 index f616868c..c28509ee 100644
---- a/config/v3_5_experimental/types/clevis_test.go
-+++ b/config/v3_5_experimental/types/clevis_test.go
+--- a/config/v3_5/types/clevis_test.go
++++ b/config/v3_5/types/clevis_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -3646,10 +3699,10 @@ index f616868c..c28509ee 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/config.go b/config/v3_5_experimental/types/config.go
-index 40c27106..190095c9 100644
---- a/config/v3_5_experimental/types/config.go
-+++ b/config/v3_5_experimental/types/config.go
+diff --git a/config/v3_5/types/config.go b/config/v3_5/types/config.go
+index 659657b6..61385f53 100644
+--- a/config/v3_5/types/config.go
++++ b/config/v3_5/types/config.go
 @@ -15,8 +15,8 @@
  package types
  
@@ -3661,10 +3714,10 @@ index 40c27106..190095c9 100644
  
  	"github.com/coreos/go-semver/semver"
  	"github.com/coreos/vcontext/path"
-diff --git a/config/v3_5_experimental/types/config_test.go b/config/v3_5_experimental/types/config_test.go
+diff --git a/config/v3_5/types/config_test.go b/config/v3_5/types/config_test.go
 index 3d82627b..511c5ecd 100644
---- a/config/v3_5_experimental/types/config_test.go
-+++ b/config/v3_5_experimental/types/config_test.go
+--- a/config/v3_5/types/config_test.go
++++ b/config/v3_5/types/config_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -3676,10 +3729,10 @@ index 3d82627b..511c5ecd 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/disk.go b/config/v3_5_experimental/types/disk.go
+diff --git a/config/v3_5/types/disk.go b/config/v3_5/types/disk.go
 index 8caf8499..29fd3900 100644
---- a/config/v3_5_experimental/types/disk.go
-+++ b/config/v3_5_experimental/types/disk.go
+--- a/config/v3_5/types/disk.go
++++ b/config/v3_5/types/disk.go
 @@ -15,8 +15,8 @@
  package types
  
@@ -3691,10 +3744,10 @@ index 8caf8499..29fd3900 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/file.go b/config/v3_5_experimental/types/file.go
+diff --git a/config/v3_5/types/file.go b/config/v3_5/types/file.go
 index 9b71bb26..e3f7fbdf 100644
---- a/config/v3_5_experimental/types/file.go
-+++ b/config/v3_5_experimental/types/file.go
+--- a/config/v3_5/types/file.go
++++ b/config/v3_5/types/file.go
 @@ -15,8 +15,8 @@
  package types
  
@@ -3706,10 +3759,10 @@ index 9b71bb26..e3f7fbdf 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/file_test.go b/config/v3_5_experimental/types/file_test.go
+diff --git a/config/v3_5/types/file_test.go b/config/v3_5/types/file_test.go
 index 449e0700..5aa2e87c 100644
---- a/config/v3_5_experimental/types/file_test.go
-+++ b/config/v3_5_experimental/types/file_test.go
+--- a/config/v3_5/types/file_test.go
++++ b/config/v3_5/types/file_test.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"testing"
@@ -3721,10 +3774,10 @@ index 449e0700..5aa2e87c 100644
  )
  
  func TestFileValidateOverwrite(t *testing.T) {
-diff --git a/config/v3_5_experimental/types/filesystem.go b/config/v3_5_experimental/types/filesystem.go
+diff --git a/config/v3_5/types/filesystem.go b/config/v3_5/types/filesystem.go
 index c722b363..9f7f8bbc 100644
---- a/config/v3_5_experimental/types/filesystem.go
-+++ b/config/v3_5_experimental/types/filesystem.go
+--- a/config/v3_5/types/filesystem.go
++++ b/config/v3_5/types/filesystem.go
 @@ -15,8 +15,8 @@
  package types
  
@@ -3736,10 +3789,10 @@ index c722b363..9f7f8bbc 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/filesystem_test.go b/config/v3_5_experimental/types/filesystem_test.go
+diff --git a/config/v3_5/types/filesystem_test.go b/config/v3_5/types/filesystem_test.go
 index 1f8db903..6e710426 100644
---- a/config/v3_5_experimental/types/filesystem_test.go
-+++ b/config/v3_5_experimental/types/filesystem_test.go
+--- a/config/v3_5/types/filesystem_test.go
++++ b/config/v3_5/types/filesystem_test.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"testing"
@@ -3751,10 +3804,10 @@ index 1f8db903..6e710426 100644
  )
  
  func TestFilesystemValidateFormat(t *testing.T) {
-diff --git a/config/v3_5_experimental/types/headers.go b/config/v3_5_experimental/types/headers.go
+diff --git a/config/v3_5/types/headers.go b/config/v3_5/types/headers.go
 index be1aadad..e968a2b4 100644
---- a/config/v3_5_experimental/types/headers.go
-+++ b/config/v3_5_experimental/types/headers.go
+--- a/config/v3_5/types/headers.go
++++ b/config/v3_5/types/headers.go
 @@ -17,7 +17,7 @@ package types
  import (
  	"net/http"
@@ -3764,10 +3817,10 @@ index be1aadad..e968a2b4 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
  )
-diff --git a/config/v3_5_experimental/types/headers_test.go b/config/v3_5_experimental/types/headers_test.go
+diff --git a/config/v3_5/types/headers_test.go b/config/v3_5/types/headers_test.go
 index 40380b68..5e888830 100644
---- a/config/v3_5_experimental/types/headers_test.go
-+++ b/config/v3_5_experimental/types/headers_test.go
+--- a/config/v3_5/types/headers_test.go
++++ b/config/v3_5/types/headers_test.go
 @@ -17,7 +17,7 @@ package types
  import (
  	"testing"
@@ -3777,10 +3830,10 @@ index 40380b68..5e888830 100644
  )
  
  func toPointer(val string) *string {
-diff --git a/config/v3_5_experimental/types/ignition.go b/config/v3_5_experimental/types/ignition.go
+diff --git a/config/v3_5/types/ignition.go b/config/v3_5/types/ignition.go
 index 190445bd..1fbcf8c4 100644
---- a/config/v3_5_experimental/types/ignition.go
-+++ b/config/v3_5_experimental/types/ignition.go
+--- a/config/v3_5/types/ignition.go
++++ b/config/v3_5/types/ignition.go
 @@ -17,7 +17,7 @@ package types
  import (
  	"github.com/coreos/go-semver/semver"
@@ -3790,10 +3843,10 @@ index 190445bd..1fbcf8c4 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/kargs_test.go b/config/v3_5_experimental/types/kargs_test.go
+diff --git a/config/v3_5/types/kargs_test.go b/config/v3_5/types/kargs_test.go
 index 1a258727..a79c037a 100644
---- a/config/v3_5_experimental/types/kargs_test.go
-+++ b/config/v3_5_experimental/types/kargs_test.go
+--- a/config/v3_5/types/kargs_test.go
++++ b/config/v3_5/types/kargs_test.go
 @@ -17,7 +17,7 @@ package types
  import (
  	"testing"
@@ -3803,10 +3856,10 @@ index 1a258727..a79c037a 100644
  )
  
  func TestKernelArgumentsValidate(t *testing.T) {
-diff --git a/config/v3_5_experimental/types/luks.go b/config/v3_5_experimental/types/luks.go
+diff --git a/config/v3_5/types/luks.go b/config/v3_5/types/luks.go
 index e4c1d681..ce9d087f 100644
---- a/config/v3_5_experimental/types/luks.go
-+++ b/config/v3_5_experimental/types/luks.go
+--- a/config/v3_5/types/luks.go
++++ b/config/v3_5/types/luks.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"strings"
@@ -3818,10 +3871,10 @@ index e4c1d681..ce9d087f 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/mode.go b/config/v3_5_experimental/types/mode.go
+diff --git a/config/v3_5/types/mode.go b/config/v3_5/types/mode.go
 index 9eb7573d..67c7ebd3 100644
---- a/config/v3_5_experimental/types/mode.go
-+++ b/config/v3_5_experimental/types/mode.go
+--- a/config/v3_5/types/mode.go
++++ b/config/v3_5/types/mode.go
 @@ -15,7 +15,7 @@
  package types
  
@@ -3831,10 +3884,10 @@ index 9eb7573d..67c7ebd3 100644
  )
  
  func validateMode(m *int) error {
-diff --git a/config/v3_5_experimental/types/mode_test.go b/config/v3_5_experimental/types/mode_test.go
+diff --git a/config/v3_5/types/mode_test.go b/config/v3_5/types/mode_test.go
 index 8966e25d..5c973dbf 100644
---- a/config/v3_5_experimental/types/mode_test.go
-+++ b/config/v3_5_experimental/types/mode_test.go
+--- a/config/v3_5/types/mode_test.go
++++ b/config/v3_5/types/mode_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -3846,10 +3899,10 @@ index 8966e25d..5c973dbf 100644
  )
  
  func TestModeValidate(t *testing.T) {
-diff --git a/config/v3_5_experimental/types/node.go b/config/v3_5_experimental/types/node.go
+diff --git a/config/v3_5/types/node.go b/config/v3_5/types/node.go
 index 248276e7..f4e94f9e 100644
---- a/config/v3_5_experimental/types/node.go
-+++ b/config/v3_5_experimental/types/node.go
+--- a/config/v3_5/types/node.go
++++ b/config/v3_5/types/node.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"path"
@@ -3861,10 +3914,10 @@ index 248276e7..f4e94f9e 100644
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/node_test.go b/config/v3_5_experimental/types/node_test.go
+diff --git a/config/v3_5/types/node_test.go b/config/v3_5/types/node_test.go
 index 20ba4eb6..9176b4b7 100644
---- a/config/v3_5_experimental/types/node_test.go
-+++ b/config/v3_5_experimental/types/node_test.go
+--- a/config/v3_5/types/node_test.go
++++ b/config/v3_5/types/node_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -3876,10 +3929,10 @@ index 20ba4eb6..9176b4b7 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/partition.go b/config/v3_5_experimental/types/partition.go
+diff --git a/config/v3_5/types/partition.go b/config/v3_5/types/partition.go
 index 1b2d97ed..6603af3b 100644
---- a/config/v3_5_experimental/types/partition.go
-+++ b/config/v3_5_experimental/types/partition.go
+--- a/config/v3_5/types/partition.go
++++ b/config/v3_5/types/partition.go
 @@ -19,8 +19,8 @@ import (
  	"regexp"
  	"strings"
@@ -3891,10 +3944,10 @@ index 1b2d97ed..6603af3b 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/partition_test.go b/config/v3_5_experimental/types/partition_test.go
+diff --git a/config/v3_5/types/partition_test.go b/config/v3_5/types/partition_test.go
 index a1e1623f..9f8e7997 100644
---- a/config/v3_5_experimental/types/partition_test.go
-+++ b/config/v3_5_experimental/types/partition_test.go
+--- a/config/v3_5/types/partition_test.go
++++ b/config/v3_5/types/partition_test.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"testing"
@@ -3906,10 +3959,10 @@ index a1e1623f..9f8e7997 100644
  )
  
  func TestValidateLabel(t *testing.T) {
-diff --git a/config/v3_5_experimental/types/path.go b/config/v3_5_experimental/types/path.go
+diff --git a/config/v3_5/types/path.go b/config/v3_5/types/path.go
 index 131e300c..cb48e341 100644
---- a/config/v3_5_experimental/types/path.go
-+++ b/config/v3_5_experimental/types/path.go
+--- a/config/v3_5/types/path.go
++++ b/config/v3_5/types/path.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"path"
@@ -3921,10 +3974,10 @@ index 131e300c..cb48e341 100644
  )
  
  func validatePath(p string) error {
-diff --git a/config/v3_5_experimental/types/path_test.go b/config/v3_5_experimental/types/path_test.go
+diff --git a/config/v3_5/types/path_test.go b/config/v3_5/types/path_test.go
 index 3d199cbd..33b2d0ba 100644
---- a/config/v3_5_experimental/types/path_test.go
-+++ b/config/v3_5_experimental/types/path_test.go
+--- a/config/v3_5/types/path_test.go
++++ b/config/v3_5/types/path_test.go
 @@ -18,7 +18,7 @@ import (
  	"reflect"
  	"testing"
@@ -3934,10 +3987,10 @@ index 3d199cbd..33b2d0ba 100644
  )
  
  func TestPathValidate(t *testing.T) {
-diff --git a/config/v3_5_experimental/types/proxy.go b/config/v3_5_experimental/types/proxy.go
+diff --git a/config/v3_5/types/proxy.go b/config/v3_5/types/proxy.go
 index d48d210a..de146a99 100644
---- a/config/v3_5_experimental/types/proxy.go
-+++ b/config/v3_5_experimental/types/proxy.go
+--- a/config/v3_5/types/proxy.go
++++ b/config/v3_5/types/proxy.go
 @@ -17,7 +17,7 @@ package types
  import (
  	"net/url"
@@ -3947,10 +4000,10 @@ index d48d210a..de146a99 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/proxy_test.go b/config/v3_5_experimental/types/proxy_test.go
+diff --git a/config/v3_5/types/proxy_test.go b/config/v3_5/types/proxy_test.go
 index 269f4fb2..3cc5e5cd 100644
---- a/config/v3_5_experimental/types/proxy_test.go
-+++ b/config/v3_5_experimental/types/proxy_test.go
+--- a/config/v3_5/types/proxy_test.go
++++ b/config/v3_5/types/proxy_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -3962,10 +4015,10 @@ index 269f4fb2..3cc5e5cd 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/raid.go b/config/v3_5_experimental/types/raid.go
+diff --git a/config/v3_5/types/raid.go b/config/v3_5/types/raid.go
 index 9d69aa36..fa1d3f4d 100644
---- a/config/v3_5_experimental/types/raid.go
-+++ b/config/v3_5_experimental/types/raid.go
+--- a/config/v3_5/types/raid.go
++++ b/config/v3_5/types/raid.go
 @@ -15,8 +15,8 @@
  package types
  
@@ -3977,10 +4030,10 @@ index 9d69aa36..fa1d3f4d 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/raid_test.go b/config/v3_5_experimental/types/raid_test.go
+diff --git a/config/v3_5/types/raid_test.go b/config/v3_5/types/raid_test.go
 index 7323b26f..313b4572 100644
---- a/config/v3_5_experimental/types/raid_test.go
-+++ b/config/v3_5_experimental/types/raid_test.go
+--- a/config/v3_5/types/raid_test.go
++++ b/config/v3_5/types/raid_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -3992,10 +4045,10 @@ index 7323b26f..313b4572 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/resource.go b/config/v3_5_experimental/types/resource.go
+diff --git a/config/v3_5/types/resource.go b/config/v3_5/types/resource.go
 index 68da6c7b..6ea74d3d 100644
---- a/config/v3_5_experimental/types/resource.go
-+++ b/config/v3_5_experimental/types/resource.go
+--- a/config/v3_5/types/resource.go
++++ b/config/v3_5/types/resource.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"net/url"
@@ -4007,10 +4060,10 @@ index 68da6c7b..6ea74d3d 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/storage.go b/config/v3_5_experimental/types/storage.go
+diff --git a/config/v3_5/types/storage.go b/config/v3_5/types/storage.go
 index 20cb7304..552749e6 100644
---- a/config/v3_5_experimental/types/storage.go
-+++ b/config/v3_5_experimental/types/storage.go
+--- a/config/v3_5/types/storage.go
++++ b/config/v3_5/types/storage.go
 @@ -18,8 +18,8 @@ import (
  	"path"
  	"strings"
@@ -4022,10 +4075,10 @@ index 20cb7304..552749e6 100644
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/storage_test.go b/config/v3_5_experimental/types/storage_test.go
+diff --git a/config/v3_5/types/storage_test.go b/config/v3_5/types/storage_test.go
 index 551688a2..6c35ed27 100644
---- a/config/v3_5_experimental/types/storage_test.go
-+++ b/config/v3_5_experimental/types/storage_test.go
+--- a/config/v3_5/types/storage_test.go
++++ b/config/v3_5/types/storage_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -4037,10 +4090,10 @@ index 551688a2..6c35ed27 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/systemd.go b/config/v3_5_experimental/types/systemd.go
+diff --git a/config/v3_5/types/systemd.go b/config/v3_5/types/systemd.go
 index ac521ba7..818959f4 100644
---- a/config/v3_5_experimental/types/systemd.go
-+++ b/config/v3_5_experimental/types/systemd.go
+--- a/config/v3_5/types/systemd.go
++++ b/config/v3_5/types/systemd.go
 @@ -17,9 +17,9 @@ package types
  import (
  	"regexp"
@@ -4054,10 +4107,10 @@ index ac521ba7..818959f4 100644
  
  	vpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/systemd_test.go b/config/v3_5_experimental/types/systemd_test.go
+diff --git a/config/v3_5/types/systemd_test.go b/config/v3_5/types/systemd_test.go
 index 798eb10f..b432e83b 100644
---- a/config/v3_5_experimental/types/systemd_test.go
-+++ b/config/v3_5_experimental/types/systemd_test.go
+--- a/config/v3_5/types/systemd_test.go
++++ b/config/v3_5/types/systemd_test.go
 @@ -18,8 +18,8 @@ import (
  	"fmt"
  	"testing"
@@ -4069,10 +4122,10 @@ index 798eb10f..b432e83b 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
  	"github.com/stretchr/testify/assert"
-diff --git a/config/v3_5_experimental/types/tang.go b/config/v3_5_experimental/types/tang.go
+diff --git a/config/v3_5/types/tang.go b/config/v3_5/types/tang.go
 index 1839d6cc..26c155e5 100644
---- a/config/v3_5_experimental/types/tang.go
-+++ b/config/v3_5_experimental/types/tang.go
+--- a/config/v3_5/types/tang.go
++++ b/config/v3_5/types/tang.go
 @@ -18,8 +18,8 @@ import (
  	"encoding/json"
  	"net/url"
@@ -4084,10 +4137,10 @@ index 1839d6cc..26c155e5 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/tang_test.go b/config/v3_5_experimental/types/tang_test.go
+diff --git a/config/v3_5/types/tang_test.go b/config/v3_5/types/tang_test.go
 index fb57b1e4..ed65a712 100644
---- a/config/v3_5_experimental/types/tang_test.go
-+++ b/config/v3_5_experimental/types/tang_test.go
+--- a/config/v3_5/types/tang_test.go
++++ b/config/v3_5/types/tang_test.go
 @@ -18,8 +18,8 @@ import (
  	"reflect"
  	"testing"
@@ -4099,10 +4152,10 @@ index fb57b1e4..ed65a712 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
  )
-diff --git a/config/v3_5_experimental/types/unit.go b/config/v3_5_experimental/types/unit.go
+diff --git a/config/v3_5/types/unit.go b/config/v3_5/types/unit.go
 index c5ee1e8e..5a9c3b22 100644
---- a/config/v3_5_experimental/types/unit.go
-+++ b/config/v3_5_experimental/types/unit.go
+--- a/config/v3_5/types/unit.go
++++ b/config/v3_5/types/unit.go
 @@ -17,10 +17,10 @@ package types
  import (
  	"path"
@@ -4118,10 +4171,10 @@ index c5ee1e8e..5a9c3b22 100644
  
  	cpath "github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/unit_test.go b/config/v3_5_experimental/types/unit_test.go
+diff --git a/config/v3_5/types/unit_test.go b/config/v3_5/types/unit_test.go
 index 3dc90540..8c96dfba 100644
---- a/config/v3_5_experimental/types/unit_test.go
-+++ b/config/v3_5_experimental/types/unit_test.go
+--- a/config/v3_5/types/unit_test.go
++++ b/config/v3_5/types/unit_test.go
 @@ -19,8 +19,8 @@ import (
  	"reflect"
  	"testing"
@@ -4133,10 +4186,10 @@ index 3dc90540..8c96dfba 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/url.go b/config/v3_5_experimental/types/url.go
+diff --git a/config/v3_5/types/url.go b/config/v3_5/types/url.go
 index 3ca189da..9b2b4405 100644
---- a/config/v3_5_experimental/types/url.go
-+++ b/config/v3_5_experimental/types/url.go
+--- a/config/v3_5/types/url.go
++++ b/config/v3_5/types/url.go
 @@ -21,8 +21,8 @@ import (
  	"github.com/aws/aws-sdk-go/aws/arn"
  	"github.com/vincent-petithory/dataurl"
@@ -4148,10 +4201,10 @@ index 3ca189da..9b2b4405 100644
  )
  
  func validateURL(s string) error {
-diff --git a/config/v3_5_experimental/types/url_test.go b/config/v3_5_experimental/types/url_test.go
+diff --git a/config/v3_5/types/url_test.go b/config/v3_5/types/url_test.go
 index 1901b7af..12a4cfbf 100644
---- a/config/v3_5_experimental/types/url_test.go
-+++ b/config/v3_5_experimental/types/url_test.go
+--- a/config/v3_5/types/url_test.go
++++ b/config/v3_5/types/url_test.go
 @@ -17,8 +17,8 @@ package types
  import (
  	"testing"
@@ -4163,10 +4216,10 @@ index 1901b7af..12a4cfbf 100644
  )
  
  func TestURLValidate(t *testing.T) {
-diff --git a/config/v3_5_experimental/types/verification.go b/config/v3_5_experimental/types/verification.go
+diff --git a/config/v3_5/types/verification.go b/config/v3_5/types/verification.go
 index 5def6f04..1ef291c0 100644
---- a/config/v3_5_experimental/types/verification.go
-+++ b/config/v3_5_experimental/types/verification.go
+--- a/config/v3_5/types/verification.go
++++ b/config/v3_5/types/verification.go
 @@ -19,7 +19,7 @@ import (
  	"encoding/hex"
  	"strings"
@@ -4176,10 +4229,681 @@ index 5def6f04..1ef291c0 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/config/v3_5_experimental/types/verification_test.go b/config/v3_5_experimental/types/verification_test.go
+diff --git a/config/v3_5/types/verification_test.go b/config/v3_5/types/verification_test.go
 index 9a0914d0..f121b503 100644
---- a/config/v3_5_experimental/types/verification_test.go
-+++ b/config/v3_5_experimental/types/verification_test.go
+--- a/config/v3_5/types/verification_test.go
++++ b/config/v3_5/types/verification_test.go
+@@ -18,7 +18,7 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/config.go b/config/v3_6_experimental/config.go
+index e67b08ba..3be26cae 100644
+--- a/config/v3_6_experimental/config.go
++++ b/config/v3_6_experimental/config.go
+@@ -15,13 +15,13 @@
+ package v3_6_experimental
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/merge"
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
+-	prev "github.com/coreos/ignition/v2/config/v3_5"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/translate"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
+-	"github.com/coreos/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/merge"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
++	prev "github.com/flatcar/ignition/v2/config/v3_5"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/translate"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/config/validate"
+ 
+ 	"github.com/coreos/go-semver/semver"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/config_test.go b/config/v3_6_experimental/config_test.go
+index 8ba56163..54cbd91c 100644
+--- a/config/v3_6_experimental/config_test.go
++++ b/config/v3_6_experimental/config_test.go
+@@ -17,8 +17,8 @@ package v3_6_experimental
+ import (
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
+ 	"github.com/stretchr/testify/assert"
+ )
+ 
+diff --git a/config/v3_6_experimental/translate/translate.go b/config/v3_6_experimental/translate/translate.go
+index bf3f11e9..a0755bb4 100644
+--- a/config/v3_6_experimental/translate/translate.go
++++ b/config/v3_6_experimental/translate/translate.go
+@@ -15,9 +15,9 @@
+ package translate
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/translate"
+-	old_types "github.com/coreos/ignition/v2/config/v3_5/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/config/translate"
++	old_types "github.com/flatcar/ignition/v2/config/v3_5/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
+ )
+ 
+ func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
+diff --git a/config/v3_6_experimental/translate/translate_test.go b/config/v3_6_experimental/translate/translate_test.go
+index fc9e3de5..cc041bdc 100644
+--- a/config/v3_6_experimental/translate/translate_test.go
++++ b/config/v3_6_experimental/translate/translate_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/util"
+-	old "github.com/coreos/ignition/v2/config/v3_5/types"
++	"github.com/flatcar/ignition/v2/config/util"
++	old "github.com/flatcar/ignition/v2/config/v3_5/types"
+ )
+ 
+ // Check that we have valid translators for the complete config struct
+diff --git a/config/v3_6_experimental/types/cex.go b/config/v3_6_experimental/types/cex.go
+index b34f5f52..6f58b373 100644
+--- a/config/v3_6_experimental/types/cex.go
++++ b/config/v3_6_experimental/types/cex.go
+@@ -15,7 +15,7 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/cex_test.go b/config/v3_6_experimental/types/cex_test.go
+index 35d562d8..e856a93f 100644
+--- a/config/v3_6_experimental/types/cex_test.go
++++ b/config/v3_6_experimental/types/cex_test.go
+@@ -18,7 +18,7 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/clevis.go b/config/v3_6_experimental/types/clevis.go
+index 68887d43..564154f6 100644
+--- a/config/v3_6_experimental/types/clevis.go
++++ b/config/v3_6_experimental/types/clevis.go
+@@ -15,8 +15,8 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/clevis_test.go b/config/v3_6_experimental/types/clevis_test.go
+index f616868c..c28509ee 100644
+--- a/config/v3_6_experimental/types/clevis_test.go
++++ b/config/v3_6_experimental/types/clevis_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/config.go b/config/v3_6_experimental/types/config.go
+index 9428b0bb..4d042f54 100644
+--- a/config/v3_6_experimental/types/config.go
++++ b/config/v3_6_experimental/types/config.go
+@@ -15,8 +15,8 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/go-semver/semver"
+ 	"github.com/coreos/vcontext/path"
+diff --git a/config/v3_6_experimental/types/config_test.go b/config/v3_6_experimental/types/config_test.go
+index 3d82627b..511c5ecd 100644
+--- a/config/v3_6_experimental/types/config_test.go
++++ b/config/v3_6_experimental/types/config_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/disk.go b/config/v3_6_experimental/types/disk.go
+index 8caf8499..29fd3900 100644
+--- a/config/v3_6_experimental/types/disk.go
++++ b/config/v3_6_experimental/types/disk.go
+@@ -15,8 +15,8 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/file.go b/config/v3_6_experimental/types/file.go
+index 9b71bb26..e3f7fbdf 100644
+--- a/config/v3_6_experimental/types/file.go
++++ b/config/v3_6_experimental/types/file.go
+@@ -15,8 +15,8 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/file_test.go b/config/v3_6_experimental/types/file_test.go
+index 449e0700..5aa2e87c 100644
+--- a/config/v3_6_experimental/types/file_test.go
++++ b/config/v3_6_experimental/types/file_test.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ )
+ 
+ func TestFileValidateOverwrite(t *testing.T) {
+diff --git a/config/v3_6_experimental/types/filesystem.go b/config/v3_6_experimental/types/filesystem.go
+index c722b363..9f7f8bbc 100644
+--- a/config/v3_6_experimental/types/filesystem.go
++++ b/config/v3_6_experimental/types/filesystem.go
+@@ -15,8 +15,8 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/filesystem_test.go b/config/v3_6_experimental/types/filesystem_test.go
+index 1f8db903..6e710426 100644
+--- a/config/v3_6_experimental/types/filesystem_test.go
++++ b/config/v3_6_experimental/types/filesystem_test.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ )
+ 
+ func TestFilesystemValidateFormat(t *testing.T) {
+diff --git a/config/v3_6_experimental/types/headers.go b/config/v3_6_experimental/types/headers.go
+index be1aadad..e968a2b4 100644
+--- a/config/v3_6_experimental/types/headers.go
++++ b/config/v3_6_experimental/types/headers.go
+@@ -17,7 +17,7 @@ package types
+ import (
+ 	"net/http"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+ )
+diff --git a/config/v3_6_experimental/types/headers_test.go b/config/v3_6_experimental/types/headers_test.go
+index 40380b68..5e888830 100644
+--- a/config/v3_6_experimental/types/headers_test.go
++++ b/config/v3_6_experimental/types/headers_test.go
+@@ -17,7 +17,7 @@ package types
+ import (
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ )
+ 
+ func toPointer(val string) *string {
+diff --git a/config/v3_6_experimental/types/ignition.go b/config/v3_6_experimental/types/ignition.go
+index 190445bd..1fbcf8c4 100644
+--- a/config/v3_6_experimental/types/ignition.go
++++ b/config/v3_6_experimental/types/ignition.go
+@@ -17,7 +17,7 @@ package types
+ import (
+ 	"github.com/coreos/go-semver/semver"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/kargs_test.go b/config/v3_6_experimental/types/kargs_test.go
+index 1a258727..a79c037a 100644
+--- a/config/v3_6_experimental/types/kargs_test.go
++++ b/config/v3_6_experimental/types/kargs_test.go
+@@ -17,7 +17,7 @@ package types
+ import (
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/validate"
++	"github.com/flatcar/ignition/v2/config/validate"
+ )
+ 
+ func TestKernelArgumentsValidate(t *testing.T) {
+diff --git a/config/v3_6_experimental/types/luks.go b/config/v3_6_experimental/types/luks.go
+index e4c1d681..ce9d087f 100644
+--- a/config/v3_6_experimental/types/luks.go
++++ b/config/v3_6_experimental/types/luks.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"strings"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/mode.go b/config/v3_6_experimental/types/mode.go
+index 9eb7573d..67c7ebd3 100644
+--- a/config/v3_6_experimental/types/mode.go
++++ b/config/v3_6_experimental/types/mode.go
+@@ -15,7 +15,7 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ )
+ 
+ func validateMode(m *int) error {
+diff --git a/config/v3_6_experimental/types/mode_test.go b/config/v3_6_experimental/types/mode_test.go
+index 8966e25d..5c973dbf 100644
+--- a/config/v3_6_experimental/types/mode_test.go
++++ b/config/v3_6_experimental/types/mode_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ )
+ 
+ func TestModeValidate(t *testing.T) {
+diff --git a/config/v3_6_experimental/types/node.go b/config/v3_6_experimental/types/node.go
+index 248276e7..f4e94f9e 100644
+--- a/config/v3_6_experimental/types/node.go
++++ b/config/v3_6_experimental/types/node.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"path"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	vpath "github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/node_test.go b/config/v3_6_experimental/types/node_test.go
+index 20ba4eb6..9176b4b7 100644
+--- a/config/v3_6_experimental/types/node_test.go
++++ b/config/v3_6_experimental/types/node_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/partition.go b/config/v3_6_experimental/types/partition.go
+index 1b2d97ed..6603af3b 100644
+--- a/config/v3_6_experimental/types/partition.go
++++ b/config/v3_6_experimental/types/partition.go
+@@ -19,8 +19,8 @@ import (
+ 	"regexp"
+ 	"strings"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/partition_test.go b/config/v3_6_experimental/types/partition_test.go
+index a1e1623f..9f8e7997 100644
+--- a/config/v3_6_experimental/types/partition_test.go
++++ b/config/v3_6_experimental/types/partition_test.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ )
+ 
+ func TestValidateLabel(t *testing.T) {
+diff --git a/config/v3_6_experimental/types/path.go b/config/v3_6_experimental/types/path.go
+index 131e300c..cb48e341 100644
+--- a/config/v3_6_experimental/types/path.go
++++ b/config/v3_6_experimental/types/path.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"path"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ )
+ 
+ func validatePath(p string) error {
+diff --git a/config/v3_6_experimental/types/path_test.go b/config/v3_6_experimental/types/path_test.go
+index 3d199cbd..33b2d0ba 100644
+--- a/config/v3_6_experimental/types/path_test.go
++++ b/config/v3_6_experimental/types/path_test.go
+@@ -18,7 +18,7 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ )
+ 
+ func TestPathValidate(t *testing.T) {
+diff --git a/config/v3_6_experimental/types/proxy.go b/config/v3_6_experimental/types/proxy.go
+index d48d210a..de146a99 100644
+--- a/config/v3_6_experimental/types/proxy.go
++++ b/config/v3_6_experimental/types/proxy.go
+@@ -17,7 +17,7 @@ package types
+ import (
+ 	"net/url"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/proxy_test.go b/config/v3_6_experimental/types/proxy_test.go
+index 269f4fb2..3cc5e5cd 100644
+--- a/config/v3_6_experimental/types/proxy_test.go
++++ b/config/v3_6_experimental/types/proxy_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/raid.go b/config/v3_6_experimental/types/raid.go
+index 9d69aa36..fa1d3f4d 100644
+--- a/config/v3_6_experimental/types/raid.go
++++ b/config/v3_6_experimental/types/raid.go
+@@ -15,8 +15,8 @@
+ package types
+ 
+ import (
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/raid_test.go b/config/v3_6_experimental/types/raid_test.go
+index 7323b26f..313b4572 100644
+--- a/config/v3_6_experimental/types/raid_test.go
++++ b/config/v3_6_experimental/types/raid_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/resource.go b/config/v3_6_experimental/types/resource.go
+index 68da6c7b..6ea74d3d 100644
+--- a/config/v3_6_experimental/types/resource.go
++++ b/config/v3_6_experimental/types/resource.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"net/url"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/storage.go b/config/v3_6_experimental/types/storage.go
+index 20cb7304..552749e6 100644
+--- a/config/v3_6_experimental/types/storage.go
++++ b/config/v3_6_experimental/types/storage.go
+@@ -18,8 +18,8 @@ import (
+ 	"path"
+ 	"strings"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	vpath "github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/storage_test.go b/config/v3_6_experimental/types/storage_test.go
+index 551688a2..6c35ed27 100644
+--- a/config/v3_6_experimental/types/storage_test.go
++++ b/config/v3_6_experimental/types/storage_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/systemd.go b/config/v3_6_experimental/types/systemd.go
+index ac521ba7..818959f4 100644
+--- a/config/v3_6_experimental/types/systemd.go
++++ b/config/v3_6_experimental/types/systemd.go
+@@ -17,9 +17,9 @@ package types
+ import (
+ 	"regexp"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/shared/parse"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/parse"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	vpath "github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/systemd_test.go b/config/v3_6_experimental/types/systemd_test.go
+index 798eb10f..b432e83b 100644
+--- a/config/v3_6_experimental/types/systemd_test.go
++++ b/config/v3_6_experimental/types/systemd_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"fmt"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+ 	"github.com/stretchr/testify/assert"
+diff --git a/config/v3_6_experimental/types/tang.go b/config/v3_6_experimental/types/tang.go
+index 1839d6cc..26c155e5 100644
+--- a/config/v3_6_experimental/types/tang.go
++++ b/config/v3_6_experimental/types/tang.go
+@@ -18,8 +18,8 @@ import (
+ 	"encoding/json"
+ 	"net/url"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/tang_test.go b/config/v3_6_experimental/types/tang_test.go
+index fb57b1e4..ed65a712 100644
+--- a/config/v3_6_experimental/types/tang_test.go
++++ b/config/v3_6_experimental/types/tang_test.go
+@@ -18,8 +18,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+ )
+diff --git a/config/v3_6_experimental/types/unit.go b/config/v3_6_experimental/types/unit.go
+index c5ee1e8e..5a9c3b22 100644
+--- a/config/v3_6_experimental/types/unit.go
++++ b/config/v3_6_experimental/types/unit.go
+@@ -17,10 +17,10 @@ package types
+ import (
+ 	"path"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/shared/parse"
+-	"github.com/coreos/ignition/v2/config/shared/validations"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/parse"
++	"github.com/flatcar/ignition/v2/config/shared/validations"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	cpath "github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/unit_test.go b/config/v3_6_experimental/types/unit_test.go
+index 3dc90540..8c96dfba 100644
+--- a/config/v3_6_experimental/types/unit_test.go
++++ b/config/v3_6_experimental/types/unit_test.go
+@@ -19,8 +19,8 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/url.go b/config/v3_6_experimental/types/url.go
+index 3ca189da..9b2b4405 100644
+--- a/config/v3_6_experimental/types/url.go
++++ b/config/v3_6_experimental/types/url.go
+@@ -21,8 +21,8 @@ import (
+ 	"github.com/aws/aws-sdk-go/aws/arn"
+ 	"github.com/vincent-petithory/dataurl"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ )
+ 
+ func validateURL(s string) error {
+diff --git a/config/v3_6_experimental/types/url_test.go b/config/v3_6_experimental/types/url_test.go
+index 1901b7af..12a4cfbf 100644
+--- a/config/v3_6_experimental/types/url_test.go
++++ b/config/v3_6_experimental/types/url_test.go
+@@ -17,8 +17,8 @@ package types
+ import (
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
+-	"github.com/coreos/ignition/v2/config/util"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/util"
+ )
+ 
+ func TestURLValidate(t *testing.T) {
+diff --git a/config/v3_6_experimental/types/verification.go b/config/v3_6_experimental/types/verification.go
+index 5def6f04..1ef291c0 100644
+--- a/config/v3_6_experimental/types/verification.go
++++ b/config/v3_6_experimental/types/verification.go
+@@ -19,7 +19,7 @@ import (
+ 	"encoding/hex"
+ 	"strings"
+ 
+-	"github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 
+ 	"github.com/coreos/vcontext/path"
+ 	"github.com/coreos/vcontext/report"
+diff --git a/config/v3_6_experimental/types/verification_test.go b/config/v3_6_experimental/types/verification_test.go
+index 9a0914d0..f121b503 100644
+--- a/config/v3_6_experimental/types/verification_test.go
++++ b/config/v3_6_experimental/types/verification_test.go
 @@ -18,7 +18,7 @@ import (
  	"reflect"
  	"testing"
@@ -4217,166 +4941,6 @@ index 18eea933..4f77f19c 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/docs/_config.yml b/docs/_config.yml
-index 2e918bd0..6f51601a 100644
---- a/docs/_config.yml
-+++ b/docs/_config.yml
-@@ -23,7 +23,7 @@ color_scheme: coreos
- # Aux links for the upper right navigation
- aux_links:
-   "Ignition on GitHub":
--    - "https://github.com/coreos/ignition"
-+    - "https://github.com/flatcar/ignition"
- 
- footer_content: "Copyright &copy; <a href=\"https://www.redhat.com\">Red Hat, Inc.</a> and <a href=\"https://github.com/coreos\">others</a>."
- 
-@@ -34,7 +34,7 @@ last_edit_time_format: "%b %e %Y at %I:%M %p"
- # Footer "Edit this page on GitHub" link text
- gh_edit_link: true
- gh_edit_link_text: "Edit this page on GitHub"
--gh_edit_repository: "https://github.com/coreos/ignition"
-+gh_edit_repository: "https://github.com/flatcar/ignition"
- gh_edit_branch: "main"
- gh_edit_source: docs
- gh_edit_view_mode: "tree"
-diff --git a/docs/development.md b/docs/development.md
-index e4d2b82a..43885679 100644
---- a/docs/development.md
-+++ b/docs/development.md
-@@ -24,7 +24,7 @@ See also the [Ignition rationale](rationale.md).
- 
- ### Code structure
- 
--The [frontend](https://github.com/coreos/ignition/tree/main/config) handles config parsing and validation which need not run on the target system.  The [backend](https://github.com/coreos/ignition/tree/main/internal) performs the configuration of the target system.  The frontend is a stable library API that is used by other programs, so existing frontend API cannot be changed without bumping the Ignition major version.
-+The [frontend](https://github.com/flatcar/ignition/tree/main/config) handles config parsing and validation which need not run on the target system.  The [backend](https://github.com/coreos/ignition/tree/main/internal) performs the configuration of the target system.  The frontend is a stable library API that is used by other programs, so existing frontend API cannot be changed without bumping the Ignition major version.
- 
- ### Adding functionality
- 
-@@ -36,7 +36,7 @@ New functionality added to a config spec must be declarative: it must describe w
- 
- When reprovisioning an existing node, the config may want to reuse existing disks and filesystems without reformatting them.  Config directives should support detecting and reusing an existing object (RAID volume, filesystem, etc.) if its properties match those specified in the config.
- 
--Ignition specs should not include distro-specific functionality such as package management.  Features may require support from the distro (for example, setting kernel arguments), but such features should be broadly applicable.  Distro-specific options such as support for SELinux, or paths to external binaries, can be configured at build time in the [`distro`](https://github.com/coreos/ignition/blob/main/internal/distro/distro.go) package.  Distro-specific glue (e.g. support for reformatting the root filesystem) should be implemented outside the Ignition codebase, in Dracut modules that run between Ignition stages (see below).
-+Ignition specs should not include distro-specific functionality such as package management.  Features may require support from the distro (for example, setting kernel arguments), but such features should be broadly applicable.  Distro-specific options such as support for SELinux, or paths to external binaries, can be configured at build time in the [`distro`](https://github.com/flatcar/ignition/blob/main/internal/distro/distro.go) package.  Distro-specific glue (e.g. support for reformatting the root filesystem) should be implemented outside the Ignition codebase, in Dracut modules that run between Ignition stages (see below).
- 
- Ideally, functionality should not be added to an experimental spec in the same Ignition release that the spec is stabilized.  Doing so prevents users from trying out the functionality before we commit to maintaining it.
- 
-@@ -178,15 +178,15 @@ To add a blackbox test create a function which yields a `Test` object. A `Test`
- 
- The test should be added to the init function inside of the test file. If the test module is being created then an `init` function should be created which registers the tests and the package must be imported inside of `tests/registry/registry.go` to allow for discovery.
- 
--UUIDs may be required in the following fields of a `Test` object: `In`, `Out`, and `Config`. Replace all GUIDs with GUID varaibles which take on the format `$uuid<num>` (e.g. $uuid123). Where `<num>` must be a positive integer. GUID variables with identical `<num>` fields will be replaced with identical GUIDs. For example, look at [tests/positive/partitions/zeros.go](https://github.com/coreos/ignition/blob/main/tests/positive/partitions/zeros.go).
-+UUIDs may be required in the following fields of a `Test` object: `In`, `Out`, and `Config`. Replace all GUIDs with GUID varaibles which take on the format `$uuid<num>` (e.g. $uuid123). Where `<num>` must be a positive integer. GUID variables with identical `<num>` fields will be replaced with identical GUIDs. For example, look at [tests/positive/partitions/zeros.go](https://github.com/flatcar/ignition/blob/main/tests/positive/partitions/zeros.go).
- 
- ## Releasing Ignition
- 
--Create a new [release checklist](https://github.com/coreos/ignition/issues/new?labels=kind/release&template=release-checklist.md) and follow the steps there.
-+Create a new [release checklist](https://github.com/flatcar/ignition/issues/new?labels=kind/release&template=release-checklist.md) and follow the steps there.
- 
- ## The build process
- 
--Note that the `build` script included in this repository is a convenience script only and not used for the actual release binaries. Those are built using an `ignition.spec` maintained in [Fedora rpms/ignition](https://src.fedoraproject.org/rpms/ignition). (The `ignition-validate` [container](https://quay.io/repository/coreos/ignition-validate) is built by the `build_for_container` script, which is not further described here.)
-+Note that the `build` script included in this repository is a convenience script only and not used for the actual release binaries. Those are built using an `ignition.spec` maintained in [Fedora rpms/ignition](https://src.fedoraproject.org/rpms/ignition). (The `ignition-validate` [container](https://quay.io/repository/flatcar/ignition-validate) is built by the `build_for_container` script, which is not further described here.)
- This build process uses the [go-rpm-macros](https://pagure.io/go-rpm-macros) to set up the Go build environment and is subject to the [Golang Packaging Guidelines](https://docs.fedoraproject.org/en-US/packaging-guidelines/Golang/).
- 
- Consult the [Package Maintenance Guide](https://docs.fedoraproject.org/en-US/package-maintainers/Package_Maintenance_Guide/) and the [Pull Requests Guide](https://docs.fedoraproject.org/en-US/ci/pull-requests/) if you want to contribute to the build process.
-@@ -195,4 +195,4 @@ In case you have trouble with the aforementioned standard Pull Request Guide, co
- 
- ## Marking an experimental spec as stable
- 
--Create a new [stabilization checklist](https://github.com/coreos/ignition/issues/new?template=stabilize-checklist.md) and follow the steps there.
-+Create a new [stabilization checklist](https://github.com/flatcar/ignition/issues/new?template=stabilize-checklist.md) and follow the steps there.
-diff --git a/docs/distributor-notes.md b/docs/distributor-notes.md
-index 23f917f4..44443d7b 100644
---- a/docs/distributor-notes.md
-+++ b/docs/distributor-notes.md
-@@ -14,8 +14,8 @@ The distribution specific integration is responsible for ensuring that the ignit
- 
- ## Kernel Arguments
- 
--When Ignition is updating kernel arguments it will call out to a binary (defined in `internal/distro/distro.go` and overridable at build-time via overriding the `github.com/coreos/ignition/v2/internal/distro.kargsCmd` build flag). Ignition expects that the binary accepts `--should-exist` & `--should-not-exist` parameters. Should exist operations should append the argument if missing and should not exist should NOT fail if the argument is not present. The binary should also reboot the system if necessary.
-+When Ignition is updating kernel arguments it will call out to a binary (defined in `internal/distro/distro.go` and overridable at build-time via overriding the `github.com/flatcar/ignition/v2/internal/distro.kargsCmd` build flag). Ignition expects that the binary accepts `--should-exist` & `--should-not-exist` parameters. Should exist operations should append the argument if missing and should not exist should NOT fail if the argument is not present. The binary should also reboot the system if necessary.
- 
--As an example of the binary implementation look at [`examples/ignition-kargs-helper`](https://github.com/coreos/ignition/blob/main/examples/ignition-kargs-helper).
-+As an example of the binary implementation look at [`examples/ignition-kargs-helper`](https://github.com/flatcar/ignition/blob/main/examples/ignition-kargs-helper).
- 
--If your implementation of Ignition doesn't intend to ship kargs functionality the [`ignition-kargs.service` unit](https://github.com/coreos/ignition/blob/main/dracut/30ignition/ignition-kargs.service) should be disabled.
-+If your implementation of Ignition doesn't intend to ship kargs functionality the [`ignition-kargs.service` unit](https://github.com/flatcar/ignition/blob/main/dracut/30ignition/ignition-kargs.service) should be disabled.
-diff --git a/docs/getting-started.md b/docs/getting-started.md
-index 9598332b..b4cd3225 100644
---- a/docs/getting-started.md
-+++ b/docs/getting-started.md
-@@ -24,12 +24,12 @@ The Linux distro may provide a base config which specifies default configuration
- 
- ## Config Validation
- 
--To validate a config for Ignition there are binaries for a cli tool called `ignition-validate` available [on the releases page][releases]. There is also an ignition-validate container: `quay.io/coreos/ignition-validate`.
-+To validate a config for Ignition there are binaries for a cli tool called `ignition-validate` available [on the releases page][releases]. There is also an ignition-validate container: `quay.io/flatcar/ignition-validate`.
- 
- Example:
- ```
- # This example uses podman, but docker can be used too
--podman run --pull=always --rm -i quay.io/coreos/ignition-validate:release - < myconfig.ign
-+podman run --pull=always --rm -i quay.io/flatcar/ignition-validate:release - < myconfig.ign
- ```
- 
- ## Troubleshooting
-@@ -68,7 +68,7 @@ Ignition is not typically run more than once during a machine's lifetime in a gi
- [firstboot]: rationale.md#ignition-runs-only-on-the-first-boot
- [mime]: http://www.iana.org/assignments/media-types/application/vnd.coreos.ignition+json
- [operator-notes]: operator-notes.md
--[releases]: https://github.com/coreos/ignition/releases
-+[releases]: https://github.com/flatcar/ignition/releases
- [platforms]: supported-platforms.md
- [preset]: https://www.freedesktop.org/software/systemd/man/systemd.preset.html
- [troubleshooting]: #troubleshooting
-diff --git a/docs/index.md b/docs/index.md
-index 0e37a161..3236004a 100644
---- a/docs/index.md
-+++ b/docs/index.md
-@@ -14,13 +14,13 @@ Odds are good that you don't want to invoke Ignition directly. In fact, it isn't
- 
- - Mailing list: [coreos@lists.fedoraproject.org](https://lists.fedoraproject.org/archives/list/coreos@lists.fedoraproject.org/)
- - IRC: #[fedora-coreos](ircs://irc.libera.chat:6697/#fedora-coreos) on Libera.Chat
--- Reporting bugs: [issues](https://github.com/coreos/ignition/issues/new/choose)
-+- Reporting bugs: [issues](https://github.com/flatcar/ignition/issues/new/choose)
- 
- ## Contributing
- 
- See [CONTRIBUTING][contributing] for details on submitting patches and the contribution workflow.
- 
--To help triage or fix bugs, see the current [Ignition issues](https://github.com/coreos/ignition/issues/).
-+To help triage or fix bugs, see the current [Ignition issues](https://github.com/flatcar/ignition/issues/).
- 
- [getting started]: getting-started.md
--[contributing]: https://github.com/coreos/ignition/blob/main/CONTRIBUTING.md
-+[contributing]: https://github.com/flatcar/ignition/blob/main/CONTRIBUTING.md
-diff --git a/docs/migrating-configs.md b/docs/migrating-configs.md
-index 2a220197..5381abc7 100644
---- a/docs/migrating-configs.md
-+++ b/docs/migrating-configs.md
-@@ -584,7 +584,7 @@ The networkd section has been removed. Use the files section instead. Refer to t
- 
- ## From 2.x.0 to 2.3.0
- 
--Refer to [this doc in the `spec2x`](https://github.com/coreos/ignition/tree/spec2x/doc/migrating-configs.md) branch of this repository. That doc also describes specification version 2.4.0, a parallel development which shares some enhancements with spec 3.1.0.
-+Refer to [this doc in the `spec2x`](https://github.com/flatcar/ignition/tree/spec2x/doc/migrating-configs.md) branch of this repository. That doc also describes specification version 2.4.0, a parallel development which shares some enhancements with spec 3.1.0.
- 
- [networkd-docs]: https://www.freedesktop.org/software/systemd/man/systemd-networkd.html#
- [operator-notes]: operator-notes.md
-diff --git a/docs/specs.md b/docs/specs.md
-index 43b1a799..a2311b1a 100644
---- a/docs/specs.md
-+++ b/docs/specs.md
-@@ -37,7 +37,7 @@ Ignition:
- ## Legacy spec 2.x configuration specifications
- 
- Documentation for the spec 1 and 2.x configuration specifications is available
--in the legacy [`spec2x` branch](https://github.com/coreos/ignition/tree/spec2x/doc)
-+in the legacy [`spec2x` branch](https://github.com/flatcar/ignition/tree/spec2x/doc)
- of Ignition. Those specification versions are used by older versions of RHEL
- CoreOS and Flatcar Container Linux. This branch is no longer maintained.
- 
 diff --git a/dracut/30ignition/ignition-complete.target b/dracut/30ignition/ignition-complete.target
 index 6241b1d2..43a80147 100644
 --- a/dracut/30ignition/ignition-complete.target
@@ -4430,10 +4994,10 @@ index 95ae838f..4c734e43 100644
  Before=initrd.target
  
 diff --git a/dracut/30ignition/module-setup.sh b/dracut/30ignition/module-setup.sh
-index e1d3e480..3ac9c11c 100755
+index 54867d10..298f1070 100755
 --- a/dracut/30ignition/module-setup.sh
 +++ b/dracut/30ignition/module-setup.sh
-@@ -59,7 +59,7 @@ install() {
+@@ -60,7 +60,7 @@ install() {
          tpm2_createpolicy
  
      # Required by s390x's z/VM installation.
@@ -4443,7 +5007,7 @@ index e1d3e480..3ac9c11c 100755
          inst_multiple chccwdev vmur zkey zkey-cryptsetup
  
 diff --git a/go.mod b/go.mod
-index 1abba79c..42f7800d 100644
+index a1a25ec7..a22b3edb 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,4 +1,4 @@
@@ -4453,7 +5017,7 @@ index 1abba79c..42f7800d 100644
  go 1.20
  
 diff --git a/internal/apply/apply.go b/internal/apply/apply.go
-index 33113c5c..e8675889 100644
+index db48b8dc..b98fdf5d 100644
 --- a/internal/apply/apply.go
 +++ b/internal/apply/apply.go
 @@ -20,21 +20,21 @@ import (
@@ -4474,7 +5038,7 @@ index 33113c5c..e8675889 100644
 -	"github.com/coreos/ignition/v2/internal/state"
 -	"github.com/coreos/ignition/v2/internal/util"
 -
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/exec"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	_ "github.com/flatcar/ignition/v2/internal/exec/stages/disks"
@@ -4489,12 +5053,12 @@ index 33113c5c..e8675889 100644
 +	"github.com/flatcar/ignition/v2/internal/state"
 +	"github.com/flatcar/ignition/v2/internal/util"
 +
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  type Flags struct {
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 4879f805..35c65721 100644
+index e5254649..eb4c3179 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -20,7 +20,7 @@ import (
@@ -4507,10 +5071,10 @@ index 4879f805..35c65721 100644
  	// Device node directories and paths
  	diskByLabelDir = "/dev/disk/by-label"
 diff --git a/internal/doc/main.go b/internal/doc/main.go
-index ee9024c0..2e83f6ca 100644
+index 8e1dc6ba..2a66ba3a 100644
 --- a/internal/doc/main.go
 +++ b/internal/doc/main.go
-@@ -25,13 +25,13 @@ import (
+@@ -25,14 +25,14 @@ import (
  
  	"github.com/coreos/go-semver/semver"
  
@@ -4520,19 +5084,21 @@ index ee9024c0..2e83f6ca 100644
 -	v32 "github.com/coreos/ignition/v2/config/v3_2/types"
 -	v33 "github.com/coreos/ignition/v2/config/v3_3/types"
 -	v34 "github.com/coreos/ignition/v2/config/v3_4/types"
--	v35 "github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	v35 "github.com/coreos/ignition/v2/config/v3_5/types"
+-	v36 "github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/doc"
 +	v30 "github.com/flatcar/ignition/v2/config/v3_0/types"
 +	v31 "github.com/flatcar/ignition/v2/config/v3_1/types"
 +	v32 "github.com/flatcar/ignition/v2/config/v3_2/types"
 +	v33 "github.com/flatcar/ignition/v2/config/v3_3/types"
 +	v34 "github.com/flatcar/ignition/v2/config/v3_4/types"
-+	v35 "github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	v35 "github.com/flatcar/ignition/v2/config/v3_5/types"
++	v36 "github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  var (
 diff --git a/internal/exec/config_fetcher.go b/internal/exec/config_fetcher.go
-index 388e1b2a..aecde2a4 100644
+index 0769d983..3067037f 100644
 --- a/internal/exec/config_fetcher.go
 +++ b/internal/exec/config_fetcher.go
 @@ -20,15 +20,15 @@ import (
@@ -4546,8 +5112,8 @@ index 388e1b2a..aecde2a4 100644
 -	"github.com/coreos/ignition/v2/internal/state"
 -	"github.com/coreos/ignition/v2/internal/util"
 -
--	latest "github.com/coreos/ignition/v2/config/v3_5_experimental"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	latest "github.com/coreos/ignition/v2/config/v3_6_experimental"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
 +	"github.com/flatcar/ignition/v2/internal/log"
@@ -4555,13 +5121,13 @@ index 388e1b2a..aecde2a4 100644
 +	"github.com/flatcar/ignition/v2/internal/state"
 +	"github.com/flatcar/ignition/v2/internal/util"
 +
-+	latest "github.com/flatcar/ignition/v2/config/v3_5_experimental"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	latest "github.com/flatcar/ignition/v2/config/v3_6_experimental"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  type ConfigFetcher struct {
 diff --git a/internal/exec/engine.go b/internal/exec/engine.go
-index 0ae8b985..2c43aced 100644
+index 7e400d29..29610100 100644
 --- a/internal/exec/engine.go
 +++ b/internal/exec/engine.go
 @@ -23,17 +23,17 @@ import (
@@ -4569,8 +5135,8 @@ index 0ae8b985..2c43aced 100644
  
  	"github.com/coreos/go-systemd/v22/journal"
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	latest "github.com/coreos/ignition/v2/config/v3_5_experimental"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	latest "github.com/coreos/ignition/v2/config/v3_6_experimental"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	executil "github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
@@ -4580,8 +5146,8 @@ index 0ae8b985..2c43aced 100644
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	latest "github.com/flatcar/ignition/v2/config/v3_5_experimental"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	latest "github.com/flatcar/ignition/v2/config/v3_6_experimental"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	executil "github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/log"
@@ -4594,14 +5160,14 @@ index 0ae8b985..2c43aced 100644
  	"github.com/coreos/vcontext/report"
  	"github.com/coreos/vcontext/validate"
 diff --git a/internal/exec/stages/disks/disks.go b/internal/exec/stages/disks/disks.go
-index 880fb3b6..4cb055cf 100644
+index 68f8c77c..c0875140 100644
 --- a/internal/exec/stages/disks/disks.go
 +++ b/internal/exec/stages/disks/disks.go
 @@ -25,14 +25,14 @@ import (
  	"os/exec"
  	"path/filepath"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
@@ -4609,7 +5175,7 @@ index 880fb3b6..4cb055cf 100644
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
 -	"github.com/coreos/ignition/v2/internal/systemd"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
@@ -4621,7 +5187,7 @@ index 880fb3b6..4cb055cf 100644
  
  const (
 diff --git a/internal/exec/stages/disks/filesystems.go b/internal/exec/stages/disks/filesystems.go
-index d33c1153..62dab634 100644
+index 0938d985..c575ced4 100644
 --- a/internal/exec/stages/disks/filesystems.go
 +++ b/internal/exec/stages/disks/filesystems.go
 @@ -25,10 +25,10 @@ import (
@@ -4629,18 +5195,18 @@ index d33c1153..62dab634 100644
  	"strings"
  
 -	cutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 +	cutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
  )
  
  var (
 diff --git a/internal/exec/stages/disks/luks.go b/internal/exec/stages/disks/luks.go
-index 9a1943fb..661f7f43 100644
+index 680ab0be..fe03a907 100644
 --- a/internal/exec/stages/disks/luks.go
 +++ b/internal/exec/stages/disks/luks.go
 @@ -29,12 +29,12 @@ import (
@@ -4648,13 +5214,13 @@ index 9a1943fb..661f7f43 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	execUtil "github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	execUtil "github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/log"
@@ -4663,56 +5229,60 @@ index 9a1943fb..661f7f43 100644
  	"github.com/vincent-petithory/dataurl"
  )
 diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
-index cb55c376..6c1b0af1 100644
+index 801485a4..c91c7a61 100644
 --- a/internal/exec/stages/disks/partitions.go
 +++ b/internal/exec/stages/disks/partitions.go
-@@ -26,10 +26,10 @@ import (
+@@ -30,12 +30,12 @@ import (
  	"strconv"
  	"strings"
  
 -	cutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
+-	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/sgdisk"
+-	iutil "github.com/coreos/ignition/v2/internal/util"
 +	cutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/sgdisk"
++	iutil "github.com/flatcar/ignition/v2/internal/util"
  )
  
  var (
 diff --git a/internal/exec/stages/disks/raid.go b/internal/exec/stages/disks/raid.go
-index 795dd42b..d22f604c 100644
+index e02132ee..604b39a3 100644
 --- a/internal/exec/stages/disks/raid.go
 +++ b/internal/exec/stages/disks/raid.go
 @@ -24,9 +24,9 @@ import (
  	"os/exec"
  	"strings"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
  )
  
  func (s stage) createRaids(config types.Config) error {
 diff --git a/internal/exec/stages/fetch/fetch.go b/internal/exec/stages/fetch/fetch.go
-index 4511ebf0..d590163b 100644
+index dca8a53b..9a7d7be0 100644
 --- a/internal/exec/stages/fetch/fetch.go
 +++ b/internal/exec/stages/fetch/fetch.go
 @@ -19,12 +19,12 @@
  package fetch
  
  import (
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/log"
@@ -4722,7 +5292,7 @@ index 4511ebf0..d590163b 100644
  
  const (
 diff --git a/internal/exec/stages/fetch_offline/fetch-offline.go b/internal/exec/stages/fetch_offline/fetch-offline.go
-index 281980d7..a2ed29ff 100644
+index e87e853d..1b88b60d 100644
 --- a/internal/exec/stages/fetch_offline/fetch-offline.go
 +++ b/internal/exec/stages/fetch_offline/fetch-offline.go
 @@ -22,14 +22,14 @@ import (
@@ -4730,7 +5300,7 @@ index 281980d7..a2ed29ff 100644
  	"reflect"
  
 -	cfgutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	executil "github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
@@ -4738,7 +5308,7 @@ index 281980d7..a2ed29ff 100644
 -	"github.com/coreos/ignition/v2/internal/state"
 -	"github.com/coreos/ignition/v2/internal/util"
 +	cfgutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	executil "github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/log"
@@ -4749,7 +5319,7 @@ index 281980d7..a2ed29ff 100644
  
  const (
 diff --git a/internal/exec/stages/fetch_offline/fetch_offline_test.go b/internal/exec/stages/fetch_offline/fetch_offline_test.go
-index fb45e966..ea369f0c 100644
+index 04237ecb..30c77f4a 100644
 --- a/internal/exec/stages/fetch_offline/fetch_offline_test.go
 +++ b/internal/exec/stages/fetch_offline/fetch_offline_test.go
 @@ -17,8 +17,8 @@ package fetch_offline
@@ -4757,28 +5327,28 @@ index fb45e966..ea369f0c 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  
  	"github.com/stretchr/testify/assert"
  )
 diff --git a/internal/exec/stages/files/files.go b/internal/exec/stages/files/files.go
-index ba6b9bf6..cb3601d8 100644
+index d448225b..51ec2d6b 100644
 --- a/internal/exec/stages/files/files.go
 +++ b/internal/exec/stages/files/files.go
 @@ -20,13 +20,13 @@ import (
  	"os"
  	"path/filepath"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
@@ -4789,22 +5359,22 @@ index ba6b9bf6..cb3601d8 100644
  
  const (
 diff --git a/internal/exec/stages/files/files_test.go b/internal/exec/stages/files/files_test.go
-index 31741541..5bd23e44 100644
+index 8335cfea..20d98395 100644
 --- a/internal/exec/stages/files/files_test.go
 +++ b/internal/exec/stages/files/files_test.go
 @@ -19,8 +19,8 @@ import (
  	"sort"
  	"testing"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
  )
  
  func TestEntrySort(t *testing.T) {
 diff --git a/internal/exec/stages/files/filesystemEntries.go b/internal/exec/stages/files/filesystemEntries.go
-index a6e0588f..e2ca484e 100644
+index 4cceba71..7d6694b6 100644
 --- a/internal/exec/stages/files/filesystemEntries.go
 +++ b/internal/exec/stages/files/filesystemEntries.go
 @@ -24,11 +24,11 @@ import (
@@ -4812,12 +5382,12 @@ index a6e0588f..e2ca484e 100644
  	"time"
  
 -	cutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
 +	cutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/log"
@@ -4834,7 +5404,7 @@ index a6e0588f..e2ca484e 100644
  
  	return entries, nil
 diff --git a/internal/exec/stages/files/passwd.go b/internal/exec/stages/files/passwd.go
-index 3c6b571f..4259de64 100644
+index c6099406..82072dc8 100644
 --- a/internal/exec/stages/files/passwd.go
 +++ b/internal/exec/stages/files/passwd.go
 @@ -18,8 +18,8 @@ import (
@@ -4842,14 +5412,14 @@ index 3c6b571f..4259de64 100644
  	"path/filepath"
  
 -	"github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  func (s *stage) expandGlobList(globs ...string) ([]string, error) {
 diff --git a/internal/exec/stages/files/units.go b/internal/exec/stages/files/units.go
-index 03f51790..e304d611 100644
+index de89a573..22c84a2c 100644
 --- a/internal/exec/stages/files/units.go
 +++ b/internal/exec/stages/files/units.go
 @@ -21,11 +21,11 @@ import (
@@ -4858,12 +5428,12 @@ index 03f51790..e304d611 100644
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	cutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/systemd"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
 +	cutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/systemd"
  )
@@ -4879,7 +5449,7 @@ index 03f51790..e304d611 100644
  	return nil
  }
 diff --git a/internal/exec/stages/files/units_test.go b/internal/exec/stages/files/units_test.go
-index 3408b2bd..b11debee 100644
+index 96f53888..3bb96d78 100644
 --- a/internal/exec/stages/files/units_test.go
 +++ b/internal/exec/stages/files/units_test.go
 @@ -18,8 +18,8 @@ import (
@@ -4887,28 +5457,28 @@ index 3408b2bd..b11debee 100644
  	"testing"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  func TestParseInstanceUnit(t *testing.T) {
 diff --git a/internal/exec/stages/kargs/kargs.go b/internal/exec/stages/kargs/kargs.go
-index f7980c89..bc4d0663 100644
+index 7c223d2c..5306b9c5 100644
 --- a/internal/exec/stages/kargs/kargs.go
 +++ b/internal/exec/stages/kargs/kargs.go
 @@ -19,13 +19,13 @@ import (
  	"fmt"
  	"os/exec"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
@@ -4919,7 +5489,7 @@ index f7980c89..bc4d0663 100644
  
  const (
 diff --git a/internal/exec/stages/mount/mount.go b/internal/exec/stages/mount/mount.go
-index 8898bcf0..ecf7ce7f 100644
+index be2a98c0..bace4bbd 100644
 --- a/internal/exec/stages/mount/mount.go
 +++ b/internal/exec/stages/mount/mount.go
 @@ -27,14 +27,14 @@ import (
@@ -4927,7 +5497,7 @@ index 8898bcf0..ecf7ce7f 100644
  	"strings"
  
 -	cutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
@@ -4935,7 +5505,7 @@ index 8898bcf0..ecf7ce7f 100644
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
 +	cutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
@@ -4946,19 +5516,19 @@ index 8898bcf0..ecf7ce7f 100644
  
  const (
 diff --git a/internal/exec/stages/stages.go b/internal/exec/stages/stages.go
-index 721b57c8..4b63797e 100644
+index a9a6fe19..b47a5452 100644
 --- a/internal/exec/stages/stages.go
 +++ b/internal/exec/stages/stages.go
 @@ -15,11 +15,11 @@
  package stages
  
  import (
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/registry"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/registry"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -4967,7 +5537,7 @@ index 721b57c8..4b63797e 100644
  
  // Stage is responsible for actually executing a stage of the configuration.
 diff --git a/internal/exec/stages/umount/umount.go b/internal/exec/stages/umount/umount.go
-index 610c64f2..fa216908 100644
+index 4c4c8cf5..979aa40b 100644
 --- a/internal/exec/stages/umount/umount.go
 +++ b/internal/exec/stages/umount/umount.go
 @@ -22,13 +22,13 @@ import (
@@ -4975,14 +5545,14 @@ index 610c64f2..fa216908 100644
  	"sort"
  
 -	cutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/exec/stages"
 -	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
 +	cutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/exec/stages"
 +	"github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/log"
@@ -4992,7 +5562,7 @@ index 610c64f2..fa216908 100644
  	"golang.org/x/sys/unix"
  )
 diff --git a/internal/exec/util/blkid.go b/internal/exec/util/blkid.go
-index 92db9026..724009f2 100644
+index 9574cb33..6d5e2621 100644
 --- a/internal/exec/util/blkid.go
 +++ b/internal/exec/util/blkid.go
 @@ -33,7 +33,7 @@ import (
@@ -5005,7 +5575,7 @@ index 92db9026..724009f2 100644
  
  const (
 diff --git a/internal/exec/util/file.go b/internal/exec/util/file.go
-index 6668945e..93a5e0e7 100644
+index ee40b2a8..da9f9249 100644
 --- a/internal/exec/util/file.go
 +++ b/internal/exec/util/file.go
 @@ -26,11 +26,11 @@ import (
@@ -5013,12 +5583,12 @@ index 6668945e..93a5e0e7 100644
  	"syscall"
  
 -	cutil "github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/util"
 +	cutil "github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/internal/util"
@@ -5026,7 +5596,7 @@ index 6668945e..93a5e0e7 100644
  	"golang.org/x/sys/unix"
  )
 diff --git a/internal/exec/util/passwd.go b/internal/exec/util/passwd.go
-index 085cc3f2..a2592faa 100644
+index 776b3fa2..6c8c52e5 100644
 --- a/internal/exec/util/passwd.go
 +++ b/internal/exec/util/passwd.go
 @@ -24,10 +24,10 @@ import (
@@ -5034,11 +5604,11 @@ index 085cc3f2..a2592faa 100644
  
  	"github.com/coreos/go-systemd/v22/journal"
 -	"github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/as_user"
 -	"github.com/coreos/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/as_user"
 +	"github.com/flatcar/ignition/v2/internal/distro"
  	"golang.org/x/sys/unix"
@@ -5058,16 +5628,16 @@ index a274eae6..0bd57f98 100644
  
  const (
 diff --git a/internal/exec/util/unit.go b/internal/exec/util/unit.go
-index 809507b7..76555d19 100644
+index f0d2267c..f13351af 100644
 --- a/internal/exec/util/unit.go
 +++ b/internal/exec/util/unit.go
 @@ -22,8 +22,8 @@ import (
  	"path/filepath"
  	"syscall"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
  
  	"github.com/vincent-petithory/dataurl"
@@ -5103,7 +5673,7 @@ index 7e880e3b..f1865474 100644
  
  // Util encapsulates logging and destdir indirection for the util methods.
 diff --git a/internal/main.go b/internal/main.go
-index 80f85453..9fb31121 100644
+index 5cebe6a4..ef421d9d 100644
 --- a/internal/main.go
 +++ b/internal/main.go
 @@ -22,15 +22,15 @@ import (
@@ -5132,19 +5702,19 @@ index 80f85453..9fb31121 100644
  )
  
 diff --git a/internal/platform/platform.go b/internal/platform/platform.go
-index 48d60615..ff31a267 100644
+index 9b01df0c..beb6d447 100644
 --- a/internal/platform/platform.go
 +++ b/internal/platform/platform.go
 @@ -18,11 +18,11 @@ import (
  	"errors"
  	"fmt"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/registry"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	"github.com/coreos/ignition/v2/internal/state"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/registry"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5153,18 +5723,18 @@ index 48d60615..ff31a267 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/akamai/akamai.go b/internal/providers/akamai/akamai.go
-index c7debf3b..ffc1e5a0 100644
+index 6af75dc4..0fb8bcbc 100644
 --- a/internal/providers/akamai/akamai.go
 +++ b/internal/providers/akamai/akamai.go
 @@ -24,10 +24,10 @@ import (
  	"net/http"
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5172,18 +5742,18 @@ index c7debf3b..ffc1e5a0 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/aliyun/aliyun.go b/internal/providers/aliyun/aliyun.go
-index 4bb6239d..7c343adc 100644
+index d5089c45..23da8ddb 100644
 --- a/internal/providers/aliyun/aliyun.go
 +++ b/internal/providers/aliyun/aliyun.go
 @@ -20,10 +20,10 @@ package aliyun
  import (
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5191,19 +5761,19 @@ index 4bb6239d..7c343adc 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/applehv/applehv.go b/internal/providers/applehv/applehv.go
-index cbb68c66..83aa530a 100644
+index 2fffec9c..f4117b1a 100644
 --- a/internal/providers/applehv/applehv.go
 +++ b/internal/providers/applehv/applehv.go
 @@ -22,11 +22,11 @@ import (
  	"net/http"
  	"os/exec"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
@@ -5212,19 +5782,19 @@ index cbb68c66..83aa530a 100644
  	"github.com/mdlayher/vsock"
  )
 diff --git a/internal/providers/aws/aws.go b/internal/providers/aws/aws.go
-index 5ac3dcb6..aefc1d0c 100644
+index daabc367..b4cb36a1 100644
 --- a/internal/providers/aws/aws.go
 +++ b/internal/providers/aws/aws.go
 @@ -22,11 +22,11 @@ import (
  	"net/http"
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
@@ -5242,7 +5812,7 @@ index 5ac3dcb6..aefc1d0c 100644
  	// TODO: investigate alternative solutions (adding a Retryer to the
  	// aws.Config, fetching the region from an HTTP URL, handle the
 diff --git a/internal/providers/azure/azure.go b/internal/providers/azure/azure.go
-index caddcff5..398ea8eb 100644
+index c00a5f61..7472f105 100644
 --- a/internal/providers/azure/azure.go
 +++ b/internal/providers/azure/azure.go
 @@ -25,13 +25,13 @@ import (
@@ -5250,14 +5820,14 @@ index caddcff5..398ea8eb 100644
  	"time"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	execUtil "github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	execUtil "github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5276,18 +5846,18 @@ index caddcff5..398ea8eb 100644
  		404, // not found
  		410, // gone
 diff --git a/internal/providers/azurestack/azurestack.go b/internal/providers/azurestack/azurestack.go
-index 26334dee..899f2199 100644
+index 5468bad3..69152d86 100644
 --- a/internal/providers/azurestack/azurestack.go
 +++ b/internal/providers/azurestack/azurestack.go
 @@ -18,10 +18,10 @@
  package azurestack
  
  import (
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/azure"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/azure"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5295,21 +5865,21 @@ index 26334dee..899f2199 100644
  )
  
 diff --git a/internal/providers/cloudstack/cloudstack.go b/internal/providers/cloudstack/cloudstack.go
-index 9cc0ec54..dce5d1a2 100644
+index 4e75ac1f..e5872f0c 100644
 --- a/internal/providers/cloudstack/cloudstack.go
 +++ b/internal/providers/cloudstack/cloudstack.go
 @@ -30,13 +30,13 @@ import (
  	"strings"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5329,20 +5899,20 @@ index 9cc0ec54..dce5d1a2 100644
  		return types.Config{}, report.Report{}, resource.ErrNeedNet
  	}
 diff --git a/internal/providers/cmdline/cmdline.go b/internal/providers/cmdline/cmdline.go
-index 0a279257..eb8e2b45 100644
+index 745f0687..30203bff 100644
 --- a/internal/providers/cmdline/cmdline.go
 +++ b/internal/providers/cmdline/cmdline.go
 @@ -22,12 +22,12 @@ import (
  	"os"
  	"strings"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5352,18 +5922,18 @@ index 0a279257..eb8e2b45 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/digitalocean/digitalocean.go b/internal/providers/digitalocean/digitalocean.go
-index 67d0a852..943b18a7 100644
+index 00684dc5..638ac1d9 100644
 --- a/internal/providers/digitalocean/digitalocean.go
 +++ b/internal/providers/digitalocean/digitalocean.go
 @@ -20,10 +20,10 @@ package digitalocean
  import (
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5371,18 +5941,18 @@ index 67d0a852..943b18a7 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/exoscale/exoscale.go b/internal/providers/exoscale/exoscale.go
-index 44455acf..53f89d2a 100644
+index cb8afd54..a6d553c5 100644
 --- a/internal/providers/exoscale/exoscale.go
 +++ b/internal/providers/exoscale/exoscale.go
 @@ -20,10 +20,10 @@ package exoscale
  import (
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5390,18 +5960,18 @@ index 44455acf..53f89d2a 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/file/file.go b/internal/providers/file/file.go
-index 02244911..4000e11e 100644
+index 7ec28b2a..af5da9c8 100644
 --- a/internal/providers/file/file.go
 +++ b/internal/providers/file/file.go
 @@ -17,10 +17,10 @@ package file
  import (
  	"os"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5409,18 +5979,18 @@ index 02244911..4000e11e 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/gcp/gcp.go b/internal/providers/gcp/gcp.go
-index c8663614..9b6d41a8 100644
+index 36627fbf..9f9b4b42 100644
 --- a/internal/providers/gcp/gcp.go
 +++ b/internal/providers/gcp/gcp.go
 @@ -21,10 +21,10 @@ import (
  	"net/http"
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5428,18 +5998,18 @@ index c8663614..9b6d41a8 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/hetzner/hetzner.go b/internal/providers/hetzner/hetzner.go
-index 34aa9b84..9f7e9a00 100644
+index dca9c0f9..11695d6e 100644
 --- a/internal/providers/hetzner/hetzner.go
 +++ b/internal/providers/hetzner/hetzner.go
 @@ -20,10 +20,10 @@ package hetzner
  import (
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5447,7 +6017,7 @@ index 34aa9b84..9f7e9a00 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/hyperv/kvp.go b/internal/providers/hyperv/kvp.go
-index 13e43491..2d6811c7 100644
+index 8162e506..f0bb3e9b 100644
 --- a/internal/providers/hyperv/kvp.go
 +++ b/internal/providers/hyperv/kvp.go
 @@ -20,12 +20,12 @@ import (
@@ -5455,13 +6025,13 @@ index 13e43491..2d6811c7 100644
  
  	"github.com/containers/libhvee/pkg/kvp"
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
@@ -5470,21 +6040,21 @@ index 13e43491..2d6811c7 100644
  )
  
 diff --git a/internal/providers/ibmcloud/ibmcloud.go b/internal/providers/ibmcloud/ibmcloud.go
-index fb742b92..8a10e271 100644
+index 938ca603..ee9f73c4 100644
 --- a/internal/providers/ibmcloud/ibmcloud.go
 +++ b/internal/providers/ibmcloud/ibmcloud.go
 @@ -27,13 +27,13 @@ import (
  	"path/filepath"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5495,21 +6065,21 @@ index fb742b92..8a10e271 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/kubevirt/kubevirt.go b/internal/providers/kubevirt/kubevirt.go
-index 88d1e2b6..e5d61d4c 100644
+index 1d43e708..f56f8962 100644
 --- a/internal/providers/kubevirt/kubevirt.go
 +++ b/internal/providers/kubevirt/kubevirt.go
 @@ -25,13 +25,13 @@ import (
  	"path/filepath"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5520,7 +6090,7 @@ index 88d1e2b6..e5d61d4c 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/metal/metal.go b/internal/providers/metal/metal.go
-index 1b65c11a..8a5c2362 100644
+index 1870cbdb..27c923d4 100644
 --- a/internal/providers/metal/metal.go
 +++ b/internal/providers/metal/metal.go
 @@ -17,10 +17,10 @@
@@ -5528,32 +6098,32 @@ index 1b65c11a..8a5c2362 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/nutanix/nutanix.go b/internal/providers/nutanix/nutanix.go
-index 7fbcad58..ef77a5bc 100644
+index dc99e607..ed64b8fb 100644
 --- a/internal/providers/nutanix/nutanix.go
 +++ b/internal/providers/nutanix/nutanix.go
 @@ -25,13 +25,13 @@ import (
  	"path/filepath"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5564,21 +6134,21 @@ index 7fbcad58..ef77a5bc 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/openstack/openstack.go b/internal/providers/openstack/openstack.go
-index 4ef352cf..9a6b6a8a 100644
+index 3578256e..3377b448 100644
 --- a/internal/providers/openstack/openstack.go
 +++ b/internal/providers/openstack/openstack.go
 @@ -28,13 +28,13 @@ import (
  	"path/filepath"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5598,18 +6168,18 @@ index 4ef352cf..9a6b6a8a 100644
  		return types.Config{}, report.Report{}, resource.ErrNeedNet
  	}
 diff --git a/internal/providers/packet/packet.go b/internal/providers/packet/packet.go
-index c2ecbfc1..045e6c5b 100644
+index a1bb5d14..45c55964 100644
 --- a/internal/providers/packet/packet.go
 +++ b/internal/providers/packet/packet.go
 @@ -25,10 +25,10 @@ import (
  	"net/url"
  	"strings"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5617,21 +6187,46 @@ index c2ecbfc1..045e6c5b 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/powervs/powervs.go b/internal/providers/powervs/powervs.go
-index 918277a1..fb4ee408 100644
+index 713f823e..a4ef1c25 100644
 --- a/internal/providers/powervs/powervs.go
 +++ b/internal/providers/powervs/powervs.go
 @@ -24,13 +24,13 @@ import (
  	"path/filepath"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 -	ut "github.com/coreos/ignition/v2/internal/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/distro"
++	"github.com/flatcar/ignition/v2/internal/log"
++	"github.com/flatcar/ignition/v2/internal/platform"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
++	ut "github.com/flatcar/ignition/v2/internal/util"
+ 
+ 	"github.com/coreos/vcontext/report"
+ )
+diff --git a/internal/providers/proxmoxve/proxmoxve.go b/internal/providers/proxmoxve/proxmoxve.go
+index 490bfe30..cbfe7c7d 100644
+--- a/internal/providers/proxmoxve/proxmoxve.go
++++ b/internal/providers/proxmoxve/proxmoxve.go
+@@ -28,13 +28,13 @@ import (
+ 	"path/filepath"
+ 	"time"
+ 
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
+-	"github.com/coreos/ignition/v2/internal/distro"
+-	"github.com/coreos/ignition/v2/internal/log"
+-	"github.com/coreos/ignition/v2/internal/platform"
+-	"github.com/coreos/ignition/v2/internal/providers/util"
+-	"github.com/coreos/ignition/v2/internal/resource"
+-	ut "github.com/coreos/ignition/v2/internal/util"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5642,20 +6237,20 @@ index 918277a1..fb4ee408 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/qemu/qemu_blockdev.go b/internal/providers/qemu/qemu_blockdev.go
-index 778a151d..bab0b091 100644
+index f78b52b1..04bcc3b7 100644
 --- a/internal/providers/qemu/qemu_blockdev.go
 +++ b/internal/providers/qemu/qemu_blockdev.go
 @@ -27,12 +27,12 @@ import (
  	"os/exec"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5665,19 +6260,19 @@ index 778a151d..bab0b091 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/qemu/qemu_fwcfg.go b/internal/providers/qemu/qemu_fwcfg.go
-index 9451981b..a150869f 100644
+index 8357671a..389ec119 100644
 --- a/internal/providers/qemu/qemu_fwcfg.go
 +++ b/internal/providers/qemu/qemu_fwcfg.go
 @@ -29,11 +29,11 @@ import (
  	"strings"
  	"time"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
@@ -5686,18 +6281,18 @@ index 9451981b..a150869f 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/scaleway/scaleway.go b/internal/providers/scaleway/scaleway.go
-index 230519fe..8fe61aa1 100644
+index d25b9aab..f2a6e131 100644
 --- a/internal/providers/scaleway/scaleway.go
 +++ b/internal/providers/scaleway/scaleway.go
 @@ -22,10 +22,10 @@ import (
  	"math/rand"
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5705,22 +6300,22 @@ index 230519fe..8fe61aa1 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/system/system.go b/internal/providers/system/system.go
-index 8762c2a0..14df30e1 100644
+index b676e683..cdf39841 100644
 --- a/internal/providers/system/system.go
 +++ b/internal/providers/system/system.go
 @@ -18,13 +18,13 @@ import (
  	"os"
  	"path/filepath"
  
--	latest "github.com/coreos/ignition/v2/config/v3_5_experimental"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	latest "github.com/coreos/ignition/v2/config/v3_6_experimental"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	latest "github.com/flatcar/ignition/v2/config/v3_5_experimental"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	latest "github.com/flatcar/ignition/v2/config/v3_6_experimental"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5730,7 +6325,7 @@ index 8762c2a0..14df30e1 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/util/config.go b/internal/providers/util/config.go
-index a2a56b7d..efafb416 100644
+index 52ea51b0..fc85389f 100644
 --- a/internal/providers/util/config.go
 +++ b/internal/providers/util/config.go
 @@ -18,9 +18,9 @@ import (
@@ -5738,16 +6333,16 @@ index a2a56b7d..efafb416 100644
  	"encoding/hex"
  
 -	"github.com/coreos/ignition/v2/config"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/config"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/log"
  
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/util/file.go b/internal/providers/util/file.go
-index 054219cb..84f851d0 100644
+index 26f01870..929e3d1c 100644
 --- a/internal/providers/util/file.go
 +++ b/internal/providers/util/file.go
 @@ -15,8 +15,8 @@
@@ -5755,14 +6350,27 @@ index 054219cb..84f851d0 100644
  
  import (
 -	"github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  
  	"github.com/vincent-petithory/dataurl"
  )
+diff --git a/internal/providers/util/unzip_test.go b/internal/providers/util/unzip_test.go
+index 84323de7..e07ec78a 100644
+--- a/internal/providers/util/unzip_test.go
++++ b/internal/providers/util/unzip_test.go
+@@ -18,7 +18,7 @@ import (
+ 	"reflect"
+ 	"testing"
+ 
+-	"github.com/coreos/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
+ )
+ 
+ func TestTryUnzip(t *testing.T) {
 diff --git a/internal/providers/virtualbox/virtualbox.go b/internal/providers/virtualbox/virtualbox.go
-index dcf18367..bf426e95 100644
+index bfc424cc..421534d3 100644
 --- a/internal/providers/virtualbox/virtualbox.go
 +++ b/internal/providers/virtualbox/virtualbox.go
 @@ -31,11 +31,11 @@ import (
@@ -5770,12 +6378,12 @@ index dcf18367..bf426e95 100644
  	"unsafe"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5783,18 +6391,18 @@ index dcf18367..bf426e95 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/vmware/vmware_amd64.go b/internal/providers/vmware/vmware_amd64.go
-index b9777fcd..1d40249c 100644
+index cab0aa40..597c33fd 100644
 --- a/internal/providers/vmware/vmware_amd64.go
 +++ b/internal/providers/vmware/vmware_amd64.go
 @@ -20,10 +20,10 @@ package vmware
  import (
  	"fmt"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5802,35 +6410,35 @@ index b9777fcd..1d40249c 100644
  	"github.com/coreos/vcontext/report"
  	"github.com/vmware/vmw-guestinfo/rpcvmx"
 diff --git a/internal/providers/vmware/vmware_unsupported.go b/internal/providers/vmware/vmware_unsupported.go
-index a1ea208e..9938e528 100644
+index 201404c1..3a1c18b9 100644
 --- a/internal/providers/vmware/vmware_unsupported.go
 +++ b/internal/providers/vmware/vmware_unsupported.go
 @@ -23,9 +23,9 @@ package vmware
  import (
  	"errors"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/resource"
  
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/vultr/vultr.go b/internal/providers/vultr/vultr.go
-index 496653b9..f5a0904c 100644
+index e5111c6e..70aacc17 100644
 --- a/internal/providers/vultr/vultr.go
 +++ b/internal/providers/vultr/vultr.go
 @@ -21,10 +21,10 @@ package vultr
  import (
  	"net/url"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/platform"
 +	"github.com/flatcar/ignition/v2/internal/providers/util"
 +	"github.com/flatcar/ignition/v2/internal/resource"
@@ -5838,7 +6446,7 @@ index 496653b9..f5a0904c 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/zvm/zvm.go b/internal/providers/zvm/zvm.go
-index 84f66ec3..d07f1ffc 100644
+index 48e95ab7..622ced66 100644
 --- a/internal/providers/zvm/zvm.go
 +++ b/internal/providers/zvm/zvm.go
 @@ -24,13 +24,13 @@ import (
@@ -5846,14 +6454,14 @@ index 84f66ec3..d07f1ffc 100644
  	"strings"
  
 -	"github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/platform"
 -	"github.com/coreos/ignition/v2/internal/providers/util"
 -	"github.com/coreos/ignition/v2/internal/resource"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/platform"
@@ -5863,10 +6471,10 @@ index 84f66ec3..d07f1ffc 100644
  )
  
 diff --git a/internal/register/providers.go b/internal/register/providers.go
-index 5382e2f3..eaf3fb18 100644
+index bda4b7cf..eb4bd9d2 100644
 --- a/internal/register/providers.go
 +++ b/internal/register/providers.go
-@@ -15,30 +15,30 @@
+@@ -15,31 +15,31 @@
  package register
  
  import (
@@ -5890,6 +6498,7 @@ index 5382e2f3..eaf3fb18 100644
 -	_ "github.com/coreos/ignition/v2/internal/providers/openstack"
 -	_ "github.com/coreos/ignition/v2/internal/providers/packet"
 -	_ "github.com/coreos/ignition/v2/internal/providers/powervs"
+-	_ "github.com/coreos/ignition/v2/internal/providers/proxmoxve"
 -	_ "github.com/coreos/ignition/v2/internal/providers/qemu"
 -	_ "github.com/coreos/ignition/v2/internal/providers/scaleway"
 -	_ "github.com/coreos/ignition/v2/internal/providers/virtualbox"
@@ -5916,6 +6525,7 @@ index 5382e2f3..eaf3fb18 100644
 +	_ "github.com/flatcar/ignition/v2/internal/providers/openstack"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/packet"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/powervs"
++	_ "github.com/flatcar/ignition/v2/internal/providers/proxmoxve"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/qemu"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/scaleway"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/virtualbox"
@@ -5947,7 +6557,7 @@ index 98c05214..b8043835 100644
 +	_ "github.com/flatcar/ignition/v2/internal/exec/stages/umount"
  )
 diff --git a/internal/resource/http.go b/internal/resource/http.go
-index 872ce253..5a751018 100644
+index b6e90988..9a37ffac 100644
 --- a/internal/resource/http.go
 +++ b/internal/resource/http.go
 @@ -28,12 +28,12 @@ import (
@@ -5955,13 +6565,13 @@ index 872ce253..5a751018 100644
  	"time"
  
 -	ignerrors "github.com/coreos/ignition/v2/config/shared/errors"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/earlyrand"
 -	"github.com/coreos/ignition/v2/internal/log"
 -	"github.com/coreos/ignition/v2/internal/util"
 -	"github.com/coreos/ignition/v2/internal/version"
 +	ignerrors "github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/earlyrand"
 +	"github.com/flatcar/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/internal/util"
@@ -5970,7 +6580,7 @@ index 872ce253..5a751018 100644
  	"github.com/vincent-petithory/dataurl"
  
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index ad548a49..8ccf9399 100644
+index 8960c5d8..4f55dc2b 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
 @@ -33,9 +33,9 @@ import (
@@ -6004,7 +6614,7 @@ index 77a39c93..415822fc 100644
  
  func TestDataUrl(t *testing.T) {
 diff --git a/internal/sgdisk/sgdisk.go b/internal/sgdisk/sgdisk.go
-index 29915809..136aca67 100644
+index a4ade134..9904225e 100644
 --- a/internal/sgdisk/sgdisk.go
 +++ b/internal/sgdisk/sgdisk.go
 @@ -19,10 +19,10 @@ import (
@@ -6012,26 +6622,26 @@ index 29915809..136aca67 100644
  	"os/exec"
  
 -	"github.com/coreos/ignition/v2/config/util"
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/internal/distro"
 -	"github.com/coreos/ignition/v2/internal/log"
 +	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/internal/distro"
 +	"github.com/flatcar/ignition/v2/internal/log"
  )
  
  type Operation struct {
 diff --git a/internal/state/state.go b/internal/state/state.go
-index 462cc4d2..8b57aa36 100644
+index 30fb3873..e12cd726 100644
 --- a/internal/state/state.go
 +++ b/internal/state/state.go
 @@ -20,7 +20,7 @@ import (
  	"os"
  	"path/filepath"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  type State struct {
@@ -6049,44 +6659,46 @@ index ca65069a..41ebf464 100644
  
  // Specific section marker used in the docs to indicate that the Markdown code
 diff --git a/internal/util/verification.go b/internal/util/verification.go
-index 8f37f550..74ad7e98 100644
+index 453120cd..39d7200d 100644
 --- a/internal/util/verification.go
 +++ b/internal/util/verification.go
 @@ -23,7 +23,7 @@ import (
  	"hash"
  	"strings"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  var (
 diff --git a/internal/util/verification_test.go b/internal/util/verification_test.go
-index abac5177..49396b99 100644
+index e4ad12ee..122934f1 100644
 --- a/internal/util/verification_test.go
 +++ b/internal/util/verification_test.go
 @@ -18,7 +18,7 @@ import (
  	"reflect"
  	"testing"
  
--	"github.com/coreos/ignition/v2/config/v3_5_experimental/types"
-+	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
  func TestAssertValid(t *testing.T) {
 diff --git a/tests/blackbox_test.go b/tests/blackbox_test.go
-index 086d6566..52c41c87 100644
+index aa3d50f7..d7bcd26e 100644
 --- a/tests/blackbox_test.go
 +++ b/tests/blackbox_test.go
-@@ -25,13 +25,13 @@ import (
+@@ -26,14 +26,14 @@ import (
  	"testing"
  	"time"
  
 -	"github.com/coreos/ignition/v2/config"
+-	"github.com/coreos/ignition/v2/internal/exec/util"
 -	"github.com/coreos/ignition/v2/tests/register"
 -	"github.com/coreos/ignition/v2/tests/servers"
 -	"github.com/coreos/ignition/v2/tests/types"
 +	"github.com/flatcar/ignition/v2/config"
++	"github.com/flatcar/ignition/v2/internal/exec/util"
 +	"github.com/flatcar/ignition/v2/tests/register"
 +	"github.com/flatcar/ignition/v2/tests/servers"
 +	"github.com/flatcar/ignition/v2/tests/types"
@@ -6233,7 +6845,7 @@ index e62ee681..b3aff932 100644
  
  func init() {
 diff --git a/tests/negative/general/config.go b/tests/negative/general/config.go
-index 481cc2cd..6fcabe80 100644
+index 9c1960be..d5918581 100644
 --- a/tests/negative/general/config.go
 +++ b/tests/negative/general/config.go
 @@ -17,8 +17,8 @@ package general
@@ -6247,6 +6859,21 @@ index 481cc2cd..6fcabe80 100644
  
  	"github.com/vincent-petithory/dataurl"
  )
+diff --git a/tests/negative/luks/creation.go b/tests/negative/luks/creation.go
+index 678dc5d3..3ac94b7c 100644
+--- a/tests/negative/luks/creation.go
++++ b/tests/negative/luks/creation.go
+@@ -15,8 +15,8 @@
+ package luks
+ 
+ import (
+-	"github.com/coreos/ignition/v2/tests/register"
+-	"github.com/coreos/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
+ )
+ 
+ func init() {
 diff --git a/tests/negative/partitions/simple.go b/tests/negative/partitions/simple.go
 index ae6f50f5..79911208 100644
 --- a/tests/negative/partitions/simple.go
@@ -6553,6 +7180,21 @@ index 5952097f..3c0d62dd 100644
  )
  
  func init() {
+diff --git a/tests/positive/luks/creation.go b/tests/positive/luks/creation.go
+index 7a6d1141..08d67728 100644
+--- a/tests/positive/luks/creation.go
++++ b/tests/positive/luks/creation.go
+@@ -15,8 +15,8 @@
+ package luks
+ 
+ import (
+-	"github.com/coreos/ignition/v2/tests/register"
+-	"github.com/coreos/ignition/v2/tests/types"
++	"github.com/flatcar/ignition/v2/tests/register"
++	"github.com/flatcar/ignition/v2/tests/types"
+ )
+ 
+ func init() {
 diff --git a/tests/positive/partitions/complex-mb.go b/tests/positive/partitions/complex-mb.go
 index 5c090e80..86e0ff2f 100644
 --- a/tests/positive/partitions/complex-mb.go
@@ -6783,10 +7425,10 @@ index 34408293..24a0bc61 100644
  
  func init() {
 diff --git a/tests/register/register.go b/tests/register/register.go
-index 07e803b7..27735ffd 100644
+index e081b7f6..14d1816a 100644
 --- a/tests/register/register.go
 +++ b/tests/register/register.go
-@@ -16,13 +16,13 @@ package register
+@@ -16,14 +16,14 @@ package register
  
  import (
  	"github.com/coreos/go-semver/semver"
@@ -6795,29 +7437,32 @@ index 07e803b7..27735ffd 100644
 -	types32 "github.com/coreos/ignition/v2/config/v3_2/types"
 -	types33 "github.com/coreos/ignition/v2/config/v3_3/types"
 -	types34 "github.com/coreos/ignition/v2/config/v3_4/types"
--	types_exp "github.com/coreos/ignition/v2/config/v3_5_experimental/types"
+-	types35 "github.com/coreos/ignition/v2/config/v3_5/types"
+-	types_exp "github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	"github.com/coreos/ignition/v2/tests/types"
 +	types30 "github.com/flatcar/ignition/v2/config/v3_0/types"
 +	types31 "github.com/flatcar/ignition/v2/config/v3_1/types"
 +	types32 "github.com/flatcar/ignition/v2/config/v3_2/types"
 +	types33 "github.com/flatcar/ignition/v2/config/v3_3/types"
 +	types34 "github.com/flatcar/ignition/v2/config/v3_4/types"
-+	types_exp "github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
++	types35 "github.com/flatcar/ignition/v2/config/v3_5/types"
++	types_exp "github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/tests/types"
  )
  
  type TestType int
 diff --git a/tests/registry/registry.go b/tests/registry/registry.go
-index 917106b1..d181f843 100644
+index dc0f01fa..77207404 100644
 --- a/tests/registry/registry.go
 +++ b/tests/registry/registry.go
-@@ -16,22 +16,22 @@ package registry
+@@ -16,24 +16,24 @@ package registry
  
  // Done to import the tests
  import (
 -	_ "github.com/coreos/ignition/v2/tests/negative/files"
 -	_ "github.com/coreos/ignition/v2/tests/negative/filesystems"
 -	_ "github.com/coreos/ignition/v2/tests/negative/general"
+-	_ "github.com/coreos/ignition/v2/tests/negative/luks"
 -	_ "github.com/coreos/ignition/v2/tests/negative/partitions"
 -	_ "github.com/coreos/ignition/v2/tests/negative/proxy"
 -	_ "github.com/coreos/ignition/v2/tests/negative/regression"
@@ -6826,6 +7471,7 @@ index 917106b1..d181f843 100644
 -	_ "github.com/coreos/ignition/v2/tests/positive/files"
 -	_ "github.com/coreos/ignition/v2/tests/positive/filesystems"
 -	_ "github.com/coreos/ignition/v2/tests/positive/general"
+-	_ "github.com/coreos/ignition/v2/tests/positive/luks"
 -	_ "github.com/coreos/ignition/v2/tests/positive/partitions"
 -	_ "github.com/coreos/ignition/v2/tests/positive/passwd"
 -	_ "github.com/coreos/ignition/v2/tests/positive/proxy"
@@ -6836,6 +7482,7 @@ index 917106b1..d181f843 100644
 +	_ "github.com/flatcar/ignition/v2/tests/negative/files"
 +	_ "github.com/flatcar/ignition/v2/tests/negative/filesystems"
 +	_ "github.com/flatcar/ignition/v2/tests/negative/general"
++	_ "github.com/flatcar/ignition/v2/tests/negative/luks"
 +	_ "github.com/flatcar/ignition/v2/tests/negative/partitions"
 +	_ "github.com/flatcar/ignition/v2/tests/negative/proxy"
 +	_ "github.com/flatcar/ignition/v2/tests/negative/regression"
@@ -6844,6 +7491,7 @@ index 917106b1..d181f843 100644
 +	_ "github.com/flatcar/ignition/v2/tests/positive/files"
 +	_ "github.com/flatcar/ignition/v2/tests/positive/filesystems"
 +	_ "github.com/flatcar/ignition/v2/tests/positive/general"
++	_ "github.com/flatcar/ignition/v2/tests/positive/luks"
 +	_ "github.com/flatcar/ignition/v2/tests/positive/partitions"
 +	_ "github.com/flatcar/ignition/v2/tests/positive/passwd"
 +	_ "github.com/flatcar/ignition/v2/tests/positive/proxy"
@@ -6853,7 +7501,7 @@ index 917106b1..d181f843 100644
 +	_ "github.com/flatcar/ignition/v2/tests/positive/timeouts"
  )
 diff --git a/tests/servers/servers.go b/tests/servers/servers.go
-index 6aa688b8..4ec8a348 100644
+index 0230cd16..a4d235a2 100644
 --- a/tests/servers/servers.go
 +++ b/tests/servers/servers.go
 @@ -27,7 +27,7 @@ import (
@@ -6896,5 +7544,5 @@ index bec64866..ed027604 100644
  
  var (
 -- 
-2.43.2
+2.44.2
 

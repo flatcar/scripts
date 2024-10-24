@@ -1,34 +1,20 @@
-From 344f72895161d411b733a245f5d3e249ef3466fe Mon Sep 17 00:00:00 2001
+From 09a77afae8ede189033837888062553ff18e7290 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 26 Sep 2022 12:12:04 +0200
-Subject: [PATCH 02/21] config: add ignition translation
+Subject: [PATCH 02/20] config: add ignition translation
 
 it's a merge from flatcar/ign-converter
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- build                            |    2 +-
  config/util/translate.go         |  166 +++
  config/v24tov31/v24tov31.go      |  729 +++++++++++++
  config/v24tov31/v24tov31_test.go | 1692 ++++++++++++++++++++++++++++++
- 4 files changed, 2588 insertions(+), 1 deletion(-)
+ 3 files changed, 2587 insertions(+)
  create mode 100644 config/util/translate.go
  create mode 100644 config/v24tov31/v24tov31.go
  create mode 100644 config/v24tov31/v24tov31_test.go
 
-diff --git a/build b/build
-index 661f0eba..b8f0a049 100755
---- a/build
-+++ b/build
-@@ -5,7 +5,7 @@ set -eu
- export GO111MODULE=on
- 
- NAME="ignition"
--ORG_PATH="github.com/coreos"
-+ORG_PATH="github.com/flatcar"
- REPO_PATH="${ORG_PATH}/${NAME}/v2"
- GLDFLAGS=${GLDFLAGS:-}
- export GOFLAGS=-mod=vendor
 diff --git a/config/util/translate.go b/config/util/translate.go
 new file mode 100644
 index 00000000..347d148c
@@ -2635,5 +2621,5 @@ index 00000000..e81f6bed
 +	}
 +}
 -- 
-2.43.2
+2.44.2
 

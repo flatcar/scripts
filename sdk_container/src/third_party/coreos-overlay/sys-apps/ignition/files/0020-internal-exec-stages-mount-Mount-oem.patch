@@ -1,7 +1,7 @@
-From 35cf5f09178b1ab2dfbc7ab04bd9339c5826c21e Mon Sep 17 00:00:00 2001
+From c62391465f02cbb053e0bb24b8201dc6c89a9cdf Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 16 May 2023 17:43:43 +0200
-Subject: [PATCH 20/21] internal/exec/stages/mount: Mount /oem
+Subject: [PATCH 20/20] internal/exec/stages/mount: Mount /oem
 
 When asking to mount the OEM partition to /usr/share/oem, actually
 mount it in /oem. The /usr/share/oem is a symlink pointing to /oem, so
@@ -12,7 +12,7 @@ into /usr/share/oem, should end up having things in /oem.
  1 file changed, 5 insertions(+)
 
 diff --git a/internal/exec/stages/mount/mount.go b/internal/exec/stages/mount/mount.go
-index ecf7ce7f..395e772a 100644
+index bace4bbd..bc6767d2 100644
 --- a/internal/exec/stages/mount/mount.go
 +++ b/internal/exec/stages/mount/mount.go
 @@ -118,6 +118,11 @@ func (s stage) mountFs(fs types.Filesystem) error {
@@ -28,5 +28,5 @@ index ecf7ce7f..395e772a 100644
  	if err := checkForNonDirectories(path); err != nil {
  		return err
 -- 
-2.43.2
+2.44.2
 

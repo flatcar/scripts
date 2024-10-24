@@ -1,7 +1,7 @@
-From a0b0b93a5794d15ac1dcf9cf504bc3b3bafd03ba Mon Sep 17 00:00:00 2001
+From b736afa1321345564c6ef6675a980b3187a085b1 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Fri, 7 Jun 2024 09:09:18 +0200
-Subject: [PATCH 03/21] mod: add flatcar/ignition@0.36.2
+Date: Thu, 24 Oct 2024 10:19:08 +0200
+Subject: [PATCH 03/20] mod: add flatcar/ignition@0.36.2
 
 it's required for Ignition conversion.
 
@@ -11,7 +11,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 4 insertions(+)
 
 diff --git a/go.mod b/go.mod
-index 42f7800d..5eb792c3 100644
+index a22b3edb..11ea000e 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -11,6 +11,7 @@ require (
@@ -23,7 +23,7 @@ index 42f7800d..5eb792c3 100644
  	github.com/google/uuid v1.6.0
  	github.com/mdlayher/vsock v1.2.1
 @@ -32,7 +33,9 @@ require (
- 	cloud.google.com/go/auth v0.4.1 // indirect
+ 	cloud.google.com/go/auth v0.6.1 // indirect
  	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
  	cloud.google.com/go/iam v1.1.8 // indirect
 +	github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437 // indirect
@@ -37,9 +37,9 @@ index 42f7800d..5eb792c3 100644
  	go.opentelemetry.io/otel/metric v1.24.0 // indirect
  	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 +	go4.org v0.0.0-20160314031811-03efcb870d84 // indirect
- 	golang.org/x/crypto v0.23.0 // indirect
- 	golang.org/x/sync v0.7.0 // indirect
- 	golang.org/x/text v0.15.0 // indirect
+ 	golang.org/x/crypto v0.28.0 // indirect
+ 	golang.org/x/sync v0.8.0 // indirect
+ 	golang.org/x/text v0.19.0 // indirect
 -- 
-2.43.2
+2.44.2
 

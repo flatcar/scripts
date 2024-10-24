@@ -1,7 +1,7 @@
-From 9807190a06785b5db97247fc5c5e4923aff8cd00 Mon Sep 17 00:00:00 2001
+From 6f4ae547913ed6be8801ec17fd91f3ce0769d34e Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 2 Feb 2022 13:27:18 +0100
-Subject: [PATCH 12/21] config/version: handle configuration version 1
+Subject: [PATCH 12/20] config/version: handle configuration version 1
 
 version 2 should be able to translate configuration version 1 but the `GetConfigVersion`
 was not able to detect version 1 configuration since for this particular
@@ -49,5 +49,5 @@ index 3b9bb22f..f81056fa 100644
  		return semver.Version{}, report.Report{}, errors.ErrInvalidVersion
  	}
 -- 
-2.43.2
+2.44.2
 

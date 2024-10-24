@@ -1,7 +1,7 @@
-From 3e06976d9deb99b7979638505541d2166d00f8d9 Mon Sep 17 00:00:00 2001
+From 41e66c950879d3b1cddd2a80a48dbd3bf35413f4 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 20 Feb 2024 10:02:28 +0100
-Subject: [PATCH 08/21] provider/qemu: apply fw_cfg patch
+Subject: [PATCH 08/20] provider/qemu: apply fw_cfg patch
 
 we support both CoreOS and Flatcar fw_cfg path to ensure compatiblity
 
@@ -11,7 +11,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 63 insertions(+), 55 deletions(-)
 
 diff --git a/internal/providers/qemu/qemu_fwcfg.go b/internal/providers/qemu/qemu_fwcfg.go
-index a150869f..e233865a 100644
+index 389ec119..cab9c476 100644
 --- a/internal/providers/qemu/qemu_fwcfg.go
 +++ b/internal/providers/qemu/qemu_fwcfg.go
 @@ -29,6 +29,7 @@ import (
@@ -19,7 +19,7 @@ index a150869f..e233865a 100644
  	"time"
  
 +	iErrors "github.com/flatcar/ignition/v2/config/shared/errors"
- 	"github.com/flatcar/ignition/v2/config/v3_5_experimental/types"
+ 	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  	"github.com/flatcar/ignition/v2/internal/distro"
  	"github.com/flatcar/ignition/v2/internal/platform"
 @@ -38,9 +39,11 @@ import (
@@ -159,5 +159,5 @@ index a150869f..e233865a 100644
 +
  }
 -- 
-2.43.2
+2.44.2
 

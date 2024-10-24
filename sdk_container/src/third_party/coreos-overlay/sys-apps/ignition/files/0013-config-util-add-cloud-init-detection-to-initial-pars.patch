@@ -1,7 +1,7 @@
-From 638828473be2eda1277ec1e1891b951c771de6de Mon Sep 17 00:00:00 2001
+From 94514a6ea6842dc32ab5ec82c63455797a946949 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 22 Feb 2022 15:41:13 +0100
-Subject: [PATCH 13/21] config/util: add cloud init detection to initial
+Subject: [PATCH 13/20] config/util: add cloud init detection to initial
  parsing
 
 we detect if the config is not an ignition one (script/cloudinit) and we
@@ -90,5 +90,5 @@ index 865d75d2..313d42ea 100644
  	if err == nil {
  		return report.Report{}, nil
 -- 
-2.43.2
+2.44.2
 

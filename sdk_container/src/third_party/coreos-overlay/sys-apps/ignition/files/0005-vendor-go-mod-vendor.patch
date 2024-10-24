@@ -1,7 +1,7 @@
-From 61fedb620afb81ec657419e0835439c03cc14c04 Mon Sep 17 00:00:00 2001
+From c051ca72c703700943c79d28b154e460ecb23db1 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Fri, 7 Jun 2024 09:10:35 +0200
-Subject: [PATCH 05/21] vendor: go mod vendor
+Date: Thu, 24 Oct 2024 10:19:43 +0200
+Subject: [PATCH 05/20] vendor: go mod vendor
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
@@ -17029,7 +17029,7 @@ index 00000000..1b1efb0f
 +	return
 +}
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 765c8cb6..d1184cea 100644
+index 0d4a188c..8ffe2ea7 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -36,6 +36,9 @@ cloud.google.com/go/storage
@@ -17039,7 +17039,7 @@ index 765c8cb6..d1184cea 100644
 +# github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437
 +## explicit
 +github.com/ajeddeloh/go-json
- # github.com/aws/aws-sdk-go v1.53.5
+ # github.com/aws/aws-sdk-go v1.55.5
  ## explicit; go 1.19
  github.com/aws/aws-sdk-go/aws
 @@ -103,6 +106,9 @@ github.com/coreos/go-json
@@ -17087,9 +17087,9 @@ index 765c8cb6..d1184cea 100644
 +# go4.org v0.0.0-20160314031811-03efcb870d84
 +## explicit
 +go4.org/errorutil
- # golang.org/x/crypto v0.23.0
- ## explicit; go 1.18
+ # golang.org/x/crypto v0.28.0
+ ## explicit; go 1.20
  golang.org/x/crypto/chacha20
 -- 
-2.43.2
+2.44.2
 

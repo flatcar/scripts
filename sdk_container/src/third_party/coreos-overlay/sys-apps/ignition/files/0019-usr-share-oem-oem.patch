@@ -1,7 +1,7 @@
-From 7a40967779d03da8604ae13890db5b06230b9bc9 Mon Sep 17 00:00:00 2001
+From 44228a0c384748f7488d0fc84b0a2193d5fe1b82 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 4 Apr 2023 12:12:42 +0200
-Subject: [PATCH 19/21] /usr/share/oem -> /oem
+Subject: [PATCH 19/20] /usr/share/oem -> /oem
 
 ---
  config/util/translate.go  | 2 +-
@@ -22,7 +22,7 @@ index 347d148c..d4c057b2 100644
  			// generate a new path
  			fsMap[name] = "/tmp/" + name + "-ign" + strconv.FormatUint(addedSuffixCounter, 10)
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 3886ab56..79fa8712 100644
+index 2726d705..c335eeee 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -32,7 +32,10 @@ var (
@@ -38,5 +38,5 @@ index 3886ab56..79fa8712 100644
  
  	// Helper programs
 -- 
-2.43.2
+2.44.2
 
