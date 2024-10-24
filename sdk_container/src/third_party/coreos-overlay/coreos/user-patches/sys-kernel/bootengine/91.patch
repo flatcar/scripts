@@ -1,0 +1,40 @@
+From 10357a387459fc16a381f70601c44313668076ed Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Fri, 22 Mar 2024 20:23:49 +0900
+Subject: [PATCH] Draft for Proxmox support
+
+This makes use of https://github.com/coreos/afterburn/pull/1023
+to set up any static networking from the initrd (for Ignition) and the
+hostname (early enough so that Ignition could overwrite it).
+---
+ dracut/30ignition/flatcar-metadata-hostname.service | 2 ++
+ dracut/30ignition/ignition-generator                | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/dracut/30ignition/flatcar-metadata-hostname.service b/dracut/30ignition/flatcar-metadata-hostname.service
+index fc75732..323c62e 100644
+--- a/dracut/30ignition/flatcar-metadata-hostname.service
++++ b/dracut/30ignition/flatcar-metadata-hostname.service
+@@ -33,8 +33,10 @@ ConditionKernelCommandLine=|flatcar.oem.id=vultr
+ # Addition:
+ ConditionKernelCommandLine=|coreos.oem.id=packet
+ ConditionKernelCommandLine=|flatcar.oem.id=packet
++
+ ConditionKernelCommandLine=|flatcar.oem.id=hetzner
+ ConditionKernelCommandLine=|flatcar.oem.id=kubevirt
++ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
+ 
+ OnFailure=emergency.target
+ OnFailureJobMode=isolate
+diff --git a/dracut/30ignition/ignition-generator b/dracut/30ignition/ignition-generator
+index 59bdf80..c015ff5 100755
+--- a/dracut/30ignition/ignition-generator
++++ b/dracut/30ignition/ignition-generator
+@@ -146,6 +146,6 @@ if [ "${nopxe}" = 1 ]; then
+     add_requires "disk-uuid.service" initrd.target
+ fi
+ 
+-if [[ $(cmdline_arg flatcar.oem.id) == "digitalocean" ]] || [[ $(cmdline_arg coreos.oem.id) == "digitalocean" ]]; then
++if [[ $(cmdline_arg flatcar.oem.id) == "digitalocean" ]] || [[ $(cmdline_arg coreos.oem.id) == "digitalocean" ]] || [[ $(cmdline_arg flatcar.oem.id) == "proxmoxve" ]]; then
+     add_requires flatcar-digitalocean-network.service initrd.target
+ fi
