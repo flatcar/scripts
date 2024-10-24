@@ -874,8 +874,6 @@ _write_qemu_uefi_secure_conf() {
     virt-fw-vars \
         --input "${flash_in}" \
         --output "$(_dst_dir)/${flash_rw}" \
-        --set-pk  "${owner}" /usr/share/sb_keys/PK.crt \
-        --add-kek "${owner}" /usr/share/sb_keys/KEK.crt \
         --add-db  "${owner}" /usr/share/sb_keys/DB.crt
 
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
