@@ -19,6 +19,7 @@ VALID_IMG_TYPES=(
     hetzner
     hyperv
     hyperv_vhdx
+    ionoscloud
     iso
     kubevirt
     openstack
@@ -54,6 +55,7 @@ VALID_OEM_PACKAGES=(
     gce
     hetzner
     hyperv
+    ionoscloud
     kubevirt
     openstack
     packet
@@ -331,6 +333,14 @@ IMG_kubevirt_DISK_EXTENSION=qcow2
 IMG_akamai_OEM_PACKAGE=common-oem-files
 IMG_akamai_OEM_USE=akamai
 IMG_akamai_OEM_SYSEXT=oem-akamai
+
+## ionoscloud
+IMG_ionoscloud_OEM_USE=ionoscloud
+IMG_ionoscloud_OEM_PACKAGE=common-oem-files
+IMG_ionoscloud_OEM_SYSEXT=oem-ionoscloud
+IMG_ionoscloud_DISK_LAYOUT=vm
+IMG_ionoscloud_DISK_FORMAT=qcow2
+IMG_ionoscloud_DISK_EXTENSION=qcow2
 
 ###########################################################
 
