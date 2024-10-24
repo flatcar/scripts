@@ -7,6 +7,7 @@ DESCRIPTION="Signed UEFI Shim loader"
 HOMEPAGE="https://github.com/rhboot/shim"
 SRC_URI="amd64? ( https://mirror.release.flatcar-linux.net/coreos/shimx64-${PV}.efi.signed )"
 KEYWORDS="amd64 arm64"
+S="${WORKDIR}"
 
 LICENSE="BSD"
 SLOT="0"
