@@ -23,6 +23,11 @@ functionality, and the other is for extracting the verity root hash from the
 initrd. Gentoo's upstream ebuild is used, but Gentoo's patches are discarded
 because they conflict and are not relevant to Flatcar.
 
+Finally, another patch is applied to fix the fallback mechanism, which was
+accidentally broken by Red Hat's patches. This has been submitted to Red Hat in
+[rhboot/grub2#195](https://github.com/rhboot/grub2/pull/195). It will hopefully
+be merged soon.
+
 ## How to import the Red Hat patches
 
 Red Hat maintains a fork of GRUB on GitHub with branches for each Fedora release. Generate a diff between the latest upstream release and the latest Fedora branch.
