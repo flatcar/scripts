@@ -19,10 +19,10 @@ else
 	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
-RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
@@ -51,7 +51,7 @@ IUSE="big-endian clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind lto mir
 
 # How to use it:
 # List all the working slots in LLVM_VALID_SLOTS, newest first.
-LLVM_VALID_SLOTS=( 18 )
+LLVM_VALID_SLOTS=( 19 )
 LLVM_MAX_SLOT="${LLVM_VALID_SLOTS[0]}"
 
 # splitting usedeps needed to avoid CI/pkgcheck's UncheckableDep limitation
@@ -169,9 +169,6 @@ PATCHES=(
 	#"${FILESDIR}"/1.72.0-bump-libc-deps-to-0.2.146.patch  # pending refresh
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
 	"${FILESDIR}"/1.79.0-revert-8c40426.patch
-	"${FILESDIR}/1.81.0-backport-bug937164.patch"
-	"${FILESDIR}/1.81.0-backport-llvm-pr101761.patch"
-	"${FILESDIR}/1.81.0-backport-llvm-pr101766.patch"
 )
 
 clear_vendor_checksums() {
@@ -670,6 +667,8 @@ src_test() {
 
 src_install() {
 	DESTDIR="${D}" "${EPYTHON}" ./x.py install -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
+
+	docompress /usr/lib/${PN}/${PV}/share/man/
 
 	# bug #689562, #689160
 	rm -v "${ED}/usr/lib/${PN}/${PV}/etc/bash_completion.d/cargo" || die
