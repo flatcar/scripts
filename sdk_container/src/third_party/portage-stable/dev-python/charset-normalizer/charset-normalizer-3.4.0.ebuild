@@ -5,7 +5,6 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYPI_NO_NORMALIZE=1
 PYTHON_COMPAT=( python3_{10..13} pypy3 )
 
 inherit distutils-r1 pypi
@@ -13,7 +12,7 @@ inherit distutils-r1 pypi
 DESCRIPTION="The Real First Universal Charset Detector"
 HOMEPAGE="
 	https://pypi.org/project/charset-normalizer/
-	https://github.com/Ousret/charset_normalizer/
+	https://github.com/jawah/charset_normalizer/
 "
 
 LICENSE="MIT"
