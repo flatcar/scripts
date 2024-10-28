@@ -14,7 +14,7 @@ QEMU_DOCS_VERSION=$(ver_cut 1-3)
 QEMU_DOC_USEFLAG="+doc"
 
 PYTHON_COMPAT=( python3_{10..13} )
-PYTHON_REQ_USE="ncurses,readline"
+PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 FIRMWARE_ABI_VERSION="7.2.0"
 
@@ -246,15 +246,15 @@ SEABIOS_VERSION="1.16.3"
 
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
-		~sys-firmware/edk2-ovmf-bin-${EDK2_OVMF_VERSION}
+		~sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}
 		~sys-firmware/ipxe-1.21.1[binary,qemu]
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
 	!pin-upstream-blobs? (
 		|| (
-			>=sys-firmware/edk2-ovmf-${EDK2_OVMF_VERSION}
-			>=sys-firmware/edk2-ovmf-bin-${EDK2_OVMF_VERSION}
+			>=sys-firmware/edk2-${EDK2_OVMF_VERSION}
+			>=sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}
 		)
 		sys-firmware/ipxe[qemu]
 		|| (
@@ -282,7 +282,6 @@ BDEPEND="
 	dev-lang/perl
 	>=dev-build/meson-0.63.0
 	app-alternatives/ninja
-	dev-python/pip[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
 		>=dev-python/sphinx-1.6.0[${PYTHON_USEDEP}]
@@ -957,10 +956,10 @@ pkg_postinst() {
 	if use pin-upstream-blobs && firmware_abi_change; then
 		ewarn "This version of qemu pins new versions of firmware blobs:"
 
-		if has_version 'sys-firmware/edk2-ovmf-bin'; then
-			ewarn "	$(best_version sys-firmware/edk2-ovmf-bin)"
+		if has_version 'sys-firmware/edk2-bin'; then
+			ewarn "	$(best_version sys-firmware/edk2-bin)"
 		else
-			ewarn " $(best_version sys-firmware/edk2-ovmf)"
+			ewarn " $(best_version sys-firmware/edk2)"
 		fi
 
 		if has_version 'sys-firmware/seabios-bin'; then
@@ -984,10 +983,10 @@ pkg_info() {
 	echo "Using:"
 	echo "  $(best_version app-emulation/spice-protocol)"
 
-	if has_version 'sys-firmware/edk2-ovmf-bin'; then
-		echo "  $(best_version sys-firmware/edk2-ovmf-bin)"
+	if has_version 'sys-firmware/edk2-bin'; then
+		echo "  $(best_version sys-firmware/edk2-bin)"
 	else
-		echo "  $(best_version sys-firmware/edk2-ovmf)"
+		echo "  $(best_version sys-firmware/edk2)"
 	fi
 
 	if has_version 'sys-firmware/seabios-bin'; then
