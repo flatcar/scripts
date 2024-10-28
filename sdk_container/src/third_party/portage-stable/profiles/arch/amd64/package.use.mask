@@ -17,6 +17,18 @@
 
 #--- END OF EXAMPLES ---
 
+# Viorel Munteanu <ceamac@gentoo.org> (2024-10-23)
+# Dependency dev-python/asyncssh is keyworded here.
+net-misc/dropbear -test
+
+# Michał Górny <mgorny@gentoo.org> (2024-10-23)
+# Debug-enabled binary packages are built for a subset of architectures.
+sys-kernel/gentoo-kernel-bin -debug
+
+# Michal Privoznik <michal.privoznik@gmail.com> (2024-10-10)
+# virtualbox is available here
+app-emulation/libvirt -virtualbox
+
 # Patrick McLean <chutzpah@gentoo.org> (2024-09-23)
 # Only supported on x86/amd64 (bug #940014).
 net-misc/lldpd -seccomp
@@ -228,7 +240,6 @@ dev-util/diffoscope -haskell
 
 # Ionen Wolkens <ionen@gentoo.org> (2021-07-01)
 # gui-libs/egl-wayland with nvidia-drivers is supported on this arch.
-x11-base/xwayland -video_cards_nvidia
 x11-wm/mutter -video_cards_nvidia
 
 # Michael Orlitzky <mjo@gentoo.org> (2021-03-27)

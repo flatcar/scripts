@@ -33,12 +33,164 @@
 
 #--- END OF EXAMPLES ---
 
+# Hans de Graaff <graaff@gentoo.org> (2024-10-27)
+
+# Obsolete slots without reverse dependencies. dev-util/cucumber will
+# use other slots when installed. Removal on 2024-11-27.
+dev-util/cucumber-gherkin:26
+dev-util/cucumber-messages:17
+dev-util/cucumber-messages:20
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-10-23)
+# Doesn't support latest Rust/Cargo ebuild format and standard. Confuses
+# developers who tries to use it, and then see pkgcheck warnings on the
+# result.
+# Superior replacement is app-portage/pycargoebuild, which is maintained,
+# and supports more features.
+# Removal on 2024-11-22.  Bugs #942026, #934381, #724162, #930011.
+dev-util/cargo-ebuild
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2024-10-20)
+# Maintainer-needed, no reverse dependencies, EAPI=7, many modern C
+# bugs. Many other IRC clients can be replacement. Awaits version
+# bump.
+# Removal on 2024-11-19.  Bugs #941899, #900078, #934184, #874669, #834035, #745762.
+net-irc/epic5
+
+# Viorel Munteanu <ceamac@gentoo.org> (2024-10-18)
+# Experimental version, for testing purposes only.
+# Bug #941566.
+app-emulation/virtualbox-kvm
+
+# Michał Górny <mgorny@gentoo.org> (2024-10-18)
+# Low-quality, test-restricted package with multiple unresolved bugs
+# and version bump pending.  Removal requested by the maintainer.
+# Removal on 2024-11-17.  Bug #941436.
+net-misc/electron-cash
+
+# Michał Górny <mgorny@gentoo.org> (2024-10-18)
+# Causing issues since forever.  We are already deselecting a lot
+# of tests because of cryptic failures.  On top of that, upstream shows
+# no interest in porting to >=dev-python/pytest-8.  No (non-optional)
+# revdeps left.
+# Removal on 2024-11-17.  Bug #937896.
+dev-python/sentry-sdk
+
+# Ulrich Müller <ulm@gentoo.org> (2024-10-15)
+# No longer provided as a separate package; the Emacs mode is now
+# installed by dev-util/quilt with USE=emacs.
+# Removal on 2024-11-14. Bug #247500.
+app-emacs/quilt-el
+
+# Alfredo Tupone <tupone@gentoo.org> (2024-10-14)
+# These packages are no more needed.
+# Use dev-ml/opam, dev-ml/opam-file-format,
+# dev-ml/opam-installer
+# that include these
+# remove on 2024-11-14.
+dev-ml/opam-client
+dev-ml/opam-repository
+dev-ml/opam-state
+dev-ml/opam-format
+dev-ml/opam-core
+dev-ml/opam-solver
+
+# Hans de Graaff <graaff@gentoo.org> (2024-10-13)
+# Obsolete slots without reverse dependencies. Use a newer slot
+# instead. Removal on 2024-11-13.
+dev-ruby/io-event:1.2
+dev-ruby/io-event:1.3
+
+# Holger Hoffstätte <holger@applied-asynchrony.com> (2024-10-11)
+# Vendors an unreleased libbpf version and generates ABI-breaking code.
+# Bug #941185.
+=dev-util/bpftool-7.5.0-r2
+
+# Michał Górny <mgorny@gentoo.org> (2024-10-10)
+# Gentoo package not updated for 4 years now.  No tests upstream.
+# No revdeps.
+# Removal on 2024-11-09.  Bug #941245.
+dev-python/beagle
+
+# Yongxiang Liang <tanekliang@gmail.org> (2024-10-10)
+# Fcitx 4 has been archived. Users can upgrade to Fcitx 5
+app-i18n/fcitx-anthy:4
+app-i18n/fcitx-chewing:4
+app-i18n/fcitx-cloudpinyin:4
+app-i18n/fcitx-configtool:4
+app-i18n/fcitx-hangul:4
+app-i18n/fcitx-libpinyin:4
+app-i18n/fcitx-m17n:4
+app-i18n/fcitx-qt5:4
+app-i18n/fcitx-rime:4
+app-i18n/fcitx-sayura:4
+app-i18n/fcitx-table-extra:4
+app-i18n/fcitx-unikey:4
+app-i18n/fcitx:4
+app-i18n/kcm-fcitx
+
+# Michael Orlitzky <mjo@gentoo.org> (2024-10-09)
+# This is the new stable series of webkit-gtk, but it has a new
+# less-portable rendering engine, and doesn't yet build on ~riscv for
+# reasons unrelated to that. It's easier to play around with it in
+# the tree, but it's not ready for end users yet.
+>=net-libs/webkit-gtk-2.46.0
+
+# Ionen Wolkens <ionen@gentoo.org> (2024-10-08)
+# Masked for testing and (mostly) to avoid upgrade noise given
+# PyQt6-6.7.x is known broken with it and depends on <6.8. Feel
+# free to unmask early if not using PyQt6.
+=dev-python/pyside6-6.8.0*
+=dev-python/pyside6-tools-6.8.0*
+=dev-python/shiboken6-6.8.0*
+=dev-qt/qt-docs-6.8.0*
+=dev-qt/qt3d-6.8.0*
+=dev-qt/qt5compat-6.8.0*
+=dev-qt/qtbase-6.8.0*
+=dev-qt/qtcharts-6.8.0*
+=dev-qt/qtconnectivity-6.8.0*
+=dev-qt/qtdeclarative-6.8.0*
+=dev-qt/qthttpserver-6.8.0*
+=dev-qt/qtimageformats-6.8.0*
+=dev-qt/qtlanguageserver-6.8.0*
+=dev-qt/qtlocation-6.8.0*
+=dev-qt/qtmultimedia-6.8.0*
+=dev-qt/qtnetworkauth-6.8.0*
+=dev-qt/qtpositioning-6.8.0*
+=dev-qt/qtquick3d-6.8.0*
+=dev-qt/qtquicktimeline-6.8.0*
+=dev-qt/qtremoteobjects-6.8.0*
+=dev-qt/qtscxml-6.8.0*
+=dev-qt/qtsensors-6.8.0*
+=dev-qt/qtserialbus-6.8.0*
+=dev-qt/qtserialport-6.8.0*
+=dev-qt/qtshadertools-6.8.0*
+=dev-qt/qtspeech-6.8.0*
+=dev-qt/qtsvg-6.8.0*
+=dev-qt/qttools-6.8.0*
+=dev-qt/qttranslations-6.8.0*
+=dev-qt/qtvirtualkeyboard-6.8.0*
+=dev-qt/qtwayland-6.8.0*
+=dev-qt/qtwebchannel-6.8.0*
+=dev-qt/qtwebengine-6.8.0*
+=dev-qt/qtwebsockets-6.8.0*
+=dev-qt/qtwebview-6.8.0*
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-10-07)
+# No more revdeps, merged into kde-frameworks/kpeople upstream.
+# Removal on 2024-11-06.
+dev-libs/kpeoplevcard
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-10-07)
+# Unmaintained and archived upstream, removal on 2024-11-06.
+net-im/choqok
+
 # Hans de Graaff <graaff@gentoo.org> (2024-10-06)
 # Obsolete slot without reverse dependencies. Use the newer slot
 # instead. Removal on 2024-11-08.
 dev-ruby/base64:0.1
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org>
+# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-10-05)
 # This version is known to break on certain systems. At the
 # same time it fixes several reported issues. Masked until
 # we can work out how to resolve the situation.
@@ -81,97 +233,24 @@ x11-plugins/lurch
 # Removal on 2024-10-29.  Bug #910612.
 dev-python/brython
 
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-09-28)
-# Nothing depends on it. Removal on 2024-10-28.
-dev-java/ant-core
-
-# Eli Schwartz <eschwartz@gentoo.org> (2024-09-22)
-# Unmaintained, abandoned upstream, does not compile with GCC 14.
-# Removal on 2024-10-22.  Bug #874732.
-dev-util/biew
-
 # Robin H. Johnson <robbat2@gentoo.org> (2024-09-22)
 # Upstream testing release; fails some tests as well here
 # Beware that if you upgrade to it, you may need to reset your keyrings.
 >=app-crypt/gnupg-2.5
 
-# Michał Górny <mgorny@gentoo.org> (2024-09-21)
-# Discontinued upstream.  Since 7.3.17, only 2.7 and 3.10 are released.
-# Vulnerable.
-# Removal on 2024-10-21.  Bug #939951.
-dev-python/pypy3_9
-dev-python/pypy3_9-exe
-dev-python/pypy3_9-exe-bin
-
-# Michał Górny <mgorny@gentoo.org> (2024-09-21)
-# Unmaintained.  Broken with >=dev-python/pytest-8.
-# Replaced by dev-python/pytest-lazy-fixtures.  No revdeps left.
-# Removal on 2024-10-21.  Bug #939420.
-dev-python/pytest-lazy-fixture
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-20)
-# No more revdeps after app-accessibility/kontrast:5 cleanup.
-# Removal on 2024-10-20.
-dev-db/futuresql5
-
 # Eli Schwartz <eschwartz@gentoo.org> (2024-09-19)
 # Breaks parallel builds with fatal compiler errors.
 # Bug #939798, #939875.
-=dev-python/ensurepip-setuptools-75.1.0
-=dev-python/setuptools-75.1.0
-
-# Hans de Graaff <graaff@gentoo.org> (2024-09-14)
-# Obsolete slots that were used for older cucumber version but that no
-# longer have reverse dependencies. Removal on 2024-10-14.
-dev-util/cucumber-compatibility-kit:10
-dev-util/cucumber-core:12
-dev-util/cucumber-gherkin:22
-
-# Hans de Graaff <graaff@gentoo.org> (2024-09-14)
-# Old slots that are not compatible with ruby32. Use the newer slots
-# instead. Removal on 2024-10-14.
-dev-ruby/hiera-eyaml:3
-dev-util/aruba:0
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2024-09-10)
-# ia64 only package. Since we drop ia64, we can remove this package.
-# Removal on 2024-10-10.  Bug #939298.
-sys-apps/salinfo
+>=dev-python/ensurepip-setuptools-75.1.0
+>=dev-python/setuptools-75.1.0
 
 # Ulrich Müller <ulm@gentoo.org> (2024-09-12)
 # Pretest versions, masked for testing.
 <app-editors/emacs-30.0.9999:30-vcs
 
-# Eli Schwartz <eschwartz@gentoo.org> (2024-09-09)
-# Upstream has dropped this package since MATE 1.28.
-# Removal on 2024-10-09.  Bug #932568.
-mate-extra/mate-netbook
-
-# Eli Schwartz <eschwartz@gentoo.org> (2024-09-09)
-# Fails to build with modern C. Unmaintained for 20 years.
-# Removal on 2024-10-09.  Bug #877105, #927389.
-sci-chemistry/mopac7
-
 # Sam James <sam@gentoo.org> (2024-09-10)
 # Breaks libstdc++ with a casing issue: https://gcc.gnu.org/PR116657
 =sys-libs/timezone-data-2024b
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-09)
-# No revdeps for years, KF5-based. Removal on 2024-10-09.
-net-libs/libmediawiki
-
-# Alfredo Tupone <tupone@gentoo.org> (2024-06-09)
-# These packages are no more needed. Use dev-ml/dune-private-libs
-# that include these
-# remove on 2024-10-08. Bug #939339
-dev-ml/stdune
-dev-ml/ordering
-dev-ml/dyn
-
-# Michał Górny <mgorny@gentoo.org> (2024-09-08)
-# Does not build anymore.  No upstream activity since 2021.
-# Removal on 2024-10-08.  Bug #932532.
-sci-physics/qmeq
 
 # Fabian Groffen <grobian@gentoo.org> (2024-09-02)
 # exim_tinydb utility crashes due to invalid free() (used in startup script)
@@ -180,17 +259,7 @@ sci-physics/qmeq
 # Florian Schmaus <flow@gentoo.org> (2024-08-23)
 # Has a serious bug that causes synced directories to end up world read-
 # and writeable. See https://github.com/nextcloud/desktop/issues/6863
->=net-misc/nextcloud-client-3.13.1
-
-# Ionen Wolkens <ionen@gentoo.org> (2024-08-11)
-# >=1.1.14 enables usage of explicit sync (with >=nvidia-drivers-560
-# and compositors that supports like kwin-6), which currently seems
-# to be causing too many problems ranging from application crashes
-# and potential VRAM leaking (even with the fixes in 1.1.15) and may
-# be better left masked for the time being. It can hwoever solve
-# flicking/stutter issues on some setups so users may want to unmask
-# if heavily affected (bug #937773).
->=gui-libs/egl-wayland-1.1.14
+=net-misc/nextcloud-client-3.13.2
 
 # Pacho Ramos <pacho@gentoo.org> (2024-08-09)
 # Mask until we find out a way to deal better with the upstream
@@ -204,19 +273,6 @@ sci-physics/qmeq
 >=dev-libs/gobject-introspection-1.80
 >=dev-libs/gobject-introspection-common-1.80
 >=x11-terms/ptyxis-46
-
-# Eli Schwartz <eschwartz@gentoo.org> (2024-07-29)
-# Bad version can result in failing builds. Please upgrade to 72.1.0.
-=dev-python/ensurepip-setuptools-72.0.0
-=dev-python/setuptools-72.0.0
-
-# Alfred Wingate <parona@protonmail.com> (2024-07-24)
-# Includes change that breaks firewalld notably.
-#
-# https://git.netfilter.org/nftables/commit/?id=93560d0117639c8685fc287128ab06dec9950fbd
-# https://github.com/firewalld/firewalld/issues/1366
-# https://lore.kernel.org/netfilter-devel/Zp7FqL_YK3p_dQ8B@egarver-mac/
-=net-firewall/nftables-1.1.0
 
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2024-07-07)
 # New major ffmpeg version. Tracker bug #928905.
@@ -232,21 +288,8 @@ sci-physics/qmeq
 =dev-libs/libxslt-1.1.41
 
 # Sam James <sam@gentoo.org> (2024-06-25)
-# Subvolume printing is broken: https://github.com/kdave/btrfs-progs/issues/829
-=sys-fs/btrfs-progs-6.9.1
-
-# Sam James <sam@gentoo.org> (2024-06-25)
 # The symbol versioning "fix" breaks anything built with 3.0.0.
 =dev-libs/libassuan-3.0.1
-
-# Cédric Krier <cedk@gentoo.org> (2023-06-15)
-# critical regression with potential data loss:
-# https://lists.mercurial-scm.org/pipermail/mercurial-devel/2024-June/297954.html
-# Bug #934138
-~dev-vcs/mercurial-6.7
-~dev-vcs/mercurial-6.7.1
-~dev-vcs/mercurial-6.7.2
-~dev-vcs/mercurial-6.7.3
 
 # Alfredo Tupone <tupone@gentoo.org> (2024-06-09)
 # Not ready for testing
@@ -327,6 +370,8 @@ dev-ml/async:0/0.17
 dev-ml/patience_diff:0/0.17
 >=dev-ml/ppx_deriving-6.0.2
 dev-ml/ppx_js_style:0/0.17
+>=dev-ml/camlp4-5
+dev-ml/textutils_kernel:0/0.17
 
 # Michał Górny <mgorny@gentoo.org> (2024-06-08)
 # Prereleases of Xfce 4.20.  Masking upon popular request, due to
@@ -350,16 +395,6 @@ dev-ml/ppx_js_style:0/0.17
 # Sam James <sam@gentoo.org> (2024-04-28)
 # Masked for testing. Tracker bug: bug #930805.
 >=sys-libs/ncurses-6.5
-
-# Michał Górny <mgorny@gentoo.org> (2024-04-11)
-# Contains a bug that could render the kernel fail to boot.
-# https://lore.kernel.org/oe-lkp/202403221630.2692c998-oliver.sang@intel.com/
-# The fix is:
-# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e7d24c0aa8e678f41457d1304e2091cac6fd1a2e
-=sys-kernel/gentoo-kernel-6.6.26
-=sys-kernel/gentoo-kernel-bin-6.6.26
-=sys-kernel/vanilla-kernel-6.6.26
-=sys-kernel/vanilla-kernel-6.8.5
 
 # Sam James <sam@gentoo.org> (2024-03-28)
 # Newer 5.4.x releases were signed by a potentially compromised upstream maintainer.

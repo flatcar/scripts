@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Felix Janda <felix.janda@posteo.de> (2024-10-20)
+# requires dev-libs/libcss and net-libs/libdom to be keyworded
+www-client/elinks libcss
+
 # David Roman <davidroman96@gmail.com> (2024-10-04)
 # dev-libs/libunibreak is not keyworded
 media-libs/libass libunibreak
@@ -290,7 +294,7 @@ mail-filter/pyzor mysql
 
 # Matt Turner <mattst88@gentoo.org> (2020-08-11)
 # No drivers on this architecture support Vulkan
-media-libs/mesa video_cards_zink vulkan vulkan-overlay zink
+media-libs/mesa video_cards_zink vulkan vulkan-overlay
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-07-18)
 # net-libs/webkit-gtk has no alpha keywords
@@ -560,10 +564,6 @@ media-libs/gst-plugins-base ivorbis
 # Alexandre Rostovtsev <tetromino@gentoo.org> (2013-01-22)
 # remove mask if/when media-gfx/argyllcms is keywored here.
 x11-misc/colord argyllcms extra-print-profiles
-
-# Raúl Porcel <armin76@gentoo.org> (2012-12-30)
-# Needs testing
-media-libs/phonon vlc
 
 # Raúl Porcel <armin76@gentoo.org> (2012-05-28)
 # Needs x11-misc/lightdm(which also requires some other deps)
