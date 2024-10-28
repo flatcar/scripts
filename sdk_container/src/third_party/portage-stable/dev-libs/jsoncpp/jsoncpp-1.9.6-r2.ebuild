@@ -49,3 +49,9 @@ multilib_src_test() {
 	# increase test timeout due to failures on slower hardware
 	meson_src_test -t 2
 }
+
+multilib_src_install() {
+	meson_install
+	# https://bugs.gentoo.org/941642
+	rm -r "${ED}/usr/$(get_libdir)/cmake" || die
+}
