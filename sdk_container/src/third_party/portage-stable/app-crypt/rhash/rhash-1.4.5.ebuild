@@ -8,6 +8,7 @@ inherit flag-o-matic toolchain-funcs multilib-minimal
 DESCRIPTION="Console utility and library for computing and verifying file hash sums"
 HOMEPAGE="https://rhash.sourceforge.net/"
 SRC_URI="https://downloads.sourceforge.net/${PN}/${P}-src.tar.gz"
+S="${WORKDIR}/RHash-${PV}"
 
 LICENSE="0BSD"
 SLOT="0/1"
@@ -26,12 +27,6 @@ DEPEND="
 BDEPEND="
 	nls? ( sys-devel/gettext )
 "
-
-S="${WORKDIR}/RHash-${PV}"
-
-PATCHES=(
-	"${FILESDIR}"/${P}-prefix.patch
-)
 
 src_prepare() {
 	default
@@ -54,12 +49,7 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	# ideally we want !tc-ld-is-bfd for best future-proofing, but it needs
-	# https://github.com/gentoo/gentoo/pull/28355
-	# mold needs this too but right now tc-ld-is-mold is also not available
-	if tc-ld-is-lld; then
-		append-ldflags -Wl,--undefined-version
-	fi
+	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
 	set -- \
 		./configure \
