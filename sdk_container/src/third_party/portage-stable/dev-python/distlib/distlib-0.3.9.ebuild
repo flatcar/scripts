@@ -33,9 +33,7 @@ BDEPEND="
 src_prepare() {
 	local PATCHES=(
 		# use system pypiserver instead of bundled one
-		"${FILESDIR}"/distlib-0.3.2-system-pypiserver.py
-		# https://github.com/pypa/distlib/commit/1c08845b05d022692252ed45cb07e9cb9647caac
-		"${FILESDIR}"/${P}-py313.patch
+		"${FILESDIR}"/distlib-0.3.9-system-pypiserver.py
 	)
 
 	# make sure it's not used
