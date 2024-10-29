@@ -1,0 +1,3 @@
+- containers-common ([CVE-2024-9341](https://nvd.nist.gov/vuln/detail/CVE-2024-9341))
+- containers-image ([CVE-2024-3727](https://nvd.nist.gov/vuln/detail/CVE-2024-3727))
+- podman ([CVE-2024-9407](https://nvd.nist.gov/vuln/detail/CVE-2024-9407))
