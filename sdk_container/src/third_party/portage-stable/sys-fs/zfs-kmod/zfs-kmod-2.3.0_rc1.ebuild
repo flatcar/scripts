@@ -30,8 +30,8 @@ else
 	ZFS_KERNEL_DEP="${ZFS_KERNEL_COMPAT_OVERRIDE:-${ZFS_KERNEL_COMPAT}}"
 	ZFS_KERNEL_DEP="${ZFS_KERNEL_DEP%%.*}.$(( ${ZFS_KERNEL_DEP##*.} + 1))"
 
-	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc"
+	if [[ ${PV} != *_rx* ]] ; then
+		KEYWORDS="amd64 arm64 ~loong ~ppc64 ~riscv ~sparc"
 	fi
 fi
 
