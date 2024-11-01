@@ -20,6 +20,7 @@ BUILD_DIR="${FLAGS_output_root}/${BOARD}/${IMAGE_SUBDIR}"
 OUTSIDE_OUTPUT_DIR="../build/images/${BOARD}/${IMAGE_SUBDIR}"
 
 source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
+source "${BUILD_LIBRARY_DIR}/sbsign_util.sh" || exit 1
 
 set_build_symlinks() {
     local build=$(basename ${BUILD_DIR})
@@ -826,13 +827,8 @@ EOF
   fi
 
   # Sign the kernel after /usr is in a consistent state and verity is calculated
-  if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-      sudo sbsign --key /usr/share/sb_keys/shim.key \
-	   --cert /usr/share/sb_keys/shim.pem \
-	   "${root_fs_dir}/boot/flatcar/vmlinuz-a"
-      sudo mv "${root_fs_dir}/boot/flatcar/vmlinuz-a.signed" \
-	   "${root_fs_dir}/boot/flatcar/vmlinuz-a"
-  fi
+  do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
+  cleanup_sbsign_certs
 
   if [[ -n "${image_kernel}" ]]; then
     # copying kernel from vfat so ignore the permissions
