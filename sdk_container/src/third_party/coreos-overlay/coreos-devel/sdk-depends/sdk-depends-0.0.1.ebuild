@@ -17,6 +17,8 @@ DEPEND="
 	app-admin/sudo
 	app-admin/updateservicectl
 	app-arch/pbzip2
+	app-crypt/azure-keyvault-pkcs11
+	app-crypt/p11-kit
 	app-crypt/sbsigntools
 	app-emulation/open-vmdk
 	app-emulation/virt-firmware
