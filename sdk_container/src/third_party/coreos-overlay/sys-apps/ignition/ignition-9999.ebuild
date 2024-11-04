@@ -10,7 +10,7 @@ inherit coreos-go git-r3 systemd udev
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="488d302a0863ede5b723aea4ddd558f96e318569" # v2.20.0
+	EGIT_COMMIT="a204f429f13194ae379be9401d49e5241439660b" # v2.20.0
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -60,6 +60,7 @@ PATCHES=(
 	"${FILESDIR}/0018-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
 	"${FILESDIR}/0019-usr-share-oem-oem.patch"
 	"${FILESDIR}/0020-internal-exec-stages-mount-Mount-oem.patch"
+	"${FILESDIR}/0021-support-ionoscloud.patch"
 )
 
 src_compile() {
