@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/coreos-cloudinit.git"
+EGIT_REPO_URI="https://github.com/tuunit/flatcar-cloudinit.git"
 COREOS_GO_PACKAGE="github.com/flatcar/coreos-cloudinit"
 COREOS_GO_GO111MODULE="on"
 inherit git-r3 systemd toolchain-funcs udev coreos-go
@@ -10,7 +10,7 @@ inherit git-r3 systemd toolchain-funcs udev coreos-go
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="f3aaab923de5075524780716635f25564b5e6934" # flatcar-master
+	EGIT_COMMIT="57fac09cb2f4c13b89f6baec46569a3e66a3b29b" # feat/ionoscloud-support
 	KEYWORDS="amd64 arm64"
 fi
 

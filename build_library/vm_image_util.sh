@@ -41,6 +41,7 @@ VALID_IMG_TYPES=(
     vmware_ova
     vmware_raw
     xen
+    ionoscloud
 )
 
 #list of oem package names, minus the oem- prefix
@@ -66,6 +67,7 @@ VALID_OEM_PACKAGES=(
     vagrant-virtualbox
     virtualbox
     vmware
+    ionoscloud
 )
 
 # Set at runtime to one of the above types
@@ -331,6 +333,15 @@ IMG_kubevirt_DISK_EXTENSION=qcow2
 IMG_akamai_OEM_PACKAGE=common-oem-files
 IMG_akamai_OEM_USE=akamai
 IMG_akamai_OEM_SYSEXT=oem-akamai
+
+## ionoscloud
+IMG_ionoscloud_OEM_USE=ionoscloud
+IMG_ionoscloud_OEM_SYSEXT=oem-ionoscloud
+IMG_ionoscloud_OEM_PACKAGE=common-oem-files
+IMG_ionoscloud_DISK_LAYOUT=vm
+IMG_ionoscloud_DISK_FORMAT=qcow2
+IMG_ionoscloud_DISK_EXTENSION=qcow2
+IMG_ionoscloud_FS_HOOK=ionoscloud
 
 ###########################################################
 
@@ -608,6 +619,16 @@ _run_box_fs_hook() {
     mkdir -p "${VM_TMP_DIR}/box"
     cp -R "${VM_TMP_ROOT}/oem/box/." "${VM_TMP_DIR}/box"
     sudo rm -fr "${VM_TMP_ROOT}/oem/box"
+}
+
+_run_ionoscloud_fs_hook() {
+    # Prepare root partition for IONOS Cloud legacy injection
+    # This is a workaround until the IONOS Cloud introduces a metadata server
+    sudo mount -o remount,rw "${VM_TMP_ROOT}"
+    sudo mkdir -p "${VM_TMP_ROOT}/var/lib/cloud/seed/nocloud"
+    sudo mkdir -p "${VM_TMP_ROOT}/etc/cloud"
+    sudo touch "${VM_TMP_ROOT}/etc/cloud/cloud.cfg"
+    sudo mount -o remount,ro "${VM_TMP_ROOT}"
 }
 
 # Write the vm disk image to the target directory in the proper format
