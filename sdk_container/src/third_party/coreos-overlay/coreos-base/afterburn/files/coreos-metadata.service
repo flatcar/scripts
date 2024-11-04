@@ -27,6 +27,8 @@ ConditionKernelCommandLine=|flatcar.oem.id=akamai
 
 ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
 
+ConditionKernelCommandLine=|flatcar.oem.id=ionoscloud
+
 Description=Flatcar Metadata Agent
 
 [Service]

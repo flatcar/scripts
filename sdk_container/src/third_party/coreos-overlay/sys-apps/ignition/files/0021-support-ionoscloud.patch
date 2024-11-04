@@ -1,0 +1,263 @@
+From 971fc5f34ec13656fe12ae4d698272f8c23a6387 Mon Sep 17 00:00:00 2001
+From: Jan Larwig <jan.larwig@ionos.com>
+Date: Thu, 17 Oct 2024 15:43:10 +0200
+Subject: [PATCH] providers: add support for ionos cloud
+
+Add support for IONOS Cloud
+
+Add check to ignore cloud-config
+---
+ docs/release-notes.md                       |   2 +
+ docs/supported-platforms.md                 |   2 +
+ internal/providers/ionoscloud/ionoscloud.go | 149 ++++++++++++++++++++
+ internal/providers/proxmoxve/proxmoxve.go   |   4 +-
+ internal/providers/util/cloudconfig.go      |  13 ++
+ internal/register/providers.go              |   1 +
+ 6 files changed, 168 insertions(+), 3 deletions(-)
+ create mode 100644 internal/providers/ionoscloud/ionoscloud.go
+ create mode 100644 internal/providers/util/cloudconfig.go
+
+diff --git a/docs/release-notes.md b/docs/release-notes.md
+index 342fb1aa..2f25b609 100644
+--- a/docs/release-notes.md
++++ b/docs/release-notes.md
+@@ -10,6 +10,8 @@ nav_order: 9
+ 
+ ### Features
+ 
++- Support IONOS Cloud
++
+ ### Changes
+ 
+ ### Bug fixes
+diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
+index eef319b2..c6846087 100644
+--- a/docs/supported-platforms.md
++++ b/docs/supported-platforms.md
+@@ -20,6 +20,7 @@ Ignition is currently supported for the following platforms:
+ * [Hetzner Cloud] (`hetzner`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
+ * [Microsoft Hyper-V] (`hyperv`) - Ignition will read its configuration from the `ignition.config` key in pool 0 of the Hyper-V Data Exchange Service (KVP). Values are limited to approximately 1 KiB of text, so Ignition can also read and concatenate multiple keys named `ignition.config.0`, `ignition.config.1`, and so on.
+ * [IBM Cloud] (`ibmcloud`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
++* [IONOS Cloud] (`ionoscloud`) - Ignition will read its configuration from the instance user-data. Per default the user-data is retrieved from a partition or disk with the label `OEM-CONFIG` which can be customized using the environment variable `IGNITION_CONFIG_DISK_LABEL`.
+ * [KubeVirt] (`kubevirt`) - Ignition will read its configuration from the instance userdata via config drive. Cloud SSH keys are handled separately.
+ * Bare Metal (`metal`) - Use the `ignition.config.url` kernel parameter to provide a URL to the configuration. The URL can use the `http://`, `https://`, `tftp://`, `s3://`, `arn:`, or `gs://` schemes to specify a remote config.
+ * [Nutanix] (`nutanix`) - Ignition will read its configuration from the instance userdata via config drive. Cloud SSH keys are handled separately.
+@@ -52,6 +53,7 @@ For most cloud providers, cloud SSH keys and custom network configuration are ha
+ [Hetzner Cloud]: https://www.hetzner.com/cloud
+ [Microsoft Hyper-V]: https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/
+ [IBM Cloud]: https://www.ibm.com/cloud/vpc
++[IONOS Cloud]: https://cloud.ionos.com/
+ [KubeVirt]: https://kubevirt.io
+ [Nutanix]: https://www.nutanix.com/products/ahv
+ [OpenStack]: https://www.openstack.org/
+diff --git a/internal/providers/ionoscloud/ionoscloud.go b/internal/providers/ionoscloud/ionoscloud.go
+new file mode 100644
+index 00000000..cc660998
+--- /dev/null
++++ b/internal/providers/ionoscloud/ionoscloud.go
+@@ -0,0 +1,149 @@
++// Copyright 2024 Red Hat, Inc.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//     http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++// NOTE: This provider is still EXPERIMENTAL.
++//
++// The IONOS Cloud provider fetches the ignition config from the user-data
++// available in an injected file at /var/lib/cloud/seed/nocloud/user-data.
++// This file is created by the IONOS Cloud VM handler before the first boot
++// through the cloud init user data handling.
++//
++// User data with the directive #cloud-config will be ignored
++// See for more: https://docs.ionos.com/cloud/compute-services/compute-engine/how-tos/boot-cloud-init
++
++package ionoscloud
++
++import (
++ "context"
++ "fmt"
++ "os"
++ "os/exec"
++ "path/filepath"
++ "time"
++
++ "github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
++ "github.com/flatcar/ignition/v2/internal/distro"
++ "github.com/flatcar/ignition/v2/internal/log"
++ "github.com/flatcar/ignition/v2/internal/platform"
++ "github.com/flatcar/ignition/v2/internal/providers/util"
++ "github.com/flatcar/ignition/v2/internal/resource"
++ ut "github.com/flatcar/ignition/v2/internal/util"
++
++ "github.com/coreos/vcontext/report"
++)
++
++const (
++ deviceLabelEnvVar  = "IGNITION_CONFIG_DEVICE_LABEL"
++ defaultDeviceLabel = "OEM"
++ userDataPath       = "/config/user-data"
++)
++
++func init() {
++ platform.Register(platform.Provider{
++   Name:  "ionoscloud",
++   Fetch: fetchConfig,
++ })
++}
++
++func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
++ var data []byte
++ ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
++
++ dispatch := func(name string, fn func() ([]byte, error)) {
++   raw, err := fn()
++   if err != nil {
++     switch err {
++     case context.Canceled:
++     case context.DeadlineExceeded:
++       f.Logger.Err("timed out while fetching config from %s", name)
++     default:
++       f.Logger.Err("failed to fetch config from %s: %v", name, err)
++     }
++     return
++   }
++
++   data = raw
++   cancel()
++ }
++
++ deviceLabel := os.Getenv(deviceLabelEnvVar)
++ if deviceLabel == "" {
++   deviceLabel = defaultDeviceLabel
++ }
++
++ go dispatch(
++   "load config from disk", func() ([]byte, error) {
++     return fetchConfigFromDevice(f.Logger, ctx, filepath.Join(distro.DiskByLabelDir(), deviceLabel))
++   },
++ )
++
++ <-ctx.Done()
++ if ctx.Err() == context.DeadlineExceeded {
++   f.Logger.Info("disk was not available in time. Continuing without a config...")
++ }
++
++ return util.ParseConfig(f.Logger, data)
++}
++
++func fileExists(path string) bool {
++ _, err := os.Stat(path)
++ return (err == nil)
++}
++
++func fetchConfigFromDevice(logger *log.Logger, ctx context.Context, device string) ([]byte, error) {
++ for !fileExists(device) {
++   logger.Debug("disk (%q) not found. Waiting...", device)
++   select {
++   case <-time.After(time.Second):
++   case <-ctx.Done():
++     return nil, ctx.Err()
++   }
++ }
++
++ logger.Debug("creating temporary mount point")
++ mnt, err := os.MkdirTemp("", "ignition-config")
++ if err != nil {
++   return nil, fmt.Errorf("failed to create temp directory: %v", err)
++ }
++ defer os.Remove(mnt)
++
++ cmd := exec.Command(distro.MountCmd(), "-o", "ro", "-t", "auto", device, mnt)
++ if _, err := logger.LogCmd(cmd, "mounting disk"); err != nil {
++   return nil, err
++ }
++ defer func() {
++   _ = logger.LogOp(
++     func() error {
++       return ut.UmountPath(mnt)
++     },
++     "unmounting %q at %q", device, mnt,
++   )
++ }()
++
++ if !fileExists(filepath.Join(mnt, userDataPath)) {
++   return nil, nil
++ }
++
++ contents, err := os.ReadFile(filepath.Join(mnt, userDataPath))
++ if err != nil {
++   return nil, err
++ }
++
++ if util.IsCloudConfig(contents) {
++   logger.Debug("disk (%q) contains a cloud-config configuration, ignoring", device)
++   return nil, nil
++ }
++
++ return contents, nil
++}
+diff --git a/internal/providers/proxmoxve/proxmoxve.go b/internal/providers/proxmoxve/proxmoxve.go
+index 490bfe30..b0dbb481 100644
+--- a/internal/providers/proxmoxve/proxmoxve.go
++++ b/internal/providers/proxmoxve/proxmoxve.go
+@@ -20,7 +20,6 @@
+ package proxmoxve
+ 
+ import (
+-	"bytes"
+ 	"context"
+ 	"fmt"
+ 	"os"
+@@ -132,8 +131,7 @@ func fetchConfigFromDevice(logger *log.Logger, ctx context.Context, path string)
+ 		return nil, err
+ 	}
+ 
+-	header := []byte("#cloud-config\n")
+-	if bytes.HasPrefix(contents, header) {
++	if util.IsCloudConfig(contents) {
+ 		logger.Debug("config drive (%q) contains a cloud-config configuration, ignoring", path)
+ 		return nil, nil
+ 	}
+diff --git a/internal/providers/util/cloudconfig.go b/internal/providers/util/cloudconfig.go
+new file mode 100644
+index 00000000..abe9a2b6
+--- /dev/null
++++ b/internal/providers/util/cloudconfig.go
+@@ -0,0 +1,13 @@
++package util
++
++import (
++	"bytes"
++)
++
++func IsCloudConfig(contents []byte) bool {
++	header := []byte("#cloud-config\n")
++	if bytes.HasPrefix(contents, header) {
++		return true
++	}
++	return false
++}
+diff --git a/internal/register/providers.go b/internal/register/providers.go
+index bda4b7cf..63249c7d 100644
+--- a/internal/register/providers.go
++++ b/internal/register/providers.go
+@@ -29,6 +29,7 @@ import (
+ 	_ "github.com/flatcar/ignition/v2/internal/providers/hetzner"
+ 	_ "github.com/flatcar/ignition/v2/internal/providers/hyperv"
+ 	_ "github.com/flatcar/ignition/v2/internal/providers/ibmcloud"
++	_ "github.com/flatcar/ignition/v2/internal/providers/ionoscloud"
+ 	_ "github.com/flatcar/ignition/v2/internal/providers/kubevirt"
+ 	_ "github.com/flatcar/ignition/v2/internal/providers/metal"
+ 	_ "github.com/flatcar/ignition/v2/internal/providers/nutanix"
+-- 
+2.43.0
+
