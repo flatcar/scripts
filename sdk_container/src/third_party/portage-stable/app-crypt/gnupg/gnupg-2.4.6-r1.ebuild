@@ -23,7 +23,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3+"
 SLOT="0"
-#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="bzip2 doc ldap nls readline selinux +smartcard ssl test +tofu tpm tools usb user-socket wks-server"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="test? ( tofu )"
@@ -70,6 +70,7 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
 	"${FILESDIR}"/${PN}-2.4.5-revert-rfc4880bis.patch # bug #926186
+	"${FILESDIR}"/${PN}-2.4.6-c99.patch
 )
 
 src_prepare() {
@@ -144,7 +145,7 @@ my_src_configure() {
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# https://dev.gnupg.org/T7368
-		export ac_cv_should_define__xopen_source=yes
+		append-cppflags -D_XOPEN_SOURCE=500
 	fi
 
 	# bug #663142
