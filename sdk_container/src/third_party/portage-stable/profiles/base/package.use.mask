@@ -3,6 +3,10 @@
 
 # New entries go on top.
 
+# Sam James <sam@gentoo.org> (2024-10-29)
+# Currently needs patched dev-util/sysprof.
+dev-libs/elfutils stacktrace
+
 # Peter Levine <plevine457@gmail.com> (2024-10-09)
 # Leads to missing symbols while building testcases
 # Masked for further testing.
@@ -528,10 +532,6 @@ gui-libs/gtk ffmpeg vulkan
 # Alfredo Tupone <tupone@gentoo.org> (2021-06-27)
 # lto does not work on dev-lang/gnat-gpl-2021
 dev-lang/gnat-gpl:10 lto
-
-# Mike Gilbert <floppym@gentoo.org> (2021-06-14)
-# Avoid running failing tests by default.
-sys-kernel/dracut test
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2021-05-09)
 # Dependency requires sys-apps/systemd. Will only be unmasked in systemd target.
