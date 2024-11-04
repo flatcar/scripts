@@ -138,7 +138,7 @@ function _vm_build_impl() {
             COMPRESSION_FORMAT="bz2,none"
         elif [[ "${format}" =~ ^(hyperv|hyperv_vhdx)$ ]];then
             COMPRESSION_FORMAT="zip"
-        elif [[ "${format}" =~ ^(scaleway|kubevirt|proxmoxve)$ ]];then
+        elif [[ "${format}" =~ ^(scaleway|kubevirt|proxmoxve|ionoscloud)$ ]];then
             COMPRESSION_FORMAT="none"
         elif [[ "${format}" =~ ^(akamai)$ ]];then
             COMPRESSION_FORMAT="gz"
