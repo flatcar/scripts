@@ -330,6 +330,7 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	# and https://rust-gcc.github.io/2023/04/24/gccrs-and-gcc13-release.html for why
 	# it was disabled in 13.
 	tc_version_is_at_least 14.0.0_pre20230423 ${PV} && IUSE+=" rust" TC_FEATURES+=( rust )
+	tc_version_is_at_least 14.2.1_p20241026 ${PV} && IUSE+=" time64"
 fi
 
 if tc_version_is_at_least 10; then
@@ -1060,6 +1061,9 @@ toolchain_src_configure() {
 
 	downgrade_arch_flags
 	gcc_do_filter_flags
+	if tc_version_is_at_least 14.2.1_p20241026 ${PV}; then
+		append-cppflags "-D_GENTOO_TIME64_FORCE=$(usex time64 1 0)"
+	fi
 
 	if ! tc_version_is_at_least 11 && [[ $(gcc-major-version) -ge 12 ]] ; then
 		# https://gcc.gnu.org/PR105695 (bug #849359)
@@ -1942,6 +1946,15 @@ gcc_do_filter_flags() {
 
 		# New in GCC 14.
 		filter-flags -Walloc-size
+	fi
+
+	if ver_test -lt 15.1 ; then
+		filter-flags -fdiagnostics-explain-harder -fdiagnostics-details
+	fi
+
+	if is_d ; then
+		# bug #940750
+		filter-flags -Warray-bounds
 	fi
 
 	# Please use USE=lto instead (bug #906007).
@@ -2963,18 +2976,21 @@ XGCC() { get_make_var GCC_FOR_TARGET ; }
 
 has toolchain_death_notice ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" toolchain_death_notice"
 toolchain_death_notice() {
-	if [[ -e "${WORKDIR}"/build ]] ; then
-		pushd "${WORKDIR}"/build >/dev/null
-		(echo '' | $(tc-getCC ${CTARGET}) ${CFLAGS} -v -E - 2>&1) > gccinfo.log
-		[[ -e "${T}"/build.log ]] && cp "${T}"/build.log .
-		tar -acf "${WORKDIR}"/gcc-build-logs.tar.xz \
-			gccinfo.log build.log $(find -name config.log)
-		rm gccinfo.log build.log
-		eerror
-		eerror "Please include ${WORKDIR}/gcc-build-logs.tar.xz in your bug report."
-		eerror
-		popd >/dev/null
-	fi
+	local dir
+	for dir in "${WORKDIR}"/build-jit "${WORKDIR}"/build ; do
+		if [[ -e "${dir}" ]] ; then
+			pushd "${WORKDIR}" >/dev/null
+			(echo '' | $(tc-getCC ${CTARGET}) ${CFLAGS} -v -E - 2>&1) > gccinfo.log
+			[[ -e "${T}"/build.log ]] && cp "${T}"/build.log .
+			tar -arf "${WORKDIR}"/gcc-build-logs.tar.xz \
+				"${dir}"/gccinfo.log "${dir}"/build.log $(find -name "${dir}"/config.log)
+			rm "${dir}"/gccinfo.log "${dir}"/build.log
+			eerror
+			eerror "Please include ${WORKDIR}/gcc-build-logs.tar.xz in your bug report."
+			eerror
+			popd >/dev/null
+		fi
+	done
 }
 
 fi
