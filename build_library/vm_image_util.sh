@@ -816,12 +816,11 @@ _write_qemu_conf() {
 }
 
 _write_qemu_uefi_conf() {
+    local flash_ro="$(_dst_name "_efi_code.fd")"
+    local flash_rw="$(_dst_name "_efi_vars.fd")"
     local script="$(_dst_dir)/$(_dst_name ".sh")"
 
     _write_qemu_conf
-
-    local flash_ro="$(_dst_name "_efi_code.fd")"
-    local flash_rw="$(_dst_name "_efi_vars.fd")"
 
     case $BOARD in
         amd64-usr)
@@ -861,15 +860,18 @@ _write_qemu_uefi_secure_conf() {
     local flash_rw="$(_dst_name "_efi_vars.fd")"
     local flash_ro="$(_dst_name "_efi_code.fd")"
     local script="$(_dst_dir)/$(_dst_name ".sh")"
+    local owner="00000000-0000-0000-0000-000000000000"
 
     _write_qemu_uefi_conf
     cp "/usr/share/edk2-ovmf/OVMF_CODE.secboot.fd" "$(_dst_dir)/${flash_ro}"
-    cert-to-efi-sig-list "/usr/share/sb_keys/PK.crt" "${VM_TMP_DIR}/PK.esl"
-    cert-to-efi-sig-list "/usr/share/sb_keys/KEK.crt" "${VM_TMP_DIR}/KEK.esl"
-    cert-to-efi-sig-list "/usr/share/sb_keys/DB.crt" "${VM_TMP_DIR}/DB.esl"
-    flash-var "$(_dst_dir)/${flash_rw}" "PK" "${VM_TMP_DIR}/PK.esl"
-    flash-var "$(_dst_dir)/${flash_rw}" "KEK" "${VM_TMP_DIR}/KEK.esl"
-    flash-var "$(_dst_dir)/${flash_rw}" "db" "${VM_TMP_DIR}/DB.esl"
+
+    virt-fw-vars \
+        --inplace "$(_dst_dir)/${flash_rw}" \
+        --set-pk  "${owner}" /usr/share/sb_keys/PK.crt \
+        --add-kek "${owner}" /usr/share/sb_keys/KEK.crt \
+        --add-db  "${owner}" /usr/share/sb_keys/DB.crt \
+        --secure-boot --no-microsoft
+
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }
 
