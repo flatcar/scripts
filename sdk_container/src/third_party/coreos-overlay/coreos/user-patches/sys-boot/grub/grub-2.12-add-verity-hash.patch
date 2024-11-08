@@ -16,9 +16,9 @@ Signed-off-by: Sayan Chowdhury <schowdhury@microsoft.com>
 ---
 
 diff -Naur a/grub-core/loader/efi/linux.c b/grub-core/loader/efi/linux.c
---- a/grub-core/loader/efi/linux.c	2023-10-03 12:21:48.000000000 -0000
-+++ b/grub-core/loader/efi/linux.c	2024-09-12 10:18:36.454803371 -0000
-@@ -34,6 +34,8 @@
+--- a/grub-core/loader/efi/linux.c	2024-09-05 16:04:35.466205483 -0000
++++ b/grub-core/loader/efi/linux.c	2024-09-05 16:54:36.760503901 -0000
+@@ -38,6 +38,8 @@
  #include <grub/lib/cmdline.h>
  #include <grub/verify.h>
  
@@ -27,9 +27,9 @@ diff -Naur a/grub-core/loader/efi/linux.c b/grub-core/loader/efi/linux.c
  GRUB_MOD_LICENSE ("GPLv3+");
  
  static grub_dl_t my_mod;
-@@ -533,7 +535,8 @@
- 
-   grub_dprintf ("linux", "kernel @ %p\n", kernel_addr);
+@@ -833,7 +835,8 @@
+   kernel = NULL;
+ #endif
  
 -  cmdline_size = grub_loader_cmdline_size (argc, argv) + sizeof (LINUX_IMAGE);
 +  cmdline_size = grub_loader_cmdline_size (argc, argv) + sizeof (LINUX_IMAGE)
@@ -37,7 +37,7 @@ diff -Naur a/grub-core/loader/efi/linux.c b/grub-core/loader/efi/linux.c
    linux_args = grub_malloc (cmdline_size);
    if (!linux_args)
      {
-@@ -550,6 +553,7 @@
+@@ -850,6 +853,7 @@
  
    if (grub_errno == GRUB_ERR_NONE)
      {
@@ -45,29 +45,64 @@ diff -Naur a/grub-core/loader/efi/linux.c b/grub-core/loader/efi/linux.c
        grub_loader_set (grub_linux_boot, grub_linux_unload, 0);
        loaded = 1;
      }
-diff -Naur a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
---- a/grub-core/loader/i386/linux.c	2023-10-03 12:21:48.000000000 -0000
-+++ b/grub-core/loader/i386/linux.c	2024-09-12 10:28:05.571587951 -0000
-@@ -38,6 +38,8 @@
- #include <grub/machine/kernel.h>
+diff -Naur a/grub-core/loader/i386/efi/linux.c b/grub-core/loader/i386/efi/linux.c
+--- a/grub-core/loader/i386/efi/linux.c	2024-09-11 15:08:38.463525457 -0000
++++ b/grub-core/loader/i386/efi/linux.c	2024-09-11 15:10:30.732085424 -0000
+@@ -31,6 +31,8 @@
+ #include <grub/tpm.h>
  #include <grub/safemath.h>
  
 +#include <grub/verity-hash.h>
 +
  GRUB_MOD_LICENSE ("GPLv3+");
  
- #ifdef GRUB_MACHINE_PCBIOS
-@@ -1018,6 +1020,7 @@
-       goto fail;
-   }
+ static grub_dl_t my_mod;
+@@ -466,7 +468,7 @@
+   grub_dprintf ("linux", "new lh is at %p\n", lh);
  
-+  grub_pass_verity_hash (&lh, linux_cmdline, maximal_cmdline_size);
-   len = prot_file_size;
-   if (grub_file_read (file, prot_mode_mem, len) != len && !grub_errno)
-     grub_error (GRUB_ERR_BAD_OS, N_("premature end of file %s"),
+   grub_dprintf ("linux", "setting up cmdline\n");
+-  cmdline = kernel_alloc (KERNEL_MEM, lh->cmdline_size + 1,
++  cmdline = kernel_alloc (KERNEL_MEM, lh->cmdline_size + 1 + VERITY_CMDLINE_LENGTH,
+ 			  GRUB_EFI_LOADER_DATA,
+ 			  N_("can't allocate cmdline"));
+   if (!cmdline)
+@@ -479,6 +481,9 @@
+ 			      lh->cmdline_size - (sizeof (LINUX_IMAGE) - 1),
+ 			      GRUB_VERIFY_KERNEL_CMDLINE);
+ 
++  grub_pass_verity_hash (kernel, cmdline + sizeof (LINUX_IMAGE) - 1,
++			 lh->cmdline_size - (sizeof (LINUX_IMAGE) - 1) + VERITY_CMDLINE_LENGTH);
++
+   grub_dprintf ("linux", "cmdline:%s\n", cmdline);
+   grub_dprintf ("linux", "setting lh->cmd_line_ptr to 0x%08x\n",
+ 		LOW_U32(cmdline));
+diff -Naur a/grub-core/loader/i386/pc/linux.c b/grub-core/loader/i386/pc/linux.c
+--- a/grub-core/loader/i386/pc/linux.c	2024-09-11 15:08:38.464525462 -0000
++++ b/grub-core/loader/i386/pc/linux.c	2024-09-11 15:12:26.552628521 -0000
+@@ -38,6 +38,8 @@
+ #include <grub/safemath.h>
+ #include <grub/efi/sb.h>
+ 
++#include <grub/verity-hash.h>
++
+ GRUB_MOD_LICENSE ("GPLv3+");
+ 
+ #define GRUB_LINUX_CL_OFFSET		0x9000
+@@ -358,6 +360,11 @@
+   if (err)
+     goto fail;
+ 
++  grub_pass_verity_hash (&lh,
++			 (char *)grub_linux_real_chunk
++			 + GRUB_LINUX_CL_OFFSET + sizeof (LINUX_IMAGE) - 1,
++			 maximal_cmdline_size);
++
+   if (grub_linux_is_bzimage)
+     grub_linux_prot_target = GRUB_LINUX_BZIMAGE_ADDR;
+   else
 diff -Naur a/include/grub/verity-hash.h b/include/grub/verity-hash.h
 --- a/include/grub/verity-hash.h	1970-01-01 00:00:00.000000000 -0000
-+++ b/include/grub/verity-hash.h	2024-09-12 10:18:39.993826952 -0000
++++ b/include/grub/verity-hash.h	2024-09-11 15:07:54.473295324 -0000
 @@ -0,0 +1,51 @@
 +/* CoreOS verity hash */
 +
