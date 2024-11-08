@@ -47,6 +47,7 @@ AMD64_ONLY_OEMIDS=(
     digitalocean
     gce
     vmware
+    ionoscloud
 )
 
 OEMIDS=(

@@ -3,12 +3,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/init.git"
+EGIT_REPO_URI="https://github.com/tuunit/flatcar-init.git"
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="05b4b2aafbe706bdd65265c7a7103ed75fee14d2" # flatcar-master
+	EGIT_COMMIT="bfee73ca7420eb071556584e47736dbdb9c9a87e" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
