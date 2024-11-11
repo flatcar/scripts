@@ -2,3 +2,4 @@
 
 # Disable gssapi for arm64 to avoid build errors
 net-dns/bind-tools -gssapi
+net-dns/bind       -gssapi

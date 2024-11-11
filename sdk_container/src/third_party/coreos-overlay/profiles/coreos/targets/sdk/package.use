@@ -34,3 +34,4 @@ app-emulation/qemu -pin-upstream-blobs
 
 # Enable gssapi for SDK
 net-dns/bind-tools           gssapi
+net-dns/bind                 gssapi
