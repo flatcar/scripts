@@ -1636,10 +1636,6 @@ java-pkg_is-vm-version-ge() {
 	fi
 }
 
-java-pkg_set-current-vm() {
-	export GENTOO_VM=${1}
-}
-
 # @FUNCTION: java-pkg_current-vm-matches
 # @USAGE: <vm_string1> [<vm_string2> [<vm_string3>...]]
 # @RETURN: 0: the current vm matches any of the provided strings
@@ -2032,25 +2028,6 @@ java-utils-2_pkg_preinst() {
 # @CODE
 eant() {
 	debug-print-function ${FUNCNAME} $*
-
-	if [[ ${!JAVA_PKG_BSFIX*} ]] \
-		|| [[ ${JAVA_ANT_BSFIX_EXTRA_ARGS} ]] \
-		|| [[ ${JAVA_ANT_CLASSPATH_TAGS} ]] \
-		|| [[ ${JAVA_ANT_JAVADOC_INPUT_DIRS} ]] \
-		|| [[ ${JAVA_ANT_REWRITE_CLASSPATH} ]] \
-		|| [[ ${EANT_BUILD_XML} ]] \
-		|| [[ ${!EANT_GENTOO_CLASSPATH*} ]] \
-		|| [[ ${EANT_TEST_GENTOO_CLASSPATH} ]]
-	then
-		if [[ ${EBUILD_PHASE} = compile ]]; then
-			java-ant-2_src_configure
-		fi
-
-		if ! has java-ant-2 ${INHERITED}; then
-			local msg="You should inherit java-ant-2 when using eant"
-			java-pkg_announce-qa-violation "${msg}"
-		fi
-	fi
 
 	local antflags="-Dnoget=true -Dmaven.mode.offline=true -Dbuild.sysclasspath=ignore"
 
