@@ -14,6 +14,7 @@ acct-group/kvm
 acct-group/lp
 acct-group/man
 acct-group/messagebus
+acct-group/named
 acct-group/netperf
 acct-group/nobody
 acct-group/ntp
@@ -46,6 +47,7 @@ acct-group/wheel
 acct-user/dnsmasq
 acct-user/man
 acct-user/messagebus
+acct-user/named
 acct-user/netperf
 acct-user/nobody
 acct-user/ntp
@@ -214,6 +216,7 @@ dev-lang/python
 dev-lang/python-exec
 dev-lang/python-exec-conf
 dev-lang/rust
+dev-lang/rust-common
 dev-lang/swig
 dev-lang/tcl
 dev-lang/yasm
@@ -315,7 +318,7 @@ dev-python/installer
 dev-python/jaraco-context
 dev-python/jaraco-functools
 dev-python/jaraco-text
-dev-python/jinja
+dev-python/jinja2
 dev-python/lark
 dev-python/lazy-object-proxy
 dev-python/linkify-it-py
@@ -457,6 +460,7 @@ eclass/rpm.eclass
 eclass/ruby-single.eclass
 eclass/ruby-utils.eclass
 eclass/rust-toolchain.eclass
+eclass/rust.eclass
 eclass/savedconfig.eclass
 eclass/secureboot.eclass
 eclass/selinux-policy-2.eclass
@@ -500,6 +504,7 @@ net-analyzer/traceroute
 net-dialup/lrzsz
 net-dialup/minicom
 
+net-dns/bind
 net-dns/bind-tools
 net-dns/c-ares
 net-dns/dnsmasq
