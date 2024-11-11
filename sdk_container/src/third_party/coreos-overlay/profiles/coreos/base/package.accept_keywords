@@ -106,7 +106,7 @@
 =net-misc/passt-2024.09.06 ~amd64 ~arm64
 
 # Package has not been stabilised yet.
-=sys-apps/azure-vm-utils-0.3.0 ~amd64 ~arm64
+=sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.28 ~arm64
