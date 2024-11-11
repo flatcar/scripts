@@ -150,7 +150,7 @@ declare -A GIT_CRATES=(
 
 LLVM_COMPAT=( {17..18} )
 
-inherit cargo llvm-r1
+inherit llvm-r1 cargo
 
 DESCRIPTION="A suite of tools for thin provisioning on Linux"
 HOMEPAGE="https://github.com/jthornber/thin-provisioning-tools"
