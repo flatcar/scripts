@@ -29,8 +29,8 @@
 =app-containers/crun-1.17 ~amd64 ~arm64
 
 # Accept unstable for Docker and its CLI.
-=app-containers/docker-27.2.1 ~amd64 ~arm64
-=app-containers/docker-cli-27.2.1 ~amd64 ~arm64
+=app-containers/docker-27.3.1 ~amd64 ~arm64
+=app-containers/docker-cli-27.3.1 ~amd64 ~arm64
 
 # Needed by updated app-containers/containers-common
 =app-containers/netavark-1.12.2-r1 ~amd64 ~arm64
