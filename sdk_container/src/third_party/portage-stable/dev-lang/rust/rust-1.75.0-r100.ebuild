@@ -3,28 +3,28 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+LLVM_COMPAT=( 17 )
+PYTHON_COMPAT=( python3_{10..12} )
 
-inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing optfeature \
+inherit check-reqs estack flag-o-matic llvm-r1 multiprocessing \
 	multilib multilib-build python-any-r1 rust-toolchain toolchain-funcs verify-sig
 
 if [[ ${PV} = *beta* ]]; then
 	betaver=${PV//*beta}
 	BETA_SNAPSHOT="${betaver:0:4}-${betaver:4:2}-${betaver:6:2}"
 	MY_P="rustc-beta"
-	SLOT="beta/${PV}"
 	SRC="${BETA_SNAPSHOT}/rustc-beta-src.tar.xz -> rustc-${PV}-src.tar.xz"
 else
-	ABI_VER="$(ver_cut 1-2)"
-	SLOT="stable/${ABI_VER}"
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
+	KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv sparc x86"
 fi
 
-RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
+S="${WORKDIR}/${MY_P}-src"
 
-DESCRIPTION="Systems programming language from Mozilla"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
+
+DESCRIPTION="Language empowering everyone to build reliable and efficient software"
 HOMEPAGE="https://www.rust-lang.org/"
 
 SRC_URI="
@@ -32,7 +32,6 @@ SRC_URI="
 	verify-sig? ( https://static.rust-lang.org/dist/${SRC}.asc )
 	!system-bootstrap? ( $(rust_all_arch_uris rust-${RUST_STAGE0_VERSION}) )
 "
-S="${WORKDIR}/${MY_P}-src"
 
 # keep in sync with llvm ebuild of the same version as bundled one.
 ALL_LLVM_TARGETS=( AArch64 AMDGPU ARC ARM AVR BPF CSKY DirectX Hexagon Lanai
@@ -42,34 +41,17 @@ ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
+SLOT="${PV}"
 
-IUSE="big-endian clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind lto miri nightly parallel-compiler profiler rustfmt rust-analyzer rust-src system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="big-endian clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind +lto miri nightly parallel-compiler rustfmt rust-analyzer rust-src system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
-# Please keep the LLVM dependency block separate. Since LLVM is slotted,
-# we need to *really* make sure we're not pulling more than one slot
-# simultaneously.
-
-# How to use it:
-# List all the working slots in LLVM_VALID_SLOTS, newest first.
-LLVM_VALID_SLOTS=( 18 )
-LLVM_MAX_SLOT="${LLVM_VALID_SLOTS[0]}"
-
+LLVM_DEPEND=()
 # splitting usedeps needed to avoid CI/pkgcheck's UncheckableDep limitation
-# (-) usedep needed because we may build with older llvm without that target
-LLVM_DEPEND="|| ( "
-for _s in ${LLVM_VALID_SLOTS[@]}; do
-	LLVM_DEPEND+=" ( "
-	for _x in ${ALL_LLVM_TARGETS[@]}; do
-		LLVM_DEPEND+="
-			${_x}? ( sys-devel/llvm:${_s}[${_x}(-)] )
-			wasm? ( sys-devel/lld:${_s} )"
-	done
-	LLVM_DEPEND+=" )"
+for _x in "${ALL_LLVM_TARGETS[@]}"; do
+	LLVM_DEPEND+=( "	${_x}? ( $(llvm_gen_dep "sys-devel/llvm:\${LLVM_SLOT}[${_x}]") )" )
 done
-unset _s _x
-LLVM_DEPEND+=" )
-	<sys-devel/llvm-$(( LLVM_MAX_SLOT + 1 )):=
-"
+LLVM_DEPEND+=( "	wasm? ( $(llvm_gen_dep 'sys-devel/lld:${LLVM_SLOT}') )" )
+LLVM_DEPEND+=( "	$(llvm_gen_dep 'sys-devel/llvm:${LLVM_SLOT}')" )
 
 # to bootstrap we need at least exactly previous version, or same.
 # most of the time previous versions fail to bootstrap with newer
@@ -108,7 +90,7 @@ DEPEND="
 	sys-libs/zlib:=
 	dev-libs/openssl:0=
 	system-llvm? (
-		${LLVM_DEPEND}
+		${LLVM_DEPEND[*]}
 		llvm-libunwind? ( sys-libs/llvm-libunwind:= )
 	)
 	!system-llvm? (
@@ -120,7 +102,10 @@ DEPEND="
 
 RDEPEND="${DEPEND}
 	app-eselect/eselect-rust
+	dev-lang/rust-common
 	sys-apps/lsb-release
+	!dev-lang/rust:stable
+	!dev-lang/rust-bin:stable
 "
 
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
@@ -164,14 +149,14 @@ RESTRICT="test"
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/rust.asc
 
 PATCHES=(
-	"${FILESDIR}"/1.78.0-musl-dynamic-linking.patch
+	"${FILESDIR}"/1.75.0-musl-dynamic-linking.patch
 	"${FILESDIR}"/1.74.1-cross-compile-libz.patch
 	#"${FILESDIR}"/1.72.0-bump-libc-deps-to-0.2.146.patch  # pending refresh
+	"${FILESDIR}"/1.70.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
-	"${FILESDIR}"/1.79.0-revert-8c40426.patch
-	"${FILESDIR}/1.81.0-backport-bug937164.patch"
-	"${FILESDIR}/1.81.0-backport-llvm-pr101761.patch"
-	"${FILESDIR}/1.81.0-backport-llvm-pr101766.patch"
+	# This patch shouldn't be necessary for later versions of Rust because its
+	# code was backported from master.
+	"${FILESDIR}"/1.75.0-handle-vendored-sources.patch
 )
 
 clear_vendor_checksums() {
@@ -275,9 +260,9 @@ pkg_setup() {
 	use system-bootstrap && bootstrap_rust_version_check
 
 	if use system-llvm; then
-		llvm_pkg_setup
+		llvm-r1_pkg_setup
 
-		local llvm_config="$(get_llvm_prefix "${LLVM_MAX_SLOT}")/bin/llvm-config"
+		local llvm_config="$(get_llvm_prefix)/bin/llvm-config"
 		export LLVM_LINK_SHARED=1
 		export RUSTFLAGS="${RUSTFLAGS} -Lnative=$("${llvm_config}" --libdir)"
 	fi
@@ -342,11 +327,11 @@ src_configure() {
 	rust_targets="${rust_targets#,}"
 
 	# cargo and rustdoc are mandatory and should always be included
-	local tools='"cargo","rustdoc"'
+	local tools='"cargo","rustdoc", "rust-demangler"'
 	use clippy && tools+=',"clippy"'
 	use miri && tools+=',"miri"'
 	use rustfmt && tools+=',"rustfmt"'
-	use rust-analyzer && tools+=',"rust-analyzer","rust-analyzer-proc-macro-srv"'
+	use rust-analyzer && tools+=',"rust-analyzer"'
 	use rust-src && tools+=',"src"'
 
 	local rust_stage0_root
@@ -366,6 +351,7 @@ src_configure() {
 
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
+		changelog-seen = 2
 		[llvm]
 		download-ci-llvm = false
 		optimize = $(toml_usex !debug)
@@ -425,7 +411,7 @@ src_configure() {
 		tools = [${tools}]
 		verbose = 2
 		sanitizers = false
-		profiler = $(toml_usex profiler)
+		profiler = true
 		cargo-native-static = false
 		[install]
 		prefix = "${EPREFIX}/usr/lib/${PN}/${PV}"
@@ -467,8 +453,7 @@ src_configure() {
 		deny-warnings = $(usex wasm $(usex doc false true) true)
 		backtrace-on-ice = true
 		jemalloc = false
-		# See https://github.com/rust-lang/rust/issues/121124
-		lto = "$(usex lto thin off)"
+		lto = "$(usex lto fat off)"
 		[dist]
 		src-tarball = false
 		compression-formats = ["xz"]
@@ -492,7 +477,7 @@ src_configure() {
 		_EOF_
 		if use system-llvm; then
 			cat <<- _EOF_ >> "${S}"/config.toml
-				llvm-config = "$(get_llvm_prefix "${LLVM_MAX_SLOT}")/bin/llvm-config"
+				llvm-config = "$(get_llvm_prefix)/bin/llvm-config"
 			_EOF_
 		fi
 		# by default librustc_target/spec/linux_musl_base.rs sets base.crt_static_default = true;
@@ -500,13 +485,10 @@ src_configure() {
 		if use elibc_musl; then
 			cat <<- _EOF_ >> "${S}"/config.toml
 				crt-static = false
-				musl-root = "$($(tc-getCC) -print-sysroot)/usr"
 			_EOF_
 		fi
 	done
 	if use wasm; then
-		wasm_target="wasm32-unknown-unknown"
-		export CFLAGS_${wasm_target//-/_}="$(filter-flags '-mcpu*' '-march*' '-mtune*'; echo "$CFLAGS")"
 		cat <<- _EOF_ >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
 			linker = "$(usex system-llvm lld rust-lld)"
@@ -565,7 +547,7 @@ src_configure() {
 		_EOF_
 		if use system-llvm; then
 			cat <<- _EOF_ >> "${S}"/config.toml
-				llvm-config = "$(get_llvm_prefix "${LLVM_MAX_SLOT}")/bin/llvm-config"
+				llvm-config = "$(get_llvm_prefix)/bin/llvm-config"
 			_EOF_
 		fi
 		if [[ "${cross_toolchain}" == *-musl* ]]; then
@@ -674,7 +656,6 @@ src_install() {
 	# bug #689562, #689160
 	rm -v "${ED}/usr/lib/${PN}/${PV}/etc/bash_completion.d/cargo" || die
 	rmdir -v "${ED}/usr/lib/${PN}/${PV}"/etc{/bash_completion.d,} || die
-	newbashcomp src/tools/cargo/src/etc/cargo.bashcomp.sh cargo
 
 	local symlinks=(
 		cargo
@@ -683,6 +664,7 @@ src_install() {
 		rust-gdb
 		rust-gdbgui
 		rust-lldb
+		rust-demangler
 	)
 
 	use clippy && symlinks+=( clippy-driver cargo-clippy )
@@ -715,8 +697,8 @@ src_install() {
 	dosym "../../lib/${PN}/${PV}/share/doc/rust" "/usr/share/doc/${P}"
 
 	newenvd - "50${P}" <<-_EOF_
-		LDPATH="${EPREFIX}/usr/lib/rust/lib"
-		MANPATH="${EPREFIX}/usr/lib/rust/man"
+		LDPATH="${EPREFIX}/usr/lib/rust/lib-${PV}"
+		MANPATH="${EPREFIX}/usr/lib/rust/man-${PV}"
 	_EOF_
 
 	rm -rf "${ED}/usr/lib/${PN}/${PV}"/*.old || die
@@ -727,6 +709,7 @@ src_install() {
 	cat <<-_EOF_ > "${T}/provider-${P}"
 		/usr/bin/cargo
 		/usr/bin/rustdoc
+		/usr/bin/rust-demangler
 		/usr/bin/rust-gdb
 		/usr/bin/rust-gdbgui
 		/usr/bin/rust-lldb
@@ -757,7 +740,6 @@ src_install() {
 	doins "${T}/provider-${P}"
 
 	if use dist; then
-		"${EPYTHON}" ./x.py dist -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
 		insinto "/usr/lib/${PN}/${PV}/dist"
 		doins -r "${S}/build/dist/."
 	fi
@@ -772,11 +754,11 @@ pkg_postinst() {
 	fi
 
 	if has_version app-editors/emacs; then
-		optfeature "emacs support for rust" app-emacs/rust-mode
+		elog "install app-emacs/rust-mode to get emacs support for rust."
 	fi
 
 	if has_version app-editors/gvim || has_version app-editors/vim; then
-		optfeature "vim support for rust" app-vim/rust-vim
+		elog "install app-vim/rust-vim to get vim support for rust."
 	fi
 }
 
