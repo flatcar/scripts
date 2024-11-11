@@ -26,16 +26,16 @@ LICENSE="MIT"
 # bundled deps
 LICENSE+=" Apache-2.0 BSD BSD-2 ISC LGPL-2.1+ MPL-2.0 PSF-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~m68k ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="test-rust"
 
 # see src/pip/_vendor/vendor.txt
 RDEPEND="
 	>=dev-python/cachecontrol-0.14.0[${PYTHON_USEDEP}]
-	>=dev-python/distlib-0.3.8[${PYTHON_USEDEP}]
+	>=dev-python/distlib-0.3.9[${PYTHON_USEDEP}]
 	>=dev-python/distro-1.9.0[${PYTHON_USEDEP}]
 	>=dev-python/msgpack-1.0.8[${PYTHON_USEDEP}]
-	>=dev-python/packaging-24.1[${PYTHON_USEDEP}]
+	>=dev-python/packaging-24.2[${PYTHON_USEDEP}]
 	>=dev-python/platformdirs-4.2.1[${PYTHON_USEDEP}]
 	>=dev-python/pyproject-hooks-1.0.0[${PYTHON_USEDEP}]
 	>=dev-python/requests-2.32.0[${PYTHON_USEDEP}]
@@ -45,7 +45,7 @@ RDEPEND="
 	$(python_gen_cond_dep '
 		>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
 	' 3.10)
-	>=dev-python/truststore-0.9.1[${PYTHON_USEDEP}]
+	>=dev-python/truststore-0.10.0[${PYTHON_USEDEP}]
 	>=dev-python/typing-extensions-4.12.2[${PYTHON_USEDEP}]
 "
 BDEPEND="
@@ -58,7 +58,6 @@ BDEPEND="
 			dev-python/pretend[${PYTHON_USEDEP}]
 			dev-python/pytest-rerunfailures[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
-			<dev-python/rich-13.8[${PYTHON_USEDEP}]
 			dev-python/scripttest[${PYTHON_USEDEP}]
 			dev-python/tomli-w[${PYTHON_USEDEP}]
 			dev-python/virtualenv[${PYTHON_USEDEP}]
@@ -79,6 +78,8 @@ python_prepare_all() {
 		"${FILESDIR}/pip-23.1-no-coverage.patch"
 		# prepare to unbundle dependencies
 		"${FILESDIR}/pip-24.1-unbundle.patch"
+		# https://github.com/pypa/pip/pull/13073
+		"${FILESDIR}/pip-24.3.1-rich-13.8.patch"
 	)
 
 	distutils-r1_python_prepare_all
