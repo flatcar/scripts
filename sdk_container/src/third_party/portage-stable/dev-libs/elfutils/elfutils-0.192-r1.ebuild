@@ -21,29 +21,30 @@ else
 	SRC_URI="https://sourceware.org/elfutils/ftp/${PV}/${P}.tar.bz2"
 	SRC_URI+=" verify-sig? ( https://sourceware.org/elfutils/ftp/${PV}/${P}.tar.bz2.sig )"
 
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 
 	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-elfutils-20240301 )"
 fi
 
 LICENSE="|| ( GPL-2+ LGPL-3+ ) utils? ( GPL-3+ )"
 SLOT="0"
-IUSE="bzip2 debuginfod lzma nls test +utils valgrind zstd"
+IUSE="bzip2 debuginfod lzma nls static-libs stacktrace test +utils valgrind zstd"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!dev-libs/libelf
-	>=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]
-	bzip2? ( >=app-arch/bzip2-1.0.6-r4[${MULTILIB_USEDEP}] )
+	>=sys-libs/zlib-1.2.8-r1[static-libs?,${MULTILIB_USEDEP}]
+	bzip2? ( >=app-arch/bzip2-1.0.6-r4[static-libs?,${MULTILIB_USEDEP}] )
 	debuginfod? (
-		app-arch/libarchive:=
+		>=app-arch/libarchive-3.1.2:=
 		dev-db/sqlite:3=
-		net-libs/libmicrohttpd:=
-
-		net-misc/curl[${MULTILIB_USEDEP}]
+		>=dev-libs/json-c-0.11:=[${MULTILIB_USEDEP}]
+		>=net-libs/libmicrohttpd-0.9.33:=
+		>=net-misc/curl-7.29.0[static-libs?,${MULTILIB_USEDEP}]
 	)
-	lzma? ( >=app-arch/xz-utils-5.0.5-r1[${MULTILIB_USEDEP}] )
-	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
+	lzma? ( >=app-arch/xz-utils-5.0.5-r1[static-libs?,${MULTILIB_USEDEP}] )
+	stacktrace? ( dev-util/sysprof )
+	zstd? ( app-arch/zstd:=[static-libs?,${MULTILIB_USEDEP}] )
 	elibc_musl? (
 		dev-libs/libbsd
 		sys-libs/argp-standalone
@@ -64,13 +65,19 @@ BDEPEND+="
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.189-musl-aarch64-regs.patch
 	"${FILESDIR}"/${PN}-0.191-musl-macros.patch
-	"${FILESDIR}"/${PN}-0.191-avoid-overriding-libcxx-system-header.patch
+	"${FILESDIR}"/${P}-libelf-static-link-libeu.patch
+	"${FILESDIR}"/${P}-configure-better-error-message.patch
+	"${FILESDIR}"/${P}-stacktrace-maybe-uninit.patch
 )
 
 src_prepare() {
 	default
 
 	eautoreconf
+
+	if ! use static-libs; then
+		sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in || die
+	fi
 
 	# https://sourceware.org/PR23914
 	sed -i 's:-Werror::' */Makefile.in || die
@@ -92,7 +99,9 @@ multilib_src_configure() {
 	local myeconfargs=(
 		$(use_enable nls)
 		$(multilib_native_use_enable debuginfod)
+		# Could do dummy if needed?
 		$(use_enable debuginfod libdebuginfod)
+		$(multilib_native_use_enable stacktrace)
 		$(use_enable valgrind valgrind-annotations)
 
 		# explicitly disable thread safety, it's not recommended by upstream
