@@ -33,7 +33,7 @@
 =app-containers/docker-cli-27.2.1 ~amd64 ~arm64
 
 # Needed by updated app-containers/containers-common
-=app-containers/netavark-1.12.2 ~amd64 ~arm64
+=app-containers/netavark-1.12.2-r1 ~amd64 ~arm64
 
 # Needed to address CVE-2024-3727
 =app-containers/podman-5.0.3 ~amd64 ~arm64
