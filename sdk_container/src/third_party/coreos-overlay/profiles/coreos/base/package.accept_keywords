@@ -107,7 +107,7 @@
 =sys-apps/zram-generator-1.1.2 ~arm64
 
 # Upgrade to latest version for secureboot
-=sys-boot/mokutil-0.6.0 ~amd64
+=sys-boot/mokutil-0.6.0 ~amd64 ~arm64
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
