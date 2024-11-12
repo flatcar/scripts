@@ -536,7 +536,7 @@ install_oem_package() {
     info "Installing ${oem_pkg} to OEM partition"
     USE="${oem_use}" emerge-${BOARD} \
         --root="${oem_tmp}" --sysroot="${oem_tmp}" \
-        --root-deps=rdeps --usepkgonly ${getbinpkg} \
+        --usepkgonly ${getbinpkg} \
         --verbose --jobs=2 "${oem_pkg}"
     sudo rsync -a "${oem_tmp}/oem/" "${VM_TMP_ROOT}/oem/"
     sudo rm -rf "${oem_tmp}"

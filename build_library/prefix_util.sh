@@ -108,7 +108,7 @@ function create_make_conf() {
     final)
       filepath="${FINALROOT}${EPREFIX}/etc/portage/make.conf"
       dir="${FINALDIR}"
-      emerge_opts="--root-deps=rdeps --usepkgonly"
+      emerge_opts="--usepkgonly"
       ;;
   esac
 

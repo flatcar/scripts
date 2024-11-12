@@ -295,8 +295,7 @@ ${EMAINT_WRAPPER} --fix moveinst
 ${EMAINT_WRAPPER} --fix world
 
 if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
-  EMERGE_FLAGS=( --select --verbose --root-deps=rdeps )
-  EMERGE_FLAGS+=( "--jobs=${NUM_JOBS}" )
+  EMERGE_FLAGS=( --select --verbose "--jobs=${NUM_JOBS}" )
   EMERGE_TOOLCHAIN_FLAGS=( "${EMERGE_FLAGS[@]}" )
 
   if [[ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}"  && \

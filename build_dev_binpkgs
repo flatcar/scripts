@@ -46,7 +46,7 @@ fi
 # --
 
 function my_board_emerge() {
-	PORTAGE_CONFIGROOT="/build/${FLAGS_board}" SYSROOT="${SYSROOT:-/build/${FLAGS_board}}" ROOT="/build/${FLAGS_board}" sudo -E emerge --root-deps=rdeps "${@}"
+	PORTAGE_CONFIGROOT="/build/${FLAGS_board}" SYSROOT="${SYSROOT:-/build/${FLAGS_board}}" ROOT="/build/${FLAGS_board}" sudo -E emerge "${@}"
 }
 # --
 
@@ -56,7 +56,7 @@ trap 'rm -f "${pkg_build_list}" "${pkg_skipped_list}"' EXIT
 
 info "Collecting list of binpkgs to build"
 
-my_board_emerge --pretend --root-deps=rdeps --emptytree ${@}  \
+my_board_emerge --pretend --emptytree ${@}  \
   | grep '\[ebuild' \
   | sed 's/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/' \
   | while read pkg; do
