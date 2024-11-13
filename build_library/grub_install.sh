@@ -186,12 +186,12 @@ case "${FLAGS_target}" in
     x86_64-efi|arm64-efi)
         info "Installing default ${FLAGS_target} UEFI bootloader."
 
-        # Sign GRUB and mokmanager(mm) with the shim-embedded key.
-        do_sbsign --output "${ESP_DIR}/${GRUB_IMAGE}"{,}
-        do_sbsign --output "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi" \
-            "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi"
-
         if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+            # Sign GRUB and mokmanager(mm) with the shim-embedded key.
+            do_sbsign --output "${ESP_DIR}/${GRUB_IMAGE}"{,}
+            do_sbsign --output "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi" \
+                "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi"
+
             # Unofficial build: Sign shim with our development key.
             sudo sbsign \
                 --key /usr/share/sb_keys/DB.key \
@@ -199,8 +199,10 @@ case "${FLAGS_target}" in
                 --output "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
                 "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi"
         else
-            # Official build: Copy our pre-signed shim.
-            sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi.signed" \
+            # Official build: Copy the unsigned files.
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi" \
+                "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi" \
                 "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi"
         fi
 

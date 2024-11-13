@@ -827,6 +827,7 @@ EOF
   fi
 
   # Sign the kernel after /usr is in a consistent state and verity is calculated
+  [[ ${COREOS_OFFICIAL:-0} -ne 1 ]] && \
   do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
   cleanup_sbsign_certs
 
