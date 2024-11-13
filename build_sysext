@@ -225,7 +225,6 @@ for package; do
     --root="${BUILD_DIR}/install-root" \
     --config-root="/build/${FLAGS_board}"  \
     --sysroot="/build/${FLAGS_board}"  \
-    --root-deps=rdeps \
     --usepkgonly \
     --getbinpkg \
     --verbose \
@@ -256,7 +255,7 @@ ROOT="${BUILD_DIR}/install-root" PORTAGE_CONFIGROOT="${BUILD_DIR}/install-root" 
 if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
     chost="$("portageq-${BOARD}" envvar CHOST)"
     strip="${chost}-strip"
-    
+
     info "Stripping all non-stripped binaries in sysext using '${strip}'"
 
     # Find all non-stripped binaries, remove ':' from filepath, and strip 'em

@@ -263,7 +263,7 @@ _get_dependency_list() {
     local IFS=$'| \t\n'
 
     PORTAGE_CONFIGROOT="$ROOT" emerge "$@" --pretend \
-        --emptytree --root-deps=rdeps --onlydeps --quiet | \
+        --emptytree --onlydeps --quiet | \
         egrep "$ROOT" |
         sed -e 's/[^]]*\] \([^ :]*\).*/=\1/' |
         egrep -v "=($(echo "${pkgs[*]}"))-[0-9]"
