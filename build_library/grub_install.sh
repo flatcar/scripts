@@ -41,7 +41,7 @@ switch_to_strict_mode
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
 # Modules required to boot a standard CoreOS configuration
-CORE_MODULES=( normal search test fat part_gpt search_fs_uuid gzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
+CORE_MODULES=( normal search test fat part_gpt search_fs_uuid xzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
 
 SBAT_ARG=()
 
@@ -137,7 +137,7 @@ case "${FLAGS_target}" in
                 [[ ${file} == ${GRUB_SRC}/${core_mod}.mod ]] && continue 2
             done
             out="${ESP_DIR}/${GRUB_DIR}/${file##*/}"
-            gzip --best --stdout "${file}" | sudo_clobber "${out}"
+            xz --stdout "${file}" | sudo_clobber "${out}"
         done
         ;;
 esac
@@ -178,7 +178,7 @@ fi
 
 info "Generating ${GRUB_IMAGE}"
 sudo grub-mkimage \
-    --compression=auto \
+    --compression=xz \
     --format "${FLAGS_target}" \
     --directory "${GRUB_SRC}" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
