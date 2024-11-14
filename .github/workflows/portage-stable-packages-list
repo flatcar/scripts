@@ -123,6 +123,7 @@ app-crypt/libb2
 app-crypt/libmd
 app-crypt/mhash
 app-crypt/mit-krb5
+app-crypt/p11-kit
 app-crypt/pinentry
 app-crypt/rhash
 app-crypt/shash
@@ -188,6 +189,10 @@ dev-build/meson-format-array
 dev-build/ninja
 
 dev-cpp/abseil-cpp
+dev-cpp/azure-core
+dev-cpp/azure-identity
+dev-cpp/azure-security-keyvault-certificates
+dev-cpp/azure-security-keyvault-keys
 dev-cpp/gflags
 dev-cpp/glog
 dev-cpp/gtest

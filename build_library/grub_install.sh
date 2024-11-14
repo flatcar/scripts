@@ -35,56 +35,49 @@ switch_to_strict_mode
 # must be sourced after flags are parsed.
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/sbsign_util.sh" || exit 1
 
 # Our GRUB lives under flatcar/grub so new pygrub versions cannot find grub.cfg
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
-# GRUB install location inside the SDK
-GRUB_SRC="/usr/lib/grub/${FLAGS_target}"
-
 # Modules required to boot a standard CoreOS configuration
 CORE_MODULES=( normal search test fat part_gpt search_fs_uuid gzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
-
-# Name of the core image, depends on target
-CORE_NAME=
-
-# Whether the SDK's grub or the board root's grub is used. Once amd64 is
-# fixed up the board root's grub will always be used.
-BOARD_GRUB=1
 
 SBAT_ARG=()
 
 case "${FLAGS_target}" in
-    i386-pc)
-        CORE_MODULES+=( biosdisk serial )
-        CORE_NAME="core.img"
-        ;;
     x86_64-efi)
-        CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp tpm )
-        CORE_NAME="core.efi"
-        SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
-        ;;
-    x86_64-xen)
-        CORE_NAME="core.elf"
+        EFI_ARCH="x64"
         ;;
     arm64-efi)
+        EFI_ARCH="aa64"
+        ;;
+esac
+
+case "${FLAGS_target}" in
+    x86_64-efi|arm64-efi)
+        GRUB_IMAGE="EFI/boot/grub${EFI_ARCH}.efi"
         CORE_MODULES+=( serial linux efi_gop efinet pgp http tftp tpm )
-        CORE_NAME="core.efi"
-        BOARD_GRUB=1
         SBAT_ARG=( --sbat "${BOARD_ROOT}/usr/share/grub/sbat.csv" )
+        ;;
+    i386-pc)
+        GRUB_IMAGE="${GRUB_DIR}/core.img"
+        CORE_MODULES+=( biosdisk serial )
+        ;;
+    x86_64-xen)
+        GRUB_IMAGE="xen/pvboot-x86_64.elf"
         ;;
     *)
         die_notrace "Unknown GRUB target ${FLAGS_target}"
         ;;
 esac
 
-if [[ $BOARD_GRUB -eq 1 ]]; then
-    info "Updating GRUB in ${BOARD_ROOT}"
-    emerge-${BOARD} \
-           --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
-           sys-boot/grub
-    GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
-fi
+info "Updating GRUB in ${BOARD_ROOT}"
+emerge-${BOARD} \
+        --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
+        sys-boot/grub
+
+GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
 [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
 
 # In order for grub-setup-bios to properly detect the layout of the disk
@@ -97,6 +90,7 @@ ESP_DIR=
 LOOP_DEV=
 
 cleanup() {
+    cleanup_sbsign_certs
     if [[ -d "${ESP_DIR}" ]]; then
         if mountpoint -q "${ESP_DIR}"; then
             sudo umount "${ESP_DIR}"
@@ -130,7 +124,7 @@ done
 if [[ -z ${MOUNTED} ]]; then
     failboat "${LOOP_DEV}p1 where art thou? udev has forsaken us!"
 fi
-sudo mkdir -p "${ESP_DIR}/${GRUB_DIR}"
+sudo mkdir -p "${ESP_DIR}/${GRUB_DIR}" "${ESP_DIR}/${GRUB_IMAGE%/*}"
 
 info "Compressing modules in ${GRUB_DIR}"
 for file in "${GRUB_SRC}"/*{.lst,.mod}; do
@@ -172,7 +166,7 @@ if [[ ! -f "${ESP_DIR}/flatcar/grub/grub.cfg.tar" ]]; then
       -C "${GRUB_TEMP_DIR}" "grub.cfg"
 fi
 
-info "Generating ${GRUB_DIR}/${CORE_NAME}"
+info "Generating ${GRUB_IMAGE}"
 sudo grub-mkimage \
     --compression=auto \
     --format "${FLAGS_target}" \
@@ -180,7 +174,7 @@ sudo grub-mkimage \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
     --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
     "${SBAT_ARG[@]}" \
-    --output "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+    --output "${ESP_DIR}/${GRUB_IMAGE}" \
     "${CORE_MODULES[@]}"
 
 for mod in "${CORE_MODULES[@]}"; do
@@ -189,6 +183,39 @@ done
 
 # Now target specific steps to make the system bootable
 case "${FLAGS_target}" in
+    x86_64-efi|arm64-efi)
+        info "Installing default ${FLAGS_target} UEFI bootloader."
+
+        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+            # Sign GRUB and mokmanager(mm) with the shim-embedded key.
+            do_sbsign --output "${ESP_DIR}/${GRUB_IMAGE}"{,}
+            do_sbsign --output "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi" \
+                "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi"
+
+            # Unofficial build: Sign shim with our development key.
+            sudo sbsign \
+                --key /usr/share/sb_keys/DB.key \
+                --cert /usr/share/sb_keys/DB.crt \
+                --output "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
+                "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi"
+        else
+            # Official build: Copy the unsigned files.
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi" \
+                "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi"
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi" \
+                "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi"
+        fi
+
+        # copying from vfat so ignore permissions
+        if [[ -n ${FLAGS_copy_efi_grub} ]]; then
+            cp --no-preserve=mode "${ESP_DIR}/${GRUB_IMAGE}" \
+                "${FLAGS_copy_efi_grub}"
+        fi
+        if [[ -n ${FLAGS_copy_shim} ]]; then
+            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
+                "${FLAGS_copy_shim}"
+        fi
+        ;;
     i386-pc)
         info "Installing MBR and the BIOS Boot partition."
         sudo cp "${GRUB_SRC}/boot.img" "${ESP_DIR}/${GRUB_DIR}"
@@ -199,66 +226,11 @@ case "${FLAGS_target}" in
         sudo dd bs=448 count=1 status=none if="${LOOP_DEV}" \
             of="${ESP_DIR}/${GRUB_DIR}/mbr.bin"
         ;;
-    x86_64-efi)
-        info "Installing default x86_64 UEFI bootloader."
-        sudo mkdir -p "${ESP_DIR}/EFI/boot"
-        # Use the test keys for signing unofficial builds
-        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-            # Sign the GRUB with the shim-embedded key
-            sudo sbsign --key /usr/share/sb_keys/shim.key \
-                --cert /usr/share/sb_keys/shim.pem \
-                "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
-            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
-                "${ESP_DIR}/EFI/boot/grubx64.efi"
-            sudo rm "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
-            # Sign the mokmanager(mm) with the shim-embedded key
-            sudo sbsign --key /usr/share/sb_keys/shim.key \
-                --cert /usr/share/sb_keys/shim.pem \
-                "/usr/lib/shim/mmx64.efi"
-            sudo cp "/usr/lib/shim/mmx64.efi.signed" \
-                "${ESP_DIR}/EFI/boot/mmx64.efi"
-
-            sudo sbsign --key /usr/share/sb_keys/DB.key \
-                --cert /usr/share/sb_keys/DB.crt \
-                --output "${ESP_DIR}/EFI/boot/bootx64.efi" \
-                "/usr/lib/shim/shim.efi"
-        else
-            sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
-                "${ESP_DIR}/EFI/boot/grubx64.efi"
-            sudo cp "/usr/lib/shim/shim.efi" \
-                "${ESP_DIR}/EFI/boot/bootx64.efi"
-            sudo cp "/usr/lib/shim/mmx64.efi" \
-                "${ESP_DIR}/EFI/boot/mmx64.efi"
-        fi
-        # copying from vfat so ignore permissions
-        if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/grubx64.efi" \
-                "${FLAGS_copy_efi_grub}"
-        fi
-        if [[ -n "${FLAGS_copy_shim}" ]]; then
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/bootx64.efi" \
-                "${FLAGS_copy_shim}"
-        fi
-        ;;
     x86_64-xen)
         info "Installing default x86_64 Xen bootloader."
-        sudo mkdir -p "${ESP_DIR}/xen" "${ESP_DIR}/boot/grub"
-        sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
-            "${ESP_DIR}/xen/pvboot-x86_64.elf"
+        sudo mkdir -p "${ESP_DIR}/boot/grub"
         sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
             "${ESP_DIR}/boot/grub/menu.lst"
-        ;;
-    arm64-efi)
-        info "Installing default arm64 UEFI bootloader."
-        sudo mkdir -p "${ESP_DIR}/EFI/boot"
-        #FIXME(andrejro): shim not ported to aarch64
-        sudo mv "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
-            "${ESP_DIR}/EFI/boot/bootaa64.efi"
-        if [[ -n "${FLAGS_copy_efi_grub}" ]]; then
-            # copying from vfat so ignore permissions
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/bootaa64.efi" \
-                "${FLAGS_copy_efi_grub}"
-        fi
         ;;
 esac
 
