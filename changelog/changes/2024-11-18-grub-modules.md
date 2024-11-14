@@ -1,0 +1,1 @@
+- Additional GRUB modules are no longer installed for UEFI platforms to save space and also because they cannot be loaded with Secure Boot enabled. This does not affect existing installations.
