@@ -12,6 +12,32 @@ cros_pre_src_prepare_adjust_version() {
 	sed -i "/AC_INIT/s/\b${PV//./\\.}\b/\0-${FLATCAR_VERSION}/g" configure.ac || die
 }
 
+# Prevent developer test modules from being built. These are normally always
+# installed, even by grub-install, but they have no use outside of testing and
+# take up valuable space in /boot. The best way to identify these is to look for
+# references to the tests/ directory.
+cros_post_src_prepare_drop_tests() {
+	gawk -i inplace '
+		/^module = \{/ {
+			in_mod = 1
+		}
+		in_mod {
+			block = block $0 "\n"
+		}
+		/^\};/ && in_mod {
+			if (block !~ /\<tests\//) {
+				printf "%s", block
+			}
+			in_mod = 0
+			block = ""
+			next
+		}
+		!in_mod {
+			print
+		}
+	' grub-core/Makefile.core.def || die
+}
+
 # Replace Gentoo's SBAT with Flatcar's.
 cros_post_src_install_sbat() {
 	insinto /usr/share/grub
