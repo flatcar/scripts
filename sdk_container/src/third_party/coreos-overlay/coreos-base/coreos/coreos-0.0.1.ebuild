@@ -127,7 +127,7 @@ RDEPEND="${RDEPEND}
 	net-analyzer/openbsd-netcat
 	net-analyzer/tcpdump
 	net-analyzer/traceroute
-	net-dns/bind-tools
+	net-dns/bind
 	net-firewall/conntrack-tools
 	net-firewall/ebtables
 	net-firewall/ipset
