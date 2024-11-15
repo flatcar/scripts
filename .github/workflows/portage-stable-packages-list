@@ -394,12 +394,10 @@ eclass/db-use.eclass
 eclass/desktop.eclass
 eclass/dist-kernel-utils.eclass
 eclass/distutils-r1.eclass
-eclass/eapi7-ver.eclass
 eclass/eapi8-dosym.eclass
 eclass/edo.eclass
 eclass/edos2unix.eclass
 eclass/elisp-common.eclass
-eclass/eqawarn.eclass
 eclass/estack.eclass
 eclass/fcaps.eclass
 eclass/flag-o-matic.eclass
@@ -482,7 +480,6 @@ eclass/usr-ldscript.eclass
 eclass/vcs-clean.eclass
 eclass/vcs-snapshot.eclass
 eclass/verify-sig.eclass
-eclass/versionator.eclass
 eclass/vim-doc.eclass
 eclass/vim-plugin.eclass
 eclass/virtualx.eclass
