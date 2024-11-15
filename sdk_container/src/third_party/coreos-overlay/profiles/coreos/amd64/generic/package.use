@@ -3,5 +3,4 @@
 sys-firmware/intel-microcode vanilla
 
 # Enable gssapi only for amd64, to avoid build errors in arm64.
-net-dns/bind-tools           gssapi
 net-dns/bind                 gssapi
