@@ -10,12 +10,12 @@ else
     unset SBSIGN_CERT
 fi
 
-PKCS11_MODULE_PATH="/usr/$(get_sdk_libdir)/pkcs11/azure_kms_pkcs11.so"
+PKCS11_MODULE_PATH="/usr/$(get_sdk_libdir)/pkcs11/azure-keyvault-pkcs11.so"
 
 PKCS11_ENV=(
     AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/"
     PKCS11_MODULE_PATH="${PKCS11_MODULE_PATH}"
-    AWS_KMS_PKCS11_DEBUG=1
+    AZURE_KEYVAULT_PKCS11_DEBUG=1
 )
 
 get_sbsign_cert() {
