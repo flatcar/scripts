@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://www.kernel.org/pub/linux/utils/net/${PN}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 DESCRIPTION="kernel routing and traffic control utilities"
@@ -112,7 +112,8 @@ src_configure() {
 
 	# run "configure" script first which will create "config.mk"...
 	# Using econf breaks since 5.14.0 (a9c3d70d902a0473ee5c13336317006a52ce8242)
-	edo ./configure --color=auto --libbpf_force $(usex bpf on off)
+	eval "local -a EXTRA_ECONF=(${EXTRA_ECONF})"
+	edo ./configure --libbpf_force $(usex bpf on off) "${EXTRA_ECONF[@]}"
 
 	# Remove the definitions made by configure and allow them to be overridden
 	# by USE flags below.
