@@ -1,7 +1,10 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+
+# sys-libs/ncurses-compat can be bumped with sys-libs/ncurses as upstream
+# provide a configure option for the ABI version.
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/thomasdickey.asc
 inherit flag-o-matic toolchain-funcs multilib multilib-minimal preserve-libs usr-ldscript verify-sig
@@ -19,7 +22,7 @@ SRC_URI="
 "
 
 GENTOO_PATCH_DEV=sam
-GENTOO_PATCH_PV=6.4_p20230408
+GENTOO_PATCH_PV=6.5_p20241109
 GENTOO_PATCH_NAME=${PN}-${GENTOO_PATCH_PV}-patches
 
 # Populated below in a loop. Do not add patches manually here.
@@ -40,14 +43,31 @@ if [[ ${PV} == *_p* ]] ; then
 	# This array should contain a list of all the snapshots since the last
 	# release if there's no megapatch available yet.
 	PATCH_DATES=(
-		20230107
-		20230114
-		20230121
-		20230128
-		20230211
-		20230218
-		20230225
-		20230311
+		20240504
+		20240511
+		20240518
+		20240519
+		20240525
+		20240601
+		20240608
+		20240615
+		20240622
+		20240629
+		20240706
+		20240713
+		20240720
+		20240727
+		20240810
+		20240817
+		20240824
+		20240831
+		20240914
+		20240922
+		20240928
+		20241006
+		20241019
+		20241026
+		20241102
 
 		# Latest patch is just _pN = $(ver_cut 4)
 		$(ver_cut 4)
@@ -84,14 +104,19 @@ if [[ ${PV} == *_p* ]] ; then
 fi
 
 SRC_URI+=" https://dev.gentoo.org/~${GENTOO_PATCH_DEV}/distfiles/${CATEGORY}/${PN}/${GENTOO_PATCH_NAME}.tar.xz"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="ada +cxx debug doc gpm minimal profile split-usr +stack-realign static-libs test tinfo trace"
 RESTRICT="!test? ( test )"
 
+# TODO: ncurses allows (and we take advantage of this, even) passing
+# the SONAME for dlopen() use, so only the header is needed at build time.
+# Maybe we should bundle a copy of gpm.h so we can move gpm to PDEPEND
+# which would be far nicer UX-wise.
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"
 # Block the older ncurses that installed all files w/SLOT=5, bug #557472
 RDEPEND="
@@ -102,8 +127,6 @@ RDEPEND="
 	!<x11-terms/st-0.6-r1
 "
 BDEPEND="verify-sig? ( sec-keys/openpgp-keys-thomasdickey )"
-
-S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
 	"${UPSTREAM_PATCHES[@]/#/${WORKDIR}/${MY_P}-}"
@@ -144,6 +167,9 @@ src_configure() {
 
 	# bug #214642
 	BUILD_CPPFLAGS+=" -D_GNU_SOURCE"
+
+	# NCURSES_BOOL confusion, see https://lists.gnu.org/archive/html/bug-ncurses/2024-11/msg00010.html
+	append-cflags -std=gnu17
 
 	# Build the various variants of ncurses -- narrow, wide, and threaded. #510440
 	# Order matters here -- we want unicode/thread versions to come last so that the
@@ -222,6 +248,7 @@ do_configure() {
 
 		# Now the rest of the various standard flags.
 		--with-shared
+		--enable-fvisibility
 		# (Originally disabled until bug #245417 is sorted out, but now
 		# just keeping it off for good, given nobody needed it until now
 		# (2022) and we're trying to phase out bdb.)
@@ -235,8 +262,13 @@ do_configure() {
 		# The configure script uses ldd to parse the linked output which
 		# is flaky for cross-compiling/multilib/ldd versions/etc...
 		$(use_with gpm gpm libgpm.so.1)
-		# Required for building  on mingw-w64, and possibly other windows
-		# platforms, bug #639670
+
+		# bug #930806
+		--disable-setuid-environ
+		# TODO: Maybe do these for USE=hardened
+		#--disable-root-access
+		#--disable-root-environ
+
 		--disable-term-driver
 		--disable-termcap
 		--enable-symlinks
