@@ -5,7 +5,7 @@ EAPI=7
 EGO_PN=github.com/docker/docker
 MY_PV=${PV/_/-}
 inherit golang-vcs-snapshot linux-info optfeature systemd udev
-GIT_COMMIT=8b539b8df24032dabeaaa099cf1d0535ef0286a3
+GIT_COMMIT=41ca978a0a5400cc24b274137efa9f25517fcc0b
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
@@ -33,8 +33,8 @@ RDEPEND="
 	sys-process/procps
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
-	>=app-containers/containerd-1.7.21[apparmor?,btrfs?,seccomp?]
-	>=app-containers/runc-1.1.13[apparmor?,seccomp?]
+	>=app-containers/containerd-1.7.22[apparmor?,btrfs?,seccomp?]
+	>=app-containers/runc-1.1.14[apparmor?,seccomp?]
 	!app-containers/docker-proxy
 	container-init? ( >=sys-process/tini-0.19.0[static] )
 	selinux? ( sec-policy/selinux-docker )
@@ -52,10 +52,6 @@ RESTRICT="installsources strip test"
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
 # https://bugs.gentoo.org/748984 https://github.com/etcd-io/etcd/pull/12552
-PATCHES=(
-	"${FILESDIR}/0001-Openrc-Depend-on-containerd-init-script.patch"
-)
-
 pkg_setup() {
 	# this is based on "contrib/check-config.sh" from upstream's sources
 	# required features.
