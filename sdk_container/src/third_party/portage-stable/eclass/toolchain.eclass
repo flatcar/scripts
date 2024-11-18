@@ -14,6 +14,8 @@
 if [[ -z ${_TOOLCHAIN_ECLASS} ]]; then
 _TOOLCHAIN_ECLASS=1
 
+RUST_OPTIONAL="1"
+
 case ${EAPI} in
 	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
@@ -22,7 +24,7 @@ esac
 DESCRIPTION="The GNU Compiler Collection"
 HOMEPAGE="https://gcc.gnu.org/"
 
-inherit edo flag-o-matic gnuconfig libtool multilib pax-utils toolchain-funcs prefix
+inherit edo flag-o-matic gnuconfig libtool multilib pax-utils rust toolchain-funcs prefix
 
 [[ -n ${TOOLCHAIN_HAS_TESTS} ]] && inherit python-any-r1
 
@@ -330,6 +332,7 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	# and https://rust-gcc.github.io/2023/04/24/gccrs-and-gcc13-release.html for why
 	# it was disabled in 13.
 	tc_version_is_at_least 14.0.0_pre20230423 ${PV} && IUSE+=" rust" TC_FEATURES+=( rust )
+	tc_version_is_at_least 14.2.1_p20241026 ${PV} && IUSE+=" time64"
 fi
 
 if tc_version_is_at_least 10; then
@@ -426,7 +429,7 @@ fi
 if tc_has_feature rust && tc_version_is_at_least 14.0.0_pre20230421 ; then
 	# This was added upstream in r14-9968-g3e1e73fc995844 as a temporary measure.
 	# See https://inbox.sourceware.org/gcc/34fec7ea-8762-4cac-a1c8-ff54e20e31ed@embecosm.com/
-	BDEPEND+=" rust? ( virtual/rust )"
+	BDEPEND+=" rust? ( ${RUST_DEPEND} )"
 fi
 
 PDEPEND=">=sys-devel/gcc-config-2.11"
@@ -592,6 +595,8 @@ toolchain_pkg_setup() {
 	MAKEOPTS="--output-sync=line ${MAKEOPTS}"
 
 	[[ -n ${TOOLCHAIN_HAS_TESTS} ]] && use test && python-any-r1_pkg_setup
+
+	_tc_use_if_iuse rust && rust_pkg_setup
 }
 
 #---->> src_unpack <<----
@@ -1060,6 +1065,9 @@ toolchain_src_configure() {
 
 	downgrade_arch_flags
 	gcc_do_filter_flags
+	if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] && tc_version_is_at_least 14.2.1_p20241026 ${PV}; then
+		append-cppflags "-D_GENTOO_TIME64_FORCE=$(usex time64 1 0)"
+	fi
 
 	if ! tc_version_is_at_least 11 && [[ $(gcc-major-version) -ge 12 ]] ; then
 		# https://gcc.gnu.org/PR105695 (bug #849359)
@@ -1244,7 +1252,10 @@ toolchain_src_configure() {
 	# 	;;
 	# esac
 
-	### Cross-compiler options
+	### Cross-compiler option
+	#
+	# Note that 'newlib' here doesn't have to mean genuine newlib.
+	# See https://gcc.gnu.org/pipermail/gcc/2014-January/211653.html.
 	if is_crosscompile ; then
 		# Enable build warnings by default with cross-compilers when system
 		# paths are included (e.g. via -I flags).
@@ -1575,9 +1586,9 @@ toolchain_src_configure() {
 			fi
 		}
 
-		enable_cet_for 'i[34567]86' 'linux' 'cet'
 		enable_cet_for 'x86_64' 'gnu' 'cet'
 		enable_cet_for 'aarch64' 'gnu' 'standard-branch-protection'
+		[[ ${CTARGET} == i[34567]86-* ]] && confgcc+=( --disable-cet )
 	fi
 
 	if in_iuse systemtap ; then
@@ -1942,6 +1953,15 @@ gcc_do_filter_flags() {
 
 		# New in GCC 14.
 		filter-flags -Walloc-size
+	fi
+
+	if ver_test -lt 15.1 ; then
+		filter-flags -fdiagnostics-explain-harder -fdiagnostics-details
+	fi
+
+	if is_d ; then
+		# bug #940750
+		filter-flags -Warray-bounds
 	fi
 
 	# Please use USE=lto instead (bug #906007).
@@ -2963,18 +2983,21 @@ XGCC() { get_make_var GCC_FOR_TARGET ; }
 
 has toolchain_death_notice ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" toolchain_death_notice"
 toolchain_death_notice() {
-	if [[ -e "${WORKDIR}"/build ]] ; then
-		pushd "${WORKDIR}"/build >/dev/null
-		(echo '' | $(tc-getCC ${CTARGET}) ${CFLAGS} -v -E - 2>&1) > gccinfo.log
-		[[ -e "${T}"/build.log ]] && cp "${T}"/build.log .
-		tar -acf "${WORKDIR}"/gcc-build-logs.tar.xz \
-			gccinfo.log build.log $(find -name config.log)
-		rm gccinfo.log build.log
-		eerror
-		eerror "Please include ${WORKDIR}/gcc-build-logs.tar.xz in your bug report."
-		eerror
-		popd >/dev/null
-	fi
+	local dir
+	for dir in "${WORKDIR}"/build-jit "${WORKDIR}"/build ; do
+		if [[ -e "${dir}" ]] ; then
+			pushd "${WORKDIR}" >/dev/null
+			(echo '' | $(tc-getCC ${CTARGET}) ${CFLAGS} -v -E - 2>&1) > "${dir}"/gccinfo.log
+			[[ -e "${T}"/build.log ]] && cp "${T}"/build.log "${dir}"
+			tar -arf "${WORKDIR}"/gcc-build-logs.tar.xz \
+				"${dir#${WORKDIR}/}"/gccinfo.log "${dir#${WORKDIR}/}"/build.log $(find -name "${dir}"/config.log)
+			rm "${dir}"/gccinfo.log "${dir}"/build.log
+			eerror
+			eerror "Please include ${WORKDIR}/gcc-build-logs.tar.xz in your bug report."
+			eerror
+			popd >/dev/null
+		fi
+	done
 }
 
 fi
