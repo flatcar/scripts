@@ -12,7 +12,7 @@ if [[ "${PV}" == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/axboe/liburing.git"
 else
 	SRC_URI="https://git.kernel.dk/cgit/${PN}/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	QA_PKGCONFIG_VERSION=${PV}
 fi
 LICENSE="MIT"
@@ -47,6 +47,7 @@ multilib_src_configure() {
 		--mandir="${EPREFIX}/usr/share/man"
 		--cc="$(tc-getCC)"
 		--cxx="$(tc-getCXX)"
+		--use-libc
 	)
 	# No autotools configure! "econf" will fail.
 	TMPDIR="${T}" ./configure "${myconf[@]}" || die
