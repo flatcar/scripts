@@ -25,8 +25,8 @@ CRATES="
 	memoffset@0.9.1
 	once_cell@1.19.0
 	openssl-macros@0.1.1
-	openssl-sys@0.9.103
-	openssl@0.10.66
+	openssl-sys@0.9.104
+	openssl@0.10.68
 	pem@3.0.4
 	pkg-config@0.3.30
 	portable-atomic@1.7.0
@@ -66,7 +66,7 @@ LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD MIT Unicode-DFS-2016
 "
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ~loong ~mips ~ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 
 RDEPEND="
 	>=dev-libs/openssl-1.0.2o-r6:0=
@@ -77,11 +77,10 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 "
-# XXX: Drop explicit >=virtual/rust-1.56.0 dep once that's the minimum in cargo.eclass
-# and replace it with ${RUST_DEPEND}
+
 BDEPEND="
+	${RUST_DEPEND}
 	dev-python/setuptools[${PYTHON_USEDEP}]
-	>=virtual/rust-1.56.0
 	test? (
 		dev-python/certifi[${PYTHON_USEDEP}]
 		>=dev-python/hypothesis-1.11.4[${PYTHON_USEDEP}]
