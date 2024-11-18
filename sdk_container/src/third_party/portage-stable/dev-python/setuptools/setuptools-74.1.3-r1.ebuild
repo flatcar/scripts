@@ -21,14 +21,12 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!<dev-python/setuptools-rust-1.8.0
-	dev-python/jaraco-collections[${PYTHON_USEDEP}]
-	dev-python/jaraco-functools[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/more-itertools-8.12.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/packaging-24[${PYTHON_USEDEP}]
@@ -73,7 +71,7 @@ BDEPEND="
 # https://github.com/pypa/setuptools/issues/4459
 PDEPEND="
 	dev-python/setuptools-scm[${PYTHON_USEDEP}]
-	>=dev-python/trove-classifiers-2024.7.2[${PYTHON_USEDEP}]
+	>=dev-python/trove-classifiers-2024.10.16[${PYTHON_USEDEP}]
 "
 
 src_prepare() {
