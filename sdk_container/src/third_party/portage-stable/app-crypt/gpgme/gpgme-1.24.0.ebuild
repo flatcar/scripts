@@ -18,7 +18,7 @@ VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnupg.asc
 # in-source builds are not supported:
 # * https://dev.gnupg.org/T6313#166339
 # * https://dev.gnupg.org/T6673#174545
-inherit distutils-r1 libtool flag-o-matic multibuild qmake-utils toolchain-funcs verify-sig
+inherit distutils-r1 libtool flag-o-matic out-of-source qmake-utils toolchain-funcs verify-sig
 
 DESCRIPTION="GnuPG Made Easy is a library for making GnuPG easier to use"
 HOMEPAGE="https://www.gnupg.org/related_software/gpgme"
@@ -34,7 +34,7 @@ LICENSE="GPL-2 LGPL-2.1"
 # Bump FUDGE if a release is made which breaks ABI without changing SONAME.
 # (Reset to 0 if FUDGE != 0 if libgpgme/libgpgmepp/libqpggme change.)
 SLOT="1/11.6.15.2"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="common-lisp static-libs +cxx python qt5 qt6 test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="
@@ -71,8 +71,6 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.18.0-tests-start-stop-agent-use-command-v.patch
 	"${FILESDIR}"/${PN}-1.23.1-tests-gnupg-no-tofu.patch
-	# backport fix for setuptools 72.2 breakage
-	"${FILESDIR}"/ecd0c86d62351d267bdc9566286c532a394c711b.patch
 )
 
 src_prepare() {
@@ -93,64 +91,23 @@ src_prepare() {
 	# as usock limitation fails build/tests
 	ln -s "${P}" "${WORKDIR}/b" || die
 	S="${WORKDIR}/b"
-
-	# Qt 5 and Qt 6 are mutually exclusive in the gpgme build. We don't have
-	# to do three builds (normal, qt5, qt6), and we can instead just
-	# do normal+qt5 or normal+qt6. For now, we pessimise qt6 by making it
-	# be a separate build, but in time, we can swap it so qt5 has to be
-	# the separate one so some build time gets saved in the common case.
-	MULTIBUILD_VARIANTS=(
-		base
-		$(usev qt6 qt6)
-	)
-
-	gpgme_create_builddir() {
-		mkdir -p "${BUILD_DIR}" || die
-	}
-
-	multibuild_foreach_variant gpgme_create_builddir
 }
 
-src_configure() {
-	multibuild_foreach_variant gpgme_src_configure
-}
-
-gpgme_src_configure() {
+my_src_configure() {
 	# bug #847955
 	append-lfs-flags
 
 	cd "${BUILD_DIR}" || die
 
-	local languages=()
+	local languages=(
+		$(usev common-lisp 'cl')
+		$(usev cxx 'cpp')
+		$(usev qt5 'qt5')
+		$(usev qt6 'qt6')
+	)
 
-	case ${MULTIBUILD_VARIANT} in
-		base)
-			languages=(
-				$(usev common-lisp 'cl')
-				$(usev cxx 'cpp')
-				$(usev qt5 'qt5')
-			)
-
-			if use qt5; then
-				#use doc ||
-				export DOXYGEN=true
-				export MOC="$(qt5_get_bindir)/moc"
-			fi
-
-			;;
-		*)
-			# Sanity check for refactoring, the non-base variant is only for Qt 6
-			use qt6 || die "Non-base variant shouldn't be built without Qt 6! Please report at bugs.gentoo.org."
-
-			languages=(
-				cpp
-				qt6
-			)
-
-			export MOC="$(qt6_get_libdir)/qt6/libexec/moc"
-
-			;;
-	esac
+	use qt5 && export MOC5="$(qt5_get_bindir)/moc"
+	use qt6 && export MOC6="$(qt6_get_libdir)/qt6/libexec/moc"
 
 	local myeconfargs=(
 		$(use test || echo "--disable-gpgconf-test --disable-gpg-test --disable-gpgsm-test --disable-g13-test")
@@ -161,7 +118,7 @@ gpgme_src_configure() {
 
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 
-	if [[ ${MULTIBUILD_VARIANT} == base ]] && use python ; then
+	if use python ; then
 		emake -C lang/python prepare
 
 		pushd lang/python > /dev/null || die
@@ -170,32 +127,24 @@ gpgme_src_configure() {
 	fi
 }
 
-src_compile() {
-	multibuild_foreach_variant gpgme_src_compile
-}
-
-gpgme_src_compile() {
+my_src_compile() {
 	cd "${BUILD_DIR}" || die
 
 	emake
 
-	if [[ ${MULTIBUILD_VARIANT} == base ]] && use python ; then
+	if use python ; then
 		pushd lang/python > /dev/null || die
 		top_builddir="../.." srcdir="${S}/lang/python" CPP="$(tc-getCPP)" distutils-r1_src_compile
 		popd > /dev/null || die
 	fi
 }
 
-src_test() {
-	multibuild_foreach_variant gpgme_src_test
-}
-
-gpgme_src_test() {
+my_src_test() {
 	cd "${BUILD_DIR}" || die
 
 	emake check
 
-	if [[ ${MULTIBUILD_VARIANT} == base ]] && use python ; then
+	if use python ; then
 		distutils-r1_src_test
 	fi
 }
@@ -207,17 +156,14 @@ python_test() {
 		TESTFLAGS="--python-libdir=${BUILD_DIR}/lib"
 }
 
-src_install() {
+my_src_install() {
 	einstalldocs
-	multibuild_foreach_variant gpgme_src_install
-}
 
-gpgme_src_install() {
 	cd "${BUILD_DIR}" || die
 
 	emake DESTDIR="${D}" install
 
-	if [[ ${MULTIBUILD_VARIANT} == base ]] && use python ; then
+	if use python ; then
 		pushd lang/python > /dev/null || die
 		top_builddir="../.." srcdir="${S}/lang/python" CPP="$(tc-getCPP)" distutils-r1_src_install
 		popd > /dev/null || die
