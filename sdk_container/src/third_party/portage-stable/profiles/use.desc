@@ -168,6 +168,7 @@ lash - Add LASH Audio Session Handler support
 latex - Add support for LaTeX (typesetting package)
 lcms - Add lcms support (color management engine)
 ldap - Add LDAP support (Lightweight Directory Access Protocol)
+lerc - Add LERC suppport (Limited Error Raster Compression)
 libass - SRT/SSA/ASS (SubRip / SubStation Alpha) subtitle support
 libcaca - Add support for colored ASCII-art graphics
 libedit - Use the libedit library (replacement for readline)
@@ -339,6 +340,7 @@ theora - Add support for the Theora Video Compression Codec
 threads - Add threads support for various packages. Usually pthreads
 tidy - Add support for HTML Tidy
 tiff - Add support for the TIFF image format
+time64 - Use 64-bit time_t type instead of the regular 32-bit type. This flag is forced on time64 profiles, and masked elsewhere. It should be only used when detection of type width is not possible (e.g. for SRC_URI)
 timidity - Build with Timidity++ (MIDI sequencer) support
 tk - Add support for Tk GUI toolkit
 truetype - Add support for FreeType and/or FreeType2 fonts

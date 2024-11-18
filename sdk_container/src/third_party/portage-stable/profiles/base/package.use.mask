@@ -3,6 +3,32 @@
 
 # New entries go on top.
 
+# Sam James <sam@gentoo.org> (2024-11-17)
+# The example bindings fail to build.
+~sys-libs/ncurses-6.5_p20241109 cxx
+
+# Joonas Niilola <juippis@gentoo.org> (2024-11-16)
+# Wasm support is (currently) only available on amd64 and arm64.
+www-client/firefox wasm
+
+# Matt Jolly <kangie@gentoo.org> (2024-11-11)
+# ICU 76.1 is not compatible with Chromium. Bug #943216.
+# We'll mask it for a few weeks to use the bundled ICU
+# while Google fixes the issue.
+www-client/chromium system-icu
+
+# Joonas Niilola <juippis@gentoo.org> (2024-11-07)
+# Dependency for generating docs not packaged in Gentoo. #942992
+dev-util/repolite doc
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-11-01)
+# No suitable versions of dev-libs/protobuf available.
+>=dev-java/protobuf-java-4.28.1 system-protoc
+
+# Sam James <sam@gentoo.org> (2024-10-29)
+# Currently needs patched dev-util/sysprof.
+dev-libs/elfutils stacktrace
+
 # Peter Levine <plevine457@gmail.com> (2024-10-09)
 # Leads to missing symbols while building testcases
 # Masked for further testing.
@@ -35,10 +61,6 @@ dev-lang/gnat-gpl pgo lto
 # Only supported on x86/amd64 (bug #940014).
 net-misc/lldpd seccomp
 
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-09-12)
-# No suitable version of dev-libs/protobuf available.
-=dev-java/protobuf-java-4.28.1 system-protoc
-
 # Sam James <sam@gentoo.org> (2024-09-07)
 # yacc[reference] exists more for curiosity than anything else, it's
 # not for real use on systems.
@@ -47,10 +69,6 @@ app-alternatives/yacc reference
 # Sam James <sam@gentoo.org> (2024-09-03)
 # Causes crashes with e.g. dlz+samba (bug #938955)
 net-dns/bind jemalloc
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-01)
-# Prepare for dev-util/kdevelop:5 removal
-kde-apps/umbrello:5 php
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-08-31)
 # Prepare for KDE PIM 5 removal and avoid conflicts w/ KDE PIM 6
@@ -337,10 +355,6 @@ net-libs/gssdp man
 # Needs long-EOL dev-lang/spidermonkey:60 (which also needs python:2.7).
 media-libs/coin javascript
 
-# Michał Górny <mgorny@gentoo.org> (2022-11-19)
-# Requires packages masked for removal.
-mail-mta/netqmail authcram
-
 # Matt Turner <mattst88@gentoo.org> (2022-11-16)
 # gnome-music and gnome-photos have not been ported to libsoup:3.0, while
 # other non-slotted dependencies have been.
@@ -528,10 +542,6 @@ gui-libs/gtk ffmpeg vulkan
 # Alfredo Tupone <tupone@gentoo.org> (2021-06-27)
 # lto does not work on dev-lang/gnat-gpl-2021
 dev-lang/gnat-gpl:10 lto
-
-# Mike Gilbert <floppym@gentoo.org> (2021-06-14)
-# Avoid running failing tests by default.
-sys-kernel/dracut test
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2021-05-09)
 # Dependency requires sys-apps/systemd. Will only be unmasked in systemd target.
