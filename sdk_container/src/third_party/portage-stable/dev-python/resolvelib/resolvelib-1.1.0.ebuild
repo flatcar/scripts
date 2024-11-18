@@ -25,7 +25,6 @@ KEYWORDS="~alpha amd64 arm arm64 ~hppa ~m68k ppc ppc64 ~riscv ~s390 ~sparc x86"
 
 BDEPEND="
 	test? (
-		dev-python/commentjson[${PYTHON_USEDEP}]
 		dev-python/packaging[${PYTHON_USEDEP}]
 	)
 "
