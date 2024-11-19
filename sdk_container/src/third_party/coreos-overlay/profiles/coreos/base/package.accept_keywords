@@ -35,9 +35,6 @@
 # Needed by updated app-containers/containers-common
 =app-containers/netavark-1.12.2-r1 ~amd64 ~arm64
 
-# Needed to address CVE-2024-3727
-=app-containers/podman-5.0.3 ~amd64 ~arm64
-
 # These seem to be the versions we initially got, but the
 # modifications made to the ebuilds were clobbered, so these are here
 # to keep using the same version. Can be dropped when these or newer
