@@ -41,7 +41,7 @@ switch_to_strict_mode
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
 # Modules required to boot a standard CoreOS configuration
-CORE_MODULES=( normal search test fat part_gpt search_fs_uuid gzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
+CORE_MODULES=( normal search test fat part_gpt search_fs_uuid xzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
 
 SBAT_ARG=()
 
@@ -126,11 +126,21 @@ if [[ -z ${MOUNTED} ]]; then
 fi
 sudo mkdir -p "${ESP_DIR}/${GRUB_DIR}" "${ESP_DIR}/${GRUB_IMAGE%/*}"
 
-info "Compressing modules in ${GRUB_DIR}"
-for file in "${GRUB_SRC}"/*{.lst,.mod}; do
-    out="${ESP_DIR}/${GRUB_DIR}/${file##*/}"
-    gzip --best --stdout "${file}" | sudo_clobber "${out}"
-done
+# Additional GRUB modules cannot be loaded with Secure Boot enabled, so only
+# copy and compress these for target that don't support it.
+case "${FLAGS_target}" in
+    x86_64-efi|arm64-efi) : ;;
+    *)
+        info "Compressing modules in ${GRUB_DIR}"
+        for file in "${GRUB_SRC}"/*{.lst,.mod}; do
+            for core_mod in "${CORE_MODULES[@]}"; do
+                [[ ${file} == ${GRUB_SRC}/${core_mod}.mod ]] && continue 2
+            done
+            out="${ESP_DIR}/${GRUB_DIR}/${file##*/}"
+            xz --stdout "${file}" | sudo_clobber "${out}"
+        done
+        ;;
+esac
 
 info "Generating ${GRUB_DIR}/load.cfg"
 # Include a small initial config in the core image to search for the ESP
@@ -168,7 +178,7 @@ fi
 
 info "Generating ${GRUB_IMAGE}"
 sudo grub-mkimage \
-    --compression=auto \
+    --compression=xz \
     --format "${FLAGS_target}" \
     --directory "${GRUB_SRC}" \
     --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
@@ -176,10 +186,6 @@ sudo grub-mkimage \
     "${SBAT_ARG[@]}" \
     --output "${ESP_DIR}/${GRUB_IMAGE}" \
     "${CORE_MODULES[@]}"
-
-for mod in "${CORE_MODULES[@]}"; do
-    sudo rm "${ESP_DIR}/${GRUB_DIR}/${mod}.mod"
-done
 
 # Now target specific steps to make the system bootable
 case "${FLAGS_target}" in
