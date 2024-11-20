@@ -1,7 +1,7 @@
-From 374cca5b2f9aea1c506352cf58b09db5c216a0d3 Mon Sep 17 00:00:00 2001
+From 2e54b668efc587540cc60fc8f4ca692b618249b0 Mon Sep 17 00:00:00 2001
 From: Matthew Garrett <mjg59@coreos.com>
 Date: Tue, 20 Dec 2016 16:43:22 +0000
-Subject: [PATCH 5/8] systemd: Disable SELinux permissions checks
+Subject: [PATCH 05/11] systemd: Disable SELinux permissions checks
 
 We don't care about the interaction between systemd and SELinux policy, so
 let's just disable these checks rather than having to incorporate policy

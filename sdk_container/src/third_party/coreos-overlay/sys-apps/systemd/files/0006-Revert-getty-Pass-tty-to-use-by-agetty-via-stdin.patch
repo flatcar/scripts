@@ -1,7 +1,7 @@
-From bffb2a48796a2736d7fb7328d2a88b1cbb812b12 Mon Sep 17 00:00:00 2001
+From f8d9c085ab31bda8878e5e0afa56332e36399c40 Mon Sep 17 00:00:00 2001
 From: Sayan Chowdhury <schowdhury@microsoft.com>
 Date: Fri, 16 Dec 2022 16:28:26 +0530
-Subject: [PATCH 6/8] Revert "getty: Pass tty to use by agetty via stdin"
+Subject: [PATCH 06/11] Revert "getty: Pass tty to use by agetty via stdin"
 
 This reverts commit b4bf9007cbee7dc0b1356897344ae2a7890df84c.
 

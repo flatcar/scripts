@@ -1,7 +1,7 @@
-From 0be1b5367c24427e3285d33fb87aa4acdf3c4dce Mon Sep 17 00:00:00 2001
+From f322fd3a034a213f8a3fa70c5d3627205a874563 Mon Sep 17 00:00:00 2001
 From: Alex Crawford <alex.crawford@coreos.com>
 Date: Wed, 2 Mar 2016 10:46:33 -0800
-Subject: [PATCH 3/8] needs-update: don't require strictly newer usr
+Subject: [PATCH 03/11] needs-update: don't require strictly newer usr
 
 Updates should be triggered whenever usr changes, not only when it is newer.
 ---

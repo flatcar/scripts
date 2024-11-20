@@ -1,0 +1,22 @@
+From feb54a32d985834d7eb1ac3d88fc02e2c3878123 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Wed, 16 Oct 2024 12:52:01 +0200
+Subject: [PATCH 11/11] Add debug output to ldconfig
+
+---
+ units/ldconfig.service | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/units/ldconfig.service b/units/ldconfig.service
+index 404fa011d5..3793e111da 100644
+--- a/units/ldconfig.service
++++ b/units/ldconfig.service
+@@ -25,4 +25,4 @@ Before=shutdown.target initrd-switch-root.target
+ [Service]
+ Type=oneshot
+ RemainAfterExit=yes
+-ExecStart=/sbin/ldconfig -X
++ExecStart=/sbin/ldconfig -X -v
+-- 
+2.34.1
+
