@@ -15,3 +15,9 @@ app-eselect/eselect-iptables-20200508
 
 # pulled in by app-admin/sudo
 app-misc/editor-wrapper-4
+
+# Pulled in by net-dns/bind, needed only by named, which we do not
+# install.
+acct-group/named-0-r3
+acct-user/named-0-r3
+sys-process/psmisc-23.7

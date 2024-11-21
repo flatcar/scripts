@@ -8,7 +8,7 @@
 # (the following packages are "unstable" upstream; we're stabilising these)
 
 # Needed by updated app-containers/containers-common
-=app-containers/aardvark-dns-1.12.2 ~amd64 ~arm64
+=app-containers/aardvark-dns-1.12.2-r1 ~amd64 ~arm64
 
 # Handled by automation
 =app-containers/containerd-1.7.23 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-10-18 08:06:10
@@ -29,14 +29,11 @@
 =app-containers/crun-1.17 ~amd64 ~arm64
 
 # Accept unstable for Docker and its CLI.
-=app-containers/docker-27.2.1 ~amd64 ~arm64
-=app-containers/docker-cli-27.2.1 ~amd64 ~arm64
+=app-containers/docker-27.3.1 ~amd64 ~arm64
+=app-containers/docker-cli-27.3.1 ~amd64 ~arm64
 
 # Needed by updated app-containers/containers-common
-=app-containers/netavark-1.12.2 ~amd64 ~arm64
-
-# Needed to address CVE-2024-3727
-=app-containers/podman-5.0.3 ~amd64 ~arm64
+=app-containers/netavark-1.12.2-r1 ~amd64 ~arm64
 
 # These seem to be the versions we initially got, but the
 # modifications made to the ebuilds were clobbered, so these are here
@@ -78,14 +75,11 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
-# Keep versions on both arches in sync.
-=dev-libs/jsoncpp-1.9.6-r2 ~arm64
-
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
-=dev-util/bpftool-7.5.0-r1 ~arm64
+=dev-util/bpftool-7.4.0 ~arm64
 
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
@@ -98,22 +92,16 @@
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# Needed to address CVE-2024-6197, CVE-2024-6874, CVE-2024-7264 and
-# CVE-2024-8096.
-=net-misc/curl-8.10.1 ~amd64 ~arm64
-
 # Needed by updated app-containers/containers-common
 =net-misc/passt-2024.09.06 ~amd64 ~arm64
 
 # Package has not been stabilised yet.
-=sys-apps/azure-vm-utils-0.3.0 ~amd64 ~arm64
+=sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sys-apps/kexec-tools-2.0.28 ~arm64
-=sys-apps/zram-generator-1.1.2 ~arm64
-
-# Upgrade to latest version for secureboot
-=sys-boot/mokutil-0.6.0 ~amd64 ~arm64
+=sys-apps/zram-generator-1.1.2-r1 ~arm64
+=sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64

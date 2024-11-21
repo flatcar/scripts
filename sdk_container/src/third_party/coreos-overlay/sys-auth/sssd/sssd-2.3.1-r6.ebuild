@@ -27,7 +27,7 @@ RESTRICT="!test? ( test )"
 REQUIRED_USE="pac? ( samba )
 	python? ( ${PYTHON_REQUIRED_USE} )"
 
-# Flatcar: do not force gssapi for >=net-dns/bind-tools-9.9
+# Flatcar: do not force gssapi for >=net-dns/bind-9.9
 # do not force winbind for net-fs/samba
 DEPEND="
 	>=app-crypt/mit-krb5-1.10.3
@@ -38,7 +38,7 @@ DEPEND="
 	>=dev-libs/libpcre-8.30:=
 	>=dev-libs/popt-1.16
 	>=dev-libs/openssl-1.0.2:0=
-	>=net-dns/bind-tools-9.9
+	>=net-dns/bind-9.9
 	>=net-dns/c-ares-1.7.4
 	>=net-nds/openldap-2.4.30[sasl]
 	>=sys-apps/dbus-1.6

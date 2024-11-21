@@ -1,0 +1,455 @@
+diff '--color=auto' -r -U 3 bind-9.18.29/Makefile.in bind-9.18.29-patched/Makefile.in
+--- bind-9.18.29/Makefile.in	2024-08-13 14:20:51.780682140 -0000
++++ bind-9.18.29-patched/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -516,7 +516,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ SUBDIRS = . lib doc bin fuzz $(am__append_2)
+Only in bind-9.18.29-patched/: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/check/Makefile.in bind-9.18.29-patched/bin/check/Makefile.in
+--- bind-9.18.29/bin/check/Makefile.in	2024-08-13 14:20:51.824683290 -0000
++++ bind-9.18.29-patched/bin/check/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -472,7 +472,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ noinst_LTLIBRARIES = libcheck-tool.la
+Only in bind-9.18.29-patched/bin/check: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/confgen/Makefile.in bind-9.18.29-patched/bin/confgen/Makefile.in
+--- bind-9.18.29/bin/confgen/Makefile.in	2024-08-13 14:20:51.848683916 -0000
++++ bind-9.18.29-patched/bin/confgen/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -467,7 +467,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ noinst_LTLIBRARIES = libconfgen.la
+Only in bind-9.18.29-patched/bin/confgen: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/delv/Makefile.in bind-9.18.29-patched/bin/delv/Makefile.in
+--- bind-9.18.29/bin/delv/Makefile.in	2024-08-13 14:20:51.872684545 -0000
++++ bind-9.18.29-patched/bin/delv/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -455,7 +455,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ delv_SOURCES = \
+Only in bind-9.18.29-patched/bin/delv: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/dig/Makefile.in bind-9.18.29-patched/bin/dig/Makefile.in
+--- bind-9.18.29/bin/dig/Makefile.in	2024-08-13 14:20:51.904685381 -0000
++++ bind-9.18.29-patched/bin/dig/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -483,7 +483,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ noinst_LTLIBRARIES = libdighost.la
+Only in bind-9.18.29-patched/bin/dig: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/dnssec/Makefile.in bind-9.18.29-patched/bin/dnssec/Makefile.in
+--- bind-9.18.29/bin/dnssec/Makefile.in	2024-08-13 14:20:51.936686217 -0000
++++ bind-9.18.29-patched/bin/dnssec/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -517,7 +517,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ noinst_LTLIBRARIES = libdnssectool.la
+Only in bind-9.18.29-patched/bin/dnssec: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/named/Makefile.in bind-9.18.29-patched/bin/named/Makefile.in
+--- bind-9.18.29/bin/named/Makefile.in	2024-08-13 14:20:51.964686949 -0000
++++ bind-9.18.29-patched/bin/named/Makefile.in	2024-11-14 11:26:21.023099244 -0000
+@@ -516,7 +516,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ nodist_named_SOURCES = xsl.c
+Only in bind-9.18.29-patched/bin/named: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/nsupdate/Makefile.in bind-9.18.29-patched/bin/nsupdate/Makefile.in
+--- bind-9.18.29/bin/nsupdate/Makefile.in	2024-08-13 14:20:51.988687577 -0000
++++ bind-9.18.29-patched/bin/nsupdate/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -464,7 +464,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ nsupdate_SOURCES = \
+Only in bind-9.18.29-patched/bin/nsupdate: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/plugins/Makefile.in bind-9.18.29-patched/bin/plugins/Makefile.in
+--- bind-9.18.29/bin/plugins/Makefile.in	2024-08-13 14:20:52.012688204 -0000
++++ bind-9.18.29-patched/bin/plugins/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -485,7 +485,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ pkglib_LTLIBRARIES = filter-aaaa.la filter-a.la
+Only in bind-9.18.29-patched/bin/plugins: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/rndc/Makefile.in bind-9.18.29-patched/bin/rndc/Makefile.in
+--- bind-9.18.29/bin/rndc/Makefile.in	2024-11-14 11:18:54.019636939 -0000
++++ bind-9.18.29-patched/bin/rndc/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -456,7 +456,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ rndc_SOURCES = \
+Only in bind-9.18.29-patched/bin/rndc: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/tests/Makefile.in bind-9.18.29-patched/bin/tests/Makefile.in
+--- bind-9.18.29/bin/tests/Makefile.in	2024-08-13 14:20:52.064689563 -0000
++++ bind-9.18.29-patched/bin/tests/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -503,7 +503,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ EXTRA_DIST = convert-trs-to-junit.py
+Only in bind-9.18.29-patched/bin/tests: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/tests/system/Makefile.in bind-9.18.29-patched/bin/tests/system/Makefile.in
+--- bind-9.18.29/bin/tests/system/Makefile.in	2024-08-13 14:20:52.128691237 -0000
++++ bind-9.18.29-patched/bin/tests/system/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -750,7 +750,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ EXTRA_DIST = .
+Only in bind-9.18.29-patched/bin/tests/system: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/tests/system/dlzexternal/driver/Makefile.in bind-9.18.29-patched/bin/tests/system/dlzexternal/driver/Makefile.in
+--- bind-9.18.29/bin/tests/system/dlzexternal/driver/Makefile.in	2024-08-13 14:20:52.152691863 -0000
++++ bind-9.18.29-patched/bin/tests/system/dlzexternal/driver/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -449,7 +449,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ noinst_LTLIBRARIES = dlzexternal.la
+Only in bind-9.18.29-patched/bin/tests/system/dlzexternal/driver: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/tests/system/dyndb/driver/Makefile.in bind-9.18.29-patched/bin/tests/system/dyndb/driver/Makefile.in
+--- bind-9.18.29/bin/tests/system/dyndb/driver/Makefile.in	2024-08-13 14:20:52.176692492 -0000
++++ bind-9.18.29-patched/bin/tests/system/dyndb/driver/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -452,7 +452,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ noinst_LTLIBRARIES = sample.la
+Only in bind-9.18.29-patched/bin/tests/system/dyndb/driver: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/tests/system/hooks/driver/Makefile.in bind-9.18.29-patched/bin/tests/system/hooks/driver/Makefile.in
+--- bind-9.18.29/bin/tests/system/hooks/driver/Makefile.in	2024-08-13 14:20:52.200693118 -0000
++++ bind-9.18.29-patched/bin/tests/system/hooks/driver/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -449,7 +449,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ noinst_LTLIBRARIES = test-async.la
+Only in bind-9.18.29-patched/bin/tests/system/hooks/driver: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/bin/tools/Makefile.in bind-9.18.29-patched/bin/tools/Makefile.in
+--- bind-9.18.29/bin/tools/Makefile.in	2024-08-13 14:20:52.236694060 -0000
++++ bind-9.18.29-patched/bin/tools/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -493,7 +493,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ arpaname_LDADD = \
+Only in bind-9.18.29-patched/bin/tools: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/doc/arm/Makefile.in bind-9.18.29-patched/doc/arm/Makefile.in
+--- bind-9.18.29/doc/arm/Makefile.in	2024-08-13 14:20:52.268694896 -0000
++++ bind-9.18.29-patched/doc/arm/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -400,7 +400,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ SPHINX_V = $(SPHINX_V_@AM_V@)
+Only in bind-9.18.29-patched/doc/arm: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/doc/man/Makefile.in bind-9.18.29-patched/doc/man/Makefile.in
+--- bind-9.18.29/doc/man/Makefile.in	2024-08-13 14:20:52.288695419 -0000
++++ bind-9.18.29-patched/doc/man/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -440,7 +440,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ SPHINX_V = $(SPHINX_V_@AM_V@)
+Only in bind-9.18.29-patched/doc/man: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/doc/misc/Makefile.in bind-9.18.29-patched/doc/misc/Makefile.in
+--- bind-9.18.29/doc/misc/Makefile.in	2024-08-13 14:20:52.320696256 -0000
++++ bind-9.18.29-patched/doc/misc/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -455,7 +455,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ SPHINX_V = $(SPHINX_V_@AM_V@)
+Only in bind-9.18.29-patched/doc/misc: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/fuzz/Makefile.in bind-9.18.29-patched/fuzz/Makefile.in
+--- bind-9.18.29/fuzz/Makefile.in	2024-08-13 14:20:52.360697302 -0000
++++ bind-9.18.29-patched/fuzz/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -712,7 +712,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ check_LTLIBRARIES = libfuzzmain.la
+Only in bind-9.18.29-patched/fuzz: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/Makefile.in bind-9.18.29-patched/lib/Makefile.in
+--- bind-9.18.29/lib/Makefile.in	2024-08-13 14:20:52.376697719 -0000
++++ bind-9.18.29-patched/lib/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -457,7 +457,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ SUBDIRS = isc dns isccc ns isccfg bind9 irs
+Only in bind-9.18.29-patched/lib: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/bind9/Makefile.in bind-9.18.29-patched/lib/bind9/Makefile.in
+--- bind-9.18.29/lib/bind9/Makefile.in	2024-08-13 14:20:52.404698452 -0000
++++ bind-9.18.29-patched/lib/bind9/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -492,7 +492,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ lib_LTLIBRARIES = libbind9.la
+Only in bind-9.18.29-patched/lib/bind9: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/dns/Makefile.in bind-9.18.29-patched/lib/dns/Makefile.in
+--- bind-9.18.29/lib/dns/Makefile.in	2024-08-13 14:20:52.524701588 -0000
++++ bind-9.18.29-patched/lib/dns/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -716,7 +716,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ lib_LTLIBRARIES = libdns.la
+Only in bind-9.18.29-patched/lib/dns: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/irs/Makefile.in bind-9.18.29-patched/lib/irs/Makefile.in
+--- bind-9.18.29/lib/irs/Makefile.in	2024-08-13 14:20:52.552702320 -0000
++++ bind-9.18.29-patched/lib/irs/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -489,7 +489,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ lib_LTLIBRARIES = libirs.la
+Only in bind-9.18.29-patched/lib/irs: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/isc/Makefile.in bind-9.18.29-patched/lib/isc/Makefile.in
+--- bind-9.18.29/lib/isc/Makefile.in	2024-08-13 14:20:52.660705144 -0000
++++ bind-9.18.29-patched/lib/isc/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -686,7 +686,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ lib_LTLIBRARIES = libisc.la
+Only in bind-9.18.29-patched/lib/isc: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/isccc/Makefile.in bind-9.18.29-patched/lib/isccc/Makefile.in
+--- bind-9.18.29/lib/isccc/Makefile.in	2024-08-13 14:20:52.692705980 -0000
++++ bind-9.18.29-patched/lib/isccc/Makefile.in	2024-11-14 11:26:21.027099203 -0000
+@@ -495,7 +495,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ lib_LTLIBRARIES = libisccc.la
+Only in bind-9.18.29-patched/lib/isccc: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/isccfg/Makefile.in bind-9.18.29-patched/lib/isccfg/Makefile.in
+--- bind-9.18.29/lib/isccfg/Makefile.in	2024-08-13 14:20:52.724706817 -0000
++++ bind-9.18.29-patched/lib/isccfg/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -497,7 +497,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ lib_LTLIBRARIES = libisccfg.la
+Only in bind-9.18.29-patched/lib/isccfg: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/lib/ns/Makefile.in bind-9.18.29-patched/lib/ns/Makefile.in
+--- bind-9.18.29/lib/ns/Makefile.in	2024-08-13 14:20:52.764707863 -0000
++++ bind-9.18.29-patched/lib/ns/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -498,7 +498,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ lib_LTLIBRARIES = libns.la
+Only in bind-9.18.29-patched/lib/ns: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/tests/Makefile.in bind-9.18.29-patched/tests/Makefile.in
+--- bind-9.18.29/tests/Makefile.in	2024-08-13 14:20:52.780708280 -0000
++++ bind-9.18.29-patched/tests/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -457,7 +457,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ SUBDIRS = libtest isc dns ns isccfg irs
+Only in bind-9.18.29-patched/tests: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/tests/dns/Makefile.in bind-9.18.29-patched/tests/dns/Makefile.in
+--- bind-9.18.29/tests/dns/Makefile.in	2024-08-13 14:20:52.848710058 -0000
++++ bind-9.18.29-patched/tests/dns/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -904,7 +904,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ CLEANFILES = $(am__append_3) $(EXTRA_sigs_test_DEPENDENCIES)
+Only in bind-9.18.29-patched/tests/dns: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/tests/irs/Makefile.in bind-9.18.29-patched/tests/irs/Makefile.in
+--- bind-9.18.29/tests/irs/Makefile.in	2024-08-13 14:20:52.884711000 -0000
++++ bind-9.18.29-patched/tests/irs/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -667,7 +667,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ EXTRA_DIST = testdata
+Only in bind-9.18.29-patched/tests/irs: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/tests/isc/Makefile.in bind-9.18.29-patched/tests/isc/Makefile.in
+--- bind-9.18.29/tests/isc/Makefile.in	2024-08-13 14:20:52.956712881 -0000
++++ bind-9.18.29-patched/tests/isc/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -895,7 +895,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ @HAVE_LIBNGHTTP2_TRUE@doh_test_CPPFLAGS = \
+Only in bind-9.18.29-patched/tests/isc: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/tests/isccfg/Makefile.in bind-9.18.29-patched/tests/isccfg/Makefile.in
+--- bind-9.18.29/tests/isccfg/Makefile.in	2024-08-13 14:20:52.992713823 -0000
++++ bind-9.18.29-patched/tests/isccfg/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -677,7 +677,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ @HAVE_CMOCKA_TRUE@TESTS = $(check_PROGRAMS)
+Only in bind-9.18.29-patched/tests/isccfg: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/tests/libtest/Makefile.in bind-9.18.29-patched/tests/libtest/Makefile.in
+--- bind-9.18.29/tests/libtest/Makefile.in	2024-08-13 14:20:53.020714555 -0000
++++ bind-9.18.29-patched/tests/libtest/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -658,7 +658,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ check_LTLIBRARIES = libtest.la
+Only in bind-9.18.29-patched/tests/libtest: Makefile.ine
+diff '--color=auto' -r -U 3 bind-9.18.29/tests/ns/Makefile.in bind-9.18.29-patched/tests/ns/Makefile.in
+--- bind-9.18.29/tests/ns/Makefile.in	2024-08-13 14:20:53.060715601 -0000
++++ bind-9.18.29-patched/tests/ns/Makefile.in	2024-11-14 11:26:21.031099162 -0000
+@@ -695,7 +695,7 @@
+ LIBBIND9_CFLAGS = \
+ 	-I$(top_srcdir)/lib/bind9/include
+ 
+-LIBBIND9_LIBS = \
++LIBBIND9_LIBS = $(LIBNS_LIBS) \
+ 	$(top_builddir)/lib/bind9/libbind9.la
+ 
+ EXTRA_DIST = testdata
+Only in bind-9.18.29-patched/tests/ns: Makefile.ine
