@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Copyright (c) 2024 The Flatcar Maintainers.
+# Use of this source code is governed by the Apache 2.0 license.
+
+# Script to sign an existing raw Flatcar disk image for Secure Boot.
+
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+
+assert_not_root_user
+
+DEFAULT_GROUP=developer
+
+# Developer-visible flags.
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "The board to build an image for."
+DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
+  "Directory in which to place image result directories (named by version)"
+DEFINE_string disk_layout "" \
+  "The disk layout type to use for this image."
+DEFINE_string group "${DEFAULT_GROUP}" \
+  "The update group."
+
+# include upload options
+. "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
+
+FLAGS_HELP="USAGE: sbsign_image [flags] [raw disk image or ${FLATCAR_PRODUCTION_IMAGE_NAME} by default]
+This script is used to sign the GRUB and kernel images within an
+existing raw Flatcar disk image for Secure Boot. A modified copy of
+the image is written to the output directory, along with the
+separate GRUB and kernel images.
+"
+show_help_if_requested "$@"
+
+# The following options are advanced options, only available to those willing
+# to read the source code. They are not shown in help output, since they are
+# not needed for the typical developer workflow.
+DEFINE_integer build_attempt 1 \
+  "The build attempt for this image build."
+DEFINE_boolean replace ${FLAGS_FALSE} \
+  "Overwrite existing output, if any."
+DEFINE_string version "" \
+  "Overrides version number in name to this version."
+
+# Parse command line.
+FLAGS "$@" || exit 1
+
+eval set -- "${FLAGS_ARGV:-${FLATCAR_PRODUCTION_IMAGE_NAME}}"
+
+# Only now can we die on error.  shflags functions leak non-zero error codes,
+# so will die prematurely if 'switch_to_strict_mode' is specified before now.
+switch_to_strict_mode
+
+# N.B.  Ordering matters for some of the libraries below, because
+# some of the files contain initialization used by later files.
+. "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/build_image_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/prod_image_util.sh" || exit 1
+
+# Handle existing directory.
+if [[ -e "${BUILD_DIR}" ]]; then
+  if [[ ${FLAGS_replace} -eq ${FLAGS_TRUE} ]]; then
+    sudo rm -rf "${BUILD_DIR}"
+  else
+    error "Directory ${BUILD_DIR} already exists."
+    error "Use --build_attempt option to specify an unused attempt."
+    error "Or use --replace if you want to overwrite this directory."
+    die "Unwilling to overwrite ${BUILD_DIR}."
+  fi
+fi
+
+# Create the output directory and temporary mount points.
+mkdir -p "${BUILD_DIR}"
+
+fix_mtab
+sbsign_prod_image "$1" "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${FLAGS_disk_layout:-base}"
+
+echo "Done. $1 and associated files are now signed for Secure Boot in ${BUILD_DIR}."
+command_completed
