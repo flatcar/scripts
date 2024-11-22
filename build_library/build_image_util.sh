@@ -791,10 +791,12 @@ EOF
         seek=${verity_offset} count=64 bs=1 status=none
   fi
 
-  # Sign the kernel after /usr is in a consistent state and verity is calculated
-  [[ ${COREOS_OFFICIAL:-0} -ne 1 ]] && \
-  do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
-  cleanup_sbsign_certs
+  # Sign the kernel after /usr is in a consistent state and verity is
+  # calculated. Only for unofficial builds as official builds get signed later.
+  if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+    do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
+    cleanup_sbsign_certs
+  fi
 
   if [[ -n "${image_kernel}" ]]; then
     # copying kernel from vfat so ignore the permissions
@@ -879,4 +881,68 @@ EOF
 
   cleanup_mounts "${root_fs_dir}"
   trap - EXIT
+}
+
+sbsign_image() {
+  local image_name="$1"
+  local disk_layout="$2"
+  local root_fs_dir="$3"
+  local image_kernel="$4"
+  local pcr_policy="$5"
+  local image_grub="$6"
+
+  local disk_img="${BUILD_DIR}/${image_name}"
+  local EFI_ARCH
+
+  case "${BOARD}" in
+    amd64-usr) EFI_ARCH="x64" ;;
+    arm64-usr) EFI_ARCH="aa64" ;;
+    *) die "Unknown board ${BOARD@Q}" ;;
+  esac
+
+  "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
+      mount "${disk_img}" "${root_fs_dir}"
+  trap "cleanup_mounts '${root_fs_dir}'; cleanup_sbsign_certs" EXIT
+
+  # Sign the kernel with the shim-embedded key.
+  do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
+
+  if [[ -n "${image_kernel}" ]]; then
+    # copying kernel from vfat so ignore the permissions
+    cp --no-preserve=mode \
+        "${root_fs_dir}/boot/flatcar/vmlinuz-a" \
+        "${BUILD_DIR}/${image_kernel}"
+  fi
+
+  # Sign GRUB and mokmanager(mm) with the shim-embedded key.
+  do_sbsign --output "${root_fs_dir}/boot/EFI/boot/grub${EFI_ARCH}.efi"{,}
+  do_sbsign --output "${root_fs_dir}/boot/EFI/boot/mm${EFI_ARCH}.efi"{,}
+
+  # copying from vfat so ignore permissions
+  if [[ -n "${image_grub}" ]]; then
+    cp --no-preserve=mode "${root_fs_dir}/boot/EFI/boot/grub${EFI_ARCH}.efi" \
+        "${BUILD_DIR}/${image_grub}"
+  fi
+
+  if [[ -n "${pcr_policy}" ]]; then
+    mkdir -p "${BUILD_DIR}/pcrs"
+    "${BUILD_LIBRARY_DIR}"/generate_kernel_hash.py \
+        "${root_fs_dir}/boot/flatcar/vmlinuz-a" "${FLATCAR_VERSION}" \
+        >"${BUILD_DIR}/pcrs/kernel.config"
+  fi
+
+  cleanup_mounts "${root_fs_dir}"
+  cleanup_sbsign_certs
+  trap - EXIT
+
+  if [[ -n "${pcr_policy}" ]]; then
+    "${BUILD_LIBRARY_DIR}"/generate_grub_hashes.py \
+        "${disk_img}" /usr/lib/grub/ "${BUILD_DIR}/pcrs" "${FLATCAR_VERSION}"
+
+    info "Generating $pcr_policy"
+    pushd "${BUILD_DIR}" >/dev/null
+    zip --quiet -r -9 "${BUILD_DIR}/${pcr_policy}" pcrs
+    popd >/dev/null
+    rm -rf "${BUILD_DIR}/pcrs"
+  fi
 }

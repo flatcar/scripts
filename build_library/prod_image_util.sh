@@ -180,6 +180,15 @@ EOF
       "${image_initrd_contents_wtd}" \
       "${image_disk_usage}"
 
+  # Official builds will sign and upload these files later, so remove them to
+  # prevent them from being uploaded now.
+  if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+    rm -v \
+        "${BUILD_DIR}/${image_kernel}" \
+        "${BUILD_DIR}/${image_pcr_policy}" \
+        "${BUILD_DIR}/${image_grub}"
+  fi
+
   local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
   compress_disk_images files_to_evaluate
 }
@@ -224,4 +233,27 @@ create_prod_sysexts() {
       -new_image "${BUILD_DIR}/${name}.raw" \
       -out_file "${BUILD_DIR}/flatcar_test_update-${name}.gz"
   done
+}
+
+sbsign_prod_image() {
+  local image_name="$1"
+  local disk_layout="$2"
+
+  info "Signing production image ${image_name} for Secure Boot"
+  local root_fs_dir="${BUILD_DIR}/rootfs"
+  local image_prefix="${image_name%.bin}"
+  local image_kernel="${image_prefix}.vmlinuz"
+  local image_pcr_policy="${image_prefix}_pcr_policy.zip"
+  local image_grub="${image_prefix}.grub"
+
+  sbsign_image \
+      "${image_name}" \
+      "${disk_layout}" \
+      "${root_fs_dir}" \
+      "${image_kernel}" \
+      "${image_pcr_policy}" \
+      "${image_grub}"
+
+  local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
+  compress_disk_images files_to_evaluate
 }
