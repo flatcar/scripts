@@ -1,4 +1,0 @@
-FROM debian:11
-
-RUN apt-get update && \
-  apt-get install -y qemu-system-aarch64 qemu-efi-aarch64 lbzip2 sudo dnsmasq gnupg2 git curl iptables
