@@ -8,17 +8,8 @@ SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 DEFINE_boolean dry_run ${FLAGS_FALSE} "Trial run, makes no changes."
-DEFINE_boolean parallel ${FLAGS_TRUE} "Enable parallelism in gsutil."
-DEFINE_boolean upload ${FLAGS_FALSE} "Upload distfile mirror via gsutil."
-
-# FIXME(marineam): We need to add gs support to emirrordist so it
-# doesn't have to operate on a local copy of the complete mirror.
-DEFINE_boolean download ${FLAGS_FALSE} \
-    "Download the current mirror before making updates to it."
 
 MIRROR_ROOT="${DEFAULT_BUILD_ROOT}/mirror"
-UPLOAD_ROOT="gs://storage.core-os.net/mirror"
-SECOND_ROOT="gs://coreos-net-storage/mirror"
 
 # Parse flags
 FLAGS "$@" || exit 1
@@ -32,11 +23,6 @@ declare -A repos=(
 
 if [[ $# -eq 0 ]]; then
     set -- "${!repos[@]}"
-fi
-
-GSUTIL_OPTS=
-if [[ ${FLAGS_parallel} -eq ${FLAGS_TRUE} ]]; then
-    GSUTIL_OPTS="-m"
 fi
 
 EXIT_CODE=0
@@ -87,40 +73,6 @@ update_local_mirror() {
 
     EXIT_CODE=1
 }
-upload_mirror() {
-    local repo_name="$1"
-    local local_mirror="${MIRROR_ROOT}/${repos[$repo_name]}"
-    local remote_mirror="$2/${repos[$repo_name]}"
-
-    info "Uploading public distfiles for $repo_name"
-    gsutil ${GSUTIL_OPTS} rsync -c \
-        "${local_mirror}/distfiles/" "${remote_mirror}/distfiles"
-
-    info "Uploading private metadata for $repo_name"
-    # uses cp instead of rsync in order to provide acl
-    gsutil ${GSUTIL_OPTS} cp -a project-private \
-        "${local_mirror}/info/*" "${remote_mirror}/info"
-}
-download_mirror() {
-    local repo_name="$1"
-    local local_mirror="${MIRROR_ROOT}/${repos[$repo_name]}"
-    local remote_mirror="${UPLOAD_ROOT}/${repos[$repo_name]}"
-
-    info "Downloading public distfiles for $repo_name"
-    mkdir -p "${local_mirror}/"{distfiles,info}
-    gsutil ${GSUTIL_OPTS} rsync -c -d \
-        "${remote_mirror}/distfiles/" "${local_mirror}/distfiles"
-
-    info "Downloading private metadata for $repo_name"
-    gsutil ${GSUTIL_OPTS} rsync -c -d \
-        "${remote_mirror}/info/" "${local_mirror}/info"
-}
-
-if [[ ${FLAGS_download} -eq ${FLAGS_TRUE} ]]; then
-    for repo in "$@"; do
-        download_mirror "$repo"
-    done
-fi
 
 for repo in "$@"; do
     if ! portageq get_repo_path / "$repo" >/dev/null; then
@@ -132,13 +84,6 @@ done
 if [[ ${FLAGS_dry_run} == ${FLAGS_TRUE} ]]; then
     info "Dry-run complete."
     exit
-fi
-
-if [[ ${FLAGS_upload} -eq ${FLAGS_TRUE} ]]; then
-    for repo in "$@"; do
-        upload_mirror "$repo" "$UPLOAD_ROOT"
-        upload_mirror "$repo" "$SECOND_ROOT"
-    done
 fi
 
 command_completed

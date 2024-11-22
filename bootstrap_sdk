@@ -60,7 +60,6 @@ GENTOO_MIRRORS="${GENTOO_MIRRORS//https:\/\//http://}"
 export GENTOO_MIRRORS
 
 catalyst_init "$@"
-check_gsutil_opts
 ROOT_OVERLAY=${TEMPDIR}/stage4_overlay
 
 if [[ "$STAGES" =~ stage4 ]]; then
@@ -108,18 +107,6 @@ if [[ "$STAGES" =~ stage4 ]]; then
     verify_digests "${release_image}" "${release_contents}"
 
     info "SDK ready: ${release_image}"
-
-    def_upload_path="${UPLOAD_ROOT}/sdk/${ARCH}/${FLAGS_version}"
-    sign_and_upload_files "tarball" "${def_upload_path}" "" \
-        "${release_image}" "${release_contents}" "${release_digests}"
-    sign_and_upload_files "packages" "${def_upload_path}" "pkgs/" \
-        "${BINPKGS}"/*
-
-    if [ -d "${BINPKGS}/crossdev" ]; then
-        # Upload the SDK toolchain packages
-        sign_and_upload_files "cross toolchain packages" "${def_upload_path}" \
-            "toolchain/" "${BINPKGS}/crossdev"/*
-    fi
 fi
 
 command_completed

@@ -42,8 +42,6 @@ eval set -- "${FLAGS_ARGV}"
 # Die on any errors.
 switch_to_strict_mode
 
-check_gsutil_opts
-
 if [[ -z "${FLAGS_board}" ]] ; then
   die_notrace "--board is required."
 fi

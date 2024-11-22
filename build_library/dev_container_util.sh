@@ -115,20 +115,6 @@ create_dev_container() {
   finish_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${image_contents}" "${image_contents_wtd}"
 
   declare -a files_to_evaluate
-  declare -a compressed_images
-  declare -a extra_files
-
   files_to_evaluate+=( "${BUILD_DIR}/${image_name}" )
-  compress_disk_images files_to_evaluate compressed_images extra_files
-
-  upload_image -d "${BUILD_DIR}/${image_name}.DIGESTS" \
-      "${BUILD_DIR}/${image_contents}" \
-      "${BUILD_DIR}/${image_contents_wtd}" \
-      "${BUILD_DIR}/${image_packages}" \
-      "${BUILD_DIR}/${image_licenses}" \
-      "${compressed_images[@]}" \
-      "${extra_files[@]}"
-
-  # Upload legacy digests
-  upload_legacy_digests "${BUILD_DIR}/${image_name}.DIGESTS" compressed_images
+  compress_disk_images files_to_evaluate
 }

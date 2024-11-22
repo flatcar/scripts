@@ -87,8 +87,6 @@ eval set -- "${FLAGS_ARGV:-prod}"
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
 
-check_gsutil_opts
-
 # If downloading packages is enabled ensure the board is configured properly.
 if [[ ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
   "${SRC_ROOT}/scripts/setup_board" --board="${FLAGS_board}" \
@@ -202,8 +200,6 @@ FLATCAR_BUILD_ID="${FLATCAR_BUILD_ID}"
 FLATCAR_SDK_VERSION=${FLATCAR_SDK_VERSION}
 EOF
 
-upload_image "${BUILD_DIR}/version.txt"
-
 # Create a named symlink.
 set_build_symlinks latest "${FLAGS_group}-latest"
 
@@ -230,5 +226,3 @@ if [[ "${PROD_IMAGE}" -eq 1 ]]; then
 fi
 
 command_completed
-
-
