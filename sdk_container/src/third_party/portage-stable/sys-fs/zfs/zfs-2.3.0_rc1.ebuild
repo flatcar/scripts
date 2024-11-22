@@ -24,8 +24,8 @@ else
 	SRC_URI+=" verify-sig? ( https://github.com/openzfs/${PN}/releases/download/${MY_P}/${MY_P}.tar.gz.asc )"
 	S="${WORKDIR}/${MY_P}"
 
-	if [[ ${PV} != *_rc* ]]; then
-		KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc"
+	if [[ ${PV} != *_rz* ]]; then
+		KEYWORDS="amd64 arm64 ~loong ~ppc64 ~riscv ~sparc"
 	fi
 fi
 

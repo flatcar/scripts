@@ -17,7 +17,7 @@ if [[ -z ${NUM_JOBS} ]] || [[ ${NUM_JOBS} -eq 0 ]]; then
   NUM_JOBS=$(grep -c "^processor" /proc/cpuinfo)
 fi
 # Ensure that any sub scripts we invoke get the max proc count.
-export NUM_JOBS
+export NUM_JOBS=350
 
 # Make sure we have the location and name of the calling script, using
 # the current value if it is already set.
