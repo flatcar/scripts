@@ -23,7 +23,7 @@ else
 		mirror://gnu/${PN}/${P}.tar.xz
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 # Only libasprintf is under the LGPL (and libintl is in a sep package),
@@ -48,13 +48,13 @@ DEPEND="
 	dev-libs/expat
 	acl? ( virtual/acl )
 	ncurses? ( sys-libs/ncurses:= )
-	java? ( virtual/jdk:1.8 )
+	java? ( >=virtual/jdk-1.8:* )
 	xattr? ( sys-apps/attr )
 "
 RDEPEND="
 	${DEPEND}
 	git? ( dev-vcs/git )
-	java? ( virtual/jre:1.8 )
+	java? ( >=virtual/jre-1.8:* )
 "
 BDEPEND="
 	git? ( dev-vcs/git )
