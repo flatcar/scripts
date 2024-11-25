@@ -149,7 +149,7 @@ declare -A GIT_CRATES=(
 
 LLVM_COMPAT=( {17..18} )
 
-inherit llvm-r1 cargo
+inherit cargo llvm-r1
 
 DESCRIPTION="A suite of tools for thin provisioning on Linux"
 HOMEPAGE="https://github.com/jthornber/thin-provisioning-tools"
@@ -162,7 +162,7 @@ else
 		https://github.com/jthornber/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
 		${CARGO_CRATE_URIS}
 	"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="amd64 ~arm ~arm64 ~loong ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux"
 fi
 
 LICENSE="GPL-3"
@@ -171,6 +171,12 @@ LICENSE+=" Apache-2.0 BSD GPL-3 ISC MIT MPL-2.0 Unicode-DFS-2016"
 SLOT="0"
 IUSE="io-uring"
 
+RDEPEND="virtual/libudev:="
+# libdevmapper.h needed for devicemapper-sys crate
+DEPEND="
+	${RDEPEND}
+	sys-fs/lvm2
+"
 # Needed for bindgen
 BDEPEND="
 	$(llvm_gen_dep '
@@ -193,6 +199,11 @@ QA_FLAGS_IGNORED="usr/sbin/pdata_tools"
 PATCHES=(
 	"${FILESDIR}/${PN}-1.0.6-build-with-cargo.patch"
 )
+
+pkg_setup() {
+	llvm-r1_pkg_setup
+	rust_pkg_setup
+}
 
 src_unpack() {
 	if [[ ${PV} == 9999 ]] ; then
