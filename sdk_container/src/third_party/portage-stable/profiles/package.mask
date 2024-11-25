@@ -33,6 +33,135 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2024-11-23)
+# Implementation detail of dev-python/pyproject-fmt.  New versions
+# integrate the Rust code into the main package.
+# Removal on 2024-12-07.  Bug #944782.
+dev-python/pyproject-fmt-rust
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-11-23)
+# dev-python/pyside2 last-rites, no more revdeps
+# Removal on 2024-12-23
+dev-python/pyside2
+dev-python/pyside2-tools
+dev-python/shiboken2
+
+# Ionen Wolkens <ionen@gentoo.org> (2024-11-19)
+# NVIDIA dropped support for the 470.xx branch in September 2024[1].
+#
+# Users are free to unmask and keep using, but be warned it is very
+# likely to be affected by security issues[2] as NVIDIA does not
+# track nor fix these for this branch anymore.
+#
+# Gentoo will keep it packaged for as long as reasonably possible
+# (albeit masked) but no true support will be given nor patches
+# for newer kernels. It is recommended to use 6.6.x LTS kernels or
+# older (6.6.x will be supported until at least December 2026).
+#
+# Major issues will lead to removal without further warning, e.g.
+# if no usable kernels left in tree, or if broken with a newer Xorg.
+#
+# >> It is recommended to switch to nouveau[3] drivers (regardless
+#    of its worse performance), or ideally replace the hardware.
+#
+# [1] https://nvidia.custhelp.com/app/answers/detail/a_id/3142
+#     https://nvidia.custhelp.com/app/answers/detail/a_id/5202
+# [2] https://bugs.gentoo.org/942031#c7
+# [3] https://wiki.gentoo.org/wiki/Nouveau
+x11-drivers/nvidia-drivers:0/470
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-11-18)
+# All classes were moved to >=x11-libs/qwt-6.2.0. No revdeps.
+# Removal on 2024-12-18.
+x11-libs/qwtpolar
+
+# Robin H. Johnson <robbat2@gentoo.org> (2024-11-17)
+# bug 943698
+# Poor upstream code quality, unmaintained upstream;
+# no hardware for testing # anymore.
+# https://public-inbox.gentoo.org/gentoo-dev/robbat2-20240529T185323-477923075Z@orbis-terrarum.net/
+app-misc/g15composer
+app-misc/g15daemon
+app-misc/g15macro
+app-misc/g15message
+app-misc/g15mpd
+app-misc/g15stats
+dev-libs/libg15
+dev-libs/libg15render
+
+# Michał Górny <mgorny@gentoo.org> (2024-11-17)
+# Superseded by dev-lang/pypy:3.10.  This version is vulnerable.
+# Removal on 2024-12-01.
+dev-python/pypy3_10
+
+# Alfredo Tupone <tupone@gentoo.org> (2024-11-17)
+# Included in dev-ml/odoc, the only rdep
+# Removal on 2024-12-17.
+dev-ml/odoc-parser
+
+# Matt Turner <mattst88@gentoo.org> (2024-11-16)
+# Masked for testing
+=dev-util/intel_clc-24.3*
+=media-libs/mesa-24.3*
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2024-11-17)
+# Needs a header from libusb that doesnt exist anymore. Will never build.
+# Furthermore, modern C problems. Bug 874645. No maintainer.
+# Removal in 30 days.
+dev-util/usb-robot
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2024-11-17)
+# Fails to build on modern compilers, bug 874291. Various open bugs.
+# No maintainer. Removal in 30 days.
+app-emulation/spim
+
+# Hans de Graaff <graaff@gentoo.org> (2024-11-16)
+# Mask obsolete shoulda-related slots. Use the newer slots instead.
+# Removal on 2024-12-16.
+dev-ruby/shoulda:3
+dev-ruby/shoulda-context:0
+dev-ruby/shoulda-matchers:3
+
+# Hans de Graaff <graaff@gentoo.org> (2024-11-16)
+# Mask obsolete Rails 6.1-only slot. Please use the newer slot instead.
+# Removal on 2024-12-16.
+dev-ruby/database_cleaner-active_record:2.1
+
+# Jaco Kroon <jaco@uls.co.za> (2024-11-15)
+# clippy exists purely for frr (even comes from the same sources).  This
+# package split is no longer implemented from frr-9.1.2 onwards, so this
+# package is no longer required.
+dev-util/clippy
+
+# Michael Orlitzky <mjo@gentoo.org> (2024-11-13)
+# PHP 8.1.x no longer receives bug fixes unless they address security
+# issues. That means no build fixes, no updates for modern compilers,
+# and no tweaks for newer versions of dependencies. We can't really
+# afford to maintain our own little fork of this, so it's time to
+# upgrade (sorry). With it goes any unmaintained PECL packages
+# that don't support 8.2 or newer.
+dev-lang/php:8.1
+dev-php/pecl-dbase
+dev-php/pecl-gnupg
+dev-php/pecl-http
+dev-php/pecl-lzf
+dev-php/pecl-mcrypt
+dev-php/pecl-memcache
+dev-php/pecl-oauth
+dev-php/pecl-pam
+dev-php/pecl-ps
+dev-php/pecl-psr
+dev-php/pecl-raphf
+dev-php/pecl-timezonedb
+dev-php/pecl-translit
+dev-php/pecl-uuid
+dev-php/pecl-zmq
+dev-php/realpath_turbo
+dev-php/snuffleupagus
+dev-php/swoole
+=virtual/httpd-php-8.1
+<www-apps/icingaweb2-2.12.1-r1
+
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2024-11-10)
 # Fails to build with gcc-14. Horrible code. Not touched by a
 # maintainer since 2010. Bugs 729134, 870541, 909625, 933773
@@ -229,25 +358,6 @@ dev-python/sentry-sdk
 # Removal on 2024-11-14. Bug #247500.
 app-emacs/quilt-el
 
-# Alfredo Tupone <tupone@gentoo.org> (2024-10-14)
-# These packages are no more needed.
-# Use dev-ml/opam, dev-ml/opam-file-format,
-# dev-ml/opam-installer
-# that include these
-# remove on 2024-11-14.
-dev-ml/opam-client
-dev-ml/opam-repository
-dev-ml/opam-state
-dev-ml/opam-format
-dev-ml/opam-core
-dev-ml/opam-solver
-
-# Hans de Graaff <graaff@gentoo.org> (2024-10-13)
-# Obsolete slots without reverse dependencies. Use a newer slot
-# instead. Removal on 2024-11-13.
-dev-ruby/io-event:1.2
-dev-ruby/io-event:1.3
-
 # Holger Hoffstätte <holger@applied-asynchrony.com> (2024-10-11)
 # Vendors an unreleased libbpf version and generates ABI-breaking code.
 # Bug #941185. Removal on 2024-12-03.
@@ -276,17 +386,12 @@ app-i18n/fcitx-unikey:4
 app-i18n/fcitx:4
 app-i18n/kcm-fcitx
 
-# Michael Orlitzky <mjo@gentoo.org> (2024-10-09)
-# This is the new stable series of webkit-gtk, but it has a new
-# less-portable rendering engine, and doesn't yet build on ~riscv for
-# reasons unrelated to that. It's easier to play around with it in
-# the tree, but it's not ready for end users yet.
->=net-libs/webkit-gtk-2.46.0
-
 # Ionen Wolkens <ionen@gentoo.org> (2024-10-08)
-# Masked for testing and (mostly) to avoid upgrade noise given
-# PyQt6-6.7.x is known broken with it and depends on <6.8. Feel
-# free to unmask early if not using PyQt6.
+# Masked for testing, and odds are (at this point) that 6.8.0 will
+# never be unmasked and will skip to 6.8.1 instead given the large
+# amount of regressions there's been..
+=dev-python/pyqt6-6.8.0_pre*
+=dev-python/pyqt6-webengine-6.8.0_pre*
 =dev-python/pyside6-6.8.0*
 =dev-python/pyside6-tools-6.8.0*
 =dev-python/shiboken6-6.8.0*
@@ -323,7 +428,7 @@ app-i18n/kcm-fcitx
 =dev-qt/qtwebsockets-6.8.0*
 =dev-qt/qtwebview-6.8.0*
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-10-05)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-10-05)
 # This version is known to break on certain systems. At the
 # same time it fixes several reported issues. Masked until
 # we can work out how to resolve the situation.
@@ -341,12 +446,6 @@ app-i18n/kcm-fcitx
 # Upstream testing release; fails some tests as well here
 # Beware that if you upgrade to it, you may need to reset your keyrings.
 >=app-crypt/gnupg-2.5
-
-# Eli Schwartz <eschwartz@gentoo.org> (2024-09-19)
-# Breaks parallel builds with fatal compiler errors.
-# Bug #939798, #939875.
->=dev-python/ensurepip-setuptools-75.1.0
->=dev-python/setuptools-75.1.0
 
 # Ulrich Müller <ulm@gentoo.org> (2024-09-12)
 # Pretest versions, masked for testing.
@@ -485,10 +584,6 @@ dev-ml/textutils_kernel:0/0.17
 >=xfce-base/xfconf-4.19
 >=xfce-base/xfdesktop-4.19
 >=xfce-base/xfwm4-4.19
-
-# Sam James <sam@gentoo.org> (2024-04-28)
-# Masked for testing. Tracker bug: bug #930805.
->=sys-libs/ncurses-6.5
 
 # Sam James <sam@gentoo.org> (2024-03-28)
 # Newer 5.4.x releases were signed by a potentially compromised upstream maintainer.
