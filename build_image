@@ -41,10 +41,10 @@ DEFINE_string disk_layout "" \
   "The disk layout type to use for this image."
 DEFINE_string group "${DEFAULT_GROUP}" \
   "The update group."
-DEFINE_boolean generate_update "${FLAGS_FALSE}" \
-  "Generate update payload. (prod only)"
 DEFINE_boolean extract_update "${FLAGS_TRUE}" \
-  "Extract the /usr partition for generating updates."
+  "Extract the /usr partition for generating updates. Only valid for the prod image."
+DEFINE_boolean generate_update "${FLAGS_TRUE}" \
+  "Generate update payload for testing. The update is signed with a dev key. The kernel is signed with a dev key (unofficial builds) or not at all (official builds). Only valid for the prod image. Implies --extract_update."
 DEFINE_string developer_data "" \
   "Insert a custom cloudinit file into the image."
 DEFINE_string devcontainer_binhost "${DEFAULT_DEVCONTAINER_BINHOST}" \
@@ -139,6 +139,11 @@ fi
 # Create the output directory and temporary mount points.
 mkdir -p "${BUILD_DIR}"
 
+# --generate_update implies --extract_update.
+if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]]; then
+  FLAGS_extract_update=${FLAGS_TRUE}
+fi
+
 DISK_LAYOUT="${FLAGS_disk_layout:-base}"
 CONTAINER_LAYOUT="${FLAGS_disk_layout:-container}"
 
@@ -169,10 +174,11 @@ fi
 if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="prod"
   create_prod_image ${FLATCAR_PRODUCTION_IMAGE_NAME} ${DISK_LAYOUT} ${FLAGS_group} ${FLAGS_base_pkg} ${FLAGS_base_sysexts}
-  if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]]; then
-    generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" ${DISK_LAYOUT}
-  elif [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then
+  if [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then
     extract_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
+  fi
+  if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]]; then
+    generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
   fi
   if [[ "${PROD_TAR}" -eq 1 ]]; then
     create_prod_tar ${FLATCAR_PRODUCTION_IMAGE_NAME}
@@ -182,9 +188,7 @@ if [[ "${SYSEXT}" -eq 1 ]]; then
   create_prod_sysexts "${FLATCAR_PRODUCTION_IMAGE_NAME}"
 fi
 
-if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]] || \
-   [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]
-then
+if [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then
   zip_update_tools
 fi
 

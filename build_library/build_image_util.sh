@@ -61,23 +61,32 @@ delete_prompt() {
 extract_update() {
   local image_name="$1"
   local disk_layout="$2"
-  local update_path="${BUILD_DIR}/${image_name%_image.bin}_update.bin"
+  local update="${BUILD_DIR}/${image_name%_image.bin}_update.bin"
 
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
-    extract "${BUILD_DIR}/${image_name}" "USR-A" "${update_path}"
+    extract "${BUILD_DIR}/${image_name}" "USR-A" "${update}"
 
   # Compress image
-  files_to_evaluate+=( "${update_path}" )
+  files_to_evaluate+=( "${update}" )
   compress_disk_images files_to_evaluate
+}
 
-  # For production as well as dev builds we generate a dev-key-signed update
-  # payload for running tests (the signature won't be accepted by production systems).
-  local update_test="${BUILD_DIR}/flatcar_test_update.gz"
+generate_update() {
+  local image_name="$1"
+  local disk_layout="$2"
+  local image_kernel="${BUILD_DIR}/${image_name%.bin}.vmlinuz"
+  local update="${BUILD_DIR}/${image_name%_image.bin}_update.bin"
+  local devkey="/usr/share/update_engine/update-payload-key.key.pem"
+
+  # Extract the partition if it isn't extracted already.
+  [[ -s ${update} ]] || extract_update "${image_name}" "${disk_layout}"
+
+  echo "Generating update payload, signed with a dev key"
   delta_generator \
-      -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
-      -new_image "${update_path}" \
-      -new_kernel "${BUILD_DIR}/${image_name%.bin}.vmlinuz" \
-      -out_file "${update_test}"
+      -private_key "${devkey}" \
+      -new_image "${update}" \
+      -new_kernel "${image_kernel}" \
+      -out_file "${BUILD_DIR}/flatcar_test_update.gz"
 }
 
 zip_update_tools() {
@@ -86,32 +95,9 @@ zip_update_tools() {
 
   info "Generating update tools zip"
   # Make sure some vars this script needs are exported
-  export REPO_MANIFESTS_DIR SCRIPTS_DIR
+  local -x REPO_MANIFESTS_DIR SCRIPTS_DIR
   "${BUILD_LIBRARY_DIR}/generate_au_zip.py" \
     --arch "$(get_sdk_arch)" --output-dir "${BUILD_DIR}" --zip-name "${update_zip}"
-}
-
-generate_update() {
-  local image_name="$1"
-  local disk_layout="$2"
-  local image_kernel="${BUILD_DIR}/${image_name%.bin}.vmlinuz"
-  local update_prefix="${image_name%_image.bin}_update"
-  local update="${BUILD_DIR}/${update_prefix}"
-  local devkey="/usr/share/update_engine/update-payload-key.key.pem"
-
-  echo "Generating update payload, signed with a dev key"
-  "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
-    extract "${BUILD_DIR}/${image_name}" "USR-A" "${update}.bin"
-  delta_generator \
-      -private_key "${devkey}" \
-      -new_image "${update}.bin" \
-      -new_kernel "${image_kernel}" \
-      -out_file "${update}.gz"
-
-  # Compress image
-  declare -a files_to_evaluate
-  files_to_evaluate+=( "${update}.bin" )
-  compress_disk_images files_to_evaluate
 }
 
 # ldconfig cannot generate caches for non-native arches.
