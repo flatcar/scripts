@@ -28,10 +28,10 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	!<dev-python/setuptools-rust-1.8.0
 	dev-python/jaraco-collections[${PYTHON_USEDEP}]
-	dev-python/jaraco-functools[${PYTHON_USEDEP}]
+	>=dev-python/jaraco-functools-4[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
 	>=dev-python/more-itertools-8.12.0-r1[${PYTHON_USEDEP}]
-	>=dev-python/packaging-24[${PYTHON_USEDEP}]
+	>=dev-python/packaging-24.2[${PYTHON_USEDEP}]
 	>=dev-python/platformdirs-4.2.2[${PYTHON_USEDEP}]
 	>=dev-python/wheel-0.44.0[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
