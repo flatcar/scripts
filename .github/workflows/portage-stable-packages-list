@@ -286,7 +286,6 @@ dev-libs/yajl
 dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
-dev-python/PySocks
 dev-python/autocommand
 dev-python/backports-tarfile
 dev-python/cachecontrol
@@ -342,6 +341,7 @@ dev-python/pycparser
 dev-python/pydecomp
 dev-python/pygments
 dev-python/pyproject-hooks
+dev-python/pysocks
 dev-python/requests
 dev-python/resolvelib
 dev-python/rich
