@@ -13,7 +13,7 @@ x11-misc/xdg-utils plasma
 # media-libs/libplacebo is not stable here
 media-video/ffmpeg libplacebo
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-03-21)
 # Experimental, virt-firmware is keyworded only unstable
 sys-kernel/installkernel efistub
 
@@ -94,7 +94,6 @@ media-libs/mesa vulkan-overlay
 app-text/asciidoc test
 net-misc/openssh security-key
 dev-util/geany-plugins markdown
-app-arch/rpm test
 
 # Michał Górny <mgorny@gentoo.org> (2019-09-08)
 # virtual/jdk is not stable here.
