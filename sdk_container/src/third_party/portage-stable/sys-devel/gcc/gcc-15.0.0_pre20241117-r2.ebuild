@@ -6,7 +6,7 @@ EAPI=8
 TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
 PATCH_GCC_VER="15.0.0"
-PATCH_VER="21"
+PATCH_VER="26"
 MUSL_VER="2"
 MUSL_GCC_VER="15.0.0"
 PYTHON_COMPAT=( python3_{10..12} )
@@ -49,5 +49,6 @@ src_prepare() {
 
 	toolchain_src_prepare
 
+	eapply "${FILESDIR}"/${P}-PR112556-c-Allow-bool-and-enum-null-pointer-constants.patch
 	eapply_user
 }
