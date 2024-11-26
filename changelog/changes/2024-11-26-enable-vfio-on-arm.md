@@ -1,0 +1,1 @@
+- The VFIO kernel modules are now also available in ARM64 builds.
