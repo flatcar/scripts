@@ -45,7 +45,6 @@ create_provenance_overlay() {
 }
 
 catalyst_init "$@"
-check_gsutil_opts
 
 ROOT_OVERLAY="${TEMPDIR}/stage4-${ARCH}-$FLAGS_version-overlay"
 
@@ -55,13 +54,4 @@ cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${ROOT_OVERLAY}/tmp"
 create_provenance_overlay "${ROOT_OVERLAY}"
 
 catalyst_build
-
-# TODO: Actually just TOOLCHAIN_PKGS and the exact dependencies should be uploaded
-for board in $(get_board_list); do
-    board_packages="${BINPKGS}/target/${board}"
-    def_upload_path="${UPLOAD_ROOT}/boards/${board}/${FLAGS_version}"
-    sign_and_upload_files "board toolchain packages" "${def_upload_path}" \
-        "toolchain/" "${board_packages}"/*
-done
-
 command_completed

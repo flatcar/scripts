@@ -1224,7 +1224,7 @@ EOF
     "version": "${FLATCAR_VERSION_ID}",
     "providers": [{
       "name": "${provider}",
-      "url": "$(download_image_url "$(_dst_name ".box")")",
+      "url": "https://${BUILDCACHE_SERVER:-bincache.flatcar-linux.net}/images/${BOARD%-usr}/${FLATCAR_VERSION}/$(_dst_name ".box")",
       "checksum_type": "sha256",
       "checksum": "$(sha256sum "${box}" | awk '{print $1}')"
     }]
@@ -1269,53 +1269,6 @@ vm_cleanup() {
         cleanup_mounts "${VM_TMP_ROOT}"
     fi
     sudo rm -rf "${VM_TMP_DIR}"
-}
-
-vm_upload() {
-
-    declare -a legacy_uploads
-    declare -a uploadable_files
-    declare -a compressed_images
-    declare -a image_files
-    declare -a digest_uploads
-
-    compress_disk_images VM_GENERATED_FILES compressed_images uploadable_files
-
-    if [ "${#compressed_images[@]}" -gt 0 ]; then
-        uploadable_files+=( "${compressed_images[@]}" )
-        legacy_uploads+=( "${compressed_images[@]}" )
-    fi
-
-    local digests="$(_dst_dir)/$(_dst_name .DIGESTS)"
-    upload_image -d "${digests}" "${uploadable_files[@]}"
-
-    [[ -e "${digests}" ]] || return 0
-
-    # Since depending on the ordering of $VM_GENERATED_FILES is brittle only
-    # use it if $VM_DST_IMG isn't included in the uploaded files.
-    if [ "${#legacy_uploads[@]}" -eq 0 ];then
-        legacy_uploads+=( "${VM_GENERATED_FILES[0]}" )
-    fi
-
-    for legacy_upload in "${legacy_uploads[@]}";do
-        local legacy_digest_file="${legacy_upload}.DIGESTS"
-        [[ "${legacy_digest_file}" == "${digests}" ]] && continue
-
-        cp "${digests}" "${legacy_digest_file}"
-        digest_uploads+=( "${legacy_digest_file}" )
-
-        if [[ -e "${digests}.asc" ]]; then
-            digest_uploads+=( "${legacy_digest_file}.asc" )
-            cp "${digests}.asc" "${legacy_digest_file}.asc"
-        fi
-    done
-
-    if [ "${#digest_uploads[@]}" -gt 0 ];then
-        legacy_uploads+=( "${digest_uploads[@]}" )
-    fi
-
-    local def_upload_path="${UPLOAD_ROOT}/boards/${BOARD}/${FLATCAR_VERSION}"
-    upload_files "$(_dst_name)" "${def_upload_path}" "" "${legacy_uploads[@]}"
 }
 
 print_readme() {

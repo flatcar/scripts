@@ -131,7 +131,7 @@ create_prod_image() {
   sudo rsync -a --delete  "${BUILD_DIR}/configroot/etc/portage" "${BUILD_DIR}/root_fs_dir2/etc"
   sudo mksquashfs "${BUILD_DIR}/root_fs_dir2"  "${BUILD_DIR}/${image_sysext_base}" -noappend -xattrs-exclude '^btrfs.'
   sudo rm -rf "${BUILD_DIR}/root_fs_dir2"
-  
+
   # clean-ups of things we do not need
   sudo rm ${root_fs_dir}/etc/csh.env
   sudo rm -rf ${root_fs_dir}/etc/env.d
@@ -180,56 +180,8 @@ EOF
       "${image_initrd_contents_wtd}" \
       "${image_disk_usage}"
 
-  # Upload
-  local to_upload=(
-    "${BUILD_DIR}/${image_contents}"
-    "${BUILD_DIR}/${image_contents_wtd}"
-    "${BUILD_DIR}/${image_packages}"
-    "${BUILD_DIR}/${image_sbom}"
-    "${BUILD_DIR}/${image_licenses}"
-    "${BUILD_DIR}/${image_kernel}"
-    "${BUILD_DIR}/${image_pcr_policy}"
-    "${BUILD_DIR}/${image_grub}"
-    "${BUILD_DIR}/${image_kconfig}"
-    "${BUILD_DIR}/${image_initrd_contents}"
-    "${BUILD_DIR}/${image_initrd_contents_wtd}"
-    "${BUILD_DIR}/${image_disk_usage}"
-    "${BUILD_DIR}/${image_sysext_base}"
-  )
-
-  # append sysext inventories to uploads
-  if [[ -n "${base_sysexts}" ]] ; then
-    local inventory_file="" image_basename="${image_name%.bin}"
-
-    for inventory_file in "${image_contents}" "${image_contents_wtd}" "${image_disk_usage}" "${image_packages}" ; do
-      local suffix="${inventory_file/${image_basename}/}" sysext=""
-
-      for sysext in ${base_sysexts//,/ }; do
-        local name="${sysext%:*}"
-        local sysext_inventory="${root_fs_sysexts_output_dir}/${name}${suffix}"
-        if [[ ! -f "${sysext_inventory}" ]] ; then
-          die "Sysext inventory file '${name}${suffix}' for '${inventory_file}' not found in '${root_fs_sysexts_output_dir}'"
-        fi
-        to_upload+=( "${sysext_inventory}" )
-      done
-    done
-  fi
-
   local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
-  declare -a compressed_images
-  declare -a extra_files
-  compress_disk_images files_to_evaluate compressed_images extra_files
-  to_upload+=( "${compressed_images[@]}" )
-  to_upload+=( "${extra_files[@]}" )
-
-  # FIXME(bgilbert): no shim on arm64
-  if [[ -f "${BUILD_DIR}/${image_shim}" ]]; then
-    to_upload+=("${BUILD_DIR}/${image_shim}")
-  fi
-  upload_image -d "${BUILD_DIR}/${image_name}.DIGESTS" "${to_upload[@]}"
-
-  # Upload legacy digests
-  upload_legacy_digests "${BUILD_DIR}/${image_name}.DIGESTS" compressed_images
+  compress_disk_images files_to_evaluate
 }
 
 create_prod_tar() {
@@ -246,13 +198,11 @@ create_prod_tar() {
   sudo umount "/mnt/${lodevbase}p9"
   sudo rmdir "/mnt/${lodevbase}p9"
   sudo losetup --detach "${lodev}"
-  upload_image "${container}"
 }
 
 create_prod_sysexts() {
   local image_name="$1"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
-  local to_upload=()
   for sysext in "${EXTRA_SYSEXTS[@]}"; do
     local name="flatcar-${sysext%:*}"
     local pkgs="${sysext#*:}"
@@ -273,15 +223,5 @@ create_prod_sysexts() {
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \
       -out_file "${BUILD_DIR}/flatcar_test_update-${name}.gz"
-    to_upload+=(
-        "${BUILD_DIR}/${name}.raw"
-        "${BUILD_DIR}/${name}_contents.txt"
-        "${BUILD_DIR}/${name}_contents_wtd.txt"
-        "${BUILD_DIR}/${name}_disk_usage.txt"
-        "${BUILD_DIR}/${name}_packages.txt"
-        "${BUILD_DIR}/flatcar_test_update-${name}.gz"
-    )
   done
-  upload_image -d ${BUILD_DIR}/sysexts.DIGESTS "${to_upload[@]}"
 }
-

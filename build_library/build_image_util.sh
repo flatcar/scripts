@@ -62,22 +62,13 @@ extract_update() {
   local image_name="$1"
   local disk_layout="$2"
   local update_path="${BUILD_DIR}/${image_name%_image.bin}_update.bin"
-  local digest_path="${update_path}.DIGESTS"
 
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
     extract "${BUILD_DIR}/${image_name}" "USR-A" "${update_path}"
 
   # Compress image
   files_to_evaluate+=( "${update_path}" )
-  declare -a compressed_images
-  declare -a extra_files
-  compress_disk_images files_to_evaluate compressed_images extra_files
-
-  # Upload compressed image
-  upload_image -d "${digest_path}" "${compressed_images[@]}" "${extra_files[@]}"
-
-  # Upload legacy digests
-  upload_legacy_digests "${digest_path}" compressed_images
+  compress_disk_images files_to_evaluate
 
   # For production as well as dev builds we generate a dev-key-signed update
   # payload for running tests (the signature won't be accepted by production systems).
@@ -87,8 +78,6 @@ extract_update() {
       -new_image "${update_path}" \
       -new_kernel "${BUILD_DIR}/${image_name%.bin}.vmlinuz" \
       -out_file "${update_test}"
-
-  upload_image "${update_test}"
 }
 
 zip_update_tools() {
@@ -100,8 +89,6 @@ zip_update_tools() {
   export REPO_MANIFESTS_DIR SCRIPTS_DIR
   "${BUILD_LIBRARY_DIR}/generate_au_zip.py" \
     --arch "$(get_sdk_arch)" --output-dir "${BUILD_DIR}" --zip-name "${update_zip}"
-
-  upload_image "${BUILD_DIR}/${update_zip}"
 }
 
 generate_update() {
@@ -123,16 +110,8 @@ generate_update() {
 
   # Compress image
   declare -a files_to_evaluate
-  declare -a compressed_images
-  declare -a extra_files
   files_to_evaluate+=( "${update}.bin" )
-  compress_disk_images files_to_evaluate compressed_images extra_files
-
-  # Upload images
-  upload_image -d "${update}.DIGESTS" "${update}".{gz,zip} "${compressed_images[@]}" "${extra_files[@]}"
-
-  # Upload legacy digests
-  upload_legacy_digests "${update}.DIGESTS" compressed_images
+  compress_disk_images files_to_evaluate
 }
 
 # ldconfig cannot generate caches for non-native arches.

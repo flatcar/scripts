@@ -50,8 +50,6 @@ eval set -- "${FLAGS_ARGV}"
 # Die on any errors.
 switch_to_strict_mode
 
-check_gsutil_opts
-
 if [[ -z "${FLAGS_kernel_path}" && -z "${FLAGS_efi_grub_path}" &&
         -z "${FLAGS_shim_path}" ]]; then
     die_notrace "Specify at least one of --kernel_path, --efi_grub_path, --shim_path"

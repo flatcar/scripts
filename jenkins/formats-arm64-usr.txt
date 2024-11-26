@@ -1,7 +1,0 @@
-ami_vmdk
-azure_gen2
-openstack
-openstack_mini
-packet
-pxe
-qemu_uefi

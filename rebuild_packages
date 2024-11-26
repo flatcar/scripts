@@ -29,8 +29,6 @@ if [[ -z "${FLAGS_board}" ]]; then
   exit 1
 fi
 
-check_gsutil_opts
-
 # set BOARD and BOARD_ROOT
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
@@ -78,9 +76,6 @@ else
 
     info "Checking build root"
     test_image_content "${BOARD_ROOT}"
-
-    # upload packages if enabled
-    upload_packages
 fi
 
 command_completed

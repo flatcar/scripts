@@ -85,24 +85,8 @@ finish_modify_image() {
 
 
     declare -a files_to_evaluate
-    declare -a compressed_images
-    declare -a extra_files
-
     files_to_evaluate+=( "${DST_IMAGE}" )
-    compress_disk_images files_to_evaluate compressed_images extra_files
-
-    upload_image -d "${DST_IMAGE}.DIGESTS" \
-        "${compressed_images[@]}" \
-        "${extra_files[@]}"
-
-    # Upload legacy digests
-    upload_legacy_digests "${DST_IMAGE}.DIGESTS" compressed_images
-
-    for filename in "${EXTRA_FILES[@]}"; do
-        if [[ -e "${BUILD_DIR}/${filename}" ]]; then
-            upload_image "${BUILD_DIR}/${filename}"
-        fi
-    done
+    compress_disk_images files_to_evaluate
 
     set_build_symlinks "${FLAGS_group}-latest"
 
