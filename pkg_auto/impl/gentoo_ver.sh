@@ -48,13 +48,13 @@ _ver_compare() {
 
 	re=${VER_ERE}
 
-	[[ ${va} =~ ${re} ]] || fail "${FUNCNAME}: invalid version: ${va}"
+	[[ ${va} =~ ${re} ]] || fail "${FUNCNAME[0]}: invalid version: ${va}"
 	an=${BASH_REMATCH[1]}
 	al=${BASH_REMATCH[3]}
 	as=${BASH_REMATCH[4]}
 	ar=${BASH_REMATCH[7]}
 
-	[[ ${vb} =~ ${re} ]] || fail "${FUNCNAME}: invalid version: ${vb}"
+	[[ ${vb} =~ ${re} ]] || fail "${FUNCNAME[0]}: invalid version: ${vb}"
 	bn=${BASH_REMATCH[1]}
 	bl=${BASH_REMATCH[3]}
 	bs=${BASH_REMATCH[4]}
@@ -136,14 +136,14 @@ ver_test() {
 		va=${PVR}
 	fi
 
-	[[ $# -eq 2 ]] || fail "${FUNCNAME}: bad number of arguments"
+	[[ $# -eq 2 ]] || fail "${FUNCNAME[0]}: bad number of arguments"
 
 	op=${1}
 	vb=${2}
 
 	case ${op} in
 		-eq|-ne|-lt|-le|-gt|-ge) ;;
-		*) fail "${FUNCNAME}: invalid operator: ${op}" ;;
+		*) fail "${FUNCNAME[0]}: invalid operator: ${op}" ;;
 	esac
 
 	_ver_compare "${va}" "${vb}"
@@ -171,7 +171,7 @@ function gentoo_ver_cmp_out() {
     out_ref=0
     _ver_compare "${v1}" "${v2}" || out_ref=${?}
     case ${out_ref} in
-        1|2|3)
+        "${GV_LT}"|"${GV_EQ}"|"${GV_GT}")
             return 0
             ;;
         *)

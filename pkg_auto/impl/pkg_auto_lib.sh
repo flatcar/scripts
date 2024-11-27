@@ -2814,6 +2814,7 @@ function handle_gentoo_sync() {
     local path in_ps category
     if [[ "${old_head}" != "${new_head}" ]]; then
         while read -r path; do
+            # shellcheck disable=SC2153 # PORTAGE_STABLE_SUFFIX is not a misspelling
             if [[ ${path} != "${PORTAGE_STABLE_SUFFIX}/"* ]]; then
                 continue
             fi
