@@ -51,6 +51,7 @@ __PKG_AUTO_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/cleanups.sh"
+source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
 # Sets up the workdir using the passed config. The config can be
 # created basing on the config_template file or using the
@@ -1032,19 +1033,10 @@ function process_listings() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local eclass ver_ere pkg_ere
-    # shellcheck disable=SC2153 # PORTAGE_STABLE_SUFFIX is not a misspelling
-    eclass="${PKG_AUTO_DIR}/../${PORTAGE_STABLE_SUFFIX}/eclass/eapi7-ver.eclass"
-    # line is like '   re="<regexp>"'
-    ver_ere=$(grep -e 're=' "${eclass}" || fail "no 're=' line found in eapi7-ver.eclass")
-    if [[ -z ${ver_ere} ]]; then
-        fail 'empty version regex from eapi7-ver.eclass'
-    fi
-    # strip everything until first quotes
-    ver_ere=${ver_ere#*'"'}
-    # strip last quote
-    ver_ere=${ver_ere%'"'*}
-    # regexp begins with ^ and ends with $, so strip them too
+    local ver_ere pkg_ere
+    # VER_ERE comes from gentoo_ver.sh
+    ver_ere=${VER_ERE}
+    # regexp begins with ^ and ends with $, so strip them
     ver_ere=${ver_ere#'^'}
     ver_ere=${ver_ere%'$'}
     pkg_ere='[a-z0-9]*-?[a-z0-9]*/[a-z0-9A-Z_+-]*'
@@ -1438,57 +1430,6 @@ function unset_report_mvms() {
         done
     done
 }
-
-###
-### BEGIN GENTOO VER COMP HACKS
-###
-
-# shellcheck disable=SC2034 # it's here only for the eapi7-ver.eclass
-EAPI=6
-function die() {
-    fail "$*"
-}
-
-# This brings in ver_test function.
-#
-# shellcheck disable=SC1091 # sourcing external file
-source "${PKG_AUTO_DIR}/../sdk_container/src/third_party/portage-stable/eclass/eapi7-ver.eclass"
-
-unset EAPI
-
-# symbolic names for use with gentoo_ver_cmp
-GV_LT=1
-GV_EQ=2
-GV_GT=3
-
-# Compare two versions. The result can be compared against GV_LT, GV_EQ and GV_GT variables.
-#
-# Params:
-#
-# 1 - version 1
-# 2 - version 2
-# 3 - name of variable to store the result in
-function gentoo_ver_cmp_out() {
-    local v1 v2
-    v1=${1}; shift
-    v2=${1}; shift
-    local -n out_ref=${1}; shift
-
-    out_ref=0
-    _ver_compare "${v1}" "${v2}" || out_ref=${?}
-    case ${out_ref} in
-        1|2|3)
-            return 0
-            ;;
-        *)
-            fail "unexpected return value ${out_ref} from _ver_compare for ${v1} and ${v2}"
-            ;;
-    esac
-}
-
-###
-### END GENTOO VER COMP HACKS
-###
 
 # Finds out the highest and the lowest version from the passed versions.
 #
