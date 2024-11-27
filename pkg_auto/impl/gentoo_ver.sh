@@ -118,6 +118,38 @@ _ver_compare() {
 	return 2
 }
 
+# @FUNCTION: ver_test
+# @USAGE: [<v1>] <op> <v2>
+# @DESCRIPTION:
+# Check if the relation <v1> <op> <v2> is true.  If <v1> is not specified,
+# default to ${PVR}.  <op> can be -gt, -ge, -eq, -ne, -le, -lt.
+# Both versions must conform to the PMS version syntax (with optional
+# revision parts), and the comparison is performed according to
+# the algorithm specified in the PMS.
+ver_test() {
+	local va op vb
+
+	if [[ $# -eq 3 ]]; then
+		va=${1}
+		shift
+	else
+		va=${PVR}
+	fi
+
+	[[ $# -eq 2 ]] || fail "${FUNCNAME}: bad number of arguments"
+
+	op=${1}
+	vb=${2}
+
+	case ${op} in
+		-eq|-ne|-lt|-le|-gt|-ge) ;;
+		*) fail "${FUNCNAME}: invalid operator: ${op}" ;;
+	esac
+
+	_ver_compare "${va}" "${vb}"
+	test $? "${op}" 2
+}
+
 # symbolic names for use with gentoo_ver_cmp_out
 GV_LT=1
 GV_EQ=2
