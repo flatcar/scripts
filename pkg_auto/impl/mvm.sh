@@ -52,132 +52,6 @@ source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 # Used for creating unique names for extras and storage maps.
 MVM_COUNTER=0
 
-# Array mvm, the default. Provides an iteration helper that sends all
-# the array values to the iteration callback.
-
-function mvm_mvc_array_constructor() {
-    local array_var_name
-    array_var_name=${1}; shift
-
-    declare -g -a "${array_var_name}"
-
-    local -n array_ref=${array_var_name}
-    array_ref=()
-}
-
-function mvm_mvc_array_destructor() {
-    local array_var_name
-    array_var_name=${1}; shift
-
-    unset "${array_var_name}"
-}
-
-function mvm_mvc_array_adder() {
-    local array_var_name
-    array_var_name=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
-    local -n array_ref=${array_var_name}
-
-    array_ref+=( "${@}" )
-}
-
-# iteration_helper is optional
-function mvm_mvc_array_iteration_helper() {
-    local key array_var_name callback
-    key=${1}; shift
-    array_var_name=${1}; shift
-    callback=${1}; shift
-    # rest are extra args passed to cb
-
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
-    local -n array_ref=${array_var_name}
-    "${callback}" "${@}" "${key}" "${array_var_name}" "${array_ref[@]}"
-}
-
-# Map mvm. When adding elements to the mvc, it is expected that the
-# number of items passed will be even. Odd elements will be used as
-# keys, even elements will be used as values.
-#
-# No iteration helper.
-
-function mvm_mvc_map_constructor() {
-    local map_var_name
-    map_var_name=${1}; shift
-
-    declare -g -A "${map_var_name}"
-
-    local -n map_ref=${map_var_name}
-    map_ref=()
-}
-
-function mvm_mvc_map_destructor() {
-    local map_var_name
-    map_var_name=${1}; shift
-
-    unset "${map_var_name}"
-}
-
-function mvm_mvc_map_adder() {
-    local map_var_name
-    map_var_name=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
-    local -n map_ref=${map_var_name}
-
-    while [[ ${#} -gt 1 ]]; do
-        # shellcheck disable=SC2034 # it's a reference to external variable
-        map_ref["${1}"]=${2}
-        shift 2
-    done
-}
-
-# Set mvm. Behaves like array mvm, but all elements in each set are
-# unique and the order of elements is not guaranteed to be the same as
-# order of insertions.
-
-function mvm_mvc_set_constructor() {
-    local set_var_name
-    set_var_name=${1}; shift
-
-    declare -g -A "${set_var_name}"
-
-    # shellcheck disable=SC2178 # shellcheck does not grok refs
-    local -n set_ref=${set_var_name}
-    set_ref=()
-}
-
-function mvm_mvc_set_destructor() {
-    local set_var_name
-    set_var_name=${1}
-
-    unset "${set_var_name}"
-}
-
-function mvm_mvc_set_adder() {
-    local set_var_name
-    set_var_name=${1}; shift
-
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
-    local -n set_ref=${set_var_name}
-    while [[ ${#} -gt 0 ]]; do
-        set_ref["${1}"]=x
-        shift
-    done
-}
-
-# iteration_helper is optional
-function mvm_mvc_set_iteration_helper() {
-    local key map_var_name callback
-
-    key=${1}; shift
-    set_var_name=${1}; shift
-    callback=${1}; shift
-    # rest are extra args passed to cb
-
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
-    local -n set_ref=${set_var_name}
-    "${callback}" "${@}" "${key}" "${set_var_name}" "${!set_ref[@]}"
-}
-
 # mvm API
 
 # Creates a new mvm with a passed name, optionally type and
@@ -568,6 +442,132 @@ function mvm_debug() {
 function mvm_debug_disable() {
     local mvm_var_name=${1}; shift
     unset "MVM_DEBUG_NAMES[${mvm_var_name}]"
+}
+
+# Array mvm, the default. Provides an iteration helper that sends all
+# the array values to the iteration callback.
+
+function mvm_mvc_array_constructor() {
+    local array_var_name
+    array_var_name=${1}; shift
+
+    declare -g -a "${array_var_name}"
+
+    local -n array_ref=${array_var_name}
+    array_ref=()
+}
+
+function mvm_mvc_array_destructor() {
+    local array_var_name
+    array_var_name=${1}; shift
+
+    unset "${array_var_name}"
+}
+
+function mvm_mvc_array_adder() {
+    local array_var_name
+    array_var_name=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
+    local -n array_ref=${array_var_name}
+
+    array_ref+=( "${@}" )
+}
+
+# iteration_helper is optional
+function mvm_mvc_array_iteration_helper() {
+    local key array_var_name callback
+    key=${1}; shift
+    array_var_name=${1}; shift
+    callback=${1}; shift
+    # rest are extra args passed to cb
+
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
+    local -n array_ref=${array_var_name}
+    "${callback}" "${@}" "${key}" "${array_var_name}" "${array_ref[@]}"
+}
+
+# Map mvm. When adding elements to the mvc, it is expected that the
+# number of items passed will be even. Odd elements will be used as
+# keys, even elements will be used as values.
+#
+# No iteration helper.
+
+function mvm_mvc_map_constructor() {
+    local map_var_name
+    map_var_name=${1}; shift
+
+    declare -g -A "${map_var_name}"
+
+    local -n map_ref=${map_var_name}
+    map_ref=()
+}
+
+function mvm_mvc_map_destructor() {
+    local map_var_name
+    map_var_name=${1}; shift
+
+    unset "${map_var_name}"
+}
+
+function mvm_mvc_map_adder() {
+    local map_var_name
+    map_var_name=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
+    local -n map_ref=${map_var_name}
+
+    while [[ ${#} -gt 1 ]]; do
+        # shellcheck disable=SC2034 # it's a reference to external variable
+        map_ref["${1}"]=${2}
+        shift 2
+    done
+}
+
+# Set mvm. Behaves like array mvm, but all elements in each set are
+# unique and the order of elements is not guaranteed to be the same as
+# order of insertions.
+
+function mvm_mvc_set_constructor() {
+    local set_var_name
+    set_var_name=${1}; shift
+
+    declare -g -A "${set_var_name}"
+
+    # shellcheck disable=SC2178 # shellcheck does not grok refs
+    local -n set_ref=${set_var_name}
+    set_ref=()
+}
+
+function mvm_mvc_set_destructor() {
+    local set_var_name
+    set_var_name=${1}
+
+    unset "${set_var_name}"
+}
+
+function mvm_mvc_set_adder() {
+    local set_var_name
+    set_var_name=${1}; shift
+
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
+    local -n set_ref=${set_var_name}
+    while [[ ${#} -gt 0 ]]; do
+        set_ref["${1}"]=x
+        shift
+    done
+}
+
+# iteration_helper is optional
+function mvm_mvc_set_iteration_helper() {
+    local key map_var_name callback
+
+    key=${1}; shift
+    set_var_name=${1}; shift
+    callback=${1}; shift
+    # rest are extra args passed to cb
+
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
+    local -n set_ref=${set_var_name}
+    "${callback}" "${@}" "${key}" "${set_var_name}" "${!set_ref[@]}"
 }
 
 fi
