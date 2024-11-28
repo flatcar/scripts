@@ -216,6 +216,7 @@ dev-lang/python
 dev-lang/python-exec
 dev-lang/python-exec-conf
 dev-lang/rust
+dev-lang/rust-bin
 dev-lang/rust-common
 dev-lang/swig
 dev-lang/tcl
