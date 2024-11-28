@@ -62,7 +62,7 @@ function _sbsign_image_impl() {
     if is_official "${FLATCAR_VERSION}"; then
         export COREOS_OFFICIAL=1
     else
-        export COREOS_OFFICIAL=0
+        export COREOS_OFFICIAL=1
     fi
 
     apply_local_patches
