@@ -55,7 +55,12 @@ function yell() {
 function get_git_version() {
     local tag="$(git tag --points-at HEAD)"
     if [ -z "$tag" ] ; then
-        git describe --tags
+        local abbrev=
+        # emerge-gitclone needs the full SHA for external PRs
+        if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+            abbrev="--abbrev=40"
+        fi
+        git describe --tags ${abbrev}
     else
         echo "$tag"
     fi
