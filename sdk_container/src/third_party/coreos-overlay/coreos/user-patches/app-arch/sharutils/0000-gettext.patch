@@ -1,0 +1,11 @@
+diff -u3 -r sharutils-4.15.2/src/local.h sharutils-4.15.2-patched/src/local.h
+--- sharutils-4.15.2/src/local.h	2015-05-30 17:35:32.000000000 +0200
++++ sharutils-4.15.2-patched/src/local.h	2024-11-28 20:18:51.360160618 +0100
+@@ -37,6 +37,7 @@
+ #include "base64.h"
+ #include "dirname.h"
+ #include "error.h"
++#include "gettext.h"
+ #include "idcache.h"
+ #include "inttostr.h"
+ #include "locale.h"
