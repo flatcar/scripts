@@ -104,7 +104,6 @@ RDEPEND="${RDEPEND}
 	app-crypt/gnupg
 	app-crypt/go-tspi
 	app-crypt/tpmpolicy
-	app-editors/vim
 	app-containers/cri-tools
 	app-misc/ca-certificates
 	app-misc/jq
