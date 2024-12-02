@@ -1,9 +1,9 @@
 https://bugs.gentoo.org/916328
 https://github.com/opendnssec/SoftHSMv2/issues/729
 https://github.com/openssl/openssl/issues/22508
-https://github.com/openssl/openssl/commit/934943281267259fa928f4a5814b176525461a65
+https://github.com/openssl/openssl/commit/ad6cbe4b7f57a783a66a7ae883ea0d35ef5f82b6
 
-From 934943281267259fa928f4a5814b176525461a65 Mon Sep 17 00:00:00 2001
+From ad6cbe4b7f57a783a66a7ae883ea0d35ef5f82b6 Mon Sep 17 00:00:00 2001
 From: Tomas Mraz <tomas@openssl.org>
 Date: Fri, 15 Dec 2023 13:45:50 +0100
 Subject: [PATCH] Revert "Improved detection of engine-provided private
