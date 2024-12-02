@@ -161,3 +161,7 @@ sys-fs/zfs minimal -rootfs
 # Do not tinker with /boot partition at installation time.
 sys-firmware/intel-microcode -initramfs
 sys-fs/zfs-kmod -initramfs
+
+# For sys-auth/sssd
+net-dns/bind       gssapi
+net-dns/bind-tools gssapi
