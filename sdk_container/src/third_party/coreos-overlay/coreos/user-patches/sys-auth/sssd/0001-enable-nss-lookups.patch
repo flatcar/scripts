@@ -1,0 +1,15 @@
+diff '--color=auto' -u3 -r sssd-2.9.5/src/conf_macros.m4 sssd-2.9.5-patched/src/conf_macros.m4
+--- sssd-2.9.5/src/conf_macros.m4	2024-05-16 11:35:27.000000000 -0000
++++ sssd-2.9.5-patched/src/conf_macros.m4	2024-12-03 13:22:00.637218837 -0000
+@@ -764,9 +764,9 @@
+                                plugin. If this option is enabled the sss nss
+                                plugin will behave as it was not in
+                                nsswitch.conf when sssd is not running.
+-                               [default=no]])],
++                               [default=yes]])],
+               [enable_sss_default_nss_plugin=$enableval],
+-              [enable_sss_default_nss_plugin=no])
++              [enable_sss_default_nss_plugin=yes])
+ AS_IF([test x$enable_sss_default_nss_plugin = xyes],
+       AC_DEFINE_UNQUOTED([NONSTANDARD_SSS_NSS_BEHAVIOUR], [1],
+           [whether to build sssd nss plugin with nonstandard glibc behaviour]))
