@@ -1,0 +1,34 @@
+From a559550c8e2d162735ff8a43de6dc59af71cf3df Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 3 Dec 2024 19:05:44 +0100
+Subject: [PATCH] Assume that callbacks are not broken in OpenLDAP when
+ cross-compiling
+
+If we do cross-compiling against a known broken version of OpenLDAP,
+we can do `export ac_cv_member_struct_ldap_conncb_lc_arg=no` before
+running configure. This is rather unlikely now, as the test was done
+to detect a bug that was fixed 16 years ago.
+
+This allows the project to be configured successfully when
+cross-compiling, without disabling connection callbacks.
+---
+ src/external/ldap.m4 | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/external/ldap.m4 b/src/external/ldap.m4
+index f42023cd4..09e44fc7b 100644
+--- a/src/external/ldap.m4
++++ b/src/external/ldap.m4
+@@ -80,7 +80,8 @@ AC_CHECK_MEMBERS([struct ldap_conncb.lc_arg],
+                    [AC_DEFINE([HAVE_LDAP_CONNCB], [1],
+                      [Define if LDAP connection callbacks are available])],
+                    [AC_MSG_WARN([Found broken callback implementation])],
+-                   [])],
++                   [AC_DEFINE([HAVE_LDAP_CONNCB], [1],
++                     [Define if LDAP connection callbacks are available])])],
+                  [], [[#include <ldap.h>]])
+ 
+ AC_CHECK_TYPE([LDAPDerefRes],
+-- 
+2.34.1
+
