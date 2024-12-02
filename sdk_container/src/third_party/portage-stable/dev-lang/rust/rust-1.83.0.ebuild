@@ -3,13 +3,13 @@
 
 EAPI=8
 
-LLVM_COMPAT=( 17 )
-PYTHON_COMPAT=( python3_{10..12} )
+LLVM_COMPAT=( 19 )
+PYTHON_COMPAT=( python3_{10..13} )
 
 RUST_MAX_VER=${PV}
 RUST_MIN_VER="$(ver_cut 1).$(($(ver_cut 2) - 1)).0"
 
-inherit check-reqs estack flag-o-matic llvm-r1 multiprocessing \
+inherit check-reqs estack flag-o-matic llvm-r1 multiprocessing optfeature \
 	multilib multilib-build python-any-r1 rust rust-toolchain toolchain-funcs verify-sig
 
 if [[ ${PV} = *beta* ]]; then
@@ -20,7 +20,7 @@ if [[ ${PV} = *beta* ]]; then
 else
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 DESCRIPTION="Systems programming language from Mozilla"
@@ -131,12 +131,10 @@ RESTRICT="test"
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/rust.asc
 
 PATCHES=(
-	"${FILESDIR}"/1.75.0-musl-dynamic-linking.patch
-	"${FILESDIR}"/1.74.1-cross-compile-libz.patch
+	"${FILESDIR}"/1.78.0-musl-dynamic-linking.patch
+	"${FILESDIR}"/1.83.0-cross-compile-libz.patch
 	#"${FILESDIR}"/1.72.0-bump-libc-deps-to-0.2.146.patch  # pending refresh
-	"${FILESDIR}"/1.70.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
-	"${FILESDIR}"/1.76.0-loong-code-model.patch  # remove for >=1.78.0
 )
 
 clear_vendor_checksums() {
@@ -217,6 +215,18 @@ pkg_setup() {
 	fi
 }
 
+src_prepare() {
+	# Rust baselines to Pentium4 on x86, this patch lowers the baseline to i586 when sse2 is not set.
+	if use x86; then
+		if ! use cpu_flags_x86_sse2; then
+			eapply "${FILESDIR}/1.82.0-i586-baseline.patch"
+			#grep -rl cmd.args.push\(\"-march=i686\" . | xargs sed  -i 's/march=i686/-march=i586/g' || die
+		fi
+	fi
+
+	default
+}
+
 src_configure() {
 	if tc-is-cross-compiler; then
 		export PKG_CONFIG_ALLOW_CROSS=1
@@ -244,7 +254,7 @@ src_configure() {
 	rust_targets="${rust_targets#,}"
 
 	# cargo and rustdoc are mandatory and should always be included
-	local tools='"cargo","rustdoc", "rust-demangler"'
+	local tools='"cargo","rustdoc"'
 	use clippy && tools+=',"clippy"'
 	use miri && tools+=',"miri"'
 	use rustfmt && tools+=',"rustfmt"'
@@ -261,7 +271,6 @@ src_configure() {
 
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
-		changelog-seen = 2
 		[llvm]
 		download-ci-llvm = false
 		optimize = $(toml_usex !debug)
@@ -396,10 +405,13 @@ src_configure() {
 		if use elibc_musl; then
 			cat <<- _EOF_ >> "${S}"/config.toml
 				crt-static = false
+				musl-root = "$($(tc-getCC) -print-sysroot)/usr"
 			_EOF_
 		fi
 	done
 	if use wasm; then
+		wasm_target="wasm32-unknown-unknown"
+		export CFLAGS_${wasm_target//-/_}="$(filter-flags '-mcpu*' '-march*' '-mtune*'; echo "$CFLAGS")"
 		cat <<- _EOF_ >> "${S}"/config.toml
 			[target.wasm32-unknown-unknown]
 			linker = "$(usex system-llvm lld rust-lld)"
@@ -564,6 +576,8 @@ src_test() {
 src_install() {
 	DESTDIR="${D}" "${EPYTHON}" ./x.py install -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
 
+	docompress /usr/lib/${PN}/${PV}/share/man/
+
 	# bug #689562, #689160
 	rm -v "${ED}/usr/lib/${PN}/${PV}/etc/bash_completion.d/cargo" || die
 	rmdir -v "${ED}/usr/lib/${PN}/${PV}"/etc{/bash_completion.d,} || die
@@ -575,7 +589,6 @@ src_install() {
 		rust-gdb
 		rust-gdbgui
 		rust-lldb
-		rust-demangler
 	)
 
 	use clippy && symlinks+=( clippy-driver cargo-clippy )
@@ -620,7 +633,6 @@ src_install() {
 	cat <<-_EOF_ > "${T}/provider-${P}"
 		/usr/bin/cargo
 		/usr/bin/rustdoc
-		/usr/bin/rust-demangler
 		/usr/bin/rust-gdb
 		/usr/bin/rust-gdbgui
 		/usr/bin/rust-lldb
@@ -646,10 +658,12 @@ src_install() {
 		echo /usr/lib/rust/libexec >> "${T}/provider-${P}"
 		echo /usr/bin/rust-analyzer >> "${T}/provider-${P}"
 	fi
+
 	insinto /etc/env.d/rust
 	doins "${T}/provider-${P}"
 
 	if use dist; then
+		"${EPYTHON}" ./x.py dist -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
 		insinto "/usr/lib/${PN}/${PV}/dist"
 		doins -r "${S}/build/dist/."
 	fi
@@ -701,11 +715,11 @@ pkg_postinst() {
 	fi
 
 	if has_version app-editors/emacs; then
-		elog "install app-emacs/rust-mode to get emacs support for rust."
+		optfeature "emacs support for rust" app-emacs/rust-mode
 	fi
 
 	if has_version app-editors/gvim || has_version app-editors/vim; then
-		elog "install app-vim/rust-vim to get vim support for rust."
+		optfeature "vim support for rust" app-vim/rust-vim
 	fi
 }
 
