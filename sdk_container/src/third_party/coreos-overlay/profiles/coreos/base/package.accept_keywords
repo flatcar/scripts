@@ -38,6 +38,9 @@
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
+=app-emulation/qemu-guest-agent-8.2.0 ~arm64
+
+# Keep versions on both arches in sync.
 =dev-cpp/abseil-cpp-20230125.3-r4 ~arm64
 
 # Keep versions on both arches in sync.
