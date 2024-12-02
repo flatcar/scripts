@@ -4,12 +4,11 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
-TMPFILES_OPTIONAL=1
 inherit edo flag-o-matic linux-info toolchain-funcs
-inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig tmpfiles
+inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
-HOMEPAGE="https://www.openssl.org/"
+HOMEPAGE="https://openssl-library.org/"
 
 MY_P=${P/_/-}
 
@@ -18,29 +17,19 @@ if [[ ${PV} == 9999 ]] ; then
 
 	inherit git-r3
 else
-	SRC_URI="
-		mirror://openssl/source/${MY_P}.tar.gz
-		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )
-	"
-
-	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-	fi
+	SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
+		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 S="${WORKDIR}"/${MY_P}
 
 LICENSE="Apache-2.0"
-SLOT="0/$(ver_cut 1)" # .so version of libssl/libcrypto
+SLOT="0/3" # .so version of libssl/libcrypto
 IUSE="+asm cpu_flags_x86_sse2 fips ktls rfc3779 sctp static-libs test tls-compression vanilla verify-sig weak-ssl-ciphers"
 RESTRICT="!test? ( test )"
 
-# Flatcar: Gentoo dropped dependency on c_rehash, a required tool for
-# generating certs, and does not provide a built-in tool either.
-# Continue shipping it.
 COMMON_DEPEND="
-	!<net-misc/openssh-9.2_p1-r3
-	>=app-misc/c_rehash-1.7-r1
 	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
 "
 BDEPEND="
@@ -51,7 +40,7 @@ BDEPEND="
 		app-alternatives/bc
 		sys-process/procps
 	)
-	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20230801 )"
+	verify-sig? ( <sec-keys/openpgp-keys-openssl-20240920 )"
 
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -59,10 +48,6 @@ PDEPEND="app-misc/ca-certificates"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
-)
-
-PATCHES=(
-	"${FILESDIR}"/${P}-p11-segfault.patch
 )
 
 pkg_setup() {
@@ -92,20 +77,10 @@ pkg_setup() {
 	fi
 }
 
-src_unpack() {
-	# Can delete this once test fix patch is dropped
-	if use verify-sig ; then
-		# Needed for downloaded patch (which is unsigned, which is fine)
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.gz{,.asc}
-	fi
-
-	default
-}
-
 src_prepare() {
 	# Make sure we only ever touch Makefile.org and avoid patching a file
 	# that gets blown away anyways by the Configure script in src_configure
-	rm -f Makefile
+	rm -f Makefile || die
 
 	if ! use vanilla ; then
 		PATCHES+=(
@@ -231,15 +206,9 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
-	# See https://github.com/openssl/openssl/blob/master/test/README.md for options.
-	#
 	# VFP = show subtests verbosely and show failed tests verbosely
 	# Normal V=1 would show everything verbosely but this slows things down.
-	#
-	# -j1 here for https://github.com/openssl/openssl/issues/21999, but it
-	# shouldn't matter as tests were already built earlier, and HARNESS_JOBS
-	# controls running the tests.
-	emake -Onone -j1 HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
+	emake HARNESS_JOBS="$(makeopts_jobs)" -Onone VFP=1 test
 }
 
 multilib_src_install() {
@@ -274,21 +243,15 @@ multilib_src_install_all() {
 
 	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
 
+	# Create the certs directory
+	keepdir ${SSL_CNF_DIR}/certs
+
 	# bug #254521
 	dodir /etc/sandbox.d
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	# flatcar changes: do not keep the sample CA files in `/etc`
-	rm -rf "${ED}"${SSL_CNF_DIR}
-
-	# flatcar changes: save the default `openssl.cnf` in `/usr`
-	dodir /usr/share/ssl
-	insinto /usr/share/ssl
-	doins "${S}"/apps/openssl.cnf
-	dotmpfiles "${FILESDIR}"/openssl.conf
-
-	# flatcar changes: package `tmpfiles.d` setup for SDK bootstrapping.
-	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
+	diropts -m0700
+	keepdir ${SSL_CNF_DIR}/private
 }
 
 pkg_preinst() {
@@ -302,5 +265,14 @@ pkg_preinst() {
 	fi
 
 	preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
+		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
+}
+
+pkg_postinst() {
+	ebegin "Running 'openssl rehash ${EROOT}${SSL_CNF_DIR}/certs' to rebuild hashes (bug #333069)"
+	openssl rehash "${EROOT}${SSL_CNF_DIR}/certs"
+	eend $?
+
+	preserve_old_lib_notify /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
 		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
 }

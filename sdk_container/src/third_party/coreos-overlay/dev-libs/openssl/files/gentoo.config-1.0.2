@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 #
 # Openssl doesn't play along nicely with cross-compiling
@@ -32,7 +32,6 @@ if [[ $1 == "test" ]] ; then
 		"i686-apple-darwinX           |darwin-i386-cc" \
 		"i386-apple-darwinX           |darwin-i386-cc" \
 		"powerpc-apple-darwinX        |darwin-ppc-cc" \
-		"arm64-apple-darwinX          |darwin-arm64-cc" \
 		"i586-pc-winnt                |winnt-parity" \
 		"s390-ibm-linux-gnu           |linux-generic32 -DB_ENDIAN" \
 		"s390x-linux-gnu              |linux64-s390x" \
@@ -78,9 +77,7 @@ fi
 
 # Detect target arch
 machine=""
-submachine=""
 chost_machine=${CHOST%%-*}
-[[ ${CC} == *clang* ]] && submachine="-clang"
 case ${system} in
 linux)
 	case ${chost_machine}:${ABI} in
@@ -89,10 +86,6 @@ linux)
 		alphaev56*|\
 		alphaev[678]*)machine=alpha+bwx-${compiler};;
 		alpha*)       machine=alpha-${compiler};;
-		arc64*b*)     machine="generic64 -DB_ENDIAN";;
-		arc64*)       machine="generic64 -DL_ENDIAN";;
-		arc*b*)       machine="generic32 -DB_ENDIAN";;
-		arc*)         machine="generic32 -DL_ENDIAN";;
 		armv[4-9]*b*) machine="armv4 -DB_ENDIAN";;
 		armv[4-9]*)   machine="armv4 -DL_ENDIAN";;
 		arm*b*)       machine="generic32 -DB_ENDIAN";;
@@ -102,24 +95,18 @@ linux)
 	#	hppa64*)      machine=parisc64;;
 		hppa*)        machine="generic32 -DB_ENDIAN";;
 		i[0-9]86*|\
-		x86_64*:x86)  machine=x86${submachine};;
+		x86_64*:x86)  machine=elf;;
 		ia64*)        machine=ia64;;
-		loongarch64*) machine="loongarch64 -DL_ENDIAN" system=linux64;;
-		m68*)         machine="latomic -DB_ENDIAN";;
-		mips*el*:o32) machine="mips32 -DL_ENDIAN";;
-		mips*:o32)    machine="mips32 -DB_ENDIAN";;
-		mips*el*:n32) machine="mips64 -DL_ENDIAN";;
-		mips*:n32)    machine="mips64 -DB_ENDIAN";;
-		mips*el*:n64) machine="mips64 -DL_ENDIAN" system=linux64;;
-		mips*:n64)    machine="mips64 -DB_ENDIAN" system=linux64;;
+		loongarch64*) machine="generic64 -DL_ENDIAN";;
+		m68*)         machine="generic32 -DB_ENDIAN";;
+		mips*el*)     machine="generic32 -DL_ENDIAN";;
+		mips*)        machine="generic32 -DB_ENDIAN";;
 		powerpc64*le*)machine=ppc64le;;
 		powerpc64*)   machine=ppc64;;
 		powerpc*le*)  machine="generic32 -DL_ENDIAN";;
 		powerpc*)     machine=ppc;;
-		riscv32be*)   machine="generic32 -DB_ENDIAN";;
 		riscv32*)     machine="generic32 -DL_ENDIAN";;
-		riscv64be*)   machine="riscv64 -DB_ENDIAN" system=linux64;;
-		riscv64*)     machine="riscv64 -DL_ENDIAN" system=linux64;;
+		riscv64*)     machine="generic64 -DL_ENDIAN";;
 	#	sh64*)        machine=elf;;
 		sh*b*)        machine="generic32 -DB_ENDIAN";;
 		sh*)          machine="generic32 -DL_ENDIAN";;
@@ -134,7 +121,7 @@ linux)
 		s390x*)       machine=s390x system=linux64;;
 		s390*)        machine="generic32 -DB_ENDIAN";;
 		x86_64*:x32)  machine=x32;;
-		x86_64*)      machine=x86_64${submachine};;
+		x86_64*)      machine=x86_64;;
 	esac
 	;;
 BSD)
@@ -156,7 +143,6 @@ darwin)
 		powerpc)      machine=ppc-cc;;
 		i?86*)        machine=i386-cc;;
 		x86_64)       machine=x86_64-cc; system=${system}64;;
-		arm64)        machine=arm64-cc; system=${system}64;;
 	esac
 	;;
 hpux)
