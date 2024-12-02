@@ -10,37 +10,39 @@ PYTHON_COMPAT=( python3_{10..13} pypy3 )
 PYTHON_REQ_USE="threads(+)"
 
 CRATES="
-	asn1@0.16.2
-	asn1_derive@0.16.2
-	autocfg@1.3.0
+	asn1@0.20.0
+	asn1_derive@0.20.0
+	autocfg@1.4.0
 	base64@0.22.1
 	bitflags@2.6.0
-	cc@1.1.6
+	cc@1.2.1
 	cfg-if@1.0.0
 	foreign-types-shared@0.1.1
 	foreign-types@0.3.2
 	heck@0.5.0
 	indoc@2.0.5
-	libc@0.2.155
+	itoa@1.0.14
+	libc@0.2.166
 	memoffset@0.9.1
-	once_cell@1.19.0
+	once_cell@1.20.2
 	openssl-macros@0.1.1
 	openssl-sys@0.9.104
 	openssl@0.10.68
 	pem@3.0.4
-	pkg-config@0.3.30
-	portable-atomic@1.7.0
-	proc-macro2@1.0.86
-	pyo3-build-config@0.22.2
-	pyo3-ffi@0.22.2
-	pyo3-macros-backend@0.22.2
-	pyo3-macros@0.22.2
-	pyo3@0.22.2
-	quote@1.0.36
+	pkg-config@0.3.31
+	portable-atomic@1.10.0
+	proc-macro2@1.0.92
+	pyo3-build-config@0.23.2
+	pyo3-ffi@0.23.2
+	pyo3-macros-backend@0.23.2
+	pyo3-macros@0.23.2
+	pyo3@0.23.2
+	quote@1.0.37
 	self_cell@1.0.4
-	syn@2.0.71
-	target-lexicon@0.12.15
-	unicode-ident@1.0.12
+	shlex@1.3.0
+	syn@2.0.89
+	target-lexicon@0.12.16
+	unicode-ident@1.0.14
 	unindent@0.2.3
 	vcpkg@0.2.15
 "
@@ -63,10 +65,10 @@ SRC_URI+="
 LICENSE="|| ( Apache-2.0 BSD ) PSF-2"
 # Dependent crate licenses
 LICENSE+="
-	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD MIT Unicode-DFS-2016
+	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD MIT Unicode-3.0
 "
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 RDEPEND="
 	>=dev-libs/openssl-1.0.2o-r6:0=
