@@ -1,0 +1,42 @@
+From 7aac43597fa29067c2f5a997e30986ca30e98389 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 3 Dec 2024 19:05:44 +0100
+Subject: [PATCH] Add a variable to help with cross-compilation
+
+This adds a LDAP_HAVE_CONNCB_CROSS variable that will be used instead
+of the runtime check for a broken connection callbacks in ldap
+library. Set it to yes to assume that connection callbacks are
+working.
+
+This allows the project to be configured successfully when
+cross-compiling.
+---
+ src/external/ldap.m4 | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/external/ldap.m4 b/src/external/ldap.m4
+index f42023cd4..24009e680 100644
+--- a/src/external/ldap.m4
++++ b/src/external/ldap.m4
+@@ -69,6 +69,7 @@ AC_CHECK_FUNCS([ldap_control_create ldap_init_fd \
+                 ldap_parse_derefresponse_control \
+                 ldap_derefresponse_free \
+                 ldap_is_ldapc_url])
++AC_ARG_VAR([LDAP_HAVE_CONNCB_CROSS], [A hint about working LDAP connection callbacks for cross-compilation cases])
+ AC_CHECK_MEMBERS([struct ldap_conncb.lc_arg],
+                  [AC_RUN_IFELSE(
+                    [AC_LANG_PROGRAM(
+@@ -80,7 +81,9 @@ AC_CHECK_MEMBERS([struct ldap_conncb.lc_arg],
+                    [AC_DEFINE([HAVE_LDAP_CONNCB], [1],
+                      [Define if LDAP connection callbacks are available])],
+                    [AC_MSG_WARN([Found broken callback implementation])],
+-                   [])],
++                   [AS_IF([test "x$LDAP_HAVE_CONNCB_CROSS" = xyes],
++                     [AC_DEFINE([HAVE_LDAP_CONNCB], [1],
++                       [Define if LDAP connection callbacks are available])])])],
+                  [], [[#include <ldap.h>]])
+ 
+ AC_CHECK_TYPE([LDAPDerefRes],
+-- 
+2.34.1
+
