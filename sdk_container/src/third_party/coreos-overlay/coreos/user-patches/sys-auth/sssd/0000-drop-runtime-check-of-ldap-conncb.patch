@@ -1,0 +1,21 @@
+diff '--color=auto' -u3 -r sssd-2.9.5/src/external/ldap.m4 sssd-2.9.5-patched/src/external/ldap.m4
+--- sssd-2.9.5/src/external/ldap.m4	2024-05-16 11:35:27.000000000 -0000
++++ sssd-2.9.5-patched/src/external/ldap.m4	2024-12-02 14:08:47.681187148 -0000
+@@ -70,17 +70,8 @@
+                 ldap_derefresponse_free \
+                 ldap_is_ldapc_url])
+ AC_CHECK_MEMBERS([struct ldap_conncb.lc_arg],
+-                 [AC_RUN_IFELSE(
+-                   [AC_LANG_PROGRAM(
+-                     [[ #include <ldap.h> ]],
+-                     [[
+-                       struct ldap_conncb cb;
+-                       return ldap_set_option(NULL, LDAP_OPT_CONNECT_CB, &cb);
+-                     ]] )],
+                    [AC_DEFINE([HAVE_LDAP_CONNCB], [1],
+                      [Define if LDAP connection callbacks are available])],
+-                   [AC_MSG_WARN([Found broken callback implementation])],
+-                   [])],
+                  [], [[#include <ldap.h>]])
+ 
+ AC_CHECK_TYPE([LDAPDerefRes],
