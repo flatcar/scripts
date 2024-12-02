@@ -15,14 +15,14 @@ MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 MY_PATCHES=()
 
-# Determine the patchlevel. See ftp://ftp.gnu.org/gnu/bash/bash-5.2-patches/.
+# Determine the patchlevel.
 case ${PV} in
-	*_p*)
-		PLEVEL=${PV##*_p}
-		;;
 	9999|*_alpha*|*_beta*|*_rc*)
 		# Set a negative patchlevel to indicate that it's a pre-release.
 		PLEVEL=-1
+		;;
+	*_p*)
+		PLEVEL=${PV##*_p}
 		;;
 	*)
 		PLEVEL=0
@@ -30,7 +30,7 @@ esac
 
 # The version of readline this bash normally ships with. Note that we only use
 # the bundled copy of readline for pre-releases.
-READLINE_VER="8.2_p1"
+READLINE_VER="8.3_alpha"
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="https://tiswww.case.edu/php/chet/bash/bashtop.html https://git.savannah.gnu.org/cgit/bash.git"
@@ -39,6 +39,15 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/bash.git"
 	EGIT_BRANCH=devel
 	inherit git-r3
+elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
+	# It can be useful to have snapshots in the pre-release period once
+	# the first alpha is out, as various bugs get reported and fixed from
+	# the alpha, and the next pre-release is usually quite far away.
+	#
+	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
+	BASH_COMMIT="22417e78816237ae66f2da661567dfe5ed3452a1"
+	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
+	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
 	my_urls=( {'mirror://gnu/bash','ftp://ftp.cwru.edu/pub/bash'}/"${MY_P}.tar.gz" )
 
@@ -52,6 +61,7 @@ else
 	done
 
 	SRC_URI="${my_urls[*]} verify-sig? ( ${my_urls[*]/%/.sig} )"
+	S=${WORKDIR}/${MY_P}
 
 	unset -v my_urls my_p my_patch_idx my_patch_ver
 fi
@@ -60,12 +70,10 @@ if [[ ${GENTOO_PATCH_VER} ]]; then
 	SRC_URI+=" https://dev.gentoo.org/~${GENTOO_PATCH_DEV:?}/distfiles/${CATEGORY}/${PN}/${PN}-${GENTOO_PATCH_VER:?}-patches.tar.xz"
 fi
 
-S=${WORKDIR}/${MY_P}
-
 LICENSE="GPL-3+"
 SLOT="0"
 if (( PLEVEL >= 0 )); then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="afs bashlogger examples mem-scramble +net nls plugins pgo +readline"
 
@@ -93,11 +101,6 @@ PATCHES=(
 
 	# Patches to or from Chet, posted to the bug-bash mailing list.
 	"${FILESDIR}/${PN}-5.0-syslog-history-extern.patch"
-	"${FILESDIR}/${PN}-5.2_p15-random-ub.patch"
-	"${FILESDIR}/${PN}-5.2_p15-configure-clang16.patch"
-	"${FILESDIR}/${PN}-5.2_p21-wpointer-to-int.patch"
-	"${FILESDIR}/${PN}-5.2_p21-configure-strtold.patch"
-	"${FILESDIR}/${PN}-5.2_p26-memory-leaks.patch"
 )
 
 pkg_setup() {
@@ -119,6 +122,8 @@ src_unpack() {
 
 	if [[ ${PV} == 9999 ]]; then
 		git-r3_src_unpack
+	elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
+		default
 	else
 		if use verify-sig; then
 			verify-sig_verify_detached "${DISTDIR}/${MY_P}.tar.gz"{,.sig}
@@ -173,6 +178,10 @@ src_configure() {
 	# configure warns on use of non-Bison but doesn't abort. The result
 	# may misbehave at runtime.
 	unset -v YACC
+
+	# wcsnwidth(), substring() issues with -Wlto-type-mismatch, reported
+	# upstream to Chet by email.
+	filter-lto
 
 	myconf=(
 		--disable-profiling
@@ -311,7 +320,7 @@ src_install() {
 
 	insinto /etc/bash/bashrc.d
 	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color.bash | newins - 10-gentoo-color.bash
-	doins "${FILESDIR}"/bashrc.d/10-gentoo-title.bash
+	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r1.bash 10-gentoo-title.bash
 	if [[ ! ${EPREFIX} ]]; then
 		doins "${FILESDIR}"/bashrc.d/15-gentoo-bashrc-check.bash
 	fi
@@ -372,26 +381,26 @@ pkg_postinst() {
 	read -r old_ver <<<"${REPLACING_VERSIONS}"
 	if [[ ! $old_ver ]]; then
 		:
-	elif ver_test "$old_ver" -ge "5.2" && ver_test "$old_ver" -ge "5.2_p26-r6"; then
-		return
-	elif ver_test "$old_ver" -lt "5.2" && ver_test "$old_ver" -ge "5.1_p16-r13"; then
+	elif ver_test "$old_ver" -ge "5.2" && ver_test "$old_ver" -ge "5.2_p26-r8"; then
 		return
 	fi
 
 	while read -r; do ewarn "${REPLY}"; done <<'EOF'
-Files situated under /etc/bash/bashrc.d must now have a suffix of .sh or .bash.
+Files under /etc/bash/bashrc.d must now have a suffix of .sh or .bash.
 
 Gentoo now defaults to defining PROMPT_COMMAND as an array. Depending on the
-characteristics of the operating environment, this array may contain a command
-to set the terminal's window title. Those already choosing to customise the
+characteristics of the operating environment, it may contain a command to set
+the terminal's window title. Those who were already choosing to customise the
 PROMPT_COMMAND variable are now advised to append their commands like so:
 
 PROMPT_COMMAND+=('custom command goes here')
 
-Gentoo no longer defaults to having bash manipulate the window title in the case
-that the terminal is controlled by sshd(8), unless screen or tmux are in use.
-Those wanting to set the title unconditionally may adjust ~/.bashrc - or create
-a custom /etc/bash/bashrc.d drop-in - to set PROMPT_COMMMAND like so:
+Gentoo no longer defaults to having bash set the window title in the case
+that the terminal is controlled by sshd(8), unless screen is launched on the
+remote side or the terminal reliably supports saving and restoring the title
+(as alacritty, foot and tmux do). Those wanting for the title to be set
+regardless may adjust ~/.bashrc - or create a custom /etc/bash/bashrc.d
+drop-in - to set PROMPT_COMMMAND like so:
 
 PROMPT_COMMAND=(genfun_set_win_title)
 
