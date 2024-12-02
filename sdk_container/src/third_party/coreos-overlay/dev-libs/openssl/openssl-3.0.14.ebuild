@@ -1,14 +1,14 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/openssl.org.asc
-TMPFILES_OPTIONAL=1
-inherit edo flag-o-matic linux-info toolchain-funcs multilib-minimal multiprocessing verify-sig systemd tmpfiles
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
+inherit edo flag-o-matic linux-info toolchain-funcs
+inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
-HOMEPAGE="https://www.openssl.org/"
+HOMEPAGE="https://openssl-library.org/"
 
 MY_P=${P/_/-}
 
@@ -19,7 +19,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 		verify-sig? ( mirror://openssl/source/${MY_P}.tar.gz.asc )"
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -30,7 +30,6 @@ IUSE="+asm cpu_flags_x86_sse2 fips ktls rfc3779 sctp static-libs test tls-compre
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
-	>=app-misc/c_rehash-1.7-r1
 	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
 "
 BDEPEND="
@@ -38,10 +37,10 @@ BDEPEND="
 	sctp? ( >=net-misc/lksctp-tools-1.0.12 )
 	test? (
 		sys-apps/diffutils
-		sys-devel/bc
+		app-alternatives/bc
 		sys-process/procps
 	)
-	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20221101 )"
+	verify-sig? ( <sec-keys/openpgp-keys-openssl-20240920 )"
 
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -49,9 +48,6 @@ PDEPEND="app-misc/ca-certificates"
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
-)
-
-PATCHES=(
 )
 
 pkg_setup() {
@@ -62,6 +58,7 @@ pkg_setup() {
 			CONFIG_CHECK="~TLS ~TLS_DEVICE"
 			ERROR_TLS="You will be unable to offload TLS to kernel because CONFIG_TLS is not set!"
 			ERROR_TLS_DEVICE="You will be unable to offload TLS to kernel because CONFIG_TLS_DEVICE is not set!"
+			use test && CONFIG_CHECK+=" ~CRYPTO_USER_API_SKCIPHER"
 
 			linux-info_pkg_setup
 		fi
@@ -80,27 +77,10 @@ pkg_setup() {
 	fi
 }
 
-src_unpack() {
-	# Can delete this once test fix patch is dropped
-	if use verify-sig ; then
-		# Needed for downloaded patch (which is unsigned, which is fine)
-		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.gz{,.asc}
-	fi
-
-	default
-}
-
 src_prepare() {
-	# Allow openssl to be cross-compiled
-	cp "${FILESDIR}"/gentoo.config-1.0.2 gentoo.config || die
-	chmod a+rx gentoo.config || die
-
-	# Keep this in sync with app-misc/c_rehash
-	SSL_CNF_DIR="/etc/ssl"
-
 	# Make sure we only ever touch Makefile.org and avoid patching a file
 	# that gets blown away anyways by the Configure script in src_configure
-	rm -f Makefile
+	rm -f Makefile || die
 
 	if ! use vanilla ; then
 		PATCHES+=(
@@ -115,18 +95,13 @@ src_prepare() {
 		rm test/recipes/80-test_ssl_new.t || die
 	fi
 
-	# - Make sure the man pages are suffixed (bug #302165)
-	# - Don't bother building man pages if they're disabled
-	# - Make DOCDIR Gentoo compliant
-	sed -i \
-		-e '/^MANSUFFIX/s:=.*:=ssl:' \
-		-e '/^MAKEDEPPROG/s:=.*:=$(CC):' \
-		-e $(has noman FEATURES \
-			&& echo '/^install:/s:install_docs::' \
-			|| echo '/^MANDIR=/s:=.*:='${EPREFIX}'/usr/share/man:') \
-		-e "/^DOCDIR/s@\$(BASENAME)@&-${PVR}@" \
-		Configurations/unix-Makefile.tmpl \
-		|| die
+	# Test fails depending on kernel configuration, bug #699134
+	rm test/recipes/30-test_afalg.t || die
+}
+
+src_configure() {
+	# Keep this in sync with app-misc/c_rehash
+	SSL_CNF_DIR="/etc/ssl"
 
 	# Quiet out unknown driver argument warnings since openssl
 	# doesn't have well-split CFLAGS and we're making it even worse
@@ -138,34 +113,24 @@ src_prepare() {
 	# code. This has been in the ebuild for > 10 years but even in 2022,
 	# it's still relevant:
 	# - https://github.com/llvm/llvm-project/issues/55255
+	# - https://github.com/openssl/openssl/issues/12247
 	# - https://github.com/openssl/openssl/issues/18225
 	# - https://github.com/openssl/openssl/issues/18663#issuecomment-1181478057
 	# Don't remove the no strict aliasing bits below!
 	filter-flags -fstrict-aliasing
 	append-flags -fno-strict-aliasing
+	# The OpenSSL developers don't test with LTO right now, it leads to various
+	# warnings/errors (which may or may not be false positives), it's considered
+	# unsupported, and it's not tested in CI: https://github.com/openssl/openssl/issues/18663.
+	filter-lto
 
 	append-flags $(test-flags-CC -Wa,--noexecstack)
 
-	# Prefixify Configure shebang (bug #141906)
-	sed \
-		-e "1s,/usr/bin/env,${BROOT}&," \
-		-i Configure || die
+	# bug #895308
+	append-atomic-flags
+	# Configure doesn't respect LIBS
+	export LDLIBS="${LIBS}"
 
-	# Remove test target when FEATURES=test isn't set
-	if ! use test ; then
-		sed \
-			-e '/^$config{dirs}/s@ "test",@@' \
-			-i Configure || die
-	fi
-
-	# The config script does stupid stuff to prompt the user. Kill it.
-	sed -i '/stty -icanon min 0 time 50; read waste/d' config || die
-	./config --test-sanity || die "I AM NOT SANE"
-
-	multilib_copy_sources
-}
-
-multilib_src_configure() {
 	# bug #197996
 	unset APPS
 	# bug #312551
@@ -175,6 +140,10 @@ multilib_src_configure() {
 
 	tc-export AR CC CXX RANLIB RC
 
+	multilib-minimal_src_configure
+}
+
+multilib_src_configure() {
 	use_ssl() { usex $1 "enable-${2:-$1}" "no-${2:-$1}" " ${*:3}" ; }
 
 	local krb5=$(has_version app-crypt/mit-krb5 && echo "MIT" || echo "Heimdal")
@@ -191,10 +160,8 @@ multilib_src_configure() {
 	#       ec_nistp_64_gcc_128="enable-ec_nistp_64_gcc_128"
 	#fi
 
-	local sslout=$(./gentoo.config)
+	local sslout=$(bash "${FILESDIR}/gentoo.config-1.0.4")
 	einfo "Using configuration: ${sslout:-(openssl knows best)}"
-	local config="Configure"
-	[[ -z ${sslout} ]] && config="config"
 
 	# https://github.com/openssl/openssl/blob/master/INSTALL.md#enable-and-disable-features
 	local myeconfargs=(
@@ -227,49 +194,37 @@ multilib_src_configure() {
 		threads
 	)
 
-	CFLAGS= LDFLAGS= edo ./${config} "${myeconfargs[@]}"
-
-	# Clean out hardcoded flags that openssl uses
-	local DEFAULT_CFLAGS=$(grep ^CFLAGS= Makefile | LC_ALL=C sed \
-		-e 's:^CFLAGS=::' \
-		-e 's:\(^\| \)-fomit-frame-pointer::g' \
-		-e 's:\(^\| \)-O[^ ]*::g' \
-		-e 's:\(^\| \)-march=[^ ]*::g' \
-		-e 's:\(^\| \)-mcpu=[^ ]*::g' \
-		-e 's:\(^\| \)-m[^ ]*::g' \
-		-e 's:^ *::' \
-		-e 's: *$::' \
-		-e 's: \+: :g' \
-		-e 's:\\:\\\\:g'
-	)
-
-	# Now insert clean default flags with user flags
-	sed -i \
-		-e "/^CFLAGS=/s|=.*|=${DEFAULT_CFLAGS} ${CFLAGS}|" \
-		-e "/^LDFLAGS=/s|=[[:space:]]*$|=${LDFLAGS}|" \
-		Makefile \
-		|| die
+	edo perl "${S}/Configure" "${myeconfargs[@]}"
 }
 
 multilib_src_compile() {
-	# depend is needed to use $confopts; it also doesn't matter
-	# that it's -j1 as the code itself serializes subdirs
-	emake -j1 depend
+	emake build_sw
 
-	emake all
+	if multilib_is_native_abi; then
+		emake build_docs
+	fi
 }
 
 multilib_src_test() {
 	# VFP = show subtests verbosely and show failed tests verbosely
 	# Normal V=1 would show everything verbosely but this slows things down.
-	emake HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
+	emake HARNESS_JOBS="$(makeopts_jobs)" -Onone VFP=1 test
 }
 
 multilib_src_install() {
-	# We need to create ${ED}/usr on our own to avoid a race condition (bug #665130)
-	dodir /usr
+	# Only -j1 is supported for the install targets:
+	# https://github.com/openssl/openssl/issues/21999#issuecomment-1771150305
+	emake DESTDIR="${D}" -j1 install_sw
+	if use fips; then
+		emake DESTDIR="${D}" -j1 install_fips
+		# Regen this in pkg_preinst, bug 900625
+		rm "${ED}${SSL_CNF_DIR}"/fipsmodule.cnf || die
+	fi
 
-	emake DESTDIR="${D}" install
+	if multilib_is_native_abi; then
+		emake DESTDIR="${D}" -j1 install_ssldirs
+		emake DESTDIR="${D}" DOCDIR='$(INSTALLTOP)'/share/doc/${PF} -j1 install_docs
+	fi
 
 	# This is crappy in that the static archives are still built even
 	# when USE=static-libs. But this is due to a failing in the openssl
@@ -288,51 +243,36 @@ multilib_src_install_all() {
 
 	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
 
-	# Namespace openssl programs to prevent conflicts with other man pages
-	cd "${ED}"/usr/share/man || die
-	local m d s
-	for m in $(find . -type f | xargs grep -L '#include') ; do
-		d=${m%/*}
-		d=${d#./}
-		m=${m##*/}
-
-		[[ ${m} == openssl.1* ]] && continue
-
-		[[ -n $(find -L ${d} -type l) ]] && die "erp, broken links already!"
-
-		mv ${d}/{,ssl-}${m} || die
-
-		# Fix up references to renamed man pages
-		sed -i '/^[.]SH "SEE ALSO"/,/^[.]/s:\([^(, ]*(1)\):ssl-\1:g' ${d}/ssl-${m} || die
-		ln -s ssl-${m} ${d}/openssl-${m} || die
-
-		# Locate any symlinks that point to this man page
-		# We assume that any broken links are due to the above renaming
-		for s in $(find -L ${d} -type l) ; do
-			s=${s##*/}
-
-			rm -f ${d}/${s}
-
-			# We don't want to "|| die" here
-			ln -s ssl-${m} ${d}/ssl-${s}
-			ln -s ssl-${s} ${d}/openssl-${s}
-		done
-	done
-	[[ -n $(find -L ${d} -type l) ]] && die "broken manpage links found :("
+	# Create the certs directory
+	keepdir ${SSL_CNF_DIR}/certs
 
 	# bug #254521
 	dodir /etc/sandbox.d
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	# flatcar changes: do not keep the sample CA files in `/etc`
-	rm -rf "${ED}"${SSL_CNF_DIR}
+	diropts -m0700
+	keepdir ${SSL_CNF_DIR}/private
+}
 
-	# flatcar changes: save the default `openssl.cnf` in `/usr`
-	dodir /usr/share/ssl
-	insinto /usr/share/ssl
-	doins "${S}"/apps/openssl.cnf
-	dotmpfiles "${FILESDIR}"/openssl.conf
+pkg_preinst() {
+	if use fips; then
+		# Regen fipsmodule.cnf, bug 900625
+		ebegin "Running openssl fipsinstall"
+		"${ED}/usr/bin/openssl" fipsinstall -quiet \
+			-out "${ED}${SSL_CNF_DIR}/fipsmodule.cnf" \
+			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so"
+		eend $?
+	fi
 
-	# flatcar changes: package `tmpfiles.d` setup for SDK bootstrapping.
-	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
+	preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
+		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
+}
+
+pkg_postinst() {
+	ebegin "Running 'openssl rehash ${EROOT}${SSL_CNF_DIR}/certs' to rebuild hashes (bug #333069)"
+	openssl rehash "${EROOT}${SSL_CNF_DIR}/certs"
+	eend $?
+
+	preserve_old_lib_notify /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
+		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
 }
