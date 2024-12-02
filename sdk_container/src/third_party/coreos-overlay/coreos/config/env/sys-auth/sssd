@@ -1,1 +1,15 @@
-export ac_cv_member_struct_ldap_conncb_lc_arg=no
+# `--enable-sss-default-nss-plugin` enables nss lookup with sss
+# plugin, even if sssd is not running.
+export EXTRA_ECONF="--enable-sss-default-nss-plugin"
+
+# We haven't switched to having pam config in /etc, so move the files
+# to /usr.
+cros_post_src_install_move_pamd() {
+	mkdir -p "${ED}/usr/share/"
+	mv "${ED}/etc/pam.d" "${ED}/usr/share/pam.d"
+}
+
+# This is to make sure that some sssd config is always in place.
+cros_post_src_set_initial_config() {
+	cp -a "${ED}"/etc/sssd/sssd{-example,}.conf
+}
