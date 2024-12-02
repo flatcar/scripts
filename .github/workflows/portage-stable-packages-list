@@ -614,6 +614,8 @@ sys-apps/util-linux
 sys-apps/which
 sys-apps/zram-generator
 
+sys-auth/sssd
+
 sys-block/open-iscsi
 sys-block/open-isns
 sys-block/parted
