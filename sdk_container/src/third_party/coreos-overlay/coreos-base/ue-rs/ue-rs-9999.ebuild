@@ -6,11 +6,14 @@ EAPI=8
 EGIT_REPO_URI="https://github.com/flatcar/ue-rs.git"
 
 if [[ ${PV} == 9999 ]]; then
+	inherit git-r3
 	KEYWORDS="~amd64 ~arm64"
 	CRATES=""
 else
 	EGIT_COMMIT="e48f7ec3756b222d15a3e63a29078bbdfa8080e9" # dongsu/deps-protobuf
 	KEYWORDS="amd64 arm64"
+	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
+	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
 
 	CRATES="
 		addr2line@0.24.2
@@ -227,11 +230,11 @@ else
 	"
 fi
 
-inherit cargo git-r3
+inherit cargo
 
 DESCRIPTION="Prototype Omaha Rust implementation"
 HOMEPAGE="https://github.com/flatcar/ue-rs"
-SRC_URI="${CARGO_CRATE_URIS}"
+SRC_URI+=" ${CARGO_CRATE_URIS}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
