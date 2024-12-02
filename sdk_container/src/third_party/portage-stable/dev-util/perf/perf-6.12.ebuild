@@ -4,7 +4,7 @@
 EAPI=8
 
 LLVM_COMPAT=( {16..19} )
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{10..13} python3_13t)
 inherit bash-completion-r1 estack flag-o-matic linux-info llvm-r1 toolchain-funcs python-r1
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
@@ -113,7 +113,9 @@ pkg_pretend() {
 
 pkg_setup() {
 	local CONFIG_CHECK="
+		~!SCHED_OMIT_FRAME_POINTER
 		~DEBUG_INFO
+		~FRAME_POINTER
 		~FTRACE
 		~FTRACE_SYSCALLS
 		~FUNCTION_TRACER
@@ -122,6 +124,8 @@ pkg_setup() {
 		~KPROBES
 		~KPROBE_EVENTS
 		~PERF_EVENTS
+		~STACKTRACE
+		~TRACEPOINTS
 		~UPROBES
 		~UPROBE_EVENTS
 	"
@@ -132,7 +136,7 @@ pkg_setup() {
 	python_setup
 
 	if use bpf ; then
-		CONFIG_CHECK+="~BPF ~BPF_EVENTS ~BPF_SYSCALL ~DEBUG_INFO_BTF ~HAVE_EBPF_JIT"
+		CONFIG_CHECK+="~BPF ~BPF_EVENTS ~BPF_SYSCALL ~DEBUG_INFO_BTF ~HAVE_EBPF_JIT ~UNWINDER_FRAME_POINTER"
 	fi
 
 	linux-info_pkg_setup
@@ -181,7 +185,7 @@ src_prepare() {
 	fi
 
 	pushd "${S_K}" >/dev/null || die
-	eapply "${FILESDIR}"/perf-6.11-bpf-capstone.patch
+	# Gentoo patches go here
 	popd || die
 
 	# Drop some upstream too-developer-oriented flags and fix the
