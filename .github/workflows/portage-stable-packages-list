@@ -502,6 +502,7 @@ net-dialup/lrzsz
 net-dialup/minicom
 
 net-dns/bind
+net-dns/bind-tools
 net-dns/c-ares
 net-dns/dnsmasq
 net-dns/libidn2
