@@ -8,9 +8,6 @@ A quick start from blank state:
   - `cd scripts/main`
   - `PKG_AUTO="${PWD}/pkg_auto"`
   - `git worktree add --branch weekly-updates ../weekly-updates origin/buildbot/weekly-portage-stable-package-updates-2024-09-23`
-  - if package automation is still not merged into the `main` branch then:
-    - `git worktree add --branch pkg-auto ../pkg-auto origin/krnowak/pkg-auto`
-    - `PKG_AUTO="${PWD}/../pkg-auto/pkg_auto"`
 - prepare for generating reports (create a directory, download necessary stuff, create config):
   - `mkdir ../../weekly-updates`
   - `cd ../../weekly-updates`
@@ -52,6 +49,8 @@ It is possible that none of the changes in the package are relevant to Flatcar (
 The entries in `changelog_stubs` should be reviewed about relevancy (minor SDK-only packages should likely be dropped, they are seldom of interest to end-users) and the remaining entries should be updated with proper links to release notes.
 
 There may be also entries in `manual-work-needed` which may need addressing. Most often the reason is that the new package was added, or an existing package stopped being pulled in. This would need adding an entry to the `summary_stubs`.
+
+Another thing that to do is to check [the security reports](https://github.com/flatcar/Flatcar/issues?q=is%3Aopen+is%3Aissue+label%3Aadvisory). If the updated package brings a fix for a security issue, it should be mentioned in the summary and an entry in a separate security changelog should be added.
 
 Other scripts
 =============
