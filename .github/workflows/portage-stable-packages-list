@@ -252,7 +252,6 @@ dev-libs/libltdl
 dev-libs/libmspack
 dev-libs/libnl
 dev-libs/libp11
-dev-libs/libpcre
 dev-libs/libpcre2
 dev-libs/libpipeline
 dev-libs/libpwquality
@@ -513,7 +512,6 @@ net-firewall/ipset
 net-fs/cifs-utils
 
 net-libs/gnutls
-net-libs/http-parser
 net-libs/libmicrohttpd
 net-libs/libmnl
 net-libs/libnetfilter_conntrack
