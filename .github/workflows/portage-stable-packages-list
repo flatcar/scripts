@@ -252,7 +252,6 @@ dev-libs/libltdl
 dev-libs/libmspack
 dev-libs/libnl
 dev-libs/libp11
-dev-libs/libpcre
 dev-libs/libpcre2
 dev-libs/libpipeline
 dev-libs/libpwquality
@@ -502,6 +501,7 @@ net-dialup/lrzsz
 net-dialup/minicom
 
 net-dns/bind
+net-dns/bind-tools
 net-dns/c-ares
 net-dns/dnsmasq
 net-dns/libidn2
@@ -512,7 +512,6 @@ net-firewall/ipset
 net-fs/cifs-utils
 
 net-libs/gnutls
-net-libs/http-parser
 net-libs/libmicrohttpd
 net-libs/libmnl
 net-libs/libnetfilter_conntrack
@@ -613,6 +612,8 @@ sys-apps/usbutils
 sys-apps/util-linux
 sys-apps/which
 sys-apps/zram-generator
+
+sys-auth/sssd
 
 sys-block/open-iscsi
 sys-block/open-isns

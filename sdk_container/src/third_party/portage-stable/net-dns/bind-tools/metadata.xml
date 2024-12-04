@@ -2,10 +2,13 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>mgorny@gentoo.org</email>
-		<name>Michał Górny</name>
+		<email>chutzpah@gentoo.org</email>
+		<name>Patrick McLean</name>
 	</maintainer>
+	<use>
+		<flag name="gssapi">Enable gssapi support</flag>
+	</use>
 	<upstream>
-		<remote-id type="github">nodejs/http-parser</remote-id>
+		<remote-id type="cpe">cpe:/a:isc:bind</remote-id>
 	</upstream>
 </pkgmetadata>

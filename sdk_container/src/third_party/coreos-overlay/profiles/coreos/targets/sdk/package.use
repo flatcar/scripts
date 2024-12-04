@@ -31,6 +31,3 @@ x11-libs/pixman static-libs
 
 # Get latest EDK2 firmware for Secure Boot on arm64.
 app-emulation/qemu -pin-upstream-blobs
-
-# Enable gssapi for SDK
-net-dns/bind                 gssapi

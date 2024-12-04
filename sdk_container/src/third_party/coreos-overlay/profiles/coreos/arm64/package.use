@@ -1,4 +1,0 @@
-# arm64 use
-
-# Disable gssapi for arm64 to avoid build errors
-net-dns/bind       -gssapi

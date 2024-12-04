@@ -51,8 +51,8 @@ sys-fs/squashfs-tools xz lz4 lzma lzo zstd
 # make the kernel version discoverable via the traditional gentoo symlink
 sys-kernel/coreos-sources symlink
 
-# set build options for ssdp
-net-nds/openldap minimal sasl
+# set build options for sssd
+net-nds/openldap minimal sasl experimental
 sys-libs/glibc nscd
 
 # disable database build because otherwise it tries to generate a database in /etc
@@ -100,7 +100,8 @@ sys-apps/kmod lzma
 app-portage/portage-utils -qmanifest
 
 # Disable unnecessary regedit in samba to minimize the package size.
-net-fs/samba -regedit
+# winbind needed by sssd
+net-fs/samba -regedit winbind
 
 # Drop extra dependencies
 sys-libs/ldb -lmdb -python
@@ -160,3 +161,7 @@ sys-fs/zfs minimal -rootfs
 # Do not tinker with /boot partition at installation time.
 sys-firmware/intel-microcode -initramfs
 sys-fs/zfs-kmod -initramfs
+
+# For sys-auth/sssd
+net-dns/bind       gssapi
+net-dns/bind-tools gssapi

@@ -1,6 +1,3 @@
 # Only ship microcode currently distributed by Intel
 # See https://bugs.gentoo.org/654638#c11 by iucode-tool maintainer
 sys-firmware/intel-microcode vanilla
-
-# Enable gssapi only for amd64, to avoid build errors in arm64.
-net-dns/bind                 gssapi
