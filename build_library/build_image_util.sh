@@ -95,7 +95,7 @@ zip_update_tools() {
 
   info "Generating update tools zip"
   # Make sure some vars this script needs are exported
-  local -x REPO_MANIFESTS_DIR SCRIPTS_DIR
+  local -x REPO_MANIFESTS_DIR=${REPO_MANIFESTS_DIR} SCRIPTS_DIR=${SCRIPTS_DIR}
   "${BUILD_LIBRARY_DIR}/generate_au_zip.py" \
     --arch "$(get_sdk_arch)" --output-dir "${BUILD_DIR}" --zip-name "${update_zip}"
 }
