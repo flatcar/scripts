@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Copyright (c) 2024 The Flatcar Maintainers.
+# Use of this source code is governed by the Apache 2.0 license.
+
+# Script to sign an existing raw Flatcar disk image for Secure Boot.
+
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+
+assert_not_root_user
+
+DEFAULT_GROUP=developer
+
+# Developer-visible flags.
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "The board to build an image for."
+DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
+  "Directory in which to place image result directories (named by version)"
+DEFINE_string disk_layout "" \
+  "The disk layout type to use for this image."
+DEFINE_string group "${DEFAULT_GROUP}" \
+  "The update group."
+
+# include upload options
+. "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
+
+FLAGS_HELP="USAGE: sbsign_image [flags]
+This script is used to sign the GRUB and kernel images within an
+existing raw Flatcar disk image for Secure Boot. The disk image is
+read from the output directory and modified in-place. The signed GRUB
+and kernel images are also written separately to the same directory.
+"
+show_help_if_requested "$@"
+
+# The following options are advanced options, only available to those willing
+# to read the source code. They are not shown in help output, since they are
+# not needed for the typical developer workflow.
+DEFINE_integer build_attempt 1 \
+  "The build attempt for this image build."
+DEFINE_string version "" \
+  "Overrides version number in name to this version."
+
+# Parse command line.
+FLAGS "$@" || exit 1
+
+# Only now can we die on error.  shflags functions leak non-zero error codes,
+# so will die prematurely if 'switch_to_strict_mode' is specified before now.
+switch_to_strict_mode
+
+# N.B.  Ordering matters for some of the libraries below, because
+# some of the files contain initialization used by later files.
+. "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/build_image_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/prod_image_util.sh" || exit 1
+
+# Create the output directory and temporary mount points.
+mkdir -p "${BUILD_DIR}"
+
+fix_mtab
+sbsign_prod_image "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${FLAGS_disk_layout:-base}"
+
+echo "Done. ${FLATCAR_PRODUCTION_IMAGE_NAME} and associated files are now signed for Secure Boot in ${BUILD_DIR}."
+command_completed
