@@ -1,0 +1,2 @@
+- expat ([CVE-2024-50602](https://nvd.nist.gov/vuln/detail/CVE-2024-50602))
+- wget ([CVE-2024-10524](https://nvd.nist.gov/vuln/detail/CVE-2024-10524))
