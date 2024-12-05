@@ -182,7 +182,30 @@ mkdir "${BUILD_DIR}/fs-root"
 mount -rt squashfs -o loop,nodev "${FLAGS_squashfs_base}" "${BUILD_DIR}/fs-root"
 mkdir "${BUILD_DIR}/install-root"
 mkdir "${BUILD_DIR}/workdir"
-mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+
+install_root_mounted=
+mount_install_root() {
+    mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+}
+
+# mounting an overlayfs based on just mounted squashfs images seems to
+# be racy, meh
+for (( i=0; i<5; ++i )); do
+    if mount_install_root; then
+        install_root_mounted=x
+        break
+    fi
+    backoff=$(bc <<<"scale=1; (2.0 ^ ${i}) / 2.0")
+    warn "failed to mount overlayfs at ${BUILD_DIR}/install-root, will retry after ${backoff}s backoff"
+    # sleep for 0.5, then 1, then 2, then 4, then 8 seconds.
+    sleep "${backoff}"
+done
+if [[ -z ${install_root_mounted} ]]; then
+    if ! mount_install_root; then
+        failboat "failed to mount ${BUILD_DIR}/install-root"
+    fi
+fi
+unset install_root_mounted i backoff mount_install_root
 
 REPO_BUILD_ID=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_BUILD_ID")
 REPO_FLATCAR_VERSION=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_VERSION")
