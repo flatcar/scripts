@@ -182,7 +182,11 @@ mkdir "${BUILD_DIR}/fs-root"
 mount -rt squashfs -o loop,nodev "${FLAGS_squashfs_base}" "${BUILD_DIR}/fs-root"
 mkdir "${BUILD_DIR}/install-root"
 mkdir "${BUILD_DIR}/workdir"
-mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+# Starting from util-linux 2.40, mount started using some new linux
+# kernel API for mounting, this does not seem to work very well here,
+# for some reason. We use LIBMOUNT_FORCE_MOUNT2=always to force mount
+# to use the old API.
+LIBMOUNT_FORCE_MOUNT2=always mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
 
 REPO_BUILD_ID=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_BUILD_ID")
 REPO_FLATCAR_VERSION=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_VERSION")

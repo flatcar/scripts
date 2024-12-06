@@ -139,13 +139,17 @@ done
 
 # Mount the combined overlay (base OS, sysexts, and syset pkginfos) and copy a snapshot
 # into the designated output dir for upper layers to process.
-mkdir -p "${sysext_mountdir}/rootfs-lower" 
+mkdir -p "${sysext_mountdir}/rootfs-lower"
 sudo mount -rt squashfs -o loop,nodev "${sysext_base}" "${sysext_mountdir}/rootfs-lower"
 
 # Mount overlay for report generation
 mkdir -p "${sysext_workdir}/.work"
-mkdir -p "${sysext_mountdir}/rootfs-upper" 
-sudo mount -t overlay overlay \
+mkdir -p "${sysext_mountdir}/rootfs-upper"
+# Starting from util-linux 2.40, mount started using some new linux
+# kernel API for mounting, this does not seem to work very well here,
+# for some reason. We use LIBMOUNT_FORCE_MOUNT2=always to force mount
+# to use the old API.
+sudo LIBMOUNT_FORCE_MOUNT2=always mount -t overlay overlay \
          -o lowerdir="${sysext_lowerdirs}",upperdir="${sysext_mountdir}/rootfs-upper",workdir="${sysext_workdir}/.work" \
          "${sysext_mountdir}/rootfs-upper"
 
