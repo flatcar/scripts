@@ -8,8 +8,7 @@ EAPI=8
 # (the construct below is to allow overriding from env for script)
 QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
-#QEMU_DOCS_VERSION=$(ver_cut 1-3)
-QEMU_DOCS_VERSION=8.1.0
+QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
@@ -26,13 +25,19 @@ if [[ ${PV} == *9999* ]]; then
 	QEMU_DOCS_PREBUILT=0
 
 	EGIT_REPO_URI="https://gitlab.com/qemu-project/qemu.git/"
-	EGIT_SUBMODULES=(
-		tests/fp/berkeley-softfloat-3
-		tests/fp/berkeley-testfloat-3
-		subprojects/keycodemapdb
-	)
+	EGIT_SUBMODULES=()
 	inherit git-r3
 	SRC_URI=""
+	declare -A SUBPROJECTS=(
+		[keycodemapdb]="f5772a62ec52591ff6870b7e8ef32482371f22c6"
+		[berkeley-softfloat-3]="b64af41c3276f97f0e181920400ee056b9c88037"
+		[berkeley-testfloat-3]="40619cbb3bf32872df8c53cc457039229428a263"
+	)
+
+	for proj in "${!SUBPROJECTS[@]}"; do
+		c=${SUBPROJECTS[${proj}]}
+		SRC_URI+=" https://gitlab.com/qemu-project/${proj}/-/archive/${c}/${proj}-${c}.tar.bz2"
+	done
 else
 	MY_P="${PN}-${PV/_rc/-rc}"
 	SRC_URI="https://download.qemu.org/${MY_P}.tar.xz"
@@ -42,7 +47,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -236,7 +241,7 @@ SOFTMMU_TOOLS_DEPEND="
 "
 
 EDK2_OVMF_VERSION="202202"
-SEABIOS_VERSION="1.16.0"
+SEABIOS_VERSION="1.16.3"
 
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
@@ -396,8 +401,6 @@ pkg_pretend() {
 			use vhost-net && CONFIG_CHECK+=" ~VHOST_NET"
 			ERROR_VHOST_NET="You must enable VHOST_NET to have vhost-net"
 			ERROR_VHOST_NET+=" support"
-			use test && CONFIG_CHECK+=" IP_MULTICAST"
-			ERROR_IP_MULTICAST="Test suite requires IP_MULTICAST"
 
 			if use amd64 || use x86 || use amd64-linux || use x86-linux; then
 				if grep -q AuthenticAMD /proc/cpuinfo; then
@@ -444,6 +447,23 @@ check_targets() {
 	popd >/dev/null
 }
 
+src_unpack() {
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+		for file in ${A}; do
+			unpack "${file}"
+		done
+		cd "${WORKDIR}" || die
+		for proj in "${!SUBPROJECTS[@]}"; do
+			mv "${proj}-${SUBPROJECTS[${proj}]}" "${S}/subprojects/${proj}" || die
+		done
+		cd "${S}" || die
+		meson subprojects packagefiles --apply || die
+	else
+		default
+	fi
+}
+
 src_prepare() {
 	check_targets IUSE_SOFTMMU_TARGETS softmmu
 	check_targets IUSE_USER_TARGETS linux-user
@@ -466,7 +486,7 @@ src_prepare() {
 	MAKEOPTS+=" V=1"
 
 	# Remove bundled modules
-	rm -r subprojects/dtc roms/*/ || die
+	rm -r roms/*/ || die
 }
 
 ##
@@ -495,6 +515,7 @@ qemu_src_configure() {
 		--disable-guest-agent
 		--disable-strip
 		--disable-download
+		--python="${PYTHON}"
 
 		# bug #746752: TCG interpreter has a few limitations:
 		# - it does not support FPU
