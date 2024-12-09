@@ -31,20 +31,16 @@ BDEPEND="
 "
 RDEPEND="
 	python? ( ${PYTHON_DEPS} )
-	yaml? ( dev-libs/libyaml )
+	yaml? ( >=dev-libs/libyaml-0.2.3[static-libs?] )
 "
-DEPEND="${RDEPEND}"
+DEPEND="
+	${RDEPEND}
+"
 
 DOCS=(
 	Documentation/dt-object-internal.txt
 	Documentation/dts-format.txt
 	Documentation/manual.txt
-)
-
-PATCHES=(
-	"${FILESDIR}"/${P}-meson-tests.patch
-	"${FILESDIR}"/${P}-meson-macos.patch
-	"${FILESDIR}"/fix-tests-for-Python3.12.patch
 )
 
 pkg_setup() {
@@ -54,19 +50,12 @@ pkg_setup() {
 	fi
 }
 
-src_prepare() {
-	default
-
-	if ! use test ; then
-		sed -i -e "/subdir('tests')/d" meson.build || die
-	fi
-}
-
 src_configure() {
 	local emesonargs=(
 		-Dtools=true
 		-Dvalgrind=disabled # only used for some tests
 		$(meson_feature python)
+		$(meson_use test tests)
 		$(meson_feature yaml)
 	)
 
