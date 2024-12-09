@@ -1,6 +1,15 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Matt Jolly <kangie@gentoo.org> (2024-12-08)
+# dev-vcs/mercurial is not keyworded on sparc
+app-eselect/eselect-repository mercurial
+
+# Ionen Wolkens <ionen@gentoo.org> (2024-12-02)
+# Needs dev-qt/qtsvg:6 which is not keyworded here (bug #918896),
+# but neither is gnome so integration is not very useful either way.
+dev-qt/qtwayland:6 gnome
+
 # Felix Janda <felix.janda@posteo.de> (2024-10-20)
 # requires dev-libs/libcss and net-libs/libdom to be keyworded
 www-client/elinks libcss
@@ -9,7 +18,7 @@ www-client/elinks libcss
 # Exposes a kernel bug which causes system lockup (bug #899540)
 sys-libs/liburing test
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-10-08)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-10-08)
 # Not all required dependencies are keyworded here
 sys-kernel/dracut test
 
@@ -82,7 +91,7 @@ dev-libs/mongo-c-driver test
 # net-libs/grpc not keyworded here
 app-admin/syslog-ng grpc
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-13)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-01-13)
 # Unmask only where grub is keyworded
 sys-kernel/installkernel -grub
 
@@ -184,7 +193,7 @@ dev-python/nbval test
 # Needs dev-db/mariadb for tests, see entry in use.mask
 dev-python/pymysql test
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-03-07)
+# Nowa Ammerlaan <nowa@gentoo.org> (2023-03-07)
 # nbval/nbclassic docs require pandoc which is not keyworded here yet
 dev-python/nbval doc
 dev-python/nbclassic doc

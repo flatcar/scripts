@@ -29,7 +29,7 @@ else
 fi
 
 IUSE="64-bit-bfd cet multitarget nls static-libs test"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
@@ -80,11 +80,10 @@ pkgversion() {
 }
 
 multilib_src_configure() {
-	filter-lto
+	# https://sourceware.org/PR32372
+	append-cflags -std=gnu17
 
-	# Workaround for lld-17 (bug #914640)
-	# Should be able to drop this w/ >=binutils-2.43
-	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
+	filter-lto
 
 	local myconf=(
 		# portage's econf() does not detect presence of --d-d-t
