@@ -9,7 +9,7 @@ EAPI=8
 : ${CMAKE_DOCS_PREBUILT:=1}
 
 CMAKE_DOCS_PREBUILT_DEV=sam
-CMAKE_DOCS_VERSION=3.28.0
+CMAKE_DOCS_VERSION=$(ver_cut 1-2).0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # See bug #784815
 CMAKE_DOCS_USEFLAG="+doc"
@@ -101,7 +101,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0003-Prefer-pkgconfig-in-FindBLAS.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0004-Ensure-that-the-correct-version-of-Qt-is-always-used.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0005-Respect-Gentoo-s-Python-eclasses.patch
-	"${FILESDIR}"/${PN}-3.27.0_rc1-0006-Filter-out-distcc-warnings-to-avoid-confusing-CMake.patch
+	# Cuda
+	"${FILESDIR}/${PN}-3.30.3-cudahostld.patch"
 
 	# Upstream fixes (can usually be removed with a version bump)
 )
@@ -153,6 +154,14 @@ src_prepare() {
 		sed -i -e '/define CMAKE_USE_XCODE/s/XCODE/NO_XCODE/' \
 			-e '/cmGlobalXCodeGenerator.h/d' \
 			Source/cmake.cxx || die
+		# Disable system integration, bug #933744
+		sed -i -e 's/__APPLE__/__DISABLED__/' \
+			Source/cmFindProgramCommand.cxx \
+			Source/CPack/cmCPackGeneratorFactory.cxx || die
+		sed -i -e 's/__MAC_OS_X_VERSION_MIN_REQUIRED/__DISABLED__/' \
+			Source/cmMachO.cxx || die
+		sed -i -e 's:CPack/cmCPack\(Bundle\|DragNDrop\|PKG\|ProductBuild\)Generator.cxx::' \
+			Source/CMakeLists.txt || die
 
 		# Disable isysroot usage with GCC, we've properly instructed
 		# where things are via GCC configuration and ldwrapper
