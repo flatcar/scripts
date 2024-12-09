@@ -149,9 +149,6 @@ PATCHES=(
 
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
-
-	# Backport fix for git-maintenance
-	"${FILESDIR}"/${P}-maintenance.patch
 )
 
 pkg_setup() {
