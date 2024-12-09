@@ -22,7 +22,7 @@ SRC_URI="
 "
 
 GENTOO_PATCH_DEV=sam
-GENTOO_PATCH_PV=6.5_p20240615
+GENTOO_PATCH_PV=6.5_p20241109
 GENTOO_PATCH_NAME=${PN}-${GENTOO_PATCH_PV}-patches
 
 # Populated below in a loop. Do not add patches manually here.
@@ -50,6 +50,24 @@ if [[ ${PV} == *_p* ]] ; then
 		20240525
 		20240601
 		20240608
+		20240615
+		20240622
+		20240629
+		20240706
+		20240713
+		20240720
+		20240727
+		20240810
+		20240817
+		20240824
+		20240831
+		20240914
+		20240922
+		20240928
+		20241006
+		20241019
+		20241026
+		20241102
 
 		# Latest patch is just _pN = $(ver_cut 4)
 		$(ver_cut 4)
@@ -91,7 +109,7 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
-#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="ada +cxx debug doc gpm minimal profile split-usr +stack-realign static-libs test tinfo trace"
 RESTRICT="!test? ( test )"
 
@@ -121,10 +139,6 @@ PATCHES=(
 	# For the same reasons, please include the original configure.in changes,
 	# NOT just the generated results!
 	"${WORKDIR}"/${GENTOO_PATCH_NAME}
-
-	# Avoid breakage with CHOST ending in t64
-	"${FILESDIR}"/ncurses-6.4-t64-1.patch
-	"${FILESDIR}"/ncurses-6.4-t64-2.patch
 )
 
 src_unpack() {
@@ -153,6 +167,9 @@ src_configure() {
 
 	# bug #214642
 	BUILD_CPPFLAGS+=" -D_GNU_SOURCE"
+
+	# NCURSES_BOOL confusion, see https://lists.gnu.org/archive/html/bug-ncurses/2024-11/msg00010.html
+	append-cflags $(test-flags-CC -std=gnu17)
 
 	# Build the various variants of ncurses -- narrow, wide, and threaded. #510440
 	# Order matters here -- we want unicode/thread versions to come last so that the
