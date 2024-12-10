@@ -1,0 +1,1 @@
+- The VFIO kernel modules are now also available in ARM64 builds. ([flatcar/scripts#2484](https://github.com/flatcar/scripts/pull/2484))
