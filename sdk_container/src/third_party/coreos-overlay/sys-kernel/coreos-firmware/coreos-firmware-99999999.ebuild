@@ -96,7 +96,7 @@ pkg_pretend() {
 
 # Flatcar: create symlinks for cxgb and ice firmwares
 CXGB_VERSION="1.27.5.0"
-ICE_DDP_VERSION="1.3.36.0"
+ICE_DDP_VERSION="1.3.41.0"
 
 src_unpack() {
 	if [[ ${PV} == 99999999* ]]; then
