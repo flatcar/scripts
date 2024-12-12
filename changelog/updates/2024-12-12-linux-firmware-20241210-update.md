@@ -1,0 +1,1 @@
+- Linux Firmware ([20241210](https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tag/?h=20241210))
