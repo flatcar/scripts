@@ -216,6 +216,7 @@ dev-lang/python
 dev-lang/python-exec
 dev-lang/python-exec-conf
 dev-lang/rust
+dev-lang/rust-bin
 dev-lang/rust-common
 dev-lang/swig
 dev-lang/tcl
@@ -286,7 +287,6 @@ dev-libs/yajl
 dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
-dev-python/PySocks
 dev-python/autocommand
 dev-python/backports-tarfile
 dev-python/cachecontrol
@@ -342,6 +342,7 @@ dev-python/pycparser
 dev-python/pydecomp
 dev-python/pygments
 dev-python/pyproject-hooks
+dev-python/pysocks
 dev-python/requests
 dev-python/resolvelib
 dev-python/rich
