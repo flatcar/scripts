@@ -1,1 +1,0 @@
-- Added qemu-guest-agent to ARM64 images ([flatcar/flatcar#1593](https://github.com/flatcar/Flatcar/issues/1593))
