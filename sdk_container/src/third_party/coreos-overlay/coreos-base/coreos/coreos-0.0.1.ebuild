@@ -104,7 +104,6 @@ RDEPEND="${RDEPEND}
 	app-crypt/tpmpolicy
 	app-editors/vim
 	app-emulation/actool
-	app-emulation/qemu-guest-agent
 	app-emulation/cri-tools
 	app-misc/ca-certificates
 	app-misc/jq
@@ -205,6 +204,7 @@ RDEPEND="${RDEPEND}
 # OEM specific bits that need to go in USR
 RDEPEND+="
 	amd64? (
+		app-emulation/qemu-guest-agent
 		sys-auth/google-oslogin
 	)
 "

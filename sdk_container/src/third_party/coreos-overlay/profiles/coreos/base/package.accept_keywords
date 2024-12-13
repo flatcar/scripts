@@ -13,7 +13,6 @@
 
 # Keep the version of qemu the same on all arches.
 =app-emulation/qemu-7.2.0 ~arm64
-=app-emulation/qemu-guest-agent-6.0.0 ~arm64
 
 =coreos-devel/fero-client-0.1.1 **
 
