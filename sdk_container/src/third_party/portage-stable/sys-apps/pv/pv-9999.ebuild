@@ -38,13 +38,6 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	# Valgrind isn't reliable within sandbox.
-	cat <<-EOF > tests/run-valgrind.sh || die
-	#!/bin/sh
-	exit 77
-	EOF
-	chmod +x tests/run-valgrind.sh || Die
-
 	[[ ${PV} == 9999 ]] && eautoreconf
 }
 
@@ -57,5 +50,7 @@ src_configure() {
 }
 
 src_test() {
+	# Valgrind is unreliable within sandbox
+	local -x SKIP_VALGRIND_TESTS=1
 	emake -Onone check
 }
