@@ -1,6 +1,11 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# John Helmert III <ajak@gentoo.org> (2024-12-14)
+# Requires libpcre2[jit] which is now masked on x32
+dev-util/cutter
+dev-util/rizin
+
 # Ben Kohler <bkohler@gentoo.org> (2024-05-27)
 # Requires libpcre2[jit] which is now masked on x32
 mail-filter/rspamd
@@ -98,7 +103,7 @@ kde-apps/akonadiconsole
 kde-apps/akregator
 kde-apps/calendarjanitor
 kde-apps/calendarsupport
-kde-apps/cantor
+<kde-apps/cantor-24.11.80
 kde-apps/eventviews
 kde-apps/grantlee-editor
 kde-apps/incidenceeditor
