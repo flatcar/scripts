@@ -11,7 +11,7 @@ SRC_URI="https://www.kernel.org/pub/linux/utils/fs/xfs/${PN}/${P}.tar.xz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="icu libedit nls selinux static-libs"
 
 RDEPEND="
@@ -82,7 +82,9 @@ src_configure() {
 }
 
 src_compile() {
-	emake V=1
+	# -j1 for:
+	# gmake[2]: *** No rule to make target '../libhandle/libhandle.la', needed by 'xfs_spaceman'.  Stop.
+	emake V=1 -j1
 }
 
 src_install() {
