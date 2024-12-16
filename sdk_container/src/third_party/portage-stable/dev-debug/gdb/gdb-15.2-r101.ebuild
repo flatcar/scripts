@@ -7,8 +7,8 @@ EAPI=8
 # tips & notes.
 
 GUILE_COMPAT=( 2-2 3-0 )
-PYTHON_COMPAT=( python3_{10..12} )
-inherit flag-o-matic guile-single python-single-r1 strip-linguas toolchain-funcs
+PYTHON_COMPAT=( python3_{10..13} )
+inherit flag-o-matic guile-single linux-info python-single-r1 strip-linguas toolchain-funcs
 
 export CTARGET=${CTARGET:-${CHOST}}
 
@@ -73,13 +73,14 @@ SRC_URI="
 
 LICENSE="GPL-3+ LGPL-2.1+"
 SLOT="0"
-IUSE="cet debuginfod guile lzma multitarget nls +python +server sim source-highlight test vanilla xml xxhash zstd"
+IUSE="cet debuginfod guile lzma multitarget nls +python rocm +server sim source-highlight test vanilla xml xxhash zstd"
 if [[ -n ${REGULAR_RELEASE} ]] ; then
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 fi
 REQUIRED_USE="
 	guile? ( ${GUILE_REQUIRED_USE} )
 	python? ( ${PYTHON_REQUIRED_USE} )
+	rocm? ( multitarget )
 "
 RESTRICT="!test? ( test )"
 
@@ -97,6 +98,7 @@ RDEPEND="
 	python? ( ${PYTHON_DEPS} )
 	guile? ( ${GUILE_DEPS} )
 	xml? ( dev-libs/expat )
+	rocm? ( dev-libs/rocdbgapi )
 	source-highlight? (
 		dev-util/source-highlight
 	)
@@ -126,6 +128,20 @@ PATCHES=(
 )
 
 pkg_setup() {
+	local CONFIG_CHECK
+
+	if kernel_is -ge 6.11.3 ; then
+		# https://forums.gentoo.org/viewtopic-p-8846891.html
+		#
+		# Either CONFIG_PROC_MEM_ALWAYS_FORCE or CONFIG_PROC_MEM_FORCE_PTRACE
+		# should be okay, but not CONFIG_PROC_MEM_NO_FORCE.
+		CONFIG_CHECK+="
+			~!PROC_MEM_NO_FORCE
+		"
+	fi
+
+	linux-info_pkg_setup
+
 	use guile && guile-single_pkg_setup
 	use python && python-single-r1_pkg_setup
 }
@@ -140,6 +156,14 @@ src_prepare() {
 	# Avoid using ancient termcap from host on Prefix systems
 	sed -i -e 's/termcap tinfow/tinfow/g' \
 		gdb/configure{.ac,} || die
+	if [[ ${CHOST} == *-solaris* ]] ; then
+		# code relies on C++11, so make sure we get that selected
+		# due to Python 3.11 pymacro.h doing stuff to work around
+		# versioning mess based on the C version, while we're compiling
+		# C++ here, so we need to make it clear we're doing C++11/C11
+		# because Solaris system headers act on these
+		sed -i -e 's/-x c++/-std=c++11/' gdb/Makefile.in || die
+	fi
 }
 
 gdb_branding() {
@@ -217,6 +241,7 @@ src_configure() {
 		--without-zlib
 		--with-system-zlib
 		--with-separate-debug-dir="${EPREFIX}"/usr/lib/debug
+		--with-amd-dbgapi=$(usex rocm)
 		$(use_with xml expat)
 		$(use_with lzma)
 		$(use_enable nls)
