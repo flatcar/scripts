@@ -3,11 +3,14 @@
 
 EAPI=8
 
-inherit multilib prefix rust-toolchain toolchain-funcs verify-sig multilib-minimal
+LLVM_COMPAT=( 17 )
+LLVM_OPTIONAL="yes"
+
+inherit llvm-r1 multilib prefix rust-toolchain toolchain-funcs verify-sig multilib-minimal
 
 MY_P="rust-${PV}"
 # curl -L static.rust-lang.org/dist/channel-rust-${PV}.toml 2>/dev/null | grep "xz_url.*rust-src"
-MY_SRC_URI="${RUST_TOOLCHAIN_BASEURL%/}/2023-12-28/rust-src-${PV}.tar.xz"
+MY_SRC_URI="${RUST_TOOLCHAIN_BASEURL%/}/2023-12-07/rust-src-${PV}.tar.xz"
 GENTOO_BIN_BASEURI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}" # omit leading slash
 
 DESCRIPTION="Language empowering everyone to build reliable and efficient software"
@@ -29,19 +32,18 @@ SRC_URI+=" sparc? ( ${GENTOO_BIN_BASEURI}/${MY_P}-sparc64-unknown-linux-gnu.tar.
 #)"
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
-SLOT="stable"
+SLOT="${PV}"
 KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="big-endian clippy cpu_flags_x86_sse2 doc prefix rust-analyzer rust-src rustfmt"
-
-DEPEND=""
 
 RDEPEND="
 	>=app-eselect/eselect-rust-20190311
 	dev-libs/openssl
 	sys-apps/lsb-release
 	sys-devel/gcc:*
+	!dev-lang/rust:stable
+	!dev-lang/rust-bin:stable
 "
-
 BDEPEND="
 	prefix? ( dev-util/patchelf )
 	verify-sig? ( sec-keys/openpgp-keys-rust )
@@ -129,13 +131,13 @@ multilib_src_install() {
 		|| die
 
 	if use prefix; then
-		local interpreter=$(patchelf --print-interpreter "${EPREFIX}"/bin/bash)
+		local interpreter=$(patchelf --print-interpreter "${EPREFIX}/bin/bash")
 		ebegin "Changing interpreter to ${interpreter} for Gentoo prefix at ${ED}/opt/${P}/bin"
 		find "${ED}/opt/${P}/bin" -type f -print0 | \
 			while IFS=  read -r -d '' filename; do
 				patchelf_for_bin ${filename} ${interpreter} \; || die
 			done
-		eend $?
+		eend ${PIPESTATUS[0]}
 	fi
 
 	local symlinks=(
@@ -172,8 +174,8 @@ multilib_src_install() {
 	CARGO_TRIPLET="${CARGO_TRIPLET//-/_}"
 	CARGO_TRIPLET="${CARGO_TRIPLET^^}"
 	cat <<-_EOF_ > "${T}/50${P}"
-	LDPATH="${EPREFIX}/usr/lib/rust/lib"
-	MANPATH="${EPREFIX}/usr/lib/rust/man"
+	LDPATH="${EPREFIX}/usr/lib/rust/lib-bin-${PV}"
+	MANPATH="${EPREFIX}/usr/lib/rust/man-bin-${PV}"
 	$(usev elibc_musl "CARGO_TARGET_${CARGO_TRIPLET}_RUSTFLAGS=\"-C target-feature=-crt-static\"")
 	_EOF_
 	doenvd "${T}/50${P}"
@@ -223,8 +225,10 @@ multilib_src_install() {
 pkg_postinst() {
 	eselect rust update
 
-	elog "Rust installs a helper script for calling GDB now,"
-	elog "for your convenience it is installed under /usr/bin/rust-gdb-bin-${PV}."
+	if has_version dev-debug/gdb || has_version llvm-core/lldb; then
+		elog "Rust installs helper scripts for calling GDB and LLDB,"
+		elog "for convenience they are installed under /usr/bin/rust-{gdb,lldb}-${PV}."
+	fi
 
 	if has_version app-editors/emacs; then
 		elog "install app-emacs/rust-mode to get emacs support for rust."
