@@ -207,4 +207,7 @@ src_install() {
     # (The below keepdir will result in a tmpfiles entry in base_image_var.conf)
     keepdir /var/kubernetes/kubelet-plugins/volume/exec
     dosym /var/kubernetes/kubelet-plugins/volume/exec /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+
+    insinto "/etc/flatcar"
+    doins "${FILESDIR}/flatcar/enabled-sysext.conf"
 }
