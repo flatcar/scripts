@@ -88,8 +88,8 @@ BDEPEND="
 	virtual/pkgconfig
 	jit? (
 		$(llvm_gen_dep '
-			sys-devel/clang:${LLVM_SLOT}
-			sys-devel/llvm:${LLVM_SLOT}
+			llvm-core/clang:${LLVM_SLOT}
+			llvm-core/llvm:${LLVM_SLOT}
 		')
 	)
 	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
@@ -282,6 +282,11 @@ src_configure() {
 				# bug 653850
 				-x test_resource
 				-x test_strtod
+			)
+			;;
+		hppa*)
+			COMMON_TEST_SKIPS+=(
+				-x test_gdb
 			)
 			;;
 		mips*)
