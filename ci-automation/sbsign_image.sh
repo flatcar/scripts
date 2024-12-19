@@ -91,7 +91,8 @@ function _sbsign_image_impl() {
                        --only_store_compressed
 
     # Delete uncompressed generic image before signing and upload
-    rm "${images_local}/flatcar_production_image.bin"
+    # Also delete update image because it will be unchanged
+    rm "${images_local}"/flatcar_production_{image,update}.bin
     create_digests "${SIGNER}" "${images_local}"/*
     sign_artifacts "${SIGNER}" "${images_local}"/*
     copy_to_buildcache "${images_remote}"/ "${images_local}"/*
