@@ -864,7 +864,8 @@ EOF
   write_contents_with_technical_details "${root_fs_dir}" "${BUILD_DIR}/${image_contents_wtd}"
 
   if [[ -n "${image_initrd_contents}" ]] || [[ -n "${image_initrd_contents_wtd}" ]]; then
-      "${BUILD_LIBRARY_DIR}/extract-initramfs-from-vmlinuz.sh" "${root_fs_dir}/boot/flatcar/vmlinuz-a" "${BUILD_DIR}/tmp_initrd_contents"
+      echo ">>>>DEBUG<<<${root_fs_dir}/boot/flatcar/vmlinuz-a"
+      "${BUILD_LIBRARY_DIR}/extract-initramfs-from-vmlinuz.sh" "${root_fs_dir}/boot/flatcar/vmlinuz-a" "${BUILD_DIR}/tmp_initrd_contents" || true
       if [[ -n "${image_initrd_contents}" ]]; then
           write_contents "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_initrd_contents}"
       fi
