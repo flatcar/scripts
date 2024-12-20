@@ -177,7 +177,8 @@ if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   if [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then
     extract_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
   fi
-  if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} && ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+  # TODO: Un-nobble this later when we have passed the shim review.
+  if [[ ${FLAGS_generate_update} -eq ${FLAGS_TRUE} ]]; then # && ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
     generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
   fi
   if [[ "${PROD_TAR}" -eq 1 ]]; then
