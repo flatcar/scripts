@@ -126,6 +126,33 @@ cmake_src_bootstrap() {
 		|| die "Bootstrap failed"
 }
 
+pkg_pretend() {
+	if [[ -z ${EPREFIX} ]] ; then
+		local file
+		local errant_files=()
+
+		# See bug #599684 and  bug #753581 (at least)
+		for file in /etc/arch-release /etc/redhat-release /etc/debian_version ; do
+			if [[ -e ${file} ]]; then
+				errant_files+=( "${file}" )
+			fi
+		done
+
+		# If errant files exist
+		if [[ ${#errant_files[@]} -gt 0 ]]; then
+			eerror "Errant files found!"
+			eerror "The presence of these files is known to confuse CMake's"
+			eerror "library path logic. Please (re)move these files:"
+
+			for file in "${errant_files[@]}"; do
+				eerror " mv ${file} ${file}.bak"
+			done
+
+			die "Stray files found in /etc/, see above message"
+		fi
+	fi
+}
+
 src_unpack() {
 	if [[ ${PV} == 9999 ]] ; then
 		git-r3_src_unpack
@@ -229,12 +256,13 @@ src_test() {
 		"${S}"/Tests/{OutDir,CMakeOnly/SelectLibraryConfigurations}/CMakeLists.txt \
 		|| die
 
-	unset CLICOLOR CLICOLOR_FORCE CMAKE_COMPILER_COLOR_DIAGNOSTICS CMAKE_COLOR_DIAGNOSTICS
+	# TODO: Still relevant after https://gitlab.kitware.com/cmake/cmake/-/merge_requests/10070?
+	unset CMAKE_COMPILER_COLOR_DIAGNOSTICS CMAKE_COLOR_DIAGNOSTICS
 
 	pushd "${BUILD_DIR}" > /dev/null || die
 
 	# Excluded tests:
-	#    BootstrapTest: we actualy bootstrap it every time so why test it.
+	#    BootstrapTest: we actually bootstrap it every time so why test it?
 	#    BundleUtilities: bundle creation broken
 	#    CMakeOnly.AllFindModules: pthread issues
 	#    CTest.updatecvs: which fails to commit as root
