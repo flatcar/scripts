@@ -10,9 +10,19 @@ inherit gnome.org gnome2-utils linux-info meson-multilib multilib python-any-r1 
 DESCRIPTION="The GLib library of C routines"
 HOMEPAGE="https://www.gtk.org/"
 
+INTROSPECTION_PN="gobject-introspection"
+INTROSPECTION_PV="1.82.0"
+INTROSPECTION_P="${INTROSPECTION_PN}-${INTROSPECTION_PV}"
+SRC_URI="
+	${SRC_URI}
+	introspection? ( mirror://gnome/sources/gobject-introspection/${INTROSPECTION_PV%.*}/gobject-introspection-${INTROSPECTION_PV}.tar.${GNOME_TARBALL_SUFFIX} )
+"
+INTROSPECTION_SOURCE_DIR="${WORKDIR}/${INTROSPECTION_P}"
+INTROSPECTION_BUILD_DIR="${WORKDIR}/${INTROSPECTION_P}-build"
+
 LICENSE="LGPL-2.1+"
 SLOT="2"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="dbus debug +elf doc +introspection +mime selinux static-libs sysprof systemtap test utils xattr"
 RESTRICT="!test? ( test )"
 
@@ -33,7 +43,9 @@ RDEPEND="
 	>=dev-libs/libffi-3.0.13-r1:=[${MULTILIB_USEDEP}]
 	>=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]
 	>=virtual/libintl-0-r2[${MULTILIB_USEDEP}]
-	introspection? ( >=dev-libs/gobject-introspection-1.80.1 )
+	introspection? (
+		>=dev-libs/gobject-introspection-common-${INTROSPECTION_PV}
+	)
 	kernel_linux? ( >=sys-apps/util-linux-2.23[${MULTILIB_USEDEP}] )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r5[${MULTILIB_USEDEP}] )
 	xattr? ( !elibc_glibc? ( >=sys-apps/attr-2.4.47-r1[${MULTILIB_USEDEP}] ) )
@@ -50,11 +62,18 @@ BDEPEND="
 	dev-python/docutils
 	systemtap? ( >=dev-debug/systemtap-1.3 )
 	${PYTHON_DEPS}
-	$(python_gen_any_dep '
-		dev-python/packaging[${PYTHON_USEDEP}]
-	')
 	test? ( >=sys-apps/dbus-1.2.14 )
 	virtual/pkgconfig
+
+	introspection? (
+		$(python_gen_any_dep '
+			dev-python/setuptools[${PYTHON_USEDEP}]
+		')
+		virtual/pkgconfig
+		sys-devel/bison
+		app-alternatives/lex
+		${PYTHON_DEPS}
+	)
 "
 # TODO: >=dev-util/gdbus-codegen-${PV} test dep once we modify gio/tests/meson.build to use external gdbus-codegen
 
@@ -74,7 +93,9 @@ PATCHES=(
 )
 
 python_check_deps() {
-	python_has_version "dev-python/packaging[${PYTHON_USEDEP}]"
+	if use introspection ; then
+		python_has_version "dev-python/setuptools[${PYTHON_USEDEP}]"
+	fi
 }
 
 pkg_setup() {
@@ -167,6 +188,11 @@ src_prepare() {
 		-e '/AvailabilityMacros.h/d' \
 		gio/giomodule.c || die
 
+	# Link the glib source to the introspection subproject directory so it can be built there first
+	if use introspection ; then
+		ln -s "${S}" "${INTROSPECTION_SOURCE_DIR}/subprojects/glib"
+	fi
+
 	default
 	gnome2_environment_reset
 	# TODO: python_name sedding for correct python shebang? Might be relevant mainly for glib-utils only
@@ -185,11 +211,92 @@ multilib_src_configure() {
 		#esac
 	#fi
 
+	# Build internal copy of gobject-introspection to avoid circular dependency (Built for native abi only)
+	if multilib_native_use introspection && ! has_version ">=dev-libs/${INTROSPECTION_P}" ; then
+		einfo "Bootstrapping gobject-introspection..."
+		INTROSPECTION_BIN_DIR="${T}/${EPREFIX}/usr/bin"
+		INTROSPECTION_LIB_DIR="${T}/${EPREFIX}/usr/$(get_libdir)"
+
+		local emesonargs=(
+			-Dpython="${EPYTHON}"
+			-Dbuild_introspection_data=true
+			# Build an internal copy of glib for the internal copy of gobject-introspection
+			--force-fallback-for=glib
+			# Tell meson to make paths in pkgconfig files relative, because we arent doing an actual install
+			-Dpkgconfig.relocatable=true
+
+			# We want as minimal a build as possible here to speed things up
+			# and reduce the risk of failures.
+			-Dglib:selinux=disabled
+			-Dglib:xattr=false
+			-Dglib:libmount=disabled
+			-Dglib:man-pages=disabled
+			-Dglib:dtrace=false
+			-Dglib:systemtap=false
+			-Dglib:sysprof=disabled
+			-Dglib:documentation=false
+			-Dglib:tests=false
+			-Dglib:installed_tests=false
+			-Dglib:nls=disabled
+			-Dglib:oss_fuzz=disabled
+			-Dglib:libelf=disabled
+			-Dglib:multiarch=false
+		)
+
+		ORIG_SOURCE_DIR=${EMESON_SOURCE}
+		EMESON_SOURCE=${INTROSPECTION_SOURCE_DIR}
+
+		# g-ir-scanner has some relocatable logic but it searches
+		# for 'lib', not 'lib64', so it can't find itself and eventually
+		# falls back to the system installation. See bug #946221.
+		sed -i -e "/^pylibdir =/s:'lib:'$(get_libdir):" "${EMESON_SOURCE}"/tools/g-ir-tool-template.in || die
+
+		ORIG_BUILD_DIR=${BUILD_DIR}
+		BUILD_DIR=${INTROSPECTION_BUILD_DIR}
+
+		pushd ${INTROSPECTION_SOURCE_DIR} || die
+
+		meson_src_configure
+		meson_src_compile
+		# Install to the portage temp directory so that pkgconfig relative paths resolve correctly
+		meson_src_install --destdir "${T}" --skip-subprojects glib
+
+		popd || die
+
+		EMESON_SOURCE=${ORIG_SOURCE_DIR}
+		BUILD_DIR=${ORIG_BUILD_DIR}
+
+		# Add gobject-introspection binaries and pkgconfig files to path
+		export PATH="${INTROSPECTION_BIN_DIR}:${PATH}"
+
+		# Override primary pkgconfig search paths to prioritize our internal copy
+		export PKG_CONFIG_LIBDIR="${INTROSPECTION_LIB_DIR}/pkgconfig:${INTROSPECTION_BUILD_DIR}/meson-private"
+
+		# Set the normal primary pkgconfig search paths as secondary
+		# (We also need to prepend our just-built one for later use of
+		# g-ir-scanner to use the new one and to help workaround bugs like
+		# bug #946221.)
+		export PKG_CONFIG_PATH="${PKG_CONFIG_LIBDIR}:$(pkg-config --variable pc_path pkg-config)"
+
+		# Add the paths to the built glib libraries to the library path so that gobject-introspection can load them
+		for gliblib in glib gobject gthread gmodule gio girepository; do
+			export LD_LIBRARY_PATH="${BUILD_DIR}/${gliblib}:${LD_LIBRARY_PATH}"
+		done
+
+		# Add the path to introspection libraries so that glib can call gir utilities
+		export LD_LIBRARY_PATH="${INTROSPECTION_LIB_DIR}:${LD_LIBRARY_PATH}"
+
+		# Add the paths to the gobject-introspection python modules to python path so they can be imported
+		export PYTHONPATH="${INTROSPECTION_LIB_DIR}/gobject-introspection:${PYTHONPATH}"
+	fi
+
+	# TODO: Can this be cleaned up now we have -Dglib_debug? (bug #946485)
 	use debug && EMESON_BUILD_TYPE=debug
 
 	local emesonargs=(
 		-Ddefault_library=$(usex static-libs both shared)
 		-Druntime_dir="${EPREFIX}"/run
+		$(meson_feature debug glib_debug)
 		$(meson_feature selinux)
 		$(meson_use xattr)
 		-Dlibmount=enabled # only used if host_system == 'linux'
@@ -223,6 +330,7 @@ multilib_src_configure() {
 multilib_src_test() {
 	export XDG_CONFIG_DIRS=/etc/xdg
 	export XDG_DATA_DIRS=/usr/local/share:/usr/share
+	# TODO: Use ${ABI} here to be unique for multilib?
 	export G_DBUS_COOKIE_SHA1_KEYRING_DIR="${T}/temp"
 	export LC_TIME=C # bug #411967
 	export TZ=UTC
@@ -234,7 +342,7 @@ multilib_src_test() {
 	addpredict /usr/b
 
 	# Related test is a bit nitpicking
-	mkdir "$G_DBUS_COOKIE_SHA1_KEYRING_DIR" || die
+	mkdir -p "$G_DBUS_COOKIE_SHA1_KEYRING_DIR" || die
 	chmod 0700 "$G_DBUS_COOKIE_SHA1_KEYRING_DIR" || die
 
 	meson_src_test --timeout-multiplier 20 --no-suite flaky
