@@ -13,7 +13,7 @@ HOMEPAGE="https://gi.readthedocs.io/"
 LICENSE="LGPL-2+ GPL-2+"
 SLOT="0"
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 
 IUSE="doctool gtk-doc test"
 RESTRICT="!test? ( test )"
@@ -22,7 +22,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 # virtual/pkgconfig needed at runtime, bug #505408
 RDEPEND="
 	>=dev-libs/gobject-introspection-common-${PV}
-	>=dev-libs/glib-2.79.0:2
+	>=dev-libs/glib-2.79.0:2[introspection]
 	dev-libs/libffi:=
 	$(python_gen_cond_dep '
 		dev-python/setuptools[${PYTHON_USEDEP}]
