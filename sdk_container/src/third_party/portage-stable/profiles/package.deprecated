@@ -17,12 +17,10 @@
 
 #--- END OF EXAMPLES ---
 
-# Michał Górny <mgorny@gentoo.org> (2024-10-09)
-# The package still does not support dev-python/pytest-8 (effectively
-# blocking Python 3.13 support), suffers from tons of test failures
-# we were never able to solve, and new releases frequently introduce
-# regressions.  Bug #937896.
-dev-python/sentry-sdk
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-12-16)
+# Bug #946526. There is a newer version in dev-java/stringprep-2.2 pending for
+# stabilization. Then dev-java/saslprep should be last-rited.
+dev-java/saslprep
 
 # Michał Górny <mgorny@gentoo.org> (2024-06-15)
 # Stop-gap compatibility package.  Upstreams really need to move away
