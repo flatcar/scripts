@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Christopher Byrne <salah.coronya@gmail.com> (2024-12-01)
+# requires dev-libs/hidapi to be keyworded
+dev-libs/libfido2 hidapi
+
 # Felix Janda <felix.janda@posteo.de> (2024-10-20)
 # requires dev-libs/libcss and net-libs/libdom to be keyworded
 www-client/elinks libcss
@@ -347,7 +351,7 @@ sys-block/thin-provisioning-tools test
 media-video/ffmpeg dav1d libaribb24 libtesseract
 
 # Andrey Utkin <andrey_utkin@gentoo.org> (2020-03-11)
-# USE=bpf depends on sys-devel/clang which is not keyworded on alpha.
+# USE=bpf depends on llvm-core/clang which is not keyworded on alpha.
 media-libs/libv4l bpf
 
 # Patrick McLean <chutzpah@gentoo.org> (2020-02-15)

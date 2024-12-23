@@ -1,6 +1,14 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2024-12-17)
+# dev-lang/ada-bootstrap exists here
+>=sys-devel/gcc-14 -ada
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-12-10)
+# Depends on kde-plasma/kdesu-gui which is not keyworded here.
+sys-block/gparted kde
+
 # Arthur Zamarin <arthurzam@gentoo.org> (2024-10-11)
 # depends on java packages, not keyworded on arm
 app-office/libreoffice java
@@ -50,8 +58,9 @@ app-crypt/pinentry qt6
 app-office/libreoffice qt6
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-06-01)
-# qtnetworkauth not yet keyworded here
-dev-python/pyside6 network-auth
+# qtnetworkauth, qtremoteobjects and qthttpserver not yet keyworded here
+dev-python/pyside6 network-auth httpserver remoteobjects
+dev-python/qtpy remoteobjects
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-03-21)
 # virt-firmware is keyworded here
@@ -218,10 +227,10 @@ app-text/enchant voikko
 
 # Michał Górny <mgorny@gentoo.org> (2020-12-21)
 # Sanitizers supported on this architecture.
-sys-libs/compiler-rt-sanitizers -asan -lsan
-sys-libs/compiler-rt-sanitizers -ubsan -cfi -scudo
-sys-libs/compiler-rt-sanitizers -profile -xray
->=sys-libs/compiler-rt-sanitizers-16 -gwp-asan -libfuzzer -orc
+llvm-runtimes/compiler-rt-sanitizers -asan -lsan
+llvm-runtimes/compiler-rt-sanitizers -ubsan -cfi -scudo
+llvm-runtimes/compiler-rt-sanitizers -profile -xray
+>=llvm-runtimes/compiler-rt-sanitizers-16 -gwp-asan -libfuzzer -orc
 
 # Rick Farina <zerochaos@gentoo.org> (2020-12-18)
 # net-wireless/libxtrx et all needs testing
@@ -430,10 +439,10 @@ mail-filter/opendkim opendbx stats
 
 # S. Suominen <ssuominen@g.o> (2014-04-17)
 # First GTK+-3.x version of EasyTAG!
-# Keyword as reqiuired, ~arch is enough for now:
+# Keyword as required, ~arch is enough for now:
 # media-libs/opusfile for USE opus
 # media-libs/opus for USE opus
-# app-text/apadata-tools for FEAATURES and USE test
+# app-text/apadata-tools for FEATURES and USE test
 # Do it! No reason to ask permission before!
 >=media-sound/easytag-2.2.0 opus test
 
