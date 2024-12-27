@@ -145,7 +145,7 @@ src_install() {
 	mv "${D}"/{etc,usr/lib}/pam.d/polkit-1 || die
 	rmdir "${D}"/etc/polkit-1/rules.d "${D}"/etc/polkit-1 || die
 	rmdir "${D}"/etc/pam.d || die
-
+        install -D -m 0644 ${FILESDIR}/override.conf /etc/systemd/system/polkit.service.d/override.conf
 	dotmpfiles "${FILESDIR}/polkit.conf"
 
 	if use examples ; then
