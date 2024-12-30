@@ -14,7 +14,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit autotools git-r3
 else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/file.asc
-	inherit libtool verify-sig
+	inherit autotools verify-sig
 	SRC_URI="ftp://ftp.astron.com/pub/file/${P}.tar.gz"
 	SRC_URI+=" verify-sig? ( ftp://ftp.astron.com/pub/file/${P}.tar.gz.asc )"
 
@@ -65,11 +65,13 @@ PATCHES=(
 src_prepare() {
 	default
 
-	if [[ ${PV} == 9999 ]] ; then
-		eautoreconf
-	else
-		elibtoolize
-	fi
+	#if [[ ${PV} == 9999 ]] ; then
+	#	eautoreconf
+	#else
+	#	elibtoolize
+	#fi
+	# Just for file-5.45-32-bit-time_t-deux.patch, drop in 5.46
+	eautoreconf
 
 	# Don't let python README kill main README, bug #60043
 	mv python/README.md python/README.python.md || die
