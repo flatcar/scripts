@@ -20,6 +20,7 @@
 # Ionen Wolkens <ionen@gentoo.org> (2024-09-27)
 # dev-qt/qtremoteobjects:6 has not been stabilized yet.
 dev-python/pyqt6 remoteobjects
+dev-python/qtpy remoteobjects
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-07-24)
 # No stable versions of ROCm at the moment
@@ -62,7 +63,8 @@ dev-python/nbval -doc
 # Yiyang Wu <xgreenlandforwyy@gmail.com> (2023-01-27)
 # AMDGPU enablement depends on dev-libs/rocr-runtime, ~amd64 only
 # See also: https://bugs.gentoo.org/891499
-sys-libs/libomp llvm_targets_AMDGPU
+llvm-runtimes/offload llvm_targets_AMDGPU
+llvm-runtimes/openmp llvm_targets_AMDGPU
 
 # Sam James <sam@gentoo.org> (2022-12-11)
 # net-libs/rustls-ffi is not yet marked stable
@@ -71,6 +73,7 @@ net-misc/curl rustls curl_ssl_rustls
 # Sam James <sam@gentoo.org> (2022-12-07)
 # Needs unstable media-libs/libvpl
 media-video/ffmpeg qsv
+media-video/handbrake qsv
 
 # Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
 # needs stabilizing
