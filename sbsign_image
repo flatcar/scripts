@@ -61,8 +61,11 @@ switch_to_strict_mode
 # Create the output directory and temporary mount points.
 mkdir -p "${BUILD_DIR}"
 
+DISK_LAYOUT="${FLAGS_disk_layout:-base}"
+
 fix_mtab
-sbsign_prod_image "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${FLAGS_disk_layout:-base}"
+sbsign_prod_image "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
+generate_update "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${DISK_LAYOUT}"
 
 echo "Done. ${FLATCAR_PRODUCTION_IMAGE_NAME} and associated files are now signed for Secure Boot in ${BUILD_DIR}."
 command_completed
