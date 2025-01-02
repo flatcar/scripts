@@ -81,11 +81,9 @@ perform_round() {
     for rnd in "${round_prefix}"*; do
         if [[ $(file --brief "${rnd}") =~ 'cpio archive' ]]; then
             mkdir -p "${out}/rootfs-${ROOTFS_IDX}"
-            while cpio --quiet --extract --make-directories --directory="${out}/rootfs-${ROOTFS_IDX}" --nonmatching 'dev/*'; do
-                ROOTFS_IDX=$(( ROOTFS_IDX + 1 ))
-                mkdir -p "${out}/rootfs-${ROOTFS_IDX}"
-            done <${rnd}
-            rmdir "${out}/rootfs-${ROOTFS_IDX}"
+	    # On Linux 6.10, the first rootfs is an extra ghost rootfs of 336K, that has a corrupted CPIO
+            cpio --quiet --extract --make-directories --directory="${out}/rootfs-${ROOTFS_IDX}" --nonmatching 'dev/*' < $rnd || true
+            ROOTFS_IDX=$(( ROOTFS_IDX + 1 ))
         fi
     done
 }
