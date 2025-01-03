@@ -14,11 +14,11 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit autotools git-r3
 else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/file.asc
-	inherit autotools verify-sig
+	inherit libtool verify-sig
 	SRC_URI="ftp://ftp.astron.com/pub/file/${P}.tar.gz"
 	SRC_URI+=" verify-sig? ( ftp://ftp.astron.com/pub/file/${P}.tar.gz.asc )"
 
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-file )"
 fi
@@ -60,21 +60,16 @@ QA_CONFIG_IMPL_DECL_SKIP=( makedev )
 PATCHES=(
 	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
 	"${FILESDIR}/file-5.45-seccomp-sandbox.patch"
-	"${FILESDIR}/${P}-32-bit-time_t.patch"
-	"${FILESDIR}/${P}-32-bit-time_t-deux.patch"
-	"${FILESDIR}/${P}-weak-magic-shell.patch" #908401
 )
 
 src_prepare() {
 	default
 
-	#if [[ ${PV} == 9999 ]] ; then
-	#	eautoreconf
-	#else
-	#	elibtoolize
-	#fi
-	# Just for file-5.45-32-bit-time_t-deux.patch, drop in 5.46
-	eautoreconf
+	if [[ ${PV} == 9999 ]] ; then
+		eautoreconf
+	else
+		elibtoolize
+	fi
 
 	# Don't let python README kill main README, bug #60043
 	mv python/README.md python/README.python.md || die

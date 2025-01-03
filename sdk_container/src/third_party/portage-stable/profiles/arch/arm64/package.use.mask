@@ -1,6 +1,19 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (2024-12-24)
+# OpenMP offloading is supported on 64-bit architectures only.
+llvm-core/clang-runtime -offload
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-12-20)
+# qtremoteobjects and qthttpserver not yet keyworded here
+dev-python/pyside6 httpserver remoteobjects
+dev-python/qtpy remoteobjects
+
+# Sam James <sam@gentoo.org> (2024-12-17)
+# dev-lang/ada-bootstrap exists here
+>=sys-devel/gcc-14 -ada
+
 # Alexey Shvetsov <alexxy@gentoo.org> (2024-11-21)
 # sci-libs/caffe2 is not keyworded on arm64
 sci-chemistry/gromacs nnpot
@@ -83,6 +96,7 @@ sys-kernel/gentoo-kernel-bin -generic-uki
 # Ionen Wolkens <ionen@gentoo.org> (2023-12-02)
 # dev-qt/qtwebengine:6 is keyworded here.
 dev-python/pyqt6 -pdfium
+dev-python/qtpy -pdfium
 
 # Takuya Wakazono <pastalian46@gmail.com> (2023-11-21)
 # app-crypt/rpm-sequoia is keyworded here.
@@ -120,7 +134,7 @@ dev-lang/ruby -jit
 
 # Michał Górny <mgorny@gentoo.org> (2023-01-24)
 # libomptarget is only supported on 64-bit architectures.
->=sys-libs/libomp-16.0.0_pre20230124 -offload
+>=llvm-runtimes/openmp-16.0.0_pre20230124 -offload
 
 # Florian Schmaus <flow@gentoo.org> (2022-11-23)
 # avoid larger deptree, bug #882593
@@ -242,11 +256,11 @@ app-text/enchant voikko
 
 # Michał Górny <mgorny@gentoo.org> (2020-12-21)
 # Sanitizers supported on this architecture.
-sys-libs/compiler-rt-sanitizers -asan -dfsan -lsan -msan -hwasan -tsan
-sys-libs/compiler-rt-sanitizers -ubsan -safestack -cfi -scudo
-sys-libs/compiler-rt-sanitizers -gwp-asan -shadowcallstack
-sys-libs/compiler-rt-sanitizers -libfuzzer -profile -xray -rtsan
->=sys-libs/compiler-rt-sanitizers-16 -orc
+llvm-runtimes/compiler-rt-sanitizers -asan -dfsan -lsan -msan -hwasan -tsan
+llvm-runtimes/compiler-rt-sanitizers -ubsan -safestack -cfi -scudo
+llvm-runtimes/compiler-rt-sanitizers -gwp-asan -shadowcallstack
+llvm-runtimes/compiler-rt-sanitizers -libfuzzer -profile -xray -rtsan -tysan
+>=llvm-runtimes/compiler-rt-sanitizers-16 -orc
 
 # Roy Bamford <neddyseagoon@gentoo.org> (2020-12-07)
 # media-libs/liblastfm fails to build with tests Bug #758896
