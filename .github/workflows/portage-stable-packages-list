@@ -314,6 +314,7 @@ dev-python/hatchling
 dev-python/hatch-vcs
 dev-python/idna
 dev-python/installer
+dev-python/jaraco-collections
 dev-python/jaraco-context
 dev-python/jaraco-functools
 dev-python/jaraco-text
