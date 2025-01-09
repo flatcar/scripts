@@ -22,7 +22,7 @@ mounts=()
 
 usage() {
     echo "  Usage:"
-    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [-m <src>:<dest>] [<container-command>]"
+    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [-m <src>:<dest>] [--] [<container-command>]"
     echo "       Start an SDK container of a given SDK release version."
     echo "       This will create the container if it does not exist, otherwise start the existing container."
     echo "       If the container is already running then it will exec into the container."
@@ -49,6 +49,7 @@ usage() {
     echo "      -U             Do not update the versionfile. Instead, use the version from the versionfile as-is."
     echo "      -m <src>:<dest> - Mount local file or directory inside the container."
     echo "                     Can be specified multiple times."
+    echo "      --             Stop parsing options at this point, pass the rest as the container command."
     echo "      -h             Print this help."
     echo
 }
@@ -72,6 +73,8 @@ while [[ $# -gt 0 ]] ; do
         update_versionfile=
         shift;;
     -m) mounts+=( -v "$2" ); shift; shift;;
+    --) shift; break;;
+    -*) echo "Unknown flag ${1@Q}, use '-h' or '--help' for usage"; exit 1;;
     *) break;;
     esac
 done
