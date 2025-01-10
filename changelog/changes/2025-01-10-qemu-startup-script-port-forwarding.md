@@ -1,0 +1,1 @@
+- Added support for multiple port forwarding parameters in the QEMU startup script. Users can now specify multiple port forwards using the `-f` option. ([flatcar/scripts#2575](https://github.com/flatcar/scripts/pull/2575))
