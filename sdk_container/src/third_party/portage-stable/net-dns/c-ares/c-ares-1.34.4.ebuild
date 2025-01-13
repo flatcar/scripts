@@ -3,30 +3,31 @@
 
 EAPI=8
 
-VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielstenberg.asc
+# Both Daniel and Brad are listed as possible signers on the homepage
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/bradhouse.asc
 inherit edo multilib-minimal verify-sig
 
 DESCRIPTION="C library that resolves names asynchronously"
 HOMEPAGE="https://c-ares.org/"
 SRC_URI="
-	https://github.com/c-ares/c-ares/releases/download/cares-${PV//./_}/${P}.tar.gz
-	verify-sig? ( https://github.com/c-ares/c-ares/releases/download/cares-${PV//./_}/${P}.tar.gz.asc )
+	https://github.com/c-ares/c-ares/releases/download/v${PV}/${P}.tar.gz
+	verify-sig? ( https://github.com/c-ares/c-ares/releases/download/v${PV}/${P}.tar.gz.asc )
 "
 
 # ISC for lib/{bitncmp.c,inet_ntop.c,inet_net_pton.c} (bug #912405)
 LICENSE="MIT ISC"
 # Subslot = SONAME of libcares.so.2
 SLOT="0/2"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="static-libs test"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
 	test? ( dev-cpp/gtest )
-	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
+	verify-sig? ( sec-keys/openpgp-keys-bradhouse )
 "
 
-DOCS=( AUTHORS CHANGES NEWS README.md RELEASE-NOTES.md TODO )
+DOCS=( AUTHORS README.md RELEASE-NOTES.md )
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/ares_build.h
@@ -47,6 +48,22 @@ A__QA_CONFIG_IMPL_DECL_SKIP=(
 	ConvertInterfaceLuidToNameA
 )
 
+src_prepare() {
+	default
+
+	if [[ ${CHOST} == *-darwin* ]] ; then
+		# warnings are default, but enable -std=c90 which doesn't define
+		# 'bool' which is a type used/assumed in macOS system headers
+		sed -i -e 's/-std=c90/& -Dbool=int/' configure{.ac,} || die
+		# sysconfig integration requires deep framework compatibility
+		# and is not really desired in Prefix
+		sed -i -e 's/__APPLE__/__DISABLED__/' \
+			src/lib/ares_sysconfig_mac.c || die
+		sed -i -e '/elif defined(__APPLE__)/s/__APPLE__/__DISABLED__/' \
+			src/lib/ares_sysconfig.c || die
+	fi
+}
+
 multilib_src_configure() {
 	local myeconfargs=(
 		--enable-symbol-hiding
@@ -56,8 +73,8 @@ multilib_src_configure() {
 
 	# Needed for running unit tests only
 	# Violates sandbox and tests pass fine without
-	export ax_cv_uts_namespace=no
-	export ax_cv_user_namespace=no
+	export ares_cv_user_namespace=no
+	export ares_cv_uts_namespace=no
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
