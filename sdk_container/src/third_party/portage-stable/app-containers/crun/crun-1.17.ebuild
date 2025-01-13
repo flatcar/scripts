@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Gentoo Authors
+# Copyright 2019-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -15,7 +15,7 @@ if [[ "$PV" == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/containers/${PN}.git"
 else
 	SRC_URI="https://github.com/containers/${PN}/releases/download/${PV}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv"
+	KEYWORDS="amd64 ~arm arm64 ~loong ppc64 ~riscv"
 fi
 
 LICENSE="GPL-2+ LGPL-2.1+"
@@ -39,6 +39,7 @@ BDEPEND="
 
 src_configure() {
 	local myeconfargs=(
+		--cache-file="${S}"/config.cache
 		$(use_enable bpf)
 		$(use_enable caps)
 		$(use_enable criu)
@@ -48,15 +49,6 @@ src_configure() {
 	)
 
 	econf "${myeconfargs[@]}"
-}
-
-src_install() {
-	emake "DESTDIR=${D}" install-exec
-	doman crun.1
-	einstalldocs
-
-	einfo "Cleaning up .la files"
-	find "${ED}" -name '*.la' -delete || die
 }
 
 src_test() {
@@ -72,4 +64,13 @@ src_test() {
 		"tests/test_oci_features"
 	)
 	emake check-TESTS TESTS="${supported_tests[*]}"
+}
+
+src_install() {
+	emake "DESTDIR=${D}" install-exec
+	doman crun.1
+	einstalldocs
+
+	einfo "Cleaning up .la files"
+	find "${ED}" -name '*.la' -delete || die
 }
