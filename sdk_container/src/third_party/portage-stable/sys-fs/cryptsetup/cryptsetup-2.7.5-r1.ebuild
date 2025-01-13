@@ -14,18 +14,20 @@ S="${WORKDIR}"/${P/_/-}
 LICENSE="GPL-2+"
 SLOT="0/12" # libcryptsetup.so version
 if [[ ${PV} != *_rc* ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
 # we don't support nss since it doesn't allow cryptsetup to be built statically
 # and it's missing ripemd160 support so it can't provide full backward compatibility
-IUSE="${CRYPTO_BACKENDS} +argon2 fips nls pwquality ssh static static-libs test +udev urandom"
+IUSE="${CRYPTO_BACKENDS} +argon2 fips nls pwquality passwdqc ssh static static-libs test +udev urandom"
 RESTRICT="!test? ( test )"
 # bug #496612, bug #832711, bug #843863
 REQUIRED_USE="
+	?? ( pwquality passwdqc )
 	^^ ( ${CRYPTO_BACKENDS//+/} )
 	static? ( !ssh !udev !fips )
+	static-libs? ( !passwdqc )
 	fips? ( !kernel !nettle )
 "
 
@@ -41,6 +43,7 @@ LIB_DEPEND="
 	nettle? ( >=dev-libs/nettle-2.4[static-libs(+)] )
 	openssl? ( dev-libs/openssl:0=[static-libs(+)] )
 	pwquality? ( dev-libs/libpwquality[static-libs(+)] )
+	passwdqc? ( sys-auth/passwdqc )
 	ssh? ( net-libs/libssh[static-libs(+)] )
 	sys-fs/lvm2[static-libs(+)]
 "
@@ -61,6 +64,8 @@ BDEPEND="
 	virtual/pkgconfig
 	test? ( app-editors/vim-core )
 "
+
+PATCHES=( "${FILESDIR}"/${P}-compat-test-passwdqc.patch )
 
 pkg_setup() {
 	local CONFIG_CHECK="~DM_CRYPT ~CRYPTO ~CRYPTO_CBC ~CRYPTO_SHA256"
@@ -90,6 +95,7 @@ src_configure() {
 		$(use_enable argon2 libargon2)
 		$(use_enable nls)
 		$(use_enable pwquality)
+		$(use_enable passwdqc)
 		$(use_enable !static external-tokens)
 		$(use_enable static static-cryptsetup)
 		$(use_enable static-libs static)
