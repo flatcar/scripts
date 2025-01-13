@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -60,6 +60,8 @@ QA_CONFIG_IMPL_DECL_SKIP=( makedev )
 PATCHES=(
 	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
 	"${FILESDIR}/file-5.45-seccomp-sandbox.patch"
+	"${FILESDIR}/file-5.46-zip.patch"
+	"${FILESDIR}/file-5.46-buffer-overflow.patch"
 )
 
 src_prepare() {
