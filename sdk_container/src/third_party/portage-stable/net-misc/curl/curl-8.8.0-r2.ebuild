@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -26,7 +26,7 @@ fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
 SLOT="0"
-IUSE="+adns +alt-svc brotli +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
+IUSE="+adns +alt-svc brotli debug +ftp gnutls gopher +hsts +http2 idn +imap kerberos ldap mbedtls nghttp3 +openssl +pop3"
 IUSE+=" +psl +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
 # These select the default SSL implementation
 IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
@@ -63,15 +63,15 @@ REQUIRED_USE="
 
 RDEPEND="
 	>=sys-libs/zlib-1.1.4[${MULTILIB_USEDEP}]
-	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
+	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.12.0:=[${MULTILIB_USEDEP}] )
 	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	ldap? ( >=net-nds/openldap-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
 	nghttp3? (
-		>=net-libs/nghttp3-0.15.0[${MULTILIB_USEDEP}]
-		>=net-libs/ngtcp2-0.19.1[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
+		>=net-libs/nghttp3-1.1.0[${MULTILIB_USEDEP}]
+		>=net-libs/ngtcp2-1.2.0[gnutls,ssl,-openssl,${MULTILIB_USEDEP}]
 	)
 	psl? ( net-libs/libpsl[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
@@ -84,13 +84,13 @@ RDEPEND="
 		)
 		mbedtls? (
 			app-misc/ca-certificates
-			net-libs/mbedtls:=[${MULTILIB_USEDEP}]
+			net-libs/mbedtls:0=[${MULTILIB_USEDEP}]
 		)
 		openssl? (
 			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
-		rustls? ( >=net-libs/rustls-ffi-0.12.1:=[${MULTILIB_USEDEP}]
-			<net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
+		rustls? (
+			>=net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
 		)
 	)
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
@@ -134,12 +134,11 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-prefix.patch
+	"${FILESDIR}"/${PN}-prefix-2.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${PN}-8.7.1-rustls-fixes.patch
-	"${FILESDIR}"/${P}-chunked-post.patch
-	"${FILESDIR}"/${P}-fix-compress-option.patch
-	"${FILESDIR}"/${P}-http2-git-clone.patch
+	"${FILESDIR}"/${P}-install-manpage.patch
+	"${FILESDIR}"/${P}-mbedtls.patch
+	"${FILESDIR}"/${P}-multi_wait-timeout.patch
 )
 
 src_prepare() {
@@ -226,7 +225,6 @@ multilib_src_configure() {
 		$(use_enable ldap)
 		$(use_enable ldap ldaps)
 		--enable-ntlm
-		--disable-ntlm-wb
 		$(use_enable pop3)
 		--enable-rt
 		--enable-rtsp
@@ -283,6 +281,12 @@ multilib_src_configure() {
 		$(use_with zstd)
 		--with-zsh-functions-dir="${EPREFIX}"/usr/share/zsh/site-functions
 	)
+
+	if use debug; then
+		myconf+=(
+			--enable-debug
+		)
+	fi
 
 	if use test && multilib_is_native_abi && ( use http2 || use nghttp3 ); then
 		myconf+=(
@@ -372,4 +376,12 @@ multilib_src_install_all() {
 	einstalldocs
 	find "${ED}" -type f -name '*.la' -delete || die
 	rm -rf "${ED}"/etc/ || die
+}
+
+pkg_postinst() {
+	if use debug; then
+		ewarn "USE=debug has been selected, enabling debug codepaths and making cURL extra verbose."
+		ewarn "Use this _only_ for testing. Debug builds should _not_ be used in anger."
+		ewarn "hic sunt dracones; you have been warned."
+	fi
 }
