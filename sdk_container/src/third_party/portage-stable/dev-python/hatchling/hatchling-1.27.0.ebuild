@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -30,18 +30,13 @@ KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 
 # editables are optional but required for editable installs
 RDEPEND="
 	>=dev-python/editables-0.3[${PYTHON_USEDEP}]
-	>=dev-python/packaging-23.2[${PYTHON_USEDEP}]
+	>=dev-python/packaging-24.2[${PYTHON_USEDEP}]
 	>=dev-python/pathspec-0.10.1[${PYTHON_USEDEP}]
 	>=dev-python/pluggy-1.0.0[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
 		>=dev-python/tomli-1.2.2[${PYTHON_USEDEP}]
 	' 3.10)
-"
-# always depend on the newest version available, at least until upstream
-# stops treating unknown classifiers as a fatal error
-# https://github.com/pypa/hatch/issues/1368
-RDEPEND+="
-	>=dev-python/trove-classifiers-2024.10.16[${PYTHON_USEDEP}]
+	dev-python/trove-classifiers[${PYTHON_USEDEP}]
 "
 BDEPEND="
 	${RDEPEND}
