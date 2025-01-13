@@ -4,6 +4,14 @@
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Michał Górny <mgorny@gentoo.org> (2024-12-31)
+# LLVM slot 20 has no releases yet.
+llvm_slot_20
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-12-11)
+# dev-db/firebird last-rites preparation
+firebird
+
 # Robin H. Johnson <robbat2@gentoo.org> (2024-11-17)
 # bug 943698
 # Poor upstream code quality, unmaintained upstream;
@@ -33,15 +41,6 @@ perl_features_debug
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-04-06)
 # Telepathy is dead and packages masked for removal.
 telepathy
-
-# Hans de Graaff <graaff@gentoo.org> (2023-08-19)
-# Ruby 3.0 is not compatible with OpenSSL 3. Please upgrade to a newer
-# Ruby version.
-ruby_targets_ruby30
-
-# Hans de Graaff <graaff@gentoo.org> (2023-04-10)
-# Ruby 2.7 is masked for removal.
-ruby_targets_ruby27
 
 # Matt Turner <mattst88@gentoo.org> (2022-04-16)
 # dev-util/sysprof not keyworded on most arches yet

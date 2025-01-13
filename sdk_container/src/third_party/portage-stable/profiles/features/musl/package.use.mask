@@ -1,5 +1,16 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org> (2025-01-08)
+# Depends on currently-masked elogind version on musl profiles (bug #947739)
+sys-libs/pam elogind
+
+# Cheyenne Wills <cwills@witznd.net> (2025-01-05)
+# openafs hasn't been ported to / tested with musl bug #832428
+app-crypt/heimdal afs
+app-crypt/kstart afs
+net-mail/cyrus-imapd afs
+www-apps/webdavcgi afs
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-10-08)
 # Not all required dependencies are keyworded here
@@ -16,7 +27,7 @@ gui-libs/neatvnc tracing
 gui-apps/wayvnc tracing
 
 # Mattéo Rossillol‑‑Laruelle <beatussum@protonmail.com> (2024-08-06)
-# Requires sys-libs/libcxx.
+# Requires llvm-runtimes/libcxx.
 dev-cpp/benchmark libcxx
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-07-25)
@@ -25,8 +36,9 @@ app-emulation/virt-firmware test
 
 # Sam James <sam@gentoo.org> (2024-06-03)
 # Poor rendering performance otherwise (bug #931215) but it doesn't
-# work on musl.
-kde-plasma/kwin caps
+# work on musl. Bugs #946505, #946643
+kde-plasma/kwin filecaps
+kde-plasma/powerdevil filecaps
 
 # Violet Purcell <vimproved@inventati.org> (2024-05-15)
 # Python does not support JIT on musl, see
@@ -71,7 +83,7 @@ dev-qt/qtbase renderdoc
 dev-debug/gdb cet
 sys-devel/binutils cet
 sys-devel/binutils-hppa64 cet
-sys-devel/clang-common cet
+llvm-core/clang-common cet
 sys-devel/gcc cet
 sys-libs/binutils-libs cet
 sys-libs/glibc cet
@@ -150,6 +162,7 @@ dev-libs/oneDNN mkl
 kde-apps/kdenetwork-meta dropbox
 media-libs/opencv atlas mkl
 media-video/ffmpeg amf
+media-video/handbrake amf
 net-fs/openafs tsm
 net-analyzer/nagios-plugin-check_raid megaraid-sas
 sys-apps/hwloc gl
@@ -209,7 +222,7 @@ sys-apps/util-linux nls
 # Sam James <sam@gentoo.org> (2021-11-07)
 # Disable some sanitizers for LLVM, see bug #753935
 # Needs libexecinfo on musl, not yet packaged
-sys-libs/compiler-rt-sanitizers gwp-asan
+llvm-runtimes/compiler-rt-sanitizers gwp-asan
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-03-19)
 # check does not work on musl, bug #713138
