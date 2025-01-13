@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit flag-o-matic toolchain-funcs
+inherit edo flag-o-matic toolchain-funcs
 
 MY_P=${P/_beta/-b}
 DESCRIPTION="Multipurpose relay (SOcket CAT)"
@@ -13,18 +13,15 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="ipv6 readline ssl tcpd"
 
-DEPEND="ssl? ( >=dev-libs/openssl-3:0= )
+DEPEND="
+	ssl? ( >=dev-libs/openssl-3:= )
 	readline? ( sys-libs/readline:= )
-	tcpd? ( sys-apps/tcp-wrappers )"
+	tcpd? ( sys-apps/tcp-wrappers )
+"
 RDEPEND="${DEPEND}"
-
-# Tests are a large bash script
-# Hard to disable individual tests needing network or privileges
-# in 1.7.4.2: FAILED:  59 329
-RESTRICT="test"
 
 DOCS=( BUGREPORTS CHANGES DEVELOPMENT EXAMPLES FAQ FILES PORTING README SECURITY )
 
@@ -34,11 +31,21 @@ src_configure() {
 
 	tc-export AR
 
-	econf \
-		$(use_enable ssl openssl) \
-		$(use_enable readline) \
-		$(use_enable ipv6 ip6) \
+	local myeconfargs=(
+		$(use_enable ssl openssl)
+		$(use_enable readline)
+		$(use_enable ipv6 ip6)
 		$(use_enable tcpd libwrap)
+	)
+
+	econf "${myeconfargs[@]}"
+}
+
+src_test() {
+	# Most tests are skipped because they need network access or a TTY
+	# Some are for /dev permissions probing (bug #940740)
+	# 518 519 need extra permissions
+	edo ./test.sh -v --expect-fail 13,15,87,217,311,313,370,388,410,466,478,518,519,528
 }
 
 src_install() {
