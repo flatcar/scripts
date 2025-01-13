@@ -3,57 +3,26 @@
 
 EAPI=8
 
-LLVM_COMPAT=( 17 )
-LLVM_OPTIONAL="yes"
-
-inherit llvm-r1 multilib prefix rust-toolchain toolchain-funcs verify-sig multilib-minimal
+inherit prefix rust-toolchain toolchain-funcs verify-sig multilib multilib-minimal
 
 MY_P="rust-${PV}"
-# curl -L static.rust-lang.org/dist/channel-rust-${PV}.toml 2>/dev/null | grep "xz_url.*rust-src"
-MY_SRC_URI="${RUST_TOOLCHAIN_BASEURL%/}/2023-12-07/rust-src-${PV}.tar.xz"
-GENTOO_BIN_BASEURI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}" # omit leading slash
 
-DESCRIPTION="Language empowering everyone to build reliable and efficient software"
+DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
-SRC_URI="$(rust_all_arch_uris ${MY_P})
-	rust-src? ( ${MY_SRC_URI} )
-"
-# Keep this separate to allow easy commenting out if not yet built
-SRC_URI+=" sparc? ( ${GENTOO_BIN_BASEURI}/${MY_P}-sparc64-unknown-linux-gnu.tar.xz ) "
-#SRC_URI+=" mips? (
-#	abi_mips_o32? (
-#		big-endian?  ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips-unknown-linux-gnu.tar.xz )
-#		!big-endian? ( ${GENTOO_BIN_BASEURI}/${MY_P}-mipsel-unknown-linux-gnu.tar.xz )
-#	)
-#	abi_mips_n64? (
-#		big-endian?  ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips64-unknown-linux-gnuabi64.tar.xz )
-#		!big-endian? ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips64el-unknown-linux-gnuabi64.tar.xz )
-#	)
-#)"
+SRC_URI="$(rust_all_arch_uris ${MY_P})"
 
-LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
+LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 SLOT="${PV}"
-KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv ~s390 sparc x86"
-IUSE="big-endian clippy cpu_flags_x86_sse2 doc prefix rust-analyzer rust-src rustfmt"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~riscv ~x86"
+IUSE="big-endian clippy cpu_flags_x86_sse2 doc prefix rustfmt"
 
-RDEPEND="
-	>=app-eselect/eselect-rust-20190311
-	dev-libs/openssl
-	sys-apps/lsb-release
-	sys-devel/gcc:*
-	!dev-lang/rust:stable
-	!dev-lang/rust-bin:stable
-"
+RDEPEND=">=app-eselect/eselect-rust-20190311"
 BDEPEND="
 	prefix? ( dev-util/patchelf )
 	verify-sig? ( sec-keys/openpgp-keys-rust )
 "
 
 REQUIRED_USE="x86? ( cpu_flags_x86_sse2 )"
-
-# stripping rust may break it (at least on x86_64)
-# https://github.com/rust-lang/rust/issues/112286
-RESTRICT="strip"
 
 QA_PREBUILT="
 	opt/${P}/bin/.*
@@ -68,7 +37,7 @@ QA_PREBUILT="
 # so we can safely silence the warning for this QA check.
 QA_EXECSTACK="opt/${P}/lib/rustlib/*/lib*.rlib:lib.rmeta"
 
-VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/rust.asc"
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/rust.asc
 
 pkg_pretend() {
 	if [[ "$(tc-is-softfloat)" != "no" ]] && [[ ${CHOST} == armv7* ]]; then
@@ -77,18 +46,7 @@ pkg_pretend() {
 }
 
 src_unpack() {
-	# sadly rust-src tarball does not have corresponding .asc file
-	# so do partial verification
-	if use verify-sig; then
-		for f in ${A}; do
-			if [[ -f ${DISTDIR}/${f}.asc ]]; then
-				verify-sig_verify_detached "${DISTDIR}/${f}" "${DISTDIR}/${f}.asc"
-			fi
-		done
-	fi
-
-	default_src_unpack
-
+	verify-sig_src_unpack
 	mv "${WORKDIR}/${MY_P}-$(rust_abi)" "${S}" || die
 }
 
@@ -110,18 +68,10 @@ multilib_src_install() {
 	local analysis std
 	analysis="$(grep 'analysis' ./components)"
 	std="$(grep 'std' ./components)"
-	local components="rustc,cargo,${std}"
+	local components="rustc,cargo,${std},rls-preview,${analysis}"
 	use doc && components="${components},rust-docs"
 	use clippy && components="${components},clippy-preview"
 	use rustfmt && components="${components},rustfmt-preview"
-	use rust-analyzer && components="${components},rust-analyzer-preview,${analysis}"
-	# Rust component 'rust-src' is extracted from separate archive
-	if use rust-src; then
-		einfo "Combining rust and rust-src installers"
-		mv -v "${WORKDIR}/rust-src-${PV}/rust-src" "${S}" || die
-		echo rust-src >> ./components || die
-		components="${components},rust-src"
-	fi
 	./install.sh \
 		--components="${components}" \
 		--disable-verify \
@@ -137,21 +87,21 @@ multilib_src_install() {
 			while IFS=  read -r -d '' filename; do
 				patchelf_for_bin ${filename} ${interpreter} \; || die
 			done
-		eend ${PIPESTATUS[0]}
+		eend $?
 	fi
 
 	local symlinks=(
 		cargo
-		rustc
-		rustdoc
+		rls
 		rust-gdb
 		rust-gdbgui
 		rust-lldb
+		rustc
+		rustdoc
 	)
 
 	use clippy && symlinks+=( clippy-driver cargo-clippy )
 	use rustfmt && symlinks+=( rustfmt cargo-fmt )
-	use rust-analyzer && symlinks+=( rust-analyzer )
 
 	einfo "installing eselect-rust symlinks and paths"
 	local i
@@ -159,7 +109,7 @@ multilib_src_install() {
 		# we need realpath on /usr/bin/* symlink return version-appended binary path.
 		# so /usr/bin/rustc should point to /opt/rust-bin-<ver>/bin/rustc-<ver>
 		local ver_i="${i}-bin-${PV}"
-		ln -v "${ED}/opt/${P}/bin/${i}" "${ED}/opt/${P}/bin/${ver_i}" || die
+		ln -v "${ED}/opt/${P}/bin/${i}" "${ED}/opt/${P}/bin/${ver_i}"
 		dosym "../../opt/${P}/bin/${ver_i}" "/usr/bin/${ver_i}"
 	done
 
@@ -169,14 +119,12 @@ multilib_src_install() {
 	dosym "../../opt/${P}/lib/rustlib" "/usr/lib/rustlib-bin-${PV}"
 	dosym "../../../opt/${P}/share/doc/rust" "/usr/share/doc/${P}"
 
-	# make all capital underscored variable
-	local CARGO_TRIPLET="$(rust_abi)"
-	CARGO_TRIPLET="${CARGO_TRIPLET//-/_}"
-	CARGO_TRIPLET="${CARGO_TRIPLET^^}"
+	# musl logic can be improved a bit, but fine as is for now
 	cat <<-_EOF_ > "${T}/50${P}"
-	LDPATH="${EPREFIX}/usr/lib/rust/lib-bin-${PV}"
-	MANPATH="${EPREFIX}/usr/lib/rust/man-bin-${PV}"
-	$(usev elibc_musl "CARGO_TARGET_${CARGO_TRIPLET}_RUSTFLAGS=\"-C target-feature=-crt-static\"")
+	LDPATH="${EPREFIX}/usr/lib/rust/lib"
+	MANPATH="${EPREFIX}/usr/lib/rust/man"
+	$(use amd64 && usex elibc_musl 'CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C target-feature=-crt-static"' '')
+	$(use arm64 && usex elibc_musl 'CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C target-feature=-crt-static"' '')
 	_EOF_
 	doenvd "${T}/50${P}"
 
@@ -191,6 +139,7 @@ multilib_src_install() {
 	/usr/lib/rust/lib
 	/usr/lib/rust/man
 	/usr/share/doc/rust
+	/usr/bin/rls
 	_EOF_
 
 	if use clippy; then
@@ -200,9 +149,6 @@ multilib_src_install() {
 	if use rustfmt; then
 		echo /usr/bin/rustfmt >> "${T}/provider-${P}"
 		echo /usr/bin/cargo-fmt >> "${T}/provider-${P}"
-	fi
-	if use rust-analyzer; then
-		echo /usr/bin/rust-analyzer >> "${T}/provider-${P}"
 	fi
 
 	insinto /etc/env.d/rust
@@ -225,10 +171,8 @@ multilib_src_install() {
 pkg_postinst() {
 	eselect rust update
 
-	if has_version dev-debug/gdb || has_version llvm-core/lldb; then
-		elog "Rust installs helper scripts for calling GDB and LLDB,"
-		elog "for convenience they are installed under /usr/bin/rust-{gdb,lldb}-${PV}."
-	fi
+	elog "Rust installs a helper script for calling GDB now,"
+	elog "for your convenience it is installed under /usr/bin/rust-gdb-bin-${PV}."
 
 	if has_version app-editors/emacs; then
 		elog "install app-emacs/rust-mode to get emacs support for rust."
