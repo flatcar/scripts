@@ -44,7 +44,7 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	READLINE_COMMIT="3c16957f8914425966b31e7348048b129b2317ad"
+	READLINE_COMMIT="a6b963cd20db6d75914cdfeb99c62c4b4c8d9b42"
 	SRC_URI="https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline-${READLINE_COMMIT}.tar.gz -> ${P}-${READLINE_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${READLINE_COMMIT}
 else
