@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit autotools
+inherit autotools flag-o-matic
 
 MY_PV="${PV/_/}"
 MY_P="${PN}-${MY_PV}"
@@ -30,7 +30,7 @@ RDEPEND="
 "
 PATCHES=(
 	"${FILESDIR}"/jq-1.6-r3-never-bundle-oniguruma.patch
-	"${FILESDIR}"/jq-1.7-runpath.patch
+	"${FILESDIR}"/jq-1.7.1-runpath.patch
 )
 
 RESTRICT="!test? ( test )"
@@ -54,12 +54,15 @@ src_prepare() {
 }
 
 src_configure() {
+	# TODO: Drop on next release > 1.7.1
+	# bug #944014
+	append-cflags -std=gnu17
+
 	local econfargs=(
 		# don't try to rebuild docs
 		--disable-docs
 		--disable-valgrind
 		--disable-maintainer-mode
-		--enable-rpathhack
 		$(use_enable static-libs static)
 		$(use_with oniguruma oniguruma yes)
 	)
