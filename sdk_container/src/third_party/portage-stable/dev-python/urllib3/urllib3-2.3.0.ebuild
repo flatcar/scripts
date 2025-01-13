@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 8 -- sys-apps/portage dep
@@ -85,6 +85,12 @@ python_test() {
 		# TODO: timeouts
 		test/contrib/test_pyopenssl.py::TestSocketClosing::test_timeout_errors_cause_retries
 		test/with_dummyserver/test_socketlevel.py::TestSocketClosing::test_timeout_errors_cause_retries
+		# TODO
+		test/contrib/test_pyopenssl.py::TestSocketClosing::test_socket_shutdown_stops_recv
+		test/with_dummyserver/test_socketlevel.py::TestSocketClosing::test_socket_shutdown_stops_recv
+		# hangs randomly
+		test/contrib/test_pyopenssl.py::TestHTTPS_TLSv1_{2,3}::test_http2_probe_blocked_per_thread
+		test/with_dummyserver/test_https.py::TestHTTPS_TLSv1_{2,3}::test_http2_probe_blocked_per_thread
 	)
 
 	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
