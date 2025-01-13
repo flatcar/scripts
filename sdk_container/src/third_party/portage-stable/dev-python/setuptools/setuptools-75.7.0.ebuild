@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 8 -- sys-apps/portage dep
@@ -49,7 +49,7 @@ BDEPEND="
 			>=dev-python/ini2toml-0.14[${PYTHON_USEDEP}]
 			>=dev-python/filelock-3.4.0[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-envs-2.2[${PYTHON_USEDEP}]
-			>=dev-python/jaraco-path-3.2.0[${PYTHON_USEDEP}]
+			>=dev-python/jaraco-path-3.7.2[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-test-5.5[${PYTHON_USEDEP}]
 			dev-python/pip[${PYTHON_USEDEP}]
 			dev-python/pip-run[${PYTHON_USEDEP}]
@@ -80,6 +80,8 @@ src_prepare() {
 	local PATCHES=(
 		# TODO: remove this when we're 100% PEP517 mode
 		"${FILESDIR}/setuptools-62.4.0-py-compile.patch"
+		# https://github.com/abravalheri/validate-pyproject/pull/221
+		"${FILESDIR}/setuptools-75.6.0-disable-trove-classifiers.patch"
 	)
 
 	distutils-r1_src_prepare
