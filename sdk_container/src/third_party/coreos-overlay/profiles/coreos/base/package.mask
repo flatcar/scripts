@@ -17,3 +17,6 @@
 
 # Update engine needs updating to use a newer version of protobuf.
 >=dev-libs/protobuf-22.0
+
+# Pulls in LLVM and clang.
+>=sys-block/thin-provisioning-tools-1.0.14
