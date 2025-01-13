@@ -82,14 +82,17 @@ function _sbsign_image_impl() {
     local sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
     echo "docker image rm -f '${sdk_image}'" >> ./ci-cleanup.sh
 
-    ./run_sdk_container -x ./ci-cleanup.sh -v "${FLATCAR_VERSION}" -U -C "${sdk_image}" \
+    local docker_vernum="$(vernum_to_docker_image_version "${FLATCAR_VERSION}")"
+    local sbsign_container="flatcar-sbsign-image-${arch}-${docker_vernum}"
+    ./run_sdk_container -x ./ci-cleanup.sh -n "${sbsign_container}" -v "${FLATCAR_VERSION}" -U -C "${sdk_image}" \
         ./sbsign_image --board="${arch}-usr" \
                        --group="${channel}" --version="${FLATCAR_VERSION}" \
                        --output_root="${CONTAINER_IMAGE_ROOT}" \
                        --only_store_compressed
 
     # Delete uncompressed generic image before signing and upload
-    rm "${images_local}/flatcar_production_image.bin"
+    # Also delete update image because it will be unchanged
+    rm "${images_local}"/flatcar_production_{image,update}.bin
     create_digests "${SIGNER}" "${images_local}"/*
     sign_artifacts "${SIGNER}" "${images_local}"/*
     copy_to_buildcache "${images_remote}"/ "${images_local}"/*

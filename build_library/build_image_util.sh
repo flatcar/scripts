@@ -79,7 +79,9 @@ generate_update() {
   local devkey="/usr/share/update_engine/update-payload-key.key.pem"
 
   # Extract the partition if it isn't extracted already.
-  [[ -s ${update} ]] || extract_update "${image_name}" "${disk_layout}"
+  [[ -s ${update} ]] ||
+    "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
+      extract "${BUILD_DIR}/${image_name}" "USR-A" "${update}"
 
   echo "Generating update payload, signed with a dev key"
   delta_generator \
