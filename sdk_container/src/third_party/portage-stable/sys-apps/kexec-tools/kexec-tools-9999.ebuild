@@ -41,16 +41,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.0.4-out-of-source.patch
 )
 
-pkg_setup() {
-	# GNU Make's $(COMPILE.S) passes ASFLAGS to $(CCAS), CCAS=$(CC)
-	export ASFLAGS="${CCASFLAGS}"
-}
-
 src_prepare() {
 	default
-
-	# Append PURGATORY_EXTRA_CFLAGS flags set by configure, instead of overriding them completely.
-	sed -e "/^PURGATORY_EXTRA_CFLAGS =/s/=/+=/" -i Makefile.in || die
 
 	if [[ "${PV}" == 9999 ]] ; then
 		eautoreconf
@@ -60,6 +52,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# GNU Make's $(COMPILE.S) passes ASFLAGS to $(CCAS), CCAS=$(CC)
+	export ASFLAGS="${CCASFLAGS}"
+
 	local myeconfargs=(
 		$(use_with booke)
 		$(use_with lzma)
@@ -67,23 +62,6 @@ src_configure() {
 		$(use_with zlib)
 	)
 	econf "${myeconfargs[@]}"
-}
-
-src_compile() {
-	# Respect CFLAGS for purgatory.
-	# purgatory/Makefile uses PURGATORY_EXTRA_CFLAGS variable.
-	# -mfunction-return=thunk and -mindirect-branch=thunk conflict with
-	# -mcmodel=large which is added by build system.
-	# Replace them with -mfunction-return=thunk-inline and -mindirect-branch=thunk-inline.
-	local flag flags=()
-	for flag in ${CFLAGS}; do
-		[[ ${flag} == -mfunction-return=thunk ]] && flag="-mfunction-return=thunk-inline"
-		[[ ${flag} == -mindirect-branch=thunk ]] && flag="-mindirect-branch=thunk-inline"
-		flags+=("${flag}")
-	done
-	local -x PURGATORY_EXTRA_CFLAGS="${flags[*]}"
-
-	default
 }
 
 src_install() {
