@@ -6,7 +6,7 @@ EAPI=8
 inherit readme.gentoo-r1 secureboot
 
 BINPKG="${P/-bin/}-1"
-ARCHES="amd64 arm64"
+ARCHES="amd64 arm64 riscv"
 
 DESCRIPTION="TianoCore EDK II UEFI firmware for virtual machines"
 HOMEPAGE="https://github.com/tianocore/edk2"
@@ -14,7 +14,7 @@ SRC_URI=$(printf "https://dev.gentoo.org/~chewi/distfiles/${BINPKG}-%s.xpak\n" $
 S="${WORKDIR}"
 LICENSE="BSD-2 MIT"
 SLOT="0"
-KEYWORDS="~amd64 arm64 ~loong ~ppc ppc64 ~riscv x86"
+KEYWORDS="~amd64 ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 
 RDEPEND="!sys-firmware/edk2"
 
