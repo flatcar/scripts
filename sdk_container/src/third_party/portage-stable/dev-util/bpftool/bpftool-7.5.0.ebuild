@@ -1,4 +1,4 @@
-# Copyright 2021-2024 Gentoo Authors
+# Copyright 2021-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -36,7 +36,7 @@ else
 		S="${WORKDIR}/bpftool-libbpf-v${PV}-sources"
 	fi
 
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
+	KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 fi
 
 LICENSE="|| ( GPL-2 BSD-2 )"
@@ -46,7 +46,7 @@ REQUIRED_USE="llvm? ( ${LLVM_REQUIRED_USE} )"
 
 RDEPEND="
 	caps? ( sys-libs/libcap:= )
-	llvm? ( $(llvm_gen_dep 'sys-devel/llvm:${LLVM_SLOT}') )
+	llvm? ( $(llvm_gen_dep 'llvm-core/llvm:${LLVM_SLOT}') )
 	!llvm? ( sys-libs/binutils-libs:= )
 	sys-libs/zlib:=
 	virtual/libelf:=
@@ -59,7 +59,7 @@ BDEPEND="
 	${PYTHON_DEPS}
 	app-arch/tar
 	dev-python/docutils
-	clang? ( $(llvm_gen_dep 'sys-devel/clang:${LLVM_SLOT}[llvm_targets_BPF]') )
+	clang? ( $(llvm_gen_dep 'llvm-core/clang:${LLVM_SLOT}[llvm_targets_BPF]') )
 	!clang? ( sys-devel/bpf-toolchain )
 "
 
