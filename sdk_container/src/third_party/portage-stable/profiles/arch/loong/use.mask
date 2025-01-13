@@ -1,17 +1,19 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Sam James <sam@gentoo.org> (2024-06-13)
-# Needs as-yet-unkeyworded KF6 (bug #934215)
-kf6compat
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-12)
+# net-misc/dropbox is closed-source and unavailable on loong
+dropbox
+
+# Sam James <sam@gentoo.org> (2025-01-10)
+# Older targets don't have an old enough dev-lang/ada-bootstrap available
+ada_target_gnat_2021
+ada_target_gcc_12
+ada_target_gcc_13
 
 # Michał Górny <mgorny@gentoo.org> (2024-02-05)
 # LLVM slots without keywords.
 llvm_slot_15
-
-# WANG Xuerui <xen0n@gentoo.org> (2023-07-11)
-# dev-util/babeltrace fails tests on loong
-babeltrace
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # media-libs/xine-lib not tested
@@ -61,12 +63,10 @@ lua_single_target_luajit
 lua_targets_luajit
 mono
 ocamlopt
-opencl
 valgrind
 
 # Temporarily masked during initial keywording
 doc
-emacs
 fam
 mpi
 tpm
