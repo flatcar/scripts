@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -94,7 +94,11 @@ src_unpack() {
 		if [[ ${PV} != 9999 ]] ; then
 			EGIT_BRANCH=binutils-$(ver_cut 1)_$(ver_cut 2)-branch
 		fi
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
+		EGIT_REPO_URI="
+			https://sourceware.org/git/binutils-gdb.git
+			https://git.sr.ht/~sourceware/binutils-gdb
+			https://gitlab.com/x86-binutils/binutils-gdb.git
+		"
 		S=${WORKDIR}/binutils
 		EGIT_CHECKOUT_DIR=${S}
 		git-r3_src_unpack
