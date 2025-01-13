@@ -169,7 +169,7 @@ function commit_with_gentoo_sha() {
     if [[ -z ${SKIP_GIT_INFO} ]]; then
         local commit
 
-        commit=$(git -C "${GENTOO}/${path}" log --pretty=oneline -1 -- . | cut -f1 -d' ')
+        commit=$(git -C "${GENTOO}" log --pretty=oneline -1 -- "${path}" | cut -f1 -d' ')
         commit_extra+=( --message "It's from Gentoo commit ${commit}." )
         unset commit
     fi
