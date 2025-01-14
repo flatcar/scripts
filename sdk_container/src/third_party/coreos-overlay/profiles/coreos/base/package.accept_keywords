@@ -7,9 +7,6 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# Needed by updated app-containers/containers-common
-=app-containers/aardvark-dns-1.12.2-r1 ~amd64 ~arm64
-
 # Handled by automation
 =app-containers/containerd-1.7.23 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-10-18 08:06:10
 
