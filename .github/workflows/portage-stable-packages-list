@@ -396,6 +396,7 @@ eclass/desktop.eclass
 eclass/dist-kernel-utils.eclass
 eclass/distutils-r1.eclass
 eclass/eapi8-dosym.eclass
+eclass/eapi9-pipestatus.eclass
 eclass/edo.eclass
 eclass/edos2unix.eclass
 eclass/elisp-common.eclass
@@ -549,6 +550,7 @@ net-nds/rpcbind
 net-vpn/wireguard-tools
 
 perl-core/File-Temp
+perl-core/Getopt-Long
 
 profiles
 
