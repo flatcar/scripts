@@ -165,3 +165,6 @@ sys-fs/zfs-kmod -initramfs
 # For sys-auth/sssd
 net-dns/bind       gssapi
 net-dns/bind-tools gssapi
+
+# Seems to be needed for switching from 2.78.x to 2.80.y.
+dev-libs/glib introspection
