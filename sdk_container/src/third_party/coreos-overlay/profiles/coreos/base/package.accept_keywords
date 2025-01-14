@@ -10,9 +10,6 @@
 # Handled by automation
 =app-containers/containerd-1.7.23 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-10-18 08:06:10
 
-# Needed to address CVE-2024-3727.
-=app-containers/containers-image-5.32.2 ~amd64 ~arm64
-
 # Needed by updated app-containers/containers-common
 =app-containers/containers-storage-1.55.0 ~amd64 ~arm64
 
