@@ -13,9 +13,6 @@
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
 
-# Needed by updated app-containers/containers-common
-=app-containers/crun-1.17 ~amd64 ~arm64
-
 # Accept unstable for Docker and its CLI.
 =app-containers/docker-27.3.1 ~amd64 ~arm64
 =app-containers/docker-cli-27.3.1 ~amd64 ~arm64
