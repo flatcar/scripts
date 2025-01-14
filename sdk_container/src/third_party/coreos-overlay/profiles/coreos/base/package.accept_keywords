@@ -39,7 +39,7 @@
 =app-crypt/p11-kit-0.25.5 ~amd64 ~arm64
 
 # Needed in SDK for Secure Boot.
-=app-emulation/virt-firmware-24.7 ~amd64 ~arm64
+=app-emulation/virt-firmware-24.7 ~amd64
 
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
