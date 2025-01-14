@@ -81,7 +81,7 @@
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
-=dev-util/bpftool-7.4.0 ~arm64
+=dev-util/bpftool-7.5.0 ~arm64
 
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
@@ -95,7 +95,7 @@
 =net-misc/passt-2024.09.06 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=net-nds/openldap-2.6.6-r2 ~amd64
+=net-nds/openldap-2.6.8 ~amd64
 
 # Package has not been stabilised yet.
 =sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
@@ -118,3 +118,6 @@
 
 # Needed by updated app-containers/containers-common
 =sys-fs/fuse-overlayfs-1.14 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
+=sys-process/audit-4.0.2-r1 ~arm64
