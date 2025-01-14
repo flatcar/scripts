@@ -10,9 +10,6 @@
 # Handled by automation
 =app-containers/containerd-1.7.23 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-10-18 08:06:10
 
-# Needed by updated app-containers/containers-common
-=app-containers/containers-storage-1.55.0 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
 
