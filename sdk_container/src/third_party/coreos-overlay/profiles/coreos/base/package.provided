@@ -10,3 +10,7 @@ sys-fs/udev-init-scripts-35
 # A dependency of dev-libs/libtracefs. It's apparently for docs, that
 # we don't even include anywhere.
 dev-util/source-highlight-3.1.9-r2
+
+# Pulled in by bpftool[-clang], We never provided co-re in bpftool and
+# for now continue to do so.
+sys-devel/bpf-toolchain-14.2.0_p1

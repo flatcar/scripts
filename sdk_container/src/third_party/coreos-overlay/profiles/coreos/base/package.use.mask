@@ -25,8 +25,3 @@ sys-fs/btrfs-progs man
 # put anywhere. Thus avoid pulling more dependencies than necessary
 # for throw-away things.
 dev-python/pillow jpeg
-
-# bpftool ebuild started to bdepend on sys-devel/clang unconditionally
-# in order to build co-re support. We can try avoiding it by masking
-# the USE flag that currently gets enabled by default.
-dev-util/bpftool llvm_slot_18
