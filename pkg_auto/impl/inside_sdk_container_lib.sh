@@ -61,7 +61,10 @@ function package_info_for_sdk() {
     root='/'
 
     ignore_crossdev_stuff "${root}"
-    emerge_pretend "${root}" coreos-devel/sdk-depends
+    # stage4 build of SDK builds coreos-devel/sdk-depends, fsscript
+    # pulls in cross toolchains with crossdev (which we have just
+    # ignored) and dev-lang/rust
+    emerge_pretend "${root}" coreos-devel/sdk-depends dev-lang/rust
     revert_crossdev_stuff "${root}"
 }
 
