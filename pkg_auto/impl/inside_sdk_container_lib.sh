@@ -11,11 +11,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 # Params:
 #
 # 1 - root filesystem with the portage config
-# 2 - metapackage to get the deps from
+# @ - packages and metapackages to get the deps from
 function emerge_pretend() {
-    local root package
+    local root
     root=${1}; shift
-    package=${1}; shift
 
     # Probably a bunch of those flags are not necessary, but I'm not
     # touching it - they seem to be working. :)
@@ -50,7 +49,7 @@ function emerge_pretend() {
     )
     local rv
     rv=0
-    emerge "${emerge_opts[@]}" "${package}" || rv=${?}
+    emerge "${emerge_opts[@]}" "${@}" || rv=${?}
     if [[ ${rv} -ne 0 ]]; then
         echo "WARNING: emerge exited with status ${rv}" >&2
     fi
