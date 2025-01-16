@@ -73,6 +73,9 @@
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
+# Needed to address CVE-2024-11053 and CVE-2024-9681
+=net-misc/curl-8.11.1-r2 ~amd64 ~arm64
+
 # Needed by updated app-containers/containers-common
 =net-misc/passt-2024.09.06 ~amd64 ~arm64
 
