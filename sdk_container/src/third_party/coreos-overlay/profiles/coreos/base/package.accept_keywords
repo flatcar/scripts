@@ -93,8 +93,5 @@
 # Needed in SDK for Secure Boot on arm64. Also addresses CVE-2024-1298.
 =sys-firmware/edk2-bin-202408 ~amd64
 
-# Needed by updated app-containers/containers-common
-=sys-fs/fuse-overlayfs-1.14 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =sys-process/audit-4.0.2-r1 ~arm64
