@@ -1,5 +1,20 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org> (2025-01-10)
+# These packages are only relevant on musl systems.
+-sys-libs/argp-standalone
+-sys-libs/error-standalone
+-sys-libs/fts-standalone
+-sys-libs/obstack-standalone
+-sys-libs/queue-standalone
+-sys-libs/rpmatch-standalone
+
+# Cheyenne Wills <cwills@witznd.net> (2025-01-05)
+# Not ported to musl, bug #832428
+# openafs hasn't been tested with musl
+# would require a patch to get past the configure step
+net-fs/openafs
 
 # Sam James <sam@gentoo.org> (2024-11-19)
 # Not ported to musl (bug #717252, bug #938613)
@@ -68,6 +83,7 @@ sci-electronics/ghdl
 
 # Alfredo Tupone <tupone@gentoo.org> (2024-03-13)
 # To bootstrap uses an ada compiler built using glibc
+dev-lang/ada-bootstrap
 dev-lang/gnat-gpl
 dev-lang/spark
 dev-ada/gnatcoll-db

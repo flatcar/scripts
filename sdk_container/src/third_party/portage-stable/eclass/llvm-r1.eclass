@@ -14,8 +14,10 @@
 # in a matching slot.  To use the eclass:
 #
 # 1. Set LLVM_COMPAT to the list of supported LLVM slots.
+#
 # 2. Use llvm_gen_dep and/or LLVM_USEDEP to add appropriate
 #    dependencies.
+#
 # 3. Use llvm-r1_pkg_setup, get_llvm_prefix or LLVM_SLOT.
 #
 # The eclass sets IUSE and REQUIRED_USE.  The flag corresponding
@@ -31,8 +33,8 @@
 # DEPEND="
 #   dev-libs/libfoo[${LLVM_USEDEP}]
 #   $(llvm_gen_dep '
-#     sys-devel/clang:${LLVM_SLOT}=
-#     sys-devel/llvm:${LLVM_SLOT}=
+#     llvm-core/clang:${LLVM_SLOT}=
+#     llvm-core/llvm:${LLVM_SLOT}=
 #   ')
 # "
 # @CODE
@@ -61,7 +63,7 @@ _LLVM_OLDEST_SLOT=15
 # @DESCRIPTION:
 # The newest stable LLVM version.  Versions newer than that won't
 # be automatically enabled via USE defaults.
-_LLVM_NEWEST_STABLE=18
+_LLVM_NEWEST_STABLE=19
 
 # == control variables ==
 
@@ -163,8 +165,8 @@ unset -f _llvm_set_globals
 # @CODE
 # DEPEND="
 #   $(llvm_gen_dep '
-#     sys-devel/clang:${LLVM_SLOT}=
-#     sys-devel/llvm:${LLVM_SLOT}=
+#     llvm-core/clang:${LLVM_SLOT}=
+#     llvm-core/llvm:${LLVM_SLOT}=
 #   ')
 # "
 # @CODE

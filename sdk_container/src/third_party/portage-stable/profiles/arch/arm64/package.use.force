@@ -1,10 +1,5 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Joonas Niilola <juippis@gentoo.org> (2024-10-19)
-# arm64 requires gles due to (some boards?) lacking vulkan support,
-# bug #938893.
-app-editors/zed gles
 
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-12)
 # supports 64 bit neon
@@ -40,6 +35,6 @@ dev-lang/rust llvm_targets_AArch64
 
 # Michał Górny <mgorny@gentoo.org> (2016-09-24)
 # Force the host target to avoid dependency hell
-dev-ml/llvm-ocaml llvm_targets_AArch64
-sys-devel/clang llvm_targets_AArch64
-sys-devel/llvm llvm_targets_AArch64
+dev-ml/llvm llvm_targets_AArch64
+llvm-core/clang llvm_targets_AArch64
+llvm-core/llvm llvm_targets_AArch64

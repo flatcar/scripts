@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -169,7 +169,7 @@ src_configure() {
 	BUILD_CPPFLAGS+=" -D_GNU_SOURCE"
 
 	# NCURSES_BOOL confusion, see https://lists.gnu.org/archive/html/bug-ncurses/2024-11/msg00010.html
-	append-cflags -std=gnu17
+	append-cflags $(test-flags-CC -std=gnu17)
 
 	# Build the various variants of ncurses -- narrow, wide, and threaded. #510440
 	# Order matters here -- we want unicode/thread versions to come last so that the
@@ -269,7 +269,6 @@ do_configure() {
 		#--disable-root-access
 		#--disable-root-environ
 
-		--disable-term-driver
 		--disable-termcap
 		--enable-symlinks
 		--with-manpage-format=normal
@@ -289,6 +288,15 @@ do_configure() {
 		--disable-stripping
 		--disable-pkg-ldflags
 	)
+
+	case ${CHOST} in
+		*-mingw32*)
+			conf+=( --enable-term-driver )
+			;;
+		*)
+			conf+=( --disable-term-driver )
+			;;
+	esac
 
 	if [[ ${target} == ncurses*w ]] ; then
 		conf+=( --enable-widec )
