@@ -83,7 +83,6 @@
 =sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-apps/util-linux-2.40.2 ~arm64
 =sys-apps/zram-generator-1.1.2-r1 ~arm64
 =sys-auth/sssd-2.9.5 ~arm64
 =sys-boot/mokutil-0.7.2 **
