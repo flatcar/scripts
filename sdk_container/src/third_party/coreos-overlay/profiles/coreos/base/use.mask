@@ -21,3 +21,6 @@ python_single_target_python3_13
 # We don't care about i10n, takes too much space, pulls in too many
 # extra dependencies.
 nls
+
+# We don't care about GObject introspection.
+introspection
