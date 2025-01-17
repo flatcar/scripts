@@ -354,7 +354,7 @@ IMG_ionoscloud_FS_HOOK=ionoscloud
 
 ## ionoscloud_raw
 IMG_ionoscloud_raw_OEM_USE=ionoscloud
-IMG_ionoscloud_raw_OEM_PACKAGE=oem-ionoscloud
+IMG_ionoscloud_raw_OEM_PACKAGE=oem-ionoscloud-raw
 IMG_ionoscloud_raw_DISK_LAYOUT=ionoscloud
 IMG_ionoscloud_raw_FS_HOOK=ionoscloud
 
