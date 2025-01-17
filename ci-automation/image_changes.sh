@@ -362,7 +362,14 @@ function prepare_env_vars_and_params_for_release() {
 
     new_channel="${ppfr_channel}"
     if [[ ${new_channel} = 'lts' ]]; then
-        new_channel_prev_version=$(lts_channel_version "${ppfr_version_id%%.*}" "${board}")
+        local minor_patch=${ppfr_version_id#*.}
+        if [[ ${minor_patch} = 3.0 && -z ${ppfr_build_id} ]]; then
+            # We are cutting a new major release for LTS channel. In
+            # such case get the current LTS release version.
+            new_channel_prev_version=$(channel_version "${new_channel}" "${board}")
+        else
+            new_channel_prev_version=$(lts_channel_version "${ppfr_version_id%%.*}" "${board}")
+        fi
     else
         new_channel_prev_version=$(channel_version "${new_channel}" "${board}")
     fi
