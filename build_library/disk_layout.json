@@ -104,6 +104,16 @@
         "fs_type":"ext2"
       }
     },
+    "ionoscloud":{
+      "6":{
+        "fs_type":"ext4"
+      },
+      "9":{
+        "label":"ROOT",
+        "fs_label":"ROOT",
+        "blocks":"12943360"
+      }
+    },
     "container":{
       "1":{
         "type":"blank"

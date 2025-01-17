@@ -60,6 +60,7 @@ PATCHES=(
 	"${FILESDIR}/0018-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
 	"${FILESDIR}/0019-usr-share-oem-oem.patch"
 	"${FILESDIR}/0020-internal-exec-stages-mount-Mount-oem.patch"
+	"${FILESDIR}/0021-support-ionoscloud.patch"
 )
 
 src_compile() {

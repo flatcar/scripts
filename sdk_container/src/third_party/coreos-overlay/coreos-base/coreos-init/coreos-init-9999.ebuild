@@ -3,18 +3,17 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/init.git"
+EGIT_REPO_URI="https://github.com/tuunit/flatcar-init.git"
+PYTHON_COMPAT=( python3_{9..11} )
+
+inherit git-r3 systemd python-any-r1
 
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="b5a6cbcfaabe605e28e075b8ac674edaf576a0eb" # flatcar-master
+	EGIT_COMMIT="5e39ca5d2e5e85217704cefdfa9f2f128ecf822f" # feat/ionoscloud-support
 	KEYWORDS="amd64 arm arm64 x86"
 fi
-
-PYTHON_COMPAT=( python3_{9..11} )
-
-inherit git-r3 systemd python-any-r1
 
 DESCRIPTION="Init scripts for CoreOS"
 HOMEPAGE="http://www.coreos.com/"
