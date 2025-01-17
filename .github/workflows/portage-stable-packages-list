@@ -229,7 +229,6 @@ dev-libs/elfutils
 dev-libs/expat
 dev-libs/glib
 dev-libs/gmp
-dev-libs/gobject-introspection
 dev-libs/gobject-introspection-common
 dev-libs/inih
 dev-libs/jansson
