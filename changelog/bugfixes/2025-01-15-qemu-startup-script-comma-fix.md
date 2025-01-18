@@ -1,0 +1,1 @@
+- Fixed creating netdev arguments to correctly include commas when no port forwards are passed ([flatcar/scripts#2581](https://github.com/flatcar/scripts/pull/2581))

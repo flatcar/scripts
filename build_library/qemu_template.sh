@@ -19,6 +19,7 @@ IGNITION_CONFIG_FILE=""
 CONFIG_IMAGE=""
 SWTPM_DIR=
 SAFE_ARGS=0
+FORWARDED_PORTS=""
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
     -i FILE     File containing an Ignition config
@@ -28,6 +29,7 @@ Options:
     -a FILE     SSH public keys for login access. [~/.ssh/id_{dsa,rsa}.pub]
     -p PORT     The port on localhost to map to the VM's sshd. [2222]
     -I FILE     Set a custom image file.
+    -f PORT     Forward host_port:guest_port.
     -M MB       Set VM memory in MBs.
     -T DIR      Add a software TPM2 device through swtpm which stores secrets
                 and the control socket to the given directory. This may need
@@ -83,6 +85,9 @@ while [ $# -ge 1 ]; do
             shift 2 ;;
         -p|-ssh-port)
             SSH_PORT="$2"
+            shift 2 ;;
+        -f|-forward-port)
+            FORWARDED_PORTS="${FORWARDED_PORTS} $2"
             shift 2 ;;
         -s|-safe)
             SAFE_ARGS=1
@@ -203,6 +208,15 @@ if [ -z "${CONFIG_IMAGE}" ]; then
     fi
 fi
 
+# Process port forwards
+QEMU_FORWARDED_PORTS=""
+for port in ${FORWARDED_PORTS}; do
+    host_port=${port%:*}
+    guest_port=${port#*:}
+    QEMU_FORWARDED_PORTS="${QEMU_FORWARDED_PORTS},hostfwd=tcp::${host_port}-:${guest_port}"
+done
+QEMU_FORWARDED_PORTS="${QEMU_FORWARDED_PORTS#,}"
+
 # Start assembling our default command line arguments
 if [ "${SAFE_ARGS}" -eq 1 ]; then
     # Disable KVM, for testing things like UEFI which don't like it
@@ -288,7 +302,7 @@ case "${VM_BOARD}" in
         qemu-system-x86_64 \
             -name "$VM_NAME" \
             -m ${VM_MEMORY} \
-            -netdev user,id=eth0,hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
+            -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
             -device virtio-net-pci,netdev=eth0 \
             -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
             "$@"
@@ -297,7 +311,7 @@ case "${VM_BOARD}" in
         qemu-system-aarch64 \
             -name "$VM_NAME" \
             -m ${VM_MEMORY} \
-            -netdev user,id=eth0,hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
+            -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
             -device virtio-net-device,netdev=eth0 \
             -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
             "$@"
