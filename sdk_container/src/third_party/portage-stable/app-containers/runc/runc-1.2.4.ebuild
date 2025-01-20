@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -6,7 +6,7 @@ inherit go-module linux-info
 
 # update on bump, look for commit ID on release tag.
 # https://github.com/opencontainers/runc
-RUNC_COMMIT=0b9fa21be2bcba45f6d9d748b4bcf70cfbffbc19
+RUNC_COMMIT=6c52b3fc541fb26fe8c374d5f58112a0a5dbda66
 
 CONFIG_CHECK="~USER_NS"
 
@@ -18,7 +18,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="Apache-2.0 BSD-2 BSD MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
+KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv ~x86"
 IUSE="apparmor hardened +kmem +seccomp selinux test"
 
 COMMON_DEPEND="
