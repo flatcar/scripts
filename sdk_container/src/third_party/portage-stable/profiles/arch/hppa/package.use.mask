@@ -1,8 +1,39 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # NOTE: When masking a USE flag due to missing keywords, please file a keyword
 # request bug for the hppa arch.
+
+# Sam James <sam@gentoo.org> (2025-01-14)
+# dev-cpp/benchmark isn't (yet) keyworded here, although >=1.9.1 should
+# work fine with patching as the ebuild does.
+dev-libs/re2 benchmark
+
+# Sam James <sam@gentoo.org> (2025-01-14)
+# libpfm: needs unkeyworded dev-libs/libpfm but I don't think HPPA has
+# any performance counters anyway.
+# tools: needs dev-python/numpy and dev-python/scipy which aren't keyworded here
+dev-cpp/benchmark libpfm tools
+
+# Sam James <sam@gentoo.org> (2025-01-10)
+# Many unkeyworded dependencies like parts of TL (bug #947788)
+dev-perl/Template-Toolkit gd latex vim-syntax
+
+# Matt Jolly <kangie@gentoo.org> (2024-12-08)
+# dev-vcs/mercurial is not keyworded on hppa
+app-eselect/eselect-repository mercurial
+
+# Ionen Wolkens <ionen@gentoo.org> (2024-12-02)
+# media-video/pipewire is not keyworded here.
+dev-qt/qtmultimedia:6 screencast
+
+# Christopher Byrne <salah.coronya@gmail.com> (2024-12-01)
+# requires dev-libs/hidapi to be keyworded
+dev-libs/libfido2 hidapi
+
+# Ian Jordan <immoloism@gmail.com> (2024-11-11)
+# net-misc/networkmanager modemmanger and iwd not keyworded
+net-misc/networkmanager modemmanager iwd
 
 # Felix Janda <felix.janda@posteo.de> (2024-10-20)
 # requires dev-libs/libcss and net-libs/libdom to be keyworded
@@ -66,7 +97,7 @@ dev-lang/php capstone
 x11-base/xwayland libei
 
 # James Le Cuirot (2023-12-12)
-# USE=bpf depends on sys-devel/clang which is not keyworded on hppa
+# USE=bpf depends on llvm-core/clang which is not keyworded on hppa
 media-libs/libv4l bpf
 
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2023-11-15)
@@ -235,8 +266,8 @@ sys-libs/libcap tools
 
 # Michał Górny <mgorny@gentoo.org> (2021-07-25)
 # PyQt5 and wxpython are not keyworded.
-dev-python/ipython qt5
-dev-python/matplotlib qt5 wxwidgets
+dev-python/ipython qt5 qt6
+dev-python/matplotlib qt5 qt6 wxwidgets
 
 # Matt Turner <mattst88@gentoo.org> (2021-07-23)
 # gui-libs/gtk is not keyworded

@@ -1,5 +1,29 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org. (2025-01-14)
+# dev-cpp/benchmark is not yet keyworded here
+dev-libs/re2 benchmark
+
+# Sam James <sam@gentoo.org> (2025-01-14)
+# dev-libs/libpfm is not yet keyworded here
+dev-cpp/benchmark libpfm
+
+# Sam James <sam@gentoo.org> (2025-01-10)
+# Many unkeyworded dependencies like parts of TL (bug #947788)
+dev-perl/Template-Toolkit gd latex vim-syntax
+
+# Matt Jolly <kangie@gentoo.org> (2024-12-08)
+# dev-vcs/mercurial is not keyworded on s390
+app-eselect/eselect-repository mercurial
+
+# Christopher Byrne <salah.coronya@gmail.com> (2024-12-01)
+# requires dev-libs/hidapi to be keyworded
+dev-libs/libfido2 hidapi
+
+# Pacho Ramos <pacho@gentoo.org> (2024-11-28)
+# Needs gi-docgen
+dev-libs/glib doc
 
 # Hans de Graaff <graaff@gentoo.org> (2024-09-01)
 # Requires large parts of dev-ruby/rails to be keyworded
@@ -66,7 +90,7 @@ dev-lang/php capstone
 x11-base/xwayland libei
 
 # James Le Cuirot (2023-12-12)
-# USE=bpf depends on sys-devel/clang which is not keyworded on s390
+# USE=bpf depends on llvm-core/clang which is not keyworded on s390
 media-libs/libv4l bpf
 
 # Michał Górny <mgorny@gentoo.org> (2023-10-15)

@@ -1,5 +1,40 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-16)
+# tests require qtwebengine which is unavailable
+dev-python/qtconsole test
+dev-python/qtpy test
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-12)
+# Vulkan works on loong.
+gui-libs/gtk -vulkan
+media-video/mpv -vulkan
+
+# Sam James <sam@gentoo.org> (2025-01-10)
+# dev-lang/ada-bootstrap exists here
+>=sys-devel/gcc-14 -ada
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-10)
+# bootstrap-emacs crashes at build time
+app-editors/emacs jit
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-06)
+# necessary dep is keyworded and passes tests
+dev-db/mariadb -galera
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-06)
+# 2 test cases abort with "LLVM ERROR: Relocation type not implemented yet!"
+sci-libs/symengine llvm
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-06)
+# llvm does not have sufficient codegen support for mesa before 18
+# bug #929197
+media-libs/mesa llvm_slot_15 llvm_slot_16 llvm_slot_17
+
+# Sam James <sam@gentoo.org> (2025-01-04)
+# kde-plasma/kde-cli-tools not keyworded here
+x11-misc/xdg-utils plasma
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-10-08)
 # Not all required dependencies are keyworded here
@@ -21,21 +56,9 @@ net-voip/yate ilbc
 # needs re-keywording and clean-up of media-libs/opencollada
 media-libs/assimp collada
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-13)
-# dev-python/pyside6 isn't keyworded here
-dev-python/qtpy pyside6
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-07)
-# kde-plasma/plasma-workspace:6 is not keyworded
-virtual/notification-daemon kde
-
 # Sam James <sam@gentoo.org> (2024-08-31)
 # dnstap USE masked due to missing keywords
 net-dns/bind dnstap
-
-# Sam James <sam@gentoo.org> (2024-08-23)
-# dev-util/bpftool and/or sys-devel/bpf-toolchain not keyworded here
-sys-apps/systemd bpf
 
 # WANG Xuerui <xen0n@gentoo.org> (2024-08-22)
 # dev-lang/spidermonkey gained JIT support for loong since version 107,
@@ -54,10 +77,6 @@ dev-ruby/minitest-hooks test
 # QUIC dependencies are not keyworded
 net-misc/curl http3 quic curl_quic_openssl curl_quic_ngtcp2
 
-# Ulrich Müller <ulm@gentoo.org> (2024-08-03)
-# Needs dev-libs/openspecfun which is not yet keyworded
-sci-visualization/gnuplot amos
-
 # Michał Górny <mgorny@gentoo.org> (2024-07-24)
 # Full testing requires www-client/firefox.
 dev-python/selenium test-rust
@@ -72,11 +91,6 @@ kde-frameworks/purpose:5 kaccounts
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-06-15)
 # Requires unkeyworded dev-qt/qtwebengine (and revdeps)
 kde-plasma/plasma-nm openconnect
-
-# Sam James <sam@gentoo.org> (2024-06-13)
-# Needs as-yet-unkeyworded KF6 (bug #934215)
-app-crypt/pinentry qt6
-app-office/libreoffice qt6
 
 # WANG Xuerui <xen0n@gentoo.org> (2024-06-03)
 # Requires arch-specific code in python (relocs handling), in addition to
@@ -152,22 +166,16 @@ dev-util/librnp man
 
 # Michał Górny <mgorny@gentoo.org> (2023-09-19)
 # dev-cpp/cpp-httplib is keyworded here.
-dev-debug/lldb -debuginfod
-sys-devel/llvm -debuginfod
+llvm-core/lldb -debuginfod
+llvm-core/llvm -debuginfod
 
 # WANG Xuerui <xen0n@gentoo.org> (2023-09-10)
 # Revdeps of dev-python/ujson which is masked.
 dev-python/cattrs test
 dev-python/requests-cache test
 
-# Nowa Ammerlaan <nowa@gentoo.org> (2023-08-30)
-# Avoid having to keyword more Qt deps
-dev-python/pyside2 3d datavis location scxml
-dev-python/pyside6 3d location scxml
-
 # WANG Xuerui <xen0n@gentoo.org> (2023-07-26)
 # no llvm:15 or lld:16 on loong
-app-office/libreoffice clang
 <dev-db/postgresql-16 llvm
 <dev-lang/rust-1.73.0 wasm
 
@@ -212,10 +220,6 @@ sys-cluster/openmpi openmpi_fabrics_knem openmpi_rm_pbs
 # fails to build with 6.3.x kernel
 sys-cluster/knem modules
 
-# Matt Turner <mattst88@gentoo.org> (2023-05-30)
-# sys-apps/dbus-broker is not keyworded
-app-accessibility/at-spi2-core dbus-broker
-
 # Mike Gilbert <floppym@gentoo.org> (2023-05-27)
 # Newer sd-boot does not use gnuefi.
 >=sys-apps/systemd-254 -boot -ukify
@@ -243,23 +247,9 @@ net-nds/openldap kerberos
 # further investigation.
 net-vpn/openconnect test
 
-# WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
-# dev-python/pyside2 not keyworded yet
-dev-python/qtpy pyside2
-dev-python/qtconsole test
-
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # <dev-cpp/tbb-2021 fails to build on loong w/ gcc-13
 sci-libs/spqr tbb
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
-# sys-boot/gnu-efi upstream hasn't merged the loong port yet
-sys-apps/fwupd uefi
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
-# The loong port of sys-boot/grub:2 isn't upstreamed yet.
-dev-util/ostree grub
-sys-libs/efivar test
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-05)
 # sci-libs/adolc fails to build on loong for now.
@@ -300,11 +290,6 @@ net-analyzer/rrdtool rados
 # Boost.Context has had support for loong since 1.79.0.
 dev-libs/boost -context
 
-# WANG Xuerui <xen0n@gentoo.org> (2022-12-02)
-# dev-qt/qtlocation:5 fails to compile with gcc-13 for now.
-dev-python/pyqt5 location
-dev-python/qtpy test
-
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-01)
 # Mask GRUB2 platforms not applicable to loong.
 sys-boot/grub:2 grub_platforms_coreboot grub_platforms_efi-32 grub_platforms_ieee1275 grub_platforms_multiboot grub_platforms_pc grub_platforms_qemu grub_platforms_uboot grub_platforms_xen grub_platforms_xen-pvh
@@ -332,13 +317,13 @@ media-plugins/gst-plugins-meta libvisual
 # Profile: https://reviews.llvm.org/D154405 (LLVM 17 since 20230706)
 # XRay: https://reviews.llvm.org/D140727 (LLVM 17 since 20230714)
 # libFuzzer: https://reviews.llvm.org/D140601 (LLVM 17 since 20230718)
->=sys-libs/compiler-rt-sanitizers-15 -asan
->=sys-libs/compiler-rt-sanitizers-16 -lsan -safestack -scudo -tsan -ubsan
->=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230630 -msan
->=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230705 -dfsan
->=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230717 -profile -xray
->sys-libs/compiler-rt-sanitizers-17.0.0_pre20230717 -libfuzzer
->=sys-libs/compiler-rt-sanitizers-19 -cfi
+>=llvm-runtimes/compiler-rt-sanitizers-15 -asan
+>=llvm-runtimes/compiler-rt-sanitizers-16 -lsan -safestack -scudo -tsan -ubsan
+>=llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230630 -msan
+>=llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230705 -dfsan
+>=llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230717 -profile -xray
+>llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230717 -libfuzzer
+>=llvm-runtimes/compiler-rt-sanitizers-19 -cfi
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-07-08)
 # virtual/{jdk,jre} is not available on loong yet.
@@ -363,10 +348,6 @@ sys-block/fio -io-uring -zbc
 # We never had non-deprecated libcrypt support from glibc, so disable compat
 # from libxcrypt for a world without libcrypt.so.1
 sys-libs/libxcrypt compat
-
-# WANG Xuerui <xen0n@gentoo.org> (2022-04-18)
-# Catalyst has support for assembling bootloader on this arch
-dev-util/catalyst -system-bootloader
 
 # The below masks are liberally taken from riscv, which has similar
 # limitations.

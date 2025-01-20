@@ -1,12 +1,12 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# This file requires eapi 5 or later. New entries go on top.
-# Please use the same syntax as in package.use.mask
+# New entries go on top.
+# Please use the same syntax as in package.use.mask.
 
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-10-11)
-# No suitable version of dev-libs/protobuf available.
-=dev-java/protobuf-java-4.28.1 system-protoc
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-01-04)
+# dev-libs/protobuf-28.3 is not yet marked stable.
+>=dev-java/protobuf-java-4.28.3 system-protoc
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-08-29)
 # Pin down kf6compat mask to currently stable versions.
@@ -42,6 +42,7 @@ sci-physics/lammps hip
 # Sam James <sam@gentoo.org> (2022-12-07)
 # Needs unstable media-libs/libvpl
 media-video/ffmpeg qsv
+media-video/handbrake qsv
 
 # Guillermo Joandet <gjoandet@gmail.com> (2022-11-22)
 # app-text/pandoc is not stable
@@ -139,11 +140,6 @@ dev-lang/rust nightly system-bootstrap
 # Andreas Sturmlechner <asturm@gentoo.org> (2019-12-09)
 # Declared experimental, and dev-cpp/websocketpp not stable yet
 sci-libs/indilib websocket
-
-# Kent Fredric <kentnl@gentoo.org> (2019-08-29)
-# Support for DBD-mysql to use mariadb is sketchy. Use DBD-MariaDB
-# instead if you can.
-dev-perl/DBD-mysql mariadb
 
 # Kent Fredric <kentnl@gentoo.org> (2019-07-30)
 # These features require dev-perl/GD, which currently can't be
