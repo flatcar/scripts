@@ -42,4 +42,7 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0005-efi-Lock-down-the-kernel-if-booted-in-secure-boot-mo.patch \
 	${PATCH_DIR}/z0006-mtd-phram-slram-Disable-when-the-kernel-is-locked-do.patch \
 	${PATCH_DIR}/z0007-arm64-add-kernel-config-option-to-lock-down-when-in-.patch \
+	${PATCH_DIR}/z0008-Revert-ovl-support-encoding-fid-from-inode-with-no-a.patch \
+	${PATCH_DIR}/z0009-Revert-ovl-pass-realinode-to-ovl_encode_real_fh-inst.patch \
+	${PATCH_DIR}/z0010-Revert-ovl-do-not-encode-lower-fh-with-upper-sb_writ.patch \
 "
