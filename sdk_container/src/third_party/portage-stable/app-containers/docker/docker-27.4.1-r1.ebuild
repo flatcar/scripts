@@ -1,20 +1,20 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-EGO_PN=github.com/docker/docker
+EAPI=8
 MY_PV=${PV/_/-}
-inherit golang-vcs-snapshot linux-info optfeature systemd udev
-GIT_COMMIT=3ab5c7d0036ca8fc43141e83b167456ec79828aa
+inherit go-module linux-info optfeature systemd toolchain-funcs udev
+GIT_COMMIT=c710b88579fcb5e0d53f96dcae976d79323b9166
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
 SRC_URI="https://github.com/moby/moby/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/moby-${PV}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
-IUSE="apparmor btrfs +container-init +overlay2 seccomp selinux systemd"
+KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv ~x86"
+IUSE="apparmor btrfs +container-init cuda +overlay2 seccomp selinux systemd"
 
 DEPEND="
 	acct-group/docker
@@ -33,29 +33,24 @@ RDEPEND="
 	sys-process/procps
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
-	>=app-containers/containerd-1.7.21[apparmor?,btrfs?,seccomp?]
-	>=app-containers/runc-1.1.13[apparmor?,seccomp?]
+	>=app-containers/containerd-1.7.24[apparmor?,btrfs?,seccomp?]
+	>=app-containers/runc-1.2.2[apparmor?,seccomp?]
 	!app-containers/docker-proxy
+	!<app-containers/docker-cli-${PV}
 	container-init? ( >=sys-process/tini-0.19.0[static] )
+	cuda? ( app-containers/nvidia-container-toolkit )
 	selinux? ( sec-policy/selinux-docker )
 "
 
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#build-dependencies
 BDEPEND="
-	>=dev-lang/go-1.16.12
 	dev-go/go-md2man
 	virtual/pkgconfig
 "
 # tests require running dockerd as root and downloading containers
 RESTRICT="installsources strip test"
 
-S="${WORKDIR}/${P}/src/${EGO_PN}"
-
 # https://bugs.gentoo.org/748984 https://github.com/etcd-io/etcd/pull/12552
-PATCHES=(
-	"${FILESDIR}/0001-Openrc-Depend-on-containerd-init-script.patch"
-)
-
 pkg_setup() {
 	# this is based on "contrib/check-config.sh" from upstream's sources
 	# required features.
@@ -233,9 +228,15 @@ pkg_setup() {
 	linux-info_pkg_setup
 }
 
+src_unpack() {
+	default
+	cd "${S}"
+	[[ -f go.mod ]] || ln -s vendor.mod go.mod || die
+	[[ -f go.sum ]] || ln -s vendor.sum go.sum || die
+}
+
 src_compile() {
 	export DOCKER_GITCOMMIT="${GIT_COMMIT}"
-	export GOPATH="${WORKDIR}/${P}"
 	export VERSION=${PV}
 	tc-export PKG_CONFIG
 
@@ -258,15 +259,21 @@ src_compile() {
 		fi
 	done
 
+	export AUTO_GOPATH=1
 	export EXCLUDE_AUTO_BUILDTAG_JOURNALD=$(usex systemd '' 'y')
+	export GO_MD2MAN=/usr/bin/go-md2man
 
 	# build binaries
 	./hack/make.sh dynbinary || die 'dynbinary failed'
+
+	# build man page
+	cd man || die
+	emake || die
 }
 
 src_install() {
 	dosym containerd /usr/bin/docker-containerd
-	dosym containerd-shim /usr/bin/docker-containerd-shim
+	dosym containerd-shim-runc-v2 /usr/bin/docker-containerd-shim
 	dosym runc /usr/bin/docker-runc
 	use container-init && dosym tini /usr/bin/docker-init
 	dobin bundles/dynbinary-daemon/dockerd
@@ -284,6 +291,7 @@ src_install() {
 
 	dodoc AUTHORS CONTRIBUTING.md NOTICE README.md
 	dodoc -r docs/*
+	doman man/man8/dockerd.8
 
 	# note: intentionally not using "doins" so that we preserve +x bits
 	dodir /usr/share/${PN}/contrib
