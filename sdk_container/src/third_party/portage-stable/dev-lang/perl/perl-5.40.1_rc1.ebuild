@@ -1,16 +1,16 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
-PATCH_VER=1
-CROSS_VER=1.5.2
-PATCH_BASE="perl-5.38.0-patches-${PATCH_VER}"
+PATCH_VER=2
+CROSS_VER=1.6
+PATCH_BASE="perl-5.40.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
-DIST_AUTHOR=PEVANS
+DIST_AUTHOR=SHAY
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
@@ -18,7 +18,7 @@ DIST_AUTHOR=PEVANS
 PERL_BIN_OLDVERSEN=""
 
 if [[ "${PV##*.}" == "9999" ]]; then
-	DIST_VERSION=5.30.0
+	DIST_VERSION=5.40.0
 else
 	DIST_VERSION="${PV/_rc/-RC}"
 fi
@@ -44,8 +44,7 @@ HOMEPAGE="https://www.perl.org/"
 SRC_URI="
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
 	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
-	https://github.com/gentoo-perl/perl-patchset/archive/refs/tags/${PATCH_BASE}.tar.gz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.gz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.xz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
 "
 
@@ -81,25 +80,26 @@ PDEPEND="
 		virtual/perl-Test-Harness
 	)
 "
+
 # bug 390719, bug 523624
 # virtual/perl-Test-Harness is here for the bundled ExtUtils::MakeMaker
 
 dual_scripts() {
-	src_remove_dual      perl-core/Archive-Tar        2.400.0       ptar ptardiff ptargrep
+	src_remove_dual      perl-core/Archive-Tar        3.20.10_rc    ptar ptardiff ptargrep
 	src_remove_dual      perl-core/CPAN               2.360.0       cpan
 	src_remove_dual      perl-core/Digest-SHA         6.40.0        shasum
-	src_remove_dual      perl-core/Encode             3.190.0       enc2xs piconv
+	src_remove_dual      perl-core/Encode             3.210.0       enc2xs piconv
 	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.700.0       instmodsh
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.510.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.204.0       zipdetails
-	src_remove_dual      perl-core/JSON-PP            4.160.0        json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.311.290 corelist
-	src_remove_dual      perl-core/Pod-Checker        1.750.0       podchecker
+	src_remove_dual      perl-core/IO-Compress        2.212.0       zipdetails
+	src_remove_dual      perl-core/JSON-PP            4.160.0       json_pp
+	src_remove_dual      perl-core/Module-CoreList    5.202.501.184_rc  corelist
+	src_remove_dual      perl-core/Pod-Checker        1.770.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
-	src_remove_dual      perl-core/Pod-Usage          2.30.0       pod2usage
-	src_remove_dual      perl-core/Test-Harness       3.440.0       prove
-	src_remove_dual      perl-core/podlators          5.10.0       pod2man pod2text
-	src_remove_dual_man  perl-core/podlators          5.10.0       /usr/share/man/man1/perlpodstyle.1
+	src_remove_dual      perl-core/Pod-Usage          2.30.0        pod2usage
+	src_remove_dual      perl-core/Test-Harness       3.480.0       prove
+	src_remove_dual      perl-core/podlators          5.10.200_rc   pod2man pod2text
+	src_remove_dual_man  perl-core/podlators          5.10.200_rc   /usr/share/man/man1/perlpodstyle.1
 }
 
 check_rebuild() {
@@ -416,8 +416,8 @@ src_prepare() {
 
 	local patchdir="${WORKDIR}/patches"
 
-	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patches" "${WORKDIR}/patches" || die
-	mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patch-info" "${WORKDIR}/patch-info" || die
+	# mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patches" "${WORKDIR}/patches" || die
+	# mv -v "${WORKDIR}/perl-patchset-${PATCH_BASE}/patch-info" "${WORKDIR}/patch-info" || die
 
 	# Prepare Patch dir with additional patches / remove unwanted patches
 	# Inject bug/desc entries for perl -V
@@ -425,10 +425,6 @@ src_prepare() {
 	# add_patch "${FILESDIR}/${PN}-5.26.2-hppa.patch" "100-5.26.2-hppa.patch"\
 	#		"Fix broken miniperl on hppa"\
 	#		"https://bugs.debian.org/869122" "https://bugs.gentoo.org/634162"
-	add_patch "${FILESDIR}/${PN}-5.36.0-fix-configure-for-clang.patch" \
-			"100-5.36.0-fix-configure-for-clang.patch" \
-			"Fix clang check in configure" \
-			"https://github.com/Perl/perl5/issues/21099"
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# do NOT mess with nsl, on Solaris this is always necessary,
@@ -443,7 +439,7 @@ src_prepare() {
 	tc-is-static-only || src_prepare_dynamic
 
 	if use gdbm; then
-		sed -i "s:INC => .*:INC => \"-I${EROOT}/usr/include/gdbm\":g" \
+		sed -i "s:INC => .*:INC => \"-I${ESYSROOT}/usr/include/gdbm\":g" \
 			ext/NDBM_File/Makefile.PL || die
 	fi
 
@@ -581,12 +577,12 @@ src_configure() {
 	use m68k && append-ldflags -Wl,-z,norelro
 
 	export BUILD_BZIP2=0
-	export BZIP2_INCLUDE=${EROOT}/usr/include
-	export BZIP2_LIB=${EROOT}/usr/$(get_libdir)
+	export BZIP2_INCLUDE=${ESYSROOT}/usr/include
+	export BZIP2_LIB=${ESYSROOT}/usr/$(get_libdir)
 
 	export BUILD_ZLIB=False
-	export ZLIB_INCLUDE=${EROOT}/usr/include
-	export ZLIB_LIB=${EROOT}/usr/$(get_libdir)
+	export ZLIB_INCLUDE=${ESYSROOT}/usr/include
+	export ZLIB_LIB=${ESYSROOT}/usr/$(get_libdir)
 
 	# allow either gdbm to provide ndbm (in <gdbm/ndbm.h>) or db1
 	myndbm='U'
@@ -626,12 +622,16 @@ src_configure() {
 	# modifying 'optimize' prevents cross configure script from appending required flags
 	if tc-is-cross-compiler; then
 		append-cflags "-fwrapv"
+		tc-export_build_env
 
 		# Needed for the CHOST build too (bug #932385)
 		export CFLAGS="${CFLAGS} -D_GNU_SOURCE"
 
 		# bug #913171
-		export HOSTCFLAGS="${CFLAGS_FOR_BUILD} -D_GNU_SOURCE"
+		export \
+			HOSTCC=$(tc-getBUILD_CC) \
+			HOSTCFLAGS="${CFLAGS_FOR_BUILD} -D_GNU_SOURCE" \
+			HOSTLDFLAGS="${LDFLAGS_FOR_BUILD}"
 	fi
 
 	# bug #877659, bug #821577
@@ -749,7 +749,7 @@ src_configure() {
 		-Dmyhostname='localhost' \
 		-Dperladmin='root@localhost' \
 		-Ud_csh \
-		-Dsh="${EPREFIX}"/bin/sh \
+		-Dsh="${BROOT}"/bin/sh \
 		-Dtargetsh="${EPREFIX}"/bin/sh \
 		-Uusenm \
 		"${EXTRA_ECONF[@]}"
