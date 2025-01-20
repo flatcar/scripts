@@ -1,4 +1,4 @@
-# Copyright 2024 Gentoo Authors
+# Copyright 2024-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: rust.eclass
@@ -67,14 +67,19 @@ fi
 # @DESCRIPTION:
 # Definitive list of Rust slots and the associated LLVM slot, newest first.
 declare -A -g -r _RUST_LLVM_MAP=(
+	["1.84.0"]=19
+	["1.83.0"]=19
 	["1.82.0"]=19
 	["1.81.0"]=18
 	["1.80.1"]=18
 	["1.79.0"]=18
+	["1.78.0"]=18
 	["1.77.1"]=17
+	["1.76.0"]=17
 	["1.75.0"]=17
 	["1.74.1"]=17
 	["1.71.1"]=16
+	["1.54.0"]=12
 )
 
 # @ECLASS_VARIABLE: _RUST_SLOTS_ORDERED
@@ -84,15 +89,40 @@ declare -A -g -r _RUST_LLVM_MAP=(
 # While _RUST_LLVM_MAP stores useful info about the relationship between Rust and LLVM slots,
 # this array is used to store the Rust slots in a more convenient order for iteration.
 declare -a -g -r _RUST_SLOTS_ORDERED=(
+	"1.84.0"
+	"1.83.0"
 	"1.82.0"
 	"1.81.0"
 	"1.80.1"
 	"1.79.0"
+	"1.78.0"
 	"1.77.1"
+	"1.76.0"
 	"1.75.0"
 	"1.74.1"
 	"1.71.1"
+	"1.54.0"
 )
+
+# == user control knobs ==
+
+# @ECLASS_VARIABLE: ERUST_SLOT_OVERRIDE
+# @USER_VARIABLE
+# @DESCRIPTION:
+# Specify the version (slot) of Rust to be used by the package. This is
+# useful for troubleshooting and debugging purposes; If unset, the newest
+# acceptable Rust version will be used. May be combined with ERUST_TYPE_OVERRIDE.
+# This variable must not be set in ebuilds.
+
+# @ECLASS_VARIABLE: ERUST_TYPE_OVERRIDE
+# @USER_VARIABLE
+# @DESCRIPTION:
+# Specify the type of Rust to be used by the package from options:
+# 'source' or 'binary' (-bin). This is useful for troubleshooting and
+# debugging purposes. If unset, the standard eclass logic will be used
+# to determine the type of Rust to use (i.e. prefer source if binary
+# is also available). May be combined with ERUST_SLOT_OVERRIDE.
+# This variable must not be set in ebuilds.
 
 # == control variables ==
 
@@ -258,7 +288,8 @@ unset -f _rust_set_globals
 # @USAGE: [-b|-d]
 # @DESCRIPTION:
 # Find the newest Rust install that is acceptable for the package,
-# and print its version number (i.e. SLOT) and type (source or bin[ary]).
+# and export its version (i.e. SLOT) and type (source or bin[ary])
+# as RUST_SLOT and RUST_TYPE.
 #
 # If -b is specified, the checks are performed relative to BROOT,
 # and BROOT-path is returned. -b is the default.
@@ -328,12 +359,19 @@ _get_rust_slot() {
 			fi
 		fi
 
+		if [[ -n "${ERUST_SLOT_OVERRIDE}" && "${slot}" != "${ERUST_SLOT_OVERRIDE}" ]]; then
+			continue
+		fi
+
 		# If we're in LLVM mode we can skip any slots that don't match the selected USE
 		if [[ -n "${RUST_NEEDS_LLVM}" ]]; then
 			if [[ "${llvm_slot}" != "${llvm_r1_slot}" ]]; then
+				einfo "Skipping Rust ${slot} as it does not match llvm_slot_${llvm_r1_slot}"
 				continue
 			fi
 		fi
+
+		einfo "Checking whether Rust ${slot} is suitable ..."
 
 		if declare -f rust_check_deps >/dev/null; then
 			local RUST_SLOT="${slot}"
@@ -341,19 +379,36 @@ _get_rust_slot() {
 			rust_check_deps && return
 		else
 			local usedep="${RUST_REQ_USE+[${RUST_REQ_USE}]}"
-			# When checking for installed packages prefer the non `-bin` package
+			# When checking for installed packages prefer the source package;
 			# if effort was put into building it we should use it.
-			local rust_pkgs=(
-				"dev-lang/rust:${slot}${usedep}"
-				"dev-lang/rust-bin:${slot}${usedep}"
-			)
+			local rust_pkgs
+			case "${ERUST_TYPE_OVERRIDE}" in
+				source)
+					rust_pkgs=(
+						"dev-lang/rust:${slot}${usedep}"
+					)
+					;;
+				binary)
+					rust_pkgs=(
+						"dev-lang/rust-bin:${slot}${usedep}"
+					)
+					;;
+				*)
+					rust_pkgs=(
+						"dev-lang/rust:${slot}${usedep}"
+						"dev-lang/rust-bin:${slot}${usedep}"
+					)
+					;;
+			esac
 			local _pkg
 			for _pkg in "${rust_pkgs[@]}"; do
+				einfo " Checking for ${_pkg} ..."
 				if has_version "${hv_switch}" "${_pkg}"; then
+					export RUST_SLOT="${slot}"
 					if [[ "${_pkg}" == "dev-lang/rust:${slot}${usedep}" ]]; then
-						echo "${slot} source"
+						export RUST_TYPE="source"
 					else
-						echo "${slot} binary"
+						export RUST_TYPE="binary"
 					fi
 					return
 				fi
@@ -371,7 +426,12 @@ _get_rust_slot() {
 		die "${FUNCNAME}: invalid max_slot=${max_slot}"
 	fi
 
-	die "No Rust slot${1:+ <= ${1}} satisfying the package's dependencies found installed!"
+	local requirement_msg=""
+	[[ -n "${RUST_MAX_VER}" ]] && requirement_msg+="<= ${RUST_MAX_VER} "
+	[[ -n "${RUST_MIN_VER}" ]] && requirement_msg+=">= ${RUST_MIN_VER} "
+	[[ -n "${RUST_REQ_USE}" ]] && requirement_msg+="with USE=${RUST_REQ_USE}"
+	requirement_msg="${requirement_msg% }"
+	die "No Rust matching requirements${requirement_msg:+ (${requirement_msg})} found installed!"
 }
 
 # @FUNCTION: get_rust_path
@@ -413,9 +473,8 @@ get_rust_prefix() {
 	local prefix=${BROOT}
 	[[ ${1} == -d ]] && prefix=${ESYSROOT}
 
-	local slot rust_type
-	read -r slot rust_type <<< $(_get_rust_slot "$@")
-	get_rust_path "${prefix}" "${slot}" "${rust_type}"
+	_get_rust_slot "$@"
+	get_rust_path "${prefix}" "${RUST_SLOT}" "${RUST_TYPE}"
 }
 
 # @FUNCTION: rust_prepend_path
@@ -453,7 +512,7 @@ rust_pkg_setup() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	if [[ ${MERGE_TYPE} != binary ]]; then
-		read -r RUST_SLOT RUST_TYPE <<< $(_get_rust_slot -b)
+		_get_rust_slot -b
 		rust_prepend_path "${RUST_SLOT}" "${RUST_TYPE}"
 		local prefix=$(get_rust_path "${BROOT}" "${RUST_SLOT}" "${RUST_TYPE}")
 		CARGO="${prefix}bin/cargo"
