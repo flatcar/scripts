@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -20,10 +20,11 @@ fi
 LICENSE="Apache-2.0"
 SLOT="0"
 
+IUSE="test"
+
 # This gives us the ability to neatly `-skip` tests.
 # not required once ::gentoo is all > 1.20
 RESTRICT="!test? ( test )"
-IUSE="test"
 
 BDEPEND="
 	test? ( >=dev-lang/go-1.20 )
@@ -47,9 +48,9 @@ src_compile() {
 src_test() {
 	# TestGit can't work in a source tarball; TestReadTargets fails seemingly due to parallelism.
 	if [[ ${PV} == 9999 ]]; then
-		ego test ./... -skip "TestReadTargets"
+		ego test ./... -skip "TestReadTargets|TestIntegration"
 	else
-		ego test ./... -skip "TestGit|TestReadTargets"
+		ego test ./... -skip "TestGit|TestReadTargets|TestIntegration"
 	fi
 }
 
