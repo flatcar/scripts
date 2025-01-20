@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -22,10 +22,10 @@ else
 	MY_P="${P/_rc/-rc}"
 	SRC_URI="https://github.com/openzfs/${PN}/releases/download/${MY_P}/${MY_P}.tar.gz"
 	SRC_URI+=" verify-sig? ( https://github.com/openzfs/${PN}/releases/download/${MY_P}/${MY_P}.tar.gz.asc )"
-	S="${WORKDIR}/${MY_P}"
+	S="${WORKDIR}/${P%_rc?}"
 
 	if [[ ${PV} != *_rc* ]]; then
-		KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc"
+		KEYWORDS="amd64 arm64 ppc64 ~riscv ~sparc"
 	fi
 fi
 
@@ -34,24 +34,22 @@ LICENSE="BSD-2 CDDL MIT"
 # possible candidates: libuutil, libzpool, libnvpair. Those do not provide stable abi, but are considered.
 # see libsoversion_check() below as well
 SLOT="0/5"
-IUSE="custom-cflags debug dist-kernel kernel-builtin minimal nls pam python +rootfs selinux test-suite unwind"
+IUSE="custom-cflags debug dist-kernel kernel-builtin minimal nls pam python +rootfs selinux test-suite"
 
 DEPEND="
-	dev-libs/openssl:=
 	net-libs/libtirpc:=
 	sys-apps/util-linux
 	sys-libs/zlib
 	virtual/libudev:=
+	dev-libs/openssl:0=
 	!minimal? ( ${PYTHON_DEPS} )
 	pam? ( sys-libs/pam )
 	python? (
 		$(python_gen_cond_dep 'dev-python/cffi[${PYTHON_USEDEP}]' 'python*')
 	)
-	unwind? ( sys-libs/libunwind:= )
 "
 
-BDEPEND="
-	app-alternatives/awk
+BDEPEND="app-alternatives/awk
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )
 	python? (
@@ -68,12 +66,11 @@ if [[ ${PV} != "9999" ]] ; then
 fi
 
 # awk is used for some scripts, completions, and the Dracut module
-RDEPEND="
-	${DEPEND}
+RDEPEND="${DEPEND}
 	!kernel-builtin? ( ~sys-fs/zfs-kmod-${PV}:= )
 	!prefix? ( virtual/udev )
-	app-alternatives/awk
 	sys-fs/udev-init-scripts
+	app-alternatives/awk
 	dist-kernel? ( virtual/dist-kernel:= )
 	rootfs? (
 		app-alternatives/cpio
@@ -105,8 +102,10 @@ REQUIRED_USE="
 RESTRICT="test"
 
 PATCHES=(
+	# bug #854333
+	"${FILESDIR}"/2.1.5-r2-dracut-non-root.patch
+
 	"${FILESDIR}"/2.1.5-dracut-zfs-missing.patch
-	"${FILESDIR}"/2.2.3-musl.patch
 )
 
 pkg_pretend() {
@@ -183,9 +182,6 @@ src_prepare() {
 		popd >/dev/null || die
 	fi
 
-	# Tries to use /etc/conf.d which we reserve for OpenRC
-	sed -i -e '/EnvironmentFile/d' etc/systemd/system/zfs*.in || die
-
 	# prevent errors showing up on zfs-mount stop, #647688
 	# openrc will unmount all filesystems anyway.
 	sed -i "/^ZFS_UNMOUNT=/ s/yes/no/" "etc/default/zfs.in" || die
@@ -194,6 +190,13 @@ src_prepare() {
 src_configure() {
 	use custom-cflags || strip-flags
 	use minimal || python_setup
+
+	# All the same issue:
+	# Segfaults w/ GCC 12 and 'zfs send'
+	# bug #856373
+	# https://github.com/openzfs/zfs/issues/13620
+	# https://github.com/openzfs/zfs/issues/13605
+	append-flags -fno-tree-vectorize
 
 	local myconf=(
 		--bindir="${EPREFIX}/bin"
@@ -222,7 +225,6 @@ src_configure() {
 		$(use_enable nls)
 		$(use_enable pam)
 		$(use_enable python pyzfs)
-		$(use_with unwind libunwind)
 		--disable-static
 		$(usex minimal --without-python --with-python="${EPYTHON}")
 	)
