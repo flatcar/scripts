@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 TMPFILES_OPTIONAL=1
 
 inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
@@ -152,6 +152,32 @@ src_prepare() {
 			lsfd/mkfds-eventpoll
 			lsfd/column-xmode
 		)
+
+		# debug prints confuse the tests which look for a diff
+		# in output
+		if has_version "=app-shells/bash-5.3_alpha*" ; then
+			known_failing_tests+=(
+				lsfd/column-ainodeclass
+				lsfd/mkfds-netlink-protocol
+				lsfd/column-type
+				lsfd/mkfds-eventfd
+				lsfd/mkfds-signalfd
+				lsfd/mkfds-mqueue
+				lsfd/mkfds-tcp6
+				lsfd/mkfds-tcp
+				lsfd/filter-floating-point-nums
+				lsfd/mkfds-unix-stream-requiring-sockdiag
+				lsfd/mkfds-unix-dgram
+				lsfd/mkfds-directory
+				lsfd/mkfds-pty
+				lsfd/mkfds-pipe-no-fork
+				lsfd/mkfds-unix-stream
+				lsfd/mkfds-ro-regular-file
+				lsfd/mkfds-timerfd
+				lsfd/mkfds-udp
+				lsfd/mkfds-udp6
+			)
+		fi
 
 		local known_failing_test
 		for known_failing_test in "${known_failing_tests[@]}" ; do
