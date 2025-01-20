@@ -11,7 +11,7 @@ inherit autotools check-reqs flag-o-matic linux-info llvm-r1
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
-MY_PV=${PV/_alpha/a}
+MY_PV=${PV/_}
 MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 1-2)t"
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -25,13 +25,14 @@ SRC_URI="
 	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.sigstore
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm jit
 	libedit +ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -47,6 +48,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
+	app-crypt/libb2
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
@@ -88,8 +90,8 @@ BDEPEND="
 	virtual/pkgconfig
 	jit? (
 		$(llvm_gen_dep '
-			sys-devel/clang:${LLVM_SLOT}
-			sys-devel/llvm:${LLVM_SLOT}
+			llvm-core/clang:${LLVM_SLOT}
+			llvm-core/llvm:${LLVM_SLOT}
 		')
 	)
 	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
@@ -103,10 +105,7 @@ if [[ ${PV} != *_alpha* ]]; then
 	"
 fi
 
-# https://www.python.org/downloads/metadata/sigstore/
-VERIFY_SIG_METHOD=sigstore
-VERIFY_SIG_CERT_IDENTITY=hugo@python.org
-VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
@@ -149,7 +148,7 @@ pkg_setup() {
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
 	fi
 	default
 }
@@ -284,6 +283,11 @@ src_configure() {
 				-x test_strtod
 			)
 			;;
+		hppa*)
+			COMMON_TEST_SKIPS+=(
+				-x test_gdb
+			)
+			;;
 		mips*)
 			COMMON_TEST_SKIPS+=(
 				-x test_ctypes
@@ -372,7 +376,6 @@ src_configure() {
 
 			# Fails in profiling run, passes in src_test().
 			-x test_capi
-			-x test_embed
 			-x test_external_inspection
 		)
 
@@ -518,7 +521,7 @@ src_compile() {
 		# bug 660358
 		local -x COLUMNS=80
 		local -x PYTHONDONTWRITEBYTECODE=
-		local -x TMPDIR=/tmp
+		local -x TMPDIR=/var/tmp
 	fi
 
 	# also need to clear the flags explicitly here or they end up
@@ -558,7 +561,7 @@ src_test() {
 	# bug 660358
 	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
-	local -x TMPDIR=/tmp
+	local -x TMPDIR=/var/tmp
 
 	nonfatal emake -Onone test EXTRATESTOPTS="${test_opts[*]}" \
 		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty

@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
@@ -10,7 +10,7 @@ inherit python-utils-r1 toolchain-funcs verify-sig
 MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-${MY_PV}-r1"
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ~ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm libedit
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -257,7 +257,7 @@ src_configure() {
 			;;
 		powerpc64-*) # big endian
 			COMMON_TEST_SKIPS+=(
-				-x test_descr
+				-x test_gdb
 			)
 			;;
 		riscv*)
@@ -273,7 +273,7 @@ src_configure() {
 				-x test_multiprocessing_spawn
 
 				-x test_ctypes
-				-x test_descr
+				-x test_gdb
 				# bug 931908
 				-x test_exceptions
 			)
@@ -467,6 +467,7 @@ src_compile() {
 		# bug 660358
 		local -x COLUMNS=80
 		local -x PYTHONDONTWRITEBYTECODE=
+		local -x TMPDIR=/var/tmp
 	fi
 
 	# also need to clear the flags explicitly here or they end up
@@ -506,6 +507,7 @@ src_test() {
 	# bug 660358
 	local -x COLUMNS=80
 	local -x PYTHONDONTWRITEBYTECODE=
+	local -x TMPDIR=/var/tmp
 
 	nonfatal emake -Onone test EXTRATESTOPTS="${test_opts[*]}" \
 		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
