@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,7 +9,7 @@ DESCRIPTION="Communication package providing the X, Y, and ZMODEM file transfer 
 HOMEPAGE="https://www.ohse.de/uwe/software/lrzsz.html"
 SRC_URI="
 	https://www.ohse.de/uwe/releases/${P}.tar.gz
-	https://dev.gentoo.org/~ceamac/${CATEGORY}/${PN}/${PN}-m4-${PV}.tar.bz2
+	https://dev.gentoo.org/~ceamac/${CATEGORY}/${PN}/gettext-0.19.8-runtime-m4.tar.xz
 "
 
 LICENSE="GPL-2"
@@ -32,6 +32,7 @@ PATCHES=(
 	"${FILESDIR}"/${P}-disable-nls.patch
 	"${FILESDIR}"/${P}-c99.patch
 	"${FILESDIR}"/${P}-fix-integer-overflow.patch
+	"${FILESDIR}"/${P}-c23.patch
 )
 
 DOCS=( AUTHORS COMPATABILITY ChangeLog NEWS \
