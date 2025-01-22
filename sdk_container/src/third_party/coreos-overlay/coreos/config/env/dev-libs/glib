@@ -1,0 +1,7 @@
+# Do not install gobject-introspection binaries in production images.
+if [[ $(cros_target) != "cros_host" ]] ; then
+	glib_mask="/usr/bin/gi-* /usr/lib*/libgirepository-2.0*"
+	PKG_INSTALL_MASK+=" ${glib_mask}"
+	INSTALL_MASK+=" ${glib_mask}"
+	unset glib_mask
+fi
