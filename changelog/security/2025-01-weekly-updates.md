@@ -1,0 +1,2 @@
+- containers-storage, podman ([CVE-2024-9676](https://nvd.nist.gov/vuln/detail/CVE-2024-9676))
+- curl ([CVE-2024-11053](https://nvd.nist.gov/vuln/detail/CVE-2024-11053), [CVE-2024-9681](https://nvd.nist.gov/vuln/detail/CVE-2024-9681))
