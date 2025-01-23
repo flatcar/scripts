@@ -706,9 +706,6 @@ virtual/ssh
 virtual/tmpfiles
 virtual/udev
 
-x11-base/xorg-proto
-
 x11-libs/pixman
 
 x11-misc/makedepend
-x11-misc/shared-mime-info
