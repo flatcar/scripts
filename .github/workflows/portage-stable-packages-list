@@ -186,7 +186,6 @@ dev-build/meson
 dev-build/meson-format-array
 dev-build/ninja
 
-dev-cpp/abseil-cpp
 dev-cpp/azure-core
 dev-cpp/azure-identity
 dev-cpp/azure-security-keyvault-certificates
