@@ -105,7 +105,7 @@ cat <<EOF
 # stage1 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
 update_seed: yes
-update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/rust --exclude virtual/rust --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
+update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
 EOF
 catalyst_stage_default 1
 }
