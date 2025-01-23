@@ -239,7 +239,6 @@ dev-libs/libffi
 dev-libs/libgcrypt
 dev-libs/libgpg-error
 dev-libs/libksba
-dev-libs/liblinear
 dev-libs/libltdl
 dev-libs/libmspack
 dev-libs/libnl
