@@ -701,7 +701,6 @@ virtual/perl-Getopt-Long
 virtual/perl-Unicode-Collate
 virtual/pkgconfig
 virtual/resolvconf
-virtual/rust
 virtual/service-manager
 virtual/ssh
 virtual/tmpfiles
