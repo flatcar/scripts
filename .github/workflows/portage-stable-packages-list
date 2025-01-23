@@ -350,8 +350,6 @@ dev-python/wheel
 dev-util/bpftool
 dev-util/catalyst
 dev-util/checkbashisms
-dev-util/cmocka
-dev-util/desktop-file-utils
 dev-util/gdbus-codegen
 dev-util/glib-utils
 dev-util/gperf
