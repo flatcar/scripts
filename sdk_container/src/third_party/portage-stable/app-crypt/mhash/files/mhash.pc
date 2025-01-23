@@ -1,4 +1,0 @@
-Libs:-lmhash
-Name: mhash
-Version: @VERSION@
-Description: provides a uniform interface to several hash algorithms

@@ -123,12 +123,10 @@ app-crypt/gnupg
 app-crypt/gpgme
 app-crypt/libb2
 app-crypt/libmd
-app-crypt/mhash
 app-crypt/mit-krb5
 app-crypt/p11-kit
 app-crypt/pinentry
 app-crypt/rhash
-app-crypt/shash
 app-crypt/tpm2-tools
 app-crypt/tpm2-tss
 
