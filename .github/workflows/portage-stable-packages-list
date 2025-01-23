@@ -231,16 +231,13 @@ dev-libs/json-c
 dev-libs/jsoncpp
 dev-libs/libaio
 dev-libs/libassuan
-dev-libs/libatasmart
 dev-libs/libbsd
-dev-libs/libbytesize
 dev-libs/libdnet
 dev-libs/libev
 dev-libs/libevent
 dev-libs/libffi
 dev-libs/libgcrypt
 dev-libs/libgpg-error
-dev-libs/libgudev
 dev-libs/libksba
 dev-libs/liblinear
 dev-libs/libltdl
@@ -655,7 +652,6 @@ sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
 sys-fs/squashfs-tools-ng
-sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
@@ -667,7 +663,6 @@ sys-libs/cracklib
 sys-libs/efivar
 sys-libs/gdbm
 sys-libs/ldb
-sys-libs/libblockdev
 sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libnvme
