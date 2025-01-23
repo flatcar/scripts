@@ -276,7 +276,6 @@ dev-libs/yajl
 
 dev-perl/Parse-Yapp
 
-dev-python/autocommand
 dev-python/backports-tarfile
 dev-python/cachecontrol
 dev-python/certifi
@@ -318,7 +317,6 @@ dev-python/mdurl
 dev-python/more-itertools
 dev-python/msgpack
 dev-python/olefile
-dev-python/ordered-set
 dev-python/packaging
 dev-python/pathspec
 dev-python/pefile
@@ -340,7 +338,6 @@ dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
-dev-python/tenacity
 dev-python/tomli
 dev-python/tree-sitter
 dev-python/trove-classifiers
