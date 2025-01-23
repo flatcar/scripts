@@ -274,7 +274,6 @@ dev-libs/userspace-rcu
 dev-libs/xmlsec
 dev-libs/yajl
 
-dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
 dev-python/autocommand
@@ -539,7 +538,6 @@ net-nds/rpcbind
 
 net-vpn/wireguard-tools
 
-perl-core/File-Temp
 perl-core/Getopt-Long
 
 profiles
@@ -702,15 +700,10 @@ virtual/openssh
 virtual/os-headers
 virtual/package-manager
 virtual/pager
-virtual/perl-Carp
 virtual/perl-Data-Dumper
 virtual/perl-Encode
-virtual/perl-Exporter
 virtual/perl-ExtUtils-MakeMaker
-virtual/perl-File-Spec
-virtual/perl-File-Temp
 virtual/perl-Getopt-Long
-virtual/perl-IO
 virtual/perl-Unicode-Collate
 virtual/pkgconfig
 virtual/resolvconf
