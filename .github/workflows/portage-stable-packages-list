@@ -579,7 +579,6 @@ sys-apps/less
 sys-apps/locale-gen
 sys-apps/lsb-release
 sys-apps/lshw
-sys-apps/makedev
 sys-apps/man-db
 sys-apps/man-pages
 sys-apps/miscfiles
