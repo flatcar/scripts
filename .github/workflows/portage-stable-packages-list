@@ -152,7 +152,6 @@ app-misc/editor-wrapper
 app-misc/jq
 app-misc/mime-types
 app-misc/pax-utils
-app-misc/zisofs-tools
 
 app-portage/elt-patches
 app-portage/gentoolkit
