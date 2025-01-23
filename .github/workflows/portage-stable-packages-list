@@ -165,7 +165,6 @@ app-shells/gentoo-bashcomp
 app-text/asciidoc
 app-text/build-docbook-catalog
 app-text/docbook-xml-dtd
-app-text/docbook-xsl-ns-stylesheets
 app-text/docbook-xsl-stylesheets
 app-text/mandoc
 app-text/manpager
