@@ -28,7 +28,7 @@ DEPEND="
 	app-text/mandoc
 	coreos-base/hard-host-depends
 	coreos-base/coreos-sb-keys
-	dev-libs/gobject-introspection
+	dev-libs/gobject-introspection-common
 	dev-python/setuptools
 	dev-python/six
 	dev-util/catalyst

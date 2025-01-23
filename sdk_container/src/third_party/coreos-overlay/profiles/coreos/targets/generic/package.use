@@ -50,3 +50,10 @@ sys-fs/fuse -suid
 
 # skip dependency for this sysext package
 net-misc/chrony -readline
+
+# Do not pull llvm into prod (use binutils-libs instead).
+#
+# Disable co-re (we never had it enabled, but now it's forced by the
+# ebuild; this will pull sys-devel/bpf-toolchain, which we put into
+# package.provided in SDK).
+dev-util/bpftool -llvm -clang

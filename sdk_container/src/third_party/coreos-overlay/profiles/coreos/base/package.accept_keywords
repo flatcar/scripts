@@ -7,33 +7,15 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# Needed by updated app-containers/containers-common
-=app-containers/aardvark-dns-1.12.2-r1 ~amd64 ~arm64
-
 # Handled by automation
 =app-containers/containerd-1.7.23 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-10-18 08:06:10
-
-# Needed to address CVE-2024-9341.
-=app-containers/containers-common-0.60.4 ~amd64 ~arm64
-
-# Needed to address CVE-2024-3727.
-=app-containers/containers-image-5.32.2 ~amd64 ~arm64
-
-# Needed by updated app-containers/containers-common
-=app-containers/containers-storage-1.55.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.27.0 ~arm64
 
-# Needed by updated app-containers/containers-common
-=app-containers/crun-1.17 ~amd64 ~arm64
-
 # Accept unstable for Docker and its CLI.
 =app-containers/docker-27.3.1 ~amd64 ~arm64
 =app-containers/docker-cli-27.3.1 ~amd64 ~arm64
-
-# Needed by updated app-containers/containers-common
-=app-containers/netavark-1.12.2-r1 ~amd64 ~arm64
 
 # These seem to be the versions we initially got, but the
 # modifications made to the ebuilds were clobbered, so these are here
@@ -57,7 +39,7 @@
 =app-crypt/p11-kit-0.25.5 ~amd64 ~arm64
 
 # Needed in SDK for Secure Boot.
-=app-emulation/virt-firmware-24.7 ~amd64 ~arm64
+=app-emulation/virt-firmware-24.7 ~amd64
 
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
@@ -81,7 +63,7 @@
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
-=dev-util/bpftool-7.4.0 ~arm64
+=dev-util/bpftool-7.5.0 ~arm64
 
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
@@ -91,18 +73,16 @@
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# Needed by updated app-containers/containers-common
-=net-misc/passt-2024.09.06 ~amd64 ~arm64
+# Needed to address CVE-2024-11053 and CVE-2024-9681
+=net-misc/curl-8.11.1-r2 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=net-nds/openldap-2.6.6-r2 ~amd64
+=net-nds/openldap-2.6.8 ~amd64
 
 # Package has not been stabilised yet.
 =sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-apps/kexec-tools-2.0.29-r1 ~arm64
-=sys-apps/util-linux-2.40.2 ~arm64
 =sys-apps/zram-generator-1.1.2-r1 ~arm64
 =sys-auth/sssd-2.9.5 ~arm64
 =sys-boot/mokutil-0.7.2 **
@@ -110,11 +90,8 @@
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
-# Keep versions on both arches in sync.
-=sys-devel/binutils-config-5.5.2 ~arm64
-
 # Needed in SDK for Secure Boot on arm64. Also addresses CVE-2024-1298.
-=sys-firmware/edk2-bin-202408 ~amd64 ~arm64
+=sys-firmware/edk2-bin-202408 ~amd64
 
-# Needed by updated app-containers/containers-common
-=sys-fs/fuse-overlayfs-1.14 ~amd64 ~arm64
+# Keep versions on both arches in sync.
+=sys-process/audit-4.0.2-r1 ~arm64

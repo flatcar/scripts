@@ -26,7 +26,7 @@ S="${WORKDIR}"/${PN}-OPENLDAP_REL_ENG_${MY_PV}
 LICENSE="OPENLDAP GPL-2"
 # Subslot added for bug #835654
 SLOT="0/$(ver_cut 1-2)"
-KEYWORDS="~alpha ~amd64 arm arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 
 IUSE_DAEMON="argon2 +cleartext crypt experimental minimal samba tcpd"
 IUSE_OVERLAY="overlays perl autoca"
@@ -37,7 +37,7 @@ IUSE="systemd ${IUSE_DAEMON} ${IUSE_BACKEND} ${IUSE_OVERLAY} ${IUSE_OPTIONAL} ${
 REQUIRED_USE="
 	cxx? ( sasl )
 	pbkdf2? ( ssl )
-	test? ( cleartext sasl )
+	test? ( cleartext sasl debug )
 	autoca? ( !gnutls )
 	?? ( test minimal )
 	kerberos? ( ?? ( kinit smbkrb5passwd ) )

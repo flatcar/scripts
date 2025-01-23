@@ -1,5 +1,35 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-12)
+# Vulkan works on loong.
+gui-libs/gtk -vulkan
+media-video/mpv -vulkan
+
+# Sam James <sam@gentoo.org> (2025-01-10)
+# dev-lang/ada-bootstrap exists here
+>=sys-devel/gcc-14 -ada
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-10)
+# bootstrap-emacs crashes at build time
+app-editors/emacs jit
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-06)
+# necessary dep is keyworded and passes tests
+dev-db/mariadb -galera
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-06)
+# 2 test cases abort with "LLVM ERROR: Relocation type not implemented yet!"
+sci-libs/symengine llvm
+
+# WANG Xuerui <xen0n@gentoo.org> (2025-01-06)
+# llvm does not have sufficient codegen support for mesa before 18
+# bug #929197
+media-libs/mesa llvm_slot_15 llvm_slot_16 llvm_slot_17
+
+# Sam James <sam@gentoo.org> (2025-01-04)
+# kde-plasma/kde-cli-tools not keyworded here
+x11-misc/xdg-utils plasma
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-10-08)
 # Not all required dependencies are keyworded here
@@ -21,21 +51,9 @@ net-voip/yate ilbc
 # needs re-keywording and clean-up of media-libs/opencollada
 media-libs/assimp collada
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-13)
-# dev-python/pyside6 isn't keyworded here
-dev-python/qtpy pyside6
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-09-07)
-# kde-plasma/plasma-workspace:6 is not keyworded
-virtual/notification-daemon kde
-
 # Sam James <sam@gentoo.org> (2024-08-31)
 # dnstap USE masked due to missing keywords
 net-dns/bind dnstap
-
-# Sam James <sam@gentoo.org> (2024-08-23)
-# dev-util/bpftool and/or sys-devel/bpf-toolchain not keyworded here
-sys-apps/systemd bpf
 
 # WANG Xuerui <xen0n@gentoo.org> (2024-08-22)
 # dev-lang/spidermonkey gained JIT support for loong since version 107,
@@ -54,10 +72,6 @@ dev-ruby/minitest-hooks test
 # QUIC dependencies are not keyworded
 net-misc/curl http3 quic curl_quic_openssl curl_quic_ngtcp2
 
-# Ulrich Müller <ulm@gentoo.org> (2024-08-03)
-# Needs dev-libs/openspecfun which is not yet keyworded
-sci-visualization/gnuplot amos
-
 # Michał Górny <mgorny@gentoo.org> (2024-07-24)
 # Full testing requires www-client/firefox.
 dev-python/selenium test-rust
@@ -72,11 +86,6 @@ kde-frameworks/purpose:5 kaccounts
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-06-15)
 # Requires unkeyworded dev-qt/qtwebengine (and revdeps)
 kde-plasma/plasma-nm openconnect
-
-# Sam James <sam@gentoo.org> (2024-06-13)
-# Needs as-yet-unkeyworded KF6 (bug #934215)
-app-crypt/pinentry qt6
-app-office/libreoffice qt6
 
 # WANG Xuerui <xen0n@gentoo.org> (2024-06-03)
 # Requires arch-specific code in python (relocs handling), in addition to
@@ -152,22 +161,16 @@ dev-util/librnp man
 
 # Michał Górny <mgorny@gentoo.org> (2023-09-19)
 # dev-cpp/cpp-httplib is keyworded here.
-dev-debug/lldb -debuginfod
-sys-devel/llvm -debuginfod
+llvm-core/lldb -debuginfod
+llvm-core/llvm -debuginfod
 
 # WANG Xuerui <xen0n@gentoo.org> (2023-09-10)
 # Revdeps of dev-python/ujson which is masked.
 dev-python/cattrs test
 dev-python/requests-cache test
 
-# Nowa Ammerlaan <nowa@gentoo.org> (2023-08-30)
-# Avoid having to keyword more Qt deps
-dev-python/pyside2 3d datavis location scxml
-dev-python/pyside6 3d location scxml
-
 # WANG Xuerui <xen0n@gentoo.org> (2023-07-26)
 # no llvm:15 or lld:16 on loong
-app-office/libreoffice clang
 <dev-db/postgresql-16 llvm
 <dev-lang/rust-1.73.0 wasm
 
@@ -332,13 +335,13 @@ media-plugins/gst-plugins-meta libvisual
 # Profile: https://reviews.llvm.org/D154405 (LLVM 17 since 20230706)
 # XRay: https://reviews.llvm.org/D140727 (LLVM 17 since 20230714)
 # libFuzzer: https://reviews.llvm.org/D140601 (LLVM 17 since 20230718)
->=sys-libs/compiler-rt-sanitizers-15 -asan
->=sys-libs/compiler-rt-sanitizers-16 -lsan -safestack -scudo -tsan -ubsan
->=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230630 -msan
->=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230705 -dfsan
->=sys-libs/compiler-rt-sanitizers-17.0.0_pre20230717 -profile -xray
->sys-libs/compiler-rt-sanitizers-17.0.0_pre20230717 -libfuzzer
->=sys-libs/compiler-rt-sanitizers-19 -cfi
+>=llvm-runtimes/compiler-rt-sanitizers-15 -asan
+>=llvm-runtimes/compiler-rt-sanitizers-16 -lsan -safestack -scudo -tsan -ubsan
+>=llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230630 -msan
+>=llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230705 -dfsan
+>=llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230717 -profile -xray
+>llvm-runtimes/compiler-rt-sanitizers-17.0.0_pre20230717 -libfuzzer
+>=llvm-runtimes/compiler-rt-sanitizers-19 -cfi
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-07-08)
 # virtual/{jdk,jre} is not available on loong yet.
