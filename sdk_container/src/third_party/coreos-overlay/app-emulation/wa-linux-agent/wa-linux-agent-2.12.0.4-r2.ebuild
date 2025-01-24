@@ -29,6 +29,7 @@ S="${WORKDIR}/WALinuxAgent-${PV}"
 PATCHES=(
 	"${FILESDIR}/0001-flatcar-changes.patch"
 	"${FILESDIR}/0002-prevent-ssh-public-key-override.patch"
+	"${FILESDIR}/waagent-nano.patch"
 )
 
 # All the stuff is installed inside the site-packages directory, even executables that ought to be in /sbin or config that ought to be in /etc. Move them.

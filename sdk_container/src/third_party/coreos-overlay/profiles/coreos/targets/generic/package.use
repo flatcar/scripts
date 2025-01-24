@@ -10,7 +10,8 @@ app-editors/vim-core	minimal
 # Install our modifications and compatibility symlinks for ssh and ntp
 #
 # Install a SELinux policy directory symlink
-coreos-base/misc-files audit ntp openssh policycoreutils
+#coreos-base/misc-files audit ntp openssh policycoreutils
+coreos-base/misc-files audit ntp policycoreutils
 
 dev-lang/python		gdbm
 dev-libs/dbus-glib	tools

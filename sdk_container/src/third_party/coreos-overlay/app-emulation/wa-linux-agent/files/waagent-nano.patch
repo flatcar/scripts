@@ -1,0 +1,15 @@
+diff '--color=auto' -urN a/usr/lib/python3.11/site-packages/azurelinuxagent/pa/provision/default.py b/usr/lib/python3.11/site-packages/azurelinuxagent/pa/provision/default.py
+--- a/azurelinuxagent/pa/provision/default.py	2025-09-15 15:41:46.678009262 -0000
++++ b/azurelinuxagent/pa/provision/default.py	2025-09-15 15:42:26.678084177 -0000
+@@ -84,8 +84,9 @@
+ 
+             self.provision(ovf_env)
+ 
+-            thumbprint = self.reg_ssh_host_key()
+-            self.osutil.restart_ssh_service()
++            # No SSHD on Nano
++            # thumbprint = self.reg_ssh_host_key()
++            # self.osutil.restart_ssh_service()
+ 
+             self.write_provisioned()
+ 

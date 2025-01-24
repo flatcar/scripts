@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="audit ntp openssh policycoreutils"
+IUSE="audit ntp openssh policycoreutils bash"
 
 # No source directory.
 S="${WORKDIR}"
@@ -30,7 +30,7 @@ DEPEND="
 # modifications in their ebuilds.
 RDEPEND="
         ${DEPEND}
-        >=app-shells/bash-5.2_p15-r2
+        bash? ( >=app-shells/bash-5.2_p15-r2 )
         ntp? ( >=net-misc/ntp-4.2.8_p17 )
         policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
         audit? ( >=sys-process/audit-4.0.1-r1 )
@@ -53,10 +53,12 @@ src_compile() {
     config="${T}/home-core-bash-symlinks.conf"
     config_tmp="${config}.tmp"
     truncate --size 0 "${config_tmp}"
-    for name in "${!CORE_BASH_SYMLINKS[@]}"; do
-        target=${CORE_BASH_SYMLINKS["${name}"]}
-        echo "L /home/core/${name} - core core - ${target}" >>"${config_tmp}"
-    done
+    if use bash; then
+        for name in "${!CORE_BASH_SYMLINKS[@]}"; do
+            target=${CORE_BASH_SYMLINKS["${name}"]}
+            echo "L /home/core/${name} - core core - ${target}" >>"${config_tmp}"
+        done
+    fi
     LC_ALL=C sort "${config_tmp}" >"${config}"
 }
 
@@ -90,12 +92,16 @@ src_install() {
     # These links exist because old installations can still have
     # references to them.
     local -A compat_symlinks
-    compat_symlinks=(
-        ['/usr/share/bash/bash_logout']='/usr/share/flatcar/etc/bash/bash_logout'
-        ['/usr/share/bash/bashrc']='/usr/share/flatcar/etc/bash/bashrc'
-        ['/usr/share/skel/.bash_logout']='/usr/share/flatcar/etc/skel/.bash_logout'
-        ['/usr/share/skel/.bash_profile']='/usr/share/flatcar/etc/skel/.bash_profile'
-        ['/usr/share/skel/.bashrc']='/usr/share/flatcar/etc/skel/.bashrc'
+    if use bash; then
+        compat_symlinks=(
+            ['/usr/share/bash/bash_logout']='/usr/share/flatcar/etc/bash/bash_logout'
+            ['/usr/share/bash/bashrc']='/usr/share/flatcar/etc/bash/bashrc'
+            ['/usr/share/skel/.bash_logout']='/usr/share/flatcar/etc/skel/.bash_logout'
+            ['/usr/share/skel/.bash_profile']='/usr/share/flatcar/etc/skel/.bash_profile'
+            ['/usr/share/skel/.bashrc']='/usr/share/flatcar/etc/skel/.bashrc'
+        )
+    fi
+    compat_symlinks+=(
         ['/usr/lib/selinux/config']='/usr/share/flatcar/etc/selinux/config'
         ['/usr/lib/selinux/mcs']='/usr/share/flatcar/etc/selinux/mcs'
         ['/usr/lib/selinux/semanage.conf']='/usr/share/flatcar/etc/selinux/semanage.conf'
@@ -130,8 +136,10 @@ src_install() {
         fi
     done
 
-    insinto '/etc/bash/bashrc.d'
-    doins "${FILESDIR}/bash/99-flatcar-bcc.bash"
+    if use bash; then
+        insinto '/etc/bash/bashrc.d'
+        doins "${FILESDIR}/bash/99-flatcar-bcc"
+    fi
 
     insinto '/usr/share/flatcar'
     # The "oems" folder should contain a file "$OEMID" for each expected OEM sysext and
@@ -141,19 +149,23 @@ src_install() {
     # The paths should use /oem instead of /usr/share/oem/ to avoid symlink resolution.
     doins -r "${FILESDIR}"/oems
 
-    dotmpfiles "${T}/home-core-bash-symlinks.conf"
+    if use bash; then
+        dotmpfiles "${T}/home-core-bash-symlinks.conf"
+    fi
     # Ideally we would be calling systemd-tmpfiles to create the
     # symlinks, but at this point systemd may not have any info about
     # the core user. Thus we hardcode the id 500.
     dodir /home/core
     fowners 500:500 /home/core
-    local name
-    for name in "${!CORE_BASH_SYMLINKS[@]}"; do
-        target=${CORE_BASH_SYMLINKS["${name}"]}
-        link="/home/core/${name}"
-        dosym "${target}" "${link}"
-        fowners --no-dereference 500:500 "${link}"
-    done
+    if use bash; then
+        local name
+        for name in "${!CORE_BASH_SYMLINKS[@]}"; do
+            target=${CORE_BASH_SYMLINKS["${name}"]}
+            link="/home/core/${name}"
+            dosym "${target}" "${link}"
+            fowners --no-dereference 500:500 "${link}"
+        done
+    fi
 
     if use audit; then
         # Install our rules.

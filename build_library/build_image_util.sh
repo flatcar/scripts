@@ -149,6 +149,13 @@ emerge_to_image() {
     set -- --getbinpkg "$@"
   fi
 
+  info "############## Full dependency tree of all packages"
+  sudo -E ROOT="${root_fs_dir}" \
+      FEATURES="-ebuild-locks" \
+      PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
+      emerge --usepkgonly --tree --pretend --jobs="${NUM_JOBS}" --verbose "$@"
+  info "##############  END dependency tree"
+
   sudo -E ROOT="${root_fs_dir}" \
       FEATURES="-ebuild-locks" \
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \

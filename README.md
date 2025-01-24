@@ -1,3 +1,7 @@
+# Flatcar Nano experimental branch
+
+Check out [nano/Readme.md](nano/readme.md) for details and for Nano OS image build instructions.
+
 # Flatcar Container Linux SDK scripts
 
 <div style="text-align: center">

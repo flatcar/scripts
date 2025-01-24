@@ -1,0 +1,57 @@
+version: 1.0.0
+variant: flatcar
+
+# Set password "core" for both core and root users
+passwd:
+  users:
+    - name: core
+      password_hash: $6$SD0b112c2rQi9zoG$JiwI67qX9jRjv.v/GoBwne1a8SvUUaSywCoPtet2gB1NzfV9nSrTM5es0/8xeC4jTo54fYAnPHeC/cH3TkNbQ1
+    - name: root
+      password_hash: $6$SD0b112c2rQi9zoG$JiwI67qX9jRjv.v/GoBwne1a8SvUUaSywCoPtet2gB1NzfV9nSrTM5es0/8xeC4jTo54fYAnPHeC/cH3TkNbQ1
+storage:
+  files:
+    - path: /etc/extensions/pam/usr/lib/extension-release.d/extension-release.pam
+      mode: 0644
+      contents:
+        inline: |
+          ID=_any
+    - path: /etc/extensions/pam/usr/lib/pam.d/system-auth
+      mode: 0644
+      contents:
+        inline: |
+          auth		required	pam_env.so
+          auth		requisite	pam_faillock.so preauth deny=5 unlock_time=60 fail_interval=120
+          auth		sufficient	pam_unix.so try_first_pass likeauth nullok
+          auth		[default=die]	pam_faillock.so authfail deny=5 unlock_time=60 fail_interval=120
+          auth		required	pam_deny.so
+          
+          account		required	pam_unix.so
+          # Don't fail if the user is unknown to sssd or if sssd isn't running
+          account		required	pam_faillock.so
+          account		optional	pam_permit.so
+          
+          password	sufficient	pam_unix.so try_first_pass nullok sha512 shadow minlen=8
+          password	required	pam_deny.so
+           
+          session		required	pam_limits.so
+          session		required	pam_env.so
+          session		required	pam_unix.so
+          session		optional	pam_permit.so
+          -session        optional        pam_systemd.so
+    - path: /etc/extensions/pam/usr/lib/pam.d/system-services
+      mode: 0644
+      contents:
+        inline: |
+          auth		sufficient	pam_permit.so
+          account		include		system-auth
+          session         optional        pam_loginuid.so
+          session		required	pam_limits.so
+          session		required	pam_env.so
+          session		required	pam_unix.so
+          session		optional	pam_permit.so
+systemd:
+  units:
+    - name: update-engine.service
+      mask: true
+    - name: locksmithd.service
+      mask: true

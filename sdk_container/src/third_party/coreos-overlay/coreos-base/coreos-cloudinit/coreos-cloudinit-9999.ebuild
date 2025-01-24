@@ -20,7 +20,7 @@ SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE=""
+IUSE="openssh"
 
 DEPEND="!<coreos-base/coreos-init-0.0.1-r69"
 RDEPEND="
@@ -49,4 +49,11 @@ src_install() {
 	systemd_dounit units/*.target
 	systemd_enable_service multi-user.target system-config.target
 	systemd_enable_service multi-user.target user-config.target
+
+  # Flatcar NANO HACK ALERT
+  if ! use openssh; then
+    einfo "openssh USE flag not set, creating dummy 'update-ssh-keys' script that always succeeds."
+    echo -e '#!/usr/bin/true' > "${D}/usr/bin/update-ssh-keys" 
+    chmod 755 "${D}/usr/bin/update-ssh-keys" 
+  fi
 }
