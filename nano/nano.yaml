@@ -1,0 +1,22 @@
+version: 1.0.0
+variant: flatcar
+
+# Set password "core" for both core and root users
+passwd:
+  users:
+    - name: core
+      password_hash: $6$SD0b112c2rQi9zoG$JiwI67qX9jRjv.v/GoBwne1a8SvUUaSywCoPtet2gB1NzfV9nSrTM5es0/8xeC4jTo54fYAnPHeC/cH3TkNbQ1
+    - name: root
+      password_hash: $6$SD0b112c2rQi9zoG$JiwI67qX9jRjv.v/GoBwne1a8SvUUaSywCoPtet2gB1NzfV9nSrTM5es0/8xeC4jTo54fYAnPHeC/cH3TkNbQ1
+storage:
+  files:
+    - path: /etc/extensions/pam.raw
+      mode: 0644
+      contents:
+        local: pam.raw
+systemd:
+  units:
+    - name: update-engine.service
+      mask: true
+    - name: locksmithd.service
+      mask: true

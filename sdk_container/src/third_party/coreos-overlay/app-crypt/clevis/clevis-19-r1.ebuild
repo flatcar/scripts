@@ -21,7 +21,6 @@ DEPEND="
 	sys-fs/cryptsetup
 	sys-kernel/dracut
 	luks? (
-		app-misc/jq
 		dev-libs/libpwquality
 		dev-libs/luksmeta
 	)

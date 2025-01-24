@@ -22,12 +22,12 @@ SRC_URI=""
 
 LICENSE="BSD"
 SLOT="0/${PVR}"
-IUSE="test"
+IUSE="test openssh"
 
 # Daemons we enable here must installed during build/install in addition to
 # during runtime so the systemd unit enable step works.
 DEPEND="
-	net-misc/openssh
+	openssh? ( net-misc/openssh )
 	net-nds/rpcbind
 	!coreos-base/oem-service
 	test? ( ${PYTHON_DEPS} )

@@ -21,11 +21,11 @@ HOMEPAGE="https://www.flatcar.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="cros_host"
+IUSE="cros_host bash"
 
 # Make sure coreos-init is not installed in the SDK
 RDEPEND="
-	>=sys-apps/gentoo-functions-0.10
+	bash? ( >=sys-apps/gentoo-functions-0.10 )
 	cros_host? ( !coreos-base/coreos-init )
 "
 
@@ -105,12 +105,14 @@ pkg_preinst() {
 
 pkg_postinst() {
 	# compat symlink for packages that haven't migrated to gentoo-functions
-	local func=../../lib/gentoo/functions.sh
-	if [[ "$(readlink "${ROOT}/etc/init.d/functions.sh")" != "${func}" ]]; then
-		elog "Creating /etc/init.d/functions.sh symlink..."
-		mkdir -p "${ROOT}/etc/init.d"
-		ln -sf "${func}" "${ROOT}/etc/init.d/functions.sh"
-	fi
+    if use bash; then
+        local func=../../lib/gentoo/functions.sh
+        if [[ "$(readlink "${ROOT}/etc/init.d/functions.sh")" != "${func}" ]]; then
+            elog "Creating /etc/init.d/functions.sh symlink..."
+            mkdir -p "${ROOT}/etc/init.d"
+            ln -sf "${func}" "${ROOT}/etc/init.d/functions.sh"
+        fi
+    fi
 	# install compat symlinks in production images, not in SDK
 	# os-release symlink is set up in scripts
 	if ! use cros_host; then

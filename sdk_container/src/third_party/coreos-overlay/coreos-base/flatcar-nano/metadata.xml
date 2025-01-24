@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<herd>flatcar</herd>
+<maintainer>
+	<email>maintainers@flatcar-linux.org</email>
+	<description>Maintained by The Flatcar Maintainers.</description>
+</maintainer>
+<longdescription>The Chromium OS base package pulls in dependencies to build a Chromium OS system.</longdescription>
+<use>
+	<flag name='kubernetes'>Embed Kubernetes sysext from the sysext bakery.</flag>
+	<flag name='kubernetes-updates'>Enable Kubernetes updates from the sysext bakery via systemd-sysupdate.</flag>
+</use>
+</pkgmetadata>
