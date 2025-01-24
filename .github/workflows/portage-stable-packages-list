@@ -123,12 +123,10 @@ app-crypt/gnupg
 app-crypt/gpgme
 app-crypt/libb2
 app-crypt/libmd
-app-crypt/mhash
 app-crypt/mit-krb5
 app-crypt/p11-kit
 app-crypt/pinentry
 app-crypt/rhash
-app-crypt/shash
 app-crypt/tpm2-tools
 app-crypt/tpm2-tss
 
@@ -154,7 +152,6 @@ app-misc/editor-wrapper
 app-misc/jq
 app-misc/mime-types
 app-misc/pax-utils
-app-misc/zisofs-tools
 
 app-portage/elt-patches
 app-portage/gentoolkit
@@ -168,7 +165,6 @@ app-shells/gentoo-bashcomp
 app-text/asciidoc
 app-text/build-docbook-catalog
 app-text/docbook-xml-dtd
-app-text/docbook-xsl-ns-stylesheets
 app-text/docbook-xsl-stylesheets
 app-text/mandoc
 app-text/manpager
@@ -190,7 +186,6 @@ dev-build/meson
 dev-build/meson-format-array
 dev-build/ninja
 
-dev-cpp/abseil-cpp
 dev-cpp/azure-core
 dev-cpp/azure-identity
 dev-cpp/azure-security-keyvault-certificates
@@ -236,18 +231,14 @@ dev-libs/json-c
 dev-libs/jsoncpp
 dev-libs/libaio
 dev-libs/libassuan
-dev-libs/libatasmart
 dev-libs/libbsd
-dev-libs/libbytesize
 dev-libs/libdnet
 dev-libs/libev
 dev-libs/libevent
 dev-libs/libffi
 dev-libs/libgcrypt
 dev-libs/libgpg-error
-dev-libs/libgudev
 dev-libs/libksba
-dev-libs/liblinear
 dev-libs/libltdl
 dev-libs/libmspack
 dev-libs/libnl
@@ -283,10 +274,8 @@ dev-libs/userspace-rcu
 dev-libs/xmlsec
 dev-libs/yajl
 
-dev-perl/File-Slurp
 dev-perl/Parse-Yapp
 
-dev-python/autocommand
 dev-python/backports-tarfile
 dev-python/cachecontrol
 dev-python/certifi
@@ -328,7 +317,6 @@ dev-python/mdurl
 dev-python/more-itertools
 dev-python/msgpack
 dev-python/olefile
-dev-python/ordered-set
 dev-python/packaging
 dev-python/pathspec
 dev-python/pefile
@@ -350,7 +338,6 @@ dev-python/setuptools
 dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
-dev-python/tenacity
 dev-python/tomli
 dev-python/tree-sitter
 dev-python/trove-classifiers
@@ -363,8 +350,6 @@ dev-python/wheel
 dev-util/bpftool
 dev-util/catalyst
 dev-util/checkbashisms
-dev-util/cmocka
-dev-util/desktop-file-utils
 dev-util/gdbus-codegen
 dev-util/glib-utils
 dev-util/gperf
@@ -548,7 +533,6 @@ net-nds/rpcbind
 
 net-vpn/wireguard-tools
 
-perl-core/File-Temp
 perl-core/Getopt-Long
 
 profiles
@@ -595,7 +579,6 @@ sys-apps/less
 sys-apps/locale-gen
 sys-apps/lsb-release
 sys-apps/lshw
-sys-apps/makedev
 sys-apps/man-db
 sys-apps/man-pages
 sys-apps/miscfiles
@@ -660,7 +643,6 @@ sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
 sys-fs/squashfs-tools-ng
-sys-fs/udisks
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
@@ -672,7 +654,6 @@ sys-libs/cracklib
 sys-libs/efivar
 sys-libs/gdbm
 sys-libs/ldb
-sys-libs/libblockdev
 sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libnvme
@@ -713,27 +694,18 @@ virtual/openssh
 virtual/os-headers
 virtual/package-manager
 virtual/pager
-virtual/perl-Carp
 virtual/perl-Data-Dumper
 virtual/perl-Encode
-virtual/perl-Exporter
 virtual/perl-ExtUtils-MakeMaker
-virtual/perl-File-Spec
-virtual/perl-File-Temp
 virtual/perl-Getopt-Long
-virtual/perl-IO
 virtual/perl-Unicode-Collate
 virtual/pkgconfig
 virtual/resolvconf
-virtual/rust
 virtual/service-manager
 virtual/ssh
 virtual/tmpfiles
 virtual/udev
 
-x11-base/xorg-proto
-
 x11-libs/pixman
 
 x11-misc/makedepend
-x11-misc/shared-mime-info

@@ -215,3 +215,9 @@ RDEPEND+="
 		sys-auth/google-oslogin
 	)
 "
+
+# Group and user packages to eventually replace passwd in baselayout.
+RDEPEND="${RDEPEND}
+	acct-group/floppy
+	acct-group/uucp
+"
