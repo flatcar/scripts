@@ -28,3 +28,5 @@ dev-libs/gmp cpudetection asm
 
 # Disable gentoo-only bits.
 sys-apps/systemd vanilla
+
+coreos-base/flatcar-nano -openssh -readline -bash -pam
