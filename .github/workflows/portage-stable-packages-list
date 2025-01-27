@@ -104,6 +104,7 @@ app-cdr/cdrtools
 app-containers/aardvark-dns
 app-containers/catatonit
 app-containers/conmon
+app-containers/containerd
 app-containers/containers-common
 app-containers/containers-image
 app-containers/containers-shortnames
