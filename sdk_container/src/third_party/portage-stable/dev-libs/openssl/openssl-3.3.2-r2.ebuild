@@ -4,9 +4,8 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
-TMPFILES_OPTIONAL=1
 inherit edo flag-o-matic linux-info toolchain-funcs
-inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig tmpfiles
+inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://openssl-library.org/"
@@ -26,7 +25,7 @@ else
 	"
 
 	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -34,15 +33,11 @@ S="${WORKDIR}"/${MY_P}
 
 LICENSE="Apache-2.0"
 SLOT="0/$(ver_cut 1)" # .so version of libssl/libcrypto
-IUSE="+asm cpu_flags_x86_sse2 fips ktls rfc3779 sctp static-libs test tls-compression vanilla verify-sig weak-ssl-ciphers"
+IUSE="+asm cpu_flags_x86_sse2 fips ktls +quic rfc3779 sctp static-libs test tls-compression vanilla verify-sig weak-ssl-ciphers"
 RESTRICT="!test? ( test )"
 
-# Flatcar: Gentoo dropped dependency on c_rehash, a required tool for
-# generating certs, and does not provide a built-in tool either.
-# Continue shipping it.
 COMMON_DEPEND="
 	!<net-misc/openssh-9.2_p1-r3
-	>=app-misc/c_rehash-1.7-r1
 	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
 "
 BDEPEND="
@@ -65,6 +60,7 @@ MULTILIB_WRAPPED_HEADERS=(
 
 PATCHES=(
 	"${FILESDIR}"/${P}-CVE-2024-9143.patch
+	"${FILESDIR}"/${PN}-3.3.2-silence-warning.patch
 )
 
 pkg_setup() {
@@ -107,7 +103,7 @@ src_unpack() {
 src_prepare() {
 	# Make sure we only ever touch Makefile.org and avoid patching a file
 	# that gets blown away anyways by the Configure script in src_configure
-	rm -f Makefile
+	rm -f Makefile || die
 
 	if ! use vanilla ; then
 		PATCHES+=(
@@ -194,6 +190,7 @@ multilib_src_configure() {
 	local myeconfargs=(
 		${sslout}
 
+		$(multilib_is_native_abi || echo "no-docs")
 		$(use cpu_flags_x86_sse2 || echo "no-sse2")
 		enable-camellia
 		enable-ec
@@ -205,6 +202,7 @@ multilib_src_configure() {
 		enable-mdc2
 		enable-rc5
 		$(use fips && echo "enable-fips")
+		$(use quic && echo "enable-quic")
 		$(use_ssl asm)
 		$(use_ssl ktls)
 		$(use_ssl rfc3779)
@@ -226,10 +224,6 @@ multilib_src_configure() {
 
 multilib_src_compile() {
 	emake build_sw
-
-	if multilib_is_native_abi; then
-		emake build_docs
-	fi
 }
 
 multilib_src_test() {
@@ -276,21 +270,15 @@ multilib_src_install_all() {
 
 	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
 
+	# Create the certs directory
+	keepdir ${SSL_CNF_DIR}/certs
+
 	# bug #254521
 	dodir /etc/sandbox.d
 	echo 'SANDBOX_PREDICT="/dev/crypto"' > "${ED}"/etc/sandbox.d/10openssl
 
-	# flatcar changes: do not keep the sample CA files in `/etc`
-	rm -rf "${ED}"${SSL_CNF_DIR}
-
-	# flatcar changes: save the default `openssl.cnf` in `/usr`
-	dodir /usr/share/ssl
-	insinto /usr/share/ssl
-	doins "${S}"/apps/openssl.cnf
-	dotmpfiles "${FILESDIR}"/openssl.conf
-
-	# flatcar changes: package `tmpfiles.d` setup for SDK bootstrapping.
-	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/openssl.conf
+	diropts -m0700
+	keepdir ${SSL_CNF_DIR}/private
 }
 
 pkg_preinst() {
@@ -304,5 +292,14 @@ pkg_preinst() {
 	fi
 
 	preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
+		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
+}
+
+pkg_postinst() {
+	ebegin "Running 'openssl rehash ${EROOT}${SSL_CNF_DIR}/certs' to rebuild hashes (bug #333069)"
+	openssl rehash "${EROOT}${SSL_CNF_DIR}/certs"
+	eend $?
+
+	preserve_old_lib_notify /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
 		/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
 }
