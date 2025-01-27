@@ -14,19 +14,20 @@ ABSEIL_MIN_VER="${ABSEIL_MIN_VER//_/}"
 if [[ "${PV}" == *9999 ]]; then
 	EGIT_REPO_URI="https://github.com/protocolbuffers/protobuf.git"
 	EGIT_SUBMODULES=( '-*' )
-	SLOT="0/9999"
+	MY_SLOT="28.0"
 
 	inherit git-r3
 else
 	SRC_URI="https://github.com/protocolbuffers/protobuf/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~x64-macos"
-	SLOT="0/$(ver_cut 1-2).0"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~x64-macos"
+	MY_SLOT=$(ver_cut 1-2)
 fi
 
 DESCRIPTION="Google's Protocol Buffers - Extensible mechanism for serializing structured data"
 HOMEPAGE="https://protobuf.dev/"
 
 LICENSE="BSD"
+SLOT="0/${MY_SLOT}.0"
 IUSE="conformance debug emacs examples +libprotoc libupb +protobuf +protoc test zlib"
 
 # Require protobuf for the time being
@@ -60,9 +61,9 @@ RDEPEND="
 "
 
 PATCHES=(
+	"${FILESDIR}/${PN}-26.1-disable-32-bit-tests.patch"
 	"${FILESDIR}/${PN}-23.3-static_assert-failure.patch"
 	"${FILESDIR}/${PN}-27.4-findJsonCpp.patch"
-	"${FILESDIR}/${PN}-28.0-disable-test_upb-lto.patch"
 )
 
 DOCS=( CONTRIBUTORS.txt README.md )
@@ -128,14 +129,6 @@ src_test() {
 	}
 
 	multilib_foreach_abi setup_test_env
-
-	# Do headstands for LTO # 942985
-	local -x GTEST_FILTER
-	GTEST_FILTER="-FileDescriptorSetSource/EncodeDecodeTest*"
-
-	cmake-multilib_src_test
-
-	GTEST_FILTER="${GTEST_FILTER//-/}"
 
 	cmake-multilib_src_test
 }
