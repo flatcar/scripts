@@ -20,6 +20,3 @@
 
 # Pulls in LLVM and clang.
 >=sys-block/thin-provisioning-tools-1.0.14
-
-# Pulls in python into production.
->=sys-auth/sssd-2.9.6
