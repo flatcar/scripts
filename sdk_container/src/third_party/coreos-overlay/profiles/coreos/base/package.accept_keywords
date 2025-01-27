@@ -79,7 +79,11 @@
 
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.1.2-r1 ~arm64
-=sys-auth/sssd-2.9.5 ~arm64
+
+# Needed to avoid pulling python into production images.
+=sys-auth/sssd-2.9.6-r1 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
