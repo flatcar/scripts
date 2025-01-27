@@ -684,6 +684,7 @@ virtual/acl
 virtual/dev-manager
 virtual/editor
 virtual/krb5
+virtual/ldb
 virtual/libc
 virtual/libcrypt
 virtual/libelf
