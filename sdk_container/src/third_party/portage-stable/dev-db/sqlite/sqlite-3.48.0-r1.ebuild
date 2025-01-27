@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit autotools flag-o-matic multilib-minimal toolchain-funcs
+inherit flag-o-matic multilib-minimal toolchain-funcs
 
 DESCRIPTION="SQL database engine"
 HOMEPAGE="https://sqlite.org/"
@@ -19,12 +19,12 @@ else
 	#printf -v DOC_PV "%u%02u%02u00" $(ver_rs 1-3 " ")
 
 	SRC_URI="
-		https://sqlite.org/2024/${PN}-src-${SRC_PV}.zip
-		doc? ( https://sqlite.org/2024/${PN}-doc-${DOC_PV}.zip )
+		https://sqlite.org/2025/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2025/${PN}-doc-${DOC_PV}.zip )
 	"
 	S="${WORKDIR}/${PN}-src-${SRC_PV}"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="public-domain"
@@ -43,7 +43,6 @@ DEPEND="
 	${RDEPEND}
 	test? ( >=dev-lang/tcl-8.6:0[${MULTILIB_USEDEP}] )
 "
-BDEPEND=">=dev-lang/tcl-8.6:0"
 if [[ ${PV} == 9999 ]]; then
 	BDEPEND+=" dev-vcs/fossil"
 else
@@ -140,9 +139,11 @@ src_unpack() {
 }
 
 src_prepare() {
+
+	# Avoid stripping during the install phase
+	sed -i -e 's/$(INSTALL) -s /$(INSTALL) /' main.mk || die
 	default
 
-	eautoreconf
 	multilib_copy_sources
 }
 
@@ -320,7 +321,12 @@ multilib_src_configure() {
 		fi
 	fi
 
-	econf "${options[@]}"
+	# set SONAME for the library
+	options+=( --soname=legacy )
+
+	# https://sqlite.org/forum/forumpost/4f4d06a9f6683bb9
+	tc-export CC
+	CC_FOR_BUILD=${CC} econf "${options[@]}"
 }
 
 multilib_src_compile() {
