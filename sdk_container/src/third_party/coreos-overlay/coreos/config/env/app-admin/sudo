@@ -1,0 +1,14 @@
+cros_post_src_install_keep_etc_sudoers_d() {
+    # Flatcar: Build system installs /etc/sudoers.d, let's make
+    # sure we keep having it.
+    #
+    # Upstream PR: https://github.com/gentoo/gentoo/pull/37397
+    keepdir /etc/sudoers.d
+}
+
+# We don't ship OpenLDAP schemas (why?) and we provide sudo.conf
+# through baselayout.
+sudo_install_mask='/etc/openldap/schema /etc/sudo.conf'
+INSTALL_MASK+=" ${sudo_install_mask}"
+PKG_INSTALL_MASK+=" ${sudo_install_mask}"
+unset sudo_install_mask

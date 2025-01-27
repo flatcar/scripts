@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit pam libtool tmpfiles toolchain-funcs
+inherit autotools flag-o-matic pam tmpfiles toolchain-funcs
 
 MY_P="${P/_/}"
 MY_P="${MY_P/beta/b}"
@@ -33,7 +33,7 @@ else
 	"
 
 	if [[ ${PV} != *_beta* && ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	fi
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-sudo )"
@@ -63,14 +63,13 @@ DEPEND="
 	selinux? ( sys-libs/libselinux )
 	skey? ( >=sys-auth/skey-1.1.5-r1 )
 	ssl? ( dev-libs/openssl:= )
-	sssd? ( sys-auth/sssd[sudo] )
+	sssd? ( sys-auth/sssd[sudo(+)] )
 "
-#Flatcar: Remove Perl runtime dependency
-#  ldap? ( dev-lang/perl )
 RDEPEND="
 	${DEPEND}
 	>=app-misc/editor-wrapper-3
 	virtual/editor
+	ldap? ( dev-lang/perl )
 	pam? ( sys-auth/pambase )
 	selinux? ( sec-policy/selinux-sudo )
 	sendmail? ( virtual/mta )
@@ -87,10 +86,16 @@ REQUIRED_USE="
 
 MAKEOPTS+=" SAMPLES="
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.9.16-allow-disabling-secure-path.patch
+)
+
 src_prepare() {
 	default
 
-	elibtoolize
+	# eautoreconf temporarily for allow-disabling-secure-path patch
+	# in 1.9.16; revert to elibtoolize once that is gone.
+	eautoreconf
 }
 
 set_secure_path() {
@@ -145,6 +150,9 @@ src_configure() {
 	# bug #767712
 	tc-export PKG_CONFIG
 
+	# https://github.com/sudo-project/sudo/issues/420
+	append-cflags -std=gnu17
+
 	# - audit: somebody got to explain me how I can test this before I
 	# enable it.. - Diego
 	# - plugindir: autoconf code is crappy and does not delay evaluation
@@ -179,7 +187,8 @@ src_configure() {
 		$(use_with offensive all-insults)
 		$(use_with pam)
 		$(use_with pam pam-login)
-		$(use_with secure-path secure-path "${SECURE_PATH}")
+		$(use_with secure-path)
+		"$(use_with secure-path secure-path-value "${SECURE_PATH}")"
 		$(use_with selinux)
 		$(use_with sendmail)
 		$(use_with skey)
@@ -216,8 +225,8 @@ src_install() {
 		doins "${T}"/ldap.conf.sudo
 		fperms 0440 /etc/ldap.conf.sudo
 
-		#Flatcar: we don't ship OpenLDAP schemas
-
+		insinto /etc/openldap/schema
+		newins docs/schema.OpenLDAP sudo.schema
 	fi
 
 	if use pam ; then
@@ -236,15 +245,6 @@ src_install() {
 
 	# bug #697812
 	find "${ED}" -type f -name "*.la" -delete || die
-
-	# Flatcar: Remove sudo.conf as it is shipped via baselayout
-	rm "${ED}/etc/sudo.conf" || die
-
-	# Flatcar: Build system installs /etc/sudoers.d, let's make
-	# sure we keep having it.
-	#
-	# Upstream PR: https://github.com/gentoo/gentoo/pull/37397
-	keepdir /etc/sudoers.d
 }
 
 pkg_postinst() {
