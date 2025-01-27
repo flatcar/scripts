@@ -11,7 +11,7 @@
 =app-containers/containerd-1.7.23 ~amd64 ~arm64 # DO NOT EDIT THIS LINE. Added by containerd-apply-patch.sh on 2024-10-18 08:06:10
 
 # Keep versions on both arches in sync.
-=app-containers/cri-tools-1.27.0 ~arm64
+=app-containers/cri-tools-1.32.0 ~arm64
 
 # Accept unstable for Docker and its CLI.
 =app-containers/docker-27.3.1 ~amd64 ~arm64
@@ -78,7 +78,7 @@
 =sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-apps/zram-generator-1.1.2-r1 ~arm64
+=sys-apps/zram-generator-1.2.1 ~arm64
 
 # Needed to avoid pulling python into production images.
 =sys-auth/sssd-2.9.6-r1 ~amd64 ~arm64
