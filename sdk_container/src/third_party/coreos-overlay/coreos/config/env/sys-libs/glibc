@@ -1,0 +1,27 @@
+# A terrible hack to actually strip our binaries. We want to make
+# "dostrip -x /" a no-op, otherwise pass everything to the original
+# dostrip.
+eval "$(echo 'flatcar_hacked_dostrip()'; declare -pf dostrip | tail -n + 2)"
+dostrip() {
+    if [[ ${#} = 2 && ${1} = '-x' && ${2} = '/' ]]; then
+        return
+    fi
+    flatcar_hacked_dostrip "${@}"
+}
+
+cros_post_src_install_etc_munging() {
+    # Clean out any default configs. Baselayout will provide those.
+    rm -rf "${ED}"/etc
+    # Restore this one for the SDK.
+    test ! -e "${T}"/00glibc || doenvd "${T}"/00glibc
+    # Create nscd directories and config.
+    keepdir /var/db/nscd
+    insinto /etc
+    doins "${S}/nscd/nscd.conf"
+    # Create a symlink for backward-compatibility.
+    dosym -r /usr/share/flatcar/etc/nscd.conf /usr/share/baselayout/nscd.conf
+    # And an empty file, so the compat symlink is not dangling. It
+    # will be replaced later with a valid file from /etc.
+    insinto /usr/share/flatcar/etc
+    newins - nscd.conf
+}
