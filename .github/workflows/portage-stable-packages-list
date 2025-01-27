@@ -268,6 +268,7 @@ dev-libs/npth
 dev-libs/nspr
 dev-libs/oniguruma
 dev-libs/opensc
+dev-libs/openssl
 dev-libs/popt
 dev-libs/protobuf
 dev-libs/tree-sitter
