@@ -1,5 +1,17 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Eli Schwartz <eschwartz@gentoo.org> (2025-01-26)
+# Dependencies e.g. bindgen not keyworded
+dev-build/meson test-full
+
+# Sam James <sam@gentoo.org. (2025-01-14)
+# dev-cpp/benchmark is not yet keyworded here
+dev-libs/re2 benchmark
+
+# Sam James <sam@gentoo.org> (2025-01-14)
+# dev-libs/libpfm is not yet keyworded here
+dev-cpp/benchmark libpfm
 
 # Sam James <sam@gentoo.org> (2025-01-10)
 # Many unkeyworded dependencies like parts of TL (bug #947788)
@@ -44,10 +56,6 @@ dev-lang/python jit
 # NRK <nrk@disroot.org> (2024-04-08)
 # media-libs/libraw is not keyworded
 media-libs/imlib2 raw
-
-# Viorel Munteanu <ceamac@gentoo.org> (2024-04-06)
-# sys-libs/nss_wrapper unavailable for tests
-net-misc/dropbear test
 
 # Sam James <sam@gentoo.org> (2024-03-27)
 # No rust-bin available for profiler
