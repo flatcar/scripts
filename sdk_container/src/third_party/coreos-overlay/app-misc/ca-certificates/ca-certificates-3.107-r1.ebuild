@@ -21,11 +21,15 @@ SLOT="0"
 KEYWORDS="amd64 arm64"
 IUSE=""
 
-RDEPEND="dev-libs/openssl
+RDEPEND="
+	>=app-misc/c_rehash-1.7-r1
+	dev-libs/openssl
 	sys-apps/findutils
-	sys-apps/systemd"
+	sys-apps/systemd
+"
 DEPEND="${RDEPEND}
-	${PYTHON_DEPS}"
+	${PYTHON_DEPS}
+"
 
 pkg_setup() {
 	python-any-r1_pkg_setup
