@@ -1,0 +1,29 @@
+# A hack to avoid rehashing certs in a nonexistent directory.
+flatcar_hacked_openssl=$(command -v openssl)
+openssl() {
+    if [[ ${#} -gt 0 && ${1} = 'rehash' ]]; then
+        return;
+    fi
+    "${flatcar_hacked_openssl}" "${@}"
+}
+
+cros_post_src_install_certs() {
+    # Do not keep the sample CA files in /etc.
+    rm -rf "${ED}${SSL_CNF_DIR}"
+
+    # Save the default openssl.cnf in /etc.
+    diropts -m0755
+    insinto "${SSL_CNF_DIR}"
+    doins "${S}/apps/openssl.cnf"
+    # Recreate the private directory.
+    diropts -m0700
+    keepdir "${SSL_CNF_DIR}/private"
+    diropts -m0755
+
+    # Create a symlink for backward-compatibility.
+    dosym -r /usr/share/flatcar/etc/ssl/openssl.cnf /usr/share/ssl/openssl.cnf
+    # And an empty file, so the compat symlink is not dangling. It
+    # will be replaced later with a valid file from /etc.
+    insinto /usr/share/flatcar/etc/ssl
+    newins - openssl.cnf
+}
