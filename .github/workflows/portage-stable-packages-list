@@ -67,6 +67,7 @@ acct-user/tss
 
 app-admin/eselect
 app-admin/perl-cleaner
+app-admin/sudo
 
 app-alternatives/awk
 app-alternatives/bc
