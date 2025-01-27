@@ -655,6 +655,7 @@ sys-libs/binutils-libs
 sys-libs/cracklib
 sys-libs/efivar
 sys-libs/gdbm
+sys-libs/glibc
 sys-libs/ldb
 sys-libs/libcap
 sys-libs/libcap-ng
