@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -45,7 +45,7 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	BASH_COMMIT="5114e17172276cf5a2f889f8037ae58c4cb05bb9"
+	BASH_COMMIT="25e213a551dc808c7f29360075bad4806fb9fec5"
 	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
@@ -268,6 +268,8 @@ src_compile() {
 		fi
 	fi
 
+	# builtins/evalstring.c needs y.tab.h but can't (easily) specify the dep on it from above
+	emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" y.tab.h
 	emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}"
 	use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" all others
 
@@ -284,6 +286,7 @@ src_compile() {
 
 		# Rebuild Bash using the profiling data we just generated.
 		emake clean
+		emake CFLAGS="${CFLAGS} ${pgo_use_flags[*]}" y.tab.h
 		emake CFLAGS="${CFLAGS} ${pgo_use_flags[*]}"
 		use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_use_flags[*]}" all others
 	fi
