@@ -21,3 +21,6 @@ app-misc/editor-wrapper-4
 acct-group/named-0-r3
 acct-user/named-0-r3
 sys-process/psmisc-23.7
+
+# Pulled in by app-admin/sudo
+dev-lang/perl-5.40.0
