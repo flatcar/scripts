@@ -1,9 +1,9 @@
-# Copyright 2022-2023 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 inherit go-module systemd
-GIT_REVISION=9b2ad7760328148397346d10c7b2004271249db4
+GIT_REVISION=c507a0257ea6462fbd6f5ba4f5c74facb04021f4
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -14,15 +14,19 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
 IUSE="apparmor btrfs device-mapper +cri hardened +seccomp selinux test"
 
-DEPEND="
+COMMON_DEPEND="
 	btrfs? ( sys-fs/btrfs-progs )
 	seccomp? ( sys-libs/libseccomp )
 "
 
-# recommended version of runc is found in script/setup/runc-version
+DEPEND="
+${COMMON_DEPEND}
+"
+
+# recommended minimum version of runc is found in script/setup/runc-version
 RDEPEND="
-	${DEPEND}
-	~app-containers/runc-1.1.14[apparmor?,seccomp?]
+	${COMMON_DEPEND}
+	>=app-containers/runc-1.2.4[apparmor?,seccomp?]
 "
 
 BDEPEND="
@@ -69,7 +73,7 @@ src_compile() {
 }
 
 src_install() {
-	rm "${D}"/bin/gen-manpages
+	rm bin/gen-manpages || die
 	dobin bin/*
 	doman man/*
 	newconfd "${FILESDIR}"/${PN}.confd "${PN}"

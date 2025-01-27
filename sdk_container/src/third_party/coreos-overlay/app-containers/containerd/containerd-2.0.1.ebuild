@@ -1,9 +1,9 @@
-# Copyright 2022-2023 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 inherit go-module systemd
-GIT_REVISION=0cae528dd6cb557f7201036e9f43420650207b58
+GIT_REVISION=88aa2f531d6c2922003cc7929e51daf1c14caa0a
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -11,18 +11,22 @@ SRC_URI="https://github.com/containerd/containerd/archive/v${PV}.tar.gz -> ${P}.
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
+KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv ~x86"
 IUSE="apparmor btrfs device-mapper +cri hardened +seccomp selinux test"
 
-DEPEND="
+COMMON_DEPEND="
 	btrfs? ( sys-fs/btrfs-progs )
 	seccomp? ( sys-libs/libseccomp )
 "
 
-# recommended version of runc is found in script/setup/runc-version
+DEPEND="
+${COMMON_DEPEND}
+"
+
+# recommended minimum version of runc is found in script/setup/runc-version
 RDEPEND="
-	${DEPEND}
-	~app-containers/runc-1.1.7[apparmor?,seccomp?]
+	${COMMON_DEPEND}
+	>=app-containers/runc-1.2.1[apparmor?,seccomp?]
 "
 
 BDEPEND="
@@ -69,7 +73,7 @@ src_compile() {
 }
 
 src_install() {
-	rm "${D}"/bin/gen-manpages
+	rm bin/gen-manpages || die
 	dobin bin/*
 	doman man/*
 	newconfd "${FILESDIR}"/${PN}.confd "${PN}"
