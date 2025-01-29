@@ -51,6 +51,7 @@
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
+=dev-util/maturin-1.8.1 ~arm64
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
