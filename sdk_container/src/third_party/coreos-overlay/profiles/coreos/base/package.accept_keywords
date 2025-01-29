@@ -10,12 +10,6 @@
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.32.0 ~arm64
 
-# These seem to be the versions we initially got, but the
-# modifications made to the ebuilds were clobbered, so these are here
-# to keep using the same version. Can be dropped when these or newer
-# get stabilized in Gentoo.
-=app-containers/runc-1.1.14 ~amd64 ~arm64
-
 # Seems to be the only available ebuild in portage-stable right now.
 =app-crypt/adcli-0.9.2 ~arm64
 
