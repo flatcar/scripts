@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -20,7 +20,7 @@ if [[ ${PV} = *beta* ]]; then
 else
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
 fi
 
 DESCRIPTION="Systems programming language from Mozilla"
@@ -38,6 +38,8 @@ ALL_LLVM_TARGETS=( AArch64 AMDGPU ARC ARM AVR BPF CSKY DirectX Hexagon Lanai
 	WebAssembly X86 XCore Xtensa )
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
+
+ALL_LLVM_EXPERIMENTAL_TARGETS=( ARC CSKY DirectX M68k SPIRV Xtensa )
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
 SLOT="${PV}"
@@ -270,6 +272,14 @@ src_configure() {
 	rust_build="$(rust_abi "${CBUILD}")"
 	rust_host="$(rust_abi "${CHOST}")"
 
+	LLVM_EXPERIMENTAL_TARGETS=()
+	for _x in "${ALL_LLVM_EXPERIMENTAL_TARGETS[@]}"; do
+		if use llvm_targets_${_x} ; then
+			LLVM_EXPERIMENTAL_TARGETS+=( ${_x} )
+		fi
+	done
+	LLVM_EXPERIMENTAL_TARGETS=${LLVM_EXPERIMENTAL_TARGETS[@]}
+
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
 		[llvm]
@@ -279,7 +289,7 @@ src_configure() {
 		assertions = $(toml_usex debug)
 		ninja = true
 		targets = "${LLVM_TARGETS// /;}"
-		experimental-targets = ""
+		experimental-targets = "${LLVM_EXPERIMENTAL_TARGETS// /;}"
 		link-shared = $(toml_usex system-llvm)
 		$(if is_libcxx_linked; then
 			# https://bugs.gentoo.org/732632
