@@ -206,6 +206,7 @@ dev-embedded/u-boot-tools
 dev-go/go-md2man
 
 dev-lang/duktape
+dev-lang/go
 dev-lang/go-bootstrap
 dev-lang/nasm
 dev-lang/perl
