@@ -2768,7 +2768,7 @@ function grep_pkg() {
     pkg=${1}; shift
     # rest are directories
 
-    git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-zA-Z0-9_-]\|$\)' -- "${@}" || :
+    GIT_PAGER= git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-zA-Z0-9_-]\|$\)' -- "${@}" || :
 }
 
 # Prints the passed files preceding and following with BEGIN ENTRY and
