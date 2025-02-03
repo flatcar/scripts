@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -6,7 +6,7 @@ EAPI=8
 TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
 PATCH_GCC_VER="15.0.0"
-PATCH_VER="34"
+PATCH_VER="43"
 MUSL_VER="2"
 MUSL_GCC_VER="15.0.0"
 PYTHON_COMPAT=( python3_{10..12} )
