@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Eli Schwartz <eschwartz@gentoo.org> (2025-01-27)
+# Dependencies e.g. pypy keyworded (not stable) here.
+dev-build/meson -test-full
+
 # Michał Górny <mgorny@gentoo.org> (2024-12-24)
 # OpenMP offloading is supported on 64-bit architectures only.
 llvm-core/clang-runtime -offload
@@ -12,7 +16,7 @@ dev-python/qtpy remoteobjects
 
 # Sam James <sam@gentoo.org> (2024-12-17)
 # dev-lang/ada-bootstrap exists here
->=sys-devel/gcc-14 -ada
+>=sys-devel/gcc-11 -ada
 
 # Alexey Shvetsov <alexxy@gentoo.org> (2024-11-21)
 # sci-libs/caffe2 is not keyworded on arm64
@@ -389,11 +393,6 @@ media-video/ffmpeg -sdl
 media-video/mplayer -sdl
 media-video/mpv -sdl
 >=x11-libs/wxGTK-3 -sdl
-
-# Jan Vesely <jano.vesely@gmail.com> (2018-06-15)
-# Mesa clover only works on r600 or radeonsi GPUs. The corresponding
-# video_cards useflags are not available on arm
-media-libs/mesa opencl
 
 # Mart Raudsepp <leio@gentoo.org> (2018-05-30)
 # app-text/pandoc not keyworded yet
