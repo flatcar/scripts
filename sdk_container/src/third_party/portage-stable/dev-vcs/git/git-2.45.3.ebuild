@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -50,7 +50,7 @@ if [[ ${PV} != *9999 ]]; then
 	SRC_URI+=" doc? ( ${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX} )"
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -253,7 +253,7 @@ src_prepare() {
 		# This patch neuters the "safe directory" detection.
 		# bugs #838271, #838223
 		PATCHES+=(
-			"${FILESDIR}"/git-2.46.2-unsafe-directory.patch
+			"${FILESDIR}"/git-2.37.2-unsafe-directory.patch
 		)
 	fi
 
@@ -331,10 +331,6 @@ src_compile() {
 
 	if use perl && use cgi ; then
 		git_emake gitweb
-	fi
-
-	if use perl ; then
-		git_emake -C contrib/credential/netrc
 	fi
 
 	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
@@ -473,8 +469,6 @@ src_test() {
 	# Now run the tests, keep going if we hit an error, and don't terminate on
 	# failure
 	local rc
-	# t0610-reftable-basics.sh uses $A
-	local -x A=
 	einfo "Start test run"
 	#MAKEOPTS=-j1
 	nonfatal git_emake --keep-going test
@@ -486,11 +480,6 @@ src_test() {
 
 	# And bail if there was a problem
 	[[ ${rc} -eq 0 ]] || die "Tests failed. Please file a bug!"
-
-	popd &>/dev/null || die
-	if use perl ; then
-		emake -C contrib/credential/netrc testverbose
-	fi
 }
 
 src_install() {
@@ -615,12 +604,6 @@ src_install() {
 		done
 	else
 		rm -rf "${ED}"/usr/share/gitweb
-	fi
-
-	if use perl ; then
-		pushd contrib/credential/netrc &>/dev/null || die
-		dobin git-credential-netrc
-		popd &>/dev/null || die
 	fi
 
 	if ! use subversion ; then
