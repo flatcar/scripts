@@ -2266,6 +2266,8 @@ gcc_do_make() {
 
 	local emakeargs=(
 		LDFLAGS="${LDFLAGS}"
+		# TODO: Can we replace this with --enable-version-specific-runtime-libs
+		# these days?
 		LIBPATH="${LIBPATH}"
 	)
 
@@ -2749,7 +2751,9 @@ gcc_movelibs() {
 	# code to run on the target.
 	if is_crosscompile ; then
 		dodir "${HOSTLIBPATH#${EPREFIX}}"
-		mv "${ED}"/usr/$(get_libdir)/libcc1* "${D}${HOSTLIBPATH}" || die
+		# XXX: Ideally, we'd use $(get_libdir) here, but it's
+		# not right for cross. See bug #942573 and bug #794181.
+		mv "${ED}"/usr/lib*/libcc1* "${D}${HOSTLIBPATH}" || die
 	fi
 
 	# libgccjit gets installed to /usr/lib, not /usr/$(get_libdir). Probably
@@ -3153,21 +3157,24 @@ XGCC() { get_make_var GCC_FOR_TARGET ; }
 
 has toolchain_death_notice ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" toolchain_death_notice"
 toolchain_death_notice() {
+	# TODO: For bootstrap comparison failures, include the stage2 & stage3
+	# differing objects to avoid having to ask reporters to manually collect...
 	local dir
 	for dir in "${WORKDIR}"/build-jit "${WORKDIR}"/build ; do
 		if [[ -e "${dir}" ]] ; then
 			pushd "${WORKDIR}" >/dev/null
 			(echo '' | $(tc-getCC ${CTARGET}) ${CFLAGS} -v -E - 2>&1) > "${dir}"/gccinfo.log
 			[[ -e "${T}"/build.log ]] && cp "${T}"/build.log "${dir}"
-			tar -arf "${WORKDIR}"/gcc-build-logs.tar.xz \
-				"${dir#${WORKDIR}/}"/gccinfo.log "${dir#${WORKDIR}/}"/build.log $(find -name "${dir}"/config.log)
-			rm "${dir}"/gccinfo.log "${dir}"/build.log
+			tar -rf "${WORKDIR}"/gcc-build-logs.tar \
+				"${dir#${WORKDIR}/}"/gccinfo.log "${dir#${WORKDIR}/}"/build.log $(find "${dir#${WORKDIR}/}" -type f -name "config.log")
+			rm "${dir#${WORKDIR}/}"/gccinfo.log "${dir#${WORKDIR}/}"/build.log
 			eerror
 			eerror "Please include ${WORKDIR}/gcc-build-logs.tar.xz in your bug report."
 			eerror
 			popd >/dev/null
 		fi
 	done
+	xz -9e "${WORKDIR}"/gcc-build-logs.tar
 }
 
 fi
