@@ -26,7 +26,7 @@ MY_P="${P/_/-}"
 
 DESCRIPTION="Cross platform Make"
 HOMEPAGE="https://cmake.org/"
-if [[ ${PV} == 9999 ]] ; then
+if [[ ${PV} == *9999* ]] ; then
 	CMAKE_DOCS_PREBUILT=0
 
 	EGIT_REPO_URI="https://gitlab.kitware.com/cmake/cmake.git"
@@ -47,9 +47,9 @@ else
 			https://github.com/Kitware/CMake/releases/download/v$(ver_cut 1-3)/${MY_P}-SHA-256.txt.asc
 		)"
 
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
-		BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20230817 )"
+		BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20240902 )"
 	fi
 fi
 
@@ -59,7 +59,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="${CMAKE_DOCS_USEFLAG} dap gui ncurses qt6 test"
+IUSE="${CMAKE_DOCS_USEFLAG} dap gui ncurses test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -72,14 +72,7 @@ RDEPEND="
 	sys-libs/zlib
 	virtual/pkgconfig
 	dap? ( dev-cpp/cppdap )
-	gui? (
-		!qt6? (
-			dev-qt/qtcore:5
-			dev-qt/qtgui:5
-			dev-qt/qtwidgets:5
-		)
-		qt6? ( dev-qt/qtbase:6[gui,widgets] )
-	)
+	gui? ( dev-qt/qtbase:6[gui,widgets] )
 	ncurses? ( sys-libs/ncurses:= )
 "
 DEPEND="${RDEPEND}"
@@ -124,6 +117,33 @@ cmake_src_bootstrap() {
 		--prefix="${T}/cmakestrap/" \
 		--parallel=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)") \
 		|| die "Bootstrap failed"
+}
+
+pkg_pretend() {
+	if [[ -z ${EPREFIX} ]] ; then
+		local file
+		local errant_files=()
+
+		# See bug #599684 and  bug #753581 (at least)
+		for file in /etc/arch-release /etc/redhat-release /etc/debian_version ; do
+			if [[ -e ${file} ]]; then
+				errant_files+=( "${file}" )
+			fi
+		done
+
+		# If errant files exist
+		if [[ ${#errant_files[@]} -gt 0 ]]; then
+			eerror "Errant files found!"
+			eerror "The presence of these files is known to confuse CMake's"
+			eerror "library path logic. Please (re)move these files:"
+
+			for file in "${errant_files[@]}"; do
+				eerror " mv ${file} ${file}.bak"
+			done
+
+			die "Stray files found in /etc/, see above message"
+		fi
+	fi
 }
 
 src_unpack() {
@@ -217,7 +237,7 @@ src_configure() {
 		-DBUILD_QtDialog=$(usex gui)
 	)
 
-	use gui && mycmakeargs+=( -DCMake_QT_MAJOR_VERSION=$(usex qt6 6 5) )
+	use gui && mycmakeargs+=( -DCMake_QT_MAJOR_VERSION=6 )
 
 	cmake_src_configure
 }
@@ -234,7 +254,7 @@ src_test() {
 	pushd "${BUILD_DIR}" > /dev/null || die
 
 	# Excluded tests:
-	#    BootstrapTest: we actualy bootstrap it every time so why test it.
+	#    BootstrapTest: we actually bootstrap it every time so why test it?
 	#    BundleUtilities: bundle creation broken
 	#    CMakeOnly.AllFindModules: pthread issues
 	#    CTest.updatecvs: which fails to commit as root
