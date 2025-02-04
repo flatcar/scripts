@@ -91,9 +91,7 @@ go_export() {
 	export CGO_CPPFLAGS="${CPPFLAGS}"
 	export CGO_CXXFLAGS="${CXXFLAGS}"
 	export CGO_LDFLAGS="${LDFLAGS}"
-
-	# Ensure the `go` wrapper calls the version we expect
-	export EGO="${COREOS_GO_VERSION}"
+	export EGO=go
 
 	# With Go >= 1.16, GO111MODULE=on is set by default.
 	# Few of our repos still don't support Go modules so we would need to set
