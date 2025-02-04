@@ -60,6 +60,7 @@ timeout --signal=SIGQUIT 2h kola run \
   --openstack-keyfile="${openstack_keyfile}" \
   --openstack-image="${IMAGE_ID}" \
   --openstack-config-file="${config_file}" \
+  --image-version "${CIA_VERNUM}" \
   "${@}"
 
 set +x
