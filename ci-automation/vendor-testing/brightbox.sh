@@ -61,6 +61,7 @@ timeout --signal=SIGQUIT 2h kola run \
   --brightbox-client-id="${BRIGHTBOX_CLIENT_ID}" \
   --brightbox-client-secret="${BRIGHTBOX_CLIENT_SECRET}" \
   --brightbox-server-type="${BRIGHTBOX_SERVER_TYPE}" \
+  --image-version "${CIA_VERNUM}" \
   "${@}"
 
 set +x
