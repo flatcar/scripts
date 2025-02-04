@@ -87,6 +87,7 @@ kola run \
     ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
     "${devcontainer_opts[@]}" \
     ${SECUREBOOT:+--enable-secureboot} \
+    --image-version "${CIA_VERNUM}" \
     "${@}"
 
 set +x
