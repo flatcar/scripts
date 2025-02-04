@@ -17,5 +17,5 @@ S="${WORKDIR}"
 src_install() {
 	insinto "/oem"
 	doins "${FILESDIR}/grub.cfg"
-	doins "${FILESDIR}/USER_DATA_INJECTION"
+	doins "${FILESDIR}/USER_DATA_INJECTION_FLATCAR"
 }
