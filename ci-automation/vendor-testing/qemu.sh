@@ -73,6 +73,7 @@ kola run \
     --tapfile="${CIA_TAPFILE}" \
     ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
     "${devcontainer_opts[@]}" \
+    --image-version "${CIA_VERNUM}" \
     "${@}"
 
 set +x

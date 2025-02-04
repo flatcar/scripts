@@ -119,6 +119,7 @@ run_kola_tests() {
       --tapfile="${instance_tapfile}" \
       --update-payload="${QEMU_UPDATE_PAYLOAD}" \
       ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
+      --image-version "${CIA_VERNUM}" \
       "${tests[@]}"
 }
 
