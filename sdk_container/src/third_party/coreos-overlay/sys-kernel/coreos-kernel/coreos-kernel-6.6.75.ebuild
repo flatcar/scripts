@@ -61,9 +61,24 @@ src_prepare() {
 	# Pull in the config and public module signing key
 	KV_OUT_DIR="${SYSROOT%/}/lib/modules/${COREOS_SOURCE_NAME#linux-}/build"
 	cp -v "${KV_OUT_DIR}/.config" build/ || die
+	echo cp -v "${KV_OUT_DIR}/.config" build/
+
+	# shred_keys needs to have config in place, so that it can read the MODULE_SIG_KEY
+	shred_keys
 	local sig_key="$(getconfig MODULE_SIG_KEY)"
-	mkdir -p "build/${sig_key%/*}" || die
-	cp -v "${KV_OUT_DIR}/${sig_key}" "build/${sig_key}" || die
+
+	if [ "$sig_key" == "${sig_key#/tmp/}" ]
+	then
+		die "Refusing to use module key stored outside of /tmp."
+	fi
+
+	# keeping the old logic here for now, unreacheble due to the previous condition
+	if [ "$sig_key" == "${sig_key#/}" ]
+	then
+		# sig_key is a relative path
+		mkdir -p "build/${sig_key%/*}" || die
+		cp -v "${KV_OUT_DIR}/${sig_key}" "build/${sig_key}" || die
+	fi
 
 	# Symlink to bootengine.cpio so we can stick with relative paths in .config
 	ln -sv "${SYSROOT%/}"/usr/share/bootengine/bootengine.cpio build/ || die
