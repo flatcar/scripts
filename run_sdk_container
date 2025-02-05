@@ -140,6 +140,7 @@ if [[ -z ${stat} ]] ; then
     docker_flags=(
         "${tty[@]}"
         -i
+        --mount type=tmpfs,destination=/tmp
         -v /dev:/dev
         -v "${PWD}/sdk_container:/mnt/host/source/"
         -v "${PWD}/__build__/images:/mnt/host/source/src/build"
