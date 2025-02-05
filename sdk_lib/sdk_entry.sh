@@ -49,6 +49,15 @@ sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/c
     fi
 )
 
+# SDK container is launched using the su command below, which does not preserve environment
+# moreover, if multiple shells are attached to the same container,
+# we want all of them to share the same value of the variable, therefore we need to save it in .bashrc
+grep -q 'export MODULE_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
+    echo "export MODULE_SIGNING_KEY_DIR='$MODULE_SIGNING_KEY_DIR'" >> /home/sdk/.bashrc
+    echo "export MODULES_SIGN_KEY='${MODULE_SIGNING_KEY_DIR}/certs/modules.pem'" >> /home/sdk/.bashrc
+    echo "export MODULES_SIGN_CERT='${MODULE_SIGNING_KEY_DIR}/certs/modules.pub.pem'" >> /home/sdk/.bashrc
+}
+
 # This is ugly.
 #   We need to sudo su - sdk -c so the SDK user gets a fresh login.
 #    'sdk' is member of multiple groups, and plain docker USER only

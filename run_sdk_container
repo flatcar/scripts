@@ -151,6 +151,7 @@ if [[ -z ${stat} ]] ; then
         --network host
         -e SDK_USER_ID="$(id -u)"
         -e SDK_GROUP_ID="$(id -g)"
+        -e MODULE_SIGNING_KEY_DIR="/tmp/$(uuidgen)"
         --name="${name}"
         --hostname="${hostname}"
         --entrypoint /bin/bash
