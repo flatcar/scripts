@@ -52,7 +52,6 @@ src_install() {
 	rm "${D}/usr/lib/debug/usr/lib/modules/${KV_FULL}/build" || die
 
 	# Clean up the build tree
-	shred_keys
 	kmake clean
 	find "build/" -type d -empty -delete || die
 	rm "build/.config.old" || die

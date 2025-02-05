@@ -136,15 +136,35 @@ getconfig() {
 	echo "${value}"
 }
 
+get_sig_key() {
+	local sig_key="$(getconfig MODULE_SIG_KEY)"
+
+	if [ "$sig_key" == "${sig_key#/}" ]
+	then
+		echo "build/$sig_key"
+	else
+		echo $sig_key
+	fi
+}
+
 # Generate the module signing key for this build.
 setup_keys() {
 	local sig_hash sig_key
 	sig_hash=$(getconfig MODULE_SIG_HASH)
-	sig_key="build/$(getconfig MODULE_SIG_KEY)"
+	sig_key="$(get_sig_key)"
+
+	echo "Preparing keys at $sig_key"
 
 	if [[ "${sig_key}" == "build/certs/signing_key.pem" ]]; then
 		die "MODULE_SIG_KEY is using the default value"
 	fi
+
+	if [ "$sig_key" == "${sig_key#/tmp/}" ]
+	then
+		die "Refusing to generate the key outside of /tmp, so that it stays in RAM only."
+	fi
+
+	pushd /tmp
 
 	mkdir -p certs "${sig_key%/*}" || die
 
@@ -174,14 +194,19 @@ setup_keys() {
 		-keyout certs/modules.key.pem \
 		|| die "Generating module signing key failed"
 	cat certs/modules.pub.pem certs/modules.key.pem > "${sig_key}"
+	cp certs/modules.pub.pem $MODULES_SIGN_CERT
+
+	popd
 }
 
 # Discard the module signing key but keep public certificate.
 shred_keys() {
 	local sig_key
-	sig_key="build/$(getconfig MODULE_SIG_KEY)"
-	shred -u certs/modules.key.pem "${sig_key}" || die
-	cp certs/modules.pub.pem "${sig_key}" || die
+	sig_key="$(get_sig_key)"
+	echo "Shredding the key in $sig_key"
+	shred -u /tmp/certs/modules.key.pem "${sig_key}" || die
+	mv /tmp/certs/modules.pub.pem "${sig_key}" || die
+	rm -f /tmp/certs/modules.cnf
 }
 
 # Populate /lib/modules/$(uname -r)/{build,source}
