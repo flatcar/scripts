@@ -1,0 +1,12 @@
+# Fix cross-compilation by setting up the environment properly.
+#
+# This is what go-module_src_unpack does, but docker does not use it.
+cros_pre_src_unpack_set_build_env() {
+	if use amd64 || use arm || use arm64 ||
+		( use ppc64 && [[ $(tc-endian) == "little" ]] ) || use s390 || use x86; then
+			GOFLAGS="-buildmode=pie ${GOFLAGS}"
+	fi
+	GOFLAGS="${GOFLAGS} -p=$(makeopts_jobs)"
+
+	go-env_set_compile_environment
+}
