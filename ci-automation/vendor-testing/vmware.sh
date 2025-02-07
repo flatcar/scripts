@@ -62,6 +62,7 @@ sudo timeout --signal=SIGQUIT 2h kola run \
     --parallel="${VMWARE_ESX_PARALLEL}" \
     --esx-config-file "${config_file}" \
     --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}" \
+    --image-version "${CIA_VERNUM}" \
     "${@}"
 
 set +x
