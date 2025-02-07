@@ -13,11 +13,10 @@
 # @CODE
 # COREOS_GO_VERSION=go1.20
 # @CODE
-export COREOS_GO_VERSION="${COREOS_GO_VERSION:-go1.22}"
+export COREOS_GO_VERSION="${COREOS_GO_VERSION:-go1.23}"
 
 case "${EAPI:-0}" in
-	5|6) DEPEND="dev-lang/go:${COREOS_GO_VERSION#go}=" ;;
-	7|8) BDEPEND="dev-lang/go:${COREOS_GO_VERSION#go}=" ;;
+	7|8) BDEPEND=">=dev-lang/go-${COREOS_GO_VERSION#go}:=" ;;
 	*) die "Unsupported EAPI=${EAPI} for ${ECLASS}"
 esac
 

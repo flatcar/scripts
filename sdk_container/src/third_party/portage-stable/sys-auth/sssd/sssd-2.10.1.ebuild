@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -23,8 +23,8 @@ fi
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="doc +netlink nfsv4 nls passkey samba selinux systemd systemtap test"
-REQUIRED_USE=" ( ${PYTHON_REQUIRED_USE} ) "
+IUSE="doc +netlink nfsv4 nls passkey python samba selinux systemd systemtap test"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
 DEPEND="
@@ -54,11 +54,13 @@ DEPEND="
 	nfsv4? ( >=net-fs/nfs-utils-2.3.1-r2 )
 	nls? ( >=sys-devel/gettext-0.18 )
 	passkey? ( dev-libs/libfido2:= )
-	${PYTHON_DEPS}
-	systemd? (
-		$(python_gen_cond_dep '
-			dev-python/python-systemd[${PYTHON_USEDEP}]
-		')
+	python? (
+		${PYTHON_DEPS}
+		systemd? (
+			$(python_gen_cond_dep '
+				dev-python/python-systemd[${PYTHON_USEDEP}]
+			')
+		)
 	)
 	samba? ( >=net-fs/samba-4.10.2[winbind] )
 	selinux? (
@@ -75,6 +77,8 @@ RDEPEND="${DEPEND}
 	acct-group/sssd
 	passkey? ( sys-apps/pcsc-lite[policykit] )
 	selinux? ( >=sec-policy/selinux-sssd-2.20120725-r9 )"
+DEPEND+="
+	sys-apps/shadow"
 BDEPEND="
 	acct-user/sssd
 	acct-group/sssd
@@ -102,6 +106,7 @@ CONFIG_CHECK="~KEYS"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-2.8.2-krb5_pw_locked.patch"
+	"${FILESDIR}/${PN}-2.9.6-conditional-python-install.patch"
 	"${FILESDIR}/${PN}-2.10.0_beta2-fix-systemd-systemconfdir.patch"
 )
 
@@ -250,11 +255,12 @@ multilib_src_configure() {
 		--with-subid
 		$(use_enable systemtap)
 		--without-python2-bindings
-		$(multilib_native_with python3-bindings)
+		$(multilib_native_use_with python python3-bindings)
 		# Annoyingly configure requires that you pick systemd XOR sysv
 		--with-initscript=$(usex systemd systemd sysv)
 		--with-sssd-user=sssd
-		 CPPFLAGS="${CPPFLAGS} -I/usr/include/samba-4.0"
+		KRB5_CONFIG="${ESYSROOT}"/usr/bin/krb5-config
+		CPPFLAGS="${CPPFLAGS} -I${ESYSROOT}/usr/include/samba-4.0"
 	)
 
 	use systemd && myconf+=(
@@ -305,8 +311,10 @@ multilib_src_test() {
 multilib_src_install() {
 	if multilib_is_native_abi; then
 		emake -j1 DESTDIR="${D}" install
-		python_fix_shebang "${ED}"
-		python_optimize
+		if use python; then
+			python_fix_shebang "${ED}"
+			python_optimize
+		fi
 	else
 		# easier than playing with automake...
 		dopammod .libs/pam_sss.so
@@ -362,8 +370,15 @@ multilib_src_install_all() {
 
 pkg_postinst() {
 	tmpfiles_process sssd-tmpfiles.conf
+	echo
 	elog "You must set up sssd.conf (default installed into /etc/sssd)"
 	elog "and (optionally) configuration in /etc/pam.d in order to use SSSD"
 	elog "features."
+	echo
 	optfeature "Kerberos keytab renew (see krb5_renew_interval)" app-crypt/adcli
+
+	if ! use python; then
+		echo
+		ewarn "sssctl analyze will not work because the python USE flag is disabled."
+	fi
 }

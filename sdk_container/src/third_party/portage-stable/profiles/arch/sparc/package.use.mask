@@ -1,6 +1,14 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Eli Schwartz <eschwartz@gentoo.org> (2025-01-26)
+# Dependencies e.g. bindgen not keyworded
+dev-build/meson test-full
+
+# Pacho Ramos <pacho@gentoo.org> (2025-01-26)
+# Needs unkeyworded net-libs/msgraph
+gnome-base/gvfs onedrive
+
 # Sam James <sam@gentoo.org> (2025-01-10)
 # Many unkeyworded dependencies like parts of TL (bug #947788)
 dev-perl/Template-Toolkit gd latex vim-syntax
@@ -12,7 +20,7 @@ dev-build/cmake gui
 
 # Sam James <sam@gentoo.org> (2024-12-17)
 # dev-lang/ada-bootstrap exists here
->=sys-devel/gcc-14 -ada
+>=sys-devel/gcc-11 -ada
 
 # Matt Jolly <kangie@gentoo.org> (2024-12-08)
 # dev-vcs/mercurial is not keyworded on sparc

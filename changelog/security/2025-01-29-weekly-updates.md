@@ -1,0 +1,5 @@
+- git ([CVE-2024-50349](https://nvd.nist.gov/vuln/detail/CVE-2024-50349), [CVE-2024-52005](https://nvd.nist.gov/vuln/detail/CVE-2024-52005), [CVE-2024-52006](https://nvd.nist.gov/vuln/detail/CVE-2024-52006))
+- glib ([CVE-2024-52533](https://nvd.nist.gov/vuln/detail/CVE-2024-52533))
+- glibc ([CVE-2025-0395](https://nvd.nist.gov/vuln/detail/CVE-2025-0395))
+- openssl ([CVE-2024-13176](https://nvd.nist.gov/vuln/detail/CVE-2024-13176))
+- rsync ([CVE-2024-12084](https://nvd.nist.gov/vuln/detail/CVE-2024-12084), [CVE-2024-12085](https://nvd.nist.gov/vuln/detail/CVE-2024-12085), [CVE-2024-12086](https://nvd.nist.gov/vuln/detail/CVE-2024-12086), [CVE-2024-12087](https://nvd.nist.gov/vuln/detail/CVE-2024-12087), [CVE-2024-12088](https://nvd.nist.gov/vuln/detail/CVE-2024-12088), [CVE-2024-12747](https://nvd.nist.gov/vuln/detail/CVE-2024-12747))
