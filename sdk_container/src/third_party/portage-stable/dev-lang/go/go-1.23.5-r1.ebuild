@@ -36,8 +36,8 @@ SLOT="0/${PV}"
 IUSE="cpu_flags_x86_sse2"
 
 RDEPEND="
-arm? ( sys-devel/binutils[gold] )
-arm64? ( sys-devel/binutils[gold] )"
+arm? ( sys-devel/binutils[gold(-)] )
+arm64? ( sys-devel/binutils[gold(-)] )"
 BDEPEND="|| (
 		>=dev-lang/go-${GO_BOOTSTRAP_MIN}
 		>=dev-lang/go-bootstrap-${GO_BOOTSTRAP_MIN} )"
@@ -87,10 +87,6 @@ src_compile() {
 		eerror "Go cannot be built without go or go-bootstrap installed"
 		die "Should not be here, please report a bug"
 	fi
-
-	export GOROOT_FINAL="${EPREFIX}"/usr/lib/go
-	export GOROOT="${PWD}"
-	export GOBIN="${GOROOT}/bin"
 
 	# Go's build script does not use BUILD/HOST/TARGET consistently. :(
 	export GOHOSTARCH=$(go-env_goarch ${CBUILD})
