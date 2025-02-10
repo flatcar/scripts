@@ -3,6 +3,25 @@
 
 # New entries go on top.
 
+# Michał Górny <mgorny@gentoo.org> (2025-02-08)
+# Requires dev-cpp/cpp-httplib that has extremely unstable ABI.
+# Not worth the constant churn of having to rebuild LLVM again and again.
+llvm-core/lldb debuginfod
+llvm-core/llvm debuginfod
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2025-01-04)
+# Missing dependencies not packaged currently
+dev-python/pyside doc
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-29)
+# Prepare cleanup of kde-frameworks/syndication:5
+kde-frameworks/knewstuff:5 opds
+
+# Eli Schwartz <eschwartz@gentoo.org> (2025-01-27)
+# Dependencies e.g. bindgen/netcdf/pypy not keyworded or stable in
+# most places.
+dev-build/meson test-full
+
 # Matt Jolly <kangie@gentoo.org> (2025-01-11)
 # mrustc currenly only works on amd64.
 dev-lang/rust mrustc-bootstrap
@@ -17,8 +36,9 @@ kde-frameworks/kfilemetadata:5 mobi
 media-gfx/okularpart:5 mobi
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-03)
-# Prepare cleanup of kde-apps/kaccounts-integration:6[qt5]
-kde-frameworks/purpose:5 kaccounts
+# Prepare cleanup of kde-apps/kaccounts-integration:6[qt5] and
+# kde-frameworks/bluez-qt:5
+kde-frameworks/purpose:5 bluetooth kaccounts
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-31)
 # None of the sci-libs/symengine versions work with the modern versions

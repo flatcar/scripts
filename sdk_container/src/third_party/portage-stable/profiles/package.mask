@@ -33,11 +33,109 @@
 
 #--- END OF EXAMPLES ---
 
+# Matt Jolly <kangie@gentoo.org> (2025-02-10)
+# Rust ebuilds are migrating to use RPATH/RUNPATH to find their libraries.
+# New revisions for each Slot are already in-tree and should be used instead.
+# Bug 949374
+=dev-lang/rust-1.71.1-r100
+=dev-lang/rust-1.74.1-r100
+=dev-lang/rust-1.75.0-r100
+=dev-lang/rust-1.76.0-r100
+=dev-lang/rust-1.77.1-r100
+=dev-lang/rust-1.79.0-r100
+=dev-lang/rust-1.78.0-r100
+=dev-lang/rust-1.80.1-r100
+=dev-lang/rust-1.81.0-r100
+=dev-lang/rust-1.82.0-r100
+=dev-lang/rust-1.82.0-r101
+=dev-lang/rust-1.83.0-r1
+=dev-lang/rust-1.84.0
+=dev-lang/rust-1.84.1
+=dev-lang/rust-bin-1.71.1-r101
+=dev-lang/rust-bin-1.74.1-r101
+=dev-lang/rust-bin-1.75.0-r101
+=dev-lang/rust-bin-1.77.1-r101
+=dev-lang/rust-bin-1.79.0-r101
+=dev-lang/rust-bin-1.80.1-r101
+=dev-lang/rust-bin-1.81.0-r101
+=dev-lang/rust-bin-1.82.0-r101
+=dev-lang/rust-bin-1.83.0
+=dev-lang/rust-bin-1.84.0
+=dev-lang/rust-bin-1.84.1
+
+# Michal Rostecki <vadorovsky@protonmail.com> (2025-02-09)
+# A libgcc_s drop-in replacement, which conflicts with sys-devel/gcc,
+# therefore meant only for profiles which can work without GCC being
+# present even as a fallback.
+llvm-runtimes/libgcc
+
+# Michał Górny <mgorny@gentoo.org> (2025-02-08)
+# Suspicious subslot bump, causing humongous rebuilds.
+# https://bugs.gentoo.org/949414
+=dev-cpp/cpp-httplib-0.18.6
+
+# Mike Pagano <mpagano@gentoo.org> (2025-02-07)
+# Last release 3 years ago, no version compiles; ours or upstreams.
+# Ack from maintainer. Driver is available in the Linux Kernel
+# Removal on 2025-03-07. Bug: 949318
+net-misc/AQtion
+
+# Matt Turner <mattst88@gentoo.org> (2025-02-05)
+# Masked for testing
+=dev-util/mesa_clc-25.0*
+=media-libs/mesa-25.0*
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-01-30)
+# Breaks the only consumer of pytest-bdd (qutebrowser),
+# not looked into yet but mask for now as it prevents
+# using it to test PyQt6 for the upcoming Qt bump.
+>=dev-python/gherkin-official-31.0.0
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-30)
+# Last release 15 years ago, dead upstream (never imported from kdesvn),
+# no revdeps probably since amarok last-rites. Removal on 2025-02-27.
+media-libs/taglib-extras
+
+# Conrad Kostecki <conikost@gentoo.org> (2024-01-28)
+# A package, which depends on Qt5. Upstream dead for many years.
+# Removal on 2025-02-28. Bug #948048
+net-wireless/linssid
+
+# Conrad Kostecki <conikost@gentoo.org> (2024-01-28)
+# Binary package, which depends on Qt5. Bug #926665
+# Please update to v5 beta or v6 beta. Removal on 2025-02-28.
+media-sound/teamspeak-client:3
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
+# Last release 8 years ago, dead upstream (repository gone as well),
+# depends on Qt5, no one else packages this. Removal on 2025-02-27.
+net-misc/qtm
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
+# Last release+commit 7 years ago, dead upstream, unmaintained in Gentoo,
+# depends on Qt5, broken with >= ffmpeg-5, no one else packages this.
+# Removal on 2025-02-27. Bug #900947
+app-misc/qcma
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
+# Last release+commit 8 years ago, dead upstream, unmaintained in Gentoo,
+# depends on Qt5, no one else packages this. Removal on 2025-02-27.
+x11-misc/urxvtconfig
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2025-01-28)
+# Since we are done with EGO_SUM, this tool isn't needed any more.
+# Removal on 2025-02-27.  Bug #948966.
+dev-go/get-ego-vendor
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
+# Last release from 14 years ago, dead upstream (repository gone as well).
+# Plenty of other options in ::gentoo. Bug #947724, removal on 2025-02-27.
+media-sound/bempc
+
 # Anthony G. Basile <blueness@gentoo.org> (2025-01-25)
 # Bug 909889. Needs PEP517 build. Very low user base
 # Remove 2025-02-24.
 app-portage/grs
-
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-01-24)
 # EAPI=7, uses deprecated Go eclasses, fails to compile, installation
@@ -78,10 +176,13 @@ dev-python/spyder-terminal
 dev-qt/qtbluetooth:5
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
+# Qt5 package without any revdeps. Use dev-qt/qttools[qdbus] instead.
+dev-qt/qdbusviewer
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
 # Qt5 packages without any revdeps.
 dev-qt/pixeltool
 dev-qt/qdbus
-dev-qt/qdbusviewer
 dev-qt/qdoc
 dev-qt/qtplugininfo
 dev-qt/qtquicktimeline:5
@@ -151,81 +252,11 @@ dev-qt/qtstyleplugins
 >=dev-libs/intel-compute-runtime-24.52.32224.5
 >=dev-util/intel-graphics-compiler-2.5.7
 
-# Andrey Grozin <grozin@gentoo.org> (2025-01-09)
-# Unsupported old version, newer versions are not open-source.
-# Depends on Qt5.
-# Bugs 499030, 437262, 597268, 603592, 734890, 745495, 947740.
-# Use app-text/crqt-ng instead.
-# Removal on 2025-02-08.
-app-text/fbreader
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-09)
-# Last release from 2017; fails to build w/ GCC-14 and qscintilla-2.14.1.
-# Depends on Qt5. Bugs #914918, #917408. Removal on 2025-02-08.
-dev-db/tora
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-08)
-# Qt5-based library without any revdeps. Removal on 2025-02-07.
-dev-libs/kqoauth
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-08)
-# Qt5-based library without any revdeps. Removal on 2025-02-07.
-dev-libs/qcoro5
-
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2025-01-06)
 # Masked for testing
 =dev-lang/perl-5.40.1*
 ~virtual/perl-File-Spec-3.910.0
 ~virtual/perl-Module-CoreList-5.202.501.184_rc
-
-# Hans de Graaff <graaff@gentoo.org> (2025-01-06)
-# ruby32-only package. Depends on assumptions that are no longer true in
-# ruby33. No reverse dependencies left. Last release in 2007. Upstream
-# gone. Removal on 2025-02-06.
-dev-ruby/dust
-
-# Sam James <sam@gentoo.org> (2025-01-05)
-# Removed upstream in gstreamer-1.24. See bug #947522. Removal on 2025-02-05.
-media-plugins/gst-plugins-kate
-
-# Paul Zander <negril.nx+gentoo@gmail.com> (2025-01-05)
-# Masked for testing
->=dev-build/rocm-cmake-6.3.0
->=dev-libs/hipother-6.3.0
->=dev-libs/rccl-6.3.0
->=dev-libs/rocdbgapi-6.3.0
->=dev-libs/rocm-comgr-6.3.0
->=dev-libs/rocm-device-libs-6.3.0
->=dev-libs/rocm-opencl-runtime-6.3.0
->=dev-libs/rocr-runtime-6.3.0
->=dev-libs/roct-thunk-interface-6.3.0
->=dev-util/hip-6.3.0
->=dev-util/hipcc-6.3.0
->=dev-util/hipify-clang-6.3.0
->=dev-util/rocm_bandwidth_test-6.3.0
->=dev-util/rocm-smi-6.3.0
->=dev-util/rocminfo-6.3.0
->=dev-util/roctracer-6.3.0
->=dev-util/Tensile-6.3.0
->=sci-libs/composable-kernel-6.3.0
->=sci-libs/hipBLAS-common-6.3.0
->=sci-libs/hipBLAS-6.3.0
->=sci-libs/hipBLASLt-6.3.0
->=sci-libs/hipCUB-6.3.0
->=sci-libs/hipFFT-6.3.0
->=sci-libs/hipRAND-6.3.0
->=sci-libs/hipSOLVER-6.3.0
->=sci-libs/hipSPARSE-6.3.0
->=sci-libs/miopen-6.3.0
->=sci-libs/rocBLAS-6.3.0
->=sci-libs/rocFFT-6.3.0
->=sci-libs/rocPRIM-6.3.0
->=sci-libs/rocRAND-6.3.0
->=sci-libs/rocSOLVER-6.3.0
->=sci-libs/rocSPARSE-6.3.0
->=sci-libs/rocThrust-6.3.0
->=sci-libs/rocWMMA-6.3.0
->=sci-libs/rpp-6.3.0
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2025-01-03)
 # Contains a serious bug that can cause deletion of the users home dir.
@@ -233,74 +264,12 @@ media-plugins/gst-plugins-kate
 # Removal on 2025-03-03 unless upstream fixes the issue
 net-im/whatsie
 
-# Maciej Barć <xgqt@gentoo.org> (2025-01-02)
-# Deprecated LEAN 3 packages. The "mathlib-tools" repo is archived
-# (https://github.com/leanprover-community/mathlib-tools). Migrate to LEAN 4.
-# Removal on 2025-02-02
-sci-mathematics/lean:0/3
-sci-mathematics/mathlib-tools
-
-# Maciej Barć <xgqt@gentoo.org> (2025-01-02)
-# Upstream dead, repo archived (https://github.com/mono/xsp). Uses deprecated
-# "dotnet" eclass. Depends on old mono. As a replacement one can use official
-# .NET 6.0-9.0 ASP.NET instead.
-# Removal on 2025-02-02
-acct-group/aspnet
-acct-user/aspnet
-www-servers/xsp
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-02)
-# No more revdeps, depends on Qt5, bug #942178. Removal on 2025-01-29.
-dev-libs/libqt5pas
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-01)
-# Transitional package without any revdeps left. Removal on 2025-01-31
-kde-apps/konsolepart
-
-# Nowa Ammerlaan <nowa@gentoo.org> (2025-01-01)
-# Broken with Qt6 and in wayland sessions. Archived upstream. Has been on life
-# support for several years already.
-# Removal on 2025-02-01
-media-video/vidify
-media-video/vidify-audiosync
-net-misc/lyricwikia
-
-# Sam James <sam@gentoo.org> (2024-12-31)
-# Many open bugs and requires a large amount of patching to build correctly
-# as a shared library. Breaks reverse dependencies in a few ways.
-# Removal on 2025-01-30. bug #924174 and friends.
-dev-libs/dmalloc
-
-# Michał Górny <mgorny@gentoo.org> (2024-12-29)
-# As of 3.1.0, upstream has removed all mocking and made it impossible
-# to test the package locally.  As such, we cannot maintain it going
-# forward.  Removal on 2025-01-28.  Bug #947144.
-dev-python/pslab
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-12-28)
-# Cleanup transitional Bitcoin meta packages, as well as
-# unmaintainable net-p2p/bitcoin-core[system-leveldb] and
-# virtual/bitcoin-leveldb. Use net-p2p/bitcoin-core instead which is
-# the same as these packages but merged into one ebuild for maintainability.
-# Removal on 2025-01-27. Bug #945359
-dev-util/bitcoin-tx
-net-libs/libbitcoinconsensus
-net-p2p/bitcoin-cli
-net-p2p/bitcoin-qt
-net-p2p/bitcoind
-virtual/bitcoin-leveldb
-
 # Michał Górny <mgorny@gentoo.org> (2024-12-05)
 # 6.12.2 does not boot for me.
 =sys-kernel/gentoo-kernel-6.12.2
 =sys-kernel/gentoo-kernel-bin-6.12.2
 =sys-kernel/vanilla-kernel-6.12.2
 =virtual/dist-kernel-6.12.2
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-11-28)
-# Grave data loss bug. See also:
-# https://github.com/nicotine-plus/nicotine-plus/issues/3152
-=net-p2p/nicotine+-3.3.5
 
 # Ionen Wolkens <ionen@gentoo.org> (2024-11-19)
 # NVIDIA dropped support for the 470.xx branch in September 2024[1].

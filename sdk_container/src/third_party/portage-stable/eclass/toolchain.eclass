@@ -299,7 +299,8 @@ tc_has_feature() {
 if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	IUSE+=" debug +cxx"
 	IUSE+=" +fortran" TC_FEATURES+=( fortran )
-	IUSE+=" doc hardened multilib objc"
+	IUSE+=" doc" TC_FEATURES+=( doc )
+	IUSE+=" hardened multilib objc"
 	IUSE+=" pgo"
 	IUSE+=" objc-gc" TC_FEATURES+=( objc-gc )
 	IUSE+=" libssp objc++"
@@ -380,6 +381,11 @@ BDEPEND="
 		>=sys-devel/autogen-5.5.4
 	)
 "
+
+if tc_has_feature doc ; then
+	BDEPEND+=" doc? ( app-text/doxygen )"
+fi
+
 DEPEND="${RDEPEND}"
 
 if [[ ${PN} == gcc && ${PV} == *_p* ]] ; then
@@ -1473,7 +1479,7 @@ toolchain_src_configure() {
 
 		confgcc+=(
 			# https://gcc.gnu.org/PR100289
-			# TOOD: Find a way to disable this just for stage1 cross?
+			# TODO: Find a way to disable this just for stage1 cross?
 			--disable-gcov
 
 			--disable-bootstrap
@@ -2099,6 +2105,11 @@ gcc_do_filter_flags() {
 	# https://gcc.gnu.org/PR100431
 	filter-flags -Werror=format-security
 
+	if ver_test -lt 10.1 ; then
+		filter-flags '-fdiagnostics-urls=*'
+		filter-flags '-Wstringop-overread'
+	fi
+
 	if ver_test -lt 13.6 ; then
 		# These aren't supported by the just-built compiler either.
 		filter-flags -fharden-compares -fharden-conditional-branches \
@@ -2266,6 +2277,8 @@ gcc_do_make() {
 
 	local emakeargs=(
 		LDFLAGS="${LDFLAGS}"
+		# TODO: Can we replace this with --enable-version-specific-runtime-libs
+		# these days?
 		LIBPATH="${LIBPATH}"
 	)
 
@@ -2340,22 +2353,18 @@ gcc_do_make() {
 	pushd "${WORKDIR}"/build >/dev/null || die
 	emake "${emakeargs[@]}" ${GCC_MAKE_TARGET}
 
-	if ! is_crosscompile && _tc_use_if_iuse cxx && _tc_use_if_iuse doc ; then
-		if type -p doxygen > /dev/null ; then
-			cd "${CTARGET}"/libstdc++-v3/doc || die
-			emake doc-man-doxygen
+	if ! is_crosscompile && _tc_use_if_iuse cxx && tc_has_feature doc && _tc_use_if_iuse doc ; then
+		cd "${CTARGET}"/libstdc++-v3/doc || die
+		emake doc-man-doxygen
 
-			# Clean bogus manpages. bug #113902
-			find -name '*_build_*' -delete || die
+		# Clean bogus manpages. bug #113902
+		find -name '*_build_*' -delete || die
 
-			# Blow away generated directory references. Newer versions of gcc
-			# have gotten better at this, but not perfect. This is easier than
-			# backporting all of the various doxygen patches. bug #486754
-			find -name '*_.3' -exec grep -l ' Directory Reference ' {} + | \
-				xargs rm -f
-		else
-			ewarn "Skipping libstdc++ manpage generation since you don't have doxygen installed"
-		fi
+		# Blow away generated directory references. Newer versions of gcc
+		# have gotten better at this, but not perfect. This is easier than
+		# backporting all of the various doxygen patches. bug #486754
+		find -name '*_.3' -exec grep -l ' Directory Reference ' {} + | \
+			xargs rm -f
 	fi
 
 	popd >/dev/null || die
@@ -2965,7 +2974,7 @@ toolchain_pkg_postrm() {
 		return 0
 	else
 		# Removed the last GCC installed (bug #906040)
-		if ! has_version "sys-devel/gcc" && has_version "sys-devel/clang" ; then
+		if ! has_version "sys-devel/gcc" && has_version "llvm-core/clang" ; then
 			einfo "Last GCC version removed. Cleaning up ${EROOT}/etc/clang/gentoo-gcc-install.cfg."
 			echo > "${EROOT}"/etc/clang/gentoo-gcc-install.cfg
 		fi

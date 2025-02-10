@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# NHOrus <jy6x2b32pie9@yahoo.com> (2025-02-01)
+# not ported to musl, bug #713434
+app-crypt/mit-krb5-appl
+
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-01-25)
 # depends on vscode/vscodium, which are glibc binary package
 kde-misc/krunner-vscodeprojects
@@ -42,7 +46,7 @@ net-nds/nsscache
 
 # Sam James <sam@gentoo.org> (2024-09-30)
 # Needs porting to musl (bug #940130)
-=sys-auth/elogind-255.5-r1
+~sys-auth/elogind-255.5
 
 # Sam James <sam@gentoo.org> (2024-08-31)
 # sys-devel/binutils[gprofng] is masked on musl
@@ -97,6 +101,7 @@ dev-ada/libgpr
 dev-ada/gnatcoll-core
 dev-ada/gnatcoll-bindings
 dev-ada/langkit
+dev-ada/langkit-contrib
 dev-ada/templates-parser
 dev-ada/libadalang-tools
 dev-ada/libadalang
@@ -266,6 +271,7 @@ app-office/onlyoffice-bin
 app-shells/pwsh-bin
 app-text/master-pdf-editor
 app-text/zotero-bin
+dev-db/mongodb-compass-bin
 dev-db/ocp
 dev-db/oracle-instantclient
 dev-db/sqlcl-bin

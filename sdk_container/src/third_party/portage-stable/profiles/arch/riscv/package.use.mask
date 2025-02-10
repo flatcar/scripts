@@ -1,10 +1,6 @@
 # Copyright 2019-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Eli Schwartz <eschwartz@gentoo.org> (2025-01-26)
-# Dependencies e.g. netcdf not keyworded
-dev-build/meson test-full
-
 # Alexey Shvetsov <alexxy@gentoo.org> (2024-11-21)
 # sci-libs/caffe2 is not keyworded on arm64
 sci-chemistry/gromacs nnpot
@@ -28,13 +24,6 @@ sci-mathematics/maxima vtk
 # remain masked for consumers.
 sci-libs/fplll qd
 sci-mathematics/lcalc double-double quad-double
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-07-01)
-# USE="kf6compat,kaccounts" depends on kde-frameworks/purpose:6[webengine]
-# which is package.use.mask'ed on these arches. We cannot mask the
-# combination specifically but in reality kaccounts is useless without
-# additional dev-qt/qtwebengine revdeps.
-kde-frameworks/purpose:5 kaccounts
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-06-15)
 # Requires unkeyworded dev-qt/qtwebengine (and revdeps)
@@ -71,7 +60,7 @@ sys-apps/openrc-navi s6
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2023-08-30)
 # Avoid keywording more Qt stuff
-dev-python/pyside6 httpserver remoteobjects
+dev-python/pyside httpserver remoteobjects
 dev-python/qtpy remoteobjects
 
 # Marek Szuba <marecki@gentoo.org> (2023-08-19)
