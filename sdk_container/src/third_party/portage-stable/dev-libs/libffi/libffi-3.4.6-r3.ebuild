@@ -13,11 +13,11 @@ HOMEPAGE="https://sourceware.org/libffi/"
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/libffi/libffi"
-	inherit autotools git-r3
+	inherit git-r3
 else
 	SRC_URI="https://github.com/libffi/libffi/releases/download/v${MY_PV}/${MY_P}.tar.gz"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -27,19 +27,26 @@ LICENSE="MIT"
 # Please use preserve-libs.eclass in pkg_{pre,post}inst to cover users
 # with FEATURES="-preserved-libs" or another package manager if SONAME changes.
 SLOT="0/8" # SONAME=libffi.so.8
-IUSE="debug +exec-static-trampoline pax-kernel static-libs test"
+IUSE="debug exec-static-trampoline pax-kernel static-libs test"
 
 RESTRICT="!test? ( test )"
 BDEPEND="test? ( dev-util/dejagnu )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-3.4.7-Revert-Fix-x86-ffi64-calls-with-6-gp-and-some-sse-re.patch
+	"${FILESDIR}"/${P}-arm64-bti.patch
+	"${FILESDIR}"/${P}-arm64-bti-spelling.patch
+	"${FILESDIR}"/${P}-arm64-support-pac.patch
+	"${FILESDIR}"/${P}-arm64-fix-build.patch
+	"${FILESDIR}"/${P}-sparc-struct-targs.patch
+	"${FILESDIR}"/${P}-test-typo.patch
+	"${FILESDIR}"/${P}-arm64-cfi.patch
+	"${FILESDIR}"/${P}-asan.patch
+	"${FILESDIR}"/${P}-regenerate-autotools.patch
+	"${FILESDIR}"/${P}-c23-tests.patch
 )
 
 src_prepare() {
 	default
-
-	[[ ${PV} == 9999 ]] && eautoreconf
 
 	if [[ ${CHOST} == arm64-*-darwin* ]] ; then
 		# ensure we use aarch64 asm, not x86 on arm64
