@@ -63,6 +63,9 @@
 # Needed to address CVE-2024-11053 and CVE-2024-9681
 =net-misc/curl-8.11.1-r2 ~amd64 ~arm64
 
+# Needed to address CVE-2024-54661
+=net-misc/socat-1.8.0.2 ~amd64 ~arm64
+
 # Keep versions on both arches in sync.
 =net-nds/openldap-2.6.8 ~amd64
 
