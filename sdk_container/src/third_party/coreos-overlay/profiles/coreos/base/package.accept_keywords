@@ -79,8 +79,5 @@
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
-# Needed in SDK for Secure Boot on arm64. Also addresses CVE-2024-1298.
-=sys-firmware/edk2-bin-202408 ~amd64
-
 # Keep versions on both arches in sync.
 =sys-process/audit-4.0.2-r1 ~arm64
