@@ -20,7 +20,7 @@ if [[ ${PV} = *beta* ]]; then
 else
 	MY_P="rustc-${PV}"
 	SRC="${MY_P}-src.tar.xz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
 fi
 
 DESCRIPTION="Systems programming language from Mozilla"
@@ -38,6 +38,8 @@ ALL_LLVM_TARGETS=( AArch64 AMDGPU ARC ARM AVR BPF CSKY DirectX Hexagon Lanai
 	WebAssembly X86 XCore Xtensa )
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
+
+ALL_LLVM_EXPERIMENTAL_TARGETS=( ARC CSKY DirectX M68k SPIRV Xtensa )
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
 SLOT="${PV}"
@@ -135,6 +137,7 @@ PATCHES=(
 	"${FILESDIR}"/1.83.0-cross-compile-libz.patch
 	#"${FILESDIR}"/1.72.0-bump-libc-deps-to-0.2.146.patch  # pending refresh
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
+	"${FILESDIR}"/1.83.0-dwarf-llvm-assertion.patch
 )
 
 clear_vendor_checksums() {
@@ -269,10 +272,16 @@ src_configure() {
 	rust_build="$(rust_abi "${CBUILD}")"
 	rust_host="$(rust_abi "${CHOST}")"
 
+	LLVM_EXPERIMENTAL_TARGETS=()
+	for _x in "${ALL_LLVM_EXPERIMENTAL_TARGETS[@]}"; do
+		if use llvm_targets_${_x} ; then
+			LLVM_EXPERIMENTAL_TARGETS+=( ${_x} )
+		fi
+	done
+	LLVM_EXPERIMENTAL_TARGETS=${LLVM_EXPERIMENTAL_TARGETS[@]}
+
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
-		# https://github.com/rust-lang/rust/issues/135358 (bug #947897)
-		profile = "dist"
 		[llvm]
 		download-ci-llvm = false
 		optimize = $(toml_usex !debug)
@@ -280,7 +289,7 @@ src_configure() {
 		assertions = $(toml_usex debug)
 		ninja = true
 		targets = "${LLVM_TARGETS// /;}"
-		experimental-targets = ""
+		experimental-targets = "${LLVM_EXPERIMENTAL_TARGETS// /;}"
 		link-shared = $(toml_usex system-llvm)
 		$(if is_libcxx_linked; then
 			# https://bugs.gentoo.org/732632
@@ -361,7 +370,7 @@ src_configure() {
 		parallel-compiler = $(toml_usex parallel-compiler)
 		channel = "$(usex nightly nightly stable)"
 		description = "gentoo"
-		rpath = false
+		rpath = true
 		verbose-tests = true
 		optimize-tests = $(toml_usex !debug)
 		codegen-tests = true
@@ -623,7 +632,6 @@ src_install() {
 	dosym "../../lib/${PN}/${PV}/share/doc/rust" "/usr/share/doc/${P}"
 
 	newenvd - "50${P}" <<-_EOF_
-		LDPATH="${EPREFIX}/usr/lib/rust/lib-${PV}"
 		MANPATH="${EPREFIX}/usr/lib/rust/man-${PV}"
 	_EOF_
 
