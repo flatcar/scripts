@@ -67,6 +67,7 @@
 =sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-apps/policycoreutils-3.7 ~arm64
 =sys-apps/semodule-utils-3.7 ~arm64
 =sys-apps/zram-generator-1.2.1 ~arm64
 
@@ -80,4 +81,5 @@
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-libs/libsemanage-3.7 ~arm64
 =sys-process/audit-4.0.2-r1 ~arm64
