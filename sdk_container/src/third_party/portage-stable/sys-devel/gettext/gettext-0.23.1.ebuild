@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Note: Keep version bumps in sync with dev-libs/libintl.
@@ -54,6 +54,7 @@ RDEPEND="
 	${DEPEND}
 	git? ( dev-vcs/git )
 	java? ( >=virtual/jre-1.8:* )
+	nls? ( app-i18n/gnulib-l10n )
 "
 BDEPEND="
 	git? ( dev-vcs/git )
@@ -74,8 +75,6 @@ MULTILIB_WRAPPED_HEADERS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.21-CVE-2020-12825.patch
-	"${FILESDIR}"/${PN}-0.23-libxml2-2.12.0.patch
-	"${FILESDIR}"/${PN}-0.23-no-nls.patch
 )
 
 QA_SONAME_NO_SYMLINK=".*/preloadable_libintl.so"
