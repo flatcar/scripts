@@ -22,9 +22,6 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =app-crypt/clevis-19-r1 **
 
-# We need the new --provider option.
-=app-crypt/p11-kit-0.25.5 ~amd64 ~arm64
-
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 
