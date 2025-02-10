@@ -1,36 +1,45 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PATCH_VER=2
-PATCH_DEV=dilfridge
-
 inherit flag-o-matic libtool toolchain-funcs multilib-minimal
-
-MY_PN="binutils"
-MY_P="${MY_PN}-${PV}"
-PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-PATCH_DEV=${PATCH_DEV:-dilfridge}
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
 HOMEPAGE="https://sourceware.org/binutils/"
-SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_P}.tar.xz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
-
-if [[ ${PV} == 2.43 ]] ; then
-	SLOT="0/${PV%_p?}.1"
-else
-	die "Please cleanup the ebuild to drop the 2.43 fudge!"
-	SLOT="0/${PV%_p?}.0"
-fi
-
 IUSE="64-bit-bfd cet multitarget nls static-libs test"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
-RESTRICT="!test? ( test )"
+
+# Variables that can be set here  (ignored for live ebuilds)
+# PATCH_VER          - the patchset version
+#                      Default: empty, no patching
+# PATCH_BINUTILS_VER - the binutils version in the patchset name
+#                    - Default: PV
+# PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
+#                      for the patchsets
+
+PATCH_VER=1
+PATCH_DEV=dilfridge
+
+MY_PN=binutils
+MY_P=${MY_PN}-${PV}
+
+if [[ ${PV} == 9999 ]]; then
+	inherit git-r3
+	SLOT="0/${PV}"
+elif [[ ${PV} == *9999 ]]; then
+	inherit git-r3
+	SLOT="0/$(ver_cut 1-2)"
+else
+	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
+	PATCH_DEV=${PATCH_DEV:-dilfridge}
+	SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_P}.tar.xz
+	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+	SLOT="0/${PV}"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+fi
 
 BDEPEND="
 	nls? ( sys-devel/gettext )
@@ -42,11 +51,51 @@ RDEPEND="${DEPEND}
 	>=sys-devel/binutils-config-5
 "
 
-S="${WORKDIR}/${MY_P%_p?}"
+RESTRICT="!test? ( test )"
+
+MY_BUILDDIR=${WORKDIR}/build
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/bfd.h
 )
+
+src_unpack() {
+	if [[ ${PV} == *9999 ]] ; then
+		EGIT_REPO_URI="
+			https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git
+			https://github.com/gentoo/binutils-patches
+		"
+		EGIT_CHECKOUT_DIR=${WORKDIR}/patches-git
+		git-r3_src_unpack
+		mv patches-git/9999 patch || die
+
+		if [[ ${PV} != 9999 ]] ; then
+			EGIT_BRANCH=binutils-$(ver_cut 1)_$(ver_cut 2)-branch
+		fi
+		EGIT_REPO_URI="
+			https://sourceware.org/git/binutils-gdb.git
+			https://git.sr.ht/~sourceware/binutils-gdb
+			https://gitlab.com/x86-binutils/binutils-gdb.git
+		"
+		S=${WORKDIR}/binutils
+		EGIT_CHECKOUT_DIR=${S}
+		git-r3_src_unpack
+	else
+		unpack ${MY_P}.tar.xz
+
+		cd "${WORKDIR}" || die
+		unpack binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz
+
+		# _p patch versions are Gentoo specific tarballs ...
+		local dir=${MY_P}
+		dir=${dir/-hppa64/}
+
+		S=${WORKDIR}/${dir}
+	fi
+
+	cd "${WORKDIR}" || die
+	mkdir -p "${MY_BUILDDIR}" || die
+}
 
 src_prepare() {
 	if [[ -n ${PATCH_VER} ]] ; then
@@ -80,9 +129,6 @@ pkgversion() {
 }
 
 multilib_src_configure() {
-	# https://sourceware.org/PR32372
-	append-cflags -std=gnu17
-
 	filter-lto
 
 	local myconf=(
@@ -110,9 +156,9 @@ multilib_src_configure() {
 		--without-zlib
 		--with-system-zlib
 		# We only care about the libs, so disable programs. #528088
-		--disable-{binutils,etc,ld,gas,gold,gprof,gprofng}
+		--disable-{binutils,etc,ld,gas,gprof,gprofng}
 		# Disable modules that are in a combined binutils/gdb tree. #490566
-		--disable-{gdb,libdecnumber,readline,sim}
+		--disable-{gdb,gdbserver,libbacktrace,libdecnumber,readline,sim}
 		# Strip out broken static link flags.
 		# https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
@@ -165,7 +211,9 @@ multilib_src_install() {
 	emake DESTDIR="${D}" install
 
 	# Provided by dev-debug/gdb instead
-	rm "${ED}"/usr/share/info/sframe-spec.info || die
+	if [[ ${PV} != 9999 ]] ; then
+		rm "${ED}"/usr/share/info/sframe-spec.info || die
+	fi
 
 	# Provide libiberty.h directly.
 	dosym libiberty/libiberty.h /usr/include/libiberty.h
