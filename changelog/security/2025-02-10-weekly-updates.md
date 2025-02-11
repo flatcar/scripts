@@ -1,0 +1,2 @@
+- socat ([CVE-2024-54661](https://nvd.nist.gov/vuln/detail/CVE-2024-54661))
+- vim ([CVE-2024-41957](https://nvd.nist.gov/vuln/detail/CVE-2024-41957), [CVE-2024-41965](https://nvd.nist.gov/vuln/detail/CVE-2024-41965), [CVE-2024-43374](https://nvd.nist.gov/vuln/detail/CVE-2024-43374), [CVE-2024-43790](https://nvd.nist.gov/vuln/detail/CVE-2024-43790), [CVE-2024-43802](https://nvd.nist.gov/vuln/detail/CVE-2024-43802), [CVE-2024-45306](https://nvd.nist.gov/vuln/detail/CVE-2024-45306), [CVE-2024-47814](https://nvd.nist.gov/vuln/detail/CVE-2024-47814))
