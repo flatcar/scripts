@@ -13,6 +13,9 @@ source ci-automation/vendor_test.sh
 hetzner_instance_type_var="HETZNER_${CIA_ARCH}_INSTANCE_TYPE"
 hetzner_instance_type="${!hetzner_instance_type_var}"
 
+hetzner_location_var="HETZNER_${CIA_ARCH}_LOCATION"
+hetzner_location="${!hetzner_location_var}"
+
 # HETZNER_TPS_TOKEN should be provided by sdk_container/.env
 
 # We first need to create a temporary project using HETZNER_TPS_TOKEN
@@ -31,7 +34,7 @@ HETZNER_TOKEN=$(curl \
 # Upload the image on Hetzner.
 IMAGE_ID=$(ore hetzner \
   --hetzner-token="${HETZNER_TOKEN}" \
-  --hetzner-location="${HETZNER_LOCATION}" \
+  --hetzner-location="${hetzner_location}" \
   create-image \
   --board="${CIA_ARCH}-usr" \
   --name flatcar-"${CIA_VERNUM}" \
@@ -51,7 +54,7 @@ timeout --signal=SIGQUIT 2h kola run \
   --platform=hetzner \
   --hetzner-token="${HETZNER_TOKEN}" \
   --hetzner-server-type="${hetzner_instance_type}" \
-  --hetzner-location="${HETZNER_LOCATION}" \
+  --hetzner-location="${hetzner_location}" \
   --hetzner-image=${IMAGE_ID} \
   "${@}"
 
