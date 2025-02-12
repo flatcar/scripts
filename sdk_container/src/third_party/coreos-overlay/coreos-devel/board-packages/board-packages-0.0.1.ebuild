@@ -32,6 +32,7 @@ RDEPEND="
 	app-containers/docker
 	app-containers/docker-cli
 	app-containers/docker-buildx
+	app-editors/vim
 	app-emulation/amazon-ssm-agent
 	app-emulation/hv-daemons
 	app-emulation/wa-linux-agent
