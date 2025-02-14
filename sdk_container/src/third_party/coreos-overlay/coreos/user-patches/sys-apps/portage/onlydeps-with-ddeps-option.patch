@@ -1,0 +1,107 @@
+From 1dfcb89c894d383a8a4678d940f06d3bcc97ad57 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Thu, 13 Feb 2025 16:16:39 +0000
+Subject: [PATCH] Add --onlydeps-with-ddeps option to filter out DEPEND with
+ --onlydeps
+
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+---
+ NEWS                                               |  2 ++
+ lib/_emerge/depgraph.py                            |  2 ++
+ lib/_emerge/main.py                                |  5 +++++
+ .../tests/resolver/test_onlydeps_minimal.py        | 14 ++++++++++++++
+ man/emerge.1                                       |  5 +++++
+ 5 files changed, 28 insertions(+)
+
+diff --git a/lib/_emerge/depgraph.py b/lib/_emerge/depgraph.py
+index ddef7bb0a..99b4a4f54 100644
+--- a/lib/_emerge/depgraph.py
++++ b/lib/_emerge/depgraph.py
+@@ -4010,6 +4010,8 @@ class depgraph:
+         ):
+             edepend["RDEPEND"] = ""
+             edepend["PDEPEND"] = ""
++            if self._frozen_config.myopts.get("--onlydeps-with-ddeps") == "n":
++                edepend["DEPEND"] = ""
+             if self._frozen_config.myopts.get("--onlydeps-with-ideps") in ("n", None):
+                 edepend["IDEPEND"] = ""
+ 
+diff --git a/lib/_emerge/main.py b/lib/_emerge/main.py
+index 44e05c3df..5086fd5ba 100644
+--- a/lib/_emerge/main.py
++++ b/lib/_emerge/main.py
+@@ -167,6 +167,7 @@ def insert_optional_args(args):
+         "--jobs": valid_integers,
+         "--keep-going": y_or_n,
+         "--load-average": valid_floats,
++        "--onlydeps-with-ddeps": y_or_n,
+         "--onlydeps-with-ideps": y_or_n,
+         "--onlydeps-with-rdeps": y_or_n,
+         "--package-moves": y_or_n,
+@@ -578,6 +579,10 @@ def parse_opts(tmpcmdline, silent=False):
+             + "Emerge will ignore matching binary packages. ",
+             "action": "append",
+         },
++        "--onlydeps-with-ddeps": {
++            "help": "modify interpretation of dependencies to include DEPEND",
++            "choices": true_y_or_n,
++        },
+         "--onlydeps-with-ideps": {
+             "help": "modify interpretation of dependencies to include IDEPEND",
+             "choices": true_y_or_n,
+diff --git a/lib/portage/tests/resolver/test_onlydeps_minimal.py b/lib/portage/tests/resolver/test_onlydeps_minimal.py
+index 372c0e5aa..4c952aa9f 100644
+--- a/lib/portage/tests/resolver/test_onlydeps_minimal.py
++++ b/lib/portage/tests/resolver/test_onlydeps_minimal.py
+@@ -16,11 +16,13 @@ class OnlydepsMinimalTestCase(TestCase):
+                 "RDEPEND": "dev-libs/C",
+                 "PDEPEND": "dev-libs/D",
+                 "IDEPEND": "dev-libs/E",
++                "BDEPEND": "dev-libs/F",
+             },
+             "dev-libs/B-1": {},
+             "dev-libs/C-1": {},
+             "dev-libs/D-1": {},
+             "dev-libs/E-1": {},
++            "dev-libs/F-1": {},
+         }
+         installed = {}
+ 
+@@ -63,6 +65,18 @@ class OnlydepsMinimalTestCase(TestCase):
+                 },
+                 mergelist=["dev-libs/B-1"],
+             ),
++            ResolverPlaygroundTestCase(
++                ["dev-libs/A"],
++                all_permutations=True,
++                success=True,
++                options={
++                    "--onlydeps": True,
++                    "--onlydeps-with-rdeps": "n",
++                    "--onlydeps-with-ideps": "y",
++                    "--onlydeps-with-ddeps": "n",
++                },
++                mergelist=[],
++            ),
+         )
+ 
+         playground = ResolverPlayground(
+diff --git a/man/emerge.1 b/man/emerge.1
+index c629c6826..adcedabc5 100644
+--- a/man/emerge.1
++++ b/man/emerge.1
+@@ -804,6 +804,11 @@ Include run time dependencies when \fB\-\-onlydeps\fR is specified.
+ When this is disabled only build time dependencies are included. This
+ option is enabled by default.
+ .TP
++.BR "\-\-onlydeps\-with\-ddeps < y | n >"
++Include build time dependencies satisfied by \fBDEPEND\fR when
++\fB\-\-onlydeps\fR and \fB\-\-onlydeps\-with\-rdeps=n\fR are both specified.
++This option is enabled by default.
++.TP
+ .BR "\-\-onlydeps\-with\-ideps < y | n >"
+ Include install time dependencies when \fB\-\-onlydeps\fR and
+ \fB\-\-onlydeps\-with\-rdeps=n\fR are both specified. This option is
+-- 
+2.48.1
+
