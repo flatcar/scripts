@@ -16,7 +16,7 @@
         "blocks":"262144",
         "fs_type":"vfat",
         "mount":"/boot",
-        "features": ["hybrid"]
+        "features": []
       },
       "2":{
         "label":"BIOS-BOOT",

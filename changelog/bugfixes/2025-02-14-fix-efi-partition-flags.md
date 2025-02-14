@@ -1,0 +1,1 @@
+- Fix non-conforming GPT partition table ([flatcar/Flatcar#1651](https://github.com/flatcar/Flatcar/issues/1651)
