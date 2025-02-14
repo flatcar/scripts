@@ -88,7 +88,11 @@ SYSEXT_LEVEL=1.0
 EOF
 
   pushd /opt/nvidia
-  ln -sfn "${NVIDIA_FLATCAR_VERSION_PAIR}" current
+  if [[ -d "${NVIDIA_CURRENT_INSTALLATION}" ]]
+  then
+    rm -rf "${NVIDIA_CURRENT_INSTALLATION}"
+  fi
+  ln -sfn -T "${NVIDIA_FLATCAR_VERSION_PAIR}" "${NVIDIA_CURRENT_INSTALLATION}"
   popd
 }
 
