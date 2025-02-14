@@ -7,7 +7,7 @@ set -euo pipefail
 [ -f /etc/flatcar/nvidia-metadata ] && . /etc/flatcar/nvidia-metadata
 
 NVIDIA_DOWNLOAD_BASEURL="https://us.download.nvidia.com/${NVIDIA_PRODUCT_TYPE}/"
-NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}"
+NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-$(uname -m)-${NVIDIA_DRIVER_VERSION}"
 NVIDIA_WORKDIR='nvidia-workdir'
 
 FLATCAR_DEVELOPER_CONTAINER="flatcar_developer_container-${FLATCAR_RELEASE_VERSION}.bin"
