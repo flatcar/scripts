@@ -1,0 +1,1 @@
+- Fix update-ca-certificates behavior when concatenating certificates with missing trailing newlines. ([flatcar/scripts#2667](https://github.com/flatcar/scripts/pull/2667))
