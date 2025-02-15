@@ -62,6 +62,7 @@ run_kola_tests() {
         --platform=gce \
         --channel="${CIA_CHANNEL}" \
         --tapfile="${instance_tapfile}" \
+        --image-version "${CIA_VERNUM}" \
         "${@}"
 }
 
