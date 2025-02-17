@@ -5,18 +5,20 @@ EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
 inherit edo flag-o-matic linux-info toolchain-funcs
-inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig
+inherit multilib multilib-minimal multiprocessing preserve-libs
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://openssl-library.org/"
 
 MY_P=${P/_/-}
 
-if [[ ${PV} == 9999 ]] ; then
+if [[ ${PV} == *9999 ]] ; then
+	[[ ${PV} == *.*.9999 ]] && EGIT_BRANCH="openssl-${PV%%.9999}"
 	EGIT_REPO_URI="https://github.com/openssl/openssl.git"
 
 	inherit git-r3
 else
+	inherit verify-sig
 	SRC_URI="
 		https://github.com/openssl/openssl/releases/download/${P}/${P}.tar.gz
 		verify-sig? (
@@ -25,22 +27,24 @@ else
 	"
 
 	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
+
+	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-openssl-20240920 )"
 fi
 
 S="${WORKDIR}"/${MY_P}
 
 LICENSE="Apache-2.0"
 SLOT="0/$(ver_cut 1)" # .so version of libssl/libcrypto
-IUSE="+asm cpu_flags_x86_sse2 fips ktls +quic rfc3779 sctp static-libs test tls-compression vanilla verify-sig weak-ssl-ciphers"
+IUSE="+asm cpu_flags_x86_sse2 fips ktls +quic rfc3779 sctp static-libs test tls-compression vanilla weak-ssl-ciphers"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	!<net-misc/openssh-9.2_p1-r3
 	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
 "
-BDEPEND="
+BDEPEND+="
 	>=dev-lang/perl-5
 	sctp? ( >=net-misc/lksctp-tools-1.0.12 )
 	test? (
@@ -48,7 +52,6 @@ BDEPEND="
 		app-alternatives/bc
 		sys-process/procps
 	)
-	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20240920 )
 "
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -59,7 +62,6 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 PATCHES=(
-	"${FILESDIR}"/${P}-CVE-2024-9143.patch
 	"${FILESDIR}"/${PN}-3.3.2-silence-warning.patch
 )
 
@@ -88,16 +90,6 @@ pkg_setup() {
 			die "FEATURES=test with USE=sctp requires net.sctp.auth_enable=1!"
 		fi
 	fi
-}
-
-src_unpack() {
-	# Can delete this once test fix patch is dropped
-	if use verify-sig ; then
-		# Needed for downloaded patch (which is unsigned, which is fine)
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.gz{,.asc}
-	fi
-
-	default
 }
 
 src_prepare() {
