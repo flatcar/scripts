@@ -98,16 +98,18 @@ function package_info_for_board() {
 function set_eo() {
     local dir=${1}; shift
 
-    SDK_EO="${dir}/sdk-emerge-output"
-    BOARD_EO="${dir}/board-emerge-output"
+    # shellcheck disable=SC2034 # used externally
+    declare -g EGENCACHE_W="${dir}/egencache-warnings"
+    declare -g SDK_EO="${dir}/sdk-emerge-output"
+    declare -g BOARD_EO="${dir}/board-emerge-output"
     # shellcheck disable=SC2034 # used indirectly in cat_eo_f
-    SDK_EO_F="${SDK_EO}-filtered"
+    declare -g SDK_EO_F="${SDK_EO}-filtered"
     # shellcheck disable=SC2034 # used indirectly in cat_eo_f
-    BOARD_EO_F="${BOARD_EO}-filtered"
+    declare -g BOARD_EO_F="${BOARD_EO}-filtered"
     # shellcheck disable=SC2034 # used indirectly in cat_eo_w
-    SDK_EO_W="${SDK_EO}-warnings"
+    declare -g SDK_EO_W="${SDK_EO}-warnings"
     # shellcheck disable=SC2034 # used indirectly in cat_eo_w
-    BOARD_EO_W="${BOARD_EO}-warnings"
+    declare -g BOARD_EO_W="${BOARD_EO}-warnings"
 }
 
 # Print the contents of file, path of which is stored in a variable of
@@ -482,6 +484,21 @@ function clean_empty_warning_files() {
             rm -f "${file}"
         fi
     done
+}
+
+function generate_cache_for() {
+    local repo=${1}; shift
+
+    egencache --repo "${repo}" --update
+}
+
+function copy_cache_to_reports() {
+    local repo=${1}; shift
+    local reports_dir=${1}; shift
+
+    local repo_dir
+    repo_dir=$(portageq get_repo_path / "${repo}")
+    cp -a "${repo_dir}/metadata/md5-cache" "${reports_dir}/${repo}-cache"
 }
 
 fi
