@@ -98,6 +98,7 @@ function package_info_for_board() {
 function set_eo() {
     local dir=${1}; shift
 
+    EGENCACHE_W="${dir}/egencache-warnings"
     SDK_EO="${dir}/sdk-emerge-output"
     BOARD_EO="${dir}/board-emerge-output"
     # shellcheck disable=SC2034 # used indirectly in cat_eo_f
@@ -482,6 +483,21 @@ function clean_empty_warning_files() {
             rm -f "${file}"
         fi
     done
+}
+
+function generate_cache_for() {
+    local repo=${1}; shift
+
+    egencache --repo "${repo}" --update
+}
+
+function copy_cache_to_reports() {
+    local repo=${1}; shift
+    local reports_dir=${1}; shift
+
+    local repo_dir
+    repo_dir=$(portageq get_repo_path / "${repo}")
+    cp -a "${repo_dir}/metadata/md5-cache" "${reports_dir}/${repo}-cache"
 }
 
 fi
