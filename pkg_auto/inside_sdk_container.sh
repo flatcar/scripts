@@ -65,6 +65,16 @@ mkdir -p "${reports_dir}"
 
 set_eo "${reports_dir}"
 
+echo 'Running egencache for portage-stable'
+generate_cache_for 'portage-stable' 2>"${EGENCACHE_W}"
+echo 'Running egencache for coreos-overlay'
+generate_cache_for 'coreos-overlay' 2>>"${EGENCACHE_W}"
+
+echo 'Copying portage-stable cache to reports'
+copy_cache_to_reports 'portage-stable' "${reports_dir}" 2>>"${EGENCACHE_W}"
+echo 'Copying coreos-overlay cache to reports'
+copy_cache_to_reports 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
+
 echo 'Running pretend-emerge to get complete report for SDK'
 package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO_W}"
 echo 'Running pretend-emerge to get complete report for board'
