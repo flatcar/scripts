@@ -83,3 +83,7 @@
 =sys-libs/libsemanage-3.7 ~arm64
 =sys-libs/ncurses-6.5_p20250125 ~arm64
 =sys-process/audit-4.0.2-r1 ~arm64
+
+# enable NVIDIA drivers for ARM
+=x11-drivers/nvidia-drivers-550.144.03 ~arm64
+=x11-drivers/nvidia-drivers-535.230.02 ~arm64
