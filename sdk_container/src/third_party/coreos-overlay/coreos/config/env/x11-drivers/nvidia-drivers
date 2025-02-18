@@ -1,0 +1,14 @@
+: ${MODULES_ROOT:=$(echo ${SYSROOT}/lib/modules/*)}
+KERNEL_DIR="${MODULES_ROOT}/build"
+
+# This addresses an issue with the kernel version compatibility check
+#  when installing zfs-kmod to /build/<arch> (e.g. via build_packages)
+#  from its binpkg (i.e. not recompiling it).
+SKIP_KERNEL_BINPKG_ENV_RESET=1
+
+# Necessary to prevent KV_FULL & KV_OUT_DIR from being unset
+# when building Kernel modules for sysext. See also eclass/linux-info.eclass.
+cros_pre_pkg_setup_kernel_version() {
+    LINUX_INFO_BINARY_RESET=1
+    get_version
+}
