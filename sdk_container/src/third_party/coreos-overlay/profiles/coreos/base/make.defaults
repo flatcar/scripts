@@ -57,8 +57,9 @@ USE="${USE} bindist"
 # linux-fw-redistributable - license for sys-kernel/coreos-firmware
 # freedist - license for sys-kernel/coreos-kernel
 # intel-ucode - license for sys-firmware/intel-microcode
+# NVIDIA-r2 - license for x11-drivers/nvidia-drivers
 ACCEPT_LICENSE="${ACCEPT_LICENSE} no-source-code
-    linux-fw-redistributable freedist intel-ucode"
+    linux-fw-redistributable freedist intel-ucode NVIDIA-r2"
 
 # Favor our own mirrors over Gentoo's
 GENTOO_MIRRORS="
