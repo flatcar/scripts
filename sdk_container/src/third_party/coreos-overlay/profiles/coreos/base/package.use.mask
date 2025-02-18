@@ -31,3 +31,6 @@ dev-python/pillow jpeg
 # or not. We don't have gtk on Flatcar, so it is not an issue here,
 # but we need to mask X, so we won't try pulling gtk package.
 app-emulation/qemu X
+
+# disable all tools for NVIDIA driver, keep just kmods
+x11-drivers/nvidia-drivers tools X static-libs
