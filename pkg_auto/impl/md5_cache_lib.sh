@@ -31,7 +31,7 @@ function __mcl_declare() {
                 break
                 ;;
             -*)
-                declare_opts+=( ${1} )
+                declare_opts+=( "${1}" )
                 shift
                 ;;
             *)
@@ -52,10 +52,11 @@ function __mcl_declare() {
 # m - mode: +, =, !=, ?, !?, - (+ enabled, = strict relation, != reverted strict relation, ? enabled if enabled, !? disabled if disabled, - disabled)
 # p - pretend: empty, + or - (+ pretend enabled if missing, - pretend disabled if missing)
 
+# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
 declare -i UR_COUNTER=0
 
 function ur_gen_varname() {
-    __mcl_gen_varname ${1} UR
+    __mcl_gen_varname "${1}" UR
 }
 
 function ur_declare() {
@@ -78,11 +79,13 @@ function ur_unset() {
 declare -ri PDS_NO_BLOCK=0
 declare -ri PDS_WEAK_BLOCK=1
 declare -ri PDS_STRONG_BLOCK=2
+# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
 declare -i PDS_COUNTER=0
+# shellcheck disable=SC2034 # used by name
 declare -ra EMPTY_ARRAY=()
 
 function pds_gen_varname() {
-    __mcl_gen_varname ${1} PDS
+    __mcl_gen_varname "${1}" PDS
 }
 
 function pds_declare() {
@@ -93,7 +96,7 @@ function pds_unset() {
     local name=${1}; shift
 
     local -n pds=${name}
-    local use_reqs_name=${pds[u]}
+    local use_reqs_name=${pds['u']}
 
     local -n use_reqs=${use_reqs_name}
     local ur_name
@@ -108,18 +111,19 @@ function pds_unset() {
     unset "${name}"
 }
 
+# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
 declare -i UR_ARRAY_COUNTER=0
 
 function pds_add_urs() {
     local -n pds=${1}; shift
     # rest are use requirements
 
-    local use_reqs_name=${pds[u]}
+    local use_reqs_name=${pds['u']}
     if [[ ${use_reqs_name} = 'EMPTY_ARRAY' ]]; then
         local ura_name
         __mcl_gen_varname ura_name UR_ARRAY
         declare -g -a "${ura_name}"
-        pds[u]=${ura_name}
+        pds['u']=${ura_name}
         use_reqs_name=${ura_name}
         unset ura_name
     fi
@@ -138,10 +142,11 @@ declare -ri GROUP_ALL_OF=0
 declare -ri GROUP_ANY_OF=1
 declare -ri GROUP_USE_ENABLED=0
 declare -ri GROUP_USE_DISABLED=1
+# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
 declare -i GROUP_COUNTER=0
 
 function group_gen_varname() {
-    __mcl_gen_varname ${1} GROUP
+    __mcl_gen_varname "${1}" GROUP
 }
 
 function group_declare() {
@@ -154,7 +159,7 @@ function group_unset() {
     local name=${1}; shift
 
     local -n group=${name}
-    local items_name=${group[i]}
+    local items_name=${group['i']}
 
     local -n items=${items_name}
     local i
@@ -171,18 +176,19 @@ function group_unset() {
     fi
 }
 
+# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
 declare -i ITEM_ARRAY_COUNTER=0
 
 function group_add_item() {
     local -n group=${1}; shift
     local item=${1}; shift
 
-    local items_name=${group[i]}
+    local items_name=${group['i']}
     if [[ ${items_name} = 'EMPTY_ARRAY' ]]; then
         local ia_name
         __mcl_gen_varname ia_name ITEM_ARRAY
         declare -g -a "${ia_name}"
-        group[i]=${ia_name}
+        group['i']=${ia_name}
         items_name=${ia_name}
         unset ia_name
     fi
@@ -195,6 +201,7 @@ function group_add_item() {
 # a string of <mode>:<name>
 # mode - e, g, l, p (e - empty, g - group, l - license, p - pds)
 # name - variable name holding the stuff described by mode
+# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
 declare -i ITEM_COUNTER=0
 
 function item_gen_varname() {
@@ -260,8 +267,9 @@ function parse_dsf() {
             # to current group and mark the new group as current
             group_gen_varname pd_group
             group_declare "${pd_group}"
+            # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
             local -n g=${pd_group}
-            g[t]=${GROUP_ANY_OF}
+            g['t']=${GROUP_ANY_OF}
             unset -n g
 
             item_gen_varname pd_item
@@ -286,10 +294,12 @@ function parse_dsf() {
 
             group_gen_varname pd_group
             group_declare "${pd_group}"
+            # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
             local -n g=${pd_group}
-            g[t]=${GROUP_ALL_OF}
-            g[u]=${use}
-            g[d]=${disabled}
+            g['t']=${GROUP_ALL_OF}
+            g['u']=${use}
+            # shellcheck disable=SC2034 # it is used indirectly elsewhere
+            g['d']=${disabled}
             unset -n g
 
             unset use disabled
@@ -407,9 +417,9 @@ function parse_dsf() {
                     ur_gen_varname pd_ur
                     ur_declare "${pd_ur}"
                     local -n u=${pd_ur}
-                    u[n]=${name}
-                    u[m]=${mode}
-                    u[p]=${pretend}
+                    u['n']=${name}
+                    u['m']=${mode}
+                    u['p']=${pretend}
                     unset -n u
                     use_requirements+=( "${pd_ur}" )
                 done
@@ -430,11 +440,11 @@ function parse_dsf() {
             pds_gen_varname pd_pds
             pds_declare "${pd_pds}"
             local -n p=${pd_pds}
-            p[b]=${blocks}
-            p[o]=${operator}
-            p[n]=${name}
-            p[v]=${version}
-            p[s]=${slot}
+            p['b']=${blocks}
+            p['o']=${operator}
+            p['n']=${name}
+            p['v']=${version}
+            p['s']=${slot}
             unset -n p
             pds_add_urs "${pd_pds}" "${use_requirements[@]}"
             unset use_requirements slot version name operator blocks
@@ -455,6 +465,7 @@ function parse_dsf() {
         fail "botched parsing, group stack has ${#group_stack[@]} groups instead of 1"
     fi
 
+    # shellcheck disable=SC2034 # it is a reference to an external variable
     top_group_name=${group_stack[0]}
     return 0
 }
@@ -478,30 +489,31 @@ function parse_eclasses() {
 }
 
 function pds_to_string() {
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n pds=${1}; shift
     local -n str=${1}; shift
 
-    case ${pds[b]} in
-        ${PDS_NO_BLOCK})
+    case ${pds['b']} in
+        "${PDS_NO_BLOCK}")
             str=''
             ;;
-        ${PDS_WEAK_BLOCK})
+        "${PDS_WEAK_BLOCK}")
             str='!'
             ;;
-        ${PDS_STRONG_BLOCK})
+        "${PDS_STRONG_BLOCK}")
             str='!!'
             ;;
     esac
-    str+=${pds[o]}${pds[n]}
-    local v=${pds[v]}
+    str+=${pds['o']}${pds['n']}
+    local v=${pds['v']}
     if [[ -n ${v} ]]; then
         str+=-${v}
     fi
-    local s=${pds[s]}
+    local s=${pds['s']}
     if [[ -n ${s} ]]; then
         str+=:${s}
     fi
-    local -n urs=${pds[u]}
+    local -n urs=${pds['u']}
     if [[ ${#urs[@]} -gt 0 ]]; then
         str+='['
         local u ur_str
@@ -524,7 +536,7 @@ function ur_to_string() {
     local -n ur=${1}; shift
     local -n str=${1}; shift
 
-    case ${ur[m]} in
+    case ${ur['m']} in
         '!'*)
             str='!'
             ;;
@@ -535,13 +547,15 @@ function ur_to_string() {
             str=''
             ;;
     esac
-    str+=${ur[n]}
+    str+=${ur['n']}
 
-    local p=${ur[p]}
+    # shellcheck disable=SC2178 # shellcheck is confused here
+    local p=${ur['p']}
+    # shellcheck disable=SC2128 # shellcheck is confused here (p is not an array)
     if [[ -n ${p} ]]; then
         str+="(${p})"
     fi
-    case ${ur[m]} in
+    case ${ur['m']} in
         *'=')
             str+='='
             ;;
@@ -581,20 +595,21 @@ function item_to_string() {
 }
 
 function group_to_string() {
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n group=${1}; shift
     local -n str=${1}; shift
 
-    local t=${group[t]}
+    local t=${group['t']}
     case ${t} in
-        ${GROUP_ALL_OF})
-            local u=${group[u]}
+        "${GROUP_ALL_OF}")
+            local u=${group['u']}
             if [[ -n ${u} ]]; then
-                local d=${group[d]}
+                local d=${group['d']}
                 case ${d} in
-                    ${GROUP_USE_ENABLED})
+                    "${GROUP_USE_ENABLED}")
                         str=''
                         ;;
-                    ${GROUP_USE_DISABLED})
+                    "${GROUP_USE_DISABLED}")
                         str='!'
                 esac
                 unset d
@@ -604,13 +619,14 @@ function group_to_string() {
             fi
             unset u
             ;;
-        ${GROUP_ANY_OF})
+        "${GROUP_ANY_OF}")
             str='|| '
             ;;
     esac
 
     str+='( '
-    local -n items=${group[i]}
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
+    local -n items=${group['i']}
     if [[ ${#items[@]} -gt 0 ]]; then
         local i item_str
         for i in "${items[@]}"; do
@@ -658,6 +674,7 @@ function parse_keywords() {
 # n - name of IUSE flag
 # m - 0 or 1 (0 disabled, 1 enabled)
 
+# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
 declare -i IUSE_COUNTER=0
 declare -ri IUSE_DISABLED=0
 declare -ri IUSE_ENABLED=1
@@ -686,13 +703,29 @@ function parse_iuse() {
         iuse_declare "${pi_iuse}"
         local -n i=${pi_iuse}
         if [[ ${token} = '+'* ]]; then
-            i[m]=${IUSE_ENABLED}
+            i['m']=${IUSE_ENABLED}
             token=${token:1}
         fi
-        i[n]=${token}
+        i['n']=${token}
         unset -n i
         iuse+=( "${pi_iuse}" )
     done
+}
+
+function iuse_to_string() {
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
+    local -n iuse=${1}; shift
+    local -n str=${1}; shift
+
+    case ${iuse['m']} in
+        "${IUSE_ENABLED}")
+            str='+'
+            ;;
+        "${IUSE_DISABLED}")
+            str=''
+            ;;
+    esac
+    use_str+=${iuse['n']}
 }
 
 fi
