@@ -25,3 +25,6 @@ sys-fs/btrfs-progs man
 # put anywhere. Thus avoid pulling more dependencies than necessary
 # for throw-away things.
 dev-python/pillow jpeg
+
+# disable all tools for NVIDIA driver, keep just kmods
+x11-drivers/nvidia-drivers tools X static-libs
