@@ -55,7 +55,7 @@ INPUT_DEVICES="libinput"
 
 # Accept only licenses in the FREE license group, i.e., with
 # the freedom to use, share, modify and share modifications
-ACCEPT_LICENSE="-* @FREE"
+ACCEPT_LICENSE="-* @FREE NVIDIA-r2"
 
 # Tomáš Chvátal <scarabeus@gentoo.org> (2013-03-23)
 # By default enable libreoffice implementation only.

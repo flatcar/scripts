@@ -46,3 +46,5 @@ net-dns/pdnsd -urandom
 # with FreeBSD and other operating systems that have no better
 # interfaces, but people would probably abuse it with Linux as well.
 media-sound/pulseaudio-daemon oss
+
+x11-drivers/nvidia-drivers tools X static-libs
