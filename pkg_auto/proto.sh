@@ -135,14 +135,9 @@ for pkg in "${!pkgs[@]}"; do
     use_str=''
     if [[ ${#pkg_iuse[@]} -gt 0 ]]; then
         for u in "${pkg_iuse[@]}"; do
-            declare -n i=${u}
-            case ${i[m]} in
-                ${IUSE_ENABLED})
-                    use_str+='+'
-                    ;;
-            esac
-            use_str+=${i[n]}' '
-            unset -n i
+            iuse_str=''
+            iuse_to_string "${u}" iuse_str
+            use_str+=${iuse_str}' '
         done
         # remove trailing space
         use_str=${use_str:0:$(( ${#use_str} - 1 ))}
