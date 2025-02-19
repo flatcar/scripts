@@ -117,6 +117,7 @@ fi
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/test_image_content.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/extra_sysexts.sh" || exit 1
 
 # Setup all the emerge command/flags.
 EMERGE_FLAGS=( --update --deep --newuse --verbose --backtrack=30 --select )
@@ -285,6 +286,34 @@ export KBUILD_BUILD_HOST="${BUILD_HOST:-pony-truck.infra.kinvolk.io}"
 info "Merging board packages now"
 sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
+info "Merging sysext packages now"
+for sysext in "${EXTRA_SYSEXTS[@]}"; do
+  IFS=":" read SYSEXT_NAME PACKAGE_ATOMS USEFLAGS < <(echo "$sysext");
+
+  info "Building packages for $SYSEXT_NAME sysext with USE=$USEFLAGS"
+  IFS=,
+  for package in $PACKAGE_ATOMS; do
+     # --buildpkgonly does not install dependencies, so we install them
+     # separately before building the binary package
+     sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
+       env USE="$USEFLAGS" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
+       "${EMERGE_FLAGS[@]}" \
+       --quiet \
+       --onlydeps \
+       --binpkg-respect-use=y \
+       "${package}"
+
+     sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
+       env USE="$USEFLAGS" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
+       "${EMERGE_FLAGS[@]}" \
+       --quiet \
+       --buildpkgonly \
+       --binpkg-respect-use=y \
+       "${package}"
+  done
+  unset IFS
+done
+
 info "Removing obsolete packages"
 # The return value of emerge is not clearly reliable. It may fail with
 # an output like following:
@@ -319,7 +348,16 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   fi
 fi
 
-eclean-$BOARD -d packages
+exclusions_file=$(mktemp)
+if [ ! -f "$exclusions_file" ]; then
+    die_notrace "Couldn't create temporary exclusions file $exclusions_file for eclean"
+fi
+get_unversioned_sysext_packages > "$exclusions_file"
+eclean-"$BOARD" -d --exclude-file="$exclusions_file" packages
+rm -f "$exclusions_file"
+# run eclean again, this time without the --deep option, to clean old versions
+# of sysext packages (those, for which .ebuild file no  longer exists)
+eclean-"$BOARD" packages
 
 info "Checking build root"
 test_image_content "${BOARD_ROOT}"

@@ -213,9 +213,16 @@ create_prod_sysexts() {
   local image_name="$1"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
   for sysext in "${EXTRA_SYSEXTS[@]}"; do
-    local name="flatcar-${sysext%:*}"
-    local pkgs="${sysext#*:}"
+    local name="flatcar-${sysext%%:*}"
+    local pkgs_and_useflags="${sysext#*:}"
+    local pkgs="${pkgs_and_useflags%%:*}"
     local pkg_array=(${pkgs//,/ })
+    local useflags=""
+    if [[ "$pkgs_and_useflags" == *:* ]]; then
+      useflags="${pkgs_and_useflags#*:}"
+    fi
+    local useflags_array=(${useflags//,/ })
+
     local mangle_script="${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
     if [[ ! -x "${mangle_script}" ]]; then
       mangle_script=
@@ -223,8 +230,9 @@ create_prod_sysexts() {
     sudo rm -f "${BUILD_DIR}/${name}.raw" \
 	"${BUILD_DIR}/flatcar-test-update-${name}.gz" \
 	"${BUILD_DIR}/${name}_*"
-    sudo "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
-        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+    # we use -E to pass the USE flags, but also MODULES_SIGN variables
+    USE="${useflags_array[*]}" sudo -E "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
+	--squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
 	--image_builddir="${BUILD_DIR}" \
 	${mangle_script:+--manglefs_script=${mangle_script}} \
 	"${name}" "${pkg_array[@]}"
