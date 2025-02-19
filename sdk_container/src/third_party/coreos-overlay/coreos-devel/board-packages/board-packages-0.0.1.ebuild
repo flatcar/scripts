@@ -40,6 +40,7 @@ RDEPEND="
 	coreos-base/flatcar-eks
 	net-misc/chrony
 	sys-fs/zfs
+	x11-drivers/nvidia-drivers
 	app-containers/podman
 	net-misc/passt
 	dev-lang/python
