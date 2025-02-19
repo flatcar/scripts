@@ -221,11 +221,12 @@ info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_
 
 for package; do
   echo "Installing package into sysext image: $package"
-  FEATURES="-ebuild-locks" emerge \
+  FEATURES="-ebuild-locks binpkg-multi-instance" emerge \
     --root="${BUILD_DIR}/install-root" \
     --config-root="/build/${FLAGS_board}"  \
     --sysroot="/build/${FLAGS_board}"  \
     --usepkgonly \
+    --binpkg-respect-use=y \
     --getbinpkg \
     --verbose \
     --jobs=${NUM_JOBS} \
