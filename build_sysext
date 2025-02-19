@@ -221,12 +221,19 @@ info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_
 
 for package; do
   echo "Installing package into sysext image: $package"
-  FEATURES="-ebuild-locks" emerge \
+  usepkg_flag="--usepkgonly"
+  # if custom USE flags are set, disable using binary packages to force rebuild
+  if [ ! -z "${USE:-}" ]; then
+    usepkg_flag="--usepkg"
+    echo "Disabling binary package install because custom USE flags are set: $USE "
+  fi
+  FEATURES="-ebuild-locks binpkg-multi-instance" emerge \
     --root="${BUILD_DIR}/install-root" \
     --config-root="/build/${FLAGS_board}"  \
     --sysroot="/build/${FLAGS_board}"  \
-    --usepkgonly \
     --getbinpkg \
+    --binpkg-respect-use=y \
+    $usepkg_flag \
     --verbose \
     --jobs=${NUM_JOBS} \
     "${package}"
