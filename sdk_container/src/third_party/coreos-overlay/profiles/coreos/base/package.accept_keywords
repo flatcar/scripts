@@ -17,7 +17,7 @@
 =app-crypt/azure-keyvault-pkcs11-0_p20241129 ~amd64
 
 # Needed by arm64-native SDK
-=app-crypt/ccid-1.5.4 ~arm64
+=app-crypt/ccid-1.5.5 ~arm64
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =app-crypt/clevis-19-r1 **
