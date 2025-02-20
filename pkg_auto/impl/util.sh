@@ -141,7 +141,7 @@ function yell() {
 # hashes in the top sourcer of this file.
 function print_help() {
     if [[ ${THIS} != "${BASH}" ]]; then
-        grep '^##' "${THIS}" | sed -e 's/##[[:space:]]*//'
+        grep '^##' "${THIS}" | sed -e 's/##[[:space:]]\?//'
     fi
 }
 

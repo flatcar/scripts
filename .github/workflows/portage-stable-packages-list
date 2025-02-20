@@ -385,6 +385,7 @@ eclass/dist-kernel-utils.eclass
 eclass/distutils-r1.eclass
 eclass/eapi8-dosym.eclass
 eclass/eapi9-pipestatus.eclass
+eclass/eapi9-ver.eclass
 eclass/edo.eclass
 eclass/edos2unix.eclass
 eclass/elisp-common.eclass

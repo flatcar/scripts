@@ -33,6 +33,94 @@
 
 #--- END OF EXAMPLES ---
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-16)
+# KF5/Qt5 based and no signs of porting or even life upstream.
+# kde-frameworks/kcalendarcore:5 has no more revdeps after this.
+# Removal on 2025-03-16.
+app-office/calligraplan
+kde-frameworks/kcalendarcore:5
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-02-16)
+# Discontinued, please use xournal++ instead.
+# Removal on 2025-03-16. Bug 948200.
+app-text/xournal
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-16)
+# Downstream-split fallback package for KF5-based revdeps without any
+# revdeps left. Removal on 2025-02-28.
+media-gfx/okularpart
+
+# Andrey Grozin <grozin@gentoo.org> (2025-02-15)
+# Last release 6 years ago, depends on Qt5,
+# no one else packages this.
+# Use sci-geosciences/gpxsee instead.
+# Removal on 2025-03-16.
+sci-geosciences/gpxlab
+
+# Andrey Grozin <grozin@gentoo.org> (2025-02-15)
+# Last release 6 years ago, no one else packages this.
+# Bugs #932575, #927671
+# Use app-text/foliate or app-text/crqt-ng.
+# Removal on 2025-03-16.
+app-text/simple-fb2-reader
+
+# Andrey Grozin <grozin@gentoo.org> (2025-02-15)
+# Last release 6 years ago, no one else packages this.
+# Does not seem useful.
+# Bug #729546.
+# Removal on 2025-03-16.
+app-text/fictionup
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-02-14)
+# No revdeps left, and serves no purpose on its own.  Formerly used
+# by <=app-emulation/wine-*-7 but <=7.x has been dropped and newer
+# versions of it cross-build their own .dll (PE) version of it
+# leaving the system's .so (ELF) copy unused.
+#
+# In other words, *can* use vkd3d with wine without this package.
+#
+# Not to be confused with app-emulation/vkd3d-proton which builds a
+# .dll usable as an alternative to wine's own.
+#
+# Removal on 2025-03-16.
+app-emulation/vkd3d
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-13)
+# Last release 10 years ago, dead upstream, depends on Qt5, no one else
+# packages this. Removal on 2025-03-14.
+x11-misc/kaqaz
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-12)
+# Depends on deprecated Qt5Script, gone closed-source upstream, multiple
+# open bugs #912829, #913106, #922304, #922306, #926039, #935772, #935887,
+# no response from maintainer. Removal on 2025-03-14.
+net-analyzer/ostinato
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-12)
+# Last release from 2021 even if not yet dead upstream; however completely
+# unmaintained in Gentoo, with the ensuing multiple longstanding bugs
+# #832614, #866935, #895806, #915790, #944379, #945060; ebuild still based
+# on EAPI-7, USE=javascript depending on deprecated Qt5Script, USE=qt5
+# blocking qt5-removal, etc. This package was already problematic during
+# transition from Qt4 to Qt5, I will not deal with it this time.
+# Removal on 2025-03-14.
+net-p2p/eiskaltdcpp
+
+# Maciej Barć <xgqt@gentoo.org> (2025-02-12)
+# Masked for testing. Fails to update from previous version. See bug #949626.
+>=x11-themes/fluent-icon-theme-2025.02.10
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-02-11)
+# Fails to build with >=gcc14 and >=clang16 (Modern C) and tests fail
+# among several other accumulating issues.  Hasn't received a release
+# since 2013 and snapshots been difficult due to upstream often doing
+# refactoring leading to various runtime regressions, and testing the
+# state downstream is not obvious (current snapshot has some runtime
+# issues too).  Re-adding could be considered if there is ever a proper
+# release.  Recommend using games-fps/darkplaces instead.
+# Removal on 2025-03-13. Bugs #931506, #926463, #919237, #908709, ...
+games-fps/quakeforge
+
 # Matt Jolly <kangie@gentoo.org> (2025-02-10)
 # Rust ebuilds are migrating to use RPATH/RUNPATH to find their libraries.
 # New revisions for each Slot are already in-tree and should be used instead.
@@ -62,12 +150,6 @@
 =dev-lang/rust-bin-1.83.0
 =dev-lang/rust-bin-1.84.0
 =dev-lang/rust-bin-1.84.1
-
-# Michal Rostecki <vadorovsky@protonmail.com> (2025-02-09)
-# A libgcc_s drop-in replacement, which conflicts with sys-devel/gcc,
-# therefore meant only for profiles which can work without GCC being
-# present even as a fallback.
-llvm-runtimes/libgcc
 
 # Michał Górny <mgorny@gentoo.org> (2025-02-08)
 # Suspicious subslot bump, causing humongous rebuilds.
@@ -166,10 +248,11 @@ app-editors/juffed
 # Nowa Ammerlaan <nowa@gentoo.org> (2025-01-23)
 # Sypder-5 requires Qt5, and there are several dead
 # plugins that have not been migrated to Spyder-6.
-# Removal on 2025-02-23
+# Bugs #926687, #926686. Removal on 2025-02-23
 <dev-python/spyder-6
 dev-python/spyder-vim
 dev-python/spyder-terminal
+=dev-python/qtpy-2.4.2
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
 # CVE-2025-23050, bug #948573; Removal on 2025-02-22.
@@ -181,19 +264,19 @@ dev-qt/qdbusviewer
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
 # Qt5 packages without any revdeps.
+dev-qt/assistant
 dev-qt/pixeltool
 dev-qt/qdbus
 dev-qt/qdoc
+dev-qt/qtdiag
+dev-qt/qtgamepad:5
+dev-qt/qtlocation:5
 dev-qt/qtplugininfo
 dev-qt/qtquicktimeline:5
+dev-qt/qtsensors:5
 dev-qt/qtserialbus:5
 dev-qt/qtvirtualkeyboard:5
 dev-qt/qtwebview:5
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
-# Unmaintained in Gentoo, last release from 2022 needs Qt5WebEngine.
-# Bug #926655. Removal on 2025-02-22.
-app-text/bibletime
 
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-01-20)
 # Unused Java library. Removal on 2025-02-19.
@@ -210,41 +293,11 @@ sys-cluster/k3s
 # Removal on 2025-02-17.  Bug #948333.
 dev-python/terminaltables
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-11)
-# Last release from 2012, dead upstream for 7 years, no Gentoo maintainer.
-# Depends on dev-qt/qtwebengine:5, removed from almost every other distro.
-# Bugs #741849, #830220, #851507 and #926672. Removal on 2025-02-10.
-net-misc/fatrat
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-11)
-# Last release from 2020, effectively unmaintained in Gentoo as its
-# maintainer has moved on to taking care of it in rion overlay instead.
-# Depends on Qt5, app-crypt/qca[qt5], dev-qt/qtwebengine:5.
-# Bugs #755446, #926138, #926670. Removal on 2025-02-10.
-net-im/psi
-net-im/psimedia
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-11)
-# Qt5-based library without any revdeps. Depends on app-crypt/qca[qt5].
-# Removal on 2025-02-10.
-dev-libs/qoauth
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-11)
-# Last release from 2020, dead upstream; Depends on app-crypt/qca[qt5].
-# Bug #935556. Removal on 2025-02-10.
-net-im/dianara
-
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-01-10)
 # EAPI=7, maintainer needed, no reverse dependencies, fails to compile,
 # uses deprecated Go eclass.
 # Removal on 2025-02-09.  Bugs #947810, #856319, #844730, #771048, #679078.
 sys-cluster/zetcd
-
-# James Le Cuirot <chewi@gentoo.org> (2025-01-09)
-# Obsolete and needs to be dropped along with Qt5. The GTK theme has been
-# superseded by dev-qt/qtbase[gtk], which uses GTK 3 rather than GTK 2.
-# Removal on 2025-02-09. See bug #947787.
-dev-qt/qtstyleplugins
 
 # Conrad Kostecki <conikost@gentoo.org> (2025-01-09)
 # New version, which dropps support for legacy devices.
