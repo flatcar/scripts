@@ -1,0 +1,4 @@
+- SDK: go ([1.23.6](https://go.dev/doc/devel/release#go1.23.6))
+- base, dev: intel-microcode ([20250211_p20250211](https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-20250211))
+- base, dev: openssl ([3.3.3](https://github.com/openssl/openssl/releases/tag/openssl-3.3.3))
+- sysext-podman: passt ([2025.01.21](https://archives.passt.top/passt-user/20250121182827.652400c8@elisabeth/T/#u))
