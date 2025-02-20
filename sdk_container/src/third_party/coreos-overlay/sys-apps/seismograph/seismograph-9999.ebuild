@@ -7,7 +7,7 @@ EGIT_REPO_URI="https://github.com/flatcar/seismograph.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="0d57463de18df81741375d628852c521542b6836" # flatcar-master
+	EGIT_COMMIT="e32ac4d13ca44333dc77e5872dbf23f964b6f1e2" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
