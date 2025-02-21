@@ -3,47 +3,25 @@
 if [[ -z ${__MD5_CACHE_LIB_SH_INCLUDED__:-} ]]; then
 __MD5_CACHE_LIB_SH_INCLUDED__=x
 
-function __mcl_gen_varname_full() {
-    local -n name=${1}; shift
-    local prefix=${1}; shift
-    local -n counter=${1}; shift
-
-    name=${prefix}_${counter}
-    counter=$((counter + 1))
-}
-
-function __mcl_gen_varname() {
-    local name=${1}; shift
-    local prefix=${1}; shift
-
-    local counter_name="${prefix}_COUNTER"
-
-    __mcl_gen_varname_full "${name}" "${prefix}" "${counter_name}"
-}
+function foo() { echo ${#}; local last_one=${@: -1}; local last_but_one=${@: -2:1}; local rest=$((${#} - 2)); echo ${last_one} ${last_but_one} ${@:1:${rest}}; }
 
 function __mcl_declare() {
-    local -a declare_opts=()
+    # last two args are name and definition of the variable, so the
+    # index -2 is the name, index -1 is the definition; the rest are
+    # supposed to be flags passed to declare
+    #
+    # space is needed to avoid confusion with the :- parameter
+    # expansion
+    declare "${@:1:$(( ${#} - 2 ))}" "${@: -2:1}=${@: -1:1}"
+}
 
-    while [[ ${#} -gt 0 ]]; do
-        case ${1} in
-            --)
-                shift
-                break
-                ;;
-            -*)
-                declare_opts+=( "${1}" )
-                shift
-                ;;
-            *)
-                break
-                ;;
-        esac
-    done
+declare -g -i __MCL_COUNTER=0
 
-    local name=${1}; shift
-    local definition=${1}; shift
+function mcl_gen_varname() {
+    local -n name_ref=${1}; shift
 
-    declare "${declare_opts[@]}" "${name}=${definition}"
+    name_ref=__MCL_VAR_${__MCL_COUNTER}
+    __MCL_COUNTER=$((__MCL_COUNTER + 1))
 }
 
 # use requirement
@@ -51,13 +29,6 @@ function __mcl_declare() {
 # n - name of USE flag
 # m - mode: +, =, !=, ?, !?, - (+ enabled, = strict relation, != reverted strict relation, ? enabled if enabled, !? disabled if disabled, - disabled)
 # p - pretend: empty, + or - (+ pretend enabled if missing, - pretend disabled if missing)
-
-# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
-declare -i UR_COUNTER=0
-
-function ur_gen_varname() {
-    __mcl_gen_varname "${1}" UR
-}
 
 function ur_declare() {
     __mcl_declare -g -A "${@}" "( [n]=ITS_UNSET [m]=+ [p]= )"
@@ -79,14 +50,8 @@ function ur_unset() {
 declare -ri PDS_NO_BLOCK=0
 declare -ri PDS_WEAK_BLOCK=1
 declare -ri PDS_STRONG_BLOCK=2
-# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
-declare -i PDS_COUNTER=0
 # shellcheck disable=SC2034 # used by name
 declare -ra EMPTY_ARRAY=()
-
-function pds_gen_varname() {
-    __mcl_gen_varname "${1}" PDS
-}
 
 function pds_declare() {
     __mcl_declare -g -A "${@}" "( [b]=${PDS_NO_BLOCK} [o]= [n]=ITS_UNSET [v]= [s]= [u]=EMPTY_ARRAY )"
@@ -111,9 +76,6 @@ function pds_unset() {
     unset "${name}"
 }
 
-# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
-declare -i UR_ARRAY_COUNTER=0
-
 function pds_add_urs() {
     local -n pds=${1}; shift
     # rest are use requirements
@@ -121,7 +83,7 @@ function pds_add_urs() {
     local use_reqs_name=${pds['u']}
     if [[ ${use_reqs_name} = 'EMPTY_ARRAY' ]]; then
         local ura_name
-        __mcl_gen_varname ura_name UR_ARRAY
+        mcl_gen_varname ura_name
         declare -g -a "${ura_name}"
         pds['u']=${ura_name}
         use_reqs_name=${ura_name}
@@ -142,12 +104,6 @@ declare -ri GROUP_ALL_OF=0
 declare -ri GROUP_ANY_OF=1
 declare -ri GROUP_USE_ENABLED=0
 declare -ri GROUP_USE_DISABLED=1
-# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
-declare -i GROUP_COUNTER=0
-
-function group_gen_varname() {
-    __mcl_gen_varname "${1}" GROUP
-}
 
 function group_declare() {
     __mcl_declare -g -A "${@}" "( [t]=${GROUP_ALL_OF} [u]= [d]=${GROUP_USE_ENABLED} [i]=EMPTY_ARRAY )"
@@ -176,9 +132,6 @@ function group_unset() {
     fi
 }
 
-# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
-declare -i ITEM_ARRAY_COUNTER=0
-
 function group_add_item() {
     local -n group=${1}; shift
     local item=${1}; shift
@@ -186,7 +139,7 @@ function group_add_item() {
     local items_name=${group['i']}
     if [[ ${items_name} = 'EMPTY_ARRAY' ]]; then
         local ia_name
-        __mcl_gen_varname ia_name ITEM_ARRAY
+        mcl_gen_varname ia_name
         declare -g -a "${ia_name}"
         group['i']=${ia_name}
         items_name=${ia_name}
@@ -201,12 +154,6 @@ function group_add_item() {
 # a string of <mode>:<name>
 # mode - e, g, l, p (e - empty, g - group, l - license, p - pds)
 # name - variable name holding the stuff described by mode
-# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
-declare -i ITEM_COUNTER=0
-
-function item_gen_varname() {
-    __mcl_gen_varname "${1}" ITEM
-}
 
 function item_declare() {
     __mcl_declare -g "${@}" 'e:'
@@ -248,12 +195,12 @@ declare -ri DSF_LICENSE=1
 function parse_dsf() {
     local dsf_type=${1}; shift
     local dep=${1}; shift
-    local -n top_group_name=${1}; shift
+    local -n top_group_out_var_name_ref=${1}; shift
 
     local -a group_stack
     local pd_group pd_item pd_group_created='' pd_pds
 
-    group_gen_varname pd_group
+    mcl_gen_varname pd_group
     group_declare "${pd_group}"
     group_stack+=( "${pd_group}" )
 
@@ -265,14 +212,14 @@ function parse_dsf() {
         if [[ ${token} = '||' ]]; then
             # "any of" group, so create the group, make it an item, add
             # to current group and mark the new group as current
-            group_gen_varname pd_group
+            mcl_gen_varname pd_group
             group_declare "${pd_group}"
             # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
             local -n g=${pd_group}
             g['t']=${GROUP_ANY_OF}
             unset -n g
 
-            item_gen_varname pd_item
+            mcl_gen_varname pd_item
             item_declare "${pd_item}"
             local -n i=${pd_item}
             i="g:${pd_group}"
@@ -292,7 +239,7 @@ function parse_dsf() {
                 use=${use:1}
             fi
 
-            group_gen_varname pd_group
+            mcl_gen_varname pd_group
             group_declare "${pd_group}"
             # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
             local -n g=${pd_group}
@@ -304,7 +251,7 @@ function parse_dsf() {
 
             unset use disabled
 
-            item_gen_varname pd_item
+            mcl_gen_varname pd_item
             item_declare "${pd_item}"
             local -n i=${pd_item}
             i="g:${pd_group}"
@@ -321,10 +268,10 @@ function parse_dsf() {
             if [[ -n ${pd_group_created} ]]; then
                 pd_group_created=
             else
-                group_gen_varname pd_group
+                mcl_gen_varname pd_group
                 group_declare "${pd_group}"
 
-                item_gen_varname pd_item
+                mcl_gen_varname pd_item
                 item_declare "${pd_item}"
                 local -n i=${pd_item}
                 i="g:${pd_group}"
@@ -344,7 +291,7 @@ function parse_dsf() {
                 fail "license tokens are only allowed for LICENSE keys (token: ${token@Q})"
             fi
 
-            item_gen_varname pd_item
+            mcl_gen_varname pd_item
             item_declare "${pd_item}"
             local -n i=${pd_item}
             i="l:${token}"
@@ -414,7 +361,7 @@ function parse_dsf() {
                         ur=${ur%"(${pretend})"}
                     fi
                     name=${ur}
-                    ur_gen_varname pd_ur
+                    mcl_gen_varname pd_ur
                     ur_declare "${pd_ur}"
                     local -n u=${pd_ur}
                     u['n']=${name}
@@ -437,7 +384,7 @@ function parse_dsf() {
             fi
             name=${token}
 
-            pds_gen_varname pd_pds
+            mcl_gen_varname pd_pds
             pds_declare "${pd_pds}"
             local -n p=${pd_pds}
             p['b']=${blocks}
@@ -449,7 +396,7 @@ function parse_dsf() {
             pds_add_urs "${pd_pds}" "${use_requirements[@]}"
             unset use_requirements slot version name operator blocks
 
-            item_gen_varname pd_item
+            mcl_gen_varname pd_item
             item_declare "${pd_item}"
             local -n i=${pd_item}
             i="p:${pd_pds}"
@@ -466,13 +413,18 @@ function parse_dsf() {
     fi
 
     # shellcheck disable=SC2034 # it is a reference to an external variable
-    top_group_name=${group_stack[0]}
+    top_group_out_var_name_ref=${group_stack[0]}
     return 0
 }
 
 function parse_eclasses() {
     local eclasses_string=${1}; shift
-    local -n eclasses=${1}; shift
+    local -n eclasses_out_var_name_ref=${1}; shift
+
+    local eclasses_var_name
+    mcl_gen_varname eclasses_var_name
+    declare -a -g "${eclasses_var_name}=()"
+    local -n eclasses=${eclasses_var_name}
 
     local -a tokens
     mapfile -t tokens <<<"${eclasses_string//$'\t'/$'\n'}"
@@ -485,7 +437,7 @@ function parse_eclasses() {
         fi
         eclass_name_now=$((eclass_name_now ^ 1))
     done
-    return 0
+    eclasses_out_var_name_ref=${eclasses_var_name}
 }
 
 function pds_to_string() {
@@ -640,8 +592,13 @@ function group_to_string() {
 
 function parse_keywords() {
     local keywords_string=${1}; shift
-    local -n keywords=${1}; shift
+    local -n keywords_out_var_name_ref=${1}; shift
     # rest are architectures
+
+    local keywords_var_name
+    mcl_gen_varname keywords_var_name
+    declare -a -g "${keywords_var_name}=()"
+    local -n keywords=${keywords_var_name}
 
     local -A keywords_set=()
 
@@ -666,6 +623,7 @@ function parse_keywords() {
             keywords+=( "-${arch}" )
         fi
     done
+    keywords_out_var_name_ref=${keywords_var_name}
 }
 
 
@@ -674,14 +632,8 @@ function parse_keywords() {
 # n - name of IUSE flag
 # m - 0 or 1 (0 disabled, 1 enabled)
 
-# shellcheck disable=SC2034 # used indirectly through __mcl_gen_varname
-declare -i IUSE_COUNTER=0
 declare -ri IUSE_DISABLED=0
 declare -ri IUSE_ENABLED=1
-
-function iuse_gen_varname() {
-    __mcl_gen_varname "${1}" IUSE
-}
 
 function iuse_declare() {
     __mcl_declare -g -A "${@}" "( [n]=ITS_UNSET [m]=${IUSE_DISABLED} )"
@@ -693,13 +645,18 @@ function iuse_unset() {
 
 function parse_iuse() {
     local iuse_string=${1}; shift
-    local -n iuse=${1}; shift
+    local -n iuse_out_var_name_ref=${1}; shift
+
+    local iuse_var_name
+    mcl_gen_varname iuse_var_name
+    declare -a -g "${iuse_var_name}=()"
+    local -n iuse=${iuse_var_name}
 
     local -a tokens
     mapfile -t tokens <<<"${iuse_string// /$'\n'}"
     local token pi_iuse
     for token in "${tokens[@]}"; do
-        iuse_gen_varname pi_iuse
+        mcl_gen_varname pi_iuse
         iuse_declare "${pi_iuse}"
         local -n i=${pi_iuse}
         if [[ ${token} = '+'* ]]; then
@@ -710,6 +667,8 @@ function parse_iuse() {
         unset -n i
         iuse+=( "${pi_iuse}" )
     done
+
+    iuse_out_var_name_ref=${iuse_var_name}
 }
 
 function iuse_to_string() {
