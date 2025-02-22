@@ -64,4 +64,19 @@ DEPEND="${DEPEND}
 	>=dev-python/gpep517-15
 "
 
+# These packages are pulled indirectly during the multi-stage SDK
+# build, but our package automation can't catch them. Pull them
+# explicitly.
+DEPEND="${DEPEND}
+	app-alternatives/sh
+	app-editors/nano
+	virtual/dev-manager
+	virtual/libc
+	virtual/openssh
+	virtual/package-manager
+	virtual/pager
+	virtual/service-manager
+	virtual/ssh
+"
+
 RDEPEND="${DEPEND}"

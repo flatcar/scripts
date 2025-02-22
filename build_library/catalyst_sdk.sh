@@ -13,6 +13,9 @@ run_merge -uDN --with-bdeps=y world
 echo "Setting the default Python interpreter"
 eselect python update
 
+echo "Building build dependencies of board packages"
+run_merge --onlydeps --onlydeps-with-rdeps=n --onlydeps-with-ddeps=n --onlydeps-with-ideps=y coreos-devel/board-packages
+
 echo "Building cross toolchain for the SDK."
 configure_crossdev_overlay / /usr/local/portage/crossdev
 
