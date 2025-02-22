@@ -32,7 +32,8 @@ if [[ ! -e "${CERTBUNDLE}" || "${CERTSDIR}" -nt "${CERTBUNDLE}" ]]; then
     trap "rm -f '${CERTSDIR}/${TEMPBUNDLE}'" EXIT
 
     # Use .0 instead of .pem to pull in only what c_rehash validated
-    cat "${CERTSDIR}"/*.[0-9] > "${TEMPBUNDLE}"
+    sed --separate '$a\' "${CERTSDIR}"/*.[0-9] >"${TEMPBUNDLE}"
+
     chmod 644 "${TEMPBUNDLE}"
     mv -f "${TEMPBUNDLE}" "${CERTBUNDLE}"
     trap - EXIT
