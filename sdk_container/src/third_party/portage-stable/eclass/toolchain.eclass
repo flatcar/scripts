@@ -424,7 +424,6 @@ if [[ ${PN} != gnat-gpl ]] && tc_has_feature ada ; then
 					sys-devel/gcc:${SLOT}[ada]
 					<sys-devel/gcc-${SLOT}[ada]
 					<dev-lang/ada-bootstrap-$((${SLOT} + 1))
-					dev-lang/gnat-gpl[ada]
 				)
 			)
 		"
@@ -435,7 +434,6 @@ if [[ ${PN} != gnat-gpl ]] && tc_has_feature ada ; then
                                         sys-devel/gcc:${SLOT}[ada]
                                         <sys-devel/gcc-${SLOT}[ada]
                                         <dev-lang/ada-bootstrap-${SLOT}
-                                        dev-lang/gnat-gpl[ada]
                                 )
                         )
                 "
@@ -697,6 +695,7 @@ toolchain_src_prepare() {
 	# Workaround -march=native not working for stage1 with non-GCC (bug #933772).
 	if ! tc-is-gcc && [[ "${CFLAGS}${CXXFLAGS}" == *-march=native* ]] ; then
 		CLANG_DISABLE_CET_HACK=1
+		filter-flags '-march=native'
 	fi
 
 	if ! use vanilla ; then
