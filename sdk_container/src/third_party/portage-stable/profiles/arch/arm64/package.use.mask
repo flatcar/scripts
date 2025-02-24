@@ -1,6 +1,14 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Paul Zander <negril.nx+gentoo@gmail.com> (2025-02-23)
+# Not part of the arm64 archive
+dev-util/nvidia-cuda-toolkit -examples -rdma
+
+# Alfred Wingate <parona@protonmail.com> (2025-02-22)
+# media-libs/zint is not keyworded here
+media-libs/zxing-cpp experimental
+
 # Nowa Ammerlaan <nowa@gentoo.org> (2025-02-03)
 # QtWebView is available here
 dev-python/pyside -webview
@@ -297,11 +305,6 @@ sys-block/tgt rbd
 # Benda Xu <heroxbd@gentoo.org> (2020-08-08)
 # dev-lua/busted is not keyworded yet
 dev-lua/mpack test
-
-# Sam James <sam@gentoo.org> (2020-07-03)
-# Rust is available here
-# bug #728558
-media-video/ffmpeg -rav1e
 
 # Robin H. Johnson <robbat2@gentoo.org> (2020-07-02)
 # Mask io-uring & zbc pending keywording

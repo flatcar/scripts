@@ -17,6 +17,10 @@
 
 #--- END OF EXAMPLES ---
 
+# Sam James <sam@gentoo.org> (2025-02-13)
+# sys-cluster/corosync is marked stable here
+sys-fs/mdadm -corosync
+
 # Sam James <sam@gentoo.org> (2025-02-09)
 # dev-libs/rocdbgapi is not yet marked stable
 dev-debug/gdb rocm
@@ -149,3 +153,4 @@ gnustep-base/gnustep-make libobjc2
 # Don't apply stable masks to python-exec since we're forcing every
 # impl there anyway. Please keep this in sync with use.stable.mask.
 dev-lang/python-exec -python_targets_pypy3
+dev-lang/python-exec -python_targets_pypy3_11
