@@ -17,7 +17,7 @@ HOMEPAGE="
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 RDEPEND="
 	$(python_gen_cond_dep '
@@ -31,7 +31,10 @@ BDEPEND="
 distutils_enable_tests pytest
 
 src_prepare() {
+	distutils-r1_src_prepare
+
+	# unbundle deps
 	rm -r flit_core/vendor || die
 	sed -i -e 's:from \.vendor ::' flit_core/*.py || die
-	distutils-r1_src_prepare
+	sed -i -e '/license-files/d' pyproject.toml || die
 }
