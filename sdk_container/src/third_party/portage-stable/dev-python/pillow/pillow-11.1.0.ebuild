@@ -6,13 +6,16 @@ EAPI=8
 DISTUTILS_EXT=1
 # setuptools wrapper
 DISTUTILS_USE_PEP517=standalone
-PYTHON_COMPAT=( python3_{10..13} pypy3 )
+PYTHON_COMPAT=( python3_{10..13} pypy3 pypy3_11 )
 PYTHON_REQ_USE='tk?,threads(+)'
 
 inherit distutils-r1 toolchain-funcs virtualx
 
 MY_PN=Pillow
 MY_P=${MY_PN}-${PV}
+
+# upstream always fetches from main
+TEST_IMAGE_COMMIT="716bdc4adaf97601e5b9a31c9be25f8975381ee1"
 
 DESCRIPTION="Python Imaging Library (fork)"
 HOMEPAGE="
@@ -23,8 +26,13 @@ HOMEPAGE="
 SRC_URI="
 	https://github.com/python-pillow/Pillow/archive/${PV}.tar.gz
 		-> ${P}.gh.tar.gz
+	https://github.com/python/pythoncapi-compat/raw/c84545f0e1e21757d4901f75c47333d25a3fcff0/pythoncapi_compat.h
+	test? (
+		https://github.com/python-pillow/test-images/archive/${TEST_IMAGE_COMMIT}.tar.gz
+			-> pillow-test-images-${TEST_IMAGE_COMMIT}.gh.tar.gz
+	)
 "
-S="${WORKDIR}/${MY_P}"
+S=${WORKDIR}/${MY_P}
 
 LICENSE="HPND"
 SLOT="0"
@@ -66,10 +74,27 @@ BDEPEND="
 EPYTEST_XDIST=1
 distutils_enable_tests pytest
 
-PATCHES=(
-	# https://github.com/python-pillow/pillow/pull/7634
-	"${FILESDIR}/${PN}-10.2.0-cross.patch"
-)
+src_prepare() {
+	local PATCHES=(
+		# https://github.com/python-pillow/pillow/pull/7634
+		"${FILESDIR}/${PN}-10.2.0-cross.patch"
+	)
+
+	distutils-r1_src_prepare
+
+	if use test; then
+		mv "${WORKDIR}/test-images-${TEST_IMAGE_COMMIT}"/* \
+			Tests/images || die
+	fi
+
+	# https://github.com/python-pillow/Pillow/pull/8757
+	if ! grep -q 0041177c4f348c8952b4c8980b2c90856e61c7c7 \
+		src/thirdparty/pythoncapi_compat.h
+	then
+		die "Remove pythoncapi_compat.h update"
+	fi
+	cp "${DISTDIR}/pythoncapi_compat.h" src/thirdparty/ || die
+}
 
 usepil() {
 	usex "${1}" enable disable

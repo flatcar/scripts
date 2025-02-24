@@ -4,6 +4,10 @@
 # Unmask the flag which corresponds to ARCH.
 -arm64
 
+# Sam James <sam@gentoo.org> (2025-02-19)
+# x11-drivers/xf86-input-wacom is available here
+-input_devices_wacom
+
 # Sam James <sam@gentoo.org> (2025-01-05)
 # Older targets don't have an old enough dev-lang/ada-bootstrap available
 ada_target_gnat_2021
@@ -55,6 +59,8 @@ ada_target_gnat_2021
 # PyPy3 works on arm64
 -python_targets_pypy3
 -python_single_target_pypy3
+-python_targets_pypy3_11
+-python_single_target_pypy3_11
 
 # David Seifert <soap@gentoo.org> (2020-05-17)
 # Mono is hopelessly broken on arm64

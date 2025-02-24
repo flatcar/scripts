@@ -38,7 +38,12 @@ ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai LoongArch Mips MSP43
 ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
-ALL_LLVM_EXPERIMENTAL_TARGETS=( ARC CSKY DirectX M68k SPIRV Xtensa )
+# https://github.com/rust-lang/llvm-project/blob/rustc-1.71.0/llvm/CMakeLists.txt
+_ALL_RUST_EXPERIMENTAL_TARGETS=()
+declare -A ALL_RUST_EXPERIMENTAL_TARGETS
+for _x in "${_ALL_RUST_EXPERIMENTAL_TARGETS[@]}"; do
+	ALL_RUST_EXPERIMENTAL_TARGETS["llvm_targets_${_x}"]=0
+done
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4 UoI-NCSA"
 SLOT="${PV}"
@@ -49,6 +54,9 @@ LLVM_DEPEND=()
 # splitting usedeps needed to avoid CI/pkgcheck's UncheckableDep limitation
 for _x in "${ALL_LLVM_TARGETS[@]}"; do
 	LLVM_DEPEND+=( "	${_x}? ( $(llvm_gen_dep "llvm-core/llvm:\${LLVM_SLOT}[${_x}]") )" )
+	if [[ -v ALL_RUST_EXPERIMENTAL_TARGETS["${_x}"] ]] ; then
+		ALL_RUST_EXPERIMENTAL_TARGETS["${_x}"]=1
+	fi
 done
 LLVM_DEPEND+=( "	wasm? ( $(llvm_gen_dep 'llvm-core/lld:${LLVM_SLOT}') )" )
 LLVM_DEPEND+=( "	$(llvm_gen_dep 'llvm-core/llvm:${LLVM_SLOT}')" )
@@ -56,7 +64,7 @@ LLVM_DEPEND+=( "	$(llvm_gen_dep 'llvm-core/llvm:${LLVM_SLOT}')" )
 BDEPEND="${PYTHON_DEPS}
 	app-eselect/eselect-rust
 	|| (
-		>=sys-devel/gcc-4.7
+		>=sys-devel/gcc-4.7[cxx]
 		>=llvm-core/clang-3.5
 	)
 	!system-llvm? (
@@ -239,13 +247,13 @@ src_configure() {
 
 	rust_target="$(rust_abi)"
 
-	LLVM_EXPERIMENTAL_TARGETS=()
-	for _x in "${ALL_LLVM_EXPERIMENTAL_TARGETS[@]}"; do
-		if use llvm_targets_${_x} ; then
-			LLVM_EXPERIMENTAL_TARGETS+=( ${_x} )
+	RUST_EXPERIMENTAL_TARGETS=()
+	for _x in "${!ALL_RUST_EXPERIMENTAL_TARGETS[@]}"; do
+		if [[ ${ALL_RUST_EXPERIMENTAL_TARGETS[${_x}]} == 1 ]] && use ${_x} ; then
+			RUST_EXPERIMENTAL_TARGETS+=( ${_x#llvm_targets_} )
 		fi
 	done
-	LLVM_EXPERIMENTAL_TARGETS=${LLVM_EXPERIMENTAL_TARGETS[@]}
+	RUST_EXPERIMENTAL_TARGETS=${RUST_EXPERIMENTAL_TARGETS[@]}
 
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
@@ -257,7 +265,7 @@ src_configure() {
 		assertions = $(toml_usex debug)
 		ninja = true
 		targets = "${LLVM_TARGETS// /;}"
-		experimental-targets = "${LLVM_EXPERIMENTAL_TARGETS// /;}"
+		experimental-targets = "${RUST_EXPERIMENTAL_TARGETS// /;}"
 		link-shared = $(toml_usex system-llvm)
 		$(if is_libcxx_linked; then
 			# https://bugs.gentoo.org/732632

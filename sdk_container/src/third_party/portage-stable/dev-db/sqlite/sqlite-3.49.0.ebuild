@@ -53,6 +53,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.47.2-hwtime.h-Don-t-use-rdtsc-on-i486.patch
 	# https://sqlite.org/forum/forumpost/3c2014fea4
 	"${FILESDIR}"/${PN}-3.49.0-cppflags.patch
+	# https://sqlite.org/forum/forumpost/f93323a743
+	"${FILESDIR}"/${PN}-3.49.0-icu-tests.patch
 )
 
 _fossil_fetch() {
@@ -141,9 +143,6 @@ src_unpack() {
 }
 
 src_prepare() {
-
-	# Avoid stripping during the install phase
-	sed -i -e 's/$(INSTALL) -s /$(INSTALL) /' main.mk || die
 	default
 
 	multilib_copy_sources
@@ -327,9 +326,9 @@ multilib_src_configure() {
 	options+=( --soname=legacy )
 
 	# https://sqlite.org/forum/forumpost/4f4d06a9f6683bb9
-	tc-export CC
+	tc-export_build_env BUILD_CC
 
-	CC_FOR_BUILD=${CC} econf "${options[@]}"
+	CC_FOR_BUILD=${BUILD_CC} econf "${options[@]}"
 }
 
 multilib_src_compile() {
