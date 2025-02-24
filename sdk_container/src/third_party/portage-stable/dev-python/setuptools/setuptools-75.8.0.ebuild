@@ -7,7 +7,7 @@ EAPI=8
 # please bump dev-python/ensurepip-setuptools along with this package!
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_TESTED=( python3_{10..13} pypy3 )
+PYTHON_TESTED=( python3_{10..13} pypy3 pypy3_11 )
 PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_13t )
 PYTHON_REQ_USE="xml(+)"
 
