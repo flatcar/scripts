@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -21,12 +21,15 @@ RDEPEND="
 	icu? ( dev-libs/icu:= )
 	libedit? ( dev-libs/libedit )
 "
-DEPEND="${RDEPEND}"
+DEPEND="
+	${RDEPEND}
+	>=sys-kernel/linux-headers-6.11
+"
 BDEPEND="nls? ( sys-devel/gettext )"
 RDEPEND+=" selinux? ( sec-policy/selinux-xfs )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-5.3.0-libdir.patch
+	"${FILESDIR}"/${PN}-6.13.0-32-bit.patch
 )
 
 src_prepare() {
@@ -72,6 +75,8 @@ src_configure() {
 		--enable-static
 		# Doesn't do anything beyond adding -flto (bug #930947).
 		--disable-lto
+		# The default value causes double 'lib'
+		--localstatedir="${EPREFIX}/var"
 		--with-crond-dir="${EPREFIX}/etc/cron.d"
 		--with-systemd-unit-dir="$(systemd_get_systemunitdir)"
 		--with-udev-rule-dir="$(get_udevdir)/rules.d"
@@ -84,7 +89,9 @@ src_configure() {
 }
 
 src_compile() {
-	emake V=1
+	# -j1 for:
+	# gmake[2]: *** No rule to make target '../libhandle/libhandle.la', needed by 'xfs_spaceman'.  Stop.
+	emake V=1 -j1
 }
 
 src_install() {
@@ -92,9 +99,15 @@ src_install() {
 	emake DIST_ROOT="${ED}" HAVE_ZIPPED_MANPAGES=false install
 	emake DIST_ROOT="${ED}" HAVE_ZIPPED_MANPAGES=false install-dev
 
+	# Not actually used but --localstatedir causes this empty dir
+	# to be installed.
+	rmdir "${ED}"/var/lib/xfsprogs "${ED}"/var/lib || die
+
 	if ! use static-libs; then
 		rm "${ED}/usr/$(get_libdir)/libhandle.a" || die
 	fi
+
+	find "${ED}" -name '*.la' -delete || die
 }
 
 pkg_postrm() {
