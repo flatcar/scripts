@@ -1,8 +1,12 @@
 # Copyright 2019-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Alfred Wingate <parona@protonmail.com> (2025-02-22)
+# media-libs/zint is not keyworded here
+media-libs/zxing-cpp experimental
+
 # Alexey Shvetsov <alexxy@gentoo.org> (2024-11-21)
-# sci-libs/caffe2 is not keyworded on arm64
+# sci-libs/caffe2 is not keyworded on riscv
 sci-chemistry/gromacs nnpot
 
 # Benda Xu <heroxbd@gentoo.org> (2024-10-10)
@@ -48,10 +52,6 @@ app-emulation/libvirt nbd
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-01-13)
 # Unmask only where grub is keyworded
 sys-kernel/installkernel -grub
-
-# Ionen Wolkens <ionen@gentoo.org> (2023-10-09)
-# media-libs/shaderc is keyworded here.
-media-libs/libplacebo -shaderc
 
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
@@ -167,17 +167,6 @@ app-emulation/qemu rbd
 # but with it installed, anyio passes all tests
 dev-python/anyio test
 
-# Marek Szuba <marecki@gentoo.org> (2021-09-23)
-# mkdocs ecosystem only partly keyworded on riscv, has rather messy
-# Python-target requirements.
-dev-python/pyspelling doc
-dev-python/wcmatch doc
-
-# Alex Fan <alex.fan.q@gmail.com> (2022-05-16)
-# These depend on Haskell:
-#  - app-text/pandoc
-sys-cluster/ceph pmdk
-
 # Alex Fan <alexfanqi@yahoo.com> (2021-09-15)
 # Marek Szuba <marecki@gentoo.org> (2021-09-07)
 # All of these require net-libs/nodejs, which now builds on riscv
@@ -186,7 +175,6 @@ sys-cluster/ceph pmdk
 dev-ruby/capybara test
 #  - dev-qt/qtwebengine (bdepend)
 dev-python/ipython qt5
-net-irc/quassel urlpreview
 
 # Jonathan Davies <jpds@protonmail.com> (2021-09-03)
 # Requires CPU with SSSE3 support
@@ -204,8 +192,6 @@ net-analyzer/rrdtool rados
 # Marek Szuba <marecki@gentoo.org> (2021-08-22)
 # net-fs/openafs does not support riscv
 app-crypt/heimdal afs
-# app-editors/xemacs reports arch as unknown, fails to build
-dev-lang/ruby xemacs
 
 # Alex Fan <alexfanqi@yahoo.com> (2021-08-17)
 # dependencies not keyworded/tested

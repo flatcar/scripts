@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Alfred Wingate <parona@protonmail.com> (2025-02-22)
+# media-libs/zint is not keyworded here
+media-libs/zxing-cpp experimental
+
 # Michał Górny <mgorny@gentoo.org> (2024-12-24)
 # OpenMP offloading is supported on 64-bit architectures only.
 llvm-core/clang-runtime -offload
@@ -28,10 +32,6 @@ dev-python/qtpy webengine test
 # Michal Privoznik <michal.privoznik@gmail.com> (2024-01-21)
 # virtiofsd is available here
 app-emulation/libvirt -virtiofsd
-
-# Ionen Wolkens <ionen@gentoo.org> (2023-10-09)
-# media-libs/shaderc is keyworded here.
-media-libs/libplacebo -shaderc
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2023-08-14)
 # OpenMW is only playtested with LuaJIT, and in fact unit tests fail with Lua-5.
@@ -131,11 +131,6 @@ sys-boot/grub -libzfs
 # James Le Cuirot <chewi@gentoo.org> (2020-08-19)
 # Cinnamon is not keyworded on this architecture.
 x11-themes/arc-theme cinnamon
-
-# Sam James <sam@gentoo.org> (2020-07-03)
-# Rust is available here
-# Bug #728558
-media-video/ffmpeg -rav1e
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2020-06-07)
 # works on ppc64
