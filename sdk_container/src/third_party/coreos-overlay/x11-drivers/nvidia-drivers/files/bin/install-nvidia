@@ -40,6 +40,9 @@ fi
   --kernel-install-path="${PWD}/install-mod" \
   --log-file-name="${PWD}/nvidia-installer.log" || true
 
+echo "Last 50 lines of nvidia-installer.log:"
+tail -n50 nvidia-installer.log || true
+
 # TODO: previously we copied outputs to /lib/module and ran depmod here.
 # That didn't work right because nspawn mounts /usr readonly.
 # Removed them because the whole depmod strategy needs to be reinvented.
