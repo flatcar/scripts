@@ -56,6 +56,7 @@
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
+=net-misc/openssh-9.9_p2 ~arm64
 
 # Needed to address CVE-2024-54661
 =net-misc/socat-1.8.0.2 ~amd64 ~arm64
@@ -69,6 +70,7 @@
 # Keep versions on both arches in sync.
 =sys-apps/policycoreutils-3.7 ~arm64
 =sys-apps/semodule-utils-3.7 ~arm64
+=sys-apps/util-linux-2.40.4 ~arm64
 =sys-apps/zram-generator-1.2.1 ~arm64
 
 # Needed to avoid pulling python into production images.
