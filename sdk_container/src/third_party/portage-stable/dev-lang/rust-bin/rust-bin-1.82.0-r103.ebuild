@@ -8,14 +8,14 @@ LLVM_OPTIONAL="yes"
 
 inherit llvm-r1 multilib prefix rust-toolchain toolchain-funcs verify-sig multilib-minimal optfeature
 
-MY_P="rust-${PV}"
+MY_P="rust-${PV}-r102"
 # curl -L static.rust-lang.org/dist/channel-rust-${PV}.toml 2>/dev/null | grep "xz_url.*rust-src"
 MY_SRC_URI="${RUST_TOOLCHAIN_BASEURL%/}/2024-10-17/rust-src-${PV}.tar.xz"
-GENTOO_BIN_BASEURI="https://dev.gentoo.org/~arthurzam/distfiles/${CATEGORY}/${PN}" # omit leading slash
+GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PV}-r102" # omit leading slash
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
-SRC_URI="$(rust_all_arch_uris ${MY_P})
+SRC_URI="$(rust_all_arch_uris rust-${PV})
 	rust-src? ( ${MY_SRC_URI} )
 "
 # Keep this separate to allow easy commenting out if not yet built
@@ -96,7 +96,7 @@ src_unpack() {
 
 	default_src_unpack
 
-	mv "${WORKDIR}/${MY_P}-$(rust_abi)" "${S}" || die
+	mv "${WORKDIR}/rust-${PV}-$(rust_abi)" "${S}" || die
 }
 
 patchelf_for_bin() {
