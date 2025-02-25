@@ -77,9 +77,6 @@
 # Needed to address CVE-2024-54661
 =net-misc/socat-1.8.0.2 ~amd64 ~arm64
 
-# Keep versions on both arches in sync.
-=net-nds/openldap-2.6.8 ~amd64
-
 # Package has not been stabilised yet.
 =sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
 
