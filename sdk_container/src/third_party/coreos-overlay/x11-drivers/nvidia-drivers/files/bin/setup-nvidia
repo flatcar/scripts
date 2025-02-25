@@ -79,7 +79,6 @@ function copy_nvidia_build_artifacts() {
 
   mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/modules/$(uname -r)/video/"
   cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/install-mod/*.ko "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/modules/$(uname -r)/video/"
-  cp "$FLATCAR_ROOT_WORKDIR/$NVIDIA_WORKDIR/${NVIDIA_DRIVER_BASENAME}"/install-mod/modules.* "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/modules/$(uname -r)/"
 
   mkdir -p "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/extension-release.d/"
   cat <<EOF >"/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}/usr/lib/extension-release.d/extension-release.nvidia-driver"
