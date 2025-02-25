@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,7 +7,7 @@ EAPI=8
 # 2.5.x is an LTS release so we want to keep it for a while.
 
 inherit autotools flag-o-matic multilib multilib-minimal preserve-libs
-inherit ssl-cert toolchain-funcs systemd tmpfiles
+inherit ssl-cert toolchain-funcs systemd tmpfiles verify-sig
 
 MY_PV="$(ver_rs 1-2 _)"
 
@@ -18,31 +18,34 @@ BIS_P="${BIS_PN}-${BIS_PV}"
 DESCRIPTION="LDAP suite of application and development tools"
 HOMEPAGE="https://www.openldap.org/"
 SRC_URI="
-	https://gitlab.com/openldap/${PN}/-/archive/OPENLDAP_REL_ENG_${MY_PV}/${PN}-OPENLDAP_REL_ENG_${MY_PV}.tar.bz2
+	https://openldap.org/software/download/OpenLDAP/${PN}-release/${P}.tgz
 	mirror://gentoo/${BIS_P}
+	verify-sig? ( https://openldap.org/software/download/OpenLDAP/${PN}-release/${P}.tgz.asc )
 "
-S="${WORKDIR}"/${PN}-OPENLDAP_REL_ENG_${MY_PV}
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openldap.asc
 
 LICENSE="OPENLDAP GPL-2"
 # Subslot added for bug #835654
 SLOT="0/$(ver_cut 1-2)"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 
 IUSE_DAEMON="argon2 +cleartext crypt experimental minimal samba tcpd"
 IUSE_OVERLAY="overlays perl autoca"
-IUSE_OPTIONAL="debug gnutls iodbc odbc sasl ssl selinux static-libs +syslog test"
+IUSE_OPTIONAL="debug gnutls iodbc ipv6 odbc sasl ssl selinux static-libs +syslog test"
 IUSE_CONTRIB="kerberos kinit pbkdf2 sha2 smbkrb5passwd"
 IUSE_CONTRIB="${IUSE_CONTRIB} cxx"
 IUSE="systemd ${IUSE_DAEMON} ${IUSE_BACKEND} ${IUSE_OVERLAY} ${IUSE_OPTIONAL} ${IUSE_CONTRIB}"
-REQUIRED_USE="cxx? ( sasl )
+REQUIRED_USE="
+	cxx? ( sasl )
 	pbkdf2? ( ssl )
 	test? ( cleartext sasl debug )
 	autoca? ( !gnutls )
 	?? ( test minimal )
-	kerberos? ( ?? ( kinit smbkrb5passwd ) )"
+	kerberos? ( ?? ( kinit smbkrb5passwd ) )
+"
 RESTRICT="!test? ( test )"
 
-SYSTEM_LMDB_VER=0.9.30
+SYSTEM_LMDB_VER=0.9.33
 # openssl is needed to generate lanman-passwords required by samba
 COMMON_DEPEND="
 	kernel_linux? ( sys-apps/util-linux )
@@ -57,7 +60,6 @@ COMMON_DEPEND="
 	)
 	sasl? ( dev-libs/cyrus-sasl:= )
 	!minimal? (
-		dev-libs/libevent:=
 		dev-libs/libltdl
 		sys-fs/e2fsprogs
 		>=dev-db/lmdb-${SYSTEM_LMDB_VER}:=
@@ -80,19 +82,23 @@ COMMON_DEPEND="
 		)
 	)
 "
-DEPEND="${COMMON_DEPEND}
+DEPEND="
+	${COMMON_DEPEND}
 	sys-apps/groff
 "
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="
+	${COMMON_DEPEND}
 	selinux? ( sec-policy/selinux-ldap )
 "
 
 # The user/group are only used for running daemons which are
 # disabled in minimal builds, so elide the accounts too.
-BDEPEND="!minimal? (
+BDEPEND="
+	!minimal? (
 		acct-group/ldap
 		acct-user/ldap
-)
+	)
+	verify-sig? ( >=sec-keys/openpgp-keys-openldap-20201216 )
 "
 
 # for tracking versions
@@ -142,9 +148,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.6.1-system-mdb.patch
 	"${FILESDIR}"/${PN}-2.6.1-cloak.patch
 	"${FILESDIR}"/${PN}-2.6.1-flags.patch
-	"${FILESDIR}"/${PN}-2.6.1-fix-missing-mapping.v2.patch
-	"${FILESDIR}"/${PN}-2.6.4-clang16.patch
-	"${FILESDIR}"/${PN}-2.6.4-libressl.patch #903001
+	"${FILESDIR}"/${PN}-2.5.19-gcc14-SDWORD-vs-SQLINTEGER.patch
 )
 
 openldap_filecount() {
@@ -239,7 +243,7 @@ openldap_find_versiontags() {
 		# This will not cover detection of cn=Config based configuration, but
 		# it's hopefully good enough.
 		if grep -sq '^backend.*shell' "${EROOT}"/etc/openldap/slapd.conf; then
-			eerror "    OpenLDAP >= 2.5.x has dropped support for Shell backend."
+			eerror "    OpenLDAP >= 2.6.x has dropped support for Shell backend."
 			eerror "	You will need to migrate per upstream's migration notes"
 			eerror "	at https://www.openldap.org/doc/admin25/appendix-upgrading.html."
 			eerror "	Your existing database will not be accessible until it is"
@@ -336,14 +340,22 @@ pkg_setup() {
 	fi
 }
 
+src_unpack() {
+	use verify-sig &&
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tgz{,.asc}
+	default
+}
+
 src_prepare() {
 	# The system copy of dev-db/lmdb must match the version that this copy
 	# of OpenLDAP shipped with! See bug #588792.
 	#
 	# Fish out MDB_VERSION_MAJOR/MDB_VERSION_MINOR/MDB_VERSION_PATCH from
 	# the bundled lmdb's header to find out the version.
-	local bundled_lmdb_version=$(sed -En '/^#define MDB_VERSION_(MAJOR|MINOR|PATCH)(\s+)?/{s/[^0-9.]//gp}' \
-		libraries/liblmdb/lmdb.h || die)
+	local bundled_lmdb_version=$(
+		sed -En '/^#define MDB_VERSION_(MAJOR|MINOR|PATCH)(\s+)?/{s/[^0-9.]//gp}' \
+		libraries/liblmdb/lmdb.h || die
+	)
 	printf -v bundled_lmdb_version "%s." ${bundled_lmdb_version}
 
 	if [[ ${SYSTEM_LMDB_VER}. != ${bundled_lmdb_version} ]] ; then
@@ -365,6 +377,7 @@ src_prepare() {
 	sed -i \
 		-e "s:\$(localstatedir)/run:${EPREFIX}/run:" \
 		-e '/MKDIR.*.(DESTDIR)\/run/d' \
+		-e '/MKDIR.*.(DESTDIR).*.(runstatedir)/d' \
 		servers/slapd/Makefile.in || die 'adjusting slapd Makefile.in failed'
 
 	pushd build &>/dev/null || die "pushd build"
@@ -388,30 +401,28 @@ build_contrib_module() {
 	einfo "Compiling contrib-module: $1"
 	local target="${2:-all}"
 	emake \
-		LDAP_BUILD="${BUILD_DIR}" prefix="${EPREFIX}/usr" \
-		CC="${CC}" libexecdir="${EPREFIX}/usr/$(get_libdir)/openldap" \
+		CC="${CC}" \
+		LDAP_BUILD="${BUILD_DIR}" \
+		libexecdir="${EPREFIX}/usr/$(get_libdir)/openldap" \
+		prefix="${EPREFIX}/usr" \
 		"${target}"
 	popd &>/dev/null || die
 }
 
 multilib_src_configure() {
-	# Workaround for bug #923334, #938553, #946816
-	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
-
 	# Optional Features
 	myconf+=(
 		--enable-option-checking
 		$(use_enable debug)
 		--enable-dynamic
 		$(use_enable syslog)
-		--enable-ipv6
+		$(use_enable ipv6)
 		--enable-local
 	)
 
 	# Optional Packages
 	myconf+=(
 		--without-fetch
-		$(multilib_native_use_with sasl cyrus-sasl)
 	)
 
 	if use experimental ; then
@@ -475,9 +486,6 @@ multilib_src_configure() {
 		# compile-in the syncprov
 		myconf+=( --enable-syncprov=yes )
 
-		# Build the standalone load balancer (lloadd) - also available as a slapd module; --enable-balancer=mod
-		myconf+=( --enable-balancer=yes )
-
 		# SLAPD Password Module Options
 		myconf+=(
 			$(use_enable argon2)
@@ -486,6 +494,7 @@ multilib_src_configure() {
 		# Optional Packages
 		myconf+=(
 			$(use_with systemd)
+			$(multilib_native_use_with sasl cyrus-sasl)
 		)
 	else
 		myconf+=(
@@ -527,7 +536,8 @@ multilib_src_configure() {
 
 	tc-export AR CC CXX
 
-	ECONF_SOURCE="${S}" econf \
+	ECONF_SOURCE="${S}" \
+		econf \
 		--libexecdir="${EPREFIX}"/usr/$(get_libdir)/openldap \
 		--localstatedir="${EPREFIX}"/var \
 		--runstatedir="${EPREFIX}"/run \
@@ -563,13 +573,17 @@ src_configure_cxx() {
 	append-ldflags -L"${BUILD_DIR}"/libraries/liblber/.libs -L"${BUILD_DIR}"/libraries/libldap/.libs
 	append-cppflags -I"${BUILD_DIR}"/include
 
-	ECONF_SOURCE="${S}"/contrib/ldapc++ econf "${myconf_ldapcpp[@]}"
+	ECONF_SOURCE="${S}"/contrib/ldapc++ \
+		econf \
+		"${myconf_ldapcpp[@]}"
 	popd &>/dev/null || die "popd contrib/ldapc++"
 }
 
 multilib_src_compile() {
 	tc-export AR CC CXX
-	emake CC="$(tc-getCC)" SHELL="${EPREFIX}"/bin/sh
+	emake \
+		CC="$(tc-getCC)" \
+		SHELL="${EPREFIX}"/bin/sh
 
 	if ! use minimal && multilib_is_native_abi ; then
 		if use cxx ; then
@@ -607,8 +621,9 @@ multilib_src_compile() {
 			pushd "${S}/contrib/slapd-modules/samba4" &>/dev/null || die "pushd contrib/slapd-modules/samba4"
 
 			emake \
+				CC="$(tc-getCC)" \
 				LDAP_BUILD="${BUILD_DIR}" \
-				CC="$(tc-getCC)" libexecdir="${EPREFIX}/usr/$(get_libdir)/openldap"
+				libexecdir="${EPREFIX}/usr/$(get_libdir)/openldap"
 			popd &>/dev/null || die
 		fi
 
@@ -679,17 +694,20 @@ multilib_src_test() {
 		# emake test => runs only lloadd & mdb, in serial; skips ldif,sql,wt,regression
 		# emake partests => runs ALL of the tests in parallel
 		# wt/WiredTiger is not supported in Gentoo
-		TESTS=( plloadd pmdb )
+		TESTS=( lloadd mdb )
 		#TESTS+=( pldif ) # not done by default, so also exclude here
 		#use odbc && TESTS+=( psql ) # not done by default, so also exclude here
 
-		emake "${TESTS[@]}"
+		emake -Onone "${TESTS[@]}"
 	fi
 }
 
 multilib_src_install() {
-	emake CC="$(tc-getCC)" \
-		DESTDIR="${D}" SHELL="${EPREFIX}"/bin/sh install
+	emake \
+		CC="$(tc-getCC)" \
+		DESTDIR="${D}" \
+		SHELL="${EPREFIX}"/bin/sh \
+		install
 
 	if ! use minimal && multilib_is_native_abi; then
 		# openldap modules go here
