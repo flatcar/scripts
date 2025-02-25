@@ -45,7 +45,7 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	BASH_COMMIT="0390b4354a9e5df517ef2d4f9d78a099063b22b4"
+	BASH_COMMIT="e608233770b0ba5fe20cb46842992b64f7252383"
 	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
@@ -178,10 +178,6 @@ src_configure() {
 	# configure warns on use of non-Bison but doesn't abort. The result
 	# may misbehave at runtime.
 	unset -v YACC
-
-	# wcsnwidth(), substring() issues with -Wlto-type-mismatch, reported
-	# upstream to Chet by email.
-	filter-lto
 
 	myconf=(
 		--disable-profiling
