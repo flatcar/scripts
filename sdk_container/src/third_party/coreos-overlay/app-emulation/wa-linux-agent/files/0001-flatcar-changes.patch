@@ -162,7 +162,7 @@ index 83123e3f..b9257a9b 100644
          return DebianOSBaseUtil()
  
      if distro_name in ("flatcar", "coreos") or distro_code_name in ("flatcar", "coreos"):
-+        if Version(distro_version) >= Version("3550"):
++        if DistroVersion(distro_version) >= DistroVersion("3550"):
 +            return FlatcarUtil()
          return CoreOSUtil()
  
@@ -251,15 +251,16 @@ index 00000000..eeaf25ce
 +                time.sleep(wait)
 +            else:
 +                logger.warn("exceeded restart retries")
-diff --git a/azurelinuxagent/common/persist_firewall_rules.py b/azurelinuxagent/common/persist_firewall_rules.py
+diff --git a/azurelinuxagent/ga/persist_firewall_rules.py b/azurelinuxagent/ga/persist_firewall_rules.py
 index 74b878ce..22562c96 100644
---- a/azurelinuxagent/common/persist_firewall_rules.py
-+++ b/azurelinuxagent/common/persist_firewall_rules.py
-@@ -35,6 +35,7 @@ class PersistFirewallRulesHandler(object):
+--- a/azurelinuxagent/ga/persist_firewall_rules.py
++++ b/azurelinuxagent/ga/persist_firewall_rules.py
+@@ -35,7 +35,7 @@ class PersistFirewallRulesHandler(object):
  # Do not edit.
  [Unit]
- Description=Setup network rules for WALinuxAgent 
-+After=systemd-sysext.service
+ Description=Setup network rules for WALinuxAgent
+-After=local-fs.target 
++After=local-fs.target systemd-sysext.service
  Before=network-pre.target
  Wants=network-pre.target
  DefaultDependencies=no
