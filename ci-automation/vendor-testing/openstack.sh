@@ -29,6 +29,9 @@ secret_to_file config_file "${OPENSTACK_CREDS}"
 openstack_keyfile=''
 secret_to_file openstack_keyfile "${OPENSTACK_KEYFILE}"
 
+# Make sure that everything is cleaned up before starting.
+ore --config-file "${config_file}" openstack gc --duration 1s
+
 # Upload the image on OpenStack dev instance.
 IMAGE_ID=$(ore openstack create-image \
   --name=flatcar-"${CIA_VERNUM}" \
