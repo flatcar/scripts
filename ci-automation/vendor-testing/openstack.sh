@@ -44,6 +44,9 @@ kola_test_basename="${kola_test_basename//[+.]/-}"
 
 set -x
 
+# Make sure that everything is cleaned up before starting.
+ore --config-file "${config_file}" openstack gc --duration 1s
+
 timeout --signal=SIGQUIT 2h kola run \
   --board="${CIA_ARCH}-usr" \
   --parallel="${OPENSTACK_PARALLEL}" \
