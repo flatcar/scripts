@@ -99,6 +99,8 @@ function install_and_load() {
   ldconfig
 
   modprobe -a i2c_core ipmi_msghandler ipmi_devintf
+  # This is needed on amd64 due to CONFIG_ACPI_VIDEO=m
+  modprobe -q video || true
 
   pushd "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/usr/lib/modules/$(uname -r)/video/"
   insmod nvidia.ko
