@@ -33,6 +33,36 @@
 
 #--- END OF EXAMPLES ---
 
+# Eray Aslan <eras@gentoo.org> (2025-02-24)
+# Mask experimental software
+=mail-mta/postfix-3.11*
+
+# Michał Górny <mgorny@gentoo.org> (2025-02-24)
+# Bad package with frequent release issues.  No reverse dependencies
+# left.  Use dev-python/zstandard instead (admittedly, also far
+# from perfect).  Removal on 2025-03-26.  Bug #950214.
+dev-python/zstd
+
+# Sam James <sam@gentoo.org> (2025-02-22)
+# (Only) needed for no-yet-released LibreOffice. Mask for now to avoid
+# unnecessary conflicts/backtracking for LO users.
+=dev-libs/liborcus-0.20.0
+=dev-libs/libixion-0.20.0
+=dev-util/mdds-3.0.0
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2025-02-21)
+# Shiboken and Pyside-tools have been merged into dev-python/pyside
+# as of version 6.8.2. Pyside-tools are useable when the "tools" USE
+# flag is enabled.
+dev-python/shiboken6
+dev-python/pyside6-tools
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-18)
+# Depends on deprecated Qt5WebEngine, no response from maintainers.
+# Download source appears gone; bugs #926675, #880649, #870256.
+# Removal on 2025-03-18.
+sci-electronics/eagle
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-02-16)
 # KF5/Qt5 based and no signs of porting or even life upstream.
 # kde-frameworks/kcalendarcore:5 has no more revdeps after this.
@@ -162,17 +192,6 @@ games-fps/quakeforge
 # Removal on 2025-03-07. Bug: 949318
 net-misc/AQtion
 
-# Matt Turner <mattst88@gentoo.org> (2025-02-05)
-# Masked for testing
-=dev-util/mesa_clc-25.0*
-=media-libs/mesa-25.0*
-
-# Ionen Wolkens <ionen@gentoo.org> (2025-01-30)
-# Breaks the only consumer of pytest-bdd (qutebrowser),
-# not looked into yet but mask for now as it prevents
-# using it to test PyQt6 for the upcoming Qt bump.
->=dev-python/gherkin-official-31.0.0
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-30)
 # Last release 15 years ago, dead upstream (never imported from kdesvn),
 # no revdeps probably since amarok last-rites. Removal on 2025-02-27.
@@ -214,11 +233,6 @@ dev-go/get-ego-vendor
 # Plenty of other options in ::gentoo. Bug #947724, removal on 2025-02-27.
 media-sound/bempc
 
-# Anthony G. Basile <blueness@gentoo.org> (2025-01-25)
-# Bug 909889. Needs PEP517 build. Very low user base
-# Remove 2025-02-24.
-app-portage/grs
-
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-01-24)
 # EAPI=7, uses deprecated Go eclasses, fails to compile, installation
 # blocked by current versions of docker (which provides the features).
@@ -241,24 +255,6 @@ dev-go/go-colortext
 dev-go/gom
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
-# Last release from 12 years ago, git master still defaults to Qt4.
-# Plenty of other options in ::gentoo. Bug #947741, removal on 2025-02-22.
-app-editors/juffed
-
-# Nowa Ammerlaan <nowa@gentoo.org> (2025-01-23)
-# Sypder-5 requires Qt5, and there are several dead
-# plugins that have not been migrated to Spyder-6.
-# Bugs #926687, #926686. Removal on 2025-02-23
-<dev-python/spyder-6
-dev-python/spyder-vim
-dev-python/spyder-terminal
-=dev-python/qtpy-2.4.2
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
-# CVE-2025-23050, bug #948573; Removal on 2025-02-22.
-dev-qt/qtbluetooth:5
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
 # Qt5 package without any revdeps. Use dev-qt/qttools[qdbus] instead.
 dev-qt/qdbusviewer
 
@@ -277,27 +273,6 @@ dev-qt/qtsensors:5
 dev-qt/qtserialbus:5
 dev-qt/qtvirtualkeyboard:5
 dev-qt/qtwebview:5
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-01-20)
-# Unused Java library. Removal on 2025-02-19.
-dev-java/saslprep
-
-# Zac Medico <zmedico@gentoo.org> (2025-01-18)
-# Ebuild is difficult to maintain. No revdeps.
-# Removal on 2025-02-17. Bug #896044
-sys-cluster/k3s
-
-# Michał Górny <mgorny@gentoo.org> (2025-01-18)
-# Superseded by dev-python/terminaltables3, the only revdep switched
-# over.
-# Removal on 2025-02-17.  Bug #948333.
-dev-python/terminaltables
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-01-10)
-# EAPI=7, maintainer needed, no reverse dependencies, fails to compile,
-# uses deprecated Go eclass.
-# Removal on 2025-02-09.  Bugs #947810, #856319, #844730, #771048, #679078.
-sys-cluster/zetcd
 
 # Conrad Kostecki <conikost@gentoo.org> (2025-01-09)
 # New version, which dropps support for legacy devices.
@@ -427,10 +402,6 @@ app-emulation/virtualbox-kvm
 # Beware that if you upgrade to it, you may need to reset your keyrings.
 >=app-crypt/gnupg-2.5
 
-# Ulrich Müller <ulm@gentoo.org> (2024-09-12)
-# Pretest versions, masked for testing.
-<app-editors/emacs-30.0.9999:30-vcs
-
 # Fabian Groffen <grobian@gentoo.org> (2024-09-02)
 # exim_tinydb utility crashes due to invalid free() (used in startup script)
 =mail-mta/exim-4.98
@@ -543,10 +514,6 @@ sec-keys/openpgp-keys-jiatan
 ~app-arch/xz-utils-5.5.2_beta
 ~app-arch/xz-utils-5.6.0
 ~app-arch/xz-utils-5.6.1
-
-# Eray Aslan <eras@gentoo.org> (2024-03-10)
-# Mask experimental software
-=mail-mta/postfix-3.10*
 
 # Sam James <sam@gentoo.org> (2023-12-14)
 # Gentoo's kernel maintainers have decided to discontinue gentoo-sources and

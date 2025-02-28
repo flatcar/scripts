@@ -1,7 +1,27 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# This file is only for generic masks. For arch-specific masks (i.e.
+# mask everywhere, unmask on arch/*) use arch/base.
+
 # New entries go on top.
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2025-02-24)
+# Only builds with ffmpeg-4.x, upstream has no timeline to fix it.
+# https://tracker.dev.opencascade.org/view.php?id=32871
+# Fringe usage only to play audio. Which most consumers (freecad, vtk)
+# don't do. Mask so the unsuspecting user with ffmpeg in global USE isn't
+# restricted to ancient ffmpeg.
+sci-libs/opencascade ffmpeg
+
+# Sam James <sam@gentoo.org> (2025-02-21)
+# Mask for older GTK to phase in enabling Vulkan for users (and avoid a surprise
+# for stable users, as Vulkan is enabled by default on desktop profiles).
+<gui-libs/gtk-4.16 vulkan
+
+# Michał Górny <mgorny@gentoo.org> (2025-02-20)
+# Requires dev-python/recommonmark with Python 3.10
+<llvm-core/clang-18 doc
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-02-13)
 # Prepare cleanup of dev-qt/qtgamepad:5
@@ -25,10 +45,6 @@ kde-frameworks/knewstuff:5 opds
 # Dependencies e.g. bindgen/netcdf/pypy not keyworded or stable in
 # most places.
 dev-build/meson test-full
-
-# Matt Jolly <kangie@gentoo.org> (2025-01-11)
-# mrustc currenly only works on amd64.
-dev-lang/rust mrustc-bootstrap
 
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-01-09)
 # No suitable versions of dev-libs/protobuf available.
@@ -119,9 +135,6 @@ app-i18n/mozc fcitx4
 # over two years. Fedora has disabled webservices support already, and
 # that makes it OK if we do it too, right? Bug 893700.
 media-gfx/gthumb webkit
-
-# This file is only for generic masks. For arch-specific masks (i.e.
-# mask everywhere, unmask on arch/*) use arch/base.
 
 # Sam James <sam@gentoo.org> (2024-09-30)
 # gnat-gpl is purely for bootstrapping Ada and it's based on an old
@@ -587,10 +600,6 @@ dev-lang/rust parallel-compiler
 # It is caused by -Wl,--as-needed linker flag,
 # see also: https://github.com/rspamd/rspamd/issues/3871
 >=mail-filter/rspamd-3.0 jemalloc
-
-# Matt Turner <mattst88@gentoo.org> (2021-08-28)
-# Mask experimental options.
-gui-libs/gtk ffmpeg vulkan
 
 # Marek Szuba <marecki@gentoo.org> (2021-07-14)
 # Makes two tests fail (when linked against openmpi, at least) due to
