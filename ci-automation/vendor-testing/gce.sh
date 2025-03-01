@@ -63,6 +63,7 @@ run_kola_tests() {
         --channel="${CIA_CHANNEL}" \
         --tapfile="${instance_tapfile}" \
         --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+        --image-version "${CIA_VERNUM}" \
         "${@}"
 }
 
