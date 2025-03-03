@@ -3,7 +3,7 @@
 
 EAPI=8
 
-LLVM_COMPAT=( 20 )
+LLVM_COMPAT=( 19 )
 LLVM_OPTIONAL="yes"
 
 inherit edo llvm-r1 multilib prefix rust-toolchain toolchain-funcs verify-sig multilib-minimal optfeature
@@ -62,10 +62,7 @@ RDEPEND="
 	>=app-eselect/eselect-rust-20190311
 	dev-libs/openssl
 	sys-apps/lsb-release
-	|| (
-		llvm-runtimes/libgcc
-		sys-devel/gcc:*
-	)
+	sys-devel/gcc:*
 	!dev-lang/rust:stable
 	!dev-lang/rust-bin:stable
 "
