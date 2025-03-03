@@ -30,4 +30,5 @@ S="${WORKDIR}/WALinuxAgent-${PV}"
 
 PATCHES=(
     "${FILESDIR}/0001-flatcar-changes.patch"
+    "${FILESDIR}/0002-prevent-ssh-public-key-override.patch"
 )

@@ -1,0 +1,1 @@
+- azure: wa-linux-agent ([2.12.0.4](https://github.com/Azure/WALinuxAgent/releases/tag/v2.12.0.4))
