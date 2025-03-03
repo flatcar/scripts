@@ -3,6 +3,11 @@
 
 EAPI=8
 
+WANT_AUTOCONF=none
+WANT_LIBTOOL=none
+WANT_AUTOMAKE=1.16
+inherit autotools
+
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/patch.asc
 inherit flag-o-matic verify-sig
 
@@ -36,6 +41,13 @@ BDEPEND="
 	verify-sig? ( >=sec-keys/openpgp-keys-patch-20250206 )
 "
 
+PATCHES=(
+	# backport fix for https://bugs.gentoo.org/949834
+	"${FILESDIR}"/${P}-no-backup-if-mismatch-regression.patch
+	# backport https://lists.gnu.org/archive/html/bug-patch/2025-02/msg00017.html
+	"${FILESDIR}"/${P}-traditional-diff-lines.patch
+)
+
 src_unpack() {
 	if [[ ${PV} == 9999 ]] ; then
 		git-r3_src_unpack
@@ -47,6 +59,11 @@ src_unpack() {
 	fi
 
 	default
+}
+
+src_prepare() {
+	default
+	eautomake
 }
 
 src_configure() {
