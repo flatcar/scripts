@@ -69,9 +69,6 @@
 # Needed to address CVE-2025-0167, CVE-2025-0665, CVE-2025-0725.
 =net-misc/curl-8.12.1 ~amd64 ~arm64
 
-# Keep versions on both arches in sync.
-=net-misc/openssh-9.9_p2 ~arm64
-
 # Needed to address CVE-2024-54661
 =net-misc/socat-1.8.0.2 ~amd64 ~arm64
 
