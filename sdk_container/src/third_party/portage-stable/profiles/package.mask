@@ -33,6 +33,80 @@
 
 #--- END OF EXAMPLES ---
 
+# John Helmert III <ajak@gentoo.org> (2025-03-02)
+# Doesn't seem to cleanly load, see:
+# https://github.com/lkrg-org/lkrg/issues/364
+=app-antivirus/lkrg-0.9.9
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
+# Last release 14 years ago, dead upstream, depends on Qt5 (and even that
+# only by means of downstream patching). Bug #947634.
+# Removal on 2025-03-31.
+sci-biology/clustalx
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
+# Last release 12 years ago, dead upstream, depends on Qt5 (and even that
+# only by means of downstream patching), likely broken by now if going by
+# various upstream reports. Bug #947621. Removal on 2025-03-31.
+media-sound/qtscrobbler
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
+# Currently packaged version released 12 years ago; dead upstream,
+# possibly GPL violating piece of very expensive software not available
+# to "new" customers in most countries even for a 5-figure USD sum.
+# Bug #947239. Removal on 2025-03-31.
+app-text/diffpdf
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
+# Last release 10 years ago, dead upstream, does not build with Qt6,
+# no one else packages this. Removal on 2025-03-31.
+media-gfx/qvv
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
+# Last release 8 years ago, dead upstream, depends on Qt5, no one
+# else packages this. Removal on 2025-03-31.
+x11-misc/flow-pomodoro
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-02-27)
+# We have collected a lot of barely used Perl virtuals over time
+# (they effectively only make sense with version dependencies).
+# Time to clean up. In ebuilds, just depend on dev-lang/perl.
+# The following are masked for removal on 2025-03-31:
+virtual/perl-Attribute-Handlers
+virtual/perl-AutoLoader
+virtual/perl-CPAN-Meta-YAML
+virtual/perl-Dumpvalue
+virtual/perl-ExtUtils-Constant
+virtual/perl-ExtUtils-Install
+virtual/perl-ExtUtils-Manifest
+virtual/perl-Filter-Simple
+virtual/perl-I18N-LangTags
+virtual/perl-IPC-Cmd
+virtual/perl-Locale-Maketext-Simple
+virtual/perl-Memoize
+virtual/perl-Module-Loaded
+virtual/perl-Net-Ping
+virtual/perl-Perl-OSType
+virtual/perl-Pod-Escapes
+virtual/perl-Safe
+virtual/perl-Thread-Queue
+virtual/perl-Thread-Semaphore
+virtual/perl-threads-shared
+virtual/perl-Tie-RefHash
+virtual/perl-Time-Piece
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-26)
+# Last release in 2005, last commit in 2013, dead as can be - does not
+# start, does not build, bugs #914927, #927337, #946657.
+# Removal on 2025-03-26.
+media-sound/jamin
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-26)
+# Last release 11 years ago, dead upstream, depends on Qt5 (and even that
+# only by means of downstream patching, no one else packages this.
+# Bug #947631. Removal on 2025-03-26.
+app-mobilephone/qtadb
+
 # Eray Aslan <eras@gentoo.org> (2025-02-24)
 # Mask experimental software
 =mail-mta/postfix-3.11*
@@ -74,11 +148,6 @@ kde-frameworks/kcalendarcore:5
 # Discontinued, please use xournal++ instead.
 # Removal on 2025-03-16. Bug 948200.
 app-text/xournal
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-16)
-# Downstream-split fallback package for KF5-based revdeps without any
-# revdeps left. Removal on 2025-02-28.
-media-gfx/okularpart
 
 # Andrey Grozin <grozin@gentoo.org> (2025-02-15)
 # Last release 6 years ago, depends on Qt5,
@@ -192,46 +261,10 @@ games-fps/quakeforge
 # Removal on 2025-03-07. Bug: 949318
 net-misc/AQtion
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-30)
-# Last release 15 years ago, dead upstream (never imported from kdesvn),
-# no revdeps probably since amarok last-rites. Removal on 2025-02-27.
-media-libs/taglib-extras
-
-# Conrad Kostecki <conikost@gentoo.org> (2024-01-28)
-# A package, which depends on Qt5. Upstream dead for many years.
-# Removal on 2025-02-28. Bug #948048
-net-wireless/linssid
-
-# Conrad Kostecki <conikost@gentoo.org> (2024-01-28)
-# Binary package, which depends on Qt5. Bug #926665
-# Please update to v5 beta or v6 beta. Removal on 2025-02-28.
-media-sound/teamspeak-client:3
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
-# Last release 8 years ago, dead upstream (repository gone as well),
-# depends on Qt5, no one else packages this. Removal on 2025-02-27.
-net-misc/qtm
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
-# Last release+commit 7 years ago, dead upstream, unmaintained in Gentoo,
-# depends on Qt5, broken with >= ffmpeg-5, no one else packages this.
-# Removal on 2025-02-27. Bug #900947
-app-misc/qcma
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
-# Last release+commit 8 years ago, dead upstream, unmaintained in Gentoo,
-# depends on Qt5, no one else packages this. Removal on 2025-02-27.
-x11-misc/urxvtconfig
-
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-01-28)
 # Since we are done with EGO_SUM, this tool isn't needed any more.
 # Removal on 2025-02-27.  Bug #948966.
 dev-go/get-ego-vendor
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
-# Last release from 14 years ago, dead upstream (repository gone as well).
-# Plenty of other options in ::gentoo. Bug #947724, removal on 2025-02-27.
-media-sound/bempc
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-01-24)
 # EAPI=7, uses deprecated Go eclasses, fails to compile, installation
@@ -279,12 +312,6 @@ dev-qt/qtwebview:5
 # Will be unmasked, when split to legacy-branch is done.
 >=dev-libs/intel-compute-runtime-24.52.32224.5
 >=dev-util/intel-graphics-compiler-2.5.7
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-01-06)
-# Masked for testing
-=dev-lang/perl-5.40.1*
-~virtual/perl-File-Spec-3.910.0
-~virtual/perl-Module-CoreList-5.202.501.184_rc
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2025-01-03)
 # Contains a serious bug that can cause deletion of the users home dir.
