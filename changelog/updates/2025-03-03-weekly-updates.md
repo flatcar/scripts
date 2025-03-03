@@ -1,0 +1,1 @@
+- sysext-python: pip ([25.0.1](https://github.com/pypa/pip/blob/25.0.1/NEWS.rst) (includes [25.0](https://github.com/pypa/pip/blob/25.0/NEWS.rst)))
