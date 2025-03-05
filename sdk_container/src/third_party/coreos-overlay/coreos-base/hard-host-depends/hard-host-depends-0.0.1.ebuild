@@ -27,14 +27,23 @@ RDEPEND="${RDEPEND}
 # Host dependencies for building cross-compiled packages.
 # TODO: chromeos-base/chromeos-installer
 RDEPEND="${RDEPEND}
+	acct-group/netperf
+	acct-group/ntp
+	acct-group/polkitd
+	acct-user/netperf
+	acct-user/ntp
+	acct-user/polkitd
 	>=app-arch/pbzip2-1.1.1-r1
 	app-arch/rpm2targz
 	app-arch/sharutils
 	app-arch/unzip
+	app-crypt/tpm2-tools
+	app-eselect/eselect-iptables
 	app-emulation/qemu
 	app-text/asciidoc
 	app-text/xmlto
 	dev-build/gtk-doc-am
+	dev-go/go-md2man
 	dev-lang/go-bootstrap
 	dev-lang/go
 	dev-lang/nasm
@@ -45,13 +54,25 @@ RDEPEND="${RDEPEND}
 	dev-libs/dbus-glib
 	>=dev-libs/glib-2.26.1
 	dev-libs/libgcrypt
+	dev-libs/libnl
+	dev-libs/libpwquality
 	dev-libs/libxslt
 	dev-libs/libyaml
+	dev-libs/luksmeta
 	dev-libs/nspr
 	dev-libs/protobuf
+	dev-python/cachecontrol
+	dev-python/distlib
+	dev-python/distro
 	dev-python/flit-core
 	dev-python/gpep517
+	dev-python/poetry-core
+	dev-python/pyproject-hooks
+	dev-python/resolvelib
+	dev-python/rich
 	dev-python/setuptools
+	dev-python/truststore
+	dev-python/typing-extensions
 	dev-python/wheel
 	dev-util/gdbus-codegen
 	dev-util/gperf
