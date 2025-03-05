@@ -101,10 +101,6 @@ pkg_preinst() {
 	emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
 	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
 	rm -f "${ED}/usr/share/${PN}/Makefile" "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" || die
-
-	# The default passwd/group files must exist for some ebuilds
-	touch "${ED}/etc/"{group,gshadow,passwd,shadow}
-	chmod 640 "${ED}/etc/"{gshadow,shadow}
 }
 
 pkg_postinst() {
@@ -131,4 +127,8 @@ pkg_postinst() {
 		# symlinks.
 		mkdir -p "${ROOT}/oem"
 	fi
+
+	# The default passwd/group files must exist for some ebuilds
+	touch "${EROOT}/etc/"{group,gshadow,passwd,shadow}
+	chmod 640 "${EROOT}/etc/"{gshadow,shadow}
 }
