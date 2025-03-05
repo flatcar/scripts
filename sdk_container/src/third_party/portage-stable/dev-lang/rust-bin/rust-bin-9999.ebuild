@@ -62,7 +62,10 @@ RDEPEND="
 	>=app-eselect/eselect-rust-20190311
 	dev-libs/openssl
 	sys-apps/lsb-release
-	sys-devel/gcc:*
+	|| (
+		llvm-runtimes/libgcc
+		sys-devel/gcc:*
+	)
 	!dev-lang/rust:stable
 	!dev-lang/rust-bin:stable
 "
