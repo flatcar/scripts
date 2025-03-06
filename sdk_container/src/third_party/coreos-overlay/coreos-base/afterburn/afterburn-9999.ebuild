@@ -144,10 +144,10 @@ else
 		object@0.36.4
 		once_cell@1.19.0
 		openssh-keys@0.6.4
-		openssl@0.10.66
+		openssl@0.10.70
 		openssl-macros@0.1.1
 		openssl-probe@0.1.5
-		openssl-sys@0.9.103
+		openssl-sys@0.9.105
 		ordered-stream@0.2.0
 		parking@2.2.1
 		parking_lot@0.12.3
@@ -330,6 +330,7 @@ PATCHES=(
 	"${FILESDIR}"/0001-Revert-remove-cl-legacy-feature.patch
 	"${FILESDIR}"/0002-util-cmdline-Handle-the-cmdline-flags-as-list-of-sup.patch
 	"${FILESDIR}"/0003-Cargo-reduce-binary-size-for-release-profile.patch
+	"${FILESDIR}"/0004-build-deps-bump-openssl-from-0.10.66-to-0.10.70.patch
 )
 
 src_unpack() {
