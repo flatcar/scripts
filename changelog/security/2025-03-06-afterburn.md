@@ -1,0 +1,1 @@
+- afterburn ([CVE-2025-0977](https://www.cve.org/CVERecord/?id=CVE-2025-0977))
