@@ -2214,9 +2214,9 @@ function handle_pkg_update() {
     local pkg_name
     pkg_name=${new_pkg#*/}
     local -a lines
-    lines=( "from ${old} to ${new}")
+    lines=( "0:from ${old} to ${new}")
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( "renamed from ${old_pkg}" )
+        lines+=( "0:renamed from ${old_pkg}" )
     fi
     # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
@@ -2225,15 +2225,28 @@ function handle_pkg_update() {
     local hpu_update_dir hpu_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
+
+    local diff_report_name
+    gen_varname diff_report_name
+    diff_report_declare "${diff_report_name}"
+    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+
+    local -n diff_report=${diff_report_name}
+    local -n diff_lines=${diff_report[${DR_LINES_IDX}]}
+    lines+=( "${diff_lines[@]}" )
+    unset -n diff_lines
+    unset -n diff_report
+    diff_report_unset "${diff_report_name}"
+
     if [[ -s "${hpu_update_dir}/ebuild.diff" ]]; then
-        lines+=( 'TODO: review ebuild.diff' )
+        lines+=( '0:TODO: review ebuild.diff' )
     fi
     if [[ -s "${hpu_update_dir_non_slot}/other.diff" ]]; then
-        lines+=( 'TODO: review other.diff' )
+        lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( 'TODO: review occurences' )
+    lines+=( '0:TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( 'TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
     local -a hpu_tags
@@ -2242,7 +2255,7 @@ function handle_pkg_update() {
     if ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
-        lines+=( 'release notes: TODO' )
+        lines+=( '0:release notes: TODO' )
     fi
 
     generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
@@ -2282,12 +2295,12 @@ function handle_pkg_as_is() {
     local pkg_name
     pkg_name=${new_pkg#/}
     local -a lines
-    lines=( "still at ${v}" )
+    lines=( "0:still at ${v}" )
 
     local renamed
     renamed=
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( "renamed from ${old_pkg}" )
+        lines+=( "0:renamed from ${old_pkg}" )
         renamed=x
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
@@ -2296,12 +2309,28 @@ function handle_pkg_as_is() {
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
     local modified
     modified=
+
+    local diff_report_name
+    gen_varname diff_report_name
+    diff_report_declare "${diff_report_name}"
+    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+
+    local -n diff_report=${diff_report_name}
+    local -n diff_lines=${diff_report[${DR_LINES_IDX}]}
+    lines+=( "${diff_lines[@]}" )
+    if [[ "${#diff_lines[@]}" ]]; then
+        modified=x
+    fi
+    unset -n diff_lines
+    unset -n diff_report
+    diff_report_unset "${diff_report_name}"
+
     if [[ -s "${hpai_update_dir}/ebuild.diff" ]]; then
-        lines+=( 'TODO: review ebuild.diff' )
+        lines+=( '0:TODO: review ebuild.diff' )
         modified=x
     fi
     if [[ -s "${hpai_update_dir_non_slot}/other.diff" ]]; then
-        lines+=( 'TODO: review other.diff' )
+        lines+=( '0:TODO: review other.diff' )
         modified=x
     fi
     if [[ -z ${renamed} ]] && [[ -z ${modified} ]]; then
@@ -2310,9 +2339,9 @@ function handle_pkg_as_is() {
     fi
     # shellcheck disable=SC2034 # ref to an external variable
     changed_ref=x
-    lines+=( 'TODO: review occurences' )
+    lines+=( '0:TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( 'TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
     local -a hpai_tags
@@ -2353,24 +2382,37 @@ function handle_pkg_downgrade() {
     local pkg_name
     pkg_name=${new_pkg#*/}
     local -a lines
-    lines=( "downgraded from ${old} to ${new}" )
+    lines=( "0:downgraded from ${old} to ${new}" )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( "renamed from ${old_pkg}" )
+        lines+=( "0:renamed from ${old_pkg}" )
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
     local hpd_update_dir hpd_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpd_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpd_update_dir
+
+    local diff_report_name
+    gen_varname diff_report_name
+    diff_report_declare "${diff_report_name}"
+    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+
+    local -n diff_report=${diff_report_name}
+    local -n diff_lines=${diff_report[${DR_LINES_IDX}]}
+    lines+=( "${diff_lines[@]}" )
+    unset -n diff_lines
+    unset -n diff_report
+    diff_report_unset "${diff_report_name}"
+
     if [[ -s "${hpd_update_dir}/ebuild.diff" ]]; then
-        lines+=( 'TODO: review ebuild.diff' )
+        lines+=( '0:TODO: review ebuild.diff' )
     fi
     if [[ -s "${hpd_update_dir_non_slot}/other.diff" ]]; then
-        lines+=( 'TODO: review other.diff' )
+        lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( 'TODO: review occurences' )
+    lines+=( '0:TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( 'TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
     local -a hpd_tags
@@ -2379,7 +2421,7 @@ function handle_pkg_downgrade() {
     if ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
-        lines+=( "release notes: TODO" )
+        lines+=( "0:release notes: TODO" )
     fi
 
     generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
@@ -2485,10 +2527,16 @@ function generate_summary_stub() {
             printf ' [%s]' "${tags[@]}"
         fi
         printf '\n'
-        if [[ ${#} -gt 0 ]]; then
-            printf '  - %s\n' "${@}"
-            printf '\n'
-        fi
+        local indent_line indent line
+        for indent_line; do
+            indent=${indent_line%%:*}
+            line=${indent_line#*:}
+            if [[ ${indent} -gt 0 ]]; then
+                printf -- '  %.0s' $(seq 1 ${indent})
+            fi
+            printf '  - %s\n' "${line}"
+        done
+        printf '\n'
     } >>"${REPORTS_DIR}/updates/summary_stubs"
 }
 
@@ -2592,6 +2640,34 @@ function generate_ebuild_diff() {
     local ged_update_dir
     update_dir "${new_pkg}" "${old_s}" "${new_s}" ged_update_dir
     xdiff --unified=3 "${old_path}" "${new_path}" >"${ged_update_dir}/ebuild.diff"
+}
+
+function generate_cache_diff_report() {
+    local diff_report_var_name=${1}; shift
+    local old_cache_dir=${1}; shift
+    local new_cache_dir=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
+
+    source "${WORKDIR}/globals"
+
+    local old_entry=${old_cache_dir}/${old_pkg}-${old}
+    local new_entry=${new_cache_dir}/${new_pkg}-${new}
+
+    local old_cache_name new_cache_name
+    gen_varname old_cache_name
+    gen_varname new_cache_name
+    cache_file_declare "${old_cache_name}"
+    cache_file_declare "${new_cache_name}"
+    parse_cache_file "${old_cache_name}" "${old_entry}" "${ARCHES[@]}"
+    parse_cache_file "${new_cache_name}" "${new_entry}" "${ARCHES[@]}"
+
+    diff_cache_data "${old_cache_name}" "${new_cache_name}"
+
+    cache_file_unset "${old_cache_name}"
+    cache_file_unset "${new_cache_name}"
 }
 
 # Generate a report with information where the old and new packages
