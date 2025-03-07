@@ -741,4 +741,105 @@ function parse_iuse() {
     iuse_out_var_name_ref=${iuse_var_name}
 }
 
+declare -gri PCF_EAPI_IDX=0 PCF_KEYWORDS_IDX=1 PCF_IUSE_IDX=2 PCF_BDEPEND_IDX=3 PCF_DEPEND_IDX=4 PCF_IDEPEND_IDX=5 PCF_PDEPEND_IDX=6 PCF_RDEPEND_IDX=7 PCF_LICENSE_IDX=8 PCF_ECLASSES_IDX=9
+
+function cache_file_declare() {
+    __mcl_declare -g -a "${@}" "( '0' 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_ARRAY' )"
+}
+
+function __mcl_unset_array() {
+    local array_name=${1}; shift
+    local item_unset_func=${1}; shift
+
+    if [[ ${array_name} = EMPTY_ARRAY ]]; then
+        return 0;
+    fi
+    local -n array_ref=${array_name}
+    local item
+    for item in "${array_ref[@]}"; do
+        "${item_unset_func}" "${item}"
+    done
+    unset -n array_ref
+    unset "${array_name}"
+}
+
+function cache_file_unset() {
+    local name=${1}; shift
+
+    local -n cache_file=${name}
+
+    local array_name
+    array_name=${cache_file[${PCF_KEYWORDS_IDX}]}
+    __mcl_unset_array "${array_name}" kw_unset
+    array_name=${cache_file[${PCF_IUSE_IDX}]}
+    __mcl_unset_array "${array_name}" iuse_unset
+    array_name=${cache_file[${PCF_ECLASSES_IDX}]}
+    __mcl_unset_array "${array_name}" unset
+
+    local -i group_name_idx
+    local group_name
+    for group_name_idx in ${PCF_BDEPEND_IDX} ${PCF_DEPEND_IDX} ${PCF_IDEPEND_IDX} ${PCF_PDEPEND_IDX} ${PCF_RDEPEND_IDX} ${PCF_LICENSE_IDX}; do
+        group_name=${cache_file[${group_name_idx}]}
+        group_unset "${group_name}"
+    done
+
+    unset -n cache_file
+
+    unset "${name}"
+}
+
+function parse_cache_file() {
+    local -n cache_file=${1}; shift
+    local path=${1}; shift
+    local -i arch_args=$(( ${#} - 1 ))
+    local -a arches=( ${@:1:${arch_args}} ); shift ${arch_args}
+
+    local -n pkg_eapi=cache_file[${PCF_EAPI_IDX}]
+    local -n pkg_keywords=cache_file[${PCF_KEYWORDS_IDX}]
+    local -n pkg_iuse=cache_file[${PCF_IUSE_IDX}]
+    local -n pkg_bdepend_group_name=cache_file[${PCF_BDEPEND_IDX}]
+    local -n pkg_depend_group_name=cache_file[${PCF_DEPEND_IDX}]
+    local -n pkg_idepend_group_name=cache_file[${PCF_IDEPEND_IDX}]
+    local -n pkg_pdepend_group_name=cache_file[${PCF_PDEPEND_IDX}]
+    local -n pkg_rdepend_group_name=cache_file[${PCF_RDEPEND_IDX}]
+    local -n pkg_license_group_name=cache_file[${PCF_LICENSE_IDX}]
+    local -n pkg_eclasses=cache_file[${PCF_ECLASSES_IDX}]
+
+    local l
+    while read -r l; do
+        case ${l} in
+            EAPI=*)
+                pkg_eapi=${l#*=}
+                ;;
+            KEYWORDS=*)
+                parse_keywords "${l#*=}" pkg_keywords "${arches[@]}"
+                ;;
+            IUSE=*)
+                parse_iuse "${l#*=}" pkg_iuse
+                ;;
+            BDEPEND=*)
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_bdepend_group_name
+                ;;
+            DEPEND=*)
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_depend_group_name
+                ;;
+            IDEPEND=*)
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_idepend_group_name
+                ;;
+            PDEPEND=*)
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_pdepend_group_name
+                ;;
+            RDEPEND=*)
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_rdepend_group_name
+                ;;
+            LICENSE=*)
+                parse_dsf "${DSF_LICENSE}" "${l#*=}" pkg_license_group_name
+                ;;
+            _eclasses_=*)
+                parse_eclasses "${l#*=}" pkg_eclasses
+                ;;
+        esac
+    done <"${path}"
+}
+
 fi
