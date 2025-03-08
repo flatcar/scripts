@@ -11,7 +11,7 @@ SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64"
 IUSE=""
 
 # no source directory
@@ -23,6 +23,7 @@ src_install() {
   exeinto "/usr/lib/nvidia/bin"
   doexe "${FILESDIR}/bin/install-nvidia"
   doexe "${FILESDIR}/bin/setup-nvidia"
+  sed -e "s/@PV@/${PV}/" "${FILESDIR}/nvidia-metadata" >"${T}/nvidia-metadata" || die "sed failed"
   insinto "/usr/share/flatcar"
-  doins "${FILESDIR}/nvidia-metadata"
+  doins "${T}/nvidia-metadata"
 }
