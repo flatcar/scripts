@@ -1142,7 +1142,7 @@ function generate_sdk_reports() {
         add_cleanup "rm -rf ${pkg_auto_copy@Q}"
         cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
         local -a run_sdk_container_args=(
-            -C "${sdk_image_name}"
+            -C "${SDK_IMAGE}"
             -n "pkg-${sdk_run_kind}"
             -U
             -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
