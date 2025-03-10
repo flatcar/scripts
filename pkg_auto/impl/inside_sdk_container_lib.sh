@@ -107,11 +107,13 @@ function set_eo() {
     declare -g SDK_EO_J="${SDK_EO}-junk"
 
     local arch
+    local board_eo
     for arch; do
-        declare -g "${arch^^}_BOARD_EO=${dir}/${arch}-board-emerge-output"
-        declare -g "${arch^^}_BOARD_EO_F=${BOARD_EO}-filtered"
-        declare -g "${arch^^}_BOARD_EO_W=${BOARD_EO}-warnings"
-        declare -g "${arch^^}_BOARD_EO_J=${BOARD_EO}-junk"
+        board_eo=${dir}/${arch}-board-emerge-output
+        declare -g "${arch^^}_BOARD_EO=${board_eo}"
+        declare -g "${arch^^}_BOARD_EO_F=${board_eo}-filtered"
+        declare -g "${arch^^}_BOARD_EO_W=${board_eo}-warnings"
+        declare -g "${arch^^}_BOARD_EO_J=${board_eo}-junk"
     done
 }
 
