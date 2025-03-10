@@ -125,7 +125,9 @@ function setup_workdir_with_config() {
     add_cleanup "rm -f ${WORKDIR@Q}/config"
     cp -a "${config_file}" "${WORKDIR}/config"
     setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
-    override_sdk_image_name cfg_sdk_image_override
+    if [[ -n ${cfg_sdk_image_override} ]]; then
+        override_sdk_image_name "${cfg_sdk_image_override}"
+    fi
     add_debug_packages "${cfg_debug_packages[@]}"
 }
 
@@ -244,7 +246,7 @@ function setup_worktrees_in_workdir() {
 #
 # 1 - image name
 function override_sdk_image_name() {
-    local image_name
+    local image_name=${1}; shift
 
     append_to_globals "SDK_IMAGE=${image_name@Q}"
 }
