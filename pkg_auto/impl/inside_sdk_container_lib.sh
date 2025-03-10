@@ -463,7 +463,7 @@ function generate_cache_for() {
     local -i gcf_num_proc
     local load_avg
     get_num_proc gcf_num_proc
-    load_avg=$(bc <<< "${procs} * 0.75")
+    load_avg=$(bc <<< "${gcf_num_proc} * 0.75")
     egencache --repo "${repo}" --jobs="${gcf_num_proc}" --load-average="${load_avg}" --update
 }
 
