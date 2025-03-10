@@ -33,6 +33,71 @@
 
 #--- END OF EXAMPLES ---
 
+# Sam James <sam@gentoo.org> (2025-03-09)
+# Obsolete in favour of dev-lang/ada-bootstrap. Using sys-devel/gcc[ada]
+# should now Just Work. Removal on 2025-04-10.
+dev-lang/gnat-gpl
+
+# Sam James <sam@gentoo.org> (2025-03-09)
+# Breaks distutils.ccompiler with a lot of fallout. bug #950978 and
+# many others.
+=dev-python/setuptools-75.9.0
+=dev-python/setuptools-75.9.1
+=dev-python/setuptools-76.0.0
+=dev-python/ensurepip-setuptools-75.9.0
+=dev-python/ensurepip-setuptools-75.9.1
+=dev-python/ensurepip-setuptools-76.0.0
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2025-03-08)
+# EAPI=7. Broken CLI for packages.g.o.
+# Removal on 2025-04-07.
+app-portage/pgo
+
+# Anna (navi) Figueiredo Gomes <navi@vlhl.dev> (2025-03-08)
+# User services is merged and released in openrc-0.60, this fork
+# is now unmaintained and superseded.
+# Removal on 2025-04-08. Bug #950367
+sys-apps/openrc-navi
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-07)
+# No more revdeps after kde-apps/knotes last-rites and Gear 24.08.3 cleanup.
+# Removal on 2025-03-31.
+kde-apps/akonadi-notes
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-07)
+# Downstream-split fallback package for KF5-based revdeps without any
+# revdeps left. Removal on 2025-03-31.
+kde-apps/kdesdk-thumbnailers-common
+media-libs/ksanecore-common
+net-misc/kio-zeroconf-common
+
+# Sam James <sam@gentoo.org> (2025-03-07)
+# May cause emerge to hang (bug #950707). Tests hang on one machine
+# and another strange report upstream: https://github.com/pkgconf/pkgconf/issues/383.
+# Mask out of caution for now.
+=dev-util/pkgconf-2.4.1
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-06)
+# Last release in 2018 and no upstream activity ever since.
+# Please migrate to an alternative backup solution. Bug #947894
+# Removal on 2025-04-15.
+app-backup/luckybackup
+
+# Michał Górny <mgorny@gentoo.org> (2025-03-06)
+# This package is clearly unmaintained.  It has lost all CPython
+# versions, and retained PyPy3 likely only because it wasn't versioned.
+# Also, since it's eclass usage used to be broken, it went under the
+# radar.  Removal on 2025-04-05.  Bug #950702.
+dev-vcs/notify-webhook
+
+# Joonas Niilola <juippis@gentoo.org> (2025-03-05)
+# New release channel deemed as stable. Package.masked for the early
+# adopters - make sure to have ~/.thunderbird backed up, since
+# downgrading back to esr channel (128) might be impossible due to
+# changed database schemas.
+>=mail-client/thunderbird-136.0
+>=mail-client/thunderbird-bin-136.0
+
 # John Helmert III <ajak@gentoo.org> (2025-03-02)
 # Doesn't seem to cleanly load, see:
 # https://github.com/lkrg-org/lkrg/issues/364
@@ -49,13 +114,6 @@ sci-biology/clustalx
 # only by means of downstream patching), likely broken by now if going by
 # various upstream reports. Bug #947621. Removal on 2025-03-31.
 media-sound/qtscrobbler
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
-# Currently packaged version released 12 years ago; dead upstream,
-# possibly GPL violating piece of very expensive software not available
-# to "new" customers in most countries even for a 5-figure USD sum.
-# Bug #947239. Removal on 2025-03-31.
-app-text/diffpdf
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
 # Last release 10 years ago, dead upstream, does not build with Qt6,
@@ -255,38 +313,6 @@ games-fps/quakeforge
 # https://bugs.gentoo.org/949414
 =dev-cpp/cpp-httplib-0.18.6
 
-# Mike Pagano <mpagano@gentoo.org> (2025-02-07)
-# Last release 3 years ago, no version compiles; ours or upstreams.
-# Ack from maintainer. Driver is available in the Linux Kernel
-# Removal on 2025-03-07. Bug: 949318
-net-misc/AQtion
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-01-28)
-# Since we are done with EGO_SUM, this tool isn't needed any more.
-# Removal on 2025-02-27.  Bug #948966.
-dev-go/get-ego-vendor
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-01-24)
-# EAPI=7, uses deprecated Go eclasses, fails to compile, installation
-# blocked by current versions of docker (which provides the features).
-# Removal on 2025-02-23.  Bugs #948656, #844577, #694898, #678982.
-app-containers/docker-proxy
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-01-24)
-# EAPI=7, uses depcreated Go eclasses, fails to compile. burrow itself
-# has exporter built in since version 1.3.4, which can be used instead.
-# Removal on 2025-02-23.  Bugs #948655, #844613, #679086.
-app-metrics/burrow_exporter
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-01-24)
-# EAPI=7, uses deprecated Go eclasses, upstream repo is archived.
-# gom is a go dependency manager which doesn't work with modern
-# Go tools, and is redundent to standard `go install` commands.
-# go-colortext has only gom as reverse dependency.
-# Removal on 2025-02-23.  Bugs #948653, #844655, #844664, #922697.
-dev-go/go-colortext
-dev-go/gom
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
 # Qt5 package without any revdeps. Use dev-qt/qttools[qdbus] instead.
 dev-qt/qdbusviewer
@@ -312,12 +338,6 @@ dev-qt/qtwebview:5
 # Will be unmasked, when split to legacy-branch is done.
 >=dev-libs/intel-compute-runtime-24.52.32224.5
 >=dev-util/intel-graphics-compiler-2.5.7
-
-# Nowa Ammerlaan <nowa@gentoo.org> (2025-01-03)
-# Contains a serious bug that can cause deletion of the users home dir.
-# See-also: https://github.com/keshavbhatt/whatsie/issues/230
-# Removal on 2025-03-03 unless upstream fixes the issue
-net-im/whatsie
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-05)
 # 6.12.2 does not boot for me.
