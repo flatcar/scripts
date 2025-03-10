@@ -1,0 +1,1 @@
+- Added new image signing pub key to `flatcar-install`, needed for download verification of releases built from March 2025 onwards, if you have copies of `flatcar-install` or the image signing pub key, you need to update them as well ([init#129](https://github.com/flatcar/init/pull/129))
