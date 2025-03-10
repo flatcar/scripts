@@ -4,17 +4,44 @@
 NVIDIA_DRIVER_BASENAME="$1"
 KERNEL_NAME="$(ls /lib/modules)"
 
+option_supported() {
+  local opt="$1"
+  ./nvidia-installer -A -h | grep -qe "--$opt"
+}
+
 cd "/nvidia/${NVIDIA_DRIVER_BASENAME}"
+
+EXTRA_OPTS=()
+if option_supported no-rebuild-initramfs ; then
+  EXTRA_OPTS+=( --no-rebuild-initramfs )
+fi
+if option_supported skip-module-load ; then
+  EXTRA_OPTS+=( --skip-module-load )
+fi
+
+# TODO: open requires firmware loading.
+# Can we load the module from the nspawn container?
+if option_supported kernel-module-type ; then
+  EXTRA_OPTS+=( --kernel-module-type=proprietary )
+elif option_supported kernel-module-build-directory ; then
+  EXTRA_OPTS+=( --kernel-module-build-directory=kernel )
+fi
+
 ./nvidia-installer -s -n \
   --no-check-for-alternate-installs \
   --no-kernel-module-source \
   --kernel-name="${KERNEL_NAME}" \
+  "${EXTRA_OPTS[@]}" \
+  --no-x-check \
   --no-opengl-files \
   --no-distro-scripts \
   --no-systemd \
   --skip-depmod \
   --kernel-install-path="${PWD}/install-mod" \
   --log-file-name="${PWD}/nvidia-installer.log" || true
+
+echo "Last 50 lines of nvidia-installer.log:"
+tail -n50 nvidia-installer.log || true
 
 mkdir -p /lib/modules/${KERNEL_NAME}/video
 mkdir -p "${PWD}"/install-mod

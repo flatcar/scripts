@@ -42,7 +42,7 @@ DEPEND="=sys-kernel/coreos-sources-${COREOS_SOURCE_VERSION}"
 RESTRICT="binchecks strip"
 
 # The build tools are OK and shouldn't trip up multilib-strict.
-QA_MULTILIB_PATHS="usr/lib/modules/.*/build/scripts/.*"
+QA_MULTILIB_PATHS="usr/lib/modules/.*/build/scripts/kconfig/.*"
 
 # Use source installed by coreos-sources
 # KERNEL_DIR must find the kernel source tree under /usr/src/linux-*-coreos,

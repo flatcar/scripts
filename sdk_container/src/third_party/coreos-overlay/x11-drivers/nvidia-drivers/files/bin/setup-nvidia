@@ -7,7 +7,7 @@ set -euo pipefail
 [ -f /etc/flatcar/nvidia-metadata ] && . /etc/flatcar/nvidia-metadata
 
 NVIDIA_DOWNLOAD_BASEURL="https://us.download.nvidia.com/${NVIDIA_PRODUCT_TYPE}/"
-NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}"
+NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-$(uname -m)-${NVIDIA_DRIVER_VERSION}"
 NVIDIA_WORKDIR='nvidia-workdir'
 
 FLATCAR_DEVELOPER_CONTAINER="flatcar_developer_container-${FLATCAR_RELEASE_VERSION}.bin"
@@ -38,8 +38,8 @@ function download_flatcar_developer_container() {
     fi
 
     curl -L --fail "${FLATCAR_DEVELOPER_CONTAINER_URL}" -o "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
-    lbzip2 -d "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
-
+    cp --sparse=always <(lbzcat "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2") "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}"
+    rm "${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}.bz2"
   fi
 
   return 0
@@ -67,7 +67,7 @@ function extract_nvidia_installer() {
 function run_nspawn_container() {
   echo Spawn system-nspawn container to install the NVIDIA drivers
 
-  sudo systemd-nspawn --read-only --volatile=overlay --image="${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" --bind="${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}":/nvidia --bind=/usr/lib/nvidia/bin:/app/bin/ /app/bin/install-nvidia "$NVIDIA_DRIVER_BASENAME"
+  sudo systemd-nspawn --keep-unit --register=no --read-only --volatile=overlay --image="${FLATCAR_ROOT_WORKDIR}/${FLATCAR_DEVELOPER_CONTAINER}" --overlay=/usr/lib/modules::/usr/lib/modules --bind="${FLATCAR_ROOT_WORKDIR}/${NVIDIA_WORKDIR}":/nvidia --bind=/usr/lib/nvidia/bin:/app/bin/ /app/bin/install-nvidia "$NVIDIA_DRIVER_BASENAME"
 }
 
 function copy_nvidia_build_artifacts() {
@@ -88,7 +88,11 @@ SYSEXT_LEVEL=1.0
 EOF
 
   pushd /opt/nvidia
-  ln -sfn "${NVIDIA_FLATCAR_VERSION_PAIR}" current
+  if [[ -d "${NVIDIA_CURRENT_INSTALLATION}" ]]
+  then
+    rm -rf "${NVIDIA_CURRENT_INSTALLATION}"
+  fi
+  ln -sfn -T "${NVIDIA_FLATCAR_VERSION_PAIR}" "${NVIDIA_CURRENT_INSTALLATION}"
   popd
 }
 
