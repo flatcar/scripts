@@ -1,0 +1,2 @@
+dracut_LIVE_REPO="https://github.com/chewi/dracut-ng.git"
+dracut_LIVE_BRANCH="flatcar"
