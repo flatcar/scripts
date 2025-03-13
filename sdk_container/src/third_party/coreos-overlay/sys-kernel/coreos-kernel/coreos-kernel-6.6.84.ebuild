@@ -1,19 +1,22 @@
 # Copyright 2014-2016 CoreOS, Inc.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 COREOS_SOURCE_REVISION=""
-inherit coreos-kernel
+inherit coreos-kernel toolchain-funcs
 
 DESCRIPTION="CoreOS Linux kernel"
 KEYWORDS="amd64 arm64"
+RESTRICT="userpriv" # dracut (via bootengine) needs root
 
 RDEPEND="=sys-kernel/coreos-modules-${PVR}"
 DEPEND="${RDEPEND}
-	app-arch/gzip
+	app-alternatives/awk
+	app-alternatives/gzip
 	app-arch/zstd
 	app-crypt/clevis
 	app-shells/bash
+	coreos-base/afterburn
 	coreos-base/coreos-init:=
 	sys-apps/coreutils
 	sys-apps/findutils
@@ -26,6 +29,7 @@ DEPEND="${RDEPEND}
 	sys-apps/systemd[cryptsetup]
 	sys-apps/seismograph
 	sys-apps/util-linux
+	sys-block/open-iscsi
 	sys-fs/btrfs-progs
 	sys-fs/e2fsprogs
 	sys-fs/mdadm
@@ -35,48 +39,50 @@ DEPEND="${RDEPEND}
 	sys-kernel/dracut
 	virtual/udev
 	amd64? ( sys-firmware/intel-microcode:= )"
+BDEPEND="
+	>=sys-kernel/bootengine-0.0.4:=
+	sys-kernel/dracut
+"
 
-# We are bad, we want to get around the sandbox.  So do the creation of the
-# cpio image in pkg_setup() where we are free to mount filesystems, chroot,
-# and other fun stuff.
-pkg_setup() {
-	coreos-kernel_pkg_setup
-
-	[[ "${MERGE_TYPE}" == binary ]] && return
-
+src_prepare() {
 	# Fail early if we didn't detect the build installed by coreos-modules
 	[[ -n "${KV_OUT_DIR}" ]] || die "Failed to detect modules build tree"
 
-	if [[ "${ROOT:-/}" != / ]]; then
-		# TMPDIR needs to be corrected for chroot
-		TMPDIR=${TMPDIR#${ROOT}} ${ROOT}/usr/sbin/update-bootengine -m -c ${ROOT} -k "${KV_FULL}" || die
-	else
-		update-bootengine -k "${KV_FULL}" || die
-	fi
-}
-
-src_prepare() {
 	default
+
 	# KV_OUT_DIR points to the minimal build tree installed by coreos-modules
 	# Pull in the config and public module signing key
-	KV_OUT_DIR="${SYSROOT%/}/lib/modules/${COREOS_SOURCE_NAME#linux-}/build"
+	KV_OUT_DIR="${ESYSROOT}/lib/modules/${COREOS_SOURCE_NAME#linux-}/build"
 	cp -v "${KV_OUT_DIR}/.config" build/ || die
 	local sig_key="$(getconfig MODULE_SIG_KEY)"
 	mkdir -p "build/${sig_key%/*}" || die
 	cp -v "${KV_OUT_DIR}/${sig_key}" "build/${sig_key}" || die
 
-	# Symlink to bootengine.cpio so we can stick with relative paths in .config
-	ln -sv "${SYSROOT%/}"/usr/share/bootengine/bootengine.cpio build/ || die
 	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
 
 	# include all intel and amd microcode files, avoiding the signatures
-	local fw_dir="${SYSROOT%/}/lib/firmware"
+	local fw_dir="${ESYSROOT}/lib/firmware"
 	use amd64 && config_update "CONFIG_EXTRA_FIRMWARE=\"$(find ${fw_dir} -type f \
 		\( -path ${fw_dir}'/intel-ucode/*' -o -path ${fw_dir}'/amd-ucode/*' \) -printf '%P ')\""
 	use amd64 && config_update "CONFIG_EXTRA_FIRMWARE_DIR=\"${fw_dir}\""
 }
 
 src_compile() {
+	local BE_ARGS=()
+
+	if [[ -n ${SYSROOT} ]]; then
+		BE_ARGS+=( -c "${SYSROOT}" )
+
+		# We may need to run ldconfig via QEMU, so use the wrapper. Dracut calls
+		# it with -r, which chroots and confuses the sandbox, so calm it down.
+		export DRACUT_LDCONFIG="${CHOST}-ldconfig"
+		local f; for f in /etc/ld.so.cache{,~} /var/cache/ldconfig/aux-cache{,~}; do
+			addwrite "${f}"
+		done
+	fi
+
+	tc-export PKG_CONFIG
+	update-bootengine -k "${KV_FULL}" -o "${S}"/build/bootengine.cpio "${BE_ARGS[@]}" || die
 	kmake "$(kernel_target)"
 
 	# sanity check :)
@@ -98,5 +104,5 @@ src_install() {
 
 	# For easy access to vdso debug symbols in gdb:
 	#   set debug-file-directory /usr/lib/debug/usr/lib/modules/${KV_FULL}/vdso/
-	kmake INSTALL_MOD_PATH="${D}/usr/lib/debug/usr" vdso_install
+	kmake INSTALL_MOD_PATH="${ED}/usr/lib/debug/usr" vdso_install
 }
