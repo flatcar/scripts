@@ -54,6 +54,14 @@ src_install() {
 	# Clean up the build tree
 	shred_keys
 	kmake clean
+
+	# TODO: ensure that fixdep and kbuild tools shipped inside the image
+	# are native (we previously shipped amd64 binaries on arm64).
+	# Upstream has a new script from v6.12 that we might be able to use:
+	# scripts/package/install-extmod-build
+	kmake HOSTLD=$(tc-getLD) HOSTCC=$(tc-getCC) cmd_and_fixdep='$(cmd)' modules_prepare
+	kmake clean
+
 	find "build/" -type d -empty -delete || die
 	rm "build/.config.old" || die
 
