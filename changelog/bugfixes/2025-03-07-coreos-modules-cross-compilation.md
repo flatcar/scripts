@@ -1,0 +1,1 @@
+- The kernel module build directory now contains native binaries in arm64 images instead of the previous amd64 binaries ([scripts#2694](https://github.com/flatcar/scripts/pull/2694))

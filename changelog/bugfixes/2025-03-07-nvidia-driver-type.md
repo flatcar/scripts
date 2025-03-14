@@ -1,0 +1,1 @@
+- Nvidia driver installer service now supports the 570 driver branch by forcing the use of the proprietary kernel module. The 570 branch defaults to the kernel-open driver which requires loading firmware, which is not yet supported on Flatcar. ([scripts#2694](https://github.com/flatcar/scripts/pull/2694))
