@@ -23,7 +23,7 @@
 =app-crypt/ccid-1.5.5 ~arm64
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
-=app-crypt/clevis-19-r1 **
+=app-crypt/clevis-21 **
 
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
