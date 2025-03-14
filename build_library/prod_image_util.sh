@@ -92,6 +92,9 @@ create_prod_image() {
   run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
 
+  # Enable desired systemd units.
+  systemd_enable "${root_fs_dir}" cryptsetup.target clevis-luks-askpass.path
+
   local root_with_everything="${root_fs_dir}"
 
   # Call helper script for adding sysexts to the base OS.

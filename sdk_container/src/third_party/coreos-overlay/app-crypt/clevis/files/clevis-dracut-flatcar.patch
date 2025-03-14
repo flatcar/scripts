@@ -1,7 +1,7 @@
-diff --git a/src/dracut/clevis-pin-tang/module-setup.sh.in b/src/dracut/clevis-pin-tang/module-setup.sh.in
+diff --git a/src/luks/dracut/clevis-pin-tang/module-setup.sh.in b/src/luks/dracut/clevis-pin-tang/module-setup.sh.in
 index 929b878..c48e282 100755
---- a/src/dracut/clevis-pin-tang/module-setup.sh.in
-+++ b/src/dracut/clevis-pin-tang/module-setup.sh.in
+--- a/src/luks/dracut/clevis-pin-tang/module-setup.sh.in
++++ b/src/luks/dracut/clevis-pin-tang/module-setup.sh.in
 @@ -19,7 +19,7 @@
  #
  
@@ -11,10 +11,10 @@ index 929b878..c48e282 100755
      return 0
  }
  
-diff --git a/src/dracut/clevis/module-setup.sh.in b/src/dracut/clevis/module-setup.sh.in
+diff --git a/src/luks/dracut/clevis/module-setup.sh.in b/src/luks/dracut/clevis/module-setup.sh.in
 index dbce790..c9581db 100755
---- a/src/dracut/clevis/module-setup.sh.in
-+++ b/src/dracut/clevis/module-setup.sh.in
+--- a/src/luks/dracut/clevis/module-setup.sh.in
++++ b/src/luks/dracut/clevis/module-setup.sh.in
 @@ -48,7 +48,6 @@ install() {
      fi
  
