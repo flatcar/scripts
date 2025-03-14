@@ -81,7 +81,7 @@ package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO_W}"
 for arch; do
     be=${arch^^}_BOARD_EO
     bew=${arch^^}_BOARD_EO_W
-    echo 'Running pretend-emerge to get complete report for ${arch} board'
+    echo "Running pretend-emerge to get complete report for ${arch} board"
     package_info_for_board "${arch}" >"${!be}" 2>"${!bew}"
 done
 
@@ -94,7 +94,7 @@ for arch; do
     bej=${arch^^}_BOARD_EO_J
     bef=${arch^^}_BOARD_EO_F
     bew=${arch^^}_BOARD_EO_W
-    echo 'Separating emerge info from junk in ${arch} board emerge output'
+    echo "Separating emerge info from junk in ${arch} board emerge output"
     filter_board_eo "${arch}" >"${!bef}" 2>>"${!bew}"
     junk_board_eo "${arch}" >"${!bej}" 2>>"${!bew}"
 done
@@ -111,13 +111,13 @@ echo 'Generating SDK package source information'
 package_sources_sdk >"${reports_dir}/sdk-package-repos" 2>"${reports_dir}/sdk-package-repos-warnings"
 
 for arch; do
-    echo 'Generating ${arch} board packages listing'
+    echo "Generating ${arch} board packages listing"
     versions_board "${arch}" >"${reports_dir}/${arch}-board-pkgs" 2>"${reports_dir}/${arch}-board-pkgs-warnings"
-    echo 'Generating ${arch} board packages bdeps listing'
+    echo "Generating ${arch} board packages bdeps listing"
     board_bdeps "${arch}" >"${reports_dir}/${arch}-board-bdeps" 2>"${reports_dir}/${arch}-board-bdeps-warnings"
-    echo 'Generating ${arch} board profiles evaluation list'
+    echo "Generating ${arch} board profiles evaluation list"
     ROOT="/build/${arch}-usr" "${PKG_AUTO_IMPL_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/${arch}-board-profiles" 2>"${reports_dir}/${arch}-board-profiles-warnings"
-    echo 'Generating ${arch} board package source information'
+    echo "Generating ${arch} board package source information"
     package_sources_board "${arch}" >"${reports_dir}/${arch}-board-package-repos" 2>"${reports_dir}/${arch}-board-package-repos-warnings"
 done
 

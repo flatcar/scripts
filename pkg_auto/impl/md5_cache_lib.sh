@@ -10,8 +10,8 @@ function __mcl_declare() {
     # index -2 is the name, index -1 is the definition; the rest are
     # supposed to be flags passed to declare
     #
-    # space is needed to avoid confusion with the :- parameter
-    # expansion
+    # space between : and - is needed to avoid confusion with the :-
+    # parameter expansion
     declare "${@:1:$(( ${#} - 2 ))}" "${*: -2:1}=${*: -1:1}"
 }
 
@@ -23,42 +23,52 @@ function __mcl_declare() {
 declare -gri UR_NAME_IDX=0 UR_MODE_IDX=1 UR_PRETEND_IDX=2
 
 function ur_declare() {
-    __mcl_declare -g -a "${@}" "( 'ITS_UNSET' '+' '' )"
+    __mcl_declare -ga "${@}" "( 'ITS_UNSET' '+' '' )"
 }
 
 function ur_unset() {
     unset "${1}"
 }
 
-function ur_to_string() {
-    local -n ur=${1}; shift
-    local -n str=${1}; shift
+function ur_copy() {
+    local -n to_clobber_ref=${1}; shift
+    local -n to_copy_ref=${1}; shift
 
-    case ${ur[${UR_MODE_IDX}]} in
+    local -i idx
+    for idx in UR_NAME_IDX UR_MODE_IDX UR_PRETEND_IDX; do
+        to_clobber_ref[idx]=${to_copy_ref[idx]}
+    done
+}
+
+function ur_to_string() {
+    local -n ur_ref=${1}; shift
+    local -n str_ref=${1}; shift
+
+    case ${ur_ref[UR_MODE_IDX]} in
         '!'*)
-            str='!'
+            str_ref='!'
             ;;
         '-'*)
-            str='-'
+            str_ref='-'
             ;;
         *)
-            str=''
+            str_ref=''
             ;;
     esac
-    str+=${ur[${UR_NAME_IDX}]}
+    str_ref+=${ur_ref[UR_NAME_IDX]}
 
     # shellcheck disable=SC2178 # shellcheck is confused here
-    local p=${ur[${UR_PRETEND_IDX}]}
+    local p=${ur_ref[UR_PRETEND_IDX]}
     # shellcheck disable=SC2128 # shellcheck is confused here (p is not an array)
     if [[ -n ${p} ]]; then
-        str+="(${p})"
+        str_ref+="(${p})"
     fi
-    case ${ur[${UR_MODE_IDX}]} in
+    case ${ur_ref[UR_MODE_IDX]} in
         *'=')
-            str+='='
+            str_ref+='='
             ;;
         *'?')
-            str+='?'
+            str_ref+='?'
             ;;
     esac
 }
@@ -82,12 +92,12 @@ function pds_declare() {
 function pds_unset() {
     local name=${1}; shift
 
-    local -n pds=${name}
-    local use_reqs_name=${pds[${PDS_UR_IDX}]}
+    local -n pds_ref=${name}
+    local use_reqs_name=${pds_ref[PDS_UR_IDX]}
 
-    local -n use_reqs=${use_reqs_name}
+    local -n use_reqs_ref=${use_reqs_name}
     local ur_name
-    for ur_name in "${use_reqs[@]}"; do
+    for ur_name in "${use_reqs_ref[@]}"; do
         ur_unset "${ur_name}"
     done
 
@@ -98,59 +108,88 @@ function pds_unset() {
     unset "${name}"
 }
 
+function pds_copy() {
+    local -n to_clobber_ref=${1}; shift
+    local -n to_copy_ref=${1}; shift
+
+    local -i idx
+    for idx in PDS_BLOCKS_IDX PDS_OP_IDX PDS_NAME_IDX PDS_VER_IDX PDS_SLOT_IDX; do
+        to_clobber_ref[idx]=${to_copy_ref[idx]}
+    done
+
+    if [[ ${to_copy_ref[PDS_UR_IDX]} = 'EMPTY_ARRAY' || ${#to_copy_ref[PDS_UR_IDX]} -eq 0 ]]; then
+        to_clobber_ref[PDS_UR_IDX]='EMPTY_ARRAY'
+    else
+        local pc_ur_array_name
+        gen_varname pc_ur_array_name
+        declare -ga "${pc_ur_array_name}=()"
+
+        local -n urs_to_copy_ref=${to_copy_ref[PDS_UR_IDX]} urs_ref=${pc_ur_array_name}
+        local ur_name pc_ur_name
+        for ur_name in "${urs_to_copy_ref[@]}"; do
+            gen_varname pc_ur_name
+            ur_declare "${pc_ur_name}"
+            ur_copy "${pc_ur_name}" "${ur_name}"
+            urs_ref+=( "${pc_ur_name}" )
+        done
+
+        to_clobber_ref[PDS_UR_IDX]=${pc_ur_array_name}
+    fi
+}
+
 function pds_add_urs() {
-    local -n pds=${1}; shift
+    local -n pds_ref=${1}; shift
     # rest are use requirements
 
-    local use_reqs_name=${pds[${PDS_UR_IDX}]}
+    local use_reqs_name=${pds_ref[PDS_UR_IDX]}
     if [[ ${use_reqs_name} = 'EMPTY_ARRAY' ]]; then
         local ura_name
         gen_varname ura_name
-        declare -g -a "${ura_name}"
-        pds[${PDS_UR_IDX}]=${ura_name}
+        declare -ga "${ura_name}=()"
+        pds[PDS_UR_IDX]=${ura_name}
         use_reqs_name=${ura_name}
         unset ura_name
     fi
 
-    local -n use_reqs=${use_reqs_name}
-    use_reqs+=( "${@}" )
+    local -n use_reqs_ref=${use_reqs_name}
+    use_reqs_ref+=( "${@}" )
 }
 
 function pds_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
-    local -n pds=${1}; shift
-    local -n str=${1}; shift
+    local -n pds_ref=${1}; shift
+    local -n str_ref=${1}; shift
 
-    case ${pds[${PDS_BLOCKS_IDX}]} in
-        "${PDS_NO_BLOCK}")
-            str=''
+    case ${pds_ref[PDS_BLOCKS_IDX]} in
+        ${PDS_NO_BLOCK})
+            str_ref=''
             ;;
-        "${PDS_WEAK_BLOCK}")
-            str='!'
+        ${PDS_WEAK_BLOCK})
+            str_ref='!'
             ;;
-        "${PDS_STRONG_BLOCK}")
-            str='!!'
+        ${PDS_STRONG_BLOCK})
+            str_ref='!!'
             ;;
     esac
-    str+=${pds[${PDS_OP_IDX}]}${pds[${PDS_NAME_IDX}]}
-    local v=${pds[${PDS_VER_IDX}]}
+    str_ref+=${pds_ref[PDS_OP_IDX]}${pds_ref[PDS_NAME_IDX]}
+    local v=${pds_ref[PDS_VER_IDX]}
     if [[ -n ${v} ]]; then
-        str+=-${v}
+        str_ref+=-${v}
     fi
-    local s=${pds[${PDS_SLOT_IDX}]}
+    local s=${pds_ref[PDS_SLOT_IDX]}
     if [[ -n ${s} ]]; then
-        str+=:${s}
+        str_ref+=:${s}
     fi
-    local -n urs=${pds[${PDS_UR_IDX}]}
-    if [[ ${#urs[@]} -gt 0 ]]; then
-        str+='['
+    local -n urs_ref=${pds_ref[PDS_UR_IDX]}
+    if [[ ${#urs_ref[@]} -gt 0 ]]; then
+        str_ref+='['
         local u ur_str
-        for u in "${urs[@]}"; do
+        for u in "${urs_ref[@]}"; do
             ur_to_string "${u}" ur_str
-            str+=${ur_str},
+            str_ref+=${ur_str},
         done
         unset ur_str u
-        str=${str:0:$(( ${#str} - 1 ))}']'
+        str_ref=${str_ref:0:$(( ${#str_ref} - 1 ))}']'
     fi
 }
 
@@ -173,12 +212,12 @@ group_declare -r EMPTY_GROUP
 function group_unset() {
     local name=${1}; shift
 
-    local -n group=${name}
-    local items_name=${group[${GROUP_ITEMS_IDX}]}
+    local -n group_ref=${name}
+    local items_name=${group_ref[GROUP_ITEMS_IDX]}
 
-    local -n items=${items_name}
+    local -n items_ref=${items_name}
     local i
-    for i in "${items[@]}"; do
+    for i in "${items_ref[@]}"; do
         item_unset "${i}"
     done
 
@@ -191,66 +230,100 @@ function group_unset() {
     fi
 }
 
-function group_add_item() {
-    local -n group=${1}; shift
-    local item=${1}; shift
+function group_copy() {
+    local -n to_clobber_ref=${1}; shift
+    local -n to_copy_ref=${1}; shift
 
-    local items_name=${group[${GROUP_ITEMS_IDX}]}
+    local -i idx
+    for idx in GROUP_TYPE_IDX GROUP_USE_IDX GROUP_ENABLED_IDX; do
+        to_clobber_ref[idx]=${to_copy_ref[idx]}
+    done
+
+    if [[ ${to_copy_ref[GROUP_ITEMS_IDX]} = 'EMPTY_ARRAY' || ${#to_copy_ref[GROUP_ITEMS_IDX]} -eq 0 ]]; then
+        to_clobber_ref[GROUP_ITEMS_IDX]='EMPTY_ARRAY'
+    else
+        local gc_items_name
+        gen_varname gc_items_name
+        declare -ga "${gc_items_name}=()"
+
+        local -n items_to_copy_ref=${to_copy_ref[GROUP_ITEMS_IDX]}
+        local -n items_ref=${gc_items_name}
+        local item_name_to_copy gc_item_name
+        for item_name_to_copy in "${items_to_copy_ref[@]}"; do
+            gen_varname gc_item_name
+            item_declare "${gc_item_name}"
+            item_copy "${gc_item_name}" "${item_name_to_copy}"
+            items_ref+=( "${gc_item_name}" )
+        done
+        unset -n items_ref
+        to_clobber_ref[GROUP_ITEMS_IDX]="${gc_items_name}"
+    fi
+}
+
+function group_add_item() {
+    group_add_items "${@}"
+}
+
+function group_add_items() {
+    local -n group_ref=${1}; shift
+    # rest are items to add
+
+    local items_name=${group_ref[GROUP_ITEMS_IDX]}
     if [[ ${items_name} = 'EMPTY_ARRAY' ]]; then
         local ia_name
         gen_varname ia_name
-        declare -g -a "${ia_name}"
-        group[${GROUP_ITEMS_IDX}]=${ia_name}
+        declare -ga "${ia_name}=()"
+        group_ref[GROUP_ITEMS_IDX]=${ia_name}
         items_name=${ia_name}
         unset ia_name
     fi
 
-    local -n items=${items_name}
-    items+=( "${item}" )
+    local -n items_ref=${items_name}
+    items_ref+=( "${@}" )
 }
 
 function group_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
-    local -n group=${1}; shift
-    local -n str=${1}; shift
+    local -n group_ref=${1}; shift
+    local -n str_ref=${1}; shift
 
-    local t=${group[${GROUP_TYPE_IDX}]}
+    local t=${group_ref[GROUP_TYPE_IDX]}
     case ${t} in
-        "${GROUP_ALL_OF}")
-            local u=${group[${GROUP_USE_IDX}]}
+        ${GROUP_ALL_OF})
+            local u=${group_ref[GROUP_USE_IDX]}
             if [[ -n ${u} ]]; then
-                local e=${group[${GROUP_ENABLED_IDX}]}
+                local e=${group_ref[GROUP_ENABLED_IDX]}
                 case ${e} in
-                    "${GROUP_USE_ENABLED}")
-                        str=''
+                    ${GROUP_USE_ENABLED})
+                        str_ref=''
                         ;;
-                    "${GROUP_USE_DISABLED}")
-                        str='!'
+                    ${GROUP_USE_DISABLED})
+                        str_ref='!'
                 esac
                 unset e
-                str+="${u}? "
+                str_ref+="${u}? "
             else
-                str=''
+                str_ref=''
             fi
             unset u
             ;;
-        "${GROUP_ANY_OF}")
-            str='|| '
+        ${GROUP_ANY_OF})
+            str_ref='|| '
             ;;
     esac
 
-    str+='( '
+    str_ref+='( '
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
-    local -n items=${group[${GROUP_ITEMS_IDX}]}
-    if [[ ${#items[@]} -gt 0 ]]; then
-        local i item_str
-        for i in "${items[@]}"; do
-            item_to_string "${i}" item_str
-            str+="${item_str} "
+    local -n item_names_ref=${group_ref[GROUP_ITEMS_IDX]}
+    if [[ ${#item_names_ref[@]} -gt 0 ]]; then
+        local item_name item_str
+        for item_name in "${item_names_ref[@]}"; do
+            item_to_string "${item_name}" item_str
+            str_ref+="${item_str} "
         done
-        unset item_str i
+        unset item_str item_name
     fi
-    str+=')'
+    str_ref+=')'
 }
 
 # item
@@ -264,51 +337,76 @@ function item_declare() {
 
 function item_unset() {
     local name=${1}; shift
-    local -n item=${name}
+    local -n item_ref=${name}
 
-    case ${item} in
+    case ${item_ref} in
         e:*)
             # noop
             :
             ;;
         g:*)
-            group_unset "${name#*:}"
+            group_unset "${item_ref#*:}"
             ;;
         l:*)
             # noop, license is just a string
             ;;
         p:*)
-            pds_unset "${name#*:}"
+            pds_unset "${item_ref#*:}"
             ;;
     esac
 
     unset "${name}"
 }
 
-function item_to_string() {
-    local -n item=${1}; shift
-    local -n str=${1}; shift
+function item_copy() {
+    local -n to_clobber_ref=${1}; shift
+    local -n to_copy_ref=${1}; shift
 
-    local t=${item:0:1}
+    local ic_name
+    local t=${to_copy_ref%%:*} v=${to_copy_ref#*:}
+    case ${t} in
+        'e'|'l')
+            to_clobber_ref=${to_copy_ref}
+            ;;
+        'g')
+            gen_varname ic_name
+            group_declare "${ic_name}"
+            group_copy "${ic_name}" "${v}"
+            to_clobber_ref="g:${ic_name}"
+            ;;
+        'p')
+            gen_varname ic_name
+            pds_declare "${ic_name}"
+            pds_copy "${ic_name}" "${v}"
+            to_clobber_ref="p:${ic_name}"
+            ;;
+    esac
+}
+
+function item_to_string() {
+    local -n item_ref=${1}; shift
+    local -n str_ref=${1}; shift
+
+    local t=${item_ref:0:1}
     case ${t} in
         e)
-            str=''
+            str_ref=''
             ;;
         g)
-            local group_name=${item:2}
+            local group_name=${item_ref:2}
             local group_str
             group_to_string "${group_name}" group_str
-            str=${group_str}
+            str_ref=${group_str}
             unset group_str group_name
             ;;
         l)
-            str=${item:2}
+            str_ref=${item_ref:2}
             ;;
         p)
-            local pds_name=${item:2}
+            local pds_name=${item_ref:2}
             local pds_str=''
             pds_to_string "${pds_name}" pds_str
-            str=${pds_str}
+            str_ref=${pds_str}
             unset pds_str pds_name
             ;;
     esac
@@ -332,22 +430,22 @@ function kw_unset() {
 
 function kw_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
-    local -n kw=${1}; shift
-    local -n str=${1}; shift
+    local -n kw_ref=${1}; shift
+    local -n str_ref=${1}; shift
 
-    local n=${kw[${KW_NAME_IDX}]}
-    case ${kw[${KW_LEVEL_IDX}]} in
-        "${KW_STABLE}")
-            str=${n}
+    local n=${kw_ref[KW_NAME_IDX]}
+    case ${kw_ref[KW_LEVEL_IDX]} in
+        ${KW_STABLE})
+            str_ref=${n}
             ;;
-        "${KW_UNSTABLE}")
-            str="~${n}"
+        ${KW_UNSTABLE})
+            str_ref="~${n}"
             ;;
-        "${KW_BROKEN}")
-            str="-${n}"
+        ${KW_BROKEN})
+            str_ref="-${n}"
             ;;
-        "${KW_UNKNOWN}")
-            str=''
+        ${KW_UNKNOWN})
+            str_ref=''
             ;;
     esac
 }
@@ -370,18 +468,18 @@ function iuse_unset() {
 
 function iuse_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
-    local -n iuse=${1}; shift
-    local -n str=${1}; shift
+    local -n iuse_ref=${1}; shift
+    local -n str_ref=${1}; shift
 
-    case ${iuse[${IUSE_MODE_IDX}]} in
-        "${IUSE_ENABLED}")
-            str='+'
+    case ${iuse_ref[IUSE_MODE_IDX]} in
+        ${IUSE_ENABLED})
+            str_ref='+'
             ;;
-        "${IUSE_DISABLED}")
-            str=''
+        ${IUSE_DISABLED})
+            str_ref=''
             ;;
     esac
-    use_str+=${iuse[${IUSE_NAME_IDX}]}
+    str_ref+=${iuse_ref[IUSE_NAME_IDX]}
 }
 
 # parse dependency specification format (DSF)
@@ -396,7 +494,7 @@ declare -gri DSF_DEPEND=0 DSF_LICENSE=1
 # || ( item\+ )
 # !\?use? ( item\+ )
 function parse_dsf() {
-    local dsf_type=${1}; shift
+    local -i dsf_type=${1}; shift
     local dep=${1}; shift
     local -n top_group_out_var_name_ref=${1}; shift
 
@@ -409,6 +507,7 @@ function parse_dsf() {
 
     local -a tokens
     mapfile -t tokens <<<"${dep// /$'\n'}"
+    local -i last_index
 
     local token
     for token in "${tokens[@]}"; do
@@ -418,15 +517,15 @@ function parse_dsf() {
             gen_varname pd_group
             group_declare "${pd_group}"
             # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
-            local -n g=${pd_group}
-            g[${GROUP_TYPE_IDX}]=${GROUP_ANY_OF}
-            unset -n g
+            local -n g_ref=${pd_group}
+            g_ref[GROUP_TYPE_IDX]=${GROUP_ANY_OF}
+            unset -n g_ref
 
             gen_varname pd_item
             item_declare "${pd_item}"
-            local -n i=${pd_item}
-            i="g:${pd_group}"
-            unset -n i
+            local -n i_ref=${pd_item}
+            i_ref="g:${pd_group}"
+            unset -n i_ref
 
             group_add_item "${group_stack[-1]}" "${pd_item}"
 
@@ -435,30 +534,31 @@ function parse_dsf() {
         elif [[ ${token} =~ ^!?[A-Za-z0-9][A-Za-z0-9+_-]*\?$ ]]; then
             # "use" group, so create the group, make it an item, add
             # to current group and mark the new group as current
-            local disabled=${GROUP_USE_ENABLED} use=${token%?}
+            local -i disabled=GROUP_USE_ENABLED
+            local use=${token%?}
 
             if [[ ${use} = '!'* ]]; then
-                disabled=${GROUP_USE_DISABLED}
+                disabled=GROUP_USE_DISABLED
                 use=${use:1}
             fi
 
             gen_varname pd_group
             group_declare "${pd_group}"
             # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
-            local -n g=${pd_group}
-            g[${GROUP_TYPE_IDX}]=${GROUP_ALL_OF}
-            g[${GROUP_USE_IDX}]=${use}
+            local -n g_ref=${pd_group}
+            g_ref[GROUP_TYPE_IDX]=${GROUP_ALL_OF}
+            g_ref[GROUP_USE_IDX]=${use}
             # shellcheck disable=SC2034 # it is used indirectly elsewhere
-            g[${GROUP_ENABLED_IDX}]=${disabled}
-            unset -n g
+            g_ref[GROUP_ENABLED_IDX]=${disabled}
+            unset -n g_ref
 
             unset use disabled
 
             gen_varname pd_item
             item_declare "${pd_item}"
-            local -n i=${pd_item}
-            i="g:${pd_group}"
-            unset -n i
+            local -n i_ref=${pd_item}
+            i_ref="g:${pd_group}"
+            unset -n i_ref
 
             group_add_item "${group_stack[-1]}" "${pd_item}"
 
@@ -476,9 +576,9 @@ function parse_dsf() {
 
                 gen_varname pd_item
                 item_declare "${pd_item}"
-                local -n i=${pd_item}
-                i="g:${pd_group}"
-                unset -n i
+                local -n i_ref=${pd_item}
+                i_ref="g:${pd_group}"
+                unset -n i_ref
 
                 group_add_item "${group_stack[-1]}" "${pd_item}"
 
@@ -490,32 +590,33 @@ function parse_dsf() {
             unset "group_stack[${last_index}]"
         elif [[ ${token} =~ ^[A-Za-z0-9_][A-Za-z0-9+_.-]*$ ]]; then
             # license
-            if [[ ${dsf_type} -ne ${DSF_LICENSE} ]]; then
+            if [[ dsf_type -ne DSF_LICENSE ]]; then
                 fail "license tokens are only allowed for LICENSE keys (token: ${token@Q})"
             fi
 
             gen_varname pd_item
             item_declare "${pd_item}"
-            local -n i=${pd_item}
-            i="l:${token}"
-            unset -n i
+            local -n i_ref=${pd_item}
+            i_ref="l:${token}"
+            unset -n i_ref
             group_add_item "${group_stack[-1]}" "${pd_item}"
         elif [[ ${token} =~ ^!?!?(<|<=|=|~|>=|>)?[A-Za-z0-9_][A-Za-z0-9+_.-]*/[A-Za-z0-9_] ]]; then
             # pds
-            if [[ ${dsf_type} -ne ${DSF_DEPEND} ]]; then
+            if [[ dsf_type -ne DSF_DEPEND ]]; then
                 fail "package dependency specification is only allowed for DEPEND-like keys (token: ${token@Q})"
             fi
 
-            local blocks=${PDS_NO_BLOCK} operator='' name='' version='' slot=''
+            local -i blocks=PDS_NO_BLOCK
+            local operator='' name='' version='' slot=''
             local -a use_requirements=()
 
             case ${token} in
                 '!!'*)
-                    blocks=${PDS_STRONG_BLOCK}
+                    blocks=PDS_STRONG_BLOCK
                     token=${token:2}
                     ;;
                 '!'*)
-                    blocks=${PDS_WEAK_BLOCK}
+                    blocks=PDS_WEAK_BLOCK
                     token=${token:1}
                     ;;
             esac
@@ -577,11 +678,11 @@ function parse_dsf() {
                     name=${ur}
                     gen_varname pd_ur
                     ur_declare "${pd_ur}"
-                    local -n u=${pd_ur}
-                    u[${UR_NAME_IDX}]=${name}
-                    u[${UR_MODE_IDX}]=${mode}
-                    u[${UR_PRETEND_IDX}]=${pretend}
-                    unset -n u
+                    local -n u_ref=${pd_ur}
+                    u_ref[UR_NAME_IDX]=${name}
+                    u_ref[UR_MODE_IDX]=${mode}
+                    u_ref[UR_PRETEND_IDX]=${pretend}
+                    unset -n u_ref
                     use_requirements+=( "${pd_ur}" )
                 done
                 unset pd_ur pretend mode name ur use_reqs
@@ -600,21 +701,21 @@ function parse_dsf() {
 
             gen_varname pd_pds
             pds_declare "${pd_pds}"
-            local -n p=${pd_pds}
-            p[${PDS_BLOCKS_IDX}]=${blocks}
-            p[${PDS_OP_IDX}]=${operator}
-            p[${PDS_NAME_IDX}]=${name}
-            p[${PDS_VER_IDX}]=${version}
-            p[${PDS_SLOT_IDX}]=${slot}
-            unset -n p
+            local -n p_ref=${pd_pds}
+            p_ref[PDS_BLOCKS_IDX]=${blocks}
+            p_ref[PDS_OP_IDX]=${operator}
+            p_ref[PDS_NAME_IDX]=${name}
+            p_ref[PDS_VER_IDX]=${version}
+            p_ref[PDS_SLOT_IDX]=${slot}
+            unset -n p_ref
             pds_add_urs "${pd_pds}" "${use_requirements[@]}"
             unset use_requirements slot version name operator blocks
 
             gen_varname pd_item
             item_declare "${pd_item}"
-            local -n i=${pd_item}
-            i="p:${pd_pds}"
-            unset -n i
+            local -n i_ref=${pd_item}
+            i_ref="p:${pd_pds}"
+            unset -n i_ref
 
             group_add_item "${group_stack[-1]}" "${pd_item}"
         else
@@ -637,8 +738,8 @@ function parse_eclasses() {
 
     local eclasses_var_name
     gen_varname eclasses_var_name
-    declare -a -g "${eclasses_var_name}=()"
-    local -n eclasses=${eclasses_var_name}
+    declare -ga "${eclasses_var_name}=()"
+    local -n eclasses_ref=${eclasses_var_name}
 
     local -a tokens
     mapfile -t tokens <<<"${eclasses_string//$'\t'/$'\n'}"
@@ -646,8 +747,8 @@ function parse_eclasses() {
     local token
     local -i eclass_name_now=1
     for token in "${tokens[@]}"; do
-        if [[ ${eclass_name_now} -eq 1 ]]; then
-            eclasses+=( "${token}" )
+        if [[ eclass_name_now -eq 1 ]]; then
+            eclasses_ref+=( "${token}" )
         fi
         eclass_name_now=$((eclass_name_now ^ 1))
     done
@@ -662,8 +763,8 @@ function parse_keywords() {
 
     local keywords_var_name
     gen_varname keywords_var_name
-    declare -a -g "${keywords_var_name}=()"
-    local -n keywords=${keywords_var_name}
+    declare -ga "${keywords_var_name}=()"
+    local -n keywords_ref=${keywords_var_name}
 
     local -A keywords_set=()
 
@@ -675,7 +776,8 @@ function parse_keywords() {
     done
 
     local has_hyphen_star=${keywords_set['-*']:-}
-    local arch mark kw_level_pair kw level kw_name
+    local arch mark kw_level_pair kw kw_name
+    local -i level
     for arch; do
         for kw_level_pair in "${arch}@${KW_STABLE}" "~${arch}@${KW_UNSTABLE}" "-${arch}@${KW_BROKEN}"; do
             kw=${kw_level_pair%@*}
@@ -684,11 +786,11 @@ function parse_keywords() {
             if [[ -n ${mark} ]]; then
                 gen_varname kw_name
                 kw_declare "${kw_name}"
-                local -n k=${kw_name}
-                k[${KW_NAME_IDX}]=${arch}
-                k[${KW_LEVEL_IDX}]=${level}
-                unset -n k
-                keywords+=( "${kw_name}" )
+                local -n k_ref=${kw_name}
+                k_ref[KW_NAME_IDX]=${arch}
+                k_ref[KW_LEVEL_IDX]=${level}
+                unset -n k_ref
+                keywords_ref+=( "${kw_name}" )
                 break
             fi
         done
@@ -696,16 +798,16 @@ function parse_keywords() {
             gen_varname kw_name
             kw_declare "${kw_name}"
             # shellcheck disable=SC2178 # shellcheck does not grok references
-            local -n k=${kw_name}
-            k[${KW_NAME_IDX}]=${arch}
+            local -n k_ref=${kw_name}
+            k_ref[KW_NAME_IDX]=${arch}
             if [[ -n ${has_hyphen_star} ]]; then
-                k[${KW_LEVEL_IDX}]=${KW_BROKEN}
+                k_ref[KW_LEVEL_IDX]=${KW_BROKEN}
             else
                 # shellcheck disable=SC2034 # shellcheck does not grok references
-                k[${KW_LEVEL_IDX}]=${KW_UNKNOWN}
+                k_ref[KW_LEVEL_IDX]=${KW_UNKNOWN}
             fi
-            unset -n k
-            keywords+=( "${kw_name}" )
+            unset -n k_ref
+            keywords_ref+=( "${kw_name}" )
         fi
     done
     # shellcheck disable=SC2034 # shellcheck does not grok references
@@ -718,8 +820,8 @@ function parse_iuse() {
 
     local iuse_var_name
     gen_varname iuse_var_name
-    declare -a -g "${iuse_var_name}=()"
-    local -n iuse=${iuse_var_name}
+    declare -ga "${iuse_var_name}=()"
+    local -n iuse_ref=${iuse_var_name}
 
     local -a tokens
     mapfile -t tokens <<<"${iuse_string// /$'\n'}"
@@ -727,14 +829,14 @@ function parse_iuse() {
     for token in "${tokens[@]}"; do
         gen_varname pi_iuse
         iuse_declare "${pi_iuse}"
-        local -n i=${pi_iuse}
+        local -n i_ref=${pi_iuse}
         if [[ ${token} = '+'* ]]; then
-            i[${IUSE_MODE_IDX}]=${IUSE_ENABLED}
+            i_ref[IUSE_MODE_IDX]=${IUSE_ENABLED}
             token=${token:1}
         fi
-        i[${IUSE_NAME_IDX}]=${token}
-        unset -n i
-        iuse+=( "${pi_iuse}" )
+        i_ref[IUSE_NAME_IDX]=${token}
+        unset -n i_ref
+        iuse_ref+=( "${pi_iuse}" )
     done
 
     # shellcheck disable=SC2034 # shellcheck does not grok references
@@ -766,77 +868,76 @@ function __mcl_unset_array() {
 function cache_file_unset() {
     local name=${1}; shift
 
-    local -n cache_file=${name}
+    local -n cache_file_ref=${name}
 
     local array_name
-    array_name=${cache_file[${PCF_KEYWORDS_IDX}]}
+    array_name=${cache_file_ref[PCF_KEYWORDS_IDX]}
     __mcl_unset_array "${array_name}" kw_unset
-    array_name=${cache_file[${PCF_IUSE_IDX}]}
+    array_name=${cache_file_ref[PCF_IUSE_IDX]}
     __mcl_unset_array "${array_name}" iuse_unset
-    array_name=${cache_file[${PCF_ECLASSES_IDX}]}
+    array_name=${cache_file_ref[PCF_ECLASSES_IDX]}
     __mcl_unset_array "${array_name}" unset
 
     local -i group_name_idx
     local group_name
-    for group_name_idx in ${PCF_BDEPEND_IDX} ${PCF_DEPEND_IDX} ${PCF_IDEPEND_IDX} ${PCF_PDEPEND_IDX} ${PCF_RDEPEND_IDX} ${PCF_LICENSE_IDX}; do
-        group_name=${cache_file[${group_name_idx}]}
+    for group_name_idx in PCF_BDEPEND_IDX PCF_DEPEND_IDX PCF_IDEPEND_IDX PCF_PDEPEND_IDX PCF_RDEPEND_IDX PCF_LICENSE_IDX; do
+        group_name=${cache_file_ref[group_name_idx]}
         group_unset "${group_name}"
     done
 
-    unset -n cache_file
+    unset -n cache_file_ref
 
     unset "${name}"
 }
 
 function parse_cache_file() {
-    local -n cache_file=${1}; shift
+    local -n cache_file_ref=${1}; shift
     local path=${1}; shift
-    local -i arch_args=$(( ${#} - 1 ))
-    local -a arches=( ${@:1:${arch_args}} ); shift ${arch_args}
+    # rest are architectures
 
-    local -n pkg_eapi=cache_file[${PCF_EAPI_IDX}]
-    local -n pkg_keywords=cache_file[${PCF_KEYWORDS_IDX}]
-    local -n pkg_iuse=cache_file[${PCF_IUSE_IDX}]
-    local -n pkg_bdepend_group_name=cache_file[${PCF_BDEPEND_IDX}]
-    local -n pkg_depend_group_name=cache_file[${PCF_DEPEND_IDX}]
-    local -n pkg_idepend_group_name=cache_file[${PCF_IDEPEND_IDX}]
-    local -n pkg_pdepend_group_name=cache_file[${PCF_PDEPEND_IDX}]
-    local -n pkg_rdepend_group_name=cache_file[${PCF_RDEPEND_IDX}]
-    local -n pkg_license_group_name=cache_file[${PCF_LICENSE_IDX}]
-    local -n pkg_eclasses=cache_file[${PCF_ECLASSES_IDX}]
+    local -n pkg_eapi_ref=cache_file_ref[PCF_EAPI_IDX]
+    local -n pkg_keywords_ref=cache_file_ref[PCF_KEYWORDS_IDX]
+    local -n pkg_iuse_ref=cache_file_ref[PCF_IUSE_IDX]
+    local -n pkg_bdepend_group_name_ref=cache_file_ref[PCF_BDEPEND_IDX]
+    local -n pkg_depend_group_name_ref=cache_file_ref[PCF_DEPEND_IDX]
+    local -n pkg_idepend_group_name_ref=cache_file_ref[PCF_IDEPEND_IDX]
+    local -n pkg_pdepend_group_name_ref=cache_file_ref[PCF_PDEPEND_IDX]
+    local -n pkg_rdepend_group_name_ref=cache_file_ref[PCF_RDEPEND_IDX]
+    local -n pkg_license_group_name_ref=cache_file_ref[PCF_LICENSE_IDX]
+    local -n pkg_eclasses_ref=cache_file_ref[PCF_ECLASSES_IDX]
 
     local l
     while read -r l; do
         case ${l} in
             EAPI=*)
-                pkg_eapi=${l#*=}
+                pkg_eapi_ref=${l#*=}
                 ;;
             KEYWORDS=*)
-                parse_keywords "${l#*=}" pkg_keywords "${arches[@]}"
+                parse_keywords "${l#*=}" pkg_keywords_ref "${@}"
                 ;;
             IUSE=*)
-                parse_iuse "${l#*=}" pkg_iuse
+                parse_iuse "${l#*=}" pkg_iuse_ref
                 ;;
             BDEPEND=*)
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_bdepend_group_name
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_bdepend_group_name_ref
                 ;;
             DEPEND=*)
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_depend_group_name
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_depend_group_name_ref
                 ;;
             IDEPEND=*)
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_idepend_group_name
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_idepend_group_name_ref
                 ;;
             PDEPEND=*)
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_pdepend_group_name
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_pdepend_group_name_ref
                 ;;
             RDEPEND=*)
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_rdepend_group_name
+                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_rdepend_group_name_ref
                 ;;
             LICENSE=*)
-                parse_dsf "${DSF_LICENSE}" "${l#*=}" pkg_license_group_name
+                parse_dsf "${DSF_LICENSE}" "${l#*=}" pkg_license_group_name_ref
                 ;;
             _eclasses_=*)
-                parse_eclasses "${l#*=}" pkg_eclasses
+                parse_eclasses "${l#*=}" pkg_eclasses_ref
                 ;;
         esac
     done <"${path}"

@@ -302,7 +302,7 @@ function sets_split() {
     done
 }
 
-declare -g -i __UTIL_SH_COUNTER=0
+declare -gi __UTIL_SH_COUNTER=0
 
 function gen_varname() {
     local prefix='__PA_VAR' # pa = pkg-auto

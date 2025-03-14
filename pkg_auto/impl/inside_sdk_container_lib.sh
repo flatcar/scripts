@@ -233,10 +233,6 @@ PKG_REPO_SED_FILTERS=(
 #
 # @ - parameters passed to sed
 function packages_for_sdk() {
-    local kind
-    kind=${1}; shift
-    # rest goes to sed
-
     cat "${SDK_EO_F}" | sed "${@}" | sort
 }
 
