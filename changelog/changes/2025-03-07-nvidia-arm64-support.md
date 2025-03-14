@@ -1,0 +1,1 @@
+- Added support for ARM64 architecture in the NVIDIA driver installer service ([scripts#2694](https://github.com/flatcar/scripts/pull/2694))
