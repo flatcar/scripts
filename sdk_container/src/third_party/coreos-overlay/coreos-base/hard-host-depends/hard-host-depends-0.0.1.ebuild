@@ -55,7 +55,6 @@ RDEPEND="${RDEPEND}
 	>=dev-libs/glib-2.26.1
 	dev-libs/libgcrypt
 	dev-libs/libnl
-	dev-libs/libpwquality
 	dev-libs/libxslt
 	dev-libs/libyaml
 	dev-libs/luksmeta
