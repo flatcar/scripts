@@ -9,6 +9,8 @@ set -euo pipefail
 NVIDIA_DOWNLOAD_BASEURL="https://us.download.nvidia.com/${NVIDIA_PRODUCT_TYPE}/"
 NVIDIA_DRIVER_BASENAME="NVIDIA-Linux-$(uname -m)-${NVIDIA_DRIVER_VERSION}"
 NVIDIA_WORKDIR='nvidia-workdir'
+# User can disable
+: ${NVIDIA_PERSISTENCE_MODE:=on}
 
 FLATCAR_DEVELOPER_CONTAINER="flatcar_developer_container-${FLATCAR_RELEASE_VERSION}.bin"
 FLATCAR_DEVELOPER_CONTAINER_URL=""
@@ -133,6 +135,12 @@ function install_and_load() {
   then
     D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
     mknod -m 666 /dev/nvidia-uvm c $D 0
+  fi
+
+  nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+
+  if [ "${NVIDIA_PERSISTENCE_MODE}" = "on" ]; then
+    nvidia-persistenced
   fi
 }
 
