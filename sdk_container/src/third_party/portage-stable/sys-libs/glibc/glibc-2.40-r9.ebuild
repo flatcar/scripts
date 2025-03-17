@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,7 +12,7 @@ TMPFILES_OPTIONAL=1
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=5
+PATCH_VER=9
 PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
@@ -41,7 +41,7 @@ HOMEPAGE="https://www.gnu.org/software/libc/"
 if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
@@ -248,29 +248,9 @@ build_eprefix() {
 	is_crosscompile && echo "${EPREFIX}"
 }
 
-# We need to be able to set alternative headers for compiling for non-native
-# platform. Will also become useful for testing kernel-headers without screwing
-# up the whole system.
 alt_headers() {
-	echo ${ALT_HEADERS:=$(alt_prefix)/usr/include}
+	echo $(alt_prefix)/usr/include
 }
-
-alt_build_headers() {
-	if [[ -z ${ALT_BUILD_HEADERS} ]] ; then
-		ALT_BUILD_HEADERS="$(host_eprefix)$(alt_headers)"
-		if tc-is-cross-compiler ; then
-			ALT_BUILD_HEADERS=${SYSROOT}$(alt_headers)
-			if [[ ! -e ${ALT_BUILD_HEADERS}/linux/version.h ]] ; then
-				local header_path=$(echo '#include <linux/version.h>' \
-					| $(tc-getCPP ${CTARGET}) ${CFLAGS} 2>&1 \
-					| grep -o '[^"]*linux/version.h')
-				ALT_BUILD_HEADERS=${header_path%/linux/version.h}
-			fi
-		fi
-	fi
-	echo "${ALT_BUILD_HEADERS}"
-}
-
 alt_libdir() {
 	echo $(alt_prefix)/$(get_libdir)
 }
@@ -629,13 +609,13 @@ setup_env() {
 		# Last, we need the settings of the *build* environment, not of the
 		# target environment...
 
-		local current_binutils_path=$(env ROOT="${BROOT}" binutils-config -B)
+		local current_binutils_path=$(env CHOST="${CBUILD}" ROOT="${BROOT}" binutils-config -B "${CTARGET}")
 		local current_gcc_path=$(env ROOT="${BROOT}" gcc-config -B)
 		einfo "Overriding clang configuration, since it won't work here"
 
-		export CC="${current_gcc_path}/gcc"
-		export CPP="${current_gcc_path}/cpp"
-		export CXX="${current_gcc_path}/g++"
+		export CC="${current_gcc_path}/${CTARGET}-gcc"
+		export CPP="${current_gcc_path}/${CTARGET}-cpp"
+		export CXX="${current_gcc_path}/${CTARGET}-g++"
 		export LD="${current_binutils_path}/ld.bfd"
 		export AR="${current_binutils_path}/ar"
 		export AS="${current_binutils_path}/as"
@@ -792,7 +772,7 @@ eend_KV() {
 
 get_kheader_version() {
 	printf '#include <linux/version.h>\nLINUX_VERSION_CODE\n' | \
-	$(tc-getCPP ${CTARGET}) -I "$(build_eprefix)$(alt_build_headers)" - | \
+	$(tc-getCPP ${CTARGET}) -I "${ESYSROOT}$(alt_headers)" - | \
 	tail -n 1
 }
 
@@ -1065,7 +1045,7 @@ glibc_do_configure() {
 		--host=${CTARGET_OPT:-${CTARGET}}
 		$(use_enable profile)
 		$(use_with gd)
-		--with-headers=$(build_eprefix)$(alt_build_headers)
+		--with-headers="${ESYSROOT}$(alt_headers)"
 		--prefix="$(host_eprefix)/usr"
 		--sysconfdir="$(host_eprefix)/etc"
 		--localstatedir="$(host_eprefix)/var"
@@ -1228,7 +1208,7 @@ glibc_headers_configure() {
 		--enable-bind-now
 		--build=${CBUILD_OPT:-${CBUILD}}
 		--host=${CTARGET_OPT:-${CTARGET}}
-		--with-headers=$(build_eprefix)$(alt_build_headers)
+		--with-headers="${ESYSROOT}$(alt_headers)"
 		--prefix="$(host_eprefix)/usr"
 		${EXTRA_ECONF}
 	)
@@ -1720,6 +1700,29 @@ pkg_postinst() {
 		use loong && glibc_refresh_ldconfig
 
 		use compile-locales || run_locale_gen "${EROOT}/"
+
+		# If fixincludes was/is active for a particular GCC slot, we
+		# must refresh it. See bug #933282 and GCC's documentation:
+		# https://gcc.gnu.org/onlinedocs/gcc/Fixed-Headers.html
+		#
+		# TODO: Could this be done for cross? Some care would be needed
+		# to pass the right arguments.
+		while IFS= read -r -d $'\0' slot ; do
+			local mkheaders_path="${BROOT}"/usr/libexec/gcc/${CBUILD}/${slot##*/}/install-tools/mkheaders
+			local pthread_h="${BROOT}"/usr/lib/gcc/${CBUILD}/${slot##*/}/include-fixed/pthread.h
+			if [[ -x ${mkheaders_path} ]] ; then
+				ebegin "Refreshing fixincludes for ${CBUILD} with gcc-${slot##*/}"
+				${mkheaders_path} -v
+				eend $?
+			elif [[ -f ${pthread_h} ]] ; then
+				# fixincludes might have been enabled in the past for this
+				# GCC slot but not since we fixed toolchain.eclass to install
+				# mkheaders, so we need to manually delete pthread.h at least.
+				ebegin "Deleting stale fixincludes'd pthread.h for ${CBUILD} with gcc-${slot##*/}"
+				mv -v "${pthread_h}" "${pthread_h}.bak"
+				eend $?
+			fi
+		done < <(find "${BROOT}"/usr/libexec/gcc/${CBUILD}/ -mindepth 1 -maxdepth 1 -type d -print0)
 	fi
 
 	upgrade_warning
