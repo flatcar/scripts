@@ -228,7 +228,7 @@ else
                    -global driver=cfi.pflash01,property=secure,value=on \
                    "$@"
             # Emulate the host CPU closely in both features and cores.
-            set -- -machine q35,accel=kvm:hvf:tcg,smm=on -cpu host -smp "${VM_NCPUS}" "$@"
+            set -- -machine q35,accel=kvm:hvf:tcg,smm=on -cpu host -smp "${VM_NCPUS}" -nographic "$@"
             ;;
         amd64-usr+*)
             set -- -machine q35 -cpu kvm64 -smp 1 -nographic "$@" ;;
