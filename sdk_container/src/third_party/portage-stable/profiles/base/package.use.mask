@@ -6,6 +6,14 @@
 
 # New entries go on top.
 
+# Michał Górny <mgorny@gentoo.org> (2025-03-05)
+# Mask until we have keyworded dev-util/spirv-llvm-translator:20 release.
+llvm-core/libclc llvm_slot_20
+
+# Michał Górny <mgorny@gentoo.org> (2025-03-05)
+# Mask until we have keyworded dev-lang/rust{,-bin} / slot 20 release.
+www-client/chromium llvm_slot_20
+
 # Paul Zander <negril.nx+gentoo@gmail.com> (2025-02-24)
 # Only builds with ffmpeg-4.x, upstream has no timeline to fix it.
 # https://tracker.dev.opencascade.org/view.php?id=32871
@@ -103,7 +111,6 @@ dev-python/qtpy pyside2
 
 # Joonas Niilola <juippis@gentoo.org> (2024-11-16)
 # Wasm support is (currently) only available on amd64 and arm64.
-www-client/firefox wasm
 www-client/firefox wasm-sandbox
 
 # Matt Jolly <kangie@gentoo.org> (2024-11-11)
@@ -234,11 +241,6 @@ sys-libs/glibc cet
 # https://github.com/linuxmint/wayland/issues
 gnome-extra/cinnamon wayland
 
-# James Le Cuirot <chewi@gentoo.org> (2024-02-11)
-# The Raspberry Pi patch set is very heavy and will probably fail to apply
-# against a live checkout.
->=media-video/ffmpeg-9999 soc
-
 # Michael Orlitzky <mjo@gentoo.org> (2024-01-24)
 # A missing "-o pipefail" in the gap-pkg eclass caused me to
 # miss a few crashes in dev-gap packages when GAP itself is
@@ -335,7 +337,10 @@ dev-lang/ruby jemalloc
 
 # Joonas Niilola <juippis@gentoo.org> (2023-07-14)
 # Calendar is broken with some languages on 115.0 release. Bug #910229
->=mail-client/thunderbird-115.0 system-icu
+# Update on 136.0: Thunderbird upstream still carries the patch for bundled icu
+# and in icu upstream, the issue is unresolved. "system-icu" still doesn't
+# work properly in 136.0, bug #950687.
+mail-client/thunderbird system-icu
 
 # Marek Szuba <marecki@gentoo.org> (2023-07-10)
 # dev-python/mkdocs-material is by design directly integrated with
@@ -864,6 +869,7 @@ dev-db/mysql client-libs
 # This flag can be sensibly enabled only on macos.
 # Can be unmasked in prefix/darwin/macos profiles. Bug #637482
 media-video/ffmpeg appkit
+media-video/ffmpeg-compat appkit
 
 # Andreas K. Huettel <dilfridge@gentoo.org> (2017-09-09)
 # Potentially destructive. Use it only if you know what you're doing.
