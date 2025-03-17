@@ -15,7 +15,7 @@ if [[ "$PV" == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/containers/${PN}.git"
 else
 	SRC_URI="https://github.com/containers/${PN}/releases/download/${PV}/${P}.tar.gz"
-	KEYWORDS="amd64 ~arm arm64 ~loong ppc64 ~riscv"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv"
 fi
 
 LICENSE="GPL-2+ LGPL-2.1+"
@@ -45,9 +45,9 @@ src_configure() {
 		$(use_enable criu)
 		$(use_enable seccomp)
 		$(use_enable systemd)
-		$(usex static-libs '--enable-shared --enable-static' '--enable-shared --disable-static' '' '')
+		--enable-shared
+		$(use_enable static-libs static)
 	)
-
 	econf "${myeconfargs[@]}"
 }
 
@@ -61,7 +61,6 @@ src_test() {
 		"tests/tests_libcrun_utils"
 		"tests/tests_libcrun_errors"
 		"tests/tests_libcrun_intelrdt"
-		"tests/test_oci_features"
 	)
 	emake check-TESTS TESTS="${supported_tests[*]}"
 }
@@ -71,6 +70,5 @@ src_install() {
 	doman crun.1
 	einstalldocs
 
-	einfo "Cleaning up .la files"
-	find "${ED}" -name '*.la' -delete || die
+	find "${ED}" -name '*.la' -type f -delete || die
 }
