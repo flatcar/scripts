@@ -46,6 +46,7 @@ run_kola_tests() {
           --equinixmetal-storage-url="${EQUINIXMETAL_STORAGE_URL}" \
           --gce-json-key=<(set +x; echo "${GCP_JSON_KEY}" | base64 --decode) \
           --equinixmetal-api-key="${EQUINIXMETAL_KEY}" \
+          --image-version "${CIA_VERNUM}" \
           "${@}"
 }
 
