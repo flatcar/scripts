@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info pam systemd udev usr-ldscript
 
@@ -25,7 +25,7 @@ else
 	S="${WORKDIR}/${MY_P}"
 
 	if [[ ${PV} != *_rc* ]]; then
-		KEYWORDS="amd64 arm64 ~loong ppc64 ~riscv ~sparc"
+		KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc"
 	fi
 fi
 
@@ -33,7 +33,7 @@ LICENSE="BSD-2 CDDL MIT"
 # just libzfs soname major for now.
 # possible candidates: libuutil, libzpool, libnvpair. Those do not provide stable abi, but are considered.
 # see libsoversion_check() below as well
-SLOT="0/5"
+SLOT="0/6"
 IUSE="custom-cflags debug dist-kernel kernel-builtin minimal nls pam python +rootfs selinux test-suite unwind"
 
 DEPEND="
@@ -106,8 +106,6 @@ RESTRICT="test"
 
 PATCHES=(
 	"${FILESDIR}"/2.1.5-dracut-zfs-missing.patch
-	"${FILESDIR}"/2.2.2-no-USER_NS.patch
-	"${FILESDIR}"/2.2.3-musl.patch
 )
 
 pkg_pretend() {
