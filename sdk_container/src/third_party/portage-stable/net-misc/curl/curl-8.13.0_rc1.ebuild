@@ -17,17 +17,23 @@ if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/curl/curl.git"
 else
+	if [[ ${P} == *rc* ]]; then
+		CURL_URI="https://curl.se/rc/"
+		S="${WORKDIR}/${P//_/-}"
+	else
+		CURL_URI="https://curl.se/download/"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	fi
 	SRC_URI="
-		https://curl.se/download/${P}.tar.xz
-		verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )
+		${CURL_URI}${P//_/-}.tar.xz
+		verify-sig? ( ${CURL_URI}${P//_/-}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="BSD curl ISC test? ( BSD-4 )"
 SLOT="0"
 IUSE="+adns +alt-svc brotli debug +ftp gnutls gopher +hsts +http2 +http3 idn +imap kerberos ldap mbedtls +openssl +pop3"
-IUSE+=" +psl +progress-meter +quic rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+IUSE+=" +psl +progress-meter +quic rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp +websockets zstd"
 # These select the default tls implementation / which quic impl to use
 IUSE+=" +curl_quic_openssl curl_quic_ngtcp2 curl_ssl_gnutls curl_ssl_mbedtls +curl_ssl_openssl curl_ssl_rustls"
 RESTRICT="!test? ( test )"
@@ -78,12 +84,12 @@ REQUIRED_USE="
 # particulary for fast-moving targets like HTTP/2 and TCP/2 e.g.:
 # - https://github.com/curl/curl/blob/master/docs/INTERNALS.md (core dependencies + minimum versions)
 # - https://github.com/curl/curl/blob/master/docs/HTTP3.md (example of a feature that moves quickly)
-# - https://github.com/curl/curl/blob/master/.github/workflows/quiche-linux.yml (CI/CD for TCP/2)
+# - https://github.com/curl/curl/blob/master/.github/workflows/http3-linux.yml (CI/CD for TCP/2)
 # However 'supported' vs 'works' are two entirely different things; be sane but
 # don't be afraid to require a later version.
 # ngtcp2 = https://bugs.gentoo.org/912029 - can only build with one tls backend at a time.
 RDEPEND="
-	>=sys-libs/zlib-1.1.4[${MULTILIB_USEDEP}]
+	>=sys-libs/zlib-1.2.5[${MULTILIB_USEDEP}]
 	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.15.0:=[${MULTILIB_USEDEP}] )
@@ -97,7 +103,7 @@ RDEPEND="
 		curl_quic_ngtcp2? ( >=net-libs/ngtcp2-1.2.0[gnutls,ssl,-openssl,${MULTILIB_USEDEP}] )
 	)
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
-	ssh? ( >=net-libs/libssh2-1.0.0[${MULTILIB_USEDEP}] )
+	ssh? ( >=net-libs/libssh2-1.2.8[${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
 			app-misc/ca-certificates
@@ -109,10 +115,10 @@ RDEPEND="
 			net-libs/mbedtls:0=[${MULTILIB_USEDEP}]
 		)
 		openssl? (
-			>=dev-libs/openssl-0.9.7:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
+			>=dev-libs/openssl-1.0.2:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		rustls? (
-			>=net-libs/rustls-ffi-0.13.0:=[${MULTILIB_USEDEP}]
+			>=net-libs/rustls-ffi-0.14.0:=[${MULTILIB_USEDEP}]
 		)
 	)
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
@@ -131,7 +137,7 @@ BDEPEND="
 	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
 "
 
-DOCS=( CHANGES README docs/{FEATURES.md,INTERNALS.md,FAQ,BUGS.md,CONTRIBUTE.md} )
+DOCS=( README docs/{FEATURES.md,INTERNALS.md,FAQ,BUGS.md,CONTRIBUTE.md} )
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/curl/curlbuild.h
@@ -156,9 +162,8 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-prefix-2.patch
-	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${PN}-8.9.1-sigpipe.patch
+	"${FILESDIR}/${PN}-prefix-4.patch"
+	"${FILESDIR}/${PN}-respect-cflags-3.patch"
 )
 
 src_prepare() {
@@ -271,15 +276,12 @@ multilib_src_configure() {
 		--enable-socketpair
 		--disable-sspi
 		$(use_enable static-libs static)
-		--enable-pthreads
-		--enable-threaded-resolver
 		--disable-versioned-symbols
 		--without-amissl
 		--without-bearssl
 		$(use_with brotli)
 		--with-fish-functions-dir="${EPREFIX}"/usr/share/fish/vendor_completions.d
 		$(use_with http2 nghttp2)
-		--without-hyper
 		$(use_with idn libidn2)
 		$(use_with kerberos gssapi "${EPREFIX}"/usr)
 		--without-libgsasl
@@ -315,9 +317,17 @@ multilib_src_configure() {
 		)
 	fi
 
-	if [[ ${CHOST} == *mingw* ]] ; then
+	# Since 8.12.0 adns/c-ares and the threaded resolver are mutually exclusive
+	# This is in support of some work to enable `httpsrr` to use adns and the rest
+	# of curl to use the threaded resolver; we'll just make `httpsrr` conditional on adns
+	# when the time comes.
+	if use adns; then
 		myconf+=(
-			--disable-pthreads
+			--disable-threaded-resolver
+		)
+	else
+		myconf+=(
+			--enable-threaded-resolver
 		)
 	fi
 
@@ -346,7 +356,7 @@ multilib_src_test() {
 	# See https://github.com/curl/curl/blob/master/tests/runtests.pl#L5721
 	# -n: no valgrind (unreliable in sandbox and doesn't work correctly on all arches)
 	# -v: verbose
-	# -a: keep going on failure (so we see everything which breaks, not just 1st test)
+	# -a: keep going on failure (so we see everything that breaks, not just 1st test)
 	# -k: keep test files after completion
 	# -am: automake style TAP output
 	# -p: print logs if test fails
@@ -357,7 +367,8 @@ multilib_src_test() {
 	# this ends up breaking when nproc is huge (like -j80).
 	# The network sandbox causes tests 241 and 1083 to fail; these are typically skipped
 	# as most gentoo users don't have an 'ip6-localhost'
-	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083"
+	# 1022 does not like `-rc` in the version string; fixed upstream.
+	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(makeopts_jobs))) !241 !1083 !1022"
 }
 
 multilib_src_install() {
