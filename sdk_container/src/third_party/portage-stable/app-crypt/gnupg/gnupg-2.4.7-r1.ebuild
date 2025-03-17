@@ -36,7 +36,6 @@ DEPEND="
 	>=dev-libs/libgpg-error-1.46
 	>=dev-libs/libksba-1.6.3
 	>=dev-libs/npth-1.2
-	>=net-misc/curl-7.10
 	sys-libs/zlib
 	bzip2? ( app-arch/bzip2 )
 	ldap? ( net-nds/openldap:= )
@@ -70,7 +69,6 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
 	"${FILESDIR}"/${PN}-2.4.5-revert-rfc4880bis.patch # bug #926186
-	"${FILESDIR}"/${PN}-2.4.6-c99.patch
 )
 
 src_prepare() {
