@@ -376,12 +376,17 @@ function iuse_stack_to_string() {
     local -n str_ref=${1}; shift
 
     str_ref=''
-    if [[ ${#stack_ref[@]} -eq 0 ]]; then
+    # we always ignore the first element - it's a name of the toplevel
+    # unnamed group, so stack of length 1 means no groups were
+    # encountered
+    if [[ ${#stack_ref[@]} -le 1 ]]; then
         return 0
     fi
 
     local iuse
-    for iuse in "${stack_ref[@]}"; do
+    # we always ignore the first element - it's a name of the toplevel
+    # unnamed group
+    for iuse in "${stack_ref[@]:1}"; do
         str_ref+="${iuse@Q} -> "
     done
     str_ref=${str_ref:0:$((${#str_ref} - 4))}
@@ -517,9 +522,24 @@ function pds_diff() {
     if [[ -z ${local_pds_dr_empty} ]]; then
         local iuse_str=''
         if [[ -n ${old_iuses} ]]; then
-            iuse_str=" with USE conditionals ${old_iuses@Q}"
+            iuse_str=" with USE conditionals ${old_iuses}"
         fi
-        diff_report_append "${dr_var_name}" "changes for ${name}${iuse_str}:"
+
+        local block_str=''
+        local -i new_blocks=${new_pds_ref[PDS_BLOCKS_IDX]}
+        case ${new_blocks} in
+            ${PDS_NO_BLOCK})
+                block_str=''
+                ;;
+            ${PDS_WEAK_BLOCK})
+                block_str=' weak blocker'
+                ;;
+            ${PDS_STRONG_BLOCK})
+                block_str=' strong blocker'
+                ;;
+        esac
+
+        diff_report_append "${dr_var_name}" "changes for ${name}${block_str}${iuse_str}:"
         diff_report_indent "${dr_var_name}"
         diff_report_append_diff_report "${dr_var_name}" local_pds_dr
         diff_report_dedent "${dr_var_name}"
@@ -790,8 +810,16 @@ function diff_deps() {
     diff_report_declare local_dr
 
     local -a old_iuse_stack=() new_iuse_stack=()
+    # a stack of counters for naming unnamed groups like
+    #
+    # || ( ( a/b-1 c/d-1 ) ( a/b-2 c/d-2 ) )
+    #
+    # The "( a/b-1 c/d-1 )" and "( a/b-2 c/d-2 )" groups are unnamed
+    # within the "||" group.
+    local old_group_unnamed_counter_stack=( 0 ) new_group_unnamed_counter_stack=( 0 )
     local -i last_idx1=0 last_idx2=0 idx1 idx2
     local ci_name
+    local prev_item1='e:' prev_item2='e:'
     for ci_name in "${dd_common_items[@]}"; do
         local -n ci_ref=${ci_name}
         idx1=${ci_ref[LCS_IDX1_IDX]}
@@ -815,19 +843,32 @@ function diff_deps() {
                     unset use_str p_str
                     ;;
                 'i')
-                    old_iuse_stack+=( "${v1}" )
-                    ;;
-                'o')
-                    # nothing to do with open paren
+                    # This will be stored in prev item and used in 'o'
+                    # item handling.
                     :
                     ;;
+                'o')
+                    local subgroup_name
+                    if [[ ${prev_item1:0:1} = 'i' ]]; then
+                        subgroup_name=${prev_item1:2}
+                    else
+                        local -i counter=${old_group_unnamed_counter_stack[-1]}
+                        ((++counter))
+                        old_group_unnamed_counter_stack[-1]=${counter}
+                        subgroup_name="unnamed-all-of-${counter}"
+                    fi
+                    old_group_unnamed_counter_stack+=( 0 )
+                    old_iuse_stack+=( "${subgroup_name}" )
+                    unset subgroup_name
+                    ;;
                 'c')
-                    unset old_iuse_stack[-1]
+                    unset old_iuse_stack[-1] old_group_unnamed_counter_stack[-1]
                     ;;
                 *)
                     fail "item ${item1} is bad"
                     ;;
             esac
+            prev_item1=${item1}
             unset v1 t1 item1
             ((++last_idx1))
         done
@@ -849,19 +890,32 @@ function diff_deps() {
                     unset use_str p_str
                     ;;
                 'i')
-                    new_iuse_stack+=( "${v2}" )
-                    ;;
-                'o')
-                    # nothing to do with open paren
+                    # This will be stored in prev item and used in 'o'
+                    # item handling.
                     :
                     ;;
+                'o')
+                    local subgroup_name
+                    if [[ ${prev_item2:0:1} = 'i' ]]; then
+                        subgroup_name=${prev_item2:2}
+                    else
+                        local -i counter=${new_group_unnamed_counter_stack[-1]}
+                        ((++counter))
+                        new_group_unnamed_counter_stack[-1]=${counter}
+                        subgroup_name="unnamed-all-of-${counter}"
+                    fi
+                    new_group_unnamed_counter_stack+=( 0 )
+                    new_iuse_stack+=( "${subgroup_name}" )
+                    unset subgroup_name
+                    ;;
                 'c')
-                    unset new_iuse_stack[-1]
+                    unset new_iuse_stack[-1] new_group_unnamed_counter_stack[-1]
                     ;;
                 *)
                     fail "item ${item2} is bad"
                     ;;
             esac
+            prev_item2=${item2}
             unset v2 t2 item2
             ((++last_idx2))
         done
@@ -870,16 +924,42 @@ function diff_deps() {
         local t1=${item1%:*} v1=${item1#*:} t2=${item2%:*} v2=${item2#*:}
 
         case ${t1} in
-            'o'|'l')
+            'l')
                 # not interesting
                 :
                 ;;
             'i')
-                old_iuse_stack+=( "${v1}" )
-                new_iuse_stack+=( "${v2}" )
+                # This will be stored in prev item and used in 'o'
+                # item handling.
+                :
+                ;;
+            'o')
+                local subgroup_name
+                if [[ ${prev_item1:0:1} = 'i' ]]; then
+                    subgroup_name=${prev_item1:2}
+                else
+                    local -i counter=${old_group_unnamed_counter_stack[-1]}
+                    ((++counter))
+                    old_group_unnamed_counter_stack[-1]=${counter}
+                    subgroup_name="unnamed-all-of-${counter}"
+                fi
+                old_group_unnamed_counter_stack+=( 0 )
+                old_iuse_stack+=( "${subgroup_name}" )
+
+                if [[ ${prev_item2:0:1} = 'i' ]]; then
+                    subgroup_name=${prev_item2:2}
+                else
+                    local -i counter=${new_group_unnamed_counter_stack[-1]}
+                    ((++counter))
+                    new_group_unnamed_counter_stack[-1]=${counter}
+                    subgroup_name="unnamed-all-of-${counter}"
+                fi
+                new_group_unnamed_counter_stack+=( 0 )
+                new_iuse_stack+=( "${subgroup_name}" )
+                unset subgroup_name
                 ;;
             'c')
-                unset old_iuse_stack[-1] new_iuse_stack[-1]
+                unset old_iuse_stack[-1] old_group_unnamed_counter_stack[-1] new_iuse_stack[-1] new_group_unnamed_counter_stack[-1]
                 ;;
             'p')
                 pds_diff "${item1#*:}" "${item2#*:}" old_iuse_stack new_iuse_stack local_dr
@@ -889,6 +969,8 @@ function diff_deps() {
                 ;;
         esac
 
+        prev_item1=${item1}
+        prev_item2=${item2}
         unset v2 t2 item2
         unset v1 t1 item1
         unset -n ci
@@ -917,19 +999,32 @@ function diff_deps() {
                 unset use_str p_str
                 ;;
             'i')
-                old_iuse_stack+=( "${v1}" )
-                ;;
-            'o')
-                # nothing to do with open paren
+                # This will be stored in prev item and used in 'o'
+                # item handling.
                 :
                 ;;
+            'o')
+                local subgroup_name
+                if [[ ${prev_item1:0:1} = 'i' ]]; then
+                    subgroup_name=${prev_item1:2}
+                else
+                    local -i counter=${old_group_unnamed_counter_stack[-1]}
+                    ((++counter))
+                    old_group_unnamed_counter_stack[-1]=${counter}
+                    subgroup_name="unnamed-all-of-${counter}"
+                fi
+                old_group_unnamed_counter_stack+=( 0 )
+                old_iuse_stack+=( "${subgroup_name}" )
+                unset subgroup_name
+                ;;
             'c')
-                unset old_iuse_stack[-1]
+                unset old_iuse_stack[-1] old_group_unnamed_counter_stack[-1]
                 ;;
             *)
                 fail "item ${item1} is bad"
                 ;;
         esac
+        prev_item1=${item1}
         unset v1 t1 item1
         ((++last_idx1))
     done
@@ -951,19 +1046,32 @@ function diff_deps() {
                 unset use_str p_str
                 ;;
             'i')
-                new_iuse_stack+=( "${v2}" )
-                ;;
-            'o')
-                # nothing to do with open paren
+                # This will be stored in prev item and used in 'o'
+                # item handling.
                 :
                 ;;
+            'o')
+                local subgroup_name
+                if [[ ${prev_item2:0:1} = 'i' ]]; then
+                    subgroup_name=${prev_item2:2}
+                else
+                    local -i counter=${new_group_unnamed_counter_stack[-1]}
+                    ((++counter))
+                    new_group_unnamed_counter_stack[-1]=${counter}
+                    subgroup_name="unnamed-all-of-${counter}"
+                fi
+                new_group_unnamed_counter_stack+=( 0 )
+                new_iuse_stack+=( "${subgroup_name}" )
+                unset subgroup_name
+                ;;
             'c')
-                unset new_iuse_stack[-1]
+                unset new_iuse_stack[-1] new_group_unnamed_counter_stack[-1]
                 ;;
             *)
                 fail "item ${item2} is bad"
                 ;;
         esac
+        prev_item2=${item2}
         unset v2 t2 item2
         ((++last_idx2))
     done
