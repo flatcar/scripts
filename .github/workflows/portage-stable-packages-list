@@ -654,7 +654,6 @@ sys-fs/zfs-kmod
 sys-kernel/linux-headers
 
 sys-libs/binutils-libs
-sys-libs/cracklib
 sys-libs/efivar
 sys-libs/gdbm
 sys-libs/glibc
