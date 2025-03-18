@@ -303,6 +303,7 @@ function sets_split() {
 }
 
 declare -gi __UTIL_SH_COUNTER=0
+declare -gA __UTIL_SH_DEBUG_COUNTERS=()
 
 function gen_varname() {
     local prefix='__PA_VAR' # pa = pkg-auto
@@ -312,9 +313,34 @@ function gen_varname() {
     fi
     local -n name_ref=${1}; shift
 
+    debug_track_var ${__UTIL_SH_COUNTER} "GEN VAR"
+
     # shellcheck disable=SC2034 # shellcheck does not grok references
     name_ref="${prefix}_${__UTIL_SH_COUNTER}"
     __UTIL_SH_COUNTER=$((__UTIL_SH_COUNTER + 1))
+}
+
+function debug_stacktrace() {
+    local -i idx=0 last_idx=${#FUNCNAME[@]}
+
+    ((last_idx--))
+    while [[ idx -lt last_idx ]]; do
+        echo "at ${FUNCNAME[idx]}, invoked by ${FUNCNAME[$((idx + 1))]} in ${BASH_SOURCE[idx + 1]}:${BASH_LINENO[idx]}"
+        ((++idx))
+    done
+}
+
+function debug_track_var() {
+    local var_name_or_number=${1}; shift
+    local message=${1}; shift
+
+    local number=${var_name_or_number##*_}
+
+    if [[ -n ${__UTIL_SH_DEBUG_COUNTERS[${number}]:-} ]]; then
+        printf '%s\n' "----------${number}----------" "${message}"
+        debug_stacktrace
+        printf '%s\n' "----------${number}----------"
+    fi
 }
 
 fi

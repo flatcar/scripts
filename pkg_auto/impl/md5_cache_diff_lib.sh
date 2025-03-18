@@ -269,14 +269,14 @@ function __mcdl_flatten_group() {
     local item_var_name item_type
     for item_var_name in "${group_items_ref[@]}"; do
         local -n item_ref=${item_var_name}
-        item_type=${item_ref%:*}
+        item_type=${item_ref:0:1}
         case ${item_type} in
             'e')
                 # do not add empty items to the list
                 :
                 ;;
             'g')
-                local subgroup_name=${item_ref#*:}
+                local subgroup_name=${item_ref:2}
                 __mcdl_flatten_group "${subgroup_name}" "${flattened_items_var_name}"
                 unset subgroup_name
                 ;;
@@ -292,28 +292,44 @@ function __mcdl_flatten_group() {
     flattened_items_ref+=( "c:)" )
 }
 
-function __mcdl_flattened_group_item_eq() {
+function __mcdl_flattened_group_item_score() {
+    local -n score_ref=${1}; shift
+
+    score_ref=3
+
+    if [[ ${#} -eq 0 ]]; then
+        return
+    fi
+
     local i1=${1}; shift
     local i2=${1}; shift
 
-    local t1=${i1%:*}
-    local t2=${i2%:*}
+    local t1=${i1:0:1}
+    local t2=${i2:0:1}
 
     if [[ ${t1} != "${t2}" ]]; then
-        return 1
+        score_ref=0
+        return
     fi
 
-    local v1=${i1#*:}
-    local v2=${i2#*:}
-    local rv=0
+    local v1=${i1:2}
+    local v2=${i2:2}
     case ${t1} in
         'l'|'i')
-            [[ ${v1} = "${v2}" ]] || rv=1
+            [[ "${v1}" = "${v2}" ]] || score_ref=0
             ;;
         'p')
             local -n p1_ref=${v1} p2_ref=${v2}
             local n1=${p1_ref[PDS_NAME_IDX]} n2=${p2_ref[PDS_NAME_IDX]}
-            [[ ${n1} = "${n2}" ]] || rv=1
+            if [[ "${n1}" = "${n2}" ]]; then
+                local p1_str p2_str
+                pds_to_string "${v1}" p1_str
+                pds_to_string "${v2}" p2_str
+                [[ "${p1_str}" = "${p2_str}" ]] || score_ref=1
+                unset p2_str p1_str
+            else
+                score_ref=0
+            fi
             unset n2 n1
             unset -n p2_ref p1_ref
             ;;
@@ -325,7 +341,6 @@ function __mcdl_flattened_group_item_eq() {
             fail "item ${i1} or ${i2} is bad"
             ;;
     esac
-    return ${rv}
 }
 
 function __mcdl_ur_mode_description() {
@@ -485,7 +500,7 @@ function pds_diff() {
     local pd_mode_str pd_pretend_str
     for use_name in "${!only_new_urs[@]}"; do
         idx=${new_name_index["${use_name}"]}
-        local -n ur_ref=${new_urs[${idx}]}
+        local -n ur_ref=${new_urs_ref[${idx}]}
         __mcdl_ur_mode_description "${ur_ref[UR_MODE_IDX]}" pd_mode_str
         __mcdl_ur_pretend_description "${ur_ref[UR_PRETEND_IDX]}" pd_pretend_str
         diff_report_append local_pds_dr "added ${use_name} use ${pd_mode_str} requirement (${pd_pretend_str})"
@@ -563,7 +578,7 @@ function dsg_merge_and_sort_tagged_subgroups() {
     if [[ ${subgroup_tag} = '@any-of@' ]]; then
         for subgroup_item_name; do
             local -n item_ref=${subgroup_item_name}
-            subgroup_name=${item_ref#*:}
+            subgroup_name=${item_ref:2}
             unset -n item_ref
             sort_group "${subgroup_name}"
             any_of_subgroup_item_names_ref+=( "${subgroup_item_name}" )
@@ -571,18 +586,21 @@ function dsg_merge_and_sort_tagged_subgroups() {
     else
         subgroup_item_name=${1}; shift
         local -n item_ref=${subgroup_item_name}
-        subgroup_name=${item_ref#*:}
+        subgroup_name=${item_ref:2}
         unset -n item_ref
+        local other_subgroup_items_name
         for other_subgroup_item_name; do
             local -n item_ref=${other_subgroup_item_name}
-            other_subgroup_name=${item_ref#*:}
+            other_subgroup_name=${item_ref:2}
             unset -n item_ref
             local -n other_subgroup_ref=${other_subgroup_name}
-            local -n other_subgroup_items_ref=${other_subgroup_ref[GROUP_ITEMS_IDX]}
+            other_subgroup_items_name=${other_subgroup_ref[GROUP_ITEMS_IDX]}
+            local -n other_subgroup_items_ref=${other_subgroup_items_name}
             group_add_items "${subgroup_name}" "${other_subgroup_items_ref[@]}"
             unset -n other_subgroup_items_ref
             other_subgroup_ref[GROUP_ITEMS_IDX]='EMPTY_ARRAY'
             unset -n other_subgroup_ref
+            unset "${other_subgroup_items_name}"
             item_unset "${other_subgroup_item_name}"
         done
         sort_group "${subgroup_name}"
@@ -598,8 +616,12 @@ function sort_group() {
     local group_name=${1}; shift
 
     local -n group_ref=${group_name}
-    local -a subgroup_item_names=() license_item_names=() pds_item_names=()
+    local -a subgroup_item_names license_item_names pds_item_names=()
     local -n items_ref=${group_ref[GROUP_ITEMS_IDX]}
+
+    subgroup_item_names=()
+    license_item_names=()
+    pds_item_names=()
 
     if [[ ${#items_ref[@]} -eq 0 ]]; then
         return 0
@@ -608,7 +630,7 @@ function sort_group() {
     local item_name item_type
     for item_name in "${items_ref[@]}"; do
         local -n item=${item_name}
-        item_type=${item%%:*}
+        item_type=${item:0:1}
         unset -n item
         case ${item_type} in
             e)
@@ -645,7 +667,7 @@ function sort_group() {
         local -A pkg_name_to_item_name_map=()
         for pds_item_name in "${pds_item_names[@]}"; do
             local -n item_ref=${pds_item_name}
-            pds_name=${item_ref#*:}
+            pds_name=${item_ref:2}
             unset -n item_ref
             local -n pds_ref=${pds_name}
             pkg_name=${pds_ref[PDS_NAME_IDX]}
@@ -677,7 +699,7 @@ function sort_group() {
         local license_item_name license
         for license_item_name in "${license_item_names[@]}"; do
             local -n item_ref=${license_item_name}
-            license=${item_ref#*:}
+            license=${item_ref:2}
             unset -n item_ref
             license_to_item_name_map["${license}"]=${license_item_name}
         done
@@ -707,7 +729,7 @@ function sort_group() {
         mvm_declare "${dsg_tagged_subgroups_item_names_array_mvm_name}"
         for subgroup_item_name in "${subgroup_item_names[@]}"; do
             local -n item_ref=${subgroup_item_name}
-            subgroup_name=${item_ref#*:}
+            subgroup_name=${item_ref:2}
             unset -n item_ref
             local -n subgroup_ref=${subgroup_name}
             subgroup_type=${subgroup_ref[GROUP_TYPE_IDX]}
@@ -805,7 +827,7 @@ function diff_deps() {
 
     local -a dd_common_items=()
 
-    lcs_run dd_old_flattened_list dd_new_flattened_list dd_common_items __mcdl_flattened_group_item_eq
+    lcs_run dd_old_flattened_list dd_new_flattened_list dd_common_items __mcdl_flattened_group_item_score
 
     diff_report_declare local_dr
 
@@ -874,7 +896,7 @@ function diff_deps() {
         done
         while [[ ${last_idx2} -lt ${idx2} ]]; do
             local item2=${dd_new_flattened_list["${last_idx2}"]}
-            local t2=${item2%:*} v2=${item2#*:}
+            local t2=${item2:0:1} v2=${item2:2}
             case ${t2} in
                 'l')
                     local use_str
@@ -921,7 +943,7 @@ function diff_deps() {
         done
 
         local item1=${dd_old_flattened_list["${idx1}"]} item2=${dd_new_flattened_list["${idx2}"]}
-        local t1=${item1%:*} v1=${item1#*:} t2=${item2%:*} v2=${item2#*:}
+        local t1=${item1:0:1} v1=${item1:2} t2=${item2:0:1} v2=${item2:2}
 
         case ${t1} in
             'l')
@@ -962,7 +984,7 @@ function diff_deps() {
                 unset old_iuse_stack[-1] old_group_unnamed_counter_stack[-1] new_iuse_stack[-1] new_group_unnamed_counter_stack[-1]
                 ;;
             'p')
-                pds_diff "${item1#*:}" "${item2#*:}" old_iuse_stack new_iuse_stack local_dr
+                pds_diff "${item1:2}" "${item2:2}" old_iuse_stack new_iuse_stack local_dr
                 ;;
             *)
                 fail "item ${item1} or ${item2} is bad"
@@ -983,7 +1005,7 @@ function diff_deps() {
     idx2=${#dd_new_flattened_list[@]}
     while [[ ${last_idx1} -lt ${idx1} ]]; do
         local item1=${dd_old_flattened_list["${last_idx1}"]}
-        local t1=${item1%:*} v1=${item1#*:}
+        local t1=${item1:0:1} v1=${item1:2}
         case ${t1} in
             'l')
                 local use_str
@@ -1030,7 +1052,7 @@ function diff_deps() {
     done
     while [[ ${last_idx2} -lt ${idx2} ]]; do
         local item2=${dd_new_flattened_list["${last_idx2}"]}
-        local t2=${item2%:*} v2=${item2#*:}
+        local t2=${item2:0:1} v2=${item2:2}
         case ${t2} in
             'l')
                 local use_str
