@@ -14,12 +14,15 @@ declare -gri LCS_X1_IDX=0 LCS_X2_IDX=1 LCS_IDX1_IDX=2 LCS_IDX2_IDX=3
 # second sequence, an index of the first item in first sequence and an
 # index of the second item in the second sequence.
 #
-# The function optionally takes a name of the equality function. If no
-# such function is passed, the string equality is used. The function
-# should take two parameters and should check them for equality; the
-# parameters are items from the sequences passed to lcs_run; the
-# function should return 0 (bash true value) if the items are equal,
-# not 0 (bash false value) otherwise.
+# The function optionally takes a name of the score function. If no
+# such function is passed, the simple string score function is used
+# (gives score 1 if strings are equal, otherwise gives score 0). The
+# function should take either one or three parameters. The first
+# parameter is always a name of a score integer variable. If only one
+# parameter is passed, the function should write the maximum score to
+# the score variable. When three parameters are passed, then the
+# second and third are items from the sequences passed to lcs_run and
+# they should be compared and rated.
 #
 # Params:
 #
@@ -27,7 +30,7 @@ declare -gri LCS_X1_IDX=0 LCS_X2_IDX=1 LCS_IDX1_IDX=2 LCS_IDX2_IDX=3
 # 2 - a name of an array variable containing the second sequence
 # 3 - a name of an array variable where the longest common subsequence
 #     will be stored
-# 4 - optional, a name of an equality function
+# 4 - optional, a name of a score function
 #
 # Example:
 #
@@ -53,39 +56,56 @@ function lcs_run() {
     local seq1_name=${1}; shift
     local seq2_name=${1}; shift
     local common_name=${1}; shift
-    local eq_func=__lcs_str_eq
+    local score_func=__lcs_str_score
     if [[ ${#} -gt 0 ]]; then
-        eq_func=${1}; shift
+        score_func=${1}; shift
     fi
 
-    if ! declare -pF "${eq_func}" >/dev/null 2>/dev/null; then
-        fail "${eq_func@Q} is not a function"
+    if ! declare -pF "${score_func}" >/dev/null 2>/dev/null; then
+        fail "${score_func@Q} is not a function"
     fi
 
+    local -i lr_max_score
+    "${score_func}" lr_max_score
+
+    # lcs_memo_items_set is a set of common item names; the set owns
+    # the common items
+    #
+    # lcs_memo_map is a mapping from a memo key (which encodes indices
+    # from both sequences) to a pair, being a score and a name of an
+    # longest common subsequence for the encoded indices, separated
+    # with semicolon
     local -A lcs_memo_map=() lcs_memo_items_set=()
-    local -a lr_lcs_state=( "${eq_func}" lcs_memo_map lcs_memo_items_set "${seq1_name}" "${seq2_name}" )
+    local -a lr_lcs_state=( "${score_func}" lcs_memo_map lcs_memo_items_set "${seq1_name}" "${seq2_name}" ${lr_max_score} )
 
     local -n seq1=${seq1_name} seq2=${seq2_name}
     local -i idx1=$(( ${#seq1[@]} - 1 )) idx2=$(( ${#seq2[@]} - 1 ))
+    unset -n seq1 seq2
 
     __lcs_recurse lr_lcs_state "${idx1}" "${idx2}"
 
     local -n common_ref=${common_name}
     local lr_memo_key=''
     __lcs_make_memo_key "${idx1}" "${idx2}" lr_memo_key
-    local -n memoized_items_ref=${lcs_memo_map["${lr_memo_key}"]}
+    local pair=${lcs_memo_map["${lr_memo_key}"]}
+    local -n memoized_items_ref=${pair#*:}
 
     common_ref=( "${memoized_items_ref[@]}" )
 
+    # steal the items from the items set that are a part of desired
+    # LCS, so they are not freed now, but later, when the LCS is freed
     local item
     for item in "${common_ref[@]}"; do
         unset "lcs_memo_items_set[${item}]"
     done
 
+    # free the unneeded items
     unset "${!lcs_memo_items_set[@]}"
+    # free all the LCSes, we already have a copy of the one we wanted
     local items_var_name memo_key
-    for memo_key in "${!memo_map_ref[@]}"; do
-        items_var_name=${memo_map_ref["${memo_key}"]}
+    for memo_key in "${!lcs_memo_map[@]}"; do
+        pair=${lcs_memo_map["${memo_key}"]}
+        items_var_name=${pair#*:}
         if [[ ${items_var_name} != EMPTY_ARRAY ]]; then
             unset "${items_var_name}"
         fi
@@ -96,7 +116,7 @@ function lcs_run() {
 ## Details
 ##
 
-declare -gri __LCS_EQ_IDX=0 __LCS_MEMO_MAP_IDX=1 __LCS_MEMO_ITEMS_SET_IDX=2 __LCS_SEQ1_IDX=3 __LCS_SEQ2_IDX=4
+declare -gri __LCS_SCORE_IDX=0 __LCS_MEMO_MAP_IDX=1 __LCS_MEMO_ITEMS_SET_IDX=2 __LCS_SEQ1_IDX=3 __LCS_SEQ2_IDX=4 __LCS_MAX_SCORE_IDX=5
 
 function __lcs_recurse() {
     local lcs_state_name=${1}; shift
@@ -112,11 +132,11 @@ function __lcs_recurse() {
     local -n memo_map_ref=${lcs_state[__LCS_MEMO_MAP_IDX]}
     local memo_key=''
     __lcs_make_memo_key ${i1} ${i2} memo_key
-    local seq_name=${memo_map_ref["${memo_key}"]:-}
-    if [[ -n ${seq_name} ]]; then
+    local pair=${memo_map_ref["${memo_key}"]:-}
+    if [[ -n ${pair} ]]; then
         return 0
     fi
-    unset seq_name memo_key
+    unset pair memo_key
     unset -n memo_map_ref
 
     local -n seq1_ref=${lcs_state[__LCS_SEQ1_IDX]}
@@ -125,16 +145,26 @@ function __lcs_recurse() {
     local x2=${seq2_ref[i2]}
     unset -n seq2_ref seq1_ref
 
-    local equal=x
-    local eq_func=${lcs_state[__LCS_EQ_IDX]}
-    "${eq_func}" "${x1}" "${x2}" || equal=''
-    unset eq_func
+    local -i lr_diff_score
+    local score_func=${lcs_state[__LCS_SCORE_IDX]}
+    "${score_func}" lr_diff_score "${x1}" "${x2}"
+    unset score_func
 
-    if [[ -n "${equal}" ]]; then
+    local -i max_score=${lcs_state[__LCS_MAX_SCORE_IDX]}
+    if [[ lr_diff_score -gt max_score ]]; then
+        lr_diff_score=max_score
+    fi
+    if [[ lr_diff_score -lt 0 ]]; then
+        lr_diff_score=0
+    fi
+
+    if [[ lr_diff_score -eq max_score ]]; then
+        unset max_score
+
         __lcs_recurse "${lcs_state_name}" $((i1 - 1)) $((i2 - 1))
 
         local n
-        gen_varname lcs_common n
+        gen_varname __LCS_COMMON n
 
         declare -a -g "${n}=()"
 
@@ -145,23 +175,27 @@ function __lcs_recurse() {
         local -n memo_map_ref=${lcs_state[__LCS_MEMO_MAP_IDX]}
         local previous_memo_key
         __lcs_make_memo_key $((i1 - 1)) $((i2 - 1)) previous_memo_key
-        local -n previous_memoized_prepared_items_ref=${memo_map_ref["${previous_memo_key}"]:-EMPTY_ARRAY}
-        local -n c=${n}
+        local previous_pair=${memo_map_ref["${previous_memo_key}"]:-'0:EMPTY_ARRAY'}
+        local previous_score=${previous_pair%%:*}
+        local -n previous_memoized_prepared_items_ref=${previous_pair#*:}
+        local -n c_ref=${n}
         local prepared_item_to_insert
 
-        gen_varname prepared_item_to_insert
+        gen_varname __LCS_PREP prepared_item_to_insert
         declare -g -a "${prepared_item_to_insert}=( ${x1@Q} ${x2@Q} ${i1@Q} ${i2@Q} )"
 
-        c=( "${previous_memoized_prepared_items_ref[@]}" "${prepared_item_to_insert}" )
+        c_ref=( "${previous_memoized_prepared_items_ref[@]}" "${prepared_item_to_insert}" )
 
         local memo_key
         __lcs_make_memo_key ${i1} ${i2} memo_key
-        memo_map_ref["${memo_key}"]=${n}
+        memo_map_ref["${memo_key}"]="$((lr_diff_score + previous_score)):${n}"
 
         local -n memo_items_set=${lcs_state[__LCS_MEMO_ITEMS_SET_IDX]}
         # shellcheck disable=SC2034 # shellcheck does not grok references
         memo_items_set["${prepared_item_to_insert}"]=x
-    else
+    elif [[ lr_diff_score -eq 0 ]]; then
+        unset max_score
+
         __lcs_recurse "${lcs_state_name}" ${i1} $((i2 - 1))
         __lcs_recurse "${lcs_state_name}" $((i1 - 1)) ${i2}
 
@@ -171,22 +205,86 @@ function __lcs_recurse() {
         #
         # shellcheck disable=SC2178 # shellcheck does not grok references
         local -n memo_map_ref=${lcs_state[__LCS_MEMO_MAP_IDX]}
-        local previous_memo_key=''
-        __lcs_make_memo_key ${i1} $((i2 - 1)) previous_memo_key
-        local previous_memoized_prepared_items_name1=${memo_map_ref["${previous_memo_key}"]:-EMPTY_ARRAY}
-        local -n previous_memoized_prepared_items_ref1=${previous_memoized_prepared_items_name1}
+        local lr_memo_key=''
 
-        previous_memo_key=''
-        __lcs_make_memo_key $((i1 - 1)) ${i2} previous_memo_key
-        local previous_memoized_prepared_items_name2=${memo_map_ref["${previous_memo_key}"]:-EMPTY_ARRAY}
-        local -n previous_memoized_prepared_items_ref2=${previous_memoized_prepared_items_name2}
+        __lcs_make_memo_key ${i1} $((i2 - 1)) lr_memo_key
+        local previous_pair1=${memo_map_ref["${lr_memo_key}"]:-'0:EMPTY_ARRAY'}
+        local -i previous_score1=${previous_pair1%%:*}
 
-        local memo_key=''
-        __lcs_make_memo_key ${i1} ${i2} memo_key
-        if [[ ${#previous_memoized_prepared_items_ref1[@]} -gt ${#previous_memoized_prepared_items_ref2[@]} ]]; then
-            memo_map_ref["${memo_key}"]=${previous_memoized_prepared_items_name1}
+        __lcs_make_memo_key $((i1 - 1)) ${i2} lr_memo_key
+        local previous_pair2=${memo_map_ref["${lr_memo_key}"]:-'0:EMPTY_ARRAY'}
+        local -i previous_score2=${previous_pair2%%:*}
+
+        __lcs_make_memo_key ${i1} ${i2} lr_memo_key
+        if [[ previous_score1 -gt previous_score2 ]]; then
+            memo_map_ref["${lr_memo_key}"]=${previous_pair1}
         else
-            memo_map_ref["${memo_key}"]=${previous_memoized_prepared_items_name2}
+            memo_map_ref["${lr_memo_key}"]=${previous_pair2}
+        fi
+    else
+        unset max_score
+
+        # 1
+        __lcs_recurse "${lcs_state_name}" $((i1 - 1)) $((i2 - 1))
+        # 2
+        __lcs_recurse "${lcs_state_name}" ${i1} $((i2 - 1))
+        # 3
+        __lcs_recurse "${lcs_state_name}" $((i1 - 1)) ${i2}
+
+        local lr_mk1 lr_mk2 lr_mk3
+        __lcs_make_memo_key $((i1 - 1)) $((i2 - 1)) lr_mk1
+        __lcs_make_memo_key ${i1} $((i2 - 1)) lr_mk2
+        __lcs_make_memo_key $((i1 - 1)) ${i2} lr_mk3
+
+        local -n memo_map_ref=${lcs_state[__LCS_MEMO_MAP_IDX]}
+        local pair1=${memo_map_ref["${lr_mk1}"]:-'0:EMPTY_ARRAY'}
+        local pair2=${memo_map_ref["${lr_mk2}"]:-'0:EMPTY_ARRAY'}
+        local pair3=${memo_map_ref["${lr_mk3}"]:-'0:EMPTY_ARRAY'}
+        local -i score1=${pair1%%:*}
+        local -i score2=${pair2%%:*}
+        local -i score3=${pair3%%:*}
+        local -i pick # either 1, 2 or 3
+        score1=$((score1 + lr_diff_score))
+
+        if [[ score1 -gt score2 ]]; then
+            if [[ score1 -gt score3 ]]; then
+                pick=1
+            else
+                pick=3
+            fi
+        elif [[ score2 -gt score3 ]]; then
+            pick=2
+        else
+            pick=3
+        fi
+
+        if [[ pick -eq 1 ]]; then
+            local lr_new_lcs
+            gen_varname __LCS_COMMON lr_new_lcs
+
+            declare -a -g "${lr_new_lcs}=()"
+
+            local -n previous_memoized_prepared_items_ref=${pair1#*:}
+            local -n c_ref=${lr_new_lcs}
+            local prepared_item_to_insert
+
+            gen_varname __LCS_PREP prepared_item_to_insert
+            declare -g -a "${prepared_item_to_insert}=( ${x1@Q} ${x2@Q} ${i1@Q} ${i2@Q} )"
+
+            c_ref=( "${previous_memoized_prepared_items_ref[@]}" "${prepared_item_to_insert}" )
+
+            local lr_memo_key
+            __lcs_make_memo_key ${i1} ${i2} lr_memo_key
+            memo_map_ref["${lr_memo_key}"]="${score1}:${lr_new_lcs}"
+
+            local -n memo_items_set=${lcs_state[__LCS_MEMO_ITEMS_SET_IDX]}
+            # shellcheck disable=SC2034 # shellcheck does not grok references
+            memo_items_set["${prepared_item_to_insert}"]=x
+        else
+            local -n picked_pair="pair${pick}"
+            local lr_memo_key=''
+            __lcs_make_memo_key ${i1} ${i2} lr_memo_key
+            memo_map_ref["${lr_memo_key}"]=${picked_pair}
         fi
     fi
 }
@@ -200,8 +298,10 @@ function __lcs_make_memo_key() {
     ref=${key}
 }
 
-function __lcs_str_eq() {
-    [[ "${1}" = "${2}" ]]
+function __lcs_str_score() {
+    local -n score_ref=${1}; shift
+    score_ref=1
+    [[ ${#} -eq 0 || ${1} = ${2} ]] || score_ref=0
 }
 
 fi
