@@ -51,6 +51,7 @@ __PKG_AUTO_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/cleanups.sh"
+source "${PKG_AUTO_IMPL_DIR}/debug.sh"
 source "${PKG_AUTO_IMPL_DIR}/md5_cache_diff_lib.sh"
 source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
@@ -129,7 +130,7 @@ function setup_workdir_with_config() {
     if [[ -n ${cfg_sdk_image_override} ]]; then
         override_sdk_image_name "${cfg_sdk_image_override}"
     fi
-    add_debug_packages "${cfg_debug_packages[@]}"
+    pkg_debug_add "${cfg_debug_packages[@]}"
 }
 
 # Goes over the list of automatically updated packages and synces them
@@ -250,27 +251,6 @@ function override_sdk_image_name() {
     local image_name=${1}; shift
 
     append_to_globals "SDK_IMAGE=${image_name@Q}"
-}
-
-# Adds information about packages to be debugged to the globals file.
-#
-# Params:
-#
-# @ - a list of packages to be debugged
-function add_debug_packages() {
-    local -a prepared lines
-    prepared=( "${@@Q}" )
-    prepared=( "${prepared[@]/#/'    ['}" )
-    prepared=( "${prepared[@]/%/']=x'}" )
-    lines=(
-        ''
-        'local -A DEBUG_PACKAGES'
-        ''
-        'DEBUG_PACKAGES=('
-        "${prepared[@]}"
-        ')'
-    )
-    append_to_globals "${lines[@]}"
 }
 
 # Appends passed lines to the globals file.
@@ -1008,11 +988,8 @@ function process_listings() {
     source "${WORKDIR}/globals"
 
     local ver_ere pkg_ere
-    # VER_ERE comes from gentoo_ver.sh
-    ver_ere=${VER_ERE}
-    # regexp begins with ^ and ends with $, so strip them
-    ver_ere=${ver_ere#'^'}
-    ver_ere=${ver_ere%'$'}
+    # VER_ERE_STRIPPED comes from gentoo_ver.sh
+    ver_ere=${VER_ERE_STRIPPED}
     pkg_ere='[a-z0-9]*-?[a-z0-9]*/[a-z0-9A-Z_+-]*'
 
     #mvm_debug_enable pl_pkg_to_tags_set_mvm
@@ -1034,7 +1011,7 @@ function process_listings() {
             # acct-group/adm-0-r2::portage-stable
             while read -r pkg; do
                 pkg_debug_enable "${pkg}"
-                pkg_debug "processing listings: adding tag ${kind^^}"
+                pkg_debug "processing listing ${arch}/${file}: adding tag ${kind^^}"
                 pkg_debug_disable
                 mvm_add pl_pkg_to_tags_set_mvm "${pkg}" "${kind^^}"
             done < <(sed -E -e 's#^('"${pkg_ere}"')-'"${ver_ere}"'::.*#\1#' "${listing}")
@@ -1044,28 +1021,14 @@ function process_listings() {
     mvm_iterate pl_pkg_to_tags_set_mvm set_mvm_to_array_mvm_cb "${pkg_to_tags_mvm_var_name}"
     mvm_unset pl_pkg_to_tags_set_mvm
     #mvm_debug_disable pl_pkg_to_tags_set_mvm
-    if pkg_debug_possible; then
-        mvm_iterate "${pkg_to_tags_mvm_var_name}" debug_dump_package_tags "${pkg_to_tags_mvm_var_name}"
-    fi
-}
-
-# A debug function that prints the package tags. Used as a callback to
-# mvm_iterate.
-#
-# Params:
-#
-# 1 - name of the array mvm variable (extra arg of the callback)
-# 2 - name of the package
-# 3 - name of the array variable holding tags (unused)
-# @ - tags
-function debug_dump_package_tags() {
-    local map_name=${1}; shift
-    local pkg=${1}; shift
-    shift # we don't care about array variable name
-    # rest are array elements, which are tags
-    pkg_debug_enable "${pkg}"
-    pkg_debug "tags for ${pkg} stored in ${map_name}: ${*}"
-    pkg_debug_disable
+    local -a pl_debug_pkgs pl_tags_array_name
+    pkg_debug_packages pl_debug_pkgs
+    for pkg in "${pl_debug_pkgs[@]}"; do
+        mvm_get "${pkg_to_tags_mvm_var_name}" "${pkg}" pl_tags_array_name
+        local -n tags_ref=${pl_tags_array_name:-EMPTY_ARRAY}
+        pkg_debug_print_c "${pkg}" "tags stored in ${pkg_to_tags_mvm_var_name}: ${tags_ref[*]}"
+        unset -n tags_ref
+    done
 }
 
 # A callback to mvm_iterate that turns a set mvm to an array mvm. It
@@ -1697,11 +1660,11 @@ function consistency_checks() {
             mvm_get "${name}" "${pkg}" cc_slot_verminmax_map_var_name
             verminmax_map_var_names+=("${cc_slot_verminmax_map_var_name}")
         done
-        if pkg_debug_possible; then
+        if pkg_debug_enabled; then
             for name in "${verminmax_map_var_names[@]}"; do
                 local -n slot_verminmax_map_ref=${name:-empty_map}
-                pkg_debug "all slots in ${name}: ${!slot_verminmax_map_ref[*]}"
-                pkg_debug "all vmms in ${name}: ${slot_verminmax_map_ref[*]}"
+                pkg_debug_print "all slots in ${name}: ${!slot_verminmax_map_ref[*]}"
+                pkg_debug_print "all vmms in ${name}: ${slot_verminmax_map_ref[*]}"
                 unset -n slot_verminmax_map_ref
             done
         fi
@@ -3225,69 +3188,6 @@ function handle_scripts() {
 
     xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
     generate_summary_stub scripts -- '0:TODO: review the diffs'
-}
-
-# Enables debug logs when specific packages are processed.
-#
-# It is expected that globals were already sourced, otherwise
-# debugging won't be enabled at all.
-#
-# Params:
-#
-# @ - package names to enable debugging for
-function pkg_debug_enable() {
-    local -A pkg_set
-    pkg_set=()
-    local -a vals
-    vals=()
-    local pkg
-    for pkg; do
-        if [[ -n ${pkg_set["${pkg}"]:-} ]]; then
-            continue
-        fi
-        pkg_set["${pkg}"]=x
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            vals+=( "${pkg}" )
-        fi
-    done
-    if [[ ${#vals[@]} -gt 0 ]]; then
-        declare -g PKG_AUTO_LIB_DEBUG
-        join_by PKG_AUTO_LIB_DEBUG ',' "${vals[@]}"
-    fi
-}
-
-# Returns true or false whether any debugging has been enabled.
-function pkg_debug_possible() {
-    local ret=0
-    [[ ${#DEBUG_PACKAGES[@]} -gt 0 ]] || ret=1
-    return ${ret}
-}
-
-# Disables debug logs to be printed.
-function pkg_debug_disable() {
-    unset PKG_AUTO_LIB_DEBUG
-}
-
-# Prints passed parameters if debugging is enabled.
-#
-# Params:
-#
-# @ - parameters to print
-function pkg_debug() {
-    if [[ -n ${PKG_AUTO_LIB_DEBUG:-} ]]; then
-        info "DEBUG(${PKG_AUTO_LIB_DEBUG}): ${*}"
-    fi
-}
-
-# Prints passed lines if debugging is enabled.
-#
-# Params:
-#
-# @ - lines to print
-function pkg_debug_lines() {
-    if [[ -n ${PKG_AUTO_LIB_DEBUG:-} ]]; then
-        info_lines "${@/#/"DEBUG(${PKG_AUTO_LIB_DEBUG}): "}"
-    fi
 }
 
 fi
