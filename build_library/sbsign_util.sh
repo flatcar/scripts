@@ -6,14 +6,14 @@ if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
     SBSIGN_KEY="/usr/share/sb_keys/shim.key"
     SBSIGN_CERT="/usr/share/sb_keys/shim.pem"
 else
-    SBSIGN_KEY="pkcs11:token=flatcar-dev-cert"
+    SBSIGN_KEY="pkcs11:token=flatcar-sb-dev-signing-hsm"
     unset SBSIGN_CERT
 fi
 
 PKCS11_MODULE_PATH="/usr/$(get_sdk_libdir)/pkcs11/azure-keyvault-pkcs11.so"
 
 PKCS11_ENV=(
-    AZURE_KEYVAULT_URL="https://chewi-test.vault.azure.net/"
+    AZURE_KEYVAULT_URL="https://flatcar-sb-dev-kv.vault.azure.net/"
     PKCS11_MODULE_PATH="${PKCS11_MODULE_PATH}"
     AZURE_KEYVAULT_PKCS11_DEBUG=1
 )
