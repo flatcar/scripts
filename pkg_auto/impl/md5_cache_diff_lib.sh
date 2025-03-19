@@ -41,9 +41,10 @@ function diff_report_is_empty() {
 }
 
 function diff_report_append() {
-    local -n dr_ref=${1}; shift
+    local dr_var_name=${1}; shift
     local line=${1}; shift
 
+    local -n dr_ref=${dr_var_name}
     local dra_lines_name=${dr_ref[DR_LINES_IDX]}
     if [[ ${dra_lines_name} == EMPTY_ARRAY ]]; then
         gen_varname dra_lines_name
@@ -55,6 +56,7 @@ function diff_report_append() {
     indent=${dr_ref[DR_INDENT_IDX]}
 
     local indent_line=${indent}:${line}
+    pkg_debug "  ${indent_line} (${dr_var_name@Q})"
 
     local -n lines_ref=${dra_lines_name}
     lines_ref+=( "${indent_line}" )
@@ -70,9 +72,10 @@ function diff_report_append_indented() {
 }
 
 function diff_report_append_diff_report() {
-    local -n dr_ref=${1}; shift
+    local dr_var_name=${1}; shift
     local -n dr_ref2=${1}; shift
 
+    local -n dr_ref=${dr_var_name}
     local dra_lines_name=${dr_ref[DR_LINES_IDX]}
     if [[ ${dra_lines_name} == EMPTY_ARRAY ]]; then
         gen_varname dra_lines_name
@@ -92,6 +95,7 @@ function diff_report_append_diff_report() {
         line2=${indent_line2#*:}
         indent2=$((indent + indent2))
         indent_line2=${indent2}:${line2}
+        pkg_debug "  ${indent_line2} (${dr_var_name@Q})"
         lines_ref+=( "${indent_line2}" )
     done
 }
@@ -805,31 +809,244 @@ function iuse_stack_to_string_ps() {
     fi
 }
 
+function debug_group() {
+    local group_name=${1}; shift
+    local label=${1}; shift
+
+    if pkg_debug_enabled; then
+        local dg_group_str
+        group_to_string "${group_name}" dg_group_str
+        pkg_debug_print "${label}: ${dg_group_str}"
+    fi
+}
+
+function debug_flattened_list() {
+    local list_name=${1}; shift
+    local label=${1}; shift
+
+    if pkg_debug_enabled; then
+        local item item_type
+        local -n list_ref=${list_name}
+        pkg_debug_print "${label}:"
+        for item in "${list_ref[@]}"; do
+            item_type=${item:0:1}
+            case ${item_type} in
+                'i'|'o'|'c'|'l')
+                    pkg_debug_print "  ${item}"
+                    ;;
+                'p')
+                    local dfl_pds_str
+                    pds_to_string "${item:2}" dfl_pds_str
+                    pkg_debug_print "  ${item} (${dfl_pds_str})"
+                    unset dfl_pds_str
+                    ;;
+            esac
+        done
+        unset -n list_ref
+    fi
+}
+
+function debug_diff() {
+    local -n dd_old_list_ref=${1}; shift
+    local -n dd_new_list_ref=${1}; shift
+    local -n dd_common_list_ref=${1}; shift
+
+    if ! pkg_debug_enabled; then
+        return 0
+    fi
+
+    pkg_debug_print "diff between old and new flattened lists"
+    local -i last_idx1=0 last_idx2=0 idx1 idx2
+    local ci_name
+    for ci_name in "${dd_common_list_ref[@]}"; do
+        local -n ci_ref=${ci_name}
+        idx1=${ci_ref[LCS_IDX1_IDX]}
+        idx2=${ci_ref[LCS_IDX2_IDX]}
+        unset -n ci_ref
+        while [[ ${last_idx1} -lt ${idx1} ]]; do
+            local item1=${dd_old_list_ref["${last_idx1}"]}
+            local t1=${item1:0:1} v1=${item1:2}
+            case ${t1} in
+                'l'|'i'|'o'|'c')
+                    pkg_debug_print "  -${v1}"
+                    ;;
+                'p')
+                    local p_str
+                    pds_to_string "${v1}" p_str
+                    pkg_debug_print "  -${p_str}"
+                    unset p_str
+                    ;;
+                *)
+                    fail "item ${item1} is bad"
+                    ;;
+            esac
+            unset v1 t1 item1
+            ((++last_idx1))
+        done
+        while [[ ${last_idx2} -lt ${idx2} ]]; do
+            local item2=${dd_new_list_ref["${last_idx2}"]}
+            local t2=${item2:0:1} v2=${item2:2}
+            case ${t2} in
+                'l'|'i'|'o'|'c')
+                    pkg_debug_print "  +${v2}"
+                    ;;
+                'p')
+                    local p_str
+                    pds_to_string "${v2}" p_str
+                    pkg_debug_print "  +${p_str}"
+                    unset p_str
+                    ;;
+                *)
+                    fail "item ${item2} is bad"
+                    ;;
+            esac
+            unset v2 t2 item2
+            ((++last_idx2))
+        done
+
+        local item1=${dd_old_list_ref["${idx1}"]} item2=${dd_new_list_ref["${idx2}"]}
+        local t1=${item1:0:1} v1=${item1:2} t2=${item2:0:1} v2=${item2:2}
+
+        case ${t1} in
+            'l'|'i'|'o'|'c')
+                pkg_debug_print "   ${v2}"
+                ;;
+            'p')
+                local p1_str p2_str
+                pds_to_string "${v1}" p1_str
+                pds_to_string "${v2}" p2_str
+                if [[ "${p1_str}" != "${p2_str}" ]]; then
+                    pkg_debug_print "   ${p1_str} -> ${p2_str}"
+                else
+                    pkg_debug_print "   ${p1_str}"
+                fi
+                unset p2_str p1_str
+                ;;
+            *)
+                fail "item ${item1} or ${item2} is bad"
+                ;;
+        esac
+
+        unset v2 t2 item2
+        unset v1 t1 item1
+        ((++last_idx1))
+        ((++last_idx2))
+    done
+
+    idx1=${#dd_old_list_ref[@]}
+    idx2=${#dd_new_list_ref[@]}
+    while [[ ${last_idx1} -lt ${idx1} ]]; do
+        local item1=${dd_old_list_ref["${last_idx1}"]}
+        local t1=${item1:0:1} v1=${item1:2}
+        case ${t1} in
+            'l'|'i'|'o'|'c')
+                pkg_debug_print "  -${v1}"
+                ;;
+            'p')
+                local p_str
+                pds_to_string "${v1}" p_str
+                pkg_debug_print "  -${p_str}"
+                unset p_str
+                ;;
+            *)
+                fail "item ${item1} is bad"
+                ;;
+        esac
+        unset v1 t1 item1
+        ((++last_idx1))
+    done
+    while [[ ${last_idx2} -lt ${idx2} ]]; do
+        local item2=${dd_new_list_ref["${last_idx2}"]}
+        local t2=${item2:0:1} v2=${item2:2}
+        case ${t2} in
+            'l'|'i'|'o'|'c')
+                pkg_debug_print "  +${v2}"
+                ;;
+            'p')
+                local p_str
+                pds_to_string "${v2}" p_str
+                pkg_debug_print "  +${p_str}"
+                unset p_str
+                ;;
+            *)
+                fail "item ${item2} is bad"
+                ;;
+        esac
+        unset v2 t2 item2
+        ((++last_idx2))
+    done
+}
+
+function debug_iuse_stack() {
+    local iuse_stack_name=${1}; shift
+    local label=${1}; shift
+
+    if pkg_debug_enabled; then
+        local dis_str
+        iuse_stack_to_string "${iuse_stack_name}" dis_str
+        pkg_debug_print "${label}: ${dis_str}"
+    fi
+}
+
 function diff_deps() {
     local -n old_ref=${1}; shift
     local -n new_ref=${1}; shift
     local deps_idx=${1}; shift
     local dr_var_name=${1}; shift
 
+    local label
+    case ${deps_idx} in
+        ${PCF_BDEPEND_IDX})
+            label='build dependencies'
+            ;;
+        ${PCF_DEPEND_IDX})
+            label='dependencies'
+            ;;
+        ${PCF_IDEPEND_IDX})
+            label='install dependencies'
+            ;;
+        ${PCF_PDEPEND_IDX})
+            label='post dependencies'
+            ;;
+        ${PCF_RDEPEND_IDX})
+            label='runtime dependencies'
+            ;;
+        ${PCF_LICENSE_IDX})
+            label='licenses'
+            ;;
+        *)
+            fail "bad cache file index ${deps_idx@Q}"
+            ;;
+    esac
+
     local old_group_name=${old_ref[${deps_idx}]} new_group_name=${new_ref[${deps_idx}]}
     local -a dd_old_flattened_list=() dd_new_flattened_list=()
 
     group_declare old_sorted_group
     group_copy old_sorted_group "${old_group_name}"
+    debug_group old_sorted_group "copy of old ${label} group"
     sort_group old_sorted_group
+    debug_group old_sorted_group "sorted old ${label} group"
 
     group_declare new_sorted_group
     group_copy new_sorted_group "${new_group_name}"
+    debug_group new_sorted_group "copy of new ${label} group"
     sort_group new_sorted_group
+    debug_group old_sorted_group "sorted new ${label} group"
 
     __mcdl_flatten_group old_sorted_group dd_old_flattened_list
     __mcdl_flatten_group new_sorted_group dd_new_flattened_list
+
+    debug_flattened_list dd_old_flattened_list "flattened old ${label} group"
+    debug_flattened_list dd_new_flattened_list "flattened new ${label} group"
 
     local -a dd_common_items=()
 
     lcs_run dd_old_flattened_list dd_new_flattened_list dd_common_items __mcdl_flattened_group_item_score
 
     diff_report_declare local_dr
+
+    debug_diff dd_old_flattened_list dd_new_flattened_list dd_common_items
 
     local -a old_iuse_stack=() new_iuse_stack=()
     # a stack of counters for naming unnamed groups like
@@ -849,6 +1066,7 @@ function diff_deps() {
         unset -n ci_ref
         while [[ ${last_idx1} -lt ${idx1} ]]; do
             local item1=${dd_old_flattened_list["${last_idx1}"]}
+            pkg_debug "old item ${item1@Q}"
             local t1=${item1:0:1} v1=${item1:2}
             case ${t1} in
                 'l')
@@ -881,10 +1099,12 @@ function diff_deps() {
                     fi
                     old_group_unnamed_counter_stack+=( 0 )
                     old_iuse_stack+=( "${subgroup_name}" )
+                    debug_iuse_stack old_iuse_stack "old iuse stack after adding ${subgroup_name@Q}"
                     unset subgroup_name
                     ;;
                 'c')
-                    unset old_iuse_stack[-1] old_group_unnamed_counter_stack[-1]
+                    unset 'old_iuse_stack[-1]' 'old_group_unnamed_counter_stack[-1]'
+                    debug_iuse_stack old_iuse_stack "old iuse stack after dropping last name"
                     ;;
                 *)
                     fail "item ${item1} is bad"
@@ -896,6 +1116,7 @@ function diff_deps() {
         done
         while [[ ${last_idx2} -lt ${idx2} ]]; do
             local item2=${dd_new_flattened_list["${last_idx2}"]}
+            pkg_debug "new item ${item2@Q}"
             local t2=${item2:0:1} v2=${item2:2}
             case ${t2} in
                 'l')
@@ -928,10 +1149,12 @@ function diff_deps() {
                     fi
                     new_group_unnamed_counter_stack+=( 0 )
                     new_iuse_stack+=( "${subgroup_name}" )
+                    debug_iuse_stack new_iuse_stack "new iuse stack after adding ${subgroup_name@Q}"
                     unset subgroup_name
                     ;;
                 'c')
-                    unset new_iuse_stack[-1] new_group_unnamed_counter_stack[-1]
+                    unset 'new_iuse_stack[-1]' 'new_group_unnamed_counter_stack[-1]'
+                    debug_iuse_stack new_iuse_stack "new iuse stack after dropping last name"
                     ;;
                 *)
                     fail "item ${item2} is bad"
@@ -943,6 +1166,7 @@ function diff_deps() {
         done
 
         local item1=${dd_old_flattened_list["${idx1}"]} item2=${dd_new_flattened_list["${idx2}"]}
+        pkg_debug "old item ${item1@Q} and new item ${item2@Q}"
         local t1=${item1:0:1} v1=${item1:2} t2=${item2:0:1} v2=${item2:2}
 
         case ${t1} in
@@ -967,6 +1191,7 @@ function diff_deps() {
                 fi
                 old_group_unnamed_counter_stack+=( 0 )
                 old_iuse_stack+=( "${subgroup_name}" )
+                debug_iuse_stack old_iuse_stack "old iuse stack after adding common ${subgroup_name@Q}"
 
                 if [[ ${prev_item2:0:1} = 'i' ]]; then
                     subgroup_name=${prev_item2:2}
@@ -978,10 +1203,13 @@ function diff_deps() {
                 fi
                 new_group_unnamed_counter_stack+=( 0 )
                 new_iuse_stack+=( "${subgroup_name}" )
+                debug_iuse_stack new_iuse_stack "new iuse stack after adding common ${subgroup_name@Q}"
                 unset subgroup_name
                 ;;
             'c')
-                unset old_iuse_stack[-1] old_group_unnamed_counter_stack[-1] new_iuse_stack[-1] new_group_unnamed_counter_stack[-1]
+                unset 'old_iuse_stack[-1]' 'old_group_unnamed_counter_stack[-1]' 'new_iuse_stack[-1]' 'new_group_unnamed_counter_stack[-1]'
+                debug_iuse_stack old_iuse_stack "old iuse stack after dropping common last name"
+                debug_iuse_stack new_iuse_stack "new iuse stack after dropping common last name"
                 ;;
             'p')
                 pds_diff "${item1:2}" "${item2:2}" old_iuse_stack new_iuse_stack local_dr
@@ -995,7 +1223,6 @@ function diff_deps() {
         prev_item2=${item2}
         unset v2 t2 item2
         unset v1 t1 item1
-        unset -n ci
         ((++last_idx1))
         ((++last_idx2))
     done
@@ -1005,6 +1232,7 @@ function diff_deps() {
     idx2=${#dd_new_flattened_list[@]}
     while [[ ${last_idx1} -lt ${idx1} ]]; do
         local item1=${dd_old_flattened_list["${last_idx1}"]}
+        pkg_debug "old item ${item1@Q}"
         local t1=${item1:0:1} v1=${item1:2}
         case ${t1} in
             'l')
@@ -1037,10 +1265,12 @@ function diff_deps() {
                 fi
                 old_group_unnamed_counter_stack+=( 0 )
                 old_iuse_stack+=( "${subgroup_name}" )
+                debug_iuse_stack old_iuse_stack "old iuse stack after adding ${subgroup_name@Q}"
                 unset subgroup_name
                 ;;
             'c')
-                unset old_iuse_stack[-1] old_group_unnamed_counter_stack[-1]
+                unset 'old_iuse_stack[-1]' 'old_group_unnamed_counter_stack[-1]'
+                debug_iuse_stack old_iuse_stack "old iuse stack after dropping last name"
                 ;;
             *)
                 fail "item ${item1} is bad"
@@ -1052,6 +1282,7 @@ function diff_deps() {
     done
     while [[ ${last_idx2} -lt ${idx2} ]]; do
         local item2=${dd_new_flattened_list["${last_idx2}"]}
+        pkg_debug "new item ${item2@Q}"
         local t2=${item2:0:1} v2=${item2:2}
         case ${t2} in
             'l')
@@ -1084,10 +1315,12 @@ function diff_deps() {
                 fi
                 new_group_unnamed_counter_stack+=( 0 )
                 new_iuse_stack+=( "${subgroup_name}" )
+                debug_iuse_stack new_iuse_stack "new iuse stack after adding ${subgroup_name@Q}"
                 unset subgroup_name
                 ;;
             'c')
-                unset new_iuse_stack[-1] new_group_unnamed_counter_stack[-1]
+                unset 'new_iuse_stack[-1]' 'new_group_unnamed_counter_stack[-1]'
+                debug_iuse_stack new_iuse_stack "new iuse stack after dropping last name"
                 ;;
             *)
                 fail "item ${item2} is bad"
@@ -1100,31 +1333,6 @@ function diff_deps() {
     local local_dr_empty
     diff_report_is_empty local_dr local_dr_empty
     if [[ -z ${local_dr_empty} ]]; then
-        local label
-        case ${deps_idx} in
-            ${PCF_BDEPEND_IDX})
-                label='build dependencies'
-                ;;
-            ${PCF_DEPEND_IDX})
-                label='dependencies'
-                ;;
-            ${PCF_IDEPEND_IDX})
-                label='install dependencies'
-                ;;
-            ${PCF_PDEPEND_IDX})
-                label='post dependencies'
-                ;;
-            ${PCF_RDEPEND_IDX})
-                label='runtime dependencies'
-                ;;
-            ${PCF_LICENSE_IDX})
-                label='licenses'
-                ;;
-            *)
-                fail "bad cache file index ${deps_idx@Q}"
-                ;;
-        esac
-
         diff_report_append "${dr_var_name}" "${label}"
         diff_report_indent "${dr_var_name}"
         diff_report_append_diff_report "${dr_var_name}" local_dr

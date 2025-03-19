@@ -4,6 +4,8 @@ if [[ -z ${__MD5_CACHE_LIB_SH_INCLUDED__:-} ]]; then
 __MD5_CACHE_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
+source "${PKG_AUTO_IMPL_DIR}/debug.sh"
+source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
 function __mcl_declare() {
     # last two args are name and definition of the variable, so the
@@ -729,7 +731,12 @@ function parse_dsf() {
 
     # shellcheck disable=SC2034 # it is a reference to an external variable
     top_group_out_var_name_ref=${group_stack[0]}
-    return 0
+
+    if pkg_debug_enabled; then
+        local pd_group_str
+        group_to_string "${group_stack[0]}" pd_group_str
+        pkg_debug_print "dsf: ${pd_group_str}"
+    fi
 }
 
 function parse_eclasses() {
@@ -754,6 +761,12 @@ function parse_eclasses() {
     done
     # shellcheck disable=SC2034 # shellcheck does not grok references
     eclasses_out_var_name_ref=${eclasses_var_name}
+
+    if pkg_debug_enabled; then
+        local joined_eclasses_string
+        join_by joined_eclasses_string ' ' "${eclasses_ref[@]}"
+        pkg_debug_print "eclasses: ${joined_eclasses_string}"
+    fi
 }
 
 function parse_keywords() {
@@ -812,6 +825,18 @@ function parse_keywords() {
     done
     # shellcheck disable=SC2034 # shellcheck does not grok references
     keywords_out_var_name_ref=${keywords_var_name}
+
+    if pkg_debug_enabled; then
+        local -a all_kws_strings=()
+        local kw_name pk_kw_str
+        local joined_kws_string
+        for kw_name in "${keywords_ref[@]}"; do
+            kw_to_string "${kw_name}" pk_kw_str
+            all_kws_strings+=( "${pk_kw_str}" )
+        done
+        join_by joined_kws_string ' ' "${all_kws_strings[@]}"
+        pkg_debug_print "keywords: ${joined_kws_string}"
+    fi
 }
 
 function parse_iuse() {
@@ -841,6 +866,18 @@ function parse_iuse() {
 
     # shellcheck disable=SC2034 # shellcheck does not grok references
     iuse_out_var_name_ref=${iuse_var_name}
+
+    if pkg_debug_enabled; then
+        local -a all_iuse_strings=()
+        local iuse_name pi_iuse_str
+        local joined_iuse_string
+        for iuse_name in "${iuse_ref[@]}"; do
+            iuse_to_string "${iuse_name}" pi_iuse_str
+            all_iuse_strings+=( "${pi_iuse_str}" )
+        done
+        join_by joined_iuse_string ' ' "${all_iuse_strings[@]}"
+        pkg_debug_print "IUSE: ${joined_iuse_string}"
+    fi
 }
 
 declare -gri PCF_EAPI_IDX=0 PCF_KEYWORDS_IDX=1 PCF_IUSE_IDX=2 PCF_BDEPEND_IDX=3 PCF_DEPEND_IDX=4 PCF_IDEPEND_IDX=5 PCF_PDEPEND_IDX=6 PCF_RDEPEND_IDX=7 PCF_LICENSE_IDX=8 PCF_ECLASSES_IDX=9
@@ -890,10 +927,47 @@ function cache_file_unset() {
     unset "${name}"
 }
 
+# TODO: probably unnecessary
+function __mcl_pkg_for_cache_file() {
+    local path=${1}; shift
+    local pkg_out_ref=${1}; shift
+
+    local pkg_for_file=${path}
+    local ere="-${VER_ERE_STRIPPED}"'$'
+    local pkg_ere="${PKG_ERE_STRIPPED}"'$'
+
+    if [[ ${pkg_for_file} =~ ${ere} ]]; then
+        pkg_for_file=${path%"${BASH_REMATCH[0]}"}
+        if [[ ${pkg_for_file} =~ ${pkg_ere} ]]; then
+            pkg_for_file=${BASH_REMATCH[0]}
+        else
+            pkg_for_file=''
+        fi
+    else
+        pkg_for_file=''
+    fi
+    if [[ -z ${pkg_for_file} ]]; then
+        local mpfcf_b1 mpfcf_b2 mpfcf_d
+        basename_out "${path}" mpfcf_b1
+        dirname_out "${path}" mpfcf_d
+        basename_out "${mpfcf_d}" mpfcf_b2
+        pkg_for_file="${mpfcf_b2}/${mpfcf_b1}"
+    fi
+
+    pkg_out_ref=${pkg_for_file}
+}
+
 function parse_cache_file() {
     local -n cache_file_ref=${1}; shift
     local path=${1}; shift
     # rest are architectures
+
+    if pkg_debug_enabled; then
+        local -a file_lines
+        mapfile -t file_lines <"${path}"
+        pkg_debug_print_lines "parsing ${path@Q}" "${file_lines[@]}"
+        unset file_lines
+    fi
 
     local -n pkg_eapi_ref=cache_file_ref[PCF_EAPI_IDX]
     local -n pkg_keywords_ref=cache_file_ref[PCF_KEYWORDS_IDX]
@@ -906,37 +980,40 @@ function parse_cache_file() {
     local -n pkg_license_group_name_ref=cache_file_ref[PCF_LICENSE_IDX]
     local -n pkg_eclasses_ref=cache_file_ref[PCF_ECLASSES_IDX]
 
-    local l
+    local l key
     while read -r l; do
-        case ${l} in
-            EAPI=*)
+        key=${l%%=*}
+        pkg_debug "parsing ${key@Q}"
+        case ${key} in
+            'EAPI')
                 pkg_eapi_ref=${l#*=}
+                pkg_debug "EAPI: ${pkg_eapi_ref}"
                 ;;
-            KEYWORDS=*)
+            'KEYWORDS')
                 parse_keywords "${l#*=}" pkg_keywords_ref "${@}"
                 ;;
-            IUSE=*)
+            'IUSE')
                 parse_iuse "${l#*=}" pkg_iuse_ref
                 ;;
-            BDEPEND=*)
+            'BDEPEND')
                 parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_bdepend_group_name_ref
                 ;;
-            DEPEND=*)
+            'DEPEND')
                 parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_depend_group_name_ref
                 ;;
-            IDEPEND=*)
+            'IDEPEND')
                 parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_idepend_group_name_ref
                 ;;
-            PDEPEND=*)
+            'PDEPEND')
                 parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_pdepend_group_name_ref
                 ;;
-            RDEPEND=*)
+            'RDEPEND')
                 parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_rdepend_group_name_ref
                 ;;
-            LICENSE=*)
+            'LICENSE')
                 parse_dsf "${DSF_LICENSE}" "${l#*=}" pkg_license_group_name_ref
                 ;;
-            _eclasses_=*)
+            '_eclasses_')
                 parse_eclasses "${l#*=}" pkg_eclasses_ref
                 ;;
         esac
