@@ -883,10 +883,12 @@ _write_qemu_uefi_secure_conf() {
             ;;
     esac
 
+    # TODO: Remove the temporary flatcar shim signing cert
     virt-fw-vars \
         --input "${flash_in}" \
         --output "$(_dst_dir)/${flash_rw}" \
-        --add-db  "${owner}" /usr/share/sb_keys/DB.crt
+        --add-db "${owner}" /usr/share/sb_keys/DB.crt \
+        --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-shim-signing.cert"
 
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }
