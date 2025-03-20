@@ -45,9 +45,6 @@
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
-# Needed to address CVE-2024-52533
-=dev-util/glib-utils-2.82.4 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 
