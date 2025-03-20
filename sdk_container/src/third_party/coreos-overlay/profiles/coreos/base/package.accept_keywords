@@ -79,10 +79,6 @@
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
-# Needed to address CVE-2024-53589, CVE-2025-1176, CVE-2025-1178,
-# CVE-2025-1179, CVE-2025-1180, CVE-2025-1181, CVE-2025-1182.
-=sys-libs/binutils-libs-2.44 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =sys-libs/libsemanage-3.7 ~arm64
 =sys-libs/ncurses-6.5_p20250125 ~arm64
