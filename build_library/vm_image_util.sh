@@ -888,7 +888,7 @@ _write_qemu_uefi_secure_conf() {
         --input "${flash_in}" \
         --output "$(_dst_dir)/${flash_rw}" \
         --add-db "${owner}" /usr/share/sb_keys/DB.crt \
-        --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-shim-signing.cert"
+        --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-shim-2025.cert"
 
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }
