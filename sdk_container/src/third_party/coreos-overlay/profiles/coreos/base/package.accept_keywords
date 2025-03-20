@@ -46,7 +46,6 @@
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
 # Needed to address CVE-2024-52533
-=dev-util/gdbus-codegen-2.82.4 ~amd64 ~arm64
 =dev-util/glib-utils-2.82.4 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
