@@ -1333,7 +1333,7 @@ function diff_deps() {
     local local_dr_empty
     diff_report_is_empty local_dr local_dr_empty
     if [[ -z ${local_dr_empty} ]]; then
-        diff_report_append "${dr_var_name}" "${label}"
+        diff_report_append "${dr_var_name}" "${label}:"
         diff_report_indent "${dr_var_name}"
         diff_report_append_diff_report "${dr_var_name}" local_dr
         diff_report_dedent "${dr_var_name}"
