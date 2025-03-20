@@ -36,9 +36,6 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
-# Needed to address CVE-2024-12133.
-=dev-libs/libtasn1-4.20.0 ~amd64 ~arm64
-
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
