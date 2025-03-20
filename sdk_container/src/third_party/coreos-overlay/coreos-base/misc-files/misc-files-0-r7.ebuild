@@ -130,9 +130,6 @@ src_install() {
         fi
     done
 
-    insinto '/etc/selinux/'
-    doins "${FILESDIR}/selinux/config"
-
     insinto '/etc/bash/bashrc.d'
     doins "${FILESDIR}/bash/99-flatcar-bcc"
 
