@@ -6,7 +6,7 @@ if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
     SBSIGN_KEY="/usr/share/sb_keys/shim.key"
     SBSIGN_CERT="/usr/share/sb_keys/shim.pem"
 else
-    SBSIGN_KEY="pkcs11:token=flatcar-sb-dev-signing-hsm"
+    SBSIGN_KEY="pkcs11:token=flatcar-sb-dev-hsm-sign-2025"
     unset SBSIGN_CERT
 fi
 
