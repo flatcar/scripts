@@ -1,0 +1,1 @@
+- Add changes for our secureboot signed images with our signed release process until the official shim signing ([scripts#2754](https://github.com/flatcar/scripts/pull/2754/))
