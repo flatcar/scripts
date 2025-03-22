@@ -182,8 +182,6 @@ EOF
 
   # Official builds will sign and upload these files later, so remove them to
   # prevent them from being uploaded now.
-  # TODO: Un-nobble this later when we have passed the shim review.
-  false && \
   if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
     rm -v \
         "${BUILD_DIR}/${image_kernel}" \

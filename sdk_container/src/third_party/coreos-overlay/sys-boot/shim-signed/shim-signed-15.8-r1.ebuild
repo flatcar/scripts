@@ -1,4 +1,4 @@
-# Copyright (c) 2024 The Flatcar Maintainers.
+# Copyright (c) 2024-2025 The Flatcar Maintainers.
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -16,10 +16,10 @@ SLOT="0"
 KEYWORDS="amd64 arm64"
 
 for arch in ${KEYWORDS}; do
-	SRC_URI+="${arch}? ( https://mirror.release.flatcar-linux.net/coreos/shim${ARCHES[$arch]}-${PV}.efi.signed ) "
+	SRC_URI+="${arch}? ( https://mirror.release.flatcar-linux.net/coreos/shim${ARCHES[$arch]}-${PVR}.efi.signed ) "
 done
 
 src_install() {
 	insinto /usr/lib/shim
-	newins "${DISTDIR}/shim${ARCHES[$ARCH]}-${PV}.efi.signed" "shim${ARCHES[$ARCH]}.efi.signed"
+	newins "${DISTDIR}/shim${ARCHES[$ARCH]}-${PVR}.efi.signed" "shim${ARCHES[$ARCH]}.efi.signed"
 }
