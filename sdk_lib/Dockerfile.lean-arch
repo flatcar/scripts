@@ -1,4 +1,4 @@
-ARG VERSION
+ARG VERSION=9999.99.99-version-missing
 
 FROM flatcar-sdk-build:${VERSION} as meta
 ARG RMARCH
@@ -26,4 +26,4 @@ RUN chown -R sdk:sdk /mnt/host/source
 #  but it's useful for standalone container use.
 RUN mkdir -p /mnt/host/source/src/scripts
 COPY --chown=sdk:sdk sdk_lib/sdk_init_selfcontained.sh /mnt/host/source/src/
-ENTRYPOINT /home/sdk/sdk_entry.sh
+ENTRYPOINT ["/home/sdk/sdk_entry.sh"]

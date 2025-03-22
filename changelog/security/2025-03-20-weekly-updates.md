@@ -1,0 +1,2 @@
+- expat ([CVE-2024-8176](https://nvd.nist.gov/vuln/detail/CVE-2024-8176))
+- libxml2 ([CVE-2024-56171](https://nvd.nist.gov/vuln/detail/CVE-2024-56171), [CVE-2025-24928](https://nvd.nist.gov/vuln/detail/CVE-2025-24928), [CVE-2025-27113](https://nvd.nist.gov/vuln/detail/CVE-2025-27113))

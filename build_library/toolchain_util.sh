@@ -284,7 +284,11 @@ _configure_sysroot() {
 
     "${sudo[@]}" mkdir -p "${ROOT}/etc/portage/"{profile,repos.conf}
     "${sudo[@]}" cp /etc/portage/repos.conf/* "${ROOT}/etc/portage/repos.conf/"
-    "${sudo[@]}" eselect profile set --force "$profile"
+    # set PORTAGE_CONFIGROOT to tell eselect to modify the profile
+    # inside /build/<arch>-usr, but set ROOT to /, so eselect will
+    # actually find the profile which is outside /build/<arch>-usr,
+    # set SYSROOT to / as well, because it must match ROOT
+    "${sudo[@]}" PORTAGE_CONFIGROOT=${ROOT} SYSROOT=/ ROOT=/ eselect profile set --force "$profile"
 
     local coreos_path
     coreos_path=$(portageq get_repo_path "${ROOT}" coreos-overlay)

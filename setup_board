@@ -236,7 +236,13 @@ sudo mkdir -p "${BOARD_ETC}/portage/"{profile,repos.conf}
 sudo ln -sfT "$(portageq get_repo_path / coreos-overlay)/coreos/user-patches" \
    "${BOARD_ETC}/portage/patches"
 sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
-sudo ROOT="${BOARD_ROOT}" eselect profile set --force "${PORTAGE_PROFILE}"
+# set PORTAGE_CONFIGROOT to tell eselect to modify the profile inside
+# /build/<arch>-usr, but set ROOT to /, so eselect will actually find
+# the profile which is outside /build/<arch>-usr, set SYSROOT to / as
+# well, because it must match ROOT
+sudo \
+    PORTAGE_CONFIGROOT="${BOARD_ROOT}" ROOT=/ SYSROOT=/ \
+    eselect profile set --force "${PORTAGE_PROFILE}"
 
 # Cleanup/migrate from older make.conf files
 sudo rm -f "${BOARD_ETC}/make.conf" "${BOARD_ETC}/make.conf.common"

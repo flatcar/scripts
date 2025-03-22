@@ -1,4 +1,4 @@
-ARG VERSION
+ARG VERSION=9999.99.99-version-missing
 FROM flatcar-sdk-import:${VERSION}
 
 ARG BINHOST
