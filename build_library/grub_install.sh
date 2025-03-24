@@ -208,7 +208,7 @@ case "${FLAGS_target}" in
             # Official build: Copy signed shim and mm for signing later.
             sudo cp "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi" \
                 "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi"
-            sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi" \
+            sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi.signed" \
                 "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi"
         fi
 
