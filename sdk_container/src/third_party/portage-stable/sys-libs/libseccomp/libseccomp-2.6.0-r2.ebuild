@@ -19,7 +19,7 @@ if [[ ${PV} == *9999 ]] ; then
 	inherit autotools git-r3
 else
 	SRC_URI="https://github.com/seccomp/libseccomp/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="-* amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="-* ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~x86 ~amd64-linux ~x86-linux"
 fi
 
 LICENSE="LGPL-2.1"
@@ -48,6 +48,8 @@ PATCHES=(
 	"${FILESDIR}"/libseccomp-2.6.0-python-shared.patch
 	"${FILESDIR}"/libseccomp-2.5.3-skip-valgrind.patch
 	"${FILESDIR}"/${P}-drop-bogus-test.patch
+	"${FILESDIR}"/${P}-aliasing.patch
+	"${FILESDIR}"/${P}-bounds.patch
 )
 
 src_prepare() {
