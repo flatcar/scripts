@@ -47,9 +47,9 @@ else
 			https://github.com/Kitware/CMake/releases/download/v$(ver_cut 1-3)/${MY_P}-SHA-256.txt.asc
 		)"
 
-		KEYWORDS="ppc"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
-		BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20230817 )"
+		BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20240902 )"
 	fi
 fi
 
@@ -91,10 +91,11 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0001-Don-t-use-.so-for-modules-on-darwin-macos.-Use-.bund.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0002-Set-some-proper-paths-to-make-cmake-find-our-tools.patch
 	# Misc
-	"${FILESDIR}"/${PN}-3.27.0_rc1-0003-Prefer-pkgconfig-in-FindBLAS.patch
+	"${FILESDIR}"/${PN}-3.31.6-Prefer-pkgconfig-in-FindBLAS.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0004-Ensure-that-the-correct-version-of-Qt-is-always-used.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0005-Respect-Gentoo-s-Python-eclasses.patch
-	"${FILESDIR}"/${PN}-3.27.0_rc1-0006-Filter-out-distcc-warnings-to-avoid-confusing-CMake.patch
+	# Cuda
+	"${FILESDIR}/${PN}-3.30.3-cudahostld.patch"
 
 	# Upstream fixes (can usually be removed with a version bump)
 )
@@ -116,6 +117,33 @@ cmake_src_bootstrap() {
 		--prefix="${T}/cmakestrap/" \
 		--parallel=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)") \
 		|| die "Bootstrap failed"
+}
+
+pkg_pretend() {
+	if [[ -z ${EPREFIX} ]] ; then
+		local file
+		local errant_files=()
+
+		# See bug #599684 and  bug #753581 (at least)
+		for file in /etc/arch-release /etc/redhat-release /etc/debian_version ; do
+			if [[ -e ${file} ]]; then
+				errant_files+=( "${file}" )
+			fi
+		done
+
+		# If errant files exist
+		if [[ ${#errant_files[@]} -gt 0 ]]; then
+			eerror "Errant files found!"
+			eerror "The presence of these files is known to confuse CMake's"
+			eerror "library path logic. Please (re)move these files:"
+
+			for file in "${errant_files[@]}"; do
+				eerror " mv ${file} ${file}.bak"
+			done
+
+			die "Stray files found in /etc/, see above message"
+		fi
+	fi
 }
 
 src_unpack() {
@@ -146,6 +174,14 @@ src_prepare() {
 		sed -i -e '/define CMAKE_USE_XCODE/s/XCODE/NO_XCODE/' \
 			-e '/cmGlobalXCodeGenerator.h/d' \
 			Source/cmake.cxx || die
+		# Disable system integration, bug #933744
+		sed -i -e 's/__APPLE__/__DISABLED__/' \
+			Source/cmFindProgramCommand.cxx \
+			Source/CPack/cmCPackGeneratorFactory.cxx || die
+		sed -i -e 's/__MAC_OS_X_VERSION_MIN_REQUIRED/__DISABLED__/' \
+			Source/cmMachO.cxx || die
+		sed -i -e 's:CPack/cmCPack\(Bundle\|DragNDrop\|PKG\|ProductBuild\)Generator.cxx::' \
+			Source/CMakeLists.txt || die
 
 		# Disable isysroot usage with GCC, we've properly instructed
 		# where things are via GCC configuration and ldwrapper
@@ -213,10 +249,12 @@ src_test() {
 		"${S}"/Tests/{OutDir,CMakeOnly/SelectLibraryConfigurations}/CMakeLists.txt \
 		|| die
 
+	unset CLICOLOR CLICOLOR_FORCE CMAKE_COMPILER_COLOR_DIAGNOSTICS CMAKE_COLOR_DIAGNOSTICS
+
 	pushd "${BUILD_DIR}" > /dev/null || die
 
 	# Excluded tests:
-	#    BootstrapTest: we actually bootstrap it every time so why test it.
+	#    BootstrapTest: we actually bootstrap it every time so why test it?
 	#    BundleUtilities: bundle creation broken
 	#    CMakeOnly.AllFindModules: pthread issues
 	#    CTest.updatecvs: which fails to commit as root
