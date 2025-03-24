@@ -56,6 +56,7 @@ DEPEND="${RDEPEND}"
 # libxml2 used for optional tests that get automatically skipped
 BDEPEND="
 	app-text/docbook-xsl-stylesheets
+	>=dev-build/meson-1.4.0
 	dev-libs/libxslt
 	>=sys-devel/gettext-0.19.8
 	doc? ( >=dev-util/gi-docgen-2023.1 )
@@ -139,6 +140,9 @@ src_prepare() {
 
 		ewarn "Tests for search-utils have been skipped"
 		sed -i -e "/search-utils/d" glib/tests/meson.build || die
+
+		# Running gdb inside a test within sandbox is brittle
+		sed -i -e '/self.__gdb = shutil.which("gdb")/s:"gdb":"gdb-idonotexist":' glib/tests/assert-msg-test.py || die
 
 		# Play nice with network-sandbox, but this approach would defeat the purpose of the test
 		#sed -i -e "s/localhost/127.0.0.1/g" gio/tests/gsocketclient-slow.c || die
