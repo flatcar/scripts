@@ -17,14 +17,14 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 # there's an optional dep on rich for cute logs
 RDEPEND="
 	dev-python/packaging[${PYTHON_USEDEP}]
-	dev-python/setuptools[${PYTHON_USEDEP}]
+	>=dev-python/setuptools-61[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep '
-		dev-python/tomli[${PYTHON_USEDEP}]
+		>=dev-python/tomli-2.0.2[${PYTHON_USEDEP}]
 	' 3.10)
 "
 BDEPEND="
