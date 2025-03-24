@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Joonas Niilola <juippis@gentoo.org> (2025-03-05)
+# 136.0 can't be compiled with "-rust-extensions".
+~mail-client/thunderbird-136.0 rust-extensions
+
 # Ionen Wolkens <ionen@gentoo.org> (2024-12-24)
 # ebuild currently only support luajit, spare users from having
 # to set it by forcing it here (bug #946881)
@@ -28,6 +32,8 @@ llvm-runtimes/libcxxabi clang
 # done
 dev-lang/rust:1.86.0 llvm_slot_19
 dev-lang/rust-bin:1.86.0 llvm_slot_19
+dev-lang/rust:1.85.1 llvm_slot_19
+dev-lang/rust-bin:1.85.1 llvm_slot_19
 dev-lang/rust:1.85.0 llvm_slot_19
 dev-lang/rust-bin:1.85.0 llvm_slot_19
 dev-lang/rust:1.84.1 llvm_slot_19
@@ -247,7 +253,7 @@ net-misc/wget ssl
 llvm-runtimes/libcxx libcxxabi
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2019-08-17)
-# USE=-cxx us a sure way to break native install as modern gcc
+# USE=-cxx is a sure way to break native install as modern gcc
 # requires C++ to bootstrap. But in rare cases it's useful
 # to have a compiler not capable of C++, bug #692126.
 sys-devel/gcc cxx

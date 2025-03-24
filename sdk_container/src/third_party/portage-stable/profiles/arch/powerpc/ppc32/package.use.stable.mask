@@ -39,6 +39,7 @@ dev-ruby/kramdown unicode
 # Sam James <sam@gentoo.org> (2022-11-19)
 # Deps not stable on ppc
 llvm-core/clang-common default-lld
+llvm-core/clang-runtime default-lld
 llvm-core/llvm binutils-plugin z3 xar
 
 # Sam James <sam@gentoo.org> (2022-07-27)
@@ -53,13 +54,13 @@ net-fs/nfs-utils nfsv4
 net-fs/samba client
 gnome-base/gvfs samba
 media-video/ffmpeg samba
+media-video/ffmpeg-compat samba
 media-video/vlc samba
 
 # Sam James <sam@gentoo.org> (2022-03-03)
-# net-nds/openldap / dev-libs/cyrus-sasl not stable here
+# net-nds/openldap not stable here
 dev-lang/php ldap-sasl
 mail-mta/postfix ldap-bind
-net-nds/openldap cxx sasl
 
 # Sam James <sam@gentoo.org> (2022-03-03)
 # No kerberos provider is marked stable here
