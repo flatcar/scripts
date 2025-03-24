@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -22,7 +22,7 @@ SRC_URI="
 "
 
 GENTOO_PATCH_DEV=sam
-GENTOO_PATCH_PV=6.4_p20240413
+GENTOO_PATCH_PV=6.5_p20250301
 GENTOO_PATCH_NAME=${PN}-${GENTOO_PATCH_PV}-patches
 
 # Populated below in a loop. Do not add patches manually here.
@@ -43,7 +43,48 @@ if [[ ${PV} == *_p* ]] ; then
 	# This array should contain a list of all the snapshots since the last
 	# release if there's no megapatch available yet.
 	PATCH_DATES=(
-		#20240101
+		20240504
+		20240511
+		20240518
+		20240519
+		20240525
+		20240601
+		20240608
+		20240615
+		20240622
+		20240629
+		20240706
+		20240713
+		20240720
+		20240727
+		20240810
+		20240817
+		20240824
+		20240831
+		20240914
+		20240922
+		20240928
+		20241006
+		20241019
+		20241026
+		20241102
+		20241109
+		20241123
+		20241130
+		20241207
+		20241214
+		20241221
+		20241228
+		20250104
+		20250111
+		20250118
+		20250125
+		20250201
+		20250208
+		20250215
+		20250216
+		20250222
+		20250301
 
 		# Latest patch is just _pN = $(ver_cut 4)
 		$(ver_cut 4)
@@ -87,7 +128,10 @@ LICENSE="MIT"
 SLOT="0/6"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="ada +cxx debug doc gpm minimal profile split-usr +stack-realign static-libs test tinfo trace"
-RESTRICT="!test? ( test )"
+# In 6.5_p20250118, the C++ examples fail to link, but there's no automated
+# testsuite anyway. Controlling building examples isn't really what USE=test
+# is for. Just restrict them.
+RESTRICT="!test? ( test ) test"
 
 # TODO: ncurses allows (and we take advantage of this, even) passing
 # the SONAME for dlopen() use, so only the header is needed at build time.
@@ -101,6 +145,7 @@ RDEPEND="
 	!<sys-libs/slang-2.3.2_pre23
 	!<x11-terms/rxvt-unicode-9.06-r3
 	!<x11-terms/st-0.6-r1
+	!minimal? ( !<x11-terms/ghostty-1.1.0 )
 "
 BDEPEND="verify-sig? ( sec-keys/openpgp-keys-thomasdickey )"
 
@@ -115,10 +160,6 @@ PATCHES=(
 	# For the same reasons, please include the original configure.in changes,
 	# NOT just the generated results!
 	"${WORKDIR}"/${GENTOO_PATCH_NAME}
-
-	# Avoid breakage with CHOST ending in t64
-	"${FILESDIR}"/ncurses-6.4-t64-1.patch
-	"${FILESDIR}"/ncurses-6.4-t64-2.patch
 )
 
 src_unpack() {
@@ -147,6 +188,9 @@ src_configure() {
 
 	# bug #214642
 	BUILD_CPPFLAGS+=" -D_GNU_SOURCE"
+
+	# NCURSES_BOOL confusion, see https://lists.gnu.org/archive/html/bug-ncurses/2024-11/msg00010.html
+	append-cflags $(test-flags-CC -std=gnu17)
 
 	# Build the various variants of ncurses -- narrow, wide, and threaded. #510440
 	# Order matters here -- we want unicode/thread versions to come last so that the
@@ -246,7 +290,6 @@ do_configure() {
 		#--disable-root-access
 		#--disable-root-environ
 
-		--disable-term-driver
 		--disable-termcap
 		--enable-symlinks
 		--with-manpage-format=normal
@@ -266,6 +309,15 @@ do_configure() {
 		--disable-stripping
 		--disable-pkg-ldflags
 	)
+
+	case ${CHOST} in
+		*-mingw32*)
+			conf+=( --enable-term-driver )
+			;;
+		*)
+			conf+=( --disable-term-driver )
+			;;
+	esac
 
 	if [[ ${target} == ncurses*w ]] ; then
 		conf+=( --enable-widec )
