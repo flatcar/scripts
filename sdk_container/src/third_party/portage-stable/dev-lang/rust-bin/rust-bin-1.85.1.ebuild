@@ -22,7 +22,7 @@ elif [[ ${PV} == *beta* ]]; then
 else
 	# curl -Ls static.rust-lang.org/dist/channel-rust-${PV}.toml | grep "xz_url.*rust-src"
 	SRC_URI="$(rust_all_arch_uris "rust-${PV}")
-		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2025-02-20/rust-src-${PV}.tar.xz )
+		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2025-03-18/rust-src-${PV}.tar.xz )
 		ppc64? ( elibc_musl? ( !big-endian? (
 			$(rust_arch_uri powerpc64le-unknown-linux-musl rust-${PV})
 		) ) )
@@ -64,7 +64,10 @@ RDEPEND="
 	>=app-eselect/eselect-rust-20190311
 	dev-libs/openssl
 	sys-apps/lsb-release
-	sys-devel/gcc:*
+	|| (
+		llvm-runtimes/libgcc
+		sys-devel/gcc:*
+	)
 	!dev-lang/rust:stable
 	!dev-lang/rust-bin:stable
 "
@@ -170,13 +173,15 @@ patchelf_for_bin() {
 
 rust_native_abi_install() {
 	pushd "${S}" >/dev/null || die
-	local analysis="$(grep 'analysis' ./components || die "analysis not found in components")"
 	local std="$(grep 'std' ./components || die "std not found in components")"
 	local components=( "rustc" "cargo" "${std}" )
 	use doc && components+=( "rust-docs" )
 	use clippy && components+=( "clippy-preview" )
 	use rustfmt && components+=( "rustfmt-preview" )
-	use rust-analyzer && components+=( "rust-analyzer-preview" "${analysis}" )
+	if use rust-analyzer; then
+		local analysis="$(grep 'analysis' ./components || die "analysis not found in components")"
+		components+=( "rust-analyzer-preview" "${analysis}" )
+	fi
 	# Rust component 'rust-src' is extracted from separate archive
 	if use rust-src; then
 		einfo "Combining rust and rust-src installers"
