@@ -50,7 +50,7 @@ if [[ ${PV} != *9999 ]]; then
 	SRC_URI+=" doc? ( ${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX} )"
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -148,10 +148,9 @@ REQUIRED_USE="
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.48.0-doc-deps.patch
-	"${FILESDIR}"/${PN}-2.48.1-parallel-build.patch
 	"${FILESDIR}"/${PN}-2.48.1-macos-no-fsmonitor.patch
-	"${FILESDIR}"/${PN}-2.48.1-docs.patch
+	"${FILESDIR}"/${PN}-2.49.0-meson-use-test_environment-conditionally.patch
+	"${FILESDIR}"/${PN}-2.49.0-docs.patch
 )
 
 pkg_setup() {
@@ -197,7 +196,33 @@ src_prepare() {
 }
 
 src_configure() {
+	local contrib=(
+		completion
+		subtree
+
+		$(usev perl 'contacts')
+	)
+	local credential_helpers=(
+		$(usev keyring 'libsecret')
+		$(usev perl 'netrc')
+	)
+
+	# Needs macOS Frameworks that can't currently be built with GCC.
+	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
+		credential_helpers+=( osxkeychain )
+	fi
+
+	local native_file="${T}"/meson.ini.local
+	cat >> ${native_file} <<-EOF || die
+	[binaries]
+	# We don't want to bake /usr/bin/sh from usrmerged systems into
+	# binaries. /bin/sh is required by POSIX.
+	sh='/bin/sh'
+	EOF
+
 	local emesonargs=(
+		--native-file "${native_file}"
+
 		$(meson_feature curl)
 		$(meson_feature cgi gitweb)
 		$(meson_feature webdav expat)
@@ -207,8 +232,14 @@ src_configure() {
 		$(meson_feature perl)
 		$(meson_feature perforce python)
 		$(meson_use test tests)
+
+		-Dcontrib=$(IFS=, ; echo "${contrib[*]}" )
+		-Dcredential_helpers=$(IFS=, ; echo "${credential_helpers[*]}" )
+
 		-Dmacos_use_homebrew_gettext=false
 		-Dperl_cpan_fallback=false
+		# TODO: allow zlib-ng
+		-Dzlib_backend=zlib
 	)
 
 	[[ ${CHOST} == *-darwin* ]] && emesonargs+=( -Dfsmonitor=false )
@@ -221,6 +252,15 @@ src_configure() {
 	fi
 
 	meson_src_configure
+
+	if use tk ; then
+		(
+			EMESON_SOURCE="${S}"/gitk-git
+			BUILD_DIR="${WORKDIR}"/gitk-git_build
+			emesonargs=()
+			meson_src_configure
+		)
+	fi
 }
 
 git_emake() {
@@ -253,25 +293,19 @@ git_emake() {
 src_compile() {
 	meson_src_compile
 
-	if use perl ; then
-		git_emake -C contrib/credential/netrc
-	fi
-
-	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
-		git_emake -C contrib/credential/osxkeychain
-	fi
-
-	if use keyring ; then
-		git_emake -C contrib/credential/libsecret
-	fi
-
 	if use mediawiki ; then
 		git_emake -C contrib/mw-to-git
 	fi
 
 	if use tk ; then
-		git_emake -C gitk-git
 		git_emake -C git-gui
+
+		(
+			EMESON_SOURCE="${S}"/gitk-git
+			BUILD_DIR="${WORKDIR}"/gitk-git_build
+			meson_src_compile
+		)
+
 	fi
 
 	if use doc ; then
@@ -281,9 +315,6 @@ src_compile() {
 	fi
 
 	git_emake -C contrib/diff-highlight
-	git_emake -C contrib/subtree git-subtree
-	# git-subtree.1 requires the full USE=doc dependency stack
-	use doc && git_emake -C contrib/subtree git-subtree.html git-subtree.1
 }
 
 src_test() {
@@ -291,19 +322,10 @@ src_test() {
 	local -x A=
 
 	meson_src_test
-
-	# TODO: Needs help finding built git with meson
-	#if use perl ; then
-	#	git_emake -C contrib/credential/netrc testverbose
-	#fi
 }
 
 src_install() {
 	meson_src_install
-
-	if [[ ${CHOST} == *-darwin* ]] && tc-is-clang ; then
-		dobin contrib/credential/osxkeychain/git-credential-osxkeychain
-	fi
 
 	if use doc ; then
 		cp -r "${ED}"/usr/share/doc/git-doc/. "${ED}"/usr/share/doc/${PF}/html || die
@@ -316,15 +338,10 @@ src_install() {
 	find Documentation/*.[157] >/dev/null 2>&1 && doman Documentation/*.[157]
 	dodoc README* Documentation/{SubmittingPatches,CodingGuidelines}
 
-	use doc && dodir /usr/share/doc/${PF}/html
 	local d
 	for d in / /howto/ /technical/ ; do
 		docinto ${d}
-		dodoc Documentation${d}*.txt
-		if use doc ; then
-			docinto ${d}/html
-			dodoc Documentation${d}*.html
-		fi
+		dodoc Documentation${d}*.adoc
 	done
 	docinto /
 
@@ -341,17 +358,6 @@ src_install() {
 	exeinto /usr/libexec/git-core/
 	newexe contrib/git-resurrect.sh git-resurrect
 
-	# git-subtree
-	pushd contrib/subtree &>/dev/null || die
-	git_emake DESTDIR="${D}" install
-	if use doc ; then
-		# Do not move git subtree install-man outside USE=doc!
-		git_emake DESTDIR="${D}" install-man install-html
-	fi
-	newdoc README README.git-subtree
-	dodoc git-subtree.txt
-	popd &>/dev/null || die
-
 	# diff-highlight
 	dobin contrib/diff-highlight/diff-highlight
 	newdoc contrib/diff-highlight/README README.diff-highlight
@@ -360,15 +366,6 @@ src_install() {
 	exeinto /usr/libexec/git-core/
 	doexe contrib/git-jump/git-jump
 	newdoc contrib/git-jump/README git-jump.txt
-
-	# git-contacts
-	exeinto /usr/libexec/git-core/
-	doexe contrib/contacts/git-contacts
-	dodoc contrib/contacts/git-contacts.txt
-
-	if use keyring ; then
-		dobin contrib/credential/libsecret/git-credential-libsecret
-	fi
 
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
@@ -382,7 +379,7 @@ src_install() {
 	# patches - stuff the Git guys made to go upstream to other places
 	# persistent-https - TODO
 	# mw-to-git - TODO
-	# subtree - build  seperately
+	# subtree - built seperately
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
 	local contrib_objects=(
@@ -424,8 +421,6 @@ src_install() {
 		dodir "$(perl_get_vendorlib)"
 		mv "${ED}"/usr/share/perl5/Git.pm "${ED}/$(perl_get_vendorlib)" || die
 		mv "${ED}"/usr/share/perl5/Git "${ED}/$(perl_get_vendorlib)" || die
-
-		dobin contrib/credential/netrc/git-credential-netrc
 	fi
 
 	if use mediawiki ; then
@@ -450,7 +445,12 @@ src_install() {
 	fi
 
 	if use tk ; then
-		git_emake -C gitk-git DESTDIR="${D}" install
+		(
+			EMESON_SOURCE="${S}"/gitk-git
+			BUILD_DIR="${WORKDIR}"/gitk-git_build
+			meson_src_install
+		)
+
 		git_emake -C git-gui DESTDIR="${D}" install
 	fi
 
