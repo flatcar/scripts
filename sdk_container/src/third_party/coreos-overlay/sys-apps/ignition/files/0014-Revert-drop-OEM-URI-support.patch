@@ -1,4 +1,4 @@
-From 35bd1887b3d2837efbcee3de52e567c7d76e6669 Mon Sep 17 00:00:00 2001
+From 67b8b674471fc8bf16a9e65692b2cf13637f60d0 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:38:16 +0200
 Subject: [PATCH 14/20] Revert "*: drop OEM URI support"
@@ -81,7 +81,7 @@ index 9b2b4405..5258c3c6 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index eef319b2..21ad376e 100644
+index d2434e2e..9e80ed2a 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
 @@ -12,6 +12,7 @@ Ignition is currently supported for the following platforms:
@@ -132,7 +132,7 @@ index eb4c3179..2726d705 100644
  func GroupaddCmd() string  { return groupaddCmd }
  func GroupdelCmd() string  { return groupdelCmd }
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 4f55dc2b..469857d0 100644
+index 354385fa..f7b855d8 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
 @@ -23,10 +23,12 @@ import (
@@ -158,7 +158,7 @@ index 4f55dc2b..469857d0 100644
  	"github.com/flatcar/ignition/v2/internal/util"
  	"golang.org/x/oauth2/google"
  	"google.golang.org/api/option"
-@@ -154,6 +158,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
+@@ -170,6 +174,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
  		err = f.fetchFromTFTP(u, dest, opts)
  	case "data":
  		err = f.fetchFromDataURL(u, dest, opts)
@@ -167,7 +167,7 @@ index 4f55dc2b..469857d0 100644
  	case "s3", "arn":
  		buf := &s3buf{
  			WriteAtBuffer: aws.NewWriteAtBuffer([]byte{}),
-@@ -215,6 +221,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
+@@ -242,6 +248,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
  		return f.fetchFromTFTP(u, dest, opts)
  	case "data":
  		return f.fetchFromDataURL(u, dest, opts)
@@ -176,7 +176,7 @@ index 4f55dc2b..469857d0 100644
  	case "s3", "arn":
  		return f.fetchFromS3(u, dest, opts)
  	case "gs":
-@@ -423,6 +431,53 @@ type s3target interface {
+@@ -450,6 +458,53 @@ type s3target interface {
  	io.ReadSeeker
  }
  
@@ -230,7 +230,7 @@ index 4f55dc2b..469857d0 100644
  // FetchFromS3 gets data from an S3 bucket as described by u and writes it into
  // dest, returning an error if one is encountered. It will attempt to acquire
  // IAM credentials from the EC2 metadata service, and if this fails will attempt
-@@ -650,3 +705,39 @@ func (f *Fetcher) parseARN(arnURL string) (string, string, string, string, error
+@@ -725,3 +780,39 @@ func (f *Fetcher) parseARN(arnURL string) (string, string, string, string, error
  	key := strings.Join(urlSplit[1:], "/")
  	return bucket, key, "", regionHint, nil
  }
@@ -271,5 +271,5 @@ index 4f55dc2b..469857d0 100644
 +	)
 +}
 -- 
-2.44.2
+2.45.3
 
