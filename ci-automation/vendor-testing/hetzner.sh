@@ -56,6 +56,7 @@ timeout --signal=SIGQUIT 2h kola run \
   --hetzner-server-type="${hetzner_instance_type}" \
   --hetzner-location="${hetzner_location}" \
   --hetzner-image=${IMAGE_ID} \
+  --image-version "${CIA_VERNUM}" \
   "${@}"
 
 set +x
