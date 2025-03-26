@@ -51,6 +51,7 @@ timeout --signal=SIGQUIT 4h\
     --platform=do \
     --channel="${CIA_CHANNEL}" \
     --tapfile="${CIA_TAPFILE}" \
+    --image-version "${CIA_VERNUM}" \
     "${@}"
 
 set +x
