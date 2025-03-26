@@ -1,0 +1,1 @@
+- update-ssh-keys: More intuitive --help text and the -n (no-replace) option has been fixed. ([flatcar/Flatcar#1554](https://github.com/flatcar/Flatcar/issues/1554))
