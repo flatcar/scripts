@@ -59,6 +59,7 @@ run_kola_tests() {
          --aws-iam-profile="${AWS_IAM_PROFILE}" \
          --tapfile="${instance_tapfile}" \
          --torcx-manifest="${CIA_TORCX_MANIFEST}" \
+         --image-version "${CIA_VERNUM}" \
          "${@}"
 }
 

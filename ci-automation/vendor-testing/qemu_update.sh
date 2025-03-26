@@ -107,6 +107,7 @@ run_kola_tests() {
       --torcx-manifest="${CIA_TORCX_MANIFEST}" \
       --update-payload="${QEMU_UPDATE_PAYLOAD}" \
       ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
+      --image-version "${CIA_VERNUM}" \
       cl.update.payload
 }
 

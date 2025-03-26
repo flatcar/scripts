@@ -64,6 +64,7 @@ kola run \
     --torcx-manifest="${CIA_TORCX_MANIFEST}" \
     ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
     "${devcontainer_opts[@]}" \
+    --image-version "${CIA_VERNUM}" \
     "${@}"
 
 set +x

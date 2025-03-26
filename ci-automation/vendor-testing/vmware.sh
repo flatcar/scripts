@@ -63,6 +63,7 @@ sudo timeout --signal=SIGQUIT 2h kola run \
     --torcx-manifest="${CIA_TORCX_MANIFEST}" \
     --esx-config-file "${config_file}" \
     --esx-ova-path "${VMWARE_ESX_IMAGE_NAME}" \
+    --image-version "${CIA_VERNUM}" \
     "${@}"
 
 set +x
