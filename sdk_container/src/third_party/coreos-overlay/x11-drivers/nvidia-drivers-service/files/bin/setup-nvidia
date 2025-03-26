@@ -161,6 +161,11 @@ function is_nvidia_installation_required() {
   if [[ -d "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}" ]]; then
     return 1
   fi
+
+  if systemd-sysext list | grep -q nvidia-drivers; then
+    echo "Pre-build NVIDIA drivers sysext is loaded, exiting."
+    return 1
+  fi
 }
 
 function presetup() {
