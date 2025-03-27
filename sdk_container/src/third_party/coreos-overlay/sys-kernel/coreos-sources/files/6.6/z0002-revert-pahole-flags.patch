@@ -6,7 +6,7 @@ index e173364abd6c..cdc35682e03b 100644
  	depends on !GCC_PLUGINS
  	depends on !RANDSTRUCT
  	depends on !SHADOW_CALL_STACK
--	depends on !DEBUG_INFO_BTF || PAHOLE_HAS_LANG_EXCLUDE
+-	depends on !DEBUG_INFO_BTF || (PAHOLE_HAS_LANG_EXCLUDE && !LTO)
 +	depends on !DEBUG_INFO_BTF
  	help
  	  Enables Rust support in the kernel.
