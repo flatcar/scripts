@@ -1,10 +1,78 @@
 #!/bin/bash
 
+# Implementation of longest common subsequence (LCS) algorithm, with
+# memoization and scoring. The algorithm is a base of utilities like
+# diff - it finds the common items in two sequences.
+#
+# The memoization part is about remembering the results of LCS
+# computation for shorter sequences, so they can be reused when doing
+# computation for longer sequences.
+#
+# The scoring part is about generalization of the comparison function,
+# which normally would return a boolean value describing whether two
+# items are equal or not. With scoring, two things change. First is
+# that the returned value from the comparison/scoring function is not
+# a boolean, but rather an integer describing the degree of equality
+# of the items. And second is that with booleans, the winning
+# subsequence was the longest one, but with scores is not necessarily
+# the longest one, but with the highest total score. This changes the
+# algorithm a bit. While the typical LCS algorithm goes like as
+# follows (s1 and s2 are sequences, i1 and i2 are indices in their
+# respective sequences):
+#
+#
+#
+# LCS(s1, s2, i1, i2) -> sequence:
+#   if (i1 >= len(s1) || i2 >= len(s2)): return ()
+#   if (s1[i1] == s2[i2]):
+#     l = LCS(s1, s2, i1 + 1, i2 + 1)
+#     return (s1[i1], l...)
+#   else:
+#     l1 = LCS(s1, s2, i1 + 1, i2)
+#     l2 = LCS(s1, s2, i1, i2 + 1)
+#     if (len(l1) > len(l2)): return l1
+#     return l2
+#
+#
+#
+# The score LCS goes more or less like this:
+#
+#
+#
+# SLCS(s1, s2, i1, i2) -> tuple(score, sequence):
+#   if (i1 >= len(s1) || i2 >= len(21)): return (score: 0, sequence: ())
+#   score = score_func(s1[i1], s2[i2])
+#   if (score == max_score):
+#     # matches the "equal" case in LCS above
+#     l = SLCS(s1, s2, i1 + 1, i2 + 1)
+#     return (score: score + l.score, sequence: (s1[i1], l.sequence...)
+#   else if (score == 0):
+#     # matches the "not equal" case in LCS above
+#     l1 = SLCS(s1, s2, i1 + 1, i2)
+#     l2 = SLCS(s1, s2, i1, i2 + 1)
+#     if (l1.score > l2.score): return l1
+#     return l2
+#   else:
+#     # new "equal, but not quite" case
+#     l = SLCS(s1, s2, i1 + 1, i2 + 1)
+#     l.score = score + l.score
+#     l.sequence = (s1[i1], l.sequence...)
+#     l1 = SLCS(s1, s2, i1 + 1, i2)
+#     l2 = SLCS(s1, s2, i1, i2 + 1)
+#     return tuple_with_max_score(l, l1, l2)
+#
+#
+#
+# The difference in the implementation below is that instead of
+# starting at index 0 and go up for each sequence, we start at max
+# index and go down.
+
 if [[ -z ${__LCS_SH_INCLUDED__:-} ]]; then
 __LCS_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 
+# Constants to use for accessing fields in common items.
 declare -gri LCS_X1_IDX=0 LCS_X2_IDX=1 LCS_IDX1_IDX=2 LCS_IDX2_IDX=3
 
 # Computes the longest common subsequence of two sequences and stores
@@ -12,7 +80,8 @@ declare -gri LCS_X1_IDX=0 LCS_X2_IDX=1 LCS_IDX1_IDX=2 LCS_IDX2_IDX=3
 # longest common subsequence are actually names of arrays, where each
 # array stores an item from the first sequence, an item from the
 # second sequence, an index of the first item in first sequence and an
-# index of the second item in the second sequence.
+# index of the second item in the second sequence. To access those
+# fields, use the LCS_*_IDX constants.
 #
 # The function optionally takes a name of the score function. If no
 # such function is passed, the simple string score function is used
@@ -22,7 +91,10 @@ declare -gri LCS_X1_IDX=0 LCS_X2_IDX=1 LCS_IDX1_IDX=2 LCS_IDX2_IDX=3
 # parameter is passed, the function should write the maximum score to
 # the score variable. When three parameters are passed, then the
 # second and third are items from the sequences passed to lcs_run and
-# they should be compared and rated.
+# they should be compared and rated. The function should rate the
+# items with zero if they are completely different, with max score if
+# they are the same, and with something in between zero and max score
+# if they are somewhat equal but not really.
 #
 # Params:
 #

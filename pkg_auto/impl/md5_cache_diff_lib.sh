@@ -8,26 +8,47 @@ source "${PKG_AUTO_IMPL_DIR}/lcs.sh"
 source "${PKG_AUTO_IMPL_DIR}/md5_cache_lib.sh"
 source "${PKG_AUTO_IMPL_DIR}/mvm.sh"
 
+#
+# Diff report. Contains indent-lines. Indent-line is a string of
+# <indent-level>:<line>. Indent level is a number describing
+# indentation level. Line is an actual line, duh.
+#
+
+# Indices to access fields of the diff report:
+# DR_INDENT_IDX - a current indent level to use
+# DR_LINES_IDX  - a name of an array containing indent-lines
 declare -gri DR_INDENT_IDX=0 DR_LINES_IDX=1
 
+# Declares empty diff reports. Can take flags that are passed to
+# declare. Usually only -r or -t make sense to pass. Can take several
+# names, just like declare. Takes no initializers - this is hardcoded.
 function diff_report_declare() {
-    local name=${1}; shift
-
-    declare -ga "${name}=( 0 EMPTY_ARRAY )"
+    struct_declare -ga "${@}" "( '0' 'EMPTY_ARRAY' )"
 }
 
+# Unsets diff reports, can take several names, just like unset.
 function diff_report_unset() {
-    local dr_var_name=${1}; shift
-    local -n dr_ref=${dr_var_name}
-    local lines_var_name=${dr_ref[DR_LINES_IDX]}
+    local dr_var_name lines_var_name
+    for dr_var_name; do
+        local -n dr_ref=${dr_var_name}
 
-    if [[ ${lines_var_name} != EMPTY_ARRAY ]]; then
-        unset "${lines_var_name}"
-    fi
-    unset -n dr_ref
-    unset "${dr_var_name}"
+        lines_var_name=${dr_ref[DR_LINES_IDX]}
+        if [[ ${lines_var_name} != EMPTY_ARRAY ]]; then
+            unset "${lines_var_name}"
+        fi
+
+        unset -n dr_ref
+    done
+    unset "${@}"
 }
 
+# Stores an non-empty string if diff report is empty (has no lines
+# yet).
+#
+# Params:
+#
+# 1 - diff report
+# 2 - name of a variable where the string will be stored
 function diff_report_is_empty() {
     local -n dr_ref=${1}; shift
     local -n out_ref=${1}; shift
@@ -40,6 +61,12 @@ function diff_report_is_empty() {
     fi
 }
 
+# Appends a line with a current indentation to a diff report.
+#
+# Params:
+#
+# 1 - diff report
+# 2 - a line
 function diff_report_append() {
     local dr_var_name=${1}; shift
     local line=${1}; shift
@@ -62,6 +89,12 @@ function diff_report_append() {
     lines_ref+=( "${indent_line}" )
 }
 
+# Appends a line with an increased-by-1 indentation to a diff report.
+#
+# Params:
+#
+# 1 - diff report
+# 2 - a line
 function diff_report_append_indented() {
     local dr_var_name=${1}; shift
     local line=${1}; shift
@@ -71,6 +104,14 @@ function diff_report_append_indented() {
     diff_report_dedent "${dr_var_name}"
 }
 
+# Appends all the lines from the source diff report to a diff report,
+# increasing indentation level of each line by the current indentation
+# level.
+#
+# Params:
+#
+# 1 - diff report to grow
+# 2 - source diff report
 function diff_report_append_diff_report() {
     local dr_var_name=${1}; shift
     local -n dr_ref2=${1}; shift
@@ -100,19 +141,55 @@ function diff_report_append_diff_report() {
     done
 }
 
+# Increases current indentation level of a diff report.
+#
+# Params:
+#
+# 1 - diff report to grow
 function diff_report_indent() {
     local -n dr_ref=${1}; shift
 
     ((++dr_ref[DR_INDENT_IDX]))
 }
 
+# Decreases current indentation level of a diff report.
+#
+# Params:
+#
+# 1 - diff report to grow
 function diff_report_dedent() {
     local -n dr_ref=${1}; shift
 
     ((dr_ref[DR_INDENT_IDX]--))
 }
 
-function diff_eapi() {
+# Diffs two cache files.
+#
+# Params:
+#
+# 1 - old cache file
+# 2 - new cache file
+# 3 - diff report where the diff will be written to
+function diff_cache_data() {
+    local old_var_name=${1}; shift
+    local new_var_name=${1}; shift
+    local dr_var_name=${1}; shift
+
+    __mcdl_diff_eapi "${old_var_name}" "${new_var_name}" "${dr_var_name}"
+    __mcdl_diff_keywords "${old_var_name}" "${new_var_name}" "${dr_var_name}"
+    __mcdl_diff_iuse "${old_var_name}" "${new_var_name}" "${dr_var_name}"
+
+    local -i idx
+    for idx in PCF_BDEPEND_IDX PCF_DEPEND_IDX PCF_IDEPEND_IDX PCF_PDEPEND_IDX PCF_RDEPEND_IDX PCF_LICENSE_IDX; do
+        __mcdl_diff_deps "${old_var_name}" "${new_var_name}" ${idx} "${dr_var_name}"
+    done
+}
+
+#
+# Implemetation details.
+#
+
+function __mcdl_diff_eapi() {
     local -n old_ref=${1}; shift
     local -n new_ref=${1}; shift
     local dr_var_name=${1}; shift
@@ -125,7 +202,7 @@ function diff_eapi() {
     fi
 }
 
-function diff_iuse() {
+function __mcdl_diff_iuse() {
     local -n old_ref=${1}; shift
     local -n new_ref=${1}; shift
     local dr_var_name=${1}; shift
@@ -193,7 +270,7 @@ function diff_iuse() {
     done
 }
 
-function diff_keywords() {
+function __mcdl_diff_keywords() {
     local -n old_ref=${1}; shift
     local -n new_ref=${1}; shift
     local dr_var_name=${1}; shift
@@ -219,13 +296,16 @@ function diff_keywords() {
         fi
         old_level=${old_kw_ref[KW_LEVEL_IDX]}
         new_level=${new_kw_ref[KW_LEVEL_IDX]}
+        local extra_todo=''
         if [[ ${old_level} -ne ${new_level} ]]; then
             case ${new_level} in
                 "${KW_STABLE}")
                     level_str='stable'
+                    extra_todo='TODO: update/drop accept keywords for this package in overlay profiles'
                     ;;
                 "${KW_UNSTABLE}")
                     level_str='unstable'
+                    extra_todo='TODO: add/update accept keywords for this package in overlay profiles'
                     ;;
                 "${KW_BROKEN}")
                     level_str='broken'
@@ -235,6 +315,9 @@ function diff_keywords() {
                     ;;
             esac
             diff_report_append "${dr_var_name}" "package became ${level_str} on ${new_name@Q}"
+            if [[ -n ${extra_todo} ]]; then
+                diff_report_append_indented "${dr_var_name}" "${extra_todo}"
+            fi
         fi
         unset -n new_kw old_kw
     done
@@ -390,7 +473,7 @@ function __mcdl_ur_pretend_description() {
     esac
 }
 
-function iuse_stack_to_string() {
+function __mcdl_iuse_stack_to_string() {
     local -n stack_ref=${1}; shift
     local -n str_ref=${1}; shift
 
@@ -411,7 +494,7 @@ function iuse_stack_to_string() {
     str_ref=${str_ref:0:$((${#str_ref} - 4))}
 }
 
-function pds_diff() {
+function __mcdl_pds_diff() {
     local -n old_pds_ref=${1}; shift
     local -n new_pds_ref=${1}; shift
     local old_stack_name=${1}; shift
@@ -421,8 +504,8 @@ function pds_diff() {
     local name=${new_pds_ref[PDS_NAME_IDX]}
 
     local old_iuses new_iuses
-    iuse_stack_to_string "${old_stack_name}" old_iuses
-    iuse_stack_to_string "${new_stack_name}" new_iuses
+    __mcdl_iuse_stack_to_string "${old_stack_name}" old_iuses
+    __mcdl_iuse_stack_to_string "${new_stack_name}" new_iuses
 
     diff_report_declare local_pds_dr
 
@@ -566,7 +649,7 @@ function pds_diff() {
     diff_report_unset local_pds_dr
 }
 
-function dsg_merge_and_sort_tagged_subgroups() {
+function __mcdl_merge_and_sort_tagged_subgroups() {
     local -n empty_subgroup_item_name_ref=${1}; shift
     local -n subgroup_tag_to_named_subgroup_item_names_map_ref=${1}; shift
     local -n any_of_subgroup_item_names_ref=${1}; shift
@@ -584,7 +667,7 @@ function dsg_merge_and_sort_tagged_subgroups() {
             local -n item_ref=${subgroup_item_name}
             subgroup_name=${item_ref:2}
             unset -n item_ref
-            sort_group "${subgroup_name}"
+            __mcdl_sort_group "${subgroup_name}"
             any_of_subgroup_item_names_ref+=( "${subgroup_item_name}" )
         done
     else
@@ -607,7 +690,7 @@ function dsg_merge_and_sort_tagged_subgroups() {
             unset "${other_subgroup_items_name}"
             item_unset "${other_subgroup_item_name}"
         done
-        sort_group "${subgroup_name}"
+        __mcdl_sort_group "${subgroup_name}"
         if [[ ${subgroup_tag} = '@empty@' ]]; then
             empty_subgroup_item_name_ref=${subgroup_item_name}
         else
@@ -616,7 +699,7 @@ function dsg_merge_and_sort_tagged_subgroups() {
     fi
 }
 
-function sort_group() {
+function __mcdl_sort_group() {
     local group_name=${1}; shift
 
     local -n group_ref=${group_name}
@@ -683,14 +766,16 @@ function sort_group() {
             pkg_names+=( "${counted_pkg_name}" )
             pkg_name_to_item_name_map["${counted_pkg_name}"]=${pds_item_name}
         done
-        local -a sorted_pkg_names
+        local -a sorted_pkg_names sorted_items
         mapfile -t sorted_pkg_names < <(printf '%s\n' "${pkg_names[@]}" | sort -t '^' -k 1,1 -k2n,2)
 
         for pkg_name in "${sorted_pkg_names[@]}"; do
             pds_item_name=${pkg_name_to_item_name_map["${pkg_name}"]}
-            group_add_item "${group_name}" "${pds_item_name}"
+            sorted_items+=( "${pds_item_name}" )
         done
-        unset sorted_pkg_names pkg_name_to_item_name_map pkg_names pkg_name_to_count_map pkg_name_count pkg_name_count counted_pkg_name pkg_name pds_name pds_item_name
+        group_add_items "${group_name}" "${sorted_items[@]}"
+
+        unset sorted_items sorted_pkg_names pkg_name_to_item_name_map pkg_names pkg_name_to_count_map pkg_name_count pkg_name_count counted_pkg_name pkg_name pds_name pds_item_name
     fi
 
     ##
@@ -707,14 +792,15 @@ function sort_group() {
             unset -n item_ref
             license_to_item_name_map["${license}"]=${license_item_name}
         done
-        local -a sorted_licenses
+        local -a sorted_licenses sorted_items
         mapfile -t sorted_licenses < <(printf '%s\n' "${!license_to_item_name_map[@]}" | sort)
         for license in "${sorted_licenses[@]}"; do
             license_item_name=${license_to_item_name_map["${license}"]}
-            group_add_item "${group_name}" "${license_item_name}"
+            sorted_items+=( "${license_item_name}" )
         done
+        group_add_items "${group_name}" "${sorted_items[@]}"
 
-        unset sorted_licenses license_item_name license license_to_item_name_map
+        unset sorted_items sorted_licenses license_item_name license license_to_item_name_map
     fi
 
     ##
@@ -767,17 +853,17 @@ function sort_group() {
         local empty_subgroup_item_name=''
         local -A subgroup_tag_to_named_subgroup_item_names_map=()
         local -a any_of_subgroup_item_names=()
-        mvm_iterate "${dsg_tagged_subgroups_item_names_array_mvm_name}" dsg_merge_and_sort_tagged_subgroups \
+        mvm_iterate "${dsg_tagged_subgroups_item_names_array_mvm_name}" __mcdl_merge_and_sort_tagged_subgroups \
                     empty_subgroup_item_name \
                     subgroup_tag_to_named_subgroup_item_names_map \
                     any_of_subgroup_item_names
         mvm_unset "${dsg_tagged_subgroups_item_names_array_mvm_name}"
 
         if [[ -n ${empty_subgroup_item_name} ]]; then
-            group_add_item "${group_name}" "${empty_subgroup_item_name}"
+            group_add_items "${group_name}" "${empty_subgroup_item_name}"
         fi
         if [[ ${#subgroup_tag_to_named_subgroup_item_names_map[@]} -gt 0 ]]; then
-            local -a sorted_subgroup_tags
+            local -a sorted_subgroup_tags sorted_items
             local subgroup_tag subgroup_item_name
             mapfile -t sorted_subgroup_tags < <(printf '%s\n' "${!subgroup_tag_to_named_subgroup_item_names_map[@]}" | sort)
             for subgroup_tag in "${sorted_subgroup_tags[@]}"; do
@@ -785,22 +871,23 @@ function sort_group() {
                     continue
                 fi
                 subgroup_item_name=${subgroup_tag_to_named_subgroup_item_names_map["${subgroup_tag}"]}
-                group_add_item "${group_name}" "${subgroup_item_name}"
+                sorted_items+=( "${subgroup_item_name}" )
             done
-            unset subgroup_item_name subgroup_tag sorted_subgroup_tags
+            group_add_items "${group_name}" "${sorted_items[@]}"
+            unset sorted_items subgroup_item_name subgroup_tag sorted_subgroup_tags
         fi
         group_add_items "${group_name}" "${any_of_subgroup_item_names[@]}"
     fi
 }
 
-function iuse_stack_to_string_ps() {
+function __mcdl_iuse_stack_to_string_ps() {
     local stack_name=${1}; shift
     local -n str_ref=${1}; shift
     local prefix=${1}; shift
     local suffix=${1}; shift
 
     local tmp_str
-    iuse_stack_to_string "${stack_name}" tmp_str
+    __mcdl_iuse_stack_to_string "${stack_name}" tmp_str
 
     if [[ -n ${tmp_str} ]]; then
         str_ref="${prefix}${tmp_str}${suffix}"
@@ -809,7 +896,7 @@ function iuse_stack_to_string_ps() {
     fi
 }
 
-function debug_group() {
+function __mcdl_debug_group() {
     local group_name=${1}; shift
     local label=${1}; shift
 
@@ -820,7 +907,7 @@ function debug_group() {
     fi
 }
 
-function debug_flattened_list() {
+function __mcdl_debug_flattened_list() {
     local list_name=${1}; shift
     local label=${1}; shift
 
@@ -846,7 +933,7 @@ function debug_flattened_list() {
     fi
 }
 
-function debug_diff() {
+function __mcdl_debug_diff() {
     local -n dd_old_list_ref=${1}; shift
     local -n dd_new_list_ref=${1}; shift
     local -n dd_common_list_ref=${1}; shift
@@ -927,8 +1014,7 @@ function debug_diff() {
                 ;;
         esac
 
-        unset v2 t2 item2
-        unset v1 t1 item1
+        unset v2 t2 item2 v1 t1 item1
         ((++last_idx1))
         ((++last_idx2))
     done
@@ -977,18 +1063,18 @@ function debug_diff() {
     done
 }
 
-function debug_iuse_stack() {
+function __mcdl_debug_iuse_stack() {
     local iuse_stack_name=${1}; shift
     local label=${1}; shift
 
     if pkg_debug_enabled; then
         local dis_str
-        iuse_stack_to_string "${iuse_stack_name}" dis_str
+        __mcdl_iuse_stack_to_string "${iuse_stack_name}" dis_str
         pkg_debug_print "${label}: ${dis_str}"
     fi
 }
 
-function diff_deps() {
+function __mcdl_diff_deps() {
     local -n old_ref=${1}; shift
     local -n new_ref=${1}; shift
     local deps_idx=${1}; shift
@@ -1022,23 +1108,23 @@ function diff_deps() {
     local old_group_name=${old_ref[${deps_idx}]} new_group_name=${new_ref[${deps_idx}]}
     local -a dd_old_flattened_list=() dd_new_flattened_list=()
 
-    group_declare old_sorted_group
-    group_copy old_sorted_group "${old_group_name}"
-    debug_group old_sorted_group "copy of old ${label} group"
-    sort_group old_sorted_group
-    debug_group old_sorted_group "sorted old ${label} group"
+    group_declare old_sorted_group new_sorted_group
 
-    group_declare new_sorted_group
+    group_copy old_sorted_group "${old_group_name}"
+    __mcdl_debug_group old_sorted_group "copy of old ${label} group"
+    __mcdl_sort_group old_sorted_group
+    __mcdl_debug_group old_sorted_group "sorted old ${label} group"
+
     group_copy new_sorted_group "${new_group_name}"
-    debug_group new_sorted_group "copy of new ${label} group"
-    sort_group new_sorted_group
-    debug_group old_sorted_group "sorted new ${label} group"
+    __mcdl_debug_group new_sorted_group "copy of new ${label} group"
+    __mcdl_sort_group new_sorted_group
+    __mcdl_debug_group old_sorted_group "sorted new ${label} group"
 
     __mcdl_flatten_group old_sorted_group dd_old_flattened_list
     __mcdl_flatten_group new_sorted_group dd_new_flattened_list
 
-    debug_flattened_list dd_old_flattened_list "flattened old ${label} group"
-    debug_flattened_list dd_new_flattened_list "flattened new ${label} group"
+    __mcdl_debug_flattened_list dd_old_flattened_list "flattened old ${label} group"
+    __mcdl_debug_flattened_list dd_new_flattened_list "flattened new ${label} group"
 
     local -a dd_common_items=()
 
@@ -1046,7 +1132,7 @@ function diff_deps() {
 
     diff_report_declare local_dr
 
-    debug_diff dd_old_flattened_list dd_new_flattened_list dd_common_items
+    __mcdl_debug_diff dd_old_flattened_list dd_new_flattened_list dd_common_items
 
     local -a old_iuse_stack=() new_iuse_stack=()
     # a stack of counters for naming unnamed groups like
@@ -1071,16 +1157,31 @@ function diff_deps() {
             case ${t1} in
                 'l')
                     local use_str
-                    iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                     diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
                     unset use_str
                     ;;
                 'p')
                     local p_str use_str
-                    iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                     pds_to_string "${v1}" p_str
-                    diff_report_append local_dr "dropped a dependency ${p_str@Q}${use_str}"
-                    unset use_str p_str
+                    local -n p_ref=${v1}
+                    local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                    unset -n p_ref
+                    local what=''
+                    case ${p_blocks} in
+                        ${PDS_NO_BLOCK})
+                            what='dependency'
+                            ;;
+                        ${PDS_WEAK_BLOCK})
+                            what='weak blocker'
+                            ;;
+                        ${PDS_STRONG_BLOCK})
+                            what='strong blocker'
+                            ;;
+                    esac
+                    diff_report_append local_dr "dropped a ${what} ${p_str@Q}${use_str}"
+                    unset what p_blocks use_str p_str
                     ;;
                 'i')
                     # This will be stored in prev item and used in 'o'
@@ -1099,12 +1200,12 @@ function diff_deps() {
                     fi
                     old_group_unnamed_counter_stack+=( 0 )
                     old_iuse_stack+=( "${subgroup_name}" )
-                    debug_iuse_stack old_iuse_stack "old iuse stack after adding ${subgroup_name@Q}"
+                    __mcdl_debug_iuse_stack old_iuse_stack "old iuse stack after adding ${subgroup_name@Q}"
                     unset subgroup_name
                     ;;
                 'c')
                     unset 'old_iuse_stack[-1]' 'old_group_unnamed_counter_stack[-1]'
-                    debug_iuse_stack old_iuse_stack "old iuse stack after dropping last name"
+                    __mcdl_debug_iuse_stack old_iuse_stack "old iuse stack after dropping last name"
                     ;;
                 *)
                     fail "item ${item1} is bad"
@@ -1121,16 +1222,31 @@ function diff_deps() {
             case ${t2} in
                 'l')
                     local use_str
-                    iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                     diff_report_append local_dr "added license ${v2@Q}${use_str}"
                     unset use_str
                     ;;
                 'p')
                     local p_str use_str
-                    iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                     pds_to_string "${v2}" p_str
-                    diff_report_append local_dr "added a dependency ${p_str@Q}${use_str}"
-                    unset use_str p_str
+                    local -n p_ref=${v2}
+                    local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                    unset -n p_ref
+                    local what=''
+                    case ${p_blocks} in
+                        ${PDS_NO_BLOCK})
+                            what='dependency'
+                            ;;
+                        ${PDS_WEAK_BLOCK})
+                            what='weak blocker'
+                            ;;
+                        ${PDS_STRONG_BLOCK})
+                            what='strong blocker'
+                            ;;
+                    esac
+                    diff_report_append local_dr "added a ${what} ${p_str@Q}${use_str}"
+                    unset what p_blocks use_str p_str
                     ;;
                 'i')
                     # This will be stored in prev item and used in 'o'
@@ -1149,12 +1265,12 @@ function diff_deps() {
                     fi
                     new_group_unnamed_counter_stack+=( 0 )
                     new_iuse_stack+=( "${subgroup_name}" )
-                    debug_iuse_stack new_iuse_stack "new iuse stack after adding ${subgroup_name@Q}"
+                    __mcdl_debug_iuse_stack new_iuse_stack "new iuse stack after adding ${subgroup_name@Q}"
                     unset subgroup_name
                     ;;
                 'c')
                     unset 'new_iuse_stack[-1]' 'new_group_unnamed_counter_stack[-1]'
-                    debug_iuse_stack new_iuse_stack "new iuse stack after dropping last name"
+                    __mcdl_debug_iuse_stack new_iuse_stack "new iuse stack after dropping last name"
                     ;;
                 *)
                     fail "item ${item2} is bad"
@@ -1191,7 +1307,7 @@ function diff_deps() {
                 fi
                 old_group_unnamed_counter_stack+=( 0 )
                 old_iuse_stack+=( "${subgroup_name}" )
-                debug_iuse_stack old_iuse_stack "old iuse stack after adding common ${subgroup_name@Q}"
+                __mcdl_debug_iuse_stack old_iuse_stack "old iuse stack after adding common ${subgroup_name@Q}"
 
                 if [[ ${prev_item2:0:1} = 'i' ]]; then
                     subgroup_name=${prev_item2:2}
@@ -1203,16 +1319,16 @@ function diff_deps() {
                 fi
                 new_group_unnamed_counter_stack+=( 0 )
                 new_iuse_stack+=( "${subgroup_name}" )
-                debug_iuse_stack new_iuse_stack "new iuse stack after adding common ${subgroup_name@Q}"
+                __mcdl_debug_iuse_stack new_iuse_stack "new iuse stack after adding common ${subgroup_name@Q}"
                 unset subgroup_name
                 ;;
             'c')
                 unset 'old_iuse_stack[-1]' 'old_group_unnamed_counter_stack[-1]' 'new_iuse_stack[-1]' 'new_group_unnamed_counter_stack[-1]'
-                debug_iuse_stack old_iuse_stack "old iuse stack after dropping common last name"
-                debug_iuse_stack new_iuse_stack "new iuse stack after dropping common last name"
+                __mcdl_debug_iuse_stack old_iuse_stack "old iuse stack after dropping common last name"
+                __mcdl_debug_iuse_stack new_iuse_stack "new iuse stack after dropping common last name"
                 ;;
             'p')
-                pds_diff "${item1:2}" "${item2:2}" old_iuse_stack new_iuse_stack local_dr
+                __mcdl_pds_diff "${item1:2}" "${item2:2}" old_iuse_stack new_iuse_stack local_dr
                 ;;
             *)
                 fail "item ${item1} or ${item2} is bad"
@@ -1221,8 +1337,7 @@ function diff_deps() {
 
         prev_item1=${item1}
         prev_item2=${item2}
-        unset v2 t2 item2
-        unset v1 t1 item1
+        unset v2 t2 item2 v1 t1 item1
         ((++last_idx1))
         ((++last_idx2))
     done
@@ -1237,16 +1352,31 @@ function diff_deps() {
         case ${t1} in
             'l')
                 local use_str
-                iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                 diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
                 unset use_str
                 ;;
             'p')
                 local p_str use_str
-                iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                 pds_to_string "${v1}" p_str
-                diff_report_append local_dr "dropped a dependency ${p_str@Q}${use_str}"
-                unset use_str p_str
+                local -n p_ref=${v1}
+                local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                unset -n p_ref
+                local what=''
+                case ${p_blocks} in
+                    ${PDS_NO_BLOCK})
+                        what='dependency'
+                        ;;
+                    ${PDS_WEAK_BLOCK})
+                        what='weak blocker'
+                        ;;
+                    ${PDS_STRONG_BLOCK})
+                        what='strong blocker'
+                        ;;
+                esac
+                diff_report_append local_dr "dropped a ${what} ${p_str@Q}${use_str}"
+                unset what p_blocks use_str p_str
                 ;;
             'i')
                 # This will be stored in prev item and used in 'o'
@@ -1265,12 +1395,12 @@ function diff_deps() {
                 fi
                 old_group_unnamed_counter_stack+=( 0 )
                 old_iuse_stack+=( "${subgroup_name}" )
-                debug_iuse_stack old_iuse_stack "old iuse stack after adding ${subgroup_name@Q}"
+                __mcdl_debug_iuse_stack old_iuse_stack "old iuse stack after adding ${subgroup_name@Q}"
                 unset subgroup_name
                 ;;
             'c')
                 unset 'old_iuse_stack[-1]' 'old_group_unnamed_counter_stack[-1]'
-                debug_iuse_stack old_iuse_stack "old iuse stack after dropping last name"
+                __mcdl_debug_iuse_stack old_iuse_stack "old iuse stack after dropping last name"
                 ;;
             *)
                 fail "item ${item1} is bad"
@@ -1287,16 +1417,31 @@ function diff_deps() {
         case ${t2} in
             'l')
                 local use_str
-                iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                 diff_report_append local_dr "added license ${v2@Q}${use_str}"
                 unset use_str
                 ;;
             'p')
                 local p_str use_str
-                iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                 pds_to_string "${v2}" p_str
-                diff_report_append local_dr "added a dependency ${p_str@Q}${use_str}"
-                unset use_str p_str
+                local -n p_ref=${v2}
+                local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                unset -n p_ref
+                local what=''
+                case ${p_blocks} in
+                    ${PDS_NO_BLOCK})
+                        what='dependency'
+                        ;;
+                    ${PDS_WEAK_BLOCK})
+                        what='weak blocker'
+                        ;;
+                    ${PDS_STRONG_BLOCK})
+                        what='strong blocker'
+                        ;;
+                esac
+                diff_report_append local_dr "added a ${what} ${p_str@Q}${use_str}"
+                unset what p_blocks use_str p_str
                 ;;
             'i')
                 # This will be stored in prev item and used in 'o'
@@ -1315,12 +1460,12 @@ function diff_deps() {
                 fi
                 new_group_unnamed_counter_stack+=( 0 )
                 new_iuse_stack+=( "${subgroup_name}" )
-                debug_iuse_stack new_iuse_stack "new iuse stack after adding ${subgroup_name@Q}"
+                __mcdl_debug_iuse_stack new_iuse_stack "new iuse stack after adding ${subgroup_name@Q}"
                 unset subgroup_name
                 ;;
             'c')
                 unset 'new_iuse_stack[-1]' 'new_group_unnamed_counter_stack[-1]'
-                debug_iuse_stack new_iuse_stack "new iuse stack after dropping last name"
+                __mcdl_debug_iuse_stack new_iuse_stack "new iuse stack after dropping last name"
                 ;;
             *)
                 fail "item ${item2} is bad"
@@ -1340,23 +1485,7 @@ function diff_deps() {
     fi
     diff_report_unset local_dr
 
-    group_unset new_sorted_group
-    group_unset old_sorted_group
-}
-
-function diff_cache_data() {
-    local old_var_name=${1}; shift
-    local new_var_name=${1}; shift
-    local dr_var_name=${1}; shift
-
-    diff_eapi "${old_var_name}" "${new_var_name}" "${dr_var_name}"
-    diff_keywords "${old_var_name}" "${new_var_name}" "${dr_var_name}"
-    diff_iuse "${old_var_name}" "${new_var_name}" "${dr_var_name}"
-
-    local -i idx
-    for idx in PCF_BDEPEND_IDX PCF_DEPEND_IDX PCF_IDEPEND_IDX PCF_PDEPEND_IDX PCF_RDEPEND_IDX PCF_LICENSE_IDX; do
-        diff_deps "${old_var_name}" "${new_var_name}" ${idx} "${dr_var_name}"
-    done
+    group_unset new_sorted_group old_sorted_group
 }
 
 fi

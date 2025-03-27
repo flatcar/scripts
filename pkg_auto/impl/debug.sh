@@ -7,6 +7,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 
 declare -gA __D_DEBUG_PACKAGES=()
 
+# Adds package names for which debugging output may be enabled.
 function pkg_debug_add() {
     if [[ ${#} -eq 0 ]]; then
         return
@@ -20,11 +21,13 @@ function pkg_debug_add() {
     done
 }
 
+# Resets debugging state to zero (no packages to debug, debug output
+# disabled).
 function pkg_debug_reset() {
     unset __D_DEBUG_PACKAGES __D_DEBUG
 }
 
-# Enables debug logs when specific packages are processed.
+# Enables debugging output when specific packages are processed.
 #
 # Params:
 #
@@ -48,19 +51,23 @@ function pkg_debug_enable() {
     fi
 }
 
+# Get a list of package names for which debugging output may be
+# enabled.
 function pkg_debug_packages() {
     local -n pkg_names_ref=${1}; shift
 
     pkg_names_ref=( "${!__D_DEBUG_PACKAGES[@]}" )
 }
 
+# Checks if debugging output is enabled. Returns true if yes,
+# otherwise false.
 function pkg_debug_enabled() {
     local -i ret=0
     [[ -n ${__D_DEBUG:-} ]] || ret=1
     return ${ret}
 }
 
-# Disables debug logs to be printed.
+# Disables debugging output.
 function pkg_debug_disable() {
     unset __D_DEBUG
 }
@@ -91,6 +98,10 @@ function pkg_debug_lines() {
 # formatting. Useful for more complicated debugging logic using
 # pkg_debug_enabled.
 #
+# if pkg_debug_enabled; then
+#     pkg_debug_print 'debug message'
+# fi
+#
 # Params:
 #
 # @ - parameters to print
@@ -106,6 +117,10 @@ function pkg_debug_print() {
 # Prints passed lines unconditionally with debug formatting. Useful
 # for more complicated debugging logic using pkg_debug_enabled.
 #
+# if pkg_debug_enabled; then
+#     pkg_debug_print_lines 'debug' 'message'
+# fi
+#
 # Params:
 #
 # @ - lines to print
@@ -119,8 +134,13 @@ function pkg_debug_print_lines() {
 }
 
 # Prints passed parameters unconditionally with custom debug
-# formatting. Useful for more complicated debugging logic using
-# pkg_debug_packages.
+# formatting. Useful for either more complicated debugging logic using
+# pkg_debug_packages or for non-package-specific debugging situations.
+#
+# local -a dpkgs=()
+# pkg_debug_packages dpkgs
+# local pkg
+# for pkg in "${dpkgs[@]}"; do pkg_debug_print_c "${pkg}" 'debug message'
 #
 # Params:
 #
@@ -131,8 +151,14 @@ function pkg_debug_print_c() {
     info "DEBUG(${d_debug}): ${*}"
 }
 
-# Prints passed lines unconditionally with debug formatting. Useful
-# for more complicated debugging logic using pkg_debug_packages.
+# Prints passed lines unconditionally with custom debug formatting.
+# Useful for either more complicated debugging logic using
+# pkg_debug_packages or for non-package-specific debugging situations.
+#
+# local -a dpkgs=() lines=( 'debug' 'message; )
+# pkg_debug_packages dpkgs
+# local pkg
+# for pkg in "${dpkgs[@]}"; do pkg_debug_print_lines_c "${pkg}" "${lines[@]}"
 #
 # Params:
 #
