@@ -71,6 +71,5 @@ src_compile() {
 src_install() {
 	newbin ${GOBIN}/internal ${PN}
 
-	exeinto "/usr/libexec"
-	newexe ${GOBIN}/internal "${PN}-rmcfg"
+	dosym "/usr/bin/${PN}" "/usr/libexec/${PN}-rmcfg"
 }
