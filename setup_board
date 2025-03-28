@@ -88,7 +88,11 @@ EOF
 
 generate_all_wrappers() {
   local cmds=() wrappers=()
-  local wrapper
+  local wrapper qemu
+
+  # If the QEMU user space emulator is missing for this board arch, that implies
+  # the board arch matches the SDK arch and therefore emulation is unnecessary.
+  qemu=$(type -P "qemu-${BOARD_CHOST%%-*}") || unset qemu
 
   info "Generating wrapper scripts"
 
@@ -110,6 +114,18 @@ EOF
 exec ${BOARD_CHOST}-gdb -iex 'set sysroot ${BOARD_ROOT}' "\$@"
 EOF
   wrappers+=( "${wrapper}" )
+
+  # ldconfig cannot generate caches for non-native arches. Use QEMU and the
+  # native ldconfig to work around that.
+  wrapper="/usr/local/sbin/ldconfig-${BOARD_VARIANT}"
+  sudo_clobber "${wrapper}" <<EOF
+#!/bin/sh
+exec ${qemu-} "${BOARD_ROOT}"/sbin/ldconfig -r "${BOARD_ROOT}" "\$@"
+EOF
+  wrappers+=( "${wrapper}" )
+
+  # Create a CHOST-based ldconfig symlink for Portage to call.
+  sudo ln -sfT "ldconfig-${BOARD_VARIANT}" "/usr/local/sbin/${BOARD_CHOST}-ldconfig"
 
   cmds+=(
     "chmod a+rx ${wrappers[*]}"
