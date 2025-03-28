@@ -1,4 +1,4 @@
-From 94514a6ea6842dc32ab5ec82c63455797a946949 Mon Sep 17 00:00:00 2001
+From fe115de47cff4745b46c0c045a51c3a66150c5f9 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 22 Feb 2022 15:41:13 +0100
 Subject: [PATCH 13/20] config/util: add cloud init detection to initial
@@ -90,5 +90,5 @@ index 865d75d2..313d42ea 100644
  	if err == nil {
  		return report.Report{}, nil
 -- 
-2.44.2
+2.45.3
 

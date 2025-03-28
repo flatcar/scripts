@@ -10,7 +10,7 @@ inherit coreos-go git-r3 systemd udev
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="a204f429f13194ae379be9401d49e5241439660b" # v2.20.0
+	EGIT_COMMIT="fc324e12230b036ce9d44f64346780121431ff27" # v2.21.0
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -71,6 +71,5 @@ src_compile() {
 src_install() {
 	newbin ${GOBIN}/internal ${PN}
 
-	exeinto "/usr/libexec"
-	newexe ${GOBIN}/internal "${PN}-rmcfg"
+	dosym "/usr/bin/${PN}" "/usr/libexec/${PN}-rmcfg"
 }

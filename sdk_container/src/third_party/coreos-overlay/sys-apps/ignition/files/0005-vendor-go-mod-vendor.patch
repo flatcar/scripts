@@ -1,6 +1,6 @@
-From c051ca72c703700943c79d28b154e460ecb23db1 Mon Sep 17 00:00:00 2001
+From e36800fa55585c4db32a60b6c8c74bb0b3e4b17e Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Thu, 24 Oct 2024 10:19:43 +0200
+Date: Wed, 26 Mar 2025 15:11:11 +0100
 Subject: [PATCH 05/20] vendor: go mod vendor
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
@@ -17029,20 +17029,20 @@ index 00000000..1b1efb0f
 +	return
 +}
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 0d4a188c..8ffe2ea7 100644
+index 888d509e..984b721c 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
-@@ -36,6 +36,9 @@ cloud.google.com/go/storage
- cloud.google.com/go/storage/internal
- cloud.google.com/go/storage/internal/apiv2
- cloud.google.com/go/storage/internal/apiv2/storagepb
+@@ -128,6 +128,9 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric
+ # github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.48.1
+ ## explicit; go 1.21
+ github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping
 +# github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437
 +## explicit
 +github.com/ajeddeloh/go-json
- # github.com/aws/aws-sdk-go v1.55.5
+ # github.com/aws/aws-sdk-go v1.55.6
  ## explicit; go 1.19
  github.com/aws/aws-sdk-go/aws
-@@ -103,6 +106,9 @@ github.com/coreos/go-json
+@@ -208,6 +211,9 @@ github.com/coreos/go-json
  # github.com/coreos/go-semver v0.3.1
  ## explicit; go 1.8
  github.com/coreos/go-semver/semver
@@ -17052,7 +17052,7 @@ index 0d4a188c..8ffe2ea7 100644
  # github.com/coreos/go-systemd/v22 v22.5.0
  ## explicit; go 1.12
  github.com/coreos/go-systemd/v22/dbus
-@@ -121,6 +127,27 @@ github.com/davecgh/go-spew/spew
+@@ -269,6 +275,27 @@ github.com/envoyproxy/protoc-gen-validate/validate
  # github.com/felixge/httpsnoop v1.0.4
  ## explicit; go 1.13
  github.com/felixge/httpsnoop
@@ -17077,19 +17077,19 @@ index 0d4a188c..8ffe2ea7 100644
 +github.com/flatcar/ignition/config/validate/astjson
 +github.com/flatcar/ignition/config/validate/astnode
 +github.com/flatcar/ignition/config/validate/report
- # github.com/go-logr/logr v1.4.1
+ # github.com/go-logr/logr v1.4.2
  ## explicit; go 1.18
  github.com/go-logr/logr
-@@ -264,6 +291,9 @@ go.opentelemetry.io/otel/metric/noop
- ## explicit; go 1.20
+@@ -447,6 +474,9 @@ go.opentelemetry.io/otel/sdk/metric/metricdata
  go.opentelemetry.io/otel/trace
  go.opentelemetry.io/otel/trace/embedded
+ go.opentelemetry.io/otel/trace/noop
 +# go4.org v0.0.0-20160314031811-03efcb870d84
 +## explicit
 +go4.org/errorutil
- # golang.org/x/crypto v0.28.0
- ## explicit; go 1.20
+ # golang.org/x/crypto v0.36.0
+ ## explicit; go 1.23.0
  golang.org/x/crypto/chacha20
 -- 
-2.44.2
+2.45.3
 

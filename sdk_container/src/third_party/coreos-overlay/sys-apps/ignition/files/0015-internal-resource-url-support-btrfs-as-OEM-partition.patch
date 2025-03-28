@@ -1,4 +1,4 @@
-From de8ca35ae723b43509cddc5e48fc0b0c67464b1a Mon Sep 17 00:00:00 2001
+From 0ab0dca4211dc835bb9b7f4402f9e3c6ccb1dc46 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kai=20L=C3=BCke?= <kailuke@microsoft.com>
 Date: Wed, 7 Jul 2021 18:40:52 +0200
 Subject: [PATCH 15/20] internal/resource/url: support btrfs as OEM partition
@@ -12,10 +12,10 @@ When mounting ext4 fails, try mounting as btrfs.
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 469857d0..0457c15f 100644
+index f7b855d8..e66707fd 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
-@@ -726,8 +726,17 @@ func (f *Fetcher) mountOEM(oemMountPath string) error {
+@@ -801,8 +801,17 @@ func (f *Fetcher) mountOEM(oemMountPath string) error {
  		},
  		"mounting %q at %q", distro.OEMDevicePath(), oemMountPath,
  	); err != nil {
@@ -35,5 +35,5 @@ index 469857d0..0457c15f 100644
  
  	return nil
 -- 
-2.44.2
+2.45.3
 
