@@ -61,9 +61,7 @@ src_prepare() {
 	# Pull in the config and public module signing key
 	KV_OUT_DIR="${SYSROOT%/}/lib/modules/${COREOS_SOURCE_NAME#linux-}/build"
 	cp -v "${KV_OUT_DIR}/.config" build/ || die
-	local sig_key="$(getconfig MODULE_SIG_KEY)"
-	mkdir -p "build/${sig_key%/*}" || die
-	cp -v "${KV_OUT_DIR}/${sig_key}" "build/${sig_key}" || die
+	validate_sig_key
 
 	# Symlink to bootengine.cpio so we can stick with relative paths in .config
 	ln -sv "${SYSROOT%/}"/usr/share/bootengine/bootengine.cpio build/ || die
