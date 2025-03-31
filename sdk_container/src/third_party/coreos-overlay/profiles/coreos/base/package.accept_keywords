@@ -36,6 +36,9 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
+# Keep versions on both arches in sync.
+=dev-libs/libxml2-2.13.7 ~arm64
+
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
