@@ -366,13 +366,14 @@ function struct_declare() {
             break
         fi
         args+=( "${1}" )
+        shift
     done
     if [[ ${#} -lt 2 ]]; then
         fail "bad use of struct_declare"
     fi
     local definition=${*: -1}
     set -- "${@:1:$((${#} - 1))}"
-    set -- "${@/%/=${definition}"
+    set -- "${@/%/=${definition}}"
     declare "${args[@]}" "${@}"
 }
 
