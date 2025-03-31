@@ -52,9 +52,6 @@
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# Needed to address CVE-2025-0167, CVE-2025-0665, CVE-2025-0725.
-=net-misc/curl-8.12.1 ~amd64 ~arm64
-
 # Needed to address CVE-2024-54661
 =net-misc/socat-1.8.0.2 ~amd64 ~arm64
 
