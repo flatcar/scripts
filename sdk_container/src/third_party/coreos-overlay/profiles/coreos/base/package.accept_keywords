@@ -29,19 +29,12 @@
 =app-emulation/open-vmdk-1.0 *
 
 # Keep versions on both arches in sync.
-=app-emulation/qemu-guest-agent-8.2.0 ~arm64
-=dev-build/meson-1.6.1 ~arm64
+=app-emulation/qemu-guest-agent-9.2.0 ~arm64
 =dev-lang/yasm-1.3.0-r1 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
 
-# Needed to address CVE-2024-52533
-=dev-libs/glib-2.82.4-r1 ~amd64 ~arm64
-
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
-
-# Needed to address CVE-2024-12133.
-=dev-libs/libtasn1-4.20.0 ~amd64 ~arm64
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
@@ -51,10 +44,6 @@
 
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
-
-# Needed to address CVE-2024-52533
-=dev-util/gdbus-codegen-2.82.4 ~amd64 ~arm64
-=dev-util/glib-utils-2.82.4 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
@@ -90,11 +79,7 @@
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
-# Needed to address CVE-2024-53589, CVE-2025-1176, CVE-2025-1178,
-# CVE-2025-1179, CVE-2025-1180, CVE-2025-1181, CVE-2025-1182.
-=sys-devel/binutils-2.44 ~amd64 ~arm64
-=sys-libs/binutils-libs-2.44 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =sys-libs/libsemanage-3.7 ~arm64
+=sys-libs/ncurses-6.5_p20250125 ~arm64
 =sys-process/audit-4.0.2-r1 ~arm64

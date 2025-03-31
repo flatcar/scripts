@@ -1,13 +1,11 @@
-From eae9a401894ccbb9be1f94c1d23726fa0cb1c480 Mon Sep 17 00:00:00 2001
+From b5389d2eadf0fa4a6892a6e69e4f127aa078aef6 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Thu, 24 Oct 2024 10:01:18 +0200
+Date: Wed, 26 Mar 2025 15:06:07 +0100
 Subject: [PATCH 01/20] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
  build                                         |  4 +-
- build_blackbox_tests                          | 10 ++--
- build_for_container                           |  2 +-
  config/config.go                              |  4 +-
  config/config_test.go                         | 16 +++---
  config/doc/generate.go                        |  2 +-
@@ -303,11 +301,6 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  .../types/verification_test.go                |  2 +-
  config/validate/validate.go                   |  4 +-
  config/validate/validate_test.go              |  2 +-
- dracut/30ignition/ignition-complete.target    |  2 +-
- .../ignition-diskful-subsequent.target        |  2 +-
- dracut/30ignition/ignition-diskful.target     |  2 +-
- dracut/30ignition/ignition-subsequent.target  |  2 +-
- dracut/30ignition/module-setup.sh             |  2 +-
  go.mod                                        |  2 +-
  internal/apply/apply.go                       | 30 +++++------
  internal/distro/distro.go                     |  2 +-
@@ -437,7 +430,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/servers/servers.go                      |  2 +-
  tests/validator.go                            |  4 +-
  validate/main.go                              |  4 +-
- 432 files changed, 1141 insertions(+), 1141 deletions(-)
+ 425 files changed, 1130 insertions(+), 1130 deletions(-)
 
 diff --git a/build b/build
 index 9bf93d61..5abdcf5f 100755
@@ -461,40 +454,6 @@ index 9bf93d61..5abdcf5f 100755
  
  eval $(go env)
  
-diff --git a/build_blackbox_tests b/build_blackbox_tests
-index 9b3dd5b7..6527a3fb 100755
---- a/build_blackbox_tests
-+++ b/build_blackbox_tests
-@@ -6,11 +6,11 @@ set -eu
- # tests will be run and where the stubs will be located, rely on the bb test caller setting up
- # their PATH to include them. We don't need to include `id` because it gets copied into the
- # system
--GLDFLAGS="-X github.com/coreos/ignition/v2/internal/distro.useraddCmd=useradd-stub "
--GLDFLAGS+="-X github.com/coreos/ignition/v2/internal/distro.usermodCmd=usermod-stub "
--GLDFLAGS+="-X github.com/coreos/ignition/v2/internal/distro.userdelCmd=userdel-stub "
--GLDFLAGS+="-X github.com/coreos/ignition/v2/internal/distro.groupdelCmd=groupdel-stub "
--GLDFLAGS+="-X github.com/coreos/ignition/v2/internal/distro.blackboxTesting=true "
-+GLDFLAGS="-X github.com/flatcar/ignition/v2/internal/distro.useraddCmd=useradd-stub "
-+GLDFLAGS+="-X github.com/flatcar/ignition/v2/internal/distro.usermodCmd=usermod-stub "
-+GLDFLAGS+="-X github.com/flatcar/ignition/v2/internal/distro.userdelCmd=userdel-stub "
-+GLDFLAGS+="-X github.com/flatcar/ignition/v2/internal/distro.groupdelCmd=groupdel-stub "
-+GLDFLAGS+="-X github.com/flatcar/ignition/v2/internal/distro.blackboxTesting=true "
- 
- . ./build
- 
-diff --git a/build_for_container b/build_for_container
-index 7ddfc55d..147a5ef0 100755
---- a/build_for_container
-+++ b/build_for_container
-@@ -12,7 +12,7 @@ if [ -z ${VERSION+a} ]; then
- 	VERSION=$(git describe --dirty --always)
- fi
- 
--GLDFLAGS+="-X github.com/coreos/ignition/v2/internal/version.Raw=${VERSION}"
-+GLDFLAGS+="-X github.com/flatcar/ignition/v2/internal/version.Raw=${VERSION}"
- 
- if [[ -n "$(git status -s)" ]]; then
-     echo "git repo not clean"
 diff --git a/config/config.go b/config/config.go
 index 47e82214..0cbdb15d 100644
 --- a/config/config.go
@@ -4941,81 +4900,16 @@ index 18eea933..4f77f19c 100644
  
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
-diff --git a/dracut/30ignition/ignition-complete.target b/dracut/30ignition/ignition-complete.target
-index 6241b1d2..43a80147 100644
---- a/dracut/30ignition/ignition-complete.target
-+++ b/dracut/30ignition/ignition-complete.target
-@@ -5,7 +5,7 @@
- # initrd.
- [Unit]
- Description=Ignition Complete
--Documentation=https://github.com/coreos/ignition
-+Documentation=https://github.com/flatcar/ignition
- ConditionPathExists=/etc/initrd-release
- Before=initrd.target
- 
-diff --git a/dracut/30ignition/ignition-diskful-subsequent.target b/dracut/30ignition/ignition-diskful-subsequent.target
-index 0adda1f5..e3b0b5f2 100644
---- a/dracut/30ignition/ignition-diskful-subsequent.target
-+++ b/dracut/30ignition/ignition-diskful-subsequent.target
-@@ -3,7 +3,7 @@
- # boot disk and *aren't* doing the first boot.
- [Unit]
- Description=Ignition Subsequent Boot Disk Setup
--Documentation=https://github.com/coreos/ignition
-+Documentation=https://github.com/flatcar/ignition
- ConditionPathExists=/etc/initrd-release
- Before=ignition-subsequent.target
- 
-diff --git a/dracut/30ignition/ignition-diskful.target b/dracut/30ignition/ignition-diskful.target
-index c59b2175..a15ae54b 100644
---- a/dracut/30ignition/ignition-diskful.target
-+++ b/dracut/30ignition/ignition-diskful.target
-@@ -3,7 +3,7 @@
- # Like ignition-complete.target, it only runs on first boot.
- [Unit]
- Description=Ignition Boot Disk Setup
--Documentation=https://github.com/coreos/ignition
-+Documentation=https://github.com/flatcar/ignition
- ConditionPathExists=/etc/initrd-release
- Before=ignition-complete.target
- 
-diff --git a/dracut/30ignition/ignition-subsequent.target b/dracut/30ignition/ignition-subsequent.target
-index 95ae838f..4c734e43 100644
---- a/dracut/30ignition/ignition-subsequent.target
-+++ b/dracut/30ignition/ignition-subsequent.target
-@@ -3,7 +3,7 @@
- # different order on the Ignition boot versus "subsequent" boots.
- [Unit]
- Description=Subsequent (Not Ignition) boot complete
--Documentation=https://github.com/coreos/ignition
-+Documentation=https://github.com/flatcar/ignition
- ConditionPathExists=/etc/initrd-release
- Before=initrd.target
- 
-diff --git a/dracut/30ignition/module-setup.sh b/dracut/30ignition/module-setup.sh
-index 54867d10..298f1070 100755
---- a/dracut/30ignition/module-setup.sh
-+++ b/dracut/30ignition/module-setup.sh
-@@ -60,7 +60,7 @@ install() {
-         tpm2_createpolicy
- 
-     # Required by s390x's z/VM installation.
--    # Supporting https://github.com/coreos/ignition/pull/865
-+    # Supporting https://github.com/flatcar/ignition/pull/865
-     if [[ ${DRACUT_ARCH:-$(uname -m)} == s390x ]]; then
-         inst_multiple chccwdev vmur zkey zkey-cryptsetup
- 
 diff --git a/go.mod b/go.mod
-index a1a25ec7..a22b3edb 100644
+index 63d73c98..f94bbafa 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,4 +1,4 @@
 -module github.com/coreos/ignition/v2
 +module github.com/flatcar/ignition/v2
  
- go 1.20
- 
+ go 1.22.0
+ toolchain go1.23.6
 diff --git a/internal/apply/apply.go b/internal/apply/apply.go
 index db48b8dc..b98fdf5d 100644
 --- a/internal/apply/apply.go
@@ -5127,7 +5021,7 @@ index 0769d983..3067037f 100644
  
  type ConfigFetcher struct {
 diff --git a/internal/exec/engine.go b/internal/exec/engine.go
-index 7e400d29..29610100 100644
+index f584e518..dcadb091 100644
 --- a/internal/exec/engine.go
 +++ b/internal/exec/engine.go
 @@ -23,17 +23,17 @@ import (
@@ -5673,7 +5567,7 @@ index 7e880e3b..f1865474 100644
  
  // Util encapsulates logging and destdir indirection for the util methods.
 diff --git a/internal/main.go b/internal/main.go
-index 5cebe6a4..ef421d9d 100644
+index 7e9e64c6..fa945f1b 100644
 --- a/internal/main.go
 +++ b/internal/main.go
 @@ -22,15 +22,15 @@ import (
@@ -5812,13 +5706,13 @@ index daabc367..b4cb36a1 100644
  	// TODO: investigate alternative solutions (adding a Retryer to the
  	// aws.Config, fetching the region from an HTTP URL, handle the
 diff --git a/internal/providers/azure/azure.go b/internal/providers/azure/azure.go
-index c00a5f61..7472f105 100644
+index c947c3de..b426332d 100644
 --- a/internal/providers/azure/azure.go
 +++ b/internal/providers/azure/azure.go
-@@ -25,13 +25,13 @@ import (
- 	"path/filepath"
+@@ -26,13 +26,13 @@ import (
  	"time"
  
+ 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 -	"github.com/coreos/ignition/v2/config/shared/errors"
 -	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 -	execUtil "github.com/coreos/ignition/v2/internal/exec/util"
@@ -5836,7 +5730,7 @@ index c00a5f61..7472f105 100644
  
  	"github.com/coreos/vcontext/report"
  	"golang.org/x/sys/unix"
-@@ -115,7 +115,7 @@ func fetchFromIMDS(f *resource.Fetcher) ([]byte, error) {
+@@ -133,7 +133,7 @@ func fetchFromIMDS(f *resource.Fetcher) ([]byte, error) {
  	// Azure IMDS expects some codes <500 to still be retried...
  	// Here, we match the cloud-init set.
  	// https://github.com/canonical/cloud-init/commit/c1a2047cf291
@@ -6212,7 +6106,7 @@ index 713f823e..a4ef1c25 100644
  	"github.com/coreos/vcontext/report"
  )
 diff --git a/internal/providers/proxmoxve/proxmoxve.go b/internal/providers/proxmoxve/proxmoxve.go
-index 490bfe30..cbfe7c7d 100644
+index 5a00420a..dbe6cd98 100644
 --- a/internal/providers/proxmoxve/proxmoxve.go
 +++ b/internal/providers/proxmoxve/proxmoxve.go
 @@ -28,13 +28,13 @@ import (
@@ -6580,7 +6474,7 @@ index b6e90988..9a37ffac 100644
  	"github.com/vincent-petithory/dataurl"
  
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 8960c5d8..4f55dc2b 100644
+index 4d7a895d..354385fa 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
 @@ -33,9 +33,9 @@ import (
@@ -6597,10 +6491,10 @@ index 8960c5d8..4f55dc2b 100644
  	"google.golang.org/api/option"
  
 diff --git a/internal/resource/url_test.go b/internal/resource/url_test.go
-index 77a39c93..415822fc 100644
+index ed1c2d6a..41c0e354 100644
 --- a/internal/resource/url_test.go
 +++ b/internal/resource/url_test.go
-@@ -23,9 +23,9 @@ import (
+@@ -24,9 +24,9 @@ import (
  
  	"github.com/stretchr/testify/assert"
  
@@ -7544,5 +7438,5 @@ index bec64866..ed027604 100644
  
  var (
 -- 
-2.44.2
+2.45.3
 

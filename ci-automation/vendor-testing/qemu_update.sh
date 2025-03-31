@@ -127,6 +127,7 @@ run_kola_tests() {
       --update-payload="${QEMU_UPDATE_PAYLOAD}" \
       "${ovmf_vars:+--qemu-ovmf-vars=${ovmf_vars}}" \
       ${QEMU_KOLA_SKIP_MANGLE:+--qemu-skip-mangle} \
+      --image-version "${CIA_VERNUM}" \
       "${tests[@]}"
 }
 

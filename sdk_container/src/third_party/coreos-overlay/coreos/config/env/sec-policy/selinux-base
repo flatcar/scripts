@@ -1,2 +1,0 @@
-PKG_INSTALL_MASK+=" /etc/selinux/config"
-INSTALL_MASK+=" /etc/selinux/config"

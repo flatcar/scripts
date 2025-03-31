@@ -1,4 +1,4 @@
-ARG VERSION
+ARG VERSION=9999.99.99-version-missing
 FROM flatcar-sdk-tarball:${VERSION}
 
 # Make build scripts believe we're in the SDK chroot (which technically, we are)
@@ -55,4 +55,4 @@ RUN chmod 755 /home/sdk/sdk_entry.sh
 #  it's likely that scripts and SDK tarball are out of sync
 RUN /home/sdk/sdk_entry.sh ./update_chroot --toolchain_boards="amd64-usr arm64-usr"
 
-ENTRYPOINT /home/sdk/sdk_entry.sh
+ENTRYPOINT ["/home/sdk/sdk_entry.sh"]

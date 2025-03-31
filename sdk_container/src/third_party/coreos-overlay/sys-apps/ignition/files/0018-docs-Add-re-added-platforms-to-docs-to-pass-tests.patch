@@ -1,4 +1,4 @@
-From eb5bb6977caec2b38f77f63fa772720d4f2fc11e Mon Sep 17 00:00:00 2001
+From d88e7af1759737d4b21adf38655312976587aeb6 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 4 Mar 2024 15:05:14 +0100
 Subject: [PATCH 18/20] docs: Add re-added platforms to docs to pass tests
@@ -10,7 +10,7 @@ Co-Authored-By: Krzesimir Nowak <knowak@microsoft.com
  1 file changed, 4 insertions(+)
 
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index 21ad376e..232482e6 100644
+index 9e80ed2a..7e2ac5a0 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
 @@ -15,6 +15,7 @@ Ignition is currently supported for the following platforms:
@@ -32,5 +32,5 @@ index 21ad376e..232482e6 100644
  * [VirtualBox] (`virtualbox`) - Use the VirtualBox guest property `/Ignition/Config` to provide the config to the virtual machine.
  * [VMware] (`vmware`) - Use the VMware Guestinfo variables `ignition.config.data` and `ignition.config.data.encoding` to provide the config and its encoding to the virtual machine. Valid encodings are "", "base64", and "gzip+base64". Guestinfo variables can be provided directly or via an OVF environment, with priority given to variables specified directly.
 -- 
-2.44.2
+2.45.3
 

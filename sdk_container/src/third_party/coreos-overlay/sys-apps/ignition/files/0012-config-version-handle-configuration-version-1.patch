@@ -1,4 +1,4 @@
-From 6f4ae547913ed6be8801ec17fd91f3ce0769d34e Mon Sep 17 00:00:00 2001
+From 2a7d30599956087db90b260dcb75fbc0762d95da Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 2 Feb 2022 13:27:18 +0100
 Subject: [PATCH 12/20] config/version: handle configuration version 1
@@ -49,5 +49,5 @@ index 3b9bb22f..f81056fa 100644
  		return semver.Version{}, report.Report{}, errors.ErrInvalidVersion
  	}
 -- 
-2.44.2
+2.45.3
 
