@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# This file implements parsing the md5-metadata cache files and
+# accessing the parsed results. Not the entirety of the cache file is
+# parsed, only the parts that were needed at the time of writing
+# it. So currently the exposed parts of parsed cache files are EAPI,
+# IUSE, KEYWORDS, LICENSE, {B,R,P,I,}DEPEND and _eclasses_. The
+# ECLASSES part discards the checksums, though, so only names are
+# available.
+
 if [[ -z ${__MD5_CACHE_LIB_SH_INCLUDED__:-} ]]; then
 __MD5_CACHE_LIB_SH_INCLUDED__=x
 
@@ -369,7 +377,9 @@ function pds_to_string() {
 }
 
 #
-# Group
+# Group. A structure for describing {B,R,I,P,}DEPEND and LICENSE
+# fields. Contains items, which can be either package dependency
+# specifications or another groups. So it is a recursive structure.
 #
 
 # Enumeration describing type of a group. Self-describing.
