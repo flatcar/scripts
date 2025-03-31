@@ -10,9 +10,6 @@
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.32.0 ~arm64
 
-# Needed to address CVE-2024-11218.
-=app-containers/podman-5.3.2 ~amd64 ~arm64
-
 # Seems to be the only available ebuild in portage-stable right now.
 =app-crypt/adcli-0.9.2 ~arm64
 
