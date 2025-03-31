@@ -75,5 +75,4 @@
 
 # Keep versions on both arches in sync.
 =sys-libs/libsemanage-3.7 ~arm64
-=sys-libs/ncurses-6.5_p20250125 ~arm64
 =sys-process/audit-4.0.2-r1 ~arm64
