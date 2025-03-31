@@ -1,0 +1,20 @@
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -1,14 +1,14 @@
+ SHELL = /bin/sh
+ TOPDIR = $(realpath ..)
+ 
+-CPPFLAGS = -Iinclude -I/usr/include/json-c
++CPPFLAGS := -Iinclude $(shell $(PKG_CONFIG) --cflags libcurl json-c pam)
+ FLAGS = -fPIC -Wall -g
+ CFLAGS = $(FLAGS) -Wstrict-prototypes
+ CXXFLAGS = $(FLAGS)
+ 
+ LDFLAGS = -shared -Wl,-soname,$(SONAME)
+-LDLIBS = -lcurl -ljson-c
+-PAMLIBS = -lpam $(LDLIBS)
++LDLIBS := $(shell $(PKG_CONFIG) --libs libcurl json-c)
++PAMLIBS := $(shell $(PKG_CONFIG) --libs pam) $(LDLIBS)
+ 
+ # Paths which should be overrideable.
+ 
