@@ -28,6 +28,10 @@ RDEPEND="
 	!systemd? ( virtual/cron )
 "
 
+DEPEND+="
+	sys-apps/baselayout
+"
+
 BDEPEND="
 	virtual/pkgconfig
 "
@@ -71,8 +75,12 @@ src_install() {
 	insinto /usr/share/google-oslogin
 	doins "${FILESDIR}/sshd_config"
 	doins "${FILESDIR}/60-flatcar-google-oslogin.conf"
-	doins "${FILESDIR}/nsswitch.conf"
 	doins "${FILESDIR}/pam_sshd"
 	doins "${FILESDIR}/oslogin-sudoers"
 	doins "${FILESDIR}/group.conf"
+
+	# Append oslogin databases to the regular nsswitch.conf.
+	sed -r 's/^(passwd|group):.*/\0 cache_oslogin oslogin/' \
+		"${ESYSROOT}"/usr/share/baselayout/nsswitch.conf |
+		newins - nsswitch.conf
 }
