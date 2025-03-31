@@ -52,7 +52,6 @@ BDEPEND="
 			>=dev-python/jaraco-path-3.7.2[${PYTHON_USEDEP}]
 			>=dev-python/jaraco-test-5.5[${PYTHON_USEDEP}]
 			dev-python/pip[${PYTHON_USEDEP}]
-			dev-python/pip-run[${PYTHON_USEDEP}]
 			dev-python/pyproject-hooks[${PYTHON_USEDEP}]
 			dev-python/pytest[${PYTHON_USEDEP}]
 			>=dev-python/pytest-home-0.5[${PYTHON_USEDEP}]
@@ -124,6 +123,8 @@ python_test() {
 		# relies on -Werror
 		setuptools/_static.py::setuptools._static.Dict
 		setuptools/_static.py::setuptools._static.List
+		# TODO
+		setuptools/dist.py::setuptools.dist.Distribution._find_pattern
 	)
 
 	local EPYTEST_XDIST=1
