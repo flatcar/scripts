@@ -1,30 +1,15 @@
-From 66c1d03b541211ed4707b0608422856ece90f1c2 Mon Sep 17 00:00:00 2001
-From: Andrew Jeddeloh <andrew.jeddeloh@coreos.com>
-Date: Fri, 6 Jul 2018 15:54:40 -0700
-Subject: [PATCH] pam_module: use /var/lib/ instead of /var
+pam_module: use /var/lib/ instead of /var
 
---- a/src/pam/pam_oslogin_admin.cc
-+++ b/src/pam/pam_oslogin_admin.cc
-@@ -36,7 +36,7 @@ using oslogin_utils::ParseJsonToEmail;
- using oslogin_utils::UrlEncode;
- using oslogin_utils::kMetadataServerUrl;
+--- a/src/oslogin_utils.cc
++++ b/src/oslogin_utils.cc
+@@ -57,8 +57,8 @@
  
+ // Regex for validating user names.
+ static const char kUserNameRegex[] = "^[a-zA-Z0-9._][a-zA-Z0-9._-]{0,31}$";
 -static const char kSudoersDir[] = "/var/google-sudoers.d/";
-+static const char kSudoersDir[] = "/var/lib/google-sudoers.d/";
- 
- extern "C" {
- 
---- a/src/pam/pam_oslogin_login.cc
-+++ b/src/pam/pam_oslogin_login.cc
-@@ -36,7 +36,7 @@ using oslogin_utils::ParseJsonToEmail;
- using oslogin_utils::UrlEncode;
- using oslogin_utils::kMetadataServerUrl;
- 
 -static const char kUsersDir[] = "/var/google-users.d/";
++static const char kSudoersDir[] = "/var/lib/google-sudoers.d/";
 +static const char kUsersDir[] = "/var/lib/google-users.d/";
  
- extern "C" {
+ namespace oslogin_utils {
  
--- 
-2.16.4
-

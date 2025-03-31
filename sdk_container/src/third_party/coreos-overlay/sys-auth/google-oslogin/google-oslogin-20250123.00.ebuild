@@ -64,9 +64,6 @@ src_install() {
 		INSTALL_CRON=$(usex !systemd 1 '') \
 		install
 
-	# Flatcar doesn't need this script.
-	rm "${ED}"/usr/bin/google_oslogin_control || die
-
 	# man pages need fixing up for Gentoo QA but Flatcar drops them anyway.
 	rm -r "${ED}"/usr/share/man || die
 

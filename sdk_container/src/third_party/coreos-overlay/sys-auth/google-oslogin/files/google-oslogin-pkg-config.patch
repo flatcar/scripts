@@ -4,11 +4,11 @@
  SHELL = /bin/sh
  TOPDIR = $(realpath ..)
  
--CPPFLAGS = -Iinclude -I/usr/include/json-c
-+CPPFLAGS := -Iinclude $(shell $(PKG_CONFIG) --cflags libcurl json-c pam)
+-CPPFLAGS += -I. -I/usr/include/json-c
++CPPFLAGS += -I. $(shell $(PKG_CONFIG) --cflags libcurl json-c pam)
  FLAGS = -fPIC -Wall -g
- CFLAGS = $(FLAGS) -Wstrict-prototypes
- CXXFLAGS = $(FLAGS)
+ CFLAGS += $(FLAGS) -Wstrict-prototypes
+ CXXFLAGS += $(FLAGS)
  
  LDFLAGS = -shared -Wl,-soname,$(SONAME)
 -LDLIBS = -lcurl -ljson-c
