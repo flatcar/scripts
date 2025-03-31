@@ -650,9 +650,10 @@ function __mcdl_pds_diff() {
 }
 
 function __mcdl_merge_and_sort_tagged_subgroups() {
-    local -n empty_subgroup_item_name_ref=${1}; shift
+    local -n empty_subgroup_item_names_ref=${1}; shift
     local -n subgroup_tag_to_named_subgroup_item_names_map_ref=${1}; shift
     local -n any_of_subgroup_item_names_ref=${1}; shift
+    local skip_subgroup_merging=${1}; shift
     local subgroup_tag=${1}; shift
     # skip the mvc name, the group names will be the rest of the
     # args
@@ -669,6 +670,18 @@ function __mcdl_merge_and_sort_tagged_subgroups() {
             unset -n item_ref
             __mcdl_sort_group "${subgroup_name}"
             any_of_subgroup_item_names_ref+=( "${subgroup_item_name}" )
+        done
+    elif [[ -n ${skip_subgroup_merging} ]]; then
+        for subgroup_item_name; do
+            local -n item_ref=${subgroup_item_name}
+            subgroup_name=${item_ref:2}
+            unset -n item_ref
+            __mcdl_sort_group "${subgroup_name}"
+            if [[ ${subgroup_tag} = '@empty@' ]]; then
+                empty_subgroup_item_names_ref+=( "${subgroup_item_name}" )
+            else
+                subgroup_tag_to_named_subgroup_item_names_map_ref["${subgroup_tag}"]=${subgroup_item_name}
+            fi
         done
     else
         subgroup_item_name=${1}; shift
@@ -692,7 +705,7 @@ function __mcdl_merge_and_sort_tagged_subgroups() {
         done
         __mcdl_sort_group "${subgroup_name}"
         if [[ ${subgroup_tag} = '@empty@' ]]; then
-            empty_subgroup_item_name_ref=${subgroup_item_name}
+            empty_subgroup_item_names_ref+=( "${subgroup_item_name}" )
         else
             subgroup_tag_to_named_subgroup_item_names_map_ref["${subgroup_tag}"]=${subgroup_item_name}
         fi
@@ -705,6 +718,7 @@ function __mcdl_sort_group() {
     local -n group_ref=${group_name}
     local -a subgroup_item_names license_item_names pds_item_names=()
     local -n items_ref=${group_ref[GROUP_ITEMS_IDX]}
+    local is_any_of_group=
 
     subgroup_item_names=()
     license_item_names=()
@@ -713,6 +727,12 @@ function __mcdl_sort_group() {
     if [[ ${#items_ref[@]} -eq 0 ]]; then
         return 0
     fi
+
+    local -i group_type=${group_ref[GROUP_TYPE_IDX]}
+    if [[ group_type -eq GROUP_ANY_OF ]]; then
+        is_any_of_group=x
+    fi
+    unset group_type
 
     local item_name item_type
     for item_name in "${items_ref[@]}"; do
@@ -806,12 +826,14 @@ function __mcdl_sort_group() {
     ##
     ## add sorted subgroups into group
     ##
+
     if [[ ${#subgroup_item_names[@]} -gt 0 ]]; then
         # - collect group names based on their type, use name and enabled use
         #   - unnamed all-of go first (tag: empty)
         #   - named all-of go next (tag: use name + enabled use)
         #   - any-of go each separately (tag: any-of)
         # - merge all-of groups with the same tag
+        #   - exception - unnamed all-of groups inside any-of group should not be merged
         # - sort each group and add to main group
         local subgroup_item_name subgroup_name subgroup_type subgroup_use subgroup_tag subgroup_use_mode
         local dsg_tagged_subgroups_item_names_array_mvm_name
@@ -850,18 +872,16 @@ function __mcdl_sort_group() {
         done
         unset subgroup_use_mode subgroup_tag subgroup_use subgroup_type subgroup_name subgroup_item_name
 
-        local empty_subgroup_item_name=''
         local -A subgroup_tag_to_named_subgroup_item_names_map=()
-        local -a any_of_subgroup_item_names=()
+        local -a any_of_subgroup_item_names=() empty_subgroup_item_names=()
         mvm_iterate "${dsg_tagged_subgroups_item_names_array_mvm_name}" __mcdl_merge_and_sort_tagged_subgroups \
-                    empty_subgroup_item_name \
+                    empty_subgroup_item_names \
                     subgroup_tag_to_named_subgroup_item_names_map \
-                    any_of_subgroup_item_names
+                    any_of_subgroup_item_names \
+                    "${is_any_of_group}"
         mvm_unset "${dsg_tagged_subgroups_item_names_array_mvm_name}"
 
-        if [[ -n ${empty_subgroup_item_name} ]]; then
-            group_add_items "${group_name}" "${empty_subgroup_item_name}"
-        fi
+        group_add_items "${group_name}" "${empty_subgroup_item_names[@]}"
         if [[ ${#subgroup_tag_to_named_subgroup_item_names_map[@]} -gt 0 ]]; then
             local -a sorted_subgroup_tags sorted_items
             local subgroup_tag subgroup_item_name
