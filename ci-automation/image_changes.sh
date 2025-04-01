@@ -280,7 +280,7 @@ function get_base_sysext_list() {
 
     source "${scripts_repo}/ci-automation/base_sysexts.sh" 'local'
 
-    list_var_ref=( "${ciabs_base_sysexts[@]%%:*}" )
+    list_var_ref=( "${ciabs_base_sysexts[@]%%|*}" )
 }
 
 function get_extra_sysext_list() {
@@ -291,7 +291,7 @@ function get_extra_sysext_list() {
     local -a EXTRA_SYSEXTS
     source "${scripts_repo}/build_library/extra_sysexts.sh"
 
-    list_var_ref=( "${EXTRA_SYSEXTS[@]%%:*}" )
+    list_var_ref=( "${EXTRA_SYSEXTS[@]%%|*}" )
 }
 
 # Generates reports with passed parameters. The report is redirected
