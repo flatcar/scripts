@@ -69,7 +69,6 @@ function get_repo_from_profile_path() {
     path=${1}; shift
     local -n repo_dir_ref=${1}; shift
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     repo_dir_ref="${path%/profiles/*}"
 }
 
@@ -78,7 +77,6 @@ function repo_path_to_name() {
     path=${1}; shift
     local -n name_ref=${1}; shift
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     name_ref=${repo_data_r["${path}"]:-'<unknown>'}
 }
 
@@ -138,7 +136,6 @@ function process_profile() {
         done <"${parent_file}"
     fi
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     children_ref=( "${children[@]}" )
 }
 
@@ -152,7 +149,6 @@ function get_profile_name() {
     repo_path=${repo_data["${repo_name}"]}
     profile_name=${profile_path#"${repo_path}/profiles/"}
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     profile_name_ref="${profile_name}"
 }
 

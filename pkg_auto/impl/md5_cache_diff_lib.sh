@@ -330,16 +330,14 @@ function __mcdl_diff_iuse() {
     local old_iuses_var_name=${old_ref[PCF_IUSE_IDX]}
     local new_iuses_var_name=${new_ref[PCF_IUSE_IDX]}
 
-    local -A old_map=() new_map=() removed same added
+    local -A old_map=() new_map=() removed_iuses same_iuses added_iuses
 
     local -n old_iuses_ref=${old_iuses_var_name} new_iuses_ref=${new_iuses_var_name}
 
     local -i idx=0
     local iuse_var_name name
     for iuse_var_name in "${old_iuses_ref[@]}"; do
-        # shellcheck disable=SC2178 # shellcheck does not grok references
         local -n iuse_ref=${iuse_var_name}
-        # shellcheck disable=SC2034 # shellcheck does not grok references
         name=${iuse_ref[IUSE_NAME_IDX]}
         old_map["${name}"]=${idx}
         unset -n iuse_ref
@@ -348,7 +346,6 @@ function __mcdl_diff_iuse() {
 
     idx=0
     for iuse_var_name in "${new_iuses_ref[@]}"; do
-        # shellcheck disable=SC2178 # shellcheck does not grok references
         local -n iuse_ref=${iuse_var_name}
         name=${iuse_ref[IUSE_NAME_IDX]}
         new_map["${name}"]=${idx}
@@ -356,20 +353,20 @@ function __mcdl_diff_iuse() {
         ((++idx))
     done
 
-    sets_split old_map new_map removed added same
+    sets_split old_map new_map removed_iuses added_iuses same_iuses
 
     local iuse
-    for iuse in "${!removed[@]}"; do
+    for iuse in "${!removed_iuses[@]}"; do
         diff_report_append "${dr_var_name}" "removed IUSE flag ${iuse@Q}"
         diff_report_append_indented "${dr_var_name}" "TODO: describe removed IUSE flag"
     done
-    for iuse in "${!added[@]}"; do
+    for iuse in "${!added_iuses[@]}"; do
         diff_report_append "${dr_var_name}" "added IUSE flag ${iuse@Q}"
         diff_report_append_indented "${dr_var_name}" "TODO: describe added IUSE flag"
     done
     local old_mode new_mode mode_str
     local -i old_idx new_idx
-    for iuse in "${!same[@]}"; do
+    for iuse in "${!same_iuses[@]}"; do
         old_idx=${old_map["${iuse}"]}
         new_idx=${new_map["${iuse}"]}
         local -n old_iuse_ref=${old_iuses_ref[${old_idx}]} new_iuse_ref=${new_iuses_ref[${new_idx}]}
@@ -451,14 +448,14 @@ function __mcdl_flatten_group() {
     local -n group_items_ref=${group_ref[GROUP_ITEMS_IDX]}
 
     case ${group_ref[GROUP_TYPE_IDX]} in
-        ${GROUP_ALL_OF})
+        "${GROUP_ALL_OF}")
             local name=${group_ref[GROUP_USE_IDX]}
             if [[ -n ${name} ]]; then
                 case ${group_ref[GROUP_ENABLED_IDX]} in
-                    ${GROUP_USE_ENABLED})
+                    "${GROUP_USE_ENABLED}")
                         :
                         ;;
-                    ${GROUP_USE_DISABLED})
+                    "${GROUP_USE_DISABLED}")
                         name="!${name}"
                         ;;
                 esac
@@ -467,7 +464,7 @@ function __mcdl_flatten_group() {
             fi
             unset name
             ;;
-        ${GROUP_ANY_OF})
+        "${GROUP_ANY_OF}")
             flattened_items_ref+=( "i:||" )
             ;;
     esac
@@ -641,13 +638,13 @@ function __mcdl_pds_diff() {
     if [[ old_blocks -ne new_blocks ]]; then
         local block
         case ${new_blocks} in
-            ${PDS_NO_BLOCK})
+            "${PDS_NO_BLOCK}")
                 block='no'
                 ;;
-            ${PDS_WEAK_BLOCK})
+            "${PDS_WEAK_BLOCK}")
                 block='weak'
                 ;;
-            ${PDS_STRONG_BLOCK})
+            "${PDS_STRONG_BLOCK}")
                 block='strong'
                 ;;
         esac
@@ -731,7 +728,7 @@ function __mcdl_pds_diff() {
         local -n old_ur_ref=${old_urs_ref[${old_idx}]} new_ur_ref=${new_urs_ref[${new_idx}]}
         old_mode=${old_ur_ref[UR_MODE_IDX]}
         new_mode=${new_ur_ref[UR_MODE_IDX]}
-        if [[ ${old_mode} != ${new_mode} ]]; then
+        if [[ ${old_mode} != "${new_mode}" ]]; then
             __mcdl_ur_mode_description "${old_mode}" pd_old_mode_str
             __mcdl_ur_mode_description "${new_mode}" pd_new_mode_str
             diff_report_append local_pds_dr "mode of use requirement on ${use_name} changed from ${pd_old_mode_str} to ${pd_new_mode_str}"
@@ -758,13 +755,13 @@ function __mcdl_pds_diff() {
         local block_str=''
         local -i new_blocks=${new_pds_ref[PDS_BLOCKS_IDX]}
         case ${new_blocks} in
-            ${PDS_NO_BLOCK})
+            "${PDS_NO_BLOCK}")
                 block_str=''
                 ;;
-            ${PDS_WEAK_BLOCK})
+            "${PDS_WEAK_BLOCK}")
                 block_str=' weak blocker'
                 ;;
-            ${PDS_STRONG_BLOCK})
+            "${PDS_STRONG_BLOCK}")
                 block_str=' strong blocker'
                 ;;
         esac
@@ -974,24 +971,24 @@ function __mcdl_sort_group() {
             local -n subgroup_ref=${subgroup_name}
             subgroup_type=${subgroup_ref[GROUP_TYPE_IDX]}
             case ${subgroup_type} in
-                ${GROUP_ALL_OF})
+                "${GROUP_ALL_OF}")
                     subgroup_use=${subgroup_ref[GROUP_USE_IDX]}
                     if [[ -z ${subgroup_use} ]]; then
                         subgroup_tag='@empty@'
                     else
                         subgroup_use_mode=${subgroup_ref[GROUP_ENABLED_IDX]}
                         case ${subgroup_use_mode} in
-                            ${GROUP_USE_ENABLED})
+                            "${GROUP_USE_ENABLED}")
                                 subgroup_tag='+'
                                 ;;
-                            ${GROUP_USE_DISABLED})
+                            "${GROUP_USE_DISABLED}")
                                 subgroup_tag='-'
                                 ;;
                         esac
                         subgroup_tag+=${subgroup_use}
                     fi
                     ;;
-                ${GROUP_ANY_OF})
+                "${GROUP_ANY_OF}")
                     subgroup_tag="@any-of@"
                     ;;
             esac
@@ -1230,22 +1227,22 @@ function __mcdl_diff_deps() {
 
     local label
     case ${deps_idx} in
-        ${PCF_BDEPEND_IDX})
+        "${PCF_BDEPEND_IDX}")
             label='build dependencies'
             ;;
-        ${PCF_DEPEND_IDX})
+        "${PCF_DEPEND_IDX}")
             label='dependencies'
             ;;
-        ${PCF_IDEPEND_IDX})
+        "${PCF_IDEPEND_IDX}")
             label='install dependencies'
             ;;
-        ${PCF_PDEPEND_IDX})
+        "${PCF_PDEPEND_IDX}")
             label='post dependencies'
             ;;
-        ${PCF_RDEPEND_IDX})
+        "${PCF_RDEPEND_IDX}")
             label='runtime dependencies'
             ;;
-        ${PCF_LICENSE_IDX})
+        "${PCF_LICENSE_IDX}")
             label='licenses'
             ;;
         *)
@@ -1318,13 +1315,13 @@ function __mcdl_diff_deps() {
                     unset -n p_ref
                     local what=''
                     case ${p_blocks} in
-                        ${PDS_NO_BLOCK})
+                        "${PDS_NO_BLOCK}")
                             what='dependency'
                             ;;
-                        ${PDS_WEAK_BLOCK})
+                        "${PDS_WEAK_BLOCK}")
                             what='weak blocker'
                             ;;
-                        ${PDS_STRONG_BLOCK})
+                        "${PDS_STRONG_BLOCK}")
                             what='strong blocker'
                             ;;
                     esac
@@ -1383,13 +1380,13 @@ function __mcdl_diff_deps() {
                     unset -n p_ref
                     local what=''
                     case ${p_blocks} in
-                        ${PDS_NO_BLOCK})
+                        "${PDS_NO_BLOCK}")
                             what='dependency'
                             ;;
-                        ${PDS_WEAK_BLOCK})
+                        "${PDS_WEAK_BLOCK}")
                             what='weak blocker'
                             ;;
-                        ${PDS_STRONG_BLOCK})
+                        "${PDS_STRONG_BLOCK}")
                             what='strong blocker'
                             ;;
                     esac
@@ -1513,13 +1510,13 @@ function __mcdl_diff_deps() {
                 unset -n p_ref
                 local what=''
                 case ${p_blocks} in
-                    ${PDS_NO_BLOCK})
+                    "${PDS_NO_BLOCK}")
                         what='dependency'
                         ;;
-                    ${PDS_WEAK_BLOCK})
+                    "${PDS_WEAK_BLOCK}")
                         what='weak blocker'
                         ;;
-                    ${PDS_STRONG_BLOCK})
+                    "${PDS_STRONG_BLOCK}")
                         what='strong blocker'
                         ;;
                 esac
@@ -1578,13 +1575,13 @@ function __mcdl_diff_deps() {
                 unset -n p_ref
                 local what=''
                 case ${p_blocks} in
-                    ${PDS_NO_BLOCK})
+                    "${PDS_NO_BLOCK}")
                         what='dependency'
                         ;;
-                    ${PDS_WEAK_BLOCK})
+                    "${PDS_WEAK_BLOCK}")
                         what='weak blocker'
                         ;;
-                    ${PDS_STRONG_BLOCK})
+                    "${PDS_STRONG_BLOCK}")
                         what='strong blocker'
                         ;;
                 esac

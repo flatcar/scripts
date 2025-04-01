@@ -159,19 +159,16 @@ ver_dash="${VERSION_ID}${BUILD_ID:+-}${BUILD_ID}"
 
 exts=(zst bz2 gz)
 
-# shellcheck disable=SC2034 # used indirectly as cmds_name and cmds
 zst_cmds=(
     zstd
 )
 
-# shellcheck disable=SC2034 # used indirectly as cmds_name and cmds
 bz2_cmds=(
     lbunzip2
     pbunzip2
     bunzip2
 )
 
-# shellcheck disable=SC2034 # used indirectly as cmds_name and cmds
 gz_cmds=(
     unpigz
     gunzip
