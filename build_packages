@@ -288,7 +288,7 @@ sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
 info "Merging sysext packages now"
 for sysext in "${EXTRA_SYSEXTS[@]}"; do
-  IFS=":" read SYSEXT_NAME PACKAGE_ATOMS USEFLAGS < <(echo "$sysext");
+  IFS="|" read SYSEXT_NAME PACKAGE_ATOMS USEFLAGS < <(echo "$sysext");
 
   info "Building packages for $SYSEXT_NAME sysext with USE=$USEFLAGS"
   IFS=,
