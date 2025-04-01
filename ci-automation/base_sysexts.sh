@@ -6,6 +6,6 @@ if [[ ${1:-} = 'local' ]]; then
 fi
 
 ciabs_base_sysexts=(
-    'containerd-flatcar:app-containers/containerd'
-    'docker-flatcar:app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx'
+    'containerd-flatcar|app-containers/containerd'
+    'docker-flatcar|app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx'
 )
