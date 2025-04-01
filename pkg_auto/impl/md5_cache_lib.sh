@@ -357,8 +357,15 @@ function pds_to_string() {
             str_ref='!!'
             ;;
     esac
-    str_ref+=${pds_ref[PDS_OP_IDX]}${pds_ref[PDS_NAME_IDX]}
+    local op=${pds_ref[PDS_OP_IDX]}
     local v=${pds_ref[PDS_VER_IDX]}
+    if [[ ${op} = '=*' ]]; then
+        op='='
+        # if there's an op, then we assume version is not empty - so
+        # version will never end up being just *
+        v+='*'
+    fi
+    str_ref+=${op}${pds_ref[PDS_NAME_IDX]}
     if [[ -n ${v} ]]; then
         str_ref+=-${v}
     fi
