@@ -11,25 +11,75 @@
 # to get the common items. These can be used to figure out the
 # differences between the old and new groups.
 #
-# Sorting a group merges all the similar subgroups into one (say there
-# is "!foo? ( sys-libs/bar ) !foo? ( app-admin/baz )" and they will
-# get merged into a single "!foo? ( sys-libs/bar app-admin/baz
-# )". There are exceptions - "any of" subgroups are not merged (so "||
-# ( sys-libs/foo sys-libs/bar ) || ( app-admin/foo app-admin/bar )"
-# stays as is), and unnamed "all-of" groups inside "any-of" groups are
-# not merged too (so "|| ( ( dev-lang/python:3.11
-# dev-python/setuptools[python_3_11] ) ( dev-lang/python:3.12
-# dev-python/setuptools[python_3_12] ) )" stays as is too.
+# Sorting a group merges all the similar subgroups into one. Say there
+# is:
+#
+# !foo? ( sys-libs/bar )
+# !foo? ( app-admin/baz )
+#
+# and they will get merged into:
+#
+# !foo? (
+#         app-admin/baz
+#         sys-libs/bar
+# )
+#
+# There are exceptions - "any of" subgroups are not merged (only
+# sorted), so:
+#
+# || (
+#         sys-libs/foo
+#         sys-libs/bar
+# )
+# || (
+#         app-admin/foo
+#         app-admin/bar
+# )
+#
+# stay almost as they are - the order of the packages with the group
+# will change to become ordered:
+#
+# || (
+#         sys-libs/bar
+#         sys-libs/foo
+# )
+# || (
+#         app-admin/bar
+#         app-admin/foo
+# )
+#
+# Also unnamed "all-of" groups inside "any-of" groups are not merged
+# too, so:
+#
+# || (
+#         (
+#                 dev-lang/python:3.11
+#                 dev-python/setuptools[python_3_11]
+#         )
+#         (
+#                 dev-lang/python:3.12
+#                 dev-python/setuptools[python_3_12]
+#         )
+# )
+#
+# stay as they are.
 #
 # Flattening turns the group-as-a-recursive-structure into a list of
 # tokens, so to speak. Each token can be than treated as a separate
 # line for the LCS algorithm. This means that for the following
 # groups:
 #
-# SUBGROUP { type: any-of, items: sys-libs/foo sys-libs/bar }
+# SUBGROUP {
+#         type: any-of,
+#         items: sys-libs/foo sys-libs/bar
+# }
 #
-# MAINGROUP { type all-off, use name: foo, use mode: disabled, items:
-# SUBGROUP, app-admin/bar }
+# MAINGROUP {
+#         type: all-off,
+#         use name: foo,
+#         use mode: disabled,
+#         items: SUBGROUP app-admin/bar
+# }
 #
 # flattening of MAINGROUP will result in the following list:
 #
@@ -43,14 +93,32 @@
 # app-admin/bar
 # )
 #
-# The LCS algorithm takes a score function. The one passed here is a
+# The LCS algorithm takes a score function. The one used here is a
 # function that returns maximum score of 3 for equal tokens, score of
-# 1 for package dependency specifications with the same name and 0
-# otherwise. This means that ">=sys-libs/foo-1.2.3" and
-# ">=sys-libs/foo-1.2.3" will result in score 3,
+# 1 for package dependency specifications with the same name and 0 for
+# the rest. This means that ">=sys-libs/foo-1.2.3" and
+# ">=sys-libs/foo-1.2.3" will result in score 3 (same tokens),
 # ">=sys-libs/foo-1.2.3" and ">=sys-libs/foo-3.2.1" will result in
-# score 1, and "sys-libs/foo" and "sys-libs/bar" will result in score
-# 0. TODO: WHY THIS WAY?
+# score 1 (same package name), and "sys-libs/foo" and "sys-libs/bar"
+# will result in score 0 (the rest). The reason for giving a non-zero
+# score on just package name equality is that we want to handle
+# changes for a package (like a plain version bump) differently than
+# dependency replacement (like replacing autotools with cmake, for
+# instance). On the other hand, the reason for not giving max score on
+# just package name equality was to increase the diff quality. Without
+# scoring, a change from:
+#
+# dev-lang/python:3.11
+#
+# to:
+#
+# dev-lang/python:3.10
+# dev-lang/python:3.11
+#
+# was interpreted two actions: first, as changing slot of
+# dev-lang/python from 3.11 to 3.10 and second, as adding
+# dev-lang/python:3.11. With scoring, the change was interpreted a
+# single action - adding dev-lang/python:3.10.
 
 if [[ -z ${__MD5_CACHE_DIFF_LIB_SH_INCLUDED__:-} ]]; then
 __MD5_CACHE_DIFF_LIB_SH_INCLUDED__=x

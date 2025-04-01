@@ -5,7 +5,7 @@
 # parsed, only the parts that were needed at the time of writing
 # it. So currently the exposed parts of parsed cache files are EAPI,
 # IUSE, KEYWORDS, LICENSE, {B,R,P,I,}DEPEND and _eclasses_. The
-# ECLASSES part discards the checksums, though, so only names are
+# _eclasses_ part discards the checksums, though, so only names are
 # available.
 
 if [[ -z ${__MD5_CACHE_LIB_SH_INCLUDED__:-} ]]; then
