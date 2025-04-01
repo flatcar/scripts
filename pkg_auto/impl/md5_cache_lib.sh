@@ -13,6 +13,7 @@ __MD5_CACHE_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/debug.sh"
+source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
 #
 # Cache file
@@ -230,7 +231,9 @@ declare -gri PDS_NO_BLOCK=0 PDS_WEAK_BLOCK=1 PDS_STRONG_BLOCK=2
 # PDS_BLOCKS_IDX - a number describing blocker mode (use PDS_NO_BLOCK,
 #                  PDS_WEAK_BLOCK and PDS_STRONG_BLOCK)
 # PDS_OP_IDX     - a string describing the relational operator, can be
-#                  empty or one of "<", "<=", "=", "~", ">=", or ">";
+#                  empty or one of "<", "<=", "=", "=*", "~", ">=", or
+#                  ">" ("=*" is same as "=" with asterisk appended to
+#                  version)
 #                  if empty, the version will also be empty
 # PDS_NAME_IDX   - a qualified package name (so category/name)
 # PDS_VER_IDX    - a version of the package, may be empty (if so,
@@ -977,7 +980,12 @@ function __mcl_parse_dsf() {
                 token=${token%:"${slot}"}
             fi
 
-            if [[ ${token} =~ -([0-9]+(\.[0-9]+)*[a-z]?((_alpha|_beta|_pre|_rc|_p)[0-9]*)*(-r[0-9]+)?)$ ]]; then
+            if [[ ${token} = *'*' ]]; then
+                operator='=*'
+                token=${token%'*'}
+            fi
+            local ver_ere_with_dash="-(${VER_ERE_STRIPPED})$"
+            if [[ ${token} =~ ${ver_ere_with_dash} ]]; then
                 version=${BASH_REMATCH[1]}
                 token=${token%"-${version}"}
             fi
