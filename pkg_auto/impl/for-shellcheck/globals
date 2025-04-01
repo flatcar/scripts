@@ -1,0 +1,68 @@
+local -a GIT_ENV_VARS ARCHES WHICH REPORTS
+local SDK_PKGS BOARD_PKGS
+local SYNC_SCRIPT PKG_LIST_SORT_SCRIPT
+
+GIT_ENV_VARS=(
+    GIT_{AUTHOR,COMMITTER}_{NAME,EMAIL}
+)
+
+SYNC_SCRIPT='/path/to/sync_with_gentoo.sh'
+PKG_LIST_SORT_SCRIPT='/path/to/sort_packages_list.py'
+
+ARCHES=( 'amd64' 'arm64' )
+WHICH=('old' 'new')
+SDK_PKGS='sdk-pkgs'
+BOARD_PKGS='board-pkgs'
+REPORTS=( "${SDK_PKGS}" "${BOARD_PKGS}" )
+
+local SCRIPTS OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
+local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
+local NEW_STATE_PACKAGES_LIST AUX_DIR
+local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
+
+SCRIPTS='/path/to/scripts'
+OLD_STATE='/path/to/old_state'
+NEW_STATE='/path/to/new_state'
+OLD_STATE_BRANCH='old-state'
+NEW_STATE_BRANCH='new-state'
+PORTAGE_STABLE_SUFFIX='sdk_container/src/third_party/portage-stable'
+OLD_PORTAGE_STABLE='/path/to/old_state/portage-stable'
+NEW_PORTAGE_STABLE='/path/to/new_state/portage-stable'
+REPORTS_DIR='/path/to/reports'
+
+COREOS_OVERLAY_SUFFIX='sdk_container/src/third_party/coreos-overlay'
+OLD_COREOS_OVERLAY='/path/to/old_state/coreos-overlay'
+NEW_COREOS_OVERLAY='/path/to/new_state/coreos-overlay'
+
+NEW_STATE_PACKAGES_LIST="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
+
+AUX_DIR='/path/to/aux'
+
+local 'SDK_IMAGE'
+
+SDK_IMAGE='ghcr.io/flatcar/flatcar-sdk-all:1234.5.6-build-tag'
+
+local -A LISTING_KINDS
+
+LISTING_KINDS=(
+    ['akamai']='oem-akamai_packages.txt'
+    ['ami']='oem-ami_packages.txt'
+    ['azure']='oem-azure_packages.txt'
+    ['containerd']='containerd-flatcar_packages.txt'
+    ['dev']='flatcar_developer_container_packages.txt'
+    ['digitalocean']='oem-digitalocean_packages.txt'
+    ['docker']='docker-flatcar_packages.txt'
+    ['gce']='oem-gce_packages.txt'
+    ['hetzner']='oem-hetzner_packages.txt'
+    ['kubevirt']='oem-kubevirt_packages.txt'
+    ['openstack']='oem-openstack_packages.txt'
+    ['packet']='oem-packet_packages.txt'
+    ['prod']='flatcar_production_image_packages.txt'
+    ['proxmoxve']='oem-proxmoxve_packages.txt'
+    ['qemu']='oem-qemu_packages.txt'
+    ['scaleway']='oem-scaleway_packages.txt'
+    ['sysext-podman']='flatcar-podman_packages.txt'
+    ['sysext-python']='flatcar-python_packages.txt'
+    ['sysext-zfs']='flatcar-zfs_packages.txt'
+    ['vmware']='oem-vmware_packages.txt'
+)
