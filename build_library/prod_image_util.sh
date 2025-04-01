@@ -213,13 +213,13 @@ create_prod_sysexts() {
   local image_name="$1"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
   for sysext in "${EXTRA_SYSEXTS[@]}"; do
-    local name="flatcar-${sysext%%:*}"
-    local pkgs_and_useflags="${sysext#*:}"
-    local pkgs="${pkgs_and_useflags%%:*}"
+    local name="flatcar-${sysext%%|*}"
+    local pkgs_and_useflags="${sysext#*|}"
+    local pkgs="${pkgs_and_useflags%%|*}"
     local pkg_array=(${pkgs//,/ })
     local useflags=""
-    if [[ "$pkgs_and_useflags" == *:* ]]; then
-      useflags="${pkgs_and_useflags#*:}"
+    if [[ "$pkgs_and_useflags" == *\|* ]]; then
+      useflags="${pkgs_and_useflags#*|}"
     fi
     local useflags_array=(${useflags//,/ })
 
