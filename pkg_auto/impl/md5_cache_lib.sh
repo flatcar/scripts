@@ -80,16 +80,16 @@ function parse_cache_file() {
         unset file_lines
     fi
 
-    local -n pkg_eapi_ref=cache_file_ref[PCF_EAPI_IDX]
-    local -n pkg_keywords_ref=cache_file_ref[PCF_KEYWORDS_IDX]
-    local -n pkg_iuse_ref=cache_file_ref[PCF_IUSE_IDX]
-    local -n pkg_bdepend_group_name_ref=cache_file_ref[PCF_BDEPEND_IDX]
-    local -n pkg_depend_group_name_ref=cache_file_ref[PCF_DEPEND_IDX]
-    local -n pkg_idepend_group_name_ref=cache_file_ref[PCF_IDEPEND_IDX]
-    local -n pkg_pdepend_group_name_ref=cache_file_ref[PCF_PDEPEND_IDX]
-    local -n pkg_rdepend_group_name_ref=cache_file_ref[PCF_RDEPEND_IDX]
-    local -n pkg_license_group_name_ref=cache_file_ref[PCF_LICENSE_IDX]
-    local -n pkg_eclasses_ref=cache_file_ref[PCF_ECLASSES_IDX]
+    local -n pkg_eapi_ref='cache_file_ref[PCF_EAPI_IDX]'
+    local -n pkg_keywords_ref='cache_file_ref[PCF_KEYWORDS_IDX]'
+    local -n pkg_iuse_ref='cache_file_ref[PCF_IUSE_IDX]'
+    local -n pkg_bdepend_group_name_ref='cache_file_ref[PCF_BDEPEND_IDX]'
+    local -n pkg_depend_group_name_ref='cache_file_ref[PCF_DEPEND_IDX]'
+    local -n pkg_idepend_group_name_ref='cache_file_ref[PCF_IDEPEND_IDX]'
+    local -n pkg_pdepend_group_name_ref='cache_file_ref[PCF_PDEPEND_IDX]'
+    local -n pkg_rdepend_group_name_ref='cache_file_ref[PCF_RDEPEND_IDX]'
+    local -n pkg_license_group_name_ref='cache_file_ref[PCF_LICENSE_IDX]'
+    local -n pkg_eclasses_ref='cache_file_ref[PCF_ECLASSES_IDX]'
 
     local l key
     while read -r l; do
@@ -204,9 +204,7 @@ function ur_to_string() {
     esac
     str_ref+=${ur_ref[UR_NAME_IDX]}
 
-    # shellcheck disable=SC2178 # shellcheck is confused here
     local p=${ur_ref[UR_PRETEND_IDX]}
-    # shellcheck disable=SC2128 # shellcheck is confused here (p is not an array)
     if [[ -n ${p} ]]; then
         str_ref+="(${p})"
     fi
@@ -342,18 +340,17 @@ function pds_add_urs() {
 # 1 - package dependency specification
 # 2 - name of a variable where the string form will be stored
 function pds_to_string() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n pds_ref=${1}; shift
     local -n str_ref=${1}; shift
 
     case ${pds_ref[PDS_BLOCKS_IDX]} in
-        ${PDS_NO_BLOCK})
+        "${PDS_NO_BLOCK}")
             str_ref=''
             ;;
-        ${PDS_WEAK_BLOCK})
+        "${PDS_WEAK_BLOCK}")
             str_ref='!'
             ;;
-        ${PDS_STRONG_BLOCK})
+        "${PDS_STRONG_BLOCK}")
             str_ref='!!'
             ;;
     esac
@@ -516,21 +513,20 @@ function group_add_items() {
 # 1 - group
 # 2 - name of a variable where the string form will be stored
 function group_to_string() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n group_ref=${1}; shift
     local -n str_ref=${1}; shift
 
     local t=${group_ref[GROUP_TYPE_IDX]}
     case ${t} in
-        ${GROUP_ALL_OF})
+        "${GROUP_ALL_OF}")
             local u=${group_ref[GROUP_USE_IDX]}
             if [[ -n ${u} ]]; then
                 local e=${group_ref[GROUP_ENABLED_IDX]}
                 case ${e} in
-                    ${GROUP_USE_ENABLED})
+                    "${GROUP_USE_ENABLED}")
                         str_ref=''
                         ;;
-                    ${GROUP_USE_DISABLED})
+                    "${GROUP_USE_DISABLED}")
                         str_ref='!'
                 esac
                 unset e
@@ -540,13 +536,12 @@ function group_to_string() {
             fi
             unset u
             ;;
-        ${GROUP_ANY_OF})
+        "${GROUP_ANY_OF}")
             str_ref='|| '
             ;;
     esac
 
     str_ref+='( '
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n item_names_ref=${group_ref[GROUP_ITEMS_IDX]}
     if [[ ${#item_names_ref[@]} -gt 0 ]]; then
         local item_name item_str
@@ -709,22 +704,21 @@ function kw_unset() {
 # 1 - keyword
 # 2 - name of a variable where the string form will be stored
 function kw_to_string() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n kw_ref=${1}; shift
     local -n str_ref=${1}; shift
 
     local n=${kw_ref[KW_NAME_IDX]}
     case ${kw_ref[KW_LEVEL_IDX]} in
-        ${KW_STABLE})
+        "${KW_STABLE}")
             str_ref=${n}
             ;;
-        ${KW_UNSTABLE})
+        "${KW_UNSTABLE}")
             str_ref="~${n}"
             ;;
-        ${KW_BROKEN})
+        "${KW_BROKEN}")
             str_ref="-${n}"
             ;;
-        ${KW_UNKNOWN})
+        "${KW_UNKNOWN}")
             str_ref=''
             ;;
     esac
@@ -764,15 +758,14 @@ function iuse_unset() {
 # 1 - IUSE
 # 2 - name of a variable where the string form will be stored
 function iuse_to_string() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n iuse_ref=${1}; shift
     local -n str_ref=${1}; shift
 
     case ${iuse_ref[IUSE_MODE_IDX]} in
-        ${IUSE_ENABLED})
+        "${IUSE_ENABLED}")
             str_ref='+'
             ;;
-        ${IUSE_DISABLED})
+        "${IUSE_DISABLED}")
             str_ref=''
             ;;
     esac
@@ -810,7 +803,6 @@ function __mcl_parse_dsf() {
             # to current group and mark the new group as current
             gen_varname pd_group
             group_declare "${pd_group}"
-            # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
             local -n g_ref=${pd_group}
             g_ref[GROUP_TYPE_IDX]=${GROUP_ANY_OF}
             unset -n g_ref
@@ -838,11 +830,9 @@ function __mcl_parse_dsf() {
 
             gen_varname pd_group
             group_declare "${pd_group}"
-            # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
             local -n g_ref=${pd_group}
             g_ref[GROUP_TYPE_IDX]=${GROUP_ALL_OF}
             g_ref[GROUP_USE_IDX]=${use}
-            # shellcheck disable=SC2034 # it is used indirectly elsewhere
             g_ref[GROUP_ENABLED_IDX]=${disabled}
             unset -n g_ref
 
@@ -1026,7 +1016,6 @@ function __mcl_parse_dsf() {
         fail "botched parsing, group stack has ${#group_stack[@]} groups instead of 1"
     fi
 
-    # shellcheck disable=SC2034 # it is a reference to an external variable
     top_group_out_var_name_ref=${group_stack[0]}
 
     if pkg_debug_enabled; then
@@ -1056,7 +1045,6 @@ function __mcl_parse_eclasses() {
         fi
         eclass_name_now=$((eclass_name_now ^ 1))
     done
-    # shellcheck disable=SC2034 # shellcheck does not grok references
     eclasses_out_var_name_ref=${eclasses_var_name}
 
     if pkg_debug_enabled; then
@@ -1107,20 +1095,17 @@ function __mcl_parse_keywords() {
         if [[ -z ${mark} ]]; then
             gen_varname kw_name
             kw_declare "${kw_name}"
-            # shellcheck disable=SC2178 # shellcheck does not grok references
             local -n k_ref=${kw_name}
             k_ref[KW_NAME_IDX]=${arch}
             if [[ -n ${has_hyphen_star} ]]; then
                 k_ref[KW_LEVEL_IDX]=${KW_BROKEN}
             else
-                # shellcheck disable=SC2034 # shellcheck does not grok references
                 k_ref[KW_LEVEL_IDX]=${KW_UNKNOWN}
             fi
             unset -n k_ref
             keywords_ref+=( "${kw_name}" )
         fi
     done
-    # shellcheck disable=SC2034 # shellcheck does not grok references
     keywords_out_var_name_ref=${keywords_var_name}
 
     if pkg_debug_enabled; then
@@ -1161,7 +1146,6 @@ function __mcl_parse_iuse() {
         iuse_ref+=( "${pi_iuse}" )
     done
 
-    # shellcheck disable=SC2034 # shellcheck does not grok references
     iuse_out_var_name_ref=${iuse_var_name}
 
     if pkg_debug_enabled; then

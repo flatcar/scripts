@@ -148,7 +148,7 @@ function lcs_run() {
     # longest common subsequence for the encoded indices, separated
     # with semicolon
     local -A lcs_memo_map=() lcs_memo_items_set=()
-    local -a lr_lcs_state=( "${score_func}" lcs_memo_map lcs_memo_items_set "${seq1_name}" "${seq2_name}" ${lr_max_score} )
+    local -a lr_lcs_state=( "${score_func}" lcs_memo_map lcs_memo_items_set "${seq1_name}" "${seq2_name}" "${lr_max_score}" )
 
     local -n seq1=${seq1_name} seq2=${seq2_name}
     local -i idx1=$(( ${#seq1[@]} - 1 )) idx2=$(( ${#seq2[@]} - 1 ))
@@ -263,7 +263,6 @@ function __lcs_recurse() {
         memo_map_ref["${memo_key}"]="$((lr_diff_score + previous_score)):${n}"
 
         local -n memo_items_set=${lcs_state[__LCS_MEMO_ITEMS_SET_IDX]}
-        # shellcheck disable=SC2034 # shellcheck does not grok references
         memo_items_set["${prepared_item_to_insert}"]=x
     elif [[ lr_diff_score -eq 0 ]]; then
         unset max_score
@@ -274,8 +273,6 @@ function __lcs_recurse() {
         # retrieve memoized results for i1 and i2-1 and for i1-1 and
         # i2 (what we just called above), and memoize the longer
         # result for i1 and i2
-        #
-        # shellcheck disable=SC2178 # shellcheck does not grok references
         local -n memo_map_ref=${lcs_state[__LCS_MEMO_MAP_IDX]}
         local lr_memo_key=''
 
@@ -350,7 +347,6 @@ function __lcs_recurse() {
             memo_map_ref["${lr_memo_key}"]="${score1}:${lr_new_lcs}"
 
             local -n memo_items_set=${lcs_state[__LCS_MEMO_ITEMS_SET_IDX]}
-            # shellcheck disable=SC2034 # shellcheck does not grok references
             memo_items_set["${prepared_item_to_insert}"]=x
         else
             local -n picked_pair="pair${pick}"
@@ -373,7 +369,7 @@ function __lcs_make_memo_key() {
 function __lcs_str_score() {
     local -n score_ref=${1}; shift
     score_ref=1
-    [[ ${#} -eq 0 || ${1} = ${2} ]] || score_ref=0
+    [[ ${#} -eq 0 || ${1} = "${2}" ]] || score_ref=0
 }
 
 fi

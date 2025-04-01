@@ -99,7 +99,6 @@ function set_eo() {
     local dir=${1}; shift
     # rest are architectures
 
-    # shellcheck disable=SC2034 # used externally
     declare -g EGENCACHE_W="${dir}/egencache-warnings"
     declare -g SDK_EO="${dir}/sdk-emerge-output"
     declare -g SDK_EO_F="${SDK_EO}-filtered"
@@ -348,7 +347,6 @@ function get_provided_file() {
     path_var_name=${1}; shift
     local -n path_ref="${path_var_name}"
 
-    # shellcheck disable=SC2034 # reference to external variable
     path_ref="${root}/etc/portage/profile/package.provided/ignore_cross_packages"
 }
 
