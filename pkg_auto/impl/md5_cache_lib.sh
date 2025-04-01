@@ -1182,7 +1182,7 @@ function __mcl_unset_array() {
     local item_unset_func=${1}; shift
 
     if [[ ${array_name} = EMPTY_ARRAY ]]; then
-        return 0;
+        return 0
     fi
     local -n array_ref=${array_name}
     "${item_unset_func}" "${array_ref[@]}"
