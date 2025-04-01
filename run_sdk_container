@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-cd $(dirname "$0")
+cd "$(dirname "$0")"
 source sdk_lib/sdk_container_common.sh
 
 arch="all"
@@ -122,7 +122,7 @@ hostname=${name:0:63}
 hostname=${hostname//./_}
 
 if [[ -n ${cleanup} ]] ; then
-    echo "${docker_a[@]@Q} container rm -f ${name@Q}" >>"${cleanup}"
+    echo "${docker_a[*]@Q} container rm -f ${name@Q}" >>"${cleanup}"
 fi
 
 function prev_trap_cmd {
