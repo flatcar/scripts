@@ -2,10 +2,10 @@ EXTRA_SYSEXTS=(
   "zfs|sys-fs/zfs"
   "podman|app-containers/podman,net-misc/passt"
   "python|dev-lang/python,dev-python/pip"
-  "nvidia-drivers-535|=x11-drivers/nvidia-drivers-535.230.02|-kernel-open"
-  "nvidia-drivers-535-open|=x11-drivers/nvidia-drivers-535.230.02|kernel-open"
-  "nvidia-drivers-550|=x11-drivers/nvidia-drivers-550.144.03|-kernel-open"
-  "nvidia-drivers-550-open|=x11-drivers/nvidia-drivers-550.144.03|kernel-open"
+  "nvidia-drivers-535|x11-drivers/nvidia-drivers:0/535|-kernel-open"
+  "nvidia-drivers-535-open|x11-drivers/nvidia-drivers:0/535|kernel-open"
+  "nvidia-drivers-550|x11-drivers/nvidia-drivers:0/550|-kernel-open"
+  "nvidia-drivers-550-open|x11-drivers/nvidia-drivers:0/550|kernel-open"
 )
 
 _get_unversioned_sysext_packages_unsorted() {
