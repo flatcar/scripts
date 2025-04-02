@@ -118,6 +118,7 @@ app-containers/docker-cli
 app-containers/netavark
 app-containers/podman
 app-containers/runc
+app-containers/syft
 
 app-crypt/adcli
 app-crypt/argon2
