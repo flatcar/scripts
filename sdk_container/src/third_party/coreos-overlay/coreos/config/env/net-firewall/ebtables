@@ -1,0 +1,13 @@
+# A hack to set ebtables to xtables-nft-multi instead of
+# ebtables-legacy.
+if [[ -z ${flatcar_hacked_eselect:-} ]]; then
+    flatcar_hacked_eselect=$(command -v eselect)
+fi
+eselect() {
+    if [[ ${#} -gt 2 && ${1} = 'ebtables' && ${2} = 'set' && ${3} = 'ebtables-legacy' ]]; then
+        elog "Ackchyually, we are setting it to xtables-nft-multi"
+        "${flatcar_hacked_eselect}" ebtables set xtables-nft-multi
+    else
+        "${flatcar_hacked_eselect}" "${@}"
+    fi
+}
