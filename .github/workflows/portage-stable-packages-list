@@ -134,6 +134,7 @@ app-crypt/rhash
 app-crypt/sbsigntools
 app-crypt/tpm2-tools
 app-crypt/tpm2-tss
+app-crypt/trousers
 
 app-doc/eclass-manpages
 
