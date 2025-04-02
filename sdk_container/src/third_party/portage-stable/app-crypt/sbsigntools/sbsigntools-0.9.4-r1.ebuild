@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -14,7 +14,7 @@ SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/jejb/${PN}.git/snapshot
 
 LICENSE="GPL-3 LGPL-3 LGPL-2.1 CC0-1.0"
 SLOT="0"
-KEYWORDS="amd64 arm64 ~x86"
+KEYWORDS="amd64 arm64 ~riscv x86"
 IUSE=""
 
 RDEPEND="
@@ -27,7 +27,8 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 PATCHES=(
-	"${FILESDIR}"/openssl-3-compat.patch
+	"${FILESDIR}"/${PN}-0.9.4-no-werror.patch
+	"${FILESDIR}"/${PN}-0.9.4-openssl3.patch
 )
 
 src_prepare() {
@@ -39,15 +40,13 @@ src_prepare() {
 		amd64) iarch=x86_64 ;;
 		arm64) iarch=aarch64 ;;
 		ia64)  iarch=ia64 ;;
+		riscv) iarch=riscv64 ;;
 		x86)   iarch=ia32 ;;
 		*)     die "unsupported architecture: ${ARCH}" ;;
 	esac
 	sed -i "/^EFI_ARCH=/s:=.*:=${iarch}:" configure.ac || die
 	sed -i 's/-m64$/& -march=x86-64/' tests/Makefile.am || die
 	sed -i "/^AR /s:=.*:= $(tc-getAR):" lib/ccan/Makefile.in || die #481480
-
-	# Flatcar change required to compile with OpenSSLv3
-	sed -i "s/-Werror//g" src/Makefile.am || die
 
 	default
 	eautoreconf
