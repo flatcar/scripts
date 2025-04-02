@@ -1,9 +1,9 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools bash-completion-r1 multilib-minimal toolchain-funcs
+inherit autotools bash-completion-r1 flag-o-matic multilib-minimal toolchain-funcs
 
 DESCRIPTION="D-Bus bindings for glib"
 HOMEPAGE="https://dbus.freedesktop.org/"
@@ -11,7 +11,7 @@ SRC_URI="https://dbus.freedesktop.org/releases/${PN}/${P}.tar.gz"
 
 LICENSE="|| ( GPL-2 AFL-2.1 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~sparc-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="debug static-libs test"
 RESTRICT="!test? ( test )"
 
@@ -22,11 +22,11 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
-	dev-build/gtk-doc-am
 	>=dev-libs/expat-2.1.0-r3
 	>=dev-libs/glib-2.40:2
 	>=sys-apps/dbus-1.8
 	>=dev-util/glib-utils-2.40
+	>=dev-build/gtk-doc-am-1.14
 	virtual/pkgconfig
 " # CBUILD dependencies are needed to make a native tool while cross-compiling.
 
@@ -43,6 +43,9 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# bug #943768
+	append-cflags -std=gnu17
+
 	local myconf=(
 		--localstatedir="${EPREFIX}"/var
 		--enable-bash-completion
@@ -58,9 +61,6 @@ multilib_src_configure() {
 		ECONF_SOURCE="${S}" econf_build
 		myconf+=( --with-dbus-binding-tool="$PWD/dbus/dbus-binding-tool" )
 		cd - || die
-		# Flatcar: override glib-genmarshal path
-		local build_pkg_config="$(tc-getBUILD_PROG PKG_CONFIG pkg-config)"
-		myconf+=(GLIB_GENMARSHAL="$("${build_pkg_config}" --variable=glib_genmarshal glib-2.0)")
 	fi
 
 	ECONF_SOURCE="${S}" econf "${myconf[@]}"
