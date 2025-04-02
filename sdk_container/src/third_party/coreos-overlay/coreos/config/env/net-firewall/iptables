@@ -1,0 +1,56 @@
+# A hack to avoid removing ebtables binaries
+if [[ -z ${flatcar_hacked_rm:-} ]]; then
+    flatcar_hacked_rm=$(command -v rm)
+fi
+rm() {
+    local -a new_f=()
+    local f
+    for f; do
+        if [[ ${f} != */sbin/ebtables* ]]; then
+            new_f+=( "${f}" )
+        fi
+    done
+    "${flatcar_hacked_rm}" "${new_f[@]}"
+}
+
+# A hack to set iptables to xtables-nft-multi instead of
+# xtables-legacy-multi, and to avoid tinkering with arptables.
+if [[ -z ${flatcar_hacked_eselect:-} ]]; then
+    flatcar_hacked_eselect=$(command -v eselect)
+fi
+eselect() {
+    if [[ ${#} -gt 2 && ${1} = 'iptables' && ${2} = 'set' && ${3} = 'xtables-legacy-multi' ]]; then
+        elog "Ackchyually, we are setting it to xtables-nft-multi"
+        "${flatcar_hacked_eselect}" iptables set xtables-nft-multi
+    elif [[ ${#} -gt 1 && ${1} = 'arptables' && ${2} = 'show' ]]; then
+        # Nothing to do, we will just return success, so ebuild will
+        # not be doing anything with arptables
+        :
+    else
+        "${flatcar_hacked_eselect}" "${@}"
+    fi
+}
+
+cros_post_src_install_iptables_flatcar_modifications() {
+    # Drop the rest of the arptables binaries.
+    rm "${ED}"/sbin/arptables-{translate,nft{,-{save,restore}}} || die
+
+    # Gentoo upstream dropped the iptables & ip6tables services but we
+    # continue to ship them.
+    systemd_newunit - ip6tables.service <<EOF
+[Unit]
+Description=Store and restore ip6tables firewall rules
+
+[Install]
+Also=ip6tables-store.service
+Also=ip6tables-restore.service
+EOF
+    systemd_newunit - iptables.service <<EOF
+[Unit]
+Description=Store and restore iptables firewall rules
+
+[Install]
+Also=iptables-store.service
+Also=iptables-restore.service
+EOF
+}
