@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -15,7 +15,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ppc ~ppc64 ~riscv x86"
+KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv x86"
 IUSE="+perl static"
 
 BDEPEND=">=app-eselect/eselect-iptables-20200508"
@@ -87,10 +87,9 @@ src_install() {
 }
 
 pkg_postinst() {
-	# Flatcar: Use the xtables-nft-multi to use the nft_backend instead of the legacy
 	if ! eselect ebtables show &>/dev/null; then
-		elog "Current ebtables implementation is unset, setting to xtables-nft-multi"
-		eselect ebtables set xtables-nft-multi
+		elog "Current ebtables implementation is unset, setting to ebtables-legacy"
+		eselect ebtables set ebtables-legacy
 	fi
 
 	eselect ebtables show
