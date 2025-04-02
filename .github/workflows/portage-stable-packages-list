@@ -226,6 +226,7 @@ dev-lang/yasm
 
 dev-libs/cJSON
 dev-libs/cyrus-sasl
+dev-libs/dbus-glib
 dev-libs/ding-libs
 dev-libs/elfutils
 dev-libs/expat
