@@ -13,6 +13,9 @@
 # Needed to address CVE-2025-24965.
 =app-containers/crun-1.20 ~amd64 ~arm64
 
+# No stable keywords.
+=app-containers/syft-1.18.1 ~amd64 ~arm64
+
 # Seems to be the only available ebuild in portage-stable right now.
 =app-crypt/adcli-0.9.2 ~arm64
 
