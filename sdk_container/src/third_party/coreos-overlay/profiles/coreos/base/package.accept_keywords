@@ -10,8 +10,8 @@
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.32.0 ~arm64
 
-# Needed to address CVE-2024-11218.
-=app-containers/podman-5.3.2 ~amd64 ~arm64
+# Needed to address CVE-2025-24965.
+=app-containers/crun-1.20 ~amd64 ~arm64
 
 # Seems to be the only available ebuild in portage-stable right now.
 =app-crypt/adcli-0.9.2 ~arm64
@@ -36,6 +36,9 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
 
+# Keep versions on both arches in sync.
+=dev-libs/libxml2-2.13.7 ~arm64
+
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
@@ -48,18 +51,15 @@
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 
-# Needed to address CVE-2024-12243.
-=net-libs/gnutls-3.8.9 ~amd64 ~arm64
+# Needed to address CVE-2025-2312.
+=net-fs/cifs-utils-7.3 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# Needed to address CVE-2025-0167, CVE-2025-0665, CVE-2025-0725.
-=net-misc/curl-8.12.1 ~amd64 ~arm64
-
 # Needed to address CVE-2024-54661
-=net-misc/socat-1.8.0.2 ~amd64 ~arm64
+=net-misc/socat-1.8.0.3 ~amd64 ~arm64
 
 # Package has not been stabilised yet.
 =sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
@@ -81,5 +81,4 @@
 
 # Keep versions on both arches in sync.
 =sys-libs/libsemanage-3.7 ~arm64
-=sys-libs/ncurses-6.5_p20250125 ~arm64
 =sys-process/audit-4.0.2-r1 ~arm64

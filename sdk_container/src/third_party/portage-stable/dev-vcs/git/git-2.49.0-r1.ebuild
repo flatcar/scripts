@@ -150,6 +150,7 @@ RESTRICT="!test? ( test )"
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.48.1-macos-no-fsmonitor.patch
 	"${FILESDIR}"/${PN}-2.49.0-meson-use-test_environment-conditionally.patch
+	"${FILESDIR}"/${PN}-2.49.0-docs.patch
 )
 
 pkg_setup() {
@@ -247,6 +248,17 @@ src_configure() {
 	if [[ ${PV} == *9999 ]] || use doc ; then
 		emesonargs+=(
 			-Ddocs="man$(usev doc ',html')"
+		)
+	fi
+
+	if [[ ${PV} != *9999 ]] ; then
+		# Non-live ebuilds download the sources from a tarball which does not
+		# include a .git directory.  Coccinelle assumes it exists and fails
+		# otherwise.
+		#
+		# Fixes https://bugs.gentoo.org/952004
+		emesonargs+=(
+			-Dcoccinelle=disabled
 		)
 	fi
 
