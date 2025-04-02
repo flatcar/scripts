@@ -1,0 +1,45 @@
+cros_post_src_install_logrotate_flatcar_modifications() {
+    insinto /etc
+    newins - logrotate.conf <<'EOF'
+# keep only the most recent old log.
+rotate 1
+
+# create new (empty) log files after rotating old ones.
+create
+
+# use date as a suffix of the rotated file.
+dateext
+
+# compress rotated log files.
+compress
+
+# if a file to rotate is missing, don't log an error.
+missingok
+notifempty
+nomail
+noolddir
+
+# packages can drop log rotation information into this directory.
+include /etc/logrotate.d
+
+# no packages own wtmp and btmp -- we'll rotate them here.
+# must match creation rules in /usr/lib/tmpfiles.d/var.conf
+/var/log/wtmp {
+    create 0664 root utmp
+    size 1M
+}
+/var/log/btmp {
+    create 0600 root utmp
+    size 1M
+}
+
+# system-specific logs may also be configured here.
+EOF
+    # install this for backward compatibility
+    dosym -r /usr/share/flatcar/etc/logrotate.conf /usr/share/logrotate/logrotate.conf
+    insinto /usr/share/flatcar/etc
+    newins - logrotate.conf
+
+    # needs systemd eclass to be inherited by the ebuild
+    systemd_enable_service multi-user.target logrotate.timer
+}
