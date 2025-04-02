@@ -504,6 +504,7 @@ net-dns/dnsmasq
 net-dns/libidn2
 
 net-firewall/conntrack-tools
+net-firewall/ebtables
 net-firewall/ipset
 
 net-fs/cifs-utils
