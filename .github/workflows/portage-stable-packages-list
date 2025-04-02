@@ -66,6 +66,7 @@ acct-user/systemd-timesync
 acct-user/tss
 
 app-admin/eselect
+app-admin/logrotate
 app-admin/perl-cleaner
 app-admin/sudo
 
