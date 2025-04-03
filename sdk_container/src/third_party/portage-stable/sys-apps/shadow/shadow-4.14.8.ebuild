@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,11 +7,7 @@ EAPI=8
 # official. Don't keyword the pre-releases!
 # Check https://github.com/shadow-maint/shadow/releases.
 
-# Flatcar:
-TMPFILES_OPTIONAL=1
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/sergehallyn.asc
-# Flatcar: install systemd units and tmpfiles
-inherit libtool pam verify-sig systemd tmpfiles
+inherit libtool pam verify-sig
 
 DESCRIPTION="Utilities to deal with user accounts"
 HOMEPAGE="https://github.com/shadow-maint/shadow"
@@ -21,8 +17,8 @@ SRC_URI+=" verify-sig? ( https://github.com/shadow-maint/shadow/releases/downloa
 LICENSE="BSD GPL-2"
 # Subslot is for libsubid's SONAME.
 SLOT="0/4"
-KEYWORDS="~alpha amd64 ~arm arm64 hppa ~ia64 ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="acl audit bcrypt cracklib nls pam selinux skey split-usr su xattr"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+IUSE="acl audit cracklib nls pam selinux skey split-usr su systemd xattr"
 # Taken from the man/Makefile.am file.
 LANGS=( cs da de es fi fr hu id it ja ko pl pt_BR ru sv tr zh_CN zh_TW )
 
@@ -40,7 +36,9 @@ COMMON_DEPEND="
 		>=sys-libs/libselinux-1.28:=
 		sys-libs/libsemanage:=
 	)
+	systemd? ( sys-apps/systemd:= )
 	xattr? ( sys-apps/attr:= )
+	!<sys-libs/glibc-2.38
 "
 DEPEND="
 	${COMMON_DEPEND}
@@ -48,47 +46,45 @@ DEPEND="
 "
 RDEPEND="
 	${COMMON_DEPEND}
-	!<sys-apps/man-pages-5.11-r1
-	!=sys-apps/man-pages-5.12-r0
-	!=sys-apps/man-pages-5.12-r1
-	nls? (
-		!<app-i18n/man-pages-it-5.06-r1
-		!<app-i18n/man-pages-ja-20180315-r1
-		!<app-i18n/man-pages-ru-5.03.2390.2390.20191017-r1
-	)
 	pam? ( >=sys-auth/pambase-20150213 )
 	su? ( !sys-apps/util-linux[su(-)] )
 "
 BDEPEND="
 	app-arch/xz-utils
 	sys-devel/gettext
-	verify-sig? ( sec-keys/openpgp-keys-sergehallyn )
 "
 
-PATCHES=(
-	"${FILESDIR}"/${P}-configure-clang16.patch
-	"${FILESDIR}"/${P}-CVE-2023-29383.patch
-	"${FILESDIR}"/${P}-usermod-prefix-gid.patch
-	"${FILESDIR}"/${P}-password-leak.patch
-)
+if [[ ${PV} == *.0 ]]; then
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-sergehallyn )"
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/sergehallyn.asc
+else
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-alejandro-colomar )"
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/alejandro-colomar.asc
+fi
 
 src_prepare() {
 	default
-
 	elibtoolize
 }
 
 src_configure() {
 	local myeconfargs=(
+		# Negate new upstream default of disabling for now
+		--enable-lastlog
 		--disable-account-tools-setuid
 		--disable-static
 		--with-btrfs
+		# Use bundled replacements for readpassphrase and freezero
+		--without-libbsd
 		--without-group-name-max-length
 		--without-tcb
+		--with-bcrypt
+		--with-yescrypt
 		$(use_enable nls)
+		# TODO: wire up upstream for elogind too (bug #931119)
+		$(use_enable systemd logind)
 		$(use_with acl)
 		$(use_with audit)
-		$(use_with bcrypt)
 		$(use_with cracklib libcrack)
 		$(use_with elibc_glibc nscd)
 		$(use_with pam libpam)
@@ -110,20 +106,19 @@ src_configure() {
 }
 
 set_login_opt() {
-	# Flatcar: /etc/login.defs becomes /usr/share/shadow/login.defs
 	local comment="" opt=${1} val=${2}
 	if [[ -z ${val} ]]; then
 		comment="#"
 		sed -i \
 			-e "/^${opt}\>/s:^:#:" \
-			"${ED}"/usr/share/shadow/login.defs || die
+			"${ED}"/etc/login.defs || die
 	else
 		sed -i -r \
 			-e "/^#?${opt}\>/s:.*:${opt} ${val}:" \
-			"${ED}"/usr/share/shadow/login.defs
+			"${ED}"/etc/login.defs
 	fi
-	local res=$(grep "^${comment}${opt}\>" "${ED}"/usr/share/shadow/login.defs)
-	einfo "${res:-Unable to find ${opt} in /usr/share/shadow/login.defs}"
+	local res=$(grep "^${comment}${opt}\>" "${ED}"/etc/login.defs)
+	einfo "${res:-Unable to find ${opt} in /etc/login.defs}"
 }
 
 src_install() {
@@ -134,43 +129,29 @@ src_install() {
 
 	find "${ED}" -name '*.la' -type f -delete || die
 
-	# Flatcar:
-	# Remove files from /etc, they will be symlinks to /usr instead.
-	rm -f "${ED}"/etc/{limits,login.access,login.defs,securetty,default/useradd}
-
-	# CoreOS: break shadow.conf into two files so that we only have to apply
-	# etc-shadow.conf in the initrd.
-	dotmpfiles "${FILESDIR}"/tmpfiles.d/etc-shadow.conf
-	dotmpfiles "${FILESDIR}"/tmpfiles.d/var-shadow.conf
-	# Package the symlinks for the SDK and containers.
-	systemd-tmpfiles --create --root="${ED}" "${FILESDIR}"/tmpfiles.d/*
-
-	insinto /usr/share/shadow
+	insinto /etc
 	if ! use pam ; then
 		insopts -m0600
 		doins etc/login.access etc/limits
 	fi
-	# Flatcar:
-	# Using a securetty with devfs device names added
-	# (compat names kept for non-devfs compatibility)
-	insopts -m0600 ; doins "${FILESDIR}"/securetty
-	# Output arch-specific cruft
-	local devs
-	case $(tc-arch) in
-		ppc*)  devs="hvc0 hvsi0 ttyPSC0";;
-		hppa)  devs="ttyB0";;
-		arm)   devs="ttyFB0 ttySAC0 ttySAC1 ttySAC2 ttySAC3 ttymxc0 ttymxc1 ttymxc2 ttymxc3 ttyO0 ttyO1 ttyO2";;
-		sh)    devs="ttySC0 ttySC1";;
-		amd64|x86)      devs="hvc0";;
-	esac
-	if [[ -n ${devs} ]]; then
-		printf '%s\n' ${devs} >> "${ED}"/usr/share/shadow/securetty
-	fi
 
 	# needed for 'useradd -D'
+	insinto /etc/default
 	insopts -m0600
 	doins "${FILESDIR}"/default/useradd
 
+	if use split-usr ; then
+		# move passwd to / to help recover broke systems #64441
+		# We cannot simply remove this or else net-misc/scponly
+		# and other tools will break because of hardcoded passwd
+		# location
+		dodir /bin
+		mv "${ED}"/usr/bin/passwd "${ED}"/bin/ || die
+		dosym ../../bin/passwd /usr/bin/passwd
+	fi
+
+	cd "${S}" || die
+	insinto /etc
 	insopts -m0644
 	newins etc/login.defs login.defs
 
@@ -224,7 +205,7 @@ src_install() {
 			-e 'b exit' \
 			-e ': pamnote; i# NOTE: This setting should be configured via /etc/pam.d/ and not in this file.' \
 			-e ': exit' \
-			"${ED}"/usr/share/shadow/login.defs || die
+			"${ED}"/etc/login.defs || die
 
 		# Remove manpages that pam will install for us
 		# and/or don't apply when using pam
@@ -253,6 +234,10 @@ src_install() {
 	newdoc README README.download
 	cd doc || die
 	dodoc HOWTO README* WISHLIST *.txt
+
+	if use elibc_musl; then
+		QA_CONFIG_IMPL_DECL_SKIP+=( sgetsgent )
+	fi
 }
 
 pkg_preinst() {
