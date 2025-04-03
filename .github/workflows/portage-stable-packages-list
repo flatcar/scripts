@@ -616,6 +616,7 @@ sys-apps/util-linux
 sys-apps/which
 sys-apps/zram-generator
 
+sys-auth/polkit
 sys-auth/sssd
 
 sys-block/open-iscsi
