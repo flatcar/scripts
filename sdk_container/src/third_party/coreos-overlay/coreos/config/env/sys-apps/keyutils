@@ -1,0 +1,6 @@
+cros_post_src_install_keyutils_flatcar_modifications() {
+    # install a symlink for backward compatibility
+    dosym -r /usr/share/flatcar/etc/request-key.conf /usr/share/keyutils/request-key.conf
+    insinto /usr/share/flatcar/etc
+    newins - request-key.conf
+}
