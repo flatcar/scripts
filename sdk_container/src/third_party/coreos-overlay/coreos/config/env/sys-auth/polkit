@@ -1,0 +1,16 @@
+cros_post_src_install_polkit_flatcar_modifications() {
+
+    # create symlink for backward compatibility
+    dosym -r /usr/share/flatcar/etc/polkit-1/rules.d/50-default.rules /usr/share/polkit-1/rules.d/50-default.rules
+    insinto /usr/share/flatcar/etc/polkit-1/rules.d
+    newins - 50-default.rules
+
+    # add tmpfiles config for state directory
+    (
+        insopts -m 0644
+        insinto /usr/lib/tmpfiles.d
+        newins - polkit.conf <<'EOF'
+d   /var/lib/polkit-1       0700    polkitd polkitd -   -
+EOF
+    )
+}
