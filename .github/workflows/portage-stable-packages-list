@@ -510,6 +510,7 @@ net-firewall/iptables
 net-firewall/nftables
 
 net-fs/cifs-utils
+net-fs/nfs-utils
 
 net-libs/gnutls
 net-libs/libmicrohttpd
