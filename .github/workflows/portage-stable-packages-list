@@ -570,6 +570,7 @@ sys-apps/bubblewrap
 sys-apps/checkpolicy
 sys-apps/config-site
 sys-apps/coreutils
+sys-apps/dbus
 sys-apps/debianutils
 sys-apps/diffutils
 sys-apps/dtc
