@@ -511,6 +511,7 @@ net-firewall/nftables
 
 net-fs/cifs-utils
 net-fs/nfs-utils
+net-fs/samba
 
 net-libs/gnutls
 net-libs/libmicrohttpd
