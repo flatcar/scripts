@@ -1,0 +1,10 @@
+cros_post_src_install_keyutils_flatcar_modifications() {
+    # install a symlink for backward compatibility, can't use "dosym
+    # -r", because ebuild has EAPI 7, while "dosym -r" is supported
+    # only since EAPI 8.
+    #
+    # dosym -r /usr/share/flatcar/etc/request-key.conf /usr/share/keyutils/request-key.conf
+    ln -sTr "${ED}/usr/share/flatcar/etc/request-key.conf" "${ED}/usr/share/keyutils/request-key.conf" || die
+    insinto /usr/share/flatcar/etc
+    newins - request-key.conf
+}
