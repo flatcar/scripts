@@ -589,6 +589,7 @@ sys-apps/iproute2
 sys-apps/iucode_tool
 sys-apps/kbd
 sys-apps/kexec-tools
+sys-apps/keyutils
 sys-apps/kmod
 sys-apps/less
 sys-apps/locale-gen
