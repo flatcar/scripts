@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE="threads(+),xml(+)"
 inherit python-single-r1 flag-o-matic waf-utils multilib-minimal linux-info systemd pam tmpfiles
 
@@ -16,16 +16,16 @@ if [[ ${PV} == *_rc* ]]; then
 	SRC_URI="https://download.samba.org/pub/samba/rc/${MY_P}.tar.gz"
 else
 	SRC_URI="https://download.samba.org/pub/samba/stable/${MY_P}.tar.gz"
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ppc ppc64 ~riscv sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3"
-SLOT="0"
+SLOT="0/2.10.0"
 IUSE="acl addc ads ceph client cluster cups debug fam glusterfs gpg"
-IUSE+=" iprint json ldap llvm-libunwind pam profiling-data python quota +regedit selinux"
-IUSE+=" snapper spotlight syslog system-heimdal +system-mitkrb5 systemd test unwind winbind"
-IUSE+=" zeroconf"
+IUSE+=" iprint json ldap llvm-libunwind lmdb pam profiling-data python quota"
+IUSE+=" +regedit selinux snapper spotlight syslog system-heimdal +system-mitkrb5"
+IUSE+=" systemd test unwind winbind zeroconf"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	addc? ( json python !system-mitkrb5 winbind )
@@ -55,9 +55,9 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/samba-4.0/ctdb_version.h
 )
 
-TALLOC_VERSION="2.4.1"
-TDB_VERSION="1.4.9"
-TEVENT_VERSION="0.15.0"
+TALLOC_VERSION="2.4.2"
+TDB_VERSION="1.4.12"
+TEVENT_VERSION="0.16.1"
 
 COMMON_DEPEND="
 	>=app-arch/libarchive-3.1.2:=[${MULTILIB_USEDEP}]
@@ -69,8 +69,7 @@ COMMON_DEPEND="
 	dev-perl/Parse-Yapp
 	>=net-libs/gnutls-3.4.7:=[${MULTILIB_USEDEP}]
 	>=sys-fs/e2fsprogs-1.46.4-r51[${MULTILIB_USEDEP}]
-	>=sys-libs/ldb-2.8.1:=[ldap(+)?,${MULTILIB_USEDEP}]
-	<sys-libs/ldb-2.9.0:=[ldap(+)?,${MULTILIB_USEDEP}]
+	!sys-libs/ldb
 	sys-libs/libcap[${MULTILIB_USEDEP}]
 	sys-libs/liburing:=[${MULTILIB_USEDEP}]
 	sys-libs/ncurses:=
@@ -100,9 +99,9 @@ COMMON_DEPEND="
 	gpg? ( app-crypt/gpgme:= )
 	json? ( dev-libs/jansson:= )
 	ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
+	lmdb? ( >=dev-db/lmdb-0.9.16:=[${MULTILIB_USEDEP}] )
 	pam? ( sys-libs/pam )
 	python? (
-		sys-libs/ldb[python,${PYTHON_SINGLE_USEDEP}]
 		sys-libs/talloc[python,${PYTHON_SINGLE_USEDEP}]
 		sys-libs/tdb[python,${PYTHON_SINGLE_USEDEP}]
 		sys-libs/tevent[python,${PYTHON_SINGLE_USEDEP}]
@@ -211,6 +210,9 @@ src_prepare() {
 		-i source4/dsdb/samdb/ldb_modules/password_hash.c \
 		|| die
 
+	# bug #943942
+	append-cflags -std=gnu17
+
 	# WAF
 	multilib_copy_sources
 }
@@ -288,10 +290,12 @@ multilib_src_configure() {
 		$(multilib_native_usex python '' '--disable-python')
 		$(multilib_native_use_enable zeroconf avahi)
 		$(multilib_native_usex test '--enable-selftest' '')
-		$(usev system-mitkrb5 "--with-system-mitkrb5 $(multilib_native_usex addc --with-experimental-mit-ad-dc '')")
+		$(usev system-mitkrb5 "--with-system-mitkrb5 ${ESYSROOT}/usr $(multilib_native_usex addc --with-experimental-mit-ad-dc '')")
 		$(use_with debug lttng)
 		$(use_with ldap)
 		$(use_with profiling-data)
+		--private-libraries='!ldb'
+		$(usex lmdb '' --without-ldb-lmdb)
 		# bug #683148
 		--jobs 1
 	)
