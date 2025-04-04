@@ -55,6 +55,9 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
+# No arm64 keyword in package.
+=dev-util/bsdiff-4.3-r4 **
+
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
