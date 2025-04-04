@@ -57,8 +57,9 @@ USE="${USE} bindist"
 # linux-fw-redistributable - license for sys-kernel/coreos-firmware
 # freedist - license for sys-kernel/coreos-kernel
 # intel-ucode - license for sys-firmware/intel-microcode
+# NVIDIA-r2 - license for x11-drivers/nvidia-drivers
 ACCEPT_LICENSE="${ACCEPT_LICENSE} no-source-code
-    linux-fw-redistributable freedist intel-ucode"
+    linux-fw-redistributable freedist intel-ucode NVIDIA-r2"
 
 # Favor our own mirrors over Gentoo's
 GENTOO_MIRRORS="
@@ -124,3 +125,10 @@ CGO_ENABLED=1
 
 # Keep using old binary format for now.
 BINPKG_FORMAT=xpak
+
+# move signing key and cert to /tmp so that the ephemeral key is not stored on a disk
+MODULES_SIGN_KEY="/tmp/certs/modules.pem"
+MODULES_SIGN_CERT="/tmp/certs/modules.pub.pem"
+
+# enable signing kernel modules from portage
+USE="${USE} modules-sign"
