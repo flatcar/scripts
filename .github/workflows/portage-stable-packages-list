@@ -357,6 +357,7 @@ dev-python/urllib3
 dev-python/wheel
 
 dev-util/bpftool
+dev-util/bsdiff
 dev-util/catalyst
 dev-util/checkbashisms
 dev-util/gdbus-codegen
