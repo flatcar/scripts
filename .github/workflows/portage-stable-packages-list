@@ -666,6 +666,7 @@ sys-fs/multipath-tools
 sys-fs/quota
 sys-fs/squashfs-tools
 sys-fs/squashfs-tools-ng
+sys-fs/udev-init-scripts
 sys-fs/xfsprogs
 sys-fs/zfs
 sys-fs/zfs-kmod
