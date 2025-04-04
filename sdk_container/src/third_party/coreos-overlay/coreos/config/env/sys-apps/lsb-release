@@ -1,1 +1,4 @@
-INSTALL_MASK+=" /etc/lsb-release"
+lsb_release_install_mask=" /etc/lsb-release "
+INSTALL_MASK+="${lsb_release_install_mask}"
+PKG_INSTALL_MASK+="${lsb_release_install_mask}"
+unset lsb_release_install_mask
