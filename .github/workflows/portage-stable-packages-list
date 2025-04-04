@@ -656,6 +656,7 @@ sys-fs/fuse
 sys-fs/fuse-common
 sys-fs/fuse-overlayfs
 sys-fs/lsscsi
+sys-fs/lvm2
 sys-fs/mtools
 sys-fs/multipath-tools
 sys-fs/quota
