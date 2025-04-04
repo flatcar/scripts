@@ -690,6 +690,7 @@ sys-libs/readline
 sys-libs/talloc
 sys-libs/tdb
 sys-libs/tevent
+sys-libs/timezone-data
 sys-libs/zlib
 
 sys-power/acpid
