@@ -1,7 +1,9 @@
 # A terrible hack to actually strip our binaries. We want to make
 # "dostrip -x /" a no-op, otherwise pass everything to the original
 # dostrip.
-eval "$(echo 'flatcar_hacked_dostrip()'; declare -pf dostrip | tail -n + 2)"
+if ! declare -pf flatcar_hacked_dostrip >/dev/null 2>&1; then
+    eval "$(echo 'flatcar_hacked_dostrip()'; declare -pf dostrip | tail -n +2)"
+fi
 dostrip() {
     if [[ ${#} = 2 && ${1} = '-x' && ${2} = '/' ]]; then
         return

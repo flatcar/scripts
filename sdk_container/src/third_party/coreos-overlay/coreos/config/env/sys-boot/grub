@@ -50,5 +50,7 @@ cros_post_src_install_sbat() {
 
 # Flatcar does not use grub-install or grub-mkconfig. All the files under /etc
 # relate to grub-mkconfig.
-INSTALL_MASK+=" ${EPREFIX}/etc/ *grub-install* *mkconfig*"
-PKG_INSTALL_MASK+=" ${EPREFIX}/etc/ *grub-install* *mkconfig*"
+grub_install_mask=" ${EPREFIX}/etc/ *grub-install* *mkconfig* "
+INSTALL_MASK+="${grub_install_mask}"
+PKG_INSTALL_MASK+="${grub_install_mask}"
+unset grub_install_mask
