@@ -260,9 +260,9 @@ fi
 if [ -n "${VM_IMAGE}" ]; then
     case "${VM_BOARD}" in
         amd64-usr)
-            set -- -drive if=virtio,file="${SCRIPT_DIR}/${VM_IMAGE}" "$@" ;;
+            set -- -drive if=virtio,file="${VM_IMAGE}" "$@" ;;
         arm64-usr)
-            set -- -drive if=none,id=blk,file="${SCRIPT_DIR}/${VM_IMAGE}" \
+            set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
             -device virtio-blk-device,drive=blk "$@"
             ;;
         *) die "Unsupported arch" ;;
@@ -270,11 +270,11 @@ if [ -n "${VM_IMAGE}" ]; then
 fi
 
 if [ -n "${VM_KERNEL}" ]; then
-    set -- -kernel "${SCRIPT_DIR}/${VM_KERNEL}" "$@"
+    set -- -kernel "${VM_KERNEL}" "$@"
 fi
 
 if [ -n "${VM_INITRD}" ]; then
-    set -- -initrd "${SCRIPT_DIR}/${VM_INITRD}" "$@"
+    set -- -initrd "${VM_INITRD}" "$@"
 fi
 
 if [ -n "${VM_UUID}" ]; then
@@ -283,13 +283,13 @@ fi
 
 if [ -n "${VM_CDROM}" ]; then
     set -- -boot order=d \
-	-drive file="${SCRIPT_DIR}/${VM_CDROM}",media=cdrom,format=raw "$@"
+	-drive file="${VM_CDROM}",media=cdrom,format=raw "$@"
 fi
 
 if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
     set -- \
-        -drive if=pflash,unit=0,file="${SCRIPT_DIR}/${VM_PFLASH_RO}",format=qcow2,readonly=on \
-        -drive if=pflash,unit=1,file="${SCRIPT_DIR}/${VM_PFLASH_RW}",format=qcow2 "$@"
+        -drive if=pflash,unit=0,file="${VM_PFLASH_RO}",format=qcow2,readonly=on \
+        -drive if=pflash,unit=1,file="${VM_PFLASH_RW}",format=qcow2 "$@"
 fi
 
 if [ -n "${IGNITION_CONFIG_FILE}" ]; then

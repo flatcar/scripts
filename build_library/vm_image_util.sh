@@ -821,7 +821,7 @@ _write_qemu_conf() {
     local dst_name=$(basename "$VM_DST_IMG")
 
     _write_qemu_common "${script}"
-    sed -e "s%^VM_IMAGE=.*%VM_IMAGE='${dst_name}'%" -i "${script}"
+    sed -e "s%^VM_IMAGE=.*%VM_IMAGE=\"\${SCRIPT_DIR}/${dst_name}\"%" -i "${script}"
 }
 
 _write_qemu_uefi_conf() {
@@ -842,8 +842,8 @@ _write_qemu_uefi_conf() {
             ;;
     esac
 
-    sed -e "s%^VM_PFLASH_RO=.*%VM_PFLASH_RO='${flash_ro}'%" \
-        -e "s%^VM_PFLASH_RW=.*%VM_PFLASH_RW='${flash_rw}'%" -i "${script}"
+    sed -e "s%^VM_PFLASH_RO=.*%VM_PFLASH_RO=\"\${SCRIPT_DIR}/${flash_ro}\"%" \
+        -e "s%^VM_PFLASH_RW=.*%VM_PFLASH_RW=\"\${SCRIPT_DIR}/${flash_rw}\"%" -i "${script}"
     VM_GENERATED_FILES+=( "$(_dst_dir)/${flash_ro}" "$(_dst_dir)/${flash_rw}" )
 
     # We now only support building qemu_uefi and generate the
@@ -899,8 +899,8 @@ _write_pxe_conf() {
     local dst_name=$(basename "$VM_DST_IMG")
 
     _write_qemu_common "${script}"
-    sed -e "s%^VM_KERNEL=.*%VM_KERNEL='${vmlinuz_name}'%" \
-        -e "s%^VM_INITRD=.*%VM_INITRD='${dst_name}'%" -i "${script}"
+    sed -e "s%^VM_KERNEL=.*%VM_KERNEL=\"\${SCRIPT_DIR}/${vmlinuz_name}\"%" \
+        -e "s%^VM_INITRD=.*%VM_INITRD=\"\${SCRIPT_DIR}/${dst_name}\"%" -i "${script}"
 
     cat >>"${VM_README}" <<EOF
 
@@ -925,7 +925,7 @@ _write_iso_conf() {
     local script="$(_dst_dir)/$(_dst_name ".sh")"
     local dst_name=$(basename "$VM_DST_IMG")
     _write_qemu_common "${script}"
-    sed -e "s%^VM_CDROM=.*%VM_CDROM='${dst_name}'%" -i "${script}"
+    sed -e "s%^VM_CDROM=.*%VM_CDROM=\"\${SCRIPT_DIR}/${dst_name}\"%" -i "${script}"
 }
 
 # Generate the vmware config file

@@ -1,0 +1,1 @@
+- Fixed path handling in the QEMU .sh launcher scripts. Given paths now are relative to the current directory and absolute paths work as you would expect.
