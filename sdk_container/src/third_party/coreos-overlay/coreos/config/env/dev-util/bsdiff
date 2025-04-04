@@ -1,0 +1,16 @@
+# Hacks to build bsdiff that now requires linking both bsdiff.o and
+# sais.o to produce an executable. The original required only bsdiff.o
+# - sais.o is a result of compiling a third-party code we added in our
+# user patches. We replace bsdiff.c with a simple source file, so
+# src_compile succeeds. In post hook we build actual bsdiff.
+
+cros_pre_src_compile_bsdiff_flatcar_modifications() {
+    mv bsdiff.c "${T}/bsdiff.c"
+    echo "int main(void) { return 0; }" >bsdiff.c
+}
+
+cros_post_src_compile_bsdiff_flatcar_modifications() {
+    rm bsdiff bsdiff.c || die
+    mv "${T}/bsdiff.c" bsdiff.c || die
+    edo $(tc-getCC) ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} -o bsdiff bsdiff.c sais.c -lbz2
+}
