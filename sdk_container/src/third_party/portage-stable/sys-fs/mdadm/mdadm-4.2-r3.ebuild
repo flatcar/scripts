@@ -1,9 +1,6 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Flatcar: Based on mdadm-4.2-r1.ebuild from commit
-# 81a13f851b7502d547ff8c0434bf64a443877fb1 in Gentoo repo (see
-# https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-fs/mdadm/mdadm-4.2-r1.ebuild?id=81a13f851b7502d547ff8c0434bf64a443877fb1).
 EAPI=7
 
 inherit flag-o-matic systemd toolchain-funcs udev
@@ -16,23 +13,17 @@ SRC_URI="https://www.kernel.org/pub/linux/utils/raid/mdadm/${P/_/-}.tar.xz
 
 LICENSE="GPL-2"
 SLOT="0"
-# Flatcar: Build for amd64 and arm64
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+[[ "${PV}" = *_rc* ]] || \
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ppc ppc64 ~riscv sparc x86"
 IUSE="static systemd +udev"
 
-# Only sys-fs/eudev provides static-libs right now, so if you have systemd,
-# you need to choose between static or udev, as your udev won't have static libs.
-# bug #830485
-REQUIRED_USE="systemd? ( ?? ( static udev ) )"
+REQUIRED_USE="static? ( !udev )"
 
 BDEPEND="app-arch/xz-utils
 	virtual/pkgconfig"
-DEPEND="udev? (
-		static? ( !systemd? ( sys-fs/eudev[static-libs] ) )
-		!static? ( virtual/libudev:= )
-	)"
-RDEPEND=">=sys-apps/util-linux-2.16
-	udev? ( !static? ( virtual/libudev:= ) )"
+DEPEND="udev? ( virtual/libudev:= )"
+RDEPEND="${DEPEND}
+	>=sys-apps/util-linux-2.16"
 
 # The tests edit values in /proc and run tests on software raid devices.
 # Thus, they shouldn't be run on systems with active software RAID devices.
@@ -41,6 +32,7 @@ RESTRICT="test"
 PATCHES=(
 	"${FILESDIR}/${PN}"-3.4-sysmacros.patch #580188
 	"${FILESDIR}/${PN}"-4.2-in_initrd-collision.patch #830461
+	"${FILESDIR}/${PN}"-4.2-mdadm_env.patch #628968
 )
 
 mdadm_emake() {
@@ -69,6 +61,9 @@ src_compile() {
 	# CPPFLAGS won't work for this
 	use udev || append-cflags -DNO_LIBUDEV
 
+	# bug 907082
+	use elibc_musl && append-cppflags -D_LARGEFILE64_SOURCE
+
 	mdadm_emake all
 }
 
@@ -96,13 +91,12 @@ src_install() {
 	insinto /etc/default
 	newins "${FILESDIR}"/etc-default-mdadm mdadm
 
-	systemd_dounit "${FILESDIR}"/mdadm.service
-	systemd_dounit "${FILESDIR}"/mdadm.timer
-
-	systemd_enable_service timers.target mdadm.timer
+	exeinto /etc/cron.weekly
+	newexe "${FILESDIR}"/mdadm.weekly mdadm
 }
 
 pkg_postinst() {
+	udev_reload
 	if ! systemd_is_booted; then
 		if [[ -z ${REPLACING_VERSIONS} ]] ; then
 			# Only inform people the first time they install.
@@ -111,4 +105,8 @@ pkg_postinst() {
 			elog "	rc-update add mdraid boot"
 		fi
 	fi
+}
+
+pkg_postrm() {
+	udev_reload
 }
