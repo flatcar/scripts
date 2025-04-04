@@ -16,7 +16,7 @@ src_prepare() {
 		local archconfig="$(find_archconfig)"
 		local commonconfig="$(find_commonconfig)"
 		elog "Building using config ${archconfig} and ${commonconfig}"
-		cat "${archconfig}" "${commonconfig}" >> build/.config || die
+		cat "${archconfig}" "${commonconfig}" | envsubst '$MODULE_SIGNING_KEY_DIR' >> build/.config || die
 	fi
 	cpio -ov </dev/null >build/bootengine.cpio
 
@@ -52,7 +52,6 @@ src_install() {
 	rm "${D}/usr/lib/debug/usr/lib/modules/${KV_FULL}/build" || die
 
 	# Clean up the build tree
-	shred_keys
 	kmake clean
 
 	# TODO: ensure that fixdep and kbuild tools shipped inside the image
