@@ -22,12 +22,14 @@ unset ndb_install_mask
 # only files that this happens for are files that we have put into
 # {PKG_,}INSTALL_MASK. This will help us avoid installing
 # acct-user/named and acct-user/group.
-fowners_script=$(command -v fowners)
+if [[ -z ${flatcar_hacked_fowners:-} ]]; then
+    flatcar_hacked_fowners=$(command -v fowners)
+fi
 fowners() {
     if [[ ${#} -gt 0 && ( ${1} = named:* || ${1} = *:named ) ]]; then
         return 0
     fi
-    "${fowners_script}" "${@}"
+    "${flatcar_hacked_fowners}" "${@}"
 }
 
 # The pkg_postinst phase function wants to generate an rndc.key file
