@@ -1,0 +1,980 @@
+From 62c75393ea18b65ba0f7f224070c3bb94d3bd930 Mon Sep 17 00:00:00 2001
+From: Jo Zzsi <jozzsicsataban@gmail.com>
+Date: Fri, 7 Feb 2025 20:24:39 -0500
+Subject: [PATCH 01/22] fix(systemd-sysusers): always silence stdout
+
+systemd-sysusers does not have quiet option, so
+always silence stdout (but not stderr).
+
+Fixes: https://github.com/dracut-ng/dracut-ng/issues/1195
+---
+ modules.d/60systemd-sysusers/module-setup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/60systemd-sysusers/module-setup.sh b/modules.d/60systemd-sysusers/module-setup.sh
+index 05680553..977695e6 100755
+--- a/modules.d/60systemd-sysusers/module-setup.sh
++++ b/modules.d/60systemd-sysusers/module-setup.sh
+@@ -15,5 +15,5 @@ check() {
+ install() {
+     inst_sysusers basic.conf
+ 
+-    systemd-sysusers --root="$initdir"
++    systemd-sysusers --root="$initdir" > /dev/null
+ }
+-- 
+2.48.1
+
+
+From 9b822c31e3c096a276904c0d6ebfd379ec443e23 Mon Sep 17 00:00:00 2001
+From: Brian Fjeldstad <bfjelds@microsoft.com>
+Date: Tue, 4 Feb 2025 22:09:04 +0000
+Subject: [PATCH 02/22] fix(dracut): avoid mktemp collisions with find filter
+
+---
+ dracut.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/dracut.sh b/dracut.sh
+index 88b14f3e..ef959021 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -1324,10 +1324,10 @@ if findmnt --raw -n --target "$tmpdir" --output=options | grep -q noexec; then
+     noexec=1
+ fi
+ 
+-DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.XXXXXX)"
++DRACUT_TMPDIR="$(mktemp -p "$TMPDIR/" -d -t dracut.dXXXXXX)"
+ readonly DRACUT_TMPDIR
+ [ -d "$DRACUT_TMPDIR" ] || {
+-    printf "%s\n" "dracut[F]: mktemp -p '$TMPDIR/' -d -t dracut.XXXXXX failed." >&2
++    printf "%s\n" "dracut[F]: mktemp -p '$TMPDIR/' -d -t dracut.dXXXXXX failed." >&2
+     exit 1
+ }
+ 
+-- 
+2.48.1
+
+
+From 89da4257a6ffa737a69f7095bb41d5ae3f247d82 Mon Sep 17 00:00:00 2001
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Wed, 12 Feb 2025 11:10:30 +0100
+Subject: [PATCH 03/22] fix(dracut-lib): support "set -e" in setdebug
+
+A `return` statement will return with the exit code of the previous
+command if no exit code is specified. In case `/usr/lib/initrd-release`
+does not exist, `setdebug` will return with the exit code 1.
+
+Return this function with code 0 in that case to support `set -e` users.
+
+Fixes: 2b125c69cc80 ("base/dracut-lib.sh: do not setdebug, if not in initramfs")
+---
+ modules.d/99base/dracut-lib.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/99base/dracut-lib.sh b/modules.d/99base/dracut-lib.sh
+index acedea98..05c361c6 100755
+--- a/modules.d/99base/dracut-lib.sh
++++ b/modules.d/99base/dracut-lib.sh
+@@ -340,7 +340,7 @@ splitsep() {
+ }
+ 
+ setdebug() {
+-    [ -f /usr/lib/initrd-release ] || return
++    [ -f /usr/lib/initrd-release ] || return 0
+     if [ -z "$RD_DEBUG" ]; then
+         if [ -e /proc/cmdline ]; then
+             RD_DEBUG=no
+-- 
+2.48.1
+
+
+From 57911e76e2826fa6d9f2b80915cf99c6eb0e05b0 Mon Sep 17 00:00:00 2001
+From: You-Sheng Yang <vicamo.yang@canonical.com>
+Date: Wed, 22 Jan 2025 23:37:53 +0800
+Subject: [PATCH 04/22] fix(dracut-install): install compressed blobs that
+ match wildcard fwpath
+
+dracut-install tries to invoke `glob()` with full path expanded from
+"intel/ish/ish_*.bin", but while all the binaries were compressed, this
+matches no file and none of the custom ISH firmware blobs will be
+installed.
+
+Closes: #1150
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/2095518
+Signed-off-by: You-Sheng Yang <vicamo.yang@canonical.com>
+---
+ src/install/dracut-install.c | 42 +++++++++++++++++++++++++++---------
+ 1 file changed, 32 insertions(+), 10 deletions(-)
+
+diff --git a/src/install/dracut-install.c b/src/install/dracut-install.c
+index 96bc2eb6..bacbe86e 100644
+--- a/src/install/dracut-install.c
++++ b/src/install/dracut-install.c
+@@ -1437,12 +1437,15 @@ static int install_all(int argc, char **argv)
+         return r;
+ }
+ 
+-static int install_firmware_fullpath(const char *fwpath)
++static int install_firmware_fullpath(const char *fwpath, bool maybe_compressed)
+ {
+         const char *fw = fwpath;
+         _cleanup_free_ char *fwpath_compressed = NULL;
+         int ret;
+         if (access(fwpath, F_OK) != 0) {
++                if (!maybe_compressed)
++                        return 1;
++
+                 _asprintf(&fwpath_compressed, "%s.zst", fwpath);
+                 if (access(fwpath_compressed, F_OK) != 0) {
+                         strcpy(fwpath_compressed + strlen(fwpath) + 1, "xz");
+@@ -1460,6 +1463,23 @@ static int install_firmware_fullpath(const char *fwpath)
+         return ret;
+ }
+ 
++static bool install_firmware_glob(const char *fwpath)
++{
++        size_t i;
++        _cleanup_globfree_ glob_t globbuf;
++        bool found = false;
++        int ret;
++
++        glob(fwpath, 0, NULL, &globbuf);
++        for (i = 0; i < globbuf.gl_pathc; i++) {
++                ret = install_firmware_fullpath(globbuf.gl_pathv[i], false);
++                if (ret == 0)
++                        found = true;
++        }
++
++        return found;
++}
++
+ static int install_firmware(struct kmod_module *mod)
+ {
+         struct kmod_list *l = NULL;
+@@ -1490,17 +1510,19 @@ static int install_firmware(struct kmod_module *mod)
+ 
+                         if (strpbrk(value, "*?[") != NULL
+                             && access(fwpath, F_OK) != 0) {
+-                                size_t i;
+-                                _cleanup_globfree_ glob_t globbuf;
+-
+-                                glob(fwpath, 0, NULL, &globbuf);
+-                                for (i = 0; i < globbuf.gl_pathc; i++) {
+-                                        ret = install_firmware_fullpath(globbuf.gl_pathv[i]);
+-                                        if (ret == 0)
+-                                                found_this = true;
++                                found_this = install_firmware_glob(fwpath);
++                                if (!found_this) {
++                                        _cleanup_free_ char *fwpath_compressed = NULL;
++
++                                        _asprintf(&fwpath_compressed, "%s.zst", fwpath);
++                                        found_this = install_firmware_glob(fwpath_compressed);
++                                        if (!found_this) {
++                                                strcpy(fwpath_compressed + strlen(fwpath) + 1, "xz");
++                                                found_this = install_firmware_glob(fwpath_compressed);
++                                        }
+                                 }
+                         } else {
+-                                ret = install_firmware_fullpath(fwpath);
++                                ret = install_firmware_fullpath(fwpath, true);
+                                 if (ret == 0)
+                                         found_this = true;
+                         }
+-- 
+2.48.1
+
+
+From ddbeed81b2d43a03a16dc60ff76fd0355d4be5b9 Mon Sep 17 00:00:00 2001
+From: Mark Harmstone <mark@harmstone.com>
+Date: Thu, 23 Jan 2025 11:39:13 +0000
+Subject: [PATCH 05/22] feat(btrfs): also install btrfstune
+
+---
+ modules.d/90btrfs/module-setup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/90btrfs/module-setup.sh b/modules.d/90btrfs/module-setup.sh
+index 5d881332..80bba155 100755
+--- a/modules.d/90btrfs/module-setup.sh
++++ b/modules.d/90btrfs/module-setup.sh
+@@ -55,6 +55,6 @@ install() {
+         inst_hook initqueue/timeout 10 "$moddir/btrfs_timeout.sh"
+     fi
+ 
+-    inst_multiple -o btrfsck btrfs-zero-log
++    inst_multiple -o btrfsck btrfs-zero-log btrfstune
+     inst "$(command -v btrfs)" /sbin/btrfs
+ }
+-- 
+2.48.1
+
+
+From cb8fb9641feec8ee3e0ce249da98becc6cdbb98b Mon Sep 17 00:00:00 2001
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Fri, 21 Feb 2025 23:49:04 +0100
+Subject: [PATCH 06/22] fix(systemd-sysusers): silence "Creating " on stderr
+
+dracut prints 20 lines when creating users and groups even with
+`--quiet` option. Sample output:
+
+```
+Creating group 'nobody' with GID 65534.
+Creating group 'audio' with GID 997.
+Creating group 'disk' with GID 995.
+Creating group 'input' with GID 994.
+Creating group 'kmem' with GID 993.
+Creating group 'kvm' with GID 992.
+Creating group 'lp' with GID 991.
+Creating group 'optical' with GID 990.
+Creating group 'render' with GID 989.
+Creating group 'sgx' with GID 988.
+Creating group 'storage' with GID 987.
+Creating group 'tty' with GID 5.
+Creating group 'uucp' with GID 986.
+Creating group 'video' with GID 985.
+Creating group 'users' with GID 984.
+Creating group 'systemd-journal' with GID 983.
+Creating user 'root' (Super User) with UID 0 and GID 0.
+Creating user 'nobody' (Kernel Overflow User) with UID 65534 and GID 65534.
+Creating group 'nobody' with GID 65534.
+Creating group 'audio' with GID 997.
+```
+
+Filter "Creating " messages from stderr, but keep the other messages on
+stderr and all messages on stdout untouched.
+
+Fixes: https://github.com/dracut-ng/dracut-ng/issues/1195
+Fixes: f3dacc013d90 ("feat(systemd-sysusers): run systemd-sysusers as part of the build process")
+---
+ modules.d/60systemd-sysusers/module-setup.sh | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/modules.d/60systemd-sysusers/module-setup.sh b/modules.d/60systemd-sysusers/module-setup.sh
+index 977695e6..0bddd19d 100755
+--- a/modules.d/60systemd-sysusers/module-setup.sh
++++ b/modules.d/60systemd-sysusers/module-setup.sh
+@@ -15,5 +15,9 @@ check() {
+ install() {
+     inst_sysusers basic.conf
+ 
+-    systemd-sysusers --root="$initdir" > /dev/null
++    # redirect stdout temporarily to FD 3 to use filter stderr
++    {
++        set -o pipefail
++        systemd-sysusers --root="$initdir" 2>&1 >&3 | grep -v "^Creating " >&2
++    } 3>&1
+ }
+-- 
+2.48.1
+
+
+From f3fffa1edce2fd5e542c115296c9b0856611faa7 Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Thu, 20 Feb 2025 11:20:36 +0100
+Subject: [PATCH 07/22] fix(systemd-veritysetup): install dm-verity kernel
+ module
+
+---
+ modules.d/01systemd-veritysetup/module-setup.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/modules.d/01systemd-veritysetup/module-setup.sh b/modules.d/01systemd-veritysetup/module-setup.sh
+index fecfecc8..9dad8d4f 100755
+--- a/modules.d/01systemd-veritysetup/module-setup.sh
++++ b/modules.d/01systemd-veritysetup/module-setup.sh
+@@ -26,6 +26,11 @@ depends() {
+ 
+ }
+ 
++# Install kernel module(s).
++installkernel() {
++    instmods dm-verity
++}
++
+ # Install the required file(s) and directories for the module in the initramfs.
+ install() {
+ 
+-- 
+2.48.1
+
+
+From 3d5bab815570d2a271a45ceb9135f7cb3bde11f1 Mon Sep 17 00:00:00 2001
+From: Martin Wilck <mwilck@suse.com>
+Date: Wed, 26 Feb 2025 14:54:51 +0100
+Subject: [PATCH 08/22] fix(iscsi): don't require network setup for qedi
+
+This adds the logic of cc2c48a ("fix(iscsi): don't require network setup
+for bnx2i") for the qedi iSCSI offload driver. Testing has shown
+that for qedi, network setup in the initrd is even more superfluous
+as it is for bnx2i. qedi devices are usually separate PCI functions
+that don't show up as ethernet interfaces at all.
+
+While at it, simplify the conditional a bit.
+
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+---
+ modules.d/95iscsi/parse-iscsiroot.sh | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/modules.d/95iscsi/parse-iscsiroot.sh b/modules.d/95iscsi/parse-iscsiroot.sh
+index 2dace3a6..a388bec1 100755
+--- a/modules.d/95iscsi/parse-iscsiroot.sh
++++ b/modules.d/95iscsi/parse-iscsiroot.sh
+@@ -79,8 +79,9 @@ fi
+ 
+ # iscsi_firmware does not need argument checking
+ if [ -n "$iscsi_firmware" ]; then
+-    if [ "$root" != "dhcp" ] && [ "$netroot" != "dhcp" ]; then
+-        [ -z "$netroot" ] && [ "$iscsi_transport" != bnx2i ] && netroot=iscsi:
++    if [ "$root" != "dhcp" ] && [ -z "$netroot" ] \
++        && [ "$iscsi_transport" != bnx2i ] && [ "$iscsi_transport" != qedi ]; then
++        netroot=iscsi:
+     fi
+     modprobe -b -q iscsi_boot_sysfs 2> /dev/null
+     modprobe -b -q iscsi_ibft
+-- 
+2.48.1
+
+
+From fcde3355456323be9674aac1d00e3c66683b7f99 Mon Sep 17 00:00:00 2001
+From: Martin Wilck <mwilck@suse.com>
+Date: Wed, 26 Feb 2025 14:59:44 +0100
+Subject: [PATCH 09/22] fix(iscsi): make sure services are shut down when
+ switching root
+
+When systemd prepares switching root, it starts 'initrd-cleanup.service',
+which runs 'systemctl --no-block isolate initrd-switch-root.target'.
+This will stop all units on which initrd-switch-root.target does not
+depend, including iscsid.service and iscsiuio.service. But systemd
+doesn't guarantee a time ordering in this case. It can happen that
+systemd switches root (i.e. restarts itself on the new root) before
+iscsiuio is actually stopped, or at least before PID 1 receives
+the notification that it has stopped. In this case, it considers
+iscsiuio still running, and will not start it later in the boot
+sequence when iscsid is coming up.
+
+A typical log excerpt with systemd.log_level=debug looks like this:
+
+[   36.470761] worker2 systemd[1]: initrd-cleanup.service: Trying to enqueue job initrd-cleanup.service/start/replace
+[   36.765241] worker2 systemd[1]: initrd-switch-root.target: Trying to enqueue job initrd-switch-root.target/start/isolate
+[   36.765337] worker2 systemd[1]: iscsid.service: Installed new job iscsid.service/stop as 139
+[   36.765535] worker2 systemd[1]: iscsiuio.service: Installed new job iscsiuio.service/stop as 138
+[   36.824789] worker2 systemd[1]: iscsid.socket: stopping held back, waiting for: iscsid.service
+[   36.824813] worker2 systemd[1]: iscsiuio.socket: stopping held back, waiting for: iscsiuio.service
+[   36.888759] worker2 systemd[1]: iscsid.service: Thawing unit.
+[   36.888882] worker2 systemd[1]: iscsid.service: Changed running -> stop-sigterm
+[   36.889355] worker2 systemd[1]: Stopping Open-iSCSI...
+[   36.889413] worker2 systemd[1]: iscsiuio.service: stopping held back, waiting for: iscsid.service
+[   37.512072] worker2 systemd[1]: Reached target Switch Root.
+[   37.549512] worker2 @ystemctl[1614]: Switching root - root: /sysroot; init: n/a
+[   37.577264] worker2 systemd[1]: Switching root.
+
+When iscsid is started later on in the real root, it resets all existing iSCSI
+connections, causing the root FS to come offline. In iSCSI offload scenarios
+if iscsiuio is already running, it will re-establish the session after a few
+seconds. But if iscsiuio has not been started at this point in time, it can't
+be loaded any more from the root FS, and booting fails.
+
+To avoid this problem, add "Conflicts" and a "Before" dependencies against
+initrd-cleanup.service to the iSCSI service units.
+
+See also https://github.com/systemd/systemd/issues/3436
+
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+---
+ modules.d/95iscsi/module-setup.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/modules.d/95iscsi/module-setup.sh b/modules.d/95iscsi/module-setup.sh
+index 1b2ea110..3bb9a63d 100755
+--- a/modules.d/95iscsi/module-setup.sh
++++ b/modules.d/95iscsi/module-setup.sh
+@@ -234,8 +234,8 @@ install() {
+         {
+             echo "[Unit]"
+             echo "DefaultDependencies=no"
+-            echo "Conflicts=shutdown.target"
+-            echo "Before=shutdown.target"
++            echo "Conflicts=shutdown.target initrd-cleanup.service"
++            echo "Before=shutdown.target initrd-cleanup.service"
+         } > "${initdir}/$systemdsystemunitdir/iscsid.service.d/dracut.conf"
+ 
+         mkdir -p "${initdir}/$systemdsystemunitdir/iscsid.socket.d"
+@@ -250,8 +250,8 @@ install() {
+         {
+             echo "[Unit]"
+             echo "DefaultDependencies=no"
+-            echo "Conflicts=shutdown.target"
+-            echo "Before=shutdown.target"
++            echo "Conflicts=shutdown.target initrd-cleanup.service"
++            echo "Before=shutdown.target initrd-cleanup.service"
+         } > "${initdir}/$systemdsystemunitdir/iscsiuio.service.d/dracut.conf"
+ 
+         mkdir -p "${initdir}/$systemdsystemunitdir/iscsiuio.socket.d"
+-- 
+2.48.1
+
+
+From 20cc20d2ac9c2908da6735b04dba49c1cb1b0bab Mon Sep 17 00:00:00 2001
+From: Xinhui Yang <cyan@cyano.uk>
+Date: Sat, 1 Mar 2025 00:54:31 +0800
+Subject: [PATCH 10/22] fix(90kernel-modules): explicitly include
+ xhci-pci-renesas
+
+Since Linux v6.12-rc1 (commit 25f51b76f90f), xhci-pci no longer depends
+on xhci-pci-renesas, causing the Renesas driver to be omitted during
+initramfs generation (when built as a module).
+
+This makes platforms with such xHCI controllers unavailable during
+initrd, and unable to boot from a USB drive. There are SuperSpeed ports
+routed through such controller on some platforms, too, which also
+renders the USB keyboard and mouse unusable.
+
+Here's a snippet of the kernel log from such platform, showing a
+keyboard and a mouse being detected only after the initrd switched root:
+
+[    9.352608] systemd-journald[187]: Received SIGTERM from PID 1 (systemd).
+[    9.500146] systemd[1]: systemd 257.2 running in system mode (OMITTED)
+...
+[   11.187756] xhci-pci-renesas 0000:04:00.0: xHCI Host Controller
+[   11.187870] xhci-pci-renesas 0000:04:00.0: new USB bus registered, assigned bus number 7
+[   11.193261] xhci-pci-renesas 0000:04:00.0: hcc params 0x014051cf hci version 0x100 quirks 0x0000000100000010
+[   11.194806] xhci-pci-renesas 0000:04:00.0: xHCI Host Controller
+[   11.196601] xhci-pci-renesas 0000:04:00.0: new USB bus registered, assigned bus number 8
+[   11.196613] xhci-pci-renesas 0000:04:00.0: Host supports USB 3.0 SuperSpeed
+[   11.196927] usb usb7: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 6.13
+[   11.196931] usb usb7: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[   11.196935] usb usb7: Product: xHCI Host Controller
+[   11.196938] usb usb7: Manufacturer: Linux 6.13.3-aosc-main xhci-hcd
+[   11.196941] usb usb7: SerialNumber: 0000:04:00.0
+[   11.199598] hub 7-0:1.0: USB hub found
+[   11.199630] hub 7-0:1.0: 4 ports detected
+...
+[   11.439561] usb 7-2: new high-speed USB device number 2 using xhci-pci-renesas
+[   11.568361] usb 7-2: New USB device found, idVendor=1532, idProduct=0114, bcdDevice= 1.00
+[   11.568369] usb 7-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[   11.568372] usb 7-2: Product: DeathStalker Ultimate
+[   11.568376] usb 7-2: Manufacturer: Razer
+[   11.600474] input: Razer DeathStalker Ultimate as /devices/pci0000:00/0000:00:0e.0/0000:04:00.0/usb7/7-2/7-2:1.0/0003:1532:0114.0001/input/input12
+[   11.600686] hid-generic 0003:1532:0114.0001: input,hidraw0: USB HID v1.11 Mouse [Razer DeathStalker Ultimate] on usb-0000:04:00.0-2/input0
+[   11.601137] input: Razer DeathStalker Ultimate Keyboard as /devices/pci0000:00/0000:00:0e.0/0000:04:00.0/usb7/7-2/7-2:1.1/0003:1532:0114.0002/input/input13
+[   11.652148] input: Razer DeathStalker Ultimate as /devices/pci0000:00/0000:00:0e.0/0000:04:00.0/usb7/7-2/7-2:1.1/0003:1532:0114.0002/input/input14
+[   11.652409] hid-generic 0003:1532:0114.0002: input,hidraw1: USB HID v1.11 Keyboard [Razer DeathStalker Ultimate] on usb-0000:04:00.0-2/input1
+[   11.653054] input: Razer DeathStalker Ultimate as /devices/pci0000:00/0000:00:0e.0/0000:04:00.0/usb7/7-2/7-2:1.2/0003:1532:0114.0003/input/input15
+[   11.703768] hid-generic 0003:1532:0114.0003: input,hidraw2: USB HID v1.11 Keyboard [Razer DeathStalker Ultimate] on usb-0000:04:00.0-2/input2
+---
+ modules.d/90kernel-modules/module-setup.sh | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/modules.d/90kernel-modules/module-setup.sh b/modules.d/90kernel-modules/module-setup.sh
+index f159f0be..1ac91d02 100755
+--- a/modules.d/90kernel-modules/module-setup.sh
++++ b/modules.d/90kernel-modules/module-setup.sh
+@@ -39,12 +39,15 @@ installkernel() {
+         hostonly='' instmods \
+             hid_generic unix
+ 
++        # xhci-pci-renesas is needed for the USB to be available during
++        # initrd on platforms with such USB controllers since Linux
++        # 6.12-rc1 (commit 25f51b76f90f).
+         hostonly=$(optional_hostonly) instmods \
+             ehci-hcd ehci-pci ehci-platform \
+             ohci-hcd ohci-pci \
+             uhci-hcd \
+             usbhid \
+-            xhci-hcd xhci-pci xhci-plat-hcd \
++            xhci-hcd xhci-pci xhci-pci-renesas xhci-plat-hcd \
+             "=drivers/hid" \
+             "=drivers/tty/serial" \
+             "=drivers/input/serio" \
+-- 
+2.48.1
+
+
+From 4402aeb271933e6b542f5d9a4ff13f6e8b97e6c2 Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Wed, 26 Feb 2025 08:20:09 +0100
+Subject: [PATCH 11/22] feat(systemd-integritysetup): add
+ remote-integritysetup.target
+
+Required since https://github.com/systemd/systemd/commit/810708f4b820543b8585a36e84ccca4bc5b18fee
+---
+ modules.d/01systemd-integritysetup/module-setup.sh | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/modules.d/01systemd-integritysetup/module-setup.sh b/modules.d/01systemd-integritysetup/module-setup.sh
+index 3d176404..dffc88ac 100755
+--- a/modules.d/01systemd-integritysetup/module-setup.sh
++++ b/modules.d/01systemd-integritysetup/module-setup.sh
+@@ -26,6 +26,7 @@ depends() {
+ 
+ }
+ 
++# Install kernel module(s).
+ installkernel() {
+     instmods dm-integrity
+ }
+@@ -36,9 +37,11 @@ install() {
+     inst_multiple -o \
+         "$systemdutildir"/systemd-integritysetup \
+         "$systemdutildir"/system-generators/systemd-integritysetup-generator \
++        "$systemdsystemunitdir"/remote-integritysetup.target \
+         "$systemdsystemunitdir"/integritysetup-pre.target \
+         "$systemdsystemunitdir"/integritysetup.target \
+-        "$systemdsystemunitdir"/sysinit.target.wants/integritysetup.target
++        "$systemdsystemunitdir"/sysinit.target.wants/integritysetup.target \
++        "$systemdsystemunitdir"/initrd-root-device.target.wants/remote-integritysetup.target
+ 
+     # Install the hosts local user configurations if enabled.
+     if [[ $hostonly ]]; then
+@@ -48,8 +51,11 @@ install() {
+             "$systemdsystemconfdir/integritysetup.target.wants/*.target" \
+             "$systemdsystemconfdir"/integritysetup-pre.target \
+             "$systemdsystemconfdir/integritysetup-pre.target.wants/*.target" \
++            "$systemdsystemconfdir"/remote-integritysetup.target \
++            "$systemdsystemconfdir/remote-integritysetup.target.wants/*.target" \
+             "$systemdsystemconfdir"/sysinit.target.wants/integritysetup.target \
+-            "$systemdsystemconfdir/sysinit.target.wants/integritysetup.target.wants/*.target"
++            "$systemdsystemconfdir/sysinit.target.wants/integritysetup.target.wants/*.target" \
++            "$systemdsystemconfdir"/initrd-root-device.target.wants/remote-integritysetup.target
+     fi
+ 
+     # Install required libraries.
+-- 
+2.48.1
+
+
+From c43b79056ffdb7b410e70550a8ad8d137b4720c0 Mon Sep 17 00:00:00 2001
+From: Benjamin Marzinski <bmarzins@redhat.com>
+Date: Wed, 26 Mar 2025 18:04:25 -0400
+Subject: [PATCH 13/22] fix(multipath): skip default multipath.conf with
+ mpathconf
+
+Commit 1e802f15f creates a default multipath.conf file with
+"find_multipaths strict" when run in non-hostonly mode if there are no
+multipath devices and no multipath.conf. Unfortunately for systems that
+want to use mpathconf to create a multipath.conf file (e.g. Fedora and
+Centos) either through multipathd-configure.service or multipathd.sh,
+this default file keeps that from occurring. To make sure mpathconf is
+called to create the config file, do not install a default config file
+if mpathconf is installed.
+
+Fixes: ("fix(multipath): include module with find_multipaths strict")
+Signed-off-by: Benjamin Marzinski <bmarzins@redhat.com>
+---
+ modules.d/90multipath/module-setup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/90multipath/module-setup.sh b/modules.d/90multipath/module-setup.sh
+index 5fdbb9a7..a05df018 100755
+--- a/modules.d/90multipath/module-setup.sh
++++ b/modules.d/90multipath/module-setup.sh
+@@ -122,7 +122,7 @@ install() {
+         fi
+     }
+ 
+-    [[ $hostonly ]] || {
++    [[ $hostonly ]] || mpathconf_installed || {
+         for_each_host_dev_and_slaves is_mpath \
+             || [[ -f /etc/multipath.conf ]] || {
+             cat > "${initdir}"/etc/multipath.conf << EOF
+-- 
+2.48.1
+
+
+From e6b2c882af61a804f7658ed6e2f84f02277c7b8a Mon Sep 17 00:00:00 2001
+From: Jo Zzsi <jozzsicsataban@gmail.com>
+Date: Mon, 24 Mar 2025 09:12:13 -0400
+Subject: [PATCH 14/22] chore(network-legacy): no need to call chmod on ifup.sh
+
+This is a small optimization, with the goal of avoiding
+calling chmod for a file that is already guaranteed to be
+an executable.
+---
+ modules.d/35network-legacy/ifup.sh | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/modules.d/35network-legacy/ifup.sh b/modules.d/35network-legacy/ifup.sh
+index 1cd27b14..59629f11 100755
+--- a/modules.d/35network-legacy/ifup.sh
++++ b/modules.d/35network-legacy/ifup.sh
+@@ -47,7 +47,6 @@ do_dhcp_parallel() {
+         echo 'dhcp=dhclient' >> /run/NetworkManager/conf.d/10-dracut-dhclient.conf
+     fi
+ 
+-    chmod +x /sbin/dhcp-multi.sh
+     /sbin/dhcp-multi.sh "$netif" "$DO_VLAN" "$@" &
+     return 0
+ }
+-- 
+2.48.1
+
+
+From ddc1f54d3ec96c55c444af22a0a964cb48266a21 Mon Sep 17 00:00:00 2001
+From: Jo Zzsi <jozzsicsataban@gmail.com>
+Date: Mon, 24 Mar 2025 09:23:22 -0400
+Subject: [PATCH 15/22] perf(base): move the chmod dependency from base to
+ systemd
+
+base dracut module no longer requires chmod.
+---
+ modules.d/00systemd/module-setup.sh    | 1 +
+ modules.d/95ssh-client/module-setup.sh | 2 +-
+ modules.d/99base/module-setup.sh       | 1 -
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modules.d/00systemd/module-setup.sh b/modules.d/00systemd/module-setup.sh
+index 1f35a73c..283a39af 100755
+--- a/modules.d/00systemd/module-setup.sh
++++ b/modules.d/00systemd/module-setup.sh
+@@ -84,6 +84,7 @@ install() {
+         "$systemdsystemunitdir"/-.slice \
+         systemctl \
+         echo swapoff \
++        chmod \
+         mount umount reboot poweroff \
+         systemd-run systemd-escape \
+         systemd-cgls
+diff --git a/modules.d/95ssh-client/module-setup.sh b/modules.d/95ssh-client/module-setup.sh
+index 75fc94f3..662ad177 100755
+--- a/modules.d/95ssh-client/module-setup.sh
++++ b/modules.d/95ssh-client/module-setup.sh
+@@ -65,7 +65,7 @@ inst_sshenv() {
+ install() {
+     local _nsslibs
+ 
+-    inst_multiple ssh scp
++    inst_multiple ssh scp chmod
+     inst_sshenv
+ 
+     _nsslibs=$(
+diff --git a/modules.d/99base/module-setup.sh b/modules.d/99base/module-setup.sh
+index 4a86e90d..12194964 100755
+--- a/modules.d/99base/module-setup.sh
++++ b/modules.d/99base/module-setup.sh
+@@ -9,7 +9,6 @@ depends() {
+ # called by dracut
+ install() {
+     inst_multiple \
+-        chmod \
+         cp \
+         dmesg \
+         flock \
+-- 
+2.48.1
+
+
+From 2ae73d639834758a88b34033693bd97a7b1ed2f0 Mon Sep 17 00:00:00 2001
+From: Benjamin Drung <benjamin.drung@canonical.com>
+Date: Thu, 3 Apr 2025 14:14:07 +0200
+Subject: [PATCH 16/22] feat: add simpledrm module (as subset of drm module)
+
+Plymouth doesn't always show a splash screen if DRM drivers are
+installed in initrd.
+
+Provide a `simpledrm` module that only installs the SimpleDRM module
+and the potentially needed privacy screen providers. This `simpledrm`
+module is a subset of the `drm` module. It could be used instead of
+`drm` to avoid pulling in drivers like amdgpu, nouveau, or nvidia-drm.
+
+Bug-Ubuntu: https://launchpad.net/bugs/2105377
+---
+ modules.d/45simpledrm/module-setup.sh | 28 +++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+ create mode 100755 modules.d/45simpledrm/module-setup.sh
+
+diff --git a/modules.d/45simpledrm/module-setup.sh b/modules.d/45simpledrm/module-setup.sh
+new file mode 100755
+index 00000000..aa5fcd33
+--- /dev/null
++++ b/modules.d/45simpledrm/module-setup.sh
+@@ -0,0 +1,28 @@
++#!/bin/bash
++
++# called by dracut
++check() {
++    return 255
++}
++
++# called by dracut
++installkernel() {
++    # Include simple DRM driver
++    instmods simpledrm
++
++    if [[ $hostonly ]]; then
++        # if there is a privacy screen then its driver must be loaded before the
++        # kms driver will bind, otherwise its probe() will return -EPROBE_DEFER
++        # note privacy screens always register, even with e.g. nokmsboot
++        for i in /sys/class/drm/privacy_screen-*/device/driver/module; do
++            [[ -L $i ]] || continue
++            modlink=$(readlink "$i")
++            modname=$(basename "$modlink")
++            instmods "$modname"
++        done
++    else
++        # include privacy screen providers (see above comment)
++        # atm all providers live under drivers/platform/x86
++        dracut_instmods -o -s "drm_privacy_screen_register" "=drivers/platform/x86"
++    fi
++}
+-- 
+2.48.1
+
+
+From 1b5669c1d89e0cc1134ad5b0aa5c091144d24b84 Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Fri, 4 Apr 2025 10:18:07 +0200
+Subject: [PATCH 17/22] feat(systemd): add new systemd-validatefs@.service
+
+Introduced in https://github.com/systemd/systemd/commit/0bdd5ccc8145af8dae9779751d3e7a34c4fa6aa5
+Used internally in fstab-generator (new `x-systemd.validatefs` mount option) and
+gpt-auto-generator: https://github.com/systemd/systemd/commit/f872373a26dcaa0818b49220abfe35611d12fa82
+---
+ modules.d/00systemd/module-setup.sh | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/modules.d/00systemd/module-setup.sh b/modules.d/00systemd/module-setup.sh
+index 283a39af..8f25475e 100755
+--- a/modules.d/00systemd/module-setup.sh
++++ b/modules.d/00systemd/module-setup.sh
+@@ -35,6 +35,7 @@ install() {
+         "$systemdutildir"/systemd-shutdown \
+         "$systemdutildir"/systemd-reply-password \
+         "$systemdutildir"/systemd-fsck \
++        "$systemdutildir"/systemd-validatefs \
+         "$systemdutildir"/systemd-volatile-root \
+         "$systemdutildir"/systemd-sysroot-fstab-check \
+         "$systemdutildir"/system-generators/systemd-debug-generator \
+@@ -76,6 +77,7 @@ install() {
+         "$systemdsystemunitdir"/systemd-reboot.service \
+         "$systemdsystemunitdir"/systemd-kexec.service \
+         "$systemdsystemunitdir"/systemd-fsck@.service \
++        "$systemdsystemunitdir"/systemd-validatefs@.service \
+         "$systemdsystemunitdir"/systemd-volatile-root.service \
+         "$systemdsystemunitdir"/ctrl-alt-del.target \
+         "$systemdsystemunitdir"/syslog.socket \
+-- 
+2.48.1
+
+
+From e8f72ed9bed9f80c976867953a3eb92e62f9df2f Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Mon, 3 Mar 2025 15:22:14 +0100
+Subject: [PATCH 18/22] chore(multipath): remove `rd_NO_MULTIPATH` kernel
+ command line option
+
+Deprecated since 778b3543609d8c9d32df7111229f4072d00d02f0 (Nov 25, 2014).
+---
+ modules.d/90multipath/multipathd.service | 1 -
+ modules.d/90multipath/multipathd.sh      | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/modules.d/90multipath/multipathd.service b/modules.d/90multipath/multipathd.service
+index 1680cdfb..3248fa97 100644
+--- a/modules.d/90multipath/multipathd.service
++++ b/modules.d/90multipath/multipathd.service
+@@ -11,7 +11,6 @@ Conflicts=shutdown.target
+ Conflicts=initrd-cleanup.service
+ ConditionKernelCommandLine=!nompath
+ ConditionKernelCommandLine=!rd.multipath=0
+-ConditionKernelCommandLine=!rd_NO_MULTIPATH
+ ConditionKernelCommandLine=!multipath=off
+ ConditionVirtualization=!container
+ 
+diff --git a/modules.d/90multipath/multipathd.sh b/modules.d/90multipath/multipathd.sh
+index e17fd921..68bd0383 100755
+--- a/modules.d/90multipath/multipathd.sh
++++ b/modules.d/90multipath/multipathd.sh
+@@ -8,7 +8,7 @@ if [ "$(getarg rd.multipath)" = "default" ] && [ ! -e /etc/multipath.conf ]; the
+     mpathconf --enable
+ fi
+ 
+-if getargbool 1 rd.multipath -d -n rd_NO_MULTIPATH && [ -e /etc/multipath.conf ]; then
++if getargbool 1 rd.multipath && [ -e /etc/multipath.conf ]; then
+     modprobe dm-multipath
+     multipathd -B || multipathd
+     need_shutdown
+-- 
+2.48.1
+
+
+From 5e87b68cfb706b499a4d6814e3414d954db46083 Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Mon, 3 Mar 2025 15:23:41 +0100
+Subject: [PATCH 19/22] refactor(multipath): remove custom multipathd.service
+
+Install `multipathd.service` provided by upstream, and add a dropin to support
+`rd.multipath=0`.
+---
+ modules.d/90multipath/module-setup.sh        |  3 ++-
+ modules.d/90multipath/multipathd-dracut.conf |  2 ++
+ modules.d/90multipath/multipathd.service     | 26 --------------------
+ 3 files changed, 4 insertions(+), 27 deletions(-)
+ create mode 100644 modules.d/90multipath/multipathd-dracut.conf
+ delete mode 100644 modules.d/90multipath/multipathd.service
+
+diff --git a/modules.d/90multipath/module-setup.sh b/modules.d/90multipath/module-setup.sh
+index a05df018..5a7f91fa 100755
+--- a/modules.d/90multipath/module-setup.sh
++++ b/modules.d/90multipath/module-setup.sh
+@@ -91,6 +91,7 @@ install() {
+     [[ -d $config_dir ]] || config_dir=/etc/multipath/conf.d
+ 
+     inst_multiple \
++        "$systemdsystemunitdir"/multipathd.service \
+         pkill \
+         kpartx \
+         dmsetup \
+@@ -151,7 +152,7 @@ EOF
+             inst_simple "${moddir}/multipathd-configure.service" "${systemdsystemunitdir}/multipathd-configure.service"
+             $SYSTEMCTL -q --root "$initdir" enable multipathd-configure.service
+         fi
+-        inst_simple "${moddir}/multipathd.service" "${systemdsystemunitdir}/multipathd.service"
++        inst_simple "$moddir/multipathd-dracut.conf" "$systemdsystemunitdir/multipathd.service.d/multipathd-dracut.conf"
+         $SYSTEMCTL -q --root "$initdir" enable multipathd.service
+     else
+         inst_hook pre-trigger 02 "$moddir/multipathd.sh"
+diff --git a/modules.d/90multipath/multipathd-dracut.conf b/modules.d/90multipath/multipathd-dracut.conf
+new file mode 100644
+index 00000000..783b05d5
+--- /dev/null
++++ b/modules.d/90multipath/multipathd-dracut.conf
+@@ -0,0 +1,2 @@
++[Unit]
++ConditionKernelCommandLine=!rd.multipath=0
+diff --git a/modules.d/90multipath/multipathd.service b/modules.d/90multipath/multipathd.service
+deleted file mode 100644
+index 3248fa97..00000000
+--- a/modules.d/90multipath/multipathd.service
++++ /dev/null
+@@ -1,26 +0,0 @@
+-[Unit]
+-Description=Device-Mapper Multipath Device Controller
+-Before=lvm2-activation-early.service
+-Before=local-fs-pre.target blk-availability.service shutdown.target
+-Wants=systemd-udevd-kernel.socket
+-After=systemd-udevd-kernel.socket
+-After=multipathd.socket systemd-remount-fs.service
+-Before=initrd-cleanup.service
+-DefaultDependencies=no
+-Conflicts=shutdown.target
+-Conflicts=initrd-cleanup.service
+-ConditionKernelCommandLine=!nompath
+-ConditionKernelCommandLine=!rd.multipath=0
+-ConditionKernelCommandLine=!multipath=off
+-ConditionVirtualization=!container
+-
+-[Service]
+-Type=notify
+-NotifyAccess=main
+-ExecStartPre=-/sbin/modprobe dm-multipath
+-ExecStart=/sbin/multipathd -d -s
+-ExecReload=/sbin/multipathd reconfigure
+-TasksMax=infinity
+-
+-[Install]
+-WantedBy=sysinit.target
+-- 
+2.48.1
+
+
+From 6b30662e6e4720428f0efb0ab85c80303dd34afd Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Tue, 25 Mar 2025 15:20:48 +0100
+Subject: [PATCH 20/22] fix(nfs): libnfsidmap plugins not added in some
+ distributions
+
+`nfs-utils` can be configured using `--with-pluginpath` to avoid using the
+default `/usr/lib/libnfsidmap`. For example, Fedora sets
+`--with-pluginpath=%{_libdir}/libnfsidmap`, which is covered by the current
+glob, but openSUSE sets `--with-pluginpath=%{_libdir}/libnfsidmap-1.0.0`.
+
+Also, remove reference to the old `libnfsidmap_<plugin>.so` path.
+---
+ modules.d/95nfs/module-setup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/95nfs/module-setup.sh b/modules.d/95nfs/module-setup.sh
+index 039b4e4c..6c76faf4 100755
+--- a/modules.d/95nfs/module-setup.sh
++++ b/modules.d/95nfs/module-setup.sh
+@@ -139,5 +139,5 @@ install() {
+ 
+     dracut_need_initqueue
+ 
+-    inst_libdir_file 'libnfsidmap_nsswitch.so*' 'libnfsidmap/*.so' 'libnfsidmap*.so*'
++    inst_libdir_file 'libnfsidmap*/*.so' 'libnfsidmap*.so*'
+ }
+-- 
+2.48.1
+
+
+From 2f5a759f490bb813ec24a685f015b15ff196783b Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Tue, 1 Apr 2025 14:33:38 +0200
+Subject: [PATCH 21/22] fix(nfs): use `DRACUT_CP` instead of `cp`
+
+Using `cp` directly ignores `DRACUT_NO_XATTR`.
+---
+ modules.d/95nfs/module-setup.sh | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/modules.d/95nfs/module-setup.sh b/modules.d/95nfs/module-setup.sh
+index 6c76faf4..d097cd38 100755
+--- a/modules.d/95nfs/module-setup.sh
++++ b/modules.d/95nfs/module-setup.sh
+@@ -120,9 +120,15 @@ install() {
+     mkdir -m 0770 -p "$initdir/var/lib/rpcbind"
+ 
+     # use the same directory permissions as the host
+-    [ -d "/var/lib/nfs/statd" ] && cp -a --attributes-only "$dracutsysrootdir"/var/lib/nfs/statd "${initdir}"/var/lib/nfs/ && rm -rf "${initdir}"/var/lib/nfs/statd/*
+-    [ -d "/var/lib/nfs/statd/sm" ] && cp -a --attributes-only "$dracutsysrootdir"/var/lib/nfs/statd/sm "${initdir}"/var/lib/nfs/statd/ && rm -rf "${initdir}"/var/lib/nfs/statd/sm/*
+-    [ -d "/var/lib/nfs/sm" ] && cp -a --attributes-only "$dracutsysrootdir"/var/lib/nfs/sm "${initdir}"/var/lib/nfs/ && rm -rf "${initdir}"/var/lib/nfs/sm/*
++    [[ -d "$dracutsysrootdir"/var/lib/nfs/statd ]] \
++        && $DRACUT_CP -L --preserve=ownership -t "$initdir"/var/lib/nfs "$dracutsysrootdir"/var/lib/nfs/statd \
++        && rm -rf "$initdir"/var/lib/nfs/statd/*
++    [[ -d "$dracutsysrootdir"/var/lib/nfs/statd/sm ]] \
++        && $DRACUT_CP -L --preserve=ownership -t "$initdir"/var/lib/nfs/statd "$dracutsysrootdir"/var/lib/nfs/statd/sm \
++        && rm -rf "$initdir"/var/lib/nfs/statd/sm/*
++    [[ -d "$dracutsysrootdir"/var/lib/nfs/sm ]] \
++        && $DRACUT_CP -L --preserve=ownership -t "$initdir"/var/lib/nfs "$dracutsysrootdir"/var/lib/nfs/sm \
++        && rm -rf "$initdir"/var/lib/nfs/sm/*
+ 
+     # Rather than copy the passwd file in, just set a user for rpcbind
+     # We'll save the state and restart the daemon from the root anyway
+-- 
+2.48.1
+
+
+From 7eaa8536fae73aa65fae604820f10e842a18bc88 Mon Sep 17 00:00:00 2001
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Date: Tue, 1 Apr 2025 14:34:04 +0200
+Subject: [PATCH 22/22] fix(nfs): add possible `statd` user and group
+
+Some distributions use the `statd` user (openSUSE, Ubuntu) and group (openSUSE)
+to handle `rpc.statd` directories.
+---
+ modules.d/95nfs/module-setup.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modules.d/95nfs/module-setup.sh b/modules.d/95nfs/module-setup.sh
+index d097cd38..b34c75c0 100755
+--- a/modules.d/95nfs/module-setup.sh
++++ b/modules.d/95nfs/module-setup.sh
+@@ -136,10 +136,10 @@ install() {
+     local _confdir
+     for _confdir in etc usr/lib; do
+ 
+-        grep -sE '^(nfsnobody|_rpc|rpc|rpcuser):' "${dracutsysrootdir}/${_confdir}/passwd" \
++        grep -sE '^(nfsnobody|_rpc|rpc|rpcuser|statd):' "${dracutsysrootdir}/${_confdir}/passwd" \
+             >> "$initdir/${_confdir}/passwd"
+ 
+-        grep -sE '^(nogroup|rpc|nobody):' "${dracutsysrootdir}/${_confdir}/group" \
++        grep -sE '^(nogroup|rpc|nobody|statd):' "${dracutsysrootdir}/${_confdir}/group" \
+             >> "$initdir/${_confdir}/group"
+     done
+ 
+-- 
+2.48.1
+
