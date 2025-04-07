@@ -288,7 +288,21 @@ sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
 info "Merging sysext packages now"
 for sysext in "${EXTRA_SYSEXTS[@]}"; do
-  IFS="|" read SYSEXT_NAME PACKAGE_ATOMS USEFLAGS < <(echo "$sysext");
+  IFS="|" read SYSEXT_NAME PACKAGE_ATOMS USEFLAGS ARCHES < <(echo "$sysext");
+
+  arch_array=(${ARCHES//,/ })
+  if [[ ! -z "$ARCHES" ]]; then
+    should_skip=1
+    for arch in "${arch_array[@]}"; do
+      if [ "$arch" == "$ARCH" ]; then
+        should_skip=0
+      fi
+    done
+    if [ "$should_skip" -eq 1 ]; then
+      continue
+    fi
+  fi
+
 
   info "Building packages for $SYSEXT_NAME sysext with USE=$USEFLAGS"
   IFS=,
