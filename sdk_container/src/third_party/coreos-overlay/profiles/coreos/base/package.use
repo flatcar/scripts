@@ -126,7 +126,7 @@ sys-apps/shadow su
 sys-apps/util-linux -su
 
 # Enable kerberos support for NFS
-net-fs/nfs-utils kerberos nfsv41 nfsv4 junction ldap libmount nfsdcld uuid
+net-fs/nfs-utils junction kerberos ldap libmount nfsv3 nfsv4 uuid
 net-libs/libtirpc kerberos
 
 # Disable enabled-by-default support for 16-bit and 32-bit characters,
