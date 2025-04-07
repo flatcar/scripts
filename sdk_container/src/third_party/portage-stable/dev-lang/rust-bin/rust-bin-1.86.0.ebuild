@@ -6,7 +6,7 @@ EAPI=8
 LLVM_COMPAT=( 19 )
 LLVM_OPTIONAL="yes"
 
-inherit edo llvm-r1 multilib prefix rust-toolchain toolchain-funcs verify-sig multilib-minimal optfeature
+inherit edo llvm-r1 multilib prefix rust-toolchain verify-sig multilib-minimal optfeature
 
 if [[ ${PV} == *9999* ]]; then
 	# We need to fetch a tarball in src_unpack
@@ -21,48 +21,53 @@ elif [[ ${PV} == *beta* ]]; then
 	"
 else
 	# curl -Ls static.rust-lang.org/dist/channel-rust-${PV}.toml | grep "xz_url.*rust-src"
-	SRC_URI="$(rust_all_arch_uris "${PV}")
-		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2025-01-30/rust-src-${PV}.tar.xz )
+	SRC_URI="$(rust_all_arch_uris "rust-${PV}")
+		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2025-04-03/rust-src-${PV}.tar.xz )
+		ppc64? ( elibc_musl? ( !big-endian? (
+			$(rust_arch_uri powerpc64le-unknown-linux-musl rust-${PV})
+		) ) )
 	"
 	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
-
-GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PVR}" # omit trailing slash
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
 
 if [[ ${PV} != *9999* && ${PV} != *beta* ]] ; then
+	GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PV}" # omit trailing slash
+	MY_P=rust-${PV}
 	# Keep this separate to allow easy commenting out if not yet built
-	SRC_URI+=" sparc? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-sparc64-unknown-linux-gnu.tar.xz ) "
+	SRC_URI+=" sparc? ( ${GENTOO_BIN_BASEURI}/${MY_P}-sparc64-unknown-linux-gnu.tar.xz ) "
 	SRC_URI+=" mips? (
 		abi_mips_o32? (
-			big-endian?  ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mips-unknown-linux-gnu.tar.xz )
-			!big-endian? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mipsel-unknown-linux-gnu.tar.xz )
+			big-endian?  ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips-unknown-linux-gnu.tar.xz )
+			!big-endian? ( ${GENTOO_BIN_BASEURI}/${MY_P}-mipsel-unknown-linux-gnu.tar.xz )
 		)
 		abi_mips_n64? (
-			big-endian?  ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mips64-unknown-linux-gnuabi64.tar.xz )
-			!big-endian? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mips64el-unknown-linux-gnuabi64.tar.xz )
+			big-endian?  ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips64-unknown-linux-gnuabi64.tar.xz )
+			!big-endian? ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips64el-unknown-linux-gnuabi64.tar.xz )
 		)
 	)"
 	SRC_URI+=" riscv? (
-		elibc_musl? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-riscv64gc-unknown-linux-musl.tar.xz )
+		elibc_musl? ( ${GENTOO_BIN_BASEURI}/${MY_P}-riscv64gc-unknown-linux-musl.tar.xz )
 	)"
-	SRC_URI+=" ppc64? ( elibc_musl? (
-		big-endian?  ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-powerpc64-unknown-linux-musl.tar.xz )
-		!big-endian? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-powerpc64le-unknown-linux-musl.tar.xz )
+	SRC_URI+=" ppc64? ( big-endian? (
+		elibc_musl? ( ${GENTOO_BIN_BASEURI}/${MY_P}-powerpc64-unknown-linux-musl.tar.xz )
 	) )"
 fi
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
-SLOT="${PV%%_*}" # Beta releases get to share the same SLOT as the eventual stable
+SLOT="$(ver_cut 1-2)"
 IUSE="big-endian clippy cpu_flags_x86_sse2 doc prefix rust-analyzer rust-src rustfmt"
 
 RDEPEND="
 	>=app-eselect/eselect-rust-20190311
 	dev-libs/openssl
 	sys-apps/lsb-release
-	sys-devel/gcc:*
+	|| (
+		llvm-runtimes/libgcc
+		sys-devel/gcc:*
+	)
 	!dev-lang/rust:stable
 	!dev-lang/rust-bin:stable
 "
@@ -92,12 +97,6 @@ QA_PREBUILT="
 QA_EXECSTACK="opt/${P}/lib/rustlib/*/lib*.rlib:lib.rmeta"
 
 VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/rust.asc"
-
-pkg_pretend() {
-	if [[ "$(tc-is-softfloat)" != "no" ]] && [[ ${CHOST} == armv7* ]]; then
-		die "${CHOST} is not supported by upstream Rust. You must use a hard float version."
-	fi
-}
 
 src_unpack() {
 	if [[ ${PV} == *9999* ]]; then
@@ -168,13 +167,15 @@ patchelf_for_bin() {
 
 rust_native_abi_install() {
 	pushd "${S}" >/dev/null || die
-	local analysis="$(grep 'analysis' ./components || die "analysis not found in components")"
 	local std="$(grep 'std' ./components || die "std not found in components")"
 	local components=( "rustc" "cargo" "${std}" )
 	use doc && components+=( "rust-docs" )
 	use clippy && components+=( "clippy-preview" )
 	use rustfmt && components+=( "rustfmt-preview" )
-	use rust-analyzer && components+=( "rust-analyzer-preview" "${analysis}" )
+	if use rust-analyzer; then
+		local analysis="$(grep 'analysis' ./components || die "analysis not found in components")"
+		components+=( "rust-analyzer-preview" "${analysis}" )
+	fi
 	# Rust component 'rust-src' is extracted from separate archive
 	if use rust-src; then
 		einfo "Combining rust and rust-src installers"
