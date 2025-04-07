@@ -1,0 +1,1 @@
+- systemd now uses OpenSSL instead of gcrypt for cryptography to reduce the size of the initrd. This change disables systemd-journal's Forward Secure Sealing feature, but it is generally not useful for Flatcar.
