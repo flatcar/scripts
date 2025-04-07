@@ -28,9 +28,11 @@ else
 		https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz
 		https://downloads.sourceforge.net/lzmautils/${MY_P}.tar.gz
 		https://tukaani.org/xz/${MY_P}.tar.gz
+		https://tukaani.org/xz/xz-cve-2025-31115.patch
 		verify-sig? (
 			https://github.com/tukaani-project/xz/releases/download/v${PV/_}/${MY_P}.tar.gz.sig
 			https://tukaani.org/xz/${MY_P}.tar.gz.sig
+			https://tukaani.org/xz/xz-cve-2025-31115.patch.sig
 		)
 	"
 
@@ -50,8 +52,12 @@ SLOT="0"
 IUSE="cpu_flags_arm_crc32 doc +extra-filters pgo nls static-libs"
 
 if [[ ${PV} != 9999 ]] ; then
-	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-lassecollin-20240529 )"
+	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-lassecollin-20250313 )"
 fi
+
+PATCHES=(
+	"${DISTDIR}"/xz-cve-2025-31115.patch
+)
 
 src_prepare() {
 	default
