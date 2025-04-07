@@ -1,6 +1,11 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Paul Zander <negril.nx+gentoo@gmail.com> (2025-04-04)
+# Requires dev-qt/qtwebengine
+dev-util/nsight-compute
+dev-util/nsight-graphics
+
 # Z. Liu <zhixu.liu@gmail.com> (2025-01-23)
 # Requires dev-qt/qtwebengine
 net-misc/seafile-client
@@ -91,6 +96,7 @@ app-text/calibre
 app-text/cb2bib
 app-text/kchmviewer
 app-text/sigil
+app-text/uchmviewer
 dev-python/spyder
 dev-python/spyder-terminal
 dev-python/spyder-unittest
