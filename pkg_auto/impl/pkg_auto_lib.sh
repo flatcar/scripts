@@ -72,15 +72,14 @@ function setup_workdir_with_config() {
     workdir=${1}; shift
     config_file=${1}; shift
 
-    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base
+    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base cfg_sdk_image_override
     local -a cfg_cleanups cfg_debug_packages
-    local -A cfg_overrides
 
     # some defaults
     cfg_old_base='origin/main'
     cfg_new_base=''
     cfg_cleanups=('ignore')
-    cfg_overrides=()
+    cfg_sdk_image_override=''
     cfg_debug_packages=()
 
     local line key value swwc_stripped var_name arch
@@ -99,7 +98,7 @@ function setup_workdir_with_config() {
                 var=$(realpath "${value}")
                 unset -n var
                 ;;
-            old-base|new-base)
+            old-base|new-base|sdk-image-override)
                 var_name="cfg_${key//-/_}"
                 local -n var=${var_name}
                 var=${value}
@@ -108,11 +107,6 @@ function setup_workdir_with_config() {
             cleanups|debug-packages)
                 var_name="cfg_${key//-/_}"
                 mapfile -t "${var_name}" <<<"${value//,/$'\n'}"
-                ;;
-            *-sdk-img)
-                arch=${key%%-*}
-                # shellcheck disable=SC2034 # used by name below
-                cfg_overrides["${arch}"]=${value}
                 ;;
         esac
     done < <(cat_meaningful "${config_file}")
@@ -131,7 +125,9 @@ function setup_workdir_with_config() {
     add_cleanup "rm -f ${WORKDIR@Q}/config"
     cp -a "${config_file}" "${WORKDIR}/config"
     setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
-    override_sdk_image_names cfg_overrides
+    if [[ -n ${cfg_sdk_image_override} ]]; then
+        override_sdk_image_name "${cfg_sdk_image_override}"
+    fi
     add_debug_packages "${cfg_debug_packages[@]}"
 }
 
@@ -244,32 +240,15 @@ function setup_worktrees_in_workdir() {
     extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}"
 }
 
-# Adds overridden SDK image names to the globals file.
+# Adds an overridden SDK image name to the globals file.
 #
 # Params:
 #
-# 1 - name of a map variable; should be a mapping of architecture to
-#     the image name
-function override_sdk_image_names() {
-    local -n overrides_map_ref=${1}
+# 1 - image name
+function override_sdk_image_name() {
+    local image_name=${1}; shift
 
-    if [[ ${#overrides_map_ref[@]} -eq 0 ]]; then
-        return 0
-    fi
-
-    local arch image_name upcase_arch
-    local -a lines
-    lines=()
-    for arch in "${!overrides_map_ref[@]}"; do
-        image_name=${overrides_map_ref["${arch}"]}
-        upcase_arch=${arch^^}
-        if [[ ${#lines[@]} -eq 0 ]]; then
-            # separate overrides from initial values
-            lines+=( '' )
-        fi
-        lines+=( "${upcase_arch}_SDK_IMAGE=${image_name@Q}" )
-    done
-    append_to_globals "${lines[@]}"
+    append_to_globals "SDK_IMAGE=${image_name@Q}"
 }
 
 # Adds information about packages to be debugged to the globals file.
@@ -572,17 +551,11 @@ EOF
     # shellcheck disable=SC1091 # sourcing generated file
     last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 
-    local -a locals definitions
-    locals=()
-    definitions=()
-    local sdk_image_name
+    local -a locals=() definitions=()
+    local sdk_image_name sdk_image_var_name=SDK_IMAGE
     sdk_image_name="ghcr.io/flatcar/flatcar-sdk-all:${last_nightly_version_id}-${last_nightly_build_id}"
-    local arch sdk_image_var_name
-    for arch in "${ARCHES[@]}"; do
-        sdk_image_var_name="${arch^^}_SDK_IMAGE"
-        locals+=( "${sdk_image_var_name@Q}" )
-        definitions+=( "${sdk_image_var_name}=${sdk_image_name@Q}" )
-    done
+    locals+=( "${sdk_image_var_name@Q}" )
+    definitions+=( "${sdk_image_var_name}=${sdk_image_name@Q}" )
 
     append_to_globals \
         '' \
@@ -1146,7 +1119,7 @@ function generate_sdk_reports() {
     local file full_file rv sdk_reports_dir salvaged_dir pkg_auto_copy
     local -a report_files run_sdk_container_args
     for arch in "${ARCHES[@]}"; do
-        sdk_image_var_name="${arch^^}_SDK_IMAGE"
+        sdk_image_var_name="SDK_IMAGE"
         sdk_image_name=${!sdk_image_var_name}
         if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep --quiet --line-regexp --fixed-strings "${sdk_image_name}"; then
             fail "No SDK image named ${sdk_image_name@Q} available locally, pull it before running this script"
