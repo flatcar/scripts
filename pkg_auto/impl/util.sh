@@ -250,4 +250,53 @@ function all_pairs() {
     done
 }
 
+# Does the set operation on two passed sets - both set differences and
+# an intersection.
+#
+# Params:
+#
+# 1 - name of the first set variable
+# 2 - name of the second set variable
+# 3 - name of the set variable that will contain elements that exist
+#     in first set, but not the second
+# 4 - name of the set variable that will contain elements that exist
+#     in second set, but not the first
+# 5 - name of the set variable that will contain elements that exist
+#     in both first and second sets
+function sets_split() {
+    local -n first_set_ref=${1}; shift
+    local -n second_set_ref=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck does not grok references
+    local -n only_in_first_set_ref=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck does not grok references
+    local -n only_in_second_set_ref=${1}; shift
+    # shellcheck disable=SC2178 # shellcheck does not grok references
+    local -n common_set_ref=${1}; shift
+
+    only_in_first_set_ref=()
+    only_in_second_set_ref=()
+    common_set_ref=()
+
+    local item mark
+
+    for item in "${!first_set_ref[@]}"; do
+        mark=${second_set_ref["${item}"]:-}
+        if [[ -z ${mark} ]]; then
+            # shellcheck disable=SC2034 # it's a reference to external variable
+            only_in_first_set_ref["${item}"]=x
+        else
+            # shellcheck disable=SC2034 # it's a reference to external variable
+            common_set_ref["${item}"]=x
+        fi
+    done
+
+    for item in "${!second_set_ref[@]}"; do
+        mark=${first_set_ref["${item}"]:-}
+        if [[ -z ${mark} ]]; then
+            # shellcheck disable=SC2034 # it's a reference to external variable
+            only_in_second_set_ref["${item}"]=x
+        fi
+    done
+}
+
 fi
