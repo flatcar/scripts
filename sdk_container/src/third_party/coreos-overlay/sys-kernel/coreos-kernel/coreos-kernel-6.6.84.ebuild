@@ -18,6 +18,7 @@ DEPEND="
 	${BDEPEND}
 	app-alternatives/awk
 	app-alternatives/gzip
+	app-arch/xz-utils
 	app-arch/zstd
 	app-crypt/clevis
 	app-shells/bash
