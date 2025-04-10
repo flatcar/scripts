@@ -1,0 +1,2 @@
+- Always truncate hostnames on the first occurrence of `.` ([cloud-init#32](https://github.com/flatcar/coreos-cloudinit/pull/32))
+- Ensure hostnames never exceeds 63 characters, regardless of the metadata provider ([cloud-init#31](https://github.com/flatcar/coreos-cloudinit/pull/31))
