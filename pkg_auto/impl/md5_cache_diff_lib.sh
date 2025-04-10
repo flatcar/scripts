@@ -588,7 +588,15 @@ function __mcdl_pds_diff() {
     fi
 
     local old_op=${old_pds_ref[PDS_OP_IDX]} old_ver=${old_pds_ref[PDS_VER_IDX]} new_op=${new_pds_ref[PDS_OP_IDX]} new_ver=${new_pds_ref[PDS_VER_IDX]}
-    if [[ ${old_op} != "${new_op}" || ${old_ver} != ${new_ver} ]]; then
+    if [[ ${old_op} = '=*' ]]; then
+        old_op='='
+        old_ver+='*'
+    fi
+    if [[ ${new_op} = '=*' ]]; then
+        new_op='='
+        new_ver+='*'
+    fi
+    if [[ ${old_op} != "${new_op}" || ${old_ver} != "${new_ver}" ]]; then
         if [[ -z ${new_op} && -z ${new_ver} ]]; then
             diff_report_append local_pds_dr "dropped version constraint"
         elif [[ -z ${old_op} && -z ${old_ver} ]]; then
