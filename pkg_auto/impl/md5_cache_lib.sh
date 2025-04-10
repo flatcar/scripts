@@ -146,7 +146,7 @@ function pds_add_urs() {
         local ura_name
         gen_varname ura_name
         declare -ga "${ura_name}=()"
-        pds[PDS_UR_IDX]=${ura_name}
+        pds_ref[PDS_UR_IDX]=${ura_name}
         use_reqs_name=${ura_name}
         unset ura_name
     fi
@@ -255,7 +255,7 @@ function group_copy() {
             item_copy "${gc_item_name}" "${item_name_to_copy}"
             items_ref+=( "${gc_item_name}" )
         done
-        unset -n items_ref
+        unset -n items_ref items_to_copy_ref
         to_clobber_ref[GROUP_ITEMS_IDX]="${gc_items_name}"
     fi
 }
@@ -345,13 +345,13 @@ function item_unset() {
             :
             ;;
         g:*)
-            group_unset "${item_ref#*:}"
+            group_unset "${item_ref:2}"
             ;;
         l:*)
             # noop, license is just a string
             ;;
         p:*)
-            pds_unset "${item_ref#*:}"
+            pds_unset "${item_ref:2}"
             ;;
     esac
 
@@ -363,7 +363,7 @@ function item_copy() {
     local -n to_copy_ref=${1}; shift
 
     local ic_name
-    local t=${to_copy_ref%%:*} v=${to_copy_ref#*:}
+    local t=${to_copy_ref:0:1} v=${to_copy_ref:2}
     case ${t} in
         'e'|'l')
             to_clobber_ref=${to_copy_ref}
