@@ -305,6 +305,13 @@ function sets_split() {
 declare -gi __UTIL_SH_COUNTER=0
 declare -gA __UTIL_SH_DEBUG_COUNTERS=()
 
+# Generates a globally unique name for a variable. Can be given a
+# prefix to override the default __PA_VAR one.
+#
+# Params:
+#
+# (optional) a prefix
+# 1 - name of a variable, where the generated name will be stored
 function gen_varname() {
     local prefix='__PA_VAR' # pa = pkg-auto
     if [[ ${#} -gt 1 ]]; then
@@ -320,6 +327,7 @@ function gen_varname() {
     __UTIL_SH_COUNTER=$((__UTIL_SH_COUNTER + 1))
 }
 
+# Prints current stacktrace.
 function debug_stacktrace() {
     local -i idx=0 last_idx=${#FUNCNAME[@]}
 
@@ -330,6 +338,8 @@ function debug_stacktrace() {
     done
 }
 
+# Prints current stack trace if passed variable name is marked for
+# debugging.
 function debug_track_var() {
     local var_name_or_number=${1}; shift
     local message=${1}; shift
@@ -341,6 +351,29 @@ function debug_track_var() {
         debug_stacktrace
         info "----------${number}----------"
     fi
+}
+
+# Declares variables with a given initializer.
+#
+# Params:
+#
+# @: flags passed to declare, followed by variable names, followed by
+# an initializer
+function struct_declare() {
+    local -a args=()
+    while [[ $# -gt 0 ]]; do
+        if [[ ${1} != -* ]]; then
+            break
+        fi
+        args+=( "${1}" )
+    done
+    if [[ ${#} -lt 2 ]]; then
+        fail "bad use of struct_declare"
+    fi
+    local definition=${*: -1}
+    set -- "${@:1:$((${#} - 1))}"
+    set -- "${@/%/=${definition}"
+    declare "${args[@]}" "${@}"
 }
 
 fi
