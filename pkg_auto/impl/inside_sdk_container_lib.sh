@@ -97,79 +97,24 @@ function package_info_for_board() {
 # 1 - directory path
 function set_eo() {
     local dir=${1}; shift
+    # rest are architectures
 
     # shellcheck disable=SC2034 # used externally
     declare -g EGENCACHE_W="${dir}/egencache-warnings"
     declare -g SDK_EO="${dir}/sdk-emerge-output"
-    declare -g BOARD_EO="${dir}/board-emerge-output"
-    # shellcheck disable=SC2034 # used indirectly in cat_eo_f
     declare -g SDK_EO_F="${SDK_EO}-filtered"
-    # shellcheck disable=SC2034 # used indirectly in cat_eo_f
-    declare -g BOARD_EO_F="${BOARD_EO}-filtered"
-    # shellcheck disable=SC2034 # used indirectly in cat_eo_w
     declare -g SDK_EO_W="${SDK_EO}-warnings"
-    # shellcheck disable=SC2034 # used indirectly in cat_eo_w
-    declare -g BOARD_EO_W="${BOARD_EO}-warnings"
-}
+    declare -g SDK_EO_J="${SDK_EO}-junk"
 
-# Print the contents of file, path of which is stored in a variable of
-# a given name.
-#
-# Params:
-#
-# 1 - name of the variable
-function cat_var() {
-    local var_name
-    var_name=${1}; shift
-    local -n ref="${var_name}"
-
-    if [[ -z "${ref+isset}" ]]; then
-        fail "${var_name} unset"
-    fi
-    if [[ ! -e "${ref}" ]]; then
-        fail "${ref} does not exist"
-    fi
-
-    cat "${ref}"
-}
-
-# Print contents of the emerge output of a given kind. Kind can be
-# either either sdk or board.
-#
-# Params:
-#
-# 1 - kind
-function cat_eo() {
-    local kind
-    kind=${1}; shift
-
-    cat_var "${kind^^}_EO"
-}
-
-# Print contents of the filtered emerge output of a given kind. Kind
-# can be either either sdk or board. The filtered emerge output
-# contains only lines with package information.
-#
-# Params:
-#
-# 1 - kind
-function cat_eo_f() {
-    local kind
-    kind=${1}; shift
-    cat_var "${kind^^}_EO_F"
-}
-
-# Print contents of a file that stores warnings that were printed by
-# emerge. The warnings are specific to a kind (sdk or board).
-#
-# Params:
-#
-# 1 - kind
-function cat_eo_w() {
-    local kind
-    kind=${1}; shift
-
-    cat_var "${kind^^}_EO_W"
+    local arch
+    local board_eo
+    for arch; do
+        board_eo=${dir}/${arch}-board-emerge-output
+        declare -g "${arch^^}_BOARD_EO=${board_eo}"
+        declare -g "${arch^^}_BOARD_EO_F=${board_eo}-filtered"
+        declare -g "${arch^^}_BOARD_EO_W=${board_eo}-warnings"
+        declare -g "${arch^^}_BOARD_EO_J=${board_eo}-junk"
+    done
 }
 
 # JSON output would be more verbose, but probably would not require
@@ -195,7 +140,7 @@ FULL_LINE_RE='^'"${STATUS_RE}${SPACES_RE}${PACKAGE_NAME_RE}"'\('"${SPACES_RE}${V
 
 # Filters sdk reports to get the package information.
 function filter_sdk_eo() {
-    cat_eo sdk | xgrep -e "${FULL_LINE_RE}"
+    cat "${SDK_EO}" | xgrep -e "${FULL_LINE_RE}"
 }
 
 # Filters board reports for a given arch to get the package
@@ -205,11 +150,12 @@ function filter_sdk_eo() {
 #
 # 1 - architecture
 function filter_board_eo() {
-    local arch
+    local arch name
     arch=${1}; shift
+    name=${arch^^}_BOARD_EO
 
     # Replace ${arch}-usr in the output with a generic word BOARD.
-    cat_eo board | \
+    cat "${!name}"  | \
         xgrep -e "${FULL_LINE_RE}" | \
         sed -e "s#/build/${arch}-usr/#/build/BOARD/#"
 }
@@ -217,13 +163,17 @@ function filter_board_eo() {
 # Filters sdk reports to get anything but the package information
 # (i.e. junk).
 function junk_sdk_eo() {
-    cat_eo sdk | xgrep -v -e "${FULL_LINE_RE}"
+    cat "${SDK_EO}" | xgrep -v -e "${FULL_LINE_RE}"
 }
 
 # Filters board reports to get anything but the package information
 # (i.e. junk).
 function junk_board_eo() {
-    cat_eo board | xgrep -v -e "${FULL_LINE_RE}"
+    local arch name
+    arch=${1}; shift
+    name=${arch^^}_BOARD_EO
+
+    cat "${!name}" | xgrep -v -e "${FULL_LINE_RE}"
 }
 
 # More regexp-like abominations follow.
@@ -276,21 +226,6 @@ PKG_REPO_SED_FILTERS=(
     -e "s/^${STATUS_RE}${SPACES_RE}\(${PACKAGE_NAME_RE}\)${SPACES_RE}${VER_SLOT_REPO_RE}${SPACES_RE}.*/\1 \3/"
 )
 
-# Applies some sed filter over the emerge output of a given kind.
-# Results are printed.
-#
-# Params:
-#
-# 1 - kind (sdk or board)
-# @ - parameters passed to sed
-function sed_eo_and_sort() {
-    local kind
-    kind=${1}; shift
-    # rest goes to sed
-
-    cat_eo_f "${kind}" | sed "${@}" | sort
-}
-
 # Applies some sed filter over the SDK emerge output. Results are
 # printed.
 #
@@ -298,9 +233,7 @@ function sed_eo_and_sort() {
 #
 # @ - parameters passed to sed
 function packages_for_sdk() {
-    # args are passed to sed_eo_and_sort
-
-    sed_eo_and_sort sdk "${@}"
+    cat "${SDK_EO_F}" | sed "${@}" | sort
 }
 
 # Applies some sed filter over the board emerge output. Results are
@@ -310,9 +243,12 @@ function packages_for_sdk() {
 #
 # @ - parameters passed to sed
 function packages_for_board() {
-    # args are passed to sed_eo_and_sort
+    local arch=${1}; shift
+    # rest goes to sed
 
-    sed_eo_and_sort board "${@}"
+    local name=${arch^^}_BOARD_EO_F
+
+    cat "${!name}" | sed "${@}" | sort
 }
 
 # Prints package name, slot and version information for SDK.
@@ -336,24 +272,26 @@ function versions_sdk_with_key_values() {
 
 # Prints package name, slot and version information for board.
 function versions_board() {
+    local arch=${1}; shift
     local -a sed_opts
     sed_opts=(
         -e '/to \/build\/BOARD\// ! d'
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
     )
-    packages_for_board "${sed_opts[@]}"
+    packages_for_board "${arch}" "${sed_opts[@]}"
 }
 
 # Prints package name, slot, version and key-values information for
 # build dependencies of board. Key-values may be something like
 # USE="foo bar -baz".
 function board_bdeps() {
+    local arch=${1}; shift
     local -a sed_opts
     sed_opts=(
         -e '/to \/build\/BOARD\// d'
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
-    packages_for_board "${sed_opts[@]}"
+    packages_for_board "${arch}" "${sed_opts[@]}"
 }
 
 # Print package name and source repository names information for SDK.
@@ -368,21 +306,29 @@ function package_sources_sdk() {
 # Print package name and source repository names information for
 # board.
 function package_sources_board() {
+    local arch=${1}; shift
     local -a sed_opts
     sed_opts=(
         "${PKG_REPO_SED_FILTERS[@]}"
     )
-    packages_for_board "${sed_opts[@]}"
+    packages_for_board "${arch}" "${sed_opts[@]}"
 }
 
 # Checks if no errors were produced by emerge when generating
 # reports. It is assumed that emerge will print a line with "ERROR" in
 # it to denote a failure.
 function ensure_no_errors() {
-    local kind
+    local -a files=( "${SDK_EO_W}" )
+    local arch name
 
-    for kind in sdk board; do
-        if cat_eo_w "${kind}" | grep --quiet --fixed-strings 'ERROR'; then
+    for arch; do
+        name=${arch^^}_BOARD_EO_W
+        files+=( "${!name}" )
+    done
+
+    local file
+    for file in "${files[@]}"; do
+        if cat "${file}" | grep --quiet --fixed-strings 'ERROR'; then
             fail "there are errors in emerge output warnings files"
         fi
     done
@@ -460,10 +406,17 @@ function revert_crossdev_stuff() {
 
 # Checks if the expected reports were generated by emerge.
 function ensure_valid_reports() {
-    local kind var_name
-    for kind in sdk board; do
-        var_name="${kind^^}_EO_F"
-        if [[ ! -s ${!var_name} ]]; then
+    local -a files=( "${SDK_EO_F}" )
+    local arch name
+
+    for arch; do
+        name=${arch^^}_BOARD_EO_F
+        files+=( "${!name}" )
+    done
+
+    local file
+    for file in "${files[@]}"; do
+        if [[ ! -s ${file} ]]; then
             fail "report files are missing or are empty"
         fi
     done
@@ -486,10 +439,28 @@ function clean_empty_warning_files() {
     done
 }
 
+function get_num_proc() {
+    local -n num_proc_ref=${1}; shift
+    local -i num_proc=1 rv=1
+
+    # stolen from portage
+    [[ rv -eq 0 ]] || { rv=0; num_proc=$(getconf _NPROCESSORS_ONLN 2>/dev/null) || rv=1; }
+    [[ rv -eq 0 ]] || { rv=0; num_proc=$(sysctl -n hw.ncpu 2>/dev/null) || rv=1; }
+    # stolen from common.sh
+    [[ rv -eq 0 ]] || { rv=0; num_proc=$(grep -c "^processor" /proc/cpuinfo 2>/dev/null) || rv=1; }
+    [[ rv -eq 0 ]] || { rv=0; num_proc=1; }
+
+    num_proc_ref=${num_proc}
+}
+
 function generate_cache_for() {
     local repo=${1}; shift
 
-    egencache --repo "${repo}" --update
+    local -i gcf_num_proc
+    local load_avg
+    get_num_proc gcf_num_proc
+    load_avg=$(bc <<< "${gcf_num_proc} * 0.75")
+    egencache --repo "${repo}" --jobs="${gcf_num_proc}" --load-average="${load_avg}" --update
 }
 
 function copy_cache_to_reports() {
