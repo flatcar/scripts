@@ -16,7 +16,7 @@ WantedBy=multi-user.target
 EOF
     systemd_enable_service multi-user.target tcsd.service
 
-    # handle system.data file (put into /usr and install a tmpfiles
+    # handle system.data file - put into /usr and install a tmpfiles
     # conf copying it into /var/lib/tpm
     (
         insinto /usr/share/trousers/
