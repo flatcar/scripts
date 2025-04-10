@@ -2635,15 +2635,13 @@ function generate_cache_diff_report() {
     local old_cache_name new_cache_name
     gen_varname old_cache_name
     gen_varname new_cache_name
-    cache_file_declare "${old_cache_name}"
-    cache_file_declare "${new_cache_name}"
+    cache_file_declare "${old_cache_name}" "${new_cache_name}"
     parse_cache_file "${old_cache_name}" "${old_entry}" "${ARCHES[@]}"
     parse_cache_file "${new_cache_name}" "${new_entry}" "${ARCHES[@]}"
 
     diff_cache_data "${old_cache_name}" "${new_cache_name}" "${diff_report_var_name}"
 
-    cache_file_unset "${old_cache_name}"
-    cache_file_unset "${new_cache_name}"
+    cache_file_unset "${old_cache_name}" "${new_cache_name}"
 }
 
 # Generate a report with information where the old and new packages
