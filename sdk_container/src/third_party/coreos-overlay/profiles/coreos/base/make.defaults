@@ -85,7 +85,7 @@ CONFIG_PROTECT="
 # Do not install default repos.conf, we always put repository configuration in /etc.
 INSTALL_MASK="
   /usr/lib*/*.la
-  /etc/init.d /etc/conf.d
+  /etc/init.d /etc/conf.d /etc/user/conf.d /etc/user/init.d
   /usr/lib/debug/.build-id
   /etc/acpi
   /usr/share/portage/config/repos.conf
