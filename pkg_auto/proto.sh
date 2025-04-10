@@ -9,8 +9,10 @@ source "${PKG_AUTO_IMPL_DIR}/lcs.sh"
 source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 source "${PKG_AUTO_IMPL_DIR}/md5_cache_diff_lib.sh"
 
-arch_old_reports_dir=${1}; shift
-arch_new_reports_dir=${1}; shift
+reports_dir=${1}; shift
+
+old_reports_dir=${reports_dir}/old
+new_reports_dir=${reports_dir}/new
 
 declare -A picked_pkg_set=()
 
@@ -19,7 +21,7 @@ for pkg; do
 done
 
 function load_pkgs() {
-    local arch_reports_dir=${1}; shift
+    local reports_dir=${1}; shift
     local prefix=${1}
 
     declare -a board_pkgs=() sdk_pkgs=()
@@ -27,16 +29,18 @@ function load_pkgs() {
 
     declare -A -g "${prefix}_pkgs=()" "${prefix}_pkg_repos=()"
 
-    mapfile -t board_pkgs < <(cat "${arch_reports_dir}/board-pkgs")
-    mapfile -t sdk_pkgs < <(cat "${arch_reports_dir}/sdk-pkgs")
-    mapfile -t board_pkg_repos < <(cat "${arch_reports_dir}/board-package-repos")
-    mapfile -t sdk_pkg_repos < <(cat "${arch_reports_dir}/sdk-package-repos")
+    mapfile -t amd64_board_pkgs < <(cat "${reports_dir}/amd64-board-pkgs")
+    mapfile -t arm64_board_pkgs < <(cat "${reports_dir}/arm64-board-pkgs")
+    mapfile -t sdk_pkgs < <(cat "${reports_dir}/sdk-pkgs")
+    mapfile -t amd64_board_pkg_repos < <(cat "${reports_dir}/amd64-board-package-repos")
+    mapfile -t arm64_board_pkg_repos < <(cat "${reports_dir}/arm64-board-package-repos")
+    mapfile -t sdk_pkg_repos < <(cat "${reports_dir}/sdk-package-repos")
 
     local -n pkgs=${prefix}_pkgs
     local -n pkg_repos=${prefix}_pkg_repos
 
     local l pkg version existing_version g_result
-    for l in "${board_pkgs[@]}" "${sdk_pkgs[@]}" ; do
+    for l in "${amd64_board_pkgs[@]}" "${arm64_board_pkgs[@]}" "${sdk_pkgs[@]}" ; do
         pkg=${l% *}
         version=${l#* }
         version=${version%:*}
@@ -53,7 +57,7 @@ function load_pkgs() {
     done
 
     local repo existing_repo
-    for l in "${board_pkg_repos[@]}" "${sdk_pkg_repos[@]}"; do
+    for l in "${amd64_board_pkg_repos[@]}" "${arm64_board_pkg_repos[@]}" "${sdk_pkg_repos[@]}"; do
         pkg=${l% *}
         repo=${l#* }
         existing_repo=${pkg_repos["${pkg}"]:-}
@@ -71,6 +75,10 @@ function top_group_print() {
     local label=${1}; shift
     local group_name=${1}; shift
 
+    #group_declare some_group_copy_test
+    #group_copy some_group_copy_test "${group_name}"
+    #group_name=some_group_copy_test
+
     local top_group_str=''
     group_to_string "${group_name}" top_group_str
     top_group_str=${top_group_str#'('}
@@ -80,8 +88,8 @@ function top_group_print() {
     echo "${label}: ${top_group_str}"
 }
 
-load_pkgs "${arch_old_reports_dir}" old
-load_pkgs "${arch_new_reports_dir}" new
+load_pkgs "${old_reports_dir}" old
+load_pkgs "${new_reports_dir}" new
 
 for pkg in "${!picked_pkg_set[@]}"; do
 
@@ -106,8 +114,8 @@ for pkg in "${!picked_pkg_set[@]}"; do
         fail "unknown repo for ${pkg@Q} in new set"
     fi
 
-    old_cache_entry="${arch_old_reports_dir}/${old_repo}-cache/${pkg}-${old_version}"
-    new_cache_entry="${arch_new_reports_dir}/${new_repo}-cache/${pkg}-${new_version}"
+    old_cache_entry="${old_reports_dir}/${old_repo}-cache/${pkg}-${old_version}"
+    new_cache_entry="${new_reports_dir}/${new_repo}-cache/${pkg}-${new_version}"
 
     arches=(amd64 arm64)
 
@@ -124,16 +132,16 @@ for pkg in "${!picked_pkg_set[@]}"; do
 
         echo "${pkg}-${version}::${repo}"
 
-        pkg_eapi=${cache[${PCF_EAPI_IDX}]}
-        declare -n pkg_keywords=${cache[${PCF_KEYWORDS_IDX}]}
-        declare -n pkg_iuse=${cache[${PCF_IUSE_IDX}]}
-        pkg_bdepend_group_name=${cache[${PCF_BDEPEND_IDX}]}
-        pkg_depend_group_name=${cache[${PCF_DEPEND_IDX}]}
-        pkg_idepend_group_name=${cache[${PCF_IDEPEND_IDX}]}
-        pkg_pdepend_group_name=${cache[${PCF_PDEPEND_IDX}]}
-        pkg_rdepend_group_name=${cache[${PCF_RDEPEND_IDX}]}
-        pkg_license_group_name=${cache[${PCF_LICENSE_IDX}]}
-        declare -n pkg_eclasses=${cache[${PCF_ECLASSES_IDX}]}
+        pkg_eapi=${cache[PCF_EAPI_IDX]}
+        declare -n pkg_keywords=${cache[PCF_KEYWORDS_IDX]}
+        declare -n pkg_iuse=${cache[PCF_IUSE_IDX]}
+        pkg_bdepend_group_name=${cache[PCF_BDEPEND_IDX]}
+        pkg_depend_group_name=${cache[PCF_DEPEND_IDX]}
+        pkg_idepend_group_name=${cache[PCF_IDEPEND_IDX]}
+        pkg_pdepend_group_name=${cache[PCF_PDEPEND_IDX]}
+        pkg_rdepend_group_name=${cache[PCF_RDEPEND_IDX]}
+        pkg_license_group_name=${cache[PCF_LICENSE_IDX]}
+        declare -n pkg_eclasses=${cache[PCF_ECLASSES_IDX]}
 
         echo "EAPI: ${pkg_eapi}"
         kws_str=''
@@ -177,7 +185,9 @@ for pkg in "${!picked_pkg_set[@]}"; do
 
     diff_report_declare pkg_diff_report
     diff_cache_data old_cache_file new_cache_file pkg_diff_report
-    declare -n lines=${pkg_diff_report[${DR_LINES_IDX}]}
+    cache_file_unset old_cache_file
+    cache_file_unset new_cache_file
+    declare -n lines=${pkg_diff_report[DR_LINES_IDX]}
     for l in "${lines[@]}"; do
         indent=${l%%:*}
         txt=${l#*:}
