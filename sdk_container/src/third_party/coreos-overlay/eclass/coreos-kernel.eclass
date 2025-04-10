@@ -100,7 +100,7 @@ config_update() {
 kernel_path() {
 	local kernel_arch=$(tc-arch-kernel)
 	case "${kernel_arch}" in
-		arm64)	echo build/arch/arm64/boot/Image;;
+		arm64)	echo build/arch/arm64/boot/vmlinuz.efi;;
 		x86)	echo build/arch/x86/boot/bzImage;;
 		*)		die "Unsupported kernel arch '${kernel_arch}'";;
 	esac
