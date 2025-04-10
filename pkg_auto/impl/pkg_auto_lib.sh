@@ -1006,14 +1006,6 @@ function process_listings() {
     # shellcheck disable=SC1091 # generated file
     source "${WORKDIR}/globals"
 
-    local ver_ere pkg_ere
-    # VER_ERE comes from gentoo_ver.sh
-    ver_ere=${VER_ERE}
-    # regexp begins with ^ and ends with $, so strip them
-    ver_ere=${ver_ere#'^'}
-    ver_ere=${ver_ere%'$'}
-    pkg_ere='[a-z0-9]*-?[a-z0-9]*/[a-z0-9A-Z_+-]*'
-
     #mvm_debug_enable pl_pkg_to_tags_set_mvm
     mvm_declare pl_pkg_to_tags_set_mvm mvm_mvc_set
 
@@ -1036,7 +1028,8 @@ function process_listings() {
                 pkg_debug "processing listings: adding tag ${kind^^}"
                 pkg_debug_disable
                 mvm_add pl_pkg_to_tags_set_mvm "${pkg}" "${kind^^}"
-            done < <(sed -E -e 's#^('"${pkg_ere}"')-'"${ver_ere}"'::.*#\1#' "${listing}")
+                # VER_ERE_UNBOUNDED and PKG_ERE_UNBOUNDED come from gentoo_ver.sh
+            done < <(sed -E -e 's#^('"${PKG_ERE_UNBOUNDED}"')-'"${VER_ERE_UNBOUNDED}"'::.*#\1#' "${listing}")
         done
     done
 
