@@ -3,8 +3,6 @@
 if [[ -z ${__MD5_CACHE_LIB_SH_INCLUDED__:-} ]]; then
 __MD5_CACHE_LIB_SH_INCLUDED__=x
 
-function foo() { echo ${#}; local last_one=${@: -1}; local last_but_one=${@: -2:1}; local rest=$((${#} - 2)); echo ${last_one} ${last_but_one} ${@:1:${rest}}; }
-
 function __mcl_declare() {
     # last two args are name and definition of the variable, so the
     # index -2 is the name, index -1 is the definition; the rest are
@@ -12,7 +10,7 @@ function __mcl_declare() {
     #
     # space is needed to avoid confusion with the :- parameter
     # expansion
-    declare "${@:1:$(( ${#} - 2 ))}" "${@: -2:1}=${@: -1:1}"
+    declare "${@:1:$(( ${#} - 2 ))}" "${*: -2:1}=${*: -1:1}"
 }
 
 declare -g -i __MCL_COUNTER=0
@@ -20,6 +18,7 @@ declare -g -i __MCL_COUNTER=0
 function mcl_gen_varname() {
     local -n name_ref=${1}; shift
 
+    # shellcheck disable=SC2034 # shellcheck does not grok references
     name_ref=__MCL_VAR_${__MCL_COUNTER}
     __MCL_COUNTER=$((__MCL_COUNTER + 1))
 }
@@ -437,6 +436,7 @@ function parse_eclasses() {
         fi
         eclass_name_now=$((eclass_name_now ^ 1))
     done
+    # shellcheck disable=SC2034 # shellcheck does not grok references
     eclasses_out_var_name_ref=${eclasses_var_name}
 }
 
@@ -590,6 +590,19 @@ function group_to_string() {
     str+=')'
 }
 
+declare -ri KW_STABLE=0 # "keyword"
+declare -ri KW_UNSTABLE=1 # "~keyword"
+declare -ri KW_BROKEN=2 # "-keyword"
+declare -ri KW_UNKNOWN=3 # absent from KEYWORDS
+
+function kw_declare() {
+    __mcl_declare -g -A "${@}" "( [n]=ITS_UNSET [l]=${KW_UNSTABLE} )"
+}
+
+function kw_unset() {
+    unset "${1}"
+}
+
 function parse_keywords() {
     local keywords_string=${1}; shift
     local -n keywords_out_var_name_ref=${1}; shift
@@ -610,22 +623,64 @@ function parse_keywords() {
     done
 
     local has_hyphen_star=${keywords_set['-*']:-}
-    local arch mark kw
+    local arch mark kw_level_pair kw level kw_name
     for arch; do
-        for kw in "${arch}" "~${arch}" "-${arch}"; do
+        for kw_level_pair in "${arch}@${KW_STABLE}" "~${arch}@${KW_UNSTABLE}" "-${arch}@${KW_BROKEN}"; do
+            kw=${kw_level_pair%@*}
+            level=${kw_level_pair#*@}
             mark=${keywords_set["${kw}"]:-}
             if [[ -n ${mark} ]]; then
-                keywords+=( "${kw}" )
+                mcl_gen_varname kw_name
+                kw_declare "${kw_name}"
+                local -n k=${kw_name}
+                k['n']=${arch}
+                k['l']=${level}
+                unset -n k
+                keywords+=( "${kw_name}" )
                 break
             fi
         done
-        if [[ -z ${mark} && -n ${has_hyphen_star} ]]; then
-            keywords+=( "-${arch}" )
+        if [[ -z ${mark} ]]; then
+            mcl_gen_varname kw_name
+            kw_declare "${kw_name}"
+            # shellcheck disable=SC2178 # shellcheck does not grok references
+            local -n k=${kw_name}
+            k['n']=${arch}
+            if [[ -n ${has_hyphen_star} ]]; then
+                k['l']=${KW_BROKEN}
+            else
+                # shellcheck disable=SC2034 # shellcheck does not grok references
+                k['l']=${KW_UNKNOWN}
+            fi
+            unset -n k
+            keywords+=( "${kw_name}" )
         fi
     done
+    # shellcheck disable=SC2034 # shellcheck does not grok references
     keywords_out_var_name_ref=${keywords_var_name}
 }
 
+function kw_to_string() {
+    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
+    local -n kw=${1}; shift
+    local -n str=${1}; shift
+
+    local n=${kw['n']}
+    case ${kw['l']} in
+        "${KW_STABLE}")
+            str=${n}
+            ;;
+        "${KW_UNSTABLE}")
+            str="~${n}"
+            ;;
+        "${KW_BROKEN}")
+            str="-${n}"
+            ;;
+        "${KW_UNKNOWN}")
+            str=''
+            ;;
+    esac
+}
 
 # use requirement map
 #
@@ -668,6 +723,7 @@ function parse_iuse() {
         iuse+=( "${pi_iuse}" )
     done
 
+    # shellcheck disable=SC2034 # shellcheck does not grok references
     iuse_out_var_name_ref=${iuse_var_name}
 }
 
