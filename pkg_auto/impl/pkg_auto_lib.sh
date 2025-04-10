@@ -51,6 +51,7 @@ __PKG_AUTO_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/cleanups.sh"
+source "${PKG_AUTO_IMPL_DIR}/md5_cache_diff_lib.sh"
 source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
 # Sets up the workdir using the passed config. The config can be
@@ -1120,7 +1121,7 @@ function generate_sdk_reports() {
 
     local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch
     local pkg_auto_copy rv
-    local sdk_reports_dir dir entry full_path
+    local sdk_reports_dir top_dir dir entry full_path
     local -a dir_queue all_dirs all_files
 
     # shellcheck disable=SC2153 # WHICH is not a misspelling, it comes from globals file
@@ -1175,19 +1176,25 @@ function generate_sdk_reports() {
             fail "copying done, stopping now"
         fi
         sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}"
-        dir_queue=( "${sdk_run_state}/pkg-reports" )
+        top_dir="${sdk_run_state}/pkg-reports"
+        dir_queue=( "${top_dir}" )
         all_dirs=()
         all_files=()
         while [[ ${#dir_queue[@]} -gt 0 ]]; do
             dir=${dir_queue[0]}
             dir_queue=( "${dir_queue[@]:1}" )
-            entry=${dir##"${sdk_run_state}/pkg-reports/"}
-            all_dirs=( "${sdk_reports_dir}/${entry}" "${all_dirs[@]}" )
+            entry=${dir#"${top_dir}"}
+            if [[ -z ${entry} ]]; then
+                all_dirs=( "${sdk_reports_dir}" "${all_dirs[@]}" )
+            else
+                entry=${entry#/}
+                all_dirs=( "${sdk_reports_dir}/${entry}" "${all_dirs[@]}" )
+            fi
             for full_path in "${dir}/"*; do
                 if [[ -d ${full_path} ]]; then
                     dir_queue+=( "${full_path}" )
                 else
-                    entry=${full_path##"${sdk_run_state}/pkg-reports/"}
+                    entry=${full_path##"${top_dir}/"}
                     all_files+=( "${sdk_reports_dir}/${entry}" )
                 fi
             done
@@ -1332,7 +1339,7 @@ function pkginfo_c_process_file() {
     mvm_c_get_extra 'report' report
 
     local report_file
-    case ${which}:${arch} in
+    case ${report}:${arch} in
         "${SDK_PKGS}:arm64")
             # short-circuit it, there's no arm64 sdk
             return 0
@@ -1343,6 +1350,10 @@ function pkginfo_c_process_file() {
         "${BOARD_PKGS}:"*)
             report_file="${WORKDIR}/pkg-reports/${which}/${arch}-${report}"
             ;;
+        *)
+            local c=${report}:${arch}
+            devel_warn "unknown report-architecture combination (${c@Q})"
+            return 0
     esac
 
     local pkg version_slot throw_away v s
@@ -2315,12 +2326,12 @@ function handle_pkg_as_is() {
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
 
     local -n diff_report=${diff_report_name}
     local -n diff_lines=${diff_report[${DR_LINES_IDX}]}
-    lines+=( "${diff_lines[@]}" )
-    if [[ "${#diff_lines[@]}" ]]; then
+    if [[ ${#diff_lines[@]} -gt 0 ]]; then
+        lines+=( "${diff_lines[@]}" )
         modified=x
     fi
     unset -n diff_lines
@@ -2666,7 +2677,7 @@ function generate_cache_diff_report() {
     parse_cache_file "${old_cache_name}" "${old_entry}" "${ARCHES[@]}"
     parse_cache_file "${new_cache_name}" "${new_entry}" "${ARCHES[@]}"
 
-    diff_cache_data "${old_cache_name}" "${new_cache_name}"
+    diff_cache_data "${old_cache_name}" "${new_cache_name}" "${diff_report_var_name}"
 
     cache_file_unset "${old_cache_name}"
     cache_file_unset "${new_cache_name}"
@@ -3043,11 +3054,11 @@ function handle_eclass() {
     if [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]] && [[ -e "${NEW_PORTAGE_STABLE}/${eclass}" ]]; then
         mkdir -p "${REPORTS_DIR}/updates/${eclass}"
         xdiff --unified=3 "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/eclass.diff"
-        lines+=( 'TODO: review the diff' )
+        lines+=( '0:TODO: review the diff' )
     elif [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]]; then
-        lines+=( 'unused, dropped' )
+        lines+=( '0:unused, dropped' )
     else
-        lines+=( 'added from Gentoo' )
+        lines+=( '0:added from Gentoo' )
     fi
     generate_summary_stub "${eclass}" -- "${lines[@]}"
 }
@@ -3121,7 +3132,7 @@ function handle_profiles() {
     done <"${out_dir}/full.diff"
     lines_to_file_truncate "${out_dir}/relevant.diff" "${relevant_lines[@]}"
     lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
-    generate_summary_stub profiles -- 'TODO: review the diffs'
+    generate_summary_stub profiles -- '0:TODO: review the diffs'
 }
 
 # Handles changes in license directory. Generates brief reports and
@@ -3190,15 +3201,15 @@ function handle_licenses() {
     local joined
     if [[ ${#dropped[@]} -gt 0 ]]; then
         join_by joined ', ' "${dropped[@]}"
-        lines+=( "dropped ${joined}" )
+        lines+=( "0:dropped ${joined}" )
     fi
     if [[ ${#added[@]} -gt 0 ]]; then
         join_by joined ', ' "${added[@]}"
-        lines+=( "added ${joined}" )
+        lines+=( "0:added ${joined}" )
     fi
     if [[ ${#changed[@]} -gt 0 ]]; then
         join_by joined ', ' "${changed[@]}"
-        lines+=( "updated ${joined}" )
+        lines+=( "0:updated ${joined}" )
     fi
     generate_summary_stub licenses -- "${lines[@]}"
 }
@@ -3213,7 +3224,7 @@ function handle_scripts() {
     mkdir -p "${out_dir}"
 
     xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
-    generate_summary_stub scripts -- 'TODO: review the diffs'
+    generate_summary_stub scripts -- '0:TODO: review the diffs'
 }
 
 # Enables debug logs when specific packages are processed.
