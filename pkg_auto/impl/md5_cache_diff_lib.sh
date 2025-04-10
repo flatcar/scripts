@@ -1,5 +1,57 @@
 #!/bin/bash
 
+# This file implements computing a diff between two cache files.
+#
+# The diff is done for EAPI, KEYWORDS, {B,R,I,P,}DEPEND and LICENSE
+# fields. While doing a diff for the first two is rather trivial
+# (these are just a string or an array of simple objects), then doing
+# the diffs for the rest, that involves groups is a bit more
+# involved. The group is first sorted, then flattened. Then both old
+# and new sorted and flattened groups are fed into the LCS algorithm
+# to get the common items. These can be used to figure out the
+# differences between the old and new groups.
+#
+# Sorting a group merges all the similar subgroups into one (say there
+# is "!foo? ( sys-libs/bar ) !foo? ( app-admin/baz )" and they will
+# get merged into a single "!foo? ( sys-libs/bar app-admin/baz
+# )". There are exceptions - "any of" subgroups are not merged (so "||
+# ( sys-libs/foo sys-libs/bar ) || ( app-admin/foo app-admin/bar )"
+# stays as is), and unnamed "all-of" groups inside "any-of" groups are
+# not merged too (so "|| ( ( dev-lang/python:3.11
+# dev-python/setuptools[python_3_11] ) ( dev-lang/python:3.12
+# dev-python/setuptools[python_3_12] ) )" stays as is too.
+#
+# Flattening turns the group-as-a-recursive-structure into a list of
+# tokens, so to speak. Each token can be than treated as a separate
+# line for the LCS algorithm. This means that for the following
+# groups:
+#
+# SUBGROUP { type: any-of, items: sys-libs/foo sys-libs/bar }
+#
+# MAINGROUP { type all-off, use name: foo, use mode: disabled, items:
+# SUBGROUP, app-admin/bar }
+#
+# flattening of MAINGROUP will result in the following list:
+#
+# !foo?
+# (
+# ||
+# (
+# sys-libs/foo
+# sys-libs/bar
+# )
+# app-admin/bar
+# )
+#
+# The LCS algorithm takes a score function. The one passed here is a
+# function that returns maximum score of 3 for equal tokens, score of
+# 1 for package dependency specifications with the same name and 0
+# otherwise. This means that ">=sys-libs/foo-1.2.3" and
+# ">=sys-libs/foo-1.2.3" will result in score 3,
+# ">=sys-libs/foo-1.2.3" and ">=sys-libs/foo-3.2.1" will result in
+# score 1, and "sys-libs/foo" and "sys-libs/bar" will result in score
+# 0. TODO: WHY THIS WAY?
+
 if [[ -z ${__MD5_CACHE_DIFF_LIB_SH_INCLUDED__:-} ]]; then
 __MD5_CACHE_DIFF_LIB_SH_INCLUDED__=x
 
