@@ -325,7 +325,7 @@ function debug_stacktrace() {
 
     ((last_idx--))
     while [[ idx -lt last_idx ]]; do
-        echo "at ${FUNCNAME[idx]}, invoked by ${FUNCNAME[$((idx + 1))]} in ${BASH_SOURCE[idx + 1]}:${BASH_LINENO[idx]}"
+        info "at ${FUNCNAME[idx]}, invoked by ${FUNCNAME[$((idx + 1))]} in ${BASH_SOURCE[idx + 1]}:${BASH_LINENO[idx]}"
         ((++idx))
     done
 }
@@ -337,9 +337,9 @@ function debug_track_var() {
     local number=${var_name_or_number##*_}
 
     if [[ -n ${__UTIL_SH_DEBUG_COUNTERS[${number}]:-} ]]; then
-        printf '%s\n' "----------${number}----------" "${message}"
+        info_lines "----------${number}----------" "${message}"
         debug_stacktrace
-        printf '%s\n' "----------${number}----------"
+        info "----------${number}----------"
     fi
 }
 
