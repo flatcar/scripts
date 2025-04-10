@@ -5,33 +5,163 @@ __MD5_CACHE_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/debug.sh"
-source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
-function __mcl_declare() {
-    # last two args are name and definition of the variable, so the
-    # index -2 is the name, index -1 is the definition; the rest are
-    # supposed to be flags passed to declare
-    #
-    # space between : and - is needed to avoid confusion with the :-
-    # parameter expansion
-    declare "${@:1:$(( ${#} - 2 ))}" "${*: -2:1}=${*: -1:1}"
+#
+# Cache file
+#
+
+# Indices to access fields of the cache file:
+# PCF_EAPI_IDX     - a string/number describing EAPI
+# PCF_KEYWORDS_IDX - a name of an array containing keyword objects
+# PCF_IUSE_IDX     - a name of an array containing iuse objects
+# PCF_BDEPEND_IDX  - a name of a group object with build dependencies
+# PCF_DEPEND_IDX   - a name of a group object with dependencies
+# PCF_IDEPEND_IDX  - a name of a group object with install dependencies
+# PCF_PDEPEND_IDX  - a name of a group object with post dependencies
+# PCF_RDEPEND_IDX  - a name of a group object with runtime dependencies
+# PCF_LICENSE_IDX  - a name of a group object with licenses
+# PCF_ECLASSES_IDX - a name of an array with used eclasses
+declare -gri PCF_EAPI_IDX=0 PCF_KEYWORDS_IDX=1 PCF_IUSE_IDX=2 PCF_BDEPEND_IDX=3 PCF_DEPEND_IDX=4 PCF_IDEPEND_IDX=5 PCF_PDEPEND_IDX=6 PCF_RDEPEND_IDX=7 PCF_LICENSE_IDX=8 PCF_ECLASSES_IDX=9
+
+# Declares empty cache files. Can take flags that are passed to
+# declare. Usually only -r or -t make sense to pass. Can take several
+# names, just like declare. Takes no initializers - this is hardcoded.
+function cache_file_declare() {
+    struct_declare -ga "${@}" "( '0' 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_ARRAY' )"
 }
 
-# use requirement
+# Unsets cache files, can take several names, just like unset.
+function cache_file_unset() {
+    local name
+    for name; do
+        local -n cache_file_ref=${name}
+
+        __mcl_unset_array "${cache_file_ref[PCF_KEYWORDS_IDX]}" kw_unset
+        __mcl_unset_array "${cache_file_ref[PCF_IUSE_IDX]}" iuse_unset
+        __mcl_unset_array "${cache_file_ref[PCF_ECLASSES_IDX]}" unset
+
+        group_unset \
+            "${cache_file_ref[PCF_BDEPEND_IDX]}" \
+            "${cache_file_ref[PCF_DEPEND_IDX]}" \
+            "${cache_file_ref[PCF_IDEPEND_IDX]}" \
+            "${cache_file_ref[PCF_PDEPEND_IDX]}" \
+            "${cache_file_ref[PCF_RDEPEND_IDX]}" \
+            "${cache_file_ref[PCF_LICENSE_IDX]}"
+
+        unset -n cache_file_ref
+    done
+    unset "${@}"
+}
+
+# Parses a cache file under the passed path.
 #
-# n - name of USE flag
-# m - mode: +, =, !=, ?, !?, - (+ enabled, = strict relation, != reverted strict relation, ? enabled if enabled, !? disabled if disabled, - disabled)
-# p - pretend: empty, + or - (+ pretend enabled if missing, - pretend disabled if missing)
+# Params:
+#
+# 1 - cache file
+# 2 - path to the cache file
+function parse_cache_file() {
+    local -n cache_file_ref=${1}; shift
+    local path=${1}; shift
+    # rest are architectures
+
+    if pkg_debug_enabled; then
+        local -a file_lines
+        mapfile -t file_lines <"${path}"
+        pkg_debug_print_lines "parsing ${path@Q}" "${file_lines[@]}"
+        unset file_lines
+    fi
+
+    local -n pkg_eapi_ref=cache_file_ref[PCF_EAPI_IDX]
+    local -n pkg_keywords_ref=cache_file_ref[PCF_KEYWORDS_IDX]
+    local -n pkg_iuse_ref=cache_file_ref[PCF_IUSE_IDX]
+    local -n pkg_bdepend_group_name_ref=cache_file_ref[PCF_BDEPEND_IDX]
+    local -n pkg_depend_group_name_ref=cache_file_ref[PCF_DEPEND_IDX]
+    local -n pkg_idepend_group_name_ref=cache_file_ref[PCF_IDEPEND_IDX]
+    local -n pkg_pdepend_group_name_ref=cache_file_ref[PCF_PDEPEND_IDX]
+    local -n pkg_rdepend_group_name_ref=cache_file_ref[PCF_RDEPEND_IDX]
+    local -n pkg_license_group_name_ref=cache_file_ref[PCF_LICENSE_IDX]
+    local -n pkg_eclasses_ref=cache_file_ref[PCF_ECLASSES_IDX]
+
+    local l key
+    while read -r l; do
+        key=${l%%=*}
+        pkg_debug "parsing ${key@Q}"
+        case ${key} in
+            'EAPI')
+                pkg_eapi_ref=${l#*=}
+                pkg_debug "EAPI: ${pkg_eapi_ref}"
+                ;;
+            'KEYWORDS')
+                __mcl_parse_keywords "${l#*=}" pkg_keywords_ref "${@}"
+                ;;
+            'IUSE')
+                __mcl_parse_iuse "${l#*=}" pkg_iuse_ref
+                ;;
+            'BDEPEND')
+                __mcl_parse_dsf "${__MCL_DSF_DEPEND}" "${l#*=}" pkg_bdepend_group_name_ref
+                ;;
+            'DEPEND')
+                __mcl_parse_dsf "${__MCL_DSF_DEPEND}" "${l#*=}" pkg_depend_group_name_ref
+                ;;
+            'IDEPEND')
+                __mcl_parse_dsf "${__MCL_DSF_DEPEND}" "${l#*=}" pkg_idepend_group_name_ref
+                ;;
+            'PDEPEND')
+                __mcl_parse_dsf "${__MCL_DSF_DEPEND}" "${l#*=}" pkg_pdepend_group_name_ref
+                ;;
+            'RDEPEND')
+                __mcl_parse_dsf "${__MCL_DSF_DEPEND}" "${l#*=}" pkg_rdepend_group_name_ref
+                ;;
+            'LICENSE')
+                __mcl_parse_dsf "${__MCL_DSF_LICENSE}" "${l#*=}" pkg_license_group_name_ref
+                ;;
+            '_eclasses_')
+                __mcl_parse_eclasses "${l#*=}" pkg_eclasses_ref
+                ;;
+            *)
+                pkg_debug "Not parsing ${key@Q}, ignoring"
+                ;;
+        esac
+    done <"${path}"
+}
+
+#
+# Use requirement (the part in the square brackets in the package
+# dependency specification).
+#
+
+# Indices to access fields of the use requirement:
+# UR_NAME_IDX    - a use name
+# UR_MODE_IDX    - a string describing the mode: "+" is enabled, "="
+#                  is strict relation, "!=" reversed strict relation,
+#                  "?"  is "enabled if enabled in the ebuild", "!?" is
+#                  "disabled if disabled in the ebuild", and "-" is
+#                  disabled)
+# UR_PRETEND_IDX - a string describing pretend mode: it can be either
+#                  empty (no pretending if use is missing in the
+#                  package), "+" (pretend enabled if missing in the
+#                  package), or "-" (pretend disabled if missing in
+#                  the package)
 declare -gri UR_NAME_IDX=0 UR_MODE_IDX=1 UR_PRETEND_IDX=2
 
+# Declares empty use requirements. Can take flags that are passed to
+# declare. Usually only -r or -t make sense to pass. Can take several
+# names, just like declare. Takes no initializers - this is hardcoded.
 function ur_declare() {
-    __mcl_declare -ga "${@}" "( 'ITS_UNSET' '+' '' )"
+    struct_declare -ga "${@}" "( 'ITS_UNSET' '+' '' )"
 }
 
+# Unsets use requirements, can take several names, just like unset.
 function ur_unset() {
-    unset "${1}"
+    unset "${@}"
 }
 
+# Copies use requirement into another.
+#
+# Params:
+#
+# 1 - use requirement to be clobbered
+# 2 - the source use requirement
 function ur_copy() {
     local -n to_clobber_ref=${1}; shift
     local -n to_copy_ref=${1}; shift
@@ -42,6 +172,12 @@ function ur_copy() {
     done
 }
 
+# Stringifies use requirement.
+#
+# Params:
+#
+# 1 - use requirement
+# 2 - name of a variable where the string form will be stored
 function ur_to_string() {
     local -n ur_ref=${1}; shift
     local -n str_ref=${1}; shift
@@ -75,41 +211,62 @@ function ur_to_string() {
     esac
 }
 
-# package depedency specification
 #
-# b - blocks: 0, 1, 2 (0 - no block, 1 - weak, 2 - strong)
-# o - operator: empty or some op (< <= = ~ >= >)
-# n - name: category/package
-# v - version: empty or version without the leading dash
-# s - slot: empty or slot operator without the leading colon
-# u - use requirements: name of an array variable containing use requirements
+# Package depedency specification (or PDS)
+#
 
+# Enumeration describing blocker mode of a package. Self-describing.
 declare -gri PDS_NO_BLOCK=0 PDS_WEAK_BLOCK=1 PDS_STRONG_BLOCK=2
+
+# Indices to access fields of the package dependency specification:
+# PDS_BLOCKS_IDX - a number describing blocker mode (use PDS_NO_BLOCK,
+#                  PDS_WEAK_BLOCK and PDS_STRONG_BLOCK)
+# PDS_OP_IDX     - a string describing the relational operator, can be
+#                  empty or one of "<", "<=", "=", "~", ">=", or ">";
+#                  if empty, the version will also be empty
+# PDS_NAME_IDX   - a qualified package name (so category/name)
+# PDS_VER_IDX    - a version of the package, may be empty (if so,
+#                  operator is also empty)
+# PDS_SLOT_IDX   - a string describing the slot operator, without the
+#                  preceding colon
+# PDS_UR_IDX     - a name of an array variable containing use
+#                  requirements
 declare -gri PDS_BLOCKS_IDX=0 PDS_OP_IDX=1 PDS_NAME_IDX=2 PDS_VER_IDX=3 PDS_SLOT_IDX=4 PDS_UR_IDX=5
 
+# Declares empty package definition specifications. Can take flags
+# that are passed to declare. Usually only -r or -t make sense to
+# pass. Can take several names, just like declare. Takes no
+# initializers - this is hardcoded.
 function pds_declare() {
-    __mcl_declare -g -a "${@}" "( ${PDS_NO_BLOCK@Q} '' 'ITS_UNSET' '' '' 'EMPTY_ARRAY' )"
+    struct_declare -ga "${@}" "( ${PDS_NO_BLOCK@Q} '' 'ITS_UNSET' '' '' 'EMPTY_ARRAY' )"
 }
 
+# Unsets package definition specifications, can take several names,
+# just like unset.
 function pds_unset() {
-    local name=${1}; shift
+    local use_reqs_name name
+    for name; do
+        local -n pds_ref=${name}
 
-    local -n pds_ref=${name}
-    local use_reqs_name=${pds_ref[PDS_UR_IDX]}
+        use_reqs_name=${pds_ref[PDS_UR_IDX]}
+        local -n use_reqs_ref=${use_reqs_name}
+        ur_unset "${use_reqs_ref[@]}"
+        unset -n use_reqs_ref
+        if [[ ${use_reqs_name} != 'EMPTY_ARRAY' ]]; then
+            unset "${use_reqs_name}"
+        fi
 
-    local -n use_reqs_ref=${use_reqs_name}
-    local ur_name
-    for ur_name in "${use_reqs_ref[@]}"; do
-        ur_unset "${ur_name}"
+        unset -n pds_ref
     done
-
-    if [[ ${use_reqs_name} != 'EMPTY_ARRAY' ]]; then
-        unset "${use_reqs_name}"
-    fi
-
-    unset "${name}"
+    unset "${@}"
 }
 
+# Copies package dependency specification into another.
+#
+# Params:
+#
+# 1 - package dependency specification to be clobbered
+# 2 - the source package dependency specification
 function pds_copy() {
     local -n to_clobber_ref=${1}; shift
     local -n to_copy_ref=${1}; shift
@@ -139,9 +296,19 @@ function pds_copy() {
     fi
 }
 
+# Adds use requirements to the package dependency specification.
+#
+# Params:
+#
+# 1 - package dependency specification
+# @ - use requirements
 function pds_add_urs() {
     local -n pds_ref=${1}; shift
     # rest are use requirements
+
+    if [[ ${#} -eq 0 ]]; then
+        return 0
+    fi
 
     local use_reqs_name=${pds_ref[PDS_UR_IDX]}
     if [[ ${use_reqs_name} = 'EMPTY_ARRAY' ]]; then
@@ -157,6 +324,12 @@ function pds_add_urs() {
     use_reqs_ref+=( "${@}" )
 }
 
+# Stringifies package dependency specification.
+#
+# Params:
+#
+# 1 - package dependency specification
+# 2 - name of a variable where the string form will be stored
 function pds_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n pds_ref=${1}; shift
@@ -195,43 +368,69 @@ function pds_to_string() {
     fi
 }
 
-# group
-# t - type, 0 or 1 (0 - all of, 1, any of)
-# u - use name or empty, must be empty for "any of" type
-# d - enabled use, 0 or 1 (0 - enabled, 1 - disabled), only valid if use name is not empty
-# i - items: name of an array variable containing items
+#
+# Group
+#
 
+# Enumeration describing type of a group. Self-describing.
 declare -gri GROUP_ALL_OF=0 GROUP_ANY_OF=1
+
+# Enumeration describing whether items in group are for enabled or disabled USE. Self-describing.
 declare -gri GROUP_USE_ENABLED=0 GROUP_USE_DISABLED=1
+
+# Indices to access fields of the group:
+# GROUP_TYPE_IDX    - a number describing a type of the group (use
+#                     GROUP_ALL_OF and GROUP_ANY_OF)
+# GROUP_USE_IDX     - a USE name of the group, may be empty, and must
+#                     be empty for GROUP_ANY_OF groups
+# GROUP_ENABLED_IDX - a number describing mode of the USE, should be
+#                     ignored if USE name is empty (use
+#                     GROUP_USE_ENABLED and GROUP_USE_DISABLED)
+# GROUP_ITEMS_IDX   - a name of an array containing items
 declare -gri GROUP_TYPE_IDX=0 GROUP_USE_IDX=1 GROUP_ENABLED_IDX=2 GROUP_ITEMS_IDX=3
 
+# Declares empty groups. Can take flags that are passed to
+# declare. Usually only -r or -t make sense to pass. Can take several
+# names, just like declare. Takes no initializers - this is hardcoded.
 function group_declare() {
-    __mcl_declare -g -a "${@}" "( ${GROUP_ALL_OF@Q} '' ${GROUP_USE_ENABLED@Q} 'EMPTY_ARRAY' )"
+    struct_declare -ga "${@}" "( ${GROUP_ALL_OF@Q} '' ${GROUP_USE_ENABLED@Q} 'EMPTY_ARRAY' )"
 }
 
+# An empty readonly group.
 group_declare -r EMPTY_GROUP
 
+# Unsets groups, can take several names, just like unset.
 function group_unset() {
-    local name=${1}; shift
+    local -a to_unset=()
+    local name items_name
+    for name; do
+        if [[ ${name} == 'EMPTY_GROUP' ]]; then
+            continue
+        fi
 
-    local -n group_ref=${name}
-    local items_name=${group_ref[GROUP_ITEMS_IDX]}
+        local -n group_ref=${name}
+        items_name=${group_ref[GROUP_ITEMS_IDX]}
+        unset -n group_ref
 
-    local -n items_ref=${items_name}
-    local i
-    for i in "${items_ref[@]}"; do
-        item_unset "${i}"
+        to_unset+=( "${name}" )
+        if [[ ${items_name} == 'EMPTY_ARRAY' ]]; then
+            continue
+        fi
+        to_unset+=( "${items_name}" )
+
+        local -n items_ref=${items_name}
+        item_unset "${items_ref[@]}"
+        unset -n items_ref
     done
-
-    if [[ ${items_name} != 'EMPTY_ARRAY' ]]; then
-        unset "${items_name}"
-    fi
-
-    if [[ ${name} != 'EMPTY_GROUP' ]]; then
-        unset "${name}"
-    fi
+    unset "${to_unset[@]}"
 }
 
+# Copies group into another.
+#
+# Params:
+#
+# 1 - group to be clobbered
+# 2 - the source group
 function group_copy() {
     local -n to_clobber_ref=${1}; shift
     local -n to_copy_ref=${1}; shift
@@ -262,13 +461,19 @@ function group_copy() {
     fi
 }
 
-function group_add_item() {
-    group_add_items "${@}"
-}
-
+# Adds items to the group.
+#
+# Params:
+#
+# 1 - group
+# @ - items
 function group_add_items() {
     local -n group_ref=${1}; shift
     # rest are items to add
+
+    if [[ ${#} -eq 0 ]]; then
+        return 0
+    fi
 
     local items_name=${group_ref[GROUP_ITEMS_IDX]}
     if [[ ${items_name} = 'EMPTY_ARRAY' ]]; then
@@ -284,6 +489,12 @@ function group_add_items() {
     items_ref+=( "${@}" )
 }
 
+# Stringifies group.
+#
+# Params:
+#
+# 1 - group
+# 2 - name of a variable where the string form will be stored
 function group_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n group_ref=${1}; shift
@@ -328,38 +539,58 @@ function group_to_string() {
     str_ref+=')'
 }
 
-# item
-# a string of <mode>:<name>
-# mode - e, g, l, p (e - empty, g - group, l - license, p - pds)
-# name - variable name holding the stuff described by mode
+#
+# Item. A string of <mode>:<data>. Mode is a single char and describes
+# the data.
+#
+# Modes:
+# "e" - empty, data is meaningless and should be just empty.
+# "g" - group, data is a group (a name of a variable containing a
+#       group)
+# "l" - license, data is a name of a license (plain string)
+# "p" - package dependency specification, data is pds (a name of a
+#       variable containing a pds)
 
+# Declares empty items. Can take flags that are passed to
+# declare. Usually only -r or -t make sense to pass. Can take several
+# names, just like declare. Takes no initializers - this is hardcoded.
 function item_declare() {
-    __mcl_declare -g "${@}" 'e:'
+    struct_declare -g "${@}" 'e:'
 }
 
+# Unsets items, can take several names, just like unset.
 function item_unset() {
-    local name=${1}; shift
-    local -n item_ref=${name}
+    local name
+    for name; do
+        local -n item_ref=${name}
 
-    case ${item_ref} in
-        e:*)
-            # noop
-            :
-            ;;
-        g:*)
-            group_unset "${item_ref:2}"
-            ;;
-        l:*)
-            # noop, license is just a string
-            ;;
-        p:*)
-            pds_unset "${item_ref:2}"
-            ;;
-    esac
+        case ${item_ref} in
+            e:*)
+                # noop
+                :
+                ;;
+            g:*)
+                group_unset "${item_ref:2}"
+                ;;
+            l:*)
+                # noop, license is just a string
+                ;;
+            p:*)
+                pds_unset "${item_ref:2}"
+                ;;
+        esac
+        unset -n item_ref
+    done
 
-    unset "${name}"
+    unset "${@}"
 }
 
+# Copies item into another.
+#
+# Params:
+#
+# 1 - item to be clobbered
+# 2 - the source item
 function item_copy() {
     local -n to_clobber_ref=${1}; shift
     local -n to_copy_ref=${1}; shift
@@ -385,6 +616,12 @@ function item_copy() {
     esac
 }
 
+# Stringifies item.
+#
+# Params:
+#
+# 1 - item
+# 2 - name of a variable where the string form will be stored
 function item_to_string() {
     local -n item_ref=${1}; shift
     local -n str_ref=${1}; shift
@@ -414,22 +651,43 @@ function item_to_string() {
     esac
 }
 
-# keyword
+#
+# Keyword
 #
 # n - name of keyword
 # m - stable (amd64), unstable (~amd64), broken (-amd64), unknown (absent in KEYWORDS)
 
+# Enumeration describing mode of the keyword.
+# KW_STABLE   - like "amd64"
+# KW_UNSTABLE - like "~amd64"
+# KW_BROKEN   - like "-amd64"
+# KW_UNKNOWN  - missing from KEYWORDS entirely
 declare -gri KW_STABLE=0 KW_UNSTABLE=1 KW_BROKEN=2 KW_UNKNOWN=3
+
+# Indices to access fields of the keyword:
+# KW_NAME_IDX  - name of the architecture
+# KW_LEVEL_IDX - mode of the keyword (use KW_STABLE, KW_UNSTABLE,
+#                KW_BROKEN and KW_UNKNOWN)
 declare -gri KW_NAME_IDX=0 KW_LEVEL_IDX=1
 
+# Declares empty keywords. Can take flags that are passed to
+# declare. Usually only -r or -t make sense to pass. Can take several
+# names, just like declare. Takes no initializers - this is hardcoded.
 function kw_declare() {
-    __mcl_declare -g -a "${@}" "( 'ITS_UNSET' ${KW_UNSTABLE@Q} )"
+    struct_declare -ga "${@}" "( 'ITS_UNSET' ${KW_UNSTABLE@Q} )"
 }
 
+# Unsets keywords, can take several names, just like unset.
 function kw_unset() {
-    unset "${1}"
+    unset "${@}"
 }
 
+# Stringifies keyword.
+#
+# Params:
+#
+# 1 - keyword
+# 2 - name of a variable where the string form will be stored
 function kw_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n kw_ref=${1}; shift
@@ -452,22 +710,39 @@ function kw_to_string() {
     esac
 }
 
-# iuse
 #
+# IUSE
+#
+
 # n - name of IUSE flag
 # m - 0 or 1 (0 disabled, 1 enabled)
 
+# Enumeration describing mode of the IUSE. Self-describing.
 declare -gri IUSE_DISABLED=0 IUSE_ENABLED=1
+
+# Indices to access fields of the IUSE:
+# IUSE_NAME_IDX - IUSE name
+# IUSE_MODE_IDX - IUSE mode (use IUSE_DISABLED and IUSE_ENABLED)
 declare -gri IUSE_NAME_IDX=0 IUSE_MODE_IDX=1
 
+# Declares empty IUSEs. Can take flags that are passed to
+# declare. Usually only -r or -t make sense to pass. Can take several
+# names, just like declare. Takes no initializers - this is hardcoded.
 function iuse_declare() {
-    __mcl_declare -g -a "${@}" "( 'ITS_UNSET' ${IUSE_DISABLED@Q} )"
+    struct_declare -ga "${@}" "( 'ITS_UNSET' ${IUSE_DISABLED@Q} )"
 }
 
+# Unsets IUSEs, can take several names, just like unset.
 function iuse_unset() {
-    unset "${1}"
+    unset "${@}"
 }
 
+# Stringifies IUSE.
+#
+# Params:
+#
+# 1 - IUSE
+# 2 - name of a variable where the string form will be stored
 function iuse_to_string() {
     # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays/maps
     local -n iuse_ref=${1}; shift
@@ -484,18 +759,15 @@ function iuse_to_string() {
     str_ref+=${iuse_ref[IUSE_NAME_IDX]}
 }
 
+#
+# Implementation details
+#
+
 # parse dependency specification format (DSF)
 
-declare -gri DSF_DEPEND=0 DSF_LICENSE=1
+declare -gri __MCL_DSF_DEPEND=0 __MCL_DSF_LICENSE=1
 
-# possible items:
-# <block>\?<category>/<name>\(:<slot>\)\? (only in depends)
-# <block>\?<operator><category>/<name>-<version>\(:<slot>\)\? (only in depends)
-# <license> (only in licenses)
-# ( item\+ )
-# || ( item\+ )
-# !\?use? ( item\+ )
-function parse_dsf() {
+function __mcl_parse_dsf() {
     local -i dsf_type=${1}; shift
     local dep=${1}; shift
     local -n top_group_out_var_name_ref=${1}; shift
@@ -529,7 +801,7 @@ function parse_dsf() {
             i_ref="g:${pd_group}"
             unset -n i_ref
 
-            group_add_item "${group_stack[-1]}" "${pd_item}"
+            group_add_items "${group_stack[-1]}" "${pd_item}"
 
             group_stack+=( "${pd_group}" )
             pd_group_created=x
@@ -562,7 +834,7 @@ function parse_dsf() {
             i_ref="g:${pd_group}"
             unset -n i_ref
 
-            group_add_item "${group_stack[-1]}" "${pd_item}"
+            group_add_items "${group_stack[-1]}" "${pd_item}"
 
             group_stack+=( "${pd_group}" )
             pd_group_created=x
@@ -582,7 +854,7 @@ function parse_dsf() {
                 i_ref="g:${pd_group}"
                 unset -n i_ref
 
-                group_add_item "${group_stack[-1]}" "${pd_item}"
+                group_add_items "${group_stack[-1]}" "${pd_item}"
 
                 group_stack+=( "${pd_group}" )
             fi
@@ -592,7 +864,7 @@ function parse_dsf() {
             unset "group_stack[${last_index}]"
         elif [[ ${token} =~ ^[A-Za-z0-9_][A-Za-z0-9+_.-]*$ ]]; then
             # license
-            if [[ dsf_type -ne DSF_LICENSE ]]; then
+            if [[ dsf_type -ne __MCL_DSF_LICENSE ]]; then
                 fail "license tokens are only allowed for LICENSE keys (token: ${token@Q})"
             fi
 
@@ -601,10 +873,10 @@ function parse_dsf() {
             local -n i_ref=${pd_item}
             i_ref="l:${token}"
             unset -n i_ref
-            group_add_item "${group_stack[-1]}" "${pd_item}"
+            group_add_items "${group_stack[-1]}" "${pd_item}"
         elif [[ ${token} =~ ^!?!?(<|<=|=|~|>=|>)?[A-Za-z0-9_][A-Za-z0-9+_.-]*/[A-Za-z0-9_] ]]; then
             # pds
-            if [[ dsf_type -ne DSF_DEPEND ]]; then
+            if [[ dsf_type -ne __MCL_DSF_DEPEND ]]; then
                 fail "package dependency specification is only allowed for DEPEND-like keys (token: ${token@Q})"
             fi
 
@@ -719,7 +991,7 @@ function parse_dsf() {
             i_ref="p:${pd_pds}"
             unset -n i_ref
 
-            group_add_item "${group_stack[-1]}" "${pd_item}"
+            group_add_items "${group_stack[-1]}" "${pd_item}"
         else
             fail "unknown token ${token@Q}"
         fi
@@ -739,7 +1011,7 @@ function parse_dsf() {
     fi
 }
 
-function parse_eclasses() {
+function __mcl_parse_eclasses() {
     local eclasses_string=${1}; shift
     local -n eclasses_out_var_name_ref=${1}; shift
 
@@ -769,7 +1041,7 @@ function parse_eclasses() {
     fi
 }
 
-function parse_keywords() {
+function __mcl_parse_keywords() {
     local keywords_string=${1}; shift
     local -n keywords_out_var_name_ref=${1}; shift
     # rest are architectures
@@ -839,7 +1111,7 @@ function parse_keywords() {
     fi
 }
 
-function parse_iuse() {
+function __mcl_parse_iuse() {
     local iuse_string=${1}; shift
     local -n iuse_out_var_name_ref=${1}; shift
 
@@ -880,12 +1152,6 @@ function parse_iuse() {
     fi
 }
 
-declare -gri PCF_EAPI_IDX=0 PCF_KEYWORDS_IDX=1 PCF_IUSE_IDX=2 PCF_BDEPEND_IDX=3 PCF_DEPEND_IDX=4 PCF_IDEPEND_IDX=5 PCF_PDEPEND_IDX=6 PCF_RDEPEND_IDX=7 PCF_LICENSE_IDX=8 PCF_ECLASSES_IDX=9
-
-function cache_file_declare() {
-    __mcl_declare -g -a "${@}" "( '0' 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_GROUP' 'EMPTY_ARRAY' )"
-}
-
 function __mcl_unset_array() {
     local array_name=${1}; shift
     local item_unset_func=${1}; shift
@@ -894,130 +1160,9 @@ function __mcl_unset_array() {
         return 0;
     fi
     local -n array_ref=${array_name}
-    local item
-    for item in "${array_ref[@]}"; do
-        "${item_unset_func}" "${item}"
-    done
+    "${item_unset_func}" "${array_ref[@]}"
     unset -n array_ref
     unset "${array_name}"
-}
-
-function cache_file_unset() {
-    local name=${1}; shift
-
-    local -n cache_file_ref=${name}
-
-    local array_name
-    array_name=${cache_file_ref[PCF_KEYWORDS_IDX]}
-    __mcl_unset_array "${array_name}" kw_unset
-    array_name=${cache_file_ref[PCF_IUSE_IDX]}
-    __mcl_unset_array "${array_name}" iuse_unset
-    array_name=${cache_file_ref[PCF_ECLASSES_IDX]}
-    __mcl_unset_array "${array_name}" unset
-
-    local -i group_name_idx
-    local group_name
-    for group_name_idx in PCF_BDEPEND_IDX PCF_DEPEND_IDX PCF_IDEPEND_IDX PCF_PDEPEND_IDX PCF_RDEPEND_IDX PCF_LICENSE_IDX; do
-        group_name=${cache_file_ref[group_name_idx]}
-        group_unset "${group_name}"
-    done
-
-    unset -n cache_file_ref
-
-    unset "${name}"
-}
-
-# TODO: probably unnecessary
-function __mcl_pkg_for_cache_file() {
-    local path=${1}; shift
-    local pkg_out_ref=${1}; shift
-
-    local pkg_for_file=${path}
-    local ere="-${VER_ERE_STRIPPED}"'$'
-    local pkg_ere="${PKG_ERE_STRIPPED}"'$'
-
-    if [[ ${pkg_for_file} =~ ${ere} ]]; then
-        pkg_for_file=${path%"${BASH_REMATCH[0]}"}
-        if [[ ${pkg_for_file} =~ ${pkg_ere} ]]; then
-            pkg_for_file=${BASH_REMATCH[0]}
-        else
-            pkg_for_file=''
-        fi
-    else
-        pkg_for_file=''
-    fi
-    if [[ -z ${pkg_for_file} ]]; then
-        local mpfcf_b1 mpfcf_b2 mpfcf_d
-        basename_out "${path}" mpfcf_b1
-        dirname_out "${path}" mpfcf_d
-        basename_out "${mpfcf_d}" mpfcf_b2
-        pkg_for_file="${mpfcf_b2}/${mpfcf_b1}"
-    fi
-
-    pkg_out_ref=${pkg_for_file}
-}
-
-function parse_cache_file() {
-    local -n cache_file_ref=${1}; shift
-    local path=${1}; shift
-    # rest are architectures
-
-    if pkg_debug_enabled; then
-        local -a file_lines
-        mapfile -t file_lines <"${path}"
-        pkg_debug_print_lines "parsing ${path@Q}" "${file_lines[@]}"
-        unset file_lines
-    fi
-
-    local -n pkg_eapi_ref=cache_file_ref[PCF_EAPI_IDX]
-    local -n pkg_keywords_ref=cache_file_ref[PCF_KEYWORDS_IDX]
-    local -n pkg_iuse_ref=cache_file_ref[PCF_IUSE_IDX]
-    local -n pkg_bdepend_group_name_ref=cache_file_ref[PCF_BDEPEND_IDX]
-    local -n pkg_depend_group_name_ref=cache_file_ref[PCF_DEPEND_IDX]
-    local -n pkg_idepend_group_name_ref=cache_file_ref[PCF_IDEPEND_IDX]
-    local -n pkg_pdepend_group_name_ref=cache_file_ref[PCF_PDEPEND_IDX]
-    local -n pkg_rdepend_group_name_ref=cache_file_ref[PCF_RDEPEND_IDX]
-    local -n pkg_license_group_name_ref=cache_file_ref[PCF_LICENSE_IDX]
-    local -n pkg_eclasses_ref=cache_file_ref[PCF_ECLASSES_IDX]
-
-    local l key
-    while read -r l; do
-        key=${l%%=*}
-        pkg_debug "parsing ${key@Q}"
-        case ${key} in
-            'EAPI')
-                pkg_eapi_ref=${l#*=}
-                pkg_debug "EAPI: ${pkg_eapi_ref}"
-                ;;
-            'KEYWORDS')
-                parse_keywords "${l#*=}" pkg_keywords_ref "${@}"
-                ;;
-            'IUSE')
-                parse_iuse "${l#*=}" pkg_iuse_ref
-                ;;
-            'BDEPEND')
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_bdepend_group_name_ref
-                ;;
-            'DEPEND')
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_depend_group_name_ref
-                ;;
-            'IDEPEND')
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_idepend_group_name_ref
-                ;;
-            'PDEPEND')
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_pdepend_group_name_ref
-                ;;
-            'RDEPEND')
-                parse_dsf "${DSF_DEPEND}" "${l#*=}" pkg_rdepend_group_name_ref
-                ;;
-            'LICENSE')
-                parse_dsf "${DSF_LICENSE}" "${l#*=}" pkg_license_group_name_ref
-                ;;
-            '_eclasses_')
-                parse_eclasses "${l#*=}" pkg_eclasses_ref
-                ;;
-        esac
-    done <"${path}"
 }
 
 fi
