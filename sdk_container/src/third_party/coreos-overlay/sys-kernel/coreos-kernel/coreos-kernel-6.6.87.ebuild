@@ -12,6 +12,7 @@ RDEPEND="=sys-kernel/coreos-modules-${PVR}"
 DEPEND="${RDEPEND}
 	app-alternatives/awk
 	app-alternatives/gzip
+	app-arch/xz-utils
 	app-arch/zstd
 	app-crypt/clevis
 	app-shells/bash
