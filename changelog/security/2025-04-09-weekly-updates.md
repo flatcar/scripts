@@ -1,0 +1,3 @@
+- curl ([curl-20250205](https://github.com/curl/curl/issues/16197))
+- iperf ([CVE-2024-53580](https://www.cve.org/CVERecord?id=CVE-2024-53580))
+- xz-utils ([CVE-2025-31115](https://www.cve.org/CVERecord?id=CVE-2025-31115))
