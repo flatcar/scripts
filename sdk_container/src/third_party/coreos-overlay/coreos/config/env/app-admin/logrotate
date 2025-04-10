@@ -1,4 +1,4 @@
-cros_post_src_install_logrorate_flatcar_modifications() {
+cros_post_src_install_logrotate_flatcar_modifications() {
     insinto /etc
     newins - logrotate.conf <<'EOF'
 # keep only the most recent old log.
