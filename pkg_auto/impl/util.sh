@@ -3,6 +3,9 @@
 if [[ -z ${__UTIL_SH_INCLUDED__:-} ]]; then
 __UTIL_SH_INCLUDED__=x
 
+declare -gra EMPTY_ARRAY=()
+declare -grA EMPTY_MAP=()
+
 # Works like dirname, but without spawning new processes.
 #
 # Params:
@@ -297,6 +300,28 @@ function sets_split() {
             only_in_second_set_ref["${item}"]=x
         fi
     done
+}
+
+declare -gi __UTIL_SH_COUNTER=0
+
+# Generates a globally unique name for a variable. Can be given a
+# prefix to override the default __PA_VAR one.
+#
+# Params:
+#
+# (optional) a prefix
+# 1 - name of a variable, where the generated name will be stored
+function gen_varname() {
+    local prefix='__PA_VAR' # pa = pkg-auto
+    if [[ ${#} -gt 1 ]]; then
+        # we passed a prefix
+        prefix=${1}; shift
+    fi
+    local -n name_ref=${1}; shift
+
+    # shellcheck disable=SC2034 # shellcheck does not grok references
+    name_ref="${prefix}_${__UTIL_SH_COUNTER}"
+    __UTIL_SH_COUNTER=$((__UTIL_SH_COUNTER + 1))
 }
 
 fi
