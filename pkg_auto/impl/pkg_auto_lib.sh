@@ -606,15 +606,12 @@ EOF
 function setup_git_env() {
     local bot_name bot_email role what
 
-    # shellcheck disable=SC2034 # used indirectly
     bot_name='Flatcar Buildbot'
-    # shellcheck disable=SC2034 # used indirectly
     bot_email='buildbot@flatcar-linux.org'
     for role in AUTHOR COMMITTER; do
         for what in name email; do
             local -n var_ref="GIT_${role}_${what^^}"
             local -n value_ref="bot_${what}"
-            # shellcheck disable=SC2034 # it's a reference to external variable
             var_ref=${value_ref}
             unset -n value_ref
             unset -n var_ref
@@ -1181,7 +1178,6 @@ function pkginfo_name() {
     report=${1}; shift
     local -n pi_name_ref=${1}; shift
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     pi_name_ref="pkginfo_${which}_${arch}_${report//-/_}_pimap_mvm"
 }
 
@@ -1197,7 +1193,6 @@ function pkginfo_destructor() {
 
 # Adder callback used by mvm_declare for pkginfo mvms.
 function pkginfo_adder() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n map_ref=${1}; shift
 
     local mark
@@ -1306,14 +1301,12 @@ function pkginfo_c_process_file() {
     esac
 
     local pkg version_slot throw_away v s
-    # shellcheck disable=SC2034 # throw_away is unused, it's here for read to store the rest of the line if there is something else
     while read -r pkg version_slot throw_away; do
         pkg_debug_enable "${pkg}"
         pkg_debug "${which} ${arch} ${report}: ${version_slot}"
         v=${version_slot%%:*}
         s=${version_slot##*:}
         mvm_c_add "${pkg}" "${s}" "${v}"
-        # shellcheck disable=SC2034 # it's a reference to external variable
         pkg_set_ref["${pkg}"]='x'
         mvm_add "${pkg_slots_set_mvm_var_name}" "${pkg}" "${s}"
         pkg_debug_disable
@@ -1412,9 +1405,7 @@ function ver_min_max() {
             max=${v}
         fi
     done
-    # shellcheck disable=SC2034 # it's a reference to external variable
     min_ref=${min}
-    # shellcheck disable=SC2034 # it's a reference to external variable
     max_ref=${max}
 }
 
@@ -1556,7 +1547,6 @@ function consistency_check_for_package() {
 function consistency_checks() {
     local which pkg_slots_set_mvm_var_name pkg_slot_verminmax_mvm_var_name
     which=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n all_pkgs_ref=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
     pkg_slot_verminmax_mvm_var_name=${1}; shift
@@ -1634,7 +1624,6 @@ function consistency_checks() {
     done
 
     local cc_slots_set_var_name s cc_min cc_max verminmax
-    # shellcheck disable=SC2034 # used by name below
     local -A empty_map=()
     local -a verminmax_map_var_names verminmaxes
     local cc_slot_verminmax_map_var_name
@@ -1739,7 +1728,6 @@ function read_package_sources() {
 # 2 - name of the package tags map mvm variable
 function handle_package_changes() {
     local pkg_to_tags_mvm_var_name
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n renamed_old_to_new_map_ref=${1}; shift
     pkg_to_tags_mvm_var_name=${1}; shift
 
@@ -1880,7 +1868,6 @@ function handle_package_changes() {
     local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
     local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name verminmax
     local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
-    # shellcheck disable=SC2034 # used by name below, in a special case
     empty_map_or_set=()
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}
@@ -2129,7 +2116,6 @@ function handle_package_changes() {
 # 1 - name of the set variable
 # 2 - name of the variable where the element will be stored
 function get_first_from_set() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n set_ref=${1}; shift
     local -n return_ref=${1}; shift
 
@@ -2138,7 +2124,6 @@ function get_first_from_set() {
         return_ref=${item}
         return 0
     done
-    # shellcheck disable=SC2034 # it's a reference to external variable
     return_ref=''
 }
 
@@ -2181,7 +2166,6 @@ function handle_pkg_update() {
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
-    # shellcheck disable=SC2034 # these variables are used by name
     local hpu_update_dir hpu_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
@@ -2297,7 +2281,6 @@ function handle_pkg_as_is() {
         # Nothing relevant has changed, return early.
         return 0
     fi
-    # shellcheck disable=SC2034 # ref to an external variable
     changed_ref=x
     lines+=( '0:TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
@@ -2410,7 +2393,6 @@ function tags_for_pkg() {
         tags_ref=()
     else
         local -n tags_in_mvm_ref=${tfp_tags_var_name}
-        # shellcheck disable=SC2034 # it's a reference to external variable
         tags_ref=( "${tags_in_mvm_ref[@]}" )
         pkg_debug "tags available: ${tags_in_mvm_ref[*]}"
     fi
@@ -2714,7 +2696,6 @@ function update_dir_non_slot() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref="${REPORTS_DIR}/updates/${pkg}"
 }
 
@@ -2744,7 +2725,6 @@ function update_dir() {
 
     local ud_non_slot_dir
     update_dir_non_slot "${pkg}" ud_non_slot_dir
-    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref="${ud_non_slot_dir}/${slot_dir}"
 }
 
@@ -2786,7 +2766,6 @@ function handle_gentoo_sync() {
     mvm_declare hgs_pkg_to_tags_mvm
     process_listings hgs_pkg_to_tags_mvm
 
-    # shellcheck disable=SC2034 # passed to other function through a name
     local -A hgs_renames_old_to_new_map=()
     process_profile_updates_directory hgs_renames_old_to_new_map
 

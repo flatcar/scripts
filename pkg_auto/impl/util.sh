@@ -37,7 +37,6 @@ function dirname_out() {
         dir_ref='.'
         return 0
     fi
-    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref=${dn}
 }
 
@@ -68,7 +67,6 @@ function basename_out() {
     cleaned_up=${cleaned_up//+(\/)/\/}
     # keep last component
     dn=${cleaned_up##*/}
-    # shellcheck disable=SC2034 # it's a reference to external variable
     base_ref=${dn}
 }
 
@@ -86,7 +84,6 @@ THIS=$(realpath "${THIS}")
 THIS_DIR=$(realpath "${THIS_DIR}")
 dirname_out "${BASH_SOURCE[0]}" PKG_AUTO_IMPL_DIR
 PKG_AUTO_IMPL_DIR=$(realpath "${PKG_AUTO_IMPL_DIR}")
-# shellcheck disable=SC2034 # may be used by scripts sourcing this file
 PKG_AUTO_DIR=$(realpath "${PKG_AUTO_IMPL_DIR}/..")
 
 # Prints an info line.
@@ -165,7 +162,6 @@ function join_by() {
         printf -v "${output_var_name}" '%s' "${first}" "${@/#/${delimiter}}";
     else
         local -n output_ref=${output_var_name}
-        # shellcheck disable=SC2034 # it's a reference to external variable
         output_ref=''
     fi
 }
@@ -207,7 +203,6 @@ function strip_out() {
     t=${l}
     t=${t/#+([[:space:]])}
     t=${t/%+([[:space:]])}
-    # shellcheck disable=SC2034 # it's a reference to external variable
     out_ref=${t}
 }
 
@@ -217,10 +212,8 @@ function strip_out() {
 #
 # 1 - name of an array variable, where the architectures will be stored
 function get_valid_arches() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n arches_ref=${1}; shift
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     arches_ref=( 'amd64' 'arm64' )
 }
 
@@ -235,7 +228,6 @@ function get_valid_arches() {
 # 2 - separator string
 # @ - strings
 function all_pairs() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n pairs_ref=${1}; shift
     local sep=${1}; shift
 
@@ -269,11 +261,8 @@ function all_pairs() {
 function sets_split() {
     local -n first_set_ref=${1}; shift
     local -n second_set_ref=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck does not grok references
     local -n only_in_first_set_ref=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck does not grok references
     local -n only_in_second_set_ref=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck does not grok references
     local -n common_set_ref=${1}; shift
 
     only_in_first_set_ref=()
@@ -285,10 +274,8 @@ function sets_split() {
     for item in "${!first_set_ref[@]}"; do
         mark=${second_set_ref["${item}"]:-}
         if [[ -z ${mark} ]]; then
-            # shellcheck disable=SC2034 # it's a reference to external variable
             only_in_first_set_ref["${item}"]=x
         else
-            # shellcheck disable=SC2034 # it's a reference to external variable
             common_set_ref["${item}"]=x
         fi
     done
@@ -296,7 +283,6 @@ function sets_split() {
     for item in "${!second_set_ref[@]}"; do
         mark=${first_set_ref["${item}"]:-}
         if [[ -z ${mark} ]]; then
-            # shellcheck disable=SC2034 # it's a reference to external variable
             only_in_second_set_ref["${item}"]=x
         fi
     done
@@ -319,7 +305,6 @@ function gen_varname() {
     fi
     local -n name_ref=${1}; shift
 
-    # shellcheck disable=SC2034 # shellcheck does not grok references
     name_ref="${prefix}_${__UTIL_SH_COUNTER}"
     __UTIL_SH_COUNTER=$((__UTIL_SH_COUNTER + 1))
 }
