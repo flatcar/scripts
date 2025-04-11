@@ -1,0 +1,223 @@
+From d99fea1ad2acf1154e0a7b80c5c915458da59990 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 11 Apr 2025 16:05:31 +0200
+Subject: [PATCH 1/4] url: support both IPv4 and IPv6
+
+This defines a wrapper that will try in paralell both IPv4 and IPv6 when
+the provider declares those two IPs.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ internal/resource/url.go | 65 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
+
+diff --git a/internal/resource/url.go b/internal/resource/url.go
+index 4d7a895d..a20aa6ca 100644
+--- a/internal/resource/url.go
++++ b/internal/resource/url.go
+@@ -36,9 +36,13 @@ import (
+ 	configErrors "github.com/flatcar/ignition/v2/config/shared/errors"
+ 	"github.com/flatcar/ignition/v2/internal/log"
+ 	"github.com/flatcar/ignition/v2/internal/util"
++	"github.com/coreos/vcontext/report"
+ 	"golang.org/x/oauth2/google"
+ 	"google.golang.org/api/option"
+ 
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
++	providersUtil "github.com/flatcar/ignition/v2/internal/providers/util"
++
+ 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+ 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
+ 	"github.com/aws/aws-sdk-go/aws"
+@@ -52,6 +56,11 @@ import (
+ 	"github.com/vincent-petithory/dataurl"
+ )
+ 
++const (
++	IPv4 = "ipv4"
++	IPv6 = "ipv6"
++)
++
+ var (
+ 	ErrSchemeUnsupported      = errors.New("unsupported source scheme")
+ 	ErrPathNotAbsolute        = errors.New("path is not absolute")
+@@ -725,3 +734,59 @@ func (f *Fetcher) parseARN(arnURL string) (string, string, string, string, error
+ 	key := strings.Join(urlSplit[1:], "/")
+ 	return bucket, key, "", regionHint, nil
+ }
++
++// FetchConfigDualStack is a function that takes care of fetching Ignition configuration on systems where IPv4 only, IPv6 only or both are available.
++// From a high level point of view, this function will try to fetch in parallel Ignition configuration from IPv4 and/or IPv6 - if both endpoints are available, it will
++// return the first configuration successfully fetched.
++func FetchConfigDualStack(f *Fetcher, userdataURLs map[string]url.URL, fetchConfig func(*Fetcher, url.URL) ([]byte, error)) (types.Config, report.Report, error) {
++	ctx, cancel := context.WithCancel(context.Background())
++	defer cancel()
++
++	var (
++		err      error
++		nbErrors int
++	)
++
++	// cfg holds the configuration for a given IP
++	cfg := make(map[url.URL][]byte)
++
++	// success hold the IP of the first successful configuration fetching
++	success := make(chan url.URL, 1)
++	errors := make(chan error, 2)
++
++	fetch := func(ctx context.Context, ip url.URL) {
++		d, e := fetchConfig(f, ip)
++		if e != nil {
++			f.Logger.Err("fetching configuration for %s: %v", ip.String(), e)
++			err = e
++			errors <- e
++		} else {
++			cfg[ip] = d
++			success <- ip
++		}
++	}
++
++	if ipv4, ok := userdataURLs[IPv4]; ok {
++		go fetch(ctx, ipv4)
++	}
++
++	if ipv6, ok := userdataURLs[IPv6]; ok {
++		go fetch(ctx, ipv6)
++	}
++
++	// Now wait for one success. (i.e wait for the first configuration to be available)
++	select {
++	case ip := <-success:
++		f.Logger.Debug("got configuration from: %s", ip.String())
++		return providersUtil.ParseConfig(f.Logger, cfg[ip])
++	case <-errors:
++		nbErrors++
++		if nbErrors == 2 {
++			f.Logger.Debug("all routines have failed to fetch configuration, returning last known error: %v", err)
++			return types.Config{}, report.Report{}, err
++		}
++	}
++
++	// we should never reach this line
++	return types.Config{}, report.Report{}, err
++}
+-- 
+2.49.0
+
+From df47f693e82161365c4866c00f9b31c3d7960d85 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 11 Apr 2025 16:14:33 +0200
+Subject: [PATCH 2/4] url: try local port on both IP stacks
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ internal/resource/url.go | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/internal/resource/url.go b/internal/resource/url.go
+index a20aa6ca..c2f4dd50 100644
+--- a/internal/resource/url.go
++++ b/internal/resource/url.go
+@@ -25,6 +25,7 @@ import (
+ 	"io"
+ 	"net"
+ 	"net/http"
++	"net/netip"
+ 	"net/url"
+ 	"os"
+ 	"strings"
+@@ -339,10 +340,17 @@ func (f *Fetcher) fetchFromHTTP(u url.URL, dest io.Writer, opts FetchOptions) er
+ 			p int
+ 		)
+ 
++		host := u.Hostname()
++		addr, _ := netip.ParseAddr(host)
++		network := "tcp6"
++		if addr.Is4() {
++			network = "tcp4"
++		}
++
+ 		// Assert that the port is not already used.
+ 		for {
+ 			p = opts.LocalPort()
+-			l, err := net.Listen("tcp4", fmt.Sprintf(":%d", p))
++			l, err := net.Listen(network, fmt.Sprintf(":%d", p))
+ 			if err != nil && errors.Is(err, syscall.EADDRINUSE) {
+ 				continue
+ 			} else if err == nil {
+-- 
+2.49.0
+
+From 0aeb347397d6bf8f788d181fec1d917c31017a0e Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 11 Apr 2025 16:04:21 +0200
+Subject: [PATCH 3/4] scaleway: support IPv4 and IPv6 for metadata endpoint
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ internal/providers/scaleway/scaleway.go | 28 ++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/internal/providers/scaleway/scaleway.go b/internal/providers/scaleway/scaleway.go
+index d25b9aab..d987dc50 100644
+--- a/internal/providers/scaleway/scaleway.go
++++ b/internal/providers/scaleway/scaleway.go
+@@ -24,28 +24,36 @@ import (
+ 
+ 	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
+ 	"github.com/flatcar/ignition/v2/internal/platform"
+-	"github.com/flatcar/ignition/v2/internal/providers/util"
+ 	"github.com/flatcar/ignition/v2/internal/resource"
+ 
+ 	"github.com/coreos/vcontext/report"
+ )
+ 
+ var (
+-	userdataURL = url.URL{
+-		Scheme: "http",
+-		Host:   "169.254.42.42",
+-		Path:   "user_data/cloud-init",
++	userdataURLs = map[string]url.URL{
++		resource.IPv4: {
++			Scheme: "http",
++			Host:   "169.254.42.42",
++			Path:   "user_data/cloud-init",
++		},
++		resource.IPv6: {
++			Scheme: "http",
++			Host:   "[fd00:42::42]",
++			Path:   "user_data/cloud-init",
++		},
+ 	}
+ )
+ 
+ func init() {
+ 	platform.Register(platform.Provider{
+-		Name:  "scaleway",
+-		Fetch: fetchConfig,
++		Name: "scaleway",
++		Fetch: func(f *resource.Fetcher) (types.Config, report.Report, error) {
++			return resource.FetchConfigDualStack(f, userdataURLs, fetchConfig)
++		},
+ 	})
+ }
+ 
+-func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
++func fetchConfig(f *resource.Fetcher, userdataURL url.URL) ([]byte, error) {
+ 	// For security reason, Scaleway requires to query user data with a source port below 1024.
+ 	port := func() int {
+ 		return rand.Intn(1022) + 1
+@@ -55,8 +63,8 @@ func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
+ 		LocalPort: port,
+ 	})
+ 	if err != nil && err != resource.ErrNotFound {
+-		return types.Config{}, report.Report{}, err
++		return nil, err
+ 	}
+ 
+-	return util.ParseConfig(f.Logger, data)
++	return data, nil
+ }
+-- 
+2.49.0
+
