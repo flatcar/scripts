@@ -1,0 +1,4 @@
+cros_post_src_install_timezone_data_flatcar_modifications() {
+    # install the symlink by hand to not break existing timezones
+    dosym . /usr/share/zoneinfo/posix
+}

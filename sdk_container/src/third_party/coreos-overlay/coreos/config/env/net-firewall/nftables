@@ -1,0 +1,5 @@
+nftables_install_mask=" /usr/libexec/nftables /var/lib/nftables /usr/lib/systemd/system/nftables-restore.service "
+
+INSTALL_MASK+=${nftables_install_mask}
+PKG_INSTALL_MASK+=${nftables_install_mask}
+unset nftables_install_mask

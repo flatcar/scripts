@@ -1,0 +1,42 @@
+cros_post_src_install_trousers_flatcar_modifications() {
+    # override the systemd unit file and enable it
+    systemd_newunit - tcsd.service <<'EOF'
+[Unit]
+Description=TCG Core Services Daemon
+ConditionPathExists=/dev/tpm0
+ConditionSecurity=!tpm2
+
+[Service]
+User=tss
+ExecCondition=/bin/bash -c "/usr/bin/test $(cat /sys/class/tpm/*/tpm_version_major | grep -m 1 1 || echo 0) -eq 1"
+ExecStart=/usr/sbin/tcsd -f
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemd_enable_service multi-user.target tcsd.service
+
+    # handle system.data file - put into /usr and install a tmpfiles
+    # conf copying it into /var/lib/tpm
+    (
+        insinto /usr/share/trousers/
+        insopts -o tss -g tss
+        newins - system.data <<<"/"
+    )
+    (
+        insopts -m 0644
+        insinto /usr/lib/tmpfiles.d
+        newins - trousers.conf <<'EOF'
+C /var/lib/tpm/system.data 0600 tss tss - /usr/share/trousers/system.data
+EOF
+    )
+
+    # symlink for backward compatibility, can't use "dosym -r",
+    # because ebuild has EAPI 7, while "dosym -r" is supported only
+    # since EAPI 8.
+    #
+    # dosym -r /usr/share/flatcar/etc/tcsd.conf /usr/share/trousers/tcsd.conf
+    ln -sTr "${ED}/usr/share/flatcar/etc/tcsd.conf" "${ED}/usr/share/trousers/tcsd.conf" || die
+    insinto /usr/share/flatcar/etc
+    newins - tcsd.conf
+}
