@@ -324,4 +324,28 @@ function gen_varname() {
     __UTIL_SH_COUNTER=$((__UTIL_SH_COUNTER + 1))
 }
 
+# Declares variables with a given initializer.
+#
+# Params:
+#
+# @: flags passed to declare, followed by variable names, followed by
+# an initializer
+function struct_declare() {
+    local -a args=()
+    while [[ $# -gt 0 ]]; do
+        if [[ ${1} != -* ]]; then
+            break
+        fi
+        args+=( "${1}" )
+        shift
+    done
+    if [[ ${#} -lt 2 ]]; then
+        fail "bad use of struct_declare"
+    fi
+    local definition=${*: -1}
+    set -- "${@:1:$((${#} - 1))}"
+    set -- "${@/%/=${definition}}"
+    declare "${args[@]}" "${@}"
+}
+
 fi
