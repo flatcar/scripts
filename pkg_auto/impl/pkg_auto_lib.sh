@@ -175,10 +175,9 @@ function save_new_state() {
     local branch_name
     branch_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
     info "saving new state to branch ${branch_name}"
-    # shellcheck disable=SC2153 # SCRIPTS is not a misspelling, it comes from globals file
     git -C "${SCRIPTS}" branch --force "${branch_name}" "${NEW_STATE_BRANCH}"
 }
 
@@ -282,7 +281,7 @@ function process_profile_updates_directory() {
     local -a ppud_ordered_names
     get_ordered_update_filenames ppud_ordered_names
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local bf ps_f co_f pkg f line old new
@@ -292,9 +291,7 @@ function process_profile_updates_directory() {
     for bf in "${ppud_ordered_names[@]}"; do
         # coreos-overlay updates may overwrite updates from
         # portage-stable, but only from the file of the same name
-        # shellcheck disable=SC2153 # NEW_PORTAGE_STABLE is not a misspelling, it comes from globals file
         ps_f=${NEW_PORTAGE_STABLE}/profiles/updates/${bf}
-        # shellcheck disable=SC2153 # NEW_COREOS_OVERLAY is not a misspelling, it comes from globals file
         co_f=${NEW_COREOS_OVERLAY}/profiles/updates/${bf}
         for f in "${ps_f}" "${co_f}"; do
             if [[ ! -f ${f} ]]; then
@@ -335,7 +332,7 @@ function process_profile_updates_directory() {
 function get_ordered_update_filenames() {
     local ordered_names_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -A names_set=()
@@ -523,13 +520,13 @@ NEW_STATE_PACKAGES_LIST="\${NEW_STATE}/.github/workflows/portage-stable-packages
 AUX_DIR=${aux_dir@Q}
 EOF
 
-    # shellcheck disable=SC1090 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${globals_file}"
 
     local last_nightly_version_id last_nightly_build_id
-    # shellcheck disable=SC1091,SC2153 # sourcing generated file, NEW_STATE is not misspelled
+    # shellcheck source=for-shellcheck/version.txt
     last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
-    # shellcheck disable=SC1091 # sourcing generated file
+    # shellcheck source=for-shellcheck/version.txt
     last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 
     local -a locals=() definitions=()
@@ -548,7 +545,6 @@ EOF
     local packages_file tag filename stripped old
 
     for arch in "${ARCHES[@]}"; do
-        # shellcheck disable=SC2153 # AUX_DIR is not a misspelling, it comes from globals file
         for packages_file in "${AUX_DIR}/${arch}/"*_packages.txt; do
             filename=${packages_file##*/}
             stripped=${filename%_packages.txt}
@@ -640,7 +636,7 @@ function run_sync() {
     missing_in_scripts=()
     missing_in_gentoo=()
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -x "${GIT_ENV_VARS[@]}"
@@ -651,7 +647,6 @@ function run_sync() {
 
     local package
     while read -r package; do
-        # shellcheck disable=SC2153 # NEW_PORTAGE_STABLE is not a misspelling, it comes from globals file
         if [[ ! -e "${NEW_PORTAGE_STABLE}/${package}" ]]; then
             # If this happens, it means that the package was moved to overlay
             # or dropped, the list ought to be updated.
@@ -670,7 +665,6 @@ function run_sync() {
         fi
         packages_to_update+=( "${package}" )
     done < <(cat_meaningful "${NEW_STATE_PACKAGES_LIST}")
-    # shellcheck disable=SC2153 # SYNC_SCRIPT is not a misspelling
     env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${packages_to_update[@]}"
 
     save_missing_in_scripts "${missing_in_scripts[@]}"
@@ -808,7 +802,7 @@ function handle_missing_in_scripts() {
     hmis_missing_in_scripts=()
     load_missing_in_scripts hmis_missing_in_scripts
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     if [[ ${#hmis_missing_in_scripts[@]} -eq 0 ]]; then
@@ -823,7 +817,6 @@ function handle_missing_in_scripts() {
     join_by missing_re '\|' "${missing_in_scripts[@]}"
     add_cleanup "rm -f ${dir@Q}/pkg_list"
     xgrep --invert-match --line-regexp --fixed-strings --regexp="${missing_re}" "${NEW_STATE_PACKAGES_LIST}" >"${dir}/pkg_list"
-    # shellcheck disable=SC2153 # PKG_LIST_SORT_SCRIPT is not a misspelling
     "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
 
     local -x "${GIT_ENV_VARS[@]}"
@@ -862,11 +855,10 @@ function lines_to_file() {
 #
 # @ - lines to add
 function manual() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     pkg_debug_lines 'manual work needed:' "${@}"
-    # shellcheck disable=SC2153 # REPORTS_DIR is not a misspelling, it comes from globals file
     lines_to_file "${REPORTS_DIR}/manual-work-needed" "${@}"
 }
 
@@ -877,7 +869,7 @@ function manual() {
 #
 # @ - lines to add
 function pkg_warn() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     pkg_debug_lines 'pkg warn:' "${@}"
@@ -891,7 +883,7 @@ function pkg_warn() {
 #
 # @ - lines to add
 function devel_warn() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     pkg_debug_lines 'developer warn:' "${@}"
@@ -913,7 +905,7 @@ function handle_missing_in_gentoo() {
         return 0;
     fi
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -A hmig_rename_map=()
@@ -984,7 +976,7 @@ function process_listings() {
     local pkg_to_tags_mvm_var_name
     pkg_to_tags_mvm_var_name=${1}
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     #mvm_debug_enable pl_pkg_to_tags_set_mvm
@@ -992,7 +984,6 @@ function process_listings() {
 
     local arch kind file listing pkg
     for arch in "${ARCHES[@]}"; do
-        # shellcheck disable=SC2153 # LISTING_KINDS is not a misspelling, it comes from globals file
         for kind in "${!LISTING_KINDS[@]}"; do
             file=${LISTING_KINDS["${kind}"]}
             listing="${AUX_DIR}/${arch}/${file}"
@@ -1068,7 +1059,7 @@ function set_mvm_to_array_mvm_cb() {
 # stored in salvaged-reports subdirectory of the reports directory.
 # Otherwise they will end up in reports-from-sdk subdirectory.
 function generate_sdk_reports() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     add_cleanup "rmdir ${WORKDIR@Q}/pkg-reports"
@@ -1083,7 +1074,6 @@ function generate_sdk_reports() {
     local sdk_reports_dir top_dir dir entry full_path
     local -a dir_queue all_dirs all_files
 
-    # shellcheck disable=SC2153 # WHICH is not a misspelling, it comes from globals file
     for sdk_run_kind in "${WHICH[@]}"; do
         state_var_name="${sdk_run_kind^^}_STATE"
         sdk_run_state="${!state_var_name}_sdk_run"
@@ -1289,7 +1279,7 @@ function pkginfo_c_process_file() {
     local -n pkg_set_ref=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local which arch report
@@ -1366,7 +1356,7 @@ function read_reports() {
     all_pkgs_var_name=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -A rr_all_packages_set
@@ -1387,7 +1377,7 @@ function read_reports() {
 
 # Destroys the pkginfo maps for all the reports.
 function unset_report_mvms() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local arch which report
@@ -1571,7 +1561,7 @@ function consistency_checks() {
     pkg_slots_set_mvm_var_name=${1}; shift
     pkg_slot_verminmax_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local cc_pimap_mvm_1_var_name cc_pimap_mvm_2_var_name pkg
@@ -1706,7 +1696,7 @@ function consistency_checks() {
 function read_package_sources() {
     local -n package_sources_map_ref=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a files=()
@@ -1753,7 +1743,7 @@ function handle_package_changes() {
     local -n renamed_old_to_new_map_ref=${1}; shift
     pkg_to_tags_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a hpc_all_pkgs
@@ -1997,7 +1987,6 @@ function handle_package_changes() {
         update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
         mkdir -p "${hpc_update_dir_non_slot}"
 
-        # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE comes from globals file
         generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
@@ -2176,7 +2165,7 @@ function handle_pkg_update() {
     old=${1}; shift
     new=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local old_no_r new_no_r
@@ -2190,7 +2179,6 @@ function handle_pkg_update() {
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
     fi
-    # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
     # shellcheck disable=SC2034 # these variables are used by name
@@ -2258,7 +2246,7 @@ function handle_pkg_as_is() {
     v=${1}; shift
     local -n changed_ref=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local hpai_update_dir
@@ -2344,7 +2332,7 @@ function handle_pkg_downgrade() {
     old=${1}; shift
     new=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local old_no_r new_no_r
@@ -2461,7 +2449,7 @@ function generate_changelog_entry_stub() {
         gces_tags='SDK'
     fi
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     printf '%s %s: %s ([%s](TODO))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" >>"${REPORTS_DIR}/updates/changelog_stubs"
@@ -2478,7 +2466,7 @@ function generate_summary_stub() {
     pkg=${1}; shift
     # rest are tags separated followed by double dash followed by lines
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a tags
@@ -2623,6 +2611,7 @@ function generate_cache_diff_report() {
     local old=${1}; shift
     local new=${1}; shift
 
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local old_entry=${old_cache_dir}/${old_pkg}-${old}
@@ -2722,7 +2711,7 @@ function update_dir_non_slot() {
     pkg=${1}; shift
     local -n dir_ref=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     # shellcheck disable=SC2034 # it's a reference to external variable
@@ -2806,11 +2795,10 @@ function handle_gentoo_sync() {
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local old_head new_head
-    # shellcheck disable=SC2153 # OLD_STATE is not a misspelling
     old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
     new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
 
@@ -2819,7 +2807,6 @@ function handle_gentoo_sync() {
     local path in_ps category
     if [[ "${old_head}" != "${new_head}" ]]; then
         while read -r path; do
-            # shellcheck disable=SC2153 # PORTAGE_STABLE_SUFFIX is not a misspelling
             if [[ ${path} != "${PORTAGE_STABLE_SUFFIX}/"* ]]; then
                 continue
             fi
@@ -3003,7 +2990,7 @@ function handle_eclass() {
     local eclass
     eclass=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a lines
@@ -3025,7 +3012,7 @@ function handle_eclass() {
 # and SDK), a full diff between all the profiles, and a list of
 # possibly irrelevant files that has changed too.
 function handle_profiles() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a files=()
@@ -3095,14 +3082,10 @@ function handle_profiles() {
 # Handles changes in license directory. Generates brief reports and
 # diffs about dropped, added or modified licenses.
 function handle_licenses() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local -a dropped added changed
-    dropped=()
-    added=()
-    changed=()
-
+    local -a dropped=() added=() changed=()
     local line hl_stripped
     # Lines are:
     #
@@ -3113,7 +3096,6 @@ function handle_licenses() {
     # Files <PORTAGE_STABLE_1>/licenses/BSL-1.1 and <PORTAGE_STABLE_2>/licenses/BSL-1.1 differ
     while read -r line; do
         if [[ ${line} = 'Only in '* ]]; then
-            # shellcheck disable=SC2153 # OLD_STATE is not a misspelling, it comes from globals file
             strip_out "${line##*:}" hl_stripped
             if [[ ${line} = *"${OLD_STATE}"* ]]; then
                 dropped+=( "${hl_stripped}" )
@@ -3173,7 +3155,7 @@ function handle_licenses() {
 
 # Generates reports about changes inside the scripts directory.
 function handle_scripts() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local out_dir
