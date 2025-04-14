@@ -28,18 +28,20 @@ else
     rm "${AZURE_IMAGE_NAME}.bz2"
 fi
 
-if [[ "${CIA_ARCH}" == "arm64" ]]; then
-  AZURE_USE_GALLERY="--azure-use-gallery"
-fi
-
-
 run_kola_tests() {
     local instance_type="${1}"; shift
     local instance_tapfile="${1}"; shift
-    local hyperv_gen="V2"
+    local hyperv_gen sku
+
     if [ "${instance_type}" = "V1" ]; then
         hyperv_gen="V1"
-        instance_type="${azure_instance_type}"
+        sku="alpha"
+        # v5 is the last to support Gen 1. Only amd64 uses Gen 1.
+        instance_type="Standard_D2s_v5"
+    else
+        hyperv_gen="V2"
+        sku="alpha-gen2"
+        set -- --azure-use-gallery "${@}"
     fi
 
     # Align timeout with ore azure gc --duration parameter
@@ -54,6 +56,7 @@ run_kola_tests() {
       --azure-location="${AZURE_LOCATION}" \
       --tapfile="${instance_tapfile}" \
       --azure-size="${instance_type}" \
+      --azure-sku="${sku}" \
       --azure-hyper-v-generation="${hyperv_gen}" \
       ${AZURE_USE_GALLERY} \
       ${AZURE_KOLA_VNET:+--azure-kola-vnet=${AZURE_KOLA_VNET}} \
