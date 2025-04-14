@@ -4,7 +4,7 @@
 # Sebastian Pipping <sping@gentoo.org> (2025-03-27)
 # This blocks accidental use of bundled vulnerable dev-libs/expat
 # for now (bug #952113)
-dev-libs/xmlrpc-c libxml2
+<dev-libs/xmlrpc-c-1.59.03-r2 libxml2
 
 # Joonas Niilola <juippis@gentoo.org> (2025-03-05)
 # 136.0 can't be compiled with "-rust-extensions".
@@ -35,8 +35,8 @@ llvm-runtimes/libcxxabi clang
 #    echo "dev-lang/rust:${slot} llvm_slot_${_RUST_LLVM_MAP[${slot}]}"
 #    echo "dev-lang/rust-bin:${slot} llvm_slot_${_RUST_LLVM_MAP[${slot}]}"
 # done
-dev-lang/rust:1.86 llvm_slot_19
-dev-lang/rust-bin:1.86 llvm_slot_19
+dev-lang/rust:1.86.0 llvm_slot_19
+dev-lang/rust-bin:1.86.0 llvm_slot_19
 dev-lang/rust:1.85.1 llvm_slot_19
 dev-lang/rust-bin:1.85.1 llvm_slot_19
 dev-lang/rust:1.85.0 llvm_slot_19
@@ -287,6 +287,12 @@ sys-libs/ncurses-compat tinfo
 gnome-base/gnome-desktop seccomp
 app-misc/tracker-miners seccomp
 net-libs/webkit-gtk seccomp
+
+# Lukas Schmelting <lschmelting@posteo.com> after consulting
+# Mart Raudsepp <leio@gentoo.org> (2025-19-02)
+# GNOME without Xwayland is not mainstream yet. Current priority is that
+# users have working apps, advanced users can still override this
+x11-wm/mutter xwayland
 
 # Luke Dashjr <luke-jr+gentoobugs@utopios.org> (2018-11-19)
 # iasl is not keyworded on many platforms yet
