@@ -1,0 +1,2 @@
+- go ([CVE-2025-22871](https://www.cve.org/CVERecord?id=CVE-2025-22871))
+- perl ([CVE-2024-56406](https://www.cve.org/CVERecord?id=CVE-2024-56406))
