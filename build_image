@@ -33,7 +33,7 @@ DEFINE_string base_pkg "coreos-base/coreos" \
   "The base portage package to base the build off of (only applies to prod images)"
 DEFINE_string base_dev_pkg "coreos-base/coreos-dev" \
   "The base portage package to base the build off of (only applies to dev containers)"
-DEFINE_string base_sysexts "containerd-flatcar:app-containers/containerd,docker-flatcar:app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx" \
+DEFINE_string base_sysexts "containerd-flatcar|app-containers/containerd,docker-flatcar|app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx" \
   "Comma-separated list of name:package[&package[&package]] - build 'package' (a single package or a list of packages separated by '&') into sysext 'name', and include with OS image and update payload. Must be in order of dependencies, base sysexts come first."
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"

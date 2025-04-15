@@ -113,8 +113,8 @@ prev_pkginfo=""
 sysext_lowerdirs="${sysext_mountdir}/rootfs-lower"
 for sysext in ${sysexts_list//,/ }; do
   # format is "<name>:<group>/<package>"
-  name="${sysext%:*}"
-  grp_pkg="${sysext#*:}"
+  name="${sysext%|*}"
+  grp_pkg="${sysext#*|}"
   create_prod_sysext "${BOARD}" \
                      "${sysext_output_dir}" \
                      "${sysext_workdir}" \

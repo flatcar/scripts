@@ -206,7 +206,7 @@ RDEPEND="${RDEPEND}
 	sys-power/acpid
 	sys-process/lsof
 	sys-process/procps
-	x11-drivers/nvidia-drivers
+	x11-drivers/nvidia-drivers-service
 "
 
 # OEM specific bits that need to go in USR
