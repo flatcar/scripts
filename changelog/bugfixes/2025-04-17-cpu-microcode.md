@@ -1,0 +1,1 @@
+- Fixed the inclusion of Intel and AMD CPU microcode in the initrd. This was accidentally dropped some time ago.
