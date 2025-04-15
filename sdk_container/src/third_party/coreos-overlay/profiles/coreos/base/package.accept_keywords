@@ -52,9 +52,6 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
-# Keep versions on both arches in sync.
-=dev-util/bpftool-7.5.0 ~arm64
-
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
