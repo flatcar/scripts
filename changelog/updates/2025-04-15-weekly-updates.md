@@ -1,0 +1,8 @@
+- SDK: go ([1.24.2](https://go.dev/doc/devel/release#go1.24.minor))
+- SDK: perl ([5.40.2](https://perldoc.perl.org/perl5402delta) (includes [5.40.1](https://perldoc.perl.org/perl5401delta))
+- SDK: pkgcheck ([0.10.34](https://github.com/pkgcore/pkgcheck/releases/tag/v0.10.34))
+- azure, dev, gce, sysext-python: python ([3.11.12](https://www.python.org/downloads/release/python-31112/))
+- base, dev: sqlite ([3.49.1](https://sqlite.org/releaselog/3_49_1.html) (includes [3.49.0](https://sqlite.org/releaselog/3_49_0.html), [3.48.0](https://sqlite.org/releaselog/3_48_0.html)))
+- dev: bash-completion ([2.16.0](https://github.com/scop/bash-completion/releases/tag/2.16.0))
+- dev: pahole ([1.29](https://git.kernel.org/pub/scm/devel/pahole/pahole.git/tag/?h=v1.29) (includes [1.28](https://git.kernel.org/pub/scm/devel/pahole/pahole.git/tag/?h=v1.28)))
+- sysext-python: setuptools ([78.1.0](https://github.com/pypa/setuptools/blob/v78.1.0/NEWS.rst) (includes [78.0.2](https://github.com/pypa/setuptools/blob/v78.0.2/NEWS.rst), [78.0.1](https://github.com/pypa/setuptools/blob/v78.0.1/NEWS.rst), [78.0.0](https://github.com/pypa/setuptools/blob/v78.0.0/NEWS.rst), [77.0.3](https://github.com/pypa/setuptools/blob/v77.0.3/NEWS.rst), [77.0.2](https://github.com/pypa/setuptools/blob/v77.0.2/NEWS.rst), [77.0.1](https://github.com/pypa/setuptools/blob/v77.0.1/NEWS.rst), [77.0.0](https://github.com/pypa/setuptools/blob/v77.0.0/NEWS.rst), [76.1.0](https://github.com/pypa/setuptools/blob/v76.1.0/NEWS.rst), [76.0.0](https://github.com/pypa/setuptools/blob/v76.0.0/NEWS.rst)))
