@@ -31,8 +31,6 @@ DEFINE_string pkgdir "" \
   "Use binary packages from a custom directory instead of /build/[ARCH]/var/lib/portage/pkgs/."
 DEFINE_string binhost "" \
   "Use binary packages from a specific location instead of $FLATCAR_DEV_BUILDS/... "
-DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
-  "Use binary packages only for the board toolchain."
 DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update toolchain automatically."
 DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
@@ -136,13 +134,11 @@ EOF
 }
 
 generate_binhost_list() {
-  local t
-  [[ "${FLAGS_toolchainpkgonly}" -eq "${FLAGS_TRUE}" ]] && t="-t"
   FLAGS_getbinpkgver="${FLAGS_getbinpkgver/current/${FLATCAR_VERSION_ID}}"
   FLAGS_getbinpkgver="${FLAGS_getbinpkgver/latest/${FLATCAR_VERSION_ID}}"
   FLAGS_getbinpkgver="${FLAGS_getbinpkgver/sdk/${FLATCAR_SDK_VERSION}}"
 
-  get_board_binhost $t "${BOARD}" ${FLAGS_getbinpkgver}
+  get_board_binhost "${BOARD}" ${FLAGS_getbinpkgver}
 }
 
 # Parse command line flags

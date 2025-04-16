@@ -24,8 +24,6 @@ DEFINE_boolean getbinpkg "${FLAGS_TRUE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
   "Use binary packages from a specific version."
-DEFINE_boolean toolchainpkgonly "${FLAGS_FALSE}" \
-  "Use binary packages only for the board toolchain."
 DEFINE_boolean workon "${FLAGS_TRUE}" \
   "Automatically rebuild updated flatcar-workon packages."
 DEFINE_boolean fetchonly "${FLAGS_FALSE}" \
@@ -99,11 +97,6 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
     UPDATE_ARGS+=( --getbinpkg )
   else
     UPDATE_ARGS+=( --nogetbinpkg )
-  fi
-  if [[ "${FLAGS_toolchainpkgonly}" -eq "${FLAGS_TRUE}" ]]; then
-    UPDATE_ARGS+=( --toolchainpkgonly )
-  else
-    UPDATE_ARGS+=( --notoolchainpkgonly )
   fi
   if [[ -n "${FLAGS_getbinpkgver}" ]]; then
     UPDATE_ARGS+=( --getbinpkgver="${FLAGS_getbinpkgver}" )
