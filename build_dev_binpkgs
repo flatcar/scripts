@@ -57,7 +57,8 @@ trap 'rm -f "${pkg_build_list}" "${pkg_skipped_list}"' EXIT
 info "Collecting list of binpkgs to build"
 
 my_board_emerge --pretend --emptytree ${@}  \
-  | sed -n "/\[ebuild .* to \/build\/${FLAGS_board}\/ /s/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/p" \
+  | grep '\[ebuild' \
+  | sed 's/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/' \
   | while read pkg; do
   if [ -f "/build/${FLAGS_board}/var/lib/portage/pkgs/${pkg}.tbz2" ] ; then
 		continue
