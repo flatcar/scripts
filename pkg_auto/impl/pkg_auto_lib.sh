@@ -95,15 +95,15 @@ function setup_workdir_with_config() {
         case ${key} in
             scripts|aux|reports)
                 var_name="cfg_${key//-/_}"
-                local -n var=${var_name}
-                var=$(realpath "${value}")
-                unset -n var
+                local -n var_ref=${var_name}
+                var_ref=$(realpath "${value}")
+                unset -n var_ref
                 ;;
             old-base|new-base|sdk-image-override)
                 var_name="cfg_${key//-/_}"
-                local -n var=${var_name}
-                var=${value}
-                unset -n var
+                local -n var_ref=${var_name}
+                var_ref=${value}
+                unset -n var_ref
                 ;;
             cleanups|debug-packages)
                 var_name="cfg_${key//-/_}"
@@ -364,12 +364,12 @@ function get_ordered_update_filenames() {
 # 3 - old name
 # 4 - new name
 function update_rename_maps() {
-    local -n ft_map=${1}; shift
+    local -n ft_map_ref=${1}; shift
     local tf_set_mvm_var_name=${1}; shift
     local old_name=${1}; shift
     local new_name=${1}; shift
 
-    local prev_new_name=${ft_map["${old_name}"]:-}
+    local prev_new_name=${ft_map_ref["${old_name}"]:-}
 
     if [[ -n ${prev_new_name} ]] && [[ ${prev_new_name} != "${new_name}" ]]; then
         fail_lines \
@@ -382,18 +382,18 @@ function update_rename_maps() {
     local urm_set_var_name
     mvm_get "${tf_set_mvm_var_name}" "${old_name}" urm_set_var_name
     if [[ -n ${urm_set_var_name} ]]; then
-        local -n old_set=${urm_set_var_name}
-        new_set+=( "${!old_set[@]}" )
-        unset -n old_set
+        local -n old_set_ref=${urm_set_var_name}
+        new_set+=( "${!old_set_ref[@]}" )
+        unset -n old_set_ref
     fi
     new_set+=( "${old_name}" )
     mvm_add "${tf_set_mvm_var_name}" "${new_name}" "${new_set[@]}"
     local old
 
     for old in "${new_set[@]}"; do
-        ft_map["${old}"]=${new_name}
+        ft_map_ref["${old}"]=${new_name}
     done
-    unset -n ft_map
+    unset -n ft_map_ref
 }
 
 # Sets up a worktree and necessary cleanups.
@@ -615,12 +615,12 @@ function setup_git_env() {
     bot_email='buildbot@flatcar-linux.org'
     for role in AUTHOR COMMITTER; do
         for what in name email; do
-            local -n var="GIT_${role}_${what^^}"
-            local -n value="bot_${what}"
+            local -n var_ref="GIT_${role}_${what^^}"
+            local -n value_ref="bot_${what}"
             # shellcheck disable=SC2034 # it's a reference to external variable
-            var=${value}
-            unset -n value
-            unset -n var
+            var_ref=${value_ref}
+            unset -n value_ref
+            unset -n var_ref
         done
     done
 }
@@ -1457,8 +1457,8 @@ function consistency_check_for_package() {
     local -A empty_map
     empty_map=()
 
-    local -n slot_version1_map=${ccfp_slot_version1_map_var_name:-empty_map}
-    local -n slot_version2_map=${ccfp_slot_version2_map_var_name:-empty_map}
+    local -n slot_version1_map_ref=${ccfp_slot_version1_map_var_name:-empty_map}
+    local -n slot_version2_map_ref=${ccfp_slot_version2_map_var_name:-empty_map}
 
     local ccfp_slots_set_var_name
     mvm_get "${pkg_slots_set_mvm_var_name}" "${pkg}" ccfp_slots_set_var_name
@@ -1476,8 +1476,8 @@ function consistency_check_for_package() {
     local s v1 v2 ccfp_min ccfp_max mm
     pkg_debug "all slots iterated over: ${!slots_set_ref[*]}"
     for s in "${!slots_set_ref[@]}"; do
-        v1=${slot_version1_map["${s}"]:-}
-        v2=${slot_version2_map["${s}"]:-}
+        v1=${slot_version1_map_ref["${s}"]:-}
+        v2=${slot_version2_map_ref["${s}"]:-}
         pkg_debug "v1: ${v1}, v2: ${v2}"
 
         if [[ -n ${v1} ]] && [[ -n ${v2} ]]; then
@@ -1531,8 +1531,8 @@ function consistency_check_for_package() {
     elif [[ ${#profile_1_slots[@]} -eq 1 ]] && [[ ${#profile_2_slots[@]} -eq 1 ]]; then
         s1=${profile_1_slots[0]}
         s2=${profile_2_slots[0]}
-        v1=${slot_version1_map["${s1}"]:-}
-        v2=${slot_version2_map["${s2}"]:-}
+        v1=${slot_version1_map_ref["${s1}"]:-}
+        v2=${slot_version2_map_ref["${s2}"]:-}
         if [[ ${v1} != "${v2}" ]]; then
             pkg_warn \
                 "- version mismatch:" \
@@ -2378,10 +2378,10 @@ function tags_for_pkg() {
         pkg_debug "no tags available"
         tags_ref=()
     else
-        local -n tags_in_mvm=${tfp_tags_var_name}
+        local -n tags_in_mvm_ref=${tfp_tags_var_name}
         # shellcheck disable=SC2034 # it's a reference to external variable
-        tags_ref=( "${tags_in_mvm[@]}" )
-        pkg_debug "tags available: ${tags_in_mvm[*]}"
+        tags_ref=( "${tags_in_mvm_ref[@]}" )
+        pkg_debug "tags available: ${tags_in_mvm_ref[*]}"
     fi
     pkg_debug_disable
 }
