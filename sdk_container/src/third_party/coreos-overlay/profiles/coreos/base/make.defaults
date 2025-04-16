@@ -124,3 +124,10 @@ CGO_ENABLED=1
 
 # Keep using old binary format for now.
 BINPKG_FORMAT=xpak
+
+# move signing key and cert to /tmp so that the ephemeral key is not stored on a disk
+MODULES_SIGN_KEY="/tmp/certs/modules.pem"
+MODULES_SIGN_CERT="/tmp/certs/modules.pub.pem"
+
+# enable signing kernel modules from portage
+USE="${USE} modules-sign"
