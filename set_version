@@ -43,8 +43,7 @@ Usage: $0 FLAGS...
   --file FILE:                                     Modify another file than ${FILE}, useful if run
                                                    outside of the SDK chroot. If /dev/stdout or
                                                    /dev/stderr is used, only new values are printed.
-  --binhost                                        Use a custom binhost (defaults to '${DEFAULT_BASE_URL}'),
-                                                   e.g., '${SETTING_BINPKG_SERVER_DEV}'.
+  --binhost                                        Use a custom binhost (defaults to '${DEFAULT_BASE_URL}').
                                                    This will update BOARD and SDK URLs accordingly.
 "
   exit 1
