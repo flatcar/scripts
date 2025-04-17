@@ -19,18 +19,18 @@ skip_packages_default="dev-lang/rust,dev-lang/rust-bin,dev-lang/go,dev-lang/go-b
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
-DEFINE_string skip_packages "${skip_packages_default[@]}" \
+DEFINE_string skip_packages "${skip_packages_default}" \
   "Comma-separated list of packages in the dependency tree to skip."
 DEFINE_boolean pretend "${FLAGS_FALSE}" \
-	"List packages that would be built but do not actually build."
+  "List packages that would be built but do not actually build."
 
-FLAGS_HELP="usage: $(basename $0) [flags] [packages]
+FLAGS_HELP="usage: $(basename "$0") [flags] [packages]
 
 build_dev_binpkgs builds binary packages for all dependencies of [packages]
 that are not present in '/build/<board>/var/lib/portage/pkgs/'.
 Useful for publishing a complete set of packages to a binhost.
 
-[packages] defaults to '${packages_default}' if not specified.
+[packages] defaults to '${packages_default[*]}' if not specified.
 "
 
 # Parse command line
@@ -46,43 +46,36 @@ fi
 # --
 
 function my_board_emerge() {
-	PORTAGE_CONFIGROOT="/build/${FLAGS_board}" SYSROOT="${SYSROOT:-/build/${FLAGS_board}}" ROOT="/build/${FLAGS_board}" sudo -E emerge "${@}"
+  PORTAGE_CONFIGROOT="/build/${FLAGS_board}" SYSROOT="${SYSROOT:-/build/${FLAGS_board}}" ROOT="/build/${FLAGS_board}" sudo -E emerge "${@}"
 }
 # --
 
-pkg_build_list="$(mktemp)"
-pkg_skipped_list="${pkg_build_list}-skip"
-trap 'rm -f "${pkg_build_list}" "${pkg_skipped_list}"' EXIT
+pkg_build_list=()
+pkg_skipped_list=()
 
 info "Collecting list of binpkgs to build"
 
-my_board_emerge --pretend --emptytree ${@}  \
-  | grep '\[ebuild' \
-  | sed 's/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/' \
-  | while read pkg; do
-  if [ -f "/build/${FLAGS_board}/var/lib/portage/pkgs/${pkg}.tbz2" ] ; then
-		continue
-	fi
-  skip=""
-  for s in ${FLAGS_skip_packages//,/ }; do
-    if [[ ${pkg} = ${s}-* ]] ; then
-    	echo -n "${pkg} " >> "${pkg_skipped_list}"
-        skip="true"
-        break
+while read -r pkg; do
+  [[ -f /build/${FLAGS_board}/var/lib/portage/pkgs/${pkg}.tbz2 ]] && continue
+  IFS=,
+  for s in ${FLAGS_skip_packages}; do
+    if [[ ${pkg} == ${s}-* ]] ; then
+      pkg_skipped_list+=("${pkg}")
+      continue 2
     fi
   done
-  [[ -z ${skip} ]] || continue
-  echo "=${pkg}" | tee -a "${pkg_build_list}" | sed 's/^/      /'
-done
+  unset IFS
+  pkg_build_list+=("=${pkg}")
+  echo "      =${pkg}"
+done < <(my_board_emerge --pretend --emptytree "${@}" |
+         grep '\[ebuild' | sed 's/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/')
 # --
 
-if [ -f "${pkg_skipped_list}" ] ; then
-  info "Skipping binpkgs '$(cat "${pkg_skipped_list}")' because these are in the skip list."
+if [[ ${#pkg_skipped_list[@]} -gt 0 ]]; then
+  info "Skipping binpkgs '${pkg_skipped_list[*]}' because these are in the skip list."
 fi
 
 pretend=""
-if [[ "${FLAGS_pretend}" -eq "${FLAGS_TRUE}" ]]; then
-	pretend="--pretend"
-fi
+[[ ${FLAGS_pretend} -eq ${FLAGS_TRUE} ]] && pretend="--pretend"
 
-my_board_emerge --buildpkg ${pretend} $(cat "${pkg_build_list}")
+my_board_emerge --buildpkg ${pretend} "${pkg_build_list[@]}"
