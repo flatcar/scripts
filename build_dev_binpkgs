@@ -55,6 +55,12 @@ pkg_skipped_list=()
 
 info "Collecting list of binpkgs to build"
 
+# Normally, BDEPENDs are only installed to the SDK, but the point of this script
+# is to install them to the board root because the dev container uses a board
+# profile. This is easily achieved using --root-deps. Since it is still the SDK
+# doing the building, which might have different package versions available to
+# the board profile, we have to be careful not to include SDK BDEPENDs in the
+# list of binary packages to publish, hence the sed call.
 while read -r pkg; do
   [[ -f /build/${FLAGS_board}/var/lib/portage/pkgs/${pkg}.tbz2 ]] && continue
   IFS=,
@@ -67,8 +73,8 @@ while read -r pkg; do
   unset IFS
   pkg_build_list+=("=${pkg}")
   echo "      =${pkg}"
-done < <(my_board_emerge --pretend --emptytree "${@}" |
-         grep '\[ebuild' | sed 's/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/')
+done < <(my_board_emerge --pretend --emptytree --root-deps "${@}" |
+         sed -n "/\[ebuild .* to \/build\/${FLAGS_board}\/ /s/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/p")
 # --
 
 if [[ ${#pkg_skipped_list[@]} -gt 0 ]]; then
