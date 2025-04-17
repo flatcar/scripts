@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/portage.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -124,7 +124,7 @@ my_src_configure() {
 		$(meson_use xattr)
 	)
 
-	if use native-extensions && [[ "${EPYTHON}" != "pypy3" ]] ; then
+	if use native-extensions && [[ "${EPYTHON}" != pypy3* ]] ; then
 		emesonargs+=( -Dnative-extensions=true )
 	else
 		emesonargs+=( -Dnative-extensions=false )
