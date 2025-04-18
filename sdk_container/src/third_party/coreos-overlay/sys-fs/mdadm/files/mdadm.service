@@ -1,6 +1,0 @@
-[Unit]
-Description=Initiates a check run of an MD array's redundancy information.
-
-[Service]
-Type=oneshot
-ExecStart=/usr/sbin/checkarray --cron --all --idle --quiet

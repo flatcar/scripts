@@ -1,5 +1,7 @@
 # A hack to avoid rehashing certs in a nonexistent directory.
-flatcar_hacked_openssl=$(command -v openssl)
+if [[ -z ${flatcar_hacked_openssl:-} ]]; then
+    flatcar_hacked_openssl=$(command -v openssl)
+fi
 openssl() {
     if [[ ${#} -gt 0 && ${1} = 'rehash' ]]; then
         return;

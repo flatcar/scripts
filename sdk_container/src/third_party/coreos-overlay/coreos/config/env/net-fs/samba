@@ -1,0 +1,34 @@
+# A hack to ignore processing of samba.conf tmpfiles config file.
+if [[ -z ${flatcar_hacked_systemd_tmpfiles:-} ]]; then
+    flatcar_hacked_systemd_tmpfiles=$(command -v systemd-tmpfiles)
+fi
+systemd-tmpfiles() {
+    local -a args=()
+    local f has_config_file=''
+    for f; do
+        if [[ ${f} != samba.conf ]]; then
+            args+=( "${f}" )
+            if [[ ${f} = *.conf ]]; then
+                has_config_file=x
+            fi
+        fi
+    done
+    if [[ -n ${has_config_file} ]]; then
+        "${flatcar_hacked_systemd_tmpfiles}" "${args[@]}"
+    fi
+}
+
+cros_post_src_install_samba_flatcar_modifications() {
+    # clean up unnecessary files
+    rm -f "${ED}/usr/lib/tmpfiles.d/samba.conf"
+    rm -f "${ED}/etc/samba/"*
+    rm -f "${ED}/usr/$(get_libdir)/samba/ldb/"*
+    mv "${ED}/usr/bin/net" "${T}/net"
+    rm -f "${ED}/usr/bin/"* "${ED}/usr/sbin/"*
+    mv "${T}/net" "${ED}/usr/bin/net"
+    rm -rf "${ED}/$(get_libdir)/security"
+    rm -rf "${ED}/usr/lib/systemd"
+    rm -rf "${ED}/usr/$(get_libdir)/perl"*
+    rm -rf "${ED}/usr/$(get_libdir)/python"*
+    rm -rf "${ED}/var"
+}

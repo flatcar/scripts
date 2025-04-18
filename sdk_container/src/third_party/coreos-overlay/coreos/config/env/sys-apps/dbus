@@ -1,0 +1,41 @@
+# A hack to ignore processing of dbus.conf tmpfiles config file.
+if [[ -z ${flatcar_hacked_systemd_tmpfiles:-} ]]; then
+    flatcar_hacked_systemd_tmpfiles=$(command -v systemd-tmpfiles)
+fi
+systemd-tmpfiles() {
+    local -a args=()
+    local f has_config_file=''
+    for f; do
+        if [[ ${f} != dbus.conf ]]; then
+            args+=( "${f}" )
+            if [[ ${f} = *.conf ]]; then
+                has_config_file=x
+            fi
+        fi
+    done
+    if [[ -n ${has_config_file} ]]; then
+        "${flatcar_hacked_systemd_tmpfiles}" "${args[@]}"
+    fi
+}
+
+# Hacks to avoid generating /etc/machine-id - we do it elsewhere, on
+# our own.
+if [[ -z ${flatcar_hacked_dbus_uuidgen:-} ]]; then
+    flatcar_hacked_dbus_uuidgen=$(command -v dbus-uuidgen)
+fi
+dbus-uuidgen() {
+    if [[ ${1:-} = "--ensure=${EROOT}/etc/machine-id" ]]; then
+        return 0
+    fi
+    "${flatcar_hacked_dbus_uuidgen}" "${@}"
+}
+
+if [[ -z ${flatcar_hacked_ln:-} ]]; then
+    flatcar_hacked_ln=$(command -v ln)
+fi
+ln() {
+    if [[ ${1:-} = '-sf' && ${2:-} = "${EPREFIX}"/etc/machine-id && ${3:-} = "${EROOT}"/var/lib/dbus/machine-id ]]; then
+        return 0
+    fi
+    "${flatcar_hacked_ln}" "${@}"
+}
