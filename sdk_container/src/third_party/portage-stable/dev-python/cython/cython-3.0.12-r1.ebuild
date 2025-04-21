@@ -20,7 +20,7 @@ HOMEPAGE="
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -43,6 +43,13 @@ distutils_enable_sphinx docs \
 	dev-python/jinja2 \
 	dev-python/sphinx-issues \
 	dev-python/sphinx-tabs
+
+python_prepare_all() {
+	# Needs dev-python/pip and doesn't like 'externally-managed' (bug #927995)
+	rm tests/run/coverage_cmd_src_pkg_layout.srctree || die
+
+	distutils-r1_python_prepare_all
+}
 
 python_compile() {
 	# Python gets confused when it is in sys.path before build.
