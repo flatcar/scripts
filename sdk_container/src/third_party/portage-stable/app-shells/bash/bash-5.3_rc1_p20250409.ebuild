@@ -30,7 +30,7 @@ esac
 
 # The version of readline this bash normally ships with. Note that we only use
 # the bundled copy of readline for pre-releases.
-READLINE_VER="8.3_alpha"
+READLINE_VER="8.3_beta"
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="https://tiswww.case.edu/php/chet/bash/bashtop.html https://git.savannah.gnu.org/cgit/bash.git"
@@ -45,7 +45,7 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	BASH_COMMIT="a6767763de5e7859107711b166a64a9e4a77a8ae"
+	BASH_COMMIT="42c6cbd459a121e98d9ac43c477a5daf6c3d4f0c"
 	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
