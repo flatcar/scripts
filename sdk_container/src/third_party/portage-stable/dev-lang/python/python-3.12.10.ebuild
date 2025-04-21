@@ -4,8 +4,8 @@
 EAPI="8"
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs eapi9-ver flag-o-matic multiprocessing pax-utils
-inherit prefix python-utils-r1 toolchain-funcs verify-sig
+inherit autotools check-reqs flag-o-matic multiprocessing pax-utils
+inherit python-utils-r1 toolchain-funcs verify-sig
 
 MY_PV=${PV/_rc/rc}
 MY_P="Python-${MY_PV%_p*}"
@@ -51,7 +51,7 @@ RDEPEND="
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libcrypt:=
 	virtual/libintl
-	ensurepip? ( dev-python/ensurepip-wheels )
+	ensurepip? ( dev-python/ensurepip-pip )
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
@@ -72,7 +72,12 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	bluetooth? ( net-wireless/bluez )
-	test? ( app-arch/xz-utils )
+	test? (
+		app-arch/xz-utils
+		dev-python/ensurepip-pip
+		dev-python/ensurepip-setuptools
+		dev-python/ensurepip-wheel
+	)
 	valgrind? ( dev-debug/valgrind )
 "
 # autoconf-archive needed to eautoreconf
@@ -80,7 +85,7 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	verify-sig? ( sec-keys/openpgp-keys-python )
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 RDEPEND+="
 	!build? ( app-misc/mime-types )
@@ -117,8 +122,8 @@ src_unpack() {
 
 src_prepare() {
 	# Ensure that internal copies of expat and libffi are not used.
-	rm -r Modules/expat || die
-	rm -r Modules/_ctypes/libffi* || die
+	# TODO: Makefile has annoying deps on expat headers
+	#rm -r Modules/expat || die
 
 	local PATCHES=(
 		"${WORKDIR}/${PATCHSET}"
@@ -126,14 +131,12 @@ src_prepare() {
 
 	default
 
-	# https://bugs.gentoo.org/850151
-	sed -i -e "s:@@GENTOO_LIBDIR@@:$(get_libdir):g" setup.py || die
-
 	# force the correct number of jobs
 	# https://bugs.gentoo.org/737660
-	local jobs=$(makeopts_jobs)
-	sed -i -e "s:-j0:-j${jobs}:" Makefile.pre.in || die
-	sed -i -e "/self\.parallel/s:True:${jobs}:" setup.py || die
+	sed -i -e "s:-j0:-j$(makeopts_jobs):" Makefile.pre.in || die
+
+	# breaks tests when using --with-wheel-pkg-dir
+	rm -r Lib/test/wheeldata || die
 
 	eautoreconf
 }
@@ -172,33 +175,33 @@ build_cbuild_python() {
 
 	mkdir "${WORKDIR}"/${P}-${CBUILD} || die
 	pushd "${WORKDIR}"/${P}-${CBUILD} &> /dev/null || die
-	# We disable _ctypes and _crypt for CBUILD because Python's setup.py can't handle locating
-	# libdir correctly for cross.
-	PYTHON_DISABLE_MODULES+=" _ctypes _crypt" \
-		ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
 
 	# Avoid as many dependencies as possible for the cross build.
-	cat >> Makefile <<-EOF || die
-		MODULE_NIS_STATE=disabled
-		MODULE__DBM_STATE=disabled
-		MODULE__GDBM_STATE=disabled
-		MODULE__DBM_STATE=disabled
-		MODULE__SQLITE3_STATE=disabled
-		MODULE__HASHLIB_STATE=disabled
-		MODULE__SSL_STATE=disabled
-		MODULE__CURSES_STATE=disabled
-		MODULE__CURSES_PANEL_STATE=disabled
-		MODULE_READLINE_STATE=disabled
-		MODULE__TKINTER_STATE=disabled
-		MODULE_PYEXPAT_STATE=disabled
-		MODULE_ZLIB_STATE=disabled
+	mkdir Modules || die
+	cat > Modules/Setup.local <<-EOF || die
+		*disabled*
+		nis
+		_dbm _gdbm
+		_sqlite3
+		_hashlib _ssl
+		_curses _curses_panel
+		readline
+		_tkinter
+		pyexpat
+		zlib
+		# We disabled these for CBUILD because Python's setup.py can't handle locating
+		# libdir correctly for cross. This should be rechecked for the pure Makefile approach,
+		# and uncommented if needed.
+		#_ctypes _crypt
 	EOF
+
+	ECONF_SOURCE="${S}" econf_build "${myeconfargs_cbuild[@]}"
 
 	# Unfortunately, we do have to build this immediately, and
 	# not in src_compile, because CHOST configure for Python
 	# will check the existence of the --with-build-python value
 	# immediately.
-	PYTHON_DISABLE_MODULES+=" _ctypes _crypt" emake
+	emake
 	popd &> /dev/null || die
 }
 
@@ -245,6 +248,11 @@ src_configure() {
 				-x test_strtod
 			)
 			;;
+		arm*)
+			COMMON_TEST_SKIPS+=(
+				-x test_gdb
+			)
+			;;
 		mips*)
 			COMMON_TEST_SKIPS+=(
 				-x test_ctypes
@@ -254,7 +262,6 @@ src_configure() {
 			;;
 		powerpc64-*) # big endian
 			COMMON_TEST_SKIPS+=(
-				-x test_descr
 				-x test_gdb
 			)
 			;;
@@ -271,7 +278,6 @@ src_configure() {
 				-x test_multiprocessing_spawn
 
 				-x test_ctypes
-				-x test_descr
 				-x test_gdb
 				# bug 931908
 				-x test_exceptions
@@ -381,7 +387,6 @@ src_configure() {
 		--without-ensurepip
 		--without-lto
 		--with-system-expat
-		--with-system-ffi
 		--with-system-libmpdec
 		--with-platlibdir=lib
 		--with-pkg-config=yes
@@ -393,9 +398,6 @@ src_configure() {
 		$(use_with valgrind)
 	)
 
-	# disable implicit optimization/debugging flags
-	local -x OPT=
-
 	# https://bugs.gentoo.org/700012
 	if tc-is-lto; then
 		append-cflags $(test-flags-CC -ffat-lto-objects)
@@ -403,6 +405,22 @@ src_configure() {
 			--with-lto
 		)
 	fi
+
+	# Force-disable modules we don't want built.
+	# See Modules/Setup for docs on how this works. Setup.local contains our local deviations.
+	cat > Modules/Setup.local <<-EOF || die
+		*disabled*
+		nis
+		$(usev !gdbm '_gdbm _dbm')
+		$(usev !sqlite '_sqlite3')
+		$(usev !ssl '_hashlib _ssl')
+		$(usev !ncurses '_curses _curses_panel')
+		$(usev !readline 'readline')
+		$(usev !tk '_tkinter')
+	EOF
+
+	# disable implicit optimization/debugging flags
+	local -x OPT=
 
 	if tc-is-cross-compiler ; then
 		build_cbuild_python
@@ -424,7 +442,6 @@ src_configure() {
 		append-cppflags -I"${ESYSROOT}"/usr/include/ncursesw
 	fi
 
-	hprefixify setup.py
 	econf "${myeconfargs[@]}"
 
 	if grep -q "#define POSIX_SEMAPHORES_NOT_ENABLED 1" pyconfig.h; then
@@ -432,20 +449,6 @@ src_configure() {
 		eerror "Please ensure that /dev/shm is mounted as a tmpfs with mode 1777."
 		die "Broken sem_open function (bug 496328)"
 	fi
-
-	# force-disable modules we don't want built
-	local disable_modules=( NIS )
-	use gdbm || disable_modules+=( _GDBM _DBM )
-	use sqlite || disable_modules+=( _SQLITE3 )
-	use ssl || disable_modules+=( _HASHLIB _SSL )
-	use ncurses || disable_modules+=( _CURSES _CURSES_PANEL )
-	use readline || disable_modules+=( READLINE )
-	use tk || disable_modules+=( _TKINTER )
-
-	local mod
-	for mod in "${disable_modules[@]}"; do
-		echo "MODULE_${mod}_STATE=disabled"
-	done >> Makefile || die
 
 	# install epython.py as part of stdlib
 	echo "EPYTHON='python${PYVER}'" > Lib/epython.py || die
@@ -455,9 +458,6 @@ src_compile() {
 	# Ensure sed works as expected
 	# https://bugs.gentoo.org/594768
 	local -x LC_ALL=C
-	# Prevent using distutils bundled by setuptools.
-	# https://bugs.gentoo.org/823728
-	export SETUPTOOLS_USE_DISTUTILS=stdlib
 	export PYTHONSTRICTEXTENSIONBUILD=1
 
 	# Save PYTHONDONTWRITEBYTECODE so that 'has_version' doesn't
@@ -524,6 +524,10 @@ src_test() {
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
 
+	# the Makefile rules are broken
+	# https://github.com/python/cpython/issues/100221
+	mkdir -p "${libdir}"/lib-dynload || die
+
 	# -j1 hack for now for bug #843458
 	emake -j1 DESTDIR="${D}" TEST_MODULES=no altinstall
 
@@ -551,9 +555,6 @@ src_install() {
 	fi
 
 	rm -r "${libdir}"/ensurepip/_bundled || die
-	if ! use ensurepip; then
-		rm -r "${libdir}"/ensurepip || die
-	fi
 	if ! use sqlite; then
 		rm -r "${libdir}/"sqlite3 || die
 	fi
@@ -609,18 +610,5 @@ src_install() {
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
-	fi
-}
-
-pkg_postinst() {
-	if ver_replacing -lt 3.11.0_beta4-r2; then
-		ewarn "Python 3.11.0b4 has changed its module ABI.  The .pyc files"
-		ewarn "installed previously are no longer valid and will be regenerated"
-		ewarn "(or ignored) on the next import.  This may cause sandbox failures"
-		ewarn "when installing some packages and checksum mismatches when removing"
-		ewarn "old versions.  To actively prevent this, rebuild all packages"
-		ewarn "installing Python 3.11 modules, e.g. using:"
-		ewarn
-		ewarn "  emerge -1v /usr/lib/python3.11/site-packages"
 	fi
 }

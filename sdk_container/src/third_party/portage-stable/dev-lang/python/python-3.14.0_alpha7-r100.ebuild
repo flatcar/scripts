@@ -3,15 +3,16 @@
 
 EAPI="8"
 
-LLVM_COMPAT=( 18 )
+LLVM_COMPAT=( 19 )
 LLVM_OPTIONAL=1
+VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
 inherit autotools check-reqs flag-o-matic linux-info llvm-r1
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
-MY_PV=${PV}
+MY_PV=${PV/_alpha/a}
 MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 1-2)t"
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -25,14 +26,13 @@ SRC_URI="
 	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.sigstore
 	)
 "
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm jit
 	libedit +ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -48,7 +48,6 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-crypt/libb2
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
@@ -105,7 +104,9 @@ if [[ ${PV} != *_alpha* ]]; then
 	"
 fi
 
-VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
+# https://www.python.org/downloads/metadata/sigstore/
+VERIFY_SIG_CERT_IDENTITY=hugo@python.org
+VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
@@ -148,7 +149,7 @@ pkg_setup() {
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
 	fi
 	default
 }
@@ -281,6 +282,11 @@ src_configure() {
 				# bug 653850
 				-x test_resource
 				-x test_strtod
+			)
+			;;
+		arm*)
+			COMMON_TEST_SKIPS+=(
+				-x test_gdb
 			)
 			;;
 		hppa*)

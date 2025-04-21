@@ -14,10 +14,10 @@ inherit verify-sig
 
 MY_PV=${PV/_alpha/a}
 MY_P="Python-${MY_PV%_p*}"
-PYVER="$(ver_cut 1-2)t"
+PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
 
-DESCRIPTION="Freethreading (no-GIL) version of Python programming language"
+DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
 	https://www.python.org/
 	https://github.com/python/cpython/
@@ -125,11 +125,13 @@ pkg_pretend() {
 		check-reqs_pkg_pretend
 	fi
 
-	ewarn "Freethreading build is considered experimental upstream.  Using it"
-	ewarn "could lead to unexpected breakage, including race conditions"
-	ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
-	ewarn "you can reproduce the problem with dev-lang/python.  Instead,"
-	ewarn "please consider reporting freethreading problems upstream."
+	if use jit; then
+		ewarn "USE=jit is considered experimental upstream.  Using it"
+		ewarn "could lead to unexpected breakage, including race conditions"
+		ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
+		ewarn "you can reproduce the problem with dev-lang/python[-jit].  Instead,"
+		ewarn "please consider reporting JIT problems upstream."
+	fi
 }
 
 pkg_setup() {
@@ -284,6 +286,11 @@ src_configure() {
 				-x test_strtod
 			)
 			;;
+		arm*)
+			COMMON_TEST_SKIPS+=(
+				-x test_gdb
+			)
+			;;
 		hppa*)
 			COMMON_TEST_SKIPS+=(
 				-x test_gdb
@@ -408,7 +415,7 @@ src_configure() {
 		--with-platlibdir=lib
 		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
-		--disable-gil
+		--enable-gil
 
 		$(use_with debug assertions)
 		$(use_enable jit experimental-jit)
@@ -548,10 +555,6 @@ src_install() {
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
-	# Fix collision with GIL-enabled build.
-	rm "${ED}/usr/bin/python${PYVER%t}" || die
-	mv "${ED}"/usr/bin/pydoc{${PYVER%t},${PYVER}} || die
-	mv "${ED}"/usr/share/man/man1/python{${PYVER%t},${PYVER}}.1 || die
 
 	# Cheap hack to get version with ABIFLAGS
 	local abiver=$(cd "${ED}/usr/include"; echo python*)
@@ -577,11 +580,8 @@ src_install() {
 	if ! use sqlite; then
 		rm -r "${libdir}/"sqlite3 || die
 	fi
-	if use tk; then
-		# rename to avoid collision with dev-lang/python
-		mv "${ED}"/usr/bin/idle{${PYVER%t},${PYVER}} || die
-	else
-		rm -r "${ED}/usr/bin/idle${PYVER%t}" || die
+	if ! use tk; then
+		rm -r "${ED}/usr/bin/idle${PYVER}" || die
 		rm -r "${libdir}/"{idlelib,tkinter} || die
 	fi
 
