@@ -33,25 +33,55 @@
 
 #--- END OF EXAMPLES ---
 
-# Sam James <sam@gentoo.org> (2025-04-05)
-# New abseil/protobuf breaks too much:
-# * net-libs/grpc (bug #953141)
-# * media-libs/opencv (bug #953138)
-# * dev-libs/protobuf (bug #953140)
-=dev-cpp/abseil-cpp-20250127.0*
-=dev-cpp/abseil-cpp-20240722.1*
-=dev-cpp/abseil-cpp-20240116.3*
-=dev-cpp/abseil-cpp-20230802.3*
-=dev-libs/protobuf-30*
-=dev-ruby/google-protobuf-4.30*
-=dev-java/protobuf-java-4.30*
-=dev-python/protobuf-6.30*
+# Sam James <sam@gentoo.org> (2025-04-21)
+# Several packages need porting. Tracker bug #954128.
+=dev-python/cython-3.1*
 
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-04-04)
-# Temporary mask until handled the usage of shorter SLOT.
-# Bugs #953127, #953103.
-dev-lang/rust:1.86
-dev-lang/rust-bin:1.86
+# Hans de Graaff <graaff@gentoo.org> (2025-04-20)
+# ruby32-only slot. Use the newer slot instead.
+# Masked for removal on 2025-05-20.
+dev-ruby/activeldap:6
+
+# Michał Górny <mgorny@gentoo.org> (2025-04-19)
+# This package will no longer feature stable keywords, due to unresolved
+# test failures blocking the stabilization request for months.
+<dev-python/mpi4py-4
+
+# Hans de Graaff <graaff@gentoo.org> (2025-04-19)
+# Ruby 3.1 is no longer supported upstream and will no longer
+# receive security updates. This mask also includes any
+# remaining ruby31-only packages.
+dev-lang/ruby:3.1
+dev-ruby/async:1
+dev-ruby/pathutil
+=app-admin/puppet-7*
+
+# Conrad Kostecki <conikost@gentoo.org> (2025-04-18)
+# Package not needed anymore by the only consumer net-dns/hash-slinger.
+# Masked for removal on 2025-05-18. Bug #952341
+dev-python/ipaddr
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-14)
+# Package destabilisation mask after prolongued time w/o maintainer.
+# Bug #949838
+~app-emulation/q4wine-1.3.13
+
+# Hans de Graaff <graaff@gentoo.org> (2025-04-14)
+# Obsolete slot that fails tests, bug 933189. EAPI 7.  Use the newer
+# slot instead. Masked for removal on 2025-05-14.
+dev-ruby/childprocess:2
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-04-12)
+# >=31 breaks www-client/qutebrowser's tests
+# https://github.com/cucumber/gherkin/issues/373
+# https://github.com/qutebrowser/qutebrowser/commit/12e683826783
+>=dev-python/gherkin-official-31
+
+# Michał Górny <mgorny@gentoo.org> (2025-04-09)
+# Still uses legacy distutils-r1 mode, and lacks Python 3.13 target.
+# No reply from the maintainer for a year now.
+# Removal on 2025-05-09.  Bug #909900.
+app-text/nfoview
 
 # Matt Turner <mattst88@gentoo.org> (2025-04-04)
 # Package is dead (last release in 1999).
@@ -83,6 +113,8 @@ app-text/kchmviewer
 # to catch up on support if needed. May or may keep masked until 6.9.1
 # depending on issues. If wanted, feel free to add `dev-qt/*:6/6.9.0`
 # to package.unmask and report issues.
+=dev-python/pyqt6-6.9*
+=dev-python/pyqt6-webengine-6.9*
 =dev-python/pyside-6.9.0*
 =dev-qt/qt-docs-6.9.0*
 =dev-qt/qt3d-6.9.0*
@@ -122,23 +154,6 @@ app-text/kchmviewer
 # #907400, #920478, #932284, #943891).
 # Removal on 2025-05-01.  Bug #949960.
 x11-terms/aterm
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-02)
-# Package destabilisation mask: Depends on Qt5WebEngine with no Qt6-based
-# release in sight. Snapshot is from a Qt6 work branch, so nowhere near
-# stabilisation material. Bug #926676
-~sci-geosciences/qmapshack-1.17.1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-01)
-# Package destabilisation mask: No KF6-based- or ffmpeg-7 compatible
-# release in sight, needs xcb platform workaround, providing a snapshot
-# is the best we can do.
-~media-video/subtitlecomposer-0.8.1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-01)
-# Package destabilisation mask: No KF6-based release in sight, runtime-
-# defunct in Wayland sessions, providing a snapshot is the best we can do.
-~kde-misc/rsibreak-0.12.15
 
 # Norbert Norbiros <norbiros@protonmail.com> (2025-04-01)
 # Screen v5.0.0 has a lot of regressions
@@ -180,48 +195,12 @@ net-im/yowsup
 # Large-scale breakage (bug #951350).
 =dev-build/cmake-4*
 
-# Viorel Munteanu <ceamac@gentoo.org> (2025-03-26)
-# Segfaults with no clear error message when trying to start a VM with 3D
-# acceleration enabled.
-# Bug #951833.
-=app-emulation/virtualbox-7.1.6a
-=app-emulation/virtualbox-extpack-oracle-7.1.6
-=app-emulation/virtualbox-additions-7.1.6
-=app-emulation/virtualbox-modules-7.1.6
-=app-emulation/virtualbox-guest-additions-7.1.6-r1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-25)
-# Package destabilisation mask after prolongued time w/o maintainer.
-# Bug #936636
-~app-editors/texworks-0.6.8
-
 # Maciej Barć <xgqt@gentoo.org> (2025-03-25)
 # It is possible Gentoo could be hit by "legal" action when having this package.
 # Very unstable development, switches upstream to avoid "legal" trouble.
 # See also: bug #948196 bug #927392
 # Removal on 2025-04-25.
 games-emulation/ryujinx
-
-# Hans de Graaff <graaff@gentoo.org> (2025-03-20)
-# Rails 6.1 is no longer supported upstream. Use a newer Rails version
-# instead. Packages depending exclusively on Rails 6.1 will also be
-# removed. Removal on 2025-04-20.
-dev-ruby/rails:6.1
-dev-ruby/actiontext:6.1
-dev-ruby/actionmailbox:6.1
-dev-ruby/activestorage:6.1
-dev-ruby/actionmailer:6.1
-dev-ruby/actioncable:6.1
-dev-ruby/railties:6.1
-dev-ruby/activejob:6.1
-dev-ruby/actionpack:6.1
-dev-ruby/actionview:6.1
-dev-ruby/activerecord:6.1
-dev-ruby/activemodel:6.1
-dev-ruby/activesupport:6.1
-dev-ruby/actionpack-action_caching
-dev-ruby/will_paginate:3
-=www-apps/redmine-5*
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-03-23)
 # No revdeps after net-im/psi treecleaning. Depends on Qt5.
@@ -326,10 +305,6 @@ dev-python/bitvector
 sys-cluster/crmsh
 sys-cluster/pacemaker
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-17)
-# Database migration issues on upgrade, bug #951486
-~app-office/kmymoney-5.1.92_p20250306
-
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-03-15)
 # EAPI=7, uses deprecated Go eclasses. Isn't maintained in Gentoo
 # since 2019, with awaiting version bump (upstream is still active).
@@ -360,12 +335,6 @@ sys-apps/openrc-navi
 # Mask out of caution for now.
 =dev-util/pkgconf-2.4.1
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-06)
-# Last release in 2018 and no upstream activity ever since.
-# Please migrate to an alternative backup solution. Bug #947894
-# Removal on 2025-04-15.
-app-backup/luckybackup
-
 # Michał Górny <mgorny@gentoo.org> (2025-03-06)
 # This package is clearly unmaintained.  It has lost all CPython
 # versions, and retained PyPy3 likely only because it wasn't versioned.
@@ -377,40 +346,6 @@ dev-vcs/notify-webhook
 # Doesn't seem to cleanly load, see:
 # https://github.com/lkrg-org/lkrg/issues/364
 =app-antivirus/lkrg-0.9.9
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
-# Last release 14 years ago, dead upstream, depends on Qt5 (and even that
-# only by means of downstream patching). Bug #947634.
-# Removal on 2025-04-15.
-sci-biology/clustalx
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-02-27)
-# We have collected a lot of barely used Perl virtuals over time
-# (they effectively only make sense with version dependencies).
-# Time to clean up. In ebuilds, just depend on dev-lang/perl.
-# The following are masked for removal on 2025-03-31:
-virtual/perl-Attribute-Handlers
-virtual/perl-AutoLoader
-virtual/perl-CPAN-Meta-YAML
-virtual/perl-Dumpvalue
-virtual/perl-ExtUtils-Constant
-virtual/perl-ExtUtils-Install
-virtual/perl-ExtUtils-Manifest
-virtual/perl-Filter-Simple
-virtual/perl-I18N-LangTags
-virtual/perl-IPC-Cmd
-virtual/perl-Locale-Maketext-Simple
-virtual/perl-Memoize
-virtual/perl-Module-Loaded
-virtual/perl-Net-Ping
-virtual/perl-Perl-OSType
-virtual/perl-Pod-Escapes
-virtual/perl-Safe
-virtual/perl-Thread-Queue
-virtual/perl-Thread-Semaphore
-virtual/perl-threads-shared
-virtual/perl-Tie-RefHash
-virtual/perl-Time-Piece
 
 # Eray Aslan <eras@gentoo.org> (2025-02-24)
 # Mask experimental software
@@ -488,12 +423,6 @@ dev-qt/qtsensors:5
 dev-qt/qtserialbus:5
 dev-qt/qtvirtualkeyboard:5
 dev-qt/qtwebview:5
-
-# Conrad Kostecki <conikost@gentoo.org> (2025-01-09)
-# New version, which dropps support for legacy devices.
-# Will be unmasked, when split to legacy-branch is done.
->=dev-libs/intel-compute-runtime-24.52.32224.5
->=dev-util/intel-graphics-compiler-2.5.7
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-05)
 # 6.12.2 does not boot for me.

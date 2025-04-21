@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Cristian Othón Martínez Vera <cfuga@cfuga.mx> (2025-04-09)
+# dev-db/tinycdb is not keyworded here
+mail-mta/sendmail tinycdb
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-04-02)
 # Needs kde-frameworks/breeze-icons which is not keyworded here.
 net-irc/quassel system-icons
@@ -63,7 +67,7 @@ games-emulation/rmg -dynarec
 # Abandoned upstream, does not take bug reports, unsupported in Gentoo.
 # Only remaining use is as a requirement for dev-lang/go on arm{,64}.
 # See #934149, #934151, #936022, #936021
-sys-devel/binutils -gold
+<sys-devel/binutils-2.44 -gold
 
 # Sam James <sam@gentoo.org> (2024-06-13)
 # Needs as-yet-unkeyworded KF6 (bug #934215)
@@ -136,16 +140,11 @@ dev-python/nbclassic doc
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-02-06)
 # Successful build of dev-qt/qtwebengine depends on 64-bit host
 # Bug #893234
-app-i18n/fcitx-libpinyin dictionary-manager
 dev-lang/idris2 test-full
 dev-python/cloudscraper test
 dev-python/qtpy test
 games-util/lgogdownloader gui
-net-irc/quassel urlpreview
-net-misc/fatrat bittorrent
 net-misc/seafile-client shibboleth
-sci-mathematics/yacas gui
-sci-physics/root qt5
 
 # Florian Schmaus <flow@gentoo.org> (2022-11-23)
 # avoid larger deptree, bug #882593
@@ -340,8 +339,10 @@ app-metrics/collectd -collectd_plugins_mqtt
 sys-cluster/openmpi openmpi_fabrics_knem openmpi_fabrics_ofed openmpi_rm_pbs openmpi_ofed_features_rdmacm openmpi_ofed_features_control-hdr-padding openmpi_ofed_features_udcm openmpi_ofed_features_dynamic-sl
 
 # Luke Dashjr <luke-jr+gentoobugs@utopios.org> (2017-01-04)
+# Matt Whitlock <gentoo@mattwhitlock.name> (2025-04-12)
 # Assembly optimisations are supported on arm since 0.0.0_pre20161213
 dev-libs/libsecp256k1 -asm
+net-p2p/bitcoin-core -asm
 
 # James Le Cuirot <chewi@gentoo.org> (2016-12-14)
 # DOSBox + OpenGLide is untested on this arch.
