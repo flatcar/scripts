@@ -55,8 +55,8 @@ used as an explicit separator. See the qemu(1) man page for more details.
 "
 
 die(){
-	echo "${1}"
-	exit 1
+    echo "${1}"
+    exit 1
 }
 
 check_conflict() {
@@ -276,7 +276,7 @@ fi
 
 if [ -n "${VM_CDROM}" ]; then
     set -- -boot order=d \
-	-drive file="${VM_CDROM}",media=cdrom,format=raw "$@"
+        -drive file="${VM_CDROM}",media=cdrom,format=raw "$@"
 fi
 
 if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
