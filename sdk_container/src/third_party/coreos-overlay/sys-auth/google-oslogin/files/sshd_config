@@ -9,7 +9,7 @@ UsePAM yes
 PrintLastLog no # handled by PAM
 PrintMotd no # handled by PAM
 # Needed for google oslogin
-AuthorizedKeysCommand /usr/libexec/google_authorized_keys
+AuthorizedKeysCommand /usr/bin/google_authorized_keys
 AuthorizedKeysCommandUser root
 # Temporarily accept ssh-rsa algorithm for openssh >= 8.8,
 # until most ssh clients could deprecate ssh-rsa.

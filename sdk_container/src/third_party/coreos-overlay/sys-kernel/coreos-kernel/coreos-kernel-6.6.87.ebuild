@@ -10,15 +10,20 @@ KEYWORDS="amd64 arm64"
 
 RDEPEND="=sys-kernel/coreos-modules-${PVR}"
 DEPEND="${RDEPEND}
-	app-arch/gzip
+	app-alternatives/awk
+	app-alternatives/gzip
+	app-arch/xz-utils
 	app-arch/zstd
 	app-crypt/clevis
 	app-shells/bash
+	coreos-base/afterburn
 	coreos-base/coreos-init:=
+	sys-apps/baselayout
 	sys-apps/coreutils
 	sys-apps/findutils
 	sys-apps/grep
 	sys-apps/ignition:=
+	sys-apps/iproute2
 	sys-apps/less
 	sys-apps/nvme-cli
 	sys-apps/sed
@@ -26,6 +31,7 @@ DEPEND="${RDEPEND}
 	sys-apps/systemd[cryptsetup]
 	sys-apps/seismograph
 	sys-apps/util-linux
+	sys-block/open-iscsi
 	sys-fs/btrfs-progs
 	sys-fs/e2fsprogs
 	sys-fs/mdadm
