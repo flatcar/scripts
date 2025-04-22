@@ -291,25 +291,18 @@ fi
 
 case "${VM_BOARD}" in
     amd64-usr)
-        # Default to KVM, fall back on full emulation
-        qemu-system-x86_64 \
-            -name "$VM_NAME" \
-            -m ${VM_MEMORY} \
-            -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
-            -device virtio-net-pci,netdev=eth0 \
-            -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
-            "$@"
-        ;;
+        QEMU_BIN=qemu-system-x86_64 ;;
     arm64-usr)
-        qemu-system-aarch64 \
-            -name "$VM_NAME" \
-            -m ${VM_MEMORY} \
-            -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
-            -device virtio-net-device,netdev=eth0 \
-            -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
-            "$@"
-        ;;
+        QEMU_BIN=qemu-system-aarch64 ;;
     *) die "Unsupported arch" ;;
 esac
+
+"$QEMU_BIN" \
+    -name "$VM_NAME" \
+    -m ${VM_MEMORY} \
+    -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
+    -device virtio-net-pci,netdev=eth0 \
+    -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
+    "$@"
 
 exit $?
