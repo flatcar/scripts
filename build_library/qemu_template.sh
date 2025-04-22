@@ -258,15 +258,8 @@ if [ -n "${CONFIG_IMAGE}" ]; then
 fi
 
 if [ -n "${VM_IMAGE}" ]; then
-    case "${VM_BOARD}" in
-        amd64-usr)
-            set -- -drive if=virtio,file="${VM_IMAGE}" "$@" ;;
-        arm64-usr)
-            set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
-            -device virtio-blk-device,drive=blk "$@"
-            ;;
-        *) die "Unsupported arch" ;;
-    esac
+    set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
+        -device virtio-blk-pci,drive=blk,bootindex=1 "$@"
 fi
 
 if [ -n "${VM_KERNEL}" ]; then
