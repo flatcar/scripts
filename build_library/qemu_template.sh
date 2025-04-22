@@ -20,6 +20,7 @@ CONFIG_IMAGE=""
 SWTPM_DIR=
 SAFE_ARGS=0
 FORWARDED_PORTS=""
+DISKS=()
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
     -i FILE     File containing an Ignition config
@@ -27,6 +28,11 @@ Options:
     -u FILE     Cloudinit user-data as either a cloud config or script.
     -c FILE     Config drive as an iso or fat filesystem image.
     -a FILE     SSH public keys for login access. [~/.ssh/id_{dsa,rsa}.pub]
+    -d DISK     Setup additional disk. Can be used multiple times to
+                setup multiple disks. The value is a path to an image
+                file, optionally followed by a comma and options to
+                pass to virtio-blk-pci device. For example -d
+                /tmp/qcow2-disk,serial=secondary.
     -p PORT     The port on localhost to map to the VM's sshd. [2222]
     -I FILE     Set a custom image file.
     -f PORT     Forward host_port:guest_port.
@@ -82,6 +88,9 @@ while [ $# -ge 1 ]; do
         -a|-authorized-keys)
             check_conflict
             SSH_KEYS="$2"
+            shift 2 ;;
+        -d|-disk)
+            DISKS+=( "$2" )
             shift 2 ;;
         -p|-ssh-port)
             SSH_PORT="$2"
@@ -261,6 +270,23 @@ if [ -n "${VM_IMAGE}" ]; then
     set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
         -device virtio-blk-pci,drive=blk,bootindex=1 "$@"
 fi
+
+declare -i id_counter=1
+
+for disk in "${DISKS[@]}"; do
+    disk_id="flatcar-extra-disk-$((id_counter++))"
+    if [[ ${disk} = *,* ]]; then
+        disk_path=${disk%%,*}
+        disk_opts=${disk#*,}
+    else
+        disk_path=${disk}
+        disk_opts=
+    fi
+    set -- \
+        -drive "if=none,id=${disk_id},file=${disk_path}" \
+        -device "virtio-blk-pci,drive=${disk_id}${disk_opts:+,}${disk_opts:-}" \
+        "${@}"
+done
 
 if [ -n "${VM_KERNEL}" ]; then
     set -- -kernel "${VM_KERNEL}" "$@"
