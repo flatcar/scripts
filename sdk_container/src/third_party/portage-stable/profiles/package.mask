@@ -33,25 +33,22 @@
 
 #--- END OF EXAMPLES ---
 
-# Sam James <sam@gentoo.org> (2025-04-05)
-# New abseil/protobuf breaks too much:
-# * net-libs/grpc (bug #953141)
-# * media-libs/opencv (bug #953138)
-# * dev-libs/protobuf (bug #953140)
-=dev-cpp/abseil-cpp-20250127.0*
-=dev-cpp/abseil-cpp-20240722.1*
-=dev-cpp/abseil-cpp-20240116.3*
-=dev-cpp/abseil-cpp-20230802.3*
-=dev-libs/protobuf-30*
-=dev-ruby/google-protobuf-4.30*
-=dev-java/protobuf-java-4.30*
-=dev-python/protobuf-6.30*
+# Hans de Graaff <graaff@gentoo.org> (2025-04-14)
+# Obsolete slot that fails tests, bug 933189. EAPI 7.  Use the newer
+# slot instead. Masked for removal on 2025-05-14.
+dev-ruby/childprocess:2
 
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-04-04)
-# Temporary mask until handled the usage of shorter SLOT.
-# Bugs #953127, #953103.
-dev-lang/rust:1.86
-dev-lang/rust-bin:1.86
+# Ionen Wolkens <ionen@gentoo.org> (2025-04-12)
+# >=31 breaks www-client/qutebrowser's tests
+# https://github.com/cucumber/gherkin/issues/373
+# https://github.com/qutebrowser/qutebrowser/commit/12e683826783
+>=dev-python/gherkin-official-31
+
+# Michał Górny <mgorny@gentoo.org> (2025-04-09)
+# Still uses legacy distutils-r1 mode, and lacks Python 3.13 target.
+# No reply from the maintainer for a year now.
+# Removal on 2025-05-09.  Bug #909900.
+app-text/nfoview
 
 # Matt Turner <mattst88@gentoo.org> (2025-04-04)
 # Package is dead (last release in 1999).
@@ -83,6 +80,8 @@ app-text/kchmviewer
 # to catch up on support if needed. May or may keep masked until 6.9.1
 # depending on issues. If wanted, feel free to add `dev-qt/*:6/6.9.0`
 # to package.unmask and report issues.
+=dev-python/pyqt6-6.9*
+=dev-python/pyqt6-webengine-6.9*
 =dev-python/pyside-6.9.0*
 =dev-qt/qt-docs-6.9.0*
 =dev-qt/qt3d-6.9.0*
@@ -384,34 +383,6 @@ dev-vcs/notify-webhook
 # Removal on 2025-04-15.
 sci-biology/clustalx
 
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-02-27)
-# We have collected a lot of barely used Perl virtuals over time
-# (they effectively only make sense with version dependencies).
-# Time to clean up. In ebuilds, just depend on dev-lang/perl.
-# The following are masked for removal on 2025-03-31:
-virtual/perl-Attribute-Handlers
-virtual/perl-AutoLoader
-virtual/perl-CPAN-Meta-YAML
-virtual/perl-Dumpvalue
-virtual/perl-ExtUtils-Constant
-virtual/perl-ExtUtils-Install
-virtual/perl-ExtUtils-Manifest
-virtual/perl-Filter-Simple
-virtual/perl-I18N-LangTags
-virtual/perl-IPC-Cmd
-virtual/perl-Locale-Maketext-Simple
-virtual/perl-Memoize
-virtual/perl-Module-Loaded
-virtual/perl-Net-Ping
-virtual/perl-Perl-OSType
-virtual/perl-Pod-Escapes
-virtual/perl-Safe
-virtual/perl-Thread-Queue
-virtual/perl-Thread-Semaphore
-virtual/perl-threads-shared
-virtual/perl-Tie-RefHash
-virtual/perl-Time-Piece
-
 # Eray Aslan <eras@gentoo.org> (2025-02-24)
 # Mask experimental software
 =mail-mta/postfix-3.11*
@@ -488,12 +459,6 @@ dev-qt/qtsensors:5
 dev-qt/qtserialbus:5
 dev-qt/qtvirtualkeyboard:5
 dev-qt/qtwebview:5
-
-# Conrad Kostecki <conikost@gentoo.org> (2025-01-09)
-# New version, which dropps support for legacy devices.
-# Will be unmasked, when split to legacy-branch is done.
->=dev-libs/intel-compute-runtime-24.52.32224.5
->=dev-util/intel-graphics-compiler-2.5.7
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-05)
 # 6.12.2 does not boot for me.

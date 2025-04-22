@@ -13,6 +13,7 @@ DESCRIPTION="pahole (Poke-a-Hole) and other DWARF utilities"
 HOMEPAGE="https://git.kernel.org/cgit/devel/pahole/pahole.git/"
 
 if [[ ${PV} == 9999 ]] ; then
+	EGIT_BRANCH="next"
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/devel/pahole/pahole.git"
 	inherit git-r3
 else
@@ -29,7 +30,7 @@ else
 	fi
 	S="${WORKDIR}"/${MY_P}
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-arnaldocarvalhodemelo )"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 LICENSE="GPL-2" # only
