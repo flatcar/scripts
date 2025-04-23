@@ -29,8 +29,8 @@ dev-vcs/git -perl -iconv
 app-admin/sudo -sendmail
 
 # disable hybrid cgroup as we use the unified mode now
-# use lzma which is the default on non-gentoo systems, enable selinux,
-sys-apps/systemd -cgroup-hybrid curl idn lzma selinux tpm
+# use lzma which is the default on non-gentoo systems,
+sys-apps/systemd -cgroup-hybrid curl idn lzma tpm
 net-libs/libmicrohttpd -ssl
 
 # disable kernel config detection and module building
@@ -59,7 +59,7 @@ sys-libs/glibc nscd
 dev-libs/cyrus-sasl kerberos -gdbm
 
 # don't build manpages for sssd
-sys-auth/sssd -python samba kerberos gssapi ssh selinux
+sys-auth/sssd -python samba kerberos gssapi ssh
 
 # enable logging command-line options in update_engine
 dev-cpp/glog gflags
@@ -72,20 +72,7 @@ sys-fs/quota rpc
 sys-apps/portage -xattr -rsync-verify
 
 # Enable -M and -Z flags; -M is used by mayday
-sys-process/lsof rpc selinux
-
-# Enable SELinux for all targets
-coreos-base/coreos          selinux
-sys-apps/dbus               selinux
-
-# Enable SELinux for coreutils
-sys-apps/coreutils          selinux
-
-# Enable SELinux for tar
-app-arch/tar                selinux
-
-# Enable SELinux for runc
-app-containers/runc selinux
+sys-process/lsof rpc
 
 # enable regular expression processing in jq
 app-misc/jq oniguruma
@@ -139,9 +126,6 @@ dev-libs/libpcre2 -pcre16 -pcre32 unicode
 # enabled by upstream. Samba was enabled to make some tests pass. But
 # smi and ssl, no clue.
 net-analyzer/tcpdump -ssl -smi -samba
-
-# selinux: to find files with a particular SElinux label
-sys-apps/findutils selinux
 
 # Flatcar defaults formerly defined in coreos-overlay ebuilds
 app-containers/containerd btrfs device-mapper
