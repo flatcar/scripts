@@ -1,3 +1,2 @@
-portage-stable:default/linux/arm64/23.0/hardened
-portage-stable:targets/systemd
+portage-stable:default/linux/arm64/23.0/hardened/selinux/systemd
 :coreos/base
