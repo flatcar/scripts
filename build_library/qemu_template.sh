@@ -20,6 +20,8 @@ CONFIG_IMAGE=""
 SWTPM_DIR=
 SAFE_ARGS=0
 FORWARDED_PORTS=""
+PRIMARY_DISK_OPTS=""
+DISKS=()
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
     -i FILE     File containing an Ignition config
@@ -27,6 +29,13 @@ Options:
     -u FILE     Cloudinit user-data as either a cloud config or script.
     -c FILE     Config drive as an iso or fat filesystem image.
     -a FILE     SSH public keys for login access. [~/.ssh/id_{dsa,rsa}.pub]
+    -d DISK     Setup additional disk. Can be used multiple times to
+                setup multiple disks. The value is a path to an image
+                file, optionally followed by a comma and options to
+                pass to virtio-blk-pci device. For example -d
+                /tmp/qcow2-disk,serial=secondary.
+    -D OPTS     Additional virtio-blk-pci options for primary
+                disk. For example serial=primary-disk.
     -p PORT     The port on localhost to map to the VM's sshd. [2222]
     -I FILE     Set a custom image file.
     -f PORT     Forward host_port:guest_port.
@@ -55,8 +64,8 @@ used as an explicit separator. See the qemu(1) man page for more details.
 "
 
 die(){
-	echo "${1}"
-	exit 1
+    echo "${1}"
+    exit 1
 }
 
 check_conflict() {
@@ -82,6 +91,12 @@ while [ $# -ge 1 ]; do
         -a|-authorized-keys)
             check_conflict
             SSH_KEYS="$2"
+            shift 2 ;;
+        -d|-disk)
+            DISKS+=( "$2" )
+            shift 2 ;;
+        -D|-image-disk-opts)
+            PRIMARY_DISK_OPTS="$2"
             shift 2 ;;
         -p|-ssh-port)
             SSH_PORT="$2"
@@ -258,16 +273,29 @@ if [ -n "${CONFIG_IMAGE}" ]; then
 fi
 
 if [ -n "${VM_IMAGE}" ]; then
-    case "${VM_BOARD}" in
-        amd64-usr)
-            set -- -drive if=virtio,file="${VM_IMAGE}" "$@" ;;
-        arm64-usr)
-            set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
-            -device virtio-blk-device,drive=blk "$@"
-            ;;
-        *) die "Unsupported arch" ;;
-    esac
+    if [[ ,${PRIMARY_DISK_OPTS}, = *,drive=* || ,${PRIMARY_DISK_OPTS}, = *,bootindex=* ]]; then
+        die "Can't override drive or bootindex options for primary disk"
+    fi
+    set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
+        -device virtio-blk-pci,drive=blk,bootindex=1${PRIMARY_DISK_OPTS:+,}${PRIMARY_DISK_OPTS:-} "$@"
 fi
+
+declare -i id_counter=1
+
+for disk in "${DISKS[@]}"; do
+    disk_id="flatcar-extra-disk-$((id_counter++))"
+    if [[ ${disk} = *,* ]]; then
+        disk_path=${disk%%,*}
+        disk_opts=${disk#*,}
+    else
+        disk_path=${disk}
+        disk_opts=
+    fi
+    set -- \
+        -drive "if=none,id=${disk_id},file=${disk_path}" \
+        -device "virtio-blk-pci,drive=${disk_id}${disk_opts:+,}${disk_opts:-}" \
+        "${@}"
+done
 
 if [ -n "${VM_KERNEL}" ]; then
     set -- -kernel "${VM_KERNEL}" "$@"
@@ -283,7 +311,7 @@ fi
 
 if [ -n "${VM_CDROM}" ]; then
     set -- -boot order=d \
-	-drive file="${VM_CDROM}",media=cdrom,format=raw "$@"
+        -drive file="${VM_CDROM}",media=cdrom,format=raw "$@"
 fi
 
 if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
@@ -298,25 +326,18 @@ fi
 
 case "${VM_BOARD}" in
     amd64-usr)
-        # Default to KVM, fall back on full emulation
-        qemu-system-x86_64 \
-            -name "$VM_NAME" \
-            -m ${VM_MEMORY} \
-            -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
-            -device virtio-net-pci,netdev=eth0 \
-            -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
-            "$@"
-        ;;
+        QEMU_BIN=qemu-system-x86_64 ;;
     arm64-usr)
-        qemu-system-aarch64 \
-            -name "$VM_NAME" \
-            -m ${VM_MEMORY} \
-            -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
-            -device virtio-net-device,netdev=eth0 \
-            -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
-            "$@"
-        ;;
+        QEMU_BIN=qemu-system-aarch64 ;;
     *) die "Unsupported arch" ;;
 esac
+
+"$QEMU_BIN" \
+    -name "$VM_NAME" \
+    -m ${VM_MEMORY} \
+    -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
+    -device virtio-net-pci,netdev=eth0 \
+    -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
+    "$@"
 
 exit $?
