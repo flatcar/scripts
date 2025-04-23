@@ -51,6 +51,7 @@ acct-user/named
 acct-user/netperf
 acct-user/nobody
 acct-user/ntp
+acct-user/nvpd
 acct-user/pcap
 acct-user/pcscd
 acct-user/polkitd
