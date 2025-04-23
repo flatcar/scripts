@@ -1,0 +1,2781 @@
+From 7e6a4cf62af3d8e05dd2dec6bb3301fe52031bf2 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 5 Sep 2024 11:55:35 +0100
+Subject: [PATCH 01/12] fix(dracut): respect PKG_CONFIG env var instead of
+ hardcoding pkg-config
+
+When using a sysroot, we should use pkg-config data from the sysroot.
+While we could set PKG_CONFIG_LIBDIR, the lib directory can vary.
+Distributions typically set up pkg-config wrappers for this purpose and
+it is customary to respect the PKG_CONFIG variable in build systems.
+Users can still set simply PKG_CONFIG_LIBDIR instead if they prefer that
+approach.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ dracut-init.sh    | 1 +
+ dracut.sh         | 2 +-
+ man/dracut.8.adoc | 7 +++++++
+ 3 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/dracut-init.sh b/dracut-init.sh
+index be8eb9fb..de3ae324 100755
+--- a/dracut-init.sh
++++ b/dracut-init.sh
+@@ -81,6 +81,7 @@ export srcmods
+ DRACUT_LDD=${DRACUT_LDD:-ldd}
+ DRACUT_TESTBIN=${DRACUT_TESTBIN:-/bin/sh}
+ DRACUT_LDCONFIG=${DRACUT_LDCONFIG:-ldconfig}
++PKG_CONFIG=${PKG_CONFIG:-pkg-config}
+ 
+ # shellcheck source=./dracut-functions.sh
+ . "$dracutbasedir"/dracut-functions.sh
+diff --git a/dracut.sh b/dracut.sh
+index ef959021..aff721f0 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -1489,7 +1489,7 @@ set_global_var() {
+     local _pkgvar="${2%:*}"
+     local _var="${2#*:}"
+     [[ -z ${!_var} || ! -d ${dracutsysrootdir}${!_var} ]] \
+-        && export "$_var"="$(pkg-config "$_pkgconfig" --variable="$_pkgvar" 2> /dev/null)"
++        && export "$_var"="$($PKG_CONFIG "$_pkgconfig" --variable="$_pkgvar" 2> /dev/null)"
+     if [[ -z ${!_var} || ! -d ${dracutsysrootdir}${!_var} ]]; then
+         shift 2
+         if (($# == 1)); then
+diff --git a/man/dracut.8.adoc b/man/dracut.8.adoc
+index a6d044a9..ba33ab19 100644
+--- a/man/dracut.8.adoc
++++ b/man/dracut.8.adoc
+@@ -655,6 +655,13 @@ _DRACUT_LDD_::
+ Default:
+     _ldd_
+ 
++_PKG_CONFIG_::
++    sets the _pkg-config_ program path and options. Optional.
++    Most useful together with **--sysroot**.
+++
++Default:
++    _pkg-config_
++
+ _DRACUT_TESTBIN_::
+     sets the initially tested binary for detecting library paths.
+     Optional. Used for **--sysroot**. In the cross-compiled sysroot,
+-- 
+2.48.1
+
+
+From e5d3ef60f880bd9a35b0b13c667252bdb209a54e Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 5 Sep 2024 12:19:09 +0100
+Subject: [PATCH 02/12] feat(dracut): set systemdversion global var using
+ pkg-config
+
+This falls back to 0 if the version cannot be determined. The version
+isn't a regular pkg-config variable like the others, but we still want
+the ability to override this through the Dracut config, so make
+"modversion" a special case.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ dracut.sh | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/dracut.sh b/dracut.sh
+index aff721f0..45527bcd 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -1488,9 +1488,14 @@ set_global_var() {
+     local _pkgconfig="$1"
+     local _pkgvar="${2%:*}"
+     local _var="${2#*:}"
+-    [[ -z ${!_var} || ! -d ${dracutsysrootdir}${!_var} ]] \
+-        && export "$_var"="$($PKG_CONFIG "$_pkgconfig" --variable="$_pkgvar" 2> /dev/null)"
+-    if [[ -z ${!_var} || ! -d ${dracutsysrootdir}${!_var} ]]; then
++    if [[ $_pkgvar == modversion ]]; then
++        local _vararg=--modversion
++    else
++        local _vararg=--variable=$_pkgvar
++    fi
++    [[ -z ${!_var} || ($3 == /* && ! -d ${dracutsysrootdir}${!_var}) ]] \
++        && export "$_var"="$($PKG_CONFIG "$_pkgconfig" "$_vararg" 2> /dev/null)"
++    if [[ -z ${!_var} || ($3 == /* && ! -d ${dracutsysrootdir}${!_var}) ]]; then
+         shift 2
+         if (($# == 1)); then
+             export "$_var"="$1"
+@@ -1550,6 +1555,7 @@ set_global_var "systemd" "sysusers" "/usr/lib/sysusers.d"
+ set_global_var "systemd" "sysusersconfdir" "/etc/sysusers.d"
+ set_global_var "systemd" "tmpfilesdir" "/lib/tmpfiles.d" "/usr/lib/tmpfiles.d"
+ set_global_var "systemd" "tmpfilesconfdir" "/etc/tmpfiles.d"
++set_global_var "systemd" "modversion:systemdversion" "0"
+ 
+ # libkmod global variables
+ set_global_var "libkmod" "depmodd" "/usr/lib/depmod.d"
+-- 
+2.48.1
+
+
+From 80c8d6909788d718d0aa48bd70af049c43f0c67f Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 10 Mar 2025 13:11:05 +0000
+Subject: [PATCH 03/12] fix(dracut-install): plug memory leak on kerneldir
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ src/install/dracut-install.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/install/dracut-install.c b/src/install/dracut-install.c
+index bacbe86e..9bfddb83 100644
+--- a/src/install/dracut-install.c
++++ b/src/install/dracut-install.c
+@@ -68,6 +68,7 @@ static bool arg_modalias = false;
+ static bool arg_resolvelazy = false;
+ static bool arg_resolvedeps = false;
+ static bool arg_hostonly = false;
++static bool arg_kerneldir = false;
+ static bool no_xattr = false;
+ static char *destrootdir = NULL;
+ static char *sysrootdir = NULL;
+@@ -1202,6 +1203,7 @@ static int parse_argv(int argc, char *argv[])
+                         break;
+                 case ARG_KERNELDIR:
+                         kerneldir = optarg;
++                        arg_kerneldir = true;
+                         break;
+                 case ARG_FIRMWAREDIRS:
+                         firmwaredirs = strv_split(optarg, ":");
+@@ -2407,6 +2409,9 @@ int main(int argc, char **argv)
+ finish1:
+         free(destrootdir);
+ finish2:
++        if (!arg_kerneldir)
++                free(kerneldir);
++
+         if (logfile_f)
+                 fclose(logfile_f);
+ 
+-- 
+2.48.1
+
+
+From fb77a76ab8736807a9b5305528fde5275ce15c5b Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Wed, 5 Mar 2025 17:29:51 +0000
+Subject: [PATCH 04/12] fix(dracut-install): rework broken destination
+ existence logic
+
+The return code of `stat` is checked twice when it only needs to be
+checked once. The `dst_exists` condition will also never be true, making
+the variable redundant.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ src/install/dracut-install.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
+
+diff --git a/src/install/dracut-install.c b/src/install/dracut-install.c
+index 9bfddb83..83041e40 100644
+--- a/src/install/dracut-install.c
++++ b/src/install/dracut-install.c
+@@ -821,7 +821,6 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+         bool src_islink = false;
+         bool src_isdir = false;
+         mode_t src_mode = 0;
+-        bool dst_exists = true;
+         char *i = NULL;
+         const char *src, *dst;
+ 
+@@ -871,15 +870,13 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+         _asprintf(&fulldstpath, "%s/%s", destrootdir, (dst[0] == '/' ? (dst + 1) : dst));
+ 
+         ret = stat(fulldstpath, &sb);
+-        if (ret != 0) {
+-                dst_exists = false;
+-                if (errno != ENOENT) {
+-                        log_error("ERROR: stat '%s': %m", fulldstpath);
++
++        if (ret == 0) {
++                if (src_isdir && !S_ISDIR(sb.st_mode)) {
++                        log_error("dest dir '%s' already exists but is not a directory", fulldstpath);
+                         return 1;
+                 }
+-        }
+ 
+-        if (ret == 0) {
+                 if (resolvedeps && S_ISREG(sb.st_mode) && (sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
+                         log_debug("'%s' already exists, but checking for any deps", fulldstpath);
+                         if (sysrootdirlen && (strncmp(fulldstpath, sysrootdir, sysrootdirlen) == 0))
+@@ -888,9 +885,11 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+                                 ret = resolve_deps(fullsrcpath);
+                 } else
+                         log_debug("'%s' already exists", fulldstpath);
+-
+-                /* dst does already exist */
+         } else {
++                if (errno != ENOENT) {
++                        log_error("ERROR: stat '%s': %m", fulldstpath);
++                        return 1;
++                }
+ 
+                 /* check destination directory */
+                 fulldstdir = strndup(fulldstpath, dir_len(fulldstpath));
+@@ -923,15 +922,6 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+                 }
+ 
+                 if (src_isdir) {
+-                        if (dst_exists) {
+-                                if (S_ISDIR(sb.st_mode)) {
+-                                        log_debug("dest dir '%s' already exists", fulldstpath);
+-                                        return 0;
+-                                }
+-                                log_error("dest dir '%s' already exists but is not a directory", fulldstpath);
+-                                return 1;
+-                        }
+-
+                         log_info("mkdir '%s'", fulldstpath);
+                         ret = dracut_mkdir(fulldstpath);
+                         if (ret == 0) {
+-- 
+2.48.1
+
+
+From 9bc6e43632ed5c9807e40aab684fe37a6d8b3bb0 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Tue, 18 Feb 2025 17:24:05 +0000
+Subject: [PATCH 05/12] feat(dracut-install): parse ELF .note.dlopen entries
+ for extra deps
+
+Unlike traditional DT_NEEDED dependencies, there has not been a way to
+determine what libraries an ELF may dlopen until recently. systemd has
+documented a convention to declare such dependencies using JSON in the
+ELF metadata. See https://systemd.io/ELF_DLOPEN_METADATA/ for details.
+
+This metadata references sonames rather than full paths, so Dracut needs
+to determine the full paths by itself. It cannot use ldd to do this as
+that relies on DT_NEEDED. ldconfig can show the paths for all sonames in
+the cache, but that relies on the cache having already been generated,
+it isn't cross-friendly, and musl doesn't even have ldconfig. It
+therefore makes sense for Dracut to parse the ELF headers directly. This
+also paves the way for removing the dependency on ldd entirely, making
+Dracut more cross-friendly as a whole.
+
+To avoid adding an entirely new dependency, the JSON parsing is done by
+libsystemd's sd-json API. This has been exposed since systemd v257. If
+libsystemd is too old or not present at all, then this dlopen handling
+is simply skipped. This is currently not an issue for non-systemd
+distributions as systemd is the only project using this convention. If
+that were to change, libsystemd can still be used without the rest of
+systemd, as demonstrated by Gentoo.
+
+The metadata itself has only been included by systemd since v256. If an
+earlier version is detected, Dracut will unconditionally install the
+same libraries that it did before.
+
+There are different structs for 32-bit and 64-bit ELF headers, so this
+new code makes heavy use of C macros to avoid a lot of code duplication.
+One macro is also used heavily for endian conversion, as almost every
+field needs to be adjusted.
+
+See the code comments for the remaining details.
+
+Closes: https://github.com/dracut-ng/dracut-ng/issues/154
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ Makefile                                      |   4 +-
+ configure                                     |   3 +
+ dracut.sh                                     |  11 +
+ modules.d/00systemd/module-setup.sh           |   1 -
+ modules.d/01systemd-bsod/module-setup.sh      |   4 +-
+ modules.d/01systemd-coredump/module-setup.sh  |  10 +-
+ .../01systemd-integritysetup/module-setup.sh  |   5 +-
+ modules.d/01systemd-journald/module-setup.sh  |  12 +-
+ .../01systemd-veritysetup/module-setup.sh     |   5 +-
+ src/install/dracut-install.c                  | 572 +++++++++++++++++-
+ 10 files changed, 592 insertions(+), 35 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 5ce30d5f..d53d6a41 100644
+--- a/Makefile
++++ b/Makefile
+@@ -53,7 +53,7 @@ manpages = $(man1pages) $(man5pages) $(man7pages) $(man8pages)
+ all: dracut.pc dracut-install src/skipcpio/skipcpio dracut-util
+ 
+ %.o : %.c
+-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $< -o $@
++	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(KMOD_CFLAGS) $(SYSTEMD_CFLAGS) $(if $(SYSTEMD_LIBS),-DHAVE_SYSTEMD) $< -o $@
+ 
+ DRACUT_INSTALL_OBJECTS = \
+         src/install/dracut-install.o \
+@@ -72,7 +72,7 @@ src/install/util.o: src/install/util.c src/install/util.h src/install/macro.h sr
+ src/install/strv.o: src/install/strv.c src/install/strv.h src/install/util.h src/install/macro.h src/install/log.h
+ 
+ src/install/dracut-install: $(DRACUT_INSTALL_OBJECTS)
+-	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(FTS_LIBS) $(KMOD_LIBS)
++	$(CC) $(LDFLAGS) -o $@ $(DRACUT_INSTALL_OBJECTS) $(LDLIBS) $(FTS_LIBS) $(KMOD_LIBS) $(SYSTEMD_LIBS)
+ 
+ dracut-install: src/install/dracut-install
+ 	ln -fs $< $@
+diff --git a/configure b/configure
+index 5095078b..8a966333 100755
+--- a/configure
++++ b/configure
+@@ -191,6 +191,9 @@ bindir ?= ${bindir:-${prefix}/bin}
+ KMOD_CFLAGS ?= $(${PKG_CONFIG} --cflags " libkmod >= 23 ") ${KMOD_CFLAGS_EXTRA}
+ KMOD_LIBS ?= $(${PKG_CONFIG} --libs " libkmod >= 23 ")
+ FTS_LIBS ?= ${FTS_LIBS}
++# For the sd-json API, which was added in systemd v257. This is optional.
++SYSTEMD_CFLAGS ?= $(${PKG_CONFIG} --cflags "libsystemd >= 257")
++SYSTEMD_LIBS ?= $(${PKG_CONFIG} --libs "libsystemd >= 257")
+ EOF
+ 
+ {
+diff --git a/dracut.sh b/dracut.sh
+index 45527bcd..e544cafb 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -1561,6 +1561,17 @@ set_global_var "systemd" "modversion:systemdversion" "0"
+ set_global_var "libkmod" "depmodd" "/usr/lib/depmod.d"
+ set_global_var "libkmod" "depmodconfdir" "/etc/depmod.d"
+ 
++# Modules should check for JSON support in dracut-install before using it.
++DRACUT_INSTALL_JSON=
++$DRACUT_INSTALL --json-supported &> /dev/null && DRACUT_INSTALL_JSON=1
++
++# systemd started declaring its dlopen dependencies in v256. Checking for these
++# requires JSON support in dracut-install, provided by libsystemd v257. The
++# version in the sysroot may be different to the one used by dracut-install.
++USE_SYSTEMD_DLOPEN_DEPS=
++# shellcheck disable=SC2034 # USE_SYSTEMD_DLOPEN_DEPS is used in modules
++[[ $DRACUT_INSTALL_JSON && ${systemdversion%%.*} -ge 256 ]] && USE_SYSTEMD_DLOPEN_DEPS=1
++
+ if [[ $no_kernel != yes ]] && [[ -d $srcmods ]]; then
+     if ! [[ -f $srcmods/modules.dep ]]; then
+         if [[ -n "$(find "$srcmods" -name '*.ko*')" ]]; then
+diff --git a/modules.d/00systemd/module-setup.sh b/modules.d/00systemd/module-setup.sh
+index 8f25475e..482bdfa1 100755
+--- a/modules.d/00systemd/module-setup.sh
++++ b/modules.d/00systemd/module-setup.sh
+@@ -144,7 +144,6 @@ EOF
+     # Install library file(s)
+     _arch=${DRACUT_ARCH:-$(uname -m)}
+     inst_libdir_file \
+-        {"tls/$_arch/",tls/,"$_arch/",}"libgcrypt.so*" \
+         {"tls/$_arch/",tls/,"$_arch/",}"libbpf.so*" \
+         {"tls/$_arch/",tls/,"$_arch/",}"libnss_*" \
+         {"tls/$_arch/",tls/,"$_arch/",}"systemd/libsystemd*.so"
+diff --git a/modules.d/01systemd-bsod/module-setup.sh b/modules.d/01systemd-bsod/module-setup.sh
+index 91b28d7f..cf562ca6 100755
+--- a/modules.d/01systemd-bsod/module-setup.sh
++++ b/modules.d/01systemd-bsod/module-setup.sh
+@@ -26,5 +26,7 @@ install() {
+         "$systemdsystemunitdir"/initrd.target.wants/systemd-bsod.service \
+         "$systemdutildir"/systemd-bsod
+ 
+-    inst_libdir_file "libqrencode.so*"
++    if [[ ! $USE_SYSTEMD_DLOPEN_DEPS ]]; then
++        inst_libdir_file "libqrencode.so*"
++    fi
+ }
+diff --git a/modules.d/01systemd-coredump/module-setup.sh b/modules.d/01systemd-coredump/module-setup.sh
+index 6acbe75f..3083f851 100755
+--- a/modules.d/01systemd-coredump/module-setup.sh
++++ b/modules.d/01systemd-coredump/module-setup.sh
+@@ -44,10 +44,12 @@ install() {
+ 
+     # Install library file(s)
+     _arch=${DRACUT_ARCH:-$(uname -m)}
+-    inst_libdir_file \
+-        {"tls/$_arch/",tls/,"$_arch/",}"liblz4.so.*" \
+-        {"tls/$_arch/",tls/,"$_arch/",}"liblzma.so.*" \
+-        {"tls/$_arch/",tls/,"$_arch/",}"libzstd.so.*"
++    if [[ ! $USE_SYSTEMD_DLOPEN_DEPS ]]; then
++        inst_libdir_file \
++            {"tls/$_arch/",tls/,"$_arch/",}"liblz4.so.*" \
++            {"tls/$_arch/",tls/,"$_arch/",}"liblzma.so.*" \
++            {"tls/$_arch/",tls/,"$_arch/",}"libzstd.so.*"
++    fi
+ 
+     # Install the hosts local user configurations if enabled.
+     if [[ $hostonly ]]; then
+diff --git a/modules.d/01systemd-integritysetup/module-setup.sh b/modules.d/01systemd-integritysetup/module-setup.sh
+index dffc88ac..804b856e 100755
+--- a/modules.d/01systemd-integritysetup/module-setup.sh
++++ b/modules.d/01systemd-integritysetup/module-setup.sh
+@@ -60,6 +60,7 @@ install() {
+ 
+     # Install required libraries.
+     _arch=${DRACUT_ARCH:-$(uname -m)}
+-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*"
+-
++    if [[ ! $USE_SYSTEMD_DLOPEN_DEPS ]]; then
++        inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*"
++    fi
+ }
+diff --git a/modules.d/01systemd-journald/module-setup.sh b/modules.d/01systemd-journald/module-setup.sh
+index 77d6a2e9..9f546d1a 100755
+--- a/modules.d/01systemd-journald/module-setup.sh
++++ b/modules.d/01systemd-journald/module-setup.sh
+@@ -53,11 +53,13 @@ install() {
+ 
+     # Install library file(s)
+     _arch=${DRACUT_ARCH:-$(uname -m)}
+-    inst_libdir_file \
+-        {"tls/$_arch/",tls/,"$_arch/",}"libgcrypt.so*" \
+-        {"tls/$_arch/",tls/,"$_arch/",}"liblz4.so.*" \
+-        {"tls/$_arch/",tls/,"$_arch/",}"liblzma.so.*" \
+-        {"tls/$_arch/",tls/,"$_arch/",}"libzstd.so.*"
++    if [[ ! $USE_SYSTEMD_DLOPEN_DEPS ]]; then
++        inst_libdir_file \
++            {"tls/$_arch/",tls/,"$_arch/",}"libgcrypt.so*" \
++            {"tls/$_arch/",tls/,"$_arch/",}"liblz4.so.*" \
++            {"tls/$_arch/",tls/,"$_arch/",}"liblzma.so.*" \
++            {"tls/$_arch/",tls/,"$_arch/",}"libzstd.so.*"
++    fi
+ 
+     # Install the hosts local user configurations if enabled.
+     if [[ $hostonly ]]; then
+diff --git a/modules.d/01systemd-veritysetup/module-setup.sh b/modules.d/01systemd-veritysetup/module-setup.sh
+index 9dad8d4f..e3b95303 100755
+--- a/modules.d/01systemd-veritysetup/module-setup.sh
++++ b/modules.d/01systemd-veritysetup/module-setup.sh
+@@ -60,6 +60,7 @@ install() {
+ 
+     # Install required libraries.
+     _arch=${DRACUT_ARCH:-$(uname -m)}
+-    inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*"
+-
++    if [[ ! $USE_SYSTEMD_DLOPEN_DEPS ]]; then
++        inst_libdir_file {"tls/$_arch/",tls/,"$_arch/",}"libcryptsetup.so.*"
++    fi
+ }
+diff --git a/src/install/dracut-install.c b/src/install/dracut-install.c
+index 83041e40..8769d1a1 100644
+--- a/src/install/dracut-install.c
++++ b/src/install/dracut-install.c
+@@ -23,8 +23,10 @@
+ #define _GNU_SOURCE
+ #endif
+ #include <ctype.h>
++#include <elf.h>
+ #include <errno.h>
+ #include <fcntl.h>
++#include <fnmatch.h>
+ #include <getopt.h>
+ #include <glob.h>
+ #include <libgen.h>
+@@ -43,6 +45,11 @@
+ #include <regex.h>
+ #include <sys/utsname.h>
+ #include <sys/xattr.h>
++#include <sys/mman.h>
++
++#ifdef HAVE_SYSTEMD
++#include <systemd/sd-json.h>
++#endif
+ 
+ #include "log.h"
+ #include "hashmap.h"
+@@ -168,6 +175,25 @@ static inline void destroy_hashmap(Hashmap **hashmap)
+ 
+ #define _cleanup_destroy_hashmap_ _cleanup_(destroy_hashmap)
+ 
++/* Check whether the given key exists in the hash before duplicating and
++   inserting it. Assumes the value has already been duplicated and is no longer
++   needed if the insertion fails. */
++static int hashmap_put_strdup_key(Hashmap *h, const char *key, char *value)
++{
++        if (hashmap_get(h, key))
++                return 0;
++
++        char *nkey = strdup(key);
++
++        if (nkey && hashmap_put(h, nkey, value) != -ENOMEM)
++                return 0;
++
++        log_error("Out of memory");
++        free(nkey);
++        free(value);
++        return -ENOMEM;
++}
++
+ static size_t dir_len(char const *file)
+ {
+         size_t length;
+@@ -517,7 +543,7 @@ static char *get_real_file(const char *src, bool fullyresolve)
+         if (lstat(fullsrcpath, &sb) < 0)
+                 return NULL;
+ 
+-        switch (sb.st_mode & S_IFMT) {
++        switch (sb.st_mode &S_IFMT) {
+         case S_IFDIR:
+         case S_IFREG:
+                 return strdup(fullsrcpath);
+@@ -561,18 +587,328 @@ static char *get_real_file(const char *src, bool fullyresolve)
+         return TAKE_PTR(abspath);
+ }
+ 
+-static int resolve_deps(const char *src)
++/* Check that the ELF header (ehdr) matches the other given ELF header in bits,
++   endianness, OS ABI, and soname, where B is 64 or 32 bit. The SYSV and GNU OS
++   ABIs are compatible, so allow either. Returns libpath if there is a match. */
++#define CHECK_LIB_MATCH_FOR_BITS(B, match) do { \
++        if (!match) \
++                goto finish; \
++\
++        Elf##B##_Ehdr *ehdr = (Elf##B##_Ehdr *)map; \
++        if (ehdr->e_ident[EI_CLASS] == match->e_ident[EI_CLASS] && \
++            ehdr->e_ident[EI_DATA] == match->e_ident[EI_DATA] && \
++            (ehdr->e_ident[EI_OSABI] == match->e_ident[EI_OSABI] || \
++             ehdr->e_ident[EI_OSABI] == ELFOSABI_SYSV || \
++             ehdr->e_ident[EI_OSABI] == ELFOSABI_GNU) && \
++            ehdr->e_machine == match->e_machine) { \
++                if (strcmp(basename, soname) == 0) { \
++                        munmap(map, sb.st_size); \
++                        return libpath; \
++                } \
++        } \
++} while (0)
++
++/* Check that the given path (dirname + basename) with the given soname matches
++   the given (64 or 32 bit) ELF header. Returns the path if there is a match. */
++static char *check_lib_match(const char *dirname, const char *basename, const char *soname, const Elf64_Ehdr *match64,
++                             const Elf32_Ehdr *match32)
++{
++        char *libpath = NULL;
++        _asprintf(&libpath, "%s/%s", dirname, basename);
++
++        _cleanup_close_ int fd = open(libpath, O_RDONLY | O_CLOEXEC);
++        if (fd < 0)
++                goto finish2;
++
++        struct stat sb;
++        if (fstat(fd, &sb) < 0)
++                goto finish2;
++
++        void *map = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
++        if (map == MAP_FAILED)
++                goto finish2;
++
++        unsigned char *e_ident = (unsigned char *)map;
++        if (e_ident[EI_MAG0] != ELFMAG0 ||
++            e_ident[EI_MAG1] != ELFMAG1 ||
++            e_ident[EI_MAG2] != ELFMAG2 ||
++            e_ident[EI_MAG3] != ELFMAG3)
++                goto finish;
++
++        switch (e_ident[EI_CLASS]) {
++        case ELFCLASS32:
++                CHECK_LIB_MATCH_FOR_BITS(32, match32);
++                break;
++        case ELFCLASS64:
++                CHECK_LIB_MATCH_FOR_BITS(64, match64);
++                break;
++        }
++
++finish:
++        munmap(map, sb.st_size);
++finish2:
++        free(libpath);
++        return NULL;
++}
++
++/* Search the given library directory (within the sysroot) for a library
++   matching the given soname and (64 or 32 bit) ELF header. Returns the path
++   (with the sysroot) if there is a match. */
++static char *search_libdir(const char *libdir, const char *soname, const Elf64_Ehdr *match64, const Elf32_Ehdr *match32)
++{
++        _cleanup_free_ char *sysroot_libdir;
++        _asprintf(&sysroot_libdir, "%s%s", sysrootdir ?: "", libdir);
++        log_debug("Searching '%s' to find %s", sysroot_libdir, soname);
++
++        /* First check for a filename matching the soname. This is likely to
++           succeed and is very much faster than checking the sonames of every
++           library in the directory below. */
++        char *res = check_lib_match(sysroot_libdir, soname, soname, match64, match32);
++        if (res)
++                return res;
++
++        _cleanup_closedir_ DIR *dirp = opendir(sysroot_libdir);
++        if (!dirp)
++                return NULL;
++
++        struct dirent *entry;
++        while ((entry = readdir(dirp)) != NULL) {
++                if (entry->d_type != DT_REG && entry->d_type != DT_LNK)
++                        continue;
++
++                if (fnmatch("*.so*", entry->d_name, 0) != 0)
++                        continue;
++
++                res = check_lib_match(sysroot_libdir, entry->d_name, soname, match64, match32);
++                if (res)
++                        return res;
++        }
++
++        return NULL;
++}
++
++/* Read the given ldconf file(s) (within the sysroot, can be a glob pattern) to
++   search for a library matching the given soname and (64 or 32 bit) ELF header.
++   Returns the path (with the sysroot) if there is a match. */
++static char *search_via_ldconf(const char *conf_pattern, const char *soname, const Elf64_Ehdr *match64,
++                               const Elf32_Ehdr *match32)
++{
++        char line[PATH_MAX];
++        const char *include_prefix = "include ";
++        size_t include_prefix_len = strlen(include_prefix);
++
++        _cleanup_free_ char *sysroot_conf_pattern = NULL;
++        _asprintf(&sysroot_conf_pattern, "%s%s", sysrootdir ?: "", conf_pattern);
++        log_debug("Reading '%s' to find %s", sysroot_conf_pattern, soname);
++
++        _cleanup_globfree_ glob_t globbuf;
++        if (glob(sysroot_conf_pattern, 0, NULL, &globbuf) == 0) {
++                for (size_t i = 0; i < globbuf.gl_pathc; i++) {
++                        char *conf_path = globbuf.gl_pathv[i];
++                        _cleanup_fclose_ FILE *file = fopen(conf_path, "r");
++                        if (!file) {
++                                log_error("ERROR: cannot open '%s': %m", conf_path);
++                                return NULL;
++                        }
++
++                        const char *conf_dir = dirname(conf_path);
++
++                        while (fgets(line, sizeof(line), file)) {
++                                /* glibc and musl separate with newlines. */
++                                char *newline = strchr(line, '\n');
++                                if (newline)
++                                        *newline = '\0';
++
++                                /* musl also separates with colons. Do the same
++                                   with glibc for simplicity. */
++                                char *colon = strchr(line, ':');
++                                if (colon)
++                                        *colon = '\0';
++
++                                /* Ignore any comments. */
++                                char *comment = strchr(line, '#');
++                                if (comment)
++                                        *comment = '\0';
++
++                                /* Skip empty lines. */
++                                if (line[0] == '\0')
++                                        continue;
++
++                                char *result;
++                                if (strncmp(line, include_prefix, include_prefix_len) == 0) {
++                                        const char *include_path = line + include_prefix_len;
++                                        /* include directives can be absolute or
++                                           relative. Prepend the current file's
++                                           directory if relative. */
++                                        if (include_path[0] == '/') {
++                                                result = search_via_ldconf(include_path, soname, match64, match32);
++                                        } else {
++                                                _cleanup_free_ char *abs_include_path = NULL;
++                                                _asprintf(&abs_include_path, "%s/%s", conf_dir + sysrootdirlen, include_path);
++                                                result = search_via_ldconf(abs_include_path, soname, match64, match32);
++                                        }
++                                } else {
++                                        result = search_libdir(line, soname, match64, match32);
++                                }
++                                if (result)
++                                        return result;
++                        }
++                }
++        }
++
++        return NULL;
++}
++
++/* Expand $ORIGIN and $LIB variables in the given R(UN)PATH entry. $ORIGIN
++   expands to the directory of the given src path. $LIB expands to lib if
++   match64 is NULL or lib64 otherwise. Returns a newly allocated string even if
++   no expansion was necessary. */
++static char *expand_runpath(char *input, const char *src, const Elf64_Ehdr *match64)
++{
++        regex_t regex;
++        regmatch_t rmatch[3]; /* 0: full match, 1: without brackets, 2: with brackets */
++
++        if (regcomp(&regex, "\\$([A-Z]+|\\{([A-Z]+)\\})", REG_EXTENDED) != 0) {
++                log_error("ERROR: Could not compile RUNPATH regex");
++                return NULL;
++        }
++
++        char *result = NULL, *current = input;
++        int offset = 0;
++
++        while (regexec(&regex, current + offset, 3, rmatch, 0) == 0) {
++                char *varname = NULL;
++                _cleanup_free_ char *varval = NULL;
++                size_t varname_len, varval_len;
++
++                /* Determine which group matched, with or without brackets. */
++                int rgroup = rmatch[1].rm_so != -1 ? 1 : 2;
++                varname_len = rmatch[rgroup].rm_eo - rmatch[rgroup].rm_so;
++                varname = current + offset + rmatch[rgroup].rm_so;
++
++                if (strncmp(varname, "ORIGIN", varname_len) == 0) {
++                        varval = dirname_malloc(src);
++                } else if (strncmp(varname, "LIB", varname_len) == 0) {
++                        varval = strdup(match64 ? "lib64" : "lib");
++                } else {
++                        /* If the variable is unrecognised, leave it as-is. */
++                        offset += rmatch[0].rm_eo;
++                        continue;
++                }
++
++                if (!varval)
++                        goto oom;
++
++                varval_len = strlen(varval);
++                size_t prefix_len = offset + rmatch[0].rm_so;
++                size_t suffix_len = strlen(current) - (offset + rmatch[0].rm_eo);
++
++                char *replaced = realloc(result, prefix_len + varval_len + suffix_len + 1);
++                if (!replaced)
++                        goto oom;
++
++                result = replaced;
++                strcpy(result + prefix_len, varval);
++                strcpy(result + prefix_len + varval_len, current + offset + rmatch[0].rm_eo);
++
++                current = result;
++                offset = prefix_len + varval_len;
++        }
++
++        regfree(&regex);
++        return result ?: strdup(current);
++
++oom:
++        log_error("Out of memory");
++        free(result);
++        regfree(&regex);
++        return NULL;
++}
++
++/* Adjust the endianness of the given value of the given SIZE using ELF header
++   ehdr. The size sadly cannot be determined automatically using sizeof because
++   that is expanded using the C compiler rather than the preprocessor. */
++#define ELF_BYTESWAP(SIZE, value) (ehdr->e_ident[EI_DATA] == ELFDATA2MSB ? be##SIZE##toh(value) : le##SIZE##toh(value))
++
++/* Get a pointer to the ELF header map's section header string table, where B is
++   64 or 32 bit. Sanity checks the ELF structure to avoid crashes. */
++#define PARSE_ELF_START(B, map) \
++        Elf##B##_Ehdr *ehdr = (Elf##B##_Ehdr *)map; \
++\
++        if (sizeof(Elf##B##_Ehdr) > src_len || \
++            ELF_BYTESWAP(B, ehdr->e_shoff) > src_len || \
++            ELF_BYTESWAP(16, ehdr->e_shstrndx) >= ELF_BYTESWAP(16, ehdr->e_shnum)) \
++                break; \
++\
++        Elf##B##_Shdr *shdr = (Elf##B##_Shdr *)((char *)map + ELF_BYTESWAP(B, ehdr->e_shoff)); \
++        const char *shstrtab = (char *)map + ELF_BYTESWAP(B, shdr[ELF_BYTESWAP(16, ehdr->e_shstrndx)].sh_offset);
++
++/* Expand the R(UN)PATH of the ELF header map and search it for a library
++   matching soname and match64/match32. map must point to the same header as
++   match64/match32. Returns the path (with the sysroot) if there is a match. */
++#define FIND_LIBRARY_RUNPATH_FOR_BITS(B, map) do { \
++        PARSE_ELF_START(B, map); \
++        bool seen_runpath = false; \
++\
++        for (size_t i = 0; i < ELF_BYTESWAP(16, ehdr->e_shnum); i++) { \
++                if (strcmp(&shstrtab[ELF_BYTESWAP(32, shdr[i].sh_name)], ".dynamic") != 0) \
++                        continue; \
++\
++                Elf##B##_Dyn *dyn = (Elf##B##_Dyn *)((char *)map + ELF_BYTESWAP(B, shdr[i].sh_offset)); \
++                for (Elf##B##_Dyn *d = dyn; ELF_BYTESWAP(32, d->d_tag) != DT_NULL; d++) { \
++                        if (ELF_BYTESWAP(B, d->d_tag) == DT_RUNPATH) \
++                                seen_runpath = true; /* RUNPATH has precedence over RPATH. */ \
++                        else if (seen_runpath || ELF_BYTESWAP(B, d->d_tag) != DT_RPATH) \
++                                continue; \
++\
++                        char *runpath = (char *)map + ELF_BYTESWAP(B, shdr[ELF_BYTESWAP(32, shdr[i].sh_link)].sh_offset) + ELF_BYTESWAP(B, d->d_un.d_val); \
++                        _cleanup_free_ char *expanded = expand_runpath(runpath, src, match64); \
++                        if (!expanded) \
++                                continue; \
++\
++                        for (char *token = strtok(expanded, ":"); token; token = strtok(NULL, ":")) { \
++                                char *res = search_libdir(token, soname, match64, match32); \
++                                if (res) \
++                                        return res; \
++                        } \
++                } \
++        } \
++} while (0)
++
++/* Given an soname and (64 or 32 bit) ELF header, search for a matching library
++   in the R(UN)PATH of that header, the directories referenced by ldconf files,
++   and some default locations. src must be the path (with the sysroot) to the
++   ELF file and src_len must be that file's length in bytes. Returns the path
++   (with the sysroot) if there is a match. */
++static char *find_library(const char *soname, const char *src, size_t src_len, const Elf64_Ehdr *match64,
++                          const Elf32_Ehdr *match32)
++{
++        if (match64)
++                FIND_LIBRARY_RUNPATH_FOR_BITS(64, match64);
++        else if (match32)
++                FIND_LIBRARY_RUNPATH_FOR_BITS(32, match32);
++
++        /* There is no definitive way to determine the libc so just check for
++           musl and glibc ldconf files. musl hardcodes its default locations. It
++           is impossible to determine glibc's default locations, but this set is
++           practically universal. It is safe to check lib64 for 32-bit libraries
++           because we include the class (64-bit or 32-bit) when matching. */
++        return search_via_ldconf("/etc/ld-musl-*.path", soname, match64, match32) ?:
++               search_via_ldconf("/etc/ld.so.conf", soname, match64, match32) ?:
++               search_libdir("/lib64", soname, match64, match32) ?:
++               search_libdir("/usr/lib64", soname, match64, match32) ?:
++               search_libdir("/usr/local/lib64", soname, match64, match32) ?:
++               search_libdir("/lib", soname, match64, match32) ?:
++               search_libdir("/usr/lib", soname, match64, match32) ?:
++               search_libdir("/usr/local/lib", soname, match64, match32);
++}
++
++static int resolve_deps_ldd(const char *src, const char *fullsrcpath)
+ {
+         int ret = 0, err;
+ 
+         _cleanup_free_ char *buf = NULL;
+         size_t linesize = LINE_MAX + 1;
+-        _cleanup_free_ char *fullsrcpath = NULL;
+-
+-        fullsrcpath = get_real_file(src, true);
+-        log_debug("resolve_deps('%s') -> get_real_file('%s', true) = '%s'", src, src, fullsrcpath);
+-        if (!fullsrcpath)
+-                return 0;
+ 
+         buf = malloc(linesize);
+         if (buf == NULL)
+@@ -704,6 +1040,195 @@ static int resolve_deps(const char *src)
+                 return ret;
+ }
+ 
++#ifdef HAVE_SYSTEMD
++
++/* Parse the given .note.dlopen JSON (https://systemd.io/ELF_DLOPEN_METADATA/)
++   in the given note index and find each dependent library, ensuring it matches
++   the given (64 or 32 bit) ELF header. Each library found is added to deps.
++   Dependencies already found in this chain must be given in pdeps. Failure to
++   parse the JSON or find a library is considered non-fatal. */
++static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const char *fullsrcpath, size_t src_len,
++                                           const char *json, size_t note_idx, const Elf64_Ehdr *match64, const Elf32_Ehdr *match32)
++{
++        _cleanup_(sd_json_variant_unrefp) sd_json_variant *dlopen_json = NULL;
++        if (sd_json_parse(json, 0, &dlopen_json, NULL, NULL) != 0 || !sd_json_variant_is_array(dlopen_json)) {
++                log_warning("WARNING: .note.dlopen entry #%zd is not a JSON array in '%s'", note_idx, fullsrcpath);
++                return;
++        }
++
++        for (size_t entry_idx = 0; entry_idx < sd_json_variant_elements(dlopen_json); entry_idx++) {
++                sd_json_variant *entry = sd_json_variant_by_index(dlopen_json, entry_idx);
++                sd_json_variant *sonames = sd_json_variant_by_key(entry, "soname");
++                if (!sonames || !sd_json_variant_is_array(sonames)) {
++                        log_warning("WARNING: soname array missing from .note.dlopen entry #%zd.%zd in '%s'", note_idx, entry_idx, fullsrcpath);
++                        return;
++                }
++
++                for (size_t soname_idx = 0; soname_idx < sd_json_variant_elements(sonames); soname_idx++) {
++                        sd_json_variant *soname_json = sd_json_variant_by_index(sonames, soname_idx);
++                        if (!sd_json_variant_is_string(soname_json)) {
++                                log_warning("WARNING: soname #%zd of .note.dlopen entry #%zd.%zd is not a string in '%s'", soname_idx, note_idx,
++                                            entry_idx, fullsrcpath);
++                                return;
++                        }
++
++                        const char *soname = sd_json_variant_string(soname_json);
++                        if (hashmap_get(pdeps, soname))
++                                continue;
++
++                        char *library = find_library(soname, fullsrcpath, src_len, match64, match32);
++                        if (!library || hashmap_put_strdup_key(deps, soname, library) < 0)
++                                log_warning("WARNING: could not locate dlopen dependency %s requested by '%s'", soname, fullsrcpath);
++                }
++        }
++}
++
++/* Given the ELF header map, also represented by match64/match32 and where B is
++   64 or 32 bit, check .note.dlopen entries for dependencies. See above. */
++#define RESOLVE_DEPS_DLOPEN_FOR_BITS(B, match64, match32) do { \
++        PARSE_ELF_START(B, map); \
++        size_t note_idx = -1; \
++\
++        for (size_t i = 0; i < ELF_BYTESWAP(16, ehdr->e_shnum); i++) { \
++                if ((char*)shdr + i * sizeof(Elf##B##_Shdr) > (char*)map + src_len) \
++                        break; \
++                if (strcmp(&shstrtab[ELF_BYTESWAP(32, shdr[i].sh_name)], ".note.dlopen") != 0) \
++                        continue; \
++\
++                const char *note_offset = (char *)map + ELF_BYTESWAP(B, shdr[i].sh_offset); \
++                const char *note_end = note_offset + ELF_BYTESWAP(32, shdr[i].sh_size); \
++\
++                if (note_offset < (char*)map || note_end > (char*)map + src_len || note_end < note_offset) \
++                        continue; \
++\
++                while (note_offset < note_end) { \
++                        Elf##B##_Nhdr *nhdr = (Elf##B##_Nhdr *)note_offset; \
++                        note_offset += sizeof(Elf##B##_Nhdr); \
++\
++                        /* We don't need the name, checking the type is enough. */ \
++                        note_offset += (ELF_BYTESWAP(32, nhdr->n_namesz) + 3) & ~3; /* Align to 4 bytes */ \
++\
++                        const char *note_desc = note_offset; \
++                        note_offset += (ELF_BYTESWAP(32, nhdr->n_descsz) + 3) & ~3; /* Align to 4 bytes */ \
++                        if (note_offset > (char*)map + src_len) \
++                                break; \
++\
++                        if (ELF_BYTESWAP(32, nhdr->n_type) != 0x407c0c0a) \
++                                continue; \
++\
++                        note_idx++; \
++                        resolve_deps_dlopen_parse_json(pdeps, deps, fullsrcpath, src_len, note_desc, note_idx, match64, match32); \
++                } \
++        } \
++} while (0)
++
++static int resolve_deps(const char *src, Hashmap *pdeps);
++
++static int resolve_deps_dlopen(const char *src, const char *fullsrcpath, Hashmap *pdeps)
++{
++        _cleanup_close_ int fd = open(fullsrcpath, O_RDONLY | O_CLOEXEC);
++        if (fd < 0) {
++                log_error("ERROR: cannot open '%s': %m", fullsrcpath);
++                return -errno;
++        }
++
++        struct stat sb;
++        if (fstat(fd, &sb) < 0) {
++                log_error("ERROR: cannot stat '%s': %m", fullsrcpath);
++                return -errno;
++        }
++
++        size_t src_len = sb.st_size;
++        void *map = mmap(NULL, src_len, PROT_READ, MAP_PRIVATE, fd, 0);
++        if (map == MAP_FAILED) {
++                log_error("ERROR: cannot mmap '%s': %m", fullsrcpath);
++                return -errno;
++        }
++
++        /* It would be easiest to blindly install dependencies as we find them
++           depth-first, but this does not work in practise. We need to track
++           which dependencies are already found to avoid loops. We also need to
++           install them breadth-first because of how RUNPATH works. systemd is a
++           good example. libsystemd-core depends on libsystemd-shared. Neither
++           is in the default library path, but libsystemd-core lacks a RUNPATH,
++           so it cannot find libsystemd-shared by itself. See for yourself with
++           ldd. It must be found in the context of an executable with a RUNPATH
++           that also depends on libsystemd-shared, such as systemd-executor. The
++           RUNPATH only applies to direct dependencies, not subdependencies, so
++           libsystemd-shared needs to be found as a direct dependency of
++           systemd-executor before we check libsystemd-core's dependencies.
++           Therefore, pdeps above holds the dependencies we have already found,
++           deps holds the dependencies found in this iteration, and ndeps is
++           used to combine them into the next iteration's pdeps. */
++        Hashmap *ndeps = hashmap_new(string_hash_func, string_compare_func);
++        Hashmap  *deps = hashmap_new(string_hash_func, string_compare_func);
++        int ret = 0;
++
++        unsigned char *e_ident = (unsigned char *)map;
++        if (e_ident[EI_MAG0] != ELFMAG0 ||
++            e_ident[EI_MAG1] != ELFMAG1 ||
++            e_ident[EI_MAG2] != ELFMAG2 ||
++            e_ident[EI_MAG3] != ELFMAG3)
++                goto finish;
++
++        switch (e_ident[EI_CLASS]) {
++        case ELFCLASS32:
++                RESOLVE_DEPS_DLOPEN_FOR_BITS(32, NULL, ehdr);
++                break;
++        case ELFCLASS64:
++                RESOLVE_DEPS_DLOPEN_FOR_BITS(64, ehdr, NULL);
++                break;
++        default:
++                log_error("ERROR: '%s' has an unknown ELF class", fullsrcpath);
++                ret = -1;
++        }
++
++        if (hashmap_merge(ndeps, pdeps) < 0 || hashmap_merge(ndeps, deps) < 0)
++                goto finish;
++
++        char *key, *library;
++        Iterator i;
++        HASHMAP_FOREACH(library, deps, i) {
++                ret += library_install(src, library);
++                ret += resolve_deps(library, ndeps);
++        }
++
++finish:
++        munmap(map, src_len);
++        hashmap_free(ndeps);
++
++        HASHMAP_FOREACH(library, deps, i) {
++                item_free(library);
++        }
++
++        while ((key = hashmap_steal_first_key(deps)))
++                item_free(key);
++
++        hashmap_free(deps);
++        return ret;
++}
++
++#endif
++
++/* Recursively check the given file for dependencies and install them. pdeps is
++   for dependencies already found in this chain and should initially be NULL.
++   Both ELF binaries and scripts with shebangs are handled. */
++static int resolve_deps(const char *src, Hashmap *pdeps)
++{
++        _cleanup_free_ char *fullsrcpath = NULL;
++
++        fullsrcpath = get_real_file(src, true);
++        log_debug("resolve_deps('%s') -> get_real_file('%s', true) = '%s'", src, src, fullsrcpath);
++        if (!fullsrcpath)
++                return 0;
++
++        return resolve_deps_ldd(src, fullsrcpath)
++#ifdef HAVE_SYSTEMD
++               ?: resolve_deps_dlopen(src, fullsrcpath, pdeps)
++#endif
++               ;
++}
++
+ /* Install ".<filename>.hmac" file for FIPS self-checks */
+ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
+ {
+@@ -880,9 +1405,9 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+                 if (resolvedeps && S_ISREG(sb.st_mode) && (sb.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
+                         log_debug("'%s' already exists, but checking for any deps", fulldstpath);
+                         if (sysrootdirlen && (strncmp(fulldstpath, sysrootdir, sysrootdirlen) == 0))
+-                                ret = resolve_deps(fulldstpath + sysrootdirlen);
++                                ret = resolve_deps(fulldstpath + sysrootdirlen, NULL);
+                         else
+-                                ret = resolve_deps(fullsrcpath);
++                                ret = resolve_deps(fullsrcpath, NULL);
+                 } else
+                         log_debug("'%s' already exists", fulldstpath);
+         } else {
+@@ -975,9 +1500,9 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+                         if (resolvedeps) {
+                                 /* ensure fullsrcpath contains sysrootdir */
+                                 if (sysrootdirlen && (strncmp(fullsrcpath, sysrootdir, sysrootdirlen) == 0))
+-                                        ret += resolve_deps(fullsrcpath + sysrootdirlen);
++                                        ret += resolve_deps(fullsrcpath + sysrootdirlen, NULL);
+                                 else
+-                                        ret += resolve_deps(fullsrcpath);
++                                        ret += resolve_deps(fullsrcpath, NULL);
+                         }
+                         if (arg_hmac) {
+                                 /* copy .hmac files also */
+@@ -1058,10 +1583,11 @@ static void usage(int status)
+                "  -S --mod-filter-nosymbol  Exclude kernel modules by symbol regexp\n"
+                "  -N --mod-filter-noname    Exclude kernel modules by name regexp\n"
+                "\n"
+-               "  -v --verbose      Show more output\n"
+-               "     --debug        Show debug output\n"
+-               "     --version      Show package version\n"
+-               "  -h --help         Show this help\n"
++               "     --json-supported  Show whether this build supports JSON\n"
++               "  -v --verbose         Show more output\n"
++               "     --debug           Show debug output\n"
++               "     --version         Show package version\n"
++               "  -h --help            Show this help\n"
+                "\n", program_invocation_short_name, program_invocation_short_name, program_invocation_short_name);
+         exit(status);
+ }
+@@ -1076,7 +1602,8 @@ static int parse_argv(int argc, char *argv[])
+                 ARG_MODALIAS,
+                 ARG_KERNELDIR,
+                 ARG_FIRMWAREDIRS,
+-                ARG_DEBUG
++                ARG_DEBUG,
++                ARG_JSON_SUPPORTED,
+         };
+ 
+         static struct option const options[] = {
+@@ -1104,6 +1631,7 @@ static int parse_argv(int argc, char *argv[])
+                 {"silent", no_argument, NULL, ARG_SILENT},
+                 {"kerneldir", required_argument, NULL, ARG_KERNELDIR},
+                 {"firmwaredirs", required_argument, NULL, ARG_FIRMWAREDIRS},
++                {"json-supported", no_argument, NULL, ARG_JSON_SUPPORTED},
+                 {NULL, 0, NULL, 0}
+         };
+ 
+@@ -1207,6 +1735,14 @@ static int parse_argv(int argc, char *argv[])
+                 case 'h':
+                         usage(EXIT_SUCCESS);
+                         break;
++                case ARG_JSON_SUPPORTED:
++#ifdef HAVE_SYSTEMD
++                        puts("JSON is supported");
++                        return 0;
++#else
++                        puts("JSON is not supported");
++                        return -1;
++#endif
+                 default:
+                         usage(EXIT_FAILURE);
+                 }
+@@ -1293,7 +1829,7 @@ static int resolve_lazy(int argc, char **argv)
+                 item = strdup(p);
+                 hashmap_put(items, item, item);
+ 
+-                ret += resolve_deps(src);
++                ret += resolve_deps(src, NULL);
+         }
+         return ret;
+ }
+-- 
+2.48.1
+
+
+From 2af7fbafaa02d7edfe387829bb49ed3d5bb47454 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Tue, 4 Mar 2025 11:09:32 +0000
+Subject: [PATCH 06/12] feat(dracut-install): extend new ELF parsing code to
+ replace ldd calls
+
+Now that dracut-install has its own ELF parsing code to handle dlopen
+dependencies, it is only a small additional step to also handle
+traditional DT_NEEDED dependencies, removing the need to call ldd, which
+is not cross-friendly.
+
+This avoids the earlier issue seen with musl in #1087.
+
+We should no longer directly install libsystemd*.so because
+libsystemd-core does not have the RUNPATH to find libsystemd-shared by
+itself. Both get pulled in by the main systemd binary anyway. ldd had
+the same issue, dracut-install silently ignored the failure.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ dracut.sh                           |   6 +-
+ modules.d/00systemd/module-setup.sh |   3 +-
+ src/install/dracut-install.c        | 288 ++++++++++------------------
+ 3 files changed, 106 insertions(+), 191 deletions(-)
+
+diff --git a/dracut.sh b/dracut.sh
+index e544cafb..75d92738 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -1357,11 +1357,7 @@ if [[ $early_microcode == yes ]] || { [[ $acpi_override == yes ]] && [[ -d $acpi
+     mkdir "$early_cpio_dir"
+ fi
+ 
+-if ${DRACUT_LDD:-ldd} "${dracutsysrootdir}/bin/sh" | grep -q musl &> /dev/null; then
+-    musl=1
+-fi
+-
+-[[ "$dracutsysrootdir" ]] || [[ "$noexec" ]] || [[ "$musl" ]] || export DRACUT_RESOLVE_LAZY="1"
++[[ "$dracutsysrootdir" ]] || [[ "$noexec" ]] || export DRACUT_RESOLVE_LAZY="1"
+ 
+ if [[ $print_cmdline ]]; then
+     stdloglvl=0
+diff --git a/modules.d/00systemd/module-setup.sh b/modules.d/00systemd/module-setup.sh
+index 482bdfa1..747f09f0 100755
+--- a/modules.d/00systemd/module-setup.sh
++++ b/modules.d/00systemd/module-setup.sh
+@@ -145,6 +145,5 @@ EOF
+     _arch=${DRACUT_ARCH:-$(uname -m)}
+     inst_libdir_file \
+         {"tls/$_arch/",tls/,"$_arch/",}"libbpf.so*" \
+-        {"tls/$_arch/",tls/,"$_arch/",}"libnss_*" \
+-        {"tls/$_arch/",tls/,"$_arch/",}"systemd/libsystemd*.so"
++        {"tls/$_arch/",tls/,"$_arch/",}"libnss_*"
+ }
+diff --git a/src/install/dracut-install.c b/src/install/dracut-install.c
+index 8769d1a1..f194532f 100644
+--- a/src/install/dracut-install.c
++++ b/src/install/dracut-install.c
+@@ -84,7 +84,6 @@ static char *kerneldir = NULL;
+ static size_t kerneldirlen = 0;
+ static char **firmwaredirs = NULL;
+ static char **pathdirs;
+-static char *ldd = NULL;
+ static char *logdir = NULL;
+ static char *logfile = NULL;
+ FILE *logfile_f = NULL;
+@@ -903,143 +902,6 @@ static char *find_library(const char *soname, const char *src, size_t src_len, c
+                search_libdir("/usr/local/lib", soname, match64, match32);
+ }
+ 
+-static int resolve_deps_ldd(const char *src, const char *fullsrcpath)
+-{
+-        int ret = 0, err;
+-
+-        _cleanup_free_ char *buf = NULL;
+-        size_t linesize = LINE_MAX + 1;
+-
+-        buf = malloc(linesize);
+-        if (buf == NULL)
+-                return -errno;
+-
+-        if (strstr(src, ".so") == NULL) {
+-                _cleanup_close_ int fd = -1;
+-                fd = open(fullsrcpath, O_RDONLY | O_CLOEXEC);
+-                if (fd < 0)
+-                        return -errno;
+-
+-                ret = read(fd, buf, linesize - 1);
+-                if (ret == -1)
+-                        return -errno;
+-
+-                buf[ret] = '\0';
+-                if (buf[0] == '#' && buf[1] == '!') {
+-                        /* we have a shebang */
+-                        char *p, *q;
+-                        for (p = &buf[2]; *p && isspace(*p); p++) ;
+-                        for (q = p; *q && (!isspace(*q)); q++) ;
+-                        *q = '\0';
+-                        log_debug("Script install: '%s'", p);
+-                        ret = dracut_install(p, p, false, true, false);
+-                        if (ret != 0)
+-                                log_error("ERROR: failed to install '%s'", p);
+-                        return ret;
+-                }
+-        }
+-
+-        int fds[2];
+-        FILE *fptr;
+-        if (pipe2(fds, O_CLOEXEC) == -1 || (fptr = fdopen(fds[0], "r")) == NULL) {
+-                log_error("ERROR: pipe stream initialization for '%s' failed: %m", ldd);
+-                exit(EXIT_FAILURE);
+-        }
+-
+-        log_debug("%s %s", ldd, fullsrcpath);
+-        pid_t ldd_pid;
+-        if ((ldd_pid = fork()) == 0) {
+-                dup2(fds[1], 1);
+-                dup2(fds[1], 2);
+-                putenv("LC_ALL=C");
+-                execlp(ldd, ldd, fullsrcpath, (char *)NULL);
+-                _exit(errno == ENOENT ? 127 : 126);
+-        }
+-        close(fds[1]);
+-
+-        ret = 0;
+-
+-        while (getline(&buf, &linesize, fptr) >= 0) {
+-                char *p;
+-
+-                log_debug("ldd: '%s'", buf);
+-
+-                if (strstr(buf, "you do not have execution permission")) {
+-                        log_error("%s", buf);
+-                        ret += 1;
+-                        break;
+-                }
+-
+-                /* errors from cross-compiler-ldd */
+-                if (strstr(buf, "unable to find sysroot")) {
+-                        log_error("%s", buf);
+-                        ret += 1;
+-                        break;
+-                }
+-
+-                /* musl ldd */
+-                if (strstr(buf, "Not a valid dynamic program"))
+-                        break;
+-
+-                /* glibc */
+-                if (strstr(buf, "cannot execute binary file"))
+-                        continue;
+-
+-                if (strstr(buf, "not a dynamic executable"))
+-                        break;
+-
+-                if (strstr(buf, "loader cannot load itself"))
+-                        break;
+-
+-                if (strstr(buf, "not regular file"))
+-                        break;
+-
+-                if (strstr(buf, "cannot read header"))
+-                        break;
+-
+-                if (strstr(buf, "cannot be preloaded"))
+-                        continue;
+-
+-                if (strstr(buf, destrootdir))
+-                        break;
+-
+-                p = buf;
+-                if (strchr(p, '$')) {
+-                        /* take ldd variable expansion into account */
+-                        p = strstr(p, "=>");
+-                        if (!p)
+-                                p = buf;
+-                }
+-                p = strchr(p, '/');
+-
+-                if (p) {
+-                        char *q;
+-
+-                        for (q = p; *q && *q != ' ' && *q != '\n'; q++) ;
+-                        *q = '\0';
+-
+-                        ret += library_install(src, p);
+-
+-                }
+-        }
+-
+-        fclose(fptr);
+-        while (waitpid(ldd_pid, &err, 0) == -1) {
+-                if (errno != EINTR) {
+-                        log_error("ERROR: waitpid() failed: %m");
+-                        return 1;
+-                }
+-        }
+-        err = WIFSIGNALED(err) ? 128 + WTERMSIG(err) : WEXITSTATUS(err);
+-        /* ldd has error conditions we largely don't care about ("not a dynamic executable", &c.):
+-           only error out on hard errors (ENOENT, ENOEXEC, signals) */
+-        if (err >= 126) {
+-                log_error("ERROR: '%s %s' failed with %d", ldd, fullsrcpath, err);
+-                return err;
+-        } else
+-                return ret;
+-}
+-
+ #ifdef HAVE_SYSTEMD
+ 
+ /* Parse the given .note.dlopen JSON (https://systemd.io/ELF_DLOPEN_METADATA/)
+@@ -1122,10 +984,79 @@ static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const
+         } \
+ } while (0)
+ 
+-static int resolve_deps(const char *src, Hashmap *pdeps);
++#endif
+ 
+-static int resolve_deps_dlopen(const char *src, const char *fullsrcpath, Hashmap *pdeps)
++/* Given the ELF header map, also represented by match64/match32 and where B is
++   64 or 32 bit, check PT_INTERP and DT_NEEDED entries for dependencies. */
++#define RESOLVE_DEPS_NEEDED_FOR_BITS(B, match64, match32) do { \
++        PARSE_ELF_START(B, map); \
++\
++        if (ELF_BYTESWAP(16, ehdr->e_type) == ET_EXEC || ELF_BYTESWAP(16, ehdr->e_type) == ET_DYN) { \
++                for (size_t ph_idx = 0; ph_idx < ELF_BYTESWAP(16, ehdr->e_phnum); ph_idx++) { \
++                        Elf##B##_Phdr *phdr = (Elf##B##_Phdr *)((char *)map + ELF_BYTESWAP(B, ehdr->e_phoff) + ph_idx * ELF_BYTESWAP(16, ehdr->e_phentsize)); \
++                        if ((char *)phdr < (char *)map || (char *)phdr + sizeof(Elf##B##_Phdr) > (char *)map + src_len) \
++                                break; \
++                        if (ELF_BYTESWAP(32, phdr->p_type) != PT_INTERP) \
++                                continue; \
++\
++                        const char *interpreter = (const char *)map + ELF_BYTESWAP(B, phdr->p_offset); \
++                        if (interpreter < (char *)map || interpreter > (char *)map + src_len) \
++                                break; \
++                        if (hashmap_get(pdeps, interpreter)) \
++                                continue; \
++\
++                        char *value = strdup(interpreter); \
++                        if (!value || hashmap_put_strdup_key(deps, interpreter, value) < 0) { \
++                                log_error("ERROR: could not handle interpreter for '%s'", fullsrcpath); \
++                                ret = -1; \
++                        } \
++                        break; \
++                } \
++        } \
++\
++        for (size_t i = 0; i < ELF_BYTESWAP(16, ehdr->e_shnum); i++) { \
++                if ((char*)&shdr[i] < (char*)map || (char*)&shdr[i] + sizeof(Elf##B##_Shdr) > (char*)map + src_len) \
++                        break; \
++                if (strcmp(&shstrtab[ELF_BYTESWAP(32, shdr[i].sh_name)], ".dynamic") != 0) \
++                        continue; \
++\
++                Elf##B##_Dyn *dyn = (Elf##B##_Dyn *)((char *)map + ELF_BYTESWAP(B, shdr[i].sh_offset)); \
++                if ((char *)dyn < (char *)map || (char *)dyn > (char *)map + src_len) \
++                        break; \
++\
++                for (Elf##B##_Dyn *d = dyn; ELF_BYTESWAP(32, d->d_tag) != DT_NULL; d++) { \
++                        if ((char *)d < (char *)map || (char *)d + sizeof(Elf##B##_Dyn) > (char *)map + src_len) \
++                                break; \
++                        if (ELF_BYTESWAP(B, d->d_tag) != DT_NEEDED) \
++                                continue; \
++\
++                        const char *soname = (char *)map + ELF_BYTESWAP(B, shdr[ELF_BYTESWAP(32, shdr[i].sh_link)].sh_offset) + ELF_BYTESWAP(B, d->d_un.d_val); \
++                        if ((char *)soname < (char *)map || (char *)soname > (char *)map + src_len) \
++                                break; \
++                        if (hashmap_get(pdeps, soname)) \
++                                continue; \
++\
++                        char* library = find_library(soname, fullsrcpath, src_len, match64, match32); \
++                        if (!library || hashmap_put_strdup_key(deps, soname, library) < 0) { \
++                                log_error("ERROR: could not locate dependency %s requested by '%s'", soname, fullsrcpath); \
++                                ret = -1; \
++                        } \
++                } \
++        } \
++} while (0)
++
++/* Recursively check the given file for dependencies and install them. pdeps is
++   for dependencies already found in this chain and should initially be NULL.
++   Both ELF binaries and scripts with shebangs are handled. */
++static int resolve_deps(const char *src, Hashmap *pdeps)
+ {
++        _cleanup_free_ char *fullsrcpath = NULL;
++
++        fullsrcpath = get_real_file(src, true);
++        log_debug("resolve_deps('%s') -> get_real_file('%s', true) = '%s'", src, src, fullsrcpath);
++        if (!fullsrcpath)
++                return 0;
++
+         _cleanup_close_ int fd = open(fullsrcpath, O_RDONLY | O_CLOEXEC);
+         if (fd < 0) {
+                 log_error("ERROR: cannot open '%s': %m", fullsrcpath);
+@@ -1164,6 +1095,18 @@ static int resolve_deps_dlopen(const char *src, const char *fullsrcpath, Hashmap
+         Hashmap  *deps = hashmap_new(string_hash_func, string_compare_func);
+         int ret = 0;
+ 
++        char *shebang = (char *)map;
++        if (shebang[0] == '#' && shebang[1] == '!') {
++                char *p, *q;
++                for (p = &shebang[2]; *p && isspace(*p); p++) ;
++                for (q = p; *q && (!isspace(*q)); q++) ;
++                char *interpreter = strndup(p, q - p);
++                log_debug("Script install: '%s'", interpreter);
++                ret = dracut_install(interpreter, interpreter, false, true, false);
++                free(interpreter);
++                goto finish;
++        }
++
+         unsigned char *e_ident = (unsigned char *)map;
+         if (e_ident[EI_MAG0] != ELFMAG0 ||
+             e_ident[EI_MAG1] != ELFMAG1 ||
+@@ -1173,10 +1116,16 @@ static int resolve_deps_dlopen(const char *src, const char *fullsrcpath, Hashmap
+ 
+         switch (e_ident[EI_CLASS]) {
+         case ELFCLASS32:
++                RESOLVE_DEPS_NEEDED_FOR_BITS(32, NULL, ehdr);
++#ifdef HAVE_SYSTEMD
+                 RESOLVE_DEPS_DLOPEN_FOR_BITS(32, NULL, ehdr);
++#endif
+                 break;
+         case ELFCLASS64:
++                RESOLVE_DEPS_NEEDED_FOR_BITS(64, ehdr, NULL);
++#ifdef HAVE_SYSTEMD
+                 RESOLVE_DEPS_DLOPEN_FOR_BITS(64, ehdr, NULL);
++#endif
+                 break;
+         default:
+                 log_error("ERROR: '%s' has an unknown ELF class", fullsrcpath);
+@@ -1208,27 +1157,6 @@ finish:
+         return ret;
+ }
+ 
+-#endif
+-
+-/* Recursively check the given file for dependencies and install them. pdeps is
+-   for dependencies already found in this chain and should initially be NULL.
+-   Both ELF binaries and scripts with shebangs are handled. */
+-static int resolve_deps(const char *src, Hashmap *pdeps)
+-{
+-        _cleanup_free_ char *fullsrcpath = NULL;
+-
+-        fullsrcpath = get_real_file(src, true);
+-        log_debug("resolve_deps('%s') -> get_real_file('%s', true) = '%s'", src, src, fullsrcpath);
+-        if (!fullsrcpath)
+-                return 0;
+-
+-        return resolve_deps_ldd(src, fullsrcpath)
+-#ifdef HAVE_SYSTEMD
+-               ?: resolve_deps_dlopen(src, fullsrcpath, pdeps)
+-#endif
+-               ;
+-}
+-
+ /* Install ".<filename>.hmac" file for FIPS self-checks */
+ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
+ {
+@@ -1346,7 +1274,7 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+         bool src_islink = false;
+         bool src_isdir = false;
+         mode_t src_mode = 0;
+-        char *i = NULL;
++        char *hash_path = NULL;
+         const char *src, *dst;
+ 
+         if (sysrootdirlen) {
+@@ -1381,8 +1309,10 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+ 
+         if (lstat(fullsrcpath, &sb) < 0) {
+                 if (!isdir) {
+-                        i = strdup(src);
+-                        hashmap_put(items_failed, i, i);
++                        hash_path = strdup(src);
++                        if (!hash_path)
++                                return -ENOMEM;
++                        hashmap_put(items_failed, hash_path, hash_path);
+                         /* src does not exist */
+                         return 1;
+                 }
+@@ -1392,6 +1322,15 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+                 src_mode = sb.st_mode;
+         }
+ 
++        /* The install hasn't succeeded yet, but mark this item as successful
++           now. If it fails once, it will probably fail every time. Doing this
++           could avoid dependency loops, but this is actually handled elsewhere.
++           It also avoids an elusive memory leak detected by valgrind. */
++        hash_path = strdup(dst);
++        if (!hash_path)
++                return -ENOMEM;
++        hashmap_put(items, hash_path, hash_path);
++
+         _asprintf(&fulldstpath, "%s/%s", destrootdir, (dst[0] == '/' ? (dst + 1) : dst));
+ 
+         ret = stat(fulldstpath, &sb);
+@@ -1448,15 +1387,7 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+ 
+                 if (src_isdir) {
+                         log_info("mkdir '%s'", fulldstpath);
+-                        ret = dracut_mkdir(fulldstpath);
+-                        if (ret == 0) {
+-                                i = strdup(dst);
+-                                if (!i)
+-                                        return -ENOMEM;
+-
+-                                hashmap_put(items, i, i);
+-                        }
+-                        return ret;
++                        return dracut_mkdir(fulldstpath);
+                 }
+ 
+                 /* ready to install src */
+@@ -1525,12 +1456,6 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+         }
+ 
+         if (ret == 0) {
+-                i = strdup(dst);
+-                if (!i)
+-                        return -ENOMEM;
+-
+-                hashmap_put(items, i, i);
+-
+                 if (logfile_f)
+                         dracut_log_cp(src);
+         }
+@@ -2848,11 +2773,6 @@ int main(int argc, char **argv)
+ 
+         log_debug("PATH=%s", path);
+ 
+-        ldd = getenv("DRACUT_LDD");
+-        if (isempty(ldd))
+-                ldd = "ldd";
+-        log_debug("LDD=%s", ldd);
+-
+         env_no_xattr = getenv("DRACUT_NO_XATTR");
+         if (env_no_xattr != NULL)
+                 no_xattr = true;
+-- 
+2.48.1
+
+
+From 4166b0c62428e0363e54c99d5c6a1748d408305a Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Tue, 4 Mar 2025 17:21:27 +0000
+Subject: [PATCH 07/12] feat(dracut-install): add --dry-run option to replace
+ external ldd usage
+
+To remove the remaining use of ldd, we need a way to show which
+libraries a binary requires. I initially considered adding another small
+tool, sharing code with dracut-install, but then I realised that adding
+a --dry-run option to dracut-install would also meet that need with a
+lot less effort.
+
+It simply shows what would be installed and doesn't require you to
+specify a destination directory. It is similar to the existing --logdir
+option, but that cannot log to stdout and includes additional output.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ src/install/dracut-install.c | 65 +++++++++++++++++++++++++-----------
+ 1 file changed, 46 insertions(+), 19 deletions(-)
+
+diff --git a/src/install/dracut-install.c b/src/install/dracut-install.c
+index f194532f..46bc0a25 100644
+--- a/src/install/dracut-install.c
++++ b/src/install/dracut-install.c
+@@ -72,6 +72,7 @@ static bool arg_silent = false;
+ static bool arg_all = false;
+ static bool arg_module = false;
+ static bool arg_modalias = false;
++static bool arg_dry_run = false;
+ static bool arg_resolvelazy = false;
+ static bool arg_resolvedeps = false;
+ static bool arg_hostonly = false;
+@@ -294,6 +295,9 @@ static char *convert_abs_rel(const char *from, const char *target)
+ 
+ static int ln_r(const char *src, const char *dst)
+ {
++        if (arg_dry_run)
++                return 0;
++
+         int ret;
+         _cleanup_free_ const char *points_to = convert_abs_rel(src, dst);
+ 
+@@ -373,6 +377,9 @@ static bool use_clone = true;
+ 
+ static int cp(const char *src, const char *dst)
+ {
++        if (arg_dry_run)
++                return 0;
++
+         pid_t pid;
+         int ret = 0;
+ 
+@@ -1189,6 +1196,9 @@ static int hmac_install(const char *src, const char *dst, const char *hmacpath)
+ 
+ void mark_hostonly(const char *path)
+ {
++        if (arg_dry_run)
++                return;
++
+         _cleanup_free_ char *fulldstpath = NULL;
+         _cleanup_fclose_ FILE *f = NULL;
+ 
+@@ -1226,6 +1236,9 @@ static bool check_hashmap(Hashmap *hm, const char *item)
+ 
+ static int dracut_mkdir(const char *src)
+ {
++        if (arg_dry_run)
++                return 0;
++
+         _cleanup_free_ char *parent = NULL;
+         char *path;
+         struct stat sb;
+@@ -1333,7 +1346,8 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+ 
+         _asprintf(&fulldstpath, "%s/%s", destrootdir, (dst[0] == '/' ? (dst + 1) : dst));
+ 
+-        ret = stat(fulldstpath, &sb);
++        errno = ENOENT;
++        ret = arg_dry_run ? -1 : stat(fulldstpath, &sb);
+ 
+         if (ret == 0) {
+                 if (src_isdir && !S_ISDIR(sb.st_mode)) {
+@@ -1362,7 +1376,7 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+                         return 1;
+                 }
+ 
+-                ret = access(fulldstdir, F_OK);
++                ret = arg_dry_run ? 0 : access(fulldstdir, F_OK);
+ 
+                 if (ret < 0) {
+                         _cleanup_free_ char *dname = NULL;
+@@ -1405,12 +1419,12 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+                                 return 1;
+                         }
+ 
+-                        if (faccessat(AT_FDCWD, abspath, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
++                        if (!arg_dry_run && faccessat(AT_FDCWD, abspath, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
+                                 log_debug("lstat '%s': %m", abspath);
+                                 return 1;
+                         }
+ 
+-                        if (faccessat(AT_FDCWD, fulldstpath, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
++                        if (!arg_dry_run && faccessat(AT_FDCWD, fulldstpath, F_OK, AT_SYMLINK_NOFOLLOW) != 0) {
+                                 _cleanup_free_ char *absdestpath = NULL;
+ 
+                                 _asprintf(&absdestpath, "%s/%s", destrootdir,
+@@ -1456,6 +1470,9 @@ static int dracut_install(const char *orig_src, const char *orig_dst, bool isdir
+         }
+ 
+         if (ret == 0) {
++                if (arg_dry_run)
++                        puts(src);
++
+                 if (logfile_f)
+                         dracut_log_cp(src);
+         }
+@@ -1486,6 +1503,7 @@ static void usage(int status)
+                "  -d --dir          SOURCE is a directory\n"
+                "  -l --ldd          Also install shebang executables and libraries\n"
+                "  -L --logdir <DIR> Log files, which were installed from the host to <DIR>\n"
++               "  -n --dry-run      Don't actually copy files, just show what would be installed\n"
+                "  -R --resolvelazy  Only install shebang executables and libraries\n"
+                "                     for all SOURCE files\n"
+                "  -H --hostonly     Mark all SOURCE files as hostonly\n\n"
+@@ -1557,6 +1575,7 @@ static int parse_argv(int argc, char *argv[])
+                 {"kerneldir", required_argument, NULL, ARG_KERNELDIR},
+                 {"firmwaredirs", required_argument, NULL, ARG_FIRMWAREDIRS},
+                 {"json-supported", no_argument, NULL, ARG_JSON_SUPPORTED},
++                {"dry-run", no_argument, NULL, 'n'},
+                 {NULL, 0, NULL, 0}
+         };
+ 
+@@ -1668,6 +1687,9 @@ static int parse_argv(int argc, char *argv[])
+                         puts("JSON is not supported");
+                         return -1;
+ #endif
++                case 'n':
++                        arg_dry_run = true;
++                        break;
+                 default:
+                         usage(EXIT_FAILURE);
+                 }
+@@ -2781,24 +2803,28 @@ int main(int argc, char **argv)
+ 
+         umask(0022);
+ 
+-        if (destrootdir == NULL || strlen(destrootdir) == 0) {
+-                destrootdir = getenv("DESTROOTDIR");
++        if (arg_dry_run) {
++                destrootdir = "/nonexistent";
++        } else {
+                 if (destrootdir == NULL || strlen(destrootdir) == 0) {
+-                        log_error("Environment DESTROOTDIR or argument -D is not set!");
+-                        usage(EXIT_FAILURE);
++                        destrootdir = getenv("DESTROOTDIR");
++                        if (destrootdir == NULL || strlen(destrootdir) == 0) {
++                                log_error("Environment DESTROOTDIR or argument -D is not set!");
++                                usage(EXIT_FAILURE);
++                        }
+                 }
+-        }
+ 
+-        if (strcmp(destrootdir, "/") == 0) {
+-                log_error("Environment DESTROOTDIR or argument -D is set to '/'!");
+-                usage(EXIT_FAILURE);
+-        }
++                if (strcmp(destrootdir, "/") == 0) {
++                        log_error("Environment DESTROOTDIR or argument -D is set to '/'!");
++                        usage(EXIT_FAILURE);
++                }
+ 
+-        i = destrootdir;
+-        if (!(destrootdir = realpath(i, NULL))) {
+-                log_error("Environment DESTROOTDIR or argument -D is set to '%s': %m", i);
+-                r = EXIT_FAILURE;
+-                goto finish2;
++                i = destrootdir;
++                if (!(destrootdir = realpath(i, NULL))) {
++                        log_error("Environment DESTROOTDIR or argument -D is set to '%s': %m", i);
++                        r = EXIT_FAILURE;
++                        goto finish2;
++                }
+         }
+ 
+         items = hashmap_new(string_hash_func, string_compare_func);
+@@ -2853,7 +2879,8 @@ int main(int argc, char **argv)
+                 r = EXIT_SUCCESS;
+ 
+ finish1:
+-        free(destrootdir);
++        if (!arg_dry_run)
++                free(destrootdir);
+ finish2:
+         if (!arg_kerneldir)
+                 free(kerneldir);
+-- 
+2.48.1
+
+
+From 6cdb49857ff1c9f798e35eded3673bd0a6e2c349 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Wed, 5 Mar 2025 11:53:18 +0000
+Subject: [PATCH 08/12] feat(dracut): replace ldd with dracut-install --dry-run
+ or header check
+
+One instance checks whether */lib64/* is used by /bin/sh and another
+checks whether libusb is used by scdaemon. These can be handled by the
+new dracut-install --dry-run option.
+
+find_binary currently uses ldd to check whether a given *.so* is a valid
+ELF. ldd exits successfully even when libraries are missing, so it is
+sufficient to replace this check with one that looks at the first 4
+bytes.
+
+Closes: https://github.com/dracut-ng/dracut-ng/issues/338
+Closes: https://github.com/dracut-ng/dracut-ng/issues/1257
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ dracut-functions.sh                   | 10 ++++-
+ dracut-init.sh                        | 63 ++++++++++++---------------
+ man/dracut.8.adoc                     |  7 ---
+ modules.d/91crypt-gpg/module-setup.sh |  2 +-
+ 4 files changed, 36 insertions(+), 46 deletions(-)
+
+diff --git a/dracut-functions.sh b/dracut-functions.sh
+index 94f0228f..e6b8e958 100755
+--- a/dracut-functions.sh
++++ b/dracut-functions.sh
+@@ -44,6 +44,12 @@ trim() {
+     printf "%s" "$var"
+ }
+ 
++# is_elf <path>
++# Returns success if the given path is an ELF. Only checks the first 4 bytes.
++is_elf() {
++    [[ $(head --bytes=4 "$1") == $'\x7fELF' ]]
++}
++
+ # find a binary.  If we were not passed the full path directly,
+ # search in the usual places to find the binary.
+ find_binary() {
+@@ -56,13 +62,13 @@ find_binary() {
+     if [[ $1 == *.so* ]]; then
+         for l in $libdirs; do
+             _path="${l}${_delim}${1}"
+-            if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &> /dev/null; }; then
++            if is_elf "${dracutsysrootdir}${_path}"; then
+                 printf "%s\n" "${_path}"
+                 return 0
+             fi
+         done
+         _path="${_delim}${1}"
+-        if { $DRACUT_LDD "${dracutsysrootdir}${_path}" &> /dev/null; }; then
++        if is_elf "${dracutsysrootdir}${_path}"; then
+             printf "%s\n" "${_path}"
+             return 0
+         fi
+diff --git a/dracut-init.sh b/dracut-init.sh
+index de3ae324..cd821163 100755
+--- a/dracut-init.sh
++++ b/dracut-init.sh
+@@ -78,7 +78,6 @@ export srcmods
+     export hookdirs
+ }
+ 
+-DRACUT_LDD=${DRACUT_LDD:-ldd}
+ DRACUT_TESTBIN=${DRACUT_TESTBIN:-/bin/sh}
+ DRACUT_LDCONFIG=${DRACUT_LDCONFIG:-ldconfig}
+ PKG_CONFIG=${PKG_CONFIG:-pkg-config}
+@@ -86,9 +85,35 @@ PKG_CONFIG=${PKG_CONFIG:-pkg-config}
+ # shellcheck source=./dracut-functions.sh
+ . "$dracutbasedir"/dracut-functions.sh
+ 
++if ! [[ $DRACUT_INSTALL ]]; then
++    DRACUT_INSTALL=$(find_binary dracut-install)
++fi
++
++if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/dracut-install ]]; then
++    DRACUT_INSTALL=$dracutbasedir/dracut-install
++elif ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/src/install/dracut-install ]]; then
++    DRACUT_INSTALL=$dracutbasedir/src/install/dracut-install
++fi
++
++# Test if dracut-install is a standalone executable with no options.
++# E.g. DRACUT_INSTALL may be set externally as:
++# DRACUT_INSTALL="valgrind dracut-install"
++# or
++# DRACUT_INSTALL="dracut-install --debug"
++# in which case the string cannot be tested for being executable.
++DRINSTALLPARTS=0
++for i in $DRACUT_INSTALL; do
++    DRINSTALLPARTS=$((DRINSTALLPARTS + 1))
++done
++
++if [[ $DRINSTALLPARTS == 1 ]] && ! command -v "$DRACUT_INSTALL" > /dev/null 2>&1; then
++    dfatal "dracut-install not found!"
++    exit 10
++fi
++
+ # Detect lib paths
+ if ! [[ $libdirs ]]; then
+-    if [[ $("$DRACUT_LDD" "$dracutsysrootdir$DRACUT_TESTBIN") == */lib64/* ]] &> /dev/null \
++    if [[ $($DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} --dry-run -R "$DRACUT_TESTBIN") == */lib64/* ]] &> /dev/null \
+         && [[ -d $dracutsysrootdir/lib64 ]]; then
+         libdirs+=" /lib64"
+         [[ -d $dracutsysrootdir/usr/lib64 ]] && libdirs+=" /usr/lib64"
+@@ -105,14 +130,6 @@ if ! [[ $libdirs ]]; then
+     export libdirs
+ fi
+ 
+-# ldd needs LD_LIBRARY_PATH pointing to the libraries within the sysroot directory
+-if [[ -n $dracutsysrootdir ]]; then
+-    for lib in $libdirs; do
+-        LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH":}$dracutsysrootdir$lib"
+-    done
+-    export LD_LIBRARY_PATH
+-fi
+-
+ # helper function for check() in module-setup.sh
+ # to check for required installed binaries
+ # issues a standardized warning message
+@@ -205,32 +222,6 @@ dracut_module_path() {
+     return 1
+ }
+ 
+-if ! [[ $DRACUT_INSTALL ]]; then
+-    DRACUT_INSTALL=$(find_binary dracut-install)
+-fi
+-
+-if ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/dracut-install ]]; then
+-    DRACUT_INSTALL=$dracutbasedir/dracut-install
+-elif ! [[ $DRACUT_INSTALL ]] && [[ -x $dracutbasedir/src/install/dracut-install ]]; then
+-    DRACUT_INSTALL=$dracutbasedir/src/install/dracut-install
+-fi
+-
+-# Test if dracut-install is a standalone executable with no options.
+-# E.g. DRACUT_INSTALL may be set externally as:
+-# DRACUT_INSTALL="valgrind dracut-install"
+-# or
+-# DRACUT_INSTALL="dracut-install --debug"
+-# in which case the string cannot be tested for being executable.
+-DRINSTALLPARTS=0
+-for i in $DRACUT_INSTALL; do
+-    DRINSTALLPARTS=$((DRINSTALLPARTS + 1))
+-done
+-
+-if [[ $DRINSTALLPARTS == 1 ]] && ! command -v "$DRACUT_INSTALL" > /dev/null 2>&1; then
+-    dfatal "dracut-install not found!"
+-    exit 10
+-fi
+-
+ if [[ $hostonly == "-h" ]]; then
+     if ! [[ $DRACUT_KERNEL_MODALIASES ]] || ! [[ -f $DRACUT_KERNEL_MODALIASES ]]; then
+         export DRACUT_KERNEL_MODALIASES="${DRACUT_TMPDIR}/modaliases"
+diff --git a/man/dracut.8.adoc b/man/dracut.8.adoc
+index ba33ab19..1dd6ae76 100644
+--- a/man/dracut.8.adoc
++++ b/man/dracut.8.adoc
+@@ -648,13 +648,6 @@ _DRACUT_LDCONFIG_::
+ Default:
+     _ldconfig_
+ 
+-_DRACUT_LDD_::
+-    sets the _ldd_ program path and options. Optional.
+-    Used for **--sysroot**.
+-+
+-Default:
+-    _ldd_
+-
+ _PKG_CONFIG_::
+     sets the _pkg-config_ program path and options. Optional.
+     Most useful together with **--sysroot**.
+diff --git a/modules.d/91crypt-gpg/module-setup.sh b/modules.d/91crypt-gpg/module-setup.sh
+index 501869a2..df4c2c52 100755
+--- a/modules.d/91crypt-gpg/module-setup.sh
++++ b/modules.d/91crypt-gpg/module-setup.sh
+@@ -57,7 +57,7 @@ sc_supported() {
+     if [[ ${gpgMajor} -gt 2 || ${gpgMajor} -eq 2 && ${gpgMinor} -ge 1 ]] \
+         && require_binaries gpg-agent \
+         && require_binaries gpg-connect-agent \
+-        && ($DRACUT_LDD "${dracutsysrootdir}${scdaemon}" | grep libusb > /dev/null); then
++        && [[ $($DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} --dry-run -R "${scdaemon}") == *libusb* ]]; then
+         return 0
+     else
+         return 1
+-- 
+2.48.1
+
+
+From b52ce3eb8996efac35b6ecc883c184de003fa6c8 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Wed, 26 Mar 2025 13:02:35 +0000
+Subject: [PATCH 09/12] feat(dracut): allow users to choose which dlopen
+ dependencies they want
+
+Handling dlopen dependencies is nice, but installing these
+unconditionally will install more than before rather than less, leading
+to bigger images and unhappy users.
+
+This introduces the add_dlopen_features and omit_dlopen_features
+configuration options. Modules that are successfully loaded set the
+default set of features to add_dlopen_features in the config() function.
+Users can request additional features by appending to this variable.
+They can also omit features by appending to omit_dlopen_features, which
+takes precedence.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ dracut-init.sh                                |  51 +++--
+ dracut.sh                                     |  10 +
+ man/dracut.conf.5.adoc                        |  13 ++
+ modules.d/00systemd/module-setup.sh           |   5 +
+ modules.d/01systemd-bsod/module-setup.sh      |   5 +
+ modules.d/01systemd-coredump/module-setup.sh  |   5 +
+ .../01systemd-integritysetup/module-setup.sh  |   5 +
+ modules.d/01systemd-journald/module-setup.sh  |   5 +
+ .../01systemd-veritysetup/module-setup.sh     |   5 +
+ src/install/dracut-install.c                  | 182 +++++++++++++++++-
+ 10 files changed, 266 insertions(+), 20 deletions(-)
+
+diff --git a/dracut-init.sh b/dracut-init.sh
+index cd821163..d650fac8 100755
+--- a/dracut-init.sh
++++ b/dracut-init.sh
+@@ -674,6 +674,15 @@ inst_opt_decompress() {
+     done
+ }
+ 
++module_functions=(
++    check
++    depends
++    cmdline
++    config
++    install
++    installkernel
++)
++
+ # module_check <dracut module> [<forced>] [<module path>]
+ # execute the check() function of module-setup.sh of <dracut module>
+ # or the "check" script, if module-setup.sh is not found
+@@ -686,7 +695,7 @@ module_check() {
+     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
+     [ $# -ge 2 ] && _forced=$2
+     [[ -f $_moddir/module-setup.sh ]] || return 1
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     check() { true; }
+     # shellcheck disable=SC1090
+     . "$_moddir"/module-setup.sh
+@@ -696,7 +705,7 @@ module_check() {
+     # shellcheck disable=SC2086
+     moddir="$_moddir" check $hostonly
+     _ret=$?
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     hostonly=$_hostonly
+     return $_ret
+ }
+@@ -711,13 +720,13 @@ module_check_mount() {
+     export mount_needs=1
+     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
+     [[ -f $_moddir/module-setup.sh ]] || return 1
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     check() { false; }
+     # shellcheck disable=SC1090
+     . "$_moddir"/module-setup.sh
+     moddir=$_moddir check 0
+     _ret=$?
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     unset mount_needs
+     return "$_ret"
+ }
+@@ -730,13 +739,13 @@ module_depends() {
+     local _ret
+     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
+     [[ -f $_moddir/module-setup.sh ]] || return 1
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     depends() { true; }
+     # shellcheck disable=SC1090
+     . "$_moddir"/module-setup.sh
+     moddir=$_moddir depends
+     _ret=$?
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     return $_ret
+ }
+ 
+@@ -748,13 +757,31 @@ module_cmdline() {
+     local _ret
+     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
+     [[ -f $_moddir/module-setup.sh ]] || return 1
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     cmdline() { true; }
+     # shellcheck disable=SC1090
+     . "$_moddir"/module-setup.sh
+     moddir="$_moddir" cmdline
+     _ret=$?
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
++    return $_ret
++}
++
++# module_config <dracut module> [<module path>]
++# execute the config() function of module-setup.sh of <dracut module>
++# or the "config" script, if module-setup.sh is not found
++module_config() {
++    local _moddir=$2
++    local _ret
++    [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
++    [[ -f $_moddir/module-setup.sh ]] || return 1
++    unset "${module_functions[@]}"
++    config() { true; }
++    # shellcheck disable=SC1090
++    . "$_moddir"/module-setup.sh
++    moddir="$_moddir" config
++    _ret=$?
++    unset "${module_functions[@]}"
+     return $_ret
+ }
+ 
+@@ -766,13 +793,13 @@ module_install() {
+     local _ret
+     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
+     [[ -f $_moddir/module-setup.sh ]] || return 1
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     install() { true; }
+     # shellcheck disable=SC1090
+     . "$_moddir"/module-setup.sh
+     moddir="$_moddir" install
+     _ret=$?
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     return $_ret
+ }
+ 
+@@ -784,13 +811,13 @@ module_installkernel() {
+     local _ret
+     [[ -z $_moddir ]] && _moddir=$(dracut_module_path "$1")
+     [[ -f $_moddir/module-setup.sh ]] || return 1
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     installkernel() { true; }
+     # shellcheck disable=SC1090
+     . "$_moddir"/module-setup.sh
+     moddir="$_moddir" installkernel
+     _ret=$?
+-    unset check depends cmdline install installkernel
++    unset "${module_functions[@]}"
+     return $_ret
+ }
+ 
+diff --git a/dracut.sh b/dracut.sh
+index 75d92738..737bf58c 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -927,6 +927,9 @@ export DRACUT_LOG_LEVEL=warning
+ 
+ [[ $dracutbasedir ]] || dracutbasedir="$dracutsysrootdir"/usr/lib/dracut
+ 
++# These config variables needs to be exported for dracut-install.
++export add_dlopen_features="" omit_dlopen_features=""
++
+ # if we were not passed a config file, try the default one
+ if [[ -z $conffile ]]; then
+     if [[ $allowlocal ]]; then
+@@ -2007,6 +2010,13 @@ dracut_module_included "squash-lib" && mkdir -p "$squashdir"
+ 
+ _isize=0 #initramfs size
+ modules_loaded=" "
++# Allow all modules to update the config. Do this before installing anything.
++for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
++    _d_mod=${moddir##*/}
++    _d_mod=${_d_mod#[0-9][0-9]}
++    [[ $mods_to_load == *\ $_d_mod\ * ]] || continue
++    module_config "$_d_mod" "$moddir"
++done
+ # source our modules.
+ for moddir in "$dracutbasedir/modules.d"/[0-9][0-9]*; do
+     _d_mod=${moddir##*/}
+diff --git a/man/dracut.conf.5.adoc b/man/dracut.conf.5.adoc
+index ae8a6903..5a282853 100644
+--- a/man/dracut.conf.5.adoc
++++ b/man/dracut.conf.5.adoc
+@@ -75,6 +75,19 @@ This option forces dracut to only include the specified kernel modules.
+ In most cases the "--add-drivers" option is what you want to use.
+ This option is not recommended to use (use at your own risk).
+ 
++*add_dlopen_features+=*" __<pattern>:<feature>__[__,<feature>__...] ... "::
++Specify a space-separated list of binaries matching _pattern_ against a
++comma-separated list of features to install dependencies for. For example,
++"libsystemd-shared-*.so:idn,ip4tc" will install the dependencies for systemd's
++international domain name and iptables support. _pattern_ should match the
++soname for libraries or the filename for executables.
++
++*omit_dlopen_features+=*" __<pattern>:<feature>__[__,<feature>__...] ... "::
++Specify a space-separated list of binaries matching _pattern_ against a
++comma-separated list of features to omit dependencies for. Some dracut modules
++add certain features by default. This takes precedence over add_dlopen_features
++above.
++
+ *filesystems+=*" __<filesystem names>__ "::
+ Specify a space-separated list of kernel filesystem modules to exclusively
+ include in the generic initramfs.
+diff --git a/modules.d/00systemd/module-setup.sh b/modules.d/00systemd/module-setup.sh
+index 747f09f0..1506f64f 100755
+--- a/modules.d/00systemd/module-setup.sh
++++ b/modules.d/00systemd/module-setup.sh
+@@ -14,6 +14,11 @@ check() {
+     return 255
+ }
+ 
++# Config adjustments before installing anything.
++config() {
++    add_dlopen_features+=" libsystemd-shared-*.so:kmod "
++}
++
+ installkernel() {
+     hostonly='' instmods autofs4 ipv6 dmi-sysfs
+     instmods -s efivarfs
+diff --git a/modules.d/01systemd-bsod/module-setup.sh b/modules.d/01systemd-bsod/module-setup.sh
+index cf562ca6..f702792c 100755
+--- a/modules.d/01systemd-bsod/module-setup.sh
++++ b/modules.d/01systemd-bsod/module-setup.sh
+@@ -19,6 +19,11 @@ depends() {
+     return 0
+ }
+ 
++# Config adjustments before installing anything.
++config() {
++    add_dlopen_features+=" libsystemd-shared-*.so:qrencode "
++}
++
+ # Install the required file(s) for the module in the initramfs.
+ install() {
+     inst_multiple \
+diff --git a/modules.d/01systemd-coredump/module-setup.sh b/modules.d/01systemd-coredump/module-setup.sh
+index 3083f851..4014b074 100755
+--- a/modules.d/01systemd-coredump/module-setup.sh
++++ b/modules.d/01systemd-coredump/module-setup.sh
+@@ -26,6 +26,11 @@ depends() {
+ 
+ }
+ 
++# Config adjustments before installing anything.
++config() {
++    add_dlopen_features+=" libsystemd-shared-*.so:lz4,lzma,zstd "
++}
++
+ # Install the required file(s) and directories for the module in the initramfs.
+ install() {
+ 
+diff --git a/modules.d/01systemd-integritysetup/module-setup.sh b/modules.d/01systemd-integritysetup/module-setup.sh
+index 804b856e..aba99371 100755
+--- a/modules.d/01systemd-integritysetup/module-setup.sh
++++ b/modules.d/01systemd-integritysetup/module-setup.sh
+@@ -26,6 +26,11 @@ depends() {
+ 
+ }
+ 
++# Config adjustments before installing anything.
++config() {
++    add_dlopen_features+=" libsystemd-shared-*.so:cryptsetup "
++}
++
+ # Install kernel module(s).
+ installkernel() {
+     instmods dm-integrity
+diff --git a/modules.d/01systemd-journald/module-setup.sh b/modules.d/01systemd-journald/module-setup.sh
+index 9f546d1a..807c7ab3 100755
+--- a/modules.d/01systemd-journald/module-setup.sh
++++ b/modules.d/01systemd-journald/module-setup.sh
+@@ -26,6 +26,11 @@ depends() {
+ 
+ }
+ 
++# Config adjustments before installing anything.
++config() {
++    add_dlopen_features+=" libsystemd-shared-*.so:gcrypt,lz4,lzma,zstd "
++}
++
+ # Install the required file(s) and directories for the module in the initramfs.
+ install() {
+ 
+diff --git a/modules.d/01systemd-veritysetup/module-setup.sh b/modules.d/01systemd-veritysetup/module-setup.sh
+index e3b95303..1f0c0355 100755
+--- a/modules.d/01systemd-veritysetup/module-setup.sh
++++ b/modules.d/01systemd-veritysetup/module-setup.sh
+@@ -26,6 +26,11 @@ depends() {
+ 
+ }
+ 
++# Config adjustments before installing anything.
++config() {
++    add_dlopen_features+=" libsystemd-shared-*.so:cryptsetup "
++}
++
+ # Install kernel module(s).
+ installkernel() {
+     instmods dm-verity
+diff --git a/src/install/dracut-install.c b/src/install/dracut-install.c
+index 46bc0a25..0f431a40 100644
+--- a/src/install/dracut-install.c
++++ b/src/install/dracut-install.c
+@@ -94,6 +94,9 @@ static Hashmap *modules_loaded = NULL;
+ static Hashmap *modules_suppliers = NULL;
+ static Hashmap *processed_suppliers = NULL;
+ static Hashmap *modalias_to_kmod = NULL;
++static Hashmap *add_dlopen_features = NULL;
++static Hashmap *omit_dlopen_features = NULL;
++static Hashmap *dlopen_features[2] = {NULL};
+ static regex_t mod_filter_path;
+ static regex_t mod_filter_nopath;
+ static regex_t mod_filter_symbol;
+@@ -913,11 +916,14 @@ static char *find_library(const char *soname, const char *src, size_t src_len, c
+ 
+ /* Parse the given .note.dlopen JSON (https://systemd.io/ELF_DLOPEN_METADATA/)
+    in the given note index and find each dependent library, ensuring it matches
+-   the given (64 or 32 bit) ELF header. Each library found is added to deps.
+-   Dependencies already found in this chain must be given in pdeps. Failure to
+-   parse the JSON or find a library is considered non-fatal. */
+-static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const char *fullsrcpath, size_t src_len,
+-                                           const char *json, size_t note_idx, const Elf64_Ehdr *match64, const Elf32_Ehdr *match32)
++   the given (64 or 32 bit) ELF header. Dependencies are skipped if the
++   corresponding feature is present in omit_dlopen_features or missing from
++   add_dlopen_features. Those hashmaps are keyed by wildcard patterns, which are
++   compared against the source's soname or filename. Each library found is added
++   to deps. Dependencies already found in this chain must be given in pdeps.
++   Failure to parse the JSON or find a library is considered non-fatal. */
++static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const char *src_soname, char *fullsrcpath,
++                                           size_t src_len, const char *json, size_t note_idx, const Elf64_Ehdr *match64, const Elf32_Ehdr *match32)
+ {
+         _cleanup_(sd_json_variant_unrefp) sd_json_variant *dlopen_json = NULL;
+         if (sd_json_parse(json, 0, &dlopen_json, NULL, NULL) != 0 || !sd_json_variant_is_array(dlopen_json)) {
+@@ -927,6 +933,28 @@ static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const
+ 
+         for (size_t entry_idx = 0; entry_idx < sd_json_variant_elements(dlopen_json); entry_idx++) {
+                 sd_json_variant *entry = sd_json_variant_by_index(dlopen_json, entry_idx);
++                sd_json_variant *feature_json = sd_json_variant_by_key(entry, "feature");
++
++                if (feature_json && sd_json_variant_is_string(feature_json)) {
++                        const char *feature = sd_json_variant_string(feature_json);
++                        const char *name = src_soname ?: basename(fullsrcpath);
++
++                        Iterator i;
++                        char ***features;
++                        const char *pattern;
++                        HASHMAP_FOREACH_KEY(features, pattern, omit_dlopen_features, i) {
++                                if (fnmatch(pattern, name, 0) == 0 && strv_contains(*features, feature))
++                                        goto skip;
++                        }
++                        int skip = 1;
++                        HASHMAP_FOREACH_KEY(features, pattern, add_dlopen_features, i) {
++                                if (fnmatch(pattern, name, 0) == 0 && strv_contains(*features, feature))
++                                        skip = 0;
++                        }
++                        if (skip)
++                                goto skip;
++                }
++
+                 sd_json_variant *sonames = sd_json_variant_by_key(entry, "soname");
+                 if (!sonames || !sd_json_variant_is_array(sonames)) {
+                         log_warning("WARNING: soname array missing from .note.dlopen entry #%zd.%zd in '%s'", note_idx, entry_idx, fullsrcpath);
+@@ -949,6 +977,7 @@ static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const
+                         if (!library || hashmap_put_strdup_key(deps, soname, library) < 0)
+                                 log_warning("WARNING: could not locate dlopen dependency %s requested by '%s'", soname, fullsrcpath);
+                 }
++skip:
+         }
+ }
+ 
+@@ -956,7 +985,32 @@ static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const
+    64 or 32 bit, check .note.dlopen entries for dependencies. See above. */
+ #define RESOLVE_DEPS_DLOPEN_FOR_BITS(B, match64, match32) do { \
+         PARSE_ELF_START(B, map); \
++        const char *soname = NULL; \
+         size_t note_idx = -1; \
++\
++        for (size_t i = 0; !soname && i < ELF_BYTESWAP(16, ehdr->e_shnum); i++) { \
++                if ((char*)&shdr[i] < (char*)map || (char*)&shdr[i] + sizeof(Elf##B##_Shdr) > (char*)map + src_len) \
++                        break; \
++                if (strcmp(&shstrtab[ELF_BYTESWAP(32, shdr[i].sh_name)], ".dynamic") != 0) \
++                        continue; \
++\
++                Elf##B##_Dyn *dyn = (Elf##B##_Dyn *)((char *)map + ELF_BYTESWAP(B, shdr[i].sh_offset)); \
++                if ((char *)dyn < (char *)map || (char *)dyn > (char *)map + src_len) \
++                        break; \
++\
++                for (Elf##B##_Dyn *d = dyn; !soname && ELF_BYTESWAP(32, d->d_tag) != DT_NULL; d++) { \
++                        if ((char *)d < (char *)map || (char *)d + sizeof(Elf##B##_Dyn) > (char *)map + src_len) \
++                                break; \
++                        if (ELF_BYTESWAP(B, d->d_tag) != DT_SONAME) \
++                                continue; \
++\
++                        soname = (char *)map + ELF_BYTESWAP(B, shdr[ELF_BYTESWAP(32, shdr[i].sh_link)].sh_offset) + ELF_BYTESWAP(B, d->d_un.d_val); \
++                        if ((char *)soname < (char *)map || (char *)soname > (char *)map + src_len) { \
++                                soname = NULL; \
++                                break; \
++                        } \
++                } \
++        } \
+ \
+         for (size_t i = 0; i < ELF_BYTESWAP(16, ehdr->e_shnum); i++) { \
+                 if ((char*)shdr + i * sizeof(Elf##B##_Shdr) > (char*)map + src_len) \
+@@ -986,7 +1040,7 @@ static void resolve_deps_dlopen_parse_json(Hashmap *pdeps, Hashmap *deps, const
+                                 continue; \
+ \
+                         note_idx++; \
+-                        resolve_deps_dlopen_parse_json(pdeps, deps, fullsrcpath, src_len, note_desc, note_idx, match64, match32); \
++                        resolve_deps_dlopen_parse_json(pdeps, deps, soname, fullsrcpath, src_len, note_desc, note_idx, match64, match32); \
+                 } \
+         } \
+ } while (0)
+@@ -1102,6 +1156,11 @@ static int resolve_deps(const char *src, Hashmap *pdeps)
+         Hashmap  *deps = hashmap_new(string_hash_func, string_compare_func);
+         int ret = 0;
+ 
++        if (!ndeps || !deps) {
++                ret = -1;
++                goto finish;
++        }
++
+         char *shebang = (char *)map;
+         if (shebang[0] == '#' && shebang[1] == '!') {
+                 char *p, *q;
+@@ -1139,8 +1198,10 @@ static int resolve_deps(const char *src, Hashmap *pdeps)
+                 ret = -1;
+         }
+ 
+-        if (hashmap_merge(ndeps, pdeps) < 0 || hashmap_merge(ndeps, deps) < 0)
++        if (hashmap_merge(ndeps, pdeps) < 0 || hashmap_merge(ndeps, deps) < 0) {
++                ret = -1;
+                 goto finish;
++        }
+ 
+         char *key, *library;
+         Iterator i;
+@@ -2751,6 +2812,87 @@ static int install_modules(int argc, char **argv)
+         return EXIT_SUCCESS;
+ }
+ 
++/* Parse the add_dlopen_features and omit_dlopen_features environment variables,
++   and store their contents in the corresponding char* -> char*** hashmaps. Each
++   variable holds multiple entries, separated by whitespace, and each entry
++   takes the form "libfoo.so.*:feature1,feature2". */
++static int parse_dlopen_features()
++{
++        const char *add_env = getenv("add_dlopen_features");
++        const char *omit_env = getenv("omit_dlopen_features");
++        const char *envs[] = {add_env, omit_env};
++        char **features_array;
++
++        for (size_t i = 0; i < 2; i++) {
++                if (!envs[i])
++                        continue;
++
++                /* We cannot let strtok modify the environment. */
++                _cleanup_free_ char *env_copy = strdup(envs[i]);
++                if (!env_copy)
++                        return -ENOMEM;
++
++                for (char *token = strtok(env_copy, " \t\n"); token; token = strtok(NULL, " \t\n")) {
++                        char *colon = strchr(token, ':');
++                        if (!colon) {
++                                log_warning("Invalid format in dlopen features: '%s'", token);
++                                continue;
++                        }
++
++                        *colon = '\0';
++                        const char *key = token;
++                        const char *features = colon + 1;
++
++                        features_array = strv_split(features, ",");
++                        if (!features_array)
++                                return -ENOMEM;
++
++                        /* There may be entries with the same name/pattern. */
++                        char ***existing = hashmap_get(dlopen_features[i], key);
++
++                        if (existing) {
++                                char **feature;
++                                STRV_FOREACH(feature, features_array) {
++                                        /* Free feature if already present. */
++                                        if (strv_contains(*existing, *feature))
++                                                free(*feature);
++                                        /* Otherwise push onto existing array
++                                           without duplicating the string. */
++                                        else if (strv_push(existing, *feature) == -ENOMEM)
++                                                goto oom;
++                                }
++                                /* All features have been freed or pushed to the
++                                   existing array, so just free array itself. */
++                                free(features_array);
++                        } else {
++                                /* The hashmaps store strvs as char*** rather
++                                   than char** because strv_push above calls
++                                   realloc. The latter would then leave the
++                                   hashmap with a stale pointer. */
++                                char ***features_arrayp = (char ***) malloc(sizeof(char ***));
++                                char *nkey = strdup(key);
++                                if (!features_arrayp || !nkey) {
++                                        free(features_arrayp);
++                                        goto oom;
++                                }
++                                *features_arrayp = features_array;
++                                if (hashmap_put(dlopen_features[i], nkey, features_arrayp) == -ENOMEM) {
++                                        free(features_arrayp);
++                                        free(nkey);
++                                        goto oom;
++                                }
++                        }
++                }
++        }
++
++        return 0;
++
++oom:
++        log_error("Out of memory");
++        strv_free(features_array);
++        return -ENOMEM;
++}
++
+ int main(int argc, char **argv)
+ {
+         int r;
+@@ -2832,7 +2974,11 @@ int main(int argc, char **argv)
+         processed_suppliers = hashmap_new(string_hash_func, string_compare_func);
+         modalias_to_kmod = hashmap_new(string_hash_func, string_compare_func);
+ 
+-        if (!items || !items_failed || !processed_suppliers || !modules_loaded) {
++        dlopen_features[0] = add_dlopen_features = hashmap_new(string_hash_func, string_compare_func);
++        dlopen_features[1] = omit_dlopen_features = hashmap_new(string_hash_func, string_compare_func);
++
++        if (!items || !items_failed || !processed_suppliers || !modules_loaded ||
++            !add_dlopen_features || !omit_dlopen_features) {
+                 log_error("Out of memory");
+                 r = EXIT_FAILURE;
+                 goto finish1;
+@@ -2864,6 +3010,11 @@ int main(int argc, char **argv)
+                 }
+         }
+ 
++        if (parse_dlopen_features() < 0) {
++                r = EXIT_FAILURE;
++                goto finish1;
++        }
++
+         if (arg_module) {
+                 r = install_modules(argc - optind, &argv[optind]);
+         } else if (arg_resolvelazy) {
+@@ -2908,6 +3059,21 @@ finish2:
+         while ((i = hashmap_steal_first(processed_suppliers)))
+                 item_free(i);
+ 
++        for (size_t j = 0; j < 2; j++) {
++                char ***array;
++                Iterator it;
++
++                HASHMAP_FOREACH(array, dlopen_features[j], it) {
++                        strv_free(*array);
++                        free(array);
++                }
++
++                while ((i = hashmap_steal_first_key(dlopen_features[j])))
++                        item_free(i);
++
++                hashmap_free(dlopen_features[j]);
++        }
++
+         /*
+          * Note: modalias_to_kmod's values are freed implicitly by the kmod context destruction
+          * in kmod_unref().
+-- 
+2.48.1
+
+
+From 4cba538e9218b33c068f9a7ac463133152e0b9b4 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Fri, 14 Mar 2025 14:08:00 +0000
+Subject: [PATCH 10/12] fix: add $dracutsysrootdir to paths where it should be
+ present
+
+inst_simpl is sometimes called with the sysroot (particular via moddir)
+and sometimes without. dracut-install knows how to handle this, so the
+inst_simpl existence check needs to handle it too.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ dracut-init.sh                                 | 8 ++++++--
+ dracut.sh                                      | 2 +-
+ modules.d/01systemd-cryptsetup/module-setup.sh | 2 +-
+ modules.d/01systemd-sysext/module-setup.sh     | 2 +-
+ modules.d/03modsign/module-setup.sh            | 2 +-
+ modules.d/95iscsi/module-setup.sh              | 2 +-
+ 6 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/dracut-init.sh b/dracut-init.sh
+index d650fac8..394ad658 100755
+--- a/dracut-init.sh
++++ b/dracut-init.sh
+@@ -267,7 +267,11 @@ inst_simple() {
+         shift
+     fi
+     [[ -e ${dstdir}/"${2:-$1}" ]] && return 0 # already there
+-    [[ -e $1 ]] || return 1                   # no source
++    if [[ $1 == /* ]]; then
++        [[ -e $dracutsysrootdir/${1#"$dracutsysrootdir"} ]] || return 1 # no source
++    else
++        [[ -e $1 ]] || return 1 # no source
++    fi
+     if $DRACUT_INSTALL ${dracutsysrootdir:+-r "$dracutsysrootdir"} ${dstdir:+-D "$dstdir"} ${loginstall:+-L "$loginstall"} ${_hostonly_install:+-H} "$@"; then
+         return 0
+     else
+@@ -526,7 +530,7 @@ build_ld_cache() {
+     local dstdir="${dstdir:-"$initdir"}"
+ 
+     for f in "$dracutsysrootdir"/etc/ld.so.conf "$dracutsysrootdir"/etc/ld.so.conf.d/*; do
+-        [[ -f $f ]] && inst_simple "${f#"$dracutsysrootdir"}"
++        [[ -f $f ]] && inst_simple "${f}"
+     done
+     if ! $DRACUT_LDCONFIG -r "$initdir" -f /etc/ld.so.conf; then
+         if [[ $EUID == 0 ]]; then
+diff --git a/dracut.sh b/dracut.sh
+index 737bf58c..58fe08c5 100755
+--- a/dracut.sh
++++ b/dracut.sh
+@@ -1114,7 +1114,7 @@ drivers_dir="${drivers_dir%"${drivers_dir##*[!/]}"}"
+ [[ $ro_mnt_l ]] && ro_mnt="yes"
+ [[ $early_microcode_l ]] && early_microcode=$early_microcode_l
+ [[ $early_microcode ]] || early_microcode=yes
+-[[ $early_microcode_image_dir ]] || early_microcode_image_dir=('/boot')
++[[ $early_microcode_image_dir ]] || early_microcode_image_dir=("$dracutsysrootdir"/boot)
+ [[ $early_microcode_image_name ]] \
+     || early_microcode_image_name=('intel-uc.img' 'intel-ucode.img' 'amd-uc.img' 'amd-ucode.img' 'early_ucode.cpio' 'microcode.cpio')
+ [[ $logfile_l ]] && logfile="$logfile_l"
+diff --git a/modules.d/01systemd-cryptsetup/module-setup.sh b/modules.d/01systemd-cryptsetup/module-setup.sh
+index 023c65d1..dd8618a2 100755
+--- a/modules.d/01systemd-cryptsetup/module-setup.sh
++++ b/modules.d/01systemd-cryptsetup/module-setup.sh
+@@ -70,7 +70,7 @@ install() {
+                 _luksfile="/run/cryptsetup-keys.d/$_mapper.key"
+             fi
+ 
+-            find "$systemdsystemunitdir" "$systemdsystemconfdir" -type f -name "*.socket" | while read -r socket_unit; do
++            find "$dracutsysrootdir$systemdsystemunitdir" "$dracutsysrootdir$systemdsystemconfdir" -type f -name "*.socket" | while read -r socket_unit; do
+                 # systemd-cryptsetup utility only supports SOCK_STREAM (ListenStream) sockets, so we ignore
+                 # other types like SOCK_DGRAM (ListenDatagram), SOCK_SEQPACKET (ListenSequentialPacket), etc.
+                 if ! grep -E -q "^ListenStream\s*=\s*$_luksfile$" "$socket_unit"; then
+diff --git a/modules.d/01systemd-sysext/module-setup.sh b/modules.d/01systemd-sysext/module-setup.sh
+index 379d0aa1..cc52d855 100755
+--- a/modules.d/01systemd-sysext/module-setup.sh
++++ b/modules.d/01systemd-sysext/module-setup.sh
+@@ -29,7 +29,7 @@ install() {
+     local _suffix=
+ 
+     # systemd >= v258
+-    [[ -e "$systemdsystemunitdir"/systemd-sysext-initrd.service ]] && _suffix="-initrd"
++    [[ -e "$dracutsysrootdir$systemdsystemunitdir"/systemd-sysext-initrd.service ]] && _suffix="-initrd"
+ 
+     # It's intended to work only with raw binary disk images contained in
+     # regular files, but not with directory trees.
+diff --git a/modules.d/03modsign/module-setup.sh b/modules.d/03modsign/module-setup.sh
+index 7a22a752..7fffad83 100755
+--- a/modules.d/03modsign/module-setup.sh
++++ b/modules.d/03modsign/module-setup.sh
+@@ -28,6 +28,6 @@ install() {
+ 
+     for x in "$dracutsysrootdir"/lib/modules/keys/*; do
+         [[ ${x} == "$dracutsysrootdir/lib/modules/keys/*" ]] && break
+-        inst_simple "${x#"$dracutsysrootdir"}"
++        inst_simple "${x}"
+     done
+ }
+diff --git a/modules.d/95iscsi/module-setup.sh b/modules.d/95iscsi/module-setup.sh
+index 3bb9a63d..ba57dbbe 100755
+--- a/modules.d/95iscsi/module-setup.sh
++++ b/modules.d/95iscsi/module-setup.sh
+@@ -220,7 +220,7 @@ install() {
+             "$systemdsystemunitdir"/iscsiuio.socket \
+             "$systemdsystemunitdir"/sockets.target.wants/iscsid.socket \
+             "$systemdsystemunitdir"/sockets.target.wants/iscsiuio.socket
+-        if grep -q '^ExecStartPre=/usr/lib/open-iscsi/startup-checks.sh$' "$systemdsystemunitdir/iscsid.service"; then
++        if grep -q '^ExecStartPre=/usr/lib/open-iscsi/startup-checks.sh$' "$dracutsysrootdir$systemdsystemunitdir/iscsid.service"; then
+             inst_simple /usr/lib/open-iscsi/startup-checks.sh
+         fi
+ 
+-- 
+2.48.1
+
+
+From 03c766c1e93026e4a454a56ccf87d6aba39d903d Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Tue, 1 Apr 2025 11:51:19 +0100
+Subject: [PATCH 11/12] fix: don't use command -v to find binaries in the
+ sysroot
+
+If the binaries were missing outside the sysroot, "" was passed to
+dracut-install, which then created an empty directory instead!
+
+dracut-install will automatically search the sysroot for a named binary
+if it is given without a path anyway.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ modules.d/90btrfs/module-setup.sh     | 2 +-
+ modules.d/90dmraid/module-setup.sh    | 2 +-
+ modules.d/90mdraid/module-setup.sh    | 4 ++--
+ modules.d/90multipath/module-setup.sh | 4 ++--
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/modules.d/90btrfs/module-setup.sh b/modules.d/90btrfs/module-setup.sh
+index 80bba155..fbf3c1db 100755
+--- a/modules.d/90btrfs/module-setup.sh
++++ b/modules.d/90btrfs/module-setup.sh
+@@ -56,5 +56,5 @@ install() {
+     fi
+ 
+     inst_multiple -o btrfsck btrfs-zero-log btrfstune
+-    inst "$(command -v btrfs)" /sbin/btrfs
++    inst btrfs /sbin/btrfs
+ }
+diff --git a/modules.d/90dmraid/module-setup.sh b/modules.d/90dmraid/module-setup.sh
+index 482ae96a..e7c6be60 100755
+--- a/modules.d/90dmraid/module-setup.sh
++++ b/modules.d/90dmraid/module-setup.sh
+@@ -73,7 +73,7 @@ install() {
+ 
+     inst_multiple dmraid
+     inst_multiple -o kpartx
+-    inst "$(command -v partx)" /sbin/partx
++    inst partx /sbin/partx
+ 
+     inst "$moddir/dmraid.sh" /sbin/dmraid_scan
+ 
+diff --git a/modules.d/90mdraid/module-setup.sh b/modules.d/90mdraid/module-setup.sh
+index b0ab8411..0d0a57f6 100755
+--- a/modules.d/90mdraid/module-setup.sh
++++ b/modules.d/90mdraid/module-setup.sh
+@@ -67,8 +67,8 @@ cmdline() {
+ install() {
+     inst_multiple cat expr
+     inst_multiple -o mdmon
+-    inst "$(command -v partx)" /sbin/partx
+-    inst "$(command -v mdadm)" /sbin/mdadm
++    inst partx /sbin/partx
++    inst mdadm /sbin/mdadm
+ 
+     if [[ $hostonly_cmdline == "yes" ]]; then
+         local _raidconf
+diff --git a/modules.d/90multipath/module-setup.sh b/modules.d/90multipath/module-setup.sh
+index 5a7f91fa..a16313c0 100755
+--- a/modules.d/90multipath/module-setup.sh
++++ b/modules.d/90multipath/module-setup.sh
+@@ -61,7 +61,7 @@ installkernel() {
+ }
+ 
+ mpathconf_installed() {
+-    command -v mpathconf &> /dev/null
++    find_binary mpathconf &> /dev/null
+ }
+ 
+ # called by dracut
+@@ -136,7 +136,7 @@ EOF
+         }
+     }
+ 
+-    inst "$(command -v partx)" /sbin/partx
++    inst partx /sbin/partx
+ 
+     inst_libdir_file "libmultipath*" "multipath/*"
+     inst_libdir_file 'libgcc_s.so*'
+-- 
+2.48.1
+
+
+From 1ceb679410a75c8d245e692471aa5d7fa16df7b7 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 10 Apr 2025 11:37:01 +0100
+Subject: [PATCH 12/12] fix(systemd-cryptsetup): don't pull in
+ fido2/pkcs11/tpm2-tss if omitted
+
+These modules have some large dependencies. Allow users to explicitly
+omit them if desired. Other modules like systemd-udevd also do this.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ modules.d/01systemd-cryptsetup/module-setup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules.d/01systemd-cryptsetup/module-setup.sh b/modules.d/01systemd-cryptsetup/module-setup.sh
+index dd8618a2..719df0e8 100755
+--- a/modules.d/01systemd-cryptsetup/module-setup.sh
++++ b/modules.d/01systemd-cryptsetup/module-setup.sh
+@@ -33,7 +33,7 @@ depends() {
+     elif [[ ! $hostonly ]]; then
+         for module in fido2 pkcs11 tpm2-tss; do
+             module_check $module > /dev/null 2>&1
+-            if [[ $? == 255 ]]; then
++            if [[ $? == 255 ]] && ! [[ " $omit_dracutmodules " == *\ $module\ * ]]; then
+                 deps+=" $module"
+             fi
+         done
+-- 
+2.48.1
+

@@ -1,30 +1,36 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit bash-completion-r1 linux-info optfeature systemd toolchain-funcs
+inherit bash-completion-r1 edo optfeature systemd toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dracutdevs/dracut"
 else
-	[[ "${PV}" = *_rc* ]] || \
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
-	SRC_URI="https://www.kernel.org/pub/linux/utils/boot/${PN}/${P}.tar.xz"
+	if [[ ${PV} == *_p* ]] ; then
+		EGIT_COMMIT="4980bad34775da715a2639b736cba5e65a8a2604"
+		SRC_URI="https://github.com/dracutdevs/dracut/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
+		S="${WORKDIR}"/${PN}-${EGIT_COMMIT}
+	else
+		SRC_URI="https://github.com/dracutdevs/dracut/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
+	fi
 fi
 
 DESCRIPTION="Generic initramfs generation tool"
-HOMEPAGE="https://dracut.wiki.kernel.org"
+HOMEPAGE="https://github.com/dracutdevs/dracut/wiki"
 
 LICENSE="GPL-2"
 SLOT="0"
+if [[ "${PV}" != *_rc* ]]; then
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv sparc x86"
+fi
 IUSE="selinux test"
-
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	app-arch/cpio
+	app-alternatives/cpio
 	>=app-shells/bash-4.0:0
 	sys-apps/coreutils[xattr(-)]
 	>=sys-apps/kmod-23[tools]
@@ -32,9 +38,10 @@ RDEPEND="
 		>=sys-apps/sysvinit-2.87-r3
 		sys-apps/openrc[sysv-utils(-),selinux?]
 		sys-apps/systemd[sysv-utils]
+		sys-apps/s6-linux-init[sysv-utils(-)]
 	)
 	>=sys-apps/util-linux-2.21
-	virtual/pkgconfig
+	virtual/pkgconfig[native-symlinks(+)]
 	virtual/udev
 
 	elibc_musl? ( sys-libs/fts-standalone )
@@ -61,6 +68,10 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
+	"${FILESDIR}"/dracut-060-fix-resume-hostonly.patch
+	"${FILESDIR}"/dracut-060-grub-layout.patch
+	"${FILESDIR}"/dracut-060-systemd-255.patch
+	"${FILESDIR}"/dracut-059-install-new-systemd-hibernate-resume.service.patch
 )
 
 src_configure() {
@@ -73,13 +84,7 @@ src_configure() {
 
 	tc-export CC PKG_CONFIG
 
-	echo ./configure "${myconf[@]}"
-	./configure "${myconf[@]}" || die
-
-	if [[ ${PV} != 9999 && ! -f dracut-version.sh ]] ; then
-		# Source tarball from github doesn't include this file
-		echo "DRACUT_VERSION=${PV}" > dracut-version.sh || die
-	fi
+	edo ./configure "${myconf[@]}"
 }
 
 src_test() {
@@ -111,39 +116,9 @@ src_install() {
 }
 
 pkg_postinst() {
-	if linux-info_get_any_version && linux_config_exists; then
-		ewarn ""
-		ewarn "If the following test report contains a missing kernel"
-		ewarn "configuration option, you should reconfigure and rebuild your"
-		ewarn "kernel before booting image generated with this Dracut version."
-		ewarn ""
-
-		local CONFIG_CHECK="~BLK_DEV_INITRD ~DEVTMPFS"
-
-		# Kernel configuration options descriptions:
-		local ERROR_DEVTMPFS='CONFIG_DEVTMPFS: "Maintain a devtmpfs filesystem to mount at /dev" '
-		ERROR_DEVTMPFS+='is missing and REQUIRED'
-		local ERROR_BLK_DEV_INITRD='CONFIG_BLK_DEV_INITRD: "Initial RAM filesystem and RAM disk '
-		ERROR_BLK_DEV_INITRD+='(initramfs/initrd) support" is missing and REQUIRED'
-
-		check_extra_config
-		echo
-	else
-		ewarn ""
-		ewarn "Your kernel configuration couldn't be checked."
-		ewarn "Please check manually if following options are enabled:"
-		ewarn ""
-		ewarn "  CONFIG_BLK_DEV_INITRD"
-		ewarn "  CONFIG_DEVTMPFS"
-		ewarn ""
-	fi
-
 	optfeature "Networking support" net-misc/networkmanager
 	optfeature "Legacy networking support" net-misc/curl "net-misc/dhcp[client]" \
 		sys-apps/iproute2 "net-misc/iputils[arping]"
-	optfeature \
-		"Measure performance of the boot process for later visualisation" \
-		app-benchmarks/bootchart2 app-admin/killproc sys-process/acct
 	optfeature "Scan for Btrfs on block devices"  sys-fs/btrfs-progs
 	optfeature "Load kernel modules and drop this privilege for real init" \
 		sys-libs/libcap
@@ -155,19 +130,29 @@ pkg_postinst() {
 	optfeature \
 		"Allows use of dash instead of default bash (on your own risk)" \
 		app-shells/dash
+	optfeature \
+		"Allows use of busybox instead of default bash (on your own risk)" \
+		sys-apps/busybox
 	optfeature "Support iSCSI" sys-block/open-iscsi
-	optfeature "Support Logical Volume Manager" sys-fs/lvm2
+	optfeature "Support Logical Volume Manager" sys-fs/lvm2[lvm]
 	optfeature "Support MD devices, also known as software RAID devices" \
-		sys-fs/mdadm
+		sys-fs/mdadm sys-fs/dmraid
 	optfeature "Support Device Mapper multipathing" sys-fs/multipath-tools
 	optfeature "Plymouth boot splash"  '>=sys-boot/plymouth-0.8.5-r5'
 	optfeature "Support network block devices" sys-block/nbd
 	optfeature "Support NFS" net-fs/nfs-utils net-nds/rpcbind
 	optfeature \
 		"Install ssh and scp along with config files and specified keys" \
-		net-misc/openssh
+		virtual/openssh
 	optfeature "Enable logging with rsyslog" app-admin/rsyslog
+	optfeature "Support Squashfs" sys-fs/squashfs-tools
+	optfeature "Support TPM 2.0 TSS" app-crypt/tpm2-tools
+	optfeature "Support Bluetooth (experimental)" net-wireless/bluez
+	optfeature "Support BIOS-given device names" sys-apps/biosdevname
+	optfeature "Support network NVMe" sys-apps/nvme-cli app-misc/jq
 	optfeature \
 		"Enable rngd service to help generating entropy early during boot" \
 		sys-apps/rng-tools
+	optfeature "automatically generating an initramfs on each kernel installation" \
+		"sys-kernel/installkernel[dracut]"
 }

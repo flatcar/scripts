@@ -156,9 +156,20 @@ sys-libs/libsemanage -python
 sys-fs/zfs minimal -rootfs
 
 # Do not tinker with /boot partition at installation time.
-sys-firmware/intel-microcode -initramfs
 sys-fs/zfs-kmod -initramfs
+
+# Only needed for direct loading by the kernel, which is dangerous, and we
+# include all the microcode in the initrd anyway.
+sys-firmware/intel-microcode -split-ucode
 
 # For sys-auth/sssd
 net-dns/bind       gssapi
 net-dns/bind-tools gssapi
+
+# Flatcar can't benefit from this performance boost for several reasons, the
+# main one being the use of binary packages.
+sys-kernel/dracut -dracut-cpio
+
+# Avoid initrd bloat by using OpenSSL instead of gcrypt in systemd.
+# systemd-journal's FSS feature requires gcrypt, but Flatcar doesn't need it.
+sys-apps/systemd -gcrypt
