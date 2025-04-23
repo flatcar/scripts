@@ -20,6 +20,7 @@ CONFIG_IMAGE=""
 SWTPM_DIR=
 SAFE_ARGS=0
 FORWARDED_PORTS=""
+PRIMARY_DISK_OPTS=""
 DISKS=()
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
@@ -33,6 +34,8 @@ Options:
                 file, optionally followed by a comma and options to
                 pass to virtio-blk-pci device. For example -d
                 /tmp/qcow2-disk,serial=secondary.
+    -D OPTS     Additional virtio-blk-pci options for primary
+                disk. For example serial=primary-disk.
     -p PORT     The port on localhost to map to the VM's sshd. [2222]
     -I FILE     Set a custom image file.
     -f PORT     Forward host_port:guest_port.
@@ -91,6 +94,9 @@ while [ $# -ge 1 ]; do
             shift 2 ;;
         -d|-disk)
             DISKS+=( "$2" )
+            shift 2 ;;
+        -D|-image-disk-opts)
+            PRIMARY_DISK_OPTS="$2"
             shift 2 ;;
         -p|-ssh-port)
             SSH_PORT="$2"
@@ -267,8 +273,11 @@ if [ -n "${CONFIG_IMAGE}" ]; then
 fi
 
 if [ -n "${VM_IMAGE}" ]; then
+    if [[ ,${PRIMARY_DISK_OPTS}, = *,drive=* || ,${PRIMARY_DISK_OPTS}, = *,bootindex=* ]]; then
+        die "Can't override drive or bootindex options for primary disk"
+    fi
     set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
-        -device virtio-blk-pci,drive=blk,bootindex=1 "$@"
+        -device virtio-blk-pci,drive=blk,bootindex=1${PRIMARY_DISK_OPTS:+,}${PRIMARY_DISK_OPTS:-} "$@"
 fi
 
 declare -i id_counter=1
