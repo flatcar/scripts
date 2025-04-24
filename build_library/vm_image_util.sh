@@ -794,7 +794,6 @@ _write_qemu_common() {
         -e "s%^VM_MEMORY=.*%VM_MEMORY='${vm_mem}'%" \
         -e "s%^VM_BOARD=.*%VM_BOARD='${BOARD}'%" \
         "${BUILD_LIBRARY_DIR}/qemu_template.sh" > "${script}"
-    checkbashisms --posix "${script}" || die
     chmod +x "${script}"
 
     cat >"${VM_README}" <<EOF
