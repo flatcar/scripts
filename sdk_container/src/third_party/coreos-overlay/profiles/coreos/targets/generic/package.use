@@ -16,7 +16,6 @@ dev-lang/python		gdbm
 dev-libs/dbus-glib	tools
 dev-libs/elfutils	-utils
 dev-libs/openssl	pkcs11
-dev-util/perf		-perl -python
 net-misc/dhcp	        -server
 net-misc/ntp            caps
 sys-apps/smartmontools	-daemon -update-drivedb -systemd
