@@ -34,9 +34,9 @@
 # Keep versions on both arches in sync.
 =app-emulation/qemu-guest-agent-9.2.0 ~arm64
 
-# Needed to address CVE-2025-22871 and to bring in a patch disabling
-# gold linker on arm64.
-=dev-lang/go-1.24.2-r1 ~amd64 ~arm64
+# Needed to address CVE-2025-22871, bring in a patch disabling gold linker on
+# arm64, and fix a segfault concerning vgetrandom.
+=dev-lang/go-1.24.2-r2 ~amd64 ~arm64
 
 # Needed to address CVE-2024-56406.
 =dev-lang/perl-5.40.2 ~amd64 ~arm64
