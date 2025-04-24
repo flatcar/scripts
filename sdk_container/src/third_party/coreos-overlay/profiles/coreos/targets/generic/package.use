@@ -10,22 +10,20 @@ app-editors/vim-core	minimal
 # Install our modifications and compatibility symlinks for ssh and ntp
 #
 # Install a SELinux policy directory symlink
-coreos-base/misc-files audit ntp openssh policycoreutils
+coreos-base/misc-files ntp openssh policycoreutils
 
 dev-lang/python		gdbm
 dev-libs/dbus-glib	tools
 dev-libs/elfutils	-utils
 dev-libs/openssl	pkcs11
 net-misc/dhcp	        -server
-net-misc/ntp            caps
 sys-apps/smartmontools	-daemon -update-drivedb -systemd
 sys-block/parted        device-mapper
 sys-fs/lvm2		-readline thin lvm
 sys-libs/ncurses	minimal
-sys-libs/pam		audit
 
 # enable journal gateway, bootctl and container features
-sys-apps/systemd audit elfutils gnuefi http importd iptables
+sys-apps/systemd elfutils gnuefi http importd iptables
 
 # epoll is needed for systemd-journal-remote to work. coreos/bugs#919
 net-libs/libmicrohttpd epoll
