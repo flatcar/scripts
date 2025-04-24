@@ -1,0 +1,4 @@
+# Selinux profile force-enables USE=caps, but we don't need it for
+# smartmontools - it is only relevant for smartd daemon, which we do
+# not build.
+sys-apps/smartmontools caps
