@@ -1,0 +1,32 @@
+nfs_utils_install_mask=" /etc/exports /etc/exports.d "
+INSTALL_MASK+=${nfs_utils_install_mask}
+PKG_INSTALL_MASK+=${nfs_utils_install_mask}
+unset nfs_utils_install_mask
+
+cros_post_src_install_nfs_utils_flatcar_modifications() {
+    (
+        insopts -m 0644
+        insinto /usr/lib/tmpfiles.d
+        newins - nfs-utils.conf <<'EOF'
+d /var/lib/nfs/rpc_pipefs
+d /var/lib/nfs/v4recovery
+d /var/lib/nfs/v4root
+C /var/lib/nfs/etab    -       -       -       -       /usr/lib64/nfs/etab
+C /var/lib/nfs/rmtab   -       -       -       -       /usr/lib64/nfs/rmtab
+C /var/lib/nfs/sm      -       -       -       -       /usr/lib64/nfs/sm
+C /var/lib/nfs/sm.bak  -       -       -       -       /usr/lib64/nfs/sm.bak
+C /var/lib/nfs/state   -       -       -       -       /usr/lib64/nfs/state
+C /var/lib/nfs/xtab    -       -       -       -       /usr/lib64/nfs/xtab
+EOF
+    )
+
+    # Provide an empty xtab for compatibility with the old tmpfiles config.
+    touch "${ED}"/usr/$(get_libdir)/nfs/xtab
+
+    # Maintain compatibility with the old gentoo systemd unit names,
+    # since nfs-utils has units upstream now.
+    dosym nfs-server.service "$(systemd_get_systemunitdir)"/nfsd.service
+    dosym nfs-idmapd.service "$(systemd_get_systemunitdir)"/rpc-idmapd.service
+    dosym nfs-mountd.service "$(systemd_get_systemunitdir)"/rpc-mountd.service
+
+}

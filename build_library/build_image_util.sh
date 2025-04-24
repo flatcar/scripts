@@ -277,7 +277,7 @@ write_packages() {
 # Generate an SPDX SBOM using syft
 write_sbom() {
     info "Writing ${2##*/}"
-    sudo syft packages "${1}" -o spdx-json="$2"
+    sudo syft scan "${1}" -o spdx-json="$2"
 }
 
 # Get metadata $key for package $pkg installed under $prefix

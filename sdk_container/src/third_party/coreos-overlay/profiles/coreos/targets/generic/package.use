@@ -21,7 +21,7 @@ net-misc/dhcp	        -server
 net-misc/ntp            caps
 sys-apps/smartmontools	-daemon -update-drivedb -systemd
 sys-block/parted        device-mapper
-sys-fs/lvm2		-readline
+sys-fs/lvm2		-readline thin lvm
 sys-libs/ncurses	minimal
 sys-libs/pam		audit
 

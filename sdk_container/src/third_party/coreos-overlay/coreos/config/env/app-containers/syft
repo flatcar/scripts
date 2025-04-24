@@ -1,0 +1,5 @@
+# there are only examples installed
+syft_install_mask=" /usr/share/syft/examples "
+INSTALL_MASK+="${syft_install_mask}"
+PKG_INSTALL_MASK+="${syft_install_mask}"
+unset syft_install_mask

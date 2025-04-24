@@ -24,3 +24,9 @@ sys-process/psmisc-23.7
 
 # Pulled in by app-admin/sudo
 dev-lang/perl-5.40.0
+
+# Pulled in by net-fs/samba
+dev-lang/perl-5.40.0-r1
+dev-libs/icu-76.1-r1
+dev-perl/Parse-Yapp-1.210.0-r1
+dev-perl/JSON-4.100.0

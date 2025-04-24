@@ -87,26 +87,6 @@ cros_pre_pkg_postinst_no_modifications_of_users() {
     export ACCT_USER_NO_MODIFY=x
 }
 
-# sys-apps/policycoreutils creates /var/lib/selinux directory in
-# src_install and then needs it to be available when running
-# pkg_postinst, because it does a policy module rebuild there. We
-# initially have put /var/lib/selinux into INSTALL_MASK and told
-# coreos-base/misc-files to install the directory at
-# /usr/lib/selinux/policy together with a symlink at /var/lib/selinux
-# pointing to the directory. But this is done too late - at
-# sys-apps/policycoreutils' pkg_postinst time, /var/lib/selinux does
-# not exist, because coreos-base/misc-files was not yet emerged. So we
-# need to fall back to this hack, where we set up /var/lib/selinux and
-# /usr/lib/selinux/policy the way we want.
-cros_post_src_install_set_up_var_lib_selinux() {
-    if [[ ${CATEGORY} != 'sys-apps' ]] || [[ ${PN} != 'policycoreutils' ]]; then
-        return 0;
-    fi
-    dodir /usr/lib/selinux
-    mv "${ED}/var/lib/selinux" "${ED}/usr/lib/selinux/policy"
-    dosym ../../usr/lib/selinux/policy /var/lib/selinux
-}
-
 # Source hooks for SLSA build provenance report generation
 source "${BASH_SOURCE[0]}.slsa-provenance"
 

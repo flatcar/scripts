@@ -1,0 +1,37 @@
+cros_post_src_install_mdadm_flatcar_modifications() {
+    # Use systemd timers instead of cron.
+    rm "${ED}/etc/cron.weekly/mdadm" || die
+    rmdir "${ED}/etc/cron.weekly" || die
+    systemd_newunit - mdadm.service <<'EOF'
+[Unit]
+Description=Initiates a check run of an MD array's redundancy information.
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/checkarray --cron --all --idle --quiet
+EOF
+    systemd_newunit - mdadm.timer <<'EOF'
+[Unit]
+Description=Weekly check for MD array's redundancy information.
+
+[Install]
+WantedBy=timers.target
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+EOF
+    systemd_enable_service timers.target mdadm.timer
+
+    # Add --syslog parameter to mdadm in monitoring mode.
+    systemd_install_dropin mdmonitor.service - <<'EOF'
+
+# We want to log the monitoring events to journal, so we need to pass
+# --syslog. The original ExecStart line we want to override is:
+#
+# ExecStart=/usr/sbin/mdadm --monitor --scan
+[Service]
+ExecStart=
+ExecStart=/usr/sbin/mdadm --monitor --scan --syslog
+EOF
+}
