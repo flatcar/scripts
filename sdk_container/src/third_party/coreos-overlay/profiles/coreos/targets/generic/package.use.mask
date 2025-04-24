@@ -1,2 +1,0 @@
-# Only needed by Catalyst in the SDK, requires dev-lang/python-exec.
-sys-apps/util-linux python
