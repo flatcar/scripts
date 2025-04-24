@@ -130,37 +130,24 @@ get_board_profile() {
     done
 }
 
-# Usage: get_board_binhost [-t] board [version...]
-# -t: toolchain only, full rebuilds re-using toolchain pkgs
+# Usage: get_board_binhost board [version...]
 # If no versions are specified the current and SDK versions are used.
 get_board_binhost() {
-    local toolchain_only=0 board ver
-    if [[ "$1" == "-t" ]]; then
-        toolchain_only=1
-        shift
-    fi
+    local board ver
     board="$1"
     shift
 
-    local pkgs_include_toolchain=0
     if [[ $# -eq 0 ]]; then
         if [[ "${FLATCAR_BUILD_ID}" =~ ^nightly-.*$ ]] ; then
             # containerised nightly build; this uses [VERSION]-[BUILD_ID] for binpkg url
-            #  and toolchain packages are at the same location as OS image ones
             set -- "${FLATCAR_VERSION_ID}+${FLATCAR_BUILD_ID}"
-            pkgs_include_toolchain=1
         else
             set -- "${FLATCAR_VERSION_ID}"
         fi
     fi
 
     for ver in "$@"; do
-        if [[ $toolchain_only -eq 0 ]]; then
-            echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/pkgs/"
-        fi
-        if [[ $pkgs_include_toolchain -eq 0 ]]; then
-            echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/toolchain/"
-        fi
+        echo "${FLATCAR_DEV_BUILDS}/boards/${board}/${ver}/pkgs/"
     done
 }
 
@@ -196,13 +183,9 @@ get_sdk_binhost() {
         FLATCAR_DEV_BUILDS_SDK="${FLATCAR_DEV_BUILDS_SDK-${SETTING_BINPKG_SERVER_PROD}/sdk}"
     fi
     for ver in "$@"; do
-        # Usually only crossdev needs to be fetched from /toolchain/ in the setup_board step.
         # The entry for /pkgs/ is there if something needs to be reinstalled in the SDK
         # but normally it is not needed because everything is already part of the tarball.
-        # To install the crossdev Rust package, /toolchain-arm64/ is derived from /toolchain/
-        # when necessary in install_cross_toolchain().
         if curl -Ifs -o /dev/null "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/pkgs/"; then
-            echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/toolchain/"
             echo "${FLATCAR_DEV_BUILDS_SDK}/${arch}/${ver}/pkgs/"
         fi
     done

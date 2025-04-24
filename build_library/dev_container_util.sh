@@ -38,8 +38,7 @@ CHOST=$(get_board_chost $BOARD)
 DISTDIR="/var/lib/portage/distfiles"
 PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
-PORTAGE_BINHOST="$(get_binhost_url "${binhost}" "${update_group}" 'pkgs')
-$(get_binhost_url "${binhost}" "${update_group}" 'toolchain')"
+PORTAGE_BINHOST="$(get_binhost_url "${binhost}" "${update_group}" 'pkgs')"
 EOF
 
     sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/portage-stable.conf" <<EOF
