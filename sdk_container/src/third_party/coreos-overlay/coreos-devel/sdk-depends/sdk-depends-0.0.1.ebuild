@@ -32,7 +32,6 @@ DEPEND="
 	dev-python/setuptools
 	dev-python/six
 	dev-util/catalyst
-	dev-util/checkbashisms
 	dev-util/pahole
 	dev-util/patchelf
 	net-dns/bind

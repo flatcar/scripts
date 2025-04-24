@@ -353,7 +353,6 @@ dev-python/wheel
 
 dev-util/bpftool
 dev-util/catalyst
-dev-util/checkbashisms
 dev-util/gdbus-codegen
 dev-util/glib-utils
 dev-util/gperf
@@ -538,8 +537,6 @@ net-nds/rpcbind
 
 net-vpn/wireguard-tools
 
-perl-core/Getopt-Long
-
 profiles
 
 scripts
@@ -705,7 +702,6 @@ virtual/pager
 virtual/perl-Data-Dumper
 virtual/perl-Encode
 virtual/perl-ExtUtils-MakeMaker
-virtual/perl-Getopt-Long
 virtual/perl-Unicode-Collate
 virtual/pkgconfig
 virtual/resolvconf
