@@ -2,3 +2,8 @@
 # smartmontools - it is only relevant for smartd daemon, which we do
 # not build.
 sys-apps/smartmontools caps
+
+# Allow USE=python for sys-libs/libselinux - it is needed by portage
+# with USE=selinux. For production images, we will filter python files
+# out with an install mask.
+sys-libs/libselinux -python
