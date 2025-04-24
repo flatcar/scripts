@@ -17,7 +17,7 @@ dev-libs/dbus-glib	tools
 dev-libs/elfutils	-utils
 dev-libs/openssl	pkcs11
 net-misc/dhcp	        -server
-sys-apps/smartmontools	-daemon -update-drivedb -systemd
+sys-apps/smartmontools	-caps -daemon -update-drivedb -systemd
 sys-block/parted        device-mapper
 sys-fs/lvm2		-readline thin lvm
 sys-libs/ncurses	minimal
