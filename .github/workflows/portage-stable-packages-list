@@ -736,6 +736,7 @@ sys-libs/libcap-ng
 sys-libs/libnvme
 sys-libs/libseccomp
 sys-libs/libselinux
+sys-libs/libsemanage
 sys-libs/libsepol
 sys-libs/libunwind
 sys-libs/liburing
