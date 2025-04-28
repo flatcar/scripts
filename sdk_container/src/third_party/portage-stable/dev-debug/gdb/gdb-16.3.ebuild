@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -23,7 +23,11 @@ is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 case ${PV} in
 	9999*)
 		# live git tree
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
+		EGIT_REPO_URI="
+			https://sourceware.org/git/binutils-gdb.git
+			https://git.sr.ht/~sourceware/binutils-gdb
+			https://gitlab.com/x86-binutils/binutils-gdb.git
+		"
 		inherit git-r3
 		SRC_URI=""
 		;;
@@ -73,23 +77,25 @@ SRC_URI="
 
 LICENSE="GPL-3+ LGPL-2.1+"
 SLOT="0"
-IUSE="cet debuginfod guile lzma multitarget nls +python +server sim source-highlight test vanilla xml xxhash zstd"
+IUSE="babeltrace cet debuginfod guile lzma multitarget nls +python rocm +server sim source-highlight test vanilla xml xxhash zstd"
 if [[ -n ${REGULAR_RELEASE} ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 fi
 REQUIRED_USE="
 	guile? ( ${GUILE_REQUIRED_USE} )
 	python? ( ${PYTHON_REQUIRED_USE} )
+	rocm? ( multitarget )
 "
 RESTRICT="!test? ( test )"
 
+# <babeltrace-2: bug #951652
 RDEPEND="
 	dev-libs/mpfr:=
 	dev-libs/gmp:=
 	>=sys-libs/ncurses-5.2-r2:=
 	>=sys-libs/readline-7:=
 	sys-libs/zlib
-	elibc_glibc? ( net-libs/libnsl:= )
+	babeltrace? ( dev-util/babeltrace:0/1 )
 	debuginfod? (
 		dev-libs/elfutils[debuginfod(-)]
 	)
@@ -97,6 +103,7 @@ RDEPEND="
 	python? ( ${PYTHON_DEPS} )
 	guile? ( ${GUILE_DEPS} )
 	xml? ( dev-libs/expat )
+	rocm? ( >=dev-libs/rocdbgapi-6.3 )
 	source-highlight? (
 		dev-util/source-highlight
 	)
@@ -128,14 +135,16 @@ PATCHES=(
 pkg_setup() {
 	local CONFIG_CHECK
 
-	if kernel_is -ge 6.11.3 ; then
-		# https://forums.gentoo.org/viewtopic-p-8846891.html
-		#
-		# Either CONFIG_PROC_MEM_ALWAYS_FORCE or CONFIG_PROC_MEM_FORCE_PTRACE
-		# should be okay, but not CONFIG_PROC_MEM_NO_FORCE.
-		CONFIG_CHECK+="
-			~!PROC_MEM_NO_FORCE
-		"
+	if [[ ${CHOST} == *-linux-* ]] ; then
+		if kernel_is -ge 6.11.3 ; then
+			# https://forums.gentoo.org/viewtopic-p-8846891.html
+			#
+			# Either CONFIG_PROC_MEM_ALWAYS_FORCE or CONFIG_PROC_MEM_FORCE_PTRACE
+			# should be okay, but not CONFIG_PROC_MEM_NO_FORCE.
+			CONFIG_CHECK+="
+				~!PROC_MEM_NO_FORCE
+			"
+		fi
 	fi
 
 	linux-info_pkg_setup
@@ -189,6 +198,7 @@ src_configure() {
 		# Disable modules that are in a combined binutils/gdb tree. bug #490566
 		--disable-{binutils,etc,gas,gold,gprof,gprofng,ld}
 
+		$(use_with babeltrace)
 		$(use_with debuginfod)
 
 		$(use_enable test unit-tests)
@@ -231,6 +241,7 @@ src_configure() {
 		--without-zlib
 		--with-system-zlib
 		--with-separate-debug-dir="${EPREFIX}"/usr/lib/debug
+		--with-amd-dbgapi=$(usex rocm)
 		$(use_with xml expat)
 		$(use_with lzma)
 		$(use_enable nls)
