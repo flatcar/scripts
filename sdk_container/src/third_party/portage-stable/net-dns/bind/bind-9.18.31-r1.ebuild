@@ -15,7 +15,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="MPL-2.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
 IUSE="+caps dnstap doc doh fixed-rrset idn jemalloc geoip gssapi lmdb selinux static-libs test xml"
 RESTRICT="!test? ( test )"
 
@@ -66,6 +66,10 @@ src_prepare() {
 }
 
 src_configure() {
+	# configure automagically uses sphinx even if prebuilt man pages
+	# are available. Force fallback to prebuilt ones.
+	use doc || export ac_cv_path_SPHINX_BUILD= SPHINX_BUILD=
+
 	local myeconfargs=(
 		--prefix="${EPREFIX}"/usr
 		--sysconfdir="${EPREFIX}"/etc/bind
