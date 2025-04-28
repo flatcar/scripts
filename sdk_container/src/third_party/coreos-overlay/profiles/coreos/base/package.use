@@ -173,3 +173,6 @@ sys-kernel/dracut -dracut-cpio
 # Avoid initrd bloat by using OpenSSL instead of gcrypt in systemd.
 # systemd-journal's FSS feature requires gcrypt, but Flatcar doesn't need it.
 sys-apps/systemd -gcrypt
+
+# Make dracut module available for initrd build.
+sys-apps/azure-vm-utils dracut
