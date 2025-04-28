@@ -92,7 +92,6 @@ sci-electronics/ghdl
 # Alfredo Tupone <tupone@gentoo.org> (2024-03-13)
 # To bootstrap uses an ada compiler built using glibc
 dev-lang/ada-bootstrap
-dev-lang/gnat-gpl
 dev-lang/spark
 dev-ada/gnatcoll-db
 dev-ada/gprbuild
@@ -374,7 +373,6 @@ net-print/cnijfilter2
 net-print/hplip-plugin
 net-vpn/microsoft-azurevpnclient
 sci-chemistry/cara-bin
-sci-electronics/eagle
 sci-electronics/labone
 sci-libs/mkl
 sci-mathematics/gimps
@@ -440,7 +438,7 @@ net-misc/netkit-rsh
 # David Seifert <soap@gentoo.org> (2021-02-08)
 # nvidia-drivers only works against glibc.
 dev-libs/cudnn
-dev-libs/cudnn-frontend
+sci-ml/cudnn-frontend
 dev-python/pycuda
 dev-util/nsight-compute
 dev-util/nsight-graphics

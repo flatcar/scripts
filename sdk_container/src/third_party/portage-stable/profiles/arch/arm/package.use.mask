@@ -1,6 +1,13 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Alfredo Tupone <tupone@gentoo.org> (2025-04-21)
+# ocamlopt is not available on 32 bits arch
+>=dev-lang/ocaml-5 ocamlopt
+>=dev-ml/camlp4-5.2_p1 ocamlopt
+>=dev-ml/findlib-1.9.8-r1 ocamlopt
+dev-ml/labltk ocamlopt
+
 # Cristian Othón Martínez Vera <cfuga@cfuga.mx> (2025-04-09)
 # dev-db/tinycdb is not keyworded here
 mail-mta/sendmail tinycdb
@@ -72,7 +79,6 @@ games-emulation/rmg -dynarec
 # Sam James <sam@gentoo.org> (2024-06-13)
 # Needs as-yet-unkeyworded KF6 (bug #934215)
 app-crypt/pinentry qt6
-<=app-office/libreoffice-24.2.7.2 qt6
 >=app-office/libreoffice-24.2.7.2-r1 kde
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2024-06-01)
@@ -140,16 +146,11 @@ dev-python/nbclassic doc
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-02-06)
 # Successful build of dev-qt/qtwebengine depends on 64-bit host
 # Bug #893234
-app-i18n/fcitx-libpinyin dictionary-manager
 dev-lang/idris2 test-full
 dev-python/cloudscraper test
 dev-python/qtpy test
 games-util/lgogdownloader gui
-net-irc/quassel urlpreview
-net-misc/fatrat bittorrent
 net-misc/seafile-client shibboleth
-sci-mathematics/yacas gui
-sci-physics/root qt5
 
 # Florian Schmaus <flow@gentoo.org> (2022-11-23)
 # avoid larger deptree, bug #882593
@@ -344,8 +345,10 @@ app-metrics/collectd -collectd_plugins_mqtt
 sys-cluster/openmpi openmpi_fabrics_knem openmpi_fabrics_ofed openmpi_rm_pbs openmpi_ofed_features_rdmacm openmpi_ofed_features_control-hdr-padding openmpi_ofed_features_udcm openmpi_ofed_features_dynamic-sl
 
 # Luke Dashjr <luke-jr+gentoobugs@utopios.org> (2017-01-04)
+# Matt Whitlock <gentoo@mattwhitlock.name> (2025-04-12)
 # Assembly optimisations are supported on arm since 0.0.0_pre20161213
 dev-libs/libsecp256k1 -asm
+net-p2p/bitcoin-core -asm
 
 # James Le Cuirot <chewi@gentoo.org> (2016-12-14)
 # DOSBox + OpenGLide is untested on this arch.

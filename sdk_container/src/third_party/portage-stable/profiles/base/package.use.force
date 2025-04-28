@@ -1,6 +1,16 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2025-04-22)
+# qemu[X] still has automagic on some parts of gtk[X]. Workaround that
+# for now for bug #954152.
+app-emulation/qemu X
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-04-21)
+# Currently fails to build without, and Valve would likely not be
+# interested in a bug. May leave forced depending on how this goes.
+app-emulation/wine-proton mingw
+
 # Sebastian Pipping <sping@gentoo.org> (2025-03-27)
 # This blocks accidental use of bundled vulnerable dev-libs/expat
 # for now (bug #952113)
@@ -67,12 +77,6 @@ dev-lang/rust:1.74.1 llvm_slot_17
 dev-lang/rust-bin:1.74.1 llvm_slot_17
 dev-lang/rust:1.71.1 llvm_slot_16
 dev-lang/rust-bin:1.71.1 llvm_slot_16
-
-# Sam James <sam@gentoo.org> (2024-09-30)
-# gnat-gpl only exists for (bootstrapping) Ada. Until bug #940471 is handled,
-# force Ada on. Once it is split/moved/gutted, this won't be necessary
-# as it'll always build Ada.
-dev-lang/gnat-gpl ada cxx
 
 # Sam James <sam@gentoo.org> (2024-06-03)
 # Poor rendering performance otherwise (bug #931215).

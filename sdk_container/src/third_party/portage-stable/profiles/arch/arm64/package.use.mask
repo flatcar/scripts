@@ -1,6 +1,15 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ionen Wolkens <ionen@gentoo.org> (2025-04-21)
+# These are not currently supported on arm64. Porting wine-gecko and
+# wine-mono is on Wine's TODO[1], mingw64-toolchain lacks ebuild
+# support (crossdev might be usable, but users are on their own there),
+# and dosbox is not keyworded here.
+# [1] https://gitlab.winehq.org/wine/wine/-/wikis/ARM64#todo
+app-emulation/wine-vanilla crossdev-mingw dos gecko mingw mono
+app-emulation/wine-staging crossdev-mingw dos gecko mingw mono
+
 # NRK <nrk@disroot.org> (2025-03-17)
 # media-libs/libyuv is not keyworded
 media-libs/libavif libyuv
@@ -40,6 +49,10 @@ dev-python/pyside -webview
 # Eli Schwartz <eschwartz@gentoo.org> (2025-01-27)
 # Dependencies e.g. pypy keyworded (not stable) here.
 dev-build/meson -test-full
+
+# Sv. Lockal <lockalsash@gmail.com> (2025-01-11)
+# dev-cpp/prometheus-cpp is not keyworded
+dev-cpp/opentelemetry-cpp prometheus
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-24)
 # OpenMP offloading is supported on 64-bit architectures only.
@@ -149,7 +162,6 @@ dev-libs/botan -cpu_flags_arm_neon
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
-sys-apps/openrc-navi s6
 
 # Jon Janzen <jon@jonjanzen.com> (2023-09-11)
 # librttopo has not been tested on this arch
