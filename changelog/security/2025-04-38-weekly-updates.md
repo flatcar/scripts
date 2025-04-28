@@ -1,0 +1,2 @@
+- c-ares ([CVE-2025-31498](https://www.cve.org/CVERecord?id=CVE-2025-31498))
+- containerd ([CVE-2024-40635](https://www.cve.org/CVERecord?id=CVE-2024-40635))
