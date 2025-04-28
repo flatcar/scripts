@@ -25,3 +25,9 @@ sys-fs/btrfs-progs man
 # put anywhere. Thus avoid pulling more dependencies than necessary
 # for throw-away things.
 dev-python/pillow jpeg
+
+# Gentoo force-enables X for app-emulation/qemu, because qemu is doing
+# some automagic detection of gtk ignoring whether we want to use gtk
+# or not. We don't have gtk on Flatcar, so it is not an issue here,
+# but we need to mask X, so we won't try pulling gtk package.
+app-emulation/qemu X
