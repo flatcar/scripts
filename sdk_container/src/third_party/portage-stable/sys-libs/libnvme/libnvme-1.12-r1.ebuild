@@ -12,8 +12,8 @@ SRC_URI="https://github.com/linux-nvme/libnvme/archive/refs/tags/v${PV}.tar.gz -
 
 LICENSE="LGPL-2.1+"
 SLOT="0/1"
-KEYWORDS="~alpha amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
-IUSE="dbus +json keyutils python ssl test +uuid"
+KEYWORDS="~alpha amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
+IUSE="dbus +json keyutils python ssl test uring"
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
@@ -26,13 +26,13 @@ DEPEND="
 	dbus? ( sys-apps/dbus:= )
 	python? ( ${PYTHON_DEPS} )
 	ssl? ( >=dev-libs/openssl-1.1:= )
-	uuid? ( sys-apps/util-linux:= )
+	uring? ( sys-libs/liburing:= )
 "
 RDEPEND="
 	${DEPEND}
 "
 BDEPEND="
-	dev-lang/swig
+	python? ( dev-lang/swig )
 "
 
 src_configure() {
@@ -43,6 +43,7 @@ src_configure() {
 		$(meson_feature dbus libdbus)
 		$(meson_feature keyutils)
 		$(meson_feature ssl openssl)
+		$(meson_feature uring liburing)
 	)
 	meson_src_configure
 }
