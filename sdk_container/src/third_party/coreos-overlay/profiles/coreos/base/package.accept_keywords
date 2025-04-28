@@ -77,9 +77,6 @@
 # Needed to address CVE-2024-53580.
 =net-misc/iperf-3.18 ~amd64 ~arm64
 
-# Needed to address CVE-2024-54661
-=net-misc/socat-1.8.0.3 ~amd64 ~arm64
-
 # Package has not been stabilised yet. Nothing is using it in Gentoo,
 # so it will never be stabilized. Thus an unusual form is used to pick
 # up the latest version of the package with the unstable keywords.
