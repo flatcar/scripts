@@ -80,8 +80,11 @@
 # Needed to address CVE-2024-54661
 =net-misc/socat-1.8.0.3 ~amd64 ~arm64
 
-# Package has not been stabilised yet.
-=sys-apps/azure-vm-utils-0.4.0 ~amd64 ~arm64
+# Package has not been stabilised yet. Nothing is using this package
+# in Gentoo, so it will never be stabilized. Thus an unusual package
+# version here is used. It is to pick whatever the latest version of
+# the package is.
+<sys-apps/azure-vm-utils-9999 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =sys-apps/policycoreutils-3.7 ~arm64
