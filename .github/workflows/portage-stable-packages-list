@@ -652,6 +652,7 @@ sys-apps/nvme-cli
 sys-apps/pciutils
 sys-apps/pcsc-lite
 sys-apps/pkgcore
+sys-apps/policycoreutils
 sys-apps/portage
 sys-apps/pv
 sys-apps/sandbox
