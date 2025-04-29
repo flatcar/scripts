@@ -51,7 +51,9 @@ __PKG_AUTO_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/cleanups.sh"
+source "${PKG_AUTO_IMPL_DIR}/debug.sh"
 source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
+source "${PKG_AUTO_IMPL_DIR}/md5_cache_diff_lib.sh"
 
 # Sets up the workdir using the passed config. The config can be
 # created basing on the config_template file or using the
@@ -72,15 +74,14 @@ function setup_workdir_with_config() {
     workdir=${1}; shift
     config_file=${1}; shift
 
-    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base
+    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base cfg_sdk_image_override
     local -a cfg_cleanups cfg_debug_packages
-    local -A cfg_overrides
 
     # some defaults
     cfg_old_base='origin/main'
     cfg_new_base=''
     cfg_cleanups=('ignore')
-    cfg_overrides=()
+    cfg_sdk_image_override=''
     cfg_debug_packages=()
 
     local line key value swwc_stripped var_name arch
@@ -95,24 +96,19 @@ function setup_workdir_with_config() {
         case ${key} in
             scripts|aux|reports)
                 var_name="cfg_${key//-/_}"
-                local -n var=${var_name}
-                var=$(realpath "${value}")
-                unset -n var
+                local -n var_ref=${var_name}
+                var_ref=$(realpath "${value}")
+                unset -n var_ref
                 ;;
-            old-base|new-base)
+            old-base|new-base|sdk-image-override)
                 var_name="cfg_${key//-/_}"
-                local -n var=${var_name}
-                var=${value}
-                unset -n var
+                local -n var_ref=${var_name}
+                var_ref=${value}
+                unset -n var_ref
                 ;;
             cleanups|debug-packages)
                 var_name="cfg_${key//-/_}"
                 mapfile -t "${var_name}" <<<"${value//,/$'\n'}"
-                ;;
-            *-sdk-img)
-                arch=${key%%-*}
-                # shellcheck disable=SC2034 # used by name below
-                cfg_overrides["${arch}"]=${value}
                 ;;
         esac
     done < <(cat_meaningful "${config_file}")
@@ -131,8 +127,10 @@ function setup_workdir_with_config() {
     add_cleanup "rm -f ${WORKDIR@Q}/config"
     cp -a "${config_file}" "${WORKDIR}/config"
     setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
-    override_sdk_image_names cfg_overrides
-    add_debug_packages "${cfg_debug_packages[@]}"
+    if [[ -n ${cfg_sdk_image_override} ]]; then
+        override_sdk_image_name "${cfg_sdk_image_override}"
+    fi
+    pkg_debug_add "${cfg_debug_packages[@]}"
 }
 
 # Goes over the list of automatically updated packages and synces them
@@ -177,10 +175,9 @@ function save_new_state() {
     local branch_name
     branch_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
     info "saving new state to branch ${branch_name}"
-    # shellcheck disable=SC2153 # SCRIPTS is not a misspelling, it comes from globals file
     git -C "${SCRIPTS}" branch --force "${branch_name}" "${NEW_STATE_BRANCH}"
 }
 
@@ -244,53 +241,15 @@ function setup_worktrees_in_workdir() {
     extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}"
 }
 
-# Adds overridden SDK image names to the globals file.
+# Adds an overridden SDK image name to the globals file.
 #
 # Params:
 #
-# 1 - name of a map variable; should be a mapping of architecture to
-#     the image name
-function override_sdk_image_names() {
-    local -n overrides_map_ref=${1}
+# 1 - image name
+function override_sdk_image_name() {
+    local image_name=${1}; shift
 
-    if [[ ${#overrides_map_ref[@]} -eq 0 ]]; then
-        return 0
-    fi
-
-    local arch image_name upcase_arch
-    local -a lines
-    lines=()
-    for arch in "${!overrides_map_ref[@]}"; do
-        image_name=${overrides_map_ref["${arch}"]}
-        upcase_arch=${arch^^}
-        if [[ ${#lines[@]} -eq 0 ]]; then
-            # separate overrides from initial values
-            lines+=( '' )
-        fi
-        lines+=( "${upcase_arch}_SDK_IMAGE=${image_name@Q}" )
-    done
-    append_to_globals "${lines[@]}"
-}
-
-# Adds information about packages to be debugged to the globals file.
-#
-# Params:
-#
-# @ - a list of packages to be debugged
-function add_debug_packages() {
-    local -a prepared lines
-    prepared=( "${@@Q}" )
-    prepared=( "${prepared[@]/#/'    ['}" )
-    prepared=( "${prepared[@]/%/']=x'}" )
-    lines=(
-        ''
-        'local -A DEBUG_PACKAGES'
-        ''
-        'DEBUG_PACKAGES=('
-        "${prepared[@]}"
-        ')'
-    )
-    append_to_globals "${lines[@]}"
+    append_to_globals "SDK_IMAGE=${image_name@Q}"
 }
 
 # Appends passed lines to the globals file.
@@ -322,7 +281,7 @@ function process_profile_updates_directory() {
     local -a ppud_ordered_names
     get_ordered_update_filenames ppud_ordered_names
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local bf ps_f co_f pkg f line old new
@@ -332,9 +291,7 @@ function process_profile_updates_directory() {
     for bf in "${ppud_ordered_names[@]}"; do
         # coreos-overlay updates may overwrite updates from
         # portage-stable, but only from the file of the same name
-        # shellcheck disable=SC2153 # NEW_PORTAGE_STABLE is not a misspelling, it comes from globals file
         ps_f=${NEW_PORTAGE_STABLE}/profiles/updates/${bf}
-        # shellcheck disable=SC2153 # NEW_COREOS_OVERLAY is not a misspelling, it comes from globals file
         co_f=${NEW_COREOS_OVERLAY}/profiles/updates/${bf}
         for f in "${ps_f}" "${co_f}"; do
             if [[ ! -f ${f} ]]; then
@@ -375,7 +332,7 @@ function process_profile_updates_directory() {
 function get_ordered_update_filenames() {
     local ordered_names_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -A names_set=()
@@ -405,12 +362,12 @@ function get_ordered_update_filenames() {
 # 3 - old name
 # 4 - new name
 function update_rename_maps() {
-    local -n ft_map=${1}; shift
+    local -n ft_map_ref=${1}; shift
     local tf_set_mvm_var_name=${1}; shift
     local old_name=${1}; shift
     local new_name=${1}; shift
 
-    local prev_new_name=${ft_map["${old_name}"]:-}
+    local prev_new_name=${ft_map_ref["${old_name}"]:-}
 
     if [[ -n ${prev_new_name} ]] && [[ ${prev_new_name} != "${new_name}" ]]; then
         fail_lines \
@@ -423,18 +380,18 @@ function update_rename_maps() {
     local urm_set_var_name
     mvm_get "${tf_set_mvm_var_name}" "${old_name}" urm_set_var_name
     if [[ -n ${urm_set_var_name} ]]; then
-        local -n old_set=${urm_set_var_name}
-        new_set+=( "${!old_set[@]}" )
-        unset -n old_set
+        local -n old_set_ref=${urm_set_var_name}
+        new_set+=( "${!old_set_ref[@]}" )
+        unset -n old_set_ref
     fi
     new_set+=( "${old_name}" )
     mvm_add "${tf_set_mvm_var_name}" "${new_name}" "${new_set[@]}"
     local old
 
     for old in "${new_set[@]}"; do
-        ft_map["${old}"]=${new_name}
+        ft_map_ref["${old}"]=${new_name}
     done
-    unset -n ft_map
+    unset -n ft_map_ref
 }
 
 # Sets up a worktree and necessary cleanups.
@@ -563,26 +520,20 @@ NEW_STATE_PACKAGES_LIST="\${NEW_STATE}/.github/workflows/portage-stable-packages
 AUX_DIR=${aux_dir@Q}
 EOF
 
-    # shellcheck disable=SC1090 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${globals_file}"
 
     local last_nightly_version_id last_nightly_build_id
-    # shellcheck disable=SC1091,SC2153 # sourcing generated file, NEW_STATE is not misspelled
+    # shellcheck source=for-shellcheck/version.txt
     last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
-    # shellcheck disable=SC1091 # sourcing generated file
+    # shellcheck source=for-shellcheck/version.txt
     last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 
-    local -a locals definitions
-    locals=()
-    definitions=()
-    local sdk_image_name
+    local -a locals=() definitions=()
+    local sdk_image_name sdk_image_var_name=SDK_IMAGE
     sdk_image_name="ghcr.io/flatcar/flatcar-sdk-all:${last_nightly_version_id}-${last_nightly_build_id}"
-    local arch sdk_image_var_name
-    for arch in "${ARCHES[@]}"; do
-        sdk_image_var_name="${arch^^}_SDK_IMAGE"
-        locals+=( "${sdk_image_var_name@Q}" )
-        definitions+=( "${sdk_image_var_name}=${sdk_image_name@Q}" )
-    done
+    locals+=( "${sdk_image_var_name@Q}" )
+    definitions+=( "${sdk_image_var_name}=${sdk_image_name@Q}" )
 
     append_to_globals \
         '' \
@@ -594,7 +545,6 @@ EOF
     local packages_file tag filename stripped old
 
     for arch in "${ARCHES[@]}"; do
-        # shellcheck disable=SC2153 # AUX_DIR is not a misspelling, it comes from globals file
         for packages_file in "${AUX_DIR}/${arch}/"*_packages.txt; do
             filename=${packages_file##*/}
             stripped=${filename%_packages.txt}
@@ -656,18 +606,15 @@ EOF
 function setup_git_env() {
     local bot_name bot_email role what
 
-    # shellcheck disable=SC2034 # used indirectly
     bot_name='Flatcar Buildbot'
-    # shellcheck disable=SC2034 # used indirectly
     bot_email='buildbot@flatcar-linux.org'
     for role in AUTHOR COMMITTER; do
         for what in name email; do
-            local -n var="GIT_${role}_${what^^}"
-            local -n value="bot_${what}"
-            # shellcheck disable=SC2034 # it's a reference to external variable
-            var=${value}
-            unset -n value
-            unset -n var
+            local -n var_ref="GIT_${role}_${what^^}"
+            local -n value_ref="bot_${what}"
+            var_ref=${value_ref}
+            unset -n value_ref
+            unset -n var_ref
         done
     done
 }
@@ -686,7 +633,7 @@ function run_sync() {
     missing_in_scripts=()
     missing_in_gentoo=()
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -x "${GIT_ENV_VARS[@]}"
@@ -697,7 +644,6 @@ function run_sync() {
 
     local package
     while read -r package; do
-        # shellcheck disable=SC2153 # NEW_PORTAGE_STABLE is not a misspelling, it comes from globals file
         if [[ ! -e "${NEW_PORTAGE_STABLE}/${package}" ]]; then
             # If this happens, it means that the package was moved to overlay
             # or dropped, the list ought to be updated.
@@ -716,7 +662,6 @@ function run_sync() {
         fi
         packages_to_update+=( "${package}" )
     done < <(cat_meaningful "${NEW_STATE_PACKAGES_LIST}")
-    # shellcheck disable=SC2153 # SYNC_SCRIPT is not a misspelling
     env --chdir="${NEW_PORTAGE_STABLE}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${packages_to_update[@]}"
 
     save_missing_in_scripts "${missing_in_scripts[@]}"
@@ -854,7 +799,7 @@ function handle_missing_in_scripts() {
     hmis_missing_in_scripts=()
     load_missing_in_scripts hmis_missing_in_scripts
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     if [[ ${#hmis_missing_in_scripts[@]} -eq 0 ]]; then
@@ -869,7 +814,6 @@ function handle_missing_in_scripts() {
     join_by missing_re '\|' "${missing_in_scripts[@]}"
     add_cleanup "rm -f ${dir@Q}/pkg_list"
     xgrep --invert-match --line-regexp --fixed-strings --regexp="${missing_re}" "${NEW_STATE_PACKAGES_LIST}" >"${dir}/pkg_list"
-    # shellcheck disable=SC2153 # PKG_LIST_SORT_SCRIPT is not a misspelling
     "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
 
     local -x "${GIT_ENV_VARS[@]}"
@@ -908,11 +852,10 @@ function lines_to_file() {
 #
 # @ - lines to add
 function manual() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     pkg_debug_lines 'manual work needed:' "${@}"
-    # shellcheck disable=SC2153 # REPORTS_DIR is not a misspelling, it comes from globals file
     lines_to_file "${REPORTS_DIR}/manual-work-needed" "${@}"
 }
 
@@ -923,7 +866,7 @@ function manual() {
 #
 # @ - lines to add
 function pkg_warn() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     pkg_debug_lines 'pkg warn:' "${@}"
@@ -937,7 +880,7 @@ function pkg_warn() {
 #
 # @ - lines to add
 function devel_warn() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     pkg_debug_lines 'developer warn:' "${@}"
@@ -959,7 +902,7 @@ function handle_missing_in_gentoo() {
         return 0;
     fi
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -A hmig_rename_map=()
@@ -1030,23 +973,14 @@ function process_listings() {
     local pkg_to_tags_mvm_var_name
     pkg_to_tags_mvm_var_name=${1}
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
-
-    local ver_ere pkg_ere
-    # VER_ERE comes from gentoo_ver.sh
-    ver_ere=${VER_ERE}
-    # regexp begins with ^ and ends with $, so strip them
-    ver_ere=${ver_ere#'^'}
-    ver_ere=${ver_ere%'$'}
-    pkg_ere='[a-z0-9]*-?[a-z0-9]*/[a-z0-9A-Z_+-]*'
 
     #mvm_debug_enable pl_pkg_to_tags_set_mvm
     mvm_declare pl_pkg_to_tags_set_mvm mvm_mvc_set
 
     local arch kind file listing pkg
     for arch in "${ARCHES[@]}"; do
-        # shellcheck disable=SC2153 # LISTING_KINDS is not a misspelling, it comes from globals file
         for kind in "${!LISTING_KINDS[@]}"; do
             file=${LISTING_KINDS["${kind}"]}
             listing="${AUX_DIR}/${arch}/${file}"
@@ -1060,38 +994,25 @@ function process_listings() {
             # acct-group/adm-0-r2::portage-stable
             while read -r pkg; do
                 pkg_debug_enable "${pkg}"
-                pkg_debug "processing listings: adding tag ${kind^^}"
+                pkg_debug "processing listing ${arch}/${file}: adding tag ${kind^^}"
                 pkg_debug_disable
                 mvm_add pl_pkg_to_tags_set_mvm "${pkg}" "${kind^^}"
-            done < <(sed -E -e 's#^('"${pkg_ere}"')-'"${ver_ere}"'::.*#\1#' "${listing}")
+                # VER_ERE_UNBOUNDED and PKG_ERE_UNBOUNDED come from gentoo_ver.sh
+            done < <(sed -E -e 's#^('"${PKG_ERE_UNBOUNDED}"')-'"${VER_ERE_UNBOUNDED}"'::.*#\1#' "${listing}")
         done
     done
 
     mvm_iterate pl_pkg_to_tags_set_mvm set_mvm_to_array_mvm_cb "${pkg_to_tags_mvm_var_name}"
     mvm_unset pl_pkg_to_tags_set_mvm
     #mvm_debug_disable pl_pkg_to_tags_set_mvm
-    if pkg_debug_possible; then
-        mvm_iterate "${pkg_to_tags_mvm_var_name}" debug_dump_package_tags "${pkg_to_tags_mvm_var_name}"
-    fi
-}
-
-# A debug function that prints the package tags. Used as a callback to
-# mvm_iterate.
-#
-# Params:
-#
-# 1 - name of the array mvm variable (extra arg of the callback)
-# 2 - name of the package
-# 3 - name of the array variable holding tags (unused)
-# @ - tags
-function debug_dump_package_tags() {
-    local map_name=${1}; shift
-    local pkg=${1}; shift
-    shift # we don't care about array variable name
-    # rest are array elements, which are tags
-    pkg_debug_enable "${pkg}"
-    pkg_debug "tags for ${pkg} stored in ${map_name}: ${*}"
-    pkg_debug_disable
+    local -a pl_debug_pkgs pl_tags_array_name
+    pkg_debug_packages pl_debug_pkgs
+    for pkg in "${pl_debug_pkgs[@]}"; do
+        mvm_get "${pkg_to_tags_mvm_var_name}" "${pkg}" pl_tags_array_name
+        local -n tags_ref=${pl_tags_array_name:-EMPTY_ARRAY}
+        pkg_debug_print_c "${pkg}" "tags stored in ${pkg_to_tags_mvm_var_name}: ${tags_ref[*]}"
+        unset -n tags_ref
+    done
 }
 
 # A callback to mvm_iterate that turns a set mvm to an array mvm. It
@@ -1135,84 +1056,101 @@ function set_mvm_to_array_mvm_cb() {
 # stored in salvaged-reports subdirectory of the reports directory.
 # Otherwise they will end up in reports-from-sdk subdirectory.
 function generate_sdk_reports() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     add_cleanup "rmdir ${WORKDIR@Q}/pkg-reports"
     mkdir "${WORKDIR}/pkg-reports"
 
-    local arch sdk_image_var_name sdk_image_name
+    if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep --quiet --line-regexp --fixed-strings "${SDK_IMAGE}"; then
+        fail "No SDK image named ${SDK_IMAGE@Q} available locally, pull it before running this script"
+    fi
+
     local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch
-    local file full_file rv sdk_reports_dir salvaged_dir pkg_auto_copy
-    local -a report_files run_sdk_container_args
-    for arch in "${ARCHES[@]}"; do
-        sdk_image_var_name="${arch^^}_SDK_IMAGE"
-        sdk_image_name=${!sdk_image_var_name}
-        if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep --quiet --line-regexp --fixed-strings "${sdk_image_name}"; then
-            fail "No SDK image named ${sdk_image_name@Q} available locally, pull it before running this script"
+    local pkg_auto_copy rv
+    local sdk_reports_dir top_dir dir entry full_path
+    local -a dir_queue all_dirs all_files
+
+    for sdk_run_kind in "${WHICH[@]}"; do
+        state_var_name="${sdk_run_kind^^}_STATE"
+        sdk_run_state="${!state_var_name}_sdk_run"
+        state_branch_var_name="${sdk_run_kind^^}_STATE_BRANCH"
+        sdk_run_state_branch="${!state_branch_var_name}-sdk-run"
+
+        add_cleanup \
+            "git -C ${sdk_run_state@Q} reset --hard HEAD" \
+            "git -C ${sdk_run_state@Q} clean -ffdx" \
+            "git -C ${SCRIPTS@Q} worktree remove ${sdk_run_state@Q}" \
+            "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
+        git -C "${SCRIPTS}" \
+            worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
+
+        pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
+        add_cleanup "rm -rf ${pkg_auto_copy@Q}"
+        cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
+        local -a run_sdk_container_args=(
+            -C "${SDK_IMAGE}"
+            -n "pkg-${sdk_run_kind}"
+            -U
+            -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
+            --rm
+            ./pkg_auto/inside_sdk_container.sh pkg-reports "${ARCHES[@]}"
+        )
+        rv=0
+        env --chdir "${sdk_run_state}" ./run_sdk_container "${run_sdk_container_args[@]}" || rv=${?}
+        unset run_sdk_container_args
+        if [[ ${rv} -ne 0 ]]; then
+            local salvaged_dir
+            salvaged_dir="${REPORTS_DIR}/salvaged-reports"
+            {
+                info "run_sdk_container finished with exit status ${rv}, printing the warnings below for a clue"
+                info
+                for file in "${sdk_run_state}/pkg-reports/"*'-warnings'; do
+                    info "from ${file}:"
+                    echo
+                    cat "${file}"
+                    echo
+                done
+                info
+                info 'whatever reports generated by the failed run are saved in'
+                info "${salvaged_dir@Q} directory"
+                info
+            } >&2
+            rm -rf "${salvaged_dir}"
+            cp -a "${sdk_run_state}/pkg-reports" "${salvaged_dir}"
+            unset salvaged_dir
+            fail "copying done, stopping now"
         fi
-
-        # shellcheck disable=SC2153 # WHICH is not a misspelling, it comes from globals file
-        for sdk_run_kind in "${WHICH[@]}"; do
-            state_var_name="${sdk_run_kind^^}_STATE"
-            sdk_run_state="${!state_var_name}_sdk_run_${arch}"
-            state_branch_var_name="${sdk_run_kind^^}_STATE_BRANCH"
-            sdk_run_state_branch="${!state_branch_var_name}-sdk-run-${arch}"
-
-            add_cleanup \
-                "git -C ${sdk_run_state@Q} reset --hard HEAD" \
-                "git -C ${sdk_run_state@Q} clean -ffdx" \
-                "git -C ${SCRIPTS@Q} worktree remove ${sdk_run_state@Q}" \
-                "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
-            git -C "${SCRIPTS}" \
-                worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
-
-            pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
-            add_cleanup "rm -rf ${pkg_auto_copy@Q}"
-            cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
-            local -a run_sdk_container_args=(
-                -C "${sdk_image_name}"
-                -n "pkg-${sdk_run_kind}-${arch}"
-                -a "${arch}"
-                -U
-                -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
-                --rm
-                ./pkg_auto/inside_sdk_container.sh "${arch}" pkg-reports
-            )
-            rv=0
-            env --chdir "${sdk_run_state}" ./run_sdk_container "${run_sdk_container_args[@]}" || rv=${?}
-            if [[ ${rv} -ne 0 ]]; then
-                {
-                    salvaged_dir="${REPORTS_DIR}/salvaged-reports"
-                    info "run_sdk_container finished with exit status ${rv}, printing the warnings below for a clue"
-                    info
-                    for file in "${sdk_run_state}/pkg-reports/"*'-warnings'; do
-                        info "from ${file}:"
-                        echo
-                        cat "${file}"
-                        echo
-                    done
-                    info
-                    info 'whatever reports generated by the failed run are saved in'
-                    info "${salvaged_dir@Q} directory"
-                    info
-                } >&2
-                rm -rf "${salvaged_dir}"
-                cp -a "${sdk_run_state}/pkg-reports" "${salvaged_dir}"
-                fail "copying done, stopping now"
+        sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}"
+        top_dir="${sdk_run_state}/pkg-reports"
+        dir_queue=( "${top_dir}" )
+        all_dirs=()
+        all_files=()
+        while [[ ${#dir_queue[@]} -gt 0 ]]; do
+            dir=${dir_queue[0]}
+            dir_queue=( "${dir_queue[@]:1}" )
+            entry=${dir#"${top_dir}"}
+            if [[ -z ${entry} ]]; then
+                all_dirs=( "${sdk_reports_dir}" "${all_dirs[@]}" )
+            else
+                entry=${entry#/}
+                all_dirs=( "${sdk_reports_dir}/${entry}" "${all_dirs[@]}" )
             fi
-            sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}-${arch}"
-            report_files=()
-            for full_file in "${sdk_run_state}/pkg-reports/"*; do
-                file=${full_file##"${sdk_run_state}/pkg-reports/"}
-                report_files+=( "${sdk_reports_dir}/${file}" )
+            for full_path in "${dir}/"*; do
+                if [[ -d ${full_path} ]]; then
+                    dir_queue+=( "${full_path}" )
+                else
+                    entry=${full_path##"${top_dir}/"}
+                    all_files+=( "${sdk_reports_dir}/${entry}" )
+                fi
             done
-            add_cleanup \
-                "rm -f ${report_files[*]@Q}" \
-                "rmdir ${sdk_reports_dir@Q}"
-            mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
         done
+        add_cleanup \
+            "rm -f ${all_files[*]@Q}" \
+            "rmdir ${all_dirs[*]@Q}"
+        mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
     done
+
     cp -a "${WORKDIR}/pkg-reports" "${REPORTS_DIR}/reports-from-sdk"
 }
 
@@ -1240,7 +1178,6 @@ function pkginfo_name() {
     report=${1}; shift
     local -n pi_name_ref=${1}; shift
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     pi_name_ref="pkginfo_${which}_${arch}_${report//-/_}_pimap_mvm"
 }
 
@@ -1256,7 +1193,6 @@ function pkginfo_destructor() {
 
 # Adder callback used by mvm_declare for pkginfo mvms.
 function pkginfo_adder() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n map_ref=${1}; shift
 
     local mark
@@ -1338,7 +1274,7 @@ function pkginfo_c_process_file() {
     local -n pkg_set_ref=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local which arch report
@@ -1346,19 +1282,35 @@ function pkginfo_c_process_file() {
     mvm_c_get_extra 'arch' arch
     mvm_c_get_extra 'report' report
 
+    local report_file
+    case ${report}:${arch} in
+        "${SDK_PKGS}:arm64")
+            # short-circuit it, there's no arm64 sdk
+            return 0
+            ;;
+        "${SDK_PKGS}:amd64")
+            report_file="${WORKDIR}/pkg-reports/${which}/${report}"
+            ;;
+        "${BOARD_PKGS}:"*)
+            report_file="${WORKDIR}/pkg-reports/${which}/${arch}-${report}"
+            ;;
+        *)
+            local c=${report}:${arch}
+            devel_warn "unknown report-architecture combination (${c@Q})"
+            return 0
+    esac
+
     local pkg version_slot throw_away v s
-    # shellcheck disable=SC2034 # throw_away is unused, it's here for read to store the rest of the line if there is something else
     while read -r pkg version_slot throw_away; do
         pkg_debug_enable "${pkg}"
         pkg_debug "${which} ${arch} ${report}: ${version_slot}"
         v=${version_slot%%:*}
         s=${version_slot##*:}
         mvm_c_add "${pkg}" "${s}" "${v}"
-        # shellcheck disable=SC2034 # it's a reference to external variable
         pkg_set_ref["${pkg}"]='x'
         mvm_add "${pkg_slots_set_mvm_var_name}" "${pkg}" "${s}"
         pkg_debug_disable
-    done <"${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
+    done <"${report_file}"
 }
 
 # Gets a profile of the pkginfo mvm. The "profile" is a confusing
@@ -1397,7 +1349,7 @@ function read_reports() {
     all_pkgs_var_name=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -A rr_all_packages_set
@@ -1418,7 +1370,7 @@ function read_reports() {
 
 # Destroys the pkginfo maps for all the reports.
 function unset_report_mvms() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local arch which report
@@ -1453,9 +1405,7 @@ function ver_min_max() {
             max=${v}
         fi
     done
-    # shellcheck disable=SC2034 # it's a reference to external variable
     min_ref=${min}
-    # shellcheck disable=SC2034 # it's a reference to external variable
     max_ref=${max}
 }
 
@@ -1489,8 +1439,8 @@ function consistency_check_for_package() {
     local -A empty_map
     empty_map=()
 
-    local -n slot_version1_map=${ccfp_slot_version1_map_var_name:-empty_map}
-    local -n slot_version2_map=${ccfp_slot_version2_map_var_name:-empty_map}
+    local -n slot_version1_map_ref=${ccfp_slot_version1_map_var_name:-empty_map}
+    local -n slot_version2_map_ref=${ccfp_slot_version2_map_var_name:-empty_map}
 
     local ccfp_slots_set_var_name
     mvm_get "${pkg_slots_set_mvm_var_name}" "${pkg}" ccfp_slots_set_var_name
@@ -1508,8 +1458,8 @@ function consistency_check_for_package() {
     local s v1 v2 ccfp_min ccfp_max mm
     pkg_debug "all slots iterated over: ${!slots_set_ref[*]}"
     for s in "${!slots_set_ref[@]}"; do
-        v1=${slot_version1_map["${s}"]:-}
-        v2=${slot_version2_map["${s}"]:-}
+        v1=${slot_version1_map_ref["${s}"]:-}
+        v2=${slot_version2_map_ref["${s}"]:-}
         pkg_debug "v1: ${v1}, v2: ${v2}"
 
         if [[ -n ${v1} ]] && [[ -n ${v2} ]]; then
@@ -1563,8 +1513,8 @@ function consistency_check_for_package() {
     elif [[ ${#profile_1_slots[@]} -eq 1 ]] && [[ ${#profile_2_slots[@]} -eq 1 ]]; then
         s1=${profile_1_slots[0]}
         s2=${profile_2_slots[0]}
-        v1=${slot_version1_map["${s1}"]:-}
-        v2=${slot_version2_map["${s2}"]:-}
+        v1=${slot_version1_map_ref["${s1}"]:-}
+        v2=${slot_version2_map_ref["${s2}"]:-}
         if [[ ${v1} != "${v2}" ]]; then
             pkg_warn \
                 "- version mismatch:" \
@@ -1597,12 +1547,11 @@ function consistency_check_for_package() {
 function consistency_checks() {
     local which pkg_slots_set_mvm_var_name pkg_slot_verminmax_mvm_var_name
     which=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n all_pkgs_ref=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
     pkg_slot_verminmax_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local cc_pimap_mvm_1_var_name cc_pimap_mvm_2_var_name pkg
@@ -1675,7 +1624,6 @@ function consistency_checks() {
     done
 
     local cc_slots_set_var_name s cc_min cc_max verminmax
-    # shellcheck disable=SC2034 # used by name below
     local -A empty_map=()
     local -a verminmax_map_var_names verminmaxes
     local cc_slot_verminmax_map_var_name
@@ -1687,11 +1635,11 @@ function consistency_checks() {
             mvm_get "${name}" "${pkg}" cc_slot_verminmax_map_var_name
             verminmax_map_var_names+=("${cc_slot_verminmax_map_var_name}")
         done
-        if pkg_debug_possible; then
+        if pkg_debug_enabled; then
             for name in "${verminmax_map_var_names[@]}"; do
                 local -n slot_verminmax_map_ref=${name:-empty_map}
-                pkg_debug "all slots in ${name}: ${!slot_verminmax_map_ref[*]}"
-                pkg_debug "all vmms in ${name}: ${slot_verminmax_map_ref[*]}"
+                pkg_debug_print "all slots in ${name}: ${!slot_verminmax_map_ref[*]}"
+                pkg_debug_print "all vmms in ${name}: ${slot_verminmax_map_ref[*]}"
                 unset -n slot_verminmax_map_ref
             done
         fi
@@ -1737,27 +1685,35 @@ function consistency_checks() {
 function read_package_sources() {
     local -n package_sources_map_ref=${1}; shift
 
-    local arch which report pkg repo saved_repo
-    for arch in "${ARCHES[@]}"; do
-        for which in "${WHICH[@]}"; do
-            for report in sdk-package-repos board-package-repos; do
-                while read -r pkg repo; do
-                    saved_repo=${package_sources_map_ref["${pkg}"]:-}
-                    if [[ -n ${saved_repo} ]]; then
-                        if [[ ${saved_repo} != "${repo}" ]]; then
-                            pkg_warn \
-                                '- different repos used for the package:' \
-                                "  - package: ${pkg}" \
-                                '  - repos:' \
-                                "    - ${saved_repo}" \
-                                "    - ${repo}"
-                        fi
-                    else
-                        package_sources_map_ref["${pkg}"]=${repo}
-                    fi
-                done <"${WORKDIR}/pkg-reports/${which}-${arch}/${report}"
-            done
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
+    local -a files=()
+    local which arch
+    for which in "${WHICH[@]}"; do
+        files+=( "${WORKDIR}/pkg-reports/${which}/sdk-package-repos" )
+        for arch in "${ARCHES[@]}"; do
+            files+=( "${WORKDIR}/pkg-reports/${which}/${arch}-board-package-repos" )
         done
+    done
+
+    local file pkg repo saved_repo
+    for file in "${files[@]}"; do
+        while read -r pkg repo; do
+            saved_repo=${package_sources_map_ref["${pkg}"]:-}
+            if [[ -n ${saved_repo} ]]; then
+                if [[ ${saved_repo} != "${repo}" ]]; then
+                    pkg_warn \
+                        '- different repos used for the package:' \
+                        "  - package: ${pkg}" \
+                        '  - repos:' \
+                        "    - ${saved_repo}" \
+                        "    - ${repo}"
+                fi
+            else
+                package_sources_map_ref["${pkg}"]=${repo}
+            fi
+        done <"${file}"
     done
 }
 
@@ -1772,11 +1728,10 @@ function read_package_sources() {
 # 2 - name of the package tags map mvm variable
 function handle_package_changes() {
     local pkg_to_tags_mvm_var_name
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n renamed_old_to_new_map_ref=${1}; shift
     pkg_to_tags_mvm_var_name=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a hpc_all_pkgs
@@ -1913,7 +1868,6 @@ function handle_package_changes() {
     local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
     local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name verminmax
     local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
-    # shellcheck disable=SC2034 # used by name below, in a special case
     empty_map_or_set=()
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}
@@ -2020,7 +1974,6 @@ function handle_package_changes() {
         update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
         mkdir -p "${hpc_update_dir_non_slot}"
 
-        # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE comes from globals file
         generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
@@ -2163,7 +2116,6 @@ function handle_package_changes() {
 # 1 - name of the set variable
 # 2 - name of the variable where the element will be stored
 function get_first_from_set() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n set_ref=${1}; shift
     local -n return_ref=${1}; shift
 
@@ -2172,54 +2124,7 @@ function get_first_from_set() {
         return_ref=${item}
         return 0
     done
-    # shellcheck disable=SC2034 # it's a reference to external variable
     return_ref=''
-}
-
-# Does the set operation on two passed sets - both set differences and
-# an intersection.
-#
-# Params:
-#
-# 1 - name of the first set variable
-# 2 - name of the second set variable
-# 3 - name of the set variable that will contain elements that exist
-#     in first set, but not the second
-# 4 - name of the set variable that will contain elements that exist
-#     in second set, but not the first
-# 5 - name of the set variable that will contain elements that exist
-#     in both first and second sets
-function sets_split() {
-    local -n first_set_ref=${1}; shift
-    local -n second_set_ref=${1}; shift
-    local -n only_in_first_set_ref=${1}; shift
-    local -n only_in_second_set_ref=${1}; shift
-    local -n common_set_ref=${1}; shift
-
-    only_in_first_set_ref=()
-    only_in_second_set_ref=()
-    common_set_ref=()
-
-    local item mark
-
-    for item in "${!first_set_ref[@]}"; do
-        mark=${second_set_ref["${item}"]:-}
-        if [[ -z "${mark}" ]]; then
-            # shellcheck disable=SC2034 # it's a reference to external variable
-            only_in_first_set_ref["${item}"]=x
-        else
-            # shellcheck disable=SC2034 # it's a reference to external variable
-            common_set_ref["${item}"]=x
-        fi
-    done
-
-    for item in "${!second_set_ref[@]}"; do
-        mark=${first_set_ref["${item}"]:-}
-        if [[ -z "${mark}" ]]; then
-            # shellcheck disable=SC2034 # it's a reference to external variable
-            only_in_second_set_ref["${item}"]=x
-        fi
-    done
 }
 
 # Write information to reports directory about the package update
@@ -2245,7 +2150,7 @@ function handle_pkg_update() {
     old=${1}; shift
     new=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local old_no_r new_no_r
@@ -2255,26 +2160,37 @@ function handle_pkg_update() {
     local pkg_name
     pkg_name=${new_pkg#*/}
     local -a lines
-    lines=( "from ${old} to ${new}")
+    lines=( "0:from ${old} to ${new}")
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( "renamed from ${old_pkg}" )
+        lines+=( "0:renamed from ${old_pkg}" )
     fi
-    # shellcheck disable=SC2153 # OLD_PORTAGE_STABLE is not a misspelling, it comes from globals file
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
-    # shellcheck disable=SC2034 # these variables are used by name
     local hpu_update_dir hpu_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
+
+    local diff_report_name
+    gen_varname diff_report_name
+    diff_report_declare "${diff_report_name}"
+    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+
+    local -n diff_report_ref=${diff_report_name}
+    local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
+    lines+=( "${diff_lines_ref[@]}" )
+    unset -n diff_lines_ref
+    unset -n diff_report_ref
+    diff_report_unset "${diff_report_name}"
+
     if [[ -s "${hpu_update_dir}/ebuild.diff" ]]; then
-        lines+=( 'TODO: review ebuild.diff' )
+        lines+=( '0:TODO: review ebuild.diff' )
     fi
     if [[ -s "${hpu_update_dir_non_slot}/other.diff" ]]; then
-        lines+=( 'TODO: review other.diff' )
+        lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( 'TODO: review occurences' )
+    lines+=( '0:TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( 'TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
     local -a hpu_tags
@@ -2283,7 +2199,7 @@ function handle_pkg_update() {
     if ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
-        lines+=( 'release notes: TODO' )
+        lines+=( '0:release notes: TODO' )
     fi
 
     generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
@@ -2314,7 +2230,7 @@ function handle_pkg_as_is() {
     v=${1}; shift
     local -n changed_ref=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local hpai_update_dir
@@ -2323,12 +2239,12 @@ function handle_pkg_as_is() {
     local pkg_name
     pkg_name=${new_pkg#/}
     local -a lines
-    lines=( "still at ${v}" )
+    lines=( "0:still at ${v}" )
 
     local renamed
     renamed=
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( "renamed from ${old_pkg}" )
+        lines+=( "0:renamed from ${old_pkg}" )
         renamed=x
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
@@ -2337,23 +2253,38 @@ function handle_pkg_as_is() {
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
     local modified
     modified=
+
+    local diff_report_name
+    gen_varname diff_report_name
+    diff_report_declare "${diff_report_name}"
+    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
+
+    local -n diff_report_ref=${diff_report_name}
+    local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
+    if [[ ${#diff_lines_ref[@]} -gt 0 ]]; then
+        lines+=( "${diff_lines_ref[@]}" )
+        modified=x
+    fi
+    unset -n diff_lines_ref
+    unset -n diff_report_ref
+    diff_report_unset "${diff_report_name}"
+
     if [[ -s "${hpai_update_dir}/ebuild.diff" ]]; then
-        lines+=( 'TODO: review ebuild.diff' )
+        lines+=( '0:TODO: review ebuild.diff' )
         modified=x
     fi
     if [[ -s "${hpai_update_dir_non_slot}/other.diff" ]]; then
-        lines+=( 'TODO: review other.diff' )
+        lines+=( '0:TODO: review other.diff' )
         modified=x
     fi
     if [[ -z ${renamed} ]] && [[ -z ${modified} ]]; then
         # Nothing relevant has changed, return early.
         return 0
     fi
-    # shellcheck disable=SC2034 # ref to an external variable
     changed_ref=x
-    lines+=( 'TODO: review occurences' )
+    lines+=( '0:TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( 'TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
     local -a hpai_tags
@@ -2384,7 +2315,7 @@ function handle_pkg_downgrade() {
     old=${1}; shift
     new=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local old_no_r new_no_r
@@ -2394,24 +2325,37 @@ function handle_pkg_downgrade() {
     local pkg_name
     pkg_name=${new_pkg#*/}
     local -a lines
-    lines=( "downgraded from ${old} to ${new}" )
+    lines=( "0:downgraded from ${old} to ${new}" )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( "renamed from ${old_pkg}" )
+        lines+=( "0:renamed from ${old_pkg}" )
     fi
     generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
     local hpd_update_dir hpd_update_dir_non_slot
     update_dir_non_slot "${new_pkg}" hpd_update_dir_non_slot
     update_dir "${new_pkg}" "${old_s}" "${new_s}" hpd_update_dir
+
+    local diff_report_name
+    gen_varname diff_report_name
+    diff_report_declare "${diff_report_name}"
+    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+
+    local -n diff_report_ref=${diff_report_name}
+    local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
+    lines+=( "${diff_lines_ref[@]}" )
+    unset -n diff_lines_ref
+    unset -n diff_report_ref
+    diff_report_unset "${diff_report_name}"
+
     if [[ -s "${hpd_update_dir}/ebuild.diff" ]]; then
-        lines+=( 'TODO: review ebuild.diff' )
+        lines+=( '0:TODO: review ebuild.diff' )
     fi
     if [[ -s "${hpd_update_dir_non_slot}/other.diff" ]]; then
-        lines+=( 'TODO: review other.diff' )
+        lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( 'TODO: review occurences' )
+    lines+=( '0:TODO: review occurences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( 'TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
     local -a hpd_tags
@@ -2420,7 +2364,7 @@ function handle_pkg_downgrade() {
     if ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
-        lines+=( "release notes: TODO" )
+        lines+=( "0:release notes: TODO" )
     fi
 
     generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
@@ -2448,10 +2392,9 @@ function tags_for_pkg() {
         pkg_debug "no tags available"
         tags_ref=()
     else
-        local -n tags_in_mvm=${tfp_tags_var_name}
-        # shellcheck disable=SC2034 # it's a reference to external variable
-        tags_ref=( "${tags_in_mvm[@]}" )
-        pkg_debug "tags available: ${tags_in_mvm[*]}"
+        local -n tags_in_mvm_ref=${tfp_tags_var_name}
+        tags_ref=( "${tags_in_mvm_ref[@]}" )
+        pkg_debug "tags available: ${tags_in_mvm_ref[*]}"
     fi
     pkg_debug_disable
 }
@@ -2488,7 +2431,7 @@ function generate_changelog_entry_stub() {
         gces_tags='SDK'
     fi
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     printf '%s %s: %s ([%s](TODO))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" >>"${REPORTS_DIR}/updates/changelog_stubs"
@@ -2505,7 +2448,7 @@ function generate_summary_stub() {
     pkg=${1}; shift
     # rest are tags separated followed by double dash followed by lines
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a tags
@@ -2526,10 +2469,16 @@ function generate_summary_stub() {
             printf ' [%s]' "${tags[@]}"
         fi
         printf '\n'
-        if [[ ${#} -gt 0 ]]; then
-            printf '  - %s\n' "${@}"
-            printf '\n'
-        fi
+        local indent_line indent line
+        for indent_line; do
+            indent=${indent_line%%:*}
+            line=${indent_line#*:}
+            if [[ ${indent} -gt 0 ]]; then
+                printf -- '  %.0s' $(seq 1 "${indent}")
+            fi
+            printf '  - %s\n' "${line}"
+        done
+        printf '\n'
     } >>"${REPORTS_DIR}/updates/summary_stubs"
 }
 
@@ -2635,6 +2584,33 @@ function generate_ebuild_diff() {
     xdiff --unified=3 "${old_path}" "${new_path}" >"${ged_update_dir}/ebuild.diff"
 }
 
+function generate_cache_diff_report() {
+    local diff_report_var_name=${1}; shift
+    local old_cache_dir=${1}; shift
+    local new_cache_dir=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
+
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
+    local old_entry=${old_cache_dir}/${old_pkg}-${old}
+    local new_entry=${new_cache_dir}/${new_pkg}-${new}
+
+    local old_cache_name new_cache_name
+    gen_varname old_cache_name
+    gen_varname new_cache_name
+    cache_file_declare "${old_cache_name}" "${new_cache_name}"
+    parse_cache_file "${old_cache_name}" "${old_entry}" "${ARCHES[@]}"
+    parse_cache_file "${new_cache_name}" "${new_entry}" "${ARCHES[@]}"
+
+    diff_cache_data "${old_cache_name}" "${new_cache_name}" "${diff_report_var_name}"
+
+    cache_file_unset "${old_cache_name}" "${new_cache_name}"
+}
+
 # Generate a report with information where the old and new packages
 # are mentioned in entire scripts repository. May result in two
 # separate reports if the package got renamed.
@@ -2717,10 +2693,9 @@ function update_dir_non_slot() {
     pkg=${1}; shift
     local -n dir_ref=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref="${REPORTS_DIR}/updates/${pkg}"
 }
 
@@ -2750,7 +2725,6 @@ function update_dir() {
 
     local ud_non_slot_dir
     update_dir_non_slot "${pkg}" ud_non_slot_dir
-    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref="${ud_non_slot_dir}/${slot_dir}"
 }
 
@@ -2768,7 +2742,7 @@ function grep_pkg() {
     pkg=${1}; shift
     # rest are directories
 
-    GIT_PAGER= git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-zA-Z0-9_-]\|$\)' -- "${@}" || :
+    GIT_PAGER='' git -C "${scripts}" grep "${pkg}"'\(-[0-9]\|[^a-zA-Z0-9_-]\|$\)' -- "${@}" || :
 }
 
 # Prints the passed files preceding and following with BEGIN ENTRY and
@@ -2792,7 +2766,6 @@ function handle_gentoo_sync() {
     mvm_declare hgs_pkg_to_tags_mvm
     process_listings hgs_pkg_to_tags_mvm
 
-    # shellcheck disable=SC2034 # passed to other function through a name
     local -A hgs_renames_old_to_new_map=()
     process_profile_updates_directory hgs_renames_old_to_new_map
 
@@ -2801,11 +2774,10 @@ function handle_gentoo_sync() {
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local old_head new_head
-    # shellcheck disable=SC2153 # OLD_STATE is not a misspelling
     old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
     new_head=$(git -C "${NEW_STATE}" rev-parse HEAD)
 
@@ -2814,7 +2786,6 @@ function handle_gentoo_sync() {
     local path in_ps category
     if [[ "${old_head}" != "${new_head}" ]]; then
         while read -r path; do
-            # shellcheck disable=SC2153 # PORTAGE_STABLE_SUFFIX is not a misspelling
             if [[ ${path} != "${PORTAGE_STABLE_SUFFIX}/"* ]]; then
                 continue
             fi
@@ -2998,7 +2969,7 @@ function handle_eclass() {
     local eclass
     eclass=${1}; shift
 
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local -a lines
@@ -3006,11 +2977,11 @@ function handle_eclass() {
     if [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]] && [[ -e "${NEW_PORTAGE_STABLE}/${eclass}" ]]; then
         mkdir -p "${REPORTS_DIR}/updates/${eclass}"
         xdiff --unified=3 "${OLD_PORTAGE_STABLE}/${eclass}" "${NEW_PORTAGE_STABLE}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/eclass.diff"
-        lines+=( 'TODO: review the diff' )
+        lines+=( '0:TODO: review the diff' )
     elif [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]]; then
-        lines+=( 'unused, dropped' )
+        lines+=( '0:unused, dropped' )
     else
-        lines+=( 'added from Gentoo' )
+        lines+=( '0:added from Gentoo' )
     fi
     generate_summary_stub "${eclass}" -- "${lines[@]}"
 }
@@ -3020,17 +2991,15 @@ function handle_eclass() {
 # and SDK), a full diff between all the profiles, and a list of
 # possibly irrelevant files that has changed too.
 function handle_profiles() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local -a files
-    files=()
-    local arch which report
-    for arch in "${ARCHES[@]}"; do
-        for which in "${WHICH[@]}"; do
-            for report in sdk-profiles board-profiles; do
-                files+=("${WORKDIR}/pkg-reports/${which}-${arch}/${report}")
-            done
+    local -a files=()
+    local which arch
+    for which in "${WHICH[@]}"; do
+        files+=("${WORKDIR}/pkg-reports/${which}/sdk-profiles")
+        for arch in "${ARCHES[@]}"; do
+            files+=("${WORKDIR}/pkg-reports/${which}/${arch}-board-profiles")
         done
     done
     local -A profile_dirs_set
@@ -3086,20 +3055,16 @@ function handle_profiles() {
     done <"${out_dir}/full.diff"
     lines_to_file_truncate "${out_dir}/relevant.diff" "${relevant_lines[@]}"
     lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
-    generate_summary_stub profiles -- 'TODO: review the diffs'
+    generate_summary_stub profiles -- '0:TODO: review the diffs'
 }
 
 # Handles changes in license directory. Generates brief reports and
 # diffs about dropped, added or modified licenses.
 function handle_licenses() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local -a dropped added changed
-    dropped=()
-    added=()
-    changed=()
-
+    local -a dropped=() added=() changed=()
     local line hl_stripped
     # Lines are:
     #
@@ -3110,7 +3075,6 @@ function handle_licenses() {
     # Files <PORTAGE_STABLE_1>/licenses/BSL-1.1 and <PORTAGE_STABLE_2>/licenses/BSL-1.1 differ
     while read -r line; do
         if [[ ${line} = 'Only in '* ]]; then
-            # shellcheck disable=SC2153 # OLD_STATE is not a misspelling, it comes from globals file
             strip_out "${line##*:}" hl_stripped
             if [[ ${line} = *"${OLD_STATE}"* ]]; then
                 dropped+=( "${hl_stripped}" )
@@ -3155,22 +3119,22 @@ function handle_licenses() {
     local joined
     if [[ ${#dropped[@]} -gt 0 ]]; then
         join_by joined ', ' "${dropped[@]}"
-        lines+=( "dropped ${joined}" )
+        lines+=( "0:dropped ${joined}" )
     fi
     if [[ ${#added[@]} -gt 0 ]]; then
         join_by joined ', ' "${added[@]}"
-        lines+=( "added ${joined}" )
+        lines+=( "0:added ${joined}" )
     fi
     if [[ ${#changed[@]} -gt 0 ]]; then
         join_by joined ', ' "${changed[@]}"
-        lines+=( "updated ${joined}" )
+        lines+=( "0:updated ${joined}" )
     fi
     generate_summary_stub licenses -- "${lines[@]}"
 }
 
 # Generates reports about changes inside the scripts directory.
 function handle_scripts() {
-    # shellcheck disable=SC1091 # generated file
+    # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     local out_dir
@@ -3178,70 +3142,7 @@ function handle_scripts() {
     mkdir -p "${out_dir}"
 
     xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
-    generate_summary_stub scripts -- 'TODO: review the diffs'
-}
-
-# Enables debug logs when specific packages are processed.
-#
-# It is expected that globals were already sourced, otherwise
-# debugging won't be enabled at all.
-#
-# Params:
-#
-# @ - package names to enable debugging for
-function pkg_debug_enable() {
-    local -A pkg_set
-    pkg_set=()
-    local -a vals
-    vals=()
-    local pkg
-    for pkg; do
-        if [[ -n ${pkg_set["${pkg}"]:-} ]]; then
-            continue
-        fi
-        pkg_set["${pkg}"]=x
-        if [[ -n ${DEBUG_PACKAGES["${pkg}"]:-} ]]; then
-            vals+=( "${pkg}" )
-        fi
-    done
-    if [[ ${#vals[@]} -gt 0 ]]; then
-        declare -g PKG_AUTO_LIB_DEBUG
-        join_by PKG_AUTO_LIB_DEBUG ',' "${vals[@]}"
-    fi
-}
-
-# Returns true or false whether any debugging has been enabled.
-function pkg_debug_possible() {
-    local ret=0
-    [[ ${#DEBUG_PACKAGES[@]} -gt 0 ]] || ret=1
-    return ${ret}
-}
-
-# Disables debug logs to be printed.
-function pkg_debug_disable() {
-    unset PKG_AUTO_LIB_DEBUG
-}
-
-# Prints passed parameters if debugging is enabled.
-#
-# Params:
-#
-# @ - parameters to print
-function pkg_debug() {
-    if [[ -n ${PKG_AUTO_LIB_DEBUG:-} ]]; then
-        info "DEBUG(${PKG_AUTO_LIB_DEBUG}): ${*}"
-    fi
-}
-
-# Prints passed lines if debugging is enabled.
-#
-# Params:
-#
-# @ - lines to print
-function pkg_debug_lines() {
-    if [[ -n ${PKG_AUTO_LIB_DEBUG:-} ]]; then
-        info_lines "${@/#/"DEBUG(${PKG_AUTO_LIB_DEBUG}): "}"
-    fi
+    generate_summary_stub scripts -- '0:TODO: review the diffs'
 }
 
 fi

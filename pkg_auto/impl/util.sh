@@ -3,6 +3,9 @@
 if [[ -z ${__UTIL_SH_INCLUDED__:-} ]]; then
 __UTIL_SH_INCLUDED__=x
 
+declare -gra EMPTY_ARRAY=()
+declare -grA EMPTY_MAP=()
+
 # Works like dirname, but without spawning new processes.
 #
 # Params:
@@ -34,7 +37,6 @@ function dirname_out() {
         dir_ref='.'
         return 0
     fi
-    # shellcheck disable=SC2034 # it's a reference to external variable
     dir_ref=${dn}
 }
 
@@ -65,7 +67,6 @@ function basename_out() {
     cleaned_up=${cleaned_up//+(\/)/\/}
     # keep last component
     dn=${cleaned_up##*/}
-    # shellcheck disable=SC2034 # it's a reference to external variable
     base_ref=${dn}
 }
 
@@ -83,7 +84,6 @@ THIS=$(realpath "${THIS}")
 THIS_DIR=$(realpath "${THIS_DIR}")
 dirname_out "${BASH_SOURCE[0]}" PKG_AUTO_IMPL_DIR
 PKG_AUTO_IMPL_DIR=$(realpath "${PKG_AUTO_IMPL_DIR}")
-# shellcheck disable=SC2034 # may be used by scripts sourcing this file
 PKG_AUTO_DIR=$(realpath "${PKG_AUTO_IMPL_DIR}/..")
 
 # Prints an info line.
@@ -162,7 +162,6 @@ function join_by() {
         printf -v "${output_var_name}" '%s' "${first}" "${@/#/${delimiter}}";
     else
         local -n output_ref=${output_var_name}
-        # shellcheck disable=SC2034 # it's a reference to external variable
         output_ref=''
     fi
 }
@@ -204,7 +203,6 @@ function strip_out() {
     t=${l}
     t=${t/#+([[:space:]])}
     t=${t/%+([[:space:]])}
-    # shellcheck disable=SC2034 # it's a reference to external variable
     out_ref=${t}
 }
 
@@ -214,10 +212,8 @@ function strip_out() {
 #
 # 1 - name of an array variable, where the architectures will be stored
 function get_valid_arches() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n arches_ref=${1}; shift
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     arches_ref=( 'amd64' 'arm64' )
 }
 
@@ -232,7 +228,6 @@ function get_valid_arches() {
 # 2 - separator string
 # @ - strings
 function all_pairs() {
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n pairs_ref=${1}; shift
     local sep=${1}; shift
 
@@ -248,6 +243,94 @@ function all_pairs() {
         done
         idx=$((idx+1))
     done
+}
+
+# Does the set operation on two passed sets - both set differences and
+# an intersection.
+#
+# Params:
+#
+# 1 - name of the first set variable
+# 2 - name of the second set variable
+# 3 - name of the set variable that will contain elements that exist
+#     in first set, but not the second
+# 4 - name of the set variable that will contain elements that exist
+#     in second set, but not the first
+# 5 - name of the set variable that will contain elements that exist
+#     in both first and second sets
+function sets_split() {
+    local -n first_set_ref=${1}; shift
+    local -n second_set_ref=${1}; shift
+    local -n only_in_first_set_ref=${1}; shift
+    local -n only_in_second_set_ref=${1}; shift
+    local -n common_set_ref=${1}; shift
+
+    only_in_first_set_ref=()
+    only_in_second_set_ref=()
+    common_set_ref=()
+
+    local item mark
+
+    for item in "${!first_set_ref[@]}"; do
+        mark=${second_set_ref["${item}"]:-}
+        if [[ -z ${mark} ]]; then
+            only_in_first_set_ref["${item}"]=x
+        else
+            common_set_ref["${item}"]=x
+        fi
+    done
+
+    for item in "${!second_set_ref[@]}"; do
+        mark=${first_set_ref["${item}"]:-}
+        if [[ -z ${mark} ]]; then
+            only_in_second_set_ref["${item}"]=x
+        fi
+    done
+}
+
+declare -gi __UTIL_SH_COUNTER=0
+
+# Generates a globally unique name for a variable. Can be given a
+# prefix to override the default __PA_VAR one.
+#
+# Params:
+#
+# (optional) a prefix
+# 1 - name of a variable, where the generated name will be stored
+function gen_varname() {
+    local prefix='__PA_VAR' # pa = pkg-auto
+    if [[ ${#} -gt 1 ]]; then
+        # we passed a prefix
+        prefix=${1}; shift
+    fi
+    local -n name_ref=${1}; shift
+
+    name_ref="${prefix}_${__UTIL_SH_COUNTER}"
+    __UTIL_SH_COUNTER=$((__UTIL_SH_COUNTER + 1))
+}
+
+# Declares variables with a given initializer.
+#
+# Params:
+#
+# @: flags passed to declare, followed by variable names, followed by
+# an initializer
+function struct_declare() {
+    local -a args=()
+    while [[ $# -gt 0 ]]; do
+        if [[ ${1} != -* ]]; then
+            break
+        fi
+        args+=( "${1}" )
+        shift
+    done
+    if [[ ${#} -lt 2 ]]; then
+        fail "bad use of struct_declare"
+    fi
+    local definition=${*: -1}
+    set -- "${@:1:$((${#} - 1))}"
+    set -- "${@/%/=${definition}}"
+    declare "${args[@]}" "${@}"
 }
 
 fi

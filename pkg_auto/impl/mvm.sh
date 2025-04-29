@@ -133,7 +133,6 @@ function mvm_declare() {
     storage_map_ref=()
 
     local -n mvm_ref=${mvm_var_name}
-    # shellcheck disable=SC2034 # it's a reference to external variable
     mvm_ref=(
         ['name']="${mvm_var_name}"
         ['constructor']="${constructor}"
@@ -193,7 +192,6 @@ function __mvm_mvc_name() {
     mvc_name_var_name=${1}; shift
     local -n mvc_name_ref=${mvc_name_var_name}
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     mvc_name_ref="mvm_${name}_mvc_${counter}"
 }
 
@@ -246,10 +244,8 @@ function mvm_c_get_extra() {
 
     local extras_map_var_name
     extras_map_var_name=${mvm['extras']}
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n extras_map_ref=${extras_map_var_name}
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     extra_ref=${extras_map_ref["${extra}"]:-}
 }
 
@@ -273,10 +269,8 @@ function mvm_c_get() {
 
     local storage_map_var_name
     storage_map_var_name=${mvm['storage']}
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n storage_map_ref=${storage_map_var_name}
 
-    # shellcheck disable=SC2034 # it's a reference to external variable
     value_ref=${storage_map_ref["${key}"]:-}
 }
 
@@ -290,7 +284,6 @@ function __mvm_c_make_new_mvc() {
     name=${mvm['name']}
     counter=${mvm['counter']}
     storage_map_var_name=${mvm['storage']}
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n storage_map_ref=${storage_map_var_name}
 
     __mvm_mvc_name "${name}" "${counter}" "${mvc_name_var_name}"
@@ -348,7 +341,6 @@ function mvm_c_remove() {
 
     local storage_map_var_name
     storage_map_var_name=${mvm['storage']}
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n storage_map_ref=${storage_map_var_name}
 
     if [[ -z ${storage_map_ref["${key}"]:-} ]]; then
@@ -387,7 +379,6 @@ function mvm_c_iterate() {
 
     local storage_map_var_name helper
     storage_map_var_name=${mvm['storage']}
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n storage_map_ref=${storage_map_var_name}
     helper=${mvm['iteration_helper']}
 
@@ -467,7 +458,6 @@ function mvm_mvc_array_destructor() {
 function mvm_mvc_array_adder() {
     local array_var_name
     array_var_name=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n array_ref=${array_var_name}
 
     array_ref+=( "${@}" )
@@ -481,7 +471,6 @@ function mvm_mvc_array_iteration_helper() {
     callback=${1}; shift
     # rest are extra args passed to cb
 
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n array_ref=${array_var_name}
     "${callback}" "${@}" "${key}" "${array_var_name}" "${array_ref[@]}"
 }
@@ -512,11 +501,9 @@ function mvm_mvc_map_destructor() {
 function mvm_mvc_map_adder() {
     local map_var_name
     map_var_name=${1}; shift
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n map_ref=${map_var_name}
 
     while [[ ${#} -gt 1 ]]; do
-        # shellcheck disable=SC2034 # it's a reference to external variable
         map_ref["${1}"]=${2}
         shift 2
     done
@@ -532,7 +519,6 @@ function mvm_mvc_set_constructor() {
 
     declare -g -A "${set_var_name}"
 
-    # shellcheck disable=SC2178 # shellcheck does not grok refs
     local -n set_ref=${set_var_name}
     set_ref=()
 }
@@ -548,7 +534,6 @@ function mvm_mvc_set_adder() {
     local set_var_name
     set_var_name=${1}; shift
 
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n set_ref=${set_var_name}
     while [[ ${#} -gt 0 ]]; do
         set_ref["${1}"]=x
@@ -565,7 +550,6 @@ function mvm_mvc_set_iteration_helper() {
     callback=${1}; shift
     # rest are extra args passed to cb
 
-    # shellcheck disable=SC2178 # shellcheck doesn't grok references to arrays
     local -n set_ref=${set_var_name}
     "${callback}" "${@}" "${key}" "${set_var_name}" "${!set_ref[@]}"
 }

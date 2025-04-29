@@ -12,7 +12,10 @@ __GENTOO_VER_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 
-VER_ERE="^([0-9]+(\.[0-9]+)*)([a-z]?)((_(alpha|beta|pre|rc|p)[0-9]*)*)(-r[0-9]+)?$"
+VER_ERE_UNBOUNDED="([0-9]+(\.[0-9]+)*)([a-z]?)((_(alpha|beta|pre|rc|p)[0-9]*)*)(-r[0-9]+)?"
+VER_ERE='^'"${VER_ERE_UNBOUNDED}"'$'
+
+PKG_ERE_UNBOUNDED="[A-Za-z0-9_][A-Za-z0-9+_.-]*/[A-Za-z0-9_][A-Za-z0-9+_-]*"
 
 # @FUNCTION: _ver_compare_int
 # @USAGE: <a> <b>
