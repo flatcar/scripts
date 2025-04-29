@@ -1,0 +1,3 @@
+- base, dev: nvidia-drivers-service (amd64) ([535.247.01](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-535-247-01/index.html))
+- base, dev: nvidia-drivers-service (arm64) (570.153.02 (includes [570.148.08](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-570-148-08/index.html), [570.133.20](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-570-133-20/index.html), [570.124.06](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-570-124-06/index.html)))
+- sysext-nvidia-drivers-570, sysext-nvidia-drivers-570-open: nvidia-drivers (570.153.02)
