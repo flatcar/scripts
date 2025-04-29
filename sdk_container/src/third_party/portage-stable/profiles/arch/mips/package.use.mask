@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Z. Liu <zhixu.liu@gmail.com> (2025-02-28)
+# requires sys-libs/db:5.3
+dev-lisp/clisp berkdb
+
 # Matt Jolly <kangie@gentoo.org> (2025-04-02)
 # Requires net-misc/gsasl which is not keyworded here
 net-misc/curl sasl-scram
@@ -280,7 +284,6 @@ net-dns/ddclient test
 
 # Mike Gilbert <floppym@gentoo.org> (2022-10-16)
 # Only supported on MIPS.
-dev-lang/gnat-gpl -fixed-point
 sys-devel/gcc -fixed-point
 
 # Matt Turner <mattst88@gentoo.org> (2022-04-18)

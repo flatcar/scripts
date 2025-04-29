@@ -1,6 +1,8 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Uses GLEP 84 format
+
 ####################################################################
 #
 # When you add an entry to the top of this file, add your name, the date
@@ -20,29 +22,100 @@
 # - Best last rites (removal) practices -
 # Include the following info:
 # a) reason for masking
-# b) bug # for the removal (and yes you should have one)
-# c) date of removal (either the date or "in x days")
+# b) date of removal
+# c) bug # for the removal (and yes you should have one)
+#
+# See GLEP 84 for the full description of the format.
 #
 ## Example:
 ##
 ## # Dev E. Loper <developer@gentoo.org> (2019-07-01)
-## # Masked for removal in 30 days.  Doesn't work
-## # with new libfoo. Upstream dead, gtk-1, smells
-## # funny. (bug #987654)
+## # Doesn't work with new libfoo. Upstream dead, gtk-1, smells funny.
+## # Removal on 2019-08-01. Bug #987654.
 ## app-misc/some-package
 
 #--- END OF EXAMPLES ---
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-26)
+# Dead upstream, stuck on Qt5, blocking x11-libs/qscintilla[qt5] cleanup
+# Bug #947297; removal on 2025-05-26
+dev-db/sqliteman
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-26)
+# Dead upstream, last revdep on x11-libs/qwtplot3d and x11-libs/qwt:5
+# Bugs #948047, #942455; removal on 2025-05-26
+sci-visualization/scidavis
+x11-libs/qwtplot3d
+x11-libs/qwt:5
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-24)
+# A pain to maintain. No more revdeps. Bug #925718
+dev-qt/qtwebengine:5
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-24)
+# Requires Qt5WebEngine; bug #925722
+# Removal on 2025-05-24 - with a good chance to be kept if ported by then.
+www-client/otter
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-24)
+# Requires Qt5WebEngine; no more revdeps. Bug #926684
+# Removal on 2025-05-24.
+dev-python/pyqtwebengine
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-24)
+# Dead upstream, Qt5 based, no more revdeps. Bug #949019
+# Removal on 2025-05-24.
+dev-python/python-poppler-qt5
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-22)
+# Dead upstream, depends on downstream patching even for Qt5 support.
+# Almost no one else keeps packaging this. Bug #947622
+# Removal on 2025-05-22.
+sci-visualization/zhu3d
+
+# Michał Górny <mgorny@gentoo.org> (2025-04-22)
+# This package was only really necessary for packages without
+# Python 3.12+ support, and the eclass no longer uses it.
+# Removal on 2025-05-22.  Bug #954213.
+dev-python/unittest-or-fail
+
+# Hans de Graaff <graaff@gentoo.org> (2025-04-21)
+# ruby32-only slot. Use the newer slot instead.
+# Masked for removal on 2025-05-21.
+dev-ruby/highline:2
+
+# Sam James <sam@gentoo.org> (2025-04-21)
+# Several packages need porting. Tracker bug #954128.
+=dev-python/cython-3.1*
+
+# Hans de Graaff <graaff@gentoo.org> (2025-04-20)
+# ruby32-only slot. Use the newer slot instead.
+# Masked for removal on 2025-05-20.
+dev-ruby/activeldap:6
+
+# Michał Górny <mgorny@gentoo.org> (2025-04-19)
+# This package will no longer feature stable keywords, due to unresolved
+# test failures blocking the stabilization request for months.
+<dev-python/mpi4py-4
+
+# Hans de Graaff <graaff@gentoo.org> (2025-04-19)
+# Ruby 3.1 is no longer supported upstream and will no longer
+# receive security updates. This mask also includes any
+# remaining ruby31-only packages.
+dev-lang/ruby:3.1
+dev-ruby/async:1
+dev-ruby/pathutil
+=app-admin/puppet-7*
+
+# Conrad Kostecki <conikost@gentoo.org> (2025-04-18)
+# Package not needed anymore by the only consumer net-dns/hash-slinger.
+# Masked for removal on 2025-05-18. Bug #952341
+dev-python/ipaddr
 
 # Hans de Graaff <graaff@gentoo.org> (2025-04-14)
 # Obsolete slot that fails tests, bug 933189. EAPI 7.  Use the newer
 # slot instead. Masked for removal on 2025-05-14.
 dev-ruby/childprocess:2
-
-# Ionen Wolkens <ionen@gentoo.org> (2025-04-12)
-# >=31 breaks www-client/qutebrowser's tests
-# https://github.com/cucumber/gherkin/issues/373
-# https://github.com/qutebrowser/qutebrowser/commit/12e683826783
->=dev-python/gherkin-official-31
 
 # Michał Górny <mgorny@gentoo.org> (2025-04-09)
 # Still uses legacy distutils-r1 mode, and lacks Python 3.13 target.
@@ -122,23 +195,6 @@ app-text/kchmviewer
 # Removal on 2025-05-01.  Bug #949960.
 x11-terms/aterm
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-02)
-# Package destabilisation mask: Depends on Qt5WebEngine with no Qt6-based
-# release in sight. Snapshot is from a Qt6 work branch, so nowhere near
-# stabilisation material. Bug #926676
-~sci-geosciences/qmapshack-1.17.1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-01)
-# Package destabilisation mask: No KF6-based- or ffmpeg-7 compatible
-# release in sight, needs xcb platform workaround, providing a snapshot
-# is the best we can do.
-~media-video/subtitlecomposer-0.8.1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-01)
-# Package destabilisation mask: No KF6-based release in sight, runtime-
-# defunct in Wayland sessions, providing a snapshot is the best we can do.
-~kde-misc/rsibreak-0.12.15
-
 # Norbert Norbiros <norbiros@protonmail.com> (2025-04-01)
 # Screen v5.0.0 has a lot of regressions
 # https://lists.gnu.org/archive/html/screen-devel/2024-10/msg00007.html
@@ -179,104 +235,6 @@ net-im/yowsup
 # Large-scale breakage (bug #951350).
 =dev-build/cmake-4*
 
-# Viorel Munteanu <ceamac@gentoo.org> (2025-03-26)
-# Segfaults with no clear error message when trying to start a VM with 3D
-# acceleration enabled.
-# Bug #951833.
-=app-emulation/virtualbox-7.1.6a
-=app-emulation/virtualbox-extpack-oracle-7.1.6
-=app-emulation/virtualbox-additions-7.1.6
-=app-emulation/virtualbox-modules-7.1.6
-=app-emulation/virtualbox-guest-additions-7.1.6-r1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-25)
-# Package destabilisation mask after prolongued time w/o maintainer.
-# Bug #936636
-~app-editors/texworks-0.6.8
-
-# Maciej Barć <xgqt@gentoo.org> (2025-03-25)
-# It is possible Gentoo could be hit by "legal" action when having this package.
-# Very unstable development, switches upstream to avoid "legal" trouble.
-# See also: bug #948196 bug #927392
-# Removal on 2025-04-25.
-games-emulation/ryujinx
-
-# Hans de Graaff <graaff@gentoo.org> (2025-03-20)
-# Rails 6.1 is no longer supported upstream. Use a newer Rails version
-# instead. Packages depending exclusively on Rails 6.1 will also be
-# removed. Removal on 2025-04-20.
-dev-ruby/rails:6.1
-dev-ruby/actiontext:6.1
-dev-ruby/actionmailbox:6.1
-dev-ruby/activestorage:6.1
-dev-ruby/actionmailer:6.1
-dev-ruby/actioncable:6.1
-dev-ruby/railties:6.1
-dev-ruby/activejob:6.1
-dev-ruby/actionpack:6.1
-dev-ruby/actionview:6.1
-dev-ruby/activerecord:6.1
-dev-ruby/activemodel:6.1
-dev-ruby/activesupport:6.1
-dev-ruby/actionpack-action_caching
-dev-ruby/will_paginate:3
-=www-apps/redmine-5*
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-23)
-# No revdeps after net-im/psi treecleaning. Depends on Qt5.
-# Removal on 2025-04-22. Bug #951936
-dev-build/qconf
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-23)
-# dev-python/pip-run is a NIH package with significant number of NIH
-# deps.  New versions require "coherent" build system that's designed
-# to be completely incompatible with downstream packaging.
-# No revdeps left.
-#
-# Includes a number of NIH dependencies, some of them abandoned.
-#
-# Removal on 2025-04-22.  Bug #951933.
-dev-python/autocommand
-dev-python/jaraco-env
-dev-python/pip-run
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-03-22)
-# EAPI=7, uses legacy distutils non-PEP517 build, no reverse
-# dependencies, missing python compat bumps. Unmaintained in
-# Gentoo for more than 3 years.
-# Removal on 2025-04-21.  Bugs #951854, #909910, #929427.
-dev-libs/pigpio
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-22)
-# Depends on deprecated notmuch bindings.  The migration to new bindings
-# have not been finished in 5 years already.  Still uses legacy
-# distutils-r1.eclass mode.
-# Removal on 2025-04-21.  Bug #751541.
-mail-filter/afew
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-22)
-# Stuck on Python 3.10, no reply from maintainer.  No revdeps.
-# Removal on 2025-04-21.  Bug #896608.
-app-office/gtg
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-20)
-# Upstream have made clear that they are not going to port to Qt6 and
-# recommend sys-apps/qdirstat (from original k4dirstat author) instead.
-# Alternatively, there is kde-apps/filelight available.
-# Bug #951138. Removal on 2025-04-19.
-kde-misc/kdirstat
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-18)
-# Last release in 2019, no tests, no reverse dependencies.
-# Removal on 2025-04-17.  Bug #951540.
-dev-python/pysvg-py3
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-17)
-# Unmaintained.  Last release in 2015, missing tests in sdist and not
-# tagged on GitHub.  Not marked for py3.13.  No reverse dependencies.
-# Removal on 2025-04-16.  Bug #951493.
-dev-python/simplebayes
-
 # Michał Górny <mgorny@gentoo.org> (2025-03-17)
 # Xfce 4.22 prereleases.  Masked because they tend to be quite unstable.
 >=xfce-base/exo-4.21
@@ -291,97 +249,16 @@ dev-python/simplebayes
 >=xfce-base/xfce4-settings-4.21
 >=xfce-base/xfconf-4.21
 
-# Michał Górny <mgorny@gentoo.org> (2025-03-17)
-# A "forever beta" wrapper over dev-python/requests, with no tests,
-# and dead for 9 years already.  Finally, no reverse dependencies left.
-# Removal on 2025-04-16.  Bug #951492.
-dev-python/ssl-fetch
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-17)
-# The package was broken from day one, assigned to python@ team
-# and the actual maintainer has ignored the bug report from day one.
-# No reverse dependencies.
-# Removal on 2025-04-16.  Bug #942776.
-dev-python/django-bootstrap5
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-17)
-# Fragile package with no reverse dependencies.  Currently broken with
-# all dev-python/beartype versions in Gentoo.
-# Removal on 2025-04-16.  Bug #951491.
-dev-python/spdx-tools
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-17)
-# Last release in 2021, aimed at Python 3.9.  Test suite is broken with
-# Python 3.13.  No reverse dependencies.
-# Removal on 2025-04-16.  Bug #951490.
-dev-python/bitvector
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-17)
-# sys-cluster/pacemaker is not really maintained in Gentoo.  It is
-# multiple versions behind, does not support Python 3.11 and has a bunch
-# of other problems reported.  sys-cluster/crmsh is its only
-# unconditional dependency.
-# Removal on 2025-04-16.  Bug #897290.
-sys-cluster/crmsh
-sys-cluster/pacemaker
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-17)
-# Database migration issues on upgrade, bug #951486
-~app-office/kmymoney-5.1.92_p20250306
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-03-15)
-# EAPI=7, uses deprecated Go eclasses. Isn't maintained in Gentoo
-# since 2019, with awaiting version bump (upstream is still active).
-# Has open security vulnerabilities.
-# Removal on 2025-04-14.  Bugs #951417, #631076, #679948, #695310,
-# #771051, #844727, #880151, #908590, #948207, #813702, #866356.
-sys-cluster/teleport
-
-# Sam James <sam@gentoo.org> (2025-03-09)
-# Obsolete in favour of dev-lang/ada-bootstrap. Using sys-devel/gcc[ada]
-# should now Just Work. Removal on 2025-04-10.
-dev-lang/gnat-gpl
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-03-08)
-# EAPI=7. Broken CLI for packages.g.o.
-# Removal on 2025-04-07.
-app-portage/pgo
-
-# Anna (navi) Figueiredo Gomes <navi@vlhl.dev> (2025-03-08)
-# User services is merged and released in openrc-0.60, this fork
-# is now unmaintained and superseded.
-# Removal on 2025-04-08. Bug #950367
-sys-apps/openrc-navi
-
 # Sam James <sam@gentoo.org> (2025-03-07)
 # May cause emerge to hang (bug #950707). Tests hang on one machine
 # and another strange report upstream: https://github.com/pkgconf/pkgconf/issues/383.
 # Mask out of caution for now.
 =dev-util/pkgconf-2.4.1
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-06)
-# Last release in 2018 and no upstream activity ever since.
-# Please migrate to an alternative backup solution. Bug #947894
-# Removal on 2025-04-15.
-app-backup/luckybackup
-
-# Michał Górny <mgorny@gentoo.org> (2025-03-06)
-# This package is clearly unmaintained.  It has lost all CPython
-# versions, and retained PyPy3 likely only because it wasn't versioned.
-# Also, since it's eclass usage used to be broken, it went under the
-# radar.  Removal on 2025-04-05.  Bug #950702.
-dev-vcs/notify-webhook
-
 # John Helmert III <ajak@gentoo.org> (2025-03-02)
 # Doesn't seem to cleanly load, see:
 # https://github.com/lkrg-org/lkrg/issues/364
 =app-antivirus/lkrg-0.9.9
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-01)
-# Last release 14 years ago, dead upstream, depends on Qt5 (and even that
-# only by means of downstream patching). Bug #947634.
-# Removal on 2025-04-15.
-sci-biology/clustalx
 
 # Eray Aslan <eras@gentoo.org> (2025-02-24)
 # Mask experimental software
@@ -441,18 +318,20 @@ dev-python/pyside6-tools
 =dev-cpp/cpp-httplib-0.18.6
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
-# Qt5 package without any revdeps. Use dev-qt/qttools[qdbus] instead.
-dev-qt/qdbusviewer
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
 # Qt5 packages without any revdeps.
 dev-qt/assistant
+dev-qt/linguist
 dev-qt/pixeltool
 dev-qt/qdbus
+dev-qt/qdbusviewer
 dev-qt/qdoc
 dev-qt/qtdiag
+dev-qt/qtpaths
+dev-qt/qt3d:5
+dev-qt/qtdatavis3d:5
 dev-qt/qtgamepad:5
 dev-qt/qtlocation:5
+dev-qt/qtnetworkauth:5
 dev-qt/qtplugininfo
 dev-qt/qtquicktimeline:5
 dev-qt/qtsensors:5

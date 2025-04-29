@@ -1191,7 +1191,25 @@ toolchain_src_configure() {
 
 	local flag
 	for flag in $(all-flag-vars) ; do
-		einfo "${flag}=\"${!flag}\""
+		[[ -n ${!flag} ]] && einfo "${flag}=\"${!flag}\""
+
+		local stage_flag="STAGE1_${flag}"
+		[[ -n ${!stage_flag} ]] && einfo "${stage_flag}=\"${!stage_flag}\""
+
+		stage_flag="STAGE2_${flag}"
+		[[ -n ${!stage_flag} ]] && einfo "${stage_flag}=\"${!stage_flag}\""
+
+		stage_flag="STAGE3_${flag}"
+		[[ -n ${!stage_flag} ]] && einfo "${stage_flag}=\"${!stage_flag}\""
+
+		local boot_flag="BOOT_${flag}"
+		[[ -n ${!boot_flag} ]] && einfo "${boot_flag}=\"${!boot_flag}\""
+
+		local target_flag="${flag}_FOR_TARGET"
+		[[ -n ${!target_flag} ]] && einfo "${target_flag}=\"${!target_flag}\""
+
+		local build_flag="${flag}_FOR_BUILD"
+		[[ -n ${!build_flag} ]] && einfo "${build_flag}=\"${!build_flag}\""
 	done
 
 	local confgcc=( --host=${CHOST} )
@@ -1834,7 +1852,7 @@ toolchain_src_configure() {
 	fi
 
 	if [[ ${CTARGET} != *-darwin* ]] && tc_version_is_at_least 14.1 ; then
-		# This allows passing -stdlib-=libc++ at runtime.
+		# This allows passing -stdlib=libc++ at runtime.
 		confgcc+=( --with-gxx-libcxx-include-dir="${ESYSROOT}"/usr/include/c++/v1 )
 	fi
 
@@ -1842,7 +1860,7 @@ toolchain_src_configure() {
 	if [[ ${PV} == *_p* && -f "${S}"/gcc/doc/gcc.info ]] ; then
 		# Safeguard against https://gcc.gnu.org/PR106899 being fixed
 		# without corresponding ebuild changes.
-		eqawarn "Snapshot release with pre-generated info pages found!"
+		eqawarn "QA Notice: Snapshot release with pre-generated info pages found!"
 		eqawarn "The BDEPEND in the ebuild should be updated to drop texinfo."
 	fi
 
@@ -1915,7 +1933,6 @@ toolchain_src_configure() {
 			--disable-systemtap
 
 			--enable-host-shared
-			--enable-languages=jit
 
 			# Might be used for the just-built GCC. Easier to just
 			# respect USE=graphite here in case the user passes some
@@ -1923,6 +1940,12 @@ toolchain_src_configure() {
 			$(use_with graphite isl)
 			--with-system-zlib
 		)
+
+		if is_jit ; then
+			confgcc_jit+=( --enable-languages=jit )
+		else
+			confgcc_jit+=( --enable-languages=c,c++ )
+		fi
 
 		if tc_has_feature zstd ; then
 			confgcc_jit+=( $(use_with zstd) )
@@ -2125,8 +2148,6 @@ gcc_do_filter_flags() {
 			-fharden-control-flow-redundancy -fno-harden-control-flow-redundancy \
 			-fhardcfr-skip-leaf -fhardcfr-check-exceptions \
 			-fhardcfr-check-returning-calls '-fhardcfr-check-noreturn-calls=*'
-
-		# New in GCC 14.
 		filter-flags -Walloc-size
 	fi
 
@@ -2134,6 +2155,10 @@ gcc_do_filter_flags() {
 		filter-flags -fdiagnostics-explain-harder -fdiagnostics-details
 		filter-flags -fdiagnostics-set-output=text:experimental-nesting=yes
 	fi
+
+	# Ada: PR116226
+	# D: PR117002 (bug #940750)
+	filter-flags -Warray-bounds
 
 	# Please use USE=lto instead (bug #906007).
 	filter-lto
@@ -2307,15 +2332,19 @@ gcc_do_make() {
 		# to keep this bound somewhat fresh just to avoid problems. Ultimately,
 		# using not-O0 is just a build-time speed improvement anyway.
 		if ! tc-is-gcc || ver_test $(gcc-fullversion) -lt 10 ; then
+			einfo "Resetting STAGE1_*FLAGS to -O0 because of old or non-GCC bootstrap compiler"
 			STAGE1_CFLAGS="-O0"
 			STAGE1_CXXFLAGS="-O0"
+			STAGE1_GDCFLAGS="-O0"
 		# We have a very good host compiler but it may be a bit too good, and
 		# know about flags that the version we are compiling does not know
 		# about. In principle we could check e.g. which gnat1 we are using as
 		# a bootstrap. It's simpler to do it unconditionally for now.
-		elif _tc_use_if_iuse ada || _tc_use_if_iuse d; then
+		elif _tc_use_if_iuse ada || _tc_use_if_iuse d ; then
+			einfo "Resetting STAGE1_*FLAGS to -O2 for Ada/D bootstrapping"
 			STAGE1_CFLAGS="-O2"
 			STAGE1_CXXFLAGS="-O2"
+			STAGE1_GDCFLAGS="-O2"
 		fi
 
 		# We only want to use the system's CFLAGS if not building a
@@ -2330,18 +2359,14 @@ gcc_do_make() {
 		BOOT_LDFLAGS=${BOOT_LDFLAGS-"${abi_ldflags} ${LDFLAGS}"}
 		LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET:-${LDFLAGS}}"
 
-		if _tc_use_if_iuse d ; then
+		if _tc_use_if_iuse d && use hardened ; then
 			# If we need to in future, we could really simplify this
 			# to just be unconditional for stage1. It doesn't really
 			# matter there. If we want to go in the other direction
 			# and make this more conditional, we could check if
 			# the bootstrap compiler is < GCC 12. See bug #940470.
-			if use hardened ; then
-				STAGE1_CXXFLAGS+=" -U_GLIBCXX_ASSERTIONS"
-			fi
-
-			# This can be dropped a while after 2025-03-31 (bug #940750).
-			STAGE1_GDCFLAGS+=" -Wno-array-bounds"
+			einfo "Adding -U_GLIBCXX_ASSERTIONS workaround to STAGE1_CXXFLAGS for D/hardened"
+			STAGE1_CXXFLAGS+=" -U_GLIBCXX_ASSERTIONS"
 		fi
 
 		emakeargs+=(
@@ -2355,7 +2380,7 @@ gcc_do_make() {
 		)
 	fi
 
-	if is_jit ; then
+	if is_jit || _tc_use_if_iuse libgdiagnostics ; then
 		# TODO: docs for jit?
 		einfo "Building JIT"
 		emake -C "${WORKDIR}"/build-jit "${emakeargs[@]}"
@@ -2557,7 +2582,7 @@ toolchain_src_install() {
 		done < <(find gcc/include*/ -name '*.h')
 	fi
 
-	if is_jit ; then
+	if is_jit || _tc_use_if_iuse libgdiagnostics ; then
 		# See https://gcc.gnu.org/onlinedocs/gcc-11.3.0/jit/internals/index.html#packaging-notes
 		# and bug #843341.
 		#
@@ -2784,9 +2809,16 @@ gcc_movelibs() {
 
 	# libgccjit gets installed to /usr/lib, not /usr/$(get_libdir). Probably
 	# due to a bug in gcc build system.
-	if [[ ${PWD} == "${WORKDIR}"/build-jit ]] && is_jit ; then
+	if [[ ${PWD} == "${WORKDIR}"/build-jit ]] ; then
 		dodir "${LIBPATH#${EPREFIX}}"
-		mv "${ED}"/usr/lib/libgccjit* "${D}${LIBPATH}" || die
+
+		if is_jit ; then
+			mv "${ED}"/usr/lib/libgccjit* "${D}${LIBPATH}" || die
+		fi
+
+		if _tc_use_if_iuse libgdiagnostics ; then
+			mv "${ED}"/usr/lib/libgdiagnostics* "${D}${LIBPATH}" || die
+		fi
 	fi
 
 	# For all the libs that are built for CTARGET, move them into the

@@ -1,6 +1,20 @@
 # Copyright 2019-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# PPN-SD <nicolas.parlant@parhuet.fr> (2025-04-26)
+# dev-python/sphinx-panels is not keyworded
+net-dns/knot doc
+
+# Alfredo Tupone <tupone@gentoo.org> (2025-04-15)
+# drop dev-ml test 
+dev-ml/duration test
+dev-ml/luv test
+dev-ml/ocaml-base64 test
+dev-ml/opam-0install-cudf test
+dev-ml/opam-file-format test
+dev-ml/spdx_licenses test
+dev-ml/yojson test
+
 # NRK <nrk@disroot.org> (2025-03-17)
 # media-libs/libyuv is not keyworded
 media-libs/libavif libyuv
@@ -56,7 +70,6 @@ sys-kernel/installkernel -grub
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
-sys-apps/openrc-navi s6
 
 # Nowa Ammerlaan <nowa@gentoo.org> (2023-08-30)
 # Avoid keywording more Qt stuff

@@ -1,6 +1,13 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Alfredo Tupone <tupone@gentoo.org> (2025-04-21)
+# ocamlopt is not available on 32 bits arch
+>=dev-lang/ocaml-5 ocamlopt
+>=dev-ml/camlp4-5.2_p1 ocamlopt
+>=dev-ml/findlib-1.9.8-r1 ocamlopt
+dev-ml/labltk ocamlopt
+
 # Conrad Kostecki <conikost@gentoo.org> (2025-04-02)
 # media-libs/libsdl3 is not keyworded
 app-emulation/faudio sdl3
@@ -37,7 +44,6 @@ sci-physics/pythia rivet
 # Arthur Zamarin <arthurzam@gentoo.org> (2024-10-17)
 # depends on java packages, not keyworded on x86
 app-forensics/sleuthkit java
-app-office/gtg test
 app-office/libreoffice java libreoffice_extensions_scripting-beanshell libreoffice_extensions_scripting-javascript
 dev-lang/logtalk fop
 dev-lang/swi-prolog test
@@ -145,8 +151,8 @@ media-tv/mythtv nvdec
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-02-06)
 # Successful build of dev-qt/qtwebengine depends on 64-bit host
 # Bug #893234
-app-i18n/fcitx-libpinyin dictionary-manager
 app-misc/anki gui
+app-office/kraft pim
 dev-lang/idris2 test-full
 dev-python/cloudscraper test
 dev-python/qtpy test
@@ -154,12 +160,9 @@ games-util/lgogdownloader gui
 kde-apps/kde-apps-meta pim
 kde-apps/kdenetwork-meta bittorrent
 kde-plasma/plasma-nm openconnect
-net-irc/quassel urlpreview
-net-misc/fatrat bittorrent
 net-misc/seafile-client shibboleth
 net-p2p/ktorrent rss
-sci-mathematics/yacas gui
-sci-physics/root qt5 qt6
+sci-physics/root qt6
 
 # Ionen Wolkens <ionen@gentoo.org> (2022-11-07)
 # Vulkan is usable here.
