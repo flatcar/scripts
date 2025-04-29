@@ -325,12 +325,9 @@ function ensure_no_errors() {
         files+=( "${!name}" )
     done
 
-    local file
-    for file in "${files[@]}"; do
-        if cat "${file}" | grep --quiet --fixed-strings 'ERROR'; then
-            fail "there are errors in emerge output warnings files"
-        fi
-    done
+    if grep --quiet --fixed-strings 'ERROR' "${files[@]}"; then
+        fail "there are errors in emerge output warnings files"
+    fi
 }
 
 # Stores a path to a package.provided file inside the given root
