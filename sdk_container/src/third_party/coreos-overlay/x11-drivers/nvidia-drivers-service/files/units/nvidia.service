@@ -1,7 +1,7 @@
 [Unit]
 Description=NVIDIA Configure Service
 Wants=network-online.target
-After=network-online.target
+After=network-online.target systemd-sysext.service
 Before=containerd.target
 
 [Service]
