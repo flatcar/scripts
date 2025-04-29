@@ -247,7 +247,7 @@ function packages_for_board() {
 
     local name=${arch^^}_BOARD_EO_F
 
-    cat "${!name}" | sed "${@}" | sort
+    sed "${@}" "${!name}" | sort
 }
 
 # Prints package name, slot and version information for SDK.
