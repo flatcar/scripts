@@ -1,0 +1,1 @@
+- nvidia-drivers-service ([CVE-2025-23244](https://www.cve.org/CVERecord?id=CVE-2025-23244))
