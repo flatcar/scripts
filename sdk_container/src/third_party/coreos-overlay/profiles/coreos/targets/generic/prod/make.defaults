@@ -1,6 +1,8 @@
 # Copyright (c) 2014 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
+FLATCAR_SUBTYPE="prod"
+
 # Restrictive mask for production images.
 INSTALL_MASK="${INSTALL_MASK}
   *.a *.la *.hpp *.o
