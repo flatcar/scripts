@@ -5,7 +5,7 @@ EAPI=8
 
 inherit cmake
 
-COMMIT="d6e74962ca05bc0ea329ead2e59e3022ebff2649" # chewi/rename
+COMMIT="98075130c686f3e26bb29787734ae98bc576fd53" # chewi/rename
 DESCRIPTION="PKCS#11 module for Azure Key Vault"
 HOMEPAGE="https://github.com/jepio/azure_keyvault_pkcs11"
 SRC_URI="https://github.com/jepio/azure_keyvault_pkcs11/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
