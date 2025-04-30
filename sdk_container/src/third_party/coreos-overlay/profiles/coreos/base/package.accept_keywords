@@ -22,9 +22,6 @@
 # Seems to be the only available ebuild in portage-stable right now.
 =app-crypt/adcli-0.9.2 ~arm64
 
-# Needs cleaning up and adding to Gentoo before stabilising
-=app-crypt/azure-keyvault-pkcs11-0_p20241129 ~amd64
-
 # Needed by arm64-native SDK
 =app-crypt/ccid-1.5.5 ~arm64
 
@@ -85,9 +82,14 @@
 # Needed to address CVE-2024-53580.
 =net-misc/iperf-3.18 ~amd64 ~arm64
 
-# Package has not been stabilised yet. Nothing is using it in Gentoo,
-# so it will never be stabilized. Thus an unusual form is used to pick
-# up the latest version of the package with the unstable keywords.
+# Packages are in Gentoo but not expected to be used outside Flatcar, so they
+# are generally never stabilised. Thus an unusual form is used to pick up the
+# latest version of the package with the unstable keywords.
+app-crypt/azure-keyvault-pkcs11
+dev-cpp/azure-core
+dev-cpp/azure-identity
+dev-cpp/azure-security-keyvault-certificates
+dev-cpp/azure-security-keyvault-keys
 sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
