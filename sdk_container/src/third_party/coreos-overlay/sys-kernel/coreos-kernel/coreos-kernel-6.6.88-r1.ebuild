@@ -24,6 +24,7 @@ DEPEND="
 	app-shells/bash
 	coreos-base/afterburn
 	coreos-base/coreos-init:=
+	sys-apps/azure-vm-utils[dracut]
 	sys-apps/baselayout
 	sys-apps/coreutils
 	sys-apps/findutils

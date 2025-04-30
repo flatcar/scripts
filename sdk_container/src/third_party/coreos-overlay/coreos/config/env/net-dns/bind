@@ -39,26 +39,13 @@ fowners() {
 # of the script. Thus we fool the phase function by putting an empty
 # key file there, so the function won't trigger the generation. We
 # drop the key file later too.
-#
-# TODO: The paths ought to be prefixed with ${EROOT}, but the
-# 9.18.29-r2 ebuild is botched in this regard. This was fixed in
-# 9.18.31-r1, so when we update to that version, the ${EROOT} prefix
-# will need to be added.
 cros_pre_pkg_postinst_add_fake_rndc_key() {
-    local dir='/etc/bind'
+    local dir="${EROOT}/etc/bind"
     if [[ ! -d "${dir}" ]]; then
         mkdir "${dir}" || die
     fi
     touch "${dir}/rndc.key" || die
 }
-# TODO: This function should just do:
-#
-# rm -rf "${EROOT}/etc/bind" || die
 cros_post_pkg_postinst_drop_fake_rndc_key() {
-    # Remove the file only if it exists and is empty.
-    local dir='/etc/bind' file="${dir}/rndc.key"
-    if [[ -f "${file}" && ! -s "${file}" ]]; then
-       rm -f "${file}" || die
-    fi
-    rmdir "${dir}" # it's fine if it fails
+    rm -rf "${EROOT}/etc/bind" || die
 }
