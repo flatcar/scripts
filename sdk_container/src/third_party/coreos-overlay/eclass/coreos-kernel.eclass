@@ -136,20 +136,41 @@ getconfig() {
 	echo "${value}"
 }
 
-# Generate the module signing key for this build.
-setup_keys() {
-	local sig_hash sig_key
-	sig_hash=$(getconfig MODULE_SIG_HASH)
-	sig_key="build/$(getconfig MODULE_SIG_KEY)"
+get_sig_key() {
+	local sig_key="$(getconfig MODULE_SIG_KEY)"
 
 	if [[ "${sig_key}" == "build/certs/signing_key.pem" ]]; then
 		die "MODULE_SIG_KEY is using the default value"
 	fi
 
-	mkdir -p certs "${sig_key%/*}" || die
+	if [[ ${sig_key} != /tmp/* ]]; then
+		die "Refusing to to continue with modules key outside of /tmp, so that it stays in RAM only."
+	fi
+	if [ "$sig_key" != "${MODULES_SIGN_KEY}" ]; then
+		die "MODULES_SIGN_KEY variable is different than MODULE_SIG_KEY in kernel config."
+	fi
 
+	echo $sig_key
+}
+
+validate_sig_key() {
+	get_sig_key > /dev/null
+}
+
+# Generate the module signing key for this build.
+setup_keys() {
+	local sig_hash sig_key
+	sig_hash=$(getconfig MODULE_SIG_HASH)
+	sig_key="$(get_sig_key)"
+
+	echo "Preparing keys at $sig_key"
+
+	mkdir -p $MODULE_SIGNING_KEY_DIR
+	pushd $MODULE_SIGNING_KEY_DIR
+
+	mkdir -p gen_certs || die
 	# based on the default config the kernel auto-generates
-	cat >certs/modules.cnf <<-EOF
+	cat >gen_certs/modules.cnf <<-EOF
 		[ req ]
 		default_bits = 4096
 		distinguished_name = req_distinguished_name
@@ -169,19 +190,20 @@ setup_keys() {
 	EOF
 	openssl req -new -nodes -utf8 -days 36500 -batch -x509 \
 		"-${sig_hash}" -outform PEM \
-		-config certs/modules.cnf \
-		-out certs/modules.pub.pem \
-		-keyout certs/modules.key.pem \
+		-config gen_certs/modules.cnf \
+		-out gen_certs/modules.pub.pem \
+		-keyout gen_certs/modules.key.pem \
 		|| die "Generating module signing key failed"
-	cat certs/modules.pub.pem certs/modules.key.pem > "${sig_key}"
-}
 
-# Discard the module signing key but keep public certificate.
-shred_keys() {
-	local sig_key
-	sig_key="build/$(getconfig MODULE_SIG_KEY)"
-	shred -u certs/modules.key.pem "${sig_key}" || die
-	cp certs/modules.pub.pem "${sig_key}" || die
+	# copy the cert/key to desired location
+	mkdir -p "${MODULES_SIGN_CERT%/*}" "${MODULES_SIGN_KEY%/*}" || die
+	cat gen_certs/modules.pub.pem gen_certs/modules.key.pem > "$MODULES_SIGN_KEY" || die
+	cp gen_certs/modules.pub.pem $MODULES_SIGN_CERT || die
+
+	shred -u gen_certs/* || die
+	rmdir gen_certs || die
+
+	popd
 }
 
 # Populate /lib/modules/$(uname -r)/{build,source}
