@@ -562,7 +562,7 @@ EOF
                     tag=${stripped#oem-}
                     ;;
                 *'-flatcar')
-                    tag=${stripped%-flatcar}
+                    tag="sysext-${stripped%-flatcar}"
                     ;;
                 *)
                     devel_warn "Unknown listing file ${packages_file@Q}"
