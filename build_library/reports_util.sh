@@ -33,6 +33,7 @@ write_contents() {
     # %l - symlink target (empty if not a symlink)
     sudo TZ=UTC find -printf \
         '%M %2n %-7u %-7g %7s %TY-%Tm-%Td %TH:%TM ./%P -> %l\n' \
+        | sort --key=8 \
         | sed -e 's/ -> $//' >"${output}"
     popd >/dev/null
 }
@@ -57,7 +58,8 @@ write_contents_with_technical_details() {
     # %s - size in bytes
     # %P - file's path
     sudo find -printf \
-        '%M %D %i %n %s ./%P\n' >"${output}"
+        '%M %D %i %n %s ./%P\n' \
+        | sort --key=6 >"${output}"
     popd >/dev/null
 }
 
