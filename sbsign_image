@@ -58,6 +58,8 @@ switch_to_strict_mode
 . "${BUILD_LIBRARY_DIR}/build_image_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/prod_image_util.sh" || exit 1
 
+"${SRC_ROOT}/scripts"/update_chroot
+
 # Create the output directory and temporary mount points.
 mkdir -p "${BUILD_DIR}"
 
