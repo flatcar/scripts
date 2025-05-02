@@ -53,7 +53,7 @@ if [[ ! -s "${image}" ]]; then
 fi
 mkdir -p "${out}"
 
-tmp=$(mktemp --directory eifv-XXXXXX)
+tmp=$(mktemp --directory -t eifv-XXXXXX)
 trap 'rm -rf -- "${tmp}"' EXIT
 ROOTFS_IDX=0
 
