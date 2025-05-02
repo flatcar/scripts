@@ -1,7 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+
+inherit autotools toolchain-funcs
 
 DESCRIPTION="rpcsvc protocol definitions from glibc"
 HOMEPAGE="https://github.com/thkukuk/rpcsvc-proto"
@@ -19,8 +21,13 @@ DEPEND="${RDEPEND}"
 # sys-devel/gettext is only for libintl detection macros.
 BDEPEND="sys-devel/gettext"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.4.4-prebuilt-rpcgen.patch
+)
+
 src_prepare() {
 	default
+	eautoreconf
 
 	# Search for a valid 'cpp' command.
 	# The CPP envvar might contain '${CC} -E', which does not work for rpcgen.
@@ -34,6 +41,25 @@ src_prepare() {
 	done
 	[[ -n ${cpp} ]] || die "Unable to find cpp"
 	sed -i -e "s/CPP = \"cpp\";/CPP = \"${cpp}\";/" rpcgen/rpc_main.c || die
+}
+
+src_configure() {
+	local myconf=()
+
+	if tc-is-cross-compiler; then
+		mkdir "${WORKDIR}"/build || die
+		pushd "${WORKDIR}"/build >/dev/null || die
+		ECONF_SOURCE="${S}" econf_build
+		popd >/dev/null || die
+		myconf+=( --with-prebuilt-rpcgen="${WORKDIR}"/build/rpcgen/rpcgen )
+	fi
+
+	econf "${myconf[@]}"
+}
+
+src_compile() {
+	tc-is-cross-compiler && emake -C "${WORKDIR}"/build/rpcgen
+	emake
 }
 
 src_install() {
