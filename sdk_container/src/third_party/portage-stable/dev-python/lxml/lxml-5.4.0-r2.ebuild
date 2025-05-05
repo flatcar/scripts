@@ -29,16 +29,14 @@ RESTRICT="!test? ( test )"
 
 # Note: lib{xml2,xslt} are used as C libraries, not Python modules.
 DEPEND="
-	>=dev-libs/libxml2-2.10.3
+	>=dev-libs/libxml2-2.10.3:=
 	>=dev-libs/libxslt-1.1.38
 "
 RDEPEND="
 	${DEPEND}
 "
-# cython: they are using __pyx_empty_tuple directly
 BDEPEND="
 	virtual/pkgconfig
-	<dev-python/cython-3.1[${PYTHON_USEDEP}]
 	>=dev-python/cython-3.0.10[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
@@ -55,6 +53,8 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-5.3.0-pypy.patch"
+	# https://github.com/lxml/lxml/commit/6d5d6aed2e38e1abc625f29c0b3e97fc8c60ae3b
+	"${FILESDIR}/${PN}-5.4.0-cython-3.1.patch"
 )
 
 python_check_deps() {
@@ -83,7 +83,8 @@ python_compile() {
 }
 
 python_compile_all() {
-	use doc && emake html
+	# disable automagic dep on coverage
+	use doc && emake CYTHON_WITH_COVERAGE= html
 }
 
 python_test() {
