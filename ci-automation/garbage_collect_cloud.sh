@@ -11,6 +11,8 @@ timeout --signal=SIGQUIT 60m ore openstack gc --duration 6h \
   --config-file=<(echo "${OPENSTACK_CREDS}" | base64 --decode)
 timeout --signal=SIGQUIT 60m ore brightbox gc --duration 6h \
   --brightbox-client-id="${BRIGHTBOX_CLIENT_ID}" --brightbox-client-secret="${BRIGHTBOX_CLIENT_SECRET}"
+timeout --signal=SIGQUIT 60m ore akamai gc --duration 6h \
+  --akamai-token="${AKAMAI_TOKEN}"
 secret_to_file aws_credentials_config_file "${AWS_CREDENTIALS}"
 for channel in alpha beta stable lts; do
   for arch in amd64 arm64; do

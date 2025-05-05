@@ -263,6 +263,7 @@ function _garbage_collect_impl() {
       --env VMWARE_ESX_CREDS \
       --env OPENSTACK_CREDS \
       --env BRIGHTBOX_CLIENT_ID --env BRIGHTBOX_CLIENT_SECRET \
+      --env AKAMAI_TOKEN \
       -w /work -v "$PWD":/work "${mantle_ref}" /work/ci-automation/garbage_collect_cloud.sh
 
     echo
