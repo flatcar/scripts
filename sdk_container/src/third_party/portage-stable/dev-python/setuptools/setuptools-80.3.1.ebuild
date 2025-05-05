@@ -7,7 +7,7 @@ EAPI=8
 # please bump dev-python/ensurepip-setuptools along with this package!
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_TESTED=( python3_{10..13} pypy3 pypy3_11 )
+PYTHON_TESTED=( python3_{11..13} pypy3_11 )
 PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_13t )
 PYTHON_REQ_USE="xml(+)"
 
@@ -26,7 +26,6 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	!<dev-python/setuptools-rust-1.8.0
 	dev-python/jaraco-collections[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-functools-4[${PYTHON_USEDEP}]
 	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
@@ -34,12 +33,6 @@ RDEPEND="
 	>=dev-python/packaging-24.2[${PYTHON_USEDEP}]
 	>=dev-python/platformdirs-4.2.2[${PYTHON_USEDEP}]
 	>=dev-python/wheel-0.44.0[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep '
-		>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
-	' 3.10)
-	!<=dev-libs/gobject-introspection-1.76.1-r0
-	!=dev-libs/gobject-introspection-1.78.1-r0
-	!=dev-libs/gobject-introspection-1.80.1-r1
 "
 BDEPEND="
 	${RDEPEND}
@@ -99,6 +92,7 @@ python_test() {
 
 	local EPYTEST_DESELECT=(
 		# network
+		setuptools/tests/integration/test_pbr.py::test_pbr_integration
 		setuptools/tests/test_build_meta.py::test_legacy_editable_install
 		setuptools/tests/test_develop.py::TestNamespaces::test_namespace_package_importable
 		setuptools/tests/test_distutils_adoption.py
