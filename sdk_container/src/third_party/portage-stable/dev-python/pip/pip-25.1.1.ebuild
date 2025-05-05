@@ -6,7 +6,7 @@ EAPI=8
 # please bump dev-python/ensurepip-pip along with this package!
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_TESTED=( pypy3 pypy3_11 python3_{10..13} )
+PYTHON_TESTED=( pypy3_11 python3_{11..13} )
 PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" )
 PYTHON_REQ_USE="ssl(+),threads(+)"
 
@@ -24,7 +24,7 @@ SRC_URI="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~mips ~riscv"
+KEYWORDS="~amd64 ~mips ~ppc ~riscv ~x86"
 IUSE="test-rust"
 
 # see src/pip/_vendor/vendor.txt
@@ -41,9 +41,6 @@ RDEPEND="
 	>=dev-python/rich-14.0.0[${PYTHON_USEDEP}]
 	>=dev-python/resolvelib-1.1.0[${PYTHON_USEDEP}]
 	>=dev-python/setuptools-70.3.0[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep '
-		>=dev-python/tomli-2.2.1[${PYTHON_USEDEP}]
-	' 3.10)
 	>=dev-python/tomli-w-1.2.0[${PYTHON_USEDEP}]
 	>=dev-python/truststore-0.10.1[${PYTHON_USEDEP}]
 	>=dev-python/typing-extensions-4.13.2[${PYTHON_USEDEP}]
@@ -53,13 +50,13 @@ BDEPEND="
 	test? (
 		$(python_gen_cond_dep '
 			dev-python/ensurepip-setuptools
-			<dev-python/ensurepip-wheel-0.46
+			dev-python/ensurepip-wheel
 			dev-python/freezegun[${PYTHON_USEDEP}]
 			dev-python/pretend[${PYTHON_USEDEP}]
 			dev-python/pytest-rerunfailures[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 			dev-python/scripttest[${PYTHON_USEDEP}]
-			dev-python/tomli-w[${PYTHON_USEDEP}]
+			<dev-python/setuptools-80[${PYTHON_USEDEP}]
 			dev-python/virtualenv[${PYTHON_USEDEP}]
 			dev-python/werkzeug[${PYTHON_USEDEP}]
 			dev-python/wheel[${PYTHON_USEDEP}]
@@ -95,6 +92,13 @@ python_prepare_all() {
 		)
 		mkdir tests/data/common_wheels/ || die
 		cp "${wheels[@]}" tests/data/common_wheels/ || die
+	fi
+}
+
+python_configure() {
+	if use test && has_version "dev-python/pip[${PYTHON_USEDEP}]"; then
+		"${EPYTHON}" -m pip check ||
+			die "${EPYTHON} -m pip check failed, tests will fail"
 	fi
 }
 
