@@ -30,7 +30,7 @@ esac
 
 # The version of readline this bash normally ships with. Note that we only use
 # the bundled copy of readline for pre-releases.
-READLINE_VER="8.3_alpha"
+READLINE_VER="8.3_beta"
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="https://tiswww.case.edu/php/chet/bash/bashtop.html https://git.savannah.gnu.org/cgit/bash.git"
@@ -45,8 +45,8 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	BASH_COMMIT="d3e86e66ce857a8dc02e3116fd98b6e5b34d6364"
-	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.xz -> ${P}-${BASH_COMMIT}.tar.xz"
+	BASH_COMMIT="15df5993542463ba9798e4ea5e488dfddf83c276"
+	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
 	my_urls=( {'mirror://gnu/bash','ftp://ftp.cwru.edu/pub/bash'}/"${MY_P}.tar.gz" )
@@ -264,6 +264,8 @@ src_compile() {
 		fi
 	fi
 
+	# builtins/evalstring.c needs y.tab.h but can't (easily) specify the dep on it from above
+	emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" y.tab.h
 	emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}"
 	use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" all others
 
@@ -280,6 +282,7 @@ src_compile() {
 
 		# Rebuild Bash using the profiling data we just generated.
 		emake clean
+		emake CFLAGS="${CFLAGS} ${pgo_use_flags[*]}" y.tab.h
 		emake CFLAGS="${CFLAGS} ${pgo_use_flags[*]}"
 		use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_use_flags[*]}" all others
 	fi
