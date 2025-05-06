@@ -77,7 +77,7 @@
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
 # Needed to address curl-20250205 (https://github.com/curl/curl/issues/16197)
-=net-misc/curl-8.13.0 ~amd64 ~arm64
+=net-misc/curl-8.13.0-r1 ~amd64 ~arm64
 
 # Needed to address CVE-2024-53580.
 =net-misc/iperf-3.18 ~amd64 ~arm64
