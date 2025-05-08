@@ -1,0 +1,3 @@
+if [[ $(flatcar_target) = 'generic-prod' ]]; then
+    INSTALL_MASK+=" /usr/lib/python* "
+fi
