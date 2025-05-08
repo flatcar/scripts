@@ -7,3 +7,8 @@ sys-apps/smartmontools caps
 # with USE=selinux. For production images, we will filter python files
 # out with an install mask.
 sys-libs/libselinux -python
+
+# Allow USE=python for sys-process/audit - it is needed by
+# policycoreutils. For production images, we will filter python files
+# out with an install mask.
+sys-process/audit -python
