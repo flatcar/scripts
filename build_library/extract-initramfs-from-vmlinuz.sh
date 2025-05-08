@@ -29,8 +29,12 @@ try_extract() {
     # cpio can do strange things when given garbage, so do a basic check.
     [[ $(head -c6 "$1") == 070701 ]] || return 0
 
-    # There may be multiple concatenated archives so try cpio till it fails.
-    while cpio --quiet --extract --make-directories --directory="${out}/rootfs-${ROOTFS_IDX}" --nonmatching 'dev/*' 2>/dev/null; do
+    while {
+        # cpio needs the directory to exist first. Fail if it's already there.
+        { mkdir "${out}/rootfs-${ROOTFS_IDX}" || return $?; } &&
+        # There may be multiple concatenated archives so try cpio till it fails.
+        cpio --quiet --extract --make-directories --directory="${out}/rootfs-${ROOTFS_IDX}" --nonmatching 'dev/*' 2>/dev/null
+    }; do
         ROOTFS_IDX=$(( ROOTFS_IDX + 1 ))
     done < "$1"
 
@@ -49,7 +53,7 @@ if [[ ! -s "${image}" ]]; then
 fi
 mkdir -p "${out}"
 
-tmp=$(mktemp --directory eifv-XXXXXX)
+tmp=$(mktemp --directory -t eifv-XXXXXX)
 trap 'rm -rf -- "${tmp}"' EXIT
 ROOTFS_IDX=0
 
