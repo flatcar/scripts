@@ -18,3 +18,15 @@ cros_post_src_install_set_up_var_lib_selinux() {
 cros_post_src_install_vendorize_pam() {
     vendorize_pam_files
 }
+
+# Do not install python stuff in prod images.
+if [[ $(flatcar_target) = 'generic-prod' ]]; then
+    INSTALL_MASK+=" /usr/lib/python-exec "
+fi
+
+# INSTALL_MASK does not work on symlinks.
+cros_post_pkg_postinst_drop_rlpkg_symlink() {
+    if [[ $(flatcar_target) = 'generic-prod' ]]; then
+        rm -f "${ROOT}"/usr/sbin/rlpkg
+    fi
+}
