@@ -73,6 +73,7 @@ acct-user/tss
 app-admin/eselect
 app-admin/logrotate
 app-admin/perl-cleaner
+app-admin/setools
 app-admin/sudo
 
 app-alternatives/awk
