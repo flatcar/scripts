@@ -79,8 +79,6 @@
 
 # Michał Górny <mgorny@gentoo.org> (2014-03-30)
 # PyPy is keyworded on this arch.
--python_targets_pypy3
--python_single_target_pypy3
 -python_targets_pypy3_11
 -python_single_target_pypy3_11
 
@@ -147,6 +145,9 @@
 -video_cards_vesa
 -video_cards_vmware
 -video_cards_qxl
+
+# unmask video_cards with virtgpu DRM native-context support
+-video_cards_asahi
 
 # Simon Stelling <blubb@gentoo.org> (2007-02-16)
 # Since this profile forces >=portage-2.1.2, we can unmask all

@@ -36,6 +36,104 @@
 
 #--- END OF EXAMPLES ---
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-04)
+# Several open bugs, pending bump since 2020, fails to fetch since 2022.
+# If anyone is here to fix these things, then please make upstream port
+# the gui to Qt6 or drop it. Removal on 2025-05-31.
+# Bugs #715918, #717528, #734242, #854750, #882655
+app-misc/flirc
+
+# Michał Górny <mgorny@gentoo.org> (2025-05-04)
+# New wave of breakage from random removals.
+# Bugs #955398, #955396, #955411.
+=dev-python/ensurepip-setuptools-80.3.0
+=dev-python/setuptools-80.3.0
+
+# Michał Górny <mgorny@gentoo.org> (2025-05-03)
+# Not actively maintained in ::gentoo.  Last bumped a year ago.
+# Still on EAPI 7, no Python 3.13 support, does not work with new
+# dev-lang/swig.  Lots of bugs open.
+# Removal on 2025-06-02.  Bug #950475, #952653.
+sci-chemistry/modeller
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-03)
+# Dead upstream since 2014, depends on Qt5. Bug #949079
+# Removal  on 2025-05-31
+media-video/ffdiaporama
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-03)
+# Dead upstream since 2011, relies on downstream patching even for Qt5.
+# No one else packages this. Bugs #644482, #953769; removal on 2025-05-31
+sci-electronics/osqoop
+
+# Matt Turner <mattst88@gentoo.org> (2024-05-02)
+# Masked for testing
+=dev-util/mesa_clc-25.1*
+=media-libs/mesa-25.1*
+
+# Marc Schiffbauer <mschiff@gentoo.org> (2025-05-02)
+# Ancient version in tree, upstream discontinued to develop
+# a server for taskwarrior a long time ago
+# Bugs: #953857, #716762; removal on 2025-06-01
+acct-group/taskd
+acct-user/taskd
+app-misc/taskd
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-01)
+# Unmaintained in Gentoo for almost 3 years, no commit upstream in 5 years
+# and depends on Qt5. Whoever wants to keep this in ::gentoo must sort out
+# the upstream/new-upstream situation and become a permanent maintainer.
+# Bugs #951484, #954360, #752198; removal on 2025-05-31
+x11-apps/radeon-profile
+x11-apps/radeon-profile-daemon
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-01)
+# Dead upstream for many years, depends on Qt5 and FTB w/ boost-1.87 among
+# other bugs. Bugs #946991, #949076, #943002; removal on 2025-05-31
+games-board/pokerth
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-01)
+# Dead upstream for many years, depends on Qt5 and app-text/poppler[qt5].
+# Bug #949025; removal on 2025-05-31
+x11-misc/qcomicbook
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-01)
+# Package destabilisation mask. 1.0_p20241107 is in ~arch but as snapshot
+# with long-term pending Qt6 patches on top it will not be stabilised.
+# 1.0 release was almost 8 years old already.
+~media-gfx/fotowall-1.0
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-01)
+# No maintainer in Gentoo since 2016, current package is still Qt5 based;
+# upstream does not even bother making tags let alone releases; anyone who
+# wants to deal with that shall step up as permanent maintainer and cut
+# some kind of Qt6 based package.
+# See also: https://github.com/fritzing/fritzing-app/issues/4086
+# Bug #947619; removal on 2025-05-31
+sci-electronics/fritzing
+
+# Matt Jolly <kangie@gentoo.org> (2025-04-28)
+# Unmaintained in Gentoo, depends on masked x11-wm/fvwm,
+# SRC_URI uses mirror://gentoo and the files don't exist on mirrors.
+# Bug #949035; Removal on 2025-05-28 (with x11-wm/fvwm)
+x11-themes/fvwm_icons
+x11-themes/fvwm_sounds
+
+# Matt Jolly <kangie@gentoo.org> (2025-04-28)
+# Unmaintained in Gentoo, is not supported upstream,
+# and has a modern successor that does not bring in additional dependencies.
+# Migrate to x11-wm/fvwm3: https://github.com/fvwmorg/fvwm3/discussions/878
+# Bug #949035; removal on 2025-05-28.
+x11-wm/fvwm
+x11-themes/fvwm-themes
+x11-themes/fvwm-themes-extra
+=x11-themes/fvwm-crystal-3.7.5
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-28)
+# Package destabilisation mask for potential runtime errors and lack of
+# Qt6-compatible plugins. Bug #955031
+~sci-geosciences/qgis-3.38.3
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-04-26)
 # Dead upstream, stuck on Qt5, blocking x11-libs/qscintilla[qt5] cleanup
 # Bug #947297; removal on 2025-05-26
@@ -47,10 +145,6 @@ dev-db/sqliteman
 sci-visualization/scidavis
 x11-libs/qwtplot3d
 x11-libs/qwt:5
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-24)
-# A pain to maintain. No more revdeps. Bug #925718
-dev-qt/qtwebengine:5
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-04-24)
 # Requires Qt5WebEngine; bug #925722
@@ -74,6 +168,11 @@ dev-python/python-poppler-qt5
 sci-visualization/zhu3d
 
 # Michał Górny <mgorny@gentoo.org> (2025-04-22)
+# Metapackage used for pypy3 target in the past.
+# Removal on 2025-05-22.
+dev-python/pypy3
+
+# Michał Górny <mgorny@gentoo.org> (2025-04-22)
 # This package was only really necessary for packages without
 # Python 3.12+ support, and the eclass no longer uses it.
 # Removal on 2025-05-22.  Bug #954213.
@@ -83,10 +182,6 @@ dev-python/unittest-or-fail
 # ruby32-only slot. Use the newer slot instead.
 # Masked for removal on 2025-05-21.
 dev-ruby/highline:2
-
-# Sam James <sam@gentoo.org> (2025-04-21)
-# Several packages need porting. Tracker bug #954128.
-=dev-python/cython-3.1*
 
 # Hans de Graaff <graaff@gentoo.org> (2025-04-20)
 # ruby32-only slot. Use the newer slot instead.
@@ -136,18 +231,6 @@ x11-misc/xtoolwait
 # Removal on 2025-05-04.  Bug #953119.
 media-gfx/xloadimage
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-02)
-# Depends on Qt5WebEngine, and upstream seem to be having a hard time
-# porting to Qt6 with an unknown ETA likely well beyond the time we want
-# to keep dev-qt/qtwebengine:5 in ::gentoo.
-# Removal on 2025-04-30. Bug #926666
-media-video/jellyfin-media-player
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-04-02)
-# No release since 2021, no commit in 3 years, depends on Qt5WebEngine.
-# Use app-text/uchmviewer instead. Removal on 2025-04-30. Bug #823008
-app-text/kchmviewer
-
 # Ionen Wolkens <ionen@gentoo.org> (2025-04-02)
 # Masked for testing the new .0 version and leave time for packages
 # to catch up on support if needed. May or may keep masked until 6.9.1
@@ -189,40 +272,11 @@ app-text/kchmviewer
 =dev-qt/qtwebsockets-6.9.0*
 =dev-qt/qtwebview-6.9.0*
 
-# Matt Turner <mattst88@gentoo.org> (2025-04-01)
-# Very dead. Last release in 2007. Many open bugs (#712894, #882169, #894620,
-# #907400, #920478, #932284, #943891).
-# Removal on 2025-05-01.  Bug #949960.
-x11-terms/aterm
-
 # Norbert Norbiros <norbiros@protonmail.com> (2025-04-01)
 # Screen v5.0.0 has a lot of regressions
 # https://lists.gnu.org/archive/html/screen-devel/2024-10/msg00007.html
 # Unmask it after it is properly tested & fixed
 =app-misc/screen-5*
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-03-31)
-# Depends on broken dev-java/rxtx, bugs #761103, #867409, #874444, #898170
-# #927898.
-# Depends on dev-java/jgoodies-{common,looks} which are no longer available
-# "at no charge". https://www.jgoodies.com/downloads/libraries/#post-63
-# Removal on 2025-04-30.
-sci-geosciences/bt747
-dev-java/rxtx
-dev-java/swingx
-dev-java/swingx-beaninfo
-dev-java/swingx-ws
-dev-java/jchart2d
-dev-java/jcalendar
-dev-java/jgoodies-looks
-dev-java/jgoodies-common
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-03-30)
-# Depends on dev-python/python-poppler-qt5, stuck on py3.12, new 0.7.0
-# release available w/ PyQt6 support would require packaging new pymupdf
-# dependency (bug #949686). Use media-gfx/inkscape or app-text/pdfarranger
-# alternatively. Removal on 2025-04-29. Bugs #947726, #952250
-app-text/krop
 
 # Conrad Kostecki <conikost@gentoo.org> (2025-03-28)
 # Upstream is dead and broken. All 'whatsapp' deps

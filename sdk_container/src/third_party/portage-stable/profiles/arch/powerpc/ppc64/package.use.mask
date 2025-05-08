@@ -1,6 +1,14 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Alfredo Tupone <tupone@gentoo.org> (2025-05-03)
+# dependencies not yet keyworded
+sci-ml/caffe2 distributed gloo fbgemm nnpack onednn qnnpack rocm xnnpack
+
+# NRK <nrk@disroot.org> (2025-04-07)
+# media-libs/libyuv is not keyworded
+media-libs/imlib2 y4m
+
 # Cristian Othón Martínez Vera (2025-04-09)
 # dev-db/tinycdb is not keyworded here
 mail-mta/sendmail tinycdb
@@ -77,7 +85,6 @@ lxqt-base/lxqt-meta desktop-portal
 # Michał Górny <mgorny@gentoo.org> (2021-12-31)
 # Don't apply stable masks to python-exec since we're forcing every
 # impl there anyway. Please keep this in sync with use.stable.mask.
-dev-lang/python-exec -python_targets_pypy3
 dev-lang/python-exec -python_targets_pypy3_11
 
 # Sam James <sam@gentoo.org> (2021-10-17)
