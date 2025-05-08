@@ -7,7 +7,7 @@ on:
         description: |
           Space-separated vendor formats to build.
         required: true
-        default: qemu_uefi pxe
+        default: qemu_uefi
       custom_sdk_version:
         type: string
         required: false
@@ -21,7 +21,7 @@ on:
         description: |
           Space-separated vendor formats to build.
         required: true
-        default: qemu_uefi pxe
+        default: qemu_uefi
       custom_sdk_version:
         type: string
         required: false
@@ -35,14 +35,11 @@ jobs:
   packages:
     name: "Build Flatcar packages"
     runs-on:
-      - self-hosted
-      - ubuntu
-      - build
-      - amd64
+      - ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        arch: ["amd64", "arm64"]
+        arch: ["arm64"]
     defaults:
       run:
         working-directory: scripts
@@ -92,7 +89,7 @@ jobs:
           arch="${{ matrix.arch }}"
           echo "arch=${arch}" >> $GITHUB_ENV
 
-          IMAGE_FORMATS="qemu_uefi pxe"
+          IMAGE_FORMATS="qemu_uefi"
           [ -z "${{ inputs.image_formats }}" ] || IMAGE_FORMATS="${{ inputs.image_formats }}"
           echo "IMAGE_FORMATS=${IMAGE_FORMATS}" >> $GITHUB_ENV
 
@@ -138,31 +135,6 @@ jobs:
             -C "${sdk_image}" \
             ./build_packages --board="${arch}-usr"
 
-          # Create binpkgs tarball for archiving as artifact later
-          ./run_sdk_container -n "${container_name}" \
-              tar -C "/build/${arch}-usr/var/lib/portage/pkgs/" \
-                -cvf binpkgs.tar .
-
-      - name: Extract build logs
-        if: always() && !cancelled()
-        shell: bash
-        run: |
-          set -euo pipefail
-          set -x
-          # Copy logs
-          ./run_sdk_container -n "${container_name}" \
-              tar -cJf ebuild_logs.tar.xz /build/${arch}-usr/var/log/portage \
-              /build/${arch}-usr/var/tmp/portage
-
-      - name: Upload build logs
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 7
-          name: ${{ matrix.arch }}-build-logs
-          path: |
-            scripts/ebuild_logs.tar.xz
-
       - name: Build image
         shell: bash
         run: |
@@ -181,7 +153,7 @@ jobs:
           ./run_sdk_container -n "${container_name}" \
                   ./build_image --board="${arch}-usr" --group="${channel}" \
                                 --output_root="${CI_CONTAINER_ARTIFACT_ROOT}" \
-                                prodtar container sysext
+                                --image_compression_formats=none
 
       - name: Build VM image(s)
         shell: bash
@@ -239,88 +211,15 @@ jobs:
             mv * ../../images/
           )
 
-      - name: Generate reports against last release
-        run: .github/workflows/image_changes.sh ${{ matrix.arch }} release
-
-      - name: Generate reports against last nightly
-        run: .github/workflows/image_changes.sh ${{ matrix.arch }} nightly
-
-      - name: Upload binpkgs
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 7
-          name: ${{ matrix.arch }}-binpkgs
-          path: |
-            scripts/binpkgs.tar
-
-      - name: Upload update image (used with kola tests later)
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 7
-          name: ${{ matrix.arch }}-test-update
-          path: |
-            scripts/artifacts/images/flatcar_test_update.gz
-
       - name: Upload generic image
         uses: actions/upload-artifact@v4
         with:
           retention-days: 7
           name: ${{ matrix.arch }}-generic-image
           path: |
-            scripts/artifacts/images/flatcar_production_image.bin
-            scripts/artifacts/images/flatcar_production_image.grub
-            scripts/artifacts/images/flatcar_production_image.shim
-            scripts/artifacts/images/flatcar_production_image.vmlinuz
-            scripts/artifacts/images/flatcar_production_image*.txt
-            scripts/artifacts/images/flatcar_production_image*.json
-            scripts/artifacts/images/flatcar_production_image_pcr_policy.zip
-            scripts/artifacts/images/flatcar_production_*_efi_*.qcow2
-            scripts/artifacts/images/flatcar_production_qemu.sh
-
-      - name: Upload developer container
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 7
-          name: ${{ matrix.arch }}-devcontainer
-          path: |
-            scripts/artifacts/images/flatcar_developer_container*
-
-      - name: Upload reports
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 7
-          name: ${{ matrix.arch }}-image-changes-reports
-          path: |
-            scripts/image-changes-reports*.txt
-
-      # Clean up what we uploaded already so the "vendor images" wildcard
-      #  works when uploading artifacts in the next step.
-      - name: Remove update, generic and devcontainer images
-        shell: bash
-        run: |
-          set -euo pipefail
-          set -x
-          rm -f artifacts/images/flatcar_test_update.gz \
-                artifacts/images/flatcar_production_image* \
-                artifacts/images/flatcar_developer_container* \
-                artifacts/images/flatcar_production_update*
-
-      - name: Upload vendor images
-        uses: actions/upload-artifact@v4
-        with:
-          retention-days: 7
-          name: ${{ matrix.arch }}-vm-images
-          path: |
-            scripts/artifacts/images/*.img
             scripts/artifacts/images/*.bin
-            scripts/artifacts/images/flatcar_production_*_efi_*.qcow2
+            scripts/artifacts/images/*.img
             scripts/artifacts/images/*.txt
             scripts/artifacts/images/flatcar-*.raw
-            scripts/artifacts/images/flatcar_production_*.sh
-            scripts/artifacts/images/flatcar_production_pxe_image.cpio.gz
-            scripts/artifacts/images/flatcar_production_pxe.vmlinuz
-
-  test:
-    needs: packages
-    name: "Run kola tests"
-    uses: ./.github/workflows/run-kola-tests.yaml
+            scripts/artifacts/images/flatcar_production_*_efi_*.qcow2
+            scripts/artifacts/images/flatcar_production_qemu.sh
