@@ -336,6 +336,7 @@ dev-python/markupsafe
 dev-python/mdurl
 dev-python/more-itertools
 dev-python/msgpack
+dev-python/networkx
 dev-python/olefile
 dev-python/packaging
 dev-python/pathspec
