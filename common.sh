@@ -989,3 +989,5 @@ BOAT
   echo -e "${V_VIDOFF}"
   die "$* failed"
 }
+
+unset QEMU_LD_PREFIX
