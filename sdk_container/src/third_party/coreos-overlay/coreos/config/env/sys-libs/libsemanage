@@ -1,0 +1,20 @@
+# A hack to modify semanage.conf before it gets copied by
+# multilib_copy_sources.
+if declare -pf multilib_copy_sources >/dev/null 2>/dev/null; then
+    if ! declare -pf flatcar_hacked_multilib_copy_sources >/dev/null 2>&1; then
+        eval "$(echo 'flatcar_hacked_multilib_copy_sources()'; declare -pf multilib_copy_sources | tail -n +2)"
+    fi
+    multilib_copy_sources() {
+        # Enable compression in semanage.conf
+        sed -i \
+            -e 's/^\(bzip-blocksize\)=0/\1=1/' \
+            "${S}/src/semanage.conf"
+        flatcar_hacked_multilib_copy_sources "${@}"
+    }
+fi
+if [[ ${FLATCAR_TYPE} = 'generic' && ${FLATCAR_SUBTYPE} = 'prod' ]]; then
+    libsemanage_mask=" /usr/lib/python* "
+    INSTALL_MASK+="${libsemanage_mask}"
+    PKG_INSTALL_MASK+="${libsemanage_mask}"
+    unset libsemanage_mask
+fi

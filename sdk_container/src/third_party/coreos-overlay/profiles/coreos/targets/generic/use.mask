@@ -1,0 +1,3 @@
+# Disable anything that pulls those interpreters into generic images.
+perl
+python

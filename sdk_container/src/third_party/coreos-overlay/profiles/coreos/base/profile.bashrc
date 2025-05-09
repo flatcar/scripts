@@ -5,23 +5,6 @@ CROS_BUILD_BOARD_BIN="${CROS_BUILD_BOARD_TREE}/bin"
 
 CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 
-# Are we merging for the board sysroot, or for the cros sdk, or for
-# the target hardware?  Returns a string:
-#  - cros_host (the sdk)
-#  - board_sysroot
-#  - target_image
-# We can't rely on "use cros_host" as USE gets filtred based on IUSE,
-# and not all packages have IUSE=cros_host.
-cros_target() {
-	if [[ ${CROS_SDK_HOST} == "cros-sdk-host" ]] ; then
-		echo "cros_host"
-	elif [[ ${ROOT%/} == ${SYSROOT%/} ]] ; then
-		echo "board_sysroot"
-	else
-		echo "target_image"
-	fi
-}
-
 # Load all additional bashrc files we have for this package.
 cros_stack_bashrc() {
 	local cfg cfgd

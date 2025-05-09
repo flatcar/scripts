@@ -30,3 +30,7 @@ dev-lang/perl-5.40.0-r1
 dev-libs/icu-76.1-r1
 dev-perl/Parse-Yapp-1.210.0-r1
 dev-perl/JSON-4.100.0
+
+# Pulled in by sys-apps/policycoreutils, python stuff.
+app-admin/setools-4.5.1
+sys-apps/selinux-python-3.7-r1
