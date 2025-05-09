@@ -16,9 +16,6 @@ KEYWORDS="amd64 arm64"
 
 S="${WORKDIR}/${PN}-${PV}/src/${EGO_PN}"
 
-PATCHES=(
-)
-
 src_prepare() {
 	default
 	ln -s ${PWD}/vendor/src/* ${PWD}/vendor/
