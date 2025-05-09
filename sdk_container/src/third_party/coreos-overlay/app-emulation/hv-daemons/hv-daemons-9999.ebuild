@@ -13,20 +13,19 @@ if [[ "${PV}" == 9999 ]]; then
 fi
 
 src_compile() {
-    # Build hv_vss_daemon, hv_kvp_daemon, hv_fcopy_daemon 
+    # Build hv_vss_daemon, hv_kvp_daemon, hv_fcopy_daemon
     kmake tools/hv
 }
 
 src_install() {
-    dobin "${S}/build/tools/hv/hv_fcopy_daemon"
-    dobin "${S}/build/tools/hv/hv_kvp_daemon"
-    dobin "${S}/build/tools/hv/hv_vss_daemon"
-
-    systemd_dounit "${FILESDIR}/hv_fcopy_daemon.service"
-    systemd_dounit "${FILESDIR}/hv_kvp_daemon.service"
-    systemd_dounit "${FILESDIR}/hv_vss_daemon.service"
-
-    systemd_enable_service "multi-user.target" "hv_fcopy_daemon.service"
-    systemd_enable_service "multi-user.target" "hv_kvp_daemon.service"
-    systemd_enable_service "multi-user.target" "hv_vss_daemon.service"
+    local -a HV_DAEMONS=(hv_vss_daemon hv_kvp_daemon hv_fcopy_daemon hv_fcopy_uio_daemon)
+    local HV_DAEMON
+    for HV_DAEMON in "$HV_DAEMONS[@]"
+    do
+        if [ -f "${S}/build/tools/hv/${HV_DAEMON}" ]; then
+            dobin "${S}/build/tools/hv/${HV_DAEMON}"
+            systemd_dounit "${FILESDIR}/${HV_DAEMON}.service"
+            systemd_enable_service "multi-user.target" "${HV_DAEMON}.service"
+        fi
+    done
 }
