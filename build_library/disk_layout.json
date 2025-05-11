@@ -2,7 +2,7 @@
   "_comment": "See http://www.chromium.org/chromium-os/building-chromium-os/disk-layout-format",
   "metadata":{
     "_comment": "Partitions are aligned to 2MB (4096 blocks). For the sake of VHD disks sizes should align to *both* 2MB and a CHS cylender boundry for the common 16H 63S geometry (16*63 = 1008 blocks). The least common multiple of 4096 and 1008 is 258048 blocks.",
-    "part_alignment": 4096,
+    "part_alignment": 8192,
     "disk_alignment": 258048,
     "block_size": 512,
     "fs_block_size": 4096
