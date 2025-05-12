@@ -131,7 +131,7 @@ src_install() {
     done
 
     insinto '/etc/bash/bashrc.d'
-    doins "${FILESDIR}/bash/99-flatcar-bcc"
+    doins "${FILESDIR}/bash/99-flatcar-bcc.bash"
 
     insinto '/usr/share/flatcar'
     # The "oems" folder should contain a file "$OEMID" for each expected OEM sysext and
