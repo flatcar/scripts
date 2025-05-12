@@ -36,6 +36,32 @@
 
 #--- END OF EXAMPLES ---
 
+# Petr Vaněk <arkamar@gentoo.org> (2025-05-10)
+# Unmaintained upstream, incompatible with py3.12+, no revdeps, see
+# https://github.com/torproject/stem/issues/154 and
+# https://github.com/torproject/nyx/issues/68
+# Removal on 2025-06-09.
+net-libs/stem
+net-misc/nyx
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-08)
+# No more revdeps. Removal on 2025-05-31.
+kde-frameworks/kinit
+
+# Eray Aslan <eras@gentoo.org> (2025-05-08)
+# Needs testing
+=net-mail/dovecot-2.4*
+
+# Michał Górny <mgorny@gentoo.org> (2025-05-08)
+# Vulnerable, EOL branch of dev-python/django.  Bug #955606.
+# Pleas upgrade to 5.1, 5.2 LTS, or downgrade to 4.2 LTS.
+=dev-python/django-5.0*
+
+# Alfred Wingate <parona@protonmail.com> (2025-05-05)
+# Masked for testing
+>=dev-libs/libxml2-2.14
+dev-libs/libxml2-compat
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-05-04)
 # Several open bugs, pending bump since 2020, fails to fetch since 2022.
 # If anyone is here to fix these things, then please make upstream port
@@ -68,7 +94,6 @@ sci-electronics/osqoop
 
 # Matt Turner <mattst88@gentoo.org> (2024-05-02)
 # Masked for testing
-=dev-util/mesa_clc-25.1*
 =media-libs/mesa-25.1*
 
 # Marc Schiffbauer <mschiff@gentoo.org> (2025-05-02)
@@ -211,25 +236,6 @@ dev-python/ipaddr
 # Obsolete slot that fails tests, bug 933189. EAPI 7.  Use the newer
 # slot instead. Masked for removal on 2025-05-14.
 dev-ruby/childprocess:2
-
-# Michał Górny <mgorny@gentoo.org> (2025-04-09)
-# Still uses legacy distutils-r1 mode, and lacks Python 3.13 target.
-# No reply from the maintainer for a year now.
-# Removal on 2025-05-09.  Bug #909900.
-app-text/nfoview
-
-# Matt Turner <mattst88@gentoo.org> (2025-04-04)
-# Package is dead (last release in 1999).
-# Not relevant today: purpose is to not overload a very slow system with
-# multiple X11 clients starting at the same time. SRC_URI is long dead.
-# Removal on 2025-05-04.  Bug #953120.
-x11-misc/xtoolwait
-
-# Matt Turner <mattst88@gentoo.org> (2025-04-04)
-# Package is dead and has a pile of patches to make it compile.
-# SRC_URI is long gone. Many alternative image viewers.
-# Removal on 2025-05-04.  Bug #953119.
-media-gfx/xloadimage
 
 # Ionen Wolkens <ionen@gentoo.org> (2025-04-02)
 # Masked for testing the new .0 version and leave time for packages
@@ -466,9 +472,11 @@ app-emulation/virtualbox-kvm
 ~sys-boot/plymouth-24.004.60
 
 # Sam James <sam@gentoo.org> (2024-09-30)
-# GCC 10 and older no longer receive upstream support or fixes for
+# GCC 11 and older no longer receive upstream support or fixes for
 # bugs. Please switch to a newer GCC version using gcc-config.
-# The lowest supported version of GCC is GCC 11.
+#
+# The earliest supported version of GCC is GCC 12, but 11 remains unmasked
+# for now to ease sys-devel/gcc[d] bootstrapping.
 <sys-devel/gcc-11
 <sys-devel/kgcc64-11
 
@@ -662,10 +670,10 @@ media-plugins/kodi-game-libretro-dosbox
 # If you still use one of these old toolchain packages, please upgrade (and
 # switch the compiler / the binutils) ASAP. If you need them for a specific
 # (isolated) use case, feel free to unmask them on your system.
-<sys-libs/glibc-2.38-r10
-<sys-libs/binutils-libs-2.42
-<sys-devel/binutils-2.42
-<sys-devel/binutils-hppa64-2.42
+<sys-libs/glibc-2.40-r8
+<sys-libs/binutils-libs-2.43-r3
+<sys-devel/binutils-2.43-r2
+<sys-devel/binutils-hppa64-2.43-r2
 
 # Michael Orlitzky <mjo@gentoo.org> (2017-01-07)
 # This package has some dangerous quality and security issues, but
