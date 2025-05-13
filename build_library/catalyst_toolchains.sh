@@ -3,6 +3,7 @@
 set -e
 source /tmp/chroot-functions.sh
 source /tmp/toolchain_util.sh
+source /tmp/break_dep_loop.sh
 
 # A note on packages:
 # The default PKGDIR is /usr/portage/packages
@@ -28,13 +29,64 @@ build_target_toolchain() {
     local ROOT="/build/${board}"
     local SYSROOT="/usr/$(get_board_chost "${board}")"
 
-    mkdir -p "${ROOT}/usr"
-    cp -at "${ROOT}" "${SYSROOT}"/lib*
-    cp -at "${ROOT}"/usr "${SYSROOT}"/usr/include "${SYSROOT}"/usr/lib*
+    function btt_emerge() {
+        # --root is required because run_merge overrides ROOT=
+        PORTAGE_CONFIGROOT="$ROOT" run_merge --root="$ROOT" --sysroot="$ROOT" "${@}"
+    }
 
-    # --root is required because run_merge overrides ROOT=
-    PORTAGE_CONFIGROOT="$ROOT" \
-        run_merge -u --root="$ROOT" --sysroot="$ROOT" "${TOOLCHAIN_PKGS[@]}"
+    # install baselayout first - for some reason this is pulled into
+    # the dependency chain when building toolchain
+    btt_emerge --oneshot --nodeps sys-apps/baselayout
+
+    # copy libraries and binaries from sysroot to root - sysroot seems to be
+    # split-usr, whereas root does not, so take this into account
+    (
+        shopt -s nullglob
+        local d f
+        local -a files
+        for d in "${SYSROOT}"/lib* "${SYSROOT}"/usr/lib* "${SYSROOT}"/{usr/,}{bin,sbin}; do
+            if [[ ! -d ${d} ]]; then
+                continue
+            fi
+            files=( "${d}"/* )
+            if [[ ${#files[@]} -gt 0 ]]; then
+                f=${d##*/}
+                cp -at "${ROOT}/usr/${f}" "${files[@]}"
+            fi
+        done
+    )
+    cp -at "${ROOT}"/usr "${SYSROOT}"/usr/include
+
+    local -a args_for_bdl=()
+    if [[ -n ${clst_VERBOSE} ]]; then
+        args_for_bdl+=(-v)
+    fi
+    function btt_bdl_portageq() {
+        ROOT=${ROOT} SYSROOT=${ROOT} PORTAGE_CONFIGROOT=${ROOT} portageq "${@}"
+    }
+    function btt_bdl_equery() {
+        ROOT=${ROOT} SYSROOT=${ROOT} PORTAGE_CONFIGROOT=${ROOT} equery "${@}"
+    }
+    # Breaking the following loops here:
+    #
+    # TODO: list them
+    args_for_bdl+=(
+        net-libs/nghttp2 systemd
+        sys-apps/systemd cryptsetup,tpm
+        sys-apps/util-linux cryptsetup,systemd,udev
+        sys-fs/cryptsetup systemd,udev
+        sys-fs/lvm2 systemd
+        sys-libs/pam systemd
+    )
+    BDL_ROOT=${ROOT} \
+    BDL_PORTAGEQ=btt_bdl_portageq \
+    BDL_EQUERY=btt_bdl_equery \
+    BDL_EMERGE=btt_emerge \
+        break_dep_loop "${args_for_bdl[@]}"
+    unset btt_bdl_portageq btt_bdl_equery
+
+    btt_emerge --changed-use --update --deep "${TOOLCHAIN_PKGS[@]}"
+    unset btt_emerge
 }
 
 configure_crossdev_overlay / /usr/local/portage/crossdev
