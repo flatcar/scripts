@@ -174,89 +174,12 @@ if [[ ${#WORKON_PKGS[@]} -gt 0 ]]; then
   )
 fi
 
-# Goo to attempt to resolve dependency loops on individual packages.
-# If this becomes insufficient we will need to move to a full multi-stage
-# bootstrap process like we do with the SDK via catalyst.
-#
-# Called like:
-#
-#     break_dep_loop [PKG_USE_PAIR]…
-#
-# PKG_USE_PAIR consists of two arguments: a package name (for example:
-# sys-fs/lvm2), and a comma-separated list of USE flags to clear (for
-# example: udev,systemd).
-break_dep_loop() {
-  local -a pkgs
-  local -a all_flags
-  local -a args
-  local flag_file="${BOARD_ROOT}/etc/portage/package.use/break_dep_loop"
-  local -a flag_file_entries
-  local -a pkg_summaries
-
-  # Be sure to clean up use flag hackery from previous failed runs
-  sudo rm -f "${flag_file}"
-
-  if [[ $# -eq 0 ]]; then
-      return 0
-  fi
-
-  # Temporarily compile/install packages with flags disabled. If a binary
-  # package is available use it regardless of its version or use flags.
-  local pkg
-  local -a flags
-  local disabled_flags
-  while [[ $# -gt 0 ]]; do
-    pkg="${1}"
-    pkgs+=("${pkg}")
-    flags=( ${2//,/ } )
-    all_flags+=("${flags[@]}")
-    disabled_flags="${flags[@]/#/-}"
-    flag_file_entries+=("${pkg} ${disabled_flags}")
-    args+=("--buildpkg-exclude=${pkg}")
-    pkg_summaries+=("${pkg}[${disabled_flags}]")
-    shift 2
-  done
-
-  # If packages are already installed we have nothing to do
-  local any_package_uninstalled=0
-  for pkg in "${pkgs[@]}"; do
-    if ! portageq-"${BOARD}" has_version "${BOARD_ROOT}" "${pkgs[@]}"; then
-      any_package_uninstalled=1
-      break
-    fi
-  done
-  if [[ ${any_package_uninstalled} -eq 0 ]]; then
-    return 0
-  fi
-
-  # Likewise, nothing to do if the flags aren't actually enabled.
-  local any_flag_enabled=0
-  for pkg in "${pkgs[@]}"; do
-    if pkg_use_enabled "${pkg}" "${all_flags[@]}"; then
-      any_flag_enabled=1
-      break
-    fi
-  done
-  if [[ ${any_flag_enabled} -eq 0 ]]; then
-    return 0
-  fi
-
-  info "Merging ${pkg_summaries[@]}"
-  sudo mkdir -p "${flag_file%/*}"
-  sudo_clobber "${flag_file}" <<<"${flag_file_entries[0]}"
-  local entry
-  for entry in "${flag_file_entries[@]:1}"; do
-    sudo_append "${flag_file}" <<<"${entry}"
-  done
-  # rebuild-if-unbuilt is disabled to prevent portage from needlessly
-  # rebuilding zlib for some unknown reason, in turn triggering more rebuilds.
-  sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" \
-    --rebuild-if-unbuilt=n \
-    "${args[@]}" "${pkgs[@]}"
-  sudo rm -f "${flag_file}"
-}
-
 if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
+  . "${BUILD_LIBRARY_DIR}/break_dep_loop.sh" || exit 1
+
+  function bp_bdl_emerge() {
+    sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "${@}"
+  }
   # Breaking the following loops here:
   #
   # util-linux[udev] -> virtual/udev -> systemd -> util-linux
@@ -267,12 +190,18 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   # lvm2[systemd] -> systemd[cryptsetup] -> cryptsetup -> lvm2
   # systemd[cryptsetup] -> cryptsetup[udev] -> virtual/udev -> systemd
   # curl[http2] -> nghttp2[systemd] -> systemd[curl] -> curl
+  BDL_ROOT=${BOARD_ROOT} \
+  BDL_PORTAGEQ=portageq-"${BOARD}" \
+  BDL_EQUERY=equery-"${BOARD}" \
+  BDL_EMERGE=bp_bdl_emerge \
+  BDL_INFO=info \
   break_dep_loop sys-apps/util-linux udev,systemd,cryptsetup \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 udev,systemd \
                  sys-apps/systemd cryptsetup,tpm \
                  net-misc/curl http2 \
                  net-libs/nghttp2 systemd
+  unset bp_bdl_emerge
 fi
 
 if [[ "${FLAGS_only_resolve_circular_deps}" -eq "${FLAGS_TRUE}" ]]; then
