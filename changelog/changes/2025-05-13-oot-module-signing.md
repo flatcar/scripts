@@ -1,0 +1,1 @@
+- Sign out-of-tree kernel modules using the ephemeral signing key so that ZFS and NVIDIA sysexts can work with secure boot. ([scripts#2636](https://github.com/flatcar/scripts/pull/2636/))

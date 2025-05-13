@@ -1,0 +1,2 @@
+- Compile OS-dependent NVIDIA kernel module sysexts signed for secure boot. ([scripts#2798](https://github.com/flatcar/scripts/pull/2798/))
+- Allow per-sysext USE flags and architecture-specific sysexts. ([scripts#2798](https://github.com/flatcar/scripts/pull/2798/))
