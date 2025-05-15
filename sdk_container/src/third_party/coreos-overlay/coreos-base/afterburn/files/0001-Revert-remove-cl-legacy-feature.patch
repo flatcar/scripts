@@ -24,7 +24,7 @@ diff --git a/Cargo.lock b/Cargo.lock
 index a4b7224..c2e3cc9 100644
 --- a/Cargo.lock
 +++ b/Cargo.lock
-@@ -31,13 +31,14 @@ dependencies = [
+@@ -31,6 +31,7 @@ dependencies = [
   "base64 0.22.1",
   "cfg-if",
   "clap",
@@ -32,14 +32,6 @@ index a4b7224..c2e3cc9 100644
   "ipnetwork",
   "libflate",
   "libsystemd",
-  "mailparse",
-  "maplit",
-  "mockito",
-- "nix 0.27.1",
-+ "nix 0.29.0",
-  "openssh-keys",
-  "openssl",
-  "pnet_base",
 @@ -812,6 +813,17 @@ dependencies = [
   "digest",
  ]
@@ -101,7 +93,7 @@ index 0929be8..7cd4b91 100644
  cfg-if = "1.0"
  clap = { version = "4", "default-features" = false, "features" = ["std", "cargo", "derive", "error-context", "help", "suggestions", "usage", "wrap_help"] }
 +hostname = "0.4.0"
- ipnetwork = ">= 0.17, < 0.21"
+ ipnetwork = ">= 0.17, < 0.22"
  libflate = "2.1"
  libsystemd = ">= 0.2.1, < 0.8.0"
 diff --git a/src/metadata.rs b/src/metadata.rs
