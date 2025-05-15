@@ -27,6 +27,7 @@ catalyst_stage_default 4
 }
 create_provenance_overlay() {
   local root_overlay="$1"
+  local f d scripts_hash
   while read f; do
     d="${f%/*}"
     mkdir -p "${root_overlay}${d}/"
