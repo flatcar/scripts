@@ -30,8 +30,9 @@ RDEPEND="
 	sys-boot/shim-signed
 	app-containers/containerd
 	app-containers/docker
-	app-containers/docker-cli
 	app-containers/docker-buildx
+	app-containers/docker-cli
+	app-containers/incus
 	app-emulation/amazon-ssm-agent
 	app-emulation/hv-daemons
 	app-emulation/wa-linux-agent
