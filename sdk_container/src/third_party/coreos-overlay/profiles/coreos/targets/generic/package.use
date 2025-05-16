@@ -3,9 +3,9 @@
 
 app-admin/sudo		ldap sssd
 # -crypt: Disable crypt to avoid installing libsodlium.
-app-editors/vim		minimal -crypt
+app-editors/vim		-crypt
 # minimal: Don't pull app-vim/gentoo-syntax
-app-editors/vim-core	minimal
+app-editors/vim-core        minimal
 
 # Install our modifications and compatibility symlinks for ssh and ntp
 #
