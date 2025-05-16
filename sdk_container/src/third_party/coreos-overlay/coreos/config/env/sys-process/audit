@@ -5,3 +5,10 @@ audit_install_mask=" /etc/audit/audit.rules* /usr/libexec "
 INSTALL_MASK+="${audit_install_mask}"
 PKG_INSTALL_MASK+="${audit_install_mask}"
 unset audit_install_mask
+# Skip installing python stuff in production images
+if [[ ${FLATCAR_TYPE} = 'generic' && ${FLATCAR_SUBTYPE} = 'prod' ]]; then
+    audit_install_mask=" /usr/lib/python* "
+    INSTALL_MASK+="${audit_install_mask}"
+    PKG_INSTALL_MASK+="${audit_install_mask}"
+    unset audit_install_mask
+fi
