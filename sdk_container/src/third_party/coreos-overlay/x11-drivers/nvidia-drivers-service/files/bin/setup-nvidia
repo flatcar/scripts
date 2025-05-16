@@ -97,20 +97,30 @@ EOF
 }
 
 function install_and_load() {
-  # This creates symlinks to sonames
-  mkdir -p /etc/ld.so.conf.d/
-  echo "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/usr/lib64" > /etc/ld.so.conf.d/nvidia.conf
-  ldconfig
-
   modprobe -a i2c_core ipmi_msghandler ipmi_devintf
   # This is needed on amd64 due to CONFIG_ACPI_VIDEO=m
   modprobe -q video || true
 
-  pushd "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/usr/lib/modules/$(uname -r)/video/"
-  insmod nvidia.ko
-  insmod nvidia-modeset.ko
-  insmod nvidia-uvm.ko
-  popd
+  if systemd-sysext list | grep -q flatcar-nvidia-drivers; then
+    modprobe nvidia
+    modprobe nvidia-modeset
+    modprobe nvidia-uvm
+
+    systemctl daemon-reload
+    # create the nvpd user
+    systemd-sysusers
+  else
+    # This creates symlinks to sonames
+    mkdir -p /etc/ld.so.conf.d/
+    echo "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/usr/lib64" > /etc/ld.so.conf.d/nvidia.conf
+
+    pushd "/opt/nvidia/${NVIDIA_CURRENT_INSTALLATION}/usr/lib/modules/$(uname -r)/video/"
+    insmod nvidia.ko
+    insmod nvidia-modeset.ko
+    insmod nvidia-uvm.ko
+    popd
+  fi
+  ldconfig
 
   # based on https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-verifications
   if [ ! -c /dev/nvidiactl ]
@@ -159,6 +169,11 @@ function is_nvidia_installation_required() {
   fi
 
   if [[ -d "/opt/nvidia/${NVIDIA_FLATCAR_VERSION_PAIR}" ]]; then
+    return 1
+  fi
+
+  if systemd-sysext list | grep -q flatcar-nvidia-drivers; then
+    echo "Pre-build NVIDIA drivers sysext is loaded, skipping drivers build."
     return 1
   fi
 }
