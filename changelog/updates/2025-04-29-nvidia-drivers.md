@@ -1,0 +1,2 @@
+- nvidia-drivers (arm64) ([570.133.20](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-570-133-20/index.html) (includes [570.124.06](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-570-124-06/index.html)))
+- nvidia-drivers (amd64) ([535.247.01](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-535-247-01/index.html))
