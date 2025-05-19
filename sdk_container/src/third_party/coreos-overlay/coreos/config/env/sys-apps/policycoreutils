@@ -17,8 +17,15 @@ cros_post_src_install_set_up_var_lib_selinux() {
 
 # Do not install python stuff in prod images.
 if [[ ${FLATCAR_TYPE} = 'generic' && ${FLATCAR_SUBTYPE} = 'prod' ]]; then
-    policycoreutils_mask=" /usr/lib/python-exec /usr/sbin/rlpkg /usr/bin/rlpkg "
+    policycoreutils_mask=" /usr/lib/python-exec "
     INSTALL_MASK+="${policycoreutils_mask}"
     PKG_INSTALL_MASK+="${policycoreutils_mask}"
     unset policycoreutils_mask
 fi
+
+# INSTALL_MASK does not work on symlinks.
+cros_post_pkg_postinst_drop_rlpkg_symlink() {
+    if [[ ${FLATCAR_TYPE} = 'generic' && ${FLATCAR_SUBTYPE} = 'prod' ]]; then
+        rm -f "${ROOT}"/usr/sbin/rlpkg
+    fi
+}
