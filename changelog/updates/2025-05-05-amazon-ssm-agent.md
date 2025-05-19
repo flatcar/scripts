@@ -1,0 +1,1 @@
+- AWS: Amazon SSM Agent ([3.3.2299.0](https://github.com/aws/amazon-ssm-agent/blob/mainline/RELEASENOTES.md#3322990))
