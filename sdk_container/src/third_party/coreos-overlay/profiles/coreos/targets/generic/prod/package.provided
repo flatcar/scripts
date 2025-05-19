@@ -1,0 +1,3 @@
+# Mark python as provided for selinux stuff. We have put all the
+# python stuff into install masks by now.
+dev-lang/python-3.11.12
