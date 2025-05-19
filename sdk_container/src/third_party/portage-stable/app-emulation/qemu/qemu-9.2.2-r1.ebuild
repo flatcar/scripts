@@ -8,7 +8,7 @@ EAPI=8
 # (the construct below is to allow overriding from env for script)
 QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
-QEMU_DOCS_VERSION=$(ver_cut 1-3)
+QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
@@ -18,7 +18,7 @@ PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 FIRMWARE_ABI_VERSION="7.2.0"
 
-inherit eapi9-ver flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps \
+inherit eapi9-ver linux-info toolchain-funcs python-r1 udev fcaps \
 		readme.gentoo-r1 pax-utils xdg-utils
 
 if [[ ${PV} == *9999* ]]; then
@@ -66,7 +66,7 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
-	usbredir vde +vhost-net virgl virtfs +vnc vte wayland X xattr xdp xen
+	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xdp xen
 	zstd"
 
 COMMON_TARGETS="
@@ -184,7 +184,7 @@ SOFTMMU_TOOLS_DEPEND="
 		dev-libs/nettle:=[static-libs(+)]
 	)
 	gtk? (
-		x11-libs/gtk+:3[wayland?,X?]
+		x11-libs/gtk+:3
 		vte? ( x11-libs/vte:2.91 )
 	)
 	infiniband? ( sys-cluster/rdma-core[static-libs(+)] )
@@ -246,7 +246,7 @@ SEABIOS_VERSION="1.16.3"
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}
-		~sys-firmware/ipxe-1.21.1_p20230601[binary,qemu]
+		~sys-firmware/ipxe-1.21.1[binary,qemu]
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
@@ -477,10 +477,6 @@ src_prepare() {
 	# Use correct toolchain to fix cross-compiling
 	tc-export AR AS LD NM OBJCOPY PKG_CONFIG RANLIB STRINGS
 	export WINDRES=${CHOST}-windres
-
-	# defang automagic dependencies
-	use X || append-flags -DGENTOO_GTK_HIDE_X11
-	use wayland || append-flags -DGENTOO_GTK_HIDE_WAYLAND
 
 	# Workaround for bug #938302
 	if use systemtap && has_version "dev-debug/systemtap[-dtrace-symlink(+)]" ; then
