@@ -25,7 +25,9 @@ fi
 
 # INSTALL_MASK does not work on symlinks.
 cros_post_pkg_postinst_drop_rlpkg_symlink() {
+    elog "in cros_post_pkg_postinst_drop_rlpkg_symlink, FLATCAR_TYPE is ${FLATCAR_TYPE@Q}, FLATCAR_SUBTYPE is ${FLATCAR_SUBTYPE@Q}"
     if [[ ${FLATCAR_TYPE} = 'generic' && ${FLATCAR_SUBTYPE} = 'prod' ]]; then
-        rm -f "${ROOT}"/usr/sbin/rlpkg
+        elog "removing /usr/sbin/rlpkg and /usr/bin/rlpkg from ${ROOT@Q}"
+        rm -f "${ROOT}"/usr/sbin/rlpkg "${ROOT}"/usr/bin/rlpkg
     fi
 }
