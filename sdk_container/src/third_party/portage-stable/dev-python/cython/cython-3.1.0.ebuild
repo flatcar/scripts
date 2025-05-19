@@ -5,8 +5,8 @@ EAPI=8
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_TESTED=( python3_{10..12} )
-PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" pypy3 pypy3_11 python3_13{,t} )
+PYTHON_TESTED=( python3_{11..12} )
+PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" pypy3_11 python3_13{,t} python3_14{,t} )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1 multiprocessing pypi toolchain-funcs
@@ -36,8 +36,6 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}/${PN}-0.29.22-spawn-multiprocessing.patch"
 	"${FILESDIR}/${PN}-0.29.23-pythran-parallel-install.patch"
-	# https://github.com/cython/cython/commit/a0794ffb47c9f44be94b3cd8fe6c639766cbda26
-	"${FILESDIR}/${P}-rdma-core-hang.patch"
 )
 
 distutils_enable_sphinx docs \
