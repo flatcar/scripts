@@ -1,0 +1,13 @@
+# This is used to convert regular user / group entries to
+# userdb entries (in JSON format) to later be consumed by userdbd
+# when loading the sysext image on the instance.
+# The user / groups will be created dynamically and if the sysext image is
+# removed the entries will be removed as well.
+cros_post_src_install_add_userdb_record(){
+	insinto /usr/lib/userdb
+	newins - ${ACCT_GROUP_NAME}.group < <(
+		printf '{"groupName":"%q","gid":%q}\n' \
+			"${ACCT_GROUP_NAME}" \
+			"${_ACCT_GROUP_ID/#-*/-}"
+	)
+}

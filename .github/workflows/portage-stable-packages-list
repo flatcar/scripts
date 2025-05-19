@@ -8,10 +8,13 @@ acct-group/disk
 acct-group/dnsmasq
 acct-group/docker
 acct-group/floppy
+acct-group/incus
+acct-group/incus-admin
 acct-group/input
 acct-group/kmem
 acct-group/kvm
 acct-group/lp
+acct-group/lxc
 acct-group/man
 acct-group/messagebus
 acct-group/named
@@ -45,6 +48,7 @@ acct-group/video
 acct-group/wheel
 
 acct-user/dnsmasq
+acct-user/lxc
 acct-user/man
 acct-user/messagebus
 acct-user/named
@@ -116,6 +120,8 @@ app-containers/crun
 app-containers/docker
 app-containers/docker-buildx
 app-containers/docker-cli
+app-containers/incus
+app-containers/lxc
 app-containers/netavark
 app-containers/podman
 app-containers/runc
@@ -226,6 +232,7 @@ dev-lang/tcl
 dev-lang/yasm
 
 dev-libs/cJSON
+dev-libs/cowsql
 dev-libs/cyrus-sasl
 dev-libs/dbus-glib
 dev-libs/ding-libs
@@ -278,6 +285,7 @@ dev-libs/opensc
 dev-libs/openssl
 dev-libs/popt
 dev-libs/protobuf
+dev-libs/raft
 dev-libs/tree-sitter
 dev-libs/tree-sitter-bash
 dev-libs/userspace-rcu
@@ -371,6 +379,7 @@ dev-util/perf
 dev-util/pkgcheck
 dev-util/pkgconf
 dev-util/re2c
+dev-util/xdelta
 
 dev-vcs/git
 
@@ -658,6 +667,7 @@ sys-fs/fuse-common
 sys-fs/fuse-overlayfs
 sys-fs/lsscsi
 sys-fs/lvm2
+sys-fs/lxcfs
 sys-fs/mdadm
 sys-fs/mtools
 sys-fs/multipath-tools

@@ -176,3 +176,19 @@ sys-apps/systemd -gcrypt
 
 # Make dracut module available for initrd build.
 sys-apps/azure-vm-utils dracut
+
+# Enable SELinux for lxc
+app-containers/lxc selinux
+
+# required by app-containers/incus-6.0.3-r1::portage-stable
+# required by incus (argument)
+dev-libs/raft lz4
+
+# required by app-containers/incus-6.0.3-r1::portage-stable
+# required by incus (argument)
+dev-util/xdelta lzma
+
+# required by app-containers/lxc-6.0.3::portage-stable[tools,caps]
+# required by app-containers/incus-6.0.3-r1::portage-stable
+# required by incus (argument)
+sys-libs/libcap static-libs
