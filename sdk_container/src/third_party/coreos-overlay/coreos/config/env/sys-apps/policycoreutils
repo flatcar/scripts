@@ -17,7 +17,7 @@ cros_post_src_install_set_up_var_lib_selinux() {
 
 # Do not install python stuff in prod images.
 if [[ ${FLATCAR_TYPE} = 'generic' && ${FLATCAR_SUBTYPE} = 'prod' ]]; then
-    policycoreutils_mask=" /usr/lib/python-exec /usr/sbin/rlpkg "
+    policycoreutils_mask=" /usr/lib/python-exec /usr/sbin/rlpkg /usr/bin/rlpkg "
     INSTALL_MASK+="${policycoreutils_mask}"
     PKG_INSTALL_MASK+="${policycoreutils_mask}"
     unset policycoreutils_mask
