@@ -62,12 +62,6 @@ src_prepare() {
 	validate_sig_key
 
 	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
-
-	# include all intel and amd microcode files, avoiding the signatures
-	local fw_dir="${ESYSROOT}/lib/firmware"
-	use amd64 && config_update "CONFIG_EXTRA_FIRMWARE=\"$(find ${fw_dir} -type f \
-		\( -path ${fw_dir}'/intel-ucode/*' -o -path ${fw_dir}'/amd-ucode/*' \) -printf '%P ')\""
-	use amd64 && config_update "CONFIG_EXTRA_FIRMWARE_DIR=\"${fw_dir}\""
 }
 
 src_compile() {
