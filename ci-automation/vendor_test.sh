@@ -117,61 +117,6 @@ CIA_VENDOR_SCRIPTS_DIR="${ciavts_vendor_scripts_dir}"
 # Unset all variables with ciavts_ prefix now.
 unset -v "${!ciavts_@}"
 
-function generate_fail_tapfile() {
-    local tapfile="${1}"; shift
-    # rest of the args are test names
-    echo "1..${#@}" >"${tapfile}"
-    printf 'not ok - %s\n' "${@}" >>"${tapfile}"
-}
-
-trap handle_flaky_setup ERR
-function handle_flaky_setup() {
-    if [[ -e "${CIA_TAPFILE}" ]]; then
-        # Tests had their run, tapfile was created, nothing to do
-        # here.
-        return 0
-    fi
-    # Tapfile wasn't created, which means that we didn't even reach
-    # kola invocation. Let's create a tapfile with all the tests
-    # marked as a failure. This can be done only if the
-    # query_kola_tests function and some output variables were
-    # defined, though. That means that vendor tests should define them
-    # as early as possible.
-    if ! declare -p CIA_OUTPUT_MAIN_INSTANCE CIA_OUTPUT_ALL_TESTS CIA_OUTPUT_EXTRA_INSTANCES CIA_OUTPUT_EXTRA_INSTANCE_TESTS >/dev/null 2>&1; then
-        echo "handle_flaky_setup: '${CIA_TESTSCRIPT}' did not define all the required variables to handle the setup failure"
-        return 0
-    fi
-    if [[ "$(type -t query_kola_tests || true)" != 'function' ]]; then
-        echo "handle_flaky_setup: '${CIA_TESTSCRIPT}' did not define the query_kola_tests function to handle the setup failure"
-        return 0
-    fi
-
-    local -a instance_tests
-    local -a all_tests
-    local other_tests_for_fgrep
-    local instance
-
-    instance_tests=()
-    all_tests=()
-    if [[ "${CIA_FIRST_RUN}" -eq 1 ]]; then
-        # The "-t" option strips the delimiter. "mapfile" clears the
-        # instance_tests array before assigning to it.
-        mapfile -t instance_tests < <(run_query_kola_tests "${CIA_OUTPUT_MAIN_INSTANCE}" "${CIA_OUTPUT_ALL_TESTS[@]}")
-        all_tests+=( "${instance_tests[@]}" )
-
-        other_tests_for_fgrep="$(printf '%s\n' "${CIA_OUTPUT_EXTRA_INSTANCE_TESTS[@]}")"
-        for instance in "${CIA_OUTPUT_EXTRA_INSTANCES[@]}"; do
-            mapfile -t instance_tests < <(run_query_kola_tests "${instance}" "${CIA_OUTPUT_ALL_TESTS[@]}" | grep --only-matching --fixed-strings "${other_tests_for_fgrep}" || :)
-            all_tests+=( "${instance_tests[@]/#/extra_test.[${instance}].}" )
-        done
-    else
-        all_tests=( "${CIA_OUTPUT_ALL_TESTS[@]}" )
-    fi
-
-    generate_fail_tapfile "${CIA_TAPFILE}" "${all_tests[@]}"
-    return 0
-}
-
 # Prefixes all test names in the tap file with a given prefix, so the
 # test name like "cl.basic" will become "extra-test.[${prefix}].cl.basic".
 #
@@ -312,6 +257,8 @@ function merge_tap_files() {
 #
 # run_kola_tests that takes the following parameters:
 # 1 - instance type
+# 2 - tap file
+# @ - tests to run
 #
 # query_kola_tests that takes the following parameters:
 # 1 - instance type
@@ -321,26 +268,28 @@ function merge_tap_files() {
 # the line will be ignored.
 #
 # Typical use:
-#
-# CIA_OUTPUT_MAIN_INSTANCE=…
-# CIA_OUTPUT_ALL_TESTS=( … )
-# CIA_OUTPUT_EXTRA_INSTANCES=( … )
-# CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( … )
-# CIA_OUTPUT_TIMEOUT=…
-#
 # function run_kola_tests() {
 #     local instance_type="${1}"; shift
-#     kola_run …
+#     local tap_file="${1}"; shift
+#     kola run … "${@}"
 # }
-#
-# # Setup (download and prepare images for kola)
 #
 # function query_kola_tests() {
 #     local instance_type="${1}"; shift
 #     kola list … "${@}"
 # }
 #
-# run_default_kola_tests
+# args=(
+#     "${main_instance}"
+#     "${CIA_TAPFILE}"
+#     "${CIA_FIRST_RUN}"
+#     "${other_instance_types[@]}"
+#     '--'
+#     'cl.internet'
+#     '--'
+#     "${tests_to_run[@]}"
+# )
+# run_kola_tests_on_instances "${args[@]}"
 #
 # Parameters:
 # 1 - main instance type - there all the tests are being run
@@ -427,13 +376,24 @@ function run_kola_tests_on_instances() {
 }
 
 # An internal function that invokes the user-defined run_kola_tests
-# callback. It defines the CIA_INTERNAL_TAPFILE variable, which is
-# used by the kola_run function.
+# callback. It's normally done inside a subshell with set +e and set
+# -x. CIA_SKIP_KOLA_TESTS_SHELL_WRAPPER can be used to run the
+# callback directly, if the callback is doing something like this on
+# its own.
 function run_kola_tests_internal() {
     local instance_type="${1}"; shift
-    local CIA_INTERNAL_TAPFILE="${1}"; shift
-    local CIA_INTERNAL_TESTS=( "${@}" )
-    run_kola_tests "${instance_type}" "${@}"
+    local tapfile="${1}"; shift
+    if [[ -n "${CIA_SKIP_KOLA_TESTS_SHELL_WRAPPER:-}" ]]; then
+        run_kola_tests "${instance_type}" "${tapfile}" "${@}"
+    else
+        # run in a subshell, so the set -x and set +e do not pollute
+        # the outer environment
+        (
+            set +e
+            set -x
+            run_kola_tests "${instance_type}" "${tapfile}" "${@}"
+            true
+        )
 }
 
 # Runs the user-defined query_kola_tests callback and massages its
@@ -442,70 +402,4 @@ function run_query_kola_tests() {
     # The "-n +3" option will skip the table header and the empty line
     # that follows it.
     query_kola_tests "${@}" | tail -n +3 | awk '{ print $1 }'
-}
-
-# Invokes run_kola_tests_on_instances with arguments from various CIA_
-# variables. Will only work if the vendor test specifies the necessary
-# output variables.
-function run_default_kola_tests() {
-    if ! declare -p CIA_OUTPUT_MAIN_INSTANCE CIA_OUTPUT_ALL_TESTS CIA_OUTPUT_EXTRA_INSTANCES CIA_OUTPUT_EXTRA_INSTANCE_TESTS >/dev/null 2>&1; then
-        echo "1..1" > "${CIA_TAPFILE}"
-        echo "not ok - all the tests for ${CIA_TESTSCRIPT}" >> "${CIA_TAPFILE}"
-        echo "  ---" >> "${CIA_TAPFILE}"
-        echo "  ERROR: ${CIA_TESTSCRIPT} tried to invoke run_default_kola_tests but didn't specify the necessary variables" | tee -a "${CIA_TAPFILE}"
-        echo "  ..." >> "${CIA_TAPFILE}"
-        break_retest_cycle
-        return 1
-    fi
-    run_kola_tests_on_instances \
-        "${CIA_OUTPUT_MAIN_INSTANCE}" \
-        "${CIA_TAPFILE}" \
-        "${CIA_FIRST_RUN}" \
-        "${CIA_OUTPUT_EXTRA_INSTANCES[@]}" \
-        '--' \
-        "${CIA_OUTPUT_EXTRA_INSTANCE_TESTS[@]}" \
-        '--' \
-        "${CIA_OUTPUT_ALL_TESTS[@]}"
-}
-
-# Invokes kola. Does it with a timeout if CIA_OUTPUT_TIMEOUT is not
-# empty. All the parameters passed to this function are forwarded to
-# "kola run". There's no need to specify "--board", "--channel",
-# "--torcx-manifest" and "--tapfile" parameters - this function will
-# pass those based on the various CIA_ variables. Usable only inside
-# run_kola_tests callback used by run_default_kola_tests or
-# run_kola_tests_on_instances.
-function kola_run() {
-    local -a common_opts kola_cmd
-
-    common_opts=(
-        --board="${CIA_ARCH}-usr"
-        --tapfile="${CIA_INTERNAL_TAPFILE}"
-        --torcx-manifest="${CIA_TORCX_MANIFEST}"
-        --channel="${CIA_CHANNEL}"
-    )
-    kola_cmd=()
-    if [[ -n "${CIA_OUTPUT_TIMEOUT:-}" ]]; then
-        kola_cmd+=( timeout --signal=SIGQUIT "${CIA_OUTPUT_TIMEOUT}" )
-    fi
-    kola_cmd+=( kola run "${common_opts[@]}" "${@}" "${CIA_INTERNAL_TESTS[@]}" )
-    # Run in a subshell to avoid executing the err handler.
-    (
-        printf "%q" "${kola_cmd[@]}"; printf '\n'
-        "${kola_cmd[@]}" || :
-    )
-    # In case of timeout, the tapfile might be still missing. But
-    # since we were ignoring the error at the time, handle_flaky_setup
-    # didn't run, so do it now.
-    if [[ ! -e "${CIA_INTERNAL_TAPFILE}" ]]; then
-        generate_fail_tapfile "${CIA_INTERNAL_TAPFILE}" "${CIA_INTERNAL_TESTS[@]}"
-    fi
-}
-
-function unsafe_code_section() {
-    # Run in a subshell to avoid executing the err handler.
-    (
-        echo "${@}"
-        "${@}" || :
-    )
 }

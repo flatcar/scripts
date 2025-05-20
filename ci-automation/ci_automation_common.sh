@@ -311,7 +311,7 @@ function url_from_template() {
 
 # Puts a secret into a file, while trying for the secret to not end up
 # on a filesystem at all. A path to the file with the secret in /proc
-# in put into the chosen variable. The secret is assumed to be
+# is put into the chosen variable. The secret is assumed to be
 # base64-encoded.
 #
 # Typical use:
@@ -328,6 +328,10 @@ function secret_to_file() {
     local -n config_ref="${config_var_name}"
     local fd
 
+    # Open "${tmpfile}" file for reading and writing on file
+    # descriptor that bash allocates and stores in fd.
+    #
+    # https://www.gnu.org/software/bash/manual/html_node/Redirections.html
     exec {fd}<>"${tmpfile}"
     rm -f "${tmpfile}"
     echo "${secret}" | base64 --decode >&${fd}

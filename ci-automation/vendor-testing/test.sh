@@ -8,47 +8,44 @@ set -euo pipefail
 # Test execution script for the test non-vendor non-image.
 # This script is supposed to run in the mantle container.
 
-source ci-automation/vendor_test.sh
+source ci-automation/new_vendor_test.sh
 
-# $@ now contains tests / test patterns to run
+CNV_MAIN_INSTANCE='default'
+CNV_EXTRA_INSTANCES=( 'extra1' 'extra2' )
+CNV_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
+CNV_PLATFORM=test
+CNV_TIMEOUT=10s
 
-CIA_OUTPUT_MAIN_INSTANCE='default'
-CIA_OUTPUT_ALL_TESTS=( "${@}" )
-CIA_OUTPUT_EXTRA_INSTANCES=( 'extra1' 'extra2' )
-CIA_OUTPUT_EXTRA_INSTANCE_TESTS=( 'cl.internet' )
-CIA_OUTPUT_TIMEOUT=10s
+function failible_test {
+    if [[ ! -d path-override ]]; then
+        mkdir path-override
+    fi
+    if [[ ! -e 'path-override/kola' ]]; then
+        cp "${CIA_VENDOR_SCRIPTS_DIR}/test-kola.sh" 'path-override/kola'
+    fi
+    if [[ ! -x 'path-override/kola' ]]; then
+        chmod a+x 'path-override/kola'
+    fi
+    export PATH="${PWD}/path-override:${PATH}"
 
-query_kola_tests() {
-    shift; # ignore the instance type
-    kola list --platform=test --filter "${@}"
+    for test_name; do
+        case "${test_name}" in
+            'fail.setup')
+                echo 'failing setup'
+                false
+                ;;
+        esac
+    done
 }
 
-if [[ ! -d path-override ]]; then
-    mkdir path-override
-fi
-if [[ ! -e 'path-override/kola' ]]; then
-   cp "${CIA_VENDOR_SCRIPTS_DIR}/test-kola.sh" 'path-override/kola'
-fi
-if [[ ! -x 'path-override/kola' ]]; then
-    chmod a+x 'path-override/kola'
-fi
-export PATH="${PWD}/path-override:${PATH}"
-
-for test_name; do
-    case "${test_name}" in
-        'fail.setup')
-            echo 'failing setup'
-            false
-            ;;
-    esac
-done
-
-run_kola_tests() {
+get_kola_args() {
     local instance_type="${1}"; shift
-
-    kola_run \
-        --parallel=42 \
+    local -a args
+    args=(
+        --parallel=42
         --platform=test
+    )
+    printf '%s\n' "${args[@]}"
 }
 
 run_default_kola_tests
