@@ -116,7 +116,11 @@ src_install() {
 
 	if use symlink-usr; then
 		dotmpfiles "${T}/baselayout-usr.conf"
-		systemd-tmpfiles --root="${D}" --create
+		local sym target
+		for sym in "${!USR_SYMS[@]}"; do
+			target=${USR_SYMS["${sym}"]}
+			ln -sfTr "${target}" "${sym}"
+		done
 	fi
 
 	emake DESTDIR="${D}" install

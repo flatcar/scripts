@@ -7,8 +7,6 @@ inherit acct-user
 
 ACCT_USER_ID=1
 ACCT_USER_ENFORCE_ID=x
-ACCT_USER_HOME="/bin"
-ACCT_USER_HOME_OWNER=root:root
 ACCT_USER_GROUPS=( bin daemon sys )
 
 acct-user_add_deps

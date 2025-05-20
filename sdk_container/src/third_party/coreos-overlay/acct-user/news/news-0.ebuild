@@ -7,7 +7,6 @@ inherit acct-user
 
 ACCT_USER_ID=9
 ACCT_USER_ENFORCE_ID=yes
-ACCT_USER_HOME="/var/spool/news"
 ACCT_USER_GROUPS=( news )
 
 acct-user_add_deps

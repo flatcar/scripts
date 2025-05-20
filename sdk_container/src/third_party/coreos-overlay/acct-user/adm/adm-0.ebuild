@@ -7,7 +7,6 @@ inherit acct-user
 
 ACCT_USER_ID=3
 ACCT_USER_ENFORCE_ID=x
-ACCT_USER_HOME="/var/adm"
 ACCT_USER_GROUPS=( adm sys disk)
 
 acct-user_add_deps
