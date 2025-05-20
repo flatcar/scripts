@@ -35,41 +35,29 @@ src_compile() {
 }
 
 src_install() {
+	local build="lib/modules/${KV_FULL}/build"
+
 	# Install modules to /usr.
-	# Install firmware to a temporary (bogus) location.
-	# The linux-firmware package will be used instead.
 	# Stripping must be done here, not portage, to preserve sigs.
-	kmake INSTALL_MOD_PATH="${D}/usr" \
+	kmake INSTALL_MOD_PATH="${ED}/usr" \
 		  INSTALL_MOD_STRIP="--strip-debug" \
-		  INSTALL_FW_PATH="${T}/fw" \
 		  modules_install
 
 	# Install to /usr/lib/debug with debug symbols intact
-	kmake INSTALL_MOD_PATH="${D}/usr/lib/debug/usr" \
-		  INSTALL_FW_PATH="${T}/fw" \
+	kmake INSTALL_MOD_PATH="${ED}/usr/lib/debug/usr" \
 		  modules_install
-	rm "${D}/usr/lib/debug/usr/lib/modules/${KV_FULL}/"modules.* || die
-	rm "${D}/usr/lib/debug/usr/lib/modules/${KV_FULL}/build" || die
+	rm "${ED}/usr/lib/debug/usr/lib/modules/${KV_FULL}"/{build,modules.*} || die
 
-	# Clean up the build tree
-	kmake clean
+	# Replace the broken /lib/modules/${KV_FULL}/build symlink with a copy of
+	# the files needed to build out-of-tree modules.
+	rm "${ED}/usr/${build}" || die
+	kmake run-command KBUILD_RUN_COMMAND="${KERNEL_DIR}/scripts/package/install-extmod-build ${ED}/usr/${build}"
 
-	# TODO: ensure that fixdep and kbuild tools shipped inside the image
-	# are native (we previously shipped amd64 binaries on arm64).
-	# Upstream has a new script from v6.12 that we might be able to use:
-	# scripts/package/install-extmod-build
-	kmake HOSTLD=$(tc-getLD) HOSTCC=$(tc-getCC) cmd_and_fixdep='$(cmd)' modules_prepare
-	kmake clean
-
-	find "build/" -type d -empty -delete || die
-	rm "build/.config.old" || die
-
-	# Install /lib/modules/${KV_FULL}/{build,source}
-	install_build_source
+	# Install the original config because the above doesn't.
+	insinto "/usr/${build}"
+	doins build/.config
 
 	# Not strictly required but this is where we used to install the config.
-	dodir "/usr/boot"
-	local build="lib/modules/${KV_FULL}/build"
 	dosym "../${build}/.config" "/usr/boot/config-${KV_FULL}"
 	dosym "../${build}/.config" "/usr/boot/config"
 }
