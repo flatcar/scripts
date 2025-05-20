@@ -118,7 +118,7 @@ if [ "${image_present}" = "${import_tarball}" ] ; then
 else
     yell "Importing SDK tarball"
     if [ -n "$cleanup" ] ; then
-        echo "$docker image rm -f '${import_tarball}'" >> "$cleanup"
+        prepend_cleanup "${cleanup}" "${docker} image rm -f '${import_tarball}'"
     fi
     $docker import "${tarball}" "${import_tarball}"
 fi
@@ -135,7 +135,7 @@ if [ "$image_present" = "${import_image}" ] ; then
 else
     yell "Building plain SDK import image"
     if [ -n "$cleanup" ] ; then
-        echo "$docker image rm -f '${import_image}'" >> "$cleanup"
+        prepend_cleanup "${cleanup}" "${docker} image rm -f '${import_image}'"
     fi
     $docker build -t "$import_image" \
                  --build-arg VERSION="${docker_vernum}" \
@@ -168,7 +168,7 @@ else
 
     toolchains_container="flatcar-sdk-toolchains-build-${docker_vernum}"
     if [ -n "$cleanup" ] ; then
-        echo "$docker container rm -f '${toolchains_container}'" >> "$cleanup"
+        prepend_cleanup "${cleanup}" "${docker} container rm -f '${toolchains_container}'"
     fi
     ./run_sdk_container -C "${import_image}" -n "${toolchains_container}" \
             sudo ./build_toolchains --seed_tarball="./${tarball}"
@@ -194,7 +194,7 @@ else
 
     # Spin up temporary toolchains package binhost
     if [ -n "$cleanup" ] ; then
-        echo "$docker container rm -f '${binhost_container}'" >> "$cleanup"
+        prepend_cleanup "${cleanup}" "${docker} container rm -f '${binhost_container}'"
     fi
     $docker run --rm -d -p "${binhost}":80 \
         --name ${binhost_container} \
@@ -206,7 +206,7 @@ else
 
     yell "Initialising the SDK container and building board packages"
     if [ -n "$cleanup" ] ; then
-        echo "$docker image rm -f '${sdk_build_image}'" >> "$cleanup"
+        prepend_cleanup "${cleanup}" "${docker} image rm -f '${sdk_build_image}'"
     fi
     $docker build -t "${sdk_build_image}" \
                  --build-arg VERSION="${docker_vernum}" \

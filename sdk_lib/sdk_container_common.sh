@@ -262,8 +262,6 @@ EOF
     export BOTO_PATH
     export GOOGLE_APPLICATION_CREDENTIALS
 }
-
-   
 # --
 
 # Generate volume mount command line options for docker
@@ -294,3 +292,17 @@ function gnupg_ssh_gcloud_mount_opts() {
         fi
     fi
 }
+# --
+
+function prepend_cleanup() {
+    local cleanup_file=${1}; shift
+    local command=${1}; shift
+
+    local tmpfile old
+
+    tmpfile=$(mktemp "${cleanup_file}-XXXXXX")
+    old=$(cat "${cleanup_file}" 2>/dev/null || :)
+    printf '%s\n%s\n' "${command}" "${old}" >"${tmpfile}"
+    mv -f "${tmpfile}" "${cleanup_file}"
+}
+# --

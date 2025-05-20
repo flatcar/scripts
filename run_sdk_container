@@ -100,7 +100,7 @@ hostname="${name:0:63}"
 hostname="${hostname//./_}"
 
 if [ -n "$cleanup" ] ; then
-    echo "$docker container rm -f '${name}'" >> "$cleanup"
+    prepend_cleanup "${cleanup}" "${docker} container rm -f '${name}'"
 fi
 
 if [ -z "$stat" ] ; then

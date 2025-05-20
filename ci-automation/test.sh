@@ -186,7 +186,7 @@ function _test_run_impl() {
     local print_give_up=true
     local failed_tests=()
     # A job on each worker prunes old mantle images (docker image prune)
-    echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
+    prepend_cleanup ./ci-cleanup.sh "docker rm -f '${container_name}'"
 
     local image_escaped
     printf -v image_escaped '%q' "${image}"

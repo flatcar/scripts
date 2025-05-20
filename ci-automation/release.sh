@@ -203,7 +203,7 @@ function _release_build_impl() {
     local mantle_ref
     mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
     # A job on each worker prunes old mantle images (docker image prune), no need to do it here
-    echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
+    prepend_cleanup ./ci-cleanup.sh "docker rm -f '${container_name}'"
 
     touch sdk_container/.env # This file should already contain the required credentials as env vars
     docker run --pull always --rm --name="${container_name}" --net host \

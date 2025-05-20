@@ -62,6 +62,7 @@ function packages_build() {
 function _packages_build_impl() {
     local arch="$1"
 
+    source sdk_lib/sdk_container_common.sh
     source ci-automation/ci_automation_common.sh
     source ci-automation/gpg_setup.sh
 
@@ -75,15 +76,13 @@ function _packages_build_impl() {
 
     docker_image_from_registry_or_buildcache "${sdk_name}" "${docker_sdk_vernum}"
     local sdk_image="$(docker_image_fullname "${sdk_name}" "${docker_sdk_vernum}")"
-    echo "docker image rm -f '${sdk_image}'" >> ./ci-cleanup.sh
+    prepend_cleanup ./ci-cleanup.sh "docker image rm -f '${sdk_image}'"
 
     # Set name of the packages container for later rename / export
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     local packages_container="flatcar-packages-${arch}-${docker_vernum}"
     local torcx_pkg_url="https://${BUILDCACHE_SERVER}/images/${arch}/${vernum}/torcx"
-
-    source sdk_lib/sdk_container_common.sh
 
     if is_official "${vernum}"; then
         # A channel returned by get_git_channel should not ever be
