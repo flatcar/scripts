@@ -108,6 +108,7 @@ sys-libs/ldb -lmdb -python
 
 # Enable nftables backend for the iptables instead of legacy backend
 net-firewall/iptables nftables
+net-firewall/nftables json
 
 # Install `perl` with a minimal set of dependencies
 dev-lang/perl minimal
