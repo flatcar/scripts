@@ -1,0 +1,1 @@
+- VMWare: open-vm-tools ([CVE-2025-22247](https://www.cve.org/CVERecord/?id=CVE-2025-22247))
