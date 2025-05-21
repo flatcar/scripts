@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-inherit go-module systemd
+inherit go-env go-module systemd toolchain-funcs
 GIT_REVISION=06b99ca80cdbfbc6cc8bd567021738c9af2b36ce
 
 DESCRIPTION="A daemon to control runC"
@@ -65,9 +65,14 @@ src_compile() {
 		VERSION=v${PV}
 	)
 
-	# race condition in man target https://bugs.gentoo.org/765100
-	# we need to explicitly specify GOFLAGS for "go run" to use vendor source
-	emake "${myemakeargs[@]}" man -j1 #nowarn
+	# The Go env is already set, but reset it for CBUILD in a subshell to allow
+	# building the man pages when cross-compiling.
+	(
+		CHOST="${CBUILD}" go-env_set_compile_environment
+		# race condition in man target https://bugs.gentoo.org/765100
+		tc-env_build emake "${myemakeargs[@]}" man -j1 #nowarn
+	)
+
 	emake "${myemakeargs[@]}" all
 
 }
