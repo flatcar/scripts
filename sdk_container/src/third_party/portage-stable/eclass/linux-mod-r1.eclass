@@ -352,6 +352,22 @@ linux-mod-r1_pkg_setup() {
 	_modules_set_makeargs
 
 	_modules_sanity_gccplugins
+
+	# Check whether modpost runs locally as it might be built for a different
+	# architecture. It should do nothing successfully when called without args.
+	# If it doesn't run, build it with make modules_prepare in a new environment
+	# using just the necessary files, and repoint KV_OUT_DIR there.
+	if ! "${KV_OUT_DIR}"/scripts/mod/modpost &>/dev/null; then
+		mkdir "${WORKDIR}"/extmod-build || die
+		# Don't use /proc/config.gz here as it probably won't match this kernel.
+		cp "${KV_OUT_DIR}/.config" "${KV_OUT_DIR}"/Module.symvers "${WORKDIR}"/extmod-build || die
+		KV_OUT_DIR="${WORKDIR}"/extmod-build
+		# The old KV_OUT_DIR may have been prepared with install-extmod-build,
+		# which doesn't include all the files needed to call make
+		# modules_prepare, so use the Makefile from the full kernel sources.
+		emake -f "${KERNEL_MAKEFILE}" -C "${KV_OUT_DIR}" \
+			KBUILD_OUTPUT="${KV_OUT_DIR}" "${MODULES_MAKEARGS[@]}" modules_prepare
+	fi
 }
 
 # @FUNCTION: linux-mod-r1_src_compile
