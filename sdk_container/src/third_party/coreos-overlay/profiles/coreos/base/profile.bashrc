@@ -1,8 +1,6 @@
 # Dumping ground for build-time helpers to utilize since SYSROOT/tmp/
 # can be nuked at any time.
 CROS_BUILD_BOARD_TREE="${SYSROOT}/build"
-CROS_BUILD_BOARD_BIN="${CROS_BUILD_BOARD_TREE}/bin"
-
 CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 
 # Are we merging for the board sysroot, or for the cros sdk, or for
@@ -70,12 +68,6 @@ cros_setup_hooks() {
 	export cros_setup_hooks_run="booya"
 }
 cros_setup_hooks
-
-# Since we're storing the wrappers in a board sysroot, make sure that
-# is actually in our PATH.
-cros_pre_pkg_setup_sysroot_build_bin_dir() {
-	PATH+=":${CROS_BUILD_BOARD_BIN}"
-}
 
 # Avoid modifications of the preexisting users - these are provided by
 # our baselayout and usermod can't change anything there anyway (it
