@@ -504,8 +504,6 @@ get_version() {
 		die "${FUNCNAME}() called on non-Linux system, please fix the ebuild"
 	fi
 
-	local tmplocal
-
 	[[ -n ${SKIP_KERNEL_CHECK} ]] && return
 
 	# No need to execute this twice assuming KV_FULL is populated.
@@ -560,21 +558,6 @@ get_version() {
 		return 1
 	fi
 
-	# OK so now we know our sources directory, but they might be using
-	# KBUILD_OUTPUT, and we need this for .config and localversions-*
-	# so we better find it, eh?
-	#
-	# Do we pass KBUILD_OUTPUT on the CLI?
-	local OUTPUT_DIR=${KBUILD_OUTPUT}
-
-	if [[ -z ${OUTPUT_DIR} ]]; then
-		# Decide the function used to extract makefile variables.
-		local mkfunc=$(get_makefile_extract_function "${KERNEL_MAKEFILE}")
-
-		# And if we didn't pass it, we can take a nosey in the Makefile.
-		OUTPUT_DIR=$(${mkfunc} KBUILD_OUTPUT "${KERNEL_MAKEFILE}")
-	fi
-
 	# And contrary to existing functions, I feel we shouldn't trust the
 	# directory name to find version information as this seems insane.
 	# So we parse ${KERNEL_MAKEFILE}.
@@ -582,6 +565,7 @@ get_version() {
 	KV_MINOR=$(getfilevar PATCHLEVEL "${KERNEL_MAKEFILE}")
 	KV_PATCH=$(getfilevar SUBLEVEL "${KERNEL_MAKEFILE}")
 	KV_EXTRA=$(getfilevar EXTRAVERSION "${KERNEL_MAKEFILE}")
+	KV_LOCAL=
 
 	if [[ -z "${KV_MAJOR}" || -z "${KV_MINOR}" || -z "${KV_PATCH}" ]]; then
 		if [[ -z "${get_version_warning_done}" ]]; then
@@ -592,54 +576,69 @@ get_version() {
 		return 1
 	fi
 
-	[[ -d "${OUTPUT_DIR}" ]] && KV_OUT_DIR="${OUTPUT_DIR}"
-	if [[ -n "${KV_OUT_DIR}" ]]; then
-		qeinfo "Found kernel object directory:"
-		qeinfo "    ${KV_OUT_DIR}"
-	fi
-	# and if we STILL have not got it, then we better just set it to KV_DIR
-	KV_OUT_DIR="${KV_OUT_DIR:-${KV_DIR}}"
+	# OK so now we know our sources directory, but they might be using
+	# KBUILD_OUTPUT, and we need this for .config and localversions-*
+	# so we better find it, eh?
+	#
+	# Do we pass KBUILD_OUTPUT on the CLI?
+	KV_OUT_DIR=${KBUILD_OUTPUT}
 
-	# Grab the kernel release from the output directory.
-	# TODO: we MUST detect kernel.release being out of date, and 'return 1' from
-	# this function.
-	if [[ -s "${KV_OUT_DIR}"/include/config/kernel.release ]]; then
-		KV_LOCAL=$(<"${KV_OUT_DIR}"/include/config/kernel.release)
-	elif [[ -s "${KV_OUT_DIR}"/.kernelrelease ]]; then
-		KV_LOCAL=$(<"${KV_OUT_DIR}"/.kernelrelease)
+	if [[ -z ${KV_OUT_DIR} ]]; then
+		# Decide the function used to extract makefile variables.
+		local mkfunc=$(get_makefile_extract_function "${KERNEL_MAKEFILE}")
+
+		# And if we didn't pass it, we can take a nosey in the Makefile.
+		KV_OUT_DIR=$(${mkfunc} KBUILD_OUTPUT "${KERNEL_MAKEFILE}")
+	fi
+
+	# Assume there is no local version to begin with.
+	KV_FULL=${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}
+
+	# We can only get the local version if we already know where the output
+	# directory is because it usually forms part of that directory's name.
+	if [[ -n ${KV_OUT_DIR} ]]; then
+		# Don't fall back to some other location as that's probably undesirable.
+		[[ -d ${KV_OUT_DIR} ]] || die "KBUILD_OUTPUT is set to ${KV_OUT_DIR} but it doesn't exist"
+
+		# Grab the kernel release from the output directory.
+		# TODO: we MUST detect kernel.release being out of date, and 'return 1'
+		# from this function.
+		if [[ -s ${KV_OUT_DIR}/include/config/kernel.release ]]; then
+			KV_LOCAL=$(<"${KV_OUT_DIR}"/include/config/kernel.release)
+		elif [[ -s ${KV_OUT_DIR}/.kernelrelease ]]; then
+			KV_LOCAL=$(<"${KV_OUT_DIR}"/.kernelrelease)
+		fi
+
+		# KV_LOCAL currently contains the full release; discard the first bits.
+		local tmplocal=${KV_LOCAL#"${KV_FULL}"}
+
+		# If the updated local version was not changed, the tree is not
+		# prepared. Clear out KV_LOCAL in that case.
+		# TODO: this does not detect a change in the localversion part between
+		# kernel.release and the value that would be generated.
+		if [[ ${KV_LOCAL} = "${tmplocal}" ]]; then
+			KV_LOCAL=
+		else
+			KV_LOCAL=${tmplocal}
+		fi
+
+		# Append the local version now that we (maybe) have it.
+		KV_FULL+=${KV_LOCAL}
 	else
-		KV_LOCAL=
-	fi
-
-	# KV_LOCAL currently contains the full release; discard the first bits.
-	tmplocal=${KV_LOCAL#${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}}
-
-	# If the updated local version was not changed, the tree is not prepared.
-	# Clear out KV_LOCAL in that case.
-	# TODO: this does not detect a change in the localversion part between
-	# kernel.release and the value that would be generated.
-	if [[ "${KV_LOCAL}" = "${tmplocal}" ]]; then
-		KV_LOCAL=
-	else
-		KV_LOCAL=${tmplocal}
-	fi
-
-	# and in newer versions, we can also pull LOCALVERSION if it is set.
-	# but before we do this, we need to find if we use a different object directory.
-	# This *WILL* break if the user is using localversions, but we assume it was
-	# caught before this if they are.
-	if [[ -z ${OUTPUT_DIR} ]] ; then
-		# Try to locate a kernel that is most relevant for us.
-		for OUTPUT_DIR in "${SYSROOT}" "${ROOT}" "" ; do
-			OUTPUT_DIR+="/lib/modules/${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}${KV_LOCAL}/build"
-			if [[ -e ${OUTPUT_DIR} ]] ; then
-				break
-			fi
+		# Fall back to finding the most relevant output directory.
+		for KV_OUT_DIR in "${SYSROOT}" "${ROOT}" ""; do
+			KV_OUT_DIR+="/lib/modules/${KV_FULL}/build"
+			[[ -d ${KV_OUT_DIR} ]] && break
 		done
 	fi
 
-	# And we should set KV_FULL to the full expanded version
-	KV_FULL="${KV_MAJOR}.${KV_MINOR}.${KV_PATCH}${KV_EXTRA}${KV_LOCAL}"
+	if [[ -d ${KV_OUT_DIR} ]]; then
+		qeinfo "Found kernel object directory:"
+		qeinfo "    ${KV_OUT_DIR}"
+	else
+		# Just use KV_DIR as a last resort.
+		KV_OUT_DIR=${KV_DIR}
+	fi
 
 	qeinfo "Found sources for kernel version:"
 	qeinfo "    ${KV_FULL}"
