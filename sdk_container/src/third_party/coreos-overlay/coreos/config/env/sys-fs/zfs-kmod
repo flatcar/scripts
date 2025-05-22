@@ -1,6 +1,3 @@
-: ${MODULES_ROOT:=$(echo ${SYSROOT}/lib/modules/*)}
-KERNEL_DIR="${MODULES_ROOT}/build"
-
 # This addresses an issue with the kernel version compatibility check
 #  when installing zfs-kmod to /build/<arch> (e.g. via build_packages)
 #  from its binpkg (i.e. not recompiling it).
