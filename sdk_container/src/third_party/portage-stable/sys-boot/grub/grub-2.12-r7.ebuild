@@ -16,6 +16,7 @@ EAPI=7
 # If any of the above applies to a user patch, the user should set the
 # corresponding variable in make.conf or the environment.
 
+GRUB_AUTOGEN=1
 GRUB_AUTORECONF=1
 PYTHON_COMPAT=( python3_{10..13} )
 WANT_LIBTOOL=none
@@ -64,6 +65,7 @@ PATCHES=(
 	"${FILESDIR}"/grub-2.06-test-words.patch
 	"${FILESDIR}"/grub-2.12-fwsetup.patch
 	"${WORKDIR}"/grub-2.12-bash-completion.patch
+	"${FILESDIR}"/grub-2.12-zfs-zstd-compression-support.patch
 )
 
 DEJAVU=dejavu-sans-ttf-2.37
