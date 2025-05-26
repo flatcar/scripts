@@ -7,7 +7,7 @@ EGIT_REPO_URI="https://github.com/flatcar/nss-altfiles.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="c8e05a08a2e28eb48c6c788e3007d94f8d8de5cd" # flatcar-master
+	EGIT_COMMIT="c8e05a08a2e28eb48c6c788e3007d94f8d8de5cd" # main
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 

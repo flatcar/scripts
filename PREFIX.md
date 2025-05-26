@@ -12,7 +12,7 @@ Before prefix build support are considered stable, the below must be implemented
    Prefix builds currently use the SDK cross toolchains (`/usr/<arch>-gnu/`) instead of board toolchains in `/build/<board>`.
    Prefix builds must be integrated with the board toolchains and stop using `cb-emerge` before considered stable.
 3. Add prefix wrappers for all portage tools (similar to board wrappers), not just `emerge`.
-4. Add test cases for prefix builds to [mantle/kola](https://github.com/flatcar/mantle/tree/flatcar-master/kola).
+4. Add test cases for prefix builds to [mantle/kola](https://github.com/flatcar/mantle/tree/main/kola).
 
 ## About
 

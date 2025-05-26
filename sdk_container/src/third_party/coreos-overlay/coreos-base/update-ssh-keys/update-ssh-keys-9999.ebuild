@@ -9,7 +9,7 @@ if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 	CRATES=""
 else
-	EGIT_COMMIT="be3ce2acc50313a6826c578e9dbb67e17085d60d" # flatcar-master
+	EGIT_COMMIT="be3ce2acc50313a6826c578e9dbb67e17085d60d" # main
 	KEYWORDS="amd64 arm64"
 
 	CRATES="
