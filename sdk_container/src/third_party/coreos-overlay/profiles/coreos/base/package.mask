@@ -15,6 +15,12 @@
 # up. Update this to mask later versions when we switch to 3.11.
 >=dev-lang/python-3.12
 
+# From this version, the lib creates some issues
+# with Secure Boot signing image using Azure libpkcs11:
+#  dataFinal failed
+#  401774B96D7F0000:error:020000B3:rsa routines:rsa_ossl_private_encrypt:missing private key:../openssl-3.3.3/crypto/rsa/rsa_ossl.c:367:
+>=dev-libs/libp11-0.4.13
+
 # Update engine needs updating to use a newer version of protobuf.
 >=dev-libs/protobuf-22.0
 
