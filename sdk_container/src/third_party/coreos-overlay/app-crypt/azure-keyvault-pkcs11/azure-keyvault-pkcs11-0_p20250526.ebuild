@@ -5,7 +5,7 @@ EAPI=8
 
 inherit cmake
 
-COMMIT="200e1f533e65c35009cc2ec256446cff1314b68b"
+COMMIT="126ae2bc714f2867b6628b49962f388c4b314f5f"
 DESCRIPTION="PKCS#11 module for Azure Key Vault"
 HOMEPAGE="https://github.com/jepio/azure_keyvault_pkcs11"
 SRC_URI="https://github.com/jepio/azure_keyvault_pkcs11/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
