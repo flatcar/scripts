@@ -20,7 +20,7 @@ src_compile() {
 src_install() {
     local -a HV_DAEMONS=(hv_vss_daemon hv_kvp_daemon hv_fcopy_daemon hv_fcopy_uio_daemon)
     local HV_DAEMON
-    for HV_DAEMON in "$HV_DAEMONS[@]"
+    for HV_DAEMON in "${HV_DAEMONS[@]}"
     do
         if [ -f "${S}/build/tools/hv/${HV_DAEMON}" ]; then
             dobin "${S}/build/tools/hv/${HV_DAEMON}"
