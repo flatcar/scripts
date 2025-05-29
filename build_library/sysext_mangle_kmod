@@ -1,0 +1,61 @@
+#!/bin/bash
+
+configure_modprobe() {
+  local sysext_name="${1}"
+  shift
+
+  local module_directory=(./usr/lib/modules/*-flatcar/)
+
+  mkdir -p ./usr/lib/modprobe.d/
+  for module_name in $(find "${module_directory[0]}" -type f \( -name "*.ko" -o -name "*.ko.xz" \) -printf "%f\n" | sed -E 's/\.ko(\.xz)?$//'); do
+    cat <<EOF >> "./usr/lib/modprobe.d/10-${sysext_name}-kmod-sysext.conf"
+install $module_name     /usr/local/bin/_${sysext_name}_modprobe_helper $module_name
+remove  $module_name     /usr/local/bin/_${sysext_name}_modprobe_helper -r $module_name
+EOF
+  done
+
+  mkdir -p ./usr/local/bin/
+  cat <<'EOF' > "./usr/local/bin/_${sysext_name}_modprobe_helper"
+#!/bin/bash
+
+set -euo pipefail
+
+cleanup() {
+    if [ -d "$TMP_DIR" ]; then
+        rm -rf "$TMP_DIR"
+    fi
+}
+trap cleanup EXIT
+
+action="Loading"
+for arg in "$@"; do
+    if [[ $arg == "-r" ]]; then
+        action="Unloading"
+    fi
+done
+echo "$action kernel module from a sysext..."
+
+KMOD_PATH="/usr/lib/modules/$(uname -r)"
+TMP_DIR="$(mktemp -d)"
+TMP_KMOD_PATH="$TMP_DIR/${KMOD_PATH#*/*/}"
+
+if [ ! -d "$TMP_DIR" ]; then
+  echo "Failed to create temporary directory for depmod"
+  exit 1
+fi
+mkdir -p "$TMP_KMOD_PATH"
+
+# copy and symlink files from the system
+cp "$KMOD_PATH"/modules.{order,builtin{,.modinfo}} "$TMP_KMOD_PATH"
+for dir_name in $(find $KMOD_PATH -maxdepth 1 -mindepth 1 -type d -exec basename {} \;); do
+    ln -s "$KMOD_PATH/$dir_name" "$TMP_KMOD_PATH/$dir_name"
+done
+
+depmod -a -o $TMP_DIR
+modprobe --ignore-install -d $TMP_DIR $* || true
+EOF
+  chmod +x "./usr/local/bin/_${sysext_name}_modprobe_helper"
+
+  # prevent the sysext from masking /usr/lib/modules/*-flatcar/modules.XXX
+  find "${module_directory[0]}" -maxdepth 1 -mindepth 1 -type f -delete
+}
