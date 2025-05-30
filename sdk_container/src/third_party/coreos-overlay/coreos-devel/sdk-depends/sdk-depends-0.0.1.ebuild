@@ -18,6 +18,7 @@ DEPEND="
 	app-admin/updateservicectl
 	app-arch/pbzip2
 	app-crypt/azure-keyvault-pkcs11
+	app-crypt/gnupg-pkcs11-scd
 	app-crypt/p11-kit
 	app-crypt/sbsigntools
 	app-emulation/open-vmdk
