@@ -283,6 +283,7 @@ dev-libs/nspr
 dev-libs/oniguruma
 dev-libs/opensc
 dev-libs/openssl
+dev-libs/pkcs11-helper
 dev-libs/popt
 dev-libs/protobuf
 dev-libs/raft
