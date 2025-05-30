@@ -32,6 +32,9 @@
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =app-crypt/clevis-19-r1 **
 
+# This package has not been stabilised yet.
+=app-crypt/gnupg-pkcs11-scd-0.11.0 ~amd64
+
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
 

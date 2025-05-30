@@ -131,6 +131,7 @@ app-crypt/adcli
 app-crypt/argon2
 app-crypt/ccid
 app-crypt/gnupg
+app-crypt/gnupg-pkcs11-scd
 app-crypt/gpgme
 app-crypt/libb2
 app-crypt/libmd
