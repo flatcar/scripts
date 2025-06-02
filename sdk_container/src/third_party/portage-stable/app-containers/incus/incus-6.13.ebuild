@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit go-module linux-info optfeature systemd toolchain-funcs verify-sig
+inherit go-env go-module linux-info optfeature systemd toolchain-funcs verify-sig
 
 DESCRIPTION="Modern, secure and powerful system container and virtual machine manager"
 HOMEPAGE="https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus"
@@ -11,8 +11,8 @@ SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
 	verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
 
 LICENSE="Apache-2.0 BSD LGPL-3 MIT"
-SLOT="0/lts"
-KEYWORDS="amd64 ~arm64"
+SLOT="0/stable"
+KEYWORDS="~amd64 ~arm64"
 IUSE="apparmor fuidshift nls qemu"
 
 DEPEND="acct-group/incus
@@ -20,7 +20,7 @@ DEPEND="acct-group/incus
 	app-arch/xz-utils
 	>=app-containers/lxc-5.0.0:=[apparmor?,seccomp(+)]
 	dev-db/sqlite:3
-	>=dev-libs/cowsql-1.15.6
+	>=dev-libs/cowsql-1.15.7
 	dev-libs/lzo
 	>=dev-libs/raft-0.22.1:=[lz4]
 	>=dev-util/xdelta-3.0[lzma(+)]
@@ -30,14 +30,16 @@ DEPEND="acct-group/incus
 RDEPEND="${DEPEND}
 	|| (
 		net-firewall/iptables
-		net-firewall/nftables
+		net-firewall/nftables[json]
 	)
 	fuidshift? ( !app-containers/lxd )
+	net-firewall/ebtables
 	sys-apps/iproute2
 	sys-fs/fuse:*
 	>=sys-fs/lxcfs-5.0.0
 	sys-fs/squashfs-tools[lzma]
 	virtual/acl
+	apparmor? ( sec-policy/apparmor-profiles )
 	qemu? (
 		app-cdr/cdrtools
 		app-emulation/qemu[spice,usbredir,virtfs]
@@ -112,11 +114,6 @@ src_prepare() {
 		-e "s:OVMF_VARS.ms.fd:OVMF_VARS.fd:g" \
 		internal/server/instance/drivers/edk2/driver_edk2.go || die "Failed to fix hardcoded ovmf paths."
 
-	# Fix hardcoded virtfs-proxy-helper file path, see bug 798924
-	sed -i \
-		-e "s:/usr/lib/qemu/virtfs-proxy-helper:/usr/libexec/virtfs-proxy-helper:g" \
-		internal/server/device/device_utils_disk.go || die "Failed to fix virtfs-proxy-helper path."
-
 	cp "${FILESDIR}"/incus-0.4.service "${T}"/incus.service || die
 	if use apparmor; then
 		sed -i \
@@ -159,7 +156,7 @@ src_install() {
 	export GOPATH="${S}/_dist"
 
 	export GOHOSTARCH=$(go-env_goarch "${CBUILD}")
-	if [ "${GOARCH}" != "${GOHOSTARCH}" ]; then
+	if [[ "${GOARCH}" != "${GOHOSTARCH}" ]]; then
 		local bindir="_dist/bin/linux_${GOARCH}"
 	else
 		local bindir="_dist/bin"
@@ -218,6 +215,8 @@ pkg_postinst() {
 	elog "  https://wiki.gentoo.org/wiki/Incus"
 	elog "  https://wiki.gentoo.org/wiki/Incus#Migrating_from_LXD"
 	elog
+	optfeature "OCI container images support" app-containers/skopeo app-containers/umoci
+	optfeature "support for ACME certificate issuance" app-crypt/lego
 	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "ipv6 support" net-dns/dnsmasq[ipv6]
 	optfeature "full incus-migrate support" net-misc/rsync
