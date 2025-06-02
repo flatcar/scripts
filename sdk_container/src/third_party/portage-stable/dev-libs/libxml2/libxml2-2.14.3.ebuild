@@ -5,9 +5,9 @@ EAPI=8
 
 # Note: Please bump in sync with dev-libs/libxslt
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="xml(+)"
-inherit autotools flag-o-matic python-r1 multilib-minimal
+inherit python-r1 meson-multilib
 
 XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
 XSTS_NAME_1="xmlschema2002-01-16"
@@ -23,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	inherit gnome.org
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 SRC_URI+="
@@ -36,8 +36,9 @@ SRC_URI+="
 S="${WORKDIR}/${PN}-${PV%_rc*}"
 
 LICENSE="MIT"
-SLOT="2"
-IUSE="debug examples +ftp icu lzma +python readline static-libs test"
+# see so_version = v_maj + v_min_compat for subslot
+SLOT="2/16"
+IUSE="icu +python readline static-libs test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -45,23 +46,18 @@ RDEPEND="
 	virtual/libiconv
 	>=sys-libs/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
 	icu? ( >=dev-libs/icu-51.2-r1:=[${MULTILIB_USEDEP}] )
-	lzma? ( >=app-arch/xz-utils-5.0.5-r1:=[${MULTILIB_USEDEP}] )
 	python? ( ${PYTHON_DEPS} )
 	readline? ( sys-libs/readline:= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
-if [[ ${PV} == 9999 ]] ; then
-	BDEPEND+=" dev-build/gtk-doc-am"
-fi
-
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/xml2-config
 )
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.12.9-icu-pkgconfig.patch
+	"${FILESDIR}"/libxml2-2.14.2-no-git.patch
 )
 
 src_unpack() {
@@ -93,88 +89,77 @@ src_unpack() {
 src_prepare() {
 	default
 
-	# Please do not remove, as else we get references to PORTAGE_TMPDIR
-	# in /usr/lib/python?.?/site-packages/libxml2mod.la among things.
-	#elibtoolize
+	sed -e "/^dir_doc/ s/meson.project_name()$/\'${PF}\'/" -i meson.build || die
+}
 
-	eautoreconf
+python_configure() {
+	local emesonargs=(
+		$(meson_feature icu)
+		$(meson_native_use_feature readline)
+		$(meson_native_use_feature readline history)
+		-Dpython=enabled
+	)
+	mkdir "${BUILD_DIR}" || die
+	pushd "${BUILD_DIR}" >/dev/null || die
+	meson_src_configure
+	popd >/dev/null || die
 }
 
 multilib_src_configure() {
-	# Filter seemingly problematic CFLAGS (bug #26320)
-	filter-flags -fprefetch-loop-arrays -funroll-loops
+	local emesonargs=(
+		-Ddefault_library=$(multilib_native_usex static-libs both shared)
+		$(meson_feature icu)
+		$(meson_native_use_feature readline)
+		$(meson_native_use_feature readline history)
+		-Dpython=disabled
 
-	# Notes:
-	# The meaning of the 'debug' USE flag does not apply to the --with-debug
-	# switch (enabling the libxml2 debug module). See bug #100898.
-	libxml2_configure() {
-		ECONF_SOURCE="${S}" econf \
-			--enable-ipv6 \
-			$(use_with ftp) \
-			$(use_with debug run-debug) \
-			$(use_with icu) \
-			$(use_with lzma) \
-			$(use_enable static-libs static) \
-			$(multilib_native_use_with readline) \
-			$(multilib_native_use_with readline history) \
-			"$@"
-	}
+		# There has been a clean break with a soname bump.
+		# It's time to deal with the breakage.
+		# bug #935452
+		-Dlegacy=disabled
+	)
+	meson_src_configure
 
-	# Build python bindings separately
-	libxml2_configure --without-python
-
-	multilib_is_native_abi && use python &&
-		python_foreach_impl run_in_build_dir libxml2_configure --with-python
+	if multilib_is_native_abi && use python ; then
+		python_foreach_impl python_configure
+	fi
 }
 
-libxml2_py_emake() {
-	pushd "${BUILD_DIR}"/python >/dev/null || die
-
-	emake top_builddir="${NATIVE_BUILD_DIR}" "$@"
-
+python_compile() {
+	pushd "${BUILD_DIR}" >/dev/null || die
+	meson_src_compile
 	popd >/dev/null || die
 }
 
 multilib_src_compile() {
-	default
+	meson_src_compile
 
 	if multilib_is_native_abi && use python ; then
-		NATIVE_BUILD_DIR="${BUILD_DIR}"
-		python_foreach_impl run_in_build_dir libxml2_py_emake all
+		python_foreach_impl python_compile
 	fi
 }
 
 multilib_src_test() {
-	ln -s "${S}"/xmlconf || die
+	meson_src_test
 
-	emake check
+	if multilib_is_native_abi && use python ; then
+		python_foreach_impl meson_src_test
+	fi
+}
 
-	multilib_is_native_abi && use python &&
-		python_foreach_impl run_in_build_dir libxml2_py_emake check
+python_install() {
+	pushd "${BUILD_DIR}" >/dev/null || die
+	meson_src_install
+	python_optimize
+	popd >/dev/null || die
 }
 
 multilib_src_install() {
-	emake DESTDIR="${D}" install
-
-	multilib_is_native_abi && use python &&
-		python_foreach_impl run_in_build_dir libxml2_py_emake DESTDIR="${D}" install
-
-	# Hack until automake release is made for the optimise fix
-	# https://git.savannah.gnu.org/cgit/automake.git/commit/?id=bde43d0481ff540418271ac37012a574a4fcf097
-	multilib_is_native_abi && use python && python_foreach_impl python_optimize
-}
-
-multilib_src_install_all() {
-	einstalldocs
-
-	if ! use examples ; then
-		rm -rf "${ED}"/usr/share/doc/${PF}/examples || die
-		rm -rf "${ED}"/usr/share/doc/${PF}/python/examples || die
+	if multilib_is_native_abi && use python ; then
+		python_foreach_impl python_install
 	fi
 
-	rm -rf "${ED}"/usr/share/doc/${PN}-python-${PVR} || die
-
-	find "${ED}" -name '*.la' -delete || die
+	meson_src_install
 }
 
 pkg_postinst() {
