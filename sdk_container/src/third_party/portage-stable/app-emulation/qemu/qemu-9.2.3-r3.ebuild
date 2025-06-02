@@ -8,7 +8,7 @@ EAPI=8
 # (the construct below is to allow overriding from env for script)
 QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
-QEMU_DOCS_VERSION=$(ver_cut 1-3)
+QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
@@ -47,7 +47,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -246,7 +246,7 @@ SEABIOS_VERSION="1.16.3"
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}
-		~sys-firmware/ipxe-1.21.1_p20230601[binary,qemu]
+		~sys-firmware/ipxe-1.21.1[binary,qemu]
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
@@ -321,6 +321,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
 	"${FILESDIR}"/${PN}-7.2.16-optionrom-pass-Wl-no-error-rwx-segments.patch
+	"${FILESDIR}"/${PN}-9.2.3-virtio-net.patch
 )
 
 QA_PREBUILT="

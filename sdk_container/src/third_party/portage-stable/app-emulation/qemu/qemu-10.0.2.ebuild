@@ -13,13 +13,13 @@ QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{11..12} )
+PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 FIRMWARE_ABI_VERSION="7.2.0"
 
-inherit linux-info toolchain-funcs python-r1 udev fcaps readme.gentoo-r1 \
-		pax-utils xdg-utils
+inherit eapi9-ver flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps \
+		readme.gentoo-r1 pax-utils xdg-utils
 
 if [[ ${PV} == *9999* ]]; then
 	QEMU_DOCS_PREBUILT=0
@@ -31,7 +31,7 @@ if [[ ${PV} == *9999* ]]; then
 	declare -A SUBPROJECTS=(
 		[keycodemapdb]="f5772a62ec52591ff6870b7e8ef32482371f22c6"
 		[berkeley-softfloat-3]="b64af41c3276f97f0e181920400ee056b9c88037"
-		[berkeley-testfloat-3]="40619cbb3bf32872df8c53cc457039229428a263"
+		[berkeley-testfloat-3]="e7af9751d9f9fd3b47911f51a5cfd08af256a9ab"
 	)
 
 	for proj in "${!SUBPROJECTS[@]}"; do
@@ -66,14 +66,13 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
-	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xen
+	usbredir vde +vhost-net virgl virtfs +vnc vte wayland X xattr xdp xen
 	zstd"
 
 COMMON_TARGETS="
 	aarch64
 	alpha
 	arm
-	cris
 	hppa
 	i386
 	loongarch64
@@ -84,7 +83,6 @@ COMMON_TARGETS="
 	mips64
 	mips64el
 	mipsel
-	nios2
 	or1k
 	ppc
 	ppc64
@@ -142,6 +140,7 @@ REQUIRED_USE="
 	vte? ( gtk )
 	multipath? ( udev )
 	plugins? ( !static-user )
+	xdp? ( bpf )
 "
 for smname in ${IUSE_SOFTMMU_TARGETS} ; do
 	REQUIRED_USE+=" qemu_softmmu_targets_${smname}? ( kernel_linux? ( seccomp ) )"
@@ -178,14 +177,14 @@ SOFTMMU_TOOLS_DEPEND="
 	capstone? ( dev-libs/capstone:=[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.5.1[static-libs(+)] )
-	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
+	fuse? ( >=sys-fs/fuse-3.1:3=[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	gnutls? (
 		>=net-libs/gnutls-3.0:=[static-libs(+)]
 		dev-libs/nettle:=[static-libs(+)]
 	)
 	gtk? (
-		x11-libs/gtk+:3
+		x11-libs/gtk+:3[wayland?,X?]
 		vte? ( x11-libs/vte:2.91 )
 	)
 	infiniband? ( sys-cluster/rdma-core[static-libs(+)] )
@@ -236,6 +235,7 @@ SOFTMMU_TOOLS_DEPEND="
 	vde? ( net-misc/vde[static-libs(+)] )
 	virgl? ( media-libs/virglrenderer[static-libs(+)] )
 	virtfs? ( sys-libs/libcap )
+	xdp? ( net-libs/xdp-tools )
 	xen? ( app-emulation/xen-tools:= )
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
@@ -246,7 +246,7 @@ SEABIOS_VERSION="1.16.3"
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}
-		~sys-firmware/ipxe-1.21.1[binary,qemu]
+		~sys-firmware/ipxe-1.21.1_p20230601[binary,qemu]
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
@@ -288,8 +288,9 @@ BDEPEND="
 	)
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
-		dev-libs/glib[utils]
 		app-alternatives/bc
+		dev-libs/glib[utils]
+		dev-python/pycotap[${PYTHON_USEDEP}]
 	)
 "
 CDEPEND="
@@ -315,17 +316,16 @@ RDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-8.0.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-7.1.0-capstone-include-path.patch
-	"${FILESDIR}"/${PN}-8.1.0-also-build-virtfs-proxy-helper.patch
+	"${FILESDIR}"/${PN}-9.0.0-disable-keymap.patch
+	"${FILESDIR}"/${PN}-9.2.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
-	"${FILESDIR}"/${PN}-9.0.0-glibc-2.41.patch
 	"${FILESDIR}"/${PN}-7.2.16-optionrom-pass-Wl-no-error-rwx-segments.patch
 )
 
 QA_PREBUILT="
 	usr/share/qemu/hppa-firmware.img
+	usr/share/qemu/hppa-firmware64.img
 	usr/share/qemu/openbios-ppc
 	usr/share/qemu/openbios-sparc64
 	usr/share/qemu/openbios-sparc32
@@ -403,6 +403,8 @@ pkg_pretend() {
 			use vhost-net && CONFIG_CHECK+=" ~VHOST_NET"
 			ERROR_VHOST_NET="You must enable VHOST_NET to have vhost-net"
 			ERROR_VHOST_NET+=" support"
+			use test && CONFIG_CHECK+=" IP_MULTICAST"
+			ERROR_IP_MULTICAST="Test suite requires IP_MULTICAST"
 
 			if use amd64 || use x86 || use amd64-linux || use x86-linux; then
 				if grep -q AuthenticAMD /proc/cpuinfo; then
@@ -475,6 +477,10 @@ src_prepare() {
 	# Use correct toolchain to fix cross-compiling
 	tc-export AR AS LD NM OBJCOPY PKG_CONFIG RANLIB STRINGS
 	export WINDRES=${CHOST}-windres
+
+	# defang automagic dependencies
+	use X || append-flags -DGENTOO_GTK_HIDE_X11
+	use wayland || append-flags -DGENTOO_GTK_HIDE_WAYLAND
 
 	# Workaround for bug #938302
 	if use systemtap && has_version "dev-debug/systemtap[-dtrace-symlink(+)]" ; then
@@ -632,6 +638,7 @@ qemu_src_configure() {
 		$(conf_softmmu virtfs)
 		$(conf_notuser vnc)
 		$(conf_notuser vte)
+		$(conf_softmmu xdp af-xdp)
 		$(conf_notuser xen)
 		$(conf_notuser xen xen-pci-passthrough)
 		# use prebuilt keymaps, bug #759604
@@ -674,6 +681,7 @@ qemu_src_configure() {
 			--disable-tools
 			--enable-cap-ng
 			--enable-seccomp
+			--disable-libcbor
 		)
 		local static_flag="none"
 		;;
@@ -927,16 +935,6 @@ src_install() {
 	readme.gentoo_create_doc
 }
 
-firmware_abi_change() {
-	local pv
-	for pv in ${REPLACING_VERSIONS}; do
-		if ver_test ${pv} -lt ${FIRMWARE_ABI_VERSION}; then
-			return 0
-		fi
-	done
-	return 1
-}
-
 pkg_postinst() {
 	if [[ -n ${softmmu_targets} ]] && use kernel_linux; then
 		udev_reload
@@ -950,7 +948,7 @@ pkg_postinst() {
 	DISABLE_AUTOFORMATTING=true
 	readme.gentoo_print_elog
 
-	if use pin-upstream-blobs && firmware_abi_change; then
+	if use pin-upstream-blobs && ver_replacing -lt ${FIRMWARE_ABI_VERSION}; then
 		ewarn "This version of qemu pins new versions of firmware blobs:"
 
 		if has_version 'sys-firmware/edk2-bin'; then
