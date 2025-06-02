@@ -5,7 +5,7 @@ EAPI=8
 PYTHON_REQ_USE="xml(+)"
 PYTHON_COMPAT=( python3_{11..13} )
 
-inherit gnome.org gnome2-utils linux-info meson-multilib multilib python-any-r1 toolchain-funcs xdg
+inherit dot-a gnome.org gnome2-utils linux-info meson-multilib multilib python-any-r1 toolchain-funcs xdg
 
 DESCRIPTION="The GLib library of C routines"
 HOMEPAGE="https://www.gtk.org/"
@@ -210,6 +210,11 @@ src_prepare() {
 	# TODO: python_name sedding for correct python shebang? Might be relevant mainly for glib-utils only
 }
 
+src_configure() {
+	lto-guarantee-fat
+	meson-multilib_src_configure
+}
+
 multilib_src_configure() {
 	# TODO: figure a way to pass appropriate values for all cross properties
 	# that glib uses (search for get_cross_property)
@@ -234,6 +239,18 @@ multilib_src_configure() {
 
 		# Is the installed gobject-introspection usable?
 		if ! g-ir-scanner --version &> /dev/null ; then
+			return 0
+		fi
+
+		# Do we somehow have a dev-libs/gobject-introspection installed
+		# with an unsatisfied dependency? (bug #951487)
+		if ! $(tc-getPKG_CONFIG) --cflags gobject-introspection-1.0 &> /dev/null ; then
+			return 0
+		fi
+
+		# Make sure has_version didn't lie to us while at it as well,
+		# given bug #951487.
+		if ! $(tc-getPKG_CONFIG) --atleast-version=${INTROSPECTION_PV} gobject-introspection-1.0 &> /dev/null ; then
 			return 0
 		fi
 
@@ -388,6 +405,8 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
+	strip-lto-bytecode
+
 	# These are installed by dev-util/glib-utils
 	# TODO: With patching we might be able to get rid of the python-any deps
 	# and removals, and test depend on glib-utils instead; revisit now with
