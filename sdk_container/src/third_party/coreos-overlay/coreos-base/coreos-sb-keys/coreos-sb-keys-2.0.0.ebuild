@@ -56,5 +56,14 @@ src_install() {
 	doins -r unofficial official
 
 	insinto /usr/share/sb_keys/unofficial
-	doins "${FILESDIR}"/unofficial/{DB.{key,pem},shim.key}
+	doins "${FILESDIR}"/unofficial/{DB.{key,pem},shim.key,signing*.gpg}
+
+	insinto /usr/share/sb_keys/official
+	doins "${FILESDIR}"/official/signing-*.gpg
+
+	# For unofficial builds, we install the GPG private key as signing.gpg to
+	# sign with. For official builds, we create a symlink to the newest public
+	# key instead because the private key is in Azure Key Vault.
+	local FILES=( "${FILESDIR}"/official/signing-*.gpg )
+	dosym "${FILES[-1]##*/}" /usr/share/sb_keys/official/signing.gpg
 }

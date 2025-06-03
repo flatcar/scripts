@@ -1,0 +1,56 @@
+#!/bin/bash
+
+set -euo pipefail
+cd "${0%/*}"
+
+COREOS_OFFICIAL=0
+. ../../../../../../../../build_library/sbsign_util.sh
+
+BITS=2048
+DAYS=7300
+DATE=$(date +%Y%m%d)
+
+if [[ -f DB.key ]]; then
+	echo "DB.key: Exists (remove to recreate)"
+else
+	echo "DB.key: Creating"
+	openssl genrsa -out DB.key "${BITS}"
+	echo "DB.pem: Creating"
+	openssl req -new -x509 -sha256 -days "${DAYS}" -subj "/CN=CoreOS test DB/" -key DB.key -out DB.pem
+fi
+
+if [[ -f shim.key ]]; then
+	echo "shim.key: Exists (remove to recreate)"
+else
+	echo "shim.key: Creating"
+	openssl genrsa -out shim.key "${BITS}"
+	echo "shim-${DATE}.pem: Creating"
+	openssl req -new -x509 -sha256 -days "${DAYS}" -subj "/CN=shim/" -key shim.key -out shim-"${DATE}".pem
+fi
+
+if [[ -f signing.gpg ]]; then
+	echo "signing.gpg: Exists (remove to recreate)"
+	exit
+fi
+
+setup_gnupghome
+
+echo "signing.gpg: Creating"
+gpg --batch --generate-key <<-EOF
+%no-protection
+Key-Type: RSA
+Key-Length: ${BITS}
+Key-Usage: sign
+Name-Real: Flatcar Secure Boot development
+Name-Email: maintainers@flatcar-linux.org
+Expire-Date: 0
+%commit
+EOF
+
+# Write the private key to a file for signing.
+gpg --export-secret-keys --output signing.gpg
+
+# Write the public key to a file for verification.
+echo "signing-${DATE}.gpg: Creating"
+rm -f signing-"${DATE}".gpg
+gpg --export --output signing-"${DATE}".gpg

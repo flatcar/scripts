@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -euo pipefail
+cd "${0%/*}"
+
+COREOS_OFFICIAL=1
+. ../../../../../../../../build_library/sbsign_util.sh
+export "${PKCS11_ENV[@]}"
+
+echo "Fetching ${SBSIGN_KEY} from Azure"
+CERT=$(p11-kit export-object --provider "${PKCS11_MODULE_PATH}" "${SBSIGN_KEY};type=cert")
+
+if [[ -f signing.pem && ${CERT} = "$(< signing.pem)" ]]; then
+	echo "signing.pem: Unchanged"
+else
+	echo "signing.pem: Updating"
+	cat > signing.pem <<< "${CERT}"
+fi
+
+CERT=signing.pem
+
+# Copy the X.509 dates to the GPG key. This isn't required, but it helps to
+# identify the key, and not setting an expiry date is bad practise.
+START=$(openssl x509 -noout -in "${CERT}" -startdate)
+START=$(date -d "${START#*=}" -u +%Y%m%dT%H%M%S)
+#
+END=$(openssl x509 -noout -in "${CERT}" -enddate)
+END=$(date -d "${END#*=}" -u +%Y%m%dT%H%M%S)
+
+# We also use the start date to name the GPG key.
+OUTPUT=signing-${START%%T*}.gpg
+
+if [[ -f ${OUTPUT} ]]; then
+	echo "${OUTPUT}: Exists (remove to recreate)"
+	exit
+fi
+
+setup_gnupghome
+
+# This isn't a great way to find the matching key from AKV, and it only works
+# with RSA keys, but keygrips are internal to GPG, so there isn't much choice.
+MODULUS=$(openssl x509 -in "${CERT}" -noout -modulus)
+MODULUS=${MODULUS#*=}
+#
+for KEYGRIP in "${GNUPGHOME}"/private-keys-v1.d/*.key; do
+	if tr -d "\n " < "${KEYGRIP}" | grep -qF "${MODULUS}"; then
+		break
+	fi
+done
+#
+KEYGRIP=${KEYGRIP##*/}
+KEYGRIP=${KEYGRIP%.key}
+
+echo "${OUTPUT}: Creating"
+gpg --batch --generate-key <<-EOF
+Key-Type: RSA
+Key-Grip: ${KEYGRIP}
+Key-Usage: sign
+Name-Real: Flatcar Secure Boot official
+Name-Email: maintainers@flatcar-linux.org
+Creation-Date: ${START}
+Expire-Date: ${END}
+%commit
+EOF
+
+# Only write the public key to a file. The private key remains in AKV.
+gpg --export --output "${OUTPUT}"
