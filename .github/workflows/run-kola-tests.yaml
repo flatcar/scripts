@@ -19,7 +19,7 @@ jobs:
     name: "Run Kola tests"
     runs-on:
       - self-hosted
-      - debian
+      - ubuntu
       - kola
       - ${{ matrix.arch }}
     strategy:
@@ -38,21 +38,15 @@ jobs:
           sudo systemctl stop dnsmasq
           sudo systemctl mask dnsmasq
 
-          # Install Docker-CE
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-          echo \
-            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
           # Set up MASQUERADE. Don't care much to secure it.
           # This is needed for the VMs kola spins up to have internet access.
           DEFAULT_ROUTE_DEVICE=$(ip -j route sh default |jq -r .[0].dev)
           sudo iptables -t nat -I POSTROUTING -o $DEFAULT_ROUTE_DEVICE -j MASQUERADE
           sudo iptables -I FORWARD -o $DEFAULT_ROUTE_DEVICE -j ACCEPT
           sudo iptables -I FORWARD -i $DEFAULT_ROUTE_DEVICE -j ACCEPT
+
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
 
       - uses: actions/checkout@v4
         with:
@@ -247,7 +241,7 @@ jobs:
     if: always() && !cancelled()
     runs-on:
       - self-hosted
-      - debian
+      - ubuntu
       - kola
     permissions:
       pull-requests: write
