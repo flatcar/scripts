@@ -10,7 +10,7 @@ inherit git-r3 systemd toolchain-funcs udev coreos-go
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="1c1d7f4ae6b933350d7fd36e882dda170123cccc" # flatcar-master
+	EGIT_COMMIT="1c1d7f4ae6b933350d7fd36e882dda170123cccc" # main
 	KEYWORDS="amd64 arm64"
 fi
 
