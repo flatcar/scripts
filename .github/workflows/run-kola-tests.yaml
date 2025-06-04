@@ -19,7 +19,7 @@ jobs:
     name: "Run Kola tests"
     runs-on:
       - self-hosted
-      - debian
+      - ubuntu
       - kola
       - ${{ matrix.arch }}
     strategy:
