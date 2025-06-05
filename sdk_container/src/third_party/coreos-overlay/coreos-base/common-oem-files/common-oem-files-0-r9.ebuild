@@ -38,6 +38,7 @@ COMMON_OEMIDS=(
     proxmoxve
     qemu
     scaleway
+    stackit
     kubevirt
 )
 
