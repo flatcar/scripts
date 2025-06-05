@@ -357,10 +357,16 @@ function __mcdl_diff_iuse() {
 
     local iuse
     for iuse in "${!removed_iuses[@]}"; do
+        if __mcdl_is_iuse_irrelevant "${iuse}"; then
+            continue
+        fi
         diff_report_append "${dr_var_name}" "removed IUSE flag ${iuse@Q}"
         diff_report_append_indented "${dr_var_name}" "TODO: describe removed IUSE flag"
     done
     for iuse in "${!added_iuses[@]}"; do
+        if __mcdl_is_iuse_irrelevant "${iuse}"; then
+            continue
+        fi
         diff_report_append "${dr_var_name}" "added IUSE flag ${iuse@Q}"
         diff_report_append_indented "${dr_var_name}" "TODO: describe added IUSE flag"
     done
@@ -611,6 +617,82 @@ function __mcdl_iuse_stack_to_string() {
     str_ref=${str_ref:0:$((${#str_ref} - 4))}
 }
 
+# similar to __mcdl_iuse_stack_to_string but strips numbering of
+# unnamed groups
+function __mcdl_iuse_stack_to_string_for_matching() {
+    local -n stack_ref=${1}; shift
+    local -n str_ref=${1}; shift
+
+    str_ref=''
+    # we always ignore the first element - it's a name of the toplevel
+    # unnamed group, so stack of length 1 means no groups were
+    # encountered
+    if [[ ${#stack_ref[@]} -le 1 ]]; then
+        return 0
+    fi
+
+    local iuse
+    # we always ignore the first element - it's a name of the toplevel
+    # unnamed group
+    for iuse in "${stack_ref[@]:1}"; do
+        if [[ ${iuse} = 'unnamed-all-of-'* ]]; then
+            iuse='unnamed-all-of-X'
+        fi
+        str_ref+="${iuse@Q} -> "
+    done
+    str_ref=${str_ref:0:$((${#str_ref} - 4))}
+}
+
+function __mcdl_is_iuse_stack_irrelevant() {
+    local -n stack_ref=${1}; shift
+    local i
+
+    for i in "${stack_ref[@]}"; do
+        i=${i%\?}
+        if __mcdl_is_iuse_irrelevant "${i}"; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+function __mcdl_is_iuse_irrelevant() {
+    local iuse=${1}; shift
+
+    case ${iuse} in
+        'python_targets_python3_11'|'python_single_target_python3_11')
+            :
+            ;;
+        'python_targets_'*|'python_single_target_'*|'test')
+            return 0
+            ;;
+    esac
+    return 1
+}
+
+function __mcdl_is_pds_irrelevant() {
+    local -n pds_ref=${1}; shift
+    local n=${pds_ref[PDS_NAME_IDX]}
+
+    case ${n} in
+        'dev-lang/python')
+            local op=${pds_ref[PDS_OP_IDX]}
+            local slot=${pds_ref[PDS_SLOT_IDX]}
+            if [[ -z ${op} && -n ${slot} && ${slot} != '3.11' ]]; then
+                return 0
+            fi
+            ;;
+        'dev-lang/rust'|'dev-lang/rust-bin')
+            local op=${pds_ref[PDS_OP_IDX]}
+            local slot=${pds_ref[PDS_SLOT_IDX]}
+            if [[ -z ${op} && -n ${slot} && ${slot} != '1.85.1' ]]; then
+                return 0
+            fi
+            ;;
+    esac
+    return 1
+}
+
 function __mcdl_pds_diff() {
     local -n old_pds_ref=${1}; shift
     local -n new_pds_ref=${1}; shift
@@ -618,15 +700,26 @@ function __mcdl_pds_diff() {
     local new_stack_name=${1}; shift
     local dr_var_name=${1}; shift
 
+    if __mcdl_is_iuse_stack_irrelevant "${old_stack_name}" && __mcdl_is_iuse_stack_irrelevant "${new_stack_name}"; then
+        return 0
+    fi
+
     local name=${new_pds_ref[PDS_NAME_IDX]}
 
-    local old_iuses new_iuses
-    __mcdl_iuse_stack_to_string "${old_stack_name}" old_iuses
-    __mcdl_iuse_stack_to_string "${new_stack_name}" new_iuses
+    local old_iuses new_iuses same_iuses
+    __mcdl_iuse_stack_to_string_for_matching "${old_stack_name}" old_iuses
+    __mcdl_iuse_stack_to_string_for_matching "${new_stack_name}" new_iuses
 
     diff_report_declare local_pds_dr
 
-    if [[ ${old_iuses} != "${new_iuses}" ]]; then
+    if [[ ${old_iuses} = "${new_iuses}" ]]; then
+        same_iuses=x
+    fi
+
+    __mcdl_iuse_stack_to_string "${old_stack_name}" old_iuses
+    __mcdl_iuse_stack_to_string "${new_stack_name}" new_iuses
+
+    if [[ -z ${same_iuses} ]]; then
         if [[ -z ${new_iuses} ]]; then
             diff_report_append local_pds_dr "dropped all USE conditionals"
         else
@@ -707,10 +800,16 @@ function __mcdl_pds_diff() {
     local -A only_old_urs=() only_new_urs=() common_urs=()
     sets_split old_name_index new_name_index only_old_urs only_new_urs common_urs
     for use_name in "${!only_old_urs[@]}"; do
+        if __mcdl_is_iuse_irrelevant "${use_name}"; then
+            continue
+        fi
         diff_report_append local_pds_dr "dropped ${use_name} use requirement"
     done
     local pd_mode_str pd_pretend_str
     for use_name in "${!only_new_urs[@]}"; do
+        if __mcdl_is_iuse_irrelevant "${use_name}"; then
+            continue
+        fi
         idx=${new_name_index["${use_name}"]}
         local -n ur_ref=${new_urs_ref[${idx}]}
         __mcdl_ur_mode_description "${ur_ref[UR_MODE_IDX]}" pd_mode_str
@@ -1301,32 +1400,36 @@ function __mcdl_diff_deps() {
             local t1=${item1:0:1} v1=${item1:2}
             case ${t1} in
                 'l')
-                    local use_str
-                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                    diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
-                    unset use_str
+                    if ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                        local use_str
+                        __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                        diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
+                        unset use_str
+                    fi
                     ;;
                 'p')
-                    local p_str use_str
-                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                    pds_to_string "${v1}" p_str
-                    local -n p_ref=${v1}
-                    local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
-                    unset -n p_ref
-                    local what=''
-                    case ${p_blocks} in
-                        "${PDS_NO_BLOCK}")
-                            what='dependency'
-                            ;;
-                        "${PDS_WEAK_BLOCK}")
-                            what='weak blocker'
-                            ;;
-                        "${PDS_STRONG_BLOCK}")
-                            what='strong blocker'
-                            ;;
-                    esac
-                    diff_report_append local_dr "dropped a ${what} ${p_str@Q}${use_str}"
-                    unset what p_blocks use_str p_str
+                    if ! __mcdl_is_pds_irrelevant "${v1}" && ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                        local p_str use_str
+                        __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                        pds_to_string "${v1}" p_str
+                        local -n p_ref=${v1}
+                        local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                        unset -n p_ref
+                        local what=''
+                        case ${p_blocks} in
+                            "${PDS_NO_BLOCK}")
+                                what='dependency'
+                                ;;
+                            "${PDS_WEAK_BLOCK}")
+                                what='weak blocker'
+                                ;;
+                            "${PDS_STRONG_BLOCK}")
+                                what='strong blocker'
+                                ;;
+                        esac
+                        diff_report_append local_dr "dropped a ${what} ${p_str@Q}${use_str}"
+                        unset what p_blocks use_str p_str
+                    fi
                     ;;
                 'i')
                     # This will be stored in prev item and used in 'o'
@@ -1366,32 +1469,36 @@ function __mcdl_diff_deps() {
             local t2=${item2:0:1} v2=${item2:2}
             case ${t2} in
                 'l')
-                    local use_str
-                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                    diff_report_append local_dr "added license ${v2@Q}${use_str}"
-                    unset use_str
+                    if ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                        local use_str
+                        __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                        diff_report_append local_dr "added license ${v2@Q}${use_str}"
+                        unset use_str
+                    fi
                     ;;
                 'p')
-                    local p_str use_str
-                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                    pds_to_string "${v2}" p_str
-                    local -n p_ref=${v2}
-                    local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
-                    unset -n p_ref
-                    local what=''
-                    case ${p_blocks} in
-                        "${PDS_NO_BLOCK}")
-                            what='dependency'
-                            ;;
-                        "${PDS_WEAK_BLOCK}")
-                            what='weak blocker'
-                            ;;
-                        "${PDS_STRONG_BLOCK}")
-                            what='strong blocker'
-                            ;;
-                    esac
-                    diff_report_append local_dr "added a ${what} ${p_str@Q}${use_str}"
-                    unset what p_blocks use_str p_str
+                    if ! __mcdl_is_pds_irrelevant "${v2}" && ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                        local p_str use_str
+                        __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                        pds_to_string "${v2}" p_str
+                        local -n p_ref=${v2}
+                        local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                        unset -n p_ref
+                        local what=''
+                        case ${p_blocks} in
+                            "${PDS_NO_BLOCK}")
+                                what='dependency'
+                                ;;
+                            "${PDS_WEAK_BLOCK}")
+                                what='weak blocker'
+                                ;;
+                            "${PDS_STRONG_BLOCK}")
+                                what='strong blocker'
+                                ;;
+                        esac
+                        diff_report_append local_dr "added a ${what} ${p_str@Q}${use_str}"
+                        unset what p_blocks use_str p_str
+                    fi
                     ;;
                 'i')
                     # This will be stored in prev item and used in 'o'
@@ -1496,32 +1603,36 @@ function __mcdl_diff_deps() {
         local t1=${item1:0:1} v1=${item1:2}
         case ${t1} in
             'l')
-                local use_str
-                __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
-                unset use_str
+                if ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                    local use_str
+                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                    diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
+                    unset use_str
+                fi
                 ;;
             'p')
-                local p_str use_str
-                __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                pds_to_string "${v1}" p_str
-                local -n p_ref=${v1}
-                local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
-                unset -n p_ref
-                local what=''
-                case ${p_blocks} in
-                    "${PDS_NO_BLOCK}")
-                        what='dependency'
-                        ;;
-                    "${PDS_WEAK_BLOCK}")
-                        what='weak blocker'
-                        ;;
-                    "${PDS_STRONG_BLOCK}")
-                        what='strong blocker'
-                        ;;
-                esac
-                diff_report_append local_dr "dropped a ${what} ${p_str@Q}${use_str}"
-                unset what p_blocks use_str p_str
+                if ! __mcdl_is_pds_irrelevant "${v1}" && ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                    local p_str use_str
+                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                    pds_to_string "${v1}" p_str
+                    local -n p_ref=${v1}
+                    local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                    unset -n p_ref
+                    local what=''
+                    case ${p_blocks} in
+                        "${PDS_NO_BLOCK}")
+                            what='dependency'
+                            ;;
+                        "${PDS_WEAK_BLOCK}")
+                            what='weak blocker'
+                            ;;
+                        "${PDS_STRONG_BLOCK}")
+                            what='strong blocker'
+                            ;;
+                    esac
+                    diff_report_append local_dr "dropped a ${what} ${p_str@Q}${use_str}"
+                    unset what p_blocks use_str p_str
+                fi
                 ;;
             'i')
                 # This will be stored in prev item and used in 'o'
@@ -1561,32 +1672,36 @@ function __mcdl_diff_deps() {
         local t2=${item2:0:1} v2=${item2:2}
         case ${t2} in
             'l')
-                local use_str
-                __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                diff_report_append local_dr "added license ${v2@Q}${use_str}"
-                unset use_str
+                if ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                    local use_str
+                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                    diff_report_append local_dr "added license ${v2@Q}${use_str}"
+                    unset use_str
+                fi
                 ;;
             'p')
-                local p_str use_str
-                __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                pds_to_string "${v2}" p_str
-                local -n p_ref=${v2}
-                local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
-                unset -n p_ref
-                local what=''
-                case ${p_blocks} in
-                    "${PDS_NO_BLOCK}")
-                        what='dependency'
-                        ;;
-                    "${PDS_WEAK_BLOCK}")
-                        what='weak blocker'
-                        ;;
-                    "${PDS_STRONG_BLOCK}")
-                        what='strong blocker'
-                        ;;
-                esac
-                diff_report_append local_dr "added a ${what} ${p_str@Q}${use_str}"
-                unset what p_blocks use_str p_str
+                if ! __mcdl_is_pds_irrelevant "${v2}" && ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                    local p_str use_str
+                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                    pds_to_string "${v2}" p_str
+                    local -n p_ref=${v2}
+                    local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
+                    unset -n p_ref
+                    local what=''
+                    case ${p_blocks} in
+                        "${PDS_NO_BLOCK}")
+                            what='dependency'
+                            ;;
+                        "${PDS_WEAK_BLOCK}")
+                            what='weak blocker'
+                            ;;
+                        "${PDS_STRONG_BLOCK}")
+                            what='strong blocker'
+                            ;;
+                    esac
+                    diff_report_append local_dr "added a ${what} ${p_str@Q}${use_str}"
+                    unset what p_blocks use_str p_str
+                fi
                 ;;
             'i')
                 # This will be stored in prev item and used in 'o'
