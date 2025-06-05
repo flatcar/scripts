@@ -660,10 +660,10 @@ function __mcdl_is_iuse_irrelevant() {
     local iuse=${1}; shift
 
     case ${iuse} in
-        'python_targets_python3_11')
+        'python_targets_python3_11'|'python_single_target_python3_11')
             :
             ;;
-        'python_targets_'*|'test')
+        'python_targets_'*|'python_single_target_'*|'test')
             return 0
             ;;
     esac
