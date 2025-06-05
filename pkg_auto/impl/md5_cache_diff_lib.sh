@@ -357,10 +357,16 @@ function __mcdl_diff_iuse() {
 
     local iuse
     for iuse in "${!removed_iuses[@]}"; do
+        if __mcdl_is_iuse_irrelevant "${iuse}"; then
+            continue
+        fi
         diff_report_append "${dr_var_name}" "removed IUSE flag ${iuse@Q}"
         diff_report_append_indented "${dr_var_name}" "TODO: describe removed IUSE flag"
     done
     for iuse in "${!added_iuses[@]}"; do
+        if __mcdl_is_iuse_irrelevant "${iuse}"; then
+            continue
+        fi
         diff_report_append "${dr_var_name}" "added IUSE flag ${iuse@Q}"
         diff_report_append_indented "${dr_var_name}" "TODO: describe added IUSE flag"
     done
@@ -1394,13 +1400,15 @@ function __mcdl_diff_deps() {
             local t1=${item1:0:1} v1=${item1:2}
             case ${t1} in
                 'l')
-                    local use_str
-                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                    diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
-                    unset use_str
+                    if ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                        local use_str
+                        __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                        diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
+                        unset use_str
+                    fi
                     ;;
                 'p')
-                    if ! __mcdl_is_pds_irrelevant "${v1}"; then
+                    if ! __mcdl_is_pds_irrelevant "${v1}" && ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
                         local p_str use_str
                         __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                         pds_to_string "${v1}" p_str
@@ -1461,13 +1469,15 @@ function __mcdl_diff_deps() {
             local t2=${item2:0:1} v2=${item2:2}
             case ${t2} in
                 'l')
-                    local use_str
-                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                    diff_report_append local_dr "added license ${v2@Q}${use_str}"
-                    unset use_str
+                    if ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                        local use_str
+                        __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                        diff_report_append local_dr "added license ${v2@Q}${use_str}"
+                        unset use_str
+                    fi
                     ;;
                 'p')
-                    if ! __mcdl_is_pds_irrelevant "${v2}"; then
+                    if ! __mcdl_is_pds_irrelevant "${v2}" && ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
                         local p_str use_str
                         __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                         pds_to_string "${v2}" p_str
@@ -1593,13 +1603,15 @@ function __mcdl_diff_deps() {
         local t1=${item1:0:1} v1=${item1:2}
         case ${t1} in
             'l')
-                local use_str
-                __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
-                unset use_str
+                if ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                    local use_str
+                    __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
+                    diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
+                    unset use_str
+                fi
                 ;;
             'p')
-                if ! __mcdl_is_pds_irrelevant "${v1}"; then
+                if ! __mcdl_is_pds_irrelevant "${v1}" && ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
                     local p_str use_str
                     __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                     pds_to_string "${v1}" p_str
@@ -1660,13 +1672,15 @@ function __mcdl_diff_deps() {
         local t2=${item2:0:1} v2=${item2:2}
         case ${t2} in
             'l')
-                local use_str
-                __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                diff_report_append local_dr "added license ${v2@Q}${use_str}"
-                unset use_str
+                if ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                    local use_str
+                    __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
+                    diff_report_append local_dr "added license ${v2@Q}${use_str}"
+                    unset use_str
+                fi
                 ;;
             'p')
-                if ! __mcdl_is_pds_irrelevant "${v2}"; then
+                if ! __mcdl_is_pds_irrelevant "${v2}" && ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
                     local p_str use_str
                     __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                     pds_to_string "${v2}" p_str
