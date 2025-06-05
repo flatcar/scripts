@@ -677,6 +677,8 @@ function __mcdl_is_pds_irrelevant() {
             fi
             ;;
         'dev-lang/rust'|'dev-lang/rust-bin')
+            local op=${pds_ref[PDS_OP_IDX]}
+            local slot=${pds_ref[PDS_SLOT_IDX]}
             if [[ -z ${op} && -n ${slot} && ${slot} != '1.85.1' ]]; then
                 return 0
             fi
