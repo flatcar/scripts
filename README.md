@@ -107,7 +107,7 @@ To clone the scripts repo and pick a version:
 When using GitHub's "fork" feature, please **make sure to fork all branches**, not just `main`. Forking only `main` is the default on GitHub,
 
 The SDK container wrapper script `run_sdk_container` requires release tags in our release branches and fails to start if no release branch is present (see e.g. https://github.com/flatcar/Flatcar/issues/1705).
-If you're working with a fork of the scripts repository, you'll need to fetch the upstream tags to avoid version detection issues:
+If you have forked manually, please make sure to include all tags. You can retrofit upstream tags to a fork by using e.g.:
 
 ```bash
 git remote add upstream https://github.com/flatcar/scripts.git
