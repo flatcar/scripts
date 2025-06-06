@@ -55,7 +55,9 @@ function yell() {
 function get_git_version() {
     local tag="$(git tag --points-at HEAD)"
     if [ -z "$tag" ] ; then
-        git describe --tags
+        # Clones of forks may be missing the tags, so fetch them if necessary.
+        git describe --tags 2>/dev/null ||
+            { git fetch --quiet --tags https://github.com/flatcar/scripts.git && git describe --tags; }
     else
         echo "$tag"
     fi
