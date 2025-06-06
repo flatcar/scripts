@@ -1,0 +1,22 @@
+From f18612fffe4aece4cd53d42b2b38adeabd814c45 Mon Sep 17 00:00:00 2001
+From: Dan <justdan96@gmail.com>
+Date: Tue, 16 Jan 2024 12:54:14 +0000
+Subject: [PATCH] Restrict Permissions of grub/menu.lst
+
+This is described in the following issue:
+https://github.com/kinvolk/Flatcar/issues/296
+
+Setting the `Options=umask` parameter as that behaviour is well documented by systemd: https://www.freedesktop.org/software/systemd/man/latest/systemd.mount.html#Options.
+---
+ systemd/system/boot.mount | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/systemd/system/boot.mount b/systemd/system/boot.mount
+index 7da9a02..681cd2c 100644
+--- a/systemd/system/boot.mount
++++ b/systemd/system/boot.mount
+@@ -9,3 +9,4 @@ ConditionPathExists=!/usr/.noupdate
+ [Mount]
+ What=/dev/disk/by-label/EFI-SYSTEM
+ Where=/boot
++Options=umask=0077
