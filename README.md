@@ -102,6 +102,17 @@ To clone the scripts repo and pick a version:
   * list releases (e.g. all Alpha releases): `git tag -l alpha-*`
   * check out the release version, e.g. `3033.0.0`: `git checkout 3033.0.0`
 
+### Working with forks
+
+If you're working with a fork of the scripts repository, you'll need to fetch the upstream tags to avoid version detection issues:
+
+```bash
+git remote add upstream https://github.com/flatcar/scripts.git
+git fetch --tags upstream
+```
+
+This is necessary because the SDK uses `git describe --tags` to determine the current version, and forks don't include the original repository's tags by default.
+
 To use the SDK container:
 * Fetch image and start the SDK container: `./run_sdk_container -t`
   This will fetch the container image of the "scripts" repo's release version you checked out.
