@@ -3,8 +3,10 @@
 
 EAPI=8
 
-LLVM_COMPAT=( 19 )
-PYTHON_COMPAT=( python3_{10..13} )
+LLVM_COMPAT=( 20 )
+PYTHON_COMPAT=( python3_{11..14} )
+
+RUST_PATCH_VER=${PVR}
 
 RUST_MAX_VER=${PV%%_*}
 if [[ ${PV} == *9999* ]]; then
@@ -37,6 +39,7 @@ elif [[ ${PV} == *beta* ]]; then
 	BETA_SNAPSHOT="${betaver:0:4}-${betaver:4:2}-${betaver:6:2}"
 	MY_P="rustc-beta"
 	SRC_URI="https://static.rust-lang.org/dist/${BETA_SNAPSHOT}/rustc-beta-src.tar.xz -> rustc-${PV}-src.tar.xz
+		https://gitweb.gentoo.org/proj/rust-patches.git/snapshot/rust-patches-${RUST_PATCH_VER}.tar.bz2
 		verify-sig? ( https://static.rust-lang.org/dist/${BETA_SNAPSHOT}/rustc-beta-src.tar.xz.asc
 			-> rustc-${PV}-src.tar.xz.asc )
 	"
@@ -44,10 +47,11 @@ elif [[ ${PV} == *beta* ]]; then
 else
 	MY_P="rustc-${PV}"
 	SRC_URI="https://static.rust-lang.org/dist/${MY_P}-src.tar.xz
+		https://gitweb.gentoo.org/proj/rust-patches.git/snapshot/rust-patches-${RUST_PATCH_VER}.tar.bz2
 		verify-sig? ( https://static.rust-lang.org/dist/${MY_P}-src.tar.xz.asc )
 	"
 	S="${WORKDIR}/${MY_P}-src"
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 DESCRIPTION="Systems programming language originally developed by Mozilla"
@@ -70,7 +74,7 @@ done
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
 SLOT="${PV%%_*}" # Beta releases get to share the same SLOT as the eventual stable
 
-IUSE="big-endian clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind lto rustfmt rust-analyzer rust-src system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="big-endian clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind lto rustfmt rust-analyzer rust-src +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 if [[ ${PV} = *9999* ]]; then
 	# These USE flags require nightly rust
@@ -88,8 +92,10 @@ done
 LLVM_DEPEND+=( "	wasm? ( $(llvm_gen_dep 'llvm-core/lld:${LLVM_SLOT}') )" )
 LLVM_DEPEND+=( "	$(llvm_gen_dep 'llvm-core/llvm:${LLVM_SLOT}')" )
 
+# dev-libs/oniguruma is used for documentation
 BDEPEND="${PYTHON_DEPS}
 	app-eselect/eselect-rust
+	dev-libs/oniguruma
 	|| (
 		>=sys-devel/gcc-4.7[cxx]
 		>=llvm-core/clang-3.5
@@ -170,60 +176,12 @@ RESTRICT="test"
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/rust.asc
 
-PATCHES=(
-	"${FILESDIR}"/1.85.0-cross-compile-libz.patch
-	"${FILESDIR}"/1.85.0-musl-dynamic-linking.patch
-	"${FILESDIR}"/1.67.0-doc-wasm.patch
-)
-
 clear_vendor_checksums() {
 	sed -i 's/\("files":{\)[^}]*/\1/' "vendor/${1}/.cargo-checksum.json" || die
 }
 
 toml_usex() {
 	usex "${1}" true false
-}
-
-src_unpack() {
-	if [[ ${PV} = *9999* ]]; then
-		git-r3_src_unpack
-		mkdir "${S}/.cargo" || die # The vendor script has a check for .cargo/config{,.toml}
-		touch "${S}/.cargo/config.toml" || die
-		local rust_stage0_root="$(${RUSTC} --print sysroot || die "Can't determine rust's sysroot")"
-		local rust_build=""
-		local rust_host=""
-		# Configure vendor to use the portage-provided toolchain. This prevents it from
-		# attempting to fetch a `beta` toolchain from the internet.
-		cat <<- _EOF_ > "${T}/vendor-config.toml"
-			[build]
-			build = "$(rust_abi "${CBUILD}")"
-			host = ["$(rust_abi "${CHOST}")"]
-			target = ["$(rust_abi "${CHOST}")"]
-			cargo = "${rust_stage0_root}/bin/cargo"
-			rustc = "${rust_stage0_root}/bin/rustc"
-			rustfmt = "${rust_stage0_root}/bin/rustfmt"
-		_EOF_
-		# We're using git sources so we need to run the Vendor script
-		# to ensure that all dependencies are present and up-to-date
-		mkdir "${S}/vendor" || die
-		# This also compiles the 'build helper', there's no way to avoid this.
-		${EPYTHON} "${S}"/x.py vendor -vvv --config="${T}"/vendor-config.toml -j$(makeopts_jobs) ||
-			die "Failed to vendor dependencies"
-		# TODO: This has to be generated somehow, this is from a 1.84.x tarball I had lying around.
-		cat <<- _EOF_ > "${S}/.cargo/config.toml"
-			[source.crates-io]
-			replace-with = "vendored-sources"
-
-			[source."git+https://github.com/rust-lang/team"]
-			git = "https://github.com/rust-lang/team"
-			replace-with = "vendored-sources"
-
-			[source.vendored-sources]
-			directory = "vendor"
-		_EOF_
-	else
-		verify-sig_src_unpack
-	fi
 }
 
 pre_build_checks() {
@@ -298,19 +256,61 @@ pkg_setup() {
 	fi
 }
 
+src_unpack() {
+	if [[ ${PV} = *9999* ]]; then
+		git-r3_src_unpack
+		mkdir "${S}/.cargo" || die # The vendor script has a check for .cargo/config{,.toml}
+		touch "${S}/.cargo/config.toml" || die
+		local rust_stage0_root="$(${RUSTC} --print sysroot || die "Can't determine rust's sysroot")"
+		local rust_build=""
+		local rust_host=""
+		# Configure vendor to use the portage-provided toolchain. This prevents it from
+		# attempting to fetch a `beta` toolchain from the internet.
+		cat <<- _EOF_ > "${T}/vendor-config.toml"
+			[build]
+			build = "$(rust_abi "${CBUILD}")"
+			host = ["$(rust_abi "${CHOST}")"]
+			target = ["$(rust_abi "${CHOST}")"]
+			cargo = "${rust_stage0_root}/bin/cargo"
+			rustc = "${rust_stage0_root}/bin/rustc"
+			rustfmt = "${rust_stage0_root}/bin/rustfmt"
+		_EOF_
+		# We're using git sources so we need to run the Vendor script
+		# to ensure that all dependencies are present and up-to-date
+		mkdir "${S}/vendor" || die
+		# This also compiles the 'build helper', there's no way to avoid this.
+		${EPYTHON} "${S}"/x.py vendor -v --config="${T}"/vendor-config.toml -j$(makeopts_jobs) ||
+			die "Failed to vendor dependencies"
+		# TODO: This has to be generated somehow, this is from a 1.84.x tarball I had lying around.
+		cat <<- _EOF_ > "${S}/.cargo/config.toml"
+			[source.crates-io]
+			replace-with = "vendored-sources"
+
+			[source."git+https://github.com/rust-lang/team"]
+			git = "https://github.com/rust-lang/team"
+			replace-with = "vendored-sources"
+
+			[source.vendored-sources]
+			directory = "vendor"
+		_EOF_
+	elif use verify-sig ; then
+		# Patch tarballs are not signed (but we trust Gentoo infra)
+		verify-sig_verify_detached "${DISTDIR}"/rustc-${PV}-src.tar.xz{,.asc}
+		default
+	else
+		default
+	fi
+}
+
 src_prepare() {
 	if [[ ${PV} = *9999* ]]; then
 		# We need to update / generate lockfiles for the workspace
-		${CARGO} generate-lockfile --offline
+		${CARGO} generate-lockfile --offline || die "Failed to generate lockfiles"
+	fi
 
-	fi
-	# Rust baselines to Pentium4 on x86, this patch lowers the baseline to i586 when sse2 is not set.
-	if use x86; then
-		if ! use cpu_flags_x86_sse2; then
-			eapply "${FILESDIR}/1.82.0-i586-baseline.patch"
-			#grep -rl cmd.args.push\(\"-march=i686\" . | xargs sed  -i 's/march=i686/-march=i586/g' || die
-		fi
-	fi
+	PATCHES=(
+		"${WORKDIR}/rust-patches-${RUST_PATCH_VER}/"
+	)
 
 	if use lto && tc-is-clang && ! tc-ld-is-lld && ! tc-ld-is-mold; then
 		export RUSTFLAGS+=" -C link-arg=-fuse-ld=lld"
@@ -326,6 +326,12 @@ src_configure() {
 		export OPENSSL_INCLUDE_DIR="${ESYSROOT}/usr/include"
 		export OPENSSL_LIB_DIR="${ESYSROOT}/usr/$(get_libdir)"
 	fi
+
+	# Avoid bundled copies of libraries
+	export RUSTONIG_SYSTEM_LIBONIG=1
+	# Need to check if these can be optional
+	#export LIBSQLITE3_SYS_USE_PKG_CONFIG=1
+	#export LIBSSH2_SYS_USE_PKG_CONFIG=1
 
 	filter-lto # https://bugs.gentoo.org/862109 https://bugs.gentoo.org/866231
 
@@ -638,7 +644,7 @@ src_configure() {
 }
 
 src_compile() {
-	RUST_BACKTRACE=1 "${EPYTHON}" ./x.py build -vvv --config="${S}"/config.toml -j$(makeopts_jobs) || die
+	RUST_BACKTRACE=1 "${EPYTHON}" ./x.py build -v --config="${S}"/config.toml -j$(makeopts_jobs) || die
 }
 
 src_test() {
@@ -694,7 +700,7 @@ src_test() {
 }
 
 src_install() {
-	DESTDIR="${D}" "${EPYTHON}" ./x.py install -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
+	DESTDIR="${D}" "${EPYTHON}" ./x.py install -v --config="${S}"/config.toml -j$(makeopts_jobs) || die
 
 	docompress /usr/lib/${PN}/${SLOT}/share/man/
 
@@ -784,7 +790,7 @@ src_install() {
 	doins "${T}/provider-${PN}-${SLOT}"
 
 	if use dist; then
-		"${EPYTHON}" ./x.py dist -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
+		"${EPYTHON}" ./x.py dist -v --config="${S}"/config.toml -j$(makeopts_jobs) || die
 		insinto "/usr/lib/${PN}/${SLOT}/dist"
 		doins -r "${S}/build/dist/."
 	fi
