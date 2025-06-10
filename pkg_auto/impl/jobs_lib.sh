@@ -47,7 +47,7 @@ function job_run() {
     if [[ -n ${merge_out_with_err} ]]; then
         errfd=${outfd}
     fi
-    "${@}" <&${infd} >&${outfd} 2>${errfd} &
+    "${@}" <&${infd} >&${outfd} 2>&${errfd} &
     pid=${!}
     job_ref[JOB_PID_IDX]=${pid}
     job_ref[JOB_INFD_IDX]=${infd}
