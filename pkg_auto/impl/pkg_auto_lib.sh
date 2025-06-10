@@ -1140,6 +1140,8 @@ function generate_sdk_reports() {
         sdk_job_state_ref[SJS_STATE_DIR_IDX]=${sdk_run_state}
         sdk_job_state_ref[SJS_KIND_IDX]=${sdk_run_kind}
         unset -n sdk_job_state_ref
+
+        sdk_job_state_names+=( "${sdk_job_state_name}" )
     done
 
     local sdk_job_name
