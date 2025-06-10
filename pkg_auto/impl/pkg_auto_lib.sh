@@ -53,6 +53,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/cleanups.sh"
 source "${PKG_AUTO_IMPL_DIR}/debug.sh"
 source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
+source "${PKG_AUTO_IMPL_DIR}/jobs_lib.sh"
 source "${PKG_AUTO_IMPL_DIR}/md5_cache_diff_lib.sh"
 
 # Sets up the workdir using the passed config. The config can be
@@ -1051,6 +1052,30 @@ function set_mvm_to_array_mvm_cb() {
     mvm_add "${pkg_to_tags_mvm_var_name}" "${pkg}" "${prod_item[@]}" "${sorted_items[@]}"
 }
 
+declare -gri SJS_COMMAND_IDX=0 SJS_STATE_DIR_IDX=1 SJS_KIND_IDX=2 SJS_JOB_NAME_IDX=3
+sdk_job_state_declare() {
+    struct_declare -ga "${@}" "( 'EMPTY_ARRAY' '' '' '' )"
+}
+
+sdk_job_state_unset() {
+    local name
+    for name; do
+        local -n sdk_job_state_ref=${name}
+        local array_name=${sdk_job_state_ref[SJS_COMMAND_IDX]}
+        if [[ ${array_name} != 'EMPTY_ARRAY' ]]; then
+            unset "${array_name}"
+        fi
+        unset array_name
+        local job_name=${sdk_job_state_ref[SJS_JOB_NAME_IDX]}
+        if [[ -n ${job_name} ]]; then
+            job_unset "${job_name}"
+        fi
+        unset job_name
+        unset -n sdk_run_state_ref
+    done
+    unset "${@}"
+}
+
 # Generate package reports inside SDKs for all arches and states. In
 # case of failure, whatever reports where generated so far will be
 # stored in salvaged-reports subdirectory of the reports directory.
@@ -1071,6 +1096,9 @@ function generate_sdk_reports() {
     local sdk_reports_dir top_dir dir entry full_path
     local -a dir_queue all_dirs all_files
 
+    local job_args_var_name sdk_job_state_name
+    local -a sdk_job_state_names=()
+
     for sdk_run_kind in "${WHICH[@]}"; do
         state_var_name="${sdk_run_kind^^}_STATE"
         sdk_run_state="${!state_var_name}_sdk_run"
@@ -1088,22 +1116,104 @@ function generate_sdk_reports() {
         pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
         add_cleanup "rm -rf ${pkg_auto_copy@Q}"
         cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
-        local -a run_sdk_container_args=(
-            -C "${SDK_IMAGE}"
-            -n "pkg-${sdk_run_kind}"
-            -U
-            -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
-            --rm
-            ./pkg_auto/inside_sdk_container.sh pkg-reports "${ARCHES[@]}"
+        gen_varname job_args_var_name
+        declare -ga "${job_args_var_name}=()"
+        local -n job_args_ref=${job_args_var_name}
+        job_args_ref=(
+            env
+                --chdir "${sdk_run_state}"
+                ./run_sdk_container
+                    -C "${SDK_IMAGE}"
+                    -n "pkg-${sdk_run_kind}"
+                    -U
+                    -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
+                    --rm
+                    ./pkg_auto/inside_sdk_container.sh
+                        pkg-reports
+                        "${ARCHES[@]}"
         )
-        rv=0
-        env --chdir "${sdk_run_state}" ./run_sdk_container "${run_sdk_container_args[@]}" || rv=${?}
-        unset run_sdk_container_args
+        unset -n job_args_ref
+
+        gen_varname sdk_job_state_name
+        sdk_job_state_declare "${sdk_job_state_name}"
+        local -n sdk_job_state_ref="${sdk_job_state_name}"
+        sdk_job_state_ref[SJS_COMMAND_IDX]=${job_args_var_name}
+        sdk_job_state_ref[SJS_STATE_DIR_IDX]=${sdk_run_state}
+        sdk_job_state_ref[SJS_KIND_IDX]=${sdk_run_kind}
+        unset -n sdk_job_state_ref
+
+        sdk_job_state_names+=( "${sdk_job_state_name}" )
+    done
+
+    local sdk_job_name
+
+    for sdk_job_state_name in "${sdk_job_state_names[@]}"; do
+        local -n sdk_job_state_ref=${sdk_job_state_name}
+        job_args_var_name=${sdk_job_state_ref[SJS_COMMAND_IDX]}
+
+        gen_varname sdk_job_name
+        job_declare "${sdk_job_name}"
+        all_sdk_jobs+=( "${sdk_job_name}" )
+
+        local -n job_args_ref=${job_args_var_name}
+        job_run -m "${sdk_job_name}" "${job_args_ref[@]}"
+        unset -n job_args_ref
+
+        sdk_job_state_ref[SJS_JOB_NAME_IDX]=${sdk_job_name}
+        unset -n sdk_job_state_ref
+    done
+
+    local -i current_idx=0 next_idx=1 idx state_count=${#sdk_job_state_names[@]}
+    local -a sdk_job_state_names_0=( "${sdk_job_state_names[@]}" ) sdk_job_state_names_1=() sdk_job_output_lines=()
+    local run_loop=x
+
+    while [[ state_count -gt 0 ]]; do
+        local -n sdk_jobs_state_names_ref=sdk_job_state_names_${current_idx}
+        local -n next_sdk_jobs_state_names_ref=sdk_job_state_names_${next_idx}
+        next_sdk_jobs_state_names_ref=()
+        for sdk_job_state_name in "${sdk_jobs_state_names_ref[@]}"; do
+            local -n sdk_job_state_ref=${sdk_job_state_name}
+            sdk_job_name=${sdk_job_state_ref[SJS_JOB_NAME_IDX]}
+            sdk_run_kind=${sdk_job_state_ref[SJS_KIND_IDX]}
+            unset -n sdk_job_state_ref
+            if job_is_alive "${sdk_job_name}"; then
+                next_sdk_jobs_state_names_ref+=( "${sdk_job_state_name}" )
+            fi
+            job_get_output "${sdk_job_name}" sdk_job_output_lines
+            if [[ ${#sdk_job_output_lines[@]} -gt 0 ]]; then
+                info_lines "${sdk_job_output_lines[@]/#/${sdk_run_kind}: }"
+            fi
+        done
+        state_count=${#next_sdk_jobs_state_names_ref[@]}
+        if [[ state_count -gt 0 ]]; then
+            sleep 0.2
+        fi
+        idx=${current_idx}
+        current_idx=${next_idx}
+        next_idx=${idx}
+        unset -n sdk_jobs_state_names_ref next_sdk_jobs_state_names_ref
+    done
+
+    local sr_dir_created='' gsr_sdk_run_state_basename
+    for sdk_job_state_name in "${sdk_job_state_names[@]}"; do
+        local -n sdk_job_state_ref=${sdk_job_state_name}
+        sdk_job_name=${sdk_job_state_ref[SJS_JOB_NAME_IDX]}
+        sdk_run_state=${sdk_job_state_ref[SJS_STATE_DIR_IDX]}
+        sdk_run_kind=${sdk_job_state_ref[SJS_KIND_IDX]}
+        unset -n sdk_job_state_ref
+        job_reap "${sdk_job_name}" rv
         if [[ ${rv} -ne 0 ]]; then
-            local salvaged_dir
+            local salvaged_dir salvaged_dir_sdk
             salvaged_dir="${REPORTS_DIR}/salvaged-reports"
+            basename_out "${sdk_run_state}" gsr_sdk_run_state_basename
+            salvaged_dir_sdk="${salvaged_dir}/${gsr_sdk_run_state_basename}"
+            if [[ -z ${sr_dir_created} ]]; then
+                rm -rf "${salvaged_dir}"
+                mkdir -p "${salvaged_dir}"
+                sr_dir_created=x
+            fi
             {
-                info "run_sdk_container finished with exit status ${rv}, printing the warnings below for a clue"
+                info "run_sdk_container for ${sdk_run_kind@Q} finished with exit status ${rv}, printing the warnings below for a clue"
                 info
                 for file in "${sdk_run_state}/pkg-reports/"*'-warnings'; do
                     info "from ${file}:"
@@ -1113,43 +1223,48 @@ function generate_sdk_reports() {
                 done
                 info
                 info 'whatever reports generated by the failed run are saved in'
-                info "${salvaged_dir@Q} directory"
+                info "${salvaged_dir_sdk@Q} directory"
                 info
             } >&2
-            rm -rf "${salvaged_dir}"
-            cp -a "${sdk_run_state}/pkg-reports" "${salvaged_dir}"
-            unset salvaged_dir
-            fail "copying done, stopping now"
-        fi
-        sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}"
-        top_dir="${sdk_run_state}/pkg-reports"
-        dir_queue=( "${top_dir}" )
-        all_dirs=()
-        all_files=()
-        while [[ ${#dir_queue[@]} -gt 0 ]]; do
-            dir=${dir_queue[0]}
-            dir_queue=( "${dir_queue[@]:1}" )
-            entry=${dir#"${top_dir}"}
-            if [[ -z ${entry} ]]; then
-                all_dirs=( "${sdk_reports_dir}" "${all_dirs[@]}" )
-            else
-                entry=${entry#/}
-                all_dirs=( "${sdk_reports_dir}/${entry}" "${all_dirs[@]}" )
-            fi
-            for full_path in "${dir}/"*; do
-                if [[ -d ${full_path} ]]; then
-                    dir_queue+=( "${full_path}" )
+            cp -a "${sdk_run_state}/pkg-reports" "${salvaged_dir_sdk}"
+            unset salvaged_dir salvaged_dir_sdk
+        else
+            sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}"
+            top_dir="${sdk_run_state}/pkg-reports"
+            dir_queue=( "${top_dir}" )
+            all_dirs=()
+            all_files=()
+            while [[ ${#dir_queue[@]} -gt 0 ]]; do
+                dir=${dir_queue[0]}
+                dir_queue=( "${dir_queue[@]:1}" )
+                entry=${dir#"${top_dir}"}
+                if [[ -z ${entry} ]]; then
+                    all_dirs=( "${sdk_reports_dir}" "${all_dirs[@]}" )
                 else
-                    entry=${full_path##"${top_dir}/"}
-                    all_files+=( "${sdk_reports_dir}/${entry}" )
+                    entry=${entry#/}
+                    all_dirs=( "${sdk_reports_dir}/${entry}" "${all_dirs[@]}" )
                 fi
+                for full_path in "${dir}/"*; do
+                    if [[ -d ${full_path} ]]; then
+                        dir_queue+=( "${full_path}" )
+                    else
+                        entry=${full_path##"${top_dir}/"}
+                        all_files+=( "${sdk_reports_dir}/${entry}" )
+                    fi
+                done
             done
-        done
-        add_cleanup \
-            "rm -f ${all_files[*]@Q}" \
-            "rmdir ${all_dirs[*]@Q}"
-        mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
+            add_cleanup \
+                "rm -f ${all_files[*]@Q}" \
+                "rmdir ${all_dirs[*]@Q}"
+            mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
+        fi
     done
+    sdk_job_state_unset "${sdk_job_state_names[@]}"
+    # salvaged reports directory was created, means that report
+    # generation failed
+    if [[ -n ${sr_dir_created} ]]; then
+        fail "copying done, stopping now"
+    fi
 
     cp -a "${WORKDIR}/pkg-reports" "${REPORTS_DIR}/reports-from-sdk"
 }
