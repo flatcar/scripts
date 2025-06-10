@@ -1131,6 +1131,8 @@ function generate_sdk_reports() {
                         pkg-reports
                         "${ARCHES[@]}"
         )
+        echo "job args in ${job_args_var_name@Q}:"
+        printf '%s\n' "${job_args_ref[@]@Q}"
         unset -n job_args_ref
 
         gen_varname sdk_job_state_name
@@ -1155,6 +1157,8 @@ function generate_sdk_reports() {
         all_sdk_jobs+=( "${sdk_job_name}" )
 
         local -n job_args_ref=${job_args_var_name}
+        echo "again, job args in ${job_args_var_name@Q}:"
+        printf '%s\n' "${job_args_ref[@]@Q}"
         job_run -m "${sdk_job_name}" "${job_args_ref[@]}"
         unset -n job_args_ref
 
