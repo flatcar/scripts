@@ -122,7 +122,7 @@ function job_get_output() {
     local -n output_lines_ref=${1}; shift
 
     local -i outfd=${job_ref[JOB_OUTFD_IDX]} errfd=${job_ref[JOB_ERRFD_IDX]}
-    local REPLY got_output=
+    local REPLY got_output=x
 
     output_lines_ref=()
     while [[ -n ${got_output} ]]; do
