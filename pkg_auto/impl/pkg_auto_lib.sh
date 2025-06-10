@@ -1117,6 +1117,7 @@ function generate_sdk_reports() {
         add_cleanup "rm -rf ${pkg_auto_copy@Q}"
         cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
         gen_varname job_args_var_name
+        declare -ga "${job_args_var_name}=()"
         local -n job_args_ref=${job_args_var_name}
         job_args_ref=(
             env
@@ -1150,7 +1151,7 @@ function generate_sdk_reports() {
 
     for sdk_job_state_name in "${sdk_job_state_names[@]}"; do
         local -n sdk_job_state_ref=${sdk_job_state_name}
-        jobs_args_var_name=${sdk_job_state_ref[SJS_COMMAND_IDX]}
+        job_args_var_name=${sdk_job_state_ref[SJS_COMMAND_IDX]}
 
         gen_varname sdk_job_name
         job_declare "${sdk_job_name}"
