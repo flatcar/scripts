@@ -20,7 +20,7 @@ function job_run() {
         shift
         merge_out_with_err=x
     fi
-    local job_ref=${1}; shift
+    local -n job_ref=${1}; shift
     # rest are function and args to run
 
     local -i pid=${job_ref[JOB_PID_IDX]} infd=${job_ref[JOB_INFD_IDX]} outfd=${job_ref[JOB_OUTFD_IDX]} errfd=${job_ref[JOB_ERRFD_IDX]}
@@ -56,7 +56,7 @@ function job_run() {
 }
 
 function job_reap() {
-    local job_ref=${1}; shift
+    local -n job_ref=${1}; shift
     local -n exit_status_ref=${1}; shift
 
     local -i pid=${job_ref[JOB_PID_IDX]} infd=${job_ref[JOB_INFD_IDX]} outfd=${job_ref[JOB_OUTFD_IDX]} errfd=${job_ref[JOB_ERRFD_IDX]}
@@ -87,7 +87,7 @@ function job_reap() {
 }
 
 function job_is_alive() {
-    local job_ref=${1}; shift
+    local -n job_ref=${1}; shift
 
     local -i pid=${job_ref[JOB_PID_IDX]}
     if [[ pid -eq -1 ]]; then
@@ -118,7 +118,7 @@ function job_send_input() {
 }
 
 function job_get_output() {
-    local job_ref=${1}; shift
+    local -n job_ref=${1}; shift
     local -n output_lines_ref=${1}; shift
 
     local -i outfd=${job_ref[JOB_OUTFD_IDX]} errfd=${job_ref[JOB_ERRFD_IDX]}
