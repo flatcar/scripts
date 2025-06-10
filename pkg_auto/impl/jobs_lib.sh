@@ -15,12 +15,12 @@ function job_unset() {
 }
 
 function job_run() {
-    local job_ref=${1}; shift
     local merge_out_with_err=
     if [[ ${1:-} = '-m' ]]; then
         shift
         merge_out_with_err=x
     fi
+    local job_ref=${1}; shift
     # rest are function and args to run
 
     local -i pid=${job_ref[JOB_PID_IDX]} infd=${job_ref[JOB_INFD_IDX]} outfd=${job_ref[JOB_OUTFD_IDX]} errfd=${job_ref[JOB_ERRFD_IDX]}
