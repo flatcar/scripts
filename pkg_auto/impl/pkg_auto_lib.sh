@@ -1179,7 +1179,9 @@ function generate_sdk_reports() {
                 next_sdk_jobs_state_names_ref+=( "${sdk_job_state_name}" )
             fi
             job_get_output "${sdk_job_name}" sdk_job_output_lines
-            info_lines "${sdk_job_output_lines[@]/#/${sdk_run_kind}: }"
+            if [[ ${#sdk_job_output_lines[@]} -gt 0 ]]; then
+                info_lines "${sdk_job_output_lines[@]/#/${sdk_run_kind}: }"
+            fi
         done
         state_count=${#next_sdk_jobs_state_names_ref[@]}
         if [[ state_count -gt 0 ]]; then
