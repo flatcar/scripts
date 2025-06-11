@@ -1936,11 +1936,11 @@ function handle_package_changes_job() {
 }
 
 declare -gri POP_OUT_DIR_IDX=0 POP_PKG_OUT_DIR_IDX=1 POP_PKG_SLOT_OUT_DIR_IDX=2
-function package_out_paths_declare() {
+function package_output_paths_declare() {
     struct_declare -ga "${@}" "( '' '' '')"
 }
 
-function package_out_paths_unset() {
+function package_output_paths_unset() {
     unset "${@}"
 }
 
