@@ -3100,6 +3100,9 @@ function handle_gentoo_sync() {
     mvm_declare hgs_pkg_to_tags_mvm
     process_listings hgs_pkg_to_tags_mvm
 
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
     local -A hgs_renames_old_to_new_map=()
     process_profile_updates_directory hgs_renames_old_to_new_map
 
@@ -3109,9 +3112,6 @@ function handle_gentoo_sync() {
 
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
 
     local old_head new_head
     old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
