@@ -114,7 +114,11 @@ function job_is_alive() {
 }
 
 function job_send_input() {
-    :
+    local -n job_ref=${1}; shift
+    # rest are lines to send
+    local -i infd=${job_ref[JOB_INFD_IDX]}
+
+    printf '%s\n' "${@}" >&${infd}
 }
 
 function job_get_output() {
