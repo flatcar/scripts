@@ -2533,7 +2533,7 @@ function get_first_from_set() {
 # 5 - old version
 # 6 - new version
 function handle_pkg_update() {
-    local package_output_paths_ref=${1}; shift
+    local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
@@ -2608,7 +2608,7 @@ function handle_pkg_update() {
 #     has changed (empty means nothing changed, non-empty means
 #     something has changed)
 function handle_pkg_as_is() {
-    local package_output_paths_ref=${1}; shift
+    local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
@@ -2686,7 +2686,7 @@ function handle_pkg_as_is() {
 # 5 - old version
 # 6 - new version
 function handle_pkg_downgrade() {
-    local package_output_paths_ref=${1}; shift
+    local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
