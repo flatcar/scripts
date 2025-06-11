@@ -2481,7 +2481,7 @@ function handle_package_changes() {
         for file in "${pkg_job_dir}/updates/"*; do
             basename_out "${file}" hpc_filename
             if [[ -f ${file} ]]; then
-                cat "${file}" "${REPORTS_DIR}/updates/${hpc_filename}" >>"${REPORTS_DIR}/updates/${hpc_filename}"
+                cat "${file}" >>"${REPORTS_DIR}/updates/${hpc_filename}"
             elif [[ -d ${file} ]]; then
                 if [[ ! -d "${REPORTS_DIR}/updates/${hpc_filename}" ]]; then
                     mkdir -p "${REPORTS_DIR}/updates/${hpc_filename}"
