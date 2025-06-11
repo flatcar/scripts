@@ -2426,6 +2426,7 @@ function handle_package_changes() {
                         if [[ pkg_idx -ge pkg_count ]]; then
                             job_send_input "${pkg_job_name}" "${we_are_done_msg}"
                         else
+                            echo "sending a batch of ${pkg_batch_size} packages starting from ${pkg_idx} to job ${pkg_job_name}"
                             old_pkgs_batch=( "${old_pkgs[@]:pkg_idx:pkg_batch_size}" )
                             new_pkgs_batch=( "${new_pkgs[@]:pkg_idx:pkg_batch_size}" )
                             this_batch_size=${#old_pkgs_batch[@]}
@@ -2436,6 +2437,7 @@ function handle_package_changes() {
                                 pkg_batch+=( "${old_pkg} ${new_pkg}" )
                             done
                             pkg_idx=$((pkg_idx + pkg_batch_size))
+                            echo "sending a batch ${pkg_batch[*]@Q} and now index is ${pkg_idx}"
                             job_send_input "${pkg_job_name}" "${pkg_batch[@]}"
                         fi
                         pkg_job_input_sent=x
