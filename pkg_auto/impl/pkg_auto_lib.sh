@@ -1974,7 +1974,7 @@ function handle_one_package_change() {
             "  - old package: ${old_name}" \
             "  - new package: ${new_name}"
         pkg_debug_disable
-        continue
+        return 0
     fi
     if [[ -z ${new_repo} ]]; then
         pkg_warn_d "${warnings_dir}" \
@@ -1982,7 +1982,7 @@ function handle_one_package_change() {
             "  - old package: ${old_name}" \
             "  - new package: ${new_name}"
         pkg_debug_disable
-        continue
+        return 0
     fi
     if [[ ${old_repo} != "${new_repo}" ]]; then
         # This is pretty much an arbitrary limitation and I don't
@@ -1992,13 +1992,13 @@ function handle_one_package_change() {
             "  - old package and repo: ${old_name} ${old_repo}" \
             "  - new package and repo: ${new_name} ${new_repo}"
         pkg_debug_disable
-        continue
+        return 0
     fi
     if [[ ${new_repo} != 'portage-stable' ]]; then
         # coreos-overlay packages will need a separate handling
         pkg_debug 'not a portage-stable package'
         pkg_debug_disable
-        continue
+        return 0
     fi
 
     local hopc_old_slots_set_var_name hopc_new_slots_set_var_name
@@ -2481,7 +2481,7 @@ function handle_package_changes() {
         for file in "${pkg_job_dir}/updates/"*; do
             basename_out "${file}" hpc_filename
             if [[ -f ${file} ]]; then
-                cat "${file}" "${REPORTS_DIR}/updates/${hpc_filename}"
+                cat "${file}" "${REPORTS_DIR}/updates/${hpc_filename}" >>"${REPORTS_DIR}/updates/${hpc_filename}"
             elif [[ -d ${file} ]]; then
                 if [[ ! -d "${REPORTS_DIR}/updates/${hpc_filename}" ]]; then
                     mkdir -p "${REPORTS_DIR}/updates/${hpc_filename}"
