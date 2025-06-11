@@ -1890,7 +1890,7 @@ function pkg_job_state_unset() {
 
 declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE'
 # BOM - a bunch of maps
-declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 PKG_SOURCES_MAP_IDX=4
+declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_PKG_SOURCES_MAP_IDX=4
 
 function bunch_of_maps_declare() {
     struct_declare -ga "${@}" "( '' '' '' '' '' )"
@@ -1955,9 +1955,9 @@ function handle_one_package_change() {
 
     local pkg_to_tags_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_TO_TAGS_MVM_IDX]}
     local pkg_slots_set_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_SLOTS_SET_MVM_IDX]}
-    local old_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX_IDX]}
-    local new_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX_IDX]}
-    local -n pkg_sources_map_ref=${bunch_of_maps_ref[PKG_SOURCES_MAP_IDX]}
+    local old_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
+    local new_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
+    local -n pkg_sources_map_ref=${bunch_of_maps_ref[BOM_PKG_SOURCES_MAP_IDX]}
 
     if [[ ${old_name} = "${new_name}" ]]; then
         info "handling update of ${new_name}"
@@ -2366,9 +2366,9 @@ function handle_package_changes() {
     bunch_of_maps_declare hpc_bunch_of_maps
     hpc_bunch_of_maps[BOM_PKG_TO_TAGS_MVM_IDX]=${pkg_to_tags_mvm_var_name}
     hpc_bunch_of_maps[BOM_PKG_SLOTS_SET_MVM_IDX]=hpc_pkg_slots_set_mvm
-    hpc_bunch_of_maps[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX_IDX]=hpc_old_pkg_slot_verminmax_map_mvm
-    hpc_bunch_of_maps[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX_IDX]=hpc_new_pkg_slot_verminmax_map_mvm
-    hpc_bunch_of_maps[PKG_SOURCES_MAP_IDX]=hpc_package_sources_map
+    hpc_bunch_of_maps[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_old_pkg_slot_verminmax_map_mvm
+    hpc_bunch_of_maps[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_new_pkg_slot_verminmax_map_mvm
+    hpc_bunch_of_maps[BOM_PKG_SOURCES_MAP_IDX]=hpc_package_sources_map
 
     for ((i = 0; i < job_count; ++i)); do
         gen_varname pkg_job_state_name
