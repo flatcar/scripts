@@ -1,0 +1,102 @@
+From a7a8d7746e94b3c33ac6192a53cd518d71126ee4 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Wed, 11 Jun 2025 10:25:14 +0100
+Subject: [PATCH] extend-filesystems: Fix race condition by not using lsblk
+
+lsblk relies on udev, which is inherently racy, especially when the
+filesystem has just been mounted. It has been observed that the FSTYPE
+field is sometimes not populated, preventing the filesystem from being
+resized, and causing tests involving the dev container (which is large)
+to fail.
+
+Use findmnt instead, which gets its information directly from the
+kernel. It also natively supports filtering by filesystem type and mount
+option. It doesn't fetch PARTTYPE, but we can safely get that from cgpt.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ scripts/extend-filesystems | 46 +++++++++++++++-----------------------
+ 1 file changed, 18 insertions(+), 28 deletions(-)
+
+diff --git a/scripts/extend-filesystems b/scripts/extend-filesystems
+index b1192d1..ddebb17 100755
+--- a/scripts/extend-filesystems
++++ b/scripts/extend-filesystems
+@@ -10,56 +10,46 @@
+ # the partition but the filesystem resize fails the operation will not
+ # be re-attempted by this script later unless the disk grows even more.
+ 
+-set -e -o pipefail
++set -euo pipefail
+ 
+-COREOS_RESIZE="3884dd41-8582-4404-b9a8-e9b84f2df50e"
++COREOS_RESIZE="3884DD41-8582-4404-B9A8-E9B84F2DF50E"
+ 
+-declare -a DEV_LIST
+-mapfile DEV_LIST < <(lsblk -P -o NAME,PARTTYPE,FSTYPE,MOUNTPOINT)
+-
+-for dev_info in "${DEV_LIST[@]}"; do
+-    eval "$dev_info"
+-    NAME=${NAME//\!//}
+-    echo "Found ${NAME}"
+-    if [[ "${PARTTYPE}" != "${COREOS_RESIZE}" ]] || \
+-       [[ -z "${NAME}" ]] || \
+-       [[ -z "${MOUNTPOINT}" ]] || \
+-       [[ ! -w "${MOUNTPOINT}" ]] || \
+-       [[ "${FSTYPE}" != "btrfs" && "${FSTYPE}" != "ext4" && "${FSTYPE}" != "xfs" ]]
++while read -r SOURCE TARGET; do
++    echo "Found ${SOURCE}"
++    if [[ $(cgpt show -t "${SOURCE}") != "${COREOS_RESIZE}" ]]
+     then
+         continue
+     fi
+ 
+-    device="/dev/${NAME}"
+-    echo "Checking size of ${device}"
+-    old_size=$(blockdev --getsz "${device}")
+-    cgpt resize "${device}"
++    echo "Checking size of ${SOURCE}"
++    old_size=$(blockdev --getsz "${SOURCE}")
++    cgpt resize "${SOURCE}"
+ 
+     # Only resize filesystem if the partition changed
+     # (need to retry in case udev triggered a kernel partition re-read which causes the device to disappear shortly,
+     # this condition here works under the assumption that we always get the new size because cgpt notifies the kernel
+     # about it before it touches the disk).
+-    if [[ "${old_size}" -eq "$(for s in {1..20}; do if blockdev --getsz "${device}"; then break; fi; sleep 0.5; done)" ]]; then
+-        echo "Old size kept for ${device}"
++    if [[ "${old_size}" -eq "$(for s in {1..20}; do if blockdev --getsz "${SOURCE}"; then break; fi; sleep 0.5; done)" ]]; then
++        echo "Old size kept for ${SOURCE}"
+         continue
+     fi
+-    echo "Resized partition ${device}"
++    echo "Resized partition ${SOURCE}"
+ 
+     # The device may still disappear here because we can't know if udev already retriggered a full partition re-read
+     # (a solution could be to use synthetic uevent tagging or to rerun the resize commands a few times).
+     case "${FSTYPE}" in
+         "btrfs")
+             # map the device name to the btrfs device id
+-            device_id=$(btrfs filesystem show -d "${device}" | \
+-                        awk -v "d=${device}" -e 'd == $8 {print $2}')
+-            btrfs filesystem resize "${device_id}:max" "${MOUNTPOINT}"
++            device_id=$(btrfs filesystem show -d "${SOURCE}" | \
++                        awk -v "d=${SOURCE}" -e 'd == $8 {print $2}')
++            btrfs filesystem resize "${device_id}:max" "${TARGET}"
+             ;;
+         "ext4")
+-            resize2fs "${device}"
++            resize2fs "${SOURCE}"
+             ;;
+         "xfs")
+-            xfs_growfs "${MOUNTPOINT}"
++            xfs_growfs "${TARGET}"
+             ;;
+     esac
+-    echo "Resized filesystem in ${device}"
+-done
++    echo "Resized filesystem in ${SOURCE}"
++done < <(findmnt -t btrfs,ext4,xfs -O rw -rn -o SOURCE,TARGET | sort -u -k1,1)
+-- 
+2.49.0
+
