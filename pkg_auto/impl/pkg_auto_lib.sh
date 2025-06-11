@@ -2460,7 +2460,7 @@ function handle_package_changes() {
         next_idx=${idx}
     done
 
-    local some_job_failed hpc_filename
+    local some_job_failed='' hpc_filename
     local -i hpc_rv
     truncate --size=0 "${REPORTS_DIR}/updates/summary_stubs" "${REPORTS_DIR}/updates/changelog_stubs"
     for pkg_job_state_name in "${pkg_job_state_names[@]}"; do
