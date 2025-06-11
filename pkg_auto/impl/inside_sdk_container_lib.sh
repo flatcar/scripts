@@ -434,20 +434,6 @@ function clean_empty_warning_files() {
     done
 }
 
-function get_num_proc() {
-    local -n num_proc_ref=${1}; shift
-    local -i num_proc=1 rv=1
-
-    # stolen from portage
-    [[ rv -eq 0 ]] || { rv=0; num_proc=$(getconf _NPROCESSORS_ONLN 2>/dev/null) || rv=1; }
-    [[ rv -eq 0 ]] || { rv=0; num_proc=$(sysctl -n hw.ncpu 2>/dev/null) || rv=1; }
-    # stolen from common.sh
-    [[ rv -eq 0 ]] || { rv=0; num_proc=$(grep -c "^processor" /proc/cpuinfo 2>/dev/null) || rv=1; }
-    [[ rv -eq 0 ]] || { rv=0; num_proc=1; }
-
-    num_proc_ref=${num_proc}
-}
-
 function generate_cache_for() {
     local repo=${1}; shift
 
