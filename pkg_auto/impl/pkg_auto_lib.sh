@@ -847,6 +847,20 @@ function lines_to_file() {
     printf '%s\n' "${@:2}" >>"${1}"
 }
 
+# Adds lines to "manual work needed" file in given directory.
+#
+# Params:
+#
+# 1 - directory where the file is
+# @ - lines to add
+function manual_d() {
+    local dir=${1}; shift
+    # rest are lines to print
+
+    pkg_debug_lines 'manual work needed:' "${@}"
+    lines_to_file "${dir}/manual-work-needed" "${@}"
+}
+
 # Adds lines to "manual work needed" file in reports.
 #
 # Params:
@@ -856,8 +870,21 @@ function manual() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    pkg_debug_lines 'manual work needed:' "${@}"
-    lines_to_file "${REPORTS_DIR}/manual-work-needed" "${@}"
+    manual_d "${REPORTS_DIR}" "${@}"
+}
+
+# Adds lines to "warnings" file in given directory. Should be used to
+# report some issues with the processed packages.
+#
+# Params:
+#
+# 1 - directory where the file is
+# @ - lines to add
+function pkg_warn_d() {
+    local dir=${1}; shift
+
+    pkg_debug_lines 'pkg warn:' "${@}"
+    lines_to_file "${dir}/warnings" "${@}"
 }
 
 # Adds lines to "warnings" file in reports. Should be used to report
@@ -870,8 +897,21 @@ function pkg_warn() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    pkg_debug_lines 'pkg warn:' "${@}"
-    lines_to_file "${REPORTS_DIR}/warnings" "${@}"
+    pkg_warn_d "${REPORTS_DIR}" "${@}"
+}
+
+# Adds lines to "developer warnings" file in given directory. Should
+# be used to report some failed assumption in the automation, or bugs.
+#
+# Params:
+#
+# 1 - directory where the file is
+# @ - lines to add
+function devel_warn_d() {
+    local dir=${1}; shift
+
+    pkg_debug_lines 'developer warn:' "${@}"
+    lines_to_file "${dir}/developer-warnings" "${@}"
 }
 
 # Adds lines to "developer warnings" file in reports. Should be used
@@ -884,8 +924,7 @@ function devel_warn() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    pkg_debug_lines 'developer warn:' "${@}"
-    lines_to_file "${REPORTS_DIR}/developer-warnings" "${@}"
+    devel_warn_d "${REPORTS_DIR}" "${@}"
 }
 
 # Handles package names that were missing from Gentoo by either
@@ -1832,6 +1871,346 @@ function read_package_sources() {
     done
 }
 
+declare -gri PJS_JOB_IDX=0 PJS_DIR_IDX=1
+function pkg_job_state_declare() {
+    struct_declare -ga "${@}" "( '' '' )"
+}
+
+function pkg_job_state_unset() {
+    local name job_name
+    for name; do
+        local -n pkg_job_state_ref=${name}
+        job_name=${pkg_job_state_ref[PJS_JOB_IDX]}
+        if [[ -n ${job_name} ]]; then
+            job_unset "${job_name}"
+        fi
+        unset -n ref
+    done
+    unset "${@}"
+}
+
+declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE'
+# BOM - a bunch of maps
+declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_PKG_SOURCES_MAP_IDX=4
+
+function bunch_of_maps_declare() {
+    struct_declare -ga "${@}" "( '' '' '' '' '' )"
+}
+
+function bunch_of_maps_unset() {
+    unset "${@}"
+}
+
+function handle_package_changes_job() {
+    local output_dir=${1}; shift
+    local bunch_of_maps_var_name=${1}; shift
+    local we_are_done='' line
+    local -a reply_lines pair
+    local -i i pkg_count
+
+    local REPLY
+    while [[ -z ${we_are_done} ]]; do
+        echo "${ready_for_more_msg}"
+        read -r
+        if [[ ${REPLY} = "${we_are_done_msg}" ]]; then
+            we_are_done=x
+        elif [[ ${REPLY} =~ ^[0-9]+$ ]]; then
+            reply_lines=()
+            pkg_count=${REPLY}
+            for ((i = 0; i < pkg_count; ++i)); do
+                read -r
+                reply_lines+=( "${REPLY}" )
+            done
+            for line in "${reply_lines[@]}"; do
+                mapfile -t pair <<<"${line// /$'\n'}"
+                if [[ ${#pair[@]} -eq 2 ]]; then
+                    handle_one_package_change "${output_dir}" "${bunch_of_maps_var_name}" "${pair[@]}"
+                else
+                    echo "invalid message received: ${line@Q}, expected a pair of package names"
+                fi
+            done
+        else
+            echo "invalid message received: ${REPLY@Q}, expected a number or ${we_are_done_msg@Q}"
+        fi
+    done
+    return 0
+}
+
+declare -gri POP_OUT_DIR_IDX=0 POP_PKG_OUT_DIR_IDX=1 POP_PKG_SLOT_OUT_DIR_IDX=2
+function package_output_paths_declare() {
+    struct_declare -ga "${@}" "( '' '' '')"
+}
+
+function package_output_paths_unset() {
+    unset "${@}"
+}
+
+function handle_one_package_change() {
+    local output_dir=${1}; shift
+    local -n bunch_of_maps_ref=${1}; shift
+    local old_name=${1}; shift
+    local new_name=${1}; shift
+
+    local warnings_dir="${output_dir}/warnings"
+    local updates_dir="${output_dir}/updates"
+
+    local pkg_to_tags_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_TO_TAGS_MVM_IDX]}
+    local pkg_slots_set_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_SLOTS_SET_MVM_IDX]}
+    local old_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
+    local new_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
+    local -n pkg_sources_map_ref=${bunch_of_maps_ref[BOM_PKG_SOURCES_MAP_IDX]}
+
+    if [[ ${old_name} = "${new_name}" ]]; then
+        info "handling update of ${new_name}"
+    else
+        info "handling update of ${new_name} (renamed from ${old_name})"
+    fi
+    pkg_debug_enable "${old_name}" "${new_name}"
+    pkg_debug 'handling updates'
+    local old_repo=${pkg_sources_map_ref["${old_name}"]:-}
+    local new_repo=${pkg_sources_map_ref["${new_name}"]:-}
+    if [[ -z ${old_repo} ]]; then
+        pkg_warn_d "${warnings_dir}" \
+            '- package not in old state' \
+            "  - old package: ${old_name}" \
+            "  - new package: ${new_name}"
+        pkg_debug_disable
+        return 0
+    fi
+    if [[ -z ${new_repo} ]]; then
+        pkg_warn_d "${warnings_dir}" \
+            '- package not in new state' \
+            "  - old package: ${old_name}" \
+            "  - new package: ${new_name}"
+        pkg_debug_disable
+        return 0
+    fi
+    if [[ ${old_repo} != "${new_repo}" ]]; then
+        # This is pretty much an arbitrary limitation and I don't
+        # remember any more why we have it.
+        pkg_warn_d "${warnings_dir}" \
+            '- package has moved between repos? unsupported for now' \
+            "  - old package and repo: ${old_name} ${old_repo}" \
+            "  - new package and repo: ${new_name} ${new_repo}"
+        pkg_debug_disable
+        return 0
+    fi
+    if [[ ${new_repo} != 'portage-stable' ]]; then
+        # coreos-overlay packages will need a separate handling
+        pkg_debug 'not a portage-stable package'
+        pkg_debug_disable
+        return 0
+    fi
+
+    local hopc_old_slots_set_var_name hopc_new_slots_set_var_name
+    mvm_get "${pkg_slots_set_mvm_var_name}" "${old_name}" hopc_old_slots_set_var_name
+    mvm_get "${pkg_slots_set_mvm_var_name}" "${new_name}" hopc_new_slots_set_var_name
+    : "${hopc_old_slots_set_var_name:=EMPTY_MAP}"
+    : "${hopc_new_slots_set_var_name:=EMPTY_MAP}"
+
+    local hopc_old_slot_verminmax_map_var_name hopc_new_slot_verminmax_map_var_name
+    mvm_get "${old_pkg_slot_verminmax_map_mvm_var_name}" "${old_name}" hopc_old_slot_verminmax_map_var_name
+    mvm_get "${new_pkg_slot_verminmax_map_mvm_var_name}" "${new_name}" hopc_new_slot_verminmax_map_var_name
+    : "${hopc_old_slot_verminmax_map_var_name:=EMPTY_MAP}"
+    : "${hopc_new_slot_verminmax_map_var_name:=EMPTY_MAP}"
+    local -n old_slot_verminmax_map_ref=${hopc_old_slot_verminmax_map_var_name}
+    local -n new_slot_verminmax_map_ref=${hopc_new_slot_verminmax_map_var_name}
+
+    # Filter out slots for old and new package name that comes out
+    # without versions. This may happen, because we collect all slot
+    # names for the package name, without differentiating whether such
+    # a slot existed in the old state or still exists in the new
+    # state. If slot didn't exist in either one then it will come
+    # without version information. Such a slot is dropped. An example
+    # would be an update of sys-devel/binutils from 2.42 to 2.43. Each
+    # binutils version has a separate slot which is named after the
+    # version. So the slots set would be (2.42 2.43). Slot "2.42" does
+    # not exist in the new state any more, "2.43" does not yet exist
+    # in the old state. So those slots for those states will be
+    # dropped. Thus filtered slots set for the old state will only
+    # contain 2.42, while for the new state - only 2.43.
+    local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name s verminmax
+    local -A hopc_old_filtered_slots_set hopc_new_filtered_slots_set
+    for which in "${WHICH[@]}"; do
+        slots_set_var_name_var_name="hopc_${which}_slots_set_var_name"
+        slot_verminmax_map_var_name_var_name="hopc_${which}_slot_verminmax_map_var_name"
+        filtered_slots_set_var_name="hopc_${which}_filtered_slots_set"
+        local -n which_slots_set_ref=${!slots_set_var_name_var_name}
+        local -n which_slot_verminmax_map_ref=${!slot_verminmax_map_var_name_var_name}
+        local -n which_filtered_slots_set_ref=${filtered_slots_set_var_name}
+        pkg_debug "all unfiltered slots for ${which} name: ${!which_slots_set_ref[*]}"
+        which_filtered_slots_set_ref=()
+        for s in "${!which_slots_set_ref[@]}"; do
+            verminmax=${which_slot_verminmax_map_ref["${s}"]:-}
+            if [[ -n ${verminmax} ]]; then
+                which_filtered_slots_set_ref["${s}"]=x
+            fi
+        done
+        pkg_debug "all filtered slots for ${which} name: ${!which_filtered_slots_set_ref[*]}"
+        unset -n which_filtered_slots_set_ref
+        unset -n which_slot_verminmax_map_ref
+        unset -n which_slots_set_ref
+    done
+
+    local -A hopc_only_old_slots_set=() hopc_only_new_slots_set=() hopc_common_slots_set=()
+    sets_split \
+        hopc_old_filtered_slots_set hopc_new_filtered_slots_set \
+        hopc_only_old_slots_set hopc_only_new_slots_set hopc_common_slots_set
+    pkg_debug "all common slots: ${!hopc_common_slots_set[*]}"
+    pkg_debug "slots only for old name: ${!hopc_only_old_slots_set[*]}"
+    pkg_debug "slots only for new name: ${!hopc_only_new_slots_set[*]}"
+
+    local update_dir_non_slot="${updates_dir}/${new_name}"
+    mkdir -p "${update_dir_non_slot}"
+
+    package_output_paths_declare hopc_package_output_paths
+    hopc_package_output_paths[POP_OUT_DIR_IDX]=${updates_dir}
+    hopc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${update_dir_non_slot}
+    # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
+
+    generate_non_ebuild_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+    generate_full_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+    generate_package_mention_reports "${update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
+
+    local hopc_changed=''
+    local old_verminmax new_verminmax
+    local hopc_slot_dirname
+    local update_dir
+    local old_version new_version
+    local hopc_cmp_result hopc_slot_changed
+    pkg_debug 'going over common slots'
+    for s in "${!hopc_common_slots_set[@]}"; do
+        old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
+        new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
+        pkg_debug "slot: ${s}, vmm old: ${old_verminmax}, vmm new: ${new_verminmax}"
+        if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
+            devel_warn_d "${warnings_dir}" \
+                "- no minmax info available for old and/or new:" \
+                "  - old package: ${old_name}" \
+                "    - slot: ${s}" \
+                "    - minmax: ${old_verminmax}" \
+                "  - new package: ${new_name}" \
+                "    - slot: ${s}" \
+                "    - minmax: ${new_verminmax}"
+            continue
+        fi
+        slot_dirname "${s}" "${s}" hopc_slot_dirname
+        update_dir="${update_dir_non_slot}/${hopc_slot_dirname}"
+        mkdir -p "${update_dir}"
+        hopc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
+        old_version=${old_verminmax%%:*}
+        new_version=${new_verminmax##*:}
+        gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
+        case ${hopc_cmp_result} in
+            "${GV_GT}")
+                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                hopc_changed=x
+                ;;
+            "${GV_EQ}")
+                hopc_slot_changed=
+                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                if [[ -z ${hopc_slot_changed} ]]; then
+                    rm -rf "${update_dir}"
+                else
+                    hopc_changed=x
+                fi
+                ;;
+            "${GV_LT}")
+                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                hopc_changed=x
+                ;;
+        esac
+    done
+
+    # A "sys-devel/binutils update" case - one old slot and one new
+    # slot, but different from each other.
+    local hopc_old_s hopc_new_s
+    if [[ ${#hopc_only_old_slots_set[@]} -eq 1 ]] && [[ ${#hopc_only_new_slots_set[@]} -eq 1 ]]; then
+        get_first_from_set hopc_only_old_slots_set hopc_old_s
+        old_verminmax=${old_slot_verminmax_map_ref["${hopc_old_s}"]:-}
+        get_first_from_set hopc_only_new_slots_set hopc_new_s
+        new_verminmax=${new_slot_verminmax_map_ref["${hopc_new_s}"]:-}
+        pkg_debug "jumping from slot ${hopc_old_s} (vmm: ${old_verminmax}) to slot ${hopc_new_s} (vmm: ${new_verminmax})"
+        if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
+            devel_warn_d "${warnings_dir}" \
+                "- no verminmax info available for old and/or new:" \
+                "  - old package: ${old_name}" \
+                "    - slot: ${hopc_old_s}" \
+                "    - minmax: ${old_verminmax}" \
+                "  - new package: ${new_name}" \
+                "    - slot: ${hopc_new_s}" \
+                "    - minmax: ${new_verminmax}"
+        else
+            slot_dirname "${hopc_old_s}" "${hopc_new_s}" hopc_slot_dirname
+            update_dir="${update_dir_non_slot}/${hopc_slot_dirname}"
+            mkdir -p "${update_dir}"
+            hopc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
+            old_version=${old_verminmax%%:*}
+            new_version=${new_verminmax##*:}
+            gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
+            case ${hopc_cmp_result} in
+                "${GV_GT}")
+                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    hopc_changed=x
+                    ;;
+                "${GV_EQ}")
+                    hopc_slot_changed=
+                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                    if [[ -z ${hopc_slot_changed} ]]; then
+                        rm -rf "${update_dir}"
+                    else
+                        hopc_changed=x
+                    fi
+                    ;;
+                "${GV_LT}")
+                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
+                    hopc_changed=x
+                    ;;
+            esac
+        fi
+    elif [[ ${#hopc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hopc_only_new_slots_set[@]} -gt 0 ]]; then
+        pkg_debug 'complicated slots situation, needs manual intervention'
+        local -a lines=(
+            '- handle package update:'
+            '  - old package name:'
+            "    - name: ${old_name}"
+            '    - slots:'
+        )
+        for s in "${!hopc_old_filtered_slots_set[@]}"; do
+            old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
+            lines+=("      - ${s}, minmax: ${old_verminmax}")
+        done
+        lines+=(
+            '  - new package name:'
+            "    - name: ${new_name}"
+            '    - slots:'
+        )
+        for s in "${!hopc_new_filtered_slots_set[@]}"; do
+            new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
+            lines+=("      - ${s}, minmax: ${new_verminmax}")
+        done
+        manual_d "${warnings_dir}" "${lines[@]}"
+        unset lines
+    fi
+
+    package_output_paths_unset hopc_package_output_paths
+    unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
+    # if nothing changed, drop the entire update directory for the
+    # package, and possibly the parent directory if it became
+    # empty (parent directory being a category directory, like
+    # sys-apps)
+    local hopc_category_dir
+    if [[ -z ${hopc_changed} ]]; then
+        pkg_debug 'no changes, dropping reports'
+        rm -rf "${update_dir_non_slot}"
+        dirname_out "${update_dir_non_slot}" hopc_category_dir
+        if dir_is_empty "${hopc_category_dir}"; then
+            rmdir "${hopc_category_dir}"
+        fi
+    fi
+    pkg_debug_disable
+}
+
 # This monstrosity takes renames map and package tags information,
 # reads the reports, does consistency checks and uses the information
 # from previous steps to write out package differences between the old
@@ -1856,6 +2235,8 @@ function handle_package_changes() {
     mvm_declare hpc_pkg_slots_set_mvm mvm_mvc_set
     read_reports hpc_all_pkgs hpc_pkg_slots_set_mvm
 
+    info "doing package consistency checks"
+
     # map[package]map[slot]string (string being "min version:max version")
     mvm_declare hpc_old_pkg_slot_verminmax_map_mvm mvm_mvc_map
     mvm_declare hpc_new_pkg_slot_verminmax_map_mvm mvm_mvc_map
@@ -1864,13 +2245,13 @@ function handle_package_changes() {
 
     unset_report_mvms
 
+    info "preparing for handling package changes"
+
     # TODO: when we handle moving packages between repos, then there
     # should be two maps, for old and new state
     local -A hpc_package_sources_map
     hpc_package_sources_map=()
     read_package_sources hpc_package_sources_map
-
-    mkdir -p "${REPORTS_DIR}/updates"
 
     local -a old_pkgs new_pkgs
     old_pkgs=()
@@ -1968,258 +2349,156 @@ function handle_package_changes() {
     # handled by the automation - in such cases there will be a
     # "manual action needed" report.
 
-    local pkg_idx=0
-    local old_name new_name old_repo new_repo
-    local hpc_old_slots_set_var_name hpc_new_slots_set_var_name
-    local hpc_old_slot_verminmax_map_var_name hpc_new_slot_verminmax_map_var_name
-    local s hpc_old_s hpc_new_s
-    local old_verminmax new_verminmax
-    local old_version new_version
-    local hpc_cmp_result
-    local -A hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
-    local -a lines
-    local hpc_update_dir
-    local -A empty_map_or_set
-    local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
-    local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name verminmax
-    local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
-    empty_map_or_set=()
-    while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
-        old_name=${old_pkgs["${pkg_idx}"]}
-        new_name=${new_pkgs["${pkg_idx}"]}
-        if [[ ${old_name} = "${new_name}" ]]; then
-            info "handling update of ${new_name}"
-        else
-            info "handling update of ${new_name} (renamed from ${old_name})"
-        fi
-        pkg_debug_enable "${old_name}" "${new_name}"
-        pkg_debug 'handling updates'
-        pkg_idx=$((pkg_idx + 1))
-        old_repo=${hpc_package_sources_map["${old_name}"]:-}
-        new_repo=${hpc_package_sources_map["${new_name}"]:-}
-        if [[ -z ${old_repo} ]]; then
-            pkg_warn \
-                '- package not in old state' \
-                "  - old package: ${old_name}" \
-                "  - new package: ${new_name}"
-            pkg_debug_disable
-            continue
-        fi
-        if [[ -z ${new_repo} ]]; then
-            pkg_warn \
-                '- package not in new state' \
-                "  - old package: ${old_name}" \
-                "  - new package: ${new_name}"
-            pkg_debug_disable
-            continue
-        fi
-        if [[ ${old_repo} != "${new_repo}" ]]; then
-            # This is pretty much an arbitrary limitation and I don't
-            # remember any more why we have it.
-            pkg_warn \
-                '- package has moved between repos? unsupported for now' \
-                "  - old package and repo: ${old_name} ${old_repo}" \
-                "  - new package and repo: ${new_name} ${new_repo}"
-            pkg_debug_disable
-            continue
-        fi
-        if [[ ${new_repo} != 'portage-stable' ]]; then
-            # coreos-overlay packages will need a separate handling
-            pkg_debug 'not a portage-stable package'
-            pkg_debug_disable
-            continue
-        fi
+    local -i pkg_batch_size=5 this_batch_size pkg_idx=0 pkg_count=${#old_pkgs[@]}
+    local -a pkg_batch old_pkgs_batch new_pkgs_batch
 
-        mvm_get hpc_pkg_slots_set_mvm "${old_name}" hpc_old_slots_set_var_name
-        mvm_get hpc_pkg_slots_set_mvm "${new_name}" hpc_new_slots_set_var_name
-        : "${hpc_old_slots_set_var_name:=empty_map_or_set}"
-        : "${hpc_new_slots_set_var_name:=empty_map_or_set}"
-        mvm_get hpc_old_pkg_slot_verminmax_map_mvm "${old_name}" hpc_old_slot_verminmax_map_var_name
-        mvm_get hpc_new_pkg_slot_verminmax_map_mvm "${new_name}" hpc_new_slot_verminmax_map_var_name
-        : "${hpc_old_slot_verminmax_map_var_name:=empty_map_or_set}"
-        : "${hpc_new_slot_verminmax_map_var_name:=empty_map_or_set}"
-        local -n old_slot_verminmax_map_ref=${hpc_old_slot_verminmax_map_var_name}
-        local -n new_slot_verminmax_map_ref=${hpc_new_slot_verminmax_map_var_name}
+    local pkg_job_top_dir="${WORKDIR}/pkgjobdirs"
+    create_cleanup_dir "${pkg_job_top_dir}"
 
-        # Filter out slots for old and new package name that comes out
-        # without versions. This may happen, because we collect all
-        # slot names for the package name, without differentiating
-        # whether such a slot existed in the old state or still exists
-        # in the new state. If slot didn't exist in either one then it
-        # will come without version information. Such a slot is
-        # dropped. An example would be an update of sys-devel/binutils
-        # from 2.42 to 2.43. Each binutils version has a separate slot
-        # which is named after the version. So the slots set would be
-        # (2.42 2.43). Slot "2.42" does not exist in the new state any
-        # more, "2.43" does not yet exist in the old state. So those
-        # slots for those states will be dropped. Thus filtered slots
-        # set for the old state will only contain 2.42, while for the
-        # new state - only 2.43.
-        for which in old new; do
-            slots_set_var_name_var_name="hpc_${which}_slots_set_var_name"
-            slot_verminmax_map_var_name_var_name="hpc_${which}_slot_verminmax_map_var_name"
-            filtered_slots_set_var_name="hpc_${which}_filtered_slots_set"
-            local -n which_slots_set_ref=${!slots_set_var_name_var_name}
-            local -n which_slot_verminmax_map_ref=${!slot_verminmax_map_var_name_var_name}
-            local -n which_filtered_slots_set_ref=${filtered_slots_set_var_name}
-            pkg_debug "all unfiltered slots for ${which} name: ${!which_slots_set_ref[*]}"
-            which_filtered_slots_set_ref=()
-            for s in "${!which_slots_set_ref[@]}"; do
-                verminmax=${which_slot_verminmax_map_ref["${s}"]:-}
-                if [[ -n ${verminmax} ]]; then
-                    which_filtered_slots_set_ref["${s}"]=x
+    local -a pkg_job_state_names=()
+    local pkg_job_state_name pkg_job_name pkg_job_dir pkg_job_warnings_dir pkg_job_updates_dir
+
+    local -i job_count i
+    get_num_proc job_count
+
+    local file
+    local -a paths
+
+    bunch_of_maps_declare hpc_bunch_of_maps
+    hpc_bunch_of_maps[BOM_PKG_TO_TAGS_MVM_IDX]=${pkg_to_tags_mvm_var_name}
+    hpc_bunch_of_maps[BOM_PKG_SLOTS_SET_MVM_IDX]=hpc_pkg_slots_set_mvm
+    hpc_bunch_of_maps[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_old_pkg_slot_verminmax_map_mvm
+    hpc_bunch_of_maps[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_new_pkg_slot_verminmax_map_mvm
+    hpc_bunch_of_maps[BOM_PKG_SOURCES_MAP_IDX]=hpc_package_sources_map
+
+    for ((i = 0; i < job_count; ++i)); do
+        gen_varname pkg_job_state_name
+        pkg_job_state_declare "${pkg_job_state_name}"
+        gen_varname pkg_job_name
+        job_declare "${pkg_job_name}"
+
+        pkg_job_dir="${pkg_job_top_dir}/j${i}"
+        pkg_job_warnings_dir="${pkg_job_dir}/warnings"
+        pkg_job_updates_dir="${pkg_job_dir}/updates"
+        create_cleanup_dir "${pkg_job_dir}"
+        create_cleanup_dir "${pkg_job_warnings_dir}"
+        create_cleanup_dir "${pkg_job_updates_dir}"
+        paths=()
+        for file in developer-warnings warnings manual-work-needed; do
+            paths+=( "${pkg_job_dir}/warnings/${file}" )
+        done
+        for file in summary_stubs changelog_stubs; do
+            paths+=( "${pkg_job_dir}/updates/${file}" )
+        done
+        # TODO: That's a bit messy
+        add_cleanup "find -P ${pkg_job_updates_dir@Q} -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +"
+        add_cleanup "rm -f ${paths[*]@Q}"
+
+        job_run -m "${pkg_job_name}" handle_package_changes_job "${pkg_job_dir}" hpc_bunch_of_maps
+
+        local -n pkg_job_state_ref="${pkg_job_state_name}"
+        pkg_job_state_ref[PJS_JOB_IDX]=${pkg_job_name}
+        pkg_job_state_ref[PJS_DIR_IDX]=${pkg_job_dir}
+        unset -n pkg_job_state_ref
+        pkg_job_state_names+=( "${pkg_job_state_name}" )
+    done
+
+    local -i current_idx=0 next_idx=1 idx state_count=${#pkg_job_state_names[@]}
+    local -a pkg_job_state_names_0=( "${pkg_job_state_names[@]}" ) pkg_job_state_names_1=() pkg_job_output_lines
+    local pkg_job_output_line pkg_job_input_sent
+
+    while [[ state_count -gt 0 ]]; do
+        local -n pkg_job_state_names_ref=pkg_job_state_names_${current_idx}
+        local -n next_pkg_job_state_names_ref=pkg_job_state_names_${next_idx}
+
+        next_pkg_job_state_names_ref=()
+        for pkg_job_state_name in "${pkg_job_state_names_ref[@]}"; do
+            local -n pkg_job_state_ref=${pkg_job_state_name}
+            pkg_job_name=${pkg_job_state_ref[PJS_JOB_IDX]}
+            unset -n pkg_job_state_ref
+            if job_is_alive "${pkg_job_name}"; then
+                next_pkg_job_state_names_ref+=( "${pkg_job_state_name}" )
+            fi
+            job_get_output "${pkg_job_name}" pkg_job_output_lines
+            pkg_job_input_sent=
+            for pkg_job_output_line in "${pkg_job_output_lines[@]}"; do
+                if [[ ${pkg_job_output_line} = "${ready_for_more_msg}" ]]; then
+                    if [[ -z ${pkg_job_input_sent} ]]; then
+                        if [[ pkg_idx -ge pkg_count ]]; then
+                            job_send_input "${pkg_job_name}" "${we_are_done_msg}"
+                        else
+                            old_pkgs_batch=( "${old_pkgs[@]:pkg_idx:pkg_batch_size}" )
+                            new_pkgs_batch=( "${new_pkgs[@]:pkg_idx:pkg_batch_size}" )
+                            this_batch_size=${#old_pkgs_batch[@]}
+                            pkg_batch=( "${this_batch_size}" )
+                            for ((i = 0; i < this_batch_size; ++i)); do
+                                old_pkg=${old_pkgs_batch[i]}
+                                new_pkg=${new_pkgs_batch[i]}
+                                pkg_batch+=( "${old_pkg} ${new_pkg}" )
+                            done
+                            pkg_idx=$((pkg_idx + pkg_batch_size))
+                            job_send_input "${pkg_job_name}" "${pkg_batch[@]}"
+                        fi
+                        pkg_job_input_sent=x
+                    fi
+                else
+                    # The job already used info to print this line, so
+                    # we should just echo it, otherwise we will get
+                    # repeated prefixes ("script_name: script_name:
+                    # something happenend")
+                    echo "${pkg_job_output_line}"
                 fi
             done
-            pkg_debug "all filtered slots for ${which} name: ${!which_filtered_slots_set_ref[*]}"
-            unset -n which_filtered_slots_set_ref
-            unset -n which_slot_verminmax_map_ref
-            unset -n which_slots_set_ref
         done
-
-        hpc_only_old_slots_set=()
-        hpc_only_new_slots_set=()
-        hpc_common_slots_set=()
-        sets_split \
-            hpc_old_filtered_slots_set hpc_new_filtered_slots_set \
-            hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
-        pkg_debug "all common slots: ${!hpc_common_slots_set[*]}"
-        pkg_debug "slots only for old name: ${!hpc_only_old_slots_set[*]}"
-        pkg_debug "slots only for new name: ${!hpc_only_new_slots_set[*]}"
-
-        update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
-        mkdir -p "${hpc_update_dir_non_slot}"
-
-        generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
-
-        hpc_changed=
-        pkg_debug 'going over common slots'
-        for s in "${!hpc_common_slots_set[@]}"; do
-            old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
-            new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
-            pkg_debug "slot: ${s}, vmm old: ${old_verminmax}, vmm new: ${new_verminmax}"
-            if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
-                devel_warn \
-                    "- no minmax info available for old and/or new:" \
-                    "  - old package: ${old_name}" \
-                    "    - slot: ${s}" \
-                    "    - minmax: ${old_verminmax}" \
-                    "  - new package: ${new_name}" \
-                    "    - slot: ${s}" \
-                    "    - minmax: ${new_verminmax}"
-                continue
-            fi
-            update_dir "${new_name}" "${s}" "${s}" hpc_update_dir
-            mkdir -p "${hpc_update_dir}"
-            old_version=${old_verminmax%%:*}
-            new_version=${new_verminmax##*:}
-            gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
-            case ${hpc_cmp_result} in
-                "${GV_GT}")
-                    handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
-                    hpc_changed=x
-                    ;;
-                "${GV_EQ}")
-                    hpc_slot_changed=
-                    handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" hpc_slot_changed
-                    if [[ -z ${hpc_slot_changed} ]]; then
-                        rm -rf "${hpc_update_dir}"
-                    else
-                        hpc_changed=x
-                    fi
-                    ;;
-                "${GV_LT}")
-                    handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
-                    hpc_changed=x
-                    ;;
-            esac
-        done
-        # A "sys-devel/binutils update" case - one old slot and one
-        # new slot, but different from each other.
-        if [[ ${#hpc_only_old_slots_set[@]} -eq 1 ]] && [[ ${#hpc_only_new_slots_set[@]} -eq 1 ]]; then
-            get_first_from_set hpc_only_old_slots_set hpc_old_s
-            old_verminmax=${old_slot_verminmax_map_ref["${hpc_old_s}"]:-}
-            get_first_from_set hpc_only_new_slots_set hpc_new_s
-            new_verminmax=${new_slot_verminmax_map_ref["${hpc_new_s}"]:-}
-            pkg_debug "jumping from slot ${hpc_old_s} (vmm: ${old_verminmax}) to slot ${hpc_new_s} (vmm: ${new_verminmax})"
-            if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
-                devel_warn \
-                    "- no verminmax info available for old and/or new:" \
-                    "  - old package: ${old_name}" \
-                    "    - slot: ${hpc_old_s}" \
-                    "    - minmax: ${old_verminmax}" \
-                    "  - new package: ${new_name}" \
-                    "    - slot: ${hpc_new_s}" \
-                    "    - minmax: ${new_verminmax}"
-            else
-                update_dir "${new_name}" "${hpc_old_s}" "${hpc_new_s}" hpc_update_dir
-                mkdir -p "${hpc_update_dir}"
-                old_version=${old_verminmax%%:*}
-                new_version=${new_verminmax##*:}
-                gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
-                case ${hpc_cmp_result} in
-                    "${GV_GT}")
-                        handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
-                        hpc_changed=x
-                        ;;
-                    "${GV_EQ}")
-                        hpc_slot_changed=
-                        handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" hpc_slot_changed
-                        if [[ -z ${hpc_slot_changed} ]]; then
-                            rm -rf "${hpc_update_dir}"
-                        else
-                            hpc_changed=x
-                        fi
-                        ;;
-                    "${GV_LT}")
-                        handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
-                        hpc_changed=x
-                        ;;
-                esac
-            fi
-        elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]; then
-            pkg_debug 'complicated slots situation, needs manual intervention'
-            lines=(
-                '- handle package update:'
-                '  - old package name:'
-                "    - name: ${old_name}"
-                '    - slots:'
-            )
-            for s in "${!hpc_old_filtered_slots_set[@]}"; do
-                old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
-                lines+=("      - ${s}, minmax: ${old_verminmax}")
-            done
-            lines+=(
-                '  - new package name:'
-                "    - name: ${new_name}"
-                '    - slots:'
-            )
-            for s in "${!hpc_new_filtered_slots_set[@]}"; do
-                new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
-                lines+=("      - ${s}, minmax: ${new_verminmax}")
-            done
-            manual "${lines[@]}"
+        state_count=${#next_pkg_job_state_names_ref[@]}
+        if [[ state_count -gt 0 ]]; then
+            sleep 0.2
         fi
-        unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
-        # if nothing changed, drop the entire update directory for the
-        # package, and possibly the parent directory if it became
-        # empty (parent directory being a category directory, like
-        # sys-apps)
-        if [[ -z ${hpc_changed} ]]; then
-            pkg_debug 'no changes, dropping reports'
-            rm -rf "${hpc_update_dir_non_slot}"
-            dirname_out "${hpc_update_dir_non_slot}" hpc_category_dir
-            if dir_is_empty "${hpc_category_dir}"; then
-                rmdir "${hpc_category_dir}"
-            fi
-        fi
-        pkg_debug_disable
+
+        unset -n pkg_job_state_names_ref next_pkg_job_state_names_ref
+        idx=${current_idx}
+        current_idx=${next_idx}
+        next_idx=${idx}
     done
+
+    local some_job_failed='' hpc_filename
+    local -i hpc_rv
+    truncate --size=0 "${REPORTS_DIR}/updates/summary_stubs" "${REPORTS_DIR}/updates/changelog_stubs"
+    for pkg_job_state_name in "${pkg_job_state_names[@]}"; do
+        local -n pkg_job_state_ref=${pkg_job_state_name}
+        pkg_job_name=${pkg_job_state_ref[PJS_JOB_IDX]}
+        pkg_job_dir=${pkg_job_state_ref[PJS_DIR_IDX]}
+        unset -n pkg_job_state_ref
+        job_reap "${pkg_job_name}" hpc_rv
+        if [[ hpc_rv -ne 0 ]]; then
+            some_job_failed=x
+        fi
+        for file in "${pkg_job_dir}/warnings/"*; do
+            basename_out "${file}" hpc_filename
+            cat "${file}" >>"${REPORTS_DIR}/${hpc_filename}"
+        done
+        for file in "${pkg_job_dir}/updates/"*; do
+            basename_out "${file}" hpc_filename
+            if [[ -f ${file} ]]; then
+                cat "${file}" >>"${REPORTS_DIR}/updates/${hpc_filename}"
+            elif [[ -d ${file} ]]; then
+                if [[ ! -d "${REPORTS_DIR}/updates/${hpc_filename}" ]]; then
+                    mkdir -p "${REPORTS_DIR}/updates/${hpc_filename}"
+                fi
+                mv "${file}/"* "${REPORTS_DIR}/updates/${hpc_filename}"
+            fi
+        done
+    done
+    pkg_job_state_unset "${pkg_job_state_names[@]}"
+    bunch_of_maps_unset hpc_bunch_of_maps
 
     mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_old_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_pkg_slots_set_mvm
+
+    if [[ -n ${some_job_failed} ]]; then
+        fail "some job failed"
+    fi
 }
 
 # Gets the first item from the passed set.
@@ -2248,42 +2527,34 @@ function get_first_from_set() {
 #
 # Params:
 #
-# 1 - name of the package tags set mvm variable
-# 2 - old package name
-# 3 - new package name
-# 4 - old package slot
-# 5 - new package slot
-# 6 - old version
-# 7 - new version
+# 1 - package output paths variable name
+# 2 - name of the package tags set mvm variable
+# 3 - old package name
+# 4 - new package name
+# 5 - old version
+# 6 - new version
 function handle_pkg_update() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s old new
-    pkg_to_tags_mvm_var_name=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
-    old=${1}; shift
-    new=${1}; shift
+    local -n package_output_paths_ref=${1}; shift
+    local pkg_to_tags_mvm_var_name=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local old_no_r new_no_r
-    old_no_r=${old%-r+([0-9])}
-    new_no_r=${new%-r+([0-9])}
+    local old_no_r=${old%-r+([0-9])}
+    local new_no_r=${new%-r+([0-9])}
 
-    local pkg_name
-    pkg_name=${new_pkg#*/}
-    local -a lines
-    lines=( "0:from ${old} to ${new}")
+    local pkg_name=${new_pkg#*/}
+    local -a lines=( "0:from ${old} to ${new}" )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
     fi
-    generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
-    local hpu_update_dir hpu_update_dir_non_slot
-    update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local diff_report_name
     gen_varname diff_report_name
@@ -2297,10 +2568,11 @@ function handle_pkg_update() {
     unset -n diff_report_ref
     diff_report_unset "${diff_report_name}"
 
-    if [[ -s "${hpu_update_dir}/ebuild.diff" ]]; then
+    if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
-    if [[ -s "${hpu_update_dir_non_slot}/other.diff" ]]; then
+    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
     lines+=( '0:TODO: review occurences' )
@@ -2311,13 +2583,15 @@ function handle_pkg_update() {
     local -a hpu_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpu_tags
 
+    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
+
     if ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
-        generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
+        generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
         lines+=( '0:release notes: TODO' )
     fi
 
-    generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
 }
 
 # Write information to reports directory about the modified package
@@ -2326,48 +2600,38 @@ function handle_pkg_update() {
 #
 # Params:
 #
-# 1 - name of the package tags set mvm variable
-# 2 - old package name
-# 3 - new package name
-# 4 - old package slot
-# 5 - new package slot
-# 6 - version
-# 7 - name of a "bool" variable where info is stored if relevant files
+# 1 - package output paths variable name
+# 2 - name of the package tags set mvm variable
+# 3 - old package name
+# 4 - new package name
+# 5 - version
+# 6 - name of a "bool" variable where info is stored if relevant files
 #     has changed (empty means nothing changed, non-empty means
 #     something has changed)
 function handle_pkg_as_is() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s v
-    pkg_to_tags_mvm_var_name=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
-    v=${1}; shift
+    local -n package_output_paths_ref=${1}; shift
+    local pkg_to_tags_mvm_var_name=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local v=${1}; shift
     local -n changed_ref=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local hpai_update_dir
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
+    local pkg_name=${new_pkg#/}
+    local -a lines=( "0:still at ${v}" )
 
-    local pkg_name
-    pkg_name=${new_pkg#/}
-    local -a lines
-    lines=( "0:still at ${v}" )
-
-    local renamed
-    renamed=
+    local renamed=''
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
         renamed=x
     fi
-    generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
-    local hpai_update_dir_non_slot hpai_update_dir
-    update_dir_non_slot "${new_pkg}" hpai_update_dir_non_slot
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
-    local modified
-    modified=
+
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
+
+    local modified=''
 
     local diff_report_name
     gen_varname diff_report_name
@@ -2384,11 +2648,12 @@ function handle_pkg_as_is() {
     unset -n diff_report_ref
     diff_report_unset "${diff_report_name}"
 
-    if [[ -s "${hpai_update_dir}/ebuild.diff" ]]; then
+    if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
         modified=x
     fi
-    if [[ -s "${hpai_update_dir_non_slot}/other.diff" ]]; then
+    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
         modified=x
     fi
@@ -2402,9 +2667,11 @@ function handle_pkg_as_is() {
         lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
+    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
+
     local -a hpai_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpai_tags
-    generate_summary_stub "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
 }
 
 # Write information to reports directory about the package downgrade
@@ -2413,22 +2680,19 @@ function handle_pkg_as_is() {
 #
 # Params:
 #
-# 1 - name of the package tags set mvm variable
-# 2 - old package name
-# 3 - new package name
-# 4 - old package slot
-# 5 - new package slot
-# 6 - old version
-# 7 - new version
+# 1 - package output paths variable name
+# 2 - name of the package tags set mvm variable
+# 3 - old package name
+# 4 - new package name
+# 5 - old version
+# 6 - new version
 function handle_pkg_downgrade() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s old new
-    pkg_to_tags_mvm_var_name=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
-    old=${1}; shift
-    new=${1}; shift
+    local -n package_output_paths_ref=${1}; shift
+    local pkg_to_tags_mvm_var_name=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
@@ -2437,18 +2701,14 @@ function handle_pkg_downgrade() {
     old_no_r=${old%-r+([0-9])}
     new_no_r=${new%-r+([0-9])}
 
-    local pkg_name
-    pkg_name=${new_pkg#*/}
-    local -a lines
-    lines=( "0:downgraded from ${old} to ${new}" )
+    local pkg_name=${new_pkg#*/}
+    local -a lines=( "0:downgraded from ${old} to ${new}" )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
     fi
-    generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
-    local hpd_update_dir hpd_update_dir_non_slot
-    update_dir_non_slot "${new_pkg}" hpd_update_dir_non_slot
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpd_update_dir
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local diff_report_name
     gen_varname diff_report_name
@@ -2462,10 +2722,11 @@ function handle_pkg_downgrade() {
     unset -n diff_report_ref
     diff_report_unset "${diff_report_name}"
 
-    if [[ -s "${hpd_update_dir}/ebuild.diff" ]]; then
+    if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
-    if [[ -s "${hpd_update_dir_non_slot}/other.diff" ]]; then
+    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
     lines+=( '0:TODO: review occurences' )
@@ -2476,13 +2737,15 @@ function handle_pkg_downgrade() {
     local -a hpd_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpd_tags
 
+    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
+
     if ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
-        generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
+        generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
         lines+=( "0:release notes: TODO" )
     fi
 
-    generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
 }
 
 # Retrieves tags for a package.
@@ -2517,13 +2780,14 @@ function tags_for_pkg() {
 # Adds a changelog stub to changelog file in reports directory.
 #
 # Params:
-# 1 - package name (shortened, without the category)
-# 2 - version
+# 1 - output directory
+# 2 - package name (shortened, without the category)
+# 3 - version
 # @ - package tags
 function generate_changelog_entry_stub() {
-    local pkg_name v
-    pkg_name=${1}; shift
-    v=${1}; shift
+    local out_dir=${1}; shift
+    local pkg_name=${1}; shift
+    local v=${1}; shift
     # rest are tags
 
     local -a applied_tags=()
@@ -2546,25 +2810,20 @@ function generate_changelog_entry_stub() {
         gces_tags='SDK'
     fi
 
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    printf '%s %s: %s ([%s](TODO))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" >>"${REPORTS_DIR}/updates/changelog_stubs"
+    printf '%s %s: %s ([%s](TODO))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" >>"${out_dir}/changelog_stubs"
 }
 
 # Adds a stub to the summary file in reports directory.
 #
 # Params:
-# 1 - package
+# 1 - output directory
+# 2 - package
 # @ - tags followed by double dash followed by lines to append to the
 #     file
 function generate_summary_stub() {
-    local pkg
-    pkg=${1}; shift
+    local out_dir=${1}; shift
+    local pkg=${1}; shift
     # rest are tags separated followed by double dash followed by lines
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
 
     local -a tags
     tags=()
@@ -2594,7 +2853,7 @@ function generate_summary_stub() {
             printf '  - %s\n' "${line}"
         done
         printf '\n'
-    } >>"${REPORTS_DIR}/updates/summary_stubs"
+    } >>"${out_dir}/summary_stubs"
 }
 
 # Generate diffs between directories in old state and new state for a
@@ -2602,30 +2861,27 @@ function generate_summary_stub() {
 #
 # Params:
 #
-# 1 - path to portage-stable in old state
-# 2 - path to portage-stable in new state
-# 3 - old package name
-# 4 - new package name
+# 1 - output directory
+# 2 - path to portage-stable in old state
+# 3 - path to portage-stable in new state
+# 4 - old package name
+# 5 - new package name
 function generate_full_diffs() {
-    local old_ps new_ps old_pkg new_pkg
-    old_ps=${1}; shift
-    new_ps=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
+    local out_dir=${1}; shift
+    local old_ps=${1}; shift
+    local new_ps=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
 
-    local old_path new_path
-    old_path="${old_ps}/${old_pkg}"
-    new_path="${new_ps}/${new_pkg}"
-
-    local gfd_update_dir
-    update_dir_non_slot "${new_pkg}" gfd_update_dir
+    local old_path="${old_ps}/${old_pkg}"
+    local new_path="${new_ps}/${new_pkg}"
 
     local -a common_diff_opts=(
         --recursive
         --unified=3
     )
-    xdiff "${common_diff_opts[@]}" --new-file "${old_path}" "${new_path}" >"${gfd_update_dir}/full.diff"
-    xdiff "${common_diff_opts[@]}" --brief "${old_path}" "${new_path}" >"${gfd_update_dir}/brief-summary"
+    xdiff "${common_diff_opts[@]}" --new-file "${old_path}" "${new_path}" >"${out_dir}/full.diff"
+    xdiff "${common_diff_opts[@]}" --brief "${old_path}" "${new_path}" >"${out_dir}/brief-summary"
 }
 
 # Generate a diff between non-ebuild, non-Manifest files for old and
@@ -2633,23 +2889,20 @@ function generate_full_diffs() {
 #
 # Params:
 #
-# 1 - path to portage-stable in old state
-# 2 - path to portage-stable in new state
-# 3 - old package name
-# 4 - new package name
+# 1 - output directory
+# 2 - path to portage-stable in old state
+# 3 - path to portage-stable in new state
+# 4 - old package name
+# 5 - new package name
 function generate_non_ebuild_diffs() {
-    local old_ps new_ps old_pkg new_pkg
-    old_ps=${1}; shift
-    new_ps=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
+    local out_dir=${1}; shift
+    local old_ps=${1}; shift
+    local new_ps=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
 
-    local old_path new_path
-    old_path="${old_ps}/${old_pkg}"
-    new_path="${new_ps}/${new_pkg}"
-
-    local gned_update_dir
-    update_dir_non_slot "${new_pkg}" gned_update_dir
+    local old_path="${old_ps}/${old_pkg}"
+    local new_path="${new_ps}/${new_pkg}"
 
     local -a diff_opts=(
         --recursive
@@ -2660,43 +2913,36 @@ function generate_non_ebuild_diffs() {
         --exclude='*.ebuild'
         --exclude='Manifest'
     )
-    xdiff "${diff_opts[@]}" "${old_path}" "${new_path}" >"${gned_update_dir}/other.diff"
+    xdiff "${diff_opts[@]}" "${old_path}" "${new_path}" >"${out_dir}/other.diff"
 }
 
 # Generate a diff between specific ebuilds for old and new package.
 #
 # Params:
 #
-# 1 - path to portage-stable in old state
-# 2 - path to portage-stable in new state
-# 3 - old package name
-# 4 - new package name
-# 5 - old package slot
-# 6 - new package slot
-# 7 - old package version
-# 8 - new package version
+# 1 - output directory
+# 2 - path to portage-stable in old state
+# 3 - path to portage-stable in new state
+# 4 - old package name
+# 5 - new package name
+# 6 - old package version
+# 7 - new package version
 function generate_ebuild_diff() {
-    local old_ps new_ps old_pkg new_pkg old_s new_s old new
-    old_ps=${1}; shift
-    new_ps=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
-    old=${1}; shift
-    new=${1}; shift
+    local out_dir=${1}; shift
+    local old_ps=${1}; shift
+    local new_ps=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
 
-    local old_pkg_name new_pkg_name
-    old_pkg_name=${old_pkg#*/}
-    new_pkg_name=${new_pkg#*/}
+    local old_pkg_name=${old_pkg#*/}
+    local new_pkg_name=${new_pkg#*/}
 
-    local old_path new_path
-    old_path="${old_ps}/${old_pkg}/${old_pkg_name}-${old}.ebuild"
-    new_path="${new_ps}/${new_pkg}/${new_pkg_name}-${new}.ebuild"
+    local old_path="${old_ps}/${old_pkg}/${old_pkg_name}-${old}.ebuild"
+    local new_path="${new_ps}/${new_pkg}/${new_pkg_name}-${new}.ebuild"
 
-    local ged_update_dir
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" ged_update_dir
-    xdiff --unified=3 "${old_path}" "${new_path}" >"${ged_update_dir}/ebuild.diff"
+    xdiff --unified=3 "${old_path}" "${new_path}" >"${out_dir}/ebuild.diff"
 }
 
 function generate_cache_diff_report() {
@@ -2730,22 +2976,20 @@ function generate_cache_diff_report() {
 # are mentioned in entire scripts repository. May result in two
 # separate reports if the package got renamed.
 #
-# 1 - path to scripts repo
-# 2 - old package name
-# 3 - new package name
+# 1 - output directory
+# 2 - path to scripts repo
+# 3 - old package name
+# 4 - new package name
 function generate_package_mention_reports() {
-    local scripts old_pkg new_pkg
-    scripts=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
+    local out_dir=${1}; shift
+    local scripts=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
 
-    local gpr_update_dir
-    update_dir_non_slot "${new_pkg}" gpr_update_dir
-
-    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${gpr_update_dir}/occurences"
+    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${out_dir}/occurences"
 
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${gpr_update_dir}/occurences-for-old-name"
+        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${out_dir}/occurences-for-old-name"
     fi
 }
 
@@ -2796,39 +3040,17 @@ function generate_mention_report_for_package() {
     grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}" ":(exclude)${co}"
 }
 
-# Gets a toplevel update reports directory for a package. This is
-# where occurences and non-ebuild diffs are stored.
+# Gets a slot-specific directory name for ebuild diffs.
 #
 # Params:
 #
-# 1 - package name
-# 2 - name of a variable where the path will be stored
-function update_dir_non_slot() {
-    local pkg
-    pkg=${1}; shift
-    local -n dir_ref=${1}; shift
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    dir_ref="${REPORTS_DIR}/updates/${pkg}"
-}
-
-# Gets a slot specific update reports directory for a package. This is
-# where ebuild diffs are stored.
-#
-# Params:
-#
-# 1 - package name
-# 2 - old slot
-# 3 - new slot
-# 4 - name of a variable where the path will be stored
-function update_dir() {
-    local pkg old_s new_s
-    pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
-    local -n dir_ref=${1}; shift
+# 1 - old slot
+# 2 - new slot
+# 3 - name of a variable where the path will be stored
+function slot_dirname() {
+    local old_s=${1}; shift
+    local new_s=${1}; shift
+    local -n dirname_ref=${1}; shift
 
     # slots may have slashes in them - replace them with "-slash-"
     local slot_dir
@@ -2838,9 +3060,7 @@ function update_dir() {
         slot_dir="${old_s//\//-slash-}-to-${new_s//\//-slash-}"
     fi
 
-    local ud_non_slot_dir
-    update_dir_non_slot "${pkg}" ud_non_slot_dir
-    dir_ref="${ud_non_slot_dir}/${slot_dir}"
+    dirname_ref=${slot_dir}
 }
 
 # Greps for a package name in selected directories of the passed
@@ -2881,16 +3101,18 @@ function handle_gentoo_sync() {
     mvm_declare hgs_pkg_to_tags_mvm
     process_listings hgs_pkg_to_tags_mvm
 
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
     local -A hgs_renames_old_to_new_map=()
     process_profile_updates_directory hgs_renames_old_to_new_map
+
+    mkdir -p "${REPORTS_DIR}/updates"
 
     handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm
 
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
 
     local old_head new_head
     old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
@@ -3087,6 +3309,8 @@ function handle_eclass() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
+    info "handling update of ${eclass}"
+
     local -a lines
     lines=()
     if [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]] && [[ -e "${NEW_PORTAGE_STABLE}/${eclass}" ]]; then
@@ -3098,7 +3322,7 @@ function handle_eclass() {
     else
         lines+=( '0:added from Gentoo' )
     fi
-    generate_summary_stub "${eclass}" -- "${lines[@]}"
+    generate_summary_stub "${REPORTS_DIR}/updates" "${eclass}" -- "${lines[@]}"
 }
 
 # Handle profile changes. Generates three different diffs - changes in
@@ -3108,6 +3332,8 @@ function handle_eclass() {
 function handle_profiles() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
+
+    info "handling update of profiles"
 
     local -a files=()
     local which arch
@@ -3170,7 +3396,7 @@ function handle_profiles() {
     done <"${out_dir}/full.diff"
     lines_to_file_truncate "${out_dir}/relevant.diff" "${relevant_lines[@]}"
     lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
-    generate_summary_stub profiles -- '0:TODO: review the diffs'
+    generate_summary_stub "${REPORTS_DIR}/updates" profiles -- '0:TODO: review the diffs'
 }
 
 # Handles changes in license directory. Generates brief reports and
@@ -3178,6 +3404,8 @@ function handle_profiles() {
 function handle_licenses() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
+
+    info "handling update of licenses"
 
     local -a dropped=() added=() changed=()
     local line hl_stripped
@@ -3244,7 +3472,7 @@ function handle_licenses() {
         join_by joined ', ' "${changed[@]}"
         lines+=( "0:updated ${joined}" )
     fi
-    generate_summary_stub licenses -- "${lines[@]}"
+    generate_summary_stub "${REPORTS_DIR}/updates" licenses -- "${lines[@]}"
 }
 
 # Generates reports about changes inside the scripts directory.
@@ -3252,12 +3480,14 @@ function handle_scripts() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
+    info "handling update of scripts"
+
     local out_dir
     out_dir="${REPORTS_DIR}/updates/scripts"
     mkdir -p "${out_dir}"
 
     xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
-    generate_summary_stub scripts -- '0:TODO: review the diffs'
+    generate_summary_stub "${REPORTS_DIR}/updates" scripts -- '0:TODO: review the diffs'
 }
 
 fi
