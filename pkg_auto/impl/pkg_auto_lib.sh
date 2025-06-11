@@ -1890,7 +1890,7 @@ function pkg_job_state_unset() {
 
 declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE'
 # BOM - a bunch of maps
-declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 PKG_SOURCES_MAP_IDX=4
+declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 PKG_SOURCES_MAP_IDX=4
 
 function bunch_of_maps_declare() {
     struct_declare -ga "${@}" "( '' '' '' '' '' )"
