@@ -2432,8 +2432,8 @@ function handle_package_changes() {
                             this_batch_size=${#old_pkgs_batch[@]}
                             pkg_batch=( "${this_batch_size}" )
                             for ((i = 0; i < this_batch_size; ++i)); do
-                                old_pkg=${old_pkgs[i]}
-                                new_pkg=${new_pkgs[i]}
+                                old_pkg=${old_pkgs_batch[i]}
+                                new_pkg=${new_pkgs_batch[i]}
                                 pkg_batch+=( "${old_pkg} ${new_pkg}" )
                             done
                             pkg_idx=$((pkg_idx + pkg_batch_size))
