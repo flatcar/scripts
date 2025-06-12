@@ -24,6 +24,6 @@ OEM_NAME="STACKIT"
 
 src_install() {
 	systemd_enable_service multi-user.target chronyd.service
-	insinto /etc/chrony
+	insinto /usr/share/${PN}
 	doins "${FILESDIR}"/chrony.conf
 }
