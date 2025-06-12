@@ -1,0 +1,1 @@
+- `/boot` is now only accessible by the root user for better security. ([Flatcar#296](https://github.com/flatcar/Flatcar/issues/296))
