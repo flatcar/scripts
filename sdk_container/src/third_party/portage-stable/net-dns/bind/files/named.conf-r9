@@ -87,7 +87,6 @@ options {
 
 */
 
-	dnssec-enable yes;
 	//dnssec-validation yes;
 
 	/*
