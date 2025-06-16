@@ -1,7 +1,7 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit autotools bash-completion-r1 flag-o-matic multilib-minimal toolchain-funcs
 
@@ -11,7 +11,7 @@ SRC_URI="https://dbus.freedesktop.org/releases/${PN}/${P}.tar.gz"
 
 LICENSE="|| ( GPL-2 AFL-2.1 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="debug static-libs test"
 RESTRICT="!test? ( test )"
 
@@ -21,6 +21,7 @@ DEPEND="
 	>=sys-apps/dbus-1.8[${MULTILIB_USEDEP}]
 "
 RDEPEND="${DEPEND}"
+# CBUILD dependencies are needed to make a native tool while cross-compiling.
 BDEPEND="
 	>=dev-libs/expat-2.1.0-r3
 	>=dev-libs/glib-2.40:2
@@ -28,7 +29,7 @@ BDEPEND="
 	>=dev-util/glib-utils-2.40
 	>=dev-build/gtk-doc-am-1.14
 	virtual/pkgconfig
-" # CBUILD dependencies are needed to make a native tool while cross-compiling.
+"
 
 DOCS=( AUTHORS CONTRIBUTING.md NEWS README )
 
@@ -43,9 +44,6 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	# bug #943768
-	append-cflags -std=gnu17
-
 	# bug #923801
 	append-lfs-flags
 
@@ -90,16 +88,13 @@ multilib_src_compile() {
 
 	if use test; then
 		set_TBD
-		cd "${TBD}" || die
-		einfo "Running make in ${TBD}"
-		emake
+		emake -C "${TBD}"
 	fi
 }
 
 multilib_src_test() {
 	set_TBD
-	cd "${TBD}" || die
-	emake check
+	emake -C "${TBD}" check
 }
 
 multilib_src_install_all() {
