@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,10 +11,16 @@ if [[ "${PV}" == *9999 ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/axboe/liburing.git"
 else
-	SRC_URI="https://git.kernel.dk/cgit/${PN}/snapshot/${P}.tar.bz2"
+	SRC_URI="
+		https://github.com/axboe/liburing/archive/refs/tags/${P}.tar.gz
+		https://github.com/axboe/liburing/commit/6836160ae6ae9fdc20d703de55162bfc97169542.patch
+			-> ${PN}-2.10-fix-compilation-error-io_uring_for_each_cqe.patch
+	"
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	QA_PKGCONFIG_VERSION=${PV}
 fi
+
+S="${WORKDIR}"/liburing-${P}
 LICENSE="MIT"
 SLOT="0/2" # liburing.so major version
 
@@ -25,6 +31,10 @@ RESTRICT="!test? ( test )"
 # At least installed headers need <linux/*>, bug #802516
 DEPEND=">=sys-kernel/linux-headers-5.1"
 RDEPEND="${DEPEND}"
+
+PATCHES=(
+	"${DISTDIR}"/${PN}-2.10-fix-compilation-error-io_uring_for_each_cqe.patch
+)
 
 src_prepare() {
 	default
