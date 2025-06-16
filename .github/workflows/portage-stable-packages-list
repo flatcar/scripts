@@ -304,6 +304,7 @@ dev-python/colorama
 dev-python/crcmod
 dev-python/cryptography
 dev-python/cython
+dev-python/dependency-groups
 dev-python/distlib
 dev-python/distro
 dev-python/docutils
