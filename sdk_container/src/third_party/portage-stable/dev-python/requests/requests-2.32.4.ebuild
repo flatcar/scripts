@@ -5,7 +5,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..13} pypy3 pypy3_11 )
+PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1 pypi
@@ -53,24 +53,7 @@ python_test() {
 		# require IPv4 interface in 10.* range
 		tests/test_requests.py::TestTimeout::test_connect_timeout
 		tests/test_requests.py::TestTimeout::test_total_timeout_connect
-		# TODO: openssl?
-		tests/test_requests.py::TestRequests::test_pyopenssl_redirect
-		# flask-2
-		tests/test_requests.py::TestRequests::test_cookie_sent_on_redirect
-		tests/test_requests.py::TestRequests::test_cookie_removed_on_expire
-		tests/test_requests.py::TestPreparingURLs::test_redirecting_to_bad_url
 	)
-
-	case ${EPYTHON} in
-		python3.13)
-			;&
-		python3.12)
-			EPYTEST_DESELECT+=(
-				# different repr()
-				requests/utils.py::requests.utils.from_key_val_list
-			)
-			;;
-	esac
 
 	if ! has_version "dev-python/trustme[${PYTHON_USEDEP}]"; then
 		EPYTEST_DESELECT+=(
