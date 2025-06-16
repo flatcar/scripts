@@ -3,8 +3,11 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} python3_13t )
-inherit python-r1 meson
+PYTHON_COMPAT=( python3_{10..14} )
+DISTUTILS_OPTIONAL=1
+DISTUTILS_EXT=1
+DISTUTILS_USE_PEP517=meson-python
+inherit distutils-r1 meson
 
 DESCRIPTION="C Library for NVM Express on Linux"
 HOMEPAGE="https://github.com/linux-nvme/libnvme"
@@ -12,7 +15,7 @@ SRC_URI="https://github.com/linux-nvme/libnvme/archive/refs/tags/v${PV}.tar.gz -
 
 LICENSE="LGPL-2.1+"
 SLOT="0/1"
-KEYWORDS="~alpha amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 IUSE="dbus io-uring +json keyutils python ssl test"
 RESTRICT="!test? ( test )"
 
@@ -32,8 +35,23 @@ RDEPEND="
 	${DEPEND}
 "
 BDEPEND="
-	python? ( dev-lang/swig )
+	python? (
+		${DISTUTILS_DEPS}
+		dev-lang/swig
+		dev-python/meson-python[${PYTHON_USEDEP}]
+	)
 "
+
+distutils_enable_tests unittest
+
+PATCHES=(
+	"${FILESDIR}"/libnvme-1.14-remove-glibc-include.patch
+)
+
+src_prepare() {
+	default
+	use python && distutils-r1_src_prepare
+}
 
 src_configure() {
 	local emesonargs=(
@@ -46,6 +64,7 @@ src_configure() {
 		$(meson_feature io-uring liburing)
 	)
 	meson_src_configure
+	use python && distutils-r1_src_configure
 }
 
 python_compile() {
@@ -53,25 +72,35 @@ python_compile() {
 		-Dpython=enabled
 	)
 	meson_src_configure --reconfigure
-	meson_src_compile
+	distutils-r1_python_compile
 }
 
 src_compile() {
 	meson_src_compile
 
-	if use python; then
-		python_copy_sources
-		python_foreach_impl python_compile
-	fi
+	use python && distutils-r1_src_compile
 }
 
-python_install() {
-	meson_src_install
-	use python && python_optimize
+src_test() {
+	meson_src_test
+	use python && distutils-r1_src_test
+}
+
+python_test() {
+	local -A test_args=(
+		["test-nbft.py"]="--filename=${S}/libnvme/tests/NBFT"
+	)
+	pushd "${BUILD_DIR}" >/dev/null || die
+	local testfile
+	for testfile in "${S}"/libnvme/tests/*.py; do
+		PYTHONPATH="${BUILD_DIR}" "${EPYTHON}" "${testfile}" \
+			${test_args[${testfile##*/}]} \
+			|| die "test ${testfile##*/} failed with ${EPYTHON}"
+	done
+	popd >/dev/null || die
 }
 
 src_install() {
-	use python && python_foreach_impl python_install
-
 	meson_src_install
+	use python && distutils-r1_src_install
 }
