@@ -22,4 +22,5 @@ RDEPEND="
 
 PATCHES=(
 	"${WORKDIR}"/${P}-patches
+	"${FILESDIR}"/${P}-lua.patch
 )
