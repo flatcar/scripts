@@ -11,7 +11,7 @@ SRC_URI="https://github.com/cowsql/cowsql/archive/refs/tags/v${PV}.tar.gz -> ${P
 
 LICENSE="LGPL-3-with-linking-exception"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -22,7 +22,10 @@ DEPEND="${RDEPEND}
 	test? ( dev-libs/raft[lz4,test] )"
 BDEPEND="virtual/pkgconfig"
 
-PATCHES=( "${FILESDIR}"/dqlite-1.12.0-disable-werror.patch )
+PATCHES=(
+	"${FILESDIR}"/dqlite-1.12.0-disable-werror.patch
+	"${FILESDIR}"/0001-src-lib-serialize.h-don-t-define-double-as-float_t.patch
+)
 
 src_prepare() {
 	default
