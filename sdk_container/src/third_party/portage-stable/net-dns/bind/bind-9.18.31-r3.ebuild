@@ -9,25 +9,24 @@ MY_PV="${PV/_p/-P}"
 MY_PV="${MY_PV/_rc/rc}"
 
 DESCRIPTION="Berkeley Internet Name Domain - Name Server"
-HOMEPAGE="https://www.isc.org/bind/"
+HOMEPAGE="https://www.isc.org/software/bind"
 SRC_URI="https://downloads.isc.org/isc/bind9/${PV}/${P}.tar.xz"
 S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="MPL-2.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
-IUSE="dnstap doc doh fixed-rrset idn jemalloc geoip gssapi lmdb selinux static-libs test xml"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
+IUSE="+caps dnstap doc doh fixed-rrset idn jemalloc geoip gssapi lmdb selinux static-libs test xml"
 RESTRICT="!test? ( test )"
 
 DEPEND="
 	acct-group/named
 	acct-user/named
 	dev-libs/json-c:=
-	dev-libs/userspace-rcu:=
 	>=dev-libs/libuv-1.37.0:=
 	sys-libs/zlib:=
 	dev-libs/openssl:=[-bindist(-)]
-	>=sys-libs/libcap-2.1.0
+	caps? ( >=sys-libs/libcap-2.1.0 )
 	dnstap? (
 		dev-libs/fstrm
 		dev-libs/protobuf-c
@@ -38,7 +37,7 @@ DEPEND="
 	idn? ( net-dns/libidn2 )
 	jemalloc? ( dev-libs/jemalloc:= )
 	lmdb? ( dev-db/lmdb )
-	xml? ( dev-libs/libxml2 )
+	xml? ( dev-libs/libxml2:= )
 "
 RDEPEND="
 	${DEPEND}
@@ -61,6 +60,9 @@ src_prepare() {
 
 	# Don't clobber our toolchain defaults
 	sed -i -e '/FORTIFY_SOURCE=/d' configure || die
+
+	# Test is (notoriously) slow/resource intensive
+	sed -i -e 's:ISC_TEST_MAIN:int main(void) { exit(77); }:' tests/isc/netmgr_test.c || die
 }
 
 src_configure() {
@@ -77,10 +79,12 @@ src_configure() {
 		--with-openssl="${ESYSROOT}"/usr
 		--with-json-c
 		--with-zlib
+		$(use_enable caps linux-caps)
 		--disable-dnsrps
 		$(use_enable dnstap)
 		$(use_enable doh)
 		$(use_with doh libnghttp2)
+		$(use_enable fixed-rrset)
 		$(use_enable static-libs static)
 		$(use_enable geoip)
 		$(use_with test cmocka)
@@ -108,7 +112,7 @@ src_test() {
 src_install() {
 	default
 
-	dodoc README.md
+	dodoc CHANGES README.md
 
 	if use doc; then
 		docinto misc
@@ -125,7 +129,7 @@ src_install() {
 	fi
 
 	insinto /etc/bind
-	newins "${FILESDIR}"/named.conf-r8 named.conf
+	newins "${FILESDIR}"/named.conf-r9 named.conf
 	newins "${FILESDIR}"/named.conf.auth named.conf.auth
 
 	newinitd "${FILESDIR}"/named.init-r15 named
@@ -159,8 +163,8 @@ src_install() {
 	keepdir /var/bind/{pri,sec,dyn} /var/log/named
 
 	fowners root:named /{etc,var}/bind /var/log/named /var/bind/{sec,pri,dyn}
-	fowners root:named /etc/bind/{named.conf,named.conf.auth}
-	fperms 0640 /etc/bind/{named.conf,named.conf.auth}
+	fowners root:named /etc/bind/{bind.keys,named.conf,named.conf.auth}
+	fperms 0640 /etc/bind/{bind.keys,named.conf,named.conf.auth}
 	fperms 0750 /etc/bind /var/bind/pri
 	fperms 0770 /var/log/named /var/bind/{,sec,dyn}
 
@@ -242,11 +246,11 @@ pkg_config() {
 	mkdir -m 0750 -p "${CHROOT}" || die
 	mkdir -m 0755 -p "${CHROOT}"/{dev,etc,var/log,run} || die
 	mkdir -m 0750 -p "${CHROOT}"/etc/bind || die
-	mkdir -m 0770 -p "${CHROOT}"/var/{bind,log/named,run/named} "${CHROOT}"/run/named/ || die
+	mkdir -m 0770 -p "${CHROOT}"/var/{bind,log/named} "${CHROOT}"/run/named/ || die
 
 	chown root:named \
 		"${CHROOT}" \
-		"${CHROOT}"/var/{bind,log/named,run/named} \
+		"${CHROOT}"/var/{bind,log/named} \
 		"${CHROOT}"/run/named/ \
 		"${CHROOT}"/etc/bind \
 		|| die
