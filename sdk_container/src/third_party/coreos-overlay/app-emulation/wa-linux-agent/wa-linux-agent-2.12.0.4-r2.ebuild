@@ -6,6 +6,7 @@ EAPI=8
 # Don't use DISTUTILS_USE_PEP517=setuptools because this installs
 # everything inside /usr/lib/pythonX_Y/site-packages, even files that
 # ought to be put into /etc or /sbin.
+DISTUTILS_USE_PEP517=no
 PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1
