@@ -17,7 +17,7 @@
 =app-containers/crun-1.20 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
-=app-containers/lxc-6.0.4 ~amd64 ~arm64
+=app-containers/lxc-6.0.4-r1 ~amd64 ~arm64
 =app-containers/incus-6.0.4-r1 ~amd64 ~arm64
 
 # No stable keywords.
