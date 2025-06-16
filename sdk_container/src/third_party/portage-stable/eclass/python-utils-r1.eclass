@@ -40,8 +40,8 @@ inherit multiprocessing toolchain-funcs
 # All supported Python implementations, most preferred last.
 _PYTHON_ALL_IMPLS=(
 	pypy3_11
-	python3_13t
-	python3_{11..13}
+	python3_{13..14}t
+	python3_{11..14}
 )
 readonly _PYTHON_ALL_IMPLS
 
@@ -81,7 +81,7 @@ _python_verify_patterns() {
 	local impl pattern
 	for pattern; do
 		case ${pattern} in
-			-[23]|3.[89]|3.1[0-3])
+			-[23]|3.[89]|3.1[0-4])
 				continue
 				;;
 		esac
@@ -137,7 +137,7 @@ _python_set_impls() {
 			# please keep them in sync with _PYTHON_ALL_IMPLS
 			# and _PYTHON_HISTORICAL_IMPLS
 			case ${i} in
-				pypy3_11|python3_9|python3_1[1-3]|python3_13t)
+				pypy3_11|python3_9|python3_1[1-4]|python3_1[3-4]t)
 					;;
 				jython2_7|pypy|pypy1_[89]|pypy2_0|pypy3|python2_[5-7]|python3_[1-9]|python3_10)
 					obsolete+=( "${i}" )
@@ -230,9 +230,7 @@ _python_impl_matches() {
 				fi
 				return 0
 				;;
-			3.10)
-				;;
-			3.8|3.9|3.1[1-3])
+			3.[89]|3.1[0-4])
 				[[ ${impl%t} == python${pattern/./_} || ${impl} == pypy${pattern/./_} ]] &&
 					return 0
 				;;
@@ -601,54 +599,17 @@ python_optimize() {
 	[[ ${PYTHON} ]] || _python_export PYTHON
 	[[ -x ${PYTHON} ]] || die "PYTHON (${PYTHON}) is not executable"
 
-	# default to sys.path
-	if [[ ${#} -eq 0 ]]; then
-		local f
-		while IFS= read -r -d '' f; do
-			# 1) accept only absolute paths
-			#    (i.e. skip '', '.' or anything like that)
-			# 2) skip paths which do not exist
-			#    (python2.6 complains about them verbosely)
-
-			if [[ ${f} == /* && -d ${D}${f} ]]; then
-				set -- "${D}${f}" "${@}"
-			fi
-		done < <(
-			"${PYTHON}" - <<-EOF || die
-				import sys
-				print("".join(x + "\0" for x in sys.path))
-			EOF
-		)
-
-		debug-print "${FUNCNAME}: using sys.path: ${*/%/;}"
-	fi
+	# default to sitedir
+	[[ ${#} -eq 0 ]] && set -- "${D}$(python_get_sitedir)"
 
 	local jobs=$(makeopts_jobs)
 	local d
 	for d; do
-		# make sure to get a nice path without //
-		local instpath=${d#${D}}
-		instpath=/${instpath##/}
-
-		einfo "Optimize Python modules for ${instpath}"
-		case "${EPYTHON}" in
-			python3.8)
-				# both levels of optimization are separate since 3.5
-				"${PYTHON}" -m compileall -j "${jobs}" -q -f -d "${instpath}" "${d}"
-				"${PYTHON}" -O -m compileall -j "${jobs}" -q -f -d "${instpath}" "${d}"
-				"${PYTHON}" -OO -m compileall -j "${jobs}" -q -f -d "${instpath}" "${d}"
-				;;
-			python*|pypy3*)
-				# Python 3.9+
-				"${PYTHON}" -m compileall -j "${jobs}" -o 0 -o 1 -o 2 --hardlink-dupes -q -f -d "${instpath}" "${d}"
-				;;
-			pypy|jython2.7)
-				"${PYTHON}" -m compileall -q -f -d "${instpath}" "${d}"
-				;;
-			*)
-				die "${FUNCNAME}: unexpected EPYTHON=${EPYTHON}"
-				;;
-		esac
+		einfo "Optimizing Python modules in ${d#${D}}"
+		# NB: '-s' makes the path relative, so we need '-p /' to make it
+		# absolute again; https://github.com/python/cpython/issues/133503
+		"${PYTHON}" -m compileall -j "${jobs}" -o 0 -o 1 -o 2 \
+			--hardlink-dupes -q -f -s "${D}" -p / "${d}"
 	done
 }
 
@@ -1096,7 +1057,7 @@ python_fix_shebang() {
 			fi
 
 			if [[ ! ${quiet} ]]; then
-				einfo "Fixing shebang in ${f#${D}}."
+				einfo "Fixing shebang in ${f#${D}}"
 			fi
 
 			if [[ ! ${error} ]]; then
@@ -1374,9 +1335,6 @@ epytest() {
 		# override filterwarnings=error, we do not really want -Werror
 		# for end users, as it tends to fail on new warnings from deps
 		-Wdefault
-		# however, do error out if the package failed to load
-		# an appropriate async plugin
-		-Werror::pytest.PytestUnhandledCoroutineWarning
 		# override color output
 		"--color=${color}"
 		# count is more precise when we're dealing with a large number
