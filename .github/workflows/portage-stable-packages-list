@@ -358,6 +358,7 @@ dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
 dev-python/tomli
+dev-python/tomli-w
 dev-python/tree-sitter
 dev-python/trove-classifiers
 dev-python/truststore
