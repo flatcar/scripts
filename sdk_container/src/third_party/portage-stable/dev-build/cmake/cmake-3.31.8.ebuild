@@ -98,7 +98,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.30.3-cudahostld.patch
 
 	# Upstream fixes (can usually be removed with a version bump)
-	"${FILESDIR}"/${PN}-3.31.6-curl-8.13.0.patch
+	"${FILESDIR}"/${PN}-3.31.7-hdf5.patch
 )
 
 cmake_src_bootstrap() {
@@ -125,7 +125,7 @@ pkg_pretend() {
 		local file
 		local errant_files=()
 
-		# See bug #599684 and  bug #753581 (at least)
+		# See bug #599684 and bug #753581 (at least)
 		for file in /etc/arch-release /etc/redhat-release /etc/debian_version ; do
 			if [[ -e ${file} ]]; then
 				errant_files+=( "${file}" )
