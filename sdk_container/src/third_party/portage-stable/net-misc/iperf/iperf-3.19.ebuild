@@ -7,11 +7,11 @@ inherit autotools systemd
 
 DESCRIPTION="A TCP, UDP, and SCTP network bandwidth measurement tool"
 HOMEPAGE="https://github.com/esnet/iperf"
-SRC_URI="https://github.com/esnet/iperf/releases/download/${PV}/${P}.tar.gz"
+SRC_URI="https://github.com/esnet/${PN}/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="3"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~mips ppc ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="sctp"
 
 DEPEND="
@@ -27,7 +27,6 @@ DOCS=( README.md RELNOTES.md )
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.10.1-drop-forced-debugging-symbols.patch
 	"${FILESDIR}"/${PN}-3.18-unbundle-cJSON.patch
-	"${FILESDIR}"/${PN}-3.17.1-c23.patch
 )
 
 src_prepare() {
