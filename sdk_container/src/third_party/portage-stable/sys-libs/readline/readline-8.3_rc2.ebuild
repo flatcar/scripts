@@ -1,7 +1,7 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 # There's no standard way of versioning the point releases upstream
 # make anyway, so while this was added for RC versions, it's fine
@@ -18,18 +18,18 @@ MY_PV="${MY_PV/_/-}"
 MY_P="${PN}-${MY_PV}"
 MY_PATCHES=()
 
-is_release() {
-	case ${PV} in
-		9999|*_alpha*|*_beta*|*_rc*)
-			return 1
-			;;
-		*)
-			return 0
-			;;
-	esac
-}
-
-[[ ${PV} != *_p* ]] && PLEVEL=0
+# Determine the patchlevel.
+case ${PV} in
+	9999|*_alpha*|*_beta*|*_rc*)
+		# Set a negative patchlevel to indicate that it's a pre-release.
+		PLEVEL=-1
+		;;
+	*_p*)
+		PLEVEL=${PV##*_p}
+		;;
+	*)
+		PLEVEL=0
+esac
 
 DESCRIPTION="Another cute console display library"
 HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html https://git.savannah.gnu.org/cgit/readline.git"
@@ -38,10 +38,19 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/readline.git"
 	EGIT_BRANCH=devel
 	inherit git-r3
-elif is_release ; then
+elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
+	# It can be useful to have snapshots in the pre-release period once
+	# the first alpha is out, as various bugs get reported and fixed from
+	# the alpha, and the next pre-release is usually quite far away.
+	#
+	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
+	READLINE_COMMIT="7cf2d923617659d216db3210f6247740f7dde1d8"
+	SRC_URI="https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline-${READLINE_COMMIT}.tar.gz -> ${P}-${READLINE_COMMIT}.tar.gz"
+	S=${WORKDIR}/${PN}-${READLINE_COMMIT}
+else
 	SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz"
-	SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/readline-8.1-rlfe-c99.patch.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.gz.sig )"
+	S="${WORKDIR}/${MY_P}"
 
 	if [[ ${PLEVEL} -gt 0 ]] ; then
 		# bash-5.1 -> bash51
@@ -51,7 +60,6 @@ elif is_release ; then
 		my_patch_index=
 
 		upstream_url_base="mirror://gnu/readline"
-		mirror_url_base="ftp://ftp.cwru.edu/pub/readline"
 
 		for ((my_patch_index=1; my_patch_index <= ${PLEVEL} ; my_patch_index++)) ; do
 			printf -v mangled_patch_ver ${my_p}-%03d ${my_patch_index}
@@ -60,46 +68,31 @@ elif is_release ; then
 			SRC_URI+=" ${patch_url}"
 			SRC_URI+=" verify-sig? ( ${patch_url}.sig )"
 
-			# Add in the mirror URL too.
-			SRC_URI+=" ${patch_url/${upstream_url_base}/${mirror_url_base}}"
-			SRC_URI+=" verify-sig? ( ${patch_url/${upstream_url_base}/${mirror_url_base}}.sig )"
-
 			MY_PATCHES+=( "${DISTDIR}"/${mangled_patch_ver} )
 		done
 
-		unset my_p patch_url my_patch_index upstream_url_base mirror_url_base
+		unset my_p patch_url my_patch_index upstream_url_base
 	fi
-else
-	SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.gz ftp://ftp.cwru.edu/pub/readline/${MY_P}.tar.gz"
-	SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.gz.sig ftp://ftp.cwru.edu/pub/readline/${MY_P}.tar.gz.sig )"
-fi
-
-S="${WORKDIR}/${MY_P}"
-
-if ! is_release ; then
-	inherit autotools
 fi
 
 LICENSE="GPL-3+"
 SLOT="0/8"  # subslot matches SONAME major
-if is_release ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+if (( PLEVEL >= 0 )); then
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="static-libs +unicode utils"
 
 RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,unicode(+)?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig
-	verify-sig? ( sec-keys/openpgp-keys-chetramey )"
+BDEPEND="
+	virtual/pkgconfig
+	verify-sig? ( sec-keys/openpgp-keys-chetramey )
+"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.0-no_rpath.patch
 	"${FILESDIR}"/${PN}-7.0-headers.patch
 	"${FILESDIR}"/${PN}-8.0-headers.patch
-	"${WORKDIR}"/${PN}-8.1-rlfe-c99.patch
-
-	# TODO: rebase
-	#"${FILESDIR}"/${PN}-8.0-darwin-shlib-versioning.patch
 )
 
 src_unpack() {
@@ -107,6 +100,8 @@ src_unpack() {
 
 	if [[ ${PV} == 9999 ]]; then
 		git-r3_src_unpack
+	elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
+		default
 	else
 		if use verify-sig; then
 			verify-sig_verify_detached "${DISTDIR}/${MY_P}.tar.gz"{,.sig}
@@ -117,20 +112,19 @@ src_unpack() {
 		fi
 
 		unpack "${MY_P}.tar.gz"
-		unpack readline-8.1-rlfe-c99.patch.xz
 
-		#if [[ ${GENTOO_PATCH_VER} ]]; then
-		#	unpack "${PN}-${GENTOO_PATCH_VER}-patches.tar.xz"
-		#fi
+		if [[ ${GENTOO_PATCH_VER} ]]; then
+			unpack "${PN}-${GENTOO_PATCH_VER}-patches.tar.xz"
+		fi
 	fi
 }
 
 src_prepare() {
-	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 "${MY_PATCHES[@]}"
+	(( PLEVEL > 0 )) && eapply -p0 "${MY_PATCHES[@]}"
 
 	default
 
-	is_release || eautoreconf
+	#(( PLEVEL < 0 )) && eautoreconf
 
 	if use prefix && [[ ! -x "${BROOT}"/usr/bin/pkg-config ]] ; then
 		# If we're bootstrapping, make a guess. We don't have pkg-config
@@ -166,10 +160,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# readline-8.3 drops unprototyped functions, earlier versions are
-	# incompatible with C23.
-	append-cflags $(test-flags-CC -std=gnu17)
-
 	# Fix implicit decls with widechar funcs
 	append-cppflags -D_GNU_SOURCE
 	# https://lists.gnu.org/archive/html/bug-readline/2010-07/msg00013.html
