@@ -8,7 +8,7 @@ app-crypt/mit-krb5	-keyutils
 dev-libs/dbus-glib	tools
 dev-libs/libxml2	-python
 dev-libs/libxslt	-python
-dev-util/perf		-doc
+dev-util/perf		-doc -slang
 dev-vcs/git		webdav curl
 
 # Mask support for http3 for now (unavailable on arm64 for now, and
