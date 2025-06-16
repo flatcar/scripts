@@ -13,13 +13,13 @@ SRC_URI="https://ftp.samba.org/pub/linux-cifs/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ~ppc ppc64 ~riscv ~s390 ~sparc x86 ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
 IUSE="+acl +ads +caps creds pam +python systemd"
 
 RDEPEND="
+	sys-libs/talloc
 	ads? (
 		sys-apps/keyutils:=
-		sys-libs/talloc
 		virtual/krb5
 	)
 	caps? ( sys-libs/libcap-ng )
@@ -43,10 +43,7 @@ REQUIRED_USE="
 DOCS="doc/linux-cifs-client-guide.odt"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-6.12-ln_in_destdir.patch" #766594
-	"${FILESDIR}/${PN}-6.15-musl.patch"
-	"${FILESDIR}/${PN}-7.0-no-clobber-fortify-source.patch"
-	"${FILESDIR}/${PN}-7.0-musl.patch"
+	"${FILESDIR}/${PN}-7.3-no-clobber-fortify-source.patch"
 )
 
 pkg_setup() {
@@ -70,7 +67,7 @@ src_prepare() {
 	default
 
 	if has_version app-crypt/heimdal ; then
-		# https://bugs.gentoo.org/612584
+		# bug #612584
 		eapply "${FILESDIR}/${PN}-6.7-heimdal.patch"
 	fi
 
@@ -87,6 +84,7 @@ src_configure() {
 		$(use_enable acl cifsacl cifsidmap)
 		$(use_enable ads cifsupcall)
 		$(use_with caps libcap)
+		$(use_with caps libcap-ng)
 		$(use_enable creds cifscreds)
 		$(use_enable pam)
 		$(use_with pam pamdir $(getpam_mod_dir))
@@ -94,8 +92,8 @@ src_configure() {
 		# mount.cifs can get passwords from systemd
 		$(use_enable systemd)
 	)
-	ROOTSBINDIR="${EPREFIX}"/sbin \
-	econf "${myeconfargs[@]}"
+
+	ROOTSBINDIR="${EPREFIX}"/sbin econf "${myeconfargs[@]}"
 }
 
 src_install() {
