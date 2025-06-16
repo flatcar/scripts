@@ -1,16 +1,15 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit libtool flag-o-matic gnuconfig strip-linguas toolchain-funcs
+inherit dot-a libtool flag-o-matic gnuconfig strip-linguas toolchain-funcs
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 
 LICENSE="GPL-3+"
-IUSE="cet default-gold doc gold gprofng multitarget +nls pgo +plugins static-libs test vanilla"
-REQUIRED_USE="default-gold? ( gold )"
+IUSE="cet debuginfod doc gprofng hardened multitarget +nls pgo +plugins static-libs test vanilla xxhash zstd"
 
 # Variables that can be set here  (ignored for live ebuilds)
 # PATCH_VER          - the patchset version
@@ -20,20 +19,23 @@ REQUIRED_USE="default-gold? ( gold )"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=6
+PATCH_VER=4
 PATCH_DEV=dilfridge
 
-if [[ ${PV} == 9999* ]]; then
+if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	SLOT=${PV}
+elif [[ ${PV} == *9999 ]]; then
+	inherit git-r3
+	SLOT=$(ver_cut 1-2)
 else
 	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
 	PATCH_DEV=${PATCH_DEV:-dilfridge}
-	SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PV}.tar.xz"
+	SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz https://sourceware.org/pub/binutils/releases/binutils-${PV}.tar.xz https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PV}.tar.xz"
 	[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
 		https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 	SLOT=$(ver_cut 1-2)
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 #
@@ -53,15 +55,27 @@ is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
+	debuginfod? (
+		dev-libs/elfutils[debuginfod(-)]
+	)
+	zstd? ( app-arch/zstd:= )
 "
-DEPEND="${RDEPEND}"
+DEPEND="
+	${RDEPEND}
+	xxhash? ( dev-libs/xxhash )
+"
 BDEPEND="
 	doc? ( sys-apps/texinfo )
+	pgo? (
+		dev-util/dejagnu
+		app-alternatives/bc
+	)
 	test? (
 		dev-util/dejagnu
 		app-alternatives/bc
 	)
 	nls? ( sys-devel/gettext )
+	zstd? ( virtual/pkgconfig )
 	app-alternatives/lex
 	app-alternatives/yacc
 "
@@ -71,13 +85,23 @@ RESTRICT="!test? ( test )"
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	if [[ ${PV} == 9999* ]] ; then
-		EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git"
+	if [[ ${PV} == *9999 ]] ; then
+		EGIT_REPO_URI="
+			https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git
+			https://github.com/gentoo/binutils-patches
+		"
 		EGIT_CHECKOUT_DIR=${WORKDIR}/patches-git
 		git-r3_src_unpack
 		mv patches-git/9999 patch || die
 
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
+		if [[ ${PV} != 9999 ]] ; then
+			EGIT_BRANCH=binutils-$(ver_cut 1)_$(ver_cut 2)-branch
+		fi
+		EGIT_REPO_URI="
+			https://sourceware.org/git/binutils-gdb.git
+			https://git.sr.ht/~sourceware/binutils-gdb
+			https://gitlab.com/x86-binutils/binutils-gdb.git
+		"
 		S=${WORKDIR}/binutils
 		EGIT_CHECKOUT_DIR=${S}
 		git-r3_src_unpack
@@ -100,17 +124,26 @@ src_unpack() {
 
 src_prepare() {
 	local patchsetname
-	if [[ ${PV} == 9999* ]] ; then
+	if [[ ${PV} == 9999 ]] ; then
 		patchsetname="from git master"
+	elif [[ ${PV} == *9999 ]] ; then
+		patchsetname="from git branch ${EGIT_BRANCH}"
 	else
 		patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
 	fi
 
-	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
+	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == *9999 ]] ; then
 		if ! use vanilla; then
 			einfo "Applying binutils patchset ${patchsetname}"
 			eapply "${WORKDIR}/patch"
 			einfo "Done."
+
+			# This is applied conditionally for now just out of caution.
+			# It should be okay on non-prefix systems though. See bug #892549.
+			if is_cross || use prefix; then
+				eapply "${FILESDIR}"/binutils-2.40-linker-search-path.patch \
+					   "${FILESDIR}"/binutils-2.41-linker-prefix.patch
+			fi
 		fi
 	fi
 
@@ -159,12 +192,9 @@ src_configure() {
 
 	# Keep things sane
 	strip-flags
-
-	# https://sourceware.org/PR32372
-	append-cflags $(test-flags-CC -std=gnu17)
-	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
-
+	use cet && filter-flags -mindirect-branch -mindirect-branch=*
 	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
+	lto-guarantee-fat
 
 	local x
 	echo
@@ -178,13 +208,6 @@ src_configure() {
 
 	if use plugins ; then
 		myconf+=( --enable-plugins )
-	fi
-	# enable gold (installed as ld.gold) and ld's plugin architecture
-	if use gold ; then
-		myconf+=( --enable-gold )
-		if use default-gold; then
-			myconf+=( --enable-gold=default )
-		fi
 	fi
 
 	if use nls ; then
@@ -231,47 +254,36 @@ src_configure() {
 		--libdir="${EPREFIX}"${LIBPATH}
 		--libexecdir="${EPREFIX}"${LIBPATH}
 		--includedir="${EPREFIX}"${INCPATH}
+		# portage's econf() does not detect presence of --d-d-t
+		# because it greps only top-level ./configure. But not
+		# libiberty's or bfd's configure.
+		--disable-dependency-tracking
+		--disable-silent-rules
 		--enable-obsolete
 		--enable-shared
 		--enable-threads
-		# Newer versions (>=2.27) offer a configure flag now.
 		--enable-relro
-		# Newer versions (>=2.24) make this an explicit option, bug #497268
 		--enable-install-libiberty
-		# Available from 2.35 on
-		--enable-textrel-check=warning
-
-		# These hardening options are available from 2.39+ but
-		# they unconditionally enable the behaviour even on arches
-		# where e.g. execstacks can't be avoided.
-		# See https://sourceware.org/bugzilla/show_bug.cgi?id=29592.
-		#--enable-warn-execstack
-		#--enable-warn-rwx-segments
-		#--disable-default-execstack (or is it --enable-default-execstack=no? docs are confusing)
-
+		--enable-textrel-check=$(usex hardened error warning)
 		# Things to think about
 		#--enable-deterministic-archives
-
-		# Works better than vapier's patch, bug #808787
 		--enable-new-dtags
-
 		--disable-jansson
 		--disable-werror
 		--with-bugurl="$(toolchain-binutils_bugurl)"
 		--with-pkgversion="$(toolchain-binutils_pkgversion)"
 		$(use_enable static-libs static)
+		$(use_with xxhash)
+		$(use_with zstd)
+
 		# Disable modules that are in a combined binutils/gdb tree, bug #490566
-		--disable-{gdb,libdecnumber,readline,sim}
-		# Strip out broken static link flags.
-		# https://gcc.gnu.org/PR56750
+		--disable-{gdb,gdbserver,libbacktrace,libdecnumber,readline,sim}
+		# Strip out broken static link flags: https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
-		# Change SONAME to avoid conflict across
-		# {native,cross}/binutils, binutils-libs. bug #666100
+		# Change SONAME to avoid conflict across {native,cross}/binutils, binutils-libs. bug #666100
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)
 
-		# Avoid automagic dependency on (currently prefix) systems
-		# systems with debuginfod library, bug #754753
-		--without-debuginfod
+		$(use_with debuginfod)
 
 		# Avoid automagic dev-libs/msgpack dep, bug #865875
 		--without-msgpack
@@ -288,12 +300,67 @@ src_configure() {
 		# - Broken at runtime without Java (https://sourceware.org/bugzilla/show_bug.cgi?id=29479)
 		# - binutils-config (and this ebuild?) needs adaptation first (https://bugs.gentoo.org/865113)
 		$(use_enable gprofng)
+
+		# Enables colored disassembly by default (equivalent to passing
+		# --disassembler-color=terminal to all objdump invocations).
+		--enable-colored-disassembly
 	)
 
+	case ${CTARGET} in
+		x86_64-*|aarch64*|arm64*|i[3456]*)
+			# These hardening options are available from 2.39+ but
+			# they unconditionally enable the behaviour even on arches
+			# where e.g. execstacks can't be avoided.
+			# See https://sourceware.org/bugzilla/show_bug.cgi?id=29592.
+			#
+			# TODO: Get the logic for this fixed upstream so it doesn't
+			# create impossible broken combinations on some arches, like mips.
+			#
+			# TODO: Get the logic for this fixed upstream so --disable-* works
+			# as expected.
+			myconf+=(
+				--enable-warn-execstack=yes
+				--enable-warn-rwx-segments=yes
+			)
+
+			if use hardened ; then
+				myconf+=(
+					# TODO: breaks glibc test suite
+					#--enable-error-execstack=yes
+					#--enable-error-rwx-segments=yes
+					--enable-default-execstack=no
+				)
+			fi
+			;;
+		*)
+			;;
+	esac
+
+	if use elibc_musl ; then
+		# Override our earlier setting for musl, as textrels don't
+		# work there at all. See bug #707660.
+		myconf+=(
+			--enable-textrel-check=error
+		)
+	fi
+
+	if use test || { use pgo && tc-is-lto ; } ; then
+		# -Wa,* needs to be consistent everywhere or lto-wrapper will complain
+		filter-flags '-Wa,*'
+	fi
+
 	if ! is_cross ; then
-		myconf+=( $(use_enable pgo pgo-build lto) )
+		myconf+=( $(use_enable pgo pgo-build $(tc-is-lto && echo "lto" || echo "yes")) )
 
 		if use pgo ; then
+			# We let configure handle it for us because it has to run
+			# the testsuite later on for profiling, and LTO isn't compatible
+			# with the testsuite.
+			filter-lto
+
+			# bug #637066
+			filter-flags -Wall -Wreturn-type
+
 			export BUILD_CFLAGS="${CFLAGS}"
 		fi
 	fi
@@ -312,11 +379,15 @@ src_compile() {
 	cd "${MY_BUILDDIR}" || die
 
 	# see Note [tooldir hack for ldscripts]
-	emake V=1 tooldir="${EPREFIX}${TOOLPATH}" all
+	# see linker prefix patch
+	emake \
+		tooldir="${EPREFIX}${TOOLPATH}" \
+		gentoo_prefix=$(usex prefix-guest "${EPREFIX}"/usr /usr) \
+		all
 
 	# only build info pages if the user wants them
 	if use doc ; then
-		emake V=1 info
+		emake info
 	fi
 
 	# we nuke the manpages when we're left with junk
@@ -327,14 +398,34 @@ src_compile() {
 src_test() {
 	cd "${MY_BUILDDIR}" || die
 
-	# https://sourceware.org/PR31327
-	local -x XZ_OPT="-T1"
-	local -x XZ_DEFAULTS="-T1"
+	(
+		# Tests don't expect LTO
+		filter-lto
 
-	# bug #637066
-	filter-flags -Wall -Wreturn-type
+		# If we have e.g. -mfpmath=sse -march=pentium4 in CFLAGS,
+		# we'll get lto1 warnings for some tests which cause
+		# spurious failures because -mfpmath isn't passed at
+		# link-time. Filter accordingly.
+		#
+		# Alternatively, we could pass C{C,XX}_FOR_TARGET with
+		# some (ideally not all, surely would break some tests)
+		# stuffed in.
+		filter-flags '-mfpmath=*'
 
-	emake -k V=1 check
+		# lto-wrapper warnings which confuse tests
+		filter-flags '-Wa,*'
+
+		# bug #637066
+		filter-flags -Wall -Wreturn-type
+
+		emake -k check \
+			CFLAGS_FOR_TARGET="${CFLAGS_FOR_TARGET:-${CFLAGS}}" \
+			CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET:-${CXXFLAGS}}" \
+			LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET:-${LDFLAGS}}" \
+			CFLAGS="${CFLAGS}" \
+			CXXFLAGS="${CXXFLAGS}" \
+			LDFLAGS="${LDFLAGS}"
+	)
 }
 
 src_install() {
@@ -343,9 +434,11 @@ src_install() {
 	cd "${MY_BUILDDIR}" || die
 
 	# see Note [tooldir hack for ldscripts]
-	emake V=1 DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install
+	emake DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install
 	rm -rf "${ED}"/${LIBPATH}/bin || die
 	use static-libs || find "${ED}" -name '*.la' -delete
+	# Explicit "${ED}" as we need it to do things even w/ USE=-static-libs
+	strip-lto-bytecode "${ED}"
 
 	# Newer versions of binutils get fancy with ${LIBPATH}, bug #171905
 	cd "${ED}"/${LIBPATH} || die
@@ -427,6 +520,8 @@ src_install() {
 	# Remove shared info pages
 	rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
 
+	docompress "${DATAPATH}"/{info,man}
+
 	# Trim all empty dirs
 	find "${ED}" -depth -type d -exec rmdir {} + 2>/dev/null
 }
@@ -434,7 +529,7 @@ src_install() {
 pkg_postinst() {
 	# Make sure this ${CTARGET} has a binutils version selected
 	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
-	binutils-config ${CTARGET}-${PV}
+	binutils-config ${CTARGET}-${PV} || eerror binutils-config returned an error
 }
 
 pkg_postrm() {
@@ -451,12 +546,12 @@ pkg_postrm() {
 		choice=${choice//$'\n'/ }
 		choice=${choice/* }
 		if [[ -z ${choice} ]] ; then
-			binutils-config -u ${CTARGET}
+			binutils-config -u ${CTARGET} || eerror binutils-config returned an error
 		else
-			binutils-config ${choice}
+			binutils-config ${choice} || eerror binutils-config returned an error
 		fi
 	elif [[ $(CHOST=${CTARGET} binutils-config -c) == ${CTARGET}-${PV} ]] ; then
-		binutils-config ${CTARGET}-${PV}
+		binutils-config ${CTARGET}-${PV} || eerror binutils-config returned an error
 	fi
 }
 
