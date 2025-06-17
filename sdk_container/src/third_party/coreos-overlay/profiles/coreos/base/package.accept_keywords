@@ -37,6 +37,7 @@
 
 # Keep versions on both arches in sync.
 =app-emulation/qemu-guest-agent-9.2.0 ~arm64
+=dev-build/meson-1.7.2 ~arm64
 =dev-db/sqlite-3.49.2 ~arm64
 
 # Needed to address CVE-2025-22871, bring in a patch disabling gold linker on
