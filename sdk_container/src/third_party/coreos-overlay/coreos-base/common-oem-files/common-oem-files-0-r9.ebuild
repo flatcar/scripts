@@ -132,6 +132,11 @@ src_compile() {
         oemid_cmdline="ec2"
     fi
 
+    # STACKIT is running on top of OpenStack
+    if [[ "${oemid}" == "stackit" ]]; then
+            oemid_cmdline="openstack"
+    fi
+
     lines=(
         '# Flatcar GRUB settings'
         ''
