@@ -5,7 +5,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=no
-PYTHON_COMPAT=( pypy3_11 python3_{11..13} python3_13t )
+PYTHON_COMPAT=( pypy3_11 python3_{11..14} python3_{13,14}t )
 
 inherit distutils-r1
 
@@ -21,13 +21,10 @@ SRC_URI="
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 RDEPEND="
 	>=dev-python/installer-0.5.0[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep '
-		>=dev-python/tomli-1.2.3[${PYTHON_USEDEP}]
-	' 3.10)
 "
 
 distutils_enable_tests pytest
