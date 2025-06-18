@@ -14,8 +14,6 @@ mkdir -p ./usr/lib/tmpfiles.d
 pushd ./usr/lib/tmpfiles.d
 cat <<EOF >./10-incus.conf
 d  /var/lib/lxc/rootfs	0755  root  root  -  -
-w+ /etc/subuid - - - - root:1065536:65536
-w+ /etc/subgid - - - - root:1065536:65536
 EOF
 popd
 
