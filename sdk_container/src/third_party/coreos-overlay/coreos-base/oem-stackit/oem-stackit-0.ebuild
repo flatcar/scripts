@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit systemd
+inherit systemd tmpfiles
 
 DESCRIPTION="OEM suite for STACKIT"
 HOMEPAGE="https://stackit.cloud"
@@ -24,6 +24,8 @@ OEM_NAME="STACKIT"
 
 src_install() {
 	systemd_enable_service multi-user.target chronyd.service
+    dotmpfiles "${FILESDIR}"/var-chrony.conf
+    dotmpfiles "${FILESDIR}"/etc-chrony.conf
 	insinto /usr/share/${PN}
 	doins "${FILESDIR}"/chrony.conf
 }
