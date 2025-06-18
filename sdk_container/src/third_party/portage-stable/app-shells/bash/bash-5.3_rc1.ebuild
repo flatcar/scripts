@@ -26,6 +26,7 @@ case ${PV} in
 		;;
 	*)
 		PLEVEL=0
+		;;
 esac
 
 # The version of readline this bash normally ships with. Note that we only use
@@ -178,6 +179,10 @@ src_configure() {
 	# configure warns on use of non-Bison but doesn't abort. The result
 	# may misbehave at runtime.
 	unset -v YACC
+
+	if tc-is-cross-compiler; then
+		export CFLAGS_FOR_BUILD="${BUILD_CFLAGS} -std=gnu17"
+	fi
 
 	myconf=(
 		--disable-profiling
