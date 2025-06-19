@@ -84,7 +84,6 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-apps/policycoreutils-3.7 ~arm64
-=sys-apps/util-linux-2.40.4 ~arm64
 =sys-apps/zram-generator-1.2.1 ~arm64
 =sys-auth/polkit-126-r1 ~amd64
 
