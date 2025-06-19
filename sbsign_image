@@ -58,6 +58,8 @@ switch_to_strict_mode
 . "${BUILD_LIBRARY_DIR}/build_image_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/prod_image_util.sh" || exit 1
 
+sudo emerge -uv1 coreos-base/coreos-sb-keys
+
 # Create the output directory and temporary mount points.
 mkdir -p "${BUILD_DIR}"
 
