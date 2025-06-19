@@ -164,6 +164,8 @@ users:
 EOF
 fi
 
+sudo emerge -uv1 coreos-base/coreos-sb-keys
+
 fix_mtab
 
 if [[ "${CONTAINER}" -eq 1 ]]; then
