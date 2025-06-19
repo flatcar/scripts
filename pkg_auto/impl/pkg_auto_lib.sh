@@ -1891,10 +1891,10 @@ function pkg_job_state_unset() {
 
 declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE'
 # BOM - a bunch of maps
-declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_PKG_SOURCES_MAP_IDX=4
+declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_PKG_SOURCES_MAP_IDX=4 BOM_DIFF_LIB_FILTERS_IDX=5
 
 function bunch_of_maps_declare() {
-    struct_declare -ga "${@}" "( '' '' '' '' '' )"
+    struct_declare -ga "${@}" "( '' '' '' '' '' '' )"
 }
 
 function bunch_of_maps_unset() {
@@ -1959,6 +1959,7 @@ function handle_one_package_change() {
     local old_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
     local new_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
     local -n pkg_sources_map_ref=${bunch_of_maps_ref[BOM_PKG_SOURCES_MAP_IDX]}
+    local diff_lib_filters_var_name=${bunch_of_maps_ref[BOM_DIFF_LIB_FILTERS_IDX]}
 
     if [[ ${old_name} = "${new_name}" ]]; then
         info "handling update of ${new_name}"
@@ -2103,12 +2104,12 @@ function handle_one_package_change() {
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
             "${GV_GT}")
-                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
             "${GV_EQ}")
                 hopc_slot_changed=
-                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                 if [[ -z ${hopc_slot_changed} ]]; then
                     rm -rf "${update_dir}"
                 else
@@ -2116,7 +2117,7 @@ function handle_one_package_change() {
                 fi
                 ;;
             "${GV_LT}")
-                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
         esac
@@ -2150,12 +2151,12 @@ function handle_one_package_change() {
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
                 "${GV_GT}")
-                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
                 "${GV_EQ}")
                     hopc_slot_changed=
-                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                     if [[ -z ${hopc_slot_changed} ]]; then
                         rm -rf "${update_dir}"
                     else
@@ -2163,7 +2164,7 @@ function handle_one_package_change() {
                     fi
                     ;;
                 "${GV_LT}")
-                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
+                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
             esac
@@ -2211,6 +2212,95 @@ function handle_one_package_change() {
     pkg_debug_disable
 }
 
+function get_diff_lib_filters() {
+    local old_pkg_slot_verminmax_map_mvm_name=${1}; shift
+    local new_pkg_slot_verminmax_map_mvm_name=${1}; shift
+    local -n filter_name_ref=${1}; shift
+
+    # {old,new}_pkg_slot_verminmax_map_mvm_name are
+    # map[package]map[slot]string (string being "min version:max
+    # version")
+
+    local gdlf_name
+    gen_varname gdlf_name
+    diff_lib_filters_declare "${gdlf_name}"
+
+    local gdlf_llvm_slots_name gdlf_python_slots_name gdlf_rust_slots_name
+    gen_varname gdlf_llvm_slots_name
+    gen_varname gdlf_python_slots_name
+    gen_varname gdlf_rust_slots_name
+
+    local -A llvm_slots_set=() python_slots_set=() rust_slots_set=()
+
+    local gdlf_slots_verminmax_map_name REPLY slot verminmax version
+    for which in "${WHICH[@]}"; do
+        local -n portage_stable_path_ref=${which^^}_PORTAGE_STABLE
+        # get the newest stable llvm slot from llvm eclasses in portage-stable
+        while read -r; do
+            llvm_slots_set["${REPLY}"]=x
+        done < <(grep --extended-regexp --line-regexp '_LLVM_NEWEST_STABLE=[0-9]+' "${portage_stable_path_ref}"/eclass/llvm-r*.eclass | sed 's/.*=\([0-9]\+\)/\1/')
+        unset -n portage_stable_path_ref
+
+        local -n the_mvm_name_ref=${which}_pkg_slot_verminmax_map_mvm_name
+        # get used python slot from our reports
+        mvm_get "${the_mvm_name_ref}" dev-lang/python gdlf_slots_verminmax_map_name
+        local -n slots_map=${gdlf_slots_verminmax_map_name}
+        for slot in "${!slots_map[@]}"; do
+            python_slots_set["${slot}"]=x
+        done
+        unset -n slots_map
+
+        # get rust slot - we deduce it from dev-lang/rust-common
+        # version, because dev-lang/rust in reports tends to stay on
+        # the old slot for some reason, while in reality, during
+        # rebuild, a new slot matching the version of
+        # dev-lang/rust-common will be picked up
+        mvm_get "${the_mvm_name_ref}" dev-lang/rust-common gdlf_slots_verminmax_map_name
+        local -n slots_map=${gdlf_slots_verminmax_map_name}
+        # there should be just one slot, "0", and one verminmax
+        for verminmax in "${slots_map[@]}"; do
+            for version in "${verminmax#:*}" "${verminmax%:*}"; do
+                # strip all the extra stuff from the version to get something resembling a slot
+                version=${version%%-*}
+                version=${version%%_*}
+                rust_slots_set["${version}"]=x
+            done
+        done
+        unset -n slots_map
+
+        unset -n the_mvm_name_ref
+    done
+
+    pkg_debug_lines \
+        "Slots used for diff filtering:" \
+        "LLVM: ${!llvm_slots_set[*]}" \
+        "python: ${!python_slots_set[*]}" \
+        "rust: ${!rust_slots_set[*]}"
+
+    local -n array_ref=${gdlf_llvm_slots_name}
+    array_ref=( "${!llvm_slots_set[@]}" )
+    unset -n array_ref
+
+    local -n array_ref=${gdlf_python_slots_name}
+    array_ref=( "${!python_slots_set[@]}" )
+    unset -n array_ref
+
+    local -n array_ref=${gdlf_rust_slots_name}
+    array_ref=( "${!rust_slots_set[@]}" )
+    unset -n array_ref
+
+    local -n filters_ref=${gdlf_name}
+    filters_ref[DLF_LLVM_SLOTS_IDX]=${gdlf_llvm_slots_name}
+    filters_ref[DLF_PYTHON_SLOTS_IDX]=${gdlf_python_slots_name}
+    filters_ref[DLF_RUST_SLOTS_IDX]=${gdlf_rust_slots_name}
+    unset -n filters_ref
+
+    diff_lib_generate_maps "${gdlf_name}"
+
+    filter_name_ref=${gdlf_name}
+}
+
+
 # This monstrosity takes renames map and package tags information,
 # reads the reports, does consistency checks and uses the information
 # from previous steps to write out package differences between the old
@@ -2231,7 +2321,7 @@ function handle_package_changes() {
     local -a hpc_all_pkgs
     hpc_all_pkgs=()
 
-    # map[package]map[slot]interface{}
+    # map[package]map[slot]struct{}
     mvm_declare hpc_pkg_slots_set_mvm mvm_mvc_set
     read_reports hpc_all_pkgs hpc_pkg_slots_set_mvm
 
@@ -2332,6 +2422,9 @@ function handle_package_changes() {
     done
     unset added_pkg_to_index_map
 
+    local hpc_diff_lib_filters_name
+    get_diff_lib_filters hpc_old_pkg_slot_verminmax_map_mvm hpc_new_pkg_slot_verminmax_map_mvm hpc_diff_lib_filters_name
+
     # The loop below goes over the pairs of old and new package
     # names. For each name there will be some checks done (like does
     # this package even exist). Each name in the pair has a set of
@@ -2370,6 +2463,7 @@ function handle_package_changes() {
     hpc_bunch_of_maps[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_old_pkg_slot_verminmax_map_mvm
     hpc_bunch_of_maps[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_new_pkg_slot_verminmax_map_mvm
     hpc_bunch_of_maps[BOM_PKG_SOURCES_MAP_IDX]=hpc_package_sources_map
+    hpc_bunch_of_maps[BOM_DIFF_LIB_FILTERS_IDX]="${hpc_diff_lib_filters_name}"
 
     for ((i = 0; i < job_count; ++i)); do
         gen_varname pkg_job_state_name
@@ -2492,6 +2586,8 @@ function handle_package_changes() {
     pkg_job_state_unset "${pkg_job_state_names[@]}"
     bunch_of_maps_unset hpc_bunch_of_maps
 
+    diff_lib_filters_unset "${hpc_diff_lib_filters_name}"
+
     mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_old_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_pkg_slots_set_mvm
@@ -2536,6 +2632,7 @@ function get_first_from_set() {
 function handle_pkg_update() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
@@ -2559,7 +2656,7 @@ function handle_pkg_update() {
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
@@ -2611,6 +2708,7 @@ function handle_pkg_update() {
 function handle_pkg_as_is() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local v=${1}; shift
@@ -2636,7 +2734,7 @@ function handle_pkg_as_is() {
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
@@ -2689,6 +2787,7 @@ function handle_pkg_as_is() {
 function handle_pkg_downgrade() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
@@ -2713,7 +2812,7 @@ function handle_pkg_downgrade() {
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
@@ -2947,6 +3046,7 @@ function generate_ebuild_diff() {
 
 function generate_cache_diff_report() {
     local diff_report_var_name=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local old_cache_dir=${1}; shift
     local new_cache_dir=${1}; shift
     local old_pkg=${1}; shift
@@ -2967,7 +3067,7 @@ function generate_cache_diff_report() {
     parse_cache_file "${old_cache_name}" "${old_entry}" "${ARCHES[@]}"
     parse_cache_file "${new_cache_name}" "${new_entry}" "${ARCHES[@]}"
 
-    diff_cache_data "${old_cache_name}" "${new_cache_name}" "${diff_report_var_name}"
+    diff_cache_data "${old_cache_name}" "${new_cache_name}" "${diff_lib_filters_var_name}" "${diff_report_var_name}"
 
     cache_file_unset "${old_cache_name}" "${new_cache_name}"
 }

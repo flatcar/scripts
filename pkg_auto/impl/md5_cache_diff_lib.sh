@@ -283,25 +283,111 @@ function diff_report_dedent() {
     ((dr_ref[DR_INDENT_IDX]--))
 }
 
+# TODO: documentation
+declare -gri DLF_LLVM_SLOTS_IDX=0 DLF_PYTHON_SLOTS_IDX=1 DLF_RUST_SLOTS_IDX=2 DLF_RELEVANT_IUSES_SET_IDX=3 DLF_QUESTIONABLE_PREFIXES_IDX=4 DLF_IRRELEVANT_IUSES_SET_IDX=5 DLF_RELEVANT_PYTHON_URS_SET_IDX=6 DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX=7
+
+# TODO: documentation
+function diff_lib_filters_declare() {
+    struct_declare -ga "${@}" "( 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_MAP' 'EMPTY_ARRAY' 'EMPTY_MAP' 'EMPTY_MAP' 'EMPTY_ARRAY' )"
+}
+
+# TODO: documentation
+function diff_lib_filters_unset() {
+    local name
+    local -i idx
+    for name; do
+        local -n filters_ref=${name}
+        for idx in DLF_LLVM_SLOTS_IDX DLF_PYTHON_SLOTS_IDX DLF_RUST_SLOTS_IDX DLF_QUESTIONABLE_PREFIXES_IDX DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX; do
+            name=${filters_ref[idx]}
+            if [[ ${name} != 'EMPTY_ARRAY' ]]; then
+                unset "${name}"
+            fi
+        done
+        for idx in DLF_RELEVANT_IUSES_SET_IDX DLF_IRRELEVANT_IUSES_SET_IDX DLF_RELEVANT_PYTHON_URS_SET_IDX; do
+            name=${filters_ref[idx]}
+            if [[ ${name} != 'EMPTY_MAP' ]]; then
+                unset "${name}"
+            fi
+        done
+        unset -n filters_ref
+    done
+    unset "${@}"
+}
+
+function diff_lib_generate_maps() {
+    local -n filters_ref=${1}; shift
+
+    local dlgm_relevant_iuses_set_name dlgm_questionable_prefixes_name dlgm_irrelevant_iuses_set_name
+    local dlgm_relevant_urs_set_name dlgm_questionable_ur_prefixes_name
+    gen_varname dlgm_relevant_iuses_set_name
+    gen_varname dlgm_questionable_prefixes_name
+    gen_varname dlgm_irrelevant_iuses_set_name
+    gen_varname dlgm_relevant_python_urs_set_name
+    gen_varname dlgm_questionable_python_ur_prefixes_name
+    declare -gA "${dlgm_relevant_iuses_set_name}=()" "${dlgm_irrelevant_iuses_set_name}=()"
+    declare -ga "${dlgm_questionable_prefixes_name}=()"
+    declare -gA "${dlgm_relevant_python_urs_set_name}=()"
+    declare -ga "${dlgm_questionable_python_ur_prefixes_name}=()"
+
+    local -n relevant_iuses_set_ref=${dlgm_relevant_iuses_set_name}
+    local -n questionable_prefixes_ref=${dlgm_questionable_prefixes_name}
+    local -n irrelevant_iuses_set_ref=${dlgm_irrelevant_iuses_set_name}
+    local -n relevant_python_urs_set_ref=${dlgm_relevant_python_urs_set_name}
+    local -n questionable_python_ur_prefixes_ref=${dlgm_questionable_python_ur_prefixes_name}
+
+    local -n python_slots_ref=${filters_ref[DLF_PYTHON_SLOTS_IDX]}
+    for slot in "${python_slots_ref[@]}"; do
+        # slots is something like 3.11, we want 3_11
+        slot=${slot//./_}
+        relevant_iuses_set_ref["python_targets_python${slot}"]=x
+        relevant_iuses_set_ref["python_single_target_python${slot}"]=x
+        relevant_python_urs_set_ref["python_targets_python${slot}"]=x
+    done
+    unset -n python_slots_ref
+    # not python_targets_python, so we can also catch python_targets_pypy prefix
+    questionable_prefixes_ref+=( 'python_targets_' 'python_single_target_' )
+    questionable_python_ur_prefixes_ref+=( 'python_targets_' )
+
+    local -n llvm_slots_ref=${filters_ref[DLF_LLVM_SLOTS_IDX]}
+    for slot in "${llvm_slots_ref[@]}"; do
+        relevant_iuses_set_ref["llvm_slot_${slot}"]=x
+    done
+    unset -n llvm_slots_ref
+    questionable_prefixes_ref+=( 'llvm_slot_' )
+
+    # maybe we will find more generally irrelevant iuses, maybe "doc" or "full-test"?
+    irrelevant_iuses_set_ref['test']=x
+
+    unset -n relevant_iuses_set_ref questionable_prefixes_ref irrelevant_iuses_set_ref relevant_python_urs_set_ref questionable_python_ur_prefixes_ref
+
+    filters_ref[DLF_RELEVANT_IUSES_SET_IDX]=${dlgm_relevant_iuses_set_name}
+    filters_ref[DLF_QUESTIONABLE_PREFIXES_IDX]=${dlgm_questionable_prefixes_name}
+    filters_ref[DLF_IRRELEVANT_IUSES_SET_IDX]=${dlgm_irrelevant_iuses_set_name}
+    filters_ref[DLF_RELEVANT_PYTHON_URS_SET_IDX]=${dlgm_relevant_python_urs_set_name}
+    filters_ref[DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX]=${dlgm_questionable_python_ur_prefixes_name}
+}
+
 # Diffs two cache files.
 #
 # Params:
 #
 # 1 - old cache file
 # 2 - new cache file
-# 3 - diff report where the diff will be written to
+# 3 - filters
+# 4 - diff report where the diff will be written to
 function diff_cache_data() {
     local old_var_name=${1}; shift
     local new_var_name=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local dr_var_name=${1}; shift
 
     __mcdl_diff_eapi "${old_var_name}" "${new_var_name}" "${dr_var_name}"
     __mcdl_diff_keywords "${old_var_name}" "${new_var_name}" "${dr_var_name}"
-    __mcdl_diff_iuse "${old_var_name}" "${new_var_name}" "${dr_var_name}"
+    __mcdl_diff_iuse "${old_var_name}" "${new_var_name}" "${diff_lib_filters_var_name}" "${dr_var_name}"
 
     local -i idx
     for idx in PCF_BDEPEND_IDX PCF_DEPEND_IDX PCF_IDEPEND_IDX PCF_PDEPEND_IDX PCF_RDEPEND_IDX PCF_LICENSE_IDX; do
-        __mcdl_diff_deps "${old_var_name}" "${new_var_name}" ${idx} "${dr_var_name}"
+        __mcdl_diff_deps "${old_var_name}" "${new_var_name}" "${diff_lib_filters_var_name}" ${idx} "${dr_var_name}"
     done
 }
 
@@ -325,6 +411,7 @@ function __mcdl_diff_eapi() {
 function __mcdl_diff_iuse() {
     local -n old_ref=${1}; shift
     local -n new_ref=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local dr_var_name=${1}; shift
 
     local old_iuses_var_name=${old_ref[PCF_IUSE_IDX]}
@@ -357,14 +444,14 @@ function __mcdl_diff_iuse() {
 
     local iuse
     for iuse in "${!removed_iuses[@]}"; do
-        if __mcdl_is_iuse_irrelevant "${iuse}"; then
+        if __mcdl_is_iuse_irrelevant "${diff_lib_filters_var_name}" "${iuse}"; then
             continue
         fi
         diff_report_append "${dr_var_name}" "removed IUSE flag ${iuse@Q}"
         diff_report_append_indented "${dr_var_name}" "TODO: describe removed IUSE flag"
     done
     for iuse in "${!added_iuses[@]}"; do
-        if __mcdl_is_iuse_irrelevant "${iuse}"; then
+        if __mcdl_is_iuse_irrelevant "${diff_lib_filters_var_name}" "${iuse}"; then
             continue
         fi
         diff_report_append "${dr_var_name}" "added IUSE flag ${iuse@Q}"
@@ -644,12 +731,13 @@ function __mcdl_iuse_stack_to_string_for_matching() {
 }
 
 function __mcdl_is_iuse_stack_irrelevant() {
+    local diff_lib_filters_var_name=${1}; shift
     local -n stack_ref=${1}; shift
     local i
 
     for i in "${stack_ref[@]}"; do
         i=${i%\?}
-        if __mcdl_is_iuse_irrelevant "${i}"; then
+        if __mcdl_is_iuse_irrelevant "${diff_lib_filters_var_name}" "${i}"; then
             return 0
         fi
     done
@@ -657,36 +745,121 @@ function __mcdl_is_iuse_stack_irrelevant() {
 }
 
 function __mcdl_is_iuse_irrelevant() {
+    local diff_lib_filters_var_name=${1}; shift
     local iuse=${1}; shift
 
-    case ${iuse} in
-        'python_targets_python3_11'|'python_single_target_python3_11')
-            :
-            ;;
-        'python_targets_'*|'python_single_target_'*|'test')
+    local -n filters_ref=${diff_lib_filters_var_name}
+
+    local -n irrelevant_iuses_set_ref=${filters_ref[DLF_IRRELEVANT_IUSES_SET_IDX]}
+    if [[ -n ${irrelevant_iuses_set_ref["${iuse}"]:-} ]]; then
+        return 0
+    fi
+    unset -n irrelevant_iuses_set_ref
+
+    local -n relevant_iuses_set_ref=${filters_ref[DLF_RELEVANT_IUSES_SET_IDX]}
+    if [[ -n ${relevant_iuses_set_ref["${iuse}"]:-} ]]; then
+        return 1
+    fi
+    unset -n relevant_iuses_set_ref
+
+    local -n questionable_prefixes_ref=${filters_ref[DLF_QUESTIONABLE_PREFIXES_IDX]}
+    local prefix
+    for prefix in "${questionable_prefixes_ref[@]}"; do
+        if [[ ${iuse} = "${prefix}"* ]]; then
             return 0
-            ;;
-    esac
+        fi
+    done
+
     return 1
 }
 
 function __mcdl_is_pds_irrelevant() {
+    local diff_lib_filters_var_name=${1}; shift
     local -n pds_ref=${1}; shift
+    local stack_var_name=${1}; shift
+
     local n=${pds_ref[PDS_NAME_IDX]}
 
+    if __mcdl_is_iuse_stack_irrelevant "${diff_lib_filters_var_name}" "${stack_var_name}"; then
+        return 0
+    fi
+
+    local -n stack_ref=${stack_var_name}; shift
     case ${n} in
         'dev-lang/python')
             local op=${pds_ref[PDS_OP_IDX]}
-            local slot=${pds_ref[PDS_SLOT_IDX]}
-            if [[ -z ${op} && -n ${slot} && ${slot} != '3.11' ]]; then
+            local slot=${pds_ref[PDS_SLOT_IDX]} relevant_slot
+            local matched=''
+            if [[ -z ${op} && -n ${slot} ]]; then
+                local -n filters_ref=${diff_lib_filters_var_name}
+                local -n python_slots_ref=${filters_ref[DLF_PYTHON_SLOTS_IDX]}
+                unset -n filters_ref
+                for relevant_slot in "${python_slots_ref[@]}"; do
+                    if [[ ${slot} = "${relevant_slot}" ]]; then
+                        matched=x
+                        break
+                    fi
+                done
+                unset -n python_slots_ref
+            fi
+            if [[ -z ${matched} ]]; then
                 return 0
             fi
             ;;
         'dev-lang/rust'|'dev-lang/rust-bin')
             local op=${pds_ref[PDS_OP_IDX]}
-            local slot=${pds_ref[PDS_SLOT_IDX]}
-            if [[ -z ${op} && -n ${slot} && ${slot} != '1.85.1' ]]; then
+            local slot=${pds_ref[PDS_SLOT_IDX]} relevant_slot
+            local matched=''
+            if [[ -z ${op} && -n ${slot} ]]; then
+                local -n filters_ref=${diff_lib_filters_var_name}
+                local -n rust_slots_ref=${filters_ref[DLF_RUST_SLOTS_IDX]}
+                unset -n filters_ref
+                for relevant_slot in "${rust_slots_ref[@]}"; do
+                    if [[ ${slot} = "${relevant_slot}" ]]; then
+                        matched=x
+                        break
+                    fi
+                done
+                unset -n rust_slots_ref
+            fi
+            if [[ -z ${matched} ]]; then
                 return 0
+            fi
+            ;;
+        'dev-python/'*)
+            # ignore dev-python/foo in situations like:
+            #
+            # || ( dev-python/foo[python_targets_python3_xx(-)] )
+            #
+            # or
+            #
+            # || ( ( dev-lang/python:3.xx dev-python/foo[python_targets_python3_xx(-)]) )
+            if [[ ( ${#stack_ref[@]} -gt 1 && ${stack_ref[-1]} = 'unnamed-all-of-'* && ${stack_ref[-2]} = '||' ) ||
+                  ( ${#stack_ref[@]} -gt 0 && ${stack_ref[-1]} = '||' ) ]]; then
+                local irrelevant=
+                local -n urs=${pds_ref[PDS_UR_IDX]}
+                if [[ ${#urs[@]} -eq 1 ]]; then
+                    local -n ur=${urs[0]}
+                    local ur_name=${ur[UR_NAME_IDX]}
+                    local -n filters_ref=${diff_lib_filters_var_name}
+                    local -n relevant_python_urs_map_ref=${filters_ref[DLF_RELEVANT_PYTHON_URS_SET_IDX]}
+                    if [[ -z ${relevant_python_urs_map_ref["${ur_name}"]:-} ]]; then
+                        local -n questionable_python_ur_prefixes=${filters_ref[DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX]}
+                        local prefix
+                        for prefix in "${questionable_python_ur_prefixes[@]}"; do
+                            if [[ ${ur_name} = "${prefix}"* ]]; then
+                                irrelevant=x
+                                break
+                            fi
+                        done
+                        unset -n questionable_python_ur_prefixes
+                    fi
+                    unset -n relevant_python_urs_map_ref filters_ref ur
+                fi
+                unset -n urs
+                if [[ -n ${irrelevant} ]]; then
+                    return 0
+                fi
             fi
             ;;
     esac
@@ -696,11 +869,12 @@ function __mcdl_is_pds_irrelevant() {
 function __mcdl_pds_diff() {
     local -n old_pds_ref=${1}; shift
     local -n new_pds_ref=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local old_stack_name=${1}; shift
     local new_stack_name=${1}; shift
     local dr_var_name=${1}; shift
 
-    if __mcdl_is_iuse_stack_irrelevant "${old_stack_name}" && __mcdl_is_iuse_stack_irrelevant "${new_stack_name}"; then
+    if __mcdl_is_iuse_stack_irrelevant "${diff_lib_filters_var_name}" "${old_stack_name}" && __mcdl_is_iuse_stack_irrelevant "${diff_lib_filters_var_name}" "${new_stack_name}"; then
         return 0
     fi
 
@@ -800,14 +974,14 @@ function __mcdl_pds_diff() {
     local -A only_old_urs=() only_new_urs=() common_urs=()
     sets_split old_name_index new_name_index only_old_urs only_new_urs common_urs
     for use_name in "${!only_old_urs[@]}"; do
-        if __mcdl_is_iuse_irrelevant "${use_name}"; then
+        if __mcdl_is_iuse_irrelevant "${diff_lib_filters_var_name}" "${use_name}"; then
             continue
         fi
         diff_report_append local_pds_dr "dropped ${use_name} use requirement"
     done
     local pd_mode_str pd_pretend_str
     for use_name in "${!only_new_urs[@]}"; do
-        if __mcdl_is_iuse_irrelevant "${use_name}"; then
+        if __mcdl_is_iuse_irrelevant "${diff_lib_filters_var_name}" "${use_name}"; then
             continue
         fi
         idx=${new_name_index["${use_name}"]}
@@ -1321,6 +1495,7 @@ function __mcdl_debug_iuse_stack() {
 function __mcdl_diff_deps() {
     local -n old_ref=${1}; shift
     local -n new_ref=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
     local deps_idx=${1}; shift
     local dr_var_name=${1}; shift
 
@@ -1400,7 +1575,7 @@ function __mcdl_diff_deps() {
             local t1=${item1:0:1} v1=${item1:2}
             case ${t1} in
                 'l')
-                    if ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                    if ! __mcdl_is_iuse_stack_irrelevant "${diff_lib_filters_var_name}" old_iuse_stack; then
                         local use_str
                         __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                         diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
@@ -1408,7 +1583,7 @@ function __mcdl_diff_deps() {
                     fi
                     ;;
                 'p')
-                    if ! __mcdl_is_pds_irrelevant "${v1}" && ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                    if ! __mcdl_is_pds_irrelevant "${diff_lib_filters_var_name}" "${v1}" old_iuse_stack; then
                         local p_str use_str
                         __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                         pds_to_string "${v1}" p_str
@@ -1469,7 +1644,7 @@ function __mcdl_diff_deps() {
             local t2=${item2:0:1} v2=${item2:2}
             case ${t2} in
                 'l')
-                    if ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                    if ! __mcdl_is_iuse_stack_irrelevant "${diff_lib_filters_var_name}" new_iuse_stack; then
                         local use_str
                         __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                         diff_report_append local_dr "added license ${v2@Q}${use_str}"
@@ -1477,7 +1652,7 @@ function __mcdl_diff_deps() {
                     fi
                     ;;
                 'p')
-                    if ! __mcdl_is_pds_irrelevant "${v2}" && ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                    if ! __mcdl_is_pds_irrelevant "${diff_lib_filters_var_name}" "${v2}" new_iuse_stack; then
                         local p_str use_str
                         __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                         pds_to_string "${v2}" p_str
@@ -1580,7 +1755,7 @@ function __mcdl_diff_deps() {
                 __mcdl_debug_iuse_stack new_iuse_stack "new iuse stack after dropping common last name"
                 ;;
             'p')
-                __mcdl_pds_diff "${item1:2}" "${item2:2}" old_iuse_stack new_iuse_stack local_dr
+                __mcdl_pds_diff "${item1:2}" "${item2:2}" "${diff_lib_filters_var_name}" old_iuse_stack new_iuse_stack local_dr
                 ;;
             *)
                 fail "item ${item1} or ${item2} is bad"
@@ -1603,7 +1778,7 @@ function __mcdl_diff_deps() {
         local t1=${item1:0:1} v1=${item1:2}
         case ${t1} in
             'l')
-                if ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                if ! __mcdl_is_iuse_stack_irrelevant "${diff_lib_filters_var_name}" old_iuse_stack; then
                     local use_str
                     __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                     diff_report_append local_dr "dropped license ${v1@Q}${use_str}"
@@ -1611,7 +1786,7 @@ function __mcdl_diff_deps() {
                 fi
                 ;;
             'p')
-                if ! __mcdl_is_pds_irrelevant "${v1}" && ! __mcdl_is_iuse_stack_irrelevant old_iuse_stack; then
+                if ! __mcdl_is_pds_irrelevant "${diff_lib_filters_var_name}" "${v1}" old_iuse_stack; then
                     local p_str use_str
                     __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
                     pds_to_string "${v1}" p_str
@@ -1672,7 +1847,7 @@ function __mcdl_diff_deps() {
         local t2=${item2:0:1} v2=${item2:2}
         case ${t2} in
             'l')
-                if ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                if ! __mcdl_is_iuse_stack_irrelevant "${diff_lib_filters_var_name}" new_iuse_stack; then
                     local use_str
                     __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                     diff_report_append local_dr "added license ${v2@Q}${use_str}"
@@ -1680,7 +1855,7 @@ function __mcdl_diff_deps() {
                 fi
                 ;;
             'p')
-                if ! __mcdl_is_pds_irrelevant "${v2}" && ! __mcdl_is_iuse_stack_irrelevant new_iuse_stack; then
+                if ! __mcdl_is_pds_irrelevant  "${diff_lib_filters_var_name}" "${v2}" new_iuse_stack; then
                     local p_str use_str
                     __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
                     pds_to_string "${v2}" p_str
