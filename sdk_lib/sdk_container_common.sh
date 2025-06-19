@@ -75,11 +75,7 @@ function get_version_from_versionfile() {
 # return true if a given version number is an official build
 #
 function is_official() {
-    local vernum="$1"
-
-    local official="$(echo "$vernum" | sed -n 's/^[0-9]\+\.[0-9]\+\.[0-9]\+$/true/p')"
-
-    test -n "$official"
+    true
 }
 # --
 
