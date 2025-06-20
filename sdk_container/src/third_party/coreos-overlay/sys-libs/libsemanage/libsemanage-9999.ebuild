@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit python-r1 toolchain-funcs multilib-minimal
 
@@ -18,7 +18,7 @@ if [[ ${PV} == 9999 ]]; then
 	S="${WORKDIR}/${P}/${PN}"
 else
 	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="amd64 arm arm64 ~mips ~riscv x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~riscv ~x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -41,12 +41,8 @@ BDEPEND=">=dev-lang/swig-2.0.4-r1
 # full SELinux userland repo
 RESTRICT="test"
 
-PATCHES=(
-	"${FILESDIR}/${PN}-3.7-fix-swig-bindings-for-4.3.0.patch"
-)
-
 src_prepare() {
-	default
+	eapply_user
 
 	echo >> "${S}/src/semanage.conf"
 	echo "# Set this to true to save the linked policy." >> "${S}/src/semanage.conf"
