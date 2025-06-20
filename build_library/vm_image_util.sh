@@ -327,7 +327,7 @@ IMG_scaleway_DISK_EXTENSION=qcow2
 IMG_stackit_DISK_FORMAT=qcow2
 IMG_stackit_DISK_LAYOUT=vm
 IMG_stackit_OEM_PACKAGE=common-oem-files
-IMG_stackit_OEM_USE=openstack # STACKIT is based on OpenStack
+IMG_stackit_OEM_USE=stackit
 IMG_stackit_OEM_SYSEXT=oem-stackit
 
 ## kubevirt
