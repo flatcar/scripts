@@ -880,7 +880,7 @@ function __mcdl_pds_diff() {
 
     local name=${new_pds_ref[PDS_NAME_IDX]}
 
-    local old_iuses new_iuses same_iuses
+    local old_iuses new_iuses same_iuses=''
     __mcdl_iuse_stack_to_string_for_matching "${old_stack_name}" old_iuses
     __mcdl_iuse_stack_to_string_for_matching "${new_stack_name}" new_iuses
 
