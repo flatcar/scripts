@@ -57,14 +57,57 @@ function emerge_pretend() {
 
 # Gets package list for SDK.
 function package_info_for_sdk() {
-    local root
-    root='/'
+    local root='/' rust_slot d arches='' match='|' awk_code='{ print $'
+    local -i awk_idx=6
+
+    for d in /build/*-usr; do
+        d=${d#/build/}
+        d=${d%-usr}
+        if [[ -z ${arches} ]]; then
+            arches=${d}
+        else
+            arches+=",${d}"
+        fi
+        match+=' +'
+        : $((++awk_idx))
+    done
+    match+=' |'
+    awk_code+=${awk_idx}
+    awk_code+=' }'
+
+    # rust is annoying - it is slotted, thus parallel-installable and
+    # also bdepends on some older version of rust and all of it causes
+    # emerge to just pick up the rust slot that already exists in the
+    # SDK instead of the latest stable one
+    #
+    # let's try to figure out the latest stable rust slot then and
+    # tell emerge to pick that one
+    #
+    # the output of equery is something like this (assuming
+    # architectures are amd64 and arm64):
+    #
+    # '             1.87.0-r1   | + + | 8 o 1.87.0 | portage-stable'
+    #
+    # (so version, followed by stability markers, followed by eapi,
+    # some "unused" thing, then slot, the repo name, the "|" are table
+    # lines)
+    #
+    # the `| + + |` part means that the package is stable for both
+    # architectures, so we want to get the last line that matches this
+    # part
+    #
+    # from that line we want to print the slot which is at index 6 +
+    # number of architectures (in the example output, the index is 8)
+    rust_slot=$(equery --no-color keywords --arch "${arches}" dev-lang/rust | \
+        grep --fixed-strings "${match}" | \
+        tail -n1 | \
+        awk "${awk_code}")
 
     ignore_crossdev_stuff "${root}"
     # stage4 build of SDK builds coreos-devel/sdk-depends, fsscript
     # pulls in cross toolchains with crossdev (which we have just
     # ignored) and dev-lang/rust
-    emerge_pretend "${root}" coreos-devel/sdk-depends dev-lang/rust
+    emerge_pretend "${root}" coreos-devel/sdk-depends dev-lang/rust:"${rust_slot}"
     revert_crossdev_stuff "${root}"
 }
 
