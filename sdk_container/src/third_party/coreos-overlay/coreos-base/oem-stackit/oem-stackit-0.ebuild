@@ -18,14 +18,14 @@ RDEPEND="
   net-misc/chrony
 "
 
- S="${WORKDIR}"
+S="${WORKDIR}"
 
 OEM_NAME="STACKIT"
 
 src_install() {
-	systemd_enable_service multi-user.target chronyd.service
+    systemd_enable_service multi-user.target chronyd.service
     dotmpfiles "${FILESDIR}"/var-chrony.conf
     dotmpfiles "${FILESDIR}"/etc-chrony.conf
-	insinto /usr/share/${PN}
-	doins "${FILESDIR}"/chrony.conf
+    insinto /usr/share/${PN}
+    doins "${FILESDIR}"/chrony.conf
 }
