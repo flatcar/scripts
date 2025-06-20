@@ -1,0 +1,1 @@
+- Added support for podman in `toolbox` ([toolbox#11](https://github.com/flatcar/toolbox/pull/11))
