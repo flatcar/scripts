@@ -98,5 +98,4 @@ sys-apps/azure-vm-utils
 # Keep versions on both arches in sync.
 =sys-fs/fuse-3.17.2 ~arm64
 =sys-fs/lxcfs-6.0.4 ~arm64
-=sys-libs/libsemanage-3.7 ~arm64
 =sys-process/audit-4.0.2-r1 ~arm64
