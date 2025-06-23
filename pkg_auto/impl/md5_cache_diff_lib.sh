@@ -361,7 +361,7 @@ function diff_lib_generate_maps() {
     local -n llvm_targets_ref=${filters_ref[DLF_LLVM_TARGETS_IDX]}
     local target
     for target in "${llvm_targets_ref[@]}"; do
-        target="llvm_target_${target}"
+        target="llvm_targets_${target}"
         relevant_iuses_set_ref["${target}"]=x
     done
     questionable_prefixes_ref+=( 'llvm_targets_' )
