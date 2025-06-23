@@ -22,7 +22,10 @@ DEPEND="${RDEPEND}
 	test? ( dev-libs/raft[lz4,test] )"
 BDEPEND="virtual/pkgconfig"
 
-PATCHES=( "${FILESDIR}"/dqlite-1.12.0-disable-werror.patch )
+PATCHES=(
+	"${FILESDIR}"/dqlite-1.12.0-disable-werror.patch
+	"${FILESDIR}"/0001-src-lib-serialize.h-don-t-define-double-as-float_t.patch
+)
 
 src_prepare() {
 	default
@@ -41,10 +44,6 @@ src_configure() {
 	)
 
 	econf "${myeconfargs[@]}"
-}
-
-src_test() {
-	default
 }
 
 src_install() {
