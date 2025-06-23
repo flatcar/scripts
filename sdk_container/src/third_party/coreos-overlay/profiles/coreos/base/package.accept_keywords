@@ -44,6 +44,11 @@
 
 # Keep versions on both arches in sync.
 =app-emulation/qemu-guest-agent-9.2.0 ~arm64
+
+# Needed to address CVE-2024-23337, CVE-2024-53427, CVE-2025-48060
+=app-misc/jq-1.8.0 ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
 =dev-build/meson-1.7.2 ~arm64
 =dev-db/sqlite-3.49.2 ~arm64
 =dev-lang/go-1.24.4 ~arm64
