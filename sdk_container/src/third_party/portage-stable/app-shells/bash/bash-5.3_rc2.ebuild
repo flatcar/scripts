@@ -15,7 +15,7 @@ MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 MY_PATCHES=()
 
-# Determine the patchlevel.
+# Determine the patchlevel. See ftp://ftp.gnu.org/gnu/bash/bash-5.2-patches/.
 case ${PV} in
 	9999|*_alpha*|*_beta*|*_rc*)
 		# Set a negative patchlevel to indicate that it's a pre-release.
@@ -26,11 +26,12 @@ case ${PV} in
 		;;
 	*)
 		PLEVEL=0
+		;;
 esac
 
 # The version of readline this bash normally ships with. Note that we only use
 # the bundled copy of readline for pre-releases.
-READLINE_VER="8.3_beta"
+READLINE_VER="8.3_rc1"
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="https://tiswww.case.edu/php/chet/bash/bashtop.html https://git.savannah.gnu.org/cgit/bash.git"
@@ -45,18 +46,18 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	BASH_COMMIT="15df5993542463ba9798e4ea5e488dfddf83c276"
+	BASH_COMMIT="dbe4256d5ea02fec1817fe7e275b0e534dc33a40"
 	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
-	my_urls=( {'mirror://gnu/bash','ftp://ftp.cwru.edu/pub/bash'}/"${MY_P}.tar.gz" )
+	my_urls=( "mirror://gnu/bash/${MY_P}.tar.gz" )
 
 	# bash-5.1 -> bash51
 	my_p=${PN}$(ver_cut 1-2) my_p=${my_p/.}
 
 	for (( my_patch_idx = 1; my_patch_idx <= PLEVEL; my_patch_idx++ )); do
 		printf -v my_patch_ver %s-%03d "${my_p}" "${my_patch_idx}"
-		my_urls+=( {'mirror://gnu/bash','ftp://ftp.cwru.edu/pub/bash'}/"${MY_P}-patches/${my_patch_ver}" )
+		my_urls+=( "mirror://gnu/bash/${MY_P}-patches/${my_patch_ver}" )
 		MY_PATCHES+=( "${DISTDIR}/${my_patch_ver}" )
 	done
 
@@ -179,6 +180,10 @@ src_configure() {
 	# may misbehave at runtime.
 	unset -v YACC
 
+	if tc-is-cross-compiler; then
+		export CFLAGS_FOR_BUILD="${BUILD_CFLAGS} -std=gnu17"
+	fi
+
 	myconf=(
 		--disable-profiling
 
@@ -264,8 +269,6 @@ src_compile() {
 		fi
 	fi
 
-	# builtins/evalstring.c needs y.tab.h but can't (easily) specify the dep on it from above
-	emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" y.tab.h
 	emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}"
 	use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" all others
 
@@ -282,7 +285,6 @@ src_compile() {
 
 		# Rebuild Bash using the profiling data we just generated.
 		emake clean
-		emake CFLAGS="${CFLAGS} ${pgo_use_flags[*]}" y.tab.h
 		emake CFLAGS="${CFLAGS} ${pgo_use_flags[*]}"
 		use plugins && emake -C examples/loadables CFLAGS="${CFLAGS} ${pgo_use_flags[*]}" all others
 	fi
@@ -318,7 +320,7 @@ src_install() {
 	my_prefixify bashrc.d "${FILESDIR}"/bashrc-r1 | newins - bashrc
 
 	insinto /etc/bash/bashrc.d
-	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color-r1.bash | newins - 10-gentoo-color.bash
+	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color-r2.bash | newins - 10-gentoo-color.bash
 	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r2.bash 10-gentoo-title.bash
 	if [[ ! ${EPREFIX} ]]; then
 		doins "${FILESDIR}"/bashrc.d/15-gentoo-bashrc-check.bash
