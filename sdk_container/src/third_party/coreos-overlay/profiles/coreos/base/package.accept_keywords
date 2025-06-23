@@ -72,6 +72,9 @@
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
+# Needed for addressing CVE-2025-47268 and CVE-2025-48964
+=net-misc/iputils-20250605 ~amd64 ~arm64
+
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
