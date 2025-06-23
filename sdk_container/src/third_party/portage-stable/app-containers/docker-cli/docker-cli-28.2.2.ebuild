@@ -7,7 +7,7 @@ inherit bash-completion-r1 go-module
 MY_PV=${PV/_/-}
 
 # update this on every bump
-GIT_COMMIT=b8034c0ed70494a90c133461d145cd072d920d7c
+GIT_COMMIT=879ac3f88fe137c2058afe995298832eb2ff1546
 
 # To create the man pages tarball, run the following in the git source
 # directory:
@@ -23,7 +23,7 @@ S="${WORKDIR}/cli-${PV}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ~loong ppc64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 IUSE="hardened selinux"
 
 RDEPEND="selinux? ( sec-policy/selinux-docker )"
