@@ -12,7 +12,7 @@ TMPFILES_OPTIONAL=1
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=2
+PATCH_VER=4
 PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
@@ -971,6 +971,15 @@ src_prepare() {
 		eapply "${WORKDIR}"/patches
 		einfo "Done."
 	fi
+
+        case ${CTARGET} in
+                m68*-aligned-*)
+			einfo "Applying utmp format fix for m68k with -maligned-int"
+			eapply "${FILESDIR}/glibc-2.41-m68k-malign.patch"
+			;;
+                *)
+			;;
+        esac
 
 	default
 
