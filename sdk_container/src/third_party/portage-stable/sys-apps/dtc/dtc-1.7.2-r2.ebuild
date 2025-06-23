@@ -3,15 +3,15 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
-inherit meson python-single-r1
+PYTHON_COMPAT=( python3_{11..13} )
+inherit dot-a meson python-single-r1
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/dtc/dtc.git"
 	inherit git-r3
 else
 	SRC_URI="https://www.kernel.org/pub/software/utils/${PN}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 
 DESCRIPTION="Open Firmware device tree compiler"
@@ -61,6 +61,7 @@ pkg_setup() {
 }
 
 src_configure() {
+	use static-libs && lto-guarantee-fat
 	local emesonargs=(
 		-Dtools=true
 		-Dvalgrind=disabled # only used for some tests
@@ -69,14 +70,16 @@ src_configure() {
 		$(meson_feature yaml)
 	)
 
-	# bug #909366
-	use static-libs && emesonargs+=( -Dstatic-build=true )
-
 	meson_src_configure
 }
 
 src_install() {
 	meson_src_install
+	if use !static-libs; then
+		# bug #907940
+		rm "${ED}/usr/$(get_libdir)"/*.a || die
+	fi
+	strip-lto-bytecode
 
 	use python && python_optimize "${ED}"
 }
