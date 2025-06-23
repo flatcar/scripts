@@ -284,11 +284,13 @@ function diff_report_dedent() {
 }
 
 # TODO: documentation
-declare -gri DLF_LLVM_SLOTS_IDX=0 DLF_PYTHON_SLOTS_IDX=1 DLF_RUST_SLOTS_IDX=2 DLF_RELEVANT_IUSES_SET_IDX=3 DLF_QUESTIONABLE_PREFIXES_IDX=4 DLF_IRRELEVANT_IUSES_SET_IDX=5 DLF_RELEVANT_PYTHON_URS_SET_IDX=6 DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX=7
+declare -gri DLF_LLVM_SLOTS_IDX=0 DLF_PYTHON_SLOTS_IDX=1 DLF_RUST_SLOTS_IDX=2 DLF_LLVM_TARGETS_IDX=3
+# computed with diff_lib_generate_maps
+declare -gri DLF_RELEVANT_IUSES_SET_IDX=4 DLF_QUESTIONABLE_PREFIXES_IDX=5 DLF_IRRELEVANT_IUSES_SET_IDX=6 DLF_RELEVANT_PYTHON_URS_SET_IDX=7 DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX=8
 
 # TODO: documentation
 function diff_lib_filters_declare() {
-    struct_declare -ga "${@}" "( 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_MAP' 'EMPTY_ARRAY' 'EMPTY_MAP' 'EMPTY_MAP' 'EMPTY_ARRAY' )"
+    struct_declare -ga "${@}" "( 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_ARRAY' 'EMPTY_MAP' 'EMPTY_ARRAY' 'EMPTY_MAP' 'EMPTY_MAP' 'EMPTY_ARRAY' )"
 }
 
 # TODO: documentation
@@ -297,7 +299,7 @@ function diff_lib_filters_unset() {
     local -i idx
     for name; do
         local -n filters_ref=${name}
-        for idx in DLF_LLVM_SLOTS_IDX DLF_PYTHON_SLOTS_IDX DLF_RUST_SLOTS_IDX DLF_QUESTIONABLE_PREFIXES_IDX DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX; do
+        for idx in DLF_LLVM_SLOTS_IDX DLF_PYTHON_SLOTS_IDX DLF_RUST_SLOTS_IDX DLF_LLVM_TARGETS_IDX DLF_QUESTIONABLE_PREFIXES_IDX DLF_QUESTIONABLE_PYTHON_UR_PREFIXES_IDX; do
             name=${filters_ref[idx]}
             if [[ ${name} != 'EMPTY_ARRAY' ]]; then
                 unset "${name}"
@@ -336,6 +338,7 @@ function diff_lib_generate_maps() {
     local -n questionable_python_ur_prefixes_ref=${dlgm_questionable_python_ur_prefixes_name}
 
     local -n python_slots_ref=${filters_ref[DLF_PYTHON_SLOTS_IDX]}
+    local slot
     for slot in "${python_slots_ref[@]}"; do
         # slots is something like 3.11, we want 3_11
         slot=${slot//./_}
@@ -354,6 +357,15 @@ function diff_lib_generate_maps() {
     done
     unset -n llvm_slots_ref
     questionable_prefixes_ref+=( 'llvm_slot_' )
+
+    local -n llvm_targets_ref=${filters_ref[DLF_LLVM_TARGETS_IDX]}
+    local target
+    for target in "${llvm_targets_ref[@]}"; do
+        target="llvm_target_${target}"
+        relevant_iuses_set_ref["${target}"]=x
+    done
+    questionable_prefixes_ref+=( 'llvm_targets_' )
+    unset -n llvm_targets_ref
 
     # maybe we will find more generally irrelevant iuses, maybe "doc" or "full-test"?
     irrelevant_iuses_set_ref['test']=x

@@ -2225,10 +2225,11 @@ function get_diff_lib_filters() {
     gen_varname gdlf_name
     diff_lib_filters_declare "${gdlf_name}"
 
-    local gdlf_llvm_slots_name gdlf_python_slots_name gdlf_rust_slots_name
+    local gdlf_llvm_slots_name gdlf_python_slots_name gdlf_rust_slots_name gdlf_llvm_targets_name
     gen_varname gdlf_llvm_slots_name
     gen_varname gdlf_python_slots_name
     gen_varname gdlf_rust_slots_name
+    gen_varname gdlf_llvm_targets_name
 
     local -A llvm_slots_set=() python_slots_set=() rust_slots_set=()
 
@@ -2271,11 +2272,25 @@ function get_diff_lib_filters() {
         unset -n the_mvm_name_ref
     done
 
+    # this exists so we can clearly bail out when we add a new arch
+    # (like riscv)
+    local -A arch_to_target_map=(
+        ["amd64"]='X86'
+        ["arm64"]='AArch64'
+    )
+    local arch
+    for arch in "${ARCHES[@]}"; do
+        if [[ -z ${arch_to_target_map["${arch}"]:-} ]]; then
+            fail "no LLVM target for arch ${arch} specified"
+        fi
+    done
+
     pkg_debug_lines \
         "Slots used for diff filtering:" \
         "LLVM: ${!llvm_slots_set[*]}" \
         "python: ${!python_slots_set[*]}" \
-        "rust: ${!rust_slots_set[*]}"
+        "rust: ${!rust_slots_set[*]}" \
+        "LLVM targets: ${arch_to_target_map[*]}"
 
     local -n array_ref=${gdlf_llvm_slots_name}
     array_ref=( "${!llvm_slots_set[@]}" )
@@ -2289,10 +2304,15 @@ function get_diff_lib_filters() {
     array_ref=( "${!rust_slots_set[@]}" )
     unset -n array_ref
 
+    local -n array_ref=${gdlf_llvm_targets_name}
+    array_ref=( "${arch_to_target_map[@]}" )
+    unset -n array_ref
+
     local -n filters_ref=${gdlf_name}
     filters_ref[DLF_LLVM_SLOTS_IDX]=${gdlf_llvm_slots_name}
     filters_ref[DLF_PYTHON_SLOTS_IDX]=${gdlf_python_slots_name}
     filters_ref[DLF_RUST_SLOTS_IDX]=${gdlf_rust_slots_name}
+    filters_ref[DLF_LLVM_TARGETS_IDX]=${gdlf_llvm_targets_name}
     unset -n filters_ref
 
     diff_lib_generate_maps "${gdlf_name}"
