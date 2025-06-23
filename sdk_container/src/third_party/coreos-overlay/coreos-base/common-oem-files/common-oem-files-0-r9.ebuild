@@ -134,7 +134,7 @@ src_compile() {
 
     # STACKIT is running on top of OpenStack,  so the `oem_cmdline` has to be `openstack` for Ignition/Afterburn integration but the `oemid` has to stay `stackit` to load the correct `oem-stackit` sysext image.
     if [[ "${oemid}" == "stackit" ]]; then
-            oemid_cmdline="openstack"
+        oemid_cmdline="openstack"
     fi
 
     lines=(
