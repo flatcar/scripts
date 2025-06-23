@@ -23,7 +23,7 @@ case ${PV}  in
 	case ${PV} in
 	*_beta*|*_rc*) ;;
 	*)
-		KEYWORDS="-* amd64 arm arm64 ~loong ~mips ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+		KEYWORDS="-* amd64 arm ~arm64 ~loong ~mips ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 		;;
 	esac
 esac
@@ -35,9 +35,6 @@ LICENSE="BSD"
 SLOT="0/${PV}"
 IUSE="cpu_flags_x86_sse2"
 
-RDEPEND="
-arm? ( sys-devel/binutils[gold(-)] )
-arm64? ( sys-devel/binutils[gold(-)] )"
 BDEPEND="|| (
 		>=dev-lang/go-${GO_BOOTSTRAP_MIN}
 		>=dev-lang/go-bootstrap-${GO_BOOTSTRAP_MIN} )"
@@ -76,6 +73,7 @@ go_cross_compile() {
 
 PATCHES=(
 	"${FILESDIR}"/go-1.24-skip-gdb-tests.patch
+	"${FILESDIR}"/go-1.24-dont-force-gold-arm.patch
 	"${FILESDIR}"/go-never-download-newer-toolchains.patch
 )
 
