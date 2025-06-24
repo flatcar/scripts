@@ -158,7 +158,7 @@ function package_info_for_board() {
 
     # Get sysext packages only if they are valid for the passed
     # architecture.
-    local -A sysexts_pkgs_set=()
+    local -A sysext_pkgs_set=()
     local entry name pkgs_csv uses_csv arches_csv ok_arch ok pkg
     local -a arches pkgs
     for entry in "${EXTRA_SYSEXTS[@]}"; do
@@ -185,7 +185,7 @@ function package_info_for_board() {
         fi
         read -r -a pkgs <<<"${pkgs_csv//,/ }"
         for pkg in "${pkgs[@]}"; do
-            sysexts_pkgs_set["${pkg}"]=x
+            sysext_pkgs_set["${pkg}"]=x
         done
     done
 
@@ -224,7 +224,7 @@ function package_info_for_board() {
             emerge_pretend "${root}" "${pkg}"
         fi
     done
-    rm "${output_file}"
+    rm -f "${output_file}"
 }
 
 # Set the directory where the emerge output and the results of
