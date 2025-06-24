@@ -128,23 +128,23 @@ function package_info_for_board() {
 
     # source only a part of extra_sysexts.sh that defines the
     # EXTRA_SYSEXTS variable
-    local -i line
-    line=$(grep --line-regexp --fixed-strings --line-number --max-count=1 --regexp=')' build_library/extra_sysexts.sh | cut --fields=1 --delimiter=':')
+    local -i line_idx
+    line_idx=$(grep --line-regexp --fixed-strings --line-number --max-count=1 --regexp=')' build_library/extra_sysexts.sh | cut --fields=1 --delimiter=':')
 
     local -a EXTRA_SYSEXTS
-    source <(head -n ${line} build_library/extra_sysexts.sh)
+    source <(head --lines=${line_idx} build_library/extra_sysexts.sh)
 
     # get sysext packages only if they are valid for the passed
     # architecture
     local -A sysexts_pkgs_set=()
-    local line name pkgs_csv uses_csv arches_csv ok_arch ok pkg
+    local entry name pkgs_csv uses_csv arches_csv ok_arch ok pkg
     local -a arches pkgs
-    for line in "${EXTRA_SYSEXTS[@]}"; do
+    for entry in "${EXTRA_SYSEXTS[@]}"; do
         # uses field has spaces, turn them into commas, so we can turn
-        # pipes into spaces and make a use of read for entire line
-        line=${line// /,}
-        line=${line//|/ }
-        read -r name pkgs_csv uses_csv arches_csv <<<"${line}"
+        # pipes into spaces and make a use of read for entire entry
+        entry=${entry// /,}
+        entry=${entry//|/ }
+        read -r name pkgs_csv uses_csv arches_csv <<<"${entry}"
 
         ok=x
         if [[ -n ${arches_csv} ]]; then
