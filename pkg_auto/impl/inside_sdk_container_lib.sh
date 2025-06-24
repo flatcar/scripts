@@ -123,11 +123,111 @@ function package_info_for_board() {
     local root
     root="/build/${arch}-usr"
 
+    local output_file
+    output_file=$(mktemp --tmpdir 'emerge-output.XXXXXXXX')
+
     # Ignore crossdev stuff in both SDK root and board root - emerge
     # may query SDK stuff for the board packages.
     ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
-    emerge_pretend "${root}" coreos-devel/board-packages
+    emerge_pretend "${root}" coreos-devel/board-packages | tee "${output_file}"
+
+    # There are packages that are installed only in sysexts and are
+    # not pulled in by the coreos-devel/board-packages
+    # metapackage. The reason could be that we pull several
+    # non-parallel-installable subslots of the same package for
+    # different sysexts (x11-drivers/nvidia-drivers for
+    # example). Trying to do that would result in an error. But still
+    # it would be nice to have a report about them too. If the package
+    # didn't show up in the report for coreos-devel/board-packages
+    # metapackage, we generate another one for the package. The result
+    # will be a single report with possible duplicates, so the
+    # anything that processes the report needs to take this into
+    # account.
+    #
+    # Hopefully the duplicates will be actual duplicates, so nothing
+    # that simple "sort -u" would not be able to handle. If we get
+    # multiple versions for a single slot of a package in a report,
+    # then we will need to revisit this code.
+
+    # First, gather packages from the extra_sysexts.sh file - we will
+    # source only a part of extra_sysexts.sh that defines the
+    # EXTRA_SYSEXTS variable.
+    local -i line_idx
+    line_idx=$(grep --line-regexp --fixed-strings --line-number --max-count=1 --regexp=')' build_library/extra_sysexts.sh | cut --fields=1 --delimiter=':')
+
+    local -a EXTRA_SYSEXTS
+    source <(head --lines=${line_idx} build_library/extra_sysexts.sh)
+
+    # Get sysext packages only if they are valid for the passed
+    # architecture.
+    local -A sysext_pkgs_set=()
+    local entry name pkgs_csv uses_csv arches_csv ok_arch ok pkg
+    local -a arches pkgs
+    for entry in "${EXTRA_SYSEXTS[@]}"; do
+        # The "uses" field has spaces, so turn them into commas, so we
+        # can turn pipes into spaces and make a use of read for entire
+        # entry.
+        entry=${entry// /,}
+        entry=${entry//|/ }
+        read -r name pkgs_csv uses_csv arches_csv <<<"${entry}"
+
+        ok=x
+        if [[ -n ${arches_csv} ]]; then
+            ok=
+            read -r -a arches <<<"${arches_csv//,/ }"
+            for ok_arch in "${arches[@]}"; do
+                if [[ ${ok_arch} = "${arch}" ]]; then
+                    ok=x
+                    break
+                fi
+            done
+        fi
+        if [[ -z ${ok} ]]; then
+            continue
+        fi
+        read -r -a pkgs <<<"${pkgs_csv//,/ }"
+        for pkg in "${pkgs[@]}"; do
+            sysext_pkgs_set["${pkg}"]=x
+        done
+    done
+
+    # Do the check if the package was already in the report. If not,
+    # generate another one.
+    local slot stripped_escaped_pkg do_emerge escaped_slot
+    for pkg in "${!sysext_pkgs_set[@]}"; do
+        # strip possible slot information in package name
+        stripped_escaped_pkg=${pkg%:*}
+        slot=''
+        if [[ ${stripped_escaped_pkg} != "${pkg}" ]]; then
+            slot=${pkg##*:}
+        fi
+        # the only allowed character in category that is also a
+        # special character in regexp is a dot; there are no allowed
+        # characters in package name that are special characters in
+        # regexps; thus we escape all the dots only
+        stripped_escaped_pkg=${stripped_escaped_pkg//./'\.'}
+        do_emerge=
+        if [[ -z ${slot} ]]; then
+            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*' "${output_file}"; then
+                do_emerge=x
+            fi
+        else
+            # bah, a more complicated regexp to see if the package
+            # name with the specific slot was listed
+            #
+            # a slot is similar to a category with regard to special
+            # regexp characters - we escape only dots
+            escaped_slot=${slot//./'\.'}
+            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*\[[^] ]*:'"${escaped_slot}"'::' "${output_file}"; then
+                do_emerge=x
+            fi
+        fi
+        if [[ -n ${do_emerge} ]]; then
+            emerge_pretend "${root}" "${pkg}"
+        fi
+    done
+    rm -f "${output_file}"
     revert_crossdev_stuff "${root}"
     revert_crossdev_stuff /
 }
@@ -275,7 +375,7 @@ PKG_REPO_SED_FILTERS=(
 #
 # @ - parameters passed to sed
 function packages_for_sdk() {
-    cat "${SDK_EO_F}" | sed "${@}" | sort
+    cat "${SDK_EO_F}" | sed "${@}" | sort -u
 }
 
 # Applies some sed filter over the board emerge output. Results are
@@ -290,7 +390,7 @@ function packages_for_board() {
 
     local name=${arch^^}_BOARD_EO_F
 
-    sed "${@}" "${!name}" | sort
+    sed "${@}" "${!name}" | sort -u
 }
 
 # Prints package name, slot and version information for SDK.
