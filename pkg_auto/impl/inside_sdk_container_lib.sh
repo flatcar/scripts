@@ -146,6 +146,11 @@ function package_info_for_board() {
     # will be a single report with possible duplicates, so the
     # anything that processes the report needs to take this into
     # account.
+    #
+    # Hopefully the duplicates will be actual duplicates, so nothing
+    # that simple "sort -u" would not be able to handle. If we get
+    # multiple versions for a single slot of a package in a report,
+    # then we will need to revisit this code.
 
     # First, gather packages from the extra_sysexts.sh file - we will
     # source only a part of extra_sysexts.sh that defines the
@@ -370,7 +375,7 @@ PKG_REPO_SED_FILTERS=(
 #
 # @ - parameters passed to sed
 function packages_for_sdk() {
-    cat "${SDK_EO_F}" | sed "${@}" | sort
+    cat "${SDK_EO_F}" | sed "${@}" | sort -u
 }
 
 # Applies some sed filter over the board emerge output. Results are
@@ -385,7 +390,7 @@ function packages_for_board() {
 
     local name=${arch^^}_BOARD_EO_F
 
-    sed "${@}" "${!name}" | sort
+    sed "${@}" "${!name}" | sort -u
 }
 
 # Prints package name, slot and version information for SDK.
