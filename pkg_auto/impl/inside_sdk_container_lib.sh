@@ -123,25 +123,48 @@ function package_info_for_board() {
     local root
     root="/build/${arch}-usr"
 
-    # gather packages from extra sysexts - some of them are not pulled
-    # by the coreos-devel/board-packages metapackage
+    local output_file
+    output_file=$(mktemp --tmpdir --directory 'emerge-output.XXXXXXXX')
 
+    # Ignore crossdev stuff in both SDK root and board root - emerge
+    # may query SDK stuff for the board packages.
+    ignore_crossdev_stuff /
+    ignore_crossdev_stuff "${root}"
+    emerge_pretend "${root}" coreos-devel/board-packages | tee "${output_file}"
+    revert_crossdev_stuff "${root}"
+    revert_crossdev_stuff /
+
+    # There are packages that are installed only in sysexts and are
+    # not pulled in by the coreos-devel/board-packages
+    # metapackage. The reason could be that we pull several
+    # non-parallel-installable subslots of the same package for
+    # different sysexts (x11-drivers/nvidia-drivers for
+    # example). Trying to do that would result in an error. But still
+    # it would be nice to have a report about them too. If the package
+    # didn't show up in the report for coreos-devel/board-packages
+    # metapackage, we generate another one for the package. The result
+    # will be a single report with possible duplicates, so the
+    # anything that processes the report needs to take this into
+    # account.
+
+    # First, gather packages from the extra_sysexts.sh file - we will
     # source only a part of extra_sysexts.sh that defines the
-    # EXTRA_SYSEXTS variable
+    # EXTRA_SYSEXTS variable.
     local -i line_idx
     line_idx=$(grep --line-regexp --fixed-strings --line-number --max-count=1 --regexp=')' build_library/extra_sysexts.sh | cut --fields=1 --delimiter=':')
 
     local -a EXTRA_SYSEXTS
     source <(head --lines=${line_idx} build_library/extra_sysexts.sh)
 
-    # get sysext packages only if they are valid for the passed
-    # architecture
+    # Get sysext packages only if they are valid for the passed
+    # architecture.
     local -A sysexts_pkgs_set=()
     local entry name pkgs_csv uses_csv arches_csv ok_arch ok pkg
     local -a arches pkgs
     for entry in "${EXTRA_SYSEXTS[@]}"; do
-        # uses field has spaces, turn them into commas, so we can turn
-        # pipes into spaces and make a use of read for entire entry
+        # The "uses" field has spaces, so turn them into commas, so we
+        # can turn pipes into spaces and make a use of read for entire
+        # entry.
         entry=${entry// /,}
         entry=${entry//|/ }
         read -r name pkgs_csv uses_csv arches_csv <<<"${entry}"
@@ -166,13 +189,42 @@ function package_info_for_board() {
         done
     done
 
-    # Ignore crossdev stuff in both SDK root and board root - emerge
-    # may query SDK stuff for the board packages.
-    ignore_crossdev_stuff /
-    ignore_crossdev_stuff "${root}"
-    emerge_pretend "${root}" coreos-devel/board-packages "${!sysexts_pkgs_set[@]}"
-    revert_crossdev_stuff "${root}"
-    revert_crossdev_stuff /
+    # Do the check if the package was already in the report. If not,
+    # generate another one.
+    local slot stripped_escaped_pkg do_emerge escaped_slot
+    for pkg in "${!sysext_pkgs_set[@]}"; do
+        # strip possible slot information in package name
+        stripped_escaped_pkg=${pkg%:*}
+        slot=''
+        if [[ ${stripped_escaped_pkg} != "${pkg}" ]]; then
+            slot=${pkg##*:}
+        fi
+        # the only allowed character in category that is also a
+        # special character in regexp is a dot; there are no allowed
+        # characters in package name that are special characters in
+        # regexps; thus we escape all the dots only
+        stripped_escaped_pkg=${stripped_escaped_pkg//./'\.'}
+        do_emerge=
+        if [[ -z ${slot} ]]; then
+            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*' "${output_file}"; then
+                do_emerge=x
+            fi
+        else
+            # bah, a more complicated regexp to see if the package
+            # name with the specific slot was listed
+            #
+            # a slot is similar to a category with regard to special
+            # regexp characters - we escape only dots
+            escaped_slot=${slot//./'\.'}
+            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*\[[^] ]*:'"${escaped_slot}"'::'; then
+                do_emerge=x
+            fi
+        fi
+        if [[ -n ${do_emerge} ]]; then
+            emerge_pretend "${root}" "${pkg}"
+        fi
+    done
+    rm "${output_file}"
 }
 
 # Set the directory where the emerge output and the results of
