@@ -216,7 +216,7 @@ function package_info_for_board() {
             # a slot is similar to a category with regard to special
             # regexp characters - we escape only dots
             escaped_slot=${slot//./'\.'}
-            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*\[[^] ]*:'"${escaped_slot}"'::'; then
+            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*\[[^] ]*:'"${escaped_slot}"'::' "${output_file}"; then
                 do_emerge=x
             fi
         fi
