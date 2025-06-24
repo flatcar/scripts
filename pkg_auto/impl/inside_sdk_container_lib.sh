@@ -124,7 +124,7 @@ function package_info_for_board() {
     root="/build/${arch}-usr"
 
     local output_file
-    output_file=$(mktemp --tmpdir --directory 'emerge-output.XXXXXXXX')
+    output_file=$(mktemp --tmpdir 'emerge-output.XXXXXXXX')
 
     # Ignore crossdev stuff in both SDK root and board root - emerge
     # may query SDK stuff for the board packages.
