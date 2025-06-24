@@ -123,11 +123,54 @@ function package_info_for_board() {
     local root
     root="/build/${arch}-usr"
 
+    # gather packages from extra sysexts - some of them are not pulled
+    # by the coreos-devel/board-packages metapackage
+
+    # source only a part of extra_sysexts.sh that defines the
+    # EXTRA_SYSEXTS variable
+    local -i line
+    line=$(grep --line-regexp --fixed-strings --line-number --max-count=1 --regexp=')' build_library/extra_sysexts.sh | cut --fields=1 --delimiter=':')
+
+    local -a EXTRA_SYSEXTS
+    source <(head -n ${line} build_library/extra_sysexts.sh)
+
+    # get sysext packages only if they are valid for the passed
+    # architecture
+    local -A sysexts_pkgs_set=()
+    local line name pkgs_csv uses_csv arches_csv ok_arch ok pkg
+    local -a arches pkgs
+    for line in "${EXTRA_SYSEXTS[@]}"; do
+        # uses field has spaces, turn them into commas, so we can turn
+        # pipes into spaces and make a use of read for entire line
+        line=${line// /,}
+        line=${line//|/ }
+        read -r name pkgs_csv uses_csv arches_csv <<<"${line}"
+
+        ok=x
+        if [[ -n ${arches_csv} ]]; then
+            ok=
+            read -r -a arches <<<"${arches_csv//,/ }"
+            for ok_arch in "${arches[@]}"; do
+                if [[ ${ok_arch} = "${arch}" ]]; then
+                    ok=x
+                    break
+                fi
+            done
+        fi
+        if [[ -z ${ok} ]]; then
+            continue
+        fi
+        read -r -a pkgs <<<"${pkgs_csv//,/ }"
+        for pkg in "${pkgs[@]}"; do
+            sysexts_pkgs_set["${pkg}"]=x
+        done
+    done
+
     # Ignore crossdev stuff in both SDK root and board root - emerge
     # may query SDK stuff for the board packages.
     ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
-    emerge_pretend "${root}" coreos-devel/board-packages
+    emerge_pretend "${root}" coreos-devel/board-packages "${!sysexts_pkgs_set[@]}"
     revert_crossdev_stuff "${root}"
     revert_crossdev_stuff /
 }
