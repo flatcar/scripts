@@ -12,7 +12,6 @@
 - base, dev: grep ([3.12](https://lists.gnu.org/archive/html/info-gnu/2025-04/msg00008.html))
 - base, dev: gzip ([1.14](https://lists.gnu.org/archive/html/info-gnu/2025-04/msg00007.html))
 - base, dev: inih ([59](https://github.com/benhoyt/inih/releases/tag/r59))
-- base, dev: intel-microcode ([20250512_p20250513](https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-20250512))
 - base, dev: iputils ([20250605](https://github.com/iputils/iputils/releases/tag/20250605) (includes [20250602](https://github.com/iputils/iputils/releases/tag/20250602)))
 - base, dev: jq ([1.8.0](https://github.com/jqlang/jq/releases/tag/jq-1.8.0))
 - base, dev: kexec-tools ([2.0.31](https://github.com/horms/kexec-tools/commits/v2.0.31/))
