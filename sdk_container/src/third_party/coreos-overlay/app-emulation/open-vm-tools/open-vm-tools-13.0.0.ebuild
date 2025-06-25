@@ -5,7 +5,7 @@ EAPI=8
 
 inherit autotools linux-info pam systemd udev
 
-MY_P="${P}-24697584"
+MY_P="${P}-24696409"
 
 DESCRIPTION="Tools for VMware guests"
 HOMEPAGE="https://github.com/vmware/open-vm-tools"
@@ -70,7 +70,6 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/10.1.0-Werror.patch
 	"${FILESDIR}"/11.3.5-icu.patch
-	"${FILESDIR}"/12.4.5-xmlsec1-pc.patch
 )
 
 pkg_setup() {
