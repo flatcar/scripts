@@ -70,7 +70,6 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/10.1.0-Werror.patch
 	"${FILESDIR}"/11.3.5-icu.patch
-	"${FILESDIR}"/12.4.5-xmlsec1-pc.patch
 )
 
 pkg_setup() {
