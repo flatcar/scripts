@@ -44,4 +44,6 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0007-arm64-add-kernel-config-option-to-lock-down-when.patch \
 	${PATCH_DIR}/z0008-tools-hv-fix-cross-compilation-for-ARM64.patch \
 	${PATCH_DIR}/z0009-f75d1fbe7809bc5ed134204b920fd9e2fc5db1df.patch \
+	${PATCH_DIR}/z0010-f87a17ed3b51fba4dfdd8f8b643b5423a85fc551.patch \
+	${PATCH_DIR}/z0011-8989bad541133c43550bff2b80edbe37b8fb9659.patch \
 "
