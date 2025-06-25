@@ -3,11 +3,8 @@
 
 EAPI=8
 
-# Don't use DISTUTILS_USE_PEP517=setuptools because this installs
-# everything inside /usr/lib/pythonX_Y/site-packages, even files that
-# ought to be put into /etc or /sbin.
-DISTUTILS_USE_PEP517=no
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{11..13} )
+DISTUTILS_USE_PEP517=setuptools
 
 inherit distutils-r1
 
@@ -30,6 +27,16 @@ RDEPEND="${BDEPEND}
 S="${WORKDIR}/WALinuxAgent-${PV}"
 
 PATCHES=(
-    "${FILESDIR}/0001-flatcar-changes.patch"
-    "${FILESDIR}/0002-prevent-ssh-public-key-override.patch"
+	"${FILESDIR}/0001-flatcar-changes.patch"
+	"${FILESDIR}/0002-prevent-ssh-public-key-override.patch"
 )
+
+# All the stuff is installed inside the site-packages directory, even executables that ought to be in /sbin or config that ought to be in /etc. Move them.
+python_install() {
+	distutils-r1_python_install
+	local d
+	for d in /etc /usr; do
+		cp -a "${ED}$(python_get_sitedir)${d}" "${ED}" || die
+		rm -rf "${ED}$(python_get_sitedir)${d}" || die
+	done
+}
