@@ -151,7 +151,7 @@ function run_image_changes_job() {
     local -a oemids base_sysexts extra_sysexts
     get_oem_id_list . "${arch}" oemids
     get_base_sysext_list . base_sysexts
-    get_extra_sysext_list . extra_sysexts
+    get_extra_sysext_list . "${arch}" extra_sysexts
     generate_image_changes_report \
         "${version_description}" "${report_file_name}" "${fbs_repo}" \
         "${package_diff_env[@]}" --- "${package_diff_params[@]}" -- \
@@ -285,13 +285,48 @@ function get_base_sysext_list() {
 
 function get_extra_sysext_list() {
     local scripts_repo=${1}; shift
+    local arch=${1}; shift
     local -n list_var_ref=${1}; shift
 
-    # defined in the file we source below
-    local -a EXTRA_SYSEXTS
-    source "${scripts_repo}/build_library/extra_sysexts.sh"
+    # The EXTRA_SYSEXTS variable is defined at the top of the file,
+    # below it is some extra stuff we don't want. So source only the
+    # portion with the EXTRA_SYSEXTS variable.
+    local -i line_idx
+    line_idx=$(grep --line-regexp --fixed-strings --line-number --max-count=1 --regexp=')' build_library/extra_sysexts.sh | cut --fields=1 --delimiter=':')
 
-    list_var_ref=( "${EXTRA_SYSEXTS[@]%%|*}" )
+    local -a EXTRA_SYSEXTS
+    source <(head --lines=${line_idx} build_library/extra_sysexts.sh)
+
+    # Get sysext names only if they are valid for the passed
+    # architecture.
+    local entry name pkgs_csv uses_csv arches_csv ok_arch ok
+    local -a arches pkgs names=()
+    for entry in "${EXTRA_SYSEXTS[@]}"; do
+        # The "uses" field has spaces, so turn them into commas, so we
+        # can turn pipes into spaces and make a use of read for entire
+        # entry.
+        entry=${entry// /,}
+        entry=${entry//|/ }
+        read -r name pkgs_csv uses_csv arches_csv <<<"${entry}"
+
+        ok=x
+        if [[ -n ${arches_csv} ]]; then
+            ok=
+            read -r -a arches <<<"${arches_csv//,/ }"
+            for ok_arch in "${arches[@]}"; do
+                if [[ ${ok_arch} = "${arch}" ]]; then
+                    ok=x
+                    break
+                fi
+            done
+        fi
+        if [[ -z ${ok} ]]; then
+            continue
+        fi
+        names+=( "${name}" )
+    done
+
+    list_var_ref=( "${names[@]}" )
 }
 
 # Generates reports with passed parameters. The report is redirected
