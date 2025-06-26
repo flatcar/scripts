@@ -1,20 +1,21 @@
-From 948c6075656fde25703ba402f8cd94715feaa774 Mon Sep 17 00:00:00 2001
+From 0ed36d7646036e609ab8fba059436f90c4984bbe Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
-Date: Mon, 27 Feb 2023 15:59:21 +0100
-Subject: [PATCH] flatcar changes
+Date: Wed, 25 Jun 2025 11:12:00 +0200
+Subject: [PATCH 1/2] flatcar changes
 
 Signed-off-by: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
 ---
  azurelinuxagent/common/osutil/coreos.py       |  40 +-----
  azurelinuxagent/common/osutil/coreoscommon.py |  59 +++++++++
  azurelinuxagent/common/osutil/factory.py      |   3 +
  azurelinuxagent/common/osutil/flatcar.py      |  78 +++++++++++
- .../common/persist_firewall_rules.py          |   1 +
+ azurelinuxagent/ga/persist_firewall_rules.py  |   2 +-
  config/flatcar/waagent.conf                   | 122 ++++++++++++++++++
  init/flatcar/10-waagent-sysext.conf           |   2 +
  init/flatcar/waagent.service                  |  31 +++++
  setup.py                                      |  20 ++-
- 9 files changed, 313 insertions(+), 43 deletions(-)
+ 9 files changed, 313 insertions(+), 44 deletions(-)
  create mode 100644 azurelinuxagent/common/osutil/coreoscommon.py
  create mode 100644 azurelinuxagent/common/osutil/flatcar.py
  create mode 100644 config/flatcar/waagent.conf
@@ -147,10 +148,10 @@ index 00000000..9008ff20
 +            ["systemctl", "show", "-p", "MainPID", "systemd-networkd"],
 +            transform_command_output=lambda o: o.replace("MainPID=", ""))
 diff --git a/azurelinuxagent/common/osutil/factory.py b/azurelinuxagent/common/osutil/factory.py
-index 83123e3f..b9257a9b 100644
+index fd66fbb0..2c9d2149 100644
 --- a/azurelinuxagent/common/osutil/factory.py
 +++ b/azurelinuxagent/common/osutil/factory.py
-@@ -28,6 +28,7 @@ from .coreos import CoreOSUtil
+@@ -27,6 +27,7 @@ from .coreos import CoreOSUtil
  from .debian import DebianOSBaseUtil, DebianOSModernUtil
  from .default import DefaultOSUtil
  from .devuan import DevuanOSUtil
@@ -158,7 +159,7 @@ index 83123e3f..b9257a9b 100644
  from .freebsd import FreeBSDOSUtil
  from .gaia import GaiaOSUtil
  from .iosxe import IosxeOSUtil
-@@ -88,6 +89,8 @@ def _get_osutil(distro_name, distro_code_name, distro_version, distro_full_name)
+@@ -86,6 +87,8 @@ def _get_osutil(distro_name, distro_code_name, distro_version, distro_full_name)
          return DebianOSBaseUtil()
  
      if distro_name in ("flatcar", "coreos") or distro_code_name in ("flatcar", "coreos"):
@@ -166,7 +167,7 @@ index 83123e3f..b9257a9b 100644
 +            return FlatcarUtil()
          return CoreOSUtil()
  
-     if distro_name in ("suse", "sle_hpc", "sles", "opensuse"):
+     if distro_name in ("suse", "sle-micro", "sle_hpc", "sles", "opensuse"):
 diff --git a/azurelinuxagent/common/osutil/flatcar.py b/azurelinuxagent/common/osutil/flatcar.py
 new file mode 100644
 index 00000000..eeaf25ce
@@ -252,7 +253,7 @@ index 00000000..eeaf25ce
 +            else:
 +                logger.warn("exceeded restart retries")
 diff --git a/azurelinuxagent/ga/persist_firewall_rules.py b/azurelinuxagent/ga/persist_firewall_rules.py
-index 74b878ce..22562c96 100644
+index e7c8373e..d93c984f 100644
 --- a/azurelinuxagent/ga/persist_firewall_rules.py
 +++ b/azurelinuxagent/ga/persist_firewall_rules.py
 @@ -35,7 +35,7 @@ class PersistFirewallRulesHandler(object):
@@ -438,7 +439,7 @@ index 00000000..8d2c1f09
 +[Install]
 +WantedBy=multi-user.target
 diff --git a/setup.py b/setup.py
-index 8f5d92b4..35400e09 100755
+index e83f5989..a94e163c 100755
 --- a/setup.py
 +++ b/setup.py
 @@ -135,12 +135,22 @@ def get_data_files(name, version, fullname):  # pylint: disable=R0912
@@ -470,5 +471,5 @@ index 8f5d92b4..35400e09 100755
          set_bin_files(data_files, dest=agent_bin_path)
          set_conf_files(data_files, dest="/usr/share/defaults/waagent",
 -- 
-2.45.0
+2.49.0
 

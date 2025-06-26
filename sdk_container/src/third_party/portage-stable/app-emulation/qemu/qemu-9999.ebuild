@@ -177,7 +177,7 @@ SOFTMMU_TOOLS_DEPEND="
 	capstone? ( dev-libs/capstone:=[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.5.1[static-libs(+)] )
-	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
+	fuse? ( >=sys-fs/fuse-3.1:3=[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	gnutls? (
 		>=net-libs/gnutls-3.0:=[static-libs(+)]
@@ -320,7 +320,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-9.2.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
-
+	"${FILESDIR}"/${PN}-7.2.16-optionrom-pass-Wl-no-error-rwx-segments.patch
 )
 
 QA_PREBUILT="
@@ -369,12 +369,12 @@ kernel module is loaded is to load it on boot.
 Please review /etc/conf.d/modules for how to load these.
 
 Make sure your user is in the 'kvm' group. Just run
-	$ gpasswd -a <USER> kvm
+	# gpasswd -a <USER> kvm
 then have <USER> re-login.
 
 For brand new installs, the default permissions on /dev/kvm might not let
 you access it.  You can tell udev to reset ownership/perms:
-	$ udevadm trigger -c add /dev/kvm
+	# udevadm trigger -c add /dev/kvm
 
 If you want to register binfmt handlers for qemu user targets:
 For openrc:

@@ -304,6 +304,7 @@ dev-python/colorama
 dev-python/crcmod
 dev-python/cryptography
 dev-python/cython
+dev-python/dependency-groups
 dev-python/distlib
 dev-python/distro
 dev-python/docutils
@@ -357,6 +358,7 @@ dev-python/setuptools-scm
 dev-python/six
 dev-python/snakeoil
 dev-python/tomli
+dev-python/tomli-w
 dev-python/tree-sitter
 dev-python/trove-classifiers
 dev-python/truststore
@@ -398,6 +400,7 @@ eclass/db-use.eclass
 eclass/desktop.eclass
 eclass/dist-kernel-utils.eclass
 eclass/distutils-r1.eclass
+eclass/dot-a.eclass
 eclass/eapi8-dosym.eclass
 eclass/eapi9-pipestatus.eclass
 eclass/eapi9-ver.eclass
@@ -473,6 +476,7 @@ eclass/shell-completion.eclass
 eclass/ssl-cert.eclass
 eclass/strip-linguas.eclass
 eclass/subversion.eclass
+eclass/sysroot.eclass
 eclass/systemd.eclass
 eclass/tmpfiles.eclass
 eclass/toolchain-autoconf.eclass
