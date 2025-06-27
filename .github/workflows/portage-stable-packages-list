@@ -744,6 +744,8 @@ virtual/ssh
 virtual/tmpfiles
 virtual/udev
 
+x11-drivers/nvidia-drivers
+
 x11-libs/pixman
 
 x11-misc/makedepend
