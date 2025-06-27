@@ -236,4 +236,3 @@ function ensure-resource-group() {
 }
 
 ensure-flatcar-staging-sig-image-version-from-vhd
-publish-flatcar-image
