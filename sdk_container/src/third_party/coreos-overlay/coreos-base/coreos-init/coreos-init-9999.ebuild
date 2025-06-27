@@ -8,7 +8,8 @@ EGIT_REPO_URI="https://github.com/flatcar/init.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="dd9cbe449efb7134f885b07b16425eb51fb808a8" # flatcar-master
+	EGIT_BRANCH="jepio/immutable-proto"
+	EGIT_COMMIT="041801e0b4b3efba96fa807e7f3dbbcc374965f1" # jepio/immutable-proto
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
