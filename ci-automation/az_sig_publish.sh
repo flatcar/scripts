@@ -18,14 +18,27 @@ function _publish_az_sig_impl() {
   local channel=""
   channel="${get_git_channel}"
 
+  source sdk_container/.repo/manifests/version.txt
+  local vernum="${FLATCAR_VERSION}"
+
+  local official_arg=""
+  if is_officia
+
   source ci-automation/ci_automation_common.sh
   source ci-automation/gpg_setup.sh
-  source sdk_container/.repo/manifests/version.txt
 
-  echo "docker image rm -f '${sdk_image}'" >> ./ci-cleanup.sh
   docker run --pull always --rm --net host \
     --env AZURE_AUTH_CREDENTIALS \
     --env AZURE_PROFILE \
+    --env VHD_STORAGE_ACCOUNT_NAME \
+    --env AZURE_LOCATION \
+    --env PUBLISHING_SIG_RESOURCE_GROUP \
+    --env STAGING_SIG_RESOURCE_GROUP \
+    --env FLATCAR_STAGING_GALLERY_NAME \
+    --env FLATCAR_GALLERY_NAME \
+    --env FLATCAR_ARCH
+    --env FLATCAR_VERSION \
+    --env FLATCAR_CHANNEL \
     -v "$PWD":/work \
     -w /work \
     mcr.microsoft.com/azure-cli \

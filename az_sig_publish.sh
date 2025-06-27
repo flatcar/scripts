@@ -5,18 +5,7 @@
 
 # Script to publish Flatcar images to Azure Shared Gallery Images.
 
-SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
-. "${SCRIPT_ROOT}/common.sh" || exit 1
-
-# Script must run inside the chroot
-assert_inside_chroot
-assert_not_root_user
-
-DEFAULT_GROUP=developer
-
 # Developer-visible flags.
-DEFINE_string board "${DEFAULT_BOARD}" \
-  "The board to build an image for."
 DEFINE_string AZURE_SUBSCRIPTION_ID "d38033ba-ec21-470c-96cf-4c6db9658d8b" \
   "The subscription id to be used in Azure"
 DEFINE_string AZURE_TENANT_ID "f41c056a-c993-42d0-8d91-57f0ff222694" \
@@ -33,13 +22,13 @@ DEFINE_string VHD_STORAGE_ACCOUNT_NAME "flatcar" \
   "The name of the storage account used to publish VHDs"
 DEFINE_string AZURE_LOCATION "westeurope" \
   "The Azure region where the resources will be deployed"
-DEFINE_string PUBLISHING_SIG_RESOURCE_GROUP "flatcar-image-gallery-publishing" \
+DEFINE_string PUBLISHING_SIG_RESOURCE_GROUP "sayan-flatcar-image-gallery-publishing" \
   "The resource group for the publishing Shared Image Gallery"
-DEFINE_string STAGING_SIG_RESOURCE_GROUP "flatcar-image-gallery-staging" \
+DEFINE_string STAGING_SIG_RESOURCE_GROUP "sayan-flatcar-image-gallery-staging" \
   "The resource group for the staging Shared Image Gallery"
-DEFINE_string FLATCAR_STAGING_GALLERY_NAME "flatcar_staging" \
+DEFINE_string FLATCAR_STAGING_GALLERY_NAME "sayan_flatcar_staging" \
   "The name of the staging Shared Image Gallery"
-DEFINE_string FLATCAR_GALLERY_NAME "flatcar" \
+DEFINE_string FLATCAR_GALLERY_NAME "sayan_flatcar" \
   "The name of the production Shared Image Gallery"
 DEFINE_string FLATCAR_VERSION "3374.2.1" \
   "The version of Flatcar to publish"
@@ -245,3 +234,6 @@ function ensure-resource-group() {
     az group create -n "${RESOURCE_GROUP_NAME}" -l "${AZURE_LOCATION}"
   fi
 }
+
+ensure-flatcar-staging-sig-image-version-from-vhd
+publish-flatcar-image
