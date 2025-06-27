@@ -32,6 +32,7 @@ VALID_IMG_TYPES=(
     rackspace_onmetal
     rackspace_vhd
     scaleway
+    stackit
     vagrant
     vagrant_parallels
     vagrant_virtualbox
@@ -63,6 +64,7 @@ VALID_OEM_PACKAGES=(
     rackspace
     rackspace-onmetal
     scaleway
+    stackit
     vagrant
     vagrant-key
     vagrant-virtualbox
@@ -320,6 +322,13 @@ IMG_scaleway_OEM_PACKAGE=common-oem-files
 IMG_scaleway_OEM_USE=scaleway
 IMG_scaleway_OEM_SYSEXT=oem-scaleway
 IMG_scaleway_DISK_EXTENSION=qcow2
+
+## stackit
+IMG_stackit_DISK_FORMAT=qcow2
+IMG_stackit_DISK_LAYOUT=vm
+IMG_stackit_OEM_PACKAGE=common-oem-files
+IMG_stackit_OEM_USE=stackit
+IMG_stackit_OEM_SYSEXT=oem-stackit
 
 ## kubevirt
 IMG_kubevirt_DISK_FORMAT=qcow2
