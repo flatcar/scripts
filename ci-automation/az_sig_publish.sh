@@ -42,6 +42,6 @@ function _publish_az_sig_impl() {
     -v "$PWD":/work \
     -w /work \
     mcr.microsoft.com/azure-cli \
-    /work/ci-automation/az_sig_publish.sh
+    /work/az_sig_publish
 }
 # --
