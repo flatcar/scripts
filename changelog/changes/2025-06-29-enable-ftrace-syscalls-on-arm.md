@@ -1,0 +1,1 @@
+- ftrace syscalls also available in ARM64 builds. (Enables syscall tracepoints) ([flatcar/scripts#2600](https://github.com/flatcar/scripts/pull/2600))
