@@ -3,6 +3,8 @@
 
 EAPI="8"
 
+inherit toolchain-funcs
+
 if [[ ${PV} == "99999999" ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="
@@ -11,7 +13,7 @@ if [[ ${PV} == "99999999" ]] ; then
 	"
 else
 	SRC_URI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}.tar.xz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 DESCRIPTION="Gentoo Cross-toolchain generator"
@@ -29,6 +31,8 @@ RDEPEND="
 BDEPEND="app-arch/xz-utils"
 
 src_install() {
+	tc-export PKG_CONFIG # Bug 955822
+
 	default
 
 	if [[ ${PV} == "99999999" ]] ; then
