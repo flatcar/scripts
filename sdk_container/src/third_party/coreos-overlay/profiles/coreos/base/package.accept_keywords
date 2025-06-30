@@ -155,7 +155,6 @@ sys-apps/azure-vm-utils
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-fs/fuse-3.17.2 ~arm64
 =sys-fs/lxcfs-6.0.4 ~arm64
 =sys-libs/libcap-2.76 ~arm64
 =sys-libs/libunwind-1.8.2 ~arm64
