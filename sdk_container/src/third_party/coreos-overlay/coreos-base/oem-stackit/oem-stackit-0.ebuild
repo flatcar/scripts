@@ -23,8 +23,6 @@ S="${WORKDIR}"
 OEM_NAME="STACKIT"
 
 src_install() {
-    systemd_dounit "${FILESDIR}"/ptp-kvm-load.service
-    systemd_enable_service multi-user.target ptp-kvm-load.service
     systemd_install_dropin chronyd.service "${FILESDIR}"/chronyd-overwrite.conf
     systemd_enable_service multi-user.target chronyd.service
     dotmpfiles "${FILESDIR}"/var-chrony.conf
