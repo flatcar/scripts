@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 TMPFILES_OPTIONAL=1
 
 inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
@@ -23,7 +23,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -145,12 +145,19 @@ src_prepare() {
 			lsfd/option-inet
 			utmp/last-ipv6
 
+			# Fails with permission errors in nspawn
+			fadvise/drop
+			fincore/count
+
 			# Flaky
 			rename/subdir
 
 			# Permission issues on /dev/random
 			lsfd/mkfds-eventpoll
 			lsfd/column-xmode
+
+			# Hangs on some machines
+			script/replay
 		)
 
 		# debug prints confuse the tests which look for a diff
