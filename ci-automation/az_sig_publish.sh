@@ -1,17 +1,17 @@
 #!/bin/bash
 
-function publish_az_sig() {
+function az_sig_publish() {
   # Run a subshell, so the traps, environment changes and global
   # variables are not spilled into the caller.
   (
       set -euo pipefail
 
-      _publish_az_sig_impl "${@}"
+      _az_sig_publish_impl "${@}"
   )
 }
 # --
 
-function _publish_az_sig_impl() {
+function _az_sig_publish_impl() {
   local arch="$1"
 
   source sdk_lib/sdk_container_common.sh
