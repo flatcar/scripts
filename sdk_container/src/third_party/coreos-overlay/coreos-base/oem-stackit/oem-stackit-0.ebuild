@@ -1,4 +1,4 @@
-# Copyright (c) 2013 CoreOS, Inc.. All rights reserved.
+# Copyright (c) 2025 Flatcar Maintainers. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
