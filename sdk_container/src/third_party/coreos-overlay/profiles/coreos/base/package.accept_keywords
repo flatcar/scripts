@@ -78,7 +78,7 @@ dev-cpp/azure-security-keyvault-keys
 
 # Needed to address CVE-2025-4373
 =dev-libs/glib-2.84.3 ~arm64
-=dev-libs/gobject-introspection-common-1.84.0 ~amd64 ~arm64
+=dev-libs/gobject-introspection-common-1.84.0 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-libs/jansson-2.14.1 ~arm64
