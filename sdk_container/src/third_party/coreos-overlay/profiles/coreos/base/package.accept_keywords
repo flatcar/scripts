@@ -148,6 +148,7 @@ sys-apps/azure-vm-utils
 =sys-auth/sssd-2.9.6-r3 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-boot/gnu-efi-4.0.1 ~arm64
 =sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
