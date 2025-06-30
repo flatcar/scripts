@@ -108,7 +108,7 @@ dev-cpp/azure-security-keyvault-keys
 
 # Needed to address CVE-2025-4373
 =dev-util/glib-utils-2.84.3 ~amd64 ~arm64
-=dev-util/gdbus-codegen-2.84.3 ~amd64 ~arm64
+=dev-util/gdbus-codegen-2.84.3 ~arm64
 
 # Keep versions on both arches in sync.
 =dev-util/xdelta-3.0.11-r1 ~arm64
