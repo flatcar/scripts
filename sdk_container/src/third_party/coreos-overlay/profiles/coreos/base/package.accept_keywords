@@ -15,7 +15,7 @@
 =app-containers/cri-tools-1.32.0 ~arm64
 
 # Needed to address CVE-2025-24965.
-=app-containers/crun-1.20 ~amd64 ~arm64
+=app-containers/crun-1.20 ~arm64
 
 # Keep versions on both arches in sync.
 =app-containers/docker-28.0.4 ~arm64
