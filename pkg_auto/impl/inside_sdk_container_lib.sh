@@ -131,8 +131,6 @@ function package_info_for_board() {
     ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
     emerge_pretend "${root}" coreos-devel/board-packages | tee "${output_file}"
-    revert_crossdev_stuff "${root}"
-    revert_crossdev_stuff /
 
     # There are packages that are installed only in sysexts and are
     # not pulled in by the coreos-devel/board-packages
@@ -230,6 +228,8 @@ function package_info_for_board() {
         fi
     done
     rm -f "${output_file}"
+    revert_crossdev_stuff "${root}"
+    revert_crossdev_stuff /
 }
 
 # Set the directory where the emerge output and the results of
