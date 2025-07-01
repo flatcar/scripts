@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 inherit python-r1 toolchain-funcs multilib-minimal
 
@@ -41,8 +41,12 @@ BDEPEND=">=dev-lang/swig-2.0.4-r1
 # full SELinux userland repo
 RESTRICT="test"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-3.7-fix-swig-bindings-for-4.3.0.patch"
+)
+
 src_prepare() {
-	eapply_user
+	default
 
 	echo >> "${S}/src/semanage.conf"
 	echo "# Set this to true to save the linked policy." >> "${S}/src/semanage.conf"
