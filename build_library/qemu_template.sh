@@ -332,12 +332,10 @@ case "${VM_BOARD}" in
     *) die "Unsupported arch" ;;
 esac
 
-"$QEMU_BIN" \
+exec "$QEMU_BIN" \
     -name "$VM_NAME" \
     -m ${VM_MEMORY} \
     -netdev user,id=eth0${QEMU_FORWARDED_PORTS:+,}${QEMU_FORWARDED_PORTS},hostfwd=tcp::"${SSH_PORT}"-:22,hostname="${VM_NAME}" \
     -device virtio-net-pci,netdev=eth0 \
     -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
     "$@"
-
-exit $?
