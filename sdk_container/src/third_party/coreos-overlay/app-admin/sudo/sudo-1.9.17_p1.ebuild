@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit pam libtool tmpfiles toolchain-funcs
+inherit pam tmpfiles toolchain-funcs
 
 MY_P="${P/_/}"
 MY_P="${MY_P/beta/b}"
@@ -12,11 +12,11 @@ DESCRIPTION="Allows users or groups to run commands as other users"
 HOMEPAGE="https://www.sudo.ws/"
 
 if [[ ${PV} == 9999 ]] ; then
-	inherit mercurial
+	inherit autotools mercurial
 	EHG_REPO_URI="https://www.sudo.ws/repos/sudo"
 else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/sudo.ws.asc
-	inherit verify-sig
+	inherit libtool verify-sig
 
 	uri_prefix=
 	case ${P} in
@@ -25,15 +25,13 @@ else
 
 	SRC_URI="
 		https://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
-		ftp://ftp.sudo.ws/pub/sudo/${uri_prefix}${MY_P}.tar.gz
 		verify-sig? (
 			https://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz.sig
-			ftp://ftp.sudo.ws/pub/sudo/${uri_prefix}${MY_P}.tar.gz.sig
 		)
 	"
 
 	if [[ ${PV} != *_beta* && ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 	fi
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-sudo )"
@@ -63,14 +61,13 @@ DEPEND="
 	selinux? ( sys-libs/libselinux )
 	skey? ( >=sys-auth/skey-1.1.5-r1 )
 	ssl? ( dev-libs/openssl:= )
-	sssd? ( sys-auth/sssd[sudo] )
+	sssd? ( sys-auth/sssd[sudo(+)] )
 "
-#Flatcar: Remove Perl runtime dependency
-#  ldap? ( dev-lang/perl )
 RDEPEND="
 	${DEPEND}
 	>=app-misc/editor-wrapper-3
 	virtual/editor
+	ldap? ( dev-lang/perl )
 	pam? ( sys-auth/pambase )
 	selinux? ( sec-policy/selinux-sudo )
 	sendmail? ( virtual/mta )
@@ -90,7 +87,11 @@ MAKEOPTS+=" SAMPLES="
 src_prepare() {
 	default
 
-	elibtoolize
+	if [[ ${PV} == 9999 ]] ; then
+		eautoreconf
+	else
+		elibtoolize
+	fi
 }
 
 set_secure_path() {
@@ -179,7 +180,8 @@ src_configure() {
 		$(use_with offensive all-insults)
 		$(use_with pam)
 		$(use_with pam pam-login)
-		$(use_with secure-path secure-path "${SECURE_PATH}")
+		$(use_with secure-path)
+		"$(use_with secure-path secure-path-value "${SECURE_PATH}")"
 		$(use_with selinux)
 		$(use_with sendmail)
 		$(use_with skey)
@@ -216,8 +218,8 @@ src_install() {
 		doins "${T}"/ldap.conf.sudo
 		fperms 0440 /etc/ldap.conf.sudo
 
-		#Flatcar: we don't ship OpenLDAP schemas
-
+		insinto /etc/openldap/schema
+		newins docs/schema.OpenLDAP sudo.schema
 	fi
 
 	if use pam ; then
@@ -236,10 +238,6 @@ src_install() {
 
 	# bug #697812
 	find "${ED}" -type f -name "*.la" -delete || die
-
-	# Flatcar: Remove sudo.conf as it is shipped via baselayout
-	rm "${ED}/etc/sudo.conf" || die
-
 }
 
 pkg_postinst() {
