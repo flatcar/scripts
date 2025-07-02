@@ -9,8 +9,8 @@ function az_sig_publish() {
       _az_sig_publish_impl "${@}"
   )
 }
-# --
 
+# --
 function _az_sig_publish_impl() {
   local arch="$1"
 
@@ -21,11 +21,13 @@ function _az_sig_publish_impl() {
   source sdk_container/.repo/manifests/version.txt
   local vernum="${FLATCAR_VERSION}"
 
-  local official_arg=""
-  if is_officia
-
   source ci-automation/ci_automation_common.sh
   source ci-automation/gpg_setup.sh
+
+  if [[ "$vernum" != *nightly* ]]; then
+    echo "INFO: Version '$vernum' is not a nightly build. Skipping publish step."
+    exit 1
+  fi
 
   docker run --pull always --rm --net host \
     --env AZURE_AUTH_CREDENTIALS \
