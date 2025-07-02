@@ -12,11 +12,8 @@ DESCRIPTION="Allows users or groups to run commands as other users"
 HOMEPAGE="https://www.sudo.ws/"
 
 if [[ ${PV} == 9999 ]] ; then
-	EGIT_REPO_URI="
-		https://github.com/sudo-project/sudo
-		https://git.sudo.ws/sudo
-	"
-	inherit autotools git-r3
+	inherit autotools mercurial
+	EHG_REPO_URI="https://www.sudo.ws/repos/sudo"
 else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/sudo.ws.asc
 	inherit libtool verify-sig
