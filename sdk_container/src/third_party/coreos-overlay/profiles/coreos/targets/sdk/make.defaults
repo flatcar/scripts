@@ -1,6 +1,7 @@
 FLATCAR_TYPE=sdk
 
 USE="cros_host expat man -pam"
+USE="${USE} cryptsetup"
 
 # Enable CPU architectures needed by Rust builds
 LLVM_TARGETS="X86 AArch64"
