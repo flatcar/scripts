@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm libedit
 	+ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -378,7 +378,6 @@ src_configure() {
 		--enable-ipv6
 		--infodir='${prefix}/share/info'
 		--mandir='${prefix}/share/man'
-		--with-computed-gotos
 		--with-dbmliborder="${dbmliborder}"
 		--with-libc=
 		--enable-loadable-sqlite-extensions

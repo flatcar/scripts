@@ -723,13 +723,23 @@ _write_cpio_common() {
     echo "/.noupdate f 444 root root echo -n" >"${VM_TMP_DIR}/extra"
 
     # Set correct group for PXE/ISO, which has no writeable /etc
-    echo /usr/share/flatcar/update.conf f 644 root root \
+    echo /share/flatcar/update.conf f 644 root root \
         "sed -e 's/GROUP=.*$/GROUP=${VM_GROUP}/' ${base_dir}/share/flatcar/update.conf" \
         >> "${VM_TMP_DIR}/extra"
 
+    local -a mksquashfs_opts=(
+        -pf "${VM_TMP_DIR}/extra"
+        -xattrs-exclude '^btrfs.'
+        # mksquashfs doesn't like overwriting existing files with
+        # pseudo-files, so tell it to ignore the existing file instead
+        #
+        # also, this must be the last option
+        -e share/flatcar/update.conf
+    )
+
     # Build the squashfs, embed squashfs into a gzipped cpio
     pushd "${cpio_target}" >/dev/null
-    sudo mksquashfs "${base_dir}" "./usr.squashfs" -pf "${VM_TMP_DIR}/extra" -xattrs-exclude '^btrfs.'
+    sudo mksquashfs "${base_dir}" "./usr.squashfs" "${mksquashfs_opts[@]}"
     find . | cpio -o -H newc | gzip > "$2"
     popd >/dev/null
 

@@ -116,10 +116,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# Fix bug #37354: Disallow -funroll-all-loops on amd64
-	# Bug 57859 suggests that we want to do this for all archs
-	filter-flags -funroll-all-loops
-
 	emake -j1 -C src autoconf
 
 	# This should fix a sandbox violation (see bug 24447). The hvc
