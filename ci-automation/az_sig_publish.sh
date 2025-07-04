@@ -16,7 +16,7 @@ function _az_sig_publish_impl() {
 
   source sdk_lib/sdk_container_common.sh
   local channel=""
-  channel="${get_git_channel}"
+  channel="$(get_git_channel)"
 
   source sdk_container/.repo/manifests/version.txt
   local vernum="${FLATCAR_VERSION}"
