@@ -24,9 +24,9 @@ function _az_sig_publish_impl() {
   source ci-automation/ci_automation_common.sh
   source ci-automation/gpg_setup.sh
 
-  if [[ "$vernum" != *nightly* ]]; then
-    echo "INFO: Version '$vernum' is not a nightly build. Skipping publish step."
-    exit 1
+  if [[ "$vernum" != *nightly* && "${PUSH_NON_NIGHTLY_BUILDS}" != "true" ]]; then
+    echo "INFO: Version '$vernum' is not a nightly build, and PUSH_NON_NIGHTLY_BUILDS is not enabled. Skipping publish step."
+    exit 0
   fi
 
   docker run --pull always --rm --net host \
