@@ -37,10 +37,12 @@ DEPEND="
 	sys-apps/shadow
 	sys-apps/systemd[cryptsetup]
 	sys-apps/seismograph
-	sys-apps/util-linux
+	sys-apps/util-linux[cryptsetup,udev]
 	sys-block/open-iscsi
 	sys-fs/btrfs-progs
+	sys-fs/cryptsetup[udev]
 	sys-fs/e2fsprogs
+	sys-fs/lvm2[udev]
 	sys-fs/mdadm
 	sys-fs/xfsprogs
 	>=sys-kernel/bootengine-0.0.38-r37:=

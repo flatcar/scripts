@@ -75,7 +75,9 @@ esac
 info "Updating GRUB in ${BOARD_ROOT}"
 emerge-${BOARD} \
         --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
-        sys-boot/grub
+        sys-boot/grub \
+        sys-boot/shim \
+        sys-boot/shim-signed
 
 GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
 [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
