@@ -13,6 +13,7 @@ function az_sig_publish() {
 # --
 function _az_sig_publish_impl() {
   local arch="$1"
+  local push_non_nightly_builds="${PUSH_NON_NIGHTLY_BUILDS:-}"
 
   source sdk_lib/sdk_container_common.sh
   local channel=""
@@ -24,7 +25,7 @@ function _az_sig_publish_impl() {
   source ci-automation/ci_automation_common.sh
   source ci-automation/gpg_setup.sh
 
-  if [[ "$vernum" != *nightly* && "${PUSH_NON_NIGHTLY_BUILDS}" != "true" ]]; then
+  if [[ "$vernum" != *nightly* && "${push_non_nightly_builds}" != "true" ]]; then
     echo "INFO: Version '$vernum' is not a nightly build, and PUSH_NON_NIGHTLY_BUILDS is not enabled. Skipping publish step."
     exit 0
   fi
