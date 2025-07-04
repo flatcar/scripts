@@ -39,7 +39,7 @@ function _az_sig_publish_impl() {
     --env STAGING_SIG_RESOURCE_GROUP \
     --env FLATCAR_STAGING_GALLERY_NAME \
     --env FLATCAR_GALLERY_NAME \
-    --env FLATCAR_ARCH=${arch} \
+    --env FLATCAR_ARCH="${arch}" \
     --env FLATCAR_VERSION \
     --env FLATCAR_CHANNEL \
     -v "$PWD":/work \

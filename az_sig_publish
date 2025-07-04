@@ -4,6 +4,8 @@
 # Use of this source code is governed by the Apache 2.0 license.
 
 # Script to publish Flatcar images to Azure Shared Gallery Images.
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
+. "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # Developer-visible flags.
 DEFINE_string AZURE_SUBSCRIPTION_ID "d38033ba-ec21-470c-96cf-4c6db9658d8b" \
