@@ -44,26 +44,21 @@ REQUIRED_USE="
 "
 
 # - On each bump, update dep bounds on each version from configure.ac!
-RDEPEND="
+COMMON_DEPEND="
 	>=app-crypt/gnupg-2
 	>=dev-libs/libassuan-2.5.3:=
 	>=dev-libs/libgpg-error-1.46-r1:=
-	cxx? ( !dev-cpp/gpgmepp )
-	python? (
-		!dev-python/gpgmepy
-		${PYTHON_DEPS}
-	)
+	python? ( ${PYTHON_DEPS} )
 	qt5? ( dev-qt/qtcore:5 )
-	qt6? (
-		!dev-libs/qgpgme
-		dev-qt/qtbase:6
-	)
+	qt6? ( dev-qt/qtbase:6 )
 "
-DEPEND="
-	${RDEPEND}
-	test? (
-		qt5? ( dev-qt/qttest:5 )
-	)
+DEPEND="${COMMON_DEPEND}
+	test? ( qt5? ( dev-qt/qttest:5 ) )
+"
+RDEPEND="${COMMON_DEPEND}
+	cxx? ( !>=dev-cpp/gpgmepp-2 )
+	python? ( !>dev-python/gpgmepy-1.9999 )
+	qt6? ( !>=dev-libs/qgpgme-2 )
 "
 #doc? ( app-text/doxygen[dot] )
 BDEPEND="
