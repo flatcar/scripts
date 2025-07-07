@@ -1,0 +1,5 @@
+- base, dev: glibc ([2.41](https://lists.gnu.org/archive/html/info-gnu/2025-01/msg00014.html))
+- base, dev: jq ([1.8.1](https://github.com/jqlang/jq/releases/tag/jq-1.8.1))
+- base, dev: sssd ([2.9.7](https://sssd.io/release-notes/sssd-2.9.7.html))
+- dev: pahole ([1.30](https://git.kernel.org/pub/scm/devel/pahole/pahole.git/tag/?h=v1.30))
+- sysext-python: urllib3 ([2.5.0](https://github.com/urllib3/urllib3/releases/tag/2.5.0))
