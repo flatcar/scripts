@@ -83,7 +83,6 @@ dev-cpp/azure-security-keyvault-keys
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
-=net-libs/libnftnl-1.2.9 ~arm64
 
 # Needed for addressing CVE-2025-47268 and CVE-2025-48964
 =net-misc/iputils-20250605 ~amd64 ~arm64
