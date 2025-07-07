@@ -7,9 +7,6 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# Needed to address CVE-2024-40635, CVE-2025-47291
-=app-containers/containerd-2.0.5 ~arm64
-
 # Keep versions on both arches in sync.
 =app-containers/containers-common-0.63.0 ~arm64
 =app-containers/cri-tools-1.32.0 ~arm64
