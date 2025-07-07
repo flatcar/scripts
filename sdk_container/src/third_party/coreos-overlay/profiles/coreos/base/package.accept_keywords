@@ -96,9 +96,6 @@ sys-apps/azure-vm-utils
 =sys-apps/portage-3.0.68 ~arm64
 =sys-apps/zram-generator-1.2.1 ~arm64
 =sys-auth/sssd-2.9.7 ~arm64
-
-# Keep versions on both arches in sync.
-=sys-boot/gnu-efi-4.0.1 ~arm64
 =sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
