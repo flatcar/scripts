@@ -11,7 +11,6 @@
 =app-containers/cri-tools-1.32.0 ~arm64
 =app-containers/incus-6.0.4-r1 ~arm64
 =app-containers/lxc-6.0.4-r1 ~arm64
-=app-containers/runc-1.2.6 ~arm64
 
 # No stable keywords.
 =app-containers/syft-1.18.1 ~amd64 ~arm64
