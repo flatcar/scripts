@@ -61,7 +61,6 @@ dev-cpp/azure-security-keyvault-keys
 
 # Keep versions on both arches in sync.
 =dev-libs/raft-0.22.1 ~arm64
-=dev-python/cython-3.1.2 ~arm64
 =dev-python/msgpack-1.1.1 ~arm64
 
 # No arm64 keyword in package.
