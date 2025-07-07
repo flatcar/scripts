@@ -10,7 +10,7 @@ CROSS_VER=1.6.2
 PATCH_BASE="perl-5.42.0-patches-${PATCH_VER}"
 PATCH_DEV=dilfridge
 
-DIST_AUTHOR=SHAY
+DIST_AUTHOR=BOOK
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
@@ -42,7 +42,6 @@ DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 HOMEPAGE="https://www.perl.org/"
 
 SRC_URI="
-	https://drop.perl.fish/${MY_P}.tar.xz
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
 	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.xz
@@ -56,7 +55,7 @@ LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SUBSLOT}"
 
 if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 IUSE="berkdb perl_features_debug doc gdbm perl_features_ithreads minimal perl_features_quadmath"
@@ -94,7 +93,7 @@ dual_scripts() {
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.570.0       xsubpp
 	src_remove_dual      perl-core/IO-Compress        2.213.0       zipdetails
 	src_remove_dual      perl-core/JSON-PP            4.160.0       json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.506.270 corelist
+	src_remove_dual      perl-core/Module-CoreList    5.202.507.20  corelist
 	src_remove_dual      perl-core/Pod-Checker        1.770.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
 	src_remove_dual      perl-core/Pod-Usage          2.50.0        pod2usage
@@ -115,18 +114,12 @@ check_rebuild() {
 		[[ ${v%.*} == "${SHORT_PV}" ]] && continue
 		echo ""
 		ewarn "UPDATE THE PERL MODULES:"
-		ewarn "After updating dev-lang/perl the installed Perl modules"
+		ewarn "After updating dev-lang/perl to a new major version the installed Perl modules"
 		ewarn "have to be re-installed. In most cases, this is done automatically"
-		ewarn "by the package manager, but subsequent steps are still recommended"
-		ewarn "to ensure system consistency."
+		ewarn "by the package manager."
 		ewarn
-		ewarn "You should start with a depclean to remove any unused perl dependencies"
-		ewarn "that may confuse portage in future. Regular depcleans are also encouraged"
-		ewarn "as part of your regular update cycle, as that will keep perl upgrades working."
-		ewarn "Recommended: emerge --depclean -va"
-		ewarn
-		ewarn "You should then call perl-cleaner to clean up any old files and trigger any"
-		ewarn "remaining rebuilds portage may have missed."
+		ewarn "ONLY if you encounter problems, call perl-cleaner to clean up any old files"
+		ewarn "and trigger any remaining rebuilds portage may have missed."
 		ewarn "Use: perl-cleaner --all"
 		return 0
 	done
