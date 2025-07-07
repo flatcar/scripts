@@ -69,7 +69,6 @@ dev-cpp/azure-security-keyvault-keys
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
 # Needed to address CVE-2025-4373
-=dev-util/gdbus-codegen-2.84.3 ~arm64
 =dev-util/glib-utils-2.84.3 ~arm64
 
 # Keep versions on both arches in sync.
