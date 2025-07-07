@@ -87,9 +87,6 @@ dev-cpp/azure-security-keyvault-keys
 # Needed for addressing CVE-2025-47268 and CVE-2025-48964
 =net-misc/iputils-20250605 ~amd64 ~arm64
 
-# Keep versions on both arches in sync.
-=net-misc/passt-2025.04.15 ~arm64
-
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
