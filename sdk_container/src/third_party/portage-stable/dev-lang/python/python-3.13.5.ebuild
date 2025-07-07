@@ -32,7 +32,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm jit
 	libedit +ncurses pgo +readline +sqlite +ssl test tk valgrind
@@ -79,7 +79,6 @@ DEPEND="
 	test? (
 		dev-python/ensurepip-pip
 		dev-python/ensurepip-setuptools
-		dev-python/ensurepip-wheel
 	)
 	valgrind? ( dev-debug/valgrind )
 "
