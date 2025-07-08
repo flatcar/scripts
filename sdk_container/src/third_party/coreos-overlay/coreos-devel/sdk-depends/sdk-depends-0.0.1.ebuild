@@ -46,6 +46,7 @@ DEPEND="
 	sys-firmware/edk2-bin
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
+        sys-fs/erofs-utils
 	dev-perl/Parse-Yapp
 	dev-util/pkgcheck
 "
