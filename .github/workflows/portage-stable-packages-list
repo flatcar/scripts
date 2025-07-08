@@ -290,6 +290,7 @@ dev-libs/tree-sitter
 dev-libs/tree-sitter-bash
 dev-libs/userspace-rcu
 dev-libs/xmlsec
+dev-libs/xxhash
 dev-libs/yajl
 
 dev-perl/Parse-Yapp
@@ -666,6 +667,7 @@ sys-fs/btrfs-progs
 sys-fs/cryptsetup
 sys-fs/dosfstools
 sys-fs/e2fsprogs
+sys-fs/erofs-utils
 sys-fs/fuse
 sys-fs/fuse-common
 sys-fs/fuse-overlayfs
