@@ -65,8 +65,8 @@ function sdk_bootstrap() {
 # --
 
 function _sdk_bootstrap_impl() {
-    local seed_version="$1"
-    local version="$2"
+    local seed_version=${1}
+    local version=${2}
     : ${ARCH:="amd64"}
 
     source ci-automation/ci_automation_common.sh
@@ -86,65 +86,86 @@ function _sdk_bootstrap_impl() {
     # builds without messing with actual release branches.
     local main_branch=${CIA_DEBUGMAINBRANCH:-main}
     local nightly=${CIA_DEBUGNIGHTLY:-nightly}
-    # Patterns used below.
-    local nightly_pattern_1='^main-[0-9.]+-'"${nightly}"'-[-0-9]+(-INTERMEDIATE)?$'
-    local nightly_pattern_2='^main-[0-9.]+-'"${nightly}"'-[-0-9]+$'
-    if   [[ "${version}" =~ ${nightly_pattern_1} ]] \
-       && [ "$(git rev-parse HEAD)" = "$(git rev-parse "origin/${main_branch}")"  ] ; then
+    # Matches the usual nightly tag name, optionally with an
+    # intermediate suffix of the build ID too
+    # (main-1234.2.3-nightly-yyyymmdd-hhmm-INTERMEDIATE).
+    local nightly_pattern_1='^main-[0-9]+(\.[0-9]+){2}-'"${nightly}"'-[0-9]{8}-[0-9]{4}(-INTERMEDIATE)?$'
+    local main_branch_hash=''
+    if [[ ${version} =~ ${nightly_pattern_1} ]]; then
+        main_branch_hash=$(git rev-parse "origin/${main_branch}")
+    fi
+    local -a existing_tags=()
+    if [[ -n ${main_branch_hash} ]]; then
+        if [[ $(git rev-parse HEAD) != "${main_branch_hash}" ]] ; then
+            echo "We are doing a nightly build but we are not on top of the ${main_branch} branch. This is wrong and would result in the nightly tag not being a part of the branch." >&2
+            exit 1
+        fi
         target_branch=${main_branch}
-        local existing_tag=""
-        # Check for the existing tag only when we allow shortcutting
-        # the builds. That way we can skip the checks for build
-        # shortcutting.
+        # Check for the existing tag only when we allow
+        # shortcutting the builds. That way we can skip the checks
+        # for build shortcutting.
         if bool_is_true "${AVOID_NIGHTLY_BUILD_SHORTCUTS}"; then
             echo "Continuing the build because AVOID_NIGHTLY_BUILD_SHORTCUTS is bool true (${AVOID_NIGHTLY_BUILD_SHORTCUTS})" >&2
         else
-            existing_tag=$(git tag --points-at HEAD) # exit code is always 0, output may be empty
+            git fetch --all --tags --force
+            # exit code is always 0, output may be empty
+            mapfile -t existing_tags < <(git tag --points-at HEAD)
         fi
-        # If the found tag is a nightly tag, we stop this build if there are no changes
-        if [[ "${existing_tag}" =~ ${nightly_pattern_2} ]]; then
-          local ret=0
-          git diff --exit-code "${existing_tag}" || ret=$?
-          if [ "$ret" = "0" ]; then
-            local versions=(
-              $(
-                source sdk_lib/sdk_container_common.sh
-                source "${sdk_container_common_versionfile}"
-                echo "${FLATCAR_SDK_VERSION}"
-                echo "${FLATCAR_VERSION}"
-              )
+    fi
+    local nightly_pattern_2='^main-[0-9]+(\.[0-9]+){2}-'"${nightly}"'-[0-9]{8}-[0-9]{4}$'
+    local tag nightly_tag=''
+    for tag in "${existing_tags[@]}"; do
+        if [[ ${tag} =~ ${nightly_pattern_2} ]]; then
+            nightly_tag=${tag}
+            break
+        fi
+    done
+    # If the found tag is a nightly tag, we stop this build if there
+    # are no changes and the relevant images can be found in the
+    # bincache.
+    if [[ -n ${nightly_tag} ]]; then
+        local -i ret=0
+        git diff --exit-code --quiet "${nightly_tag}" || ret=$?
+        if [[ ret -eq 0 ]]; then
+            local -a versions=(
+                $(
+                    source sdk_lib/sdk_container_common.sh
+                    source "${sdk_container_common_versionfile}"
+                    echo "${FLATCAR_SDK_VERSION}"
+                    echo "${FLATCAR_VERSION}"
+                )
             )
-            local flatcar_sdk_version="${versions[0]}"
-            local flatcar_version="${versions[1]}"
+            local flatcar_sdk_version=${versions[0]}
+            local flatcar_version=${versions[1]}
             local sdk_docker_vernum=""
             sdk_docker_vernum=$(vernum_to_docker_image_version "${flatcar_sdk_version}")
             if check_bincache_images_existence \
                    "https://${BUILDCACHE_SERVER}/containers/${sdk_docker_vernum}/flatcar-sdk-all-${sdk_docker_vernum}.tar.zst" \
                    "https://${BUILDCACHE_SERVER}/images/amd64/${flatcar_version}/flatcar_production_image.bin.bz2" \
                    "https://${BUILDCACHE_SERVER}/images/arm64/${flatcar_version}/flatcar_production_image.bin.bz2"; then
-                echo "Stopping build because there are no changes since tag ${existing_tag}, the SDK container tar ball and the Flatcar images exist" >&2
+                echo "Stopping build because there are no changes since tag ${nightly_tag}, the SDK container tar ball and the Flatcar images exist" >&2
                 return 0
             fi
             echo "No changes but continuing build because SDK container tar ball and/or the Flatcar images do not exist" >&2
-          elif [ "$ret" = "1" ]; then
-            echo "Found changes since last tag ${existing_tag}" >&2
-          else
+        elif [[ ret -eq 1 ]]; then
+            echo "HEAD is tagged with a nightly tag and yet there a differences? This is fishy and needs to be investigated. Maybe you forgot to commit your changes?" >&2
+            exit 1
+        else
             echo "Error: Unexpected git diff return code (${ret})" >&2
             return 1
-          fi
         fi
     fi
     if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
         set +x
     fi
 
-    local vernum="${version#*-}" # remove alpha-,beta-,stable-,lts- version tag
-    local git_vernum="${vernum}"
+    local vernum=${version#*-} # remove alpha-,beta-,stable-,lts- version tag
+    local git_vernum=${vernum}
 
     # Update FLATCAR_VERSION[_ID], BUILD_ID, and SDK in versionfile
     (
-      source sdk_lib/sdk_container_common.sh
-      create_versionfile "${vernum}"
+        source sdk_lib/sdk_container_common.sh
+        create_versionfile "${vernum}"
     )
     if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
         set -x
@@ -167,14 +188,16 @@ function _sdk_bootstrap_impl() {
     # to ourselves, otherwise we could fail to sign the artifacts as
     # we lacked write permissions in the directory of the signed
     # artifact
-    local uid=$(id --user)
-    local gid=$(id --group)
+    local uid
+    local gid
+    uid=$(id --user)
+    gid=$(id --group)
     sudo chown --recursive "${uid}:${gid}" __build__
     (
-      cd "__build__/images/catalyst/builds/flatcar-sdk"
-      create_digests "${SIGNER}" "${dest_tarball}"
-      sign_artifacts "${SIGNER}" "${dest_tarball}"*
-      copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
+        cd "__build__/images/catalyst/builds/flatcar-sdk"
+        create_digests "${SIGNER}" "${dest_tarball}"
+        sign_artifacts "${SIGNER}" "${dest_tarball}"*
+        copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
     )
 }
 # --
