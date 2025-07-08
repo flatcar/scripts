@@ -73,6 +73,16 @@ function update_and_push_version() {
 }
 # --
 
+function check_bincache_images_existence() {
+    case ${CIA_DEBUGIMAGESEXIST:-} in
+        'yes') return 0;;
+        'no' ) return 1;;
+        '') curl --head --fail --fail-early --silent --show-error --location "${@}" || return 1;;
+        *) echo "Invalid CIA_DEBUGIMAGESEXIST value (${CIA_DEBUGIMAGESEXIST@Q})" >&2; exit 1;;
+    esac
+}
+# --
+
 function copy_from_buildcache() {
     local what="$1"
     local where_to="$2"
