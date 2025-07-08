@@ -74,6 +74,9 @@ function _sdk_bootstrap_impl() {
 
     check_version_string "${version}"
 
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        set -x
+    fi
     # Create new tag in scripts repo w/ updated versionfile.
     # Also push the changes to the branch ONLY IF we're doing a nightly
     #   build of the 'main' branch AND we're definitely ON the main branch.
@@ -81,8 +84,8 @@ function _sdk_bootstrap_impl() {
     local target_branch=''
     # These variables are here to make it easier to test nightly
     # builds without messing with actual release branches.
-    local main_branch='main'
-    local nightly='nightly'
+    local main_branch=${CIA_DEBUGMAINBRANCH:-main}
+    local nightly=${CIA_DEBUGNIGHTLY:-nightly}
     # Patterns used below.
     local nightly_pattern_1='^main-[0-9.]+-'"${nightly}"'-[-0-9]+(-INTERMEDIATE)?$'
     local nightly_pattern_2='^main-[0-9.]+-'"${nightly}"'-[-0-9]+$'
@@ -115,9 +118,10 @@ function _sdk_bootstrap_impl() {
             local flatcar_version="${versions[1]}"
             local sdk_docker_vernum=""
             sdk_docker_vernum=$(vernum_to_docker_image_version "${flatcar_sdk_version}")
-            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/containers/${sdk_docker_vernum}/flatcar-sdk-all-${sdk_docker_vernum}.tar.zst" \
-              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${flatcar_version}/flatcar_production_image.bin.bz2" \
-              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/arm64/${flatcar_version}/flatcar_production_image.bin.bz2"; then
+            if check_bincache_images_existence \
+                   "https://${BUILDCACHE_SERVER}/containers/${sdk_docker_vernum}/flatcar-sdk-all-${sdk_docker_vernum}.tar.zst" \
+                   "https://${BUILDCACHE_SERVER}/images/amd64/${flatcar_version}/flatcar_production_image.bin.bz2" \
+                   "https://${BUILDCACHE_SERVER}/images/arm64/${flatcar_version}/flatcar_production_image.bin.bz2"; then
                 echo "Stopping build because there are no changes since tag ${existing_tag}, the SDK container tar ball and the Flatcar images exist" >&2
                 return 0
             fi
@@ -130,6 +134,9 @@ function _sdk_bootstrap_impl() {
           fi
         fi
     fi
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        set +x
+    fi
 
     local vernum="${version#*-}" # remove alpha-,beta-,stable-,lts- version tag
     local git_vernum="${vernum}"
@@ -139,7 +146,13 @@ function _sdk_bootstrap_impl() {
       source sdk_lib/sdk_container_common.sh
       create_versionfile "${vernum}"
     )
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        set -x
+    fi
     update_and_push_version "${version}" "${target_branch}"
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        exit 0
+    fi
     apply_local_patches
 
     ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}"
