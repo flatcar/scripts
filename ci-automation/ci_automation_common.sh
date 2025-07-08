@@ -23,15 +23,15 @@ function check_version_string() {
 # --
 
 function update_and_push_version() {
-    local version="$1"
-    local target_branch="${2:-}"
+    local version=${1}
+    local target_branch=${2:-}
 
     # set up author and email so git does not complain when tagging
     if ! git config --get user.name >/dev/null 2>&1 ; then
-        git -C . config user.name "${CI_GIT_AUTHOR}"
+        git config user.name "${CI_GIT_AUTHOR}"
     fi
     if ! git config --get user.email >/dev/null 2>&1 ; then
-        git -C . config user.email "${CI_GIT_EMAIL}"
+        git config user.email "${CI_GIT_EMAIL}"
     fi
 
     # Add and commit local changes
@@ -40,33 +40,34 @@ function update_and_push_version() {
     git commit --allow-empty -m "New version: ${version}"
 
     git fetch --all --tags --force
-    local ret=0
-    git diff --exit-code "${version}" || ret=$?
+    local -i ret=0
+    git diff --quiet --exit-code "${version}" 2>/dev/null || ret=${?}
     # This will return != 0 if
     #  - the remote tag does not exist (rc: 127)
     #  - the tag does not exist locally (rc: 128)
     #  - the remote tag has changes compared to the local tree (rc: 1)
-    if [ "$ret" = "0" ]; then
-      echo "Reusing existing tag" >&2
-      git checkout -f "${version}"
-      return
-    elif [ "$ret" = "1" ]; then
-      echo "Remote tag exists already and is not equal" >&2
-      return 1
-    elif [ "$ret" != "127" ] && [ "$ret" != "128" ]; then
-      echo "Error: Unexpected git diff return code ($ret)" >&2
-      return 1
+    if [[ ret -eq 0 ]]; then
+        # this means that we created an empty commit above, reusing the tag gets rid of it
+        echo "Reusing existing tag" >&2
+        git checkout --force "${version}"
+        return
+    elif [[ ret -eq 1 ]]; then
+        echo "Remote tag exists already and is not equal" >&2
+        return 1
+    elif [[ ret -ne 127 && ret -ne 128 ]]; then
+        echo "Error: Unexpected git diff return code (${ret})" >&2
+        return 1
     fi
 
-    local -a TAG_ARGS
-    if [ "${SIGN-0}" = 1 ]; then
-      TAG_ARGS=("-s" "-m" "${version}")
+    local -a TAG_ARGS=()
+    if [[ ${SIGN-0} = 1 ]]; then
+        TAG_ARGS=("--sign" "--message=${version}")
     fi
 
-    git tag -f "${TAG_ARGS[@]}" "${version}"
+    git tag --force "${TAG_ARGS[@]}" "${version}"
 
-    if [[ -n "${target_branch}" ]]; then
-      git push origin "HEAD:${target_branch}"
+    if [[ -n ${target_branch} ]]; then
+        git push origin "HEAD:${target_branch}"
     fi
 
     git push origin "${version}"
