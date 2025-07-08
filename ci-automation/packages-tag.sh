@@ -66,14 +66,17 @@ function _packages_tag_impl() {
     source sdk_container/.repo/manifests/version.txt
     local sdk_version="${FLATCAR_SDK_VERSION}"
 
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        set -x
+    fi
     # Create new tag in scripts repo w/ updated versionfile
     # Also push the changes to the branch ONLY IF we're doing a nightly
     #   build of the 'flatcar-MAJOR' branch AND we're definitely ON the respective branch
     local target_branch=''
     # These variables are here to make it easier to test nightly
     # builds without messing with actual release branches.
-    local flatcar_branch_prefix='flatcar'
-    local nightly='nightly'
+    local flatcar_branch_prefix=${CIA_DEBUGFLATCARBRANCHPREFIX:-flatcar}
+    local nightly=${CIA_DEBUGNIGHTLY:-nightly}
     # Patterns used below.
     local nightly_pattern_1='^(stable|alpha|beta|lts)-[0-9.]+-'"${nightly}"'-[-0-9]+$'
     local nightly_pattern_2='^(stable|alpha|beta|lts)-[0-9.]+(|-'"${nightly}"'-[-0-9]+)$'
@@ -95,8 +98,9 @@ function _packages_tag_impl() {
           local ret=0
           git diff --exit-code "${existing_tag}" || ret=$?
           if [[ ret -eq 0 ]]; then
-            if curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/amd64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2" \
-              && curl --head --fail --silent --show-error --location "https://${BUILDCACHE_SERVER}/images/arm64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2"; then
+            if check_bincache_images_existence \
+                   "https://${BUILDCACHE_SERVER}/images/amd64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2" \
+                   "https://${BUILDCACHE_SERVER}/images/arm64/${FLATCAR_VERSION}/flatcar_production_image.bin.bz2"; then
                 touch ./skip-build
                 echo "Creating ./skip-build flag file, indicating that the build must not to continue because no new tag got created as there are no changes since tag ${existing_tag} and the Flatcar images exist" >&2
                 return 0
@@ -110,13 +114,22 @@ function _packages_tag_impl() {
           fi
         fi
     fi
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        set +x
+    fi
 
     # Create version file
     (
       source sdk_lib/sdk_container_common.sh
       create_versionfile "$sdk_version" "$version"
     )
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        set -x
+    fi
     update_and_push_version "${version}" "${target_branch}"
+    if [[ -n ${CIA_DEBUGTESTRUN:-} ]]; then
+        exit 0
+    fi
     apply_local_patches
 }
 # --
