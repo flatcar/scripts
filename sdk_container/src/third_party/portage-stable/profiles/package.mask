@@ -36,6 +36,40 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2025-07-05)
+# Metapackage used as a dependency in dev-lang/python and dev-lang/pypy.
+# Replaced with inlined specific dev-python/ensurepip-* packages.
+# Removal on 2025-08-04.
+dev-python/ensurepip-wheels
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2025-07-04)
+# EAPI=7, upstream gone, Gentoo is the last distro packaging it.
+# Removal on 2025-08-03.  Bug #959505.
+app-misc/pip
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-07-04)
+# Obsolete Perl virtuals that will be removed (the list is work in progress).
+# If you have any of these installed, just remove them; they should not be
+# required anymore.
+virtual/perl-bignum
+virtual/perl-HTTP-Tiny
+virtual/perl-IO-Zlib
+virtual/perl-Locale-Maketext
+virtual/perl-Math-BigInt-FastCalc
+virtual/perl-Math-BigRat
+virtual/perl-Parse-CPAN-Meta
+virtual/perl-Params-Check
+perl-core/Params-Check
+virtual/perl-Term-ReadLine
+virtual/perl-Unicode-Normalize
+
+# Joonas Niilola <juippis@gentoo.org> (2025-07-01)
+# Python-3.13 enabled version of Spidermonkey. The test phase crashes
+# with 3.13 so I'm not fully convinced there won't be runtime issues
+# with rdeps (gjs, libpeas) but try it out and report back in
+# bug #952299.
+=dev-lang/spidermonkey-128.12.0-r1
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-06-29)
 # KF5-based package, unmaintained upstream, see also:
 # https://mail.kde.org/pipermail/release-team/2025-June/013683.html
@@ -75,40 +109,6 @@ dev-python/caldav
 # Qt5 package without any revdeps. Removal on 2025-07-24. Bug #938823
 dev-libs/libdbusmenu-qt
 
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-06-24)
-# Perl 5.42 mask/unmask block, complete as of 5.42.0_rc2
-=dev-lang/perl-5.42*
-~virtual/perl-Archive-Tar-3.40.0
-~virtual/perl-Compress-Raw-Bzip2-2.213.0
-~virtual/perl-CPAN-2.380.0
-~virtual/perl-Data-Dumper-2.192.0
-~virtual/perl-Devel-PPPort-3.730.0
-~virtual/perl-Digest-MD5-2.590.0
-~virtual/perl-Exporter-5.790.0
-~virtual/perl-ExtUtils-CBuilder-0.280.241
-~virtual/perl-ExtUtils-CBuilder-0.280.242
-~virtual/perl-ExtUtils-MakeMaker-7.760.0
-~virtual/perl-ExtUtils-ParseXS-3.570.0
-~virtual/perl-File-Spec-3.940.0
-~virtual/perl-HTTP-Tiny-0.90.0
-~virtual/perl-IO-Compress-2.213.0
-~virtual/perl-IO-Socket-IP-0.430.0
-~virtual/perl-Math-BigInt-2.5.2
-~virtual/perl-Math-BigInt-FastCalc-0.502.0
-~virtual/perl-Math-BigRat-2.5.2
-~virtual/perl-Math-Complex-1.630.0
-=virtual/perl-Module-CoreList-5.202.506*
-=virtual/perl-Module-CoreList-5.202.507*
-~virtual/perl-parent-0.244.0
-~virtual/perl-podlators-6.0.2
-~virtual/perl-Scalar-List-Utils-1.680.100_rc
-~virtual/perl-Storable-3.370.0
-~virtual/perl-Test2-Suite-1.302.210
-~virtual/perl-Test-Simple-1.302.210
-~virtual/perl-threads-2.430.0
-~virtual/perl-Time-HiRes-1.977.800
-~virtual/perl-version-0.993.300
-
 # Michał Górny <mgorny@gentoo.org> (2025-06-21)
 # Last commit in 2019.  Has an entry point conflict with
 # dev-python/pytest-tornasync.  No reverse dependencies left.
@@ -129,6 +129,7 @@ sci-mathematics/boolector
 # Sam James <sam@gentoo.org> (2025-06-12)
 # Breaks several applications (bug #957943)
 >=dev-python/pygobject-3.52
+>=net-im/gajim-2.3.0
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2025-06-09)
 # Dead upstream, fails to compile with gcc 15 and cmake 4.
@@ -209,8 +210,8 @@ dev-util/bin_replace_string
 # Sam James <sam@gentoo.org> (2025-06-03)
 # Major changes to packaging as bindings are split out by upstream.
 >=app-crypt/gpgme-2
-dev-cpp/gpgmepp
-dev-libs/qgpgme
+>=dev-cpp/gpgmepp-2
+>=dev-libs/qgpgme-2
 dev-python/gpgmepy
 
 # Sam James <sam@gentoo.org> (2025-06-03)
@@ -219,12 +220,6 @@ dev-python/gpgmepy
 # > ERROR: cannot verify github.com's certificate, issued by 'CN=Sectigo ECC Domain Validation Secure Server CA,O=Sectigo Limited,L=Salford,ST=Greater Manchester,C=GB':
 # >  Unable to locally verify the issuer's authority.
 =app-misc/ca-certificates-20250419.3.112
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-06-02)
-# Gui depends on Qt5 and is unmaintained for a very long time - its main
-# developers have moved to the InputLeap project (gui-apps/input-leap).
-# Bugs #942580, #949911, #951987, #953262; removal on 2025-07-02.
-x11-misc/barrier
 
 # Michael Orlitzky <mjo@gentoo.org> (2025-05-28)
 # I added this for SageMath, but in hindsight do not think anyone is
@@ -277,7 +272,6 @@ x11-misc/meteo
 # Sam James <sam@gentoo.org> (2025-05-22)
 # Introduces REQUIRED_USE that needs more discussion (bug #956402)
 =media-gfx/gimp-3.0.2-r2
-=media-gfx/gimp-3.0.4
 
 # Ulrich Müller <ulm@gentoo.org> (2025-05-18)
 # Pretest versions, masked for testing.
