@@ -391,7 +391,7 @@ function prepare_env_vars_and_params_for_release() {
 
     # Nothing to prepend to show_changes_env.
     show_changes_env_ref=()
-    show_changes_params=(
+    show_changes_params_ref=(
         "NEW_CHANNEL=${new_channel}"
         "NEW_CHANNEL_PREV_VERSION=${new_channel_prev_version}"
         # Channel transition stuff
@@ -446,7 +446,7 @@ function prepare_env_vars_and_params_for_nightly() {
 
     # Nothing to prepend to show_changes_env.
     show_changes_env_ref=()
-    show_changes_params=(
+    show_changes_params_ref=(
         "NEW_CHANNEL=${ppfb_channel}"
         "NEW_CHANNEL_PREV_VERSION=${ppfb_vernum}"
         # Channel transition stuff, we set the old channel to be the
