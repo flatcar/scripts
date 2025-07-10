@@ -8,6 +8,7 @@ tracestate="$(shopt -po xtrace || true)"
 set +o xtrace
 _="
 ${AZURE_CLIENT_ID}
+${AZURE_CLIENT_SECRET}
 "
 eval "${tracestate}"
 
