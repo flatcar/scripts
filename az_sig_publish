@@ -6,9 +6,9 @@
 # Script to publish Flatcar images to Azure Shared Galley Images
 tracestate="$(shopt -po xtrace || true)"
 set +o xtrace
-
-: "${AZURE_CLIENT_ID:?AZURE_CLIENT_ID is not set}"
-
+_="
+${AZURE_CLIENT_ID}
+"
 eval "${tracestate}"
 
 # Set defaults for environment variables (allow override via --env or directly in script)
