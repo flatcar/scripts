@@ -30,9 +30,16 @@ function _az_sig_publish_impl() {
     exit 0
   fi
 
+  azure_auth_config_file=""
+  secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
+  AZURE_CLIENT_ID=$(jq -r '.clientId' "${azure_auth_config_file}")
+  AZURE_CLIENT_SECRET=$(jq -r '.clientSecret' "${azure_auth_config_file}")
+  AZURE_TENANT_ID=$(jq -r '.tenantId' "${azure_auth_config_file}")
+
   docker run --pull always --rm --net host \
-    --env AZURE_AUTH_CREDENTIALS \
-    --env AZURE_PROFILE \
+    --env AZURE_CLIENT_ID \
+    --env AZURE_CLIENT_SECRET \
+    --env AZURE_TENANT_ID \
     --env VHD_STORAGE_ACCOUNT_NAME \
     --env AZURE_LOCATION \
     --env PUBLISHING_SIG_RESOURCE_GROUP \

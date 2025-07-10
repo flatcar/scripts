@@ -57,6 +57,8 @@ function publish-flatcar-image() {
 }
 
 function ensure-flatcar-staging-sig-image-version-from-vhd() {
+  login
+
   IMAGE_NAME="${FLATCAR_IMAGE_NAME}"
   IMAGE_VERSION="${FLATCAR_VERSION}"
   GALLERY_NAME="${FLATCAR_STAGING_GALLERY_NAME}"
@@ -148,6 +150,14 @@ function ensure-resource-group() {
   if ! az group show -n "${RESOURCE_GROUP_NAME}" -o none 2>/dev/null; then
     az group create -n "${RESOURCE_GROUP_NAME}" -l "${AZURE_LOCATION}"
   fi
+}
+
+function login() {
+  tracestate="$(shopt -po xtrace || true)"
+  set +o xtrace
+  az login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}" >/dev/null 2>&1
+  az account set -s "${AZURE_SUBSCRIPTION_ID}" >/dev/null 2>&1
+  eval "${tracestate}"
 }
 
 # Entrypoint
