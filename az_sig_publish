@@ -168,8 +168,7 @@ function login() {
   set +o xtrace
   az login --service-principal \
   -u "${AZURE_CLIENT_ID}" \
-  -p "${AZURE_CLIENT_SECRET}" \
-  --tenant "${AZURE_TENANT_ID}" >/dev/null 2>"$AZURE_LOGIN_ERR_FILE"
+  --identity >/dev/null 2>"$AZURE_LOGIN_ERR_FILE"
   if [[ $? -ne 0 ]]; then
     echo "Azure login failed. Error:"
     cat "$AZURE_LOGIN_ERR_FILE"
