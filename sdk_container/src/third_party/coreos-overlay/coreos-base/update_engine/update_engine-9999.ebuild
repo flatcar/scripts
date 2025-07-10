@@ -7,7 +7,7 @@ EGIT_REPO_URI="https://github.com/flatcar/update_engine.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="46e1984f2c91e3d14bad9323a6bf32a9c6662fbc" # flatcar-master
+	EGIT_COMMIT="4ecb5e3b073dfc3818d8d0db2f4c3e15dccb0e5c" # main
 	KEYWORDS="amd64 arm64"
 fi
 
