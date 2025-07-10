@@ -155,11 +155,12 @@ function ensure-resource-group() {
 function login() {
   AZURE_LOGIN_ERR_FILE=$(mktemp)
   echo "Authenticating to Azure using service principal."
+  echo ${AZURE_CLIENT_ID}
   tracestate="$(shopt -po xtrace || true)"
   set +o xtrace
   az login --service-principal \
-  --username "${AZURE_CLIENT_ID}" \
-  --password "${AZURE_CLIENT_SECRET}" \
+  -u "${AZURE_CLIENT_ID}" \
+  -p "${AZURE_CLIENT_SECRET}" \
   --tenant "${AZURE_TENANT_ID}" >/dev/null 2>"$AZURE_LOGIN_ERR_FILE"
   if [[ $? -ne 0 ]]; then
     echo "Azure login failed. Error:"
