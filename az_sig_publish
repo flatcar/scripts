@@ -153,10 +153,26 @@ function ensure-resource-group() {
 }
 
 function login() {
+  echo "Authenticating to Azure using service principal."
   tracestate="$(shopt -po xtrace || true)"
   set +o xtrace
-  az login --service-principal -u "${AZURE_CLIENT_ID}" -p "${AZURE_CLIENT_SECRET}" --tenant "${AZURE_TENANT_ID}" >/dev/null 2>&1
-  az account set -s "${AZURE_SUBSCRIPTION_ID}" >/dev/null 2>&1
+  if ! az login --service-principal \
+    --username "${AZURE_CLIENT_ID}" \
+    --password "${AZURE_CLIENT_SECRET}" \
+    --tenant "${AZURE_TENANT_ID}" >/dev/null 2>&1; then
+    echo "Azure login failed."
+    eval "${tracestate}"
+    exit 1
+  fi
+  echo "Azure login successful."
+  echo "Setting active subscription to ${AZURE_SUBSCRIPTION_ID}..."
+  if ! az account set -s "${AZURE_SUBSCRIPTION_ID}" >/dev/null 2>&1; then
+    echo "Failed to set Azure subscription."
+    eval "${tracestate}"
+    exit 1
+  fi
+  echo "Subscription set."
+
   eval "${tracestate}"
 }
 
