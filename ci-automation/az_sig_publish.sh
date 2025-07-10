@@ -37,7 +37,7 @@ function _az_sig_publish_impl() {
   AZURE_TENANT_ID=$(jq -r '.tenantId' "${azure_auth_config_file}")
 
   docker run --pull always --rm --net host \
-    --env AZURE_CLIENT_ID \
+    --env "${AZURE_CLIENT_ID}" \
     --env AZURE_CLIENT_SECRET \
     --env AZURE_TENANT_ID \
     --env VHD_STORAGE_ACCOUNT_NAME \
