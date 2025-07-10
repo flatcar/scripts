@@ -156,6 +156,7 @@ function login() {
   AZURE_LOGIN_ERR_FILE=$(mktemp)
   echo "Authenticating to Azure using service principal."
   echo ${AZURE_CLIENT_ID}
+  echo ${AZURE_TENANT_ID}
   tracestate="$(shopt -po xtrace || true)"
   set +o xtrace
   az login --service-principal \
