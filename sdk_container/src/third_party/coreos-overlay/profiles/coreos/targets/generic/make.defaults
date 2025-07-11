@@ -1,6 +1,8 @@
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
+FLATCAR_TYPE=generic
+
 USE="acpi usb cryptsetup policykit"
 USE="${USE} -cros_host -expat -cairo -X -man"
 USE="${USE} -acl -gpm -python"
