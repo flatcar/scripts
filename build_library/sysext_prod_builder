@@ -55,15 +55,20 @@ create_prod_sysext() {
   fi
 
   info "${msg}."
-  
+
   # Pass the build ID extracted from root FS to build_sysext. This prevents common.sh
   #   in build_sysext to generate a (timestamp based) build ID during a DEV build of a
   #   release tag (which breaks its version check).
+  #
+  # The --install_root_basename="${name}-base-sysext-rootfs" flag is
+  # important - it sets the name of a rootfs directory, which is used
+  # to determine the package target in coreos/base/profile.bashrc
   sudo "FLATCAR_BUILD_ID=$FLATCAR_BUILD_ID" "${SCRIPTS_DIR}/build_sysext" \
             --board="${BOARD}" \
             --image_builddir="${workdir}/sysext-build" \
             --squashfs_base="${base_sysext}" \
             --generate_pkginfo \
+            --install_root_basename="${name}-base-sysext-rootfs" \
             "${build_sysext_opts[@]}" \
             "${name}" "${grp_pkg[@]}"
 
