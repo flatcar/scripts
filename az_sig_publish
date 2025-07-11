@@ -167,7 +167,7 @@ function login() {
   tracestate="$(shopt -po xtrace || true)"
   set +o xtrace
   az login \
-  -u "${AZURE_CLIENT_ID}" \
+  --client-id "${AZURE_CLIENT_ID}" \
   --identity >/dev/null 2>"$AZURE_LOGIN_ERR_FILE"
   if [[ $? -ne 0 ]]; then
     echo "Azure login failed. Error:"
