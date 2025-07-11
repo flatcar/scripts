@@ -522,7 +522,10 @@ setup_disk_image() {
 install_oem_package() {
     local oem_pkg=$(_get_vm_opt OEM_PACKAGE)
     local oem_use=$(_get_vm_opt OEM_USE)
-    local oem_tmp="${VM_TMP_DIR}/oem"
+    # The "${VM_IMG_TYPE}-oem-image-rootfs" directory name is
+    # important - it is used to determine the package target in
+    # coreos/base/profile.bashrc
+    local oem_tmp="${VM_TMP_DIR}/${VM_IMG_TYPE}-oem-image-rootfs"
 
     if [[ -z "${oem_pkg}" ]]; then
         return 0
@@ -564,11 +567,16 @@ install_oem_sysext() {
     local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
     local version="${FLATCAR_VERSION}"
     local metapkg="coreos-base/${oem_sysext}"
+    # The --install_root_basename="${name}-oem-sysext-rootfs" flag is
+    # important - it sets the name of a rootfs directory, which is
+    # used to determine the package target in
+    # coreos/base/profile.bashrc
     local build_sysext_flags=(
         --board="${BOARD}"
         --squashfs_base="${VM_SRC_SYSEXT_IMG}"
         --image_builddir="${built_sysext_dir}"
         --metapkgs="${metapkg}"
+        --install_root_basename="${VM_IMG_TYPE}-oem-sysext-rootfs"
     )
     local overlay_path mangle_fs
     overlay_path=$(portageq get_repo_path / coreos-overlay)
