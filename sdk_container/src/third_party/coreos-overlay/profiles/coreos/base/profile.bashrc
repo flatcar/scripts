@@ -22,6 +22,63 @@ cros_target() {
 	fi
 }
 
+# Are we merging for the board sysroot, or for the SDK, or for
+# the images? Returns a string in a passed variable:
+#
+#  - sdk (the SDK)
+#  - generic-board (board sysroot)
+#  - generic-prod (production image)
+#  - generic-dev (developer container image)
+#  - generic-sysext-base-${name} (sysext image ${name} built-in into
+#    production image, usually docker or containerd)
+#  - generic-sysext-extra-${name} (extra sysext image ${name}, like
+#    podman, python, zfs)
+#  - generic-oem-${name} (image for OEM ${name})
+#  - generic-unknown (something using generic profile, but otherwise
+#    unknown, probably something is messed up)
+#  - unknown (unknown type of image, neither generic, nor sdk,
+#    probably something is messed up)
+flatcar_target_ref() {
+    local -n type_ref=${1}; shift
+
+    local name
+    case ${FLATCAR_TYPE} in
+        sdk) type_ref='sdk';;
+        generic)
+            case ${ROOT} in
+                "${SYSROOT}") type_ref='generic-board';;
+                */prod-image-rootfs) type_ref='generic-prod';;
+                */dev-image-rootfs) type_ref='generic-dev';;
+                */*-base-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-base-sysext-rootfs}
+                    type_ref='generic-sysext-base-{name}'
+                    ;;
+                */*-extra-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-extra-sysext-rootfs}
+                    type_ref='generic-sysext-extra-{name}'
+                    ;;
+                */*-oem-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-oem-rootfs}
+                    type_ref='generic-oem-{name}'
+                    ;;
+                *) type_ref='generic-unknown'
+            esac
+            ;;
+        *) type_ref='unknown';;
+    esac
+}
+
+# Prints the type of image we are merging the package for, see
+# flatcar_target_ref for details.
+flatcar_target() {
+    local target_type
+    flatcar_target_ref target_type
+    echo "${target_type}"
+}
+
 # Load all additional bashrc files we have for this package.
 cros_stack_bashrc() {
 	local cfg cfgd

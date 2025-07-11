@@ -522,7 +522,10 @@ setup_disk_image() {
 install_oem_package() {
     local oem_pkg=$(_get_vm_opt OEM_PACKAGE)
     local oem_use=$(_get_vm_opt OEM_USE)
-    local oem_tmp="${VM_TMP_DIR}/oem"
+    # The "${VM_IMG_TYPE}-oem-rootfs" directory name is important - it
+    # is used to determine the package target in
+    # coreos/base/profile.bashrc
+    local oem_tmp="${VM_TMP_DIR}/${VM_IMG_TYPE}-oem-rootfs"
 
     if [[ -z "${oem_pkg}" ]]; then
         return 0

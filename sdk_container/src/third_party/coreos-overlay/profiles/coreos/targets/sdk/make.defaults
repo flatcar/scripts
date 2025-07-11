@@ -1,3 +1,5 @@
+FLATCAR_TYPE=sdk
+
 USE="cros_host expat man -pam"
 
 # Used by some old goo in profiles/coreos/base/profile.bashrc

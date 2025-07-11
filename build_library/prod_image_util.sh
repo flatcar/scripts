@@ -66,7 +66,9 @@ create_prod_image() {
   local base_sysexts="$5"
 
   info "Building production image ${image_name}"
-  local root_fs_dir="${BUILD_DIR}/rootfs"
+  # The "prod-image-rootfs" directory name is important - it is used
+  # to determine the package target in coreos/base/profile.bashrc
+  local root_fs_dir="${BUILD_DIR}/prod-image-rootfs"
   local root_fs_sysexts_output_dir="${BUILD_DIR}/rootfs-included-sysexts"
   local image_contents="${image_name%.bin}_contents.txt"
   local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
@@ -241,11 +243,17 @@ create_prod_sysexts() {
 	"${BUILD_DIR}/flatcar-test-update-${name}.gz" \
 	"${BUILD_DIR}/${name}_*"
     # we use -E to pass the USE flags, but also MODULES_SIGN variables
+    #
+    # The --install_root_basename="${name}-extra-sysext-rootfs" flag
+    # is important - it sets the name of a rootfs directory, which is
+    # used to determine the package target in
+    # coreos/base/profile.bashrc
     USE="${useflags_array[*]}" sudo -E "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
-	--squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-	--image_builddir="${BUILD_DIR}" \
-	${mangle_script:+--manglefs_script=${mangle_script}} \
-	"${name}" "${pkg_array[@]}"
+        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+        --image_builddir="${BUILD_DIR}" \
+        --install_root_basename="${name}-extra-sysext-rootfs" \
+        ${mangle_script:+--manglefs_script=${mangle_script}} \
+        "${name}" "${pkg_array[@]}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \

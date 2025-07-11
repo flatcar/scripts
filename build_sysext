@@ -16,6 +16,7 @@ assert_inside_chroot
 assert_root_user
 
 default_imagedir="$(readlink -f "${SCRIPT_ROOT}/../build/images")/<BOARD>/latest/"
+default_install_root_basename='install-root'
 
 # All these are used to set up the 'BUILD_DIR' variable
 DEFINE_string board "${DEFAULT_BOARD}" \
@@ -40,6 +41,8 @@ DEFINE_string mksquashfs_opts "" \
   "Additional command line options to pass to mksquashfs. See 'man 1 mksquashfs'. If <compression> is 'zstd' (the default), this option defaults to '-Xcompression-level 22 -b 512K'. Otherwise the default is empty."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
+DEFINE_string install_root_basename "${default_install_root_basename}" \
+  "Name of a root directory where packages will be installed. ${default_install_root_basename@Q} by default."
 
 FLAGS_HELP="USAGE: build_sysext [flags] <sysext_name> <binary_package> [<binary_package> ...]
 
@@ -137,7 +140,7 @@ _get_sysext_arch() {
 cleanup() {
   local dirs=(
     "${BUILD_DIR}/fs-root"
-    "${BUILD_DIR}/install-root"
+    "${BUILD_DIR}/${FLAGS_install_root_basename}"
     "${BUILD_DIR}/workdir"
     "${BUILD_DIR}/img-rootfs"
   )
@@ -180,9 +183,9 @@ fi
 
 mkdir "${BUILD_DIR}/fs-root"
 mount -rt squashfs -o loop,nodev "${FLAGS_squashfs_base}" "${BUILD_DIR}/fs-root"
-mkdir "${BUILD_DIR}/install-root"
+mkdir "${BUILD_DIR}/${FLAGS_install_root_basename}"
 mkdir "${BUILD_DIR}/workdir"
-mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/install-root",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/install-root"
+mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/${FLAGS_install_root_basename}",workdir="${BUILD_DIR}/workdir" "${BUILD_DIR}/${FLAGS_install_root_basename}"
 
 REPO_BUILD_ID=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_BUILD_ID")
 REPO_FLATCAR_VERSION=$(source "${REPO_MANIFESTS_DIR}/version.txt"; echo "$FLATCAR_VERSION")
@@ -222,7 +225,7 @@ info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_
 for package; do
   echo "Installing package into sysext image: $package"
   FEATURES="-ebuild-locks binpkg-multi-instance" emerge \
-    --root="${BUILD_DIR}/install-root" \
+    --root="${BUILD_DIR}/${FLAGS_install_root_basename}" \
     --config-root="/build/${FLAGS_board}"  \
     --sysroot="/build/${FLAGS_board}"  \
     --usepkgonly \
@@ -237,19 +240,19 @@ done
 export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release")
 
 # Unmount in order to get rid of the overlay
-umount "${BUILD_DIR}/install-root"
+umount "${BUILD_DIR}/${FLAGS_install_root_basename}"
 umount "${BUILD_DIR}/fs-root"
 
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
   mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
-  cp -R "${BUILD_DIR}/install-root/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
+  cp -R "${BUILD_DIR}/${FLAGS_install_root_basename}/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
   mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" \
               -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 fi
 
 info "Writing ${SYSEXTNAME}_packages.txt"
-ROOT="${BUILD_DIR}/install-root" PORTAGE_CONFIGROOT="${BUILD_DIR}/install-root" \
+ROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" PORTAGE_CONFIGROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" \
       equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
 
 
@@ -260,7 +263,7 @@ if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
     info "Stripping all non-stripped binaries in sysext using '${strip}'"
 
     # Find all non-stripped binaries, remove ':' from filepath, and strip 'em
-    find "${BUILD_DIR}/install-root" -exec file \{\} \; \
+    find "${BUILD_DIR}/${FLAGS_install_root_basename}" -exec file \{\} \; \
          | awk '/not stripped/ {print substr($1, 1, length($1)-1)}' \
          | while read bin; do
                 info "     ${strip} ${bin}"
@@ -272,38 +275,38 @@ if [[ -n "${FLAGS_manglefs_script}" ]]; then
   if [[ ! -x "${FLAGS_manglefs_script}" ]]; then
     die "${FLAGS_manglefs_script} is not executable"
   fi
-  "${FLAGS_manglefs_script}" "${BUILD_DIR}/install-root"
+  "${FLAGS_manglefs_script}" "${BUILD_DIR}/${FLAGS_install_root_basename}"
 fi
 
 info "Removing non-/usr directories from sysext image"
-for entry in "${BUILD_DIR}/install-root"/*; do
+for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   if [[ "${entry}" = */usr ]]; then
     continue
   fi
   info "  Removing ${entry##*/}"
   rm -rf "${entry}"
 done
-mkdir -p "${BUILD_DIR}/install-root/usr/lib/extension-release.d"
+mkdir -p "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d"
 version_field="${VERSION_FIELD_OVERRIDE:-VERSION_ID=${FLATCAR_VERSION_ID}}"
 all_fields=(
   'ID=flatcar'
   "${version_field}"
   "ARCHITECTURE=${ARCH}"
 )
-printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/install-root/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
+printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
 
 info "Removing opaque directory markers to always merge all contents"
-find "${BUILD_DIR}/install-root" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
+find "${BUILD_DIR}/${FLAGS_install_root_basename}" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
 
 info "Checking for invalid file ownership"
-invalid_files=$(find "${BUILD_DIR}/install-root" -user sdk -or -group sdk)
+invalid_files=$(find "${BUILD_DIR}/${FLAGS_install_root_basename}" -user sdk -or -group sdk)
 if [[ -n "${invalid_files}" ]]; then
   die "Invalid file ownership: ${invalid_files}"
 fi
 
-mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
+mksquashfs "${BUILD_DIR}/${FLAGS_install_root_basename}" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
                -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
-rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
+rm -rf "${BUILD_DIR}"/{fs-root,"${FLAGS_install_root_basename}",workdir}
 
 # Generate reports
 mkdir "${BUILD_DIR}/img-rootfs"
