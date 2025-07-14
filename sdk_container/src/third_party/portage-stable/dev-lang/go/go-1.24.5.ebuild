@@ -20,7 +20,7 @@ case ${PV}  in
 *)
 	SRC_URI="https://storage.googleapis.com/golang/go${MY_PV}.src.tar.gz "
 	S="${WORKDIR}"/go
-#	KEYWORDS="-* ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="-* ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 	;;
 esac
 
@@ -48,6 +48,10 @@ QA_MULTILIB_PATHS="usr/lib/go/pkg/tool/.*/.*"
 # https://bugs.gentoo.org/794046
 QA_PREBUILT='.*'
 
+# Do not strip this package. Stripping is unsupported upstream and may
+# fail.
+RESTRICT=" strip"
+
 DOCS=(
 	CONTRIBUTING.md
 	PATENTS
@@ -64,6 +68,7 @@ go_cross_compile() {
 }
 
 PATCHES=(
+	"${FILESDIR}"/go-1.24-skip-gdb-tests.patch
 	"${FILESDIR}"/go-1.24-dont-force-gold-arm.patch
 	"${FILESDIR}"/go-never-download-newer-toolchains.patch
 )
