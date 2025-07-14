@@ -4,7 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnutls.asc
-inherit autotools multilib-minimal verify-sig
+inherit libtool multilib-minimal verify-sig
 
 DESCRIPTION="A secure communications library implementing the SSL, TLS and DTLS protocols"
 HOMEPAGE="https://www.gnutls.org/"
@@ -17,7 +17,7 @@ LICENSE="GPL-3 LGPL-2.1+"
 # Subslot format:
 # <libgnutls.so number>.<libgnutlsxx.so number>
 SLOT="0/30.30"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="brotli +cxx dane doc examples +idn nls +openssl pkcs11 sslv2 sslv3 static-libs test test-full +tls-heartbeat tools zlib zstd"
 REQUIRED_USE="test-full? ( cxx dane doc examples idn nls openssl pkcs11 tls-heartbeat tools )"
 RESTRICT="!test? ( test )"
@@ -66,6 +66,10 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	static_assert
 )
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.8.10-tests.patch
+)
+
 src_prepare() {
 	default
 
@@ -79,11 +83,16 @@ src_prepare() {
 	# fails to compile in certain configurations
 	sed -i -e 's/__APPLE__/__NO_APPLE__/' lib/system/certs.c || die
 
-	# Use sane .so versioning on FreeBSD.
-	#elibtoolize
+	# Fails with some combinations of USE="brotli zlib zstd"
+	# https://gitlab.com/gnutls/gnutls/-/issues/1721
+	# https://gitlab.com/gnutls/gnutls/-/merge_requests/1980
+	cat <<-EOF > tests/system-override-compress-cert.sh || die
+	#!/bin/sh
+	exit 77
+	EOF
+	chmod +x tests/system-override-compress-cert.sh || die
 
-	# Switch back to elibtoolize after 3.8.7.1
-	eautoreconf
+	elibtoolize
 }
 
 multilib_src_configure() {
@@ -125,11 +134,11 @@ multilib_src_configure() {
 		$(use_enable sslv3 ssl3-support)
 		$(use_enable static-libs static)
 		$(use_enable tls-heartbeat heartbeat-support)
-		$(use_with brotli)
+		$(use_with brotli '' link)
 		$(use_with idn)
 		$(use_with pkcs11 p11-kit)
-		$(use_with zlib)
-		$(use_with zstd)
+		$(use_with zlib '' link)
+		$(use_with zstd '' link)
 		--disable-rpath
 		--with-default-trust-store-file="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt
 		--with-unbound-root-key-file="${EPREFIX}"/etc/dnssec/root-anchors.txt
