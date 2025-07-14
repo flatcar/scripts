@@ -27,7 +27,7 @@ else
 	"
 
 	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 
 	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-openssl-20240920 )"
@@ -36,12 +36,11 @@ fi
 S="${WORKDIR}"/${MY_P}
 
 LICENSE="Apache-2.0"
-SLOT="0/$(ver_cut 1)" # .so version of libssl/libcrypto
-IUSE="+asm cpu_flags_x86_sse2 fips ktls +quic rfc3779 sctp static-libs test tls-compression vanilla weak-ssl-ciphers"
+SLOT="0/3" # .so version of libssl/libcrypto
+IUSE="+asm cpu_flags_x86_sse2 fips ktls rfc3779 sctp static-libs test tls-compression vanilla weak-ssl-ciphers"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
-	!<net-misc/openssh-9.2_p1-r3
 	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
 "
 BDEPEND+="
@@ -137,8 +136,8 @@ src_configure() {
 
 	append-flags $(test-flags-CC -Wa,--noexecstack)
 
-	# bug #895308 -- check inserts GNU ld-compatible arguments
-	[[ ${CHOST} == *-darwin* ]] || append-atomic-flags
+	# bug #895308
+	append-atomic-flags
 	# Configure doesn't respect LIBS
 	export LDLIBS="${LIBS}"
 
@@ -178,7 +177,6 @@ multilib_src_configure() {
 	local myeconfargs=(
 		${sslout}
 
-		$(multilib_is_native_abi || echo "no-docs")
 		$(use cpu_flags_x86_sse2 || echo "no-sse2")
 		enable-camellia
 		enable-ec
@@ -190,7 +188,6 @@ multilib_src_configure() {
 		enable-mdc2
 		enable-rc5
 		$(use fips && echo "enable-fips")
-		$(use quic && echo "enable-quic")
 		$(use_ssl asm)
 		$(use_ssl ktls)
 		$(use_ssl rfc3779)
@@ -212,18 +209,16 @@ multilib_src_configure() {
 
 multilib_src_compile() {
 	emake build_sw
+
+	if multilib_is_native_abi; then
+		emake build_docs
+	fi
 }
 
 multilib_src_test() {
-	# See https://github.com/openssl/openssl/blob/master/test/README.md for options.
-	#
 	# VFP = show subtests verbosely and show failed tests verbosely
 	# Normal V=1 would show everything verbosely but this slows things down.
-	#
-	# -j1 here for https://github.com/openssl/openssl/issues/21999, but it
-	# shouldn't matter as tests were already built earlier, and HARNESS_JOBS
-	# controls running the tests.
-	emake -Onone -j1 HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
+	emake HARNESS_JOBS="$(makeopts_jobs)" -Onone VFP=1 test
 }
 
 multilib_src_install() {
