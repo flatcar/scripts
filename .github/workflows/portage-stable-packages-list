@@ -669,6 +669,7 @@ sys-fs/e2fsprogs
 sys-fs/fuse
 sys-fs/fuse-common
 sys-fs/fuse-overlayfs
+sys-fs/inotify-tools
 sys-fs/lsscsi
 sys-fs/lvm2
 sys-fs/lxcfs

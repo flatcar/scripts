@@ -17,6 +17,7 @@ KEYWORDS="amd64 arm arm64 x86"
 # and debugging failures.
 RDEPEND="
 	app-portage/gentoolkit
+	dev-python/urllib3
 	coreos-base/coreos
 	coreos-base/emerge-gitclone
 	dev-debug/gdb
@@ -41,6 +42,7 @@ RDEPEND="
 	sys-apps/smartmontools
 	sys-apps/which
 	sys-devel/gcc
+	sys-fs/inotify-tools
 	sys-fs/lvm2
 	sys-fs/squashfs-tools
 	sys-process/procps
