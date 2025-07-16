@@ -16,8 +16,10 @@ IUSE=""
 
 RDEPEND="
   ~app-emulation/wa-linux-agent-${PV}
-  net-misc/chrony
   app-emulation/hv-daemons
+  dev-python/urllib3
+  net-misc/chrony
+  sys-fs/inotify-tools
 "
 
 # for coreos-base/common-oem-files
