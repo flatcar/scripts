@@ -12,7 +12,7 @@ ${AZURE_CLIENT_SECRET}
 "
 eval "${tracestate}"
 
-: "${AZURE_TENANT_ID:?Must set AZURE_TENANT_ID}"
+# : "${AZURE_TENANT_ID:?Must set AZURE_TENANT_ID}"
 
 # Set defaults for environment variables (allow override via --env or directly in script)
 AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-d38033ba-ec21-470c-96cf-4c6db9658d8b}"
@@ -168,9 +168,7 @@ function login() {
   echo ${AZURE_TENANT_ID}
   tracestate="$(shopt -po xtrace || true)"
   set +o xtrace
-  az login \
-  --client-id "${AZURE_TENANT_ID}" \
-  --identity >/dev/null 2>"$AZURE_LOGIN_ERR_FILE"
+  az login --identity >/dev/null 2>"$AZURE_LOGIN_ERR_FILE"
   if [[ $? -ne 0 ]]; then
     echo "Azure login failed. Error:"
     cat "$AZURE_LOGIN_ERR_FILE"
