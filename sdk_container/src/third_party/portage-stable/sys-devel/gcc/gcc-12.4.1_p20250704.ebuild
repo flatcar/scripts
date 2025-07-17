@@ -11,9 +11,9 @@ TOOLCHAIN_HAS_TESTS=1
 TOOLCHAIN_GCC_RC=1
 PATCH_GCC_VER="12.4.0"
 PATCH_VER="3"
-MUSL_VER="1"
+MUSL_VER="3"
 MUSL_GCC_VER="12.4.0"
-PYTHON_COMPAT=( python3_{10..14} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 if [[ ${PV} == *.9999 ]] ; then
 	MY_PV_2=$(ver_cut 2)
@@ -43,7 +43,7 @@ if tc_is_live ; then
 	EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
 	# Don't keyword live ebuilds
-	#KEYWORDS="~alpha amd64 arm arm64 hppa ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	:;
 fi
 
