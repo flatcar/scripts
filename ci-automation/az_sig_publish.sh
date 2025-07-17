@@ -15,10 +15,6 @@ function _az_sig_publish_impl() {
   local arch="$1"
   local push_non_nightly_builds="${PUSH_NON_NIGHTLY_BUILDS:-}"
 
-  source sdk_lib/sdk_container_common.sh
-  local channel=""
-  channel="$(get_git_channel)"
-
   source sdk_container/.repo/manifests/version.txt
   local vernum="${FLATCAR_VERSION}"
 
@@ -29,6 +25,23 @@ function _az_sig_publish_impl() {
     echo "INFO: Version '$vernum' is not a nightly build, and PUSH_NON_NIGHTLY_BUILDS is not enabled. Skipping publish step."
     exit 0
   fi
+
+  if [[ "$vernum" == *nightly* ]]; then
+    IFS='-' read -r nchannel nversion nnightly ndate ntime <<< "$vernum"
+    FLATCAR_IMAGE_NAME="flatcar-${nchannel}-${nnightly}-${arch}"
+    FLATCAR_VERSION="${nversion%.*}.${ndate}${ntime}"
+  else
+    source sdk_lib/sdk_container_common.sh
+    local channel=""
+    channel="$(get_git_channel)"
+    FLATCAR_IMAGE_NAME="flatcar-${channel}-${arch}"
+    datetime=$(date +'%Y%m%d%H%M')
+    version="${vernum%%+*}"
+    FLATCAR_VERSION="${version%.*}.${datetime}"
+  fi
+
+  echo "${FLATCAR_VERSION}"
+  echo "${FLATCAR_IMAGE_NAME}"
 
   #azure_auth_config_file=""
   #secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
@@ -47,8 +60,8 @@ function _az_sig_publish_impl() {
     --env FLATCAR_STAGING_GALLERY_NAME \
     --env FLATCAR_GALLERY_NAME \
     --env FLATCAR_ARCH="${arch}" \
-    --env FLATCAR_VERSION="${vernum}" \
-    --env FLATCAR_CHANNEL="${channel}" \
+    --env FLATCAR_VERSION="${FLATCAR_VERSION}" \
+    --env FLATCAR_IMAGE_NAME="${FLATCAR_IMAGE_NAME}" \
     -v "$PWD":/work \
     -w /work \
     mcr.microsoft.com/azure-cli \
