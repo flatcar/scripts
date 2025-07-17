@@ -47,8 +47,8 @@ function _az_sig_publish_impl() {
     --env FLATCAR_STAGING_GALLERY_NAME \
     --env FLATCAR_GALLERY_NAME \
     --env FLATCAR_ARCH="${arch}" \
-    --env FLATCAR_VERSION \
-    --env FLATCAR_CHANNEL \
+    --env FLATCAR_VERSION="${vernum}" \
+    --env FLATCAR_CHANNEL="${channel}" \
     -v "$PWD":/work \
     -w /work \
     mcr.microsoft.com/azure-cli \
