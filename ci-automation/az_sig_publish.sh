@@ -35,7 +35,7 @@ function _az_sig_publish_impl() {
     local channel=""
     channel="$(get_git_channel)"
     FLATCAR_IMAGE_NAME="flatcar-${channel}-${arch}"
-    datetime=$(date +'%Y%m%d%H%M')
+    datetime=$(date +'%y%m%d')
     version="${vernum%%+*}"
     FLATCAR_VERSION="${version%.*}.${datetime}"
   fi
