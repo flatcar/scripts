@@ -1596,7 +1596,7 @@ toolchain_src_configure() {
 			# If they've explicitly opt-ed in, do hardfloat,
 			# otherwise let the gcc default kick in.
 			case ${CTARGET//_/-} in
-				*-hardfloat-*|*eabihf)
+				*-hardfloat-*|*eabihf*)
 					confgcc+=( --with-float=hard )
 				;;
 			esac
@@ -2174,8 +2174,11 @@ gcc_do_filter_flags() {
 	fi
 
 	if ver_test -lt 15.1 ; then
-		filter-flags -fdiagnostics-explain-harder -fdiagnostics-details
 		filter-flags -fdiagnostics-set-output=text:experimental-nesting=yes
+	fi
+
+	if ver_test -lt 16.1 ; then
+		filter-flags -fdiagnostics-details
 	fi
 
 	# Ada: PR116226
@@ -2447,6 +2450,11 @@ toolchain_src_test() {
 	# From opensuse's spec file: "asan needs a whole shadow address space"
 	ulimit -v unlimited
 
+	# Use the magic value of 1 which avoids invoking coredump handlers
+	# like systemd-coredumpd which can be really slow when we have many
+	# intentional or expected crashes.
+	prlimit -c=1 -p $$
+
 	# 'asan' wants to be preloaded first, so does 'sandbox'.
 	# To make asan tests work, we disable sandbox for all of test suite.
 	# The 'backtrace' tests also do not like the presence of 'libsandbox.so'.
@@ -2575,6 +2583,7 @@ toolchain_src_test() {
 		# the failures are tolerable or not, so we bail out.
 		eerror "No reference test data at ${manifest}!"
 		eerror "GCC's tests require a baseline to compare with for any reasonable interpretation of results."
+		eerror "See https://wiki.gentoo.org/wiki/Project:Toolchain/sys-devel/gcc#Test_suite for details."
 
 		if [[ -n ${GCC_TESTS_IGNORE_NO_BASELINE} ]] ; then
 			eerror "GCC_TESTS_IGNORE_NO_BASELINE is set, ignoring test result and creating a new baseline..."
