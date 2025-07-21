@@ -11,7 +11,7 @@ SRC_URI="https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${PV}/$
 
 LICENSE="GPL-2 BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="archive cron fuse nls static-libs test +tools"
 RESTRICT="!test? ( test )"
 
@@ -43,6 +43,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch # bug #516854
 
 	# Upstream patches (can usually removed with next version bump)
+	"${FILESDIR}"/${PN}-1.47.3-e2scrub-order.patch
 )
 
 src_prepare() {
@@ -53,11 +54,6 @@ src_prepare() {
 	# Get rid of doc -- we don't use them. This also prevents a sandbox
 	# violation due to mktexfmt invocation
 	rm -r doc || die "Failed to remove doc dir"
-
-	cat <<-'EOF' > tests/m_rootdir_acl/script || die
-	echo "$test_name: $test_description: skipped (bgo#905221, fails on btrfs)"
-	return 0
-	EOF
 
 	# Prevent included intl cruft from building, bug #81096
 	sed -i -r \
@@ -110,7 +106,7 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	# Parallel make issue #936493
+	# Parallel make issue (bug #936493)
 	emake -C lib/et V=1 compile_et
 	emake -C lib/ext2fs V=1 ext2_err.h
 
