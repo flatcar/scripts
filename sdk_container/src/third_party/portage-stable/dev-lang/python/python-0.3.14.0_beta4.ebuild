@@ -3,13 +3,18 @@
 
 EAPI="8"
 
+VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic git-r3 linux-info
+inherit autotools check-reqs eapi9-ver flag-o-matic linux-info
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
+inherit verify-sig
 
+REAL_PV=${PV#0.}
+MY_PV=${REAL_PV/_beta/b}
+MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 2-3)t"
-PATCHSET="python-gentoo-patches-3.13.4"
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="Freethreading (no-GIL) version of Python programming language"
 HOMEPAGE="
@@ -17,16 +22,20 @@ HOMEPAGE="
 	https://github.com/python/cpython/
 "
 SRC_URI="
+	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	verify-sig? (
+		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
+	)
 "
-EGIT_REPO_URI="https://github.com/python/cpython.git"
-EGIT_BRANCH=${PYVER%t}
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
-	+readline +sqlite +ssl test tk valgrind
+	+readline +sqlite +ssl tail-call-interp test tk valgrind
 "
 RESTRICT="!test? ( test )"
 
@@ -38,7 +47,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-crypt/libb2
+	app-arch/zstd:=
 	app-misc/mime-types
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
@@ -87,6 +96,10 @@ PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
+# https://www.python.org/downloads/metadata/sigstore/
+VERIFY_SIG_CERT_IDENTITY=hugo@python.org
+VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
 
@@ -103,12 +116,6 @@ pkg_pretend() {
 	if use pgo || use test; then
 		check-reqs_pkg_pretend
 	fi
-
-	ewarn "Freethreading build is considered experimental upstream.  Using it"
-	ewarn "could lead to unexpected breakage, including race conditions"
-	ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
-	ewarn "you can reproduce the problem with dev-lang/python.  Instead,"
-	ewarn "please consider reporting freethreading problems upstream."
 }
 
 pkg_setup() {
@@ -126,7 +133,9 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git-r3_src_unpack
+	if use verify-sig; then
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+	fi
 	default
 }
 
@@ -392,6 +401,7 @@ src_configure() {
 		$(use_with debug assertions)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
+		$(use_with tail-call-interp)
 		$(use_with valgrind)
 	)
 
@@ -563,7 +573,7 @@ src_install() {
 
 	ln -s ../python/EXTERNALLY-MANAGED "${libdir}/EXTERNALLY-MANAGED" || die
 
-	dodoc Misc/{ACKS,HISTORY}
+	dodoc Misc/{ACKS,HISTORY,NEWS}
 
 	if use examples; then
 		docinto examples
@@ -607,5 +617,18 @@ src_install() {
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
+	fi
+}
+
+pkg_postinst() {
+	if ver_replacing -lt 3.14.0_beta3; then
+		ewarn "Python 3.14.0b3 has changed its module ABI.  The .pyc files"
+		ewarn "installed previously are no longer valid and will be regenerated"
+		ewarn "(or ignored) on the next import.  This may cause sandbox failures"
+		ewarn "when installing some packages and checksum mismatches when removing"
+		ewarn "old versions.  To actively prevent this, rebuild all packages"
+		ewarn "installing Python 3.14 modules, e.g. using:"
+		ewarn
+		ewarn "  emerge -1v /usr/lib/python3.14t/site-packages"
 	fi
 }

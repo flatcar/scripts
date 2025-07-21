@@ -3,15 +3,14 @@
 
 EAPI="8"
 
-VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs eapi9-ver flag-o-matic linux-info
+inherit autotools check-reqs flag-o-matic linux-info
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
 REAL_PV=${PV#0.}
-MY_PV=${REAL_PV/_beta/b}
+MY_PV=${REAL_PV}
 MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 2-3)t"
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -25,7 +24,7 @@ SRC_URI="
 	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
+		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
@@ -34,8 +33,8 @@ LICENSE="PSF-2"
 SLOT="${PYVER}"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
-	bluetooth build debug +ensurepip examples gdbm
-	libedit +ncurses pgo +readline +sqlite +ssl tail-call-interp test tk valgrind
+	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
+	+readline +sqlite +ssl test tk valgrind
 "
 RESTRICT="!test? ( test )"
 
@@ -47,14 +46,14 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-arch/zstd:=
+	app-crypt/libb2
+	app-misc/mime-types
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
 	>=sys-libs/zlib-1.1.3:=
 	virtual/libintl
-	ensurepip? ( dev-python/ensurepip-pip )
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
@@ -86,19 +85,18 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-"
-RDEPEND+="
-	!build? ( app-misc/mime-types )
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 if [[ ${PV} != *_alpha* ]]; then
 	RDEPEND+="
 		dev-lang/python-exec[python_targets_python${PYVER/./_}(-)]
 	"
 fi
+PDEPEND="
+	ensurepip? ( dev-python/ensurepip-pip )
+"
 
-# https://www.python.org/downloads/metadata/sigstore/
-VERIFY_SIG_CERT_IDENTITY=hugo@python.org
-VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
@@ -116,6 +114,12 @@ pkg_pretend() {
 	if use pgo || use test; then
 		check-reqs_pkg_pretend
 	fi
+
+	ewarn "Freethreading build is considered experimental upstream.  Using it"
+	ewarn "could lead to unexpected breakage, including race conditions"
+	ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
+	ewarn "you can reproduce the problem with dev-lang/python.  Instead,"
+	ewarn "please consider reporting freethreading problems upstream."
 }
 
 pkg_setup() {
@@ -134,7 +138,7 @@ pkg_setup() {
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
 	fi
 	default
 }
@@ -401,7 +405,6 @@ src_configure() {
 		$(use_with debug assertions)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
-		$(use_with tail-call-interp)
 		$(use_with valgrind)
 	)
 
@@ -617,18 +620,5 @@ src_install() {
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
-	fi
-}
-
-pkg_postinst() {
-	if ver_replacing -lt 3.14.0_beta3; then
-		ewarn "Python 3.14.0b3 has changed its module ABI.  The .pyc files"
-		ewarn "installed previously are no longer valid and will be regenerated"
-		ewarn "(or ignored) on the next import.  This may cause sandbox failures"
-		ewarn "when installing some packages and checksum mismatches when removing"
-		ewarn "old versions.  To actively prevent this, rebuild all packages"
-		ewarn "installing Python 3.14 modules, e.g. using:"
-		ewarn
-		ewarn "  emerge -1v /usr/lib/python3.14t/site-packages"
 	fi
 }
