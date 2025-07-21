@@ -1,6 +1,18 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ian Jordan <immoloism@gmail.com> (2025-07-13)
+# Binary is compiled against glibc
+net-misc/anydesk
+
+# Sam James <sam@gentoo.org> (2025-07-12)
+# Not ported to musl (bug #939569, https://github.com/oracle/dtrace-utils/issues/87)
+dev-debug/dtrace
+
+# PPN-SD <nicolas.parlant@parhuet.fr> (2025-07-07)
+# it requires termio.h (glibc)
+app-emulation/ski
+
 # NHOrus <jy6x2b32pie9@yahoo.com> (2025-03-13)
 # uses functions musl will not implement, bug #942215
 app-admin/sud
@@ -325,6 +337,7 @@ games-fps/ut2004-demo
 games-puzzle/world-of-goo-demo
 games-puzzle/world-of-goo-gog
 games-puzzle/world-of-goo-hb
+games-roguelike/dwarf-fortress
 games-rpg/crosscode
 games-rpg/crosscode-a-new-home
 games-server/bedrock-server
@@ -375,6 +388,7 @@ net-print/hplip-plugin
 net-vpn/microsoft-azurevpnclient
 sci-chemistry/cara-bin
 sci-electronics/labone
+sci-libs/aotriton-bin
 sci-libs/mkl
 sci-mathematics/gimps
 sci-misc/jupyterlab-desktop-bin
