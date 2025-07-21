@@ -55,6 +55,11 @@ RDEPEND="
 "
 [[ ${PV} == 9999 ]] && BDEPEND+=" >=sys-apps/texinfo-4.3"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Invoke-autopoint-in-more-situations.patch
+	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Adapt-to-the-on-disk-situation-after-auto.patch
+)
+
 src_prepare() {
 	if [[ ${PV} == *9999 ]] ; then
 		# Avoid the "dirty" suffix in the git version by generating it
@@ -62,11 +67,7 @@ src_prepare() {
 		local ver=$(./build-aux/git-version-gen .tarball-version)
 		echo "${ver}" > .tarball-version || die
 
-		export WANT_AUTOCONF=2.5
-		export WANT_AUTOMAKE=1.17
-		# Don't try wrapping the autotools - this thing runs as it tends
-		# to be a bit esoteric, and the script does `set -e` itself.
-		./bootstrap || die
+		autoreconf -f -i || die
 	fi
 
 	# usr/bin/libtool is provided by binutils-apple, need gnu libtool
