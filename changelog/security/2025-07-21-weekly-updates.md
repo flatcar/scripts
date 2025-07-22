@@ -1,0 +1,4 @@
+- git ([CVE-2025-48384](https://www.cve.org/CVERecord?id=CVE-2025-48384), [CVE-2025-48385](https://www.cve.org/CVERecord?id=CVE-2025-48385), [CVE-2025-48386](https://www.cve.org/CVERecord?id=CVE-2025-48386))
+- go ([CVE-2025-4674](https://www.cve.org/CVERecord?id=CVE-2025-4674))
+- libxml2 ([CVE-2025-49794](https://www.cve.org/CVERecord?id=CVE-2025-49794), [CVE-2025-49795](https://www.cve.org/CVERecord?id=CVE-2025-49795), [CVE-2025-49796](https://www.cve.org/CVERecord?id=CVE-2025-49796))
+- podman ([CVE-2025-6032](https://www.cve.org/CVERecord?id=CVE-2025-6032))
