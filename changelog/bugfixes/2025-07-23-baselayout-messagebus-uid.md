@@ -1,0 +1,1 @@
+- Fixed a UID/GID mis-alignment for user/group `messagebus` between acct-user/acct-group and baselayout. ([baselayout#36](https://github.com/flatcar/baselayout/pull/36))
