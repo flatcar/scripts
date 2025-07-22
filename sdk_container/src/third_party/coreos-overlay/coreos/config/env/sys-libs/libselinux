@@ -1,0 +1,6 @@
+if [[ ${FLATCAR_TYPE} = 'generic' && ${FLATCAR_SUBTYPE} = 'prod' ]]; then
+    libselinux_mask=" /usr/lib/python* "
+    INSTALL_MASK+="${libselinux_mask}"
+    PKG_INSTALL_MASK+="${libselinux_mask}"
+    unset libselinux_mask
+fi
