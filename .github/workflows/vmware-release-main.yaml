@@ -48,3 +48,4 @@ jobs:
           title: Upgrade open-vm-tools in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.openvmtools-latest-release.outputs.VERSION_NEW }}
           body: Subject says it all.
           labels: main
+          signoff: true
