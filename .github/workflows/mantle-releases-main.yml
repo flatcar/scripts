@@ -79,3 +79,4 @@ jobs:
           title: Upgrade mantle container image to latest HEAD in ${{ steps.figure-out-branch.outputs.BRANCH }}
           commit-message: Update mantle container image to latest HEAD
           delete-branch: true
+          signoff: true
