@@ -33,3 +33,4 @@ jobs:
           commit-message: "portage-stable/metadata: Monthly GLSA metadata updates"
           author: Flatcar Buildbot <buildbot@flatcar-linux.org>
           labels: main
+          signoff: true
