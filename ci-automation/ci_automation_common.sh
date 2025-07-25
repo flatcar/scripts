@@ -36,7 +36,7 @@ function update_and_push_version() {
     # Add and commit local changes
     git add "sdk_container/.repo/manifests/version.txt"
 
-    git commit -s --allow-empty -m "New version: ${version}"
+    git commit --signoff --allow-empty -m "New version: ${version}"
 
     git fetch --all --tags --force
     local -i ret=0

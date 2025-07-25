@@ -45,3 +45,4 @@ jobs:
           title: Upgrade Linux Firmware in main from ${{ steps.apply-patch-main.outputs.VERSION_OLD }} to ${{ steps.firmware-latest-release.outputs.VERSION_NEW }}
           body: Subject says it all.
           labels: main
+          signoff: true

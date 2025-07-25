@@ -67,3 +67,4 @@ jobs:
           title: Upgrade Linux Kernel for ${{ steps.figure-out-branch.outputs.BRANCH }} from ${{ steps.apply-patch.outputs.VERSION_OLD }} to ${{ steps.kernel-latest-release.outputs.KERNEL_VERSION }}
           body: Subject says it all.
           labels: ${{ steps.figure-out-branch.outputs.LABEL }}
+          signoff: true
