@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Note: if your package uses the texi2dvi utility, it must depend on the
@@ -37,9 +37,6 @@ IUSE="nls +standalone static"
 
 RDEPEND="
 	>=sys-libs/ncurses-5.2-r2:=
-	virtual/perl-Data-Dumper
-	virtual/perl-Encode
-	virtual/perl-Unicode-Collate
 	standalone? ( >=dev-lang/perl-5.8.1 )
 	!standalone?  (
 		>=dev-lang/perl-5.8.1:=
@@ -70,10 +67,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# https://lists.gnu.org/archive/html/bug-texinfo/2024-08/msg00020.html
-	# https://git.savannah.gnu.org/cgit/texinfo.git/commit/?id=7e8d0093b411729c8c570b25280bef6b55415594
-	append-cflags $(test-flags-CC -std=gnu17)
-
 	# Respect compiler and CPPFLAGS/CFLAGS/LDFLAGS for Perl extensions
 	# bug #622576
 	local -x PERL_EXT_CC="$(tc-getCC)" PERL_EXT_CPPFLAGS="${CPPFLAGS}"
@@ -84,6 +77,7 @@ src_configure() {
 	# TODO:
 	# --with-external-Unicode-EastAsianWidth
 	# --with-external-Text-Unidecode
+	# --enable-xs-perl-libintl for musl (7.2)?
 	#
 	# Also, 7.0.91 seemed to introduce a included-libunistring w/ USE=-standalone
 	# but it doesn't seem to do anything?
