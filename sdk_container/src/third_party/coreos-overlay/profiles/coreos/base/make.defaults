@@ -58,8 +58,9 @@ USE="${USE} bindist"
 # freedist - license for sys-kernel/coreos-kernel
 # intel-ucode - license for sys-firmware/intel-microcode
 # NVIDIA-2023 - license for x11-drivers/nvidia-drivers
+# NVIDIA-2025 - license for x11-drivers/nvidia-drivers (>= 570)
 ACCEPT_LICENSE="${ACCEPT_LICENSE} no-source-code
-    linux-fw-redistributable freedist intel-ucode NVIDIA-2023"
+    linux-fw-redistributable freedist intel-ucode NVIDIA-2023 NVIDIA-2025"
 
 # Favor our own mirrors over Gentoo's
 GENTOO_MIRRORS="
