@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>maintainers@flatcar-linux.org</email>
+		<name>The Flatcar Container Linux Maintainers</name>
+	</maintainer>
+	<use>
+		<flag name="dsa">Accelerate CRC calculations with Intel Data Streaming Accelerator</flag>
+		<flag name="qat">Accelerate compression with Intel QuickAssist Technology</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">containerd/overlaybd</remote-id>
+	</upstream>
+</pkgmetadata>
