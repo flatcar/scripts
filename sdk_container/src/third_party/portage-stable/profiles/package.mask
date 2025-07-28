@@ -36,6 +36,74 @@
 
 #--- END OF EXAMPLES ---
 
+# Hans de Graaff <graaff@gentoo.org> (2025-07-28)
+
+# Obsolete slots of cucumber components. These slots are no longer used
+# by dev-util/cucumber. Removal on 2025-08-28.
+dev-util/cucumber-gherkin:23
+dev-util/cucumber-gherkin:25
+dev-util/cucumber-messages:19
+dev-util/cucumber-messages:24
+
+# Bernard Cafarelli <voyageur@gentoo.org> (2025-07-27)
+# Current version in tree only supports python <=3.11
+# Needs major version bump, relevant dependencies, and tests fixes
+# Removal on 2025-08-26. Bug #952156.
+dev-python/aiocache
+dev-python/arsenic
+dev-python/browser-cookie3
+dev-python/tld
+dev-python/yaswfp
+net-analyzer/wapiti
+
+# Michał Górny <mgorny@gentoo.org> (2025-07-26)
+# Another pytest plugin causing random breakage.  Discontinued upstream,
+# last revdep stopped using it.
+# Removal on 2025-08-25.  Bug #960760.
+dev-python/noseofyeti
+
+# Michał Górny <mgorny@gentoo.org> (2025-07-22)
+# Provider for PyPy3.10 executable.  This branch is no longer maintained
+# upstream, and it is vulnerable.  Removal on 2025-08-05.
+dev-lang/pypy:3.10
+dev-python/pypy3_10-exe
+dev-python/pypy3_10-exe-bin
+
+# Matt Turner <mattst88@gentoo.org> (2025-07-20)
+# No reverse dependencies remaining.
+# Removal on 2025-08-19.
+dev-util/volk
+
+# Michał Górny <mgorny@gentoo.org> (2025-07-20)
+# Discontinued in favor of net-proxy/mitmproxy-rs which is now
+# an unconditional dependency of net-proxy/mitmproxy.
+# Removal on 2025-08-19.  Bug #960470.
+dev-python/mitmproxy-wireguard
+
+# Eli Schwartz <eschwartz@gentoo.org> (2025-07-18)
+# End of life software. Relies on a commercial internet service which removed
+# suppor for the old APIs this package needs. Impossible to use anymore.
+# Removal on 2025-08-17.  Bug #927026.
+net-vpn/protonvpn-cli
+
+# Matt Turner <mattst88@gentoo.org> (2025-07-16)
+# Masked for testing
+=dev-util/mesa_clc-25.2*
+=media-libs/mesa-25.2*
+
+# Eli Schwartz <eschwartz@gentoo.org> (2025-07-08)
+# Unmaintained, out of date, QA issues, outstanding bugs for compilation
+# failure / test failure. Still uses python 3.11. No revdeps.
+# Removal on 2025-08-07.  Bug #725252, #873304, #731876, #929772
+sci-libs/eccodes
+
+# Eli Schwartz <eschwartz@gentoo.org> (2025-07-06)
+# Unmaintained, abandoned upstream since 2012, stuck on Python 3.11,
+# no revdeps since a year ago.
+# Removal on 2025-08-05.  Bug #928479, #929362.
+dev-libs/libindicate
+app-text/gnome-doc-utils
+
 # Michał Górny <mgorny@gentoo.org> (2025-07-05)
 # Metapackage used as a dependency in dev-lang/python and dev-lang/pypy.
 # Replaced with inlined specific dev-python/ensurepip-* packages.
@@ -57,10 +125,13 @@ virtual/perl-IO-Zlib
 virtual/perl-Locale-Maketext
 virtual/perl-Math-BigInt-FastCalc
 virtual/perl-Math-BigRat
+virtual/perl-Math-Complex
+virtual/perl-Module-Load-Conditional
 virtual/perl-Parse-CPAN-Meta
 virtual/perl-Params-Check
 perl-core/Params-Check
 virtual/perl-Term-ReadLine
+virtual/perl-Unicode-Collate
 virtual/perl-Unicode-Normalize
 
 # Joonas Niilola <juippis@gentoo.org> (2025-07-01)
@@ -87,120 +158,15 @@ kde-apps/cervisia
 # no longer be used on this architecture.
 =net-proxy/mitmproxy-9.0.1
 
-# Jay Faulkner <jayf@gentoo.org> (2025-06-26)
-# Discontinued by upstream in Sept 2023, running on a likely vulnerable
-# electron version. Bug #959128.
-net-irc/irccloud-desktop-bin
-
-# David Seifert <soap@gentoo.org> (2025-06-25)
-# Skype has been shut down on 2025-05-05, use the Teams progressive web
-# application with your Skype username as alternative.
-# Removal on 2025-07-25.  Bug #942322.
-net-im/skypeforlinux
-sec-policy/selinux-skype
-x11-plugins/pidgin-skypeweb
-
-# Michał Górny <mgorny@gentoo.org> (2025-06-25)
-# New problematic test dependencies.  No reverse dependencies.
-# Removal on 2025-07-25.  Bug #958987.
-dev-python/caldav
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-06-24)
-# Qt5 package without any revdeps. Removal on 2025-07-24. Bug #938823
-dev-libs/libdbusmenu-qt
-
-# Michał Górny <mgorny@gentoo.org> (2025-06-21)
-# Last commit in 2019.  Has an entry point conflict with
-# dev-python/pytest-tornasync.  No reverse dependencies left.
-# Removal on 2025-07-21.  Bug #958601.
-dev-python/pytest-tornado
-
-# Michał Górny <mgorny@gentoo.org> (2025-06-21)
-# No commits for two years.  Broken with Python 3.14
-# and with >=dev-python/pytest-asyncio-1.0.0.  No reverse dependencies.
-# Removal on 2025-07-21.  Bug #958592.
-dev-python/backoff
-
-# Maciej Barć <xgqt@gentoo.org> (2025-06-14)
-# Deprecated, repository archived upstream. Compilation problems.
-# Removal on 2025-07-14. bug #957435
-sci-mathematics/boolector
-
 # Sam James <sam@gentoo.org> (2025-06-12)
 # Breaks several applications (bug #957943)
 >=dev-python/pygobject-3.52
 >=net-im/gajim-2.3.0
 
-# Alexey Sokolov <alexey+gentoo@asokolov.org> (2025-06-09)
-# Dead upstream, fails to compile with gcc 15 and cmake 4.
-# Removal on 2025-07-12. Bugs #957271, #944255
-games-arcade/tuxanci
-
-# Alexey Sokolov <alexey+gentoo@asokolov.org> (2025-06-09)
-# Dead upstream, doesn't build with gcc 15, we're the only ones packaging it.
-# Removal on 2025-07-12. Bugs #944434, #943845, #906249, #680698.
-app-shells/esh
-
-# Alexey Sokolov <alexey+gentoo@asokolov.org> (2025-06-09)
-# Unmaintained upstream since 2008, doesn't build. x86-only.
-# Removal on 2025-07-12. Bugs #77471, #926465, #941191, #948965.
-games-fps/tenebrae
-
-# Alexey Sokolov <alexey+gentoo@asokolov.org> (2025-06-09)
-# Dead upstream, fails to compile.
-# Removal on 2025-07-12. Bugs #919185, #882585, #871018, #913572
-net-analyzer/cryptcat
-
-# Alexey Sokolov <alexey+gentoo@asokolov.org> (2025-06-09)
-# Deprecated and no longer maintained upstream. Open security
-# issues. Use media-gfx/fig2dev instead.
-# Removal on 2025-07-12. Bug #917279.
-media-gfx/transfig
-
-# Hans de Graaff <graaff@gentoo.org> (2025-06-09)
-# Obsolete slots that are ruby32 or ruby33-only. No reverse dependencies
-# left. Use the newer slot instead. Masked for removal on 2025-07-09.
-dev-ruby/bson:4
-dev-ruby/excon:0
-dev-ruby/fakefs:0
-dev-ruby/fiber-storage:0
-dev-ruby/hitimes:0
-dev-ruby/mocha:1.0
-dev-ruby/psych:0
-dev-ruby/public_suffix:5
-dev-ruby/recog:2
-dev-ruby/ruby-macho:0
-dev-ruby/terminal-table:0
-dev-ruby/terminal-table:2
-dev-ruby/ttfunk:1.7
-dev-ruby/unicode-display_width:1
-dev-util/cucumber-ci-environment:9
-dev-util/cucumber-core:11
-
 # Sam James <sam@gentoo.ogr> (2025-06-08)
 # Masked for testing (bug #957583).
 =sys-devel/gettext-0.25*
 =dev-libs/libintl-0.25*
-
-# Jimi Huotari <chiitoo@gentoo.org> (2025-06-07)
-# The only consumer, net-im/qtox, no longer depends on these, and the
-# upstream for them has been dormant since 2021.
-# Bugs: #955911, #957503
-# Removal on 2025-07-07.
-net-libs/toxext
-net-libs/tox_extension_messages
-
-# Michał Górny <mgorny@gentoo.org> (2025-06-07)
-# Broken and dangerous.  Archived in 2022.  The last reverse dependency
-# stopped using it in 2023 (except for outdated ebuilds).
-# Removal on 2025-07-07.  Bug #957272, #806474.
-dev-python/pytest-tempdir
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-06-07)
-# EAPI=7, maintainer-needed, fails to compile, upstream gone, not
-# packaged anywhere else.
-# Removal on 2025-07-07.  Bug #957444.
-dev-util/bin_replace_string
 
 # Michał Górny <mgorny@gentoo.org> (2025-06-07)
 # Destabilized due to unresolved test failures.  If you need this
@@ -212,7 +178,7 @@ dev-util/bin_replace_string
 >=app-crypt/gpgme-2
 >=dev-cpp/gpgmepp-2
 >=dev-libs/qgpgme-2
-dev-python/gpgmepy
+>dev-python/gpgmepy-1.9999
 
 # Sam James <sam@gentoo.org> (2025-06-03)
 # Fetching from GitHub seems broken with this:
@@ -220,13 +186,6 @@ dev-python/gpgmepy
 # > ERROR: cannot verify github.com's certificate, issued by 'CN=Sectigo ECC Domain Validation Secure Server CA,O=Sectigo Limited,L=Salford,ST=Greater Manchester,C=GB':
 # >  Unable to locally verify the issuer's authority.
 =app-misc/ca-certificates-20250419.3.112
-
-# Michael Orlitzky <mjo@gentoo.org> (2025-05-28)
-# I added this for SageMath, but in hindsight do not think anyone is
-# using it. It has code issues and upstream is not terribly interested
-# in fixing it. (They are active and helpful, just not in love with this
-# particular codebase.) Bug 940232. Removal after 30 days.
-dev-gap/cohomolo
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-05-27)
 # sci-electronics/gazebo depends on x11-libs/qwt:6[qt5] and Qt5, lots of
@@ -248,26 +207,9 @@ dev-libs/urdfdom_headers
 # Breaks some reverse dependencies and is abandoned upstream (bug #956630).
 =dev-cpp/glog-0.7.1
 
-# Nowa Ammerlaan <nowa@gentoo.org> (2025-05-25)
-# Archived upstream and no longer builds with modern compilers.
-# Bugs #956601, #930253
-# Removal on 2025-06-24
-media-libs/oneVPL-cpu
-
 # Sam James <sam@gentoo.org> (2025-05-23)
 # Severe memory leak (bug #953874)
 =app-i18n/ibus-anthy-1.5.17
-
-# Matt Turner <mattst88@gentoo.org> (2025-05-22)
-# Old slot depending on libsoup:2.4. All reverse dependencies migrated to a
-# newer slot supporting libsoup:3.0.
-# Removal on 2025-06-21.  Bug #893668.
-net-libs/webkit-gtk:4
-
-# Pacho Ramos <pacho@gentoo.org> (2025-05-22)
-# Needs porting to libsoup 3.0, relies on webkit-gtk:4
-# Removal on 2025-06-21.  Bug #893720.
-x11-misc/meteo
 
 # Sam James <sam@gentoo.org> (2025-05-22)
 # Introduces REQUIRED_USE that needs more discussion (bug #956402)
@@ -276,18 +218,6 @@ x11-misc/meteo
 # Ulrich Müller <ulm@gentoo.org> (2025-05-18)
 # Pretest versions, masked for testing.
 <app-editors/emacs-30.1.9999:30-vcs
-
-# Hans de Graaff <graaff@gentoo.org> (2025-05-18)
-# Obsolete slot depending on an old cucumber version. Use the newer slot
-# instead. Masked for removal on 2025-06-18.
-dev-util/cucumber-rails:2
-
-# David Seifert <soap@gentoo.org> (2025-05-17)
-# Historically split from dev-libs/icu, disabled by default upstream and not
-# recommended anymore. If need be, we can make it optional in icu itself.
-# Removal on 2025-06-16. Bug #956106.
-dev-libs/icu-layoutex
-dev-libs/icu-le-hb
 
 # Alfred Wingate <parona@protonmail.com> (2025-05-17)
 # Masked for testing
@@ -391,11 +321,6 @@ dev-libs/libxml2-compat
 =dev-lang/rust-bin-1.84.0
 =dev-lang/rust-bin-1.84.1
 
-# Michał Górny <mgorny@gentoo.org> (2025-02-08)
-# Suspicious subslot bump, causing humongous rebuilds.
-# https://bugs.gentoo.org/949414
-=dev-cpp/cpp-httplib-0.18.6
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-01-23)
 # Qt5 tools without any revdeps. Removal on 2025-06-10.
 dev-qt/assistant
@@ -495,10 +420,10 @@ app-emulation/virtualbox-kvm
 ~sys-boot/plymouth-24.004.60
 
 # Sam James <sam@gentoo.org> (2024-09-30)
-# GCC 11 and older no longer receive upstream support or fixes for
+# GCC 12 and older no longer receive upstream support or fixes for
 # bugs. Please switch to a newer GCC version using gcc-config.
 #
-# The earliest supported version of GCC is GCC 12, but 11 remains unmasked
+# The earliest supported version of GCC is GCC 13, but 11/12 remain unmasked
 # for now to ease sys-devel/gcc[d] bootstrapping.
 <sys-devel/gcc-11
 <sys-devel/kgcc64-11
@@ -514,7 +439,7 @@ app-emulation/virtualbox-kvm
 
 # Sam James <sam@gentoo.org> (2024-06-25)
 # The symbol versioning "fix" breaks anything built with 3.0.0.
-=dev-libs/libassuan-3.0.1
+>=dev-libs/libassuan-3.0.1
 
 # Sam James <sam@gentoo.org> (2024-03-28)
 # Newer 5.4.x releases were signed by a potentially compromised upstream maintainer.
