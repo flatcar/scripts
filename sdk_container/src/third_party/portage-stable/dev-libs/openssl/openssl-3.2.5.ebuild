@@ -5,7 +5,7 @@ EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
 inherit edo flag-o-matic linux-info toolchain-funcs
-inherit multilib multilib-minimal multiprocessing preserve-libs
+inherit multilib multilib-minimal multiprocessing preserve-libs verify-sig
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://openssl-library.org/"
@@ -37,7 +37,7 @@ S="${WORKDIR}"/${MY_P}
 
 LICENSE="Apache-2.0"
 SLOT="0/$(ver_cut 1)" # .so version of libssl/libcrypto
-IUSE="+asm cpu_flags_x86_sse2 fips ktls rfc3779 sctp static-libs test tls-compression vanilla weak-ssl-ciphers"
+IUSE="+asm cpu_flags_x86_sse2 fips ktls rfc3779 sctp static-libs test tls-compression vanilla verify-sig weak-ssl-ciphers"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
@@ -52,6 +52,7 @@ BDEPEND+="
 		app-alternatives/bc
 		sys-process/procps
 	)
+	verify-sig? ( >=sec-keys/openpgp-keys-openssl-20240920 )
 "
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
@@ -137,8 +138,8 @@ src_configure() {
 
 	append-flags $(test-flags-CC -Wa,--noexecstack)
 
-	# bug #895308
-	append-atomic-flags
+	# bug #895308 -- check inserts GNU ld-compatible arguments
+	[[ ${CHOST} == *-darwin* ]] || append-atomic-flags
 	# Configure doesn't respect LIBS
 	export LDLIBS="${LIBS}"
 
@@ -217,9 +218,15 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
+	# See https://github.com/openssl/openssl/blob/master/test/README.md for options.
+	#
 	# VFP = show subtests verbosely and show failed tests verbosely
 	# Normal V=1 would show everything verbosely but this slows things down.
-	emake HARNESS_JOBS="$(makeopts_jobs)" -Onone VFP=1 test
+	#
+	# -j1 here for https://github.com/openssl/openssl/issues/21999, but it
+	# shouldn't matter as tests were already built earlier, and HARNESS_JOBS
+	# controls running the tests.
+	emake -Onone -j1 HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
 }
 
 multilib_src_install() {
