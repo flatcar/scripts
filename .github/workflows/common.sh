@@ -186,7 +186,7 @@ function commit_changes() {
   for dir; do
     git add "${dir}"
   done
-  git commit -m "${pkg}: Update from ${old_version} to ${new_version}"
+  git commit --signoff -m "${pkg}: Update from ${old_version} to ${new_version}"
 
   popd
 }
