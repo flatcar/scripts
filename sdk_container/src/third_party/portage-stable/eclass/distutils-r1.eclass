@@ -554,6 +554,9 @@ distutils_enable_tests() {
 			;&
 		pytest)
 			test_pkgs+=' >=dev-python/pytest-7.4.4[${PYTHON_USEDEP}]'
+			if [[ -n ${EPYTEST_RERUNS} ]]; then
+				test_pkgs+=' dev-python/pytest-rerunfailures[${PYTHON_USEDEP}]'
+			fi
 			if [[ -n ${EPYTEST_TIMEOUT} ]]; then
 				test_pkgs+=' dev-python/pytest-timeout[${PYTHON_USEDEP}]'
 			fi
@@ -565,6 +568,10 @@ distutils_enable_tests() {
 			_set_epytest_plugins
 			for plugin in "${EPYTEST_PLUGINS[@]}"; do
 				case ${plugin} in
+					${PN})
+						# don't add a dependency on self
+						continue
+						;;
 					pkgcore)
 						plugin=sys-apps/${plugin}
 						;;
