@@ -9,10 +9,10 @@ EAPI=8
 TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
 PATCH_GCC_VER="15.1.0"
-PATCH_VER="1"
+PATCH_VER="2"
 MUSL_VER="1"
 MUSL_GCC_VER="15.1.0"
-PYTHON_COMPAT=( python3_{10..14} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 if [[ -n ${TOOLCHAIN_GCC_RC} ]] ; then
 	# Cheesy hack for RCs
@@ -30,7 +30,7 @@ if tc_is_live ; then
 	EGIT_BRANCH=master
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
 	# Don't keyword live ebuilds
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	:;
 fi
 
