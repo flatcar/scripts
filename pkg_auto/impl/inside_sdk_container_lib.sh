@@ -270,7 +270,9 @@ function set_eo() {
 # the first "version slot repo" and "target" part.
 STATUS_RE='\[[^]]*]' # 0 groups
 PACKAGE_NAME_RE='[^[:space:]]*' # 0 groups
+VER_SLOT_REPO_NOCAPTURE_RE='\[[^]]\+::[^]]\+]' # 0 groups
 VER_SLOT_REPO_RE='\[\([^]]\+\)::\([^]]\+\)]' # 2 groups
+TARGET_NOCAPTURE_RE='to[[:space:]]\+[^[:space:]]\+' # 0 groups
 TARGET_RE='to[[:space:]]\+\([^[:space:]]\)\+' # 1 group
 KEYVALS_RE='\([[:space:]]*[A-Za-z0-9_]*="[^"]*"\)*' # 1 group (but containing only the last pair!)
 SIZE_RE='[[:digit:]]\+[[:space:]]*[[:alpha:]]*B' # 0 groups
@@ -353,7 +355,7 @@ PKG_VER_SLOT_KV_SED_FILTERS=(
     # extract package name, version, optionally a slot if it exists and key value pairs if any, the result would be:
     #
     # virtual/rust 1.71.1:0/llvm-16 USE="-rustfmt"
-    -e "s/${STATUS_RE}${SPACES_RE}\(${PACKAGE_NAME_RE}\)${SPACES_RE}${VER_SLOT_REPO_RE}\(${SPACES_RE}${VER_SLOT_REPO_RE}\)\?\(${SPACES_RE}${TARGET_RE}\)\?${SPACES_RE}\(${KEYVALS_RE}\)${SPACES_RE}${SIZE_RE}\$/\1 \2 \9/"
+    -e "s/${STATUS_RE}${SPACES_RE}\(${PACKAGE_NAME_RE}\)${SPACES_RE}${VER_SLOT_REPO_RE}\(${SPACES_RE}${VER_SLOT_REPO_NOCAPTURE_RE}\)\?\(${SPACES_RE}${TARGET_NOCAPTURE_RE}\)\?\(${SPACES_RE}\(${KEYVALS_RE}\)\)\?${SPACES_RE}${SIZE_RE}\$/\1 \2 \7/"
     "${SLOT_INFO_SED_FILTERS[@]}"
 )
 
