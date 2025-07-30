@@ -9,8 +9,9 @@
 ## Reports generated:
 ## sdk-pkgs - contains package information for SDK
 ## sdk-pkgs-kv - contains package information with key values (USE, PYTHON_TARGETS, CPU_FLAGS_X86) for SDK
-## ${arch}-board-pkgs - contains package information for board for chosen architecture
-## ${arch}-board-bdeps - contains package information with key values (USE, PYTHON_TARGETS, CPU_FLAGS_X86) of board build dependencies
+## ${arch}-board-pkgs - contains package information of a board with chosen architecture
+## ${arch}-board-pkgs-kv - contains package information with key values (USE, PYTHON_TARGETS, CPU_FLAGS_X86) of a board with chosen architecture
+## ${arch}-board-bdeps - contains package information with key values (USE, PYTHON_TARGETS, CPU_FLAGS_X86, etc) of a board (with chosen architecture) build dependencies
 ## sdk-profiles - contains a list of profiles used by the SDK, in evaluation order
 ## ${arch}-board-profiles - contains a list of profiles used by the board for the chosen architecture, in evaluation order
 ## sdk-package-repos - contains package information with their repos for SDK
@@ -113,6 +114,8 @@ package_sources_sdk >"${reports_dir}/sdk-package-repos" 2>"${reports_dir}/sdk-pa
 for arch; do
     echo "Generating ${arch} board packages listing"
     versions_board "${arch}" >"${reports_dir}/${arch}-board-pkgs" 2>"${reports_dir}/${arch}-board-pkgs-warnings"
+    echo "Generating ${arch} board packages listing with key-values (USE, PYTHON_TARGETS CPU_FLAGS_X86, etc)"
+    versions_board_with_key_values "${arch}" >"${reports_dir}/${arch}-board-pkgs-kv" 2>"${reports_dir}/${arch}-board-pkgs-kv-warnings"
     echo "Generating ${arch} board packages bdeps listing"
     board_bdeps "${arch}" >"${reports_dir}/${arch}-board-bdeps" 2>"${reports_dir}/${arch}-board-bdeps-warnings"
     echo "Generating ${arch} board profiles evaluation list"
