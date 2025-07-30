@@ -63,6 +63,27 @@ grep -q 'export MODULE_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
     fi
 }
 
+grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
+    SYSEXT_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+    if [[ ! "$SYSEXT_SIGNING_KEY_DIR" || ! -d "$SYSEXT_SIGNING_KEY_DIR" ]]; then
+        echo "Failed to create temporary directory for secure boot keys."
+    else
+        echo "export SYSEXT_SIGNING_KEY_DIR='$SYSEXT_SIGNING_KEY_DIR'" >> /home/sdk/.bashrc
+    fi
+    pushd "$SYSEXT_SIGNING_KEY_DIR"
+    build_id=$(source "/mnt/host/source/.repo/manifests/version.txt"; echo "$FLATCAR_BUILD_ID")
+    openssl req -new -nodes -utf8 \
+        -x509 -batch -sha256 \
+        -days 36000 \
+        -outform PEM \
+        -out sysexts.crt \
+        -keyout sysexts.key \
+        -newkey 4096 \
+        -subj "/CN=Flatcar $build_id sysext signing key/" \
+          || echo "Generating module signing key failed"
+    popd
+}
+
 # This is ugly.
 #   We need to sudo su - sdk -c so the SDK user gets a fresh login.
 #    'sdk' is member of multiple groups, and plain docker USER only
