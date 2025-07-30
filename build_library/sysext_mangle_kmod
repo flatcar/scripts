@@ -1,0 +1,48 @@
+#!/bin/bash
+
+configure_modprobe() {
+  local sysext_name="${1}"
+  shift
+
+  local module_directories=(./usr/lib/modules/*-flatcar/)
+
+  mkdir -p ./usr/lib/modprobe.d/
+  for module_name in $(find "${module_directories[@]}" -type f \( -name "*.ko" -o -name "*.ko.*" \) -printf "%f\n" | sed -E 's/\.ko(\.\w+)?$//'); do
+    cat <<EOF >> "./usr/lib/modprobe.d/10-${sysext_name}-kmod-sysext.conf"
+install $module_name     /usr/local/bin/_${sysext_name}_modprobe_helper $module_name
+remove  $module_name     /usr/local/bin/_${sysext_name}_modprobe_helper -r $module_name
+EOF
+  done
+
+  mkdir -p ./usr/local/bin/
+  install -m0755 -D /dev/stdin "./usr/local/bin/_${sysext_name}_modprobe_helper" <<'EOF'
+#!/bin/bash
+
+set -euo pipefail
+
+action="Loading"
+for arg in "$@"; do
+    if [[ $arg == "-r" ]]; then
+        action="Unloading"
+    fi
+done
+echo "$action kernel module from a sysext..."
+
+KMOD_PATH=/usr/lib/modules/$(uname -r)
+TMP_DIR=$(mktemp -d)
+trap "rm -rf -- '${TMP_DIR}'" EXIT
+mkdir "${TMP_DIR}"/{upper,work}
+
+unshare -m bash -s -- "${@}" <<FOE
+set -euo pipefail
+if ! mountpoint -q "${KMOD_PATH}"; then
+    mount -t overlay overlay -o lowerdir="${KMOD_PATH}",upperdir="${TMP_DIR}"/upper,workdir="${TMP_DIR}"/work "${KMOD_PATH}"
+    depmod
+fi
+modprobe --ignore-install "\${@}"
+FOE
+EOF
+
+  # prevent the sysext from masking /usr/lib/modules/*-flatcar/modules.XXX
+  find "${module_directories[@]}" -maxdepth 1 -mindepth 1 -type f -delete
+}
