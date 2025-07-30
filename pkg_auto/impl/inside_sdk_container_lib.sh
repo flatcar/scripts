@@ -328,6 +328,14 @@ function junk_board_eo() {
 #
 # But currently we don't care about those - they land in junk.
 
+BOARD_ONLY_PKGS=(
+    -e '/to \/build\/BOARD\// ! d'
+)
+
+BOARD_BDEPS_ONLY_PKGS=(
+    -e '/to \/build\/BOARD\// d'
+)
+
 SLOT_INFO_SED_FILTERS=(
     # if there is no slot information in version, add :0
     #
@@ -419,7 +427,7 @@ function versions_board() {
     local arch=${1}; shift
     local -a sed_opts
     sed_opts=(
-        -e '/to \/build\/BOARD\// ! d'
+        "${BOARD_ONLY_PKGS[@]}"
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
     )
     packages_for_board "${arch}" "${sed_opts[@]}"
@@ -432,7 +440,7 @@ function board_bdeps() {
     local arch=${1}; shift
     local -a sed_opts
     sed_opts=(
-        -e '/to \/build\/BOARD\// d'
+        "${BOARD_BDEPS_ONLY_PKGS[@]}"
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
     packages_for_board "${arch}" "${sed_opts[@]}"
