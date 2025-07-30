@@ -403,7 +403,7 @@ function packages_for_board() {
     sed "${@}" "${!name}" | sort -u
 }
 
-# Prints package name, slot and version information for SDK.
+# Prints package name, version and slot information for SDK.
 function versions_sdk() {
     local -a sed_opts
     sed_opts=(
@@ -412,7 +412,7 @@ function versions_sdk() {
     packages_for_sdk "${sed_opts[@]}"
 }
 
-# Prints package name, slot, version and key-values information for
+# Prints package name, version, slot and key-values information for
 # SDK. Key-values may be something like USE="foo bar -baz".
 function versions_sdk_with_key_values() {
     local -a sed_opts
@@ -422,13 +422,25 @@ function versions_sdk_with_key_values() {
     packages_for_sdk "${sed_opts[@]}"
 }
 
-# Prints package name, slot and version information for board.
+# Prints package name, version and slot information for board.
 function versions_board() {
     local arch=${1}; shift
     local -a sed_opts
     sed_opts=(
         "${BOARD_ONLY_PKGS[@]}"
         "${PKG_VER_SLOT_SED_FILTERS[@]}"
+    )
+    packages_for_board "${arch}" "${sed_opts[@]}"
+}
+
+# Prints package name, version, slot and key-values information for
+# board. Key-values may be something like USE="foo bar -baz".
+function versions_board_with_key_values() {
+    local arch=${1}; shift
+    local -a sed_opts
+    sed_opts=(
+        "${BOARD_ONLY_PKGS[@]}"
+        "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
     packages_for_board "${arch}" "${sed_opts[@]}"
 }
