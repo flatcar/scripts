@@ -1837,18 +1837,16 @@ function consistency_checks() {
 # 1 - name of a map variable, will contain a mapping of package name
 #     to repository name
 function read_package_sources() {
+    local which=${1}; shift
     local -n package_sources_map_ref=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local -a files=()
-    local which arch
-    for which in "${WHICH[@]}"; do
-        files+=( "${WORKDIR}/pkg-reports/${which}/sdk-package-repos" )
-        for arch in "${ARCHES[@]}"; do
-            files+=( "${WORKDIR}/pkg-reports/${which}/${arch}-board-package-repos" )
-        done
+    local -a files=( "${WORKDIR}/pkg-reports/${which}/sdk-package-repos" )
+    local arch
+    for arch in "${ARCHES[@]}"; do
+        files+=( "${WORKDIR}/pkg-reports/${which}/${arch}-board-package-repos" )
     done
 
     local file pkg repo saved_repo
@@ -1891,10 +1889,10 @@ function pkg_job_state_unset() {
 
 declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE'
 # BOM - a bunch of maps
-declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_PKG_SOURCES_MAP_IDX=4 BOM_DIFF_LIB_FILTERS_IDX=5
+declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_OLD_PKG_SOURCES_MAP_IDX=4 BOM_NEW_PKG_SOURCES_MAP_IDX=5 BOM_DIFF_LIB_FILTERS_IDX=6
 
 function bunch_of_maps_declare() {
-    struct_declare -ga "${@}" "( '' '' '' '' '' '' )"
+    struct_declare -ga "${@}" "( '' '' '' '' '' '' '' )"
 }
 
 function bunch_of_maps_unset() {
@@ -1958,7 +1956,8 @@ function handle_one_package_change() {
     local pkg_slots_set_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_SLOTS_SET_MVM_IDX]}
     local old_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
     local new_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
-    local -n pkg_sources_map_ref=${bunch_of_maps_ref[BOM_PKG_SOURCES_MAP_IDX]}
+    local -n pkg_old_sources_map_ref=${bunch_of_maps_ref[BOM_OLD_PKG_SOURCES_MAP_IDX]}
+    local -n pkg_new_sources_map_ref=${bunch_of_maps_ref[BOM_NEW_PKG_SOURCES_MAP_IDX]}
     local diff_lib_filters_var_name=${bunch_of_maps_ref[BOM_DIFF_LIB_FILTERS_IDX]}
 
     if [[ ${old_name} = "${new_name}" ]]; then
@@ -1968,8 +1967,8 @@ function handle_one_package_change() {
     fi
     pkg_debug_enable "${old_name}" "${new_name}"
     pkg_debug 'handling updates'
-    local old_repo=${pkg_sources_map_ref["${old_name}"]:-}
-    local new_repo=${pkg_sources_map_ref["${new_name}"]:-}
+    local old_repo=${pkg_old_sources_map_ref["${old_name}"]:-}
+    local new_repo=${pkg_new_sources_map_ref["${new_name}"]:-}
     if [[ -z ${old_repo} ]]; then
         pkg_warn_d "${warnings_dir}" \
             '- package not in old state' \
@@ -2381,11 +2380,9 @@ function handle_package_changes() {
 
     info "preparing for handling package changes"
 
-    # TODO: when we handle moving packages between repos, then there
-    # should be two maps, for old and new state
-    local -A hpc_package_sources_map
-    hpc_package_sources_map=()
-    read_package_sources hpc_package_sources_map
+    local -A hpc_old_package_sources_map=() hpc_new_package_sources_map=()
+    read_package_sources old hpc_old_package_sources_map
+    read_package_sources new hpc_new_package_sources_map
 
     local -a old_pkgs new_pkgs
     old_pkgs=()
@@ -2506,7 +2503,8 @@ function handle_package_changes() {
     hpc_bunch_of_maps[BOM_PKG_SLOTS_SET_MVM_IDX]=hpc_pkg_slots_set_mvm
     hpc_bunch_of_maps[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_old_pkg_slot_verminmax_map_mvm
     hpc_bunch_of_maps[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_new_pkg_slot_verminmax_map_mvm
-    hpc_bunch_of_maps[BOM_PKG_SOURCES_MAP_IDX]=hpc_package_sources_map
+    hpc_bunch_of_maps[BOM_OLD_PKG_SOURCES_MAP_IDX]=hpc_old_package_sources_map
+    hpc_bunch_of_maps[BOM_NEW_PKG_SOURCES_MAP_IDX]=hpc_new_package_sources_map
     hpc_bunch_of_maps[BOM_DIFF_LIB_FILTERS_IDX]="${hpc_diff_lib_filters_name}"
 
     for ((i = 0; i < job_count; ++i)); do
