@@ -1092,11 +1092,11 @@ function set_mvm_to_array_mvm_cb() {
 }
 
 declare -gri SJS_COMMAND_IDX=0 SJS_STATE_DIR_IDX=1 SJS_KIND_IDX=2 SJS_JOB_NAME_IDX=3
-sdk_job_state_declare() {
+function sdk_job_state_declare() {
     struct_declare -ga "${@}" "( 'EMPTY_ARRAY' '' '' '' )"
 }
 
-sdk_job_state_unset() {
+function sdk_job_state_unset() {
     local name
     for name; do
         local -n sdk_job_state_ref=${name}
