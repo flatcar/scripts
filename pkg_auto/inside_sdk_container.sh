@@ -115,7 +115,7 @@ for arch; do
     echo "Generating ${arch} board packages listing"
     versions_board "${arch}" >"${reports_dir}/${arch}-board-pkgs" 2>"${reports_dir}/${arch}-board-pkgs-warnings"
     echo "Generating ${arch} board packages listing with key-values (USE, PYTHON_TARGETS CPU_FLAGS_X86, etc)"
-    versions_board_kv "${arch}" >"${reports_dir}/${arch}-board-pkgs-kv" 2>"${reports_dir}/${arch}-board-pkgs-warnings"
+    versions_board_with_key_values "${arch}" >"${reports_dir}/${arch}-board-pkgs-kv" 2>"${reports_dir}/${arch}-board-pkgs-warnings"
     echo "Generating ${arch} board packages bdeps listing"
     board_bdeps "${arch}" >"${reports_dir}/${arch}-board-bdeps" 2>"${reports_dir}/${arch}-board-bdeps-warnings"
     echo "Generating ${arch} board profiles evaluation list"
