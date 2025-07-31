@@ -266,6 +266,8 @@ src_prepare() {
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
 		"${FILESDIR}/0009-initrd-parse-etc.service.patch"
+		"${FILESDIR}/0010-network-netdev-also-check-ifindex-iftype-and-kind-wh.patch"
+		"${FILESDIR}/0011-network-also-check-ID_NET_MANAGED_BY-property-on-rec.patch"
 	)
 
 	if ! use vanilla; then
