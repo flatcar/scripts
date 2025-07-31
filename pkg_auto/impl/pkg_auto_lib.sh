@@ -2863,7 +2863,7 @@ function handle_pkg_update() {
     generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
-    local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
+    local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
     lines+=( "${diff_lines_ref[@]}" )
     unset -n diff_lines_ref
     unset -n diff_report_ref
@@ -2942,7 +2942,7 @@ function handle_pkg_as_is() {
     generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
 
     local -n diff_report_ref=${diff_report_name}
-    local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
+    local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
     if [[ ${#diff_lines_ref[@]} -gt 0 ]]; then
         lines+=( "${diff_lines_ref[@]}" )
         modified=x
@@ -3020,7 +3020,7 @@ function handle_pkg_downgrade() {
     generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
-    local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
+    local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
     lines+=( "${diff_lines_ref[@]}" )
     unset -n diff_lines_ref
     unset -n diff_report_ref
