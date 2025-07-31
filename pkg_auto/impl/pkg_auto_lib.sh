@@ -1548,9 +1548,9 @@ function read_reports() {
     local -A rr_all_packages_set
     rr_all_packages_set=()
 
-    local arch which report rr_pimap_mvm_var_name
-    for arch in "${ARCHES[@]}"; do
-        for which in "${WHICH[@]}"; do
+    local which arch report rr_pimap_mvm_var_name
+    for which in "${WHICH[@]}"; do
+        for arch in "${ARCHES[@]}"; do
             for report in "${REPORTS[@]}"; do
                 pkginfo_declare "${which}" "${arch}" "${report}" rr_pimap_mvm_var_name
                 pkginfo_process_file "${rr_pimap_mvm_var_name}" rr_all_packages_set "${pkg_slots_set_mvm_var_name}"
