@@ -442,7 +442,7 @@ function versions_board_with_key_values() {
         "${BOARD_ONLY_PKGS[@]}"
         "${PKG_VER_SLOT_KV_SED_FILTERS[@]}"
     )
-    packages_for_sdk "${sed_opts[@]}"
+    packages_for_board "${arch}" "${sed_opts[@]}"
 }
 
 # Prints package name, slot, version and key-values information for
