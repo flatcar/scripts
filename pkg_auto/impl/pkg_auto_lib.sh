@@ -1490,6 +1490,7 @@ function pkginfo_c_process_file() {
             local c=${report}:${arch}
             devel_warn "unknown report-architecture combination (${c@Q})"
             return 0
+            ;;
     esac
 
     local pkg version_slot throw_away v s
