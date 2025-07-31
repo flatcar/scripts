@@ -1890,10 +1890,10 @@ function pkg_job_state_unset() {
 
 declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE'
 # BOM - a bunch of maps
-declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_OLD_PKG_SOURCES_MAP_IDX=4 BOM_NEW_PKG_SOURCES_MAP_IDX=5 BOM_DIFF_LIB_FILTERS_IDX=6
+declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_OLD_PKG_SOURCES_MAP_IDX=4 BOM_NEW_PKG_SOURCES_MAP_IDX=5 BOM_DIFF_LIB_FILTERS_IDX=6 BOM_KVR_REPORTS_IDX=7
 
 function bunch_of_maps_declare() {
-    struct_declare -ga "${@}" "( '' '' '' '' '' '' '' )"
+    struct_declare -ga "${@}" "( '' '' '' '' '' '' '' '' )"
 }
 
 function bunch_of_maps_unset() {
@@ -1952,6 +1952,7 @@ function handle_one_package_change() {
 
     local warnings_dir="${output_dir}/warnings"
     local updates_dir="${output_dir}/updates"
+    local used_licenses_file="${output_dir}/used-licenses"
 
     local pkg_to_tags_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_TO_TAGS_MVM_IDX]}
     local pkg_slots_set_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_SLOTS_SET_MVM_IDX]}
@@ -1960,6 +1961,7 @@ function handle_one_package_change() {
     local -n pkg_old_sources_map_ref=${bunch_of_maps_ref[BOM_OLD_PKG_SOURCES_MAP_IDX]}
     local -n pkg_new_sources_map_ref=${bunch_of_maps_ref[BOM_NEW_PKG_SOURCES_MAP_IDX]}
     local diff_lib_filters_var_name=${bunch_of_maps_ref[BOM_DIFF_LIB_FILTERS_IDX]}
+    local kvr_reports_var_name=${bunch_of_maps_ref[BOM_KVR_REPORTS_IDX]}
 
     if [[ ${old_name} = "${new_name}" ]]; then
         info "handling update of ${new_name}"
@@ -2128,12 +2130,12 @@ function handle_one_package_change() {
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
             "${GV_GT}")
-                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
             "${GV_EQ}")
                 hopc_slot_changed=
-                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                 if [[ -z ${hopc_slot_changed} ]]; then
                     rm -rf "${update_dir}"
                 else
@@ -2141,7 +2143,7 @@ function handle_one_package_change() {
                 fi
                 ;;
             "${GV_LT}")
-                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
         esac
@@ -2175,12 +2177,12 @@ function handle_one_package_change() {
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
                 "${GV_GT}")
-                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
                 "${GV_EQ}")
                     hopc_slot_changed=
-                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                     if [[ -z ${hopc_slot_changed} ]]; then
                         rm -rf "${update_dir}"
                     else
@@ -2188,7 +2190,7 @@ function handle_one_package_change() {
                     fi
                     ;;
                 "${GV_LT}")
-                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
+                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
             esac
@@ -2216,6 +2218,9 @@ function handle_one_package_change() {
         done
         manual_d "${warnings_dir}" "${lines[@]}"
         unset lines
+        # TODO: evaluate used licenses here, remember that the values
+        # in USE may albo be in parentheses or have some other extra
+        # symbols there (percents, asterisks and whatnot)
     fi
 
     package_output_paths_unset hopc_package_output_paths
@@ -2344,6 +2349,127 @@ function get_diff_lib_filters() {
     filter_name_ref=${gdlf_name}
 }
 
+# kvr - key-value reports
+#
+# []pkg_map
+# pkg_map = map[package-version:slot]kv_map
+# kv_map = map[key][]value (just strings)
+declare -gri KVR_MAPS_IDX=0
+function kvr_declare() {
+    struct_declare -ga "${@}" "( 'EMPTY ARRAY' )"
+}
+
+function kvr_unset() {
+    local name array_name pkg_map_name kv_map_name
+    for name; do
+        local -n reports_ref=${name}
+        array_name=${reports_ref[KVR_MVMS_IDX]}
+        unset -n reports_ref
+        if [[ ${array_name} = 'EMPTY_ARRAY' ]]; then
+            continue
+        fi
+
+        local -n array_ref=${array_name}
+        for pkg_map_name in "${array_ref[@]}"; do
+            local -n pkg_map_ref=${pkg_map_name}
+            # iterating over values only
+            for kv_map_name in "${pkg_map_ref[@]}"; do
+                local -n kv_map_ref=${kv_map_name}
+                # unsetting all the values in the kv map (which are
+                # arrays of values [just strings])
+                unset "${kv_map_ref[@]}"
+                unset -n kv_map_ref
+            done
+            # unsetting all the values in the pkg map (which are kv
+            # maps)
+            unset "${pkg_map_ref[@]}"
+            unset -n pkg_map_ref
+        done
+        # unsetting all the values in the array (which are pkg maps)
+        unset "${array_ref[@]}"
+        unset -n array_ref
+    done
+    unset "${@}"
+}
+
+function kvr_read_reports() {
+    local -n kvr_ref=${1}; shift
+
+    local rkvp_maps_name
+    gen_varname rkvp_maps_name
+    declare -ga "${rkvp_maps_name}=()"
+    kvr_ref[KVR_MAPS_IDX]=${rkvp_maps_name}
+    local -n maps_ref=${rkvp_maps_name}
+
+    local arch report local report_file pkg version_slot rest key values_str
+    local rkvp_pkg_map_name rkvp_kv_map_name rkvp_values_name
+    local kv_regexp='^\s*([^=]+)="([^"]+)"\s*'
+
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
+    for arch in "${ARCHES[@]}"; do
+        for report in "${REPORTS[@]}"; do
+            case ${report}:${arch} in
+                "${SDK_PKGS}:arm64")
+                    # short-circuit it, there's no arm64 sdk
+                    continue
+                    ;;
+                "${SDK_PKGS}:amd64")
+                    report_file="${WORKDIR}/pkg-reports/new/${report}-kv"
+                    ;;
+                "${BOARD_PKGS}:"*)
+                    report_file="${WORKDIR}/pkg-reports/new/${arch}-${report}-kv"
+                    ;;
+                *)
+                    local c=${report}:${arch}
+                    devel_warn "unknown report-architecture combination (${c@Q})"
+                    unset c
+                    continue
+                    ;;
+            esac
+            gen_varname rkvp_pkg_map_name
+            declare -gA "${rkvp_pkg_map_name}=()"
+            maps_ref+=( "${rkvp_pkg_map_name}" )
+            local -n pkg_map_ref=${rkvp_pkg_map_name}
+            while read -r pkg version_slot rest; do
+                pkg_debug_enable "${pkg}"
+                pkg_debug "new ${arch} ${report} key-values: ${rest}"
+
+                if [[ -z ${rest} ]]; then
+                    # no key value pairs in the package at all
+                    continue
+                fi
+
+                gen_varname rkvp_kv_map_name
+                declare -gA "${rkvp_kv_map_name}=()"
+                pkg_map_ref["${pkg}-${version_slot}"]=${rkvp_kv_map_name}
+                local -n kv_map_ref=${rkvp_kv_map_name}
+
+                while [[ -n ${rest} ]]; do
+                    if [[ ${rest} =~ ${kv_regexp} ]]; then
+                        key=${BASH_REMATCH[1]}
+                        values_str=${BASH_REMATCH[2]}
+                        rest=${rest#"${BASH_REMATCH[0]}"}
+
+                        gen_varname rkvp_array_name
+                        declare -ga "${rkvp_array_name}"
+                        mapfile -t "${rkvp_array_name}" <<<${values_str// /$'\n'}
+                    else
+                        pkg_warn \
+                            '- malformed key-value string' \
+                            "  - package: ${pkg}" \
+                            "  - version and slot: ${version_slot}" \
+                            "  - string: ${rest}"
+                    fi
+                done
+                unset -n kv_map_ref
+                pkg_debug_disable
+            done <"${report_file}"
+            unset -n pkg_map_ref
+        done
+    done
+}
 
 # This monstrosity takes renames map and package tags information,
 # reads the reports, does consistency checks and uses the information
@@ -2355,9 +2481,9 @@ function get_diff_lib_filters() {
 # 1 - name of the renames map variable
 # 2 - name of the package tags map mvm variable
 function handle_package_changes() {
-    local pkg_to_tags_mvm_var_name
     local -n renamed_old_to_new_map_ref=${1}; shift
-    pkg_to_tags_mvm_var_name=${1}; shift
+    local pkg_to_tags_mvm_var_name=${1}; shift
+    local -n used_licenses_map_ref=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
@@ -2378,6 +2504,11 @@ function handle_package_changes() {
     consistency_checks new hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_new_pkg_slot_verminmax_map_mvm
 
     unset_report_mvms
+
+    info "reading package key-value reports"
+
+    kvr_declare hpc_pkg_key_values
+    kvr_read_reports hpc_pkg_key_values
 
     info "preparing for handling package changes"
 
@@ -2507,6 +2638,7 @@ function handle_package_changes() {
     hpc_bunch_of_maps[BOM_OLD_PKG_SOURCES_MAP_IDX]=hpc_old_package_sources_map
     hpc_bunch_of_maps[BOM_NEW_PKG_SOURCES_MAP_IDX]=hpc_new_package_sources_map
     hpc_bunch_of_maps[BOM_DIFF_LIB_FILTERS_IDX]="${hpc_diff_lib_filters_name}"
+    hpc_bunch_of_maps[BOM_KVR_REPORTS_IDX]=hpc_pkg_key_values
 
     for ((i = 0; i < job_count; ++i)); do
         gen_varname pkg_job_state_name
@@ -2527,6 +2659,7 @@ function handle_package_changes() {
         for file in summary_stubs changelog_stubs; do
             paths+=( "${pkg_job_dir}/updates/${file}" )
         done
+        paths+=( "${pkg_job_dir}/used-licenses" )
         # TODO: That's a bit messy
         add_cleanup "find -P ${pkg_job_updates_dir@Q} -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +"
         add_cleanup "rm -f ${paths[*]@Q}"
@@ -2631,6 +2764,8 @@ function handle_package_changes() {
 
     diff_lib_filters_unset "${hpc_diff_lib_filters_name}"
 
+    kvr_unset hpc_pkg_key_values
+
     mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_old_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_pkg_slots_set_mvm
@@ -2676,6 +2811,7 @@ function handle_pkg_update() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local diff_lib_filters_var_name=${1}; shift
+    local kvr_reports_var_name=${1}; shift
     local old_repo_path=${1}; shift
     local new_repo_path=${1}; shift
     local old_cache_path=${1}; shift
@@ -2700,7 +2836,7 @@ function handle_pkg_update() {
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
@@ -2753,6 +2889,7 @@ function handle_pkg_as_is() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local diff_lib_filters_var_name=${1}; shift
+    local kvr_reports_var_name=${1}; shift
     local old_repo_path=${1}; shift
     local new_repo_path=${1}; shift
     local old_cache_path=${1}; shift
@@ -2779,7 +2916,7 @@ function handle_pkg_as_is() {
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
@@ -2833,6 +2970,7 @@ function handle_pkg_downgrade() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local diff_lib_filters_var_name=${1}; shift
+    local kvr_reports_var_name=${1}; shift
     local old_repo_path=${1}; shift
     local new_repo_path=${1}; shift
     local old_cache_path=${1}; shift
@@ -2858,7 +2996,7 @@ function handle_pkg_downgrade() {
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
@@ -3093,6 +3231,7 @@ function generate_ebuild_diff() {
 function generate_cache_diff_report() {
     local diff_report_var_name=${1}; shift
     local diff_lib_filters_var_name=${1}; shift
+    local kvr_reports_var_name=${1}; shift
     local old_cache_dir=${1}; shift
     local new_cache_dir=${1}; shift
     local old_pkg=${1}; shift
@@ -3114,6 +3253,10 @@ function generate_cache_diff_report() {
     parse_cache_file "${new_cache_name}" "${new_entry}" "${ARCHES[@]}"
 
     diff_cache_data "${old_cache_name}" "${new_cache_name}" "${diff_lib_filters_var_name}" "${diff_report_var_name}"
+
+    # TODO: evaluate used licenses here, remember that the values in
+    # USE may albo be in parentheses or have some other extra symbols
+    # there (percents, asterisks and whatnot)
 
     cache_file_unset "${old_cache_name}" "${new_cache_name}"
 }
@@ -3251,11 +3394,12 @@ function handle_gentoo_sync() {
     source "${WORKDIR}/globals"
 
     local -A hgs_renames_old_to_new_map=()
+    local -A hgs_used_licenses_map=()
     process_profile_updates_directory hgs_renames_old_to_new_map
 
     mkdir -p "${REPORTS_DIR}/updates"
 
-    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm
+    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_map
 
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
