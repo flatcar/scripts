@@ -1986,22 +1986,46 @@ function handle_one_package_change() {
         pkg_debug_disable
         return 0
     fi
-    if [[ ${old_repo} != "${new_repo}" ]]; then
-        # This is pretty much an arbitrary limitation and I don't
-        # remember any more why we have it.
-        pkg_warn_d "${warnings_dir}" \
-            '- package has moved between repos? unsupported for now' \
-            "  - old package and repo: ${old_name} ${old_repo}" \
-            "  - new package and repo: ${new_name} ${new_repo}"
-        pkg_debug_disable
-        return 0
-    fi
-    if [[ ${new_repo} != 'portage-stable' ]]; then
-        # coreos-overlay packages will need a separate handling
-        pkg_debug 'not a portage-stable package'
-        pkg_debug_disable
-        return 0
-    fi
+
+    local old_repo_path new_repo_path old_cache_path new_cache_path
+    case ${old_repo} in
+        'portage-stable')
+            old_repo_path=${OLD_PORTAGE_STABLE}
+            old_cache_path="${WORKDIR}/pkg-reports/old/portage-stable-cache"
+            ;;
+        'coreos-overlay')
+            old_repo_path=${OLD_COREOS_OVERLAY}
+            old_cache_path="${WORKDIR}/pkg-reports/old/coreos-overlay-cache"
+            ;;
+        *)
+            pkg_warn_d "${warnings_dir}" \
+                       '- package coming from unknown repo' \
+                       '  - which: old' \
+                       "  - package: ${old_name}" \
+                       "  - repo: ${old_repo}"
+            pkg_debug_disable
+            return 0
+            ;;
+    esac
+    case ${new_repo} in
+        'portage-stable')
+            new_repo_path=${NEW_PORTAGE_STABLE}
+            new_cache_path="${WORKDIR}/pkg-reports/new/portage-stable-cache"
+            ;;
+        'coreos-overlay')
+            new_repo_path=${NEW_COREOS_OVERLAY}
+            new_cache_path="${WORKDIR}/pkg-reports/new/coreos-overlay-cache"
+            ;;
+        *)
+            pkg_warn_d "${warnings_dir}" \
+                       '- package coming from unknown repo' \
+                       '  - which: new' \
+                       "  - package: ${new_name}" \
+                       "  - repo: ${new_repo}"
+            pkg_debug_disable
+            return 0
+            ;;
+    esac
 
     local hopc_old_slots_set_var_name hopc_new_slots_set_var_name
     mvm_get "${pkg_slots_set_mvm_var_name}" "${old_name}" hopc_old_slots_set_var_name
@@ -2069,8 +2093,8 @@ function handle_one_package_change() {
     hopc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${update_dir_non_slot}
     # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
 
-    generate_non_ebuild_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-    generate_full_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+    generate_non_ebuild_diffs "${update_dir_non_slot}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}"
+    generate_full_diffs "${update_dir_non_slot}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}"
     generate_package_mention_reports "${update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
 
     local hopc_changed=''
@@ -2104,12 +2128,12 @@ function handle_one_package_change() {
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
             "${GV_GT}")
-                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
             "${GV_EQ}")
                 hopc_slot_changed=
-                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                 if [[ -z ${hopc_slot_changed} ]]; then
                     rm -rf "${update_dir}"
                 else
@@ -2117,7 +2141,7 @@ function handle_one_package_change() {
                 fi
                 ;;
             "${GV_LT}")
-                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
         esac
@@ -2151,12 +2175,12 @@ function handle_one_package_change() {
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
                 "${GV_GT}")
-                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
                 "${GV_EQ}")
                     hopc_slot_changed=
-                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                     if [[ -z ${hopc_slot_changed} ]]; then
                         rm -rf "${update_dir}"
                     else
@@ -2164,7 +2188,7 @@ function handle_one_package_change() {
                     fi
                     ;;
                 "${GV_LT}")
-                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
+                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
             esac
@@ -2653,13 +2677,14 @@ function handle_pkg_update() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local diff_lib_filters_var_name=${1}; shift
+    local old_repo_path=${1}; shift
+    local new_repo_path=${1}; shift
+    local old_cache_path=${1}; shift
+    local new_cache_path=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
     local new=${1}; shift
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
 
     local old_no_r=${old%-r+([0-9])}
     local new_no_r=${new%-r+([0-9])}
@@ -2671,12 +2696,12 @@ function handle_pkg_update() {
     fi
 
     local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
-    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_ebuild_diff "${out_dir}" "${old_repo_path}" "${new_repo_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
@@ -2729,13 +2754,14 @@ function handle_pkg_as_is() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local diff_lib_filters_var_name=${1}; shift
+    local old_repo_path=${1}; shift
+    local new_repo_path=${1}; shift
+    local old_cache_path=${1}; shift
+    local new_cache_path=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local v=${1}; shift
     local -n changed_ref=${1}; shift
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
 
     local pkg_name=${new_pkg#/}
     local -a lines=( "0:still at ${v}" )
@@ -2747,14 +2773,14 @@ function handle_pkg_as_is() {
     fi
 
     local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
-    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
+    generate_ebuild_diff "${out_dir}" "${old_repo_path}" "${new_repo_path}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
 
     local modified=''
 
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
@@ -2808,13 +2834,14 @@ function handle_pkg_downgrade() {
     local -n package_output_paths_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local diff_lib_filters_var_name=${1}; shift
+    local old_repo_path=${1}; shift
+    local new_repo_path=${1}; shift
+    local old_cache_path=${1}; shift
+    local new_cache_path=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
     local new=${1}; shift
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
 
     local old_no_r new_no_r
     old_no_r=${old%-r+([0-9])}
@@ -2827,12 +2854,12 @@ function handle_pkg_downgrade() {
     fi
 
     local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
-    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_ebuild_diff "${out_dir}" "${old_repo_path}" "${new_repo_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local diff_report_name
     gen_varname diff_report_name
     diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${WORKDIR}/pkg-reports/old/portage-stable-cache" "${WORKDIR}/pkg-reports/new/portage-stable-cache" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
+    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[${DR_LINES_IDX}]}
