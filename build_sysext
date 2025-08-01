@@ -301,14 +301,25 @@ if [[ -n "${invalid_files}" ]]; then
   die "Invalid file ownership: ${invalid_files}"
 fi
 
-mksquashfs "${BUILD_DIR}/install-root" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
-               -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
+systemd-repart \
+  --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
+  --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
+  --make-ddi=sysext \
+  --copy-source="${BUILD_DIR}/install-root" \
+  "${BUILD_DIR}/${SYSEXTNAME}.raw"
+
 rm -rf "${BUILD_DIR}"/{fs-root,install-root,workdir}
 
 # Generate reports
 mkdir "${BUILD_DIR}/img-rootfs"
-mount -rt squashfs -o loop,nodev "${BUILD_DIR}/${SYSEXTNAME}.raw" "${BUILD_DIR}/img-rootfs"
+systemd-dissect --read-only \
+  --mount \
+  --mkdir \
+  --image-policy='root=encrypted+unprotected+absent:usr=encrypted+unprotected+absent' \
+  "${BUILD_DIR}/${SYSEXTNAME}.raw" \
+  "${BUILD_DIR}/img-rootfs"
+
 write_contents "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents.txt"
 write_contents_with_technical_details "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents_wtd.txt"
 write_disk_space_usage_in_paths "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_disk_usage.txt"
-umount "${BUILD_DIR}/img-rootfs"
+systemd-dissect --umount --rmdir "${BUILD_DIR}/img-rootfs"

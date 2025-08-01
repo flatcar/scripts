@@ -59,7 +59,7 @@ create_prod_sysext() {
   # Pass the build ID extracted from root FS to build_sysext. This prevents common.sh
   #   in build_sysext to generate a (timestamp based) build ID during a DEV build of a
   #   release tag (which breaks its version check).
-  sudo "FLATCAR_BUILD_ID=$FLATCAR_BUILD_ID" "${SCRIPTS_DIR}/build_sysext" \
+  sudo -E "FLATCAR_BUILD_ID=$FLATCAR_BUILD_ID" "${SCRIPTS_DIR}/build_sysext" \
             --board="${BOARD}" \
             --image_builddir="${workdir}/sysext-build" \
             --squashfs_base="${base_sysext}" \
@@ -94,6 +94,14 @@ sysext_mountdir="${BUILD_DIR}/prod-sysext-work/mounts"
 sysext_base="${sysext_workdir}/base-os.squashfs"
 
 function cleanup() {
+  IFS=':' read -r -a mounted_sysexts <<< "$sysext_lowerdirs"
+  # skip the rootfs
+  mounted_sysexts=("${mounted_sysexts[@]:1}")
+
+  for sysext in "${mounted_sysexts[@]}"; do
+    sudo systemd-dissect --umount --rmdir "$sysext"
+  done
+
   sudo umount "${sysext_mountdir}"/* || true
   rm -rf "${sysext_workdir}" || true
 }
@@ -111,6 +119,7 @@ sudo mksquashfs "${root_fs_dir}" "${sysext_base}" -noappend -xattrs-exclude '^bt
 # for combined overlay later.
 prev_pkginfo=""
 sysext_lowerdirs="${sysext_mountdir}/rootfs-lower"
+mkdir -p "${sysext_mountdir}"
 for sysext in ${sysexts_list//,/ }; do
   # format is "<name>:<group>/<package>"
   name="${sysext%|*}"
@@ -124,12 +133,21 @@ for sysext in ${sysexts_list//,/ }; do
                      "${grp_pkg}" \
                      "${prev_pkginfo}"
 
-  mkdir -p "${sysext_mountdir}/${name}" \
-           "${sysext_mountdir}/${name}_pkginfo"
-  sudo mount -rt squashfs -o loop,nodev "${sysext_output_dir}/${name}.raw" \
-                                    "${sysext_mountdir}/${name}"
-  sudo mount -rt squashfs -o loop,nodev "${sysext_output_dir}/${name}_pkginfo.raw" \
-                                    "${sysext_mountdir}/${name}_pkginfo"
+  sudo systemd-dissect \
+    --read-only \
+    --mount \
+    --mkdir \
+    --image-policy='root=encrypted+unprotected+absent:usr=encrypted+unprotected+absent' \
+    "${sysext_output_dir}/${name}.raw" \
+    "${sysext_mountdir}/${name}"
+
+  sudo systemd-dissect \
+    --read-only \
+    --mount \
+    --mkdir \
+    --image-policy='root=encrypted+unprotected+absent:usr=encrypted+unprotected+absent' \
+    "${sysext_output_dir}/${name}_pkginfo.raw" \
+    "${sysext_mountdir}/${name}_pkginfo"
 
   sysext_lowerdirs="${sysext_lowerdirs}:${sysext_mountdir}/${name}"
   sysext_lowerdirs="${sysext_lowerdirs}:${sysext_mountdir}/${name}_pkginfo"

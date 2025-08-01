@@ -64,6 +64,7 @@ src_prepare() {
 	validate_sig_key
 
 	config_update 'CONFIG_INITRAMFS_SOURCE="bootengine.cpio"'
+	config_update "CONFIG_SYSTEM_TRUSTED_KEYS=\"/usr/share/sb_keys/shim.pem\""
 
 	# include all intel and amd microcode files, avoiding the signatures
 	local fw_dir="${ESYSROOT}/lib/firmware"
