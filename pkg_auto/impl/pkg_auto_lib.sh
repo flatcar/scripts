@@ -2127,15 +2127,21 @@ function handle_one_package_change() {
         hopc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
         old_version=${old_verminmax%%:*}
         new_version=${new_verminmax##*:}
+
+        generate_ebuild_diff "${update_dir}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+
+        diff_report_declare hopc_diff_report
+        generate_cache_diff_report hopc_diff_report "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
             "${GV_GT}")
-                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                handle_pkg_update hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
             "${GV_EQ}")
                 hopc_slot_changed=
-                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                handle_pkg_as_is hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                 if [[ -z ${hopc_slot_changed} ]]; then
                     rm -rf "${update_dir}"
                 else
@@ -2143,10 +2149,12 @@ function handle_one_package_change() {
                 fi
                 ;;
             "${GV_LT}")
-                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                handle_pkg_downgrade hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
         esac
+
+        diff_report_unset hopc_diff_report
     done
 
     # A "sys-devel/binutils update" case - one old slot and one new
@@ -2174,15 +2182,21 @@ function handle_one_package_change() {
             hopc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
             old_version=${old_verminmax%%:*}
             new_version=${new_verminmax##*:}
+
+            generate_ebuild_diff "${update_dir}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+
+            diff_report_declare hopc_diff_report
+            generate_cache_diff_report hopc_diff_report "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
                 "${GV_GT}")
-                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    handle_pkg_update hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
                 "${GV_EQ}")
                     hopc_slot_changed=
-                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                    handle_pkg_as_is hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
                     if [[ -z ${hopc_slot_changed} ]]; then
                         rm -rf "${update_dir}"
                     else
@@ -2190,10 +2204,12 @@ function handle_one_package_change() {
                     fi
                     ;;
                 "${GV_LT}")
-                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_repo_path}" "${new_repo_path}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
+                    handle_pkg_downgrade hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
             esac
+
+            diff_report_unset hopc_diff_report
         fi
     elif [[ ${#hopc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hopc_only_new_slots_set[@]} -gt 0 ]]; then
         pkg_debug 'complicated slots situation, needs manual intervention'
@@ -2802,20 +2818,16 @@ function get_first_from_set() {
 # Params:
 #
 # 1 - package output paths variable name
-# 2 - name of the package tags set mvm variable
-# 3 - old package name
-# 4 - new package name
-# 5 - old version
-# 6 - new version
+# 2 - diff reports variable name
+# 3 - name of the package tags set mvm variable
+# 4 - old package name
+# 5 - new package name
+# 6 - old version
+# 7 - new version
 function handle_pkg_update() {
     local -n package_output_paths_ref=${1}; shift
+    local -n diff_report_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
-    local diff_lib_filters_var_name=${1}; shift
-    local kvr_reports_var_name=${1}; shift
-    local old_repo_path=${1}; shift
-    local new_repo_path=${1}; shift
-    local old_cache_path=${1}; shift
-    local new_cache_path=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
@@ -2830,25 +2842,17 @@ function handle_pkg_update() {
         lines+=( "0:renamed from ${old_pkg}" )
     fi
 
-    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
-    generate_ebuild_diff "${out_dir}" "${old_repo_path}" "${new_repo_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
-
-    local diff_report_name
-    gen_varname diff_report_name
-    diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
-
-    local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
     lines+=( "${diff_lines_ref[@]}" )
     unset -n diff_lines_ref
-    unset -n diff_report_ref
-    diff_report_unset "${diff_report_name}"
 
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    # check if generate_ebuild_diff generated anything
     if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
     local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    # check if generate_non_ebuild_diffs generated anything
     if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
@@ -2878,22 +2882,18 @@ function handle_pkg_update() {
 # Params:
 #
 # 1 - package output paths variable name
-# 2 - name of the package tags set mvm variable
-# 3 - old package name
-# 4 - new package name
-# 5 - version
-# 6 - name of a "bool" variable where info is stored if relevant files
+# 2 - diff reports variable name
+# 3 - name of the package tags set mvm variable
+# 4 - old package name
+# 5 - new package name
+# 6 - version
+# 7 - name of a "bool" variable where info is stored if relevant files
 #     has changed (empty means nothing changed, non-empty means
 #     something has changed)
 function handle_pkg_as_is() {
     local -n package_output_paths_ref=${1}; shift
+    local -n diff_report_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
-    local diff_lib_filters_var_name=${1}; shift
-    local kvr_reports_var_name=${1}; shift
-    local old_repo_path=${1}; shift
-    local new_repo_path=${1}; shift
-    local old_cache_path=${1}; shift
-    local new_cache_path=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local v=${1}; shift
@@ -2908,31 +2908,22 @@ function handle_pkg_as_is() {
         renamed=x
     fi
 
-    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
-    generate_ebuild_diff "${out_dir}" "${old_repo_path}" "${new_repo_path}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
-
     local modified=''
-
-    local diff_report_name
-    gen_varname diff_report_name
-    diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
-
-    local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
     if [[ ${#diff_lines_ref[@]} -gt 0 ]]; then
         lines+=( "${diff_lines_ref[@]}" )
         modified=x
     fi
     unset -n diff_lines_ref
-    unset -n diff_report_ref
-    diff_report_unset "${diff_report_name}"
 
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    # check if generate_ebuild_diff generated anything
     if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
         modified=x
     fi
     local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    # check if generate_non_ebuild_diffs generated anything
     if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
         modified=x
@@ -2961,20 +2952,16 @@ function handle_pkg_as_is() {
 # Params:
 #
 # 1 - package output paths variable name
-# 2 - name of the package tags set mvm variable
-# 3 - old package name
-# 4 - new package name
-# 5 - old version
-# 6 - new version
+# 2 - diff reports variable name
+# 3 - name of the package tags set mvm variable
+# 4 - old package name
+# 5 - new package name
+# 6 - old version
+# 7 - new version
 function handle_pkg_downgrade() {
     local -n package_output_paths_ref=${1}; shift
+    local -n diff_report_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
-    local diff_lib_filters_var_name=${1}; shift
-    local kvr_reports_var_name=${1}; shift
-    local old_repo_path=${1}; shift
-    local new_repo_path=${1}; shift
-    local old_cache_path=${1}; shift
-    local new_cache_path=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
@@ -2990,25 +2977,17 @@ function handle_pkg_downgrade() {
         lines+=( "0:renamed from ${old_pkg}" )
     fi
 
-    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
-    generate_ebuild_diff "${out_dir}" "${old_repo_path}" "${new_repo_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
-
-    local diff_report_name
-    gen_varname diff_report_name
-    diff_report_declare "${diff_report_name}"
-    generate_cache_diff_report "${diff_report_name}" "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
-
-    local -n diff_report_ref=${diff_report_name}
     local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
     lines+=( "${diff_lines_ref[@]}" )
     unset -n diff_lines_ref
-    unset -n diff_report_ref
-    diff_report_unset "${diff_report_name}"
 
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    # check if generate_ebuild_diff generated anything
     if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
     local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    # check if generate_non_ebuild_diffs generated anything
     if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
