@@ -1,4 +1,5 @@
 USE="cros_host expat man -pam"
+USE="${USE} cryptsetup"
 
 # Used by some old goo in profiles/coreos/base/profile.bashrc
 # TODO: clean up that old goo
