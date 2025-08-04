@@ -12,7 +12,7 @@ TMPFILES_OPTIONAL=1
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=1
+PATCH_VER=7
 PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
@@ -38,10 +38,10 @@ inherit python-any-r1 prefix preserve-libs toolchain-funcs flag-o-matic gnuconfi
 DESCRIPTION="GNU libc C library"
 HOMEPAGE="https://www.gnu.org/software/libc/"
 
-if [[ ${PV} == *9999 ]]; then
+if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
@@ -768,6 +768,11 @@ g_int_to_KV() {
 	echo ${major}.${minor}.${micro}
 }
 
+eend_KV() {
+	[[ $(g_KV_to_int $1) -ge $(g_KV_to_int $2) ]]
+	eend $?
+}
+
 get_kheader_version() {
 	printf '#include <linux/version.h>\nLINUX_VERSION_CODE\n' | \
 	$(tc-getCPP ${CTARGET}) -I "${ESYSROOT}$(alt_headers)" - | \
@@ -861,13 +866,11 @@ sanity_prechecks() {
 			if ! is_crosscompile && ! tc-is-cross-compiler ; then
 				# Building fails on an non-supporting kernel
 				ebegin "Checking running kernel version (${run_kv} >= ${want_kv})"
-				if ! [[ $(g_KV_to_int ${run_kv}) -ge $(g_KV_to_int ${want_kv}) ]] ; then
-					eend 1
+				if ! eend_KV ${run_kv} ${want_kv} ; then
 					echo
 					eerror "You need a kernel of at least ${want_kv}!"
 					die "Kernel version too low!"
 				fi
-				eend 0
 			fi
 
 			# Do not run this check for pkg_pretend, just pkg_setup and friends (if we ever get used there).
@@ -878,13 +881,11 @@ sanity_prechecks() {
 			# but let's leave it as-is for now.
 			if [[ ${EBUILD_PHASE_FUNC} != pkg_pretend ]] ; then
 				ebegin "Checking linux-headers version (${build_kv} >= ${want_kv})"
-				if ! [[ $(g_KV_to_int ${build_kv}) -ge $(g_KV_to_int ${want_kv}) ]] ; then
-					eend 1
+				if ! eend_KV ${build_kv} ${want_kv} ; then
 					echo
 					eerror "You need linux-headers of at least ${want_kv}!"
 					die "linux-headers version too low!"
 				fi
-				eend 0
 			fi
 		fi
 	fi
@@ -930,7 +931,7 @@ src_unpack() {
 
 	use multilib-bootstrap && unpack gcc-multilib-bootstrap-${GCC_BOOTSTRAP_VER}.tar.xz
 
-	if [[ ${PV} == *9999 ]] ; then
+	if [[ ${PV} == 9999* ]] ; then
 		EGIT_REPO_URI="
 			https://anongit.gentoo.org/git/proj/toolchain/glibc-patches.git
 			https://github.com/gentoo/glibc-patches.git
@@ -944,13 +945,12 @@ src_unpack() {
 			https://gitlab.com/x86-glibc/glibc.git
 		"
 		EGIT_CHECKOUT_DIR=${S}
-		[[ ${PV} == *.*.9999 ]] && EGIT_BRANCH=release/${PV%.*}/master
 		git-r3_src_unpack
 	else
 		unpack ${P}.tar.xz
 
 		cd "${WORKDIR}" || die
-		unpack ${P}-patches-${PATCH_VER}.tar.xz
+		unpack glibc-${PV}-patches-${PATCH_VER}.tar.xz
 	fi
 
 	cd "${WORKDIR}" || die
@@ -1302,7 +1302,7 @@ glibc_src_test() {
 	# we give the tests a bit more time to avoid spurious
 	# bug reports on slow arches
 
-	SANDBOX_ON=0 LD_PRELOAD= TIMEOUTFACTOR=16 nonfatal emake ${myxfailparams} check
+	SANDBOX_ON=0 LD_PRELOAD= TIMEOUTFACTOR=16 emake ${myxfailparams} check
 }
 
 src_test() {
@@ -1310,8 +1310,6 @@ src_test() {
 		return
 	fi
 
-	# glibc_src_test uses nonfatal so that we can run tests for all ABIs
-	# and fail at the end instead.
 	foreach_abi glibc_src_test || die "tests failed"
 }
 
