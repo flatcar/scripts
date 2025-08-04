@@ -7,13 +7,17 @@ MODULES_OPTIONAL_IUSE=+modules
 inherit desktop dot-a eapi9-pipestatus flag-o-matic linux-mod-r1
 inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
-MODULES_KERNEL_MAX=6.14
+MODULES_KERNEL_MAX=6.16
 NV_URI="https://download.nvidia.com/XFree86/"
+# x86-64 .run was missing from the usual mirror at bump time, while
+# aarch64's is missing from this one.. so fetch from different ones
+# for now and drop this next bump
+[[ ${PV} == 575.64.05 ]] && NV_URI_TMP="https://us.download.nvidia.com/XFree86/"
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
 HOMEPAGE="https://www.nvidia.com/"
 SRC_URI="
-	amd64? ( ${NV_URI}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
+	amd64? ( ${NV_URI_TMP}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
 	arm64? ( ${NV_URI}Linux-aarch64/${PV}/NVIDIA-Linux-aarch64-${PV}.run )
 	$(printf "${NV_URI}%s/%s-${PV}.tar.bz2 " \
 		nvidia-{installer,modprobe,persistenced,settings,xconfig}{,})
@@ -22,9 +26,15 @@ SRC_URI="
 # nvidia-installer is unused but here for GPL-2's "distribute sources"
 S=${WORKDIR}
 
-LICENSE="NVIDIA-2023 Apache-2.0 BSD BSD-2 GPL-2 MIT ZLIB curl openssl"
+LICENSE="
+	NVIDIA-2025 Apache-2.0 Boost-1.0 BSD BSD-2 GPL-2 MIT ZLIB
+	curl openssl public-domain
+"
 SLOT="0/${PV%%.*}"
-KEYWORDS="-* amd64 ~arm64"
+KEYWORDS="-* ~amd64 ~arm64"
+# TODO: enable kernel-open by default to match nvidia upstream, but should
+# first setup a supported-gpus.json "kernelopen" check to abort and avoid bad
+# surprises (should abort for legacy cards too, and have a bypass variable)
 IUSE="+X abi_x86_32 abi_x86_64 kernel-open persistenced powerd +static-libs +tools wayland"
 REQUIRED_USE="kernel-open? ( modules )"
 
@@ -60,8 +70,9 @@ RDEPEND="
 	)
 	powerd? ( sys-apps/dbus[abi_x86_32(-)?] )
 	wayland? (
-		gui-libs/egl-gbm
-		>=gui-libs/egl-wayland-1.1.10
+		>=gui-libs/egl-gbm-1.1.1-r2[abi_x86_32(-)?]
+		>=gui-libs/egl-wayland-1.1.13.1[abi_x86_32(-)?]
+		X? ( gui-libs/egl-x11[abi_x86_32(-)?] )
 	)
 "
 DEPEND="
@@ -72,6 +83,7 @@ DEPEND="
 		x11-libs/libXext
 	)
 	tools? (
+		dev-util/vulkan-headers
 		media-libs/libglvnd
 		sys-apps/dbus
 		x11-base/xorg-proto
@@ -81,6 +93,7 @@ DEPEND="
 	)
 "
 BDEPEND="
+	app-alternatives/awk
 	sys-devel/m4
 	virtual/pkgconfig
 "
@@ -103,6 +116,7 @@ pkg_setup() {
 	local CONFIG_CHECK="
 		PROC_FS
 		~DRM_KMS_HELPER
+		~DRM_FBDEV_EMULATION
 		~SYSVIPC
 		~!LOCKDEP
 		~!PREEMPT_RT
@@ -128,6 +142,9 @@ pkg_setup() {
 	local ERROR_DRM_TTM_HELPER="CONFIG_DRM_TTM_HELPER: is not set but is needed to compile when using
 	kernel version 6.11.x or newer while DRM_FBDEV_EMULATION is set.
 	${drm_helper_msg}"
+	local ERROR_DRM_FBDEV_EMULATION="CONFIG_DRM_FBDEV_EMULATION: is not set but is needed for
+	nvidia-drm.fbdev=1 support, currently off-by-default and it could
+	be ignored, but note that is due to change in the future."
 	local ERROR_MMU_NOTIFIER="CONFIG_MMU_NOTIFIER: is not set but needed to build with USE=kernel-open.
 	Cannot be directly selected in the kernel's menuconfig, and may need
 	selection of another option that requires it such as CONFIG_KVM."
@@ -161,7 +178,7 @@ src_prepare() {
 	use X || sed -i 's/"libGLX/"libEGL/' nvidia_{layers,icd}.json || die
 
 	# enable nvidia-drm.modeset=1 by default with USE=wayland
-	cp "${FILESDIR}"/nvidia-545.conf "${T}"/nvidia.conf || die
+	cp "${FILESDIR}"/nvidia-570.conf "${T}"/nvidia.conf || die
 	use !wayland || sed -i '/^#.*modeset=1$/s/^#//' "${T}"/nvidia.conf || die
 
 	# makefile attempts to install wayland library even if not built
@@ -190,11 +207,6 @@ src_compile() {
 	if use modules; then
 		local o_cflags=${CFLAGS} o_cxxflags=${CXXFLAGS} o_ldflags=${LDFLAGS}
 
-		# conftest.sh is broken with c23 due to func() changing meaning,
-		# and then fails later due to ealier misdetections
-		# TODO: try without now and then + drop modargs' CC= (bug #944092)
-		KERNEL_CC+=" -std=gnu17"
-
 		local modlistargs=video:kernel
 		if use kernel-open; then
 			modlistargs+=-module-source:kernel-module-source/kernel-open
@@ -204,11 +216,12 @@ src_compile() {
 			filter-flags -fno-plt #912949
 			filter-lto
 			CC=${KERNEL_CC} CXX=${KERNEL_CXX} strip-unsupported-flags
+
+			LDFLAGS=$(raw-ldflags)
 		fi
 
 		local modlist=( nvidia{,-drm,-modeset,-peermem,-uvm}=${modlistargs} )
 		local modargs=(
-			CC="${KERNEL_CC}" # needed for above gnu17 workaround
 			IGNORE_CC_MISMATCH=yes NV_VERBOSE=1
 			SYSOUT="${KV_OUT_DIR}" SYSSRC="${KV_DIR}"
 
@@ -253,6 +266,7 @@ src_install() {
 		[GBM_BACKEND_LIB_SYMLINK]=/usr/${libdir}/gbm
 		[GLVND_EGL_ICD_JSON]=/usr/share/glvnd/egl_vendor.d
 		[OPENGL_DATA]=/usr/share/nvidia
+		[VULKANSC_ICD_JSON]=/usr/share/vulkansc
 		[VULKAN_ICD_JSON]=/usr/share/vulkan
 		[WINE_LIB]=/usr/${libdir}/nvidia/wine
 		[XORG_OUTPUTCLASS_CONFIG]=/usr/share/X11/xorg.conf.d
@@ -268,12 +282,14 @@ src_install() {
 		libnvidia-{gtk,wayland-client} nvidia-{settings,xconfig} # from source
 		libnvidia-egl-gbm 15_nvidia_gbm # gui-libs/egl-gbm
 		libnvidia-egl-wayland 10_nvidia_wayland # gui-libs/egl-wayland
+		libnvidia-egl-xcb 20_nvidia_xcb.json # gui-libs/egl-x11
+		libnvidia-egl-xlib 20_nvidia_xlib.json # gui-libs/egl-x11
 		libnvidia-pkcs11.so # using the openssl3 version instead
 	)
 	local skip_modules=(
 		$(usev !X "nvfbc vdpau xdriver")
 		$(usev !modules gsp)
-		$(usev !powerd powerd)
+		$(usev !powerd nvtopps)
 		installer nvpd # handled separately / built from source
 	)
 	local skip_types=(
@@ -312,6 +328,12 @@ $(use amd64 && usev !abi_x86_32 "
 
 Note that without USE=abi_x86_32 on ${PN}, 32bit applications
 (typically using wine / steam) will not be able to use GPU acceleration.")
+
+Be warned that USE=kernel-open may need to be either enabled or
+disabled for certain cards to function:
+- GTX 50xx (blackwell) and higher require it to be enabled
+- GTX 1650 and higher (pre-blackwell) should work either way
+- Older cards require it to be disabled
 
 For additional information or for troubleshooting issues, please see
 https://wiki.gentoo.org/wiki/NVIDIA/nvidia-drivers and NVIDIA's own
@@ -401,8 +423,9 @@ documentation that is installed alongside this README."
 			dosym ${m[4]} ${into}/${m[0]}
 			continue
 		fi
-		[[ ${m[0]} =~ ^libnvidia-ngx.so|^libnvidia-egl-gbm.so ]] &&
-			dosym ${m[0]} ${into}/${m[0]%.so*}.so.1 # soname not in .manifest
+		# avoid portage warning due to missing soname links in manifest
+		[[ ${m[0]} =~ ^libnvidia-ngx.so ]] &&
+			dosym ${m[0]} ${into}/${m[0]%.so*}.so.1
 
 		printf -v m[1] %o $((m[1] | 0200)) # 444->644
 		insopts -m${m[1]}
@@ -416,9 +439,12 @@ documentation that is installed alongside this README."
 	exeinto "${_#"${EPREFIX}"}"
 	doexe systemd/system-sleep/nvidia
 	dobin systemd/nvidia-sleep.sh
-	systemd_dounit systemd/system/nvidia-{hibernate,resume,suspend}.service
+	systemd_dounit systemd/system/nvidia-{hibernate,resume,suspend,suspend-then-hibernate}.service
 
 	dobin nvidia-bug-report.sh
+
+	insinto /usr/share/nvidia/files.d
+	doins sandboxutils-filelist.json
 
 	# MODULE:powerd extras
 	if use powerd; then
@@ -438,6 +464,8 @@ documentation that is installed alongside this README."
 	dosym {"${unitdir}",/etc/systemd/system/systemd-hibernate.service.wants}/nvidia-resume.service
 	dosym {"${unitdir}",/etc/systemd/system/systemd-suspend.service.wants}/nvidia-suspend.service
 	dosym {"${unitdir}",/etc/systemd/system/systemd-suspend.service.wants}/nvidia-resume.service
+	dosym {"${unitdir}",/etc/systemd/system/systemd-suspend-then-hibernate.service.wants}/nvidia-suspend-then-hibernate.service
+	dosym {"${unitdir}",/etc/systemd/system/systemd-suspend-then-hibernate.service.wants}/nvidia-resume.service
 	# also add a custom elogind hook to do the equivalent of the above
 	exeinto /usr/lib/elogind/system-sleep
 	newexe "${FILESDIR}"/system-sleep.elogind nvidia
@@ -552,18 +580,15 @@ pkg_postinst() {
 
 	if use kernel-open && [[ ! -v NV_HAD_KERNEL_OPEN ]]; then
 		ewarn
-		ewarn "Open source variant of ${PN} was selected, be warned it is experimental"
-		ewarn "and only for modern GPUs (e.g. GTX 1650+). Try to disable if run into issues."
-		ewarn "Please also see: ${EROOT}/usr/share/doc/${PF}/html/kernel_open.html"
+		ewarn "Open source variant of ${PN} was selected, note that it requires"
+		ewarn "Turing/Ampere+ GPUs (aka GTX 1650+). Try disabling if run into issues."
+		ewarn "Also see: ${EROOT}/usr/share/doc/${PF}/html/kernel_open.html"
 	fi
 
 	if use wayland && use modules && [[ ! -v NV_HAD_WAYLAND ]]; then
 		elog
-		elog "With USE=wayland, this version of ${PN} sets nvidia-drm.modeset=1"
-		elog "in '${EROOT}/etc/modprobe.d/nvidia.conf'. This feature is considered"
-		elog "experimental but is required for wayland."
-		elog
-		elog "If you experience issues, either disable wayland or edit nvidia.conf."
-		elog "Of note, may possibly cause issues with SLI and Reverse PRIME."
+		elog "Note that with USE=wayland, nvidia-drm.modeset=1 will be enabled"
+		elog "in '${EROOT}/etc/modprobe.d/nvidia.conf'. *If* experience issues,"
+		elog "either disable wayland or edit nvidia.conf."
 	fi
 }
