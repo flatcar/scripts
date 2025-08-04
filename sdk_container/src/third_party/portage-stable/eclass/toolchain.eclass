@@ -1199,6 +1199,8 @@ toolchain_setup_d() {
 toolchain_src_configure() {
 	BUILD_CONFIG_TARGETS=()
 	is-flagq '-O3' && BUILD_CONFIG_TARGETS+=( bootstrap-O3 )
+	is-flagq '-fsanitize=address' && BUILD_CONFIG_TARGETS+=( bootstrap-asan )
+	is-flagq '-fsanitize=undefined' && BUILD_CONFIG_TARGETS+=( bootstrap-ubsan )
 
 	downgrade_arch_flags
 	gcc_do_filter_flags
@@ -2178,7 +2180,7 @@ gcc_do_filter_flags() {
 	fi
 
 	if ver_test -lt 16.1 ; then
-		filter-flags -fdiagnostics-details
+		filter-flags '-fdiagnostics-show-context=*'
 	fi
 
 	# Ada: PR116226
