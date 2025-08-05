@@ -2503,6 +2503,7 @@ function kvr_read_reports() {
                         gen_varname rkvp_array_name
                         declare -ga "${rkvp_array_name}"
                         mapfile -t "${rkvp_array_name}" <<<${values_str// /$'\n'}
+                        kv_map_ref["${key}"]="${rkvp_array_name}"
                     else
                         pkg_warn \
                             '- malformed key-value string' \
