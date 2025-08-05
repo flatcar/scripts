@@ -1906,6 +1906,9 @@ function handle_package_changes_job() {
     local we_are_done='' line
     local -a reply_lines pair
     local -i i pkg_count
+    local used_licenses_file="${output_dir}/used-licenses"
+
+    local -A hpcj_used_licenses_set=()
 
     local REPLY
     while [[ -z ${we_are_done} ]]; do
@@ -1923,7 +1926,7 @@ function handle_package_changes_job() {
             for line in "${reply_lines[@]}"; do
                 mapfile -t pair <<<"${line// /$'\n'}"
                 if [[ ${#pair[@]} -eq 2 ]]; then
-                    handle_one_package_change "${output_dir}" "${bunch_of_maps_var_name}" "${pair[@]}"
+                    handle_one_package_change "${output_dir}" "${bunch_of_maps_var_name}" hpcj_used_licenses_set "${pair[@]}"
                 else
                     echo "invalid message received: ${line@Q}, expected a pair of package names"
                 fi
@@ -1932,6 +1935,11 @@ function handle_package_changes_job() {
             echo "invalid message received: ${REPLY@Q}, expected a number or ${we_are_done_msg@Q}"
         fi
     done
+
+    if [[ ${#hpcj_used_licenses_set[@]} -gt 0 ]]; then
+        printf '%s\n' "${!hpcj_used_licenses_set[@]}" >"${used_licenses_file}"
+    fi
+
     return 0
 }
 
@@ -1947,12 +1955,12 @@ function package_output_paths_unset() {
 function handle_one_package_change() {
     local output_dir=${1}; shift
     local -n bunch_of_maps_ref=${1}; shift
+    local used_licenses_set_var_name=${1}; shift
     local old_name=${1}; shift
     local new_name=${1}; shift
 
     local warnings_dir="${output_dir}/warnings"
     local updates_dir="${output_dir}/updates"
-    local used_licenses_file="${output_dir}/used-licenses"
 
     local pkg_to_tags_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_TO_TAGS_MVM_IDX]}
     local pkg_slots_set_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_SLOTS_SET_MVM_IDX]}
@@ -2099,8 +2107,6 @@ function handle_one_package_change() {
     generate_full_diffs "${update_dir_non_slot}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}"
     generate_package_mention_reports "${update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
 
-    local -A hopc_used_licenses_set=()
-
     local hopc_changed=''
     local old_verminmax new_verminmax
     local hopc_slot_dirname
@@ -2139,7 +2145,7 @@ function handle_one_package_change() {
         parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
         diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
-        evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
+        evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" "${used_licenses_set_var_name}"
 
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
@@ -2201,7 +2207,7 @@ function handle_one_package_change() {
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
             diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
-            evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${hopc_new_s}" "${new_version}" hopc_used_licenses_set
+            evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${hopc_new_s}" "${new_version}" "${used_licenses_set_var_name}"
 
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
@@ -2260,13 +2266,9 @@ function handle_one_package_change() {
 
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
-            evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
+            evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" "${used_licenses_set_var_name}"
             cache_file_unset hopc_new_cache_file
         done
-    fi
-
-    if [[ ${#hopc_used_licenses_set[@]} -gt 0 ]]; then
-        printf '%s\n' "${!hopc_used_licenses_set[@]}" >"${used_licenses_file}"
     fi
 
     package_output_paths_unset hopc_package_output_paths
