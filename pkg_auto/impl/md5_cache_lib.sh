@@ -21,9 +21,10 @@ source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
 function evaluate_license_group() {
     local license_group_name=${1}; shift
-    local -n use_flags_map_ref=${1}; shift
+    local use_flags_map_var_name=${1}; shift
     local -n used_licenses_ref=${1}; shift
 
+    local -n use_flags_map_ref=${use_flags_map_var_name}
     local -a groups_to_process=( "${license_group_name}" )
 
     local do_process_items
@@ -46,9 +47,9 @@ function evaluate_license_group() {
                             mode=IUSE_DISABLED
                             ;;
                     esac
-                    if [[ -n ${use_flags_map_ref["${name}"]:+unset} ]]; then
+                    if [[ -n ${use_flags_map_ref["${name}"]:-} ]]; then
                         # TODO: warning
-                        fail "emerge did not report USE flag ${name@Q} to exist in the processed package"
+                        fail "emerge did not report USE flag ${name@Q} to exist in the processed package ($(declare -p "${use_flags_map_var_name}"))"
                     fi
                     local -i flag_mode=${use_flags_map_ref["${name}"]}
                     if [[ mode -eq flag_mode ]]; then
