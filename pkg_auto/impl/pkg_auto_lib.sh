@@ -3758,8 +3758,8 @@ function drop_unused_licenses() {
     local -a to_be_dropped=()
     for file in "${NEW_PORTAGE_STABLE}/licenses/"*; do
         basename_out "${file}" dul_license
-        if [[ -z ${used_licenses_set_ref["${license}"]:-} ]]; then
-            to_be_dropped+=( "${license}" )
+        if [[ -z ${used_licenses_set_ref["${dul_license}"]:-} ]]; then
+            to_be_dropped+=( "${dul_license}" )
         fi
     done
 
