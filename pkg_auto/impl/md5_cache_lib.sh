@@ -50,7 +50,7 @@ function evaluate_license_group() {
                         # TODO: warning
                         fail "emerge did not report USE flag ${name@Q} to exist in the processed package"
                     fi
-                    local -i flag_mode=${use_flags_map_ref["${mode}"]}
+                    local -i flag_mode=${use_flags_map_ref["${name}"]}
                     if [[ mode -eq flag_mode ]]; then
                         do_process_items=x
                     fi
