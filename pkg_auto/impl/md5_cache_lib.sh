@@ -16,6 +16,92 @@ source "${PKG_AUTO_IMPL_DIR}/debug.sh"
 source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 
 #
+# Misc
+#
+
+function evaluate_license_group() {
+    local license_group_name=${1}; shift
+    local -n use_flags_map_ref=${1}; shift
+    local -n used_licenses_ref=${1}; shift
+
+    local -a groups_to_process=( "${license_group_name}" )
+
+    while [[ ${#groups_to_process[*]} -gt 0 ]]; do
+        local -n group_ref=${groups_to_process[-1]}
+        unset 'groups_to_process[-1]'
+
+        local -n group_items_ref=${group_ref[GROUP_ITEMS_IDX]}
+        case ${group_ref[GROUP_TYPE_IDX]} in
+            "${GROUP_ALL_OF}")
+                local name=${group_ref[GROUP_USE_IDX]}
+                if [[ -n ${name} ]]; then
+                    local -i mode
+                    case ${group_ref[GROUP_ENABLED_IDX]} in
+                        "${GROUP_USE_ENABLED}")
+                            mode=IUSE_ENABLED
+                            ;;
+                        "${GROUP_USE_DISABLED}")
+                            mode=IUSE_DISABLED
+                            ;;
+                    esac
+                    if [[ -n ${use_flags_map_ref["${name}"]:+unset} ]]; then
+                        # TODO: warning
+                        fail "emerge did not report USE flag ${name@Q} to exist in the processed package"
+                    fi
+                    local -i flag_mode=${use_flags_map_ref["${mode}"]}
+                    if [[ mode -eq flag_mode ]]; then
+                        local item_var_name
+                        for item_var_name in "${group_items_ref[@]}"; do
+                            local -n item_ref=${item_var_name}
+                            case ${item_ref:0:1} in
+                                'e')
+                                    : # nothing to do here
+                                    ;;
+                                'g')
+                                    groups_to_process+=( "${item_ref:2}" )
+                                    ;;
+                                'l')
+                                    used_licenses_ref+=( "${item_ref:2}" )
+                                    ;;
+                                *)
+                                    fail "item ${item_ref} is bad"
+                                    ;;
+                            esac
+                            unset -n item_ref
+                        done
+                    fi
+                fi
+                unset name
+                ;;
+            "${GROUP_ANY_OF}")
+                local item_var_name
+                for item_var_name in "${group_items_ref[@]}"; do
+                    local -n item_ref=${item_var_name}
+                    case ${item_ref:0:1} in
+                        'e')
+                            : # nothing to do here
+                            ;;
+                        'g')
+                            groups_to_process+=( "${item_ref:2}" )
+                            ;;
+                        'l')
+                            used_licenses_ref+=( "${item_ref:2}" )
+                            ;;
+                        *)
+                            fail "item ${item_ref} is bad"
+                            ;;
+                    esac
+                    unset -n item_ref
+                done
+                ;;
+        esac
+        unset -n group_items_ref
+
+        unset -n group_ref
+    done
+}
+
+#
 # Cache file
 #
 

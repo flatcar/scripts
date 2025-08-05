@@ -2099,6 +2099,8 @@ function handle_one_package_change() {
     generate_full_diffs "${update_dir_non_slot}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}"
     generate_package_mention_reports "${update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
 
+    local -A hopc_used_licenses_set=()
+
     local hopc_changed=''
     local old_verminmax new_verminmax
     local hopc_slot_dirname
@@ -2137,6 +2139,7 @@ function handle_one_package_change() {
         parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
         diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
+        evaluate_licenses hopc_new_cache_file "{kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
 
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
@@ -2198,6 +2201,7 @@ function handle_one_package_change() {
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
             diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
+            evaluate_licenses hopc_new_cache_file "{kvr_reports_var_name}" "${new_name}" "${hopc_new_s}" "${new_version}" hopc_used_licenses_set
 
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
@@ -2246,10 +2250,22 @@ function handle_one_package_change() {
         done
         manual_d "${warnings_dir}" "${lines[@]}"
         unset lines
-        # TODO: evaluate used licenses here, remember that the values
-        # in USE may albo be in parentheses or have some other extra
-        # symbols there (percents, asterisks and whatnot)
+
+        # But we still want to evaluate the licenses.
+        for s in "${!hopc_new_filtered_slots_set[@]}"; do
+            new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
+            new_version=${new_verminmax##*:}
+
+            cache_file_declare hopc_new_cache_file
+
+            parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
+
+            evaluate_licenses hopc_new_cache_file "{kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
+            cache_file_unset hopc_new_cache_file
+        done
     fi
+
+    printf '%s\n' "${!hopc_used_licenses_set[@]}" >"${used_licenses_file}"
 
     package_output_paths_unset hopc_package_output_paths
     unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
@@ -2511,7 +2527,7 @@ function kvr_read_reports() {
 function handle_package_changes() {
     local -n renamed_old_to_new_map_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
-    local -n used_licenses_map_ref=${1}; shift
+    local -n used_licenses_set_ref=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
@@ -2759,7 +2775,7 @@ function handle_package_changes() {
         next_idx=${idx}
     done
 
-    local some_job_failed='' hpc_filename
+    local some_job_failed='' hpc_filename license
     local -i hpc_rv
     truncate --size=0 "${REPORTS_DIR}/updates/summary_stubs" "${REPORTS_DIR}/updates/changelog_stubs"
     for pkg_job_state_name in "${pkg_job_state_names[@]}"; do
@@ -2771,6 +2787,9 @@ function handle_package_changes() {
         if [[ hpc_rv -ne 0 ]]; then
             some_job_failed=x
         fi
+        while read -r license; do
+            used_licenses_set_ref["${license}"]=x
+        done <"${pkg_job_dir}/used-licenses"
         for file in "${pkg_job_dir}/warnings/"*; do
             basename_out "${file}" hpc_filename
             cat "${file}" >>"${REPORTS_DIR}/${hpc_filename}"
@@ -2787,6 +2806,8 @@ function handle_package_changes() {
             fi
         done
     done
+    printf '%s\n' "${!used_licenses_set_ref[@]}" | sort -u >"${REPORTS_DIR}/used-licenses"
+
     pkg_job_state_unset "${pkg_job_state_names[@]}"
     bunch_of_maps_unset hpc_bunch_of_maps
 
@@ -3219,6 +3240,63 @@ function generate_ebuild_diff() {
     xdiff --unified=3 "${old_path}" "${new_path}" >"${out_dir}/ebuild.diff"
 }
 
+function evaluate_licenses() {
+    local cache_file_var_name=${1}; shift
+    local kvr_reports_var_name=${1}; shift
+    local pkg=${1}; shift
+    local slot=${1}; shift
+    local version=${1}; shift
+    local -n used_licenses_set_ref=${1}; shift
+
+    local -n cache_ref=${cache_var_name}
+    local -n reports_ref=${kvr_reports_var_name}
+
+    local license_group_name=${cache_ref[PCF_LICENSE_IDX]}
+    local -n map_names_ref=${reports_ref[KVR_MAPS_IDX]}
+
+    local pkg_map_name pkg_map_key=${pkg}-${version}:${slot}
+    local kv_map_name use_flags_array_name use
+    local -i mode
+
+    local -a el_used_licenses
+    local -A el_use_flags_map
+
+    for pkg_map_name in "${map_names_ref[@]}"; do
+        local -n pkg_map_ref=${pkg_map_name}
+        kv_map_name=${pkg_map_ref["${pkg_map_key}"]:-EMPTY_MAP}
+        unset -n pkg_map_ref
+        local -n kv_map_ref=${kv_map_name}
+        use_flags_array_name=${kv_map_ref['USE']:-EMPTY_ARRAY}
+        unset -n kv_map_ref
+        local -n use_flags_array_ref=${use_flags_array_name}
+
+        el_use_flags_map=()
+        for use in "${use_flags_array_ref[@]}"; do
+            use=${use//'('/}
+            use=${use//')'/}
+            use=${use//'{'/}
+            use=${use//'}'/}
+            use=${use//'%'/}
+            use=${use//'*'/}
+            mode=IUSE_ENABLED
+            if [[ ${use:0:1} = '-' ]]; then
+                mode=IUSE_DISABLED
+                use=${use:1}
+            fi
+            el_use_flags_map["${use}"]=${mode}
+        done
+
+        evaluate_license_group "${license_group_name}" el_use_flags_map el_used_licenses
+
+        unset -n use_flags_array_ref
+    done
+
+    local license
+    for license in "${el_used_licenses[@]}"; do
+        used_licenses_set_ref["${license}"]=x
+    done
+}
+
 # Generate a report with information where the old and new packages
 # are mentioned in entire scripts repository. May result in two
 # separate reports if the package got renamed.
@@ -3352,12 +3430,12 @@ function handle_gentoo_sync() {
     source "${WORKDIR}/globals"
 
     local -A hgs_renames_old_to_new_map=()
-    local -A hgs_used_licenses_map=()
+    local -A hgs_used_licenses_set=()
     process_profile_updates_directory hgs_renames_old_to_new_map
 
     mkdir -p "${REPORTS_DIR}/updates"
 
-    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_map
+    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_set
 
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
@@ -3404,7 +3482,7 @@ function handle_gentoo_sync() {
                 handle_eclass "${entry}"
                 ;;
             licenses)
-                handle_licenses
+                handle_licenses hgs_used_licenses_set
                 ;;
             metadata)
                 info "not handling metadata updates, skipping"
@@ -3650,10 +3728,41 @@ function handle_profiles() {
 # Handles changes in license directory. Generates brief reports and
 # diffs about dropped, added or modified licenses.
 function handle_licenses() {
+    local -n used_licenses_set_ref=${1}; shift
+
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
     info "handling update of licenses"
+
+    local file hl_license
+    local -a to_be_dropped=()
+    for file in "${NEW_PORTAGE_STABLE}/licenses/"*; do
+        basename_out "${file}" hl_license
+        if [[ -z ${used_licenses_set_ref["${license}"]:-} ]]; then
+            to_be_dropped+=( "${license}" )
+        fi
+    done
+
+    if [[ ${#to_be_dropped[@]} -gt 0 ]]; then
+        local -x "${GIT_ENV_VARS[@]}"
+        setup_git_env
+
+        git -C "${NEW_PORTAGE_STABLE}/licenses" rm -f "${to_be_dropped[@]}"
+        local old_head maybe_new_commit
+        old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
+        maybe_new_commit=$(git -C "${NEW_STATE}" log "${old_head}..HEAD" -- "${PORTAGE_STABLE_SUFFIX}/licenses" | head -n 1 | cut -f1 -d' ')
+        if [[ -n ${maybe_new_commit} ]]; then
+            # licenses directory was updated during last sync, so
+            # amend it with the removals
+            git -C "${NEW_STATE}" commit --fixup "${maybe_new_commit}"
+            git -C "${NEW_STATE}" rebase --autosquash "${old_head}"
+        else
+            # no licenses werew updated during last sync, create the
+            # removals commit
+            git -C "${NEW_STATE}" commit -m 'licenses: Drop unused licenses'
+        fi
+    fi
 
     local -a dropped=() added=() changed=()
     local line hl_stripped
