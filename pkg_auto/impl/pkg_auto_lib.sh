@@ -3276,7 +3276,6 @@ function evaluate_licenses() {
         unset -n kv_map_ref
         local -n use_flags_array_ref=${use_flags_array_name}
 
-        set -x
         el_use_flags_map=()
         for use in "${use_flags_array_ref[@]}"; do
             use=${use//'('/}
@@ -3294,7 +3293,6 @@ function evaluate_licenses() {
         done
 
         evaluate_license_group "${license_group_name}" el_use_flags_map el_used_licenses
-        set +x
 
         unset -n use_flags_array_ref
     done
