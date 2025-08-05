@@ -47,7 +47,7 @@ function evaluate_license_group() {
                             mode=IUSE_DISABLED
                             ;;
                     esac
-                    if [[ -n ${use_flags_map_ref["${name}"]:-} ]]; then
+                    if [[ -z ${use_flags_map_ref["${name}"]:-} ]]; then
                         # TODO: warning
                         fail "emerge did not report USE flag ${name@Q} to exist in the processed package ($(declare -p "${use_flags_map_var_name}"))"
                     fi
