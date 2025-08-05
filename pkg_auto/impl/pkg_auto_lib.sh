@@ -3248,7 +3248,7 @@ function evaluate_licenses() {
     local version=${1}; shift
     local -n used_licenses_set_ref=${1}; shift
 
-    local -n cache_ref=${cache_var_name}
+    local -n cache_ref=${cache_file_var_name}
     local -n reports_ref=${kvr_reports_var_name}
 
     local license_group_name=${cache_ref[PCF_LICENSE_IDX]}
