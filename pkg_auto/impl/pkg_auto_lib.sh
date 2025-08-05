@@ -2265,7 +2265,9 @@ function handle_one_package_change() {
         done
     fi
 
-    printf '%s\n' "${!hopc_used_licenses_set[@]}" >"${used_licenses_file}"
+    if [[ ${#hopc_used_licenses_set[@]} -gt 0 ]]; then
+        printf '%s\n' "${!hopc_used_licenses_set[@]}" >"${used_licenses_file}"
+    fi
 
     package_output_paths_unset hopc_package_output_paths
     unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
@@ -2787,9 +2789,11 @@ function handle_package_changes() {
         if [[ hpc_rv -ne 0 ]]; then
             some_job_failed=x
         fi
-        while read -r license; do
-            used_licenses_set_ref["${license}"]=x
-        done <"${pkg_job_dir}/used-licenses"
+        if [[ -s "${pkg_job_dir}/used-licenses" ]]; then
+            while read -r license; do
+                used_licenses_set_ref["${license}"]=x
+            done <"${pkg_job_dir}/used-licenses"
+        fi
         for file in "${pkg_job_dir}/warnings/"*; do
             basename_out "${file}" hpc_filename
             cat "${file}" >>"${REPORTS_DIR}/${hpc_filename}"
