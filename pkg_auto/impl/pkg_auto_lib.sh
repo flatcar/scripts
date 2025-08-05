@@ -3270,7 +3270,11 @@ function evaluate_licenses() {
 
     for pkg_map_name in "${map_names_ref[@]}"; do
         local -n pkg_map_ref=${pkg_map_name}
-        kv_map_name=${pkg_map_ref["${pkg_map_key}"]:-EMPTY_MAP}
+        kv_map_name=${pkg_map_ref["${pkg_map_key}"]:-}
+        if [[ -z ${kv_map_name} ]]; then
+            # no info about the package in the map, skip this one
+            continue
+        fi
         unset -n pkg_map_ref
         local -n kv_map_ref=${kv_map_name}
         use_flags_array_name=${kv_map_ref['USE']:-EMPTY_ARRAY}
