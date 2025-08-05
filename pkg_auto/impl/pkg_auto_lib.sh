@@ -2139,7 +2139,7 @@ function handle_one_package_change() {
         parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
         diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
-        evaluate_licenses hopc_new_cache_file "{kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
+        evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
 
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
@@ -2201,7 +2201,7 @@ function handle_one_package_change() {
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
             diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
-            evaluate_licenses hopc_new_cache_file "{kvr_reports_var_name}" "${new_name}" "${hopc_new_s}" "${new_version}" hopc_used_licenses_set
+            evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${hopc_new_s}" "${new_version}" hopc_used_licenses_set
 
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
@@ -2260,7 +2260,7 @@ function handle_one_package_change() {
 
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
-            evaluate_licenses hopc_new_cache_file "{kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
+            evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" hopc_used_licenses_set
             cache_file_unset hopc_new_cache_file
         done
     fi
