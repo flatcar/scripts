@@ -3295,8 +3295,10 @@ function evaluate_licenses() {
 
         set -x
         declare -p pkg slot version "${use_flags_array_name}" el_use_flags_map
+        local el_group_str
+        group_to_string "${license_group_name}" el_group_str
 
-        echo "LICENSE GROUP: $(group_to_string "${license_group_name}")"
+        echo "LICENSE GROUP: ${el_group_str}"
 
         evaluate_license_group "${license_group_name}" el_use_flags_map el_used_licenses
 
