@@ -47,7 +47,7 @@ function job_run() {
     if [[ -n ${merge_out_with_err} ]]; then
         errfd=${outfd}
     fi
-    "${@}" <&${infd} >&${outfd} 2>&${errfd} &
+    __jl_job_runner__ "${@}" <&${infd} >&${outfd} 2>&${errfd} &
     pid=${!}
     job_ref[JOB_PID_IDX]=${pid}
     job_ref[JOB_INFD_IDX]=${infd}
@@ -142,6 +142,11 @@ function job_get_output() {
             got_output=x
         fi
     done
+}
+
+function __jl_job_runner__() {
+    set -euo pipefail
+    "${@}"
 }
 
 fi
