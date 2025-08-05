@@ -2409,7 +2409,7 @@ function kvr_unset() {
     local name array_name pkg_map_name kv_map_name
     for name; do
         local -n reports_ref=${name}
-        array_name=${reports_ref[KVR_MVMS_IDX]}
+        array_name=${reports_ref[KVR_MAPS_IDX]}
         unset -n reports_ref
         if [[ ${array_name} = 'EMPTY_ARRAY' ]]; then
             continue
