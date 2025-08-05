@@ -3494,6 +3494,12 @@ function handle_gentoo_sync() {
         done < <(git -C "${NEW_STATE}" diff-tree --no-commit-id --name-only -r "${old_head}" "${new_head}")
     fi
 
+    local hgs_licenses_modified=''
+    drop_unused_licenses hgs_used_licenses_set hgs_licenses_modified
+    if [[ -n ${hgs_licenses_modified} ]]; then
+        non_package_updates_set['licenses']=x
+    fi
+
     local entry
     for entry in "${!non_package_updates_set[@]}"; do
         case "${entry}" in
@@ -3501,7 +3507,7 @@ function handle_gentoo_sync() {
                 handle_eclass "${entry}"
                 ;;
             licenses)
-                handle_licenses hgs_used_licenses_set
+                handle_licenses
                 ;;
             metadata)
                 info "not handling metadata updates, skipping"
@@ -3744,26 +3750,24 @@ function handle_profiles() {
     generate_summary_stub "${REPORTS_DIR}/updates" profiles -- '0:TODO: review the diffs'
 }
 
-# Handles changes in license directory. Generates brief reports and
-# diffs about dropped, added or modified licenses.
-function handle_licenses() {
+function drop_unused_licenses() {
     local -n used_licenses_set_ref=${1}; shift
+    local -n licenses_modified_ref=${1}; shift
 
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    info "handling update of licenses"
-
-    local file hl_license
+    local file dul_license
     local -a to_be_dropped=()
     for file in "${NEW_PORTAGE_STABLE}/licenses/"*; do
-        basename_out "${file}" hl_license
+        basename_out "${file}" dul_license
         if [[ -z ${used_licenses_set_ref["${license}"]:-} ]]; then
             to_be_dropped+=( "${license}" )
         fi
     done
 
     if [[ ${#to_be_dropped[@]} -gt 0 ]]; then
+        info "dropping unused licenses"
+
+        licenses_modified_ref=x
+
         local -x "${GIT_ENV_VARS[@]}"
         setup_git_env
 
@@ -3782,6 +3786,15 @@ function handle_licenses() {
             git -C "${NEW_STATE}" commit -m 'licenses: Drop unused licenses'
         fi
     fi
+}
+
+# Handles changes in license directory. Generates brief reports and
+# diffs about dropped, added or modified licenses.
+function handle_licenses() {
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
+    info "handling update of licenses"
 
     local -a dropped=() added=() changed=()
     local line hl_stripped
