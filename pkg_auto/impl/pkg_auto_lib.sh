@@ -3292,7 +3292,14 @@ function evaluate_licenses() {
             el_use_flags_map["${use}"]=${mode}
         done
 
+        set -x
+        declare -p "${pkg}" "${slot}" "${version}" "${pkg_map_name}" "${use_flags_array_ref}" "${el_use_flags_map}"
+
+        echo "LICENSE GROUP: $(group_to_string "${license_group_name}")"
+
         evaluate_license_group "${license_group_name}" el_use_flags_map el_used_licenses
+
+        set +x
 
         unset -n use_flags_array_ref
     done
