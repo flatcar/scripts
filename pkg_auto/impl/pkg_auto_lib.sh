@@ -214,6 +214,15 @@ function save_new_state() {
         '')
             # branch does not exist
             branch_dir=''
+            # maybe we specified the branch as <remote>/<branch_name>?
+            local -a remotes
+            remotes=$(git -C "${SCRIPTS}" remote)
+            local remote
+            for remote in "${remotes[@]}"; do
+                if [[ "${branch_name}" = "${remote}/"* ]]; then
+                    fail "cannot save to a remote branch ${branch_name@Q}, must be a local branch"
+                fi
+            done
             ;;
         *)
             fail "unexpected output from git branch: ${branch_status}"
