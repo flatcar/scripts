@@ -178,8 +178,63 @@ function save_new_state() {
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
+
+    local branch_status branch_dir
+    branch_status=$(git -C "${SCRIPTS}" branch --list --no-color "${branch_name}")
+
+    case ${branch_status} in
+        '* '*)
+            # branch is checked out in current directory
+            branch_dir=${SCRIPTS}
+            ;;
+        '+ '*)
+            # branch is checked out in some other worktree
+            local -a grep_output
+            local grep_regexp="branch refs/heads/${branch_name}"
+            mapfile -t grep_output < <(git -C "${SCRIPTS}" worktree list --porcelain | grep --line-regexp --fixed-strings --before-context=2 --regexp="${grep_regexp}" || :)
+            if [[ ${#grep_output[@]} -ne 3 ]]; then
+                fail 'git worktree list --porcelain failed, got unexpected output'
+            fi
+            # lines are:
+            #
+            # worktree </path/to/worktree>
+            # HEAD <hash-of-commit>
+            # branch refs/heads/<branch name>
+            branch_dir="${grep_output[0]#* }"
+            ;;
+        '  '*)
+            # branch exists, but is not checked out anywhere
+            branch_dir=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
+            git -C "${SCRIPTS}" worktree add "${branch_dir}" "${branch_name}"
+            add_cleanup \
+                "git -C ${branch_dir@Q} reset --hard HEAD" \
+                "git -C ${branch_dir@Q} clean -ffdx" \
+                "git -C ${SCRIPTS@Q} worktree remove ${branch_dir@Q}" \
+            ;;
+        '')
+            # branch does not exist
+            branch_dir=''
+            # maybe we specified the branch as <remote>/<branch_name>?
+            local -a remotes
+            remotes=$(git -C "${SCRIPTS}" remote)
+            local remote
+            for remote in "${remotes[@]}"; do
+                if [[ "${branch_name}" = "${remote}/"* ]]; then
+                    fail "cannot save to a remote branch ${branch_name@Q}, must be a local branch"
+                fi
+            done
+            ;;
+        *)
+            fail "unexpected output from git branch: ${branch_status}"
+            ;;
+    esac
+
     info "saving new state to branch ${branch_name}"
-    git -C "${SCRIPTS}" branch --force "${branch_name}" "${NEW_STATE_BRANCH}"
+    if [[ -n ${branch_dir} ]]; then
+        git -C "${branch_dir}" reset --hard "${NEW_STATE_BRANCH}"
+    else
+        git -C "${SCRIPTS}" branch "${branch_name}" "${NEW_STATE_BRANCH}"
+    fi
 }
 
 #
@@ -239,7 +294,7 @@ function setup_worktrees_in_workdir() {
 
     setup_worktree "${scripts}" "${old_base}" "old-state-${RANDOM}" "${old_state}"
     setup_worktree "${scripts}" "${new_base}" "new-state-${RANDOM}" "${new_state}"
-    extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}"
+    extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}" "${old_base}" "${new_base}"
 }
 
 # Adds an overridden SDK image name to the globals file.
@@ -468,12 +523,13 @@ EOF
 # 4 - path to reports directory
 # 5 - path to aux directory
 function extend_globals_file() {
-    local scripts old_state new_state reports_dir aux_dir
-    scripts=${1}; shift
-    old_state=${1}; shift
-    new_state=${1}; shift
-    reports_dir=${1}; shift
-    aux_dir=${1}; shift
+    local scripts=${1}; shift
+    local old_state=${1}; shift
+    local new_state=${1}; shift
+    local reports_dir=${1}; shift
+    local aux_dir=${1}; shift
+    local old_base=${1}; shift
+    local new_base=${1}; shift
 
     local globals_file
     globals_file="${WORKDIR}/globals"
@@ -497,12 +553,14 @@ function extend_globals_file() {
 
     cat <<EOF >>"${globals_file}"
 
-local SCRIPTS OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
+local SCRIPTS OLD_BASE NEW_BASE OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
 local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
 local NEW_STATE_PACKAGES_LIST AUX_DIR
 local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
 
 SCRIPTS=${scripts@Q}
+OLD_BASE=${old_base@Q}
+NEW_BASE=${new_base@Q}
 OLD_STATE=${old_state@Q}
 NEW_STATE=${new_state@Q}
 OLD_STATE_BRANCH=${old_state_branch@Q}
@@ -3680,6 +3738,8 @@ function handle_gentoo_sync() {
     done
     sort_summary_stubs
     sort_changelog_stubs
+
+    save_new_state "${NEW_BASE}"
 }
 
 # Sorts entries in the summary file if it exists.
