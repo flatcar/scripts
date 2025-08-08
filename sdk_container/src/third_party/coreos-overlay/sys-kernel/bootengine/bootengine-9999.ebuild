@@ -7,8 +7,7 @@ EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	#EGIT_COMMIT="9062833e9a93602e0e8469070ece4480dae41699" # flatcar-master
-	EGIT_BRANCH="jepio/rm-add-recurse"
+	EGIT_COMMIT="1eb892c1970a158247b3709f81d03b44de7d806e" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
