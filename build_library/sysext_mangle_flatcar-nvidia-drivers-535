@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_NAME=$(basename "$(realpath "${BASH_SOURCE[0]}")")
+SYSEXT_NAME=${SCRIPT_NAME#sysext_mangle_}
+SYSEXT_NAME=${SYSEXT_NAME%.sh}
+DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
+. "$DIR/sysext_mangle_kmod"
+
+rootfs="${1}"
+
+cd "${rootfs}"
+configure_modprobe "$SYSEXT_NAME"
