@@ -1,0 +1,90 @@
+From a0ea7bb44f4c863519537605e8118b6ff6afd57e Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 28 Jul 2025 10:23:02 +0100
+Subject: [PATCH 1/2] Fix cross-compiling by using CMAKE_SYSTEM_PROCESSOR
+ rather than uname -m
+
+There is no need to check the architecture twice. Also check for arm64
+(MacOS) wherever we check for aarch64 (Linux).
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -38,10 +38,8 @@ set(PHOTON_E2FS_SOURCE "" CACHE STRING "")
+ set(PHOTON_GFLAGS_SOURCE "https://github.com/gflags/gflags/archive/refs/tags/v2.2.2.tar.gz" CACHE STRING "")
+ set(PHOTON_GOOGLETEST_SOURCE "https://github.com/google/googletest/archive/refs/tags/release-1.12.1.tar.gz" CACHE STRING "")
+ 
+-# Get CPU arch and number
+-execute_process(COMMAND uname -m OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+-if (NOT (${ARCH} STREQUAL x86_64) AND NOT (${ARCH} STREQUAL aarch64) AND NOT (${ARCH} STREQUAL arm64))
+-    message(FATAL_ERROR "Unknown CPU architecture ${ARCH}")
++if (NOT (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64) AND NOT (CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64) AND NOT (CMAKE_SYSTEM_PROCESSOR STREQUAL arm64))
++    message(FATAL_ERROR "Unknown CPU architecture ${CMAKE_SYSTEM_PROCESSOR}")
+ endif ()
+ ProcessorCount(NumCPU)
+ 
+@@ -65,9 +63,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-packed-bitfield-compat")
+ endif()
+ 
+-if (${ARCH} STREQUAL x86_64)
++if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2")
+-elseif (${ARCH} STREQUAL aarch64)
++elseif ((CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64) OR (CMAKE_SYSTEM_PROCESSOR STREQUAL arm64))
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=generic+crc -fsigned-char -fno-stack-protector -fomit-frame-pointer")
+ endif ()
+ 
+--- a/net/security-context/test/CMakeLists.txt
++++ b/net/security-context/test/CMakeLists.txt
+@@ -6,9 +6,8 @@ add_executable(test-tls test.cpp)
+ target_link_libraries(test-tls PRIVATE photon_shared ${testing_libs})
+ add_test(NAME test-tls COMMAND $<TARGET_FILE:test-tls>)
+ 
+-if (ENABLE_SASL AND (NOT (APPLE AND (${ARCH} STREQUAL arm64))))
++if (ENABLE_SASL AND NOT (APPLE AND (CMAKE_SYSTEM_PROCESSOR STREQUAL arm64)))
+     add_executable(test-sasl test-sasl.cpp)
+     target_link_libraries(test-sasl PRIVATE photon_shared ${testing_libs})
+     add_test(NAME test-sasl COMMAND $<TARGET_FILE:test-sasl>)
+ endif ()
+-
+-- 
+2.49.0
+
+
+From 467ecb887c8cc9107e8f055c90f02ee04fcb895e Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 28 Jul 2025 11:17:24 +0100
+Subject: [PATCH 2/2] Respect aarch64 -march=|-mcpu= flag and check whether
+ -mcpu=native works
+
+Packagers may specify a target system up front, which should be
+respected. The CRC extensions are not strictly necessary as there is a
+software fallback.
+
+Otherwise, use -mcpu=native if it works (it won't when cross-compiling)
+or -mcpu=generic+crc.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -66,7 +66,15 @@ endif()
+ if (CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2")
+ elseif ((CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64) OR (CMAKE_SYSTEM_PROCESSOR STREQUAL arm64))
+-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=generic+crc -fsigned-char -fno-stack-protector -fomit-frame-pointer")
++    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char -fno-stack-protector -fomit-frame-pointer")
++    if (NOT CMAKE_CXX_FLAGS MATCHES "-march=|-mcpu=")
++        check_cxx_compiler_flag(-mcpu=native COMPILER_HAS_NATIVE_FLAG)
++        if (COMPILER_HAS_NATIVE_FLAG)
++            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=native")
++        else ()
++            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=generic+crc")
++        endif ()
++    endif ()
+ endif ()
+ 
+ check_cxx_compiler_flag(-mcrc32 COMPILER_HAS_MCRC32_FLAG)
+-- 
+2.49.0
+
