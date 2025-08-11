@@ -88,14 +88,12 @@ src_install() {
 	mv "${ED}"/opt/${PN}/* "${ED}"/usr/local/${PN}/ || die
 	mv "${ED}"/etc/${PN}/* "${ED}"/usr/local/${PN}/etc/ || die
 
-  # Handle /etc (overlaybd.json), create /opt/opverlaybd and symlink
+	# Handle /etc (overlaybd.json), create /opt/overlaybd and symlink
 	# all contents of /usr/local/overlaybd to /opt/overlaybd.
-  elog "Scanning '${ED}/usr/local/${PN}/' and generating tmpfiles symlink entries..."
-	cp "${FILESDIR}"/10-${PN}.conf "${T}"
-  local entry
-  for entry in $(ls -1 "${ED}/usr/local/${PN}/") ; do
-    echo "L /opt/overlaybd/${entry} - - - - /usr/local/${PN}/${entry}" \
-      | tee -a "${T}/10-${PN}.conf"
-  done
-	dotmpfiles "${T}"/10-${PN}.conf
+	elog "Scanning '${ED}/usr/local/${PN}/' and generating tmpfiles symlink entries..."
+	cat "${FILESDIR}"/10-${PN}.conf <(
+		for entry in "${ED}"/usr/local/${PN}/*; do
+			echo "L /opt/overlaybd/${entry##*/} - - - - /usr/local/${PN}/${entry##*/}"
+		done
+	) | tee /dev/stderr | newtmpfiles - 10-${PN}.conf
 }
