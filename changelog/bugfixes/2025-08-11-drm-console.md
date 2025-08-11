@@ -1,0 +1,1 @@
+- Reenabled console support for DRM drivers, so that with the virtio graphics driver the interactive console is shown again after boot ([Flatcar#1834](https://github.com/flatcar/Flatcar/issues/1834))
