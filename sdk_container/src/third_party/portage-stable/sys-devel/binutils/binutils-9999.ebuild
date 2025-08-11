@@ -141,7 +141,7 @@ src_prepare() {
 			# This is applied conditionally for now just out of caution.
 			# It should be okay on non-prefix systems though. See bug #892549.
 			if is_cross || use prefix; then
-				eapply "${FILESDIR}"/binutils-2.43-linker-search-path.patch \
+				eapply "${FILESDIR}"/binutils-2.40-linker-search-path.patch \
 					   "${FILESDIR}"/binutils-2.43-linker-prefix.patch
 			fi
 		fi
@@ -414,6 +414,9 @@ src_test() {
 
 		# lto-wrapper warnings which confuse tests
 		filter-flags '-Wa,*'
+
+		# Adds a property which confuses tests
+		filter-flags '-mno-direct-extern-access'
 
 		# bug #637066
 		filter-flags -Wall -Wreturn-type
