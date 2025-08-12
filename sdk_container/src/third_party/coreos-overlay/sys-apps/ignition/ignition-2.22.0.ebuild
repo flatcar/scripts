@@ -1,22 +1,14 @@
 # Copyright (c) 2015 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-EGIT_REPO_URI="https://github.com/coreos/ignition.git"
-COREOS_GO_PACKAGE="github.com/flatcar/ignition/v2"
-COREOS_GO_GO111MODULE="off"
-inherit coreos-go git-r3 systemd udev
+EAPI=8
+inherit go-module
 
-if [[ "${PV}" == 9999 ]]; then
-	KEYWORDS="~amd64 ~arm64"
-else
-	EGIT_COMMIT="fc324e12230b036ce9d44f64346780121431ff27" # v2.21.0
-	KEYWORDS="amd64 arm64"
-fi
+KEYWORDS="amd64 arm64"
 
 DESCRIPTION="Pre-boot provisioning utility"
 HOMEPAGE="https://github.com/coreos/ignition"
-SRC_URI=""
+SRC_URI="https://github.com/coreos/ignition/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0/${PVR}"
@@ -63,13 +55,13 @@ PATCHES=(
 )
 
 src_compile() {
-	export GO15VENDOREXPERIMENT="1"
-	GO_LDFLAGS="-X github.com/flatcar/ignition/v2/internal/version.Raw=${PV} -X github.com/flatcar/ignition/v2/internal/distro.selinuxRelabel=false" || die
-	go_build "${COREOS_GO_PACKAGE}/internal"
+	ego build \
+		-ldflags "-X github.com/flatcar/ignition/v2/internal/version.Raw=${PV} -X github.com/flatcar/ignition/v2/internal/distro.selinuxRelabel=false" \
+		"${S}/internal/main.go"
 }
 
 src_install() {
-	newbin ${GOBIN}/internal ${PN}
+	newbin "${S}/main" "${PN}"
 
 	dosym "/usr/bin/${PN}" "/usr/libexec/${PN}-rmcfg"
 }
