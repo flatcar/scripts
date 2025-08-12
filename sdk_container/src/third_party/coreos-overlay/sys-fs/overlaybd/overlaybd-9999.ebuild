@@ -49,7 +49,7 @@ PATCHES=(
 
 src_prepare() {
 	cmake_src_prepare
-	sed -i "s:@FILESDIR@:${FILESDIR}:g" CMake/Findphoton.cmake CMake/Findtcmu.cmake || die
+	sed -i "s:@FILESDIR@:${FILESDIR}:g" CMake/Findphoton.cmake || die
 }
 
 src_configure() {
