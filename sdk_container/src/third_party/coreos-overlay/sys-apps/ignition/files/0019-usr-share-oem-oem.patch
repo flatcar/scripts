@@ -1,4 +1,4 @@
-From 65cb148ff154d54ed37176cfa08bfc65874236f6 Mon Sep 17 00:00:00 2001
+From 0dc08f4751e70db6ad8ca28f37eba52218077d24 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 4 Apr 2023 12:12:42 +0200
 Subject: [PATCH 19/20] /usr/share/oem -> /oem
@@ -38,5 +38,5 @@ index 2726d705..c335eeee 100644
  
  	// Helper programs
 -- 
-2.45.3
+2.49.1
 
