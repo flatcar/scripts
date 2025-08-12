@@ -126,29 +126,3 @@ Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
  if(BUILD_TESTING)
 -- 
 2.49.0
-
-
-From 32a592ef523a14600ce658a695d827724aeb66c9 Mon Sep 17 00:00:00 2001
-From: Krzesimir Nowak <knowak@microsoft.com>
-Date: Fri, 8 Aug 2025 16:47:58 +0200
-Subject: [PATCH] Patch libtcmu after fetching to fix memory issues
-
----
- CMake/Findtcmu.cmake | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/CMake/Findtcmu.cmake b/CMake/Findtcmu.cmake
-index 6e8f0ef..5865a9b 100644
---- a/CMake/Findtcmu.cmake
-+++ b/CMake/Findtcmu.cmake
-@@ -5,6 +5,7 @@ FetchContent_Declare(
-   tcmu
-   GIT_REPOSITORY https://github.com/data-accelerator/photon-libtcmu.git
-   GIT_TAG main
-+  PATCH_COMMAND patch -p1 -i @FILESDIR@/tcmu-fix.patch
- )
- 
- if(BUILD_TESTING)
--- 
-2.49.1
-
