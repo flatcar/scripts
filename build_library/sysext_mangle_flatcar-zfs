@@ -3,6 +3,9 @@
 set -euo pipefail
 rootfs="${1}"
 
+DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+. "$DIR/sysext_mangle_kmod"
+
 pushd "${rootfs}"
 
 rm -rf ./usr/{lib/debug/,lib64/cmake/,include/}
@@ -40,4 +43,5 @@ cat <<EOF >./usr/lib/systemd/system/systemd-udevd.service.d/10-zfs.conf
 [Unit]
 After=systemd-sysext.service
 EOF
+configure_modprobe flatcar-zfs
 popd
