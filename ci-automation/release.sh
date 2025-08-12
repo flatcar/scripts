@@ -91,6 +91,8 @@ function _inside_mantle() {
     secret_to_file gcp_json_key_path "${GCP_JSON_KEY}"
     google_release_credentials_file=""
     secret_to_file google_release_credentials_file "${GOOGLE_RELEASE_CREDENTIALS}"
+    rclone_configuration_file=""
+    secret_to_file rclone_configuration_file "${RCLONE_CONFIGURATION_FILE}"
 
     for platform in aws azure; do
       for arch in amd64 arm64; do
@@ -157,6 +159,16 @@ function _inside_mantle() {
   )
 }
 
+function copy_from_bincache_to_bucket() {
+    local channel="${1}"
+    local arch="${2}"
+    local version="${3}"
+
+    rclone --config "${RCLONE_CONFIGURATION_FILE}" \
+      sync \
+      --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}/${version}"
+}
+
 function publish_sdk() {
     local docker_sdk_vernum="$1"
     local sdk_name=""
@@ -217,6 +229,11 @@ function _release_build_impl() {
     echo "===="
     echo "Done, now you can copy the images to Origin"
     echo "===="
+
+    echo "Experimental (i.e ignore if it fails) - copy the images to CloudFlare bucket for Alpha channel"
+    [[ "${CHANNEL}" != "alpha" ]] && exit 0
+    copy_from_bincache_to_bucket "${CHANNEL}" "${arch}" "${vernum}"
+
     # Future: trigger copy to Origin in a secure way
     # Future: trigger update payload signing
     # Future: trigger website update
