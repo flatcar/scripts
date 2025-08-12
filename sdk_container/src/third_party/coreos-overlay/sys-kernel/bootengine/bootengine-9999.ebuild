@@ -7,7 +7,7 @@ EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="1eb892c1970a158247b3709f81d03b44de7d806e" # flatcar-master
+	EGIT_COMMIT="31ba2964ce5e77ae5553eb0a3624afcc7078bb09" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
