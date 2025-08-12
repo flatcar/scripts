@@ -10,7 +10,7 @@ inherit coreos-go git-r3 systemd udev
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="fc324e12230b036ce9d44f64346780121431ff27" # v2.21.0
+	EGIT_COMMIT="687a3e7fce01ce9d09eafb6abc1d0a141e51ef35" # v2.22.0
 	KEYWORDS="amd64 arm64"
 fi
 
