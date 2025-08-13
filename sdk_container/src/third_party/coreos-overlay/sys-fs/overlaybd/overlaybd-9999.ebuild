@@ -45,6 +45,7 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-cross.patch
+	"${FILESDIR}"/${PN}-pin-tcmu.patch
 )
 
 src_prepare() {
