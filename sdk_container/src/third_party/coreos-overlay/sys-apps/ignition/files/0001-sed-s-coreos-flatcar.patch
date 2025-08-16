@@ -1,16 +1,15 @@
-From b5389d2eadf0fa4a6892a6e69e4f127aa078aef6 Mon Sep 17 00:00:00 2001
+From 83334ffac4b77d25c9ef474075170e21241f006a Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Wed, 26 Mar 2025 15:06:07 +0100
+Date: Tue, 12 Aug 2025 15:04:40 +0200
 Subject: [PATCH 01/20] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- build                                         |  4 +-
  config/config.go                              |  4 +-
  config/config_test.go                         | 16 +++---
  config/doc/generate.go                        |  2 +-
  config/doc/schema.go                          |  2 +-
- config/merge/merge.go                         |  6 +--
+ config/merge/merge.go                         |  6 +-
  config/merge/merge_test.go                    |  8 +--
  config/shared/validations/unit.go             |  2 +-
  config/translate/translate.go                 |  2 +-
@@ -39,7 +38,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_0/types/raid_test.go                |  4 +-
  config/v3_0/types/storage.go                  |  4 +-
  config/v3_0/types/storage_test.go             |  4 +-
- config/v3_0/types/systemd.go                  |  6 +--
+ config/v3_0/types/systemd.go                  |  6 +-
  config/v3_0/types/systemd_test.go             |  4 +-
  config/v3_0/types/unit.go                     |  8 +--
  config/v3_0/types/unit_test.go                |  4 +-
@@ -76,7 +75,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_1/types/resource.go                 |  4 +-
  config/v3_1/types/storage.go                  |  4 +-
  config/v3_1/types/storage_test.go             |  4 +-
- config/v3_1/types/systemd.go                  |  6 +--
+ config/v3_1/types/systemd.go                  |  6 +-
  config/v3_1/types/systemd_test.go             |  4 +-
  config/v3_1/types/unit.go                     |  8 +--
  config/v3_1/types/unit_test.go                |  4 +-
@@ -86,7 +85,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_1/types/verification_test.go        |  2 +-
  config/v3_2/config.go                         | 14 ++---
  config/v3_2/config_test.go                    |  4 +-
- config/v3_2/translate/translate.go            |  6 +--
+ config/v3_2/translate/translate.go            |  6 +-
  config/v3_2/translate/translate_test.go       |  4 +-
  config/v3_2/types/config.go                   |  4 +-
  config/v3_2/types/config_test.go              |  4 +-
@@ -115,7 +114,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_2/types/resource.go                 |  4 +-
  config/v3_2/types/storage.go                  |  4 +-
  config/v3_2/types/storage_test.go             |  4 +-
- config/v3_2/types/systemd.go                  |  6 +--
+ config/v3_2/types/systemd.go                  |  6 +-
  config/v3_2/types/systemd_test.go             |  4 +-
  config/v3_2/types/tang.go                     |  4 +-
  config/v3_2/types/unit.go                     |  8 +--
@@ -157,7 +156,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_3/types/resource.go                 |  4 +-
  config/v3_3/types/storage.go                  |  4 +-
  config/v3_3/types/storage_test.go             |  4 +-
- config/v3_3/types/systemd.go                  |  6 +--
+ config/v3_3/types/systemd.go                  |  6 +-
  config/v3_3/types/systemd_test.go             |  4 +-
  config/v3_3/types/tang.go                     |  4 +-
  config/v3_3/types/unit.go                     |  8 +--
@@ -168,7 +167,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_3/types/verification_test.go        |  2 +-
  config/v3_4/config.go                         | 14 ++---
  config/v3_4/config_test.go                    |  4 +-
- config/v3_4/translate/translate.go            |  8 +--
+ config/v3_4/translate/translate.go            |  6 +-
  config/v3_4/translate/translate_test.go       |  4 +-
  config/v3_4/types/clevis.go                   |  4 +-
  config/v3_4/types/clevis_test.go              |  4 +-
@@ -199,7 +198,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_4/types/resource.go                 |  4 +-
  config/v3_4/types/storage.go                  |  4 +-
  config/v3_4/types/storage_test.go             |  4 +-
- config/v3_4/types/systemd.go                  |  6 +--
+ config/v3_4/types/systemd.go                  |  6 +-
  config/v3_4/types/systemd_test.go             |  4 +-
  config/v3_4/types/tang.go                     |  4 +-
  config/v3_4/types/tang_test.go                |  4 +-
@@ -211,7 +210,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_4/types/verification_test.go        |  2 +-
  config/v3_5/config.go                         | 14 ++---
  config/v3_5/config_test.go                    |  4 +-
- config/v3_5/translate/translate.go            |  6 +--
+ config/v3_5/translate/translate.go            |  6 +-
  config/v3_5/translate/translate_test.go       |  4 +-
  config/v3_5/types/cex.go                      |  2 +-
  config/v3_5/types/cex_test.go                 |  2 +-
@@ -244,7 +243,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_5/types/resource.go                 |  4 +-
  config/v3_5/types/storage.go                  |  4 +-
  config/v3_5/types/storage_test.go             |  4 +-
- config/v3_5/types/systemd.go                  |  6 +--
+ config/v3_5/types/systemd.go                  |  6 +-
  config/v3_5/types/systemd_test.go             |  4 +-
  config/v3_5/types/tang.go                     |  4 +-
  config/v3_5/types/tang_test.go                |  4 +-
@@ -256,7 +255,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_5/types/verification_test.go        |  2 +-
  config/v3_6_experimental/config.go            | 14 ++---
  config/v3_6_experimental/config_test.go       |  4 +-
- .../v3_6_experimental/translate/translate.go  |  6 +--
+ .../v3_6_experimental/translate/translate.go  |  8 +--
  .../translate/translate_test.go               |  4 +-
  config/v3_6_experimental/types/cex.go         |  2 +-
  config/v3_6_experimental/types/cex_test.go    |  2 +-
@@ -289,7 +288,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/v3_6_experimental/types/resource.go    |  4 +-
  config/v3_6_experimental/types/storage.go     |  4 +-
  .../v3_6_experimental/types/storage_test.go   |  4 +-
- config/v3_6_experimental/types/systemd.go     |  6 +--
+ config/v3_6_experimental/types/systemd.go     |  6 +-
  .../v3_6_experimental/types/systemd_test.go   |  4 +-
  config/v3_6_experimental/types/tang.go        |  4 +-
  config/v3_6_experimental/types/tang_test.go   |  4 +-
@@ -302,24 +301,24 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  config/validate/validate.go                   |  4 +-
  config/validate/validate_test.go              |  2 +-
  go.mod                                        |  2 +-
- internal/apply/apply.go                       | 30 +++++------
+ internal/apply/apply.go                       | 30 +++++-----
  internal/distro/distro.go                     |  2 +-
  internal/doc/main.go                          | 16 +++---
- internal/exec/config_fetcher.go               | 18 +++----
+ internal/exec/config_fetcher.go               | 18 +++---
  internal/exec/engine.go                       | 22 ++++----
  internal/exec/stages/disks/disks.go           | 16 +++---
  internal/exec/stages/disks/filesystems.go     |  8 +--
- internal/exec/stages/disks/luks.go            | 12 ++---
- internal/exec/stages/disks/partitions.go      | 12 ++---
- internal/exec/stages/disks/raid.go            |  6 +--
- internal/exec/stages/fetch/fetch.go           | 12 ++---
+ internal/exec/stages/disks/luks.go            | 12 ++--
+ internal/exec/stages/disks/partitions.go      | 12 ++--
+ internal/exec/stages/disks/raid.go            |  6 +-
+ internal/exec/stages/fetch/fetch.go           | 12 ++--
  .../stages/fetch_offline/fetch-offline.go     | 16 +++---
  .../fetch_offline/fetch_offline_test.go       |  4 +-
  internal/exec/stages/files/files.go           | 14 ++---
  internal/exec/stages/files/files_test.go      |  4 +-
- .../exec/stages/files/filesystemEntries.go    | 12 ++---
+ .../exec/stages/files/filesystemEntries.go    | 12 ++--
  internal/exec/stages/files/passwd.go          |  4 +-
- internal/exec/stages/files/units.go           | 12 ++---
+ internal/exec/stages/files/units.go           | 12 ++--
  internal/exec/stages/files/units_test.go      |  4 +-
  internal/exec/stages/kargs/kargs.go           | 14 ++---
  internal/exec/stages/mount/mount.go           | 16 +++---
@@ -331,54 +330,55 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  internal/exec/util/selinux.go                 |  2 +-
  internal/exec/util/unit.go                    |  4 +-
  internal/exec/util/user_group_lookup_test.go  |  2 +-
- internal/exec/util/util.go                    |  6 +--
- internal/main.go                              | 18 +++----
+ internal/exec/util/util.go                    |  6 +-
+ internal/main.go                              | 18 +++---
  internal/platform/platform.go                 | 10 ++--
  internal/providers/akamai/akamai.go           |  8 +--
  internal/providers/aliyun/aliyun.go           |  8 +--
  internal/providers/applehv/applehv.go         | 10 ++--
- internal/providers/aws/aws.go                 | 12 ++---
+ internal/providers/aws/aws.go                 | 12 ++--
  internal/providers/azure/azure.go             | 16 +++---
  internal/providers/azurestack/azurestack.go   |  8 +--
  internal/providers/cloudstack/cloudstack.go   | 16 +++---
- internal/providers/cmdline/cmdline.go         | 12 ++---
+ internal/providers/cmdline/cmdline.go         | 12 ++--
  .../providers/digitalocean/digitalocean.go    |  8 +--
  internal/providers/exoscale/exoscale.go       |  8 +--
  internal/providers/file/file.go               |  8 +--
  internal/providers/gcp/gcp.go                 |  8 +--
  internal/providers/hetzner/hetzner.go         |  8 +--
- internal/providers/hyperv/kvp.go              | 12 ++---
+ internal/providers/hyperv/kvp.go              | 12 ++--
  internal/providers/ibmcloud/ibmcloud.go       | 14 ++---
  internal/providers/kubevirt/kubevirt.go       | 14 ++---
  internal/providers/metal/metal.go             |  8 +--
  internal/providers/nutanix/nutanix.go         | 14 ++---
  internal/providers/openstack/openstack.go     | 16 +++---
+ internal/providers/oraclecloud/oraclecloud.go |  8 +--
  internal/providers/packet/packet.go           |  8 +--
  internal/providers/powervs/powervs.go         | 14 ++---
  internal/providers/proxmoxve/proxmoxve.go     | 14 ++---
- internal/providers/qemu/qemu_blockdev.go      | 12 ++---
+ internal/providers/qemu/qemu_blockdev.go      | 12 ++--
  internal/providers/qemu/qemu_fwcfg.go         | 10 ++--
  internal/providers/scaleway/scaleway.go       |  8 +--
  internal/providers/system/system.go           | 14 ++---
- internal/providers/util/config.go             |  6 +--
+ internal/providers/util/config.go             |  6 +-
  internal/providers/util/file.go               |  4 +-
  internal/providers/util/unzip_test.go         |  2 +-
  internal/providers/virtualbox/virtualbox.go   | 10 ++--
  internal/providers/vmware/vmware_amd64.go     |  8 +--
- .../providers/vmware/vmware_unsupported.go    |  6 +--
+ .../providers/vmware/vmware_unsupported.go    |  6 +-
  internal/providers/vultr/vultr.go             |  8 +--
  internal/providers/zvm/zvm.go                 | 14 ++---
- internal/register/providers.go                | 54 +++++++++----------
+ internal/register/providers.go                | 56 +++++++++----------
  internal/register/stages.go                   | 14 ++---
- internal/resource/http.go                     | 12 ++---
- internal/resource/url.go                      |  6 +--
- internal/resource/url_test.go                 |  6 +--
+ internal/resource/http.go                     | 12 ++--
+ internal/resource/url.go                      |  6 +-
+ internal/resource/url_test.go                 |  6 +-
  internal/sgdisk/sgdisk.go                     |  8 +--
  internal/state/state.go                       |  2 +-
  internal/util/tools/docs/docs.go              |  2 +-
  internal/util/verification.go                 |  2 +-
  internal/util/verification_test.go            |  2 +-
- tests/blackbox_test.go                        | 12 ++---
+ tests/blackbox_test.go                        | 12 ++--
  tests/filesystem.go                           |  4 +-
  tests/negative/files/invalid_hash.go          |  4 +-
  tests/negative/files/link.go                  |  4 +-
@@ -394,20 +394,20 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/negative/partitions/zeroes.go           |  4 +-
  tests/negative/proxy/http.go                  |  4 +-
  tests/negative/regression/filesystem.go       |  4 +-
- tests/negative/security/tls.go                |  6 +--
+ tests/negative/security/tls.go                |  6 +-
  tests/negative/timeouts/timeouts.go           |  4 +-
  tests/positive/files/directory.go             |  4 +-
- tests/positive/files/file.go                  |  4 +-
- tests/positive/files/hash.go                  |  6 +--
- tests/positive/files/link.go                  |  6 +--
- tests/positive/files/remote.go                |  6 +--
+ tests/positive/files/file.go                  |  6 +-
+ tests/positive/files/hash.go                  |  6 +-
+ tests/positive/files/link.go                  |  6 +-
+ tests/positive/files/remote.go                |  6 +-
  tests/positive/files/units.go                 |  4 +-
  tests/positive/filesystems/creation.go        |  4 +-
  .../positive/filesystems/mount_filesystem.go  |  4 +-
- .../filesystems/reformat_filesystem.go        |  6 +--
- .../positive/filesystems/reuse_filesystem.go  |  6 +--
+ .../filesystems/reformat_filesystem.go        |  6 +-
+ .../positive/filesystems/reuse_filesystem.go  |  6 +-
  tests/positive/general/baseconfigsmerging.go  |  4 +-
- tests/positive/general/general.go             |  6 +--
+ tests/positive/general/general.go             |  6 +-
  tests/positive/general/preemption.go          |  4 +-
  tests/positive/luks/creation.go               |  4 +-
  tests/positive/partitions/complex-mb.go       |  4 +-
@@ -426,34 +426,12 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  tests/positive/systemd/modify_service.go      |  4 +-
  tests/positive/timeouts/timeouts.go           |  4 +-
  tests/register/register.go                    | 16 +++---
- tests/registry/registry.go                    | 40 +++++++-------
+ tests/registry/registry.go                    | 40 ++++++-------
  tests/servers/servers.go                      |  2 +-
  tests/validator.go                            |  4 +-
  validate/main.go                              |  4 +-
- 425 files changed, 1130 insertions(+), 1130 deletions(-)
+ 425 files changed, 1134 insertions(+), 1134 deletions(-)
 
-diff --git a/build b/build
-index 9bf93d61..5abdcf5f 100755
---- a/build
-+++ b/build
-@@ -5,7 +5,7 @@ set -eu
- export GO111MODULE=on
- 
- NAME="ignition"
--ORG_PATH="github.com/coreos"
-+ORG_PATH="github.com/flatcar"
- REPO_PATH="${ORG_PATH}/${NAME}/v2"
- GLDFLAGS=${GLDFLAGS:-}
- export GOFLAGS=-mod=vendor
-@@ -15,7 +15,7 @@ if [ -z ${VERSION+a} ]; then
- 	echo "Using version from git: $VERSION"
- fi
- 
--GLDFLAGS+="-X github.com/coreos/ignition/v2/internal/version.Raw=${VERSION}"
-+GLDFLAGS+="-X github.com/flatcar/ignition/v2/internal/version.Raw=${VERSION}"
- 
- eval $(go env)
- 
 diff --git a/config/config.go b/config/config.go
 index 47e82214..0cbdb15d 100644
 --- a/config/config.go
@@ -2924,19 +2902,17 @@ index 0ee908d7..6ecb4b44 100644
  )
  
 diff --git a/config/v3_4/translate/translate.go b/config/v3_4/translate/translate.go
-index 5d748d82..38873ea8 100644
+index 5f6a23b8..fa0e27ab 100644
 --- a/config/v3_4/translate/translate.go
 +++ b/config/v3_4/translate/translate.go
-@@ -15,10 +15,10 @@
+@@ -15,9 +15,9 @@
  package translate
  
  import (
 -	"github.com/coreos/ignition/v2/config/translate"
--	"github.com/coreos/ignition/v2/config/util"
 -	old_types "github.com/coreos/ignition/v2/config/v3_3/types"
 -	"github.com/coreos/ignition/v2/config/v3_4/types"
 +	"github.com/flatcar/ignition/v2/config/translate"
-+	"github.com/flatcar/ignition/v2/config/util"
 +	old_types "github.com/flatcar/ignition/v2/config/v3_3/types"
 +	"github.com/flatcar/ignition/v2/config/v3_4/types"
  )
@@ -3033,7 +3009,7 @@ index 8caf8499..29fd3900 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4/types/file.go b/config/v3_4/types/file.go
-index 9b71bb26..e3f7fbdf 100644
+index 4e7566bd..f86d520b 100644
 --- a/config/v3_4/types/file.go
 +++ b/config/v3_4/types/file.go
 @@ -15,8 +15,8 @@
@@ -3160,7 +3136,7 @@ index 90d72387..2862ebae 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_4/types/mode.go b/config/v3_4/types/mode.go
-index 9eb7573d..67c7ebd3 100644
+index ad3e51c2..8f15a8cb 100644
 --- a/config/v3_4/types/mode.go
 +++ b/config/v3_4/types/mode.go
 @@ -15,7 +15,7 @@
@@ -3173,10 +3149,10 @@ index 9eb7573d..67c7ebd3 100644
  
  func validateMode(m *int) error {
 diff --git a/config/v3_4/types/mode_test.go b/config/v3_4/types/mode_test.go
-index 8966e25d..5c973dbf 100644
+index 8df91455..1c2e9404 100644
 --- a/config/v3_4/types/mode_test.go
 +++ b/config/v3_4/types/mode_test.go
-@@ -18,8 +18,8 @@ import (
+@@ -19,8 +19,8 @@ import (
  	"reflect"
  	"testing"
  
@@ -3184,9 +3160,9 @@ index 8966e25d..5c973dbf 100644
 -	"github.com/coreos/ignition/v2/config/util"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
 +	"github.com/flatcar/ignition/v2/config/util"
+ 	"github.com/stretchr/testify/assert"
  )
  
- func TestModeValidate(t *testing.T) {
 diff --git a/config/v3_4/types/node.go b/config/v3_4/types/node.go
 index 248276e7..f4e94f9e 100644
 --- a/config/v3_4/types/node.go
@@ -3704,7 +3680,7 @@ index 8caf8499..29fd3900 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_5/types/file.go b/config/v3_5/types/file.go
-index 9b71bb26..e3f7fbdf 100644
+index 4e7566bd..f86d520b 100644
 --- a/config/v3_5/types/file.go
 +++ b/config/v3_5/types/file.go
 @@ -15,8 +15,8 @@
@@ -3831,7 +3807,7 @@ index e4c1d681..ce9d087f 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/config/v3_5/types/mode.go b/config/v3_5/types/mode.go
-index 9eb7573d..67c7ebd3 100644
+index ad3e51c2..8f15a8cb 100644
 --- a/config/v3_5/types/mode.go
 +++ b/config/v3_5/types/mode.go
 @@ -15,7 +15,7 @@
@@ -3844,10 +3820,10 @@ index 9eb7573d..67c7ebd3 100644
  
  func validateMode(m *int) error {
 diff --git a/config/v3_5/types/mode_test.go b/config/v3_5/types/mode_test.go
-index 8966e25d..5c973dbf 100644
+index 8df91455..1c2e9404 100644
 --- a/config/v3_5/types/mode_test.go
 +++ b/config/v3_5/types/mode_test.go
-@@ -18,8 +18,8 @@ import (
+@@ -19,8 +19,8 @@ import (
  	"reflect"
  	"testing"
  
@@ -3855,9 +3831,9 @@ index 8966e25d..5c973dbf 100644
 -	"github.com/coreos/ignition/v2/config/util"
 +	"github.com/flatcar/ignition/v2/config/shared/errors"
 +	"github.com/flatcar/ignition/v2/config/util"
+ 	"github.com/stretchr/testify/assert"
  )
  
- func TestModeValidate(t *testing.T) {
 diff --git a/config/v3_5/types/node.go b/config/v3_5/types/node.go
 index 248276e7..f4e94f9e 100644
 --- a/config/v3_5/types/node.go
@@ -4242,22 +4218,24 @@ index 8ba56163..54cbd91c 100644
  )
  
 diff --git a/config/v3_6_experimental/translate/translate.go b/config/v3_6_experimental/translate/translate.go
-index bf3f11e9..a0755bb4 100644
+index 8fa25674..4dfb1827 100644
 --- a/config/v3_6_experimental/translate/translate.go
 +++ b/config/v3_6_experimental/translate/translate.go
-@@ -15,9 +15,9 @@
+@@ -15,10 +15,10 @@
  package translate
  
  import (
 -	"github.com/coreos/ignition/v2/config/translate"
+-	"github.com/coreos/ignition/v2/config/util"
 -	old_types "github.com/coreos/ignition/v2/config/v3_5/types"
 -	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
 +	"github.com/flatcar/ignition/v2/config/translate"
++	"github.com/flatcar/ignition/v2/config/util"
 +	old_types "github.com/flatcar/ignition/v2/config/v3_5/types"
 +	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
  )
  
- func translateIgnition(old old_types.Ignition) (ret types.Ignition) {
+ func translateFileEmbedded1(old old_types.FileEmbedded1) (ret types.FileEmbedded1) {
 diff --git a/config/v3_6_experimental/translate/translate_test.go b/config/v3_6_experimental/translate/translate_test.go
 index fc9e3de5..cc041bdc 100644
 --- a/config/v3_6_experimental/translate/translate_test.go
@@ -4901,15 +4879,15 @@ index 18eea933..4f77f19c 100644
  	"github.com/coreos/vcontext/path"
  	"github.com/coreos/vcontext/report"
 diff --git a/go.mod b/go.mod
-index 63d73c98..f94bbafa 100644
+index c4aca58f..a34e8f5e 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -1,4 +1,4 @@
 -module github.com/coreos/ignition/v2
 +module github.com/flatcar/ignition/v2
  
- go 1.22.0
- toolchain go1.23.6
+ go 1.23.0
+ 
 diff --git a/internal/apply/apply.go b/internal/apply/apply.go
 index db48b8dc..b98fdf5d 100644
 --- a/internal/apply/apply.go
@@ -5469,7 +5447,7 @@ index 9574cb33..6d5e2621 100644
  
  const (
 diff --git a/internal/exec/util/file.go b/internal/exec/util/file.go
-index ee40b2a8..da9f9249 100644
+index f944acfe..d3942741 100644
 --- a/internal/exec/util/file.go
 +++ b/internal/exec/util/file.go
 @@ -26,11 +26,11 @@ import (
@@ -6061,6 +6039,25 @@ index 3578256e..3377b448 100644
  	if f.Offline {
  		return types.Config{}, report.Report{}, resource.ErrNeedNet
  	}
+diff --git a/internal/providers/oraclecloud/oraclecloud.go b/internal/providers/oraclecloud/oraclecloud.go
+index 33db95c3..65663418 100644
+--- a/internal/providers/oraclecloud/oraclecloud.go
++++ b/internal/providers/oraclecloud/oraclecloud.go
+@@ -24,10 +24,10 @@ import (
+ 	"net/http"
+ 	"net/url"
+ 
+-	"github.com/coreos/ignition/v2/config/v3_6_experimental/types"
+-	"github.com/coreos/ignition/v2/internal/platform"
+-	"github.com/coreos/ignition/v2/internal/providers/util"
+-	"github.com/coreos/ignition/v2/internal/resource"
++	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
++	"github.com/flatcar/ignition/v2/internal/platform"
++	"github.com/flatcar/ignition/v2/internal/providers/util"
++	"github.com/flatcar/ignition/v2/internal/resource"
+ 
+ 	"github.com/coreos/vcontext/report"
+ )
 diff --git a/internal/providers/packet/packet.go b/internal/providers/packet/packet.go
 index a1bb5d14..45c55964 100644
 --- a/internal/providers/packet/packet.go
@@ -6365,10 +6362,10 @@ index 48e95ab7..622ced66 100644
  )
  
 diff --git a/internal/register/providers.go b/internal/register/providers.go
-index bda4b7cf..eb4bd9d2 100644
+index a7348498..834809ba 100644
 --- a/internal/register/providers.go
 +++ b/internal/register/providers.go
-@@ -15,31 +15,31 @@
+@@ -15,32 +15,32 @@
  package register
  
  import (
@@ -6390,6 +6387,7 @@ index bda4b7cf..eb4bd9d2 100644
 -	_ "github.com/coreos/ignition/v2/internal/providers/metal"
 -	_ "github.com/coreos/ignition/v2/internal/providers/nutanix"
 -	_ "github.com/coreos/ignition/v2/internal/providers/openstack"
+-	_ "github.com/coreos/ignition/v2/internal/providers/oraclecloud"
 -	_ "github.com/coreos/ignition/v2/internal/providers/packet"
 -	_ "github.com/coreos/ignition/v2/internal/providers/powervs"
 -	_ "github.com/coreos/ignition/v2/internal/providers/proxmoxve"
@@ -6417,6 +6415,7 @@ index bda4b7cf..eb4bd9d2 100644
 +	_ "github.com/flatcar/ignition/v2/internal/providers/metal"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/nutanix"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/openstack"
++	_ "github.com/flatcar/ignition/v2/internal/providers/oraclecloud"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/packet"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/powervs"
 +	_ "github.com/flatcar/ignition/v2/internal/providers/proxmoxve"
@@ -6876,7 +6875,7 @@ index 5bda64c1..056aa259 100644
  
  func init() {
 diff --git a/tests/positive/files/file.go b/tests/positive/files/file.go
-index 0dd092e1..a83da3c1 100644
+index d99944a0..6998d346 100644
 --- a/tests/positive/files/file.go
 +++ b/tests/positive/files/file.go
 @@ -15,8 +15,8 @@
@@ -6890,6 +6889,15 @@ index 0dd092e1..a83da3c1 100644
  )
  
  func init() {
+@@ -559,7 +559,7 @@ func ApplyCustomFilePermissions() types.Test {
+ func ApplyCustomFilePermissionsBeforeBugfix() types.Test {
+ 	// This test is put here to ensure that we don't accidentally fix configs that were not working before the fix.
+ 	// Ensure all versions before the bugfix are still losing special bits.
+-	// See: https://github.com/coreos/ignition/issues/2042
++	// See: https://github.com/flatcar/ignition/issues/2042
+ 	name := "files.customperms.pre-#2042-fix"
+ 	in := types.GetBaseDisk()
+ 	out := types.GetBaseDisk()
 diff --git a/tests/positive/files/hash.go b/tests/positive/files/hash.go
 index 8faecff7..829b15e7 100644
 --- a/tests/positive/files/hash.go
@@ -7319,7 +7327,7 @@ index 34408293..24a0bc61 100644
  
  func init() {
 diff --git a/tests/register/register.go b/tests/register/register.go
-index e081b7f6..14d1816a 100644
+index 576a57ca..571a76db 100644
 --- a/tests/register/register.go
 +++ b/tests/register/register.go
 @@ -16,14 +16,14 @@ package register
@@ -7408,7 +7416,7 @@ index 0230cd16..a4d235a2 100644
  )
  
 diff --git a/tests/validator.go b/tests/validator.go
-index d64957db..8e937208 100644
+index d407a695..7321f9dd 100644
 --- a/tests/validator.go
 +++ b/tests/validator.go
 @@ -25,8 +25,8 @@ import (
@@ -7438,5 +7446,5 @@ index bec64866..ed027604 100644
  
  var (
 -- 
-2.45.3
+2.49.1
 

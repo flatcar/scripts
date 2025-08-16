@@ -1,4 +1,4 @@
-From 67b8b674471fc8bf16a9e65692b2cf13637f60d0 Mon Sep 17 00:00:00 2001
+From 70d0e48e5339081461a4a6815a07ee80e0d39310 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 25 May 2022 10:38:16 +0200
 Subject: [PATCH 14/20] Revert "*: drop OEM URI support"
@@ -81,7 +81,7 @@ index 9b2b4405..5258c3c6 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index d2434e2e..9e80ed2a 100644
+index 5f508761..b81beee0 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
 @@ -12,6 +12,7 @@ Ignition is currently supported for the following platforms:
@@ -271,5 +271,5 @@ index 354385fa..f7b855d8 100644
 +	)
 +}
 -- 
-2.45.3
+2.49.1
 
