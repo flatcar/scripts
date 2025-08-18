@@ -1,6 +1,11 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# PPN-SD <nicolas.parlant@parhuet.fr> (2025-07-28)
+# Bundled pcap-thread, not ported to musl
+# bug #713498, https://github.com/DNS-OARC/pcap-thread/issues/128
+net-dns/dnscap
+
 # Ian Jordan <immoloism@gmail.com> (2025-07-13)
 # Binary is compiled against glibc
 net-misc/anydesk
@@ -8,10 +13,6 @@ net-misc/anydesk
 # Sam James <sam@gentoo.org> (2025-07-12)
 # Not ported to musl (bug #939569, https://github.com/oracle/dtrace-utils/issues/87)
 dev-debug/dtrace
-
-# PPN-SD <nicolas.parlant@parhuet.fr> (2025-07-07)
-# it requires termio.h (glibc)
-app-emulation/ski
 
 # NHOrus <jy6x2b32pie9@yahoo.com> (2025-03-13)
 # uses functions musl will not implement, bug #942215
@@ -370,7 +371,6 @@ net-im/element-desktop-bin
 net-im/gitter-bin
 net-im/mattermost-desktop-bin
 net-im/rocketchat-desktop-bin
-net-im/skypeforlinux
 net-im/slack
 net-im/telegram-desktop-bin
 net-im/whatsapp-desktop-bin
