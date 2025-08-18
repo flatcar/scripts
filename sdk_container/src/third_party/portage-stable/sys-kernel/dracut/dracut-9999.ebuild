@@ -54,7 +54,10 @@ DEPEND="
 "
 
 BDEPEND="
-	app-text/asciidoc
+	|| (
+		dev-ruby/asciidoctor
+		app-text/asciidoc
+	)
 	app-text/docbook-xml-dtd:4.5
 	>=app-text/docbook-xsl-stylesheets-1.75.2
 	>=dev-libs/libxslt-1.1.26
@@ -114,6 +117,10 @@ src_configure() {
 		--systemdsystemunitdir="$(systemd_get_systemunitdir)"
 		--disable-dracut-cpio
 	)
+
+	if ! has_version dev-ruby/asciidoctor; then
+		myconf+=( --disable-asciidoctor )
+	fi
 
 	# this emulates what the build system would be doing without us
 	append-cflags -D_FILE_OFFSET_BITS=64
