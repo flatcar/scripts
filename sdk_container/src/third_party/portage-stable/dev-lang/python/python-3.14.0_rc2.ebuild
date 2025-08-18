@@ -12,7 +12,7 @@ inherit autotools check-reqs eapi9-ver flag-o-matic linux-info llvm-r1
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
-MY_PV=${PV/_beta/b}
+MY_PV=${PV/_/}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
