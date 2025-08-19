@@ -900,6 +900,20 @@ function pkg_warn() {
     pkg_warn_d "${REPORTS_DIR}" "${@}"
 }
 
+# Adds lines to "developer warnings" file in given directory. Should
+# be used to report some failed assumption in the automation, or bugs.
+#
+# Params:
+#
+# 1 - directory where the file is
+# @ - lines to add
+function devel_warn_d() {
+    local dir=${1}; shift
+
+    pkg_debug_lines 'developer warn:' "${@}"
+    lines_to_file "${dir}/developer-warnings" "${@}"
+}
+
 # Adds lines to "developer warnings" file in reports. Should be used
 # to report some failed assumption in the automation, or bugs.
 #
@@ -910,8 +924,7 @@ function devel_warn() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    pkg_debug_lines 'developer warn:' "${@}"
-    lines_to_file "${REPORTS_DIR}/developer-warnings" "${@}"
+    devel_warn_d "${REPORTS_DIR}" "${@}"
 }
 
 # Handles package names that were missing from Gentoo by either
@@ -2200,7 +2213,7 @@ function handle_package_changes() {
             new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
             pkg_debug "slot: ${s}, vmm old: ${old_verminmax}, vmm new: ${new_verminmax}"
             if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
-                devel_warn \
+                devel_warn_d "${warnings_dir}" \
                     "- no minmax info available for old and/or new:" \
                     "  - old package: ${old_name}" \
                     "    - slot: ${s}" \
@@ -2245,7 +2258,7 @@ function handle_package_changes() {
             new_verminmax=${new_slot_verminmax_map_ref["${hpc_new_s}"]:-}
             pkg_debug "jumping from slot ${hpc_old_s} (vmm: ${old_verminmax}) to slot ${hpc_new_s} (vmm: ${new_verminmax})"
             if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
-                devel_warn \
+                devel_warn_d "${warnings_dir}" \
                     "- no verminmax info available for old and/or new:" \
                     "  - old package: ${old_name}" \
                     "    - slot: ${hpc_old_s}" \
