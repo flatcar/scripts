@@ -873,6 +873,20 @@ function manual() {
     manual_d "${REPORTS_DIR}" "${@}"
 }
 
+# Adds lines to "warnings" file in given directory. Should be used to
+# report some issues with the processed packages.
+#
+# Params:
+#
+# 1 - directory where the file is
+# @ - lines to add
+function pkg_warn_d() {
+    local dir=${1}; shift
+
+    pkg_debug_lines 'pkg warn:' "${@}"
+    lines_to_file "${dir}/warnings" "${@}"
+}
+
 # Adds lines to "warnings" file in reports. Should be used to report
 # some issues with the processed packages.
 #
@@ -883,8 +897,7 @@ function pkg_warn() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    pkg_debug_lines 'pkg warn:' "${@}"
-    lines_to_file "${REPORTS_DIR}/warnings" "${@}"
+    pkg_warn_d "${REPORTS_DIR}" "${@}"
 }
 
 # Adds lines to "developer warnings" file in reports. Should be used
@@ -2080,7 +2093,7 @@ function handle_package_changes() {
         old_repo=${hpc_package_sources_map["${old_name}"]:-}
         new_repo=${hpc_package_sources_map["${new_name}"]:-}
         if [[ -z ${old_repo} ]]; then
-            pkg_warn \
+            pkg_warn_d "${warnings_dir}" \
                 '- package not in old state' \
                 "  - old package: ${old_name}" \
                 "  - new package: ${new_name}"
@@ -2088,7 +2101,7 @@ function handle_package_changes() {
             continue
         fi
         if [[ -z ${new_repo} ]]; then
-            pkg_warn \
+            pkg_warn_d "${warnings_dir}" \
                 '- package not in new state' \
                 "  - old package: ${old_name}" \
                 "  - new package: ${new_name}"
@@ -2098,7 +2111,7 @@ function handle_package_changes() {
         if [[ ${old_repo} != "${new_repo}" ]]; then
             # This is pretty much an arbitrary limitation and I don't
             # remember any more why we have it.
-            pkg_warn \
+            pkg_warn_d "${warnings_dir}" \
                 '- package has moved between repos? unsupported for now' \
                 "  - old package and repo: ${old_name} ${old_repo}" \
                 "  - new package and repo: ${new_name} ${new_repo}"
