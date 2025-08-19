@@ -847,6 +847,20 @@ function lines_to_file() {
     printf '%s\n' "${@:2}" >>"${1}"
 }
 
+# Adds lines to "manual work needed" file in given directory.
+#
+# Params:
+#
+# 1 - directory where the file is
+# @ - lines to add
+function manual_d() {
+    local dir=${1}; shift
+    # rest are lines to print
+
+    pkg_debug_lines 'manual work needed:' "${@}"
+    lines_to_file "${dir}/manual-work-needed" "${@}"
+}
+
 # Adds lines to "manual work needed" file in reports.
 #
 # Params:
@@ -856,8 +870,7 @@ function manual() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    pkg_debug_lines 'manual work needed:' "${@}"
-    lines_to_file "${REPORTS_DIR}/manual-work-needed" "${@}"
+    manual_d "${REPORTS_DIR}" "${@}"
 }
 
 # Adds lines to "warnings" file in reports. Should be used to report
@@ -2035,6 +2048,8 @@ function handle_package_changes() {
     # handled by the automation - in such cases there will be a
     # "manual action needed" report.
 
+    local warnings_dir="${REPORTS_DIR}"
+
     local pkg_idx=0
     local old_name new_name old_repo new_repo
     local hpc_old_slots_set_var_name hpc_new_slots_set_var_name
@@ -2273,7 +2288,7 @@ function handle_package_changes() {
                 new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
                 lines+=("      - ${s}, minmax: ${new_verminmax}")
             done
-            manual "${lines[@]}"
+            manual_d "${warnings_dir}" "${lines[@]}"
         fi
         package_output_paths_unset hpc_package_output_paths
         unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
