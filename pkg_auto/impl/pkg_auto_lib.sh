@@ -1870,6 +1870,35 @@ function read_package_sources() {
     done
 }
 
+# Fields of the package output paths struct.
+#
+# POP_OUT_DIR_IDX - toplevel output directory.
+#
+# POP_PKG_OUT_DIR_IDX - package-specific output directory under the top-level
+#                       output directory.
+#
+# POP_PKG_SLOT_OUT_DIR_IDX - slot-specific output directory under the
+#                            package specific output directory.
+declare -gri POP_OUT_DIR_IDX=0 POP_PKG_OUT_DIR_IDX=1 POP_PKG_SLOT_OUT_DIR_IDX=2
+
+# Declare package output paths variables.
+#
+# Parameters:
+#
+# @ - names of variables to be used for package output paths
+function package_output_paths_declare() {
+    struct_declare -ga "${@}" "( '' '' '')"
+}
+
+# Unset package output paths variables.
+#
+# Parameters:
+#
+# @ - names of package output paths variables
+function package_output_paths_unset() {
+    unset "${@}"
+}
+
 # This monstrosity takes renames map and package tags information,
 # reads the reports, does consistency checks and uses the information
 # from previous steps to write out package differences between the old
@@ -2127,6 +2156,11 @@ function handle_package_changes() {
         update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
         mkdir -p "${hpc_update_dir_non_slot}"
 
+        package_output_paths_declare hpc_package_output_paths
+        hpc_package_output_paths[POP_OUT_DIR_IDX]="${REPORTS_DIR}/updates"
+        hpc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${hpc_update_dir_non_slot}
+        # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
+
         generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
@@ -2150,17 +2184,18 @@ function handle_package_changes() {
             fi
             update_dir "${new_name}" "${s}" "${s}" hpc_update_dir
             mkdir -p "${hpc_update_dir}"
+            hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${hpc_update_dir}
             old_version=${old_verminmax%%:*}
             new_version=${new_verminmax##*:}
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
             case ${hpc_cmp_result} in
                 "${GV_GT}")
-                    handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                    handle_pkg_update hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hpc_changed=x
                     ;;
                 "${GV_EQ}")
                     hpc_slot_changed=
-                    handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" hpc_slot_changed
+                    handle_pkg_as_is hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hpc_slot_changed
                     if [[ -z ${hpc_slot_changed} ]]; then
                         rm -rf "${hpc_update_dir}"
                     else
@@ -2168,7 +2203,7 @@ function handle_package_changes() {
                     fi
                     ;;
                 "${GV_LT}")
-                    handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                    handle_pkg_downgrade hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hpc_changed=x
                     ;;
             esac
@@ -2193,17 +2228,18 @@ function handle_package_changes() {
             else
                 update_dir "${new_name}" "${hpc_old_s}" "${hpc_new_s}" hpc_update_dir
                 mkdir -p "${hpc_update_dir}"
+                hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${hpc_update_dir}
                 old_version=${old_verminmax%%:*}
                 new_version=${new_verminmax##*:}
                 gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
                 case ${hpc_cmp_result} in
                     "${GV_GT}")
-                        handle_pkg_update "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
+                        handle_pkg_update hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                         hpc_changed=x
                         ;;
                     "${GV_EQ}")
                         hpc_slot_changed=
-                        handle_pkg_as_is "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" hpc_slot_changed
+                        handle_pkg_as_is hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hpc_slot_changed
                         if [[ -z ${hpc_slot_changed} ]]; then
                             rm -rf "${hpc_update_dir}"
                         else
@@ -2211,7 +2247,7 @@ function handle_package_changes() {
                         fi
                         ;;
                     "${GV_LT}")
-                        handle_pkg_downgrade "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hpc_old_s}" "${hpc_new_s}" "${old_version}" "${new_version}"
+                        handle_pkg_downgrade hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                         hpc_changed=x
                         ;;
                 esac
@@ -2239,6 +2275,7 @@ function handle_package_changes() {
             done
             manual "${lines[@]}"
         fi
+        package_output_paths_unset hpc_package_output_paths
         unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
         # if nothing changed, drop the entire update directory for the
         # package, and possibly the parent directory if it became
@@ -2286,20 +2323,18 @@ function get_first_from_set() {
 #
 # Params:
 #
-# 1 - name of the package tags set mvm variable
-# 2 - old package name
-# 3 - new package name
-# 4 - old package slot
-# 5 - new package slot
-# 6 - old version
-# 7 - new version
+# 1 - package output paths variable name
+# 2 - name of the package tags set mvm variable
+# 3 - old package name
+# 4 - new package name
+# 5 - old version
+# 6 - new version
 function handle_pkg_update() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s old new
+    local pkg_to_tags_mvm_var_name old_pkg new_pkg old new
+    local -n package_output_paths_ref=${1}; shift
     pkg_to_tags_mvm_var_name=${1}; shift
     old_pkg=${1}; shift
     new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
     old=${1}; shift
     new=${1}; shift
 
@@ -2317,11 +2352,8 @@ function handle_pkg_update() {
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
     fi
-    generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
-
-    local hpu_update_dir hpu_update_dir_non_slot
-    update_dir_non_slot "${new_pkg}" hpu_update_dir_non_slot
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpu_update_dir
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local diff_report_name
     gen_varname diff_report_name
@@ -2335,10 +2367,11 @@ function handle_pkg_update() {
     unset -n diff_report_ref
     diff_report_unset "${diff_report_name}"
 
-    if [[ -s "${hpu_update_dir}/ebuild.diff" ]]; then
+    if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
-    if [[ -s "${hpu_update_dir_non_slot}/other.diff" ]]; then
+    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
     lines+=( '0:TODO: review occurences' )
@@ -2364,30 +2397,25 @@ function handle_pkg_update() {
 #
 # Params:
 #
-# 1 - name of the package tags set mvm variable
-# 2 - old package name
-# 3 - new package name
-# 4 - old package slot
-# 5 - new package slot
-# 6 - version
-# 7 - name of a "bool" variable where info is stored if relevant files
+# 1 - package output paths variable name
+# 2 - name of the package tags set mvm variable
+# 3 - old package name
+# 4 - new package name
+# 5 - version
+# 6 - name of a "bool" variable where info is stored if relevant files
 #     has changed (empty means nothing changed, non-empty means
 #     something has changed)
 function handle_pkg_as_is() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s v
+    local pkg_to_tags_mvm_var_name old_pkg new_pkg v
+    local -n package_output_paths_ref=${1}; shift
     pkg_to_tags_mvm_var_name=${1}; shift
     old_pkg=${1}; shift
     new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
     v=${1}; shift
     local -n changed_ref=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
-
-    local hpai_update_dir
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
 
     local pkg_name
     pkg_name=${new_pkg#/}
@@ -2400,10 +2428,10 @@ function handle_pkg_as_is() {
         lines+=( "0:renamed from ${old_pkg}" )
         renamed=x
     fi
-    generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${v}" "${v}"
-    local hpai_update_dir_non_slot hpai_update_dir
-    update_dir_non_slot "${new_pkg}" hpai_update_dir_non_slot
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpai_update_dir
+
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
+
     local modified
     modified=
 
@@ -2422,11 +2450,12 @@ function handle_pkg_as_is() {
     unset -n diff_report_ref
     diff_report_unset "${diff_report_name}"
 
-    if [[ -s "${hpai_update_dir}/ebuild.diff" ]]; then
+    if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
         modified=x
     fi
-    if [[ -s "${hpai_update_dir_non_slot}/other.diff" ]]; then
+    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
         modified=x
     fi
@@ -2451,20 +2480,18 @@ function handle_pkg_as_is() {
 #
 # Params:
 #
-# 1 - name of the package tags set mvm variable
-# 2 - old package name
-# 3 - new package name
-# 4 - old package slot
-# 5 - new package slot
-# 6 - old version
-# 7 - new version
+# 1 - package output paths variable name
+# 2 - name of the package tags set mvm variable
+# 3 - old package name
+# 4 - new package name
+# 5 - old version
+# 6 - new version
 function handle_pkg_downgrade() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old_s new_s old new
+    local pkg_to_tags_mvm_var_name old_pkg new_pkg old new
+    local -n package_output_paths_ref=${1}; shift
     pkg_to_tags_mvm_var_name=${1}; shift
     old_pkg=${1}; shift
     new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
     old=${1}; shift
     new=${1}; shift
 
@@ -2482,11 +2509,9 @@ function handle_pkg_downgrade() {
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
     fi
-    generate_ebuild_diff "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old_s}" "${new_s}" "${old}" "${new}"
 
-    local hpd_update_dir hpd_update_dir_non_slot
-    update_dir_non_slot "${new_pkg}" hpd_update_dir_non_slot
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" hpd_update_dir
+    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
+    generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${old}" "${new}"
 
     local diff_report_name
     gen_varname diff_report_name
@@ -2500,10 +2525,11 @@ function handle_pkg_downgrade() {
     unset -n diff_report_ref
     diff_report_unset "${diff_report_name}"
 
-    if [[ -s "${hpd_update_dir}/ebuild.diff" ]]; then
+    if [[ -s "${out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
-    if [[ -s "${hpd_update_dir_non_slot}/other.diff" ]]; then
+    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
+    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
     lines+=( '0:TODO: review occurences' )
@@ -2705,22 +2731,20 @@ function generate_non_ebuild_diffs() {
 #
 # Params:
 #
-# 1 - path to portage-stable in old state
-# 2 - path to portage-stable in new state
-# 3 - old package name
-# 4 - new package name
-# 5 - old package slot
-# 6 - new package slot
-# 7 - old package version
-# 8 - new package version
+# 1 - output directory
+# 2 - path to portage-stable in old state
+# 3 - path to portage-stable in new state
+# 4 - old package name
+# 5 - new package name
+# 6 - old package version
+# 7 - new package version
 function generate_ebuild_diff() {
-    local old_ps new_ps old_pkg new_pkg old_s new_s old new
+    local out_dir old_ps new_ps old_pkg new_pkg old new
+    out_dir=${1}; shift
     old_ps=${1}; shift
     new_ps=${1}; shift
     old_pkg=${1}; shift
     new_pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
     old=${1}; shift
     new=${1}; shift
 
@@ -2732,9 +2756,7 @@ function generate_ebuild_diff() {
     old_path="${old_ps}/${old_pkg}/${old_pkg_name}-${old}.ebuild"
     new_path="${new_ps}/${new_pkg}/${new_pkg_name}-${new}.ebuild"
 
-    local ged_update_dir
-    update_dir "${new_pkg}" "${old_s}" "${new_s}" ged_update_dir
-    xdiff --unified=3 "${old_path}" "${new_path}" >"${ged_update_dir}/ebuild.diff"
+    xdiff --unified=3 "${old_path}" "${new_path}" >"${out_dir}/ebuild.diff"
 }
 
 function generate_cache_diff_report() {
