@@ -2202,7 +2202,7 @@ function handle_package_changes() {
         hpc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${hpc_update_dir_non_slot}
         # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
 
-        generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+        generate_non_ebuild_diffs "${hpc_update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_full_diffs "${hpc_update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
 
@@ -2741,12 +2741,14 @@ function generate_full_diffs() {
 #
 # Params:
 #
-# 1 - path to portage-stable in old state
-# 2 - path to portage-stable in new state
-# 3 - old package name
-# 4 - new package name
+# 1 - output directory
+# 2 - path to portage-stable in old state
+# 3 - path to portage-stable in new state
+# 4 - old package name
+# 5 - new package name
 function generate_non_ebuild_diffs() {
-    local old_ps new_ps old_pkg new_pkg
+    local out_dir old_ps new_ps old_pkg new_pkg
+    out_dir=${1}; shift
     old_ps=${1}; shift
     new_ps=${1}; shift
     old_pkg=${1}; shift
@@ -2755,9 +2757,6 @@ function generate_non_ebuild_diffs() {
     local old_path new_path
     old_path="${old_ps}/${old_pkg}"
     new_path="${new_ps}/${new_pkg}"
-
-    local gned_update_dir
-    update_dir_non_slot "${new_pkg}" gned_update_dir
 
     local -a diff_opts=(
         --recursive
@@ -2768,7 +2767,7 @@ function generate_non_ebuild_diffs() {
         --exclude='*.ebuild'
         --exclude='Manifest'
     )
-    xdiff "${diff_opts[@]}" "${old_path}" "${new_path}" >"${gned_update_dir}/other.diff"
+    xdiff "${diff_opts[@]}" "${old_path}" "${new_path}" >"${out_dir}/other.diff"
 }
 
 # Generate a diff between specific ebuilds for old and new package.
