@@ -2204,7 +2204,7 @@ function handle_package_changes() {
 
         generate_non_ebuild_diffs "${hpc_update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_full_diffs "${hpc_update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
+        generate_package_mention_reports "${hpc_update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
 
         hpc_changed=
         pkg_debug 'going over common slots'
@@ -2833,22 +2833,21 @@ function generate_cache_diff_report() {
 # are mentioned in entire scripts repository. May result in two
 # separate reports if the package got renamed.
 #
-# 1 - path to scripts repo
-# 2 - old package name
-# 3 - new package name
+# 1 - output directory
+# 2 - path to scripts repo
+# 3 - old package name
+# 4 - new package name
 function generate_package_mention_reports() {
-    local scripts old_pkg new_pkg
+    local out_dir scripts old_pkg new_pkg
+    out_dir=${1}; shift
     scripts=${1}; shift
     old_pkg=${1}; shift
     new_pkg=${1}; shift
 
-    local gpr_update_dir
-    update_dir_non_slot "${new_pkg}" gpr_update_dir
-
-    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${gpr_update_dir}/occurences"
+    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${out_dir}/occurences"
 
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${gpr_update_dir}/occurences-for-old-name"
+        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${out_dir}/occurences-for-old-name"
     fi
 }
 
