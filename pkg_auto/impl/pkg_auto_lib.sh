@@ -2203,7 +2203,7 @@ function handle_package_changes() {
         # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
 
         generate_non_ebuild_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_full_diffs "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+        generate_full_diffs "${hpc_update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
         generate_package_mention_reports "${NEW_STATE}" "${old_name}" "${new_name}"
 
         hpc_changed=
@@ -2711,12 +2711,14 @@ function generate_summary_stub() {
 #
 # Params:
 #
-# 1 - path to portage-stable in old state
-# 2 - path to portage-stable in new state
-# 3 - old package name
-# 4 - new package name
+# 1 - output directory
+# 2 - path to portage-stable in old state
+# 3 - path to portage-stable in new state
+# 4 - old package name
+# 5 - new package name
 function generate_full_diffs() {
-    local old_ps new_ps old_pkg new_pkg
+    local out_dir old_ps new_ps old_pkg new_pkg
+    out_dir=${1}; shift
     old_ps=${1}; shift
     new_ps=${1}; shift
     old_pkg=${1}; shift
@@ -2726,15 +2728,12 @@ function generate_full_diffs() {
     old_path="${old_ps}/${old_pkg}"
     new_path="${new_ps}/${new_pkg}"
 
-    local gfd_update_dir
-    update_dir_non_slot "${new_pkg}" gfd_update_dir
-
     local -a common_diff_opts=(
         --recursive
         --unified=3
     )
-    xdiff "${common_diff_opts[@]}" --new-file "${old_path}" "${new_path}" >"${gfd_update_dir}/full.diff"
-    xdiff "${common_diff_opts[@]}" --brief "${old_path}" "${new_path}" >"${gfd_update_dir}/brief-summary"
+    xdiff "${common_diff_opts[@]}" --new-file "${old_path}" "${new_path}" >"${out_dir}/full.diff"
+    xdiff "${common_diff_opts[@]}" --brief "${old_path}" "${new_path}" >"${out_dir}/brief-summary"
 }
 
 # Generate a diff between non-ebuild, non-Manifest files for old and
