@@ -2423,9 +2423,11 @@ function handle_pkg_update() {
     local -a hpu_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpu_tags
 
+    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
+
     if ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
-        generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
+        generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
         lines+=( '0:release notes: TODO' )
     fi
 
@@ -2581,9 +2583,11 @@ function handle_pkg_downgrade() {
     local -a hpd_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpd_tags
 
+    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
+
     if ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
-        generate_changelog_entry_stub "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
+        generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
         lines+=( "0:release notes: TODO" )
     fi
 
@@ -2622,11 +2626,13 @@ function tags_for_pkg() {
 # Adds a changelog stub to changelog file in reports directory.
 #
 # Params:
-# 1 - package name (shortened, without the category)
-# 2 - version
+# 1 - output directory
+# 2 - package name (shortened, without the category)
+# 3 - version
 # @ - package tags
 function generate_changelog_entry_stub() {
-    local pkg_name v
+    local out_dir pkg_name v
+    out_dir=${1}; shift
     pkg_name=${1}; shift
     v=${1}; shift
     # rest are tags
@@ -2651,10 +2657,7 @@ function generate_changelog_entry_stub() {
         gces_tags='SDK'
     fi
 
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    printf '%s %s: %s ([%s](TODO))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" >>"${REPORTS_DIR}/updates/changelog_stubs"
+    printf '%s %s: %s ([%s](TODO))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" >>"${out_dir}/changelog_stubs"
 }
 
 # Adds a stub to the summary file in reports directory.
