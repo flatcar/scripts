@@ -2294,7 +2294,12 @@ function handle_one_package_change() {
         generate_ebuild_diff "${update_dir}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
 
         diff_report_declare hopc_diff_report
-        generate_cache_diff_report hopc_diff_report "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+        cache_file_declare hopc_old_cache_file hopc_new_cache_file
+
+        parse_cache_file hopc_old_cache_file "${old_cache_path}/${old_name}-${old_version}" "${ARCHES[@]}"
+        parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
+
+        diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
 
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
@@ -2317,6 +2322,7 @@ function handle_one_package_change() {
                 ;;
         esac
 
+        cache_file_unset hopc_new_cache_file hopc_old_cache_file
         diff_report_unset hopc_diff_report
     done
 
@@ -2349,7 +2355,12 @@ function handle_one_package_change() {
             generate_ebuild_diff "${update_dir}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
 
             diff_report_declare hopc_diff_report
-            generate_cache_diff_report hopc_diff_report "${diff_lib_filters_var_name}" "${kvr_reports_var_name}" "${old_cache_path}" "${new_cache_path}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+            cache_file_declare hopc_old_cache_file hopc_new_cache_file
+
+            parse_cache_file hopc_old_cache_file "${old_cache_path}/${old_name}-${old_version}" "${ARCHES[@]}"
+            parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
+
+            diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
 
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
@@ -2372,6 +2383,7 @@ function handle_one_package_change() {
                     ;;
             esac
 
+            cache_file_unset hopc_new_cache_file hopc_old_cache_file
             diff_report_unset hopc_diff_report
         fi
     elif [[ ${#hopc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hopc_only_new_slots_set[@]} -gt 0 ]]; then
@@ -3230,34 +3242,6 @@ function generate_ebuild_diff() {
     local new_path="${new_ps}/${new_pkg}/${new_pkg_name}-${new}.ebuild"
 
     xdiff --unified=3 "${old_path}" "${new_path}" >"${out_dir}/ebuild.diff"
-}
-
-function generate_cache_diff_report() {
-    local diff_report_var_name=${1}; shift
-    local diff_lib_filters_var_name=${1}; shift
-    local old_cache_dir=${1}; shift
-    local new_cache_dir=${1}; shift
-    local old_pkg=${1}; shift
-    local new_pkg=${1}; shift
-    local old=${1}; shift
-    local new=${1}; shift
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    local old_entry=${old_cache_dir}/${old_pkg}-${old}
-    local new_entry=${new_cache_dir}/${new_pkg}-${new}
-
-    local old_cache_name new_cache_name
-    gen_varname old_cache_name
-    gen_varname new_cache_name
-    cache_file_declare "${old_cache_name}" "${new_cache_name}"
-    parse_cache_file "${old_cache_name}" "${old_entry}" "${ARCHES[@]}"
-    parse_cache_file "${new_cache_name}" "${new_entry}" "${ARCHES[@]}"
-
-    diff_cache_data "${old_cache_name}" "${new_cache_name}" "${diff_lib_filters_var_name}" "${diff_report_var_name}"
-
-    cache_file_unset "${old_cache_name}" "${new_cache_name}"
 }
 
 # Generate a report with information where the old and new packages
