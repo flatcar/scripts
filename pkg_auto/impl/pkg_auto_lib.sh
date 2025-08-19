@@ -2431,7 +2431,7 @@ function handle_pkg_update() {
         lines+=( '0:release notes: TODO' )
     fi
 
-    generate_summary_stub "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
 }
 
 # Write information to reports directory about the modified package
@@ -2512,9 +2512,11 @@ function handle_pkg_as_is() {
         lines+=( '0:TODO: review occurences-for-old-name' )
     fi
 
+    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
+
     local -a hpai_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpai_tags
-    generate_summary_stub "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
 }
 
 # Write information to reports directory about the package downgrade
@@ -2591,7 +2593,7 @@ function handle_pkg_downgrade() {
         lines+=( "0:release notes: TODO" )
     fi
 
-    generate_summary_stub "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
 }
 
 # Retrieves tags for a package.
@@ -2663,16 +2665,15 @@ function generate_changelog_entry_stub() {
 # Adds a stub to the summary file in reports directory.
 #
 # Params:
-# 1 - package
+# 1 - output directory
+# 2 - package
 # @ - tags followed by double dash followed by lines to append to the
 #     file
 function generate_summary_stub() {
-    local pkg
+    local out_dir pkg
+    out_dir=${1}; shift
     pkg=${1}; shift
     # rest are tags separated followed by double dash followed by lines
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
 
     local -a tags
     tags=()
@@ -2702,7 +2703,7 @@ function generate_summary_stub() {
             printf '  - %s\n' "${line}"
         done
         printf '\n'
-    } >>"${REPORTS_DIR}/updates/summary_stubs"
+    } >>"${out_dir}/summary_stubs"
 }
 
 # Generate diffs between directories in old state and new state for a
@@ -3202,7 +3203,7 @@ function handle_eclass() {
     else
         lines+=( '0:added from Gentoo' )
     fi
-    generate_summary_stub "${eclass}" -- "${lines[@]}"
+    generate_summary_stub "${REPORTS_DIR}/updates" "${eclass}" -- "${lines[@]}"
 }
 
 # Handle profile changes. Generates three different diffs - changes in
@@ -3274,7 +3275,7 @@ function handle_profiles() {
     done <"${out_dir}/full.diff"
     lines_to_file_truncate "${out_dir}/relevant.diff" "${relevant_lines[@]}"
     lines_to_file_truncate "${out_dir}/possibly-irrelevant-files" "${possibly_irrelevant_files[@]}"
-    generate_summary_stub profiles -- '0:TODO: review the diffs'
+    generate_summary_stub "${REPORTS_DIR}/updates" profiles -- '0:TODO: review the diffs'
 }
 
 # Handles changes in license directory. Generates brief reports and
@@ -3348,7 +3349,7 @@ function handle_licenses() {
         join_by joined ', ' "${changed[@]}"
         lines+=( "0:updated ${joined}" )
     fi
-    generate_summary_stub licenses -- "${lines[@]}"
+    generate_summary_stub "${REPORTS_DIR}/updates" licenses -- "${lines[@]}"
 }
 
 # Generates reports about changes inside the scripts directory.
@@ -3361,7 +3362,7 @@ function handle_scripts() {
     mkdir -p "${out_dir}"
 
     xdiff --unified=3 --recursive "${OLD_PORTAGE_STABLE}/scripts" "${NEW_PORTAGE_STABLE}/scripts" >"${out_dir}/scripts.diff"
-    generate_summary_stub scripts -- '0:TODO: review the diffs'
+    generate_summary_stub "${REPORTS_DIR}/updates" scripts -- '0:TODO: review the diffs'
 }
 
 fi
