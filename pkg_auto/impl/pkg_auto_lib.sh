@@ -2275,6 +2275,8 @@ function handle_package_changes() {
     mvm_declare hpc_pkg_slots_set_mvm mvm_mvc_set
     read_reports hpc_all_pkgs hpc_pkg_slots_set_mvm
 
+    info "doing package consistency checks"
+
     # map[package]map[slot]string (string being "min version:max version")
     mvm_declare hpc_old_pkg_slot_verminmax_map_mvm mvm_mvc_map
     mvm_declare hpc_new_pkg_slot_verminmax_map_mvm mvm_mvc_map
@@ -2282,6 +2284,8 @@ function handle_package_changes() {
     consistency_checks new hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_new_pkg_slot_verminmax_map_mvm
 
     unset_report_mvms
+
+    info "preparing for handling package changes"
 
     # TODO: when we handle moving packages between repos, then there
     # should be two maps, for old and new state
@@ -3237,6 +3241,8 @@ function handle_eclass() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
+    info "handling update of ${eclass}"
+
     local -a lines
     lines=()
     if [[ -e "${OLD_PORTAGE_STABLE}/${eclass}" ]] && [[ -e "${NEW_PORTAGE_STABLE}/${eclass}" ]]; then
@@ -3258,6 +3264,8 @@ function handle_eclass() {
 function handle_profiles() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
+
+    info "handling update of profiles"
 
     local -a files=()
     local which arch
@@ -3328,6 +3336,8 @@ function handle_profiles() {
 function handle_licenses() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
+
+    info "handling update of licenses"
 
     local -a dropped=() added=() changed=()
     local line hl_stripped
@@ -3401,6 +3411,8 @@ function handle_licenses() {
 function handle_scripts() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
+
+    info "handling update of scripts"
 
     local out_dir
     out_dir="${REPORTS_DIR}/updates/scripts"
