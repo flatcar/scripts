@@ -2688,25 +2688,21 @@ function get_first_from_set() {
 # 5 - old version
 # 6 - new version
 function handle_pkg_update() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old new
     local -n package_output_paths_ref=${1}; shift
-    pkg_to_tags_mvm_var_name=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    old=${1}; shift
-    new=${1}; shift
+    local pkg_to_tags_mvm_var_name=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local old_no_r new_no_r
-    old_no_r=${old%-r+([0-9])}
-    new_no_r=${new%-r+([0-9])}
+    local old_no_r=${old%-r+([0-9])}
+    local new_no_r=${new%-r+([0-9])}
 
-    local pkg_name
-    pkg_name=${new_pkg#*/}
-    local -a lines
-    lines=( "0:from ${old} to ${new}")
+    local pkg_name=${new_pkg#*/}
+    local -a lines=( "0:from ${old} to ${new}" )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
     fi
@@ -2766,24 +2762,20 @@ function handle_pkg_update() {
 #     has changed (empty means nothing changed, non-empty means
 #     something has changed)
 function handle_pkg_as_is() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg v
     local -n package_output_paths_ref=${1}; shift
-    pkg_to_tags_mvm_var_name=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    v=${1}; shift
+    local pkg_to_tags_mvm_var_name=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local v=${1}; shift
     local -n changed_ref=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local pkg_name
-    pkg_name=${new_pkg#/}
-    local -a lines
-    lines=( "0:still at ${v}" )
+    local pkg_name=${new_pkg#/}
+    local -a lines=( "0:still at ${v}" )
 
-    local renamed
-    renamed=
+    local renamed=''
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
         renamed=x
@@ -2792,8 +2784,7 @@ function handle_pkg_as_is() {
     local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
     generate_ebuild_diff "${out_dir}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_pkg}" "${new_pkg}" "${v}" "${v}"
 
-    local modified
-    modified=
+    local modified=''
 
     local diff_report_name
     gen_varname diff_report_name
@@ -2849,25 +2840,21 @@ function handle_pkg_as_is() {
 # 5 - old version
 # 6 - new version
 function handle_pkg_downgrade() {
-    local pkg_to_tags_mvm_var_name old_pkg new_pkg old new
     local -n package_output_paths_ref=${1}; shift
-    pkg_to_tags_mvm_var_name=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    old=${1}; shift
-    new=${1}; shift
+    local pkg_to_tags_mvm_var_name=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local old_no_r new_no_r
-    old_no_r=${old%-r+([0-9])}
-    new_no_r=${new%-r+([0-9])}
+    local old_no_r=${old%-r+([0-9])}
+    local new_no_r=${new%-r+([0-9])}
 
-    local pkg_name
-    pkg_name=${new_pkg#*/}
-    local -a lines
-    lines=( "0:downgraded from ${old} to ${new}" )
+    local pkg_name=${new_pkg#*/}
+    local -a lines=( "0:downgraded from ${old} to ${new}" )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
         lines+=( "0:renamed from ${old_pkg}" )
     fi
@@ -2950,10 +2937,9 @@ function tags_for_pkg() {
 # 3 - version
 # @ - package tags
 function generate_changelog_entry_stub() {
-    local out_dir pkg_name v
-    out_dir=${1}; shift
-    pkg_name=${1}; shift
-    v=${1}; shift
+    local out_dir=${1}; shift
+    local pkg_name=${1}; shift
+    local v=${1}; shift
     # rest are tags
 
     local -a applied_tags=()
@@ -2987,13 +2973,11 @@ function generate_changelog_entry_stub() {
 # @ - tags followed by double dash followed by lines to append to the
 #     file
 function generate_summary_stub() {
-    local out_dir pkg
-    out_dir=${1}; shift
-    pkg=${1}; shift
+    local out_dir=${1}; shift
+    local pkg=${1}; shift
     # rest are tags separated followed by double dash followed by lines
 
-    local -a tags
-    tags=()
+    local -a tags=()
     while [[ ${#} -gt 0 ]]; do
         if [[ ${1} = '--' ]]; then
             shift
@@ -3034,16 +3018,14 @@ function generate_summary_stub() {
 # 4 - old package name
 # 5 - new package name
 function generate_full_diffs() {
-    local out_dir old_ps new_ps old_pkg new_pkg
-    out_dir=${1}; shift
-    old_ps=${1}; shift
-    new_ps=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
+    local out_dir=${1}; shift
+    local old_ps=${1}; shift
+    local new_ps=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
 
-    local old_path new_path
-    old_path="${old_ps}/${old_pkg}"
-    new_path="${new_ps}/${new_pkg}"
+    local old_path="${old_ps}/${old_pkg}"
+    local new_path="${new_ps}/${new_pkg}"
 
     local -a common_diff_opts=(
         --recursive
@@ -3064,16 +3046,14 @@ function generate_full_diffs() {
 # 4 - old package name
 # 5 - new package name
 function generate_non_ebuild_diffs() {
-    local out_dir old_ps new_ps old_pkg new_pkg
-    out_dir=${1}; shift
-    old_ps=${1}; shift
-    new_ps=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
+    local out_dir=${1}; shift
+    local old_ps=${1}; shift
+    local new_ps=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
 
-    local old_path new_path
-    old_path="${old_ps}/${old_pkg}"
-    new_path="${new_ps}/${new_pkg}"
+    local old_path="${old_ps}/${old_pkg}"
+    local new_path="${new_ps}/${new_pkg}"
 
     local -a diff_opts=(
         --recursive
@@ -3099,22 +3079,19 @@ function generate_non_ebuild_diffs() {
 # 6 - old package version
 # 7 - new package version
 function generate_ebuild_diff() {
-    local out_dir old_ps new_ps old_pkg new_pkg old new
-    out_dir=${1}; shift
-    old_ps=${1}; shift
-    new_ps=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
-    old=${1}; shift
-    new=${1}; shift
+    local out_dir=${1}; shift
+    local old_ps=${1}; shift
+    local new_ps=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
+    local old=${1}; shift
+    local new=${1}; shift
 
-    local old_pkg_name new_pkg_name
-    old_pkg_name=${old_pkg#*/}
-    new_pkg_name=${new_pkg#*/}
+    local old_pkg_name=${old_pkg#*/}
+    local new_pkg_name=${new_pkg#*/}
 
-    local old_path new_path
-    old_path="${old_ps}/${old_pkg}/${old_pkg_name}-${old}.ebuild"
-    new_path="${new_ps}/${new_pkg}/${new_pkg_name}-${new}.ebuild"
+    local old_path="${old_ps}/${old_pkg}/${old_pkg_name}-${old}.ebuild"
+    local new_path="${new_ps}/${new_pkg}/${new_pkg_name}-${new}.ebuild"
 
     xdiff --unified=3 "${old_path}" "${new_path}" >"${out_dir}/ebuild.diff"
 }
@@ -3155,11 +3132,10 @@ function generate_cache_diff_report() {
 # 3 - old package name
 # 4 - new package name
 function generate_package_mention_reports() {
-    local out_dir scripts old_pkg new_pkg
-    out_dir=${1}; shift
-    scripts=${1}; shift
-    old_pkg=${1}; shift
-    new_pkg=${1}; shift
+    local out_dir=${1}; shift
+    local scripts=${1}; shift
+    local old_pkg=${1}; shift
+    local new_pkg=${1}; shift
 
     generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${out_dir}/occurences"
 
