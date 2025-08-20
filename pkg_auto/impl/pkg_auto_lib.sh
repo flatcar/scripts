@@ -2901,53 +2901,6 @@ function generate_mention_report_for_package() {
     grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}" ":(exclude)${co}"
 }
 
-# Gets a toplevel update reports directory for a package. This is
-# where occurences and non-ebuild diffs are stored.
-#
-# Params:
-#
-# 1 - package name
-# 2 - name of a variable where the path will be stored
-function update_dir_non_slot() {
-    local pkg
-    pkg=${1}; shift
-    local -n dir_ref=${1}; shift
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    dir_ref="${REPORTS_DIR}/updates/${pkg}"
-}
-
-# Gets a slot specific update reports directory for a package. This is
-# where ebuild diffs are stored.
-#
-# Params:
-#
-# 1 - package name
-# 2 - old slot
-# 3 - new slot
-# 4 - name of a variable where the path will be stored
-function update_dir() {
-    local pkg old_s new_s
-    pkg=${1}; shift
-    old_s=${1}; shift
-    new_s=${1}; shift
-    local -n dir_ref=${1}; shift
-
-    # slots may have slashes in them - replace them with "-slash-"
-    local slot_dir
-    if [[ ${old_s} = "${new_s}" ]]; then
-        slot_dir=${old_s//\//-slash-}
-    else
-        slot_dir="${old_s//\//-slash-}-to-${new_s//\//-slash-}"
-    fi
-
-    local ud_non_slot_dir
-    update_dir_non_slot "${pkg}" ud_non_slot_dir
-    dir_ref="${ud_non_slot_dir}/${slot_dir}"
-}
-
 # Gets a slot-specific directory name for ebuild diffs.
 #
 # Params:
