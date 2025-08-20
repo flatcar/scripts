@@ -1909,6 +1909,53 @@ function read_package_sources() {
     done
 }
 
+# Fields of the bunch of maps struct.
+#
+# BOM_PKG_TO_TAGS_MVM_IDX - mapping of a package name to an array of
+#                           tags (mostly describing where the package
+#                           is used, like SDK or azure OEM or python
+#                           sysext)
+#
+# BOM_PKG_SLOTS_SET_MVM_IDX - mapping of a package name to a set of
+#                             slots available for the package (slots
+#                             before the update and after the update
+#                             are mixed here)
+#
+# BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX - mapping of a package name
+#                                          to used slots, each slot is
+#                                          associated with a pair of
+#                                          versions - lowest and
+#                                          greatest used version (for
+#                                          consistent packages, these
+#                                          versions are the same); the
+#                                          mapping is for packages
+#                                          before the update
+#
+# BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX - same as above, but for
+#                                          packages after the update
+#
+# BOM_PKG_SOURCES_MAP_IDX - mapping of package name to the repository
+#                           name
+declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_PKG_SOURCES_MAP_IDX=4
+
+# Declare bunch of maps variables.
+#
+# Parameters:
+#
+# @ - names of variables to be used for bunch of maps
+function bunch_of_maps_declare() {
+    struct_declare -ga "${@}" "( '' '' '' '' '' )"
+}
+
+# Unset bunch of maps variables.
+#
+# Parameters:
+#
+# @ - names of bunch of maps variables
+function bunch_of_maps_unset() {
+    unset "${@}"
+}
+
 # Fields of the package output paths struct.
 #
 # POP_OUT_DIR_IDX - toplevel output directory.
@@ -2056,6 +2103,13 @@ function handle_package_changes() {
         fi
     done
     unset added_pkg_to_index_map
+
+    bunch_of_maps_declare hpc_bunch_of_maps
+    hpc_bunch_of_maps[BOM_PKG_TO_TAGS_MVM_IDX]=${pkg_to_tags_mvm_var_name}
+    hpc_bunch_of_maps[BOM_PKG_SLOTS_SET_MVM_IDX]=hpc_pkg_slots_set_mvm
+    hpc_bunch_of_maps[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_old_pkg_slot_verminmax_map_mvm
+    hpc_bunch_of_maps[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_new_pkg_slot_verminmax_map_mvm
+    hpc_bunch_of_maps[BOM_PKG_SOURCES_MAP_IDX]=hpc_package_sources_map
 
     # The loop below goes over the pairs of old and new package
     # names. For each name there will be some checks done (like does
@@ -2335,6 +2389,8 @@ function handle_package_changes() {
         fi
         pkg_debug_disable
     done
+
+    bunch_of_maps_unset hpc_bunch_of_maps
 
     mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
     mvm_unset hpc_old_pkg_slot_verminmax_map_mvm
