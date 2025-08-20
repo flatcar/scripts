@@ -2088,6 +2088,22 @@ function handle_one_package_change() {
     local new_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
     local -n pkg_sources_map_ref=${bunch_of_maps_ref[BOM_PKG_SOURCES_MAP_IDX]}
 
+    # The function goes over a pair of old and new package names. For
+    # each name there will be some checks done (like does this package
+    # even exist). Each name in the pair has a set of used slots
+    # associated with it (the most common situation is that each have
+    # just one slot, but there are some packages that we have multiple
+    # slots installed, like app-text/docbook-xml-dtd). Some of the
+    # slots will appear in both old and new package name, sometimes
+    # there will be slots available only in the old state or only in
+    # the new state. Each slot for each package name has an associated
+    # min version and max version. So for common slots we usually
+    # compare min version for old package with max version for new
+    # package. Any inconsistencies with the versions should be
+    # reported by now. There are some edge cases with the slots that
+    # are not handled by the automation - in such cases there will be
+    # a "manual action needed" report.
+
     if [[ ${old_name} = "${new_name}" ]]; then
         info "handling update of ${new_name}"
     else
@@ -2615,23 +2631,6 @@ function handle_package_changes() {
             fi
         done
     done
-
-    # The loop below goes over the pairs of old and new package
-    # names. For each name there will be some checks done (like does
-    # this package even exist). Each name in the pair has a set of
-    # used slots associated with it (the most common situation is that
-    # each have just one slot, but there are some packages that we
-    # have multiple slots installed, like
-    # app-text/docbook-xml-dtd). Some of the slots will appear in both
-    # old and new package name, sometimes there will be slots
-    # available only in the old state or only in the new state. Each
-    # slot for each package name has an associated min version and max
-    # version. So for common slots we usually compare min version for
-    # old package with max version for new package. Any
-    # inconsistencies with the versions should be reported by
-    # now. There are some edge cases with the slots that are not
-    # handled by the automation - in such cases there will be a
-    # "manual action needed" report.
 
     pkg_job_state_unset "${pkg_job_state_names[@]}"
     bunch_of_maps_unset hpc_bunch_of_maps
