@@ -2075,6 +2075,7 @@ function handle_package_changes() {
     # "manual action needed" report.
 
     local warnings_dir="${REPORTS_DIR}"
+    local updates_dir="${REPORTS_DIR}/updates"
 
     local pkg_idx=0
     local old_name new_name old_repo new_repo
@@ -2086,9 +2087,9 @@ function handle_package_changes() {
     local hpc_cmp_result
     local -A hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
     local -a lines
-    local hpc_update_dir
+    local update_dir
     local -A empty_map_or_set
-    local hpc_changed hpc_slot_changed hpc_update_dir_non_slot hpc_category_dir
+    local hpc_changed hpc_slot_changed update_dir_non_slot hpc_slot_dirname hpc_category_dir
     local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name verminmax
     local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
     empty_map_or_set=()
@@ -2194,17 +2195,17 @@ function handle_package_changes() {
         pkg_debug "slots only for old name: ${!hpc_only_old_slots_set[*]}"
         pkg_debug "slots only for new name: ${!hpc_only_new_slots_set[*]}"
 
-        update_dir_non_slot "${new_name}" hpc_update_dir_non_slot
-        mkdir -p "${hpc_update_dir_non_slot}"
+        update_dir_non_slot="${updates_dir}/${new_name}"
+        mkdir -p "${update_dir_non_slot}"
 
         package_output_paths_declare hpc_package_output_paths
-        hpc_package_output_paths[POP_OUT_DIR_IDX]="${REPORTS_DIR}/updates"
-        hpc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${hpc_update_dir_non_slot}
+        hpc_package_output_paths[POP_OUT_DIR_IDX]="${updates_dir}"
+        hpc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${update_dir_non_slot}
         # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
 
-        generate_non_ebuild_diffs "${hpc_update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_full_diffs "${hpc_update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_package_mention_reports "${hpc_update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
+        generate_non_ebuild_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+        generate_full_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+        generate_package_mention_reports "${update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
 
         hpc_changed=
         pkg_debug 'going over common slots'
@@ -2223,9 +2224,10 @@ function handle_package_changes() {
                     "    - minmax: ${new_verminmax}"
                 continue
             fi
-            update_dir "${new_name}" "${s}" "${s}" hpc_update_dir
-            mkdir -p "${hpc_update_dir}"
-            hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${hpc_update_dir}
+            slot_dirname "${s}" "${s}" hpc_slot_dirname
+            update_dir="${update_dir_non_slot}/${hpc_slot_dirname}"
+            mkdir -p "${update_dir}"
+            hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
             old_version=${old_verminmax%%:*}
             new_version=${new_verminmax##*:}
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
@@ -2238,7 +2240,7 @@ function handle_package_changes() {
                     hpc_slot_changed=
                     handle_pkg_as_is hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hpc_slot_changed
                     if [[ -z ${hpc_slot_changed} ]]; then
-                        rm -rf "${hpc_update_dir}"
+                        rm -rf "${update_dir}"
                     else
                         hpc_changed=x
                     fi
@@ -2267,9 +2269,10 @@ function handle_package_changes() {
                     "    - slot: ${hpc_new_s}" \
                     "    - minmax: ${new_verminmax}"
             else
-                update_dir "${new_name}" "${hpc_old_s}" "${hpc_new_s}" hpc_update_dir
-                mkdir -p "${hpc_update_dir}"
-                hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${hpc_update_dir}
+                slot_dirname "${hpc_old_s}" "${hpc_new_s}" hpc_slot_dirname
+                update_dir="${update_dir_non_slot}/${hpc_slot_dirname}"
+                mkdir -p "${update_dir}"
+                hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
                 old_version=${old_verminmax%%:*}
                 new_version=${new_verminmax##*:}
                 gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
@@ -2282,7 +2285,7 @@ function handle_package_changes() {
                         hpc_slot_changed=
                         handle_pkg_as_is hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hpc_slot_changed
                         if [[ -z ${hpc_slot_changed} ]]; then
-                            rm -rf "${hpc_update_dir}"
+                            rm -rf "${update_dir}"
                         else
                             hpc_changed=x
                         fi
@@ -2324,8 +2327,8 @@ function handle_package_changes() {
         # sys-apps)
         if [[ -z ${hpc_changed} ]]; then
             pkg_debug 'no changes, dropping reports'
-            rm -rf "${hpc_update_dir_non_slot}"
-            dirname_out "${hpc_update_dir_non_slot}" hpc_category_dir
+            rm -rf "${update_dir_non_slot}"
+            dirname_out "${update_dir_non_slot}" hpc_category_dir
             if dir_is_empty "${hpc_category_dir}"; then
                 rmdir "${hpc_category_dir}"
             fi
@@ -2943,6 +2946,29 @@ function update_dir() {
     local ud_non_slot_dir
     update_dir_non_slot "${pkg}" ud_non_slot_dir
     dir_ref="${ud_non_slot_dir}/${slot_dir}"
+}
+
+# Gets a slot-specific directory name for ebuild diffs.
+#
+# Params:
+#
+# 1 - old slot
+# 2 - new slot
+# 3 - name of a variable where the path will be stored
+function slot_dirname() {
+    local old_s=${1}; shift
+    local new_s=${1}; shift
+    local -n dirname_ref=${1}; shift
+
+    # slots may have slashes in them - replace them with "-slash-"
+    local slot_dir
+    if [[ ${old_s} = "${new_s}" ]]; then
+        slot_dir=${old_s//\//-slash-}
+    else
+        slot_dir="${old_s//\//-slash-}-to-${new_s//\//-slash-}"
+    fi
+
+    dirname_ref=${slot_dir}
 }
 
 # Greps for a package name in selected directories of the passed
