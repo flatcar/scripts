@@ -1985,6 +1985,272 @@ function package_output_paths_unset() {
     unset "${@}"
 }
 
+function handle_one_package_change() {
+    local output_dir=${1}; shift
+    local -n bunch_of_maps_ref=${1}; shift
+    local old_name=${1}; shift
+    local new_name=${1}; shift
+
+    local warnings_dir="${output_dir}"
+    local updates_dir="${output_dir}/updates"
+
+    local pkg_to_tags_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_TO_TAGS_MVM_IDX]}
+    local pkg_slots_set_mvm_var_name=${bunch_of_maps_ref[BOM_PKG_SLOTS_SET_MVM_IDX]}
+    local old_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
+    local new_pkg_slot_verminmax_map_mvm_var_name=${bunch_of_maps_ref[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]}
+    local -n pkg_sources_map_ref=${bunch_of_maps_ref[BOM_PKG_SOURCES_MAP_IDX]}
+
+    if [[ ${old_name} = "${new_name}" ]]; then
+        info "handling update of ${new_name}"
+    else
+        info "handling update of ${new_name} (renamed from ${old_name})"
+    fi
+    pkg_debug_enable "${old_name}" "${new_name}"
+    pkg_debug 'handling updates'
+    local old_repo=${pkg_sources_map_ref["${old_name}"]:-}
+    local new_repo=${pkg_sources_map_ref["${new_name}"]:-}
+    if [[ -z ${old_repo} ]]; then
+        pkg_warn_d "${warnings_dir}" \
+            '- package not in old state' \
+            "  - old package: ${old_name}" \
+            "  - new package: ${new_name}"
+        pkg_debug_disable
+        return 0
+    fi
+    if [[ -z ${new_repo} ]]; then
+        pkg_warn_d "${warnings_dir}" \
+            '- package not in new state' \
+            "  - old package: ${old_name}" \
+            "  - new package: ${new_name}"
+        pkg_debug_disable
+        return 0
+    fi
+    if [[ ${old_repo} != "${new_repo}" ]]; then
+        # This is pretty much an arbitrary limitation and I don't
+        # remember any more why we have it.
+        pkg_warn_d "${warnings_dir}" \
+            '- package has moved between repos? unsupported for now' \
+            "  - old package and repo: ${old_name} ${old_repo}" \
+            "  - new package and repo: ${new_name} ${new_repo}"
+        pkg_debug_disable
+        return 0
+    fi
+    if [[ ${new_repo} != 'portage-stable' ]]; then
+        # coreos-overlay packages will need a separate handling
+        pkg_debug 'not a portage-stable package'
+        pkg_debug_disable
+        return 0
+    fi
+
+    local hopc_old_slots_set_var_name hopc_new_slots_set_var_name
+    mvm_get "${pkg_slots_set_mvm_var_name}" "${old_name}" hopc_old_slots_set_var_name
+    mvm_get "${pkg_slots_set_mvm_var_name}" "${new_name}" hopc_new_slots_set_var_name
+    : "${hopc_old_slots_set_var_name:=EMPTY_MAP}"
+    : "${hopc_new_slots_set_var_name:=EMPTY_MAP}"
+
+    local hopc_old_slot_verminmax_map_var_name hopc_new_slot_verminmax_map_var_name
+    mvm_get "${old_pkg_slot_verminmax_map_mvm_var_name}" "${old_name}" hopc_old_slot_verminmax_map_var_name
+    mvm_get "${new_pkg_slot_verminmax_map_mvm_var_name}" "${new_name}" hopc_new_slot_verminmax_map_var_name
+    : "${hopc_old_slot_verminmax_map_var_name:=EMPTY_MAP}"
+    : "${hopc_new_slot_verminmax_map_var_name:=EMPTY_MAP}"
+    local -n old_slot_verminmax_map_ref=${hopc_old_slot_verminmax_map_var_name}
+    local -n new_slot_verminmax_map_ref=${hopc_new_slot_verminmax_map_var_name}
+
+    # Filter out slots for old and new package name that comes out
+    # without versions. This may happen, because we collect all slot
+    # names for the package name, without differentiating whether such
+    # a slot existed in the old state or still exists in the new
+    # state. If slot didn't exist in either one then it will come
+    # without version information. Such a slot is dropped. An example
+    # would be an update of sys-devel/binutils from 2.42 to 2.43. Each
+    # binutils version has a separate slot which is named after the
+    # version. So the slots set would be (2.42 2.43). Slot "2.42" does
+    # not exist in the new state any more, "2.43" does not yet exist
+    # in the old state. So those slots for those states will be
+    # dropped. Thus filtered slots set for the old state will only
+    # contain 2.42, while for the new state - only 2.43.
+    local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name s verminmax
+    local -A hopc_old_filtered_slots_set hopc_new_filtered_slots_set
+    for which in "${WHICH[@]}"; do
+        slots_set_var_name_var_name="hopc_${which}_slots_set_var_name"
+        slot_verminmax_map_var_name_var_name="hopc_${which}_slot_verminmax_map_var_name"
+        filtered_slots_set_var_name="hopc_${which}_filtered_slots_set"
+        local -n which_slots_set_ref=${!slots_set_var_name_var_name}
+        local -n which_slot_verminmax_map_ref=${!slot_verminmax_map_var_name_var_name}
+        local -n which_filtered_slots_set_ref=${filtered_slots_set_var_name}
+        pkg_debug "all unfiltered slots for ${which} name: ${!which_slots_set_ref[*]}"
+        which_filtered_slots_set_ref=()
+        for s in "${!which_slots_set_ref[@]}"; do
+            verminmax=${which_slot_verminmax_map_ref["${s}"]:-}
+            if [[ -n ${verminmax} ]]; then
+                which_filtered_slots_set_ref["${s}"]=x
+            fi
+        done
+        pkg_debug "all filtered slots for ${which} name: ${!which_filtered_slots_set_ref[*]}"
+        unset -n which_filtered_slots_set_ref
+        unset -n which_slot_verminmax_map_ref
+        unset -n which_slots_set_ref
+    done
+
+    local -A hopc_only_old_slots_set=() hopc_only_new_slots_set=() hopc_common_slots_set=()
+    sets_split \
+        hopc_old_filtered_slots_set hopc_new_filtered_slots_set \
+        hopc_only_old_slots_set hopc_only_new_slots_set hopc_common_slots_set
+    pkg_debug "all common slots: ${!hopc_common_slots_set[*]}"
+    pkg_debug "slots only for old name: ${!hopc_only_old_slots_set[*]}"
+    pkg_debug "slots only for new name: ${!hopc_only_new_slots_set[*]}"
+
+    local update_dir_non_slot="${updates_dir}/${new_name}"
+    mkdir -p "${update_dir_non_slot}"
+
+    package_output_paths_declare hopc_package_output_paths
+    hopc_package_output_paths[POP_OUT_DIR_IDX]=${updates_dir}
+    hopc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${update_dir_non_slot}
+    # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
+
+    generate_non_ebuild_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+    generate_full_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
+    generate_package_mention_reports "${update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
+
+    local hopc_changed=''
+    local old_verminmax new_verminmax
+    local hopc_slot_dirname
+    local update_dir
+    local old_version new_version
+    local hopc_cmp_result hopc_slot_changed
+    pkg_debug 'going over common slots'
+    for s in "${!hopc_common_slots_set[@]}"; do
+        old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
+        new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
+        pkg_debug "slot: ${s}, vmm old: ${old_verminmax}, vmm new: ${new_verminmax}"
+        if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
+            devel_warn_d "${warnings_dir}" \
+                "- no minmax info available for old and/or new:" \
+                "  - old package: ${old_name}" \
+                "    - slot: ${s}" \
+                "    - minmax: ${old_verminmax}" \
+                "  - new package: ${new_name}" \
+                "    - slot: ${s}" \
+                "    - minmax: ${new_verminmax}"
+            continue
+        fi
+        slot_dirname "${s}" "${s}" hopc_slot_dirname
+        update_dir="${update_dir_non_slot}/${hopc_slot_dirname}"
+        mkdir -p "${update_dir}"
+        hopc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
+        old_version=${old_verminmax%%:*}
+        new_version=${new_verminmax##*:}
+        gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
+        case ${hopc_cmp_result} in
+            "${GV_GT}")
+                handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                hopc_changed=x
+                ;;
+            "${GV_EQ}")
+                hopc_slot_changed=
+                handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                if [[ -z ${hopc_slot_changed} ]]; then
+                    rm -rf "${update_dir}"
+                else
+                    hopc_changed=x
+                fi
+                ;;
+            "${GV_LT}")
+                handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${s}" "${s}" "${old_version}" "${new_version}"
+                hopc_changed=x
+                ;;
+        esac
+    done
+
+    # A "sys-devel/binutils update" case - one old slot and one new
+    # slot, but different from each other.
+    local hopc_old_s hopc_new_s
+    if [[ ${#hopc_only_old_slots_set[@]} -eq 1 ]] && [[ ${#hopc_only_new_slots_set[@]} -eq 1 ]]; then
+        get_first_from_set hopc_only_old_slots_set hopc_old_s
+        old_verminmax=${old_slot_verminmax_map_ref["${hopc_old_s}"]:-}
+        get_first_from_set hopc_only_new_slots_set hopc_new_s
+        new_verminmax=${new_slot_verminmax_map_ref["${hopc_new_s}"]:-}
+        pkg_debug "jumping from slot ${hopc_old_s} (vmm: ${old_verminmax}) to slot ${hopc_new_s} (vmm: ${new_verminmax})"
+        if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
+            devel_warn_d "${warnings_dir}" \
+                "- no verminmax info available for old and/or new:" \
+                "  - old package: ${old_name}" \
+                "    - slot: ${hopc_old_s}" \
+                "    - minmax: ${old_verminmax}" \
+                "  - new package: ${new_name}" \
+                "    - slot: ${hopc_new_s}" \
+                "    - minmax: ${new_verminmax}"
+        else
+            slot_dirname "${hopc_old_s}" "${hopc_new_s}" hopc_slot_dirname
+            update_dir="${update_dir_non_slot}/${hopc_slot_dirname}"
+            mkdir -p "${update_dir}"
+            hopc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
+            old_version=${old_verminmax%%:*}
+            new_version=${new_verminmax##*:}
+            gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
+            case ${hopc_cmp_result} in
+                "${GV_GT}")
+                    handle_pkg_update hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    hopc_changed=x
+                    ;;
+                "${GV_EQ}")
+                    hopc_slot_changed=
+                    handle_pkg_as_is hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hopc_slot_changed
+                    if [[ -z ${hopc_slot_changed} ]]; then
+                        rm -rf "${update_dir}"
+                    else
+                        hopc_changed=x
+                    fi
+                    ;;
+                "${GV_LT}")
+                    handle_pkg_downgrade hopc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${hopc_old_s}" "${hopc_new_s}" "${old_version}" "${new_version}"
+                    hopc_changed=x
+                    ;;
+            esac
+        fi
+    elif [[ ${#hopc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hopc_only_new_slots_set[@]} -gt 0 ]]; then
+        pkg_debug 'complicated slots situation, needs manual intervention'
+        local -a lines=(
+            '- handle package update:'
+            '  - old package name:'
+            "    - name: ${old_name}"
+            '    - slots:'
+        )
+        for s in "${!hopc_old_filtered_slots_set[@]}"; do
+            old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
+            lines+=("      - ${s}, minmax: ${old_verminmax}")
+        done
+        lines+=(
+            '  - new package name:'
+            "    - name: ${new_name}"
+            '    - slots:'
+        )
+        for s in "${!hopc_new_filtered_slots_set[@]}"; do
+            new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
+            lines+=("      - ${s}, minmax: ${new_verminmax}")
+        done
+        manual_d "${warnings_dir}" "${lines[@]}"
+        unset lines
+    fi
+
+    package_output_paths_unset hopc_package_output_paths
+    unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
+    # if nothing changed, drop the entire update directory for the
+    # package, and possibly the parent directory if it became
+    # empty (parent directory being a category directory, like
+    # sys-apps)
+    local hopc_category_dir
+    if [[ -z ${hopc_changed} ]]; then
+        pkg_debug 'no changes, dropping reports'
+        rm -rf "${update_dir_non_slot}"
+        dirname_out "${update_dir_non_slot}" hopc_category_dir
+        if dir_is_empty "${hopc_category_dir}"; then
+            rmdir "${hopc_category_dir}"
+        fi
+    fi
+    pkg_debug_disable
+}
+
 # This monstrosity takes renames map and package tags information,
 # reads the reports, does consistency checks and uses the information
 # from previous steps to write out package differences between the old
@@ -2128,266 +2394,13 @@ function handle_package_changes() {
     # handled by the automation - in such cases there will be a
     # "manual action needed" report.
 
-    local warnings_dir="${REPORTS_DIR}"
-    local updates_dir="${REPORTS_DIR}/updates"
-
     local pkg_idx=0
-    local old_name new_name old_repo new_repo
-    local hpc_old_slots_set_var_name hpc_new_slots_set_var_name
-    local hpc_old_slot_verminmax_map_var_name hpc_new_slot_verminmax_map_var_name
-    local s hpc_old_s hpc_new_s
-    local old_verminmax new_verminmax
-    local old_version new_version
-    local hpc_cmp_result
-    local -A hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
-    local -a lines
-    local update_dir
-    local -A empty_map_or_set
-    local hpc_changed hpc_slot_changed update_dir_non_slot hpc_slot_dirname hpc_category_dir
-    local which slots_set_var_name_var_name slot_verminmax_map_var_name_var_name filtered_slots_set_var_name verminmax
-    local -A hpc_old_filtered_slots_set hpc_new_filtered_slots_set
-    empty_map_or_set=()
+    local old_name new_name
     while [[ ${pkg_idx} -lt ${#old_pkgs[@]} ]]; do
         old_name=${old_pkgs["${pkg_idx}"]}
         new_name=${new_pkgs["${pkg_idx}"]}
-        if [[ ${old_name} = "${new_name}" ]]; then
-            info "handling update of ${new_name}"
-        else
-            info "handling update of ${new_name} (renamed from ${old_name})"
-        fi
-        pkg_debug_enable "${old_name}" "${new_name}"
-        pkg_debug 'handling updates'
-        pkg_idx=$((pkg_idx + 1))
-        old_repo=${hpc_package_sources_map["${old_name}"]:-}
-        new_repo=${hpc_package_sources_map["${new_name}"]:-}
-        if [[ -z ${old_repo} ]]; then
-            pkg_warn_d "${warnings_dir}" \
-                '- package not in old state' \
-                "  - old package: ${old_name}" \
-                "  - new package: ${new_name}"
-            pkg_debug_disable
-            continue
-        fi
-        if [[ -z ${new_repo} ]]; then
-            pkg_warn_d "${warnings_dir}" \
-                '- package not in new state' \
-                "  - old package: ${old_name}" \
-                "  - new package: ${new_name}"
-            pkg_debug_disable
-            continue
-        fi
-        if [[ ${old_repo} != "${new_repo}" ]]; then
-            # This is pretty much an arbitrary limitation and I don't
-            # remember any more why we have it.
-            pkg_warn_d "${warnings_dir}" \
-                '- package has moved between repos? unsupported for now' \
-                "  - old package and repo: ${old_name} ${old_repo}" \
-                "  - new package and repo: ${new_name} ${new_repo}"
-            pkg_debug_disable
-            continue
-        fi
-        if [[ ${new_repo} != 'portage-stable' ]]; then
-            # coreos-overlay packages will need a separate handling
-            pkg_debug 'not a portage-stable package'
-            pkg_debug_disable
-            continue
-        fi
 
-        mvm_get hpc_pkg_slots_set_mvm "${old_name}" hpc_old_slots_set_var_name
-        mvm_get hpc_pkg_slots_set_mvm "${new_name}" hpc_new_slots_set_var_name
-        : "${hpc_old_slots_set_var_name:=empty_map_or_set}"
-        : "${hpc_new_slots_set_var_name:=empty_map_or_set}"
-        mvm_get hpc_old_pkg_slot_verminmax_map_mvm "${old_name}" hpc_old_slot_verminmax_map_var_name
-        mvm_get hpc_new_pkg_slot_verminmax_map_mvm "${new_name}" hpc_new_slot_verminmax_map_var_name
-        : "${hpc_old_slot_verminmax_map_var_name:=empty_map_or_set}"
-        : "${hpc_new_slot_verminmax_map_var_name:=empty_map_or_set}"
-        local -n old_slot_verminmax_map_ref=${hpc_old_slot_verminmax_map_var_name}
-        local -n new_slot_verminmax_map_ref=${hpc_new_slot_verminmax_map_var_name}
-
-        # Filter out slots for old and new package name that comes out
-        # without versions. This may happen, because we collect all
-        # slot names for the package name, without differentiating
-        # whether such a slot existed in the old state or still exists
-        # in the new state. If slot didn't exist in either one then it
-        # will come without version information. Such a slot is
-        # dropped. An example would be an update of sys-devel/binutils
-        # from 2.42 to 2.43. Each binutils version has a separate slot
-        # which is named after the version. So the slots set would be
-        # (2.42 2.43). Slot "2.42" does not exist in the new state any
-        # more, "2.43" does not yet exist in the old state. So those
-        # slots for those states will be dropped. Thus filtered slots
-        # set for the old state will only contain 2.42, while for the
-        # new state - only 2.43.
-        for which in old new; do
-            slots_set_var_name_var_name="hpc_${which}_slots_set_var_name"
-            slot_verminmax_map_var_name_var_name="hpc_${which}_slot_verminmax_map_var_name"
-            filtered_slots_set_var_name="hpc_${which}_filtered_slots_set"
-            local -n which_slots_set_ref=${!slots_set_var_name_var_name}
-            local -n which_slot_verminmax_map_ref=${!slot_verminmax_map_var_name_var_name}
-            local -n which_filtered_slots_set_ref=${filtered_slots_set_var_name}
-            pkg_debug "all unfiltered slots for ${which} name: ${!which_slots_set_ref[*]}"
-            which_filtered_slots_set_ref=()
-            for s in "${!which_slots_set_ref[@]}"; do
-                verminmax=${which_slot_verminmax_map_ref["${s}"]:-}
-                if [[ -n ${verminmax} ]]; then
-                    which_filtered_slots_set_ref["${s}"]=x
-                fi
-            done
-            pkg_debug "all filtered slots for ${which} name: ${!which_filtered_slots_set_ref[*]}"
-            unset -n which_filtered_slots_set_ref
-            unset -n which_slot_verminmax_map_ref
-            unset -n which_slots_set_ref
-        done
-
-        hpc_only_old_slots_set=()
-        hpc_only_new_slots_set=()
-        hpc_common_slots_set=()
-        sets_split \
-            hpc_old_filtered_slots_set hpc_new_filtered_slots_set \
-            hpc_only_old_slots_set hpc_only_new_slots_set hpc_common_slots_set
-        pkg_debug "all common slots: ${!hpc_common_slots_set[*]}"
-        pkg_debug "slots only for old name: ${!hpc_only_old_slots_set[*]}"
-        pkg_debug "slots only for new name: ${!hpc_only_new_slots_set[*]}"
-
-        update_dir_non_slot="${updates_dir}/${new_name}"
-        mkdir -p "${update_dir_non_slot}"
-
-        package_output_paths_declare hpc_package_output_paths
-        hpc_package_output_paths[POP_OUT_DIR_IDX]="${updates_dir}"
-        hpc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${update_dir_non_slot}
-        # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
-
-        generate_non_ebuild_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_full_diffs "${update_dir_non_slot}" "${OLD_PORTAGE_STABLE}" "${NEW_PORTAGE_STABLE}" "${old_name}" "${new_name}"
-        generate_package_mention_reports "${update_dir_non_slot}" "${NEW_STATE}" "${old_name}" "${new_name}"
-
-        hpc_changed=
-        pkg_debug 'going over common slots'
-        for s in "${!hpc_common_slots_set[@]}"; do
-            old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
-            new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
-            pkg_debug "slot: ${s}, vmm old: ${old_verminmax}, vmm new: ${new_verminmax}"
-            if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
-                devel_warn_d "${warnings_dir}" \
-                    "- no minmax info available for old and/or new:" \
-                    "  - old package: ${old_name}" \
-                    "    - slot: ${s}" \
-                    "    - minmax: ${old_verminmax}" \
-                    "  - new package: ${new_name}" \
-                    "    - slot: ${s}" \
-                    "    - minmax: ${new_verminmax}"
-                continue
-            fi
-            slot_dirname "${s}" "${s}" hpc_slot_dirname
-            update_dir="${update_dir_non_slot}/${hpc_slot_dirname}"
-            mkdir -p "${update_dir}"
-            hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
-            old_version=${old_verminmax%%:*}
-            new_version=${new_verminmax##*:}
-            gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
-            case ${hpc_cmp_result} in
-                "${GV_GT}")
-                    handle_pkg_update hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
-                    hpc_changed=x
-                    ;;
-                "${GV_EQ}")
-                    hpc_slot_changed=
-                    handle_pkg_as_is hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hpc_slot_changed
-                    if [[ -z ${hpc_slot_changed} ]]; then
-                        rm -rf "${update_dir}"
-                    else
-                        hpc_changed=x
-                    fi
-                    ;;
-                "${GV_LT}")
-                    handle_pkg_downgrade hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
-                    hpc_changed=x
-                    ;;
-            esac
-        done
-        # A "sys-devel/binutils update" case - one old slot and one
-        # new slot, but different from each other.
-        if [[ ${#hpc_only_old_slots_set[@]} -eq 1 ]] && [[ ${#hpc_only_new_slots_set[@]} -eq 1 ]]; then
-            get_first_from_set hpc_only_old_slots_set hpc_old_s
-            old_verminmax=${old_slot_verminmax_map_ref["${hpc_old_s}"]:-}
-            get_first_from_set hpc_only_new_slots_set hpc_new_s
-            new_verminmax=${new_slot_verminmax_map_ref["${hpc_new_s}"]:-}
-            pkg_debug "jumping from slot ${hpc_old_s} (vmm: ${old_verminmax}) to slot ${hpc_new_s} (vmm: ${new_verminmax})"
-            if [[ -z "${old_verminmax}" ]] || [[ -z "${new_verminmax}" ]]; then
-                devel_warn_d "${warnings_dir}" \
-                    "- no verminmax info available for old and/or new:" \
-                    "  - old package: ${old_name}" \
-                    "    - slot: ${hpc_old_s}" \
-                    "    - minmax: ${old_verminmax}" \
-                    "  - new package: ${new_name}" \
-                    "    - slot: ${hpc_new_s}" \
-                    "    - minmax: ${new_verminmax}"
-            else
-                slot_dirname "${hpc_old_s}" "${hpc_new_s}" hpc_slot_dirname
-                update_dir="${update_dir_non_slot}/${hpc_slot_dirname}"
-                mkdir -p "${update_dir}"
-                hpc_package_output_paths[POP_PKG_SLOT_OUT_DIR_IDX]=${update_dir}
-                old_version=${old_verminmax%%:*}
-                new_version=${new_verminmax##*:}
-                gentoo_ver_cmp_out "${new_version}" "${old_version}" hpc_cmp_result
-                case ${hpc_cmp_result} in
-                    "${GV_GT}")
-                        handle_pkg_update hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
-                        hpc_changed=x
-                        ;;
-                    "${GV_EQ}")
-                        hpc_slot_changed=
-                        handle_pkg_as_is hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" hpc_slot_changed
-                        if [[ -z ${hpc_slot_changed} ]]; then
-                            rm -rf "${update_dir}"
-                        else
-                            hpc_changed=x
-                        fi
-                        ;;
-                    "${GV_LT}")
-                        handle_pkg_downgrade hpc_package_output_paths "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
-                        hpc_changed=x
-                        ;;
-                esac
-            fi
-        elif [[ ${#hpc_only_old_slots_set[@]} -gt 0 ]] || [[ ${#hpc_only_new_slots_set[@]} -gt 0 ]]; then
-            pkg_debug 'complicated slots situation, needs manual intervention'
-            lines=(
-                '- handle package update:'
-                '  - old package name:'
-                "    - name: ${old_name}"
-                '    - slots:'
-            )
-            for s in "${!hpc_old_filtered_slots_set[@]}"; do
-                old_verminmax=${old_slot_verminmax_map_ref["${s}"]:-}
-                lines+=("      - ${s}, minmax: ${old_verminmax}")
-            done
-            lines+=(
-                '  - new package name:'
-                "    - name: ${new_name}"
-                '    - slots:'
-            )
-            for s in "${!hpc_new_filtered_slots_set[@]}"; do
-                new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
-                lines+=("      - ${s}, minmax: ${new_verminmax}")
-            done
-            manual_d "${warnings_dir}" "${lines[@]}"
-        fi
-        package_output_paths_unset hpc_package_output_paths
-        unset -n new_slot_verminmax_map_ref old_slot_verminmax_map_ref
-        # if nothing changed, drop the entire update directory for the
-        # package, and possibly the parent directory if it became
-        # empty (parent directory being a category directory, like
-        # sys-apps)
-        if [[ -z ${hpc_changed} ]]; then
-            pkg_debug 'no changes, dropping reports'
-            rm -rf "${update_dir_non_slot}"
-            dirname_out "${update_dir_non_slot}" hpc_category_dir
-            if dir_is_empty "${hpc_category_dir}"; then
-                rmdir "${hpc_category_dir}"
-            fi
-        fi
-        pkg_debug_disable
+        handle_one_package_change "${REPORTS_DIR}" hpc_bunch_of_maps "${old_name}" "${new_name}"
     done
 
     bunch_of_maps_unset hpc_bunch_of_maps
