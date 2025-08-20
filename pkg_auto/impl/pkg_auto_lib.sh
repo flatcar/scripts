@@ -2073,6 +2073,19 @@ function handle_package_changes_job() {
     return 0
 }
 
+# Generate a report about one, possibly renamed, package. This
+# includes generating diffs between old and new ebuilds for each of
+# used slot of a package, diffs of other files the package has, some
+# automatic reports based on md5-cache entries along with summary and
+# changelog stubs.
+#
+# Parameters:
+#
+# 1 - the main output directory, the generated output will end up in
+#     some subdirectories
+# 2 - bunch of maps (generally, package information)
+# 3 - old package name
+# 4 - new package name
 function handle_one_package_change() {
     local output_dir=${1}; shift
     local -n bunch_of_maps_ref=${1}; shift
@@ -2355,10 +2368,8 @@ function handle_one_package_change() {
     pkg_debug_disable
 }
 
-# This monstrosity takes renames map and package tags information,
-# reads the reports, does consistency checks and uses the information
-# from previous steps to write out package differences between the old
-# and new state into the reports directory.
+# Reads the reports, does consistency checks, runs jobs to process all
+# the packages, and writes out reports into the reports directory.
 #
 # Params:
 #
