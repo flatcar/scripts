@@ -1,5 +1,5 @@
 # Keep only tool binaries and libraries those binaries need.
-ndb_install_mask="
+INSTALL_MASK+="
         /etc
         /var
         /usr/bin/arpaname
@@ -12,11 +12,6 @@ ndb_install_mask="
         /usr/libexec
         /usr/sbin
 "
-
-INSTALL_MASK+="${ndb_install_mask}"
-PKG_INSTALL_MASK+="${ndb_install_mask}"
-
-unset ndb_install_mask
 
 # Override fowners to ignore changing owner or group to named. The
 # only files that this happens for are files that we have put into
