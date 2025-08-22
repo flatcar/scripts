@@ -1,0 +1,4 @@
+# Needed during bootstrap - systemd pulls dbus, which pulls dbus
+# selinux policies, which pull policycoreutils, which pulls
+# selinux-python, which needs libsepol with static libs.
+sys-libs/libsepol static-libs
