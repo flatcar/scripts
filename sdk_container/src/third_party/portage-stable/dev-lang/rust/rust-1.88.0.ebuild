@@ -42,7 +42,7 @@ else
 		verify-sig? ( https://static.rust-lang.org/dist/${MY_P}-src.tar.xz.asc )
 	"
 	S="${WORKDIR}/${MY_P}-src"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 arm arm64 ~loong ~mips ~ppc ppc64 ~riscv ~sparc ~x86"
 fi
 
 DESCRIPTION="Systems programming language originally developed by Mozilla"
@@ -320,6 +320,8 @@ src_prepare() {
 		${CARGO} generate-lockfile --offline || die "Failed to generate lockfiles"
 	fi
 
+	# Commit patches to the appropriate branch in proj/rust-patches.git
+	# then cut a new tag / tarball. Don't add patches to ${FILESDIR}
 	PATCHES=(
 		"${WORKDIR}/rust-patches-${RUST_PATCH_VER}/"
 	)
@@ -458,6 +460,7 @@ src_configure() {
 		cargo = "${rust_stage0_root}/bin/cargo"
 		rustc = "${rust_stage0_root}/bin/rustc"
 		rustfmt = "${rust_stage0_root}/bin/rustfmt"
+		description = "gentoo"
 		docs = $(toml_usex doc)
 		compiler-docs = false
 		submodules = false
@@ -495,7 +498,6 @@ src_configure() {
 			echo "default-linker = \"${CHOST}-cc\""
 		fi)
 		channel = "${build_channel}"
-		description = "gentoo"
 		rpath = true
 		verbose-tests = true
 		optimize-tests = $(toml_usex !debug)

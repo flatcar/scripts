@@ -16,12 +16,10 @@ SLOT="0"
 IUSE="+eselect test"
 RESTRICT="!test? ( test )"
 
-# completion collision with net-fs/mc
 RDEPEND="
 	>=app-shells/bash-4.3_p30-r1:0
 	sys-apps/miscfiles
 	!<app-text/tree-2.1.1-r1
-	!!net-fs/mc
 "
 BDEPEND="
 	test? (
