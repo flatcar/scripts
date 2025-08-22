@@ -157,6 +157,15 @@ function _inside_mantle() {
   )
 }
 
+function copy_from_bincache_to_bucket() {
+    local channel="${1}"
+    local arch="${2}"
+    local version="${3}"
+
+    # TODO: Add 'r2' configuration as secret.
+    rclone sync --progress --http-url "https://${BUILDCACHE_SERVER}/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}/${version}"
+}
+
 function publish_sdk() {
     local docker_sdk_vernum="$1"
     local sdk_name=""
@@ -217,6 +226,11 @@ function _release_build_impl() {
     echo "===="
     echo "Done, now you can copy the images to Origin"
     echo "===="
+
+    echo "Experimental (i.e ignore if it fails) - copy the images to CloudFlare bucket for Alpha channel"
+    [[ "${CHANNEL}" != "alpha" ]] && exit 0
+    copy_from_bincache_to_bucket "${CHANNEL}" "${arch}" "${vernum}"
+
     # Future: trigger copy to Origin in a secure way
     # Future: trigger update payload signing
     # Future: trigger website update
