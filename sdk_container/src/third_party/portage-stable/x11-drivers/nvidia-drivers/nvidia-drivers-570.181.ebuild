@@ -7,13 +7,16 @@ MODULES_OPTIONAL_IUSE=+modules
 inherit desktop dot-a eapi9-pipestatus flag-o-matic linux-mod-r1
 inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
-MODULES_KERNEL_MAX=6.15
+MODULES_KERNEL_MAX=6.16
 NV_URI="https://download.nvidia.com/XFree86/"
+# x86-64 .run was missing from the usual mirror, use us. until next bump
+# (note that it lacks some other files, thus the separate variable)
+[[ ${PV} == 570.181 ]] && NV_URI_TMP="https://us.download.nvidia.com/XFree86/"
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
 HOMEPAGE="https://www.nvidia.com/"
 SRC_URI="
-	amd64? ( ${NV_URI}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
+	amd64? ( ${NV_URI_TMP}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
 	arm64? ( ${NV_URI}Linux-aarch64/${PV}/NVIDIA-Linux-aarch64-${PV}.run )
 	$(printf "${NV_URI}%s/%s-${PV}.tar.bz2 " \
 		nvidia-{installer,modprobe,persistenced,settings,xconfig}{,})
@@ -25,9 +28,6 @@ S=${WORKDIR}
 LICENSE="NVIDIA-2025 Apache-2.0 BSD BSD-2 GPL-2 MIT ZLIB curl openssl"
 SLOT="0/${PV%%.*}"
 KEYWORDS="-* amd64 ~arm64"
-# TODO: enable kernel-open by default to match nvidia upstream, but should
-# first setup a supported-gpus.json "kernelopen" check to abort and avoid bad
-# surprises (should abort for legacy cards too, and have a bypass variable)
 IUSE="+X abi_x86_32 abi_x86_64 kernel-open persistenced powerd +static-libs +tools wayland"
 REQUIRED_USE="kernel-open? ( modules )"
 
