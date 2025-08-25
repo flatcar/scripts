@@ -38,6 +38,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-14.0.0-py314.patch
 )
 
+EPYTEST_PLUGINS=()
 distutils_enable_tests pytest
 
 python_test() {
@@ -50,6 +51,9 @@ python_test() {
 		tests/test_markdown.py::test_inline_code
 		tests/test_syntax.py::test_blank_lines
 		tests/test_syntax.py::test_python_render_simple_indent_guides
+		# pygments version?
+		tests/test_syntax.py::test_from_path
+		tests/test_syntax.py::test_syntax_guess_lexer
 	)
 	# version-specific output -- the usual deal
 	case ${EPYTHON} in
@@ -72,7 +76,6 @@ python_test() {
 	esac
 
 	local -x COLUMNS=80
-	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
 	epytest
 }
 
