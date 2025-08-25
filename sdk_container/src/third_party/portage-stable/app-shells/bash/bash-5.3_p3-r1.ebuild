@@ -103,7 +103,6 @@ PATCHES=(
 	# Patches to or from Chet, posted to the bug-bash mailing list.
 	"${FILESDIR}"/${PN}-5.0-syslog-history-extern.patch
 	"${FILESDIR}"/${PN}-5.3-read-sys.patch
-	"${FILESDIR}"/${PN}-5.3-empty-PROMPT_COMMAND.patch
 )
 
 pkg_setup() {
@@ -310,14 +309,14 @@ src_install() {
 
 	insinto /etc/bash
 	doins "${FILESDIR}"/bash_logout
-	my_prefixify bashrc.d "${FILESDIR}"/bashrc-r1 | newins - bashrc
+	my_prefixify bashrc.d "${FILESDIR}"/bashrc-r2 | newins - bashrc
 
 	insinto /etc/bash/bashrc.d
 	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color-r2.bash | newins - 10-gentoo-color.bash
 	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r2.bash 10-gentoo-title.bash
-	if [[ ! ${EPREFIX} ]]; then
-		doins "${FILESDIR}"/bashrc.d/15-gentoo-bashrc-check.bash
-	fi
+
+	insinto /etc/profile.d
+	doins "${FILESDIR}/profile.d/00-prompt-command.sh"
 
 	insinto /etc/skel
 	for f in bash{_logout,_profile,rc}; do
