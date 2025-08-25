@@ -141,7 +141,7 @@ src_prepare() {
 			# This is applied conditionally for now just out of caution.
 			# It should be okay on non-prefix systems though. See bug #892549.
 			if is_cross || use prefix; then
-				eapply "${FILESDIR}"/binutils-2.43-linker-search-path.patch \
+				eapply "${FILESDIR}"/binutils-2.40-linker-search-path.patch \
 					   "${FILESDIR}"/binutils-2.43-linker-prefix.patch
 			fi
 		fi
@@ -192,6 +192,8 @@ src_configure() {
 
 	# Keep things sane
 	strip-flags
+	# Adds a property which confuses tests (PR33267)
+	filter-flags '-mno-direct-extern-access'
 	use cet && filter-flags -mindirect-branch -mindirect-branch=*
 	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
 	lto-guarantee-fat
