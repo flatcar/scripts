@@ -79,6 +79,7 @@ sys-apps/systemd bpf
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2024-07-07)
 # media-libs/quirc and media-sound/liblc3 are not keyworded here
 media-video/ffmpeg quirc liblc3
+media-video/ffmpeg-compat quirc liblc3
 
 # Sam James <sam@gentoo.org> (2024-07-03)
 # kde-frameworks/kservice not keyworded here
@@ -152,10 +153,6 @@ media-gfx/inkscape sourceview
 # Matt Turner <mattst88@gentoo.org> (2023-05-30)
 # sys-apps/dbus-broker is not keyworded
 app-accessibility/at-spi2-core dbus-broker
-
-# Michał Górny <mgorny@gentoo.org> (2023-05-20)
-# Requires dev-python/sphinx-autodoc-types that has unkeyworded depgraph.
-dev-python/jupyter-core doc
 
 # Sam James <sam@gentoo.org> (2023-05-19)
 # kde-frameworks/kwayland:5 is not keyworded here.
@@ -286,8 +283,8 @@ sys-libs/libcap tools
 
 # Michał Górny <mgorny@gentoo.org> (2021-07-25)
 # PyQt5 and wxpython are not keyworded.
-dev-python/ipython qt5 qt6
-dev-python/matplotlib qt5 qt6 wxwidgets
+dev-python/ipython gui qt5
+dev-python/matplotlib qt6 wxwidgets
 
 # Matt Turner <mattst88@gentoo.org> (2021-07-23)
 # gui-libs/gtk is not keyworded
@@ -319,10 +316,6 @@ sys-apps/groff uchardet
 # Joonas Niilola <juippis@gentoo.org> (2021-01-15)
 # Dependency not keyworded on this arch.
 app-text/enchant voikko
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-11-12)
-# media-sound/lash not keyworded, bug #736725
-media-sound/fluidsynth lash
 
 # Joonas Niilola <juippis@gentoo.org> (2020-10-08)
 # Dependency not keyworded on this arch.
@@ -554,7 +547,6 @@ app-text/texlive pdfannotextractor
 net-im/pidgin gstreamer
 x11-misc/xscreensaver gdm new-login
 x11-libs/wxGTK gstreamer
-net-p2p/mldonkey guionly gtk
 net-im/pidgin eds
 
 # Jeroen Roovers <jer@gentoo.org> (2008-04-15)

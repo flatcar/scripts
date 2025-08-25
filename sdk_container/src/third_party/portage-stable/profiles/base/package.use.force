@@ -41,7 +41,11 @@ app-emulation/qemu X
 
 # Ionen Wolkens <ionen@gentoo.org> (2025-04-21)
 # Currently fails to build without, and Valve would likely not be
-# interested in a bug. May leave forced depending on how this goes.
+# interested in a bug. Even if this gets fixed, not sure if want
+# to unforce because of this lack of upstream support outside
+# normal Steam+Proton usage with matching build options, we try
+# to only allow a configuration similar to upstream's to minimize
+# issues (but feel free to unforce at your own risks).
 app-emulation/wine-proton mingw
 
 # Sebastian Pipping <sping@gentoo.org> (2025-03-27)
@@ -78,6 +82,8 @@ llvm-runtimes/libcxxabi clang
 #    echo "dev-lang/rust:${slot} llvm_slot_${_RUST_LLVM_MAP[${slot}]}"
 #    echo "dev-lang/rust-bin:${slot} llvm_slot_${_RUST_LLVM_MAP[${slot}]}"
 # done
+dev-lang/rust:1.89.0 llvm_slot_20
+dev-lang/rust-bin:1.89.0 llvm_slot_20
 dev-lang/rust:1.88.0 llvm_slot_20
 dev-lang/rust-bin:1.88.0 llvm_slot_20
 dev-lang/rust:1.87.0 llvm_slot_20
@@ -112,8 +118,6 @@ dev-lang/rust:1.75.0 llvm_slot_17
 dev-lang/rust-bin:1.75.0 llvm_slot_17
 dev-lang/rust:1.74.1 llvm_slot_17
 dev-lang/rust-bin:1.74.1 llvm_slot_17
-dev-lang/rust:1.71.1 llvm_slot_16
-dev-lang/rust-bin:1.71.1 llvm_slot_16
 
 # Sam James <sam@gentoo.org> (2024-06-03)
 # Poor rendering performance otherwise (bug #931215).
