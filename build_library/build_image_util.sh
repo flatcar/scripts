@@ -852,7 +852,7 @@ EOF
 
     info "Generating $pcr_policy"
     pushd "${BUILD_DIR}" >/dev/null
-    zip --quiet -r -9 "${BUILD_DIR}/${pcr_policy}" pcrs
+    zip --quiet -r -9 "${pcr_policy}" pcrs
     popd >/dev/null
     rm -rf "${BUILD_DIR}/pcrs"
   fi
