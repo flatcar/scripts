@@ -158,11 +158,6 @@ create_prod_image() {
 L+  /etc/ld.so.conf     -   -   -   -   ../usr/lib/ld.so.conf
 EOF
 
-  # Move the PAM configuration into /usr
-  sudo mkdir -p ${root_fs_dir}/usr/lib/pam.d
-  sudo mv -n ${root_fs_dir}/etc/pam.d/* ${root_fs_dir}/usr/lib/pam.d/
-  sudo rmdir ${root_fs_dir}/etc/pam.d
-
   # Remove source locale data, only need to ship the compiled archive.
   sudo rm -rf ${root_fs_dir}/usr/share/i18n/
 
