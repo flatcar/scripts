@@ -879,7 +879,7 @@ function handle_missing_in_scripts() {
     setup_git_env
 
     git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
-    git -C "${NEW_STATE}" commit --quiet --message '.github: Drop missing packages from automation'
+    git -C "${NEW_STATE}" commit --quiet --signoff --message '.github: Drop missing packages from automation'
     info_lines 'dropped missing packages from automation' "${missing_in_scripts[@]/#/- }"
 }
 
@@ -1032,7 +1032,7 @@ function handle_missing_in_gentoo() {
                 git -C "${NEW_STATE}" mv "${ebuild}" "${NEW_PORTAGE_STABLE}/${new_name}/${new_ebuild_filename}"
             done
         fi
-        git -C "${NEW_STATE}" commit --quiet --message "${new_name}: Renamed from ${missing}"
+        git -C "${NEW_STATE}" commit --quiet --signoff --message "${new_name}: Renamed from ${missing}"
         info "renamed ${missing} to ${new_name}"
         renamed_from+=("${missing}")
         renamed_to+=("${new_name}")
@@ -1055,7 +1055,7 @@ function handle_missing_in_gentoo() {
     } >"${dir}/pkg_list"
     "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
     git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
-    git -C "${NEW_STATE}" commit --quiet --message '.github: Update package names in automation'
+    git -C "${NEW_STATE}" commit --quiet --signoff --message '.github: Update package names in automation'
     info 'updated packages names in automation'
 }
 
@@ -3998,7 +3998,7 @@ function drop_unused_licenses() {
         else
             # no licenses werew updated during last sync, create the
             # removals commit
-            git -C "${NEW_STATE}" commit -m 'licenses: Drop unused licenses'
+            git -C "${NEW_STATE}" commit --quiet --signoff --message 'licenses: Drop unused licenses'
         fi
     fi
 }

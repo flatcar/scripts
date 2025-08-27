@@ -177,7 +177,7 @@ function commit_with_gentoo_sha() {
     if [[ -n "${sync}" ]]; then
         commit_msg="${name}: Sync with Gentoo"
     fi
-    git commit --quiet --message "${commit_msg}" "${commit_extra[@]}"
+    git commit --quiet --signoff --message "${commit_msg}" "${commit_extra[@]}"
     GIT_PAGER='cat' vcall git show --stat
 }
 
