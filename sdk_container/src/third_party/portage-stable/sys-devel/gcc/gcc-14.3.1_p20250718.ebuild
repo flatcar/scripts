@@ -9,7 +9,7 @@ EAPI=8
 TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
 PATCH_GCC_VER="14.3.0"
-PATCH_VER="1"
+PATCH_VER="2"
 MUSL_VER="1"
 MUSL_GCC_VER="14.3.0"
 PYTHON_COMPAT=( python3_{11..14} )
@@ -30,7 +30,7 @@ if tc_is_live ; then
 	EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
 	# m68k doesnt build (ICE, bug 932733)
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	:;
 fi
 

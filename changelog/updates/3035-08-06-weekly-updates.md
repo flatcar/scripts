@@ -1,0 +1,7 @@
+- azure, dev, gce, sysext-python: python (3.11.13_p1)
+- base, dev: curl ([8.14.1](https://curl.se/ch/8.14.1.html) (includes [8.14.0](https://curl.se/ch/8.14.0.html)))
+- base, dev: nvidia-drivers-service (amd64) ([535.261.03](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-535-261-03/index.html))
+- base, dev: nvidia-drivers-service (arm64) ([570.172.08](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-570-172-08/index.html))
+- sysext-nvidia-drivers-535, sysext-nvidia-drivers-535-open: nvidia-drivers ([535.261.03](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-535-261-03/index.html))
+- sysext-nvidia-drivers-570, sysext-nvidia-drivers-570-open: nvidia-drivers ([570.172.08](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-570-172-08/index.html))
+- sysext-python: distlib ([0.4.0](https://github.com/pypa/distlib/blob/0.4.0/CHANGES.rst#040))

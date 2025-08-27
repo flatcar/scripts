@@ -1,0 +1,2 @@
+- nvidia-drivers ([CVE-2025-23277](https://www.cve.org/CVERecord?id=CVE-2025-23277), [CVE-2025-23278](https://www.cve.org/CVERecord?id=CVE-2025-23278), [CVE-2025-23279](https://www.cve.org/CVERecord?id=CVE-2025-23279), [CVE-2025-23286](https://www.cve.org/CVERecord?id=CVE-2025-23286))
+- python ([CVE-2025-6069](https://www.cve.org/CVERecord?id=CVE-2025-6069), [CVE-2025-8194](https://www.cve.org/CVERecord?id=CVE-2025-8194))
