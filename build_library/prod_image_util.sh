@@ -158,10 +158,14 @@ create_prod_image() {
 L+  /etc/ld.so.conf     -   -   -   -   ../usr/lib/ld.so.conf
 EOF
 
-  # Move the PAM configuration into /usr
-  sudo mkdir -p ${root_fs_dir}/usr/lib/pam.d
-  sudo mv -n ${root_fs_dir}/etc/pam.d/* ${root_fs_dir}/usr/lib/pam.d/
-  sudo rmdir ${root_fs_dir}/etc/pam.d
+  local -a bad_pam_files
+  mapfile -t -d '' bad_pam_files < <(find "${root_fs_dir}"/etc/security "${root_fs_dir}"/etc/pam.d ! -type d ! -name '.keep*' -print0)
+  if [[ ${#bad_pam_files[@]} -gt 0 ]]; then
+    error "Found following PAM config files: ${bad_pam_files[@]#"${root_fs_dir}"}"
+    error "Expected them to be either removed or, better, vendored (/etc/pam.d files should be in /usr/lib/pam, /etc/security files should be in /usr/lib/pam/security)."
+    error "Vendoring can be done with vendorize_pam_files inside a post_src_install hook for the package that installed the config file."
+    die "PAM config errors spotted"
+  fi
 
   # Remove source locale data, only need to ship the compiled archive.
   sudo rm -rf ${root_fs_dir}/usr/share/i18n/
