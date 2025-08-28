@@ -48,6 +48,7 @@ ARM64_ONLY_OEMIDS=(
 AMD64_ONLY_OEMIDS=(
     digitalocean
     gce
+    hyperv
     vmware
 )
 
