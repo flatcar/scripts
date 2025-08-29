@@ -1,0 +1,1 @@
+- Hyper-V images now use a systemd-sysext image for layering additional platform-specific software on top of `/usr`

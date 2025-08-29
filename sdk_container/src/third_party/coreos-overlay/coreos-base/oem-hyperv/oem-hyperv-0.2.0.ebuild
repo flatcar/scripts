@@ -1,7 +1,7 @@
 # Copyright (c) 2013 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 DESCRIPTION="OEM suite for Hyper-V"
 HOMEPAGE=""
@@ -12,21 +12,11 @@ SLOT="0"
 KEYWORDS="amd64"
 IUSE=""
 
-# no source directory
-S="${WORKDIR}"
-
 RDEPEND="
   app-emulation/hv-daemons
 "
 
-src_prepare() {
-	default
-	sed -e "s\\@@OEM_VERSION_ID@@\\${PVR}\\g" \
-		"${FILESDIR}/oem-release" > "${T}/oem-release" || die
-}
+OEM_NAME="Microsoft Hyper-V"
 
-src_install() {
-	insinto "/oem"
-	doins "${FILESDIR}/grub.cfg"
-	doins "${T}/oem-release"
-}
+# no source directory
+S="${WORKDIR}"

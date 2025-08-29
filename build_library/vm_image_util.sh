@@ -299,12 +299,15 @@ IMG_hetzner_OEM_SYSEXT=oem-hetzner
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
-IMG_hyperv_OEM_PACKAGE=oem-hyperv
+IMG_hyperv_OEM_USE=hyperv
+IMG_hyperv_OEM_PACKAGE=common-oem-files
+IMG_hyperv_OEM_SYSEXT=oem-hyperv
 
 ## hyper-v vhdx
 IMG_hyperv_vhdx_DISK_FORMAT=vhdx
-IMG_hyperv_vhdx_OEM_PACKAGE=oem-hyperv
-
+IMG_hyperv_vhdx_OEM_USE=hyperv
+IMG_hyperv_vhdx_OEM_PACKAGE=common-oem-files
+IMG_hyperv_vhdx_OEM_SYSEXT=oem-hyperv
 
 ## cloudsigma
 IMG_cloudsigma_DISK_FORMAT=qcow2
