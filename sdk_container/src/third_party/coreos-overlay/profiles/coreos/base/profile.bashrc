@@ -5,21 +5,68 @@ CROS_BUILD_BOARD_BIN="${CROS_BUILD_BOARD_TREE}/bin"
 
 CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 
-# Are we merging for the board sysroot, or for the cros sdk, or for
-# the target hardware?  Returns a string:
-#  - cros_host (the sdk)
-#  - board_sysroot
-#  - target_image
-# We can't rely on "use cros_host" as USE gets filtred based on IUSE,
-# and not all packages have IUSE=cros_host.
-cros_target() {
-	if [[ ${CROS_SDK_HOST} == "cros-sdk-host" ]] ; then
-		echo "cros_host"
-	elif [[ ${ROOT%/} == ${SYSROOT%/} ]] ; then
-		echo "board_sysroot"
-	else
-		echo "target_image"
-	fi
+# Are we merging for the board sysroot, or for the SDK, or for
+# the images? Returns a string in a passed variable:
+#
+#  - sdk (the SDK)
+#  - generic-board (board sysroot)
+#  - generic-prod (production image)
+#  - generic-dev (developer container image)
+#  - generic-oem-${name} (image for OEM ${name}, like azure, qemu_uefi)
+#  - generic-sysext-base-${name} (sysext image ${name} built-in into
+#    production image, usually docker or containerd)
+#  - generic-sysext-extra-${name} (extra sysext image ${name}, like
+#    podman, python, zfs)
+#  - generic-sysext-oem-${name} (OEM sysext image ${name}, like
+#    azure, qemu_uefi)
+#  - generic-unknown (something using generic profile, but otherwise
+#    unknown, probably something is messed up)
+#  - unknown (unknown type of image, neither generic, nor sdk,
+#    probably something is messed up)
+flatcar_target_ref() {
+    local -n type_ref=${1}; shift
+
+    local name
+    case ${FLATCAR_TYPE} in
+        sdk) type_ref='sdk';;
+        generic)
+            case ${ROOT} in
+                */prod-image-rootfs) type_ref='generic-prod';;
+                */dev-image-rootfs) type_ref='generic-dev';;
+                */*-base-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-base-sysext-rootfs}
+                    type_ref="generic-sysext-base-${name}"
+                    ;;
+                */*-extra-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-extra-sysext-rootfs}
+                    type_ref="generic-sysext-extra-${name}"
+                    ;;
+                */*-oem-image-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-oem-image-rootfs}
+                    type_ref="generic-oem-${name}"
+                    ;;
+                */*-oem-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-oem-sysext-rootfs}
+                    type_ref="generic-sysext-oem-${name}"
+                    ;;
+                "${SYSROOT}") type_ref='generic-board';;
+                *) type_ref='generic-unknown'
+            esac
+            ;;
+        *) type_ref='unknown';;
+    esac
+}
+
+# Prints the type of image we are merging the package for, see
+# flatcar_target_ref for details.
+flatcar_target() {
+    local target_type
+    flatcar_target_ref target_type
+    echo "${target_type}"
 }
 
 # Load all additional bashrc files we have for this package.

@@ -1,8 +1,6 @@
-USE="cros_host expat man -pam"
+FLATCAR_TYPE=sdk
 
-# Used by some old goo in profiles/coreos/base/profile.bashrc
-# TODO: clean up that old goo
-CROS_SDK_HOST="cros-sdk-host"
+USE="cros_host expat man -pam"
 
 # Enable CPU architectures needed by Rust builds
 LLVM_TARGETS="X86 AArch64"

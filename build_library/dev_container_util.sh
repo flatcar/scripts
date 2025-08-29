@@ -81,7 +81,9 @@ create_dev_container() {
   fi
 
   info "Building developer image ${image_name}"
-  local root_fs_dir="${BUILD_DIR}/rootfs"
+  # The "dev-image-rootfs" directory name is important - it is used to
+  # determine the package target in coreos/base/profile.bashrc
+  local root_fs_dir="${BUILD_DIR}/dev-image-rootfs"
   local image_contents="${image_name%.bin}_contents.txt"
   local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
   local image_packages="${image_name%.bin}_packages.txt"
