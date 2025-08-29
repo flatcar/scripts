@@ -799,7 +799,7 @@ def Verity(options):
                   '--hash-offset', part['fs_bytes'],
                   loop_dev, loop_dev]).decode('utf8')
       print(verityout.strip())
-      m = re.search("Root hash:\s+([a-f0-9]{64})$", verityout, re.IGNORECASE|re.MULTILINE)
+      m = re.search(r'Root hash:\s+([a-f0-9]{64})$', verityout, re.IGNORECASE|re.MULTILINE)
       if not m:
           raise Exception("Failed to parse verity output!")
 
