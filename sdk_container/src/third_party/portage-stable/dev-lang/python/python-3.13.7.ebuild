@@ -3,28 +3,29 @@
 
 EAPI="8"
 
+LLVM_COMPAT=( 18 )
+LLVM_OPTIONAL=1
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic linux-info
+inherit autotools check-reqs flag-o-matic linux-info llvm-r1
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
-REAL_PV=${PV#0.}
-MY_PV=${REAL_PV}
+MY_PV=${PV}
 MY_P="Python-${MY_PV%_p*}"
-PYVER="$(ver_cut 2-3)t"
+PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
 
-DESCRIPTION="Freethreading (no-GIL) version of Python programming language"
+DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
 	https://www.python.org/
 	https://github.com/python/cpython/
 "
 SRC_URI="
-	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
+	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.asc
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
@@ -33,9 +34,10 @@ LICENSE="PSF-2"
 SLOT="${PYVER}"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
-	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
+	bluetooth debug +ensurepip examples gdbm jit libedit +ncurses pgo
 	+readline +sqlite +ssl test tk valgrind
 "
+REQUIRED_USE="jit? ( ${LLVM_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -85,6 +87,12 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
+	jit? (
+		$(llvm_gen_dep '
+			llvm-core/clang:${LLVM_SLOT}
+			llvm-core/llvm:${LLVM_SLOT}
+		')
+	)
 	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 if [[ ${PV} != *_alpha* ]]; then
@@ -101,7 +109,7 @@ VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
 
-QA_PKGCONFIG_VERSION=${PYVER%t}
+QA_PKGCONFIG_VERSION=${PYVER}
 # false positives -- functions specific to *BSD
 QA_CONFIG_IMPL_DECL_SKIP=( chflags lchflags )
 
@@ -115,15 +123,18 @@ pkg_pretend() {
 		check-reqs_pkg_pretend
 	fi
 
-	ewarn "Freethreading build is considered experimental upstream.  Using it"
-	ewarn "could lead to unexpected breakage, including race conditions"
-	ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
-	ewarn "you can reproduce the problem with dev-lang/python.  Instead,"
-	ewarn "please consider reporting freethreading problems upstream."
+	if use jit; then
+		ewarn "USE=jit is considered experimental upstream.  Using it"
+		ewarn "could lead to unexpected breakage, including race conditions"
+		ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
+		ewarn "you can reproduce the problem with dev-lang/python[-jit].  Instead,"
+		ewarn "please consider reporting JIT problems upstream."
+	fi
 }
 
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
+		use jit && llvm-r1_pkg_setup
 		if use test || use pgo; then
 			check-reqs_pkg_setup
 
@@ -247,6 +258,9 @@ src_configure() {
 
 	# Set baseline test skip flags.
 	COMMON_TEST_SKIPS=(
+		# running gdb inside an ebuild as non-root, within sandbox,
+		# and possibly within a container is unreliable
+		-x test_gdb
 		# this is actually test_gdb.test_pretty_print
 		-x test_pretty_print
 		# https://bugs.gentoo.org/933840
@@ -272,26 +286,11 @@ src_configure() {
 				-x test_strtod
 			)
 			;;
-		arm*)
-			COMMON_TEST_SKIPS+=(
-				-x test_gdb
-			)
-			;;
-		hppa*)
-			COMMON_TEST_SKIPS+=(
-				-x test_gdb
-			)
-			;;
 		mips*)
 			COMMON_TEST_SKIPS+=(
 				-x test_ctypes
 				-x test_external_inspection
 				-x test_statistics
-			)
-			;;
-		powerpc64-*) # big endian
-			COMMON_TEST_SKIPS+=(
-				-x test_gdb
 			)
 			;;
 		riscv*)
@@ -307,7 +306,6 @@ src_configure() {
 				-x test_multiprocessing_spawn
 
 				-x test_ctypes
-				-x test_gdb
 				# bug 931908
 				-x test_exceptions
 			)
@@ -400,9 +398,10 @@ src_configure() {
 		--with-platlibdir=lib
 		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
-		--disable-gil
+		--enable-gil
 
 		$(use_with debug assertions)
+		$(use_enable jit experimental-jit)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
 		$(use_with valgrind)
@@ -537,10 +536,6 @@ src_install() {
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
-	# Fix collision with GIL-enabled build.
-	rm "${ED}/usr/bin/python${PYVER%t}" || die
-	mv "${ED}"/usr/bin/pydoc{${PYVER%t},${PYVER}} || die
-	mv "${ED}"/usr/share/man/man1/python{${PYVER%t},${PYVER}}.1 || die
 
 	# Cheap hack to get version with ABIFLAGS
 	local abiver=$(cd "${ED}/usr/include"; echo python*)
@@ -566,11 +561,8 @@ src_install() {
 	if ! use sqlite; then
 		rm -r "${libdir}/"sqlite3 || die
 	fi
-	if use tk; then
-		# rename to avoid collision with dev-lang/python
-		mv "${ED}"/usr/bin/idle{${PYVER%t},${PYVER}} || die
-	else
-		rm -r "${ED}/usr/bin/idle${PYVER%t}" || die
+	if ! use tk; then
+		rm -r "${ED}/usr/bin/idle${PYVER}" || die
 		rm -r "${libdir}/"{idlelib,tkinter} || die
 	fi
 
