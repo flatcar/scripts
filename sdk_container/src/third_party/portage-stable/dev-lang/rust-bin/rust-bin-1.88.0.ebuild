@@ -27,7 +27,7 @@ else
 			$(rust_arch_uri powerpc64le-unknown-linux-musl rust-${PV})
 		) ) )
 	"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="amd64 arm arm64 ~loong ~mips ~ppc ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PVR}" # omit trailing slash
@@ -169,13 +169,15 @@ patchelf_for_bin() {
 
 rust_native_abi_install() {
 	pushd "${S}" >/dev/null || die
-	local analysis="$(grep 'analysis' ./components || die "analysis not found in components")"
 	local std="$(grep 'std' ./components || die "std not found in components")"
 	local components=( "rustc" "cargo" "${std}" )
 	use doc && components+=( "rust-docs" )
 	use clippy && components+=( "clippy-preview" )
 	use rustfmt && components+=( "rustfmt-preview" )
-	use rust-analyzer && components+=( "rust-analyzer-preview" "${analysis}" )
+	if use rust-analyzer; then
+		local analysis="$(grep 'analysis' ./components || die "analysis not found in components")"
+		components+=( "rust-analyzer-preview" "${analysis}" )
+	fi
 	# Rust component 'rust-src' is extracted from separate archive
 	if use rust-src; then
 		einfo "Combining rust and rust-src installers"
