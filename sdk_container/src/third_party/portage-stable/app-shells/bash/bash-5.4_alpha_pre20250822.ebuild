@@ -15,7 +15,7 @@ MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 MY_PATCHES=()
 
-# Determine the patchlevel. See ftp://ftp.gnu.org/gnu/bash/bash-5.2-patches/.
+# Determine the patchlevel.
 case ${PV} in
 	9999|*_alpha*|*_beta*|*_rc*)
 		# Set a negative patchlevel to indicate that it's a pre-release.
@@ -46,7 +46,7 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	BASH_COMMIT="80a8f650a1defc3f72539c3b57bf6d228c33c116"
+	BASH_COMMIT="ab17ddb7af948ee6e1a6370aac4ee57b4179cd9c"
 	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
@@ -319,7 +319,7 @@ src_install() {
 
 	insinto /etc/skel
 	for f in bash{_logout,_profile,rc}; do
-		newins "${FILESDIR}/dot-${f}" ".${f}"
+		newins "${FILESDIR}/skel/dot-${f}" ".${f}"
 	done
 
 	if use plugins; then
