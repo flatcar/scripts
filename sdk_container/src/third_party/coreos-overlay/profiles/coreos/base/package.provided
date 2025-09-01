@@ -14,3 +14,7 @@ dev-util/source-highlight-3.1.9-r2
 # Pulled in by bpftool[-clang], We never provided co-re in bpftool and
 # for now continue to do so.
 sys-devel/bpf-toolchain-14.2.0_p1
+
+# Pulled by app-crypt/sbsigntools - we never needed it and it pulls a
+# ton of other packages.
+dev-perl/Locale-gettext-1.70.0_p20181130
