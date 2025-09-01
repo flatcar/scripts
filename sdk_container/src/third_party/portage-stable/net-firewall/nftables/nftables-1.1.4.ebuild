@@ -76,7 +76,6 @@ src_prepare() {
 src_configure() {
 	local myeconfargs=(
 		--sbindir="${EPREFIX}"/sbin
-		--with-unitdir=$(systemd_get_systemunitdir)
 		$(use_enable debug)
 		$(use_enable doc man-doc)
 		$(use_with !gmp mini_gmp)
