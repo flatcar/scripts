@@ -59,11 +59,11 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	+fdt fuse glusterfs +gnutls gtk infiniband iscsi io-uring
 	jack jemalloc +jpeg keyutils
 	lzo multipath
-	ncurses nfs nls numa opengl +oss pam +pin-upstream-blobs pipewire
+	ncurses nfs nls numa opengl +oss pam passt +pin-upstream-blobs pipewire
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
-	usbredir vde +vhost-net virgl virtfs +vnc vte wayland X xattr xdp xen
+	usbredir valgrind vde +vhost-net virgl virtfs +vnc vte wayland X xattr xdp xen
 	zstd"
 
 COMMON_TARGETS="
@@ -207,6 +207,7 @@ SOFTMMU_TOOLS_DEPEND="
 		media-libs/mesa[egl(+),gbm(+)]
 	)
 	pam? ( sys-libs/pam )
+	passt? ( net-misc/passt )
 	pipewire? ( >=media-video/pipewire-0.3.60 )
 	png? ( >=media-libs/libpng-1.6.34:=[static-libs(+)] )
 	pulseaudio? ( media-libs/libpulse )
@@ -319,6 +320,7 @@ DEPEND="
 	${CDEPEND}
 	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
 	static-user? ( ${ALL_DEPEND} )
+	valgrind? ( dev-debug/valgrind )
 "
 RDEPEND="
 	${CDEPEND}
@@ -570,6 +572,7 @@ qemu_src_configure() {
 		$(use_enable pulseaudio pa)
 		$(use_enable selinux)
 		$(use_enable xattr attr)
+		$(use_enable valgrind)
 	)
 
 	# Disable options not used by user targets. This simplifies building
@@ -632,6 +635,7 @@ qemu_src_configure() {
 		$(conf_notuser numa)
 		$(conf_notuser opengl)
 		$(conf_notuser pam auth-pam)
+		$(conf_notuser passt)
 		$(conf_notuser png)
 		$(conf_notuser rbd)
 		$(conf_notuser sasl vnc-sasl)
