@@ -1,6 +1,14 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-16)
+# dev-games/ogre is not keyworded here
+>=dev-games/mygui-3.4.1 ogre
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-08-06)
+# aarch64 supports sframe
+>=sys-libs/glibc-2.42 -sframe
+
 # Ionen Wolkens <ionen@gentoo.org> (2025-08-01)
 # dev-qt/qtlanguageserver:6 is keyworded here
 dev-qt/qtdeclarative:6 -qmlls
@@ -103,7 +111,6 @@ sci-chemistry/gromacs nnpot
 
 # Joonas Niilola <juippis@gentoo.org> (2024-11-16)
 # Available on arm64.
-www-client/firefox -wasm
 www-client/firefox -wasm-sandbox
 
 # Michał Górny <mgorny@gentoo.org> (2024-10-23)
@@ -231,10 +238,6 @@ app-metrics/collectd collectd_plugins_ping
 app-metrics/collectd collectd_plugins_routeros
 app-metrics/collectd collectd_plugins_varnish
 
-# Jimi Huotari <chiitoo@gentoo.org> (2022-05-08)
-# Not keyworded here yet.
-lxqt-base/lxqt-meta desktop-portal
-
 # Matt Turner <mattst88@gentoo.org> (2022-04-18)
 # app-text/nuspell is not keyworded
 app-text/enchant nuspell
@@ -256,14 +259,6 @@ sys-cluster/openmpi openmpi_fabrics_knem
 # Supports 64-bit NEON
 dev-libs/libgcrypt -cpu_flags_arm_neon
 
-# Jakov Smolić <jsmolic@gentoo.org> (2021-10-07)
-# dev-libs/mongo-c-driver is not keyworded here
-net-analyzer/zmap mongo
-
-# Sam James <sam@gentoo.org> (2021-08-14)
-# Needs Raspberry Pi specific applications
-media-video/mjpg-streamer -input-raspicam
-
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2021-08-08)
 # dev-games/ogre doesn't build on arm64, see https://bugs.gentoo.org/806776#c12
 dev-games/mygui ogre
@@ -280,11 +275,6 @@ dev-util/diffoscope pascal
 # Marek Szuba <marecki@gentoo.org> (2021-07-18)
 # media-plugins/zam-plugins not keyworded here
 media-sound/easyeffects zamaudio
-
-# Sam James <sam@gentoo.org> (2021-04-14)
-# Supports 64-bit NEON
-# Note: libpng-compat 1.5.30 does NOT seem to.
-media-libs/libpng -cpu_flags_arm_neon
 
 # Sam James <sam@gentoo.org> (2021-03-20)
 # Supports both 'neon32' and 'neon64'
@@ -334,7 +324,7 @@ app-text/enchant voikko
 llvm-runtimes/compiler-rt-sanitizers -asan -dfsan -lsan -msan -hwasan -tsan
 llvm-runtimes/compiler-rt-sanitizers -ubsan -safestack -cfi -scudo
 llvm-runtimes/compiler-rt-sanitizers -gwp-asan -shadowcallstack
-llvm-runtimes/compiler-rt-sanitizers -libfuzzer -profile -xray -rtsan -tysan
+llvm-runtimes/compiler-rt-sanitizers -libfuzzer -profile -xray -rtsan
 >=llvm-runtimes/compiler-rt-sanitizers-16 -orc
 
 # Roy Bamford <neddyseagoon@gentoo.org> (2020-12-07)
@@ -364,10 +354,6 @@ sys-boot/grub -libzfs
 # to keyword ceph another time.
 # bug #738042
 sys-block/tgt rbd
-
-# Benda Xu <heroxbd@gentoo.org> (2020-08-08)
-# dev-lua/busted is not keyworded yet
-dev-lua/mpack test
 
 # Robin H. Johnson <robbat2@gentoo.org> (2020-07-02)
 # Mask io-uring & zbc pending keywording
@@ -439,10 +425,6 @@ media-gfx/gnome-photos upnp-av
 # Roy Bamford <neddyseagoon@gentoo.org> (2019-03-11)
 # net-misc/dropbox is binary amd64/x86 only
 kde-apps/kdenetwork-meta dropbox
-
-# Roy Bamford <neddyseagoon@gentoo.org> (2019-03-10)
-# sci-chemistry/openbabel is not keyworded/fails to build
-kde-apps/kalzium editor
 
 # Roy Bamford <neddyseagoon@gentoo.org> (2019-03-10)
 # No arm64 ever had bios, but sys-apps/fwupdate needs
@@ -527,10 +509,6 @@ app-emulation/libvirt xen
 # Requires USE=sdl that is masked in this profile.
 media-video/mjpegtools sdlgfx
 
-# Roy Bamford <neddysegoon@gentoo.org> (2017-08-24)
-# Support for g15daemon still needs -9999 packages on all arches
-net-voip/mumble g15
-
 # Alexis Ballier <aballier@gentoo.org> (2017-07-20)
 # media-libs/libemf fails with #error unknown CPU.
 media-gfx/pstoedit emf
@@ -550,7 +528,7 @@ net-libs/libpcap bluetooth
 
 # Mart Raudsepp <leio@gentoo.org> (2017-02-16)
 # Not yet tested features/dependencies
-app-text/evince dvi nautilus postscript xps
+app-text/evince dvi postscript xps
 
 # Markus Meier <maekke@gentoo.org> (2013-12-26)
 # Unkeyworded deps, bug #488724

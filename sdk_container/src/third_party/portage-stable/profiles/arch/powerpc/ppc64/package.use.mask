@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2025-08-29)
+# net-misc/passt not yet keyworded here
+app-emulation/qemu passt
+
 # Sam James <sam@gentoo.org> (2025-06-05)
 # dev-util/spirv-llvm-translator not keyworded here
 dev-libs/pocl spirv
@@ -96,18 +100,10 @@ sci-libs/symengine tcmalloc
 # https://github.com/rustsec/rustsec/issues/707
 dev-util/cargo-audit fix
 
-# Jimi Huotari <chiitoo@gentoo.org> (2022-05-08)
-# Not keyworded here yet.
-lxqt-base/lxqt-meta desktop-portal
-
 # Michał Górny <mgorny@gentoo.org> (2021-12-31)
 # Don't apply stable masks to python-exec since we're forcing every
 # impl there anyway. Please keep this in sync with use.stable.mask.
 dev-lang/python-exec -python_targets_pypy3_11
-
-# Sam James <sam@gentoo.org> (2021-10-17)
-# Go doesn't support pie on ppc64, bug #818529
-net-dns/dnscrypt-proxy pie
 
 # Marek Szuba <marecki@gentoo.org> (2021-07-18)
 # media-plugins/zam-plugins not keyworded here

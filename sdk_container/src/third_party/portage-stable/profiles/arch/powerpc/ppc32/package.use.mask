@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2025-08-29)
+# net-misc/passt not yet keyworded here
+app-emulation/qemu passt
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-07-31)
 # dev-python/pyqt5, dev-python/pyqt6 are not stable.
 dev-python/matplotlib qt6 test
@@ -138,7 +142,7 @@ llvm-core/clang extra
 # Nowa Ammerlaan <nowa@gentoo.org> (2022-09-23)
 # The corresponding Qt5 modules are not keyworded on ppc, and we don't want to
 # keyword them solely because of PyQt5 while there are no other in-tree users.
-dev-python/pyqt5 bluetooth location speech
+dev-python/pyqt5 speech
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2022-08-15)
 # deps not keyworded
