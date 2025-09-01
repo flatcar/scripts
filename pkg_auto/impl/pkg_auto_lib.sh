@@ -3989,7 +3989,7 @@ function drop_unused_licenses() {
         git -C "${NEW_PORTAGE_STABLE}/licenses" rm -f "${to_be_dropped[@]}"
         local old_head maybe_new_commit
         old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
-        maybe_new_commit=$(git -C "${NEW_STATE}" log "${old_head}..HEAD" -- "${PORTAGE_STABLE_SUFFIX}/licenses" | head -n 1 | cut -f1 -d' ')
+        maybe_new_commit=$(git -C "${NEW_STATE}" log --format=oneline "${old_head}..HEAD" -- "${PORTAGE_STABLE_SUFFIX}/licenses" | head -n 1 | cut -f1 -d' ')
         if [[ -n ${maybe_new_commit} ]]; then
             # licenses directory was updated during last sync, so
             # amend it with the removals
