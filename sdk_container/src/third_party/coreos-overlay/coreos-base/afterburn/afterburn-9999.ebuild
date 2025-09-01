@@ -100,6 +100,7 @@ else
 		hermit-abi@0.5.2
 		hex@0.4.3
 		hmac@0.12.1
+		hostname@0.4.1
 		http@1.3.1
 		http-body@1.0.1
 		http-body-util@0.1.3
