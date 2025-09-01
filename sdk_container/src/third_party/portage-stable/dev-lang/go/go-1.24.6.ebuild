@@ -20,7 +20,7 @@ case ${PV}  in
 *)
 	SRC_URI="https://storage.googleapis.com/golang/go${MY_PV}.src.tar.gz "
 	S="${WORKDIR}"/go
-	KEYWORDS="-* amd64 arm ~arm64 ~loong ~mips ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="-* amd64 arm arm64 ~loong ~mips ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 	;;
 esac
 
@@ -46,11 +46,8 @@ QA_MULTILIB_PATHS="usr/lib/go/pkg/tool/.*/.*"
 
 # This package triggers "unrecognized elf file(s)" notices on riscv.
 # https://bugs.gentoo.org/794046
-QA_PREBUILT='.*'
-
-# Do not strip this package. Stripping is unsupported upstream and may
-# fail.
-RESTRICT=" strip"
+QA_PREBUILT="*"
+QA_PRESTRIPPED="*.syso"
 
 DOCS=(
 	CONTRIBUTING.md
