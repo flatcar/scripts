@@ -1,0 +1,141 @@
+From 5f83aea9b8e7522ec5ba7f9ac3d4f48ecf319658 Mon Sep 17 00:00:00 2001
+From: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+Date: Tue, 2 Sep 2025 11:04:56 +0000
+Subject: [PATCH 1/2] microsoft/azure: Mock goalstate.SharedConfig output in
+ tests
+
+There are currently no tests exercising the code inside
+get_attributes(). Extend the mock_tests to return a shared config
+document at the path specified in the goalstate document so that this
+code can be tested.
+
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+---
+ src/providers/microsoft/azure/mock_tests.rs | 33 +++++++++++++++++++++
+ src/providers/microsoft/azure/mod.rs        |  9 ------
+ 2 files changed, 33 insertions(+), 9 deletions(-)
+
+diff --git a/src/providers/microsoft/azure/mock_tests.rs b/src/providers/microsoft/azure/mock_tests.rs
+index f658d015..39460d9d 100644
+--- a/src/providers/microsoft/azure/mock_tests.rs
++++ b/src/providers/microsoft/azure/mock_tests.rs
+@@ -67,6 +67,24 @@ static GOALSTATE_BODY_NO_CERTS: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+ </GoalState>
+ "#;
+ 
++static SHARED_CONFIG: &str = r#"<?xml version="1.0" encoding="utf-8"?>
++<SharedConfig version="1.0.0.0" goalStateIncarnation="42">
++  <Deployment name="f6cd1d7ef1644557b9059345e5ba890c" guid="{a511aa6d-29e7-4f53-8788-55655dfe848f}" incarnation="0" isNonCancellableTopologyChangeEnabled="false">
++    <Service name="__lars-test-1Service" guid="{00000000-0000-0000-0000-000000000000}" />
++    <ServiceInstance name="f6cd1d7ef1644557b9059345e5ba890c.0" guid="{5c5f79fd-84ef-4026-9876-5bbae5c16b36}" />
++  </Deployment>
++  <Incarnation number="42" instance="lars-test-1" guid="{fdef97af-2d10-48cf-8000-d778cc46f999}" />
++  <Role guid="{8f2866ba-9a32-e34b-0ebb-d68c961b6bb9}" name="lars-test-1" />
++  <OutputEndpoints />
++  <Instances>
++    <Instance id="lars-test-1" address="100.115.176.3">
++      <FaultDomains randomId="0" updateId="0" updateCount="0" />
++      <InputEndpoints />
++    </Instance>
++  </Instances>
++</SharedConfig>
++"#;
++
+ fn mock_fab_version(server: &mut mockito::Server) -> mockito::Mock {
+     let fab_version = "/?comp=versions";
+     let ver_body = r#"<?xml version="1.0" encoding="utf-8"?>
+@@ -111,6 +129,17 @@ fn mock_goalstate(server: &mut mockito::Server, with_certificates: bool) -> mock
+         .create()
+ }
+ 
++fn mock_shared_config(server: &mut mockito::Server) -> mockito::Mock {
++    // This value must match the one in GOALSTATE_BODY_NO_CERTS
++    let shared_config = "/machine/a511aa6d-29e7-4f53-8788-55655dfe848f/f6cd1d7ef1644557b9059345e5ba890c.lars%2Dtest%2D1?comp=config&type=sharedConfig&incarnation=1";
++
++    server
++        .mock("GET", shared_config)
++        .with_body(SHARED_CONFIG)
++        .with_status(200)
++        .create()
++}
++
+ #[test]
+ fn test_boot_checkin() {
+     let mut server = mockito::Server::new();
+@@ -190,6 +219,8 @@ fn test_hostname() {
+ fn test_vmsize() {
+     let mut server = mockito::Server::new();
+     let m_version = mock_fab_version(&mut server);
++    let m_goalstate = mock_goalstate(&mut server, false);
++    let m_shared_config = mock_shared_config(&mut server);
+ 
+     let testvmsize = "testvmsize";
+     let endpoint = "/metadata/instance/compute/vmSize?api-version=2017-08-01&format=text";
+@@ -208,6 +239,8 @@ fn test_vmsize() {
+     let r = attributes.get("AZURE_VMSIZE");
+ 
+     m_version.assert();
++    m_goalstate.assert();
++    m_shared_config.assert();
+ 
+     m_vmsize.assert();
+     let vmsize = r.unwrap();
+diff --git a/src/providers/microsoft/azure/mod.rs b/src/providers/microsoft/azure/mod.rs
+index 97cc18b0..270704c3 100644
+--- a/src/providers/microsoft/azure/mod.rs
++++ b/src/providers/microsoft/azure/mod.rs
+@@ -272,15 +272,6 @@ impl Azure {
+         crypto::p12_to_ssh_pubkey(&p12).context("failed to convert pkcs12 blob to ssh pubkey")
+     }
+ 
+-    #[cfg(test)]
+-    fn get_attributes(&self) -> Result<Attributes> {
+-        Ok(Attributes {
+-            virtual_ipv4: Some(Azure::get_fabric_address()),
+-            dynamic_ipv4: Some(Azure::get_fabric_address()),
+-        })
+-    }
+-
+-    #[cfg(not(test))]
+     fn get_attributes(&self) -> Result<Attributes> {
+         use std::net::SocketAddr;
+ 
+
+From 7443eb633a557abc48983c50cd7500ef4de5fa04 Mon Sep 17 00:00:00 2001
+From: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+Date: Tue, 2 Sep 2025 11:05:05 +0000
+Subject: [PATCH 2/2] microsoft/azure: Fix SharedConfig parsing of XML
+ attributes
+
+serde-xml-rs 0.8.0 introduced a breaking change by requiring that fields
+deserialized from attributes must have a name starting with '@'. Rename
+the fields that are effected by this. This is now testable thanks to the
+just added SharedConfig mock.
+
+Signed-off-by: Jeremi Piotrowski <jpiotrowski@microsoft.com>
+---
+ src/providers/microsoft/goalstate.rs | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/providers/microsoft/goalstate.rs b/src/providers/microsoft/goalstate.rs
+index 7cd5ca2f..2b263ffd 100644
+--- a/src/providers/microsoft/goalstate.rs
++++ b/src/providers/microsoft/goalstate.rs
+@@ -94,6 +94,7 @@ pub(crate) struct SharedConfig {
+ #[derive(Debug, Deserialize, Clone)]
+ #[allow(dead_code)]
+ pub(crate) struct Incarnation {
++    #[serde(rename = "@instance")]
+     pub instance: String,
+ }
+ 
+@@ -107,7 +108,9 @@ pub(crate) struct Instances {
+ #[derive(Debug, Deserialize, Clone)]
+ #[allow(dead_code)]
+ pub(crate) struct Instance {
++    #[serde(rename = "@id")]
+     pub id: String,
++    #[serde(rename = "@address")]
+     pub address: String,
+     #[serde(rename = "InputEndpoints")]
+     pub input_endpoints: InputEndpoints,
