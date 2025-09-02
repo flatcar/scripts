@@ -729,6 +729,15 @@ function print_image_reports() {
     echo "Note that vmlinuz-a also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
     echo
 
+    yell "Real/full init ramdisk (bootengine.img) differences compared to ${previous_version_description}"
+    underline "Real/full init ramdisk (bootengine.img) file changes, compared to ${previous_version_description}:"
+    env \
+        "${package_diff_env[@]}" FILE=flatcar_production_image_realinitrd_contents.txt FILESONLY=1 CUTKERNEL=1 \
+        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1 || true
+
+    underline "Real/full init ramdisk (bootengine.img) file size changes, compared to ${previous_version_description}:"
+    "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:realinitrd-wtd}" 2>&1 || true
+
     local base_sysext
     for base_sysext in "${base_sysexts[@]}"; do
         yell "Base sysext ${base_sysext} changes compared to ${previous_version_description}"

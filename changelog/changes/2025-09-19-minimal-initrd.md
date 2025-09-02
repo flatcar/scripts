@@ -1,0 +1,1 @@
+- Reduced the kernel+initrd size on `/boot` by half. Flatcar now uses a minimal first stage initrd just to access the `/usr` partition and then switches to the full initrd that does the full system preparation as before. Since this means that the set of kernel modules available in the first initrd is reduced, please report any impact.

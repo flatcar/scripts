@@ -26,6 +26,7 @@ DEPEND="
 	coreos-base/coreos-init:=
 	sys-apps/azure-vm-utils[dracut]
 	sys-apps/baselayout
+	sys-apps/busybox
 	sys-apps/coreutils
 	sys-apps/findutils
 	sys-apps/grep
@@ -89,6 +90,59 @@ src_compile() {
 
 	tc-export PKG_CONFIG
 	"${ESYSROOT}"/usr/bin/update-bootengine -k "${KV_FULL}" -o "${S}"/build/bootengine.cpio "${BE_ARGS[@]}" || die
+	# Copy full initrd over to /usr as filesystem image
+	mkdir "${S}"/build/bootengine || die
+	pushd "${S}"/build/bootengine || die
+	lsinitrd --kver SILENCEERROR --unpack "${S}"/build/bootengine.cpio || die
+	mksquashfs . "${S}"/build/bootengine.img -noappend -xattrs-exclude ^btrfs. || die
+	popd || die
+	# Create minimal initrd
+	if use amd64; then
+		mkdir "${S}"/build/early-cpio || die
+		pushd "${S}"/build/early-cpio || die
+		lsinitrd --kver SILENCEERROR --unpackearly "${S}"/build/bootengine.cpio || die
+		# Recreate to only contain the early cpio for microcode
+		find . -print0 | cpio --null --create --verbose --format=newc > "${S}"/build/bootengine.cpio || die
+		# Debug: List contents after recreation
+		cpio -t < "${S}"/build/bootengine.cpio
+		popd || die
+	else
+		# No early cpio, drop full initrd
+		> "${S}"/build/bootengine.cpio
+	fi
+	mkdir "${S}"/build/minimal || die
+	pushd "${S}"/build/minimal || die
+	mkdir -p {etc,dev,proc,sys,dev,usr/bin,usr/lib64,realinit,sysusr/usr} || die
+	ln -s usr/bin bin || die
+	ln -s usr/bin sbin || die
+	ln -s bin usr/sbin || die
+	ln -s usr/lib64 lib || die
+	ln -s usr/lib64 lib64 || die
+	ln -s lib64 usr/lib || die
+	mkdir -p lib/modules/"${KV_FULL}"/ || die
+	# Instead from ESYSROOT we can also copy kernel modules from the dracut pre-selection
+	cp "${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/modules.* lib/modules/"${KV_FULL}"/ || die
+	mkdir -p lib/modprobe.d/ || die
+	cp "${S}"/build/bootengine/lib/modprobe.d/* lib/modprobe.d/ || die
+	# Only include modules related to mounting /usr and for interacting with the emergency console
+	pushd "${S}/build/bootengine/usr/lib/modules/${KV_FULL}" || die
+	find kernel/drivers/{ata,block,hid,hv,input/serio,mmc,nvme,pci,scsi,usb} kernel/fs/{btrfs,overlayfs,squashfs} kernel/security/keys -name "*.ko.*" -printf "%f\0" | DRACUT_NO_XATTR=1 xargs --null "${BROOT}"/usr/lib/dracut/dracut-install --destrootdir "${S}"/build/minimal --kerneldir . --sysrootdir "${S}"/build/bootengine/ --firmwaredirs "${S}"/build/bootengine/usr/lib/firmware --module dm-verity dm-mod virtio_console || die
+	popd || die
+	echo '$MODALIAS=.*	0:0 660 @/sbin/modprobe "$MODALIAS"' > ./etc/mdev.conf || die
+	# We can't use busybox's modprobe because it doesn't support the globs in module.alias, breaking module loading
+	DRACUT_NO_XATTR=1 "${BROOT}"/usr/lib/dracut/dracut-install --destrootdir . --sysrootdir "${ESYSROOT}" --ldd /bin/veritysetup /bin/dmsetup /bin/busybox /sbin/modprobe || die
+	cp -a "${ESYSROOT}"/usr/bin/minimal-init ./init || die
+	# Make it easier to debug by not relying too much on the first commands
+	ln -s busybox ./bin/sh || die
+	mknod ./dev/console c 5 1 || die
+	mknod ./dev/null c 1 3 || die
+	mknod ./dev/tty c 5 0 || die
+	mknod ./dev/urandom c 1 9 || die
+	mknod ./dev/random c 1 8 || die
+	mknod ./dev/zero c 1 5 || die
+	# No compression because CONFIG_INITRAMFS_COMPRESSION_XZ should take care of it
+	find . -print0 | cpio --null --create --verbose --format=newc >> "${S}"/build/bootengine.cpio || die
+	popd || die
 	kmake "$(kernel_target)"
 
 	# sanity check :)
@@ -111,4 +165,7 @@ src_install() {
 	# For easy access to vdso debug symbols in gdb:
 	#   set debug-file-directory /usr/lib/debug/usr/lib/modules/${KV_FULL}/vdso/
 	kmake INSTALL_MOD_PATH="${ED}/usr/lib/debug/usr" vdso_install
+
+	insinto "/usr/lib/flatcar"
+	doins build/bootengine.img
 }
