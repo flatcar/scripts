@@ -7,7 +7,8 @@ EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="31ba2964ce5e77ae5553eb0a3624afcc7078bb09" # flatcar-master
+	#EGIT_COMMIT="31ba2964ce5e77ae5553eb0a3624afcc7078bb09" # flatcar-master
+	EGIT_BRANCH="kai/initrd-in-usr"
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -23,6 +24,7 @@ src_install() {
 	insinto /usr/lib/dracut/modules.d/
 	doins -r dracut/.
 	dosbin update-bootengine
+	dosbin minimal-init
 
 	# must be executable since dracut's install scripts just
 	# re-use existing filesystem permissions during initrd creation.
