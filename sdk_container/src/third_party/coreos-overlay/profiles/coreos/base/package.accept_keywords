@@ -32,9 +32,9 @@ app-crypt/azure-keyvault-pkcs11
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =app-crypt/clevis-19-r1 **
 
-# Needed to address CVE-2025-1215, CVE-2025-22134, CVE-2025-24014, GHSA-63p5-mwg2-787v, CVE-2025-27423, CVE-2025-29768
-=app-editors/vim-9.1.1436 ~amd64 ~arm64
-=app-editors/vim-core-9.1.1436 ~amd64 ~arm64
+# Needed to address the ever-growing list of CVEs
+=app-editors/vim-9.1.1652 ~amd64 ~arm64
+=app-editors/vim-core-9.1.1652 ~amd64 ~arm64
 
 # Needed by arm64-native SDK.
 =app-emulation/open-vmdk-1.0 *
