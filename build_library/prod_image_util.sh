@@ -83,6 +83,8 @@ create_prod_image() {
   local image_initrd_contents="${image_name%.bin}_initrd_contents.txt"
   local image_initrd_contents_wtd="${image_name%.bin}_initrd_contents_wtd.txt"
   local image_disk_usage="${image_name%.bin}_disk_usage.txt"
+  local image_realinitrd_contents="${image_name%.bin}_realinitrd_contents.txt"
+  local image_realinitrd_contents_wtd="${image_name%.bin}_realinitrd_contents_wtd.txt"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
@@ -180,7 +182,9 @@ EOF
       "${image_kconfig}" \
       "${image_initrd_contents}" \
       "${image_initrd_contents_wtd}" \
-      "${image_disk_usage}"
+      "${image_disk_usage}" \
+      "${image_realinitrd_contents}" \
+      "${image_realinitrd_contents_wtd}"
 
   # Official builds will sign and upload these files later, so remove them to
   # prevent them from being uploaded now.
