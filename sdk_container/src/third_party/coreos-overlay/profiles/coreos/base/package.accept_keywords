@@ -41,7 +41,6 @@ app-crypt/azure-keyvault-pkcs11
 
 # Keep versions on both arches in sync.
 =app-emulation/qemu-guest-agent-9.2.0 ~arm64
-=dev-build/meson-1.7.2 ~arm64
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
