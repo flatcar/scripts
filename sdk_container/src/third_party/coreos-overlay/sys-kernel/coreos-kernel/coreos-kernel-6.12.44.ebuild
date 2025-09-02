@@ -89,6 +89,14 @@ src_compile() {
 
 	tc-export PKG_CONFIG
 	"${ESYSROOT}"/usr/bin/update-bootengine -k "${KV_FULL}" -o "${S}"/build/bootengine.cpio "${BE_ARGS[@]}" || die
+	mkdir "${S}"/build/bootengine
+	cat "${S}"/build/bootengine.cpio | while cpio --no-absolute-filenames -d -m -D "${S}"/build/bootengine -i ; do :; done
+	# Lacking read permissions even for user
+	chmod u+r "${S}"/build/bootengine/etc/gshadow
+	# CPU microcode should stay in the minimal initrd
+	rm -rf "${S}"/build/bootengine/kernel "${S}"/build/bootengine/early_cpio
+	# TODO: rework /usr verity mount to reuse the one from the minimal initrd
+	mksquashfs "${S}"/build/bootengine "${S}"/build/bootengine.img -all-root -noappend -xattrs-exclude ^btrfs.
 	kmake "$(kernel_target)"
 
 	# sanity check :)
@@ -111,4 +119,7 @@ src_install() {
 	# For easy access to vdso debug symbols in gdb:
 	#   set debug-file-directory /usr/lib/debug/usr/lib/modules/${KV_FULL}/vdso/
 	kmake INSTALL_MOD_PATH="${ED}/usr/lib/debug/usr" vdso_install
+
+	insinto "/usr/lib/flatcar"
+	doins build/bootengine.img
 }
