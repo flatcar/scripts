@@ -43,4 +43,5 @@ UNIPATCH_LIST="
 	${PATCH_DIR}/z0006-mtd-disable-slram-and-phram-when-locked-down.patch \
 	${PATCH_DIR}/z0007-arm64-add-kernel-config-option-to-lock-down-when.patch \
 	${PATCH_DIR}/z0008-tools-hv-fix-cross-compilation-for-ARM64.patch \
+	${PATCH_DIR}/z0009-block-add-partition-uuid-into-uevent.patch \
 "
