@@ -1,0 +1,1 @@
+- `vim` is now provided as part of a `tools` sysext image which is enabled by default ([scripts#2502](https://github.com/flatcar/scripts/pull/2502))
