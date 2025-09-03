@@ -1,0 +1,6 @@
+- vim ([CVE-2025-53905](https://www.cve.org/CVERecord?id=CVE-2025-53905), [CVE-2025-53906](https://www.cve.org/CVERecord?id=CVE-2025-53906), [CVE-2025-9390](https://www.cve.org/CVERecord?id=CVE-2025-9390))
+- go ([CVE-2025-47906](https://www.cve.org/CVERecord?id=CVE-2025-47906), [CVE-2025-47907](https://www.cve.org/CVERecord?id=CVE-2025-47907))
+- glib ([CVE-2025-7039](https://www.cve.org/CVERecord?id=CVE-2025-7039))
+- gnutls ([CVE-2025-32988](https://www.cve.org/CVERecord?id=CVE-2025-32988), [CVE-2025-32989](https://www.cve.org/CVERecord?id=CVE-2025-32989), [CVE-2025-32990](https://www.cve.org/CVERecord?id=CVE-2025-32990), [CVE-2025-6395](https://www.cve.org/CVERecord?id=CVE-2025-6395))
+- iperf ([CVE-2025-54349](https://www.cve.org/CVERecord?id=CVE-2025-54349), [CVE-2025-54350](https://www.cve.org/CVERecord?id=CVE-2025-54350), [CVE-2025-54351](https://www.cve.org/CVERecord?id=CVE-2025-54351))
+- glibc ([CVE-2025-8058](https://www.cve.org/CVERecord?id=CVE-2025-8058))
