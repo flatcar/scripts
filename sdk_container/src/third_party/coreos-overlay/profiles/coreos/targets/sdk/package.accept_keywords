@@ -1,2 +1,1 @@
 # Temporarily put the SDK version ahead for sd-json support in Dracut.
-=sys-apps/systemd-257.7 ~amd64 ~arm64
