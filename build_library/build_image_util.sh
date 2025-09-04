@@ -686,7 +686,12 @@ EOF
 
   # Build the selinux policy
   if pkg_use_enabled coreos-base/coreos selinux; then
-      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+    info "Building selinux mcs policy"
+    sudo chroot "${root_fs_dir}" bash -s <<'EOF'
+cd /usr/share/selinux/mcs
+set -x
+semodule -s mcs -i *.pp
+EOF
   fi
 
   # Run tmpfiles once to make sure that /etc has everything in place before
