@@ -16,13 +16,19 @@ ARCH=$(get_board_arch ${BOARD})
 
 # check if any of the given use flags are enabled for a pkg
 pkg_use_enabled() {
-  local pkg="$1"
-  shift
-  # for every flag argument, turn it into `-e ^+flag` for grep
-  local grep_args="${@/#/-e ^+}"
+  local pkg="${1}"; shift
 
-  equery-"${BOARD}" -q uses "${pkg}" | grep -q ${grep_args}
-  return $?
+  # for every flag argument, turn it into a regexp that matches it as
+  # either '+${flag}' or '(+${flag})'
+  local -a grep_args=()
+  local flag
+  for flag; do
+      grep_args+=( -e '^(\?+'"${flag}"')\?$' )
+  done
+  local -i rv=0
+
+  equery-"${BOARD}" --quiet uses --forced-masked "${pkg}" | grep --quiet "${grep_args[@]}" || rv=$?
+  return ${rv}
 }
 
 # Usage: pkg_version [installed|binary|ebuild] some-pkg/name
