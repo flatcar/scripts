@@ -684,7 +684,23 @@ EOF
 
   # Build the selinux policy
   if pkg_use_enabled coreos-base/coreos selinux; then
-      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+      # Follow what Gentoo is doing in the selinux-policy-2.eclass -
+      # rebuilding the policy using all the files in the mcs
+      # directory, but ordering base.pp as the first file. The
+      # difference is that we also include unconfined.pp too (Gentoo
+      # omits this one for mcs policy), because our modifications to
+      # selinux policies use unconfined type too.
+      info "Building selinux mcs policy"
+      sudo chroot "${root_fs_dir}" bash -s <<'EOF'
+cd /usr/share/selinux/mcs
+pp_files=( -i base.pp )
+for f in *.pp; do
+    if [[ ${f} != 'base.pp' ]]; then
+        pp_files+=( -i "${f}" )
+    fi
+done
+semodule -s mcs "${pp_files[@]}"
+EOF
   fi
 
   # Run tmpfiles once to make sure that /etc has everything in place before
