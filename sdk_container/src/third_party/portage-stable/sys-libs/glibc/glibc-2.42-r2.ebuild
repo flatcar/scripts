@@ -1038,24 +1038,6 @@ glibc_do_configure() {
 
 	myconf+=( --enable-kernel=${MIN_KERN_VER} )
 
-	# Since SELinux support is only required for nscd, only enable it if:
-	# 1. USE selinux
-	# 2. only for the primary ABI on multilib systems
-	# 3. Not a crosscompile
-	if ! is_crosscompile && use selinux ; then
-		if use multilib ; then
-			if is_final_abi ; then
-				myconf+=( --with-selinux )
-			else
-				myconf+=( --without-selinux )
-			fi
-		else
-			myconf+=( --with-selinux )
-		fi
-	else
-		myconf+=( --without-selinux )
-	fi
-
 	# Force a few tests where we always know the answer but
 	# configure is incapable of finding it.
 	if is_crosscompile ; then
@@ -1065,6 +1047,7 @@ glibc_do_configure() {
 	fi
 
 	myconf+=(
+		$(use_with selinux)
 		--disable-werror
 		--enable-bind-now
 		--enable-fortify-source
