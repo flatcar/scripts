@@ -69,6 +69,7 @@ create_prod_sysext() {
             --squashfs_base="${base_sysext}" \
             --generate_pkginfo \
             --install_root_basename="${name}-base-sysext-rootfs" \
+            --forbidden_packages='sec-policy/selinux-.*;selinux policy packages must be in base image' \
             "${build_sysext_opts[@]}" \
             "${name}" "${grp_pkg[@]}"
 
