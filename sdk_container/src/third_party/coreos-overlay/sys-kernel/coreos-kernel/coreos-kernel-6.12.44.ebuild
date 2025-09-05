@@ -89,6 +89,12 @@ src_compile() {
 
 	tc-export PKG_CONFIG
 	"${ESYSROOT}"/usr/bin/update-bootengine -k "${KV_FULL}" -o "${S}"/build/bootengine.cpio "${BE_ARGS[@]}" || die
+	mkdir "${S}"/build/bootengine || die
+	pushd "${S}"/build/bootengine || die
+	sudo lsinitrd --unpack "${S}"/build/bootengine.cpio || die
+	# TODO: rework /usr verity mount to reuse the one from the minimal initrd
+	sudo mksquashfs . "${S}"/build/bootengine.img -noappend -xattrs-exclude ^btrfs. || die
+	popd || die
 	kmake "$(kernel_target)"
 
 	# sanity check :)
@@ -111,4 +117,7 @@ src_install() {
 	# For easy access to vdso debug symbols in gdb:
 	#   set debug-file-directory /usr/lib/debug/usr/lib/modules/${KV_FULL}/vdso/
 	kmake INSTALL_MOD_PATH="${ED}/usr/lib/debug/usr" vdso_install
+
+	insinto "/usr/lib/flatcar"
+	doins build/bootengine.img
 }
