@@ -726,11 +726,19 @@ EOF
   # The labeling has to be done before moving /etc to /usr/share/flatcar/etc to prevent wrong labels for these files and as
   # the relabeling on boot would cause upcopies in the overlay.
   if pkg_use_enabled coreos-base/coreos selinux; then
-    # TODO: Breaks the system:
-    # sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"
-    # sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/usr
-    # For now we only try it with /etc
-    sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/etc
+    # -D - set or update any directory SHA1 digests
+    # -E - treat conflicting specifications as errors
+    # -F - force reset of context to match file_context
+    # -r path - set root path
+    # -v - show changes in file labels
+    # -T 0 - use as many threads as there are cores
+    info "Relabeling the filesystem at ${root_fs_dir@Q}"
+    local path
+    # We do not run relabeling on /boot, it's FAT anyway, so no
+    # support for xattrs there.
+    for path in / /usr /oem; do
+      sudo setfiles -D -E -F -r "${root_fs_dir}" -v -T 0 "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}${path}"
+    done
   fi
 
   # Backup the /etc contents to /usr/share/flatcar/etc to serve as
