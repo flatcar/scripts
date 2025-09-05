@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
 app-admin/sudo		ldap sssd
-# -crypt: Disable crypt to avoid installing libsodlium.
-app-editors/vim		minimal -crypt
+# -crypt: Disable crypt to avoid installing libsodium.
+app-editors/vim		-crypt
 # minimal: Don't pull app-vim/gentoo-syntax
 app-editors/vim-core	minimal
 
