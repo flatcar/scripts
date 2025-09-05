@@ -43,6 +43,8 @@ DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 DEFINE_string install_root_basename "${default_install_root_basename}" \
   "Name of a root directory where packages will be installed. ${default_install_root_basename@Q} by default."
+DEFINE_string forbidden_packages "" \
+  "Comma-separated list of pairs describing packages that are forbidden in the sysext. Every pair consist of regexp and message, separated with semicolon. The regexp is for matching a package name (<category>/<name>-<version>::<repo>), and message is printed if the regexp matched a package name. Be careful to not include commas in the regexp or message."
 
 FLAGS_HELP="USAGE: build_sysext [flags] <sysext_name> <binary_package> [<binary_package> ...]
 
@@ -255,6 +257,28 @@ info "Writing ${SYSEXTNAME}_packages.txt"
 ROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" PORTAGE_CONFIGROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" \
       equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
 
+# Check if there are forbidden packages
+mapfile -t pairs <<<"${FLAGS_forbidden_packages//,/$'\n'}"
+declare -A re_msg_pairs=()
+for pair in "${pairs[@]}"; do
+    re=${pair%%;*}
+    msg=${pair#.;}
+    re_msg_pairs["${re}"]="${msg}"
+done
+
+mapfile -t pkgs <"${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+has_forbidden_pkg=
+for pkg in "${pkgs[@]}"; do
+    for re in "${!re_msg_pairs[@]}"; do
+        if [[ ${pkg} =~ ${re} ]]; then
+            has_forbidden_pkg=x
+            error "Forbidden package ${pkg}: ${msg}"
+        fi
+    done
+done
+if [[ -n ${has_forbidden_pkg} ]]; then
+    die "Forbidden packages encountered"
+fi
 
 if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
     chost="$("portageq-${BOARD}" envvar CHOST)"
