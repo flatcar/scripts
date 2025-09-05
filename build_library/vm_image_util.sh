@@ -591,6 +591,7 @@ install_oem_sysext() {
         --image_builddir="${built_sysext_dir}"
         --metapkgs="${metapkg}"
         --install_root_basename="${VM_IMG_TYPE}-oem-sysext-rootfs"
+        --forbidden_packages='sec-policy/selinux-.*;selinux policy packages must be in base image' \
     )
     local overlay_path mangle_fs
     overlay_path=$(portageq get_repo_path / coreos-overlay)

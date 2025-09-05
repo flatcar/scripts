@@ -261,6 +261,7 @@ create_prod_sysexts() {
         --image_builddir="${BUILD_DIR}" \
         --install_root_basename="${name}-extra-sysext-rootfs" \
         ${mangle_script:+--manglefs_script=${mangle_script}} \
+        --forbidden_packages='sec-policy/selinux-.*;selinux policy packages must be in base image' \
         "${name}" "${pkg_array[@]}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
