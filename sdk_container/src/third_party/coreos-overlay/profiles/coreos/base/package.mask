@@ -25,3 +25,4 @@
 # mask a specific version in hope that the future update may be smaller,
 # who knows.
 =sys-firmware/intel-microcode-20250512_p20250513
+=sys-firmware/intel-microcode-20250812_p20250813

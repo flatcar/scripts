@@ -1,6 +1,14 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-29)
+# dev-perl/Template-GD is not keyworded here. Bug #661634
+dev-perl/Template-Toolkit gd
+
+# Michał Górny <mgorny@gentoo.org> (2025-08-21)
+# Requires dev-python/qtconsole.
+dev-python/ipython gui
+
 # Ian Jordan <immoloism@gmail.com> (2025-07-28)
 # Needs app-text/ronn-ng, which is not keyworded here
 app-accessibility/espeakup man
@@ -361,7 +369,7 @@ mail-filter/pyzor mysql
 
 # Matt Turner <mattst88@gentoo.org> (2020-08-11)
 # No drivers on this architecture support Vulkan
-media-libs/mesa video_cards_zink vulkan vulkan-overlay
+media-libs/mesa video_cards_zink vulkan-overlay
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-07-18)
 # net-libs/webkit-gtk has no alpha keywords
@@ -565,7 +573,6 @@ net-misc/networkmanager wext
 
 # Tobias Klausmann <klausman@gentoo.org> (2015-08-10)
 # Opting out of the net-misc/ofono dep tree until we have a user request
->=media-sound/pulseaudio-6.0 ofono-headset
 media-sound/pulseaudio-daemon ofono-headset
 
 # Gilles Dartiguelongue <eva@gentoo.org> (2015-06-09)

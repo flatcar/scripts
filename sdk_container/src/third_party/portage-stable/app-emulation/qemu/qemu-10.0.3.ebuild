@@ -291,6 +291,7 @@ PPC_FIRMWARE_DEPEND="
 # See bug #913084 for pip dep
 BDEPEND="
 	$(python_gen_impl_dep)
+	dev-python/distlib[${PYTHON_USEDEP}]
 	dev-lang/perl
 	>=dev-build/meson-0.63.0
 	app-alternatives/ninja
@@ -956,7 +957,7 @@ pkg_postinst() {
 	xdg_icon_cache_update
 
 	[[ -z ${EPREFIX} ]] && [[ -f ${EROOT}/usr/libexec/qemu-bridge-helper ]] && \
-		fcaps cap_net_admin "${EROOT}"/usr/libexec/qemu-bridge-helper
+		fcaps -m u+s cap_net_admin "${EROOT}"/usr/libexec/qemu-bridge-helper
 
 	DISABLE_AUTOFORMATTING=true
 	readme.gentoo_print_elog

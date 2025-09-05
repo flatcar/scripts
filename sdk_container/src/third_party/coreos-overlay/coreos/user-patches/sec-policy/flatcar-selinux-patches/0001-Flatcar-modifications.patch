@@ -1,4 +1,4 @@
-From b4725fecc9298279266ecfd842536b1b1c03cdb0 Mon Sep 17 00:00:00 2001
+From 9398464fe4d29cb3e9ad3c04c2c749747438fb65 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
@@ -55,7 +55,7 @@ index 63d2f9cb8..62dff5f94 100644
  dev_read_rand(traceroute_t)
  dev_read_urand(traceroute_t)
 diff --git a/refpolicy/policy/modules/kernel/corenetwork.if.in b/refpolicy/policy/modules/kernel/corenetwork.if.in
-index bc1535469..d057c4031 100644
+index 1f0ad3df4..6a1cdba0e 100644
 --- a/refpolicy/policy/modules/kernel/corenetwork.if.in
 +++ b/refpolicy/policy/modules/kernel/corenetwork.if.in
 @@ -877,6 +877,32 @@ interface(`corenet_sctp_bind_generic_node',`
@@ -115,10 +115,10 @@ index b1649ec3a..ca612de44 100644
  # Infiniband
  corenet_ib_access_all_pkeys(corenet_unconfined_type)
 diff --git a/refpolicy/policy/modules/kernel/files.if b/refpolicy/policy/modules/kernel/files.if
-index 778e82713..d1bd353e0 100644
+index 709a1b71b..73b17285e 100644
 --- a/refpolicy/policy/modules/kernel/files.if
 +++ b/refpolicy/policy/modules/kernel/files.if
-@@ -8065,3 +8065,48 @@ interface(`files_relabel_all_pidfiles',`
+@@ -8118,3 +8118,48 @@ interface(`files_relabel_all_pidfiles',`
  	relabel_files_pattern($1, pidfile, pidfile)
  	relabel_lnk_files_pattern($1, pidfile, pidfile)
  ')
@@ -168,10 +168,10 @@ index 778e82713..d1bd353e0 100644
 +	relabelfrom_chr_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
 +')
 diff --git a/refpolicy/policy/modules/kernel/kernel.te b/refpolicy/policy/modules/kernel/kernel.te
-index b791ebc71..c80159473 100644
+index 6d8ec0f77..df620faef 100644
 --- a/refpolicy/policy/modules/kernel/kernel.te
 +++ b/refpolicy/policy/modules/kernel/kernel.te
-@@ -377,6 +377,131 @@ files_mounton_default(kernel_t)
+@@ -374,6 +374,131 @@ files_mounton_default(kernel_t)
  
  mcs_process_set_categories(kernel_t)
  
@@ -321,7 +321,7 @@ index f98e68ba0..045b1b5b2 100644
  /run/containers(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
  /run/crun(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
 diff --git a/refpolicy/policy/modules/services/container.te b/refpolicy/policy/modules/services/container.te
-index 8fcd88e1e..ab16ff8b7 100644
+index c71ae54f4..a231f7664 100644
 --- a/refpolicy/policy/modules/services/container.te
 +++ b/refpolicy/policy/modules/services/container.te
 @@ -58,6 +58,52 @@ gen_tunable(container_use_dri, false)
@@ -386,7 +386,7 @@ index 8fcd88e1e..ab16ff8b7 100644
  
  ## <desc>
  ##	<p>
-@@ -1247,3 +1293,125 @@ optional_policy(`
+@@ -1249,3 +1295,125 @@ optional_policy(`
         unconfined_domain_noaudit(spc_user_t)
         domain_ptrace_all_domains(spc_user_t)
  ')
@@ -513,12 +513,12 @@ index 8fcd88e1e..ab16ff8b7 100644
 +#
 +allow container_t tmp_t:file { read };
 diff --git a/refpolicy/policy/modules/system/init.te b/refpolicy/policy/modules/system/init.te
-index 796426508..e1761f8fd 100644
+index 1320f7aae..61ead9795 100644
 --- a/refpolicy/policy/modules/system/init.te
 +++ b/refpolicy/policy/modules/system/init.te
-@@ -1686,3 +1686,11 @@ optional_policy(`
- 	userdom_dontaudit_rw_all_users_stream_sockets(systemprocess)
+@@ -1728,3 +1728,11 @@ optional_policy(`
  	userdom_dontaudit_write_user_tmp_files(systemprocess)
+ 	userdom_dontaudit_use_user_terminals(systemprocess)
  ')
 +
 +#
@@ -529,14 +529,14 @@ index 796426508..e1761f8fd 100644
 +require { type unconfined_t; }
 +allow init_t unconfined_t:file exec_file_perms;
 diff --git a/refpolicy/policy/modules/system/locallogin.te b/refpolicy/policy/modules/system/locallogin.te
-index 9534db006..e60eb7b59 100644
+index 995c80be2..933278d2f 100644
 --- a/refpolicy/policy/modules/system/locallogin.te
 +++ b/refpolicy/policy/modules/system/locallogin.te
 @@ -34,7 +34,14 @@ role system_r types sulogin_t;
  
  allow local_login_t self:capability { chown dac_override dac_read_search fowner fsetid kill setgid setuid sys_nice sys_resource sys_tty_config };
  dontaudit local_login_t self:capability net_admin;
--allow local_login_t self:process { getcap setcap setexec setrlimit setsched };
+-allow local_login_t self:process { getcap setcap setexec setrlimit setsched signal };
 +#
 +# FLATCAR:
 +#
@@ -544,12 +544,12 @@ index 9534db006..e60eb7b59 100644
 +#
 +# TODO: What AVC does this fix?
 +#
-+allow local_login_t self:process { setpgid getcap setcap setexec setrlimit setsched };
++allow local_login_t self:process { setpgid getcap setcap setexec setrlimit setsched signal };
  allow local_login_t self:fd use;
  allow local_login_t self:fifo_file rw_fifo_file_perms;
  allow local_login_t self:sock_file read_sock_file_perms;
 diff --git a/refpolicy/policy/modules/system/logging.te b/refpolicy/policy/modules/system/logging.te
-index ed01f0e4a..9504b6e72 100644
+index 14d3132be..ce40abc52 100644
 --- a/refpolicy/policy/modules/system/logging.te
 +++ b/refpolicy/policy/modules/system/logging.te
 @@ -507,6 +507,15 @@ userdom_dontaudit_search_user_home_dirs(syslogd_t)
@@ -569,5 +569,5 @@ index ed01f0e4a..9504b6e72 100644
  	allow syslogd_t self:netlink_audit_socket connected_socket_perms;
  	allow syslogd_t self:capability2 audit_read;
 -- 
-2.34.1
+2.49.1
 
