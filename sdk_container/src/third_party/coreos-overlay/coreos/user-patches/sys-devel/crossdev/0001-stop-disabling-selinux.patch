@@ -1,0 +1,26 @@
+From aa374c74e8c1d2cf4d2c0185a04a721fbabe3438 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Mon, 8 Sep 2025 14:02:29 +0200
+Subject: [PATCH] stop disabling selinux
+
+---
+ crossdev | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/crossdev b/crossdev
+index 1e5c4ac..c7d2f05 100755
+--- a/crossdev
++++ b/crossdev
+@@ -1786,9 +1786,6 @@ if [[ "${LLVM}" == "yes" ]]; then
+ 	EOF
+ fi
+ 
+-# maybe someday this work, but that day != today
+-USE="${USE} -selinux"
+-
+ if ! ex_fast ; then
+ 
+ 	# stage 0: binutils
+-- 
+2.49.1
+
