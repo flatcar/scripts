@@ -36,6 +36,41 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2025-09-06)
+# Abandoned.  Incompatible with py3.14.  Last release in 2020.
+# No revdeps left.
+# Removal on 2025-10-06.  Bug #962431.
+dev-python/timeout-decorator
+
+# Michał Górny <mgorny@gentoo.org> (2025-09-06)
+# dev-python/partd is a dep of dask which we removed in 2024.  It
+# test-depends on dev-python/locket which was last updated in 2022.
+# That one in turn test-depends on dev-python/spur which was last
+# updated in 2023 and is pinned to old dev-python/paramiko version.
+# Its SSH part is not tested by us at all, and the "spur.local"
+# alternative without SSH was last released in 2016.
+# These packages have no revdeps outside themselves left.
+# Removal on 2025-10-06.  Bug #962404.
+dev-python/locket
+dev-python/partd
+dev-python/spur
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-09-05)
+# Qt5-based library without revdeps. Needs a dedicated maintainer.
+# Bug #955270. Removal on 2025-10-05.
+sci-libs/silo
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-09-01)
+# EAPI-7 cmake.eclass, no revdeps, no one else is packaging this.
+# Bugs #951888, #957258. Removal on 2025-10-01.
+net-analyzer/nipper
+net-libs/libnipper
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-09-01)
+# EAPI-7 cmake.eclass, no revdeps, no one else is packaging this.
+# Bugs #952062, #957253. Removal on 2025-10-01.
+sci-mathematics/diagrtb
+
 # Eli Schwartz <eschwartz@gentoo.org> (2025-09-01)
 # Effectively unmaintained in Gentoo. Upstream dead for 8 years. Stuck
 # on py3.11, but no testsuite and still has py2-specific source code so
@@ -212,12 +247,6 @@ media-sound/qtagger
 media-sound/coquillo
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# Project was ported to Qt6 by upstream, but also ported to Qbs in doing
-# so. Needs a new maintainer to start with Qbs based package from scratch.
-# Bugs #931995, #955967. Removal on 2025-09-16.
-media-gfx/valentina
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
 # 1.2.3 is almost 10 years old, upstream repository archived, Qt5- and
 # EAPI-7 based. Bugs #832577, #830262, #846416 and finally #961631.
 # Removal on 2025-09-16.
@@ -239,21 +268,6 @@ sci-electronics/NanoVNA-QT
 # Bugs #932756, #952103. Removal on 2025-09-16.
 app-crypt/yubikey-manager-qt
 
-# Ionen Wolkens <ionen@gentoo.org> (2025-08-13)
-# While it fixes several issues and is meant to be a stable branch,
-# 580.x has too many regressions in its current state. One of the most
-# prominent one is GTK4 applications hanging on exit when vulkan
-# (default) is used on wayland for many users, some games are also
-# known to have problems with it among other things.
-#
-# Can browse NVIDIA's 580 feedback thread[1] to get an idea.
-#
-# Feel free to unmask if not affected.
-#
-# [1] https://forums.developer.nvidia.com/t/580-release-feedback-discussion/
-~x11-drivers/nvidia-drivers-580.65.06
-~x11-drivers/nvidia-drivers-580.76.05
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-08-10)
 # Outdated version packaged in Gentoo, pending version bump request for
 # over a year, depends on Qt5 but worse, Qt5Script, no signs of upstream
@@ -273,51 +287,11 @@ dev-ruby/ruby-openid
 # Removal on 2025-09-07.
 dev-java/jide-oss
 
-# Alexey Sokolov <alexey+gentoo@asokolov.org> (2025-08-03)
-# Inactive upstream, stuck on Qt5. Suggested alternatives:
-# media-sound/strawberry, media-sound/amarok.
-# Removal on 2025-09-03. Bug #960012.
-media-sound/clementine
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-10)
-# media-libs/liblastfm and media-libs/libmygpo-qt destabilisation mask.
-# No more stable revdeps after media-sound/clementine removal.
-~media-libs/liblastfm-1.1.0_pre20190625
-~media-libs/libmygpo-qt-1.1.0
-
-# Hans de Graaff <graaff@gentoo.org> (2025-07-30)
-# Obsolete slot that is ruby33-only. Use the newer slot instead. Removal
-# on 2025-08-30.
-dev-ruby/tzinfo:1
-
-# Eli Schwartz <eschwartz@gentoo.org> (2025-07-28)
-# Unmaintained, out of date, last upstream release in 2018, last
-# packaged release 2015. Broken with modern system interfaces for
-# some time. Entire OpenVZ ecosystem is vaporware these days,
-# openvz-sources was last-rited in 2017 already.
-# Removal on 2025-08-27.  Bug #580516, #868252.
-sys-cluster/vzctl
-app-backup/vzdump
-app-misc/vzstats
-
-# Hans de Graaff <graaff@gentoo.org> (2025-07-28)
-# Obsolete slots of cucumber components. These slots are no longer used
-# by dev-util/cucumber. Removal on 2025-08-28.
-dev-util/cucumber-gherkin:23
-dev-util/cucumber-gherkin:25
-dev-util/cucumber-messages:19
-dev-util/cucumber-messages:24
-
 # Eli Schwartz <eschwartz@gentoo.org> (2025-07-18)
 # End of life software. Relies on a commercial internet service which removed
 # suppor for the old APIs this package needs. Impossible to use anymore.
 # Removal on 2025-08-17.  Bug #927026.
 net-vpn/protonvpn-cli
-
-# Matt Turner <mattst88@gentoo.org> (2025-07-16)
-# Masked for testing
-=dev-util/mesa_clc-25.2*
-=media-libs/mesa-25.2*
 
 # Eli Schwartz <eschwartz@gentoo.org> (2025-07-08)
 # Unmaintained, out of date, QA issues, outstanding bugs for compilation
@@ -709,10 +683,6 @@ sec-keys/openpgp-keys-jiatan
 # [1] https://nvidia.custhelp.com/app/answers/detail/a_id/3142
 # [2] https://wiki.gentoo.org/wiki/Nouveau
 x11-drivers/nvidia-drivers:0/390
-
-# Ben Kohler <bkohler@gentoo.org> (2023-01-30)
-# Breaks too many revdeps for now
-=app-text/discount-3*
 
 # Joonas Niilola <juippis@gentoo.org> (2022-04-29)
 # Apparently the "b" in version means "beta". 3.24 is available, we
