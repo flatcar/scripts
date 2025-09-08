@@ -8,13 +8,13 @@
 app-eselect/eselect-pinentry-0.7.4
 
 # pulled in by app-editors/vim
-app-eselect/eselect-vi-1.2
+app-eselect/eselect-vi-20221122
 
 # pulled in by net-firewall/iptables
-app-eselect/eselect-iptables-20200508
+app-eselect/eselect-iptables-20220320
 
 # pulled in by app-admin/sudo
-app-misc/editor-wrapper-4
+app-misc/editor-wrapper-4-r1
 
 # Pulled in by net-dns/bind, needed only by named, which we do not
 # install.
@@ -22,11 +22,10 @@ acct-group/named-0-r3
 acct-user/named-0-r3
 sys-process/psmisc-23.7
 
-# Pulled in by app-admin/sudo
-dev-lang/perl-5.40.0
+# Pulled in by app-admin/sudo and net-fs/samba
+dev-lang/perl-5.40.2
 
 # Pulled in by net-fs/samba
-dev-lang/perl-5.40.0-r1
 dev-libs/icu-76.1-r1
 dev-perl/Parse-Yapp-1.210.0-r1
 dev-perl/JSON-4.100.0
