@@ -111,7 +111,40 @@ function copy_dir_from_buildcache() {
     rsync --partial -a -e "${sshcmd}" "${BUILDCACHE_USER}@${BUILDCACHE_SERVER}:${remote_path}" \
         "${local_path}"
 }
+# --
 
+# Returns true if the passed directory contains files that match any
+# of the passed glob strings. Remember to pass the glob as strings
+# (means: quote them, so globs are not resolved at the function
+# callsite).
+function dir_contains_globs() (
+    shopt -s nullglob
+
+    local dir=${1}; shift
+    # rest are globs
+
+    # this is in a subshell, so cd is safe - won't mess with working
+    # directory of the caller
+    cd "${dir}" 2>/dev/null || return 1
+    # for globs to be evaluated, we must not use quotes here
+    local -a files=( ${@} )
+
+    if [[ ${#files[@]} -gt 0 ]]; then
+        return 0
+    fi
+    return 1
+)
+# --
+
+function upload_fail_logs() {
+    if ! dir_contains_globs . 'debug-fail-logs-*.log'; then
+        return 0
+    fi
+
+    create_digests "${SIGNER}" debug-fail-logs-*.log
+    sign_artifacts "${SIGNER}" debug-fail-logs-*.log*
+    copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" debug-fail-logs-*.log*
+}
 # --
 
 function copy_to_buildcache() {
