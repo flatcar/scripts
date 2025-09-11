@@ -34,6 +34,7 @@ arch="amd64"
 official="0"
 tarball=""
 os_version=""
+logdir=""
 
 keep="false"
 cleanup=""
@@ -57,6 +58,7 @@ usage() {
     echo "                     add a cleanup line to <script> which, when run, will free"
     echo "                     the resource. Useful for CI."
     echo "      -h           - Print this help."
+    echo "      -l <dir>     - Put logs in this directory"
     echo
 }
 
@@ -66,6 +68,7 @@ while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
     -k) keep="true";      shift;;
+    -l) logdir="${2}";    shift; shift;;
     -v) os_version="$2";  shift; shift;;
     -x) cleanup="$2";     shift; shift;;
     *)  if [ -z "$tarball" ] ;  then
@@ -100,6 +103,10 @@ if is_official "$version" && [ "${version}" = "${os_version}" ] ; then
     official="1"
 else
     official="0"
+fi
+
+if [[ -n ${logdir} ]]; then
+    mkdir -p "${logdir}"
 fi
 
 # --
@@ -170,8 +177,14 @@ else
     if [ -n "$cleanup" ] ; then
         echo "$docker container rm -f '${toolchains_container}'" >> "$cleanup"
     fi
+    failed=''
     ./run_sdk_container -C "${import_image}" -n "${toolchains_container}" \
-            sudo ./build_toolchains --seed_tarball="./${tarball}"
+            sudo ./build_toolchains --seed_tarball="./${tarball}" || failed=x
+
+    if [[ -n ${logdir} ]] && sudo test -d __build__/images/catalyst/log/coreos-toolchains; then
+        sudo cp -a __build__/images/catalyst/log/coreos-toolchains "${logdir}/coreos-toolchains"
+    fi
+    if [[ -n ${failed} ]]; then exit 1; fi
 
     # remove sdk tarball from scripts root so it's not part of the SDK container build context
     if [ -f "${tarball_copied}" ] ; then
@@ -216,6 +229,12 @@ else
                  .
 
     $docker stop "${binhost_container}"
+
+    if [[ -n ${logdir} ]]; then
+        $docker run --rm -v "${logdir}:/logdir" "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish /logdir
+    else
+        $docker run --rm "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish
+    fi
 fi
 
 # --

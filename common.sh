@@ -165,37 +165,24 @@ die_notrace() {
     error "${DIE_PREFIX}${line}"
   done
   if [[ ! -e "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME" ]]; then
-      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
-      error "${DIE_PREFIX}!! BEGIN DEBUG OUTPUT: !!"
-      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
-      error
-      error "${DIE_PREFIX}== MOUNT =="
-      error "${DIE_PREFIX}==========="
-      error_command_output "${DIE_PREFIX}" mount
-      error
-      error "${DIE_PREFIX}== DF =="
-      error "${DIE_PREFIX}========"
-      error_command_output "${DIE_PREFIX}" df -h
-      error
-      error "${DIE_PREFIX}== DMESG =="
-      error "${DIE_PREFIX}==========="
-      error_command_output "${DIE_PREFIX}" sudo dmesg
-      error
-      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
-      error "${DIE_PREFIX}!! END DEBUG OUTPUT: !!"
-      error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
+      local failfile="debug-fail-logs-$(date --utc '+%F-%H%M-%S').log"
+      error "${DIE_PREFIX}debug fail logs saved in ${failfile@Q}"
+      {
+          echo "== MOUNT =="
+          echo "==========="
+          sudo mount 2>&1
+          echo
+          echo "== DF =="
+          echo "========"
+          sudo df -h 2>&1
+          echo
+          echo "== DMESG =="
+          echo "==========="
+          sudo dmesg 2>&1
+      } >"${SCRIPTS_DIR}/${failfile}"
       touch "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME"
   fi
   exit 1
-}
-
-error_command_output() {
-    local prefix=${1}; shift
-    # rest are a command to execute
-    local REPLY
-    while read -r; do
-        error "${prefix}${REPLY}"
-    done < <("${@}" 2>&1)
 }
 
 # Simple version comparison routine
