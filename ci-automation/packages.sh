@@ -80,22 +80,44 @@ function _packages_build_impl() {
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
     local packages_container="flatcar-packages-${arch}-${docker_vernum}"
+    local logs_tarball="packages-${arch}-logs-$(date --utc '+%F-%H%M-%S').tar.xz"
 
     source sdk_lib/sdk_container_common.sh
 
+    logdir=__build__/packages-logs-to-upload
+    mkdir -p "${logdir}"
+
     apply_local_patches
     # Build packages; store packages in container
+    failed=''
     ./run_sdk_container -x ./ci-cleanup.sh  -n "${packages_container}" -v "${vernum}" \
         -C "${sdk_image}" \
-        ./build_packages --board="${arch}-usr"
+        ./build_packages --board="${arch}-usr" || failed=x
 
-    # run_sdk_container updates the version file, use that version from here on
-    source sdk_container/.repo/manifests/version.txt
-    local vernum="${FLATCAR_VERSION}"
-    local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
-    local packages_image="flatcar-packages-${arch}"
+    # Copy the build logs to a directory accessible for us.
+    ./run_sdk_container -n "${packages_container}" -v "${vernum}" -C "${sdk_image}" \
+        cp -a "/build/${arch}-usr/var/log/portage" "${logdir}" || :
 
-    # generate image + push to build cache
-    docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
+    if [[ -z ${failed} ]]; then
+        # run_sdk_container updates the version file, use that version from here on
+        source sdk_container/.repo/manifests/version.txt
+        local vernum="${FLATCAR_VERSION}"
+        local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+        local packages_image="flatcar-packages-${arch}"
+
+        # generate image + push to build cache
+        docker_commit_to_buildcache "${packages_container}" "${packages_image}" "${docker_vernum}"
+    fi
+    if dir_contains_globs "${logdir}" '*'; then
+        (
+            cd "${logdir}"
+            tar -cJf "${logs_tarball}" *
+            create_digests "${SIGNER}" "${logs_tarball}"
+            sign_artifacts "${SIGNER}" "${logs_tarball}"*
+            copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
+        )
+    fi
+    upload_fail_logs
+    if [[ -n ${failed} ]]; then exit 1; fi
 }
 # --
