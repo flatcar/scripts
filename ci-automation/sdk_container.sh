@@ -66,12 +66,35 @@ function _sdk_container_build_impl() {
 
 
     # This will update the SDK_VERSION in versionfile
-    ./build_sdk_container_image -x ./ci-cleanup.sh ./__build__/"${sdk_tarball}"
+    logdir=__build__/sdk-container-logs-to-upload
+    mkdir -p "${logdir}"
+    local failed=''
+    local logs_tarball="sdk-container-logs-${ARCH}-$(date --utc '+%F-%H%M-%S').tar.xz"
+    ./build_sdk_container_image -l "${PWD}/${logdir}" -x ./ci-cleanup.sh ./__build__/"${sdk_tarball}" || failed=x
 
-    # push artifacts to build cache
-    local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
-    docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-all" "${docker_vernum}"
-    docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-amd64" "${docker_vernum}"
-    docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-arm64" "${docker_vernum}"
+    if [[ -z ${failed} ]]; then
+        # push artifacts to build cache
+        local docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+        docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-all" "${docker_vernum}"
+        docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-amd64" "${docker_vernum}"
+        docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-arm64" "${docker_vernum}"
+    fi
+    local uid
+    local gid
+    uid=$(id --user)
+    gid=$(id --group)
+    sudo chown --recursive "${uid}:${gid}" "${logdir}"
+    chmod --recursive a+rX,u+w "${logdir}"
+    if dir_contains_globs "${logdir}" '*'; then
+        (
+            cd "${logdir}"
+            tar -cJf "${logs_tarball}" *
+            create_digests "${SIGNER}" "${logs_tarball}"
+            sign_artifacts "${SIGNER}" "${logs_tarball}"*
+            copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
+        )
+    fi
+    upload_fail_logs
+    if [[ -n ${failed} ]]; then exit 1; fi
 }
 # --
