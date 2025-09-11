@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Christopher Byrne <salah.coronya@gmail.com> (2025-09-01)
+# net-emulation/libvirt is only keyworded on amd64 at this time
+sys-block/nbdkit libguestfs
+
 # Michał Górny <mgorny@gentoo.org> (2025-05-08)
 # dev-python/sigstore is not keyworded everywhere.
 =dev-lang/python-0* verify-sig
@@ -46,7 +50,7 @@ dev-lang/rust mrustc-bootstrap
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-24)
 # OpenMP offloading is supported on 64-bit architectures only.
-llvm-core/clang-runtime offload
+llvm-runtimes/clang-runtime offload
 
 # Sv. Lockal <lockalsash@gmail.com> (2024-11-30)
 # Only available for amd64.

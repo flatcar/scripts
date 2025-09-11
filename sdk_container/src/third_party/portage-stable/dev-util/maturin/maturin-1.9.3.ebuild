@@ -24,7 +24,7 @@ LICENSE+="
 	MPL-2.0 Unicode-3.0 Unicode-DFS-2016
 " # crates
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~loong ~mips ~ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="doc +ssl test"
 RESTRICT="!test? ( test )"
 
@@ -141,7 +141,7 @@ python_test() {
 }
 
 python_install_all() {
-	cargo_src_install
+	dobin "$(cargo_target_dir)"/maturin
 
 	dodoc Changelog.md README.md
 	use doc && dodoc -r guide/html
