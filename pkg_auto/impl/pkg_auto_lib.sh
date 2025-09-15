@@ -1949,8 +1949,11 @@ function read_package_sources() {
     local file pkg repo saved_repo
     for file in "${files[@]}"; do
         while read -r pkg repo; do
+            pkg_debug_enable "${pkg}"
+            pkg_debug "from file ${file@Q} for ${which}"
             saved_repo=${package_sources_map_ref["${pkg}"]:-}
             if [[ -n ${saved_repo} ]]; then
+                pkg_debug "saved source repo: ${saved_repo}"
                 if [[ ${saved_repo} != "${repo}" ]]; then
                     pkg_warn \
                         '- different repos used for the package:' \
@@ -1960,8 +1963,10 @@ function read_package_sources() {
                         "    - ${repo}"
                 fi
             else
+                pkg_debug "source repo: ${saved_repo}"
                 package_sources_map_ref["${pkg}"]=${repo}
             fi
+            pkg_debug_disable
         done <"${file}"
     done
 }
