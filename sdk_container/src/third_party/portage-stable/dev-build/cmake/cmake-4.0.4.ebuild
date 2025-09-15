@@ -54,7 +54,7 @@ else
 		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 
-	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20250904 )"
+	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20240902 )"
 fi
 
 [[ ${CMAKE_DOCS_PREBUILT} == 1 ]] && CMAKE_DOCS_USEFLAG="doc"
@@ -102,7 +102,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-3.30.3-cudahostld.patch"
 
 	# Upstream fixes (can usually be removed with a version bump)
-	"${FILESDIR}/${PN}-4.1.1-curl-8.16.0.patch"
+	"${FILESDIR}"/${PN}-3.31.7-hdf5.patch
 )
 
 cmake_src_bootstrap() {
