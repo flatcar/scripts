@@ -3991,17 +3991,45 @@ function drop_unused_licenses() {
         local -x "${GIT_ENV_VARS[@]}"
         setup_git_env
 
-        git -C "${NEW_PORTAGE_STABLE}/licenses" rm -f "${to_be_dropped[@]}"
-        local old_head maybe_new_commit
+        git -C "${NEW_PORTAGE_STABLE}/licenses" rm --force --quiet "${to_be_dropped[@]}"
+        local old_head maybe_new_commit_msg_pair
         old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
-        maybe_new_commit=$(git -C "${NEW_STATE}" log --format=oneline "${old_head}..HEAD" -- "${PORTAGE_STABLE_SUFFIX}/licenses" | head -n 1 | cut -f1 -d' ')
-        if [[ -n ${maybe_new_commit} ]]; then
+        maybe_new_commit_msg_pair=$(git -C "${NEW_STATE}" log --max-count=1 --format=oneline "${old_head}..HEAD" -- "${PORTAGE_STABLE_SUFFIX}/licenses")
+        if [[ -n ${maybe_new_commit_msg_pair} ]]; then
+            local new_commit_hash new_commit_msg
+            new_commit_hash=${maybe_new_commit_msg_pair%% *}
+            new_commit_msg=${maybe_new_commit_msg_pair#* }
             # licenses directory was updated during last sync, so
             # amend it with the removals
-            git -C "${NEW_STATE}" commit --fixup "${maybe_new_commit}"
-            git -C "${NEW_STATE}" rebase --autosquash "${old_head}"
+            local error_file=${WORKDIR}/licenses-rebase-error-message
+            local -i rv
+            git -C "${NEW_STATE}" commit --quiet --fixup "${new_commit_hash}"
+            add_cleanup "rm -f ${error_file@Q}"
+            git -C "${NEW_STATE}" rebase --quiet --autosquash "${old_head}" 2>"${error_file}" || rv=${?}
+            if [[ rv -ne 0 ]]; then
+                local fixup_msg="fixup! ${new_commit_msg}"
+                if [[ $(tail --lines 1 "${error_file}") = *"${fixup_msg}"* ]]; then
+                    info 'git rebase failed, most likely due to the empty licenses commit after fixing up, dropping the licenses commit altogether'
+                    rv=0
+                    git -C "${NEW_STATE}" reset HEAD^ || rv=${?}
+                    if [[ rv -eq 0 ]]; then
+                        rv=0
+                        git -C "${NEW_STATE}" rebase --continue || rv=${?}
+                    fi
+                else
+                    rv=1
+                fi
+            fi
+            if [[ rv -ne 0 ]]; then
+                local -a error_lines
+                mapfile -t error_lines <"${error_file}"
+                fail_lines \
+                    'rebase after fixing up licenses failed, error from git rebase --autosquash:' \
+                    '' \
+                    "${error_lines[@]}"
+            fi
         else
-            # no licenses werew updated during last sync, create the
+            # no licenses were updated during last sync, create the
             # removals commit
             git -C "${NEW_STATE}" commit --quiet --signoff --message 'licenses: Drop unused licenses'
         fi
