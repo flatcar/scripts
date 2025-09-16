@@ -60,6 +60,11 @@ dev-cpp/azure-security-keyvault-keys
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
+
+# CVE-2025-58050
+=dev-libs/libpcre2-10.46 ~amd64 ~arm64
+
+# The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
