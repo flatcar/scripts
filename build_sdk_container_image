@@ -183,11 +183,6 @@ else
 
     if [[ -n ${logdir} ]] && sudo test -d __build__/images/catalyst/log/coreos-toolchains; then
         sudo cp -a __build__/images/catalyst/log/coreos-toolchains "${logdir}/coreos-toolchains"
-        local uid
-        local gid
-        uid=$(id --user)
-        gid=$(id --group)
-        sudo chown --recursive "${uid}:${gid}" "${logdir}/coreos-toolchains"
     fi
     if [[ -n ${failed} ]]; then exit 1; fi
 
@@ -236,13 +231,7 @@ else
     $docker stop "${binhost_container}"
 
     if [[ -n ${logdir} ]]; then
-        $docker run --rm -v "${logdir}:/logdir" "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish /logdir || failed=x
-        local uid
-        local gid
-        uid=$(id --user)
-        gid=$(id --group)
-        sudo chown --recursive "${uid}:${gid}" "${logdir}"
-        if [[ -n ${failed} ]]; then exit 1; fi
+        $docker run --rm -v "${logdir}:/logdir" "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish /logdir
     else
         $docker run --rm "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish
     fi

@@ -79,6 +79,12 @@ function _sdk_container_build_impl() {
         docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-amd64" "${docker_vernum}"
         docker_image_to_buildcache "${CONTAINER_REGISTRY}/flatcar-sdk-arm64" "${docker_vernum}"
     fi
+    local uid
+    local gid
+    uid=$(id --user)
+    gid=$(id --group)
+    sudo chown --recursive "${uid}:${gid}" "${logdir}"
+    chmod --recursive a+rX,u+w "${logdir}"
     if dir_contains_globs "${logdir}" '*'; then
         (
             cd "${logdir}"
