@@ -180,12 +180,16 @@ else
     failed=''
     ./run_sdk_container -C "${import_image}" -n "${toolchains_container}" \
             sudo ./build_toolchains --seed_tarball="./${tarball}" || failed=x
-    if [[ -n ${logdir} && -d __build__/images/catalyst/log/coreos-toolchains ]]; then
-        cp -a __build__/images/catalyst/log/coreos-toolchains "${logdir}/coreos-toolchains"
+
+    if [[ -n ${logdir} ]] && sudo test -d __build__/images/catalyst/log/coreos-toolchains; then
+        sudo cp -a __build__/images/catalyst/log/coreos-toolchains "${logdir}/coreos-toolchains"
+        local uid
+        local gid
+        uid=$(id --user)
+        gid=$(id --group)
+        sudo chown --recursive "${uid}:${gid}" "${logdir}/coreos-toolchains"
     fi
-    if [[ -n ${failed} ]]; then
-        exit 1
-    fi
+    if [[ -n ${failed} ]]; then exit 1; fi
 
     # remove sdk tarball from scripts root so it's not part of the SDK container build context
     if [ -f "${tarball_copied}" ] ; then
@@ -231,7 +235,17 @@ else
 
     $docker stop "${binhost_container}"
 
-    $docker run --rm -v "${logdir}:/logdir" "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish /logdir
+    if [[ -n ${logdir} ]]; then
+        $docker run --rm -v "${logdir}:/logdir" "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish /logdir || failed=x
+        local uid
+        local gid
+        uid=$(id --user)
+        gid=$(id --group)
+        sudo chown --recursive "${uid}:${gid}" "${logdir}"
+        if [[ -n ${failed} ]]; then exit 1; fi
+    else
+        $docker run --rm "${sdk_build_image}" ./sdk_lib/setup_boards.sh finish
+    fi
 fi
 
 # --

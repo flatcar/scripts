@@ -25,10 +25,15 @@ case ${phase} in
         ;;
 
     finish)
-        logdir=${1}; shift
-        for arch in amd64 arm64; do
-            cp -a "/build/${arch}-usr/var/log/portage" "${logdir}/${arch}-package-logs"
-        done
+        logdir=''
+        if [[ ${#} -gt 0 ]]; then
+            logdir=${1}; shift
+        fi
+        if [[ -n ${logdir} ]]; then
+            for arch in amd64 arm64; do
+                cp -a "/build/${arch}-usr/var/log/portage" "${logdir}/${arch}-package-logs"
+            done
+        fi
         if [[ -e BUILD_PACKAGES_FAILED ]]; then
             exit 1
         fi
