@@ -3986,8 +3986,6 @@ function drop_unused_licenses() {
     if [[ ${#to_be_dropped[@]} -gt 0 ]]; then
         info "dropping unused licenses"
 
-        licenses_modified_ref=x
-
         local -x "${GIT_ENV_VARS[@]}"
         setup_git_env
 
@@ -4006,7 +4004,9 @@ function drop_unused_licenses() {
             git -C "${NEW_STATE}" commit --quiet --fixup "${new_commit_hash}"
             add_cleanup "rm -f ${error_file@Q}"
             git -C "${NEW_STATE}" rebase --quiet --autosquash "${old_head}" 2>"${error_file}" || rv=${?}
-            if [[ rv -ne 0 ]]; then
+            if [[ rv -eq 0 ]]; then
+                licenses_modified_ref=x
+            else
                 local fixup_msg="fixup! ${new_commit_msg}"
                 if [[ $(tail --lines 1 "${error_file}") = *"${fixup_msg}"* ]]; then
                     info 'git rebase failed, most likely due to the empty licenses commit after fixing up, dropping the licenses commit altogether'
@@ -4016,22 +4016,21 @@ function drop_unused_licenses() {
                         rv=0
                         git -C "${NEW_STATE}" rebase --continue || rv=${?}
                     fi
-                else
-                    rv=1
                 fi
-            fi
-            if [[ rv -ne 0 ]]; then
-                local -a error_lines
-                mapfile -t error_lines <"${error_file}"
-                fail_lines \
-                    'rebase after fixing up licenses failed, error from git rebase --autosquash:' \
-                    '' \
-                    "${error_lines[@]}"
+                if [[ rv -ne 0 ]]; then
+                    local -a error_lines
+                    mapfile -t error_lines <"${error_file}"
+                    fail_lines \
+                        'rebase after fixing up licenses failed, error from git rebase --autosquash:' \
+                        '' \
+                        "${error_lines[@]}"
+                fi
             fi
         else
             # no licenses were updated during last sync, create the
             # removals commit
             git -C "${NEW_STATE}" commit --quiet --signoff --message 'licenses: Drop unused licenses'
+            licenses_modified_ref=x
         fi
     fi
 }
