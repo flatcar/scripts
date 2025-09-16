@@ -1,0 +1,22 @@
+From d1239befc26f6446ea6b54ac7471b4aa79a5b2c4 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 16 Sep 2025 11:57:38 +0200
+Subject: [PATCH] afterburn: set hostname for Scaleway OEM
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ dracut/30ignition/flatcar-metadata-hostname.service | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dracut/30ignition/flatcar-metadata-hostname.service b/dracut/30ignition/flatcar-metadata-hostname.service
+index 323c62e..0975e29 100644
+--- a/dracut/30ignition/flatcar-metadata-hostname.service
++++ b/dracut/30ignition/flatcar-metadata-hostname.service
+@@ -37,6 +37,7 @@ ConditionKernelCommandLine=|flatcar.oem.id=packet
+ ConditionKernelCommandLine=|flatcar.oem.id=hetzner
+ ConditionKernelCommandLine=|flatcar.oem.id=kubevirt
+ ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
++ConditionKernelCommandLine=|flatcar.oem.id=scaleway
+ 
+ OnFailure=emergency.target
+ OnFailureJobMode=isolate
