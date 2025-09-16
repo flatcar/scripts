@@ -1,0 +1,3 @@
+- libpcre2 ([CVE-2025-58050](https://www.cve.org/CVERecord?id=CVE-2025-58050))
+- libxslt ([CVE-2025-7424](https://www.cve.org/CVERecord?id=CVE-2025-7424), [CVE-2025-7425](https://www.cve.org/CVERecord?id=CVE-2025-7425))
+- net-tools ([CVE-2025-46836](https://www.cve.org/CVERecord?id=CVE-2025-46836))
