@@ -1,0 +1,23 @@
+From 3e7b3656d91c6434a240348dfe39af2f45653091 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 16 Sep 2025 11:05:54 +0200
+Subject: [PATCH] sshkeys: enable SSH keys injection from Scaleway IMDS
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ systemd/system/sshkeys.service | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/systemd/system/sshkeys.service b/systemd/system/sshkeys.service
+index 9edf5cc..bc7eb0d 100644
+--- a/systemd/system/sshkeys.service
++++ b/systemd/system/sshkeys.service
+@@ -33,6 +33,8 @@ ConditionKernelCommandLine=|flatcar.oem.id=akamai
+ ConditionKernelCommandLine=|ignition.platform.id=proxmoxve
+ ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
+ 
++ConditionKernelCommandLine=|flatcar.oem.id=scaleway
++
+ [Service]
+ Type=oneshot
+ RemainAfterExit=yes
