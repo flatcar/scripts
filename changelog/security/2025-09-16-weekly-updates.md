@@ -1,3 +1,4 @@
 - libpcre2 ([CVE-2025-58050](https://www.cve.org/CVERecord?id=CVE-2025-58050))
+- libxml2 ([libxml2-20250908](https://gitlab.gnome.org/GNOME/libxml2/-/releases/v2.13.9))
 - libxslt ([CVE-2025-7424](https://www.cve.org/CVERecord?id=CVE-2025-7424), [CVE-2025-7425](https://www.cve.org/CVERecord?id=CVE-2025-7425))
 - net-tools ([CVE-2025-46836](https://www.cve.org/CVERecord?id=CVE-2025-46836))
