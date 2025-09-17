@@ -69,7 +69,7 @@ function _sdk_container_build_impl() {
     logdir=__build__/sdk-container-logs-to-upload
     mkdir -p "${logdir}"
     local failed=''
-    local logs_tarball="sdk-container-logs-$(date --utc '+%F-%H%M-%S').tar.xz"
+    local logs_tarball="sdk-container-logs-${ARCH}-$(date --utc '+%F-%H%M-%S').tar.xz"
     ./build_sdk_container_image -l "${PWD}/${logdir}" -x ./ci-cleanup.sh ./__build__/"${sdk_tarball}" || failed=x
 
     if [[ -z ${failed} ]]; then
@@ -91,7 +91,7 @@ function _sdk_container_build_impl() {
             tar -cJf "${logs_tarball}" *
             create_digests "${SIGNER}" "${logs_tarball}"
             sign_artifacts "${SIGNER}" "${logs_tarball}"*
-            copy_to_buildcache "build-logs/${ARCH}/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
+            copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
         )
     fi
     upload_fail_logs

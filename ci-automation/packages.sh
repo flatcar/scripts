@@ -114,7 +114,7 @@ function _packages_build_impl() {
             tar -cJf "${logs_tarball}" *
             create_digests "${SIGNER}" "${logs_tarball}"
             sign_artifacts "${SIGNER}" "${logs_tarball}"*
-            copy_to_buildcache "build-logs/${ARCH}/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
+            copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
         )
     fi
     upload_fail_logs

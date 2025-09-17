@@ -186,7 +186,7 @@ function _sdk_bootstrap_impl() {
     # equal to $(strip_version_prefix "$version")
     source sdk_container/.repo/manifests/version.txt
     local dest_tarball="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
-    local logs_tarball="sdk-bootstrap-logs-$(date --utc '+%F-%H%M-%S').tar.xz"
+    local logs_tarball="sdk-bootstrap-logs-${ARCH}-$(date --utc '+%F-%H%M-%S').tar.xz"
 
     # change the owner of the files and directories in __build__ back
     # to ourselves, otherwise we could fail to sign the artifacts as
@@ -241,7 +241,7 @@ function _sdk_bootstrap_impl() {
             tar -cJf "${logs_tarball}" *
             create_digests "${SIGNER}" "${logs_tarball}"
             sign_artifacts "${SIGNER}" "${logs_tarball}"*
-            copy_to_buildcache "build-logs/${ARCH}/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
+            copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
         )
     fi
     upload_fail_logs

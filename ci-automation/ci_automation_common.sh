@@ -143,7 +143,7 @@ function upload_fail_logs() {
 
     create_digests "${SIGNER}" debug-fail-logs-*.log
     sign_artifacts "${SIGNER}" debug-fail-logs-*.log*
-    copy_to_buildcache "build-logs/${ARCH}/${FLATCAR_SDK_VERSION}" debug-fail-logs-*.log*
+    copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" debug-fail-logs-*.log*
 }
 # --
 
