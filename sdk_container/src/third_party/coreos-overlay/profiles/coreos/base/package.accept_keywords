@@ -60,6 +60,11 @@ dev-cpp/azure-security-keyvault-keys
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-12 **
+
+# CVE-2025-58050
+=dev-libs/libpcre2-10.46 ~amd64 ~arm64
+
+# The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
@@ -85,21 +90,12 @@ dev-cpp/azure-security-keyvault-keys
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# CVE-2025-54349, CVE-2025-54350, CVE-2025-54351
-=net-misc/iperf-3.19.1 ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
-=net-misc/ntp-4.2.8_p18-r1 ~arm64
-=net-nds/rpcbind-1.2.8 ~arm64
-
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
 sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
-=sys-apps/iproute2-6.16.0 ~arm64
-=sys-apps/portage-3.0.68 ~arm64
 =sys-apps/zram-generator-1.2.1 ~arm64
 =sys-auth/sssd-2.9.7 ~arm64
 =sys-boot/mokutil-0.7.2 **

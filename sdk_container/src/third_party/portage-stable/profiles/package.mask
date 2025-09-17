@@ -36,6 +36,29 @@
 
 #--- END OF EXAMPLES ---
 
+# Conrad Kostecki <conikost@gentoo.org> (2025-09-14)
+# Replaced by >=media-libs/libv4l-1.30.1[utils], as merged by upstream.
+# Bugs #953534 and #962841.
+# Removal on 2025-09-29.
+sys-apps/edid-decode
+
+# Rick Farina <zerochaos@gentoo.org> (2025-09-11)
+# Dead upstream, fails to compile on modern gcc. Bug #919250
+# Removal on 2025-10-12
+net-wireless/mdk
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-09-09)
+# Packaged version is very outdated, was already broken by libxml2-2.12,
+# now once more by libxml2-2.14. Bugs #739362, #829005, #923828, #955798.
+# Removal on 2025-10-09.
+games-rpg/manaplus
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-09-09)
+# Broken by dev-libs/libxml2-2.14.2, abandoned by upstream, almost no one
+# else is packaging this. Bugs #955705, 955817. Removal on 2025-10-09.
+net-news/rsstool
+x11-misc/xcave
+
 # Michał Górny <mgorny@gentoo.org> (2025-09-06)
 # Abandoned.  Incompatible with py3.14.  Last release in 2020.
 # No revdeps left.
@@ -268,13 +291,6 @@ sci-electronics/NanoVNA-QT
 # Bugs #932756, #952103. Removal on 2025-09-16.
 app-crypt/yubikey-manager-qt
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-10)
-# Outdated version packaged in Gentoo, pending version bump request for
-# over a year, depends on Qt5 but worse, Qt5Script, no signs of upstream
-# porting away from it, many unattended build error bugs.
-# Bugs #922311, #926229. Removal on 2025-09-14.
-media-gfx/opentoonz
-
 # Hans de Graaff <graaff@gentoo.org> (2025-08-08)
 # ruby-openid fails tests and is archived upstream. Last release 6 years
 # ago. rack-openid is the only reverse dependency.
@@ -379,11 +395,6 @@ dev-db/mysql:8.4
 # Pleas upgrade to 5.1, 5.2 LTS, or downgrade to 4.2 LTS.
 =dev-python/django-5.0*
 
-# Alfred Wingate <parona@protonmail.com> (2025-05-05)
-# Masked for testing
->=dev-libs/libxml2-2.14
-dev-libs/libxml2-compat
-
 # Michał Górny <mgorny@gentoo.org> (2025-05-04)
 # New wave of breakage from random removals.
 # Bugs #955398, #955396, #955411.
@@ -415,12 +426,6 @@ dev-libs/libxml2-compat
 >=xfce-base/xfce4-session-4.21
 >=xfce-base/xfce4-settings-4.21
 >=xfce-base/xfconf-4.21
-
-# Sam James <sam@gentoo.org> (2025-03-07)
-# May cause emerge to hang (bug #950707). Tests hang on one machine
-# and another strange report upstream: https://github.com/pkgconf/pkgconf/issues/383.
-# Mask out of caution for now.
-=dev-util/pkgconf-2.4.1
 
 # John Helmert III <ajak@gentoo.org> (2025-03-02)
 # Doesn't seem to cleanly load, see:
@@ -742,12 +747,6 @@ media-plugins/kodi-game-libretro-dosbox
 # If you still would like to use this version, please report any issues to
 # upstream.
 >=app-text/jabref-bin-4.0
-
-# Michał Górny <mgorny@gentoo.org> (2017-05-22)
-# for Maciej S. Szmigiero <mail@maciej.szmigiero.name>
-# Any version above 5.100.138 breaks b43 driver in various ways.
-# Also, b43 wiki page says to use 5.100.138. Bug #541080.
->=sys-firmware/b43-firmware-6.30.163.46
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2017-05-21)
 # (and others, updated later)

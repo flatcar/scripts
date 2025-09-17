@@ -329,7 +329,7 @@ setup_target_flags() {
 					[[ ${t} == "x86_64" ]] && t="x86-64"
 					filter-flags '-march=*'
 					# ugly, ugly, ugly.  ugly.
-					CFLAGS_x86=$(CFLAGS=${CFLAGS_x86} filter-flags '-march=*'; echo "${CFLAGS}")
+					CFLAGS_x86=$(CFLAGS=${CFLAGS_x86}; filter-flags '-march=*'; echo "${CFLAGS}")
 					export CFLAGS_x86="${CFLAGS_x86} -march=${t}"
 					einfo "Auto adding -march=${t} to CFLAGS_x86 #185404 (ABI=${ABI})"
 				fi
@@ -766,7 +766,7 @@ sanity_prechecks() {
 
 	# ABI-specific checks follow here. Hey, we have a lot more specific conditions that
 	# we test for...
-	if ! is_crosscompile ; then
+	if ! is_crosscompile && ! tc-is-cross-compiler ; then
 		if use amd64 && use multilib && [[ ${MERGE_TYPE} != "binary" ]] ; then
 			ebegin "Checking if the system can execute 32-bit binaries"
 			echo 'int main(){return 0;}' > "${T}/check-ia32-emulation.c"
