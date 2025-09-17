@@ -43,7 +43,7 @@ Then it will leave you a shell inside the container. To build, run inside the co
 ```
 emerge-amd64-usr --unmerge util-linux cryptsetup lvm2
 USE="-cryptsetup" emerge-amd64-usr --newuse --changed-use util-linux
-emerge-amd64-usr --newuse --changed-use --buildpkg flatcar-nano util-linux cryptsetup lvm2 baselayout curl nghttp2 grub shim shim-signed
+emerge-amd64-usr --jobs $(($(nproc) * 2)) --newuse --changed-use --buildpkg flatcar-nano util-linux cryptsetup lvm2 baselayout curl nghttp2 grub shim shim-signed
 ./build_image --base_pkg=coreos-base/flatcar-nano --base_sysexts="" --replace
 ./image_to_vm.sh --from=../build/images/amd64-usr/latest --board=amd64-usr --image_compression_formats none
 ```
