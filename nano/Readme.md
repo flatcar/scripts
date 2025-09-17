@@ -34,8 +34,12 @@ See
 for details.
 Core packages need a rebuild on order for this to work (hence the --[...]use flags).
 
+Create a SDK container that is ready to build the flatcar image:
+```
+./run_sdk_container -t
+```
 
-To build, run
+Then it will leave you a shell inside the container. To build, run inside the container:
 ```
 emerge-amd64-usr --unmerge util-linux cryptsetup lvm2
 USE="-cryptsetup" emerge-amd64-usr --newuse --changed-use util-linux
