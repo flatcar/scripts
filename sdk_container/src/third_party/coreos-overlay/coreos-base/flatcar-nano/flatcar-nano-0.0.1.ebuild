@@ -37,6 +37,7 @@ RDEPEND="${RDEPEND}
 # Removed 
 #	app-admin/etcd-wrapper
 #	app-admin/flannel-wrapper
+#	app-admin/locksmith
 #	app-admin/sdnotify-proxy
 #	app-admin/sudo
 #	app-admin/toolbox
@@ -59,6 +60,7 @@ RDEPEND="${RDEPEND}
 #	app-misc/pax-utils
 #	app-shells/bash
 #	coreos-base/update-ssh-keys
+#	coreos-base/update_engine
 #	dev-db/etcdctl
 #	dev-debug/strace
 #	dev-libs/libsodium
@@ -69,12 +71,15 @@ RDEPEND="${RDEPEND}
 #	net-analyzer/openbsd-netcat
 #	net-analyzer/tcpdump
 #	net-analyzer/traceroute
+#	net-dns/bind
 #	net-fs/nfs-utils
 #	net-fs/cifs-utils
+#	net-misc/ntp
 #	net-misc/rsync
 #	net-misc/socat
 #	net-misc/wget
 #	net-misc/whois
+#	net-vpn/wireguard-tools
 #	sys-apps/acl
 #	sys-apps/attr
 # sys-apps/azure-vm-utils  -- This should go into the Azure OEM sysext?
@@ -83,6 +88,7 @@ RDEPEND="${RDEPEND}
 #	sys-apps/ethtool
 #	sys-apps/findutils
 #	sys-apps/grep
+#	sys-apps/kexec-tools
 #	sys-apps/less
 #	sys-apps/lshw
 #	sys-apps/usbutils
@@ -92,10 +98,13 @@ RDEPEND="${RDEPEND}
 #	)
 #	sys-auth/realmd
 #	sys-auth/sssd
+#	sys-boot/mokutil
 #	sys-devel/gettext
+#	sys-fs/dosfstools
 #	sys-fs/lsscsi
 #	sys-fs/quota
 #	sys-libs/glibc
+#	sys-power/acpid
 #	sys-process/lsof
 #	sys-process/procps
 #	x11-drivers/nvidia-drivers-service
@@ -105,7 +114,6 @@ RDEPEND="${RDEPEND}
 # Early boot needs 'net-tools' on some platforms.
 
 RDEPEND="${RDEPEND}
-	app-admin/locksmith
 	app-admin/mayday
 	app-crypt/clevis
 	app-crypt/gnupg
@@ -117,9 +125,7 @@ RDEPEND="${RDEPEND}
 	coreos-base/coreos-cloudinit
 	coreos-base/coreos-init
 	coreos-base/misc-files
-	coreos-base/update_engine
 	coreos-base/ue-rs
-	net-dns/bind
 	net-firewall/conntrack-tools
 	net-firewall/ebtables
 	net-firewall/ipset
@@ -127,10 +133,8 @@ RDEPEND="${RDEPEND}
 	net-firewall/nftables
 	net-libs/nghttp2
 	net-misc/bridge-utils
-	net-misc/iputils
-	net-misc/ntp
 	net-misc/curl
-	net-vpn/wireguard-tools
+	net-misc/iputils
 	sec-policy/selinux-base
 	sec-policy/selinux-base-policy
 	sec-policy/selinux-container
@@ -142,7 +146,6 @@ RDEPEND="${RDEPEND}
 	sys-apps/gptfdisk
 	sys-apps/ignition
 	sys-apps/iproute2
-	sys-apps/kexec-tools
 	sys-apps/keyutils
 	sys-apps/net-tools
 	sys-apps/nvme-cli
@@ -157,11 +160,9 @@ RDEPEND="${RDEPEND}
 	sys-block/open-iscsi
 	sys-block/parted
 	sys-boot/efibootmgr
-	sys-boot/mokutil
 	sys-cluster/ipvsadm
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
-	sys-fs/dosfstools
 	sys-fs/e2fsprogs
 	sys-fs/lvm2
 	sys-fs/mdadm
@@ -171,5 +172,4 @@ RDEPEND="${RDEPEND}
 	sys-kernel/coreos-kernel
 	sys-libs/nss-usrfiles
 	sys-libs/timezone-data
-	sys-power/acpid
 "
