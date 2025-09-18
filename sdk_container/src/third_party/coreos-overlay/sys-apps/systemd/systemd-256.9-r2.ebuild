@@ -99,11 +99,6 @@ PEFILE_DEPEND='dev-python/pefile[${PYTHON_USEDEP}]'
 
 # baselayout-2.2 has /run
 #
-# Flatcar: Drop sec-policy/selinux-ntp from deps (under selinux use
-# flag). The image stage fails with "Failed to resolve
-# typeattributeset statement at
-# /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
-#
 # Flatcar: Added a dep on sys-apps/kbd. It provides a loadkeys binary
 # needed by dracut's systemd-vconsole-setup module.
 RDEPEND="${COMMON_DEPEND}
@@ -141,6 +136,7 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	selinux? (
 		sec-policy/selinux-base-policy[systemd]
+		sec-policy/selinux-ntp
 	)
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
@@ -262,7 +258,6 @@ src_prepare() {
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0003-needs-update-don-t-require-strictly-newer-usr.patch"
 		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
-		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
 		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
 		"${FILESDIR}/0009-initrd-parse-etc.service.patch"
