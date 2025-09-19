@@ -1,0 +1,1 @@
+- Enabled `CONFIG_MEMCG_V1` to mitigate cgroupsv1 removal (e.g JVM) ([Flatcar#1884](https://github.com/flatcar/Flatcar/issues/1884))
