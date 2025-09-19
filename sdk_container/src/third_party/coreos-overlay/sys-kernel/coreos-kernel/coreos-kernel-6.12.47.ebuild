@@ -26,6 +26,7 @@ DEPEND="
 	coreos-base/coreos-init:=
 	sys-apps/azure-vm-utils[dracut]
 	sys-apps/baselayout
+	sys-apps/busybox
 	sys-apps/coreutils
 	sys-apps/findutils
 	sys-apps/grep
@@ -72,6 +73,16 @@ src_prepare() {
 	use amd64 && config_update "CONFIG_EXTRA_FIRMWARE_DIR=\"${fw_dir}\""
 }
 
+copy_in() {
+  # Simple setup, assume we only have /lib64 to care about
+  cp "${ESYSROOT}"/usr/"$1" ./"$1"
+  for LIBFILE in $(patchelf --print-needed ./"$1"); do
+    if [ ! -e ./lib64/"${LIBFILE}" ]; then
+      copy_in /lib64/"${LIBFILE}"
+    fi
+  done
+}
+
 src_compile() {
 	local BE_ARGS=()
 
@@ -89,6 +100,77 @@ src_compile() {
 
 	tc-export PKG_CONFIG
 	"${ESYSROOT}"/usr/bin/update-bootengine -k "${KV_FULL}" -o "${S}"/build/bootengine.cpio "${BE_ARGS[@]}" || die
+	# Copy full initrd over to /usr as filesystem image
+	mkdir "${S}"/build/bootengine || die
+	pushd "${S}"/build/bootengine || die
+	sudo lsinitrd --unpack "${S}"/build/bootengine.cpio || die
+	sudo mksquashfs . "${S}"/build/bootengine.img -noappend -xattrs-exclude ^btrfs. || die
+	popd || die
+	# Create minimal initrd
+	if use amd64; then
+		microcode=$(cpio -t < "${S}"/build/bootengine.cpio 2>&1 > /dev/null | cut -d " " -f 1)
+		# Only keep early cpio for microcode
+		truncate -s $((microcode*512)) "${S}"/build/bootengine.cpio || die
+		# Debug: List contents after truncation
+		cpio -t < "${S}"/build/bootengine.cpio
+	else
+		# No early cpio, drop full initrd
+		> "${S}"/build/bootengine.cpio
+	fi
+	mkdir "${S}"/build/minimal || die
+	pushd "${S}"/build/minimal || die
+	mkdir -p {etc,bin,sbin,dev,proc,sys,dev,lib,lib64,usr/bin,usr/sbin,usr/lib,usr/lib64,realinit,sysusr/usr}
+	mkdir -p lib/modules/"${KV_FULL}"/
+	# Instead from ESYSROOT we can also copy kernel modules from the dracut pre-selection
+	cp "${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/modules.* lib/modules/"${KV_FULL}"/
+	mkdir -p lib/modprobe.d/
+	cp "${S}"/build/bootengine/lib/modprobe.d/* lib/modprobe.d/
+	# Only include modules related to mounting /usr and for interacting with the emergency console
+	MODULES=("fs/overlayfs" "fs/squashfs" "drivers/md/dm-verity.ko.xz" "drivers/md/dm-mod.ko.xz" "drivers/block/loop.ko.xz" "fs/btrfs" "drivers/nvme" "drivers/scsi" "drivers/ata" "drivers/block" "drivers/pci" "drivers/char/virtio_console.ko.xz" "drivers/hv" "drivers/input/serio" "drivers/mmc" "drivers/usb" "drivers/hid" "security/keys")
+	for MODULE in "${MODULES[@]}"; do
+		if [ -f "${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/kernel/"${MODULE}" ]; then
+			MODULE_DIR=$(dirname "${MODULE}")
+			mkdir -p lib/modules/"${KV_FULL}"/kernel/"${MODULE_DIR}"
+			cp "${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/kernel/"${MODULE}" lib/modules/"${KV_FULL}"/kernel/"${MODULE}"
+		elif [ -d "${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/kernel/"${MODULE}" ]; then
+			mkdir -p lib/modules/"${KV_FULL}"/kernel/"${MODULE}"
+			cp -r "${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/kernel/"${MODULE}"/* lib/modules/"${KV_FULL}"/kernel/"${MODULE}"/
+		else
+			die "wrong module type/not found: ${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/kernel/"${MODULE}"
+		fi
+	done
+	# Copy module dependencies
+	for MODULE in $(find ./lib/modules/"${KV_FULL}"/ -type f); do
+		MODULE=$(basename "${MODULE}" | sed "s/\.ko\.xz$//")
+		for DEP in $(modprobe -S "${KV_FULL}" -d "${S}"/build/bootengine -D "${MODULE}" | grep "^insmod " | sed "s/^insmod //"); do
+			DEP=$(echo "${DEP}" | sed "s,${S}/build/bootengine,/,")
+			DEP_DIR=$(dirname "${DEP}")
+			mkdir -p ./"${DEP_DIR}"
+			cp "${S}"/build/bootengine/"${DEP}" ./"${DEP}"
+		done
+	done
+	echo '$MODALIAS=.*	0:0 660 @/sbin/modprobe "$MODALIAS"' > ./etc/mdev.conf
+	copy_in /bin/veritysetup
+	copy_in /bin/dmsetup
+	copy_in /bin/busybox
+	# We can't use busybox's modprobe because it doesn't support the globs in module.alias, breaking module loading
+	copy_in /sbin/kmod
+	ln -s /sbin/kmod ./sbin/modprobe
+	if use arm64; then
+		ln -s ../lib64/ld-linux-aarch64.so.1 ./lib/ld-linux-aarch64.so.1
+	fi
+	cp -a "${ESYSROOT}"/usr/bin/minimal-init ./init
+	# Make it easier to debug by not relying too much on the first commands
+	ln -s /bin/busybox ./bin/sh
+	mknod ./dev/console c 5 1
+	mknod ./dev/null c 1 3
+	mknod ./dev/tty c 5 0
+	mknod ./dev/urandom c 1 9
+	mknod ./dev/random c 1 8
+	mknod ./dev/zero c 1 5
+	# No compression because CONFIG_INITRAMFS_COMPRESSION_XZ should take care of it
+	find . -print0 | cpio --null --create --verbose --format=newc >> "${S}"/build/bootengine.cpio
+	popd || die
 	kmake "$(kernel_target)"
 
 	# sanity check :)
@@ -111,4 +193,7 @@ src_install() {
 	# For easy access to vdso debug symbols in gdb:
 	#   set debug-file-directory /usr/lib/debug/usr/lib/modules/${KV_FULL}/vdso/
 	kmake INSTALL_MOD_PATH="${ED}/usr/lib/debug/usr" vdso_install
+
+	insinto "/usr/lib/flatcar"
+	doins build/bootengine.img
 }
