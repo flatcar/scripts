@@ -100,7 +100,7 @@ query_kola_tests() {
 run_kola_tests() {
     local instance_type="${1}"; shift;
     local instance_tapfile="${1}"; shift
-    local tests=("cl.update.payload")
+    local tests=("cl.update.payload" "cl.update.payload-boot-part-too-small")
     local image
     if [ "${instance_type}" = "previous" ]; then
         image="tmp/flatcar_production_image_previous.bin"
