@@ -1,0 +1,3 @@
+- binutils ([CVE-2025-5244](https://www.cve.org/CVERecord?id=CVE-2025-5244), [CVE-2025-5245](https://www.cve.org/CVERecord?id=CVE-2025-5245) [CVE-2025-8225](https://www.cve.org/CVERecord?id=CVE-2025-8225))
+- curl ([CVE-2025-9086](https://www.cve.org/CVERecord?id=CVE-2025-9086), [CVE-2025-10148](https://www.cve.org/CVERecord?id=CVE-2025-10148))
+- go ([CVE-2025-47910](https://www.cve.org/CVERecord?id=CVE-2025-47910))
