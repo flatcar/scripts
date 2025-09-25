@@ -241,9 +241,9 @@ done
 # Make squashfs generation more reproducible.
 export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release")
 
-# Unmount in order to get rid of the overlay
+# Unmount in order to get rid of the overlay, but keep fs-root for
+# now, so we can use selinux file contexts.
 umount "${BUILD_DIR}/${FLAGS_install_root_basename}"
-umount "${BUILD_DIR}/fs-root"
 
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
@@ -328,11 +328,16 @@ if [[ -n "${invalid_files}" ]]; then
   die "Invalid file ownership: ${invalid_files}"
 fi
 
+info "Relabeling sysext contents"
+setfiles -D -E -F -r "${BUILD_DIR}/${FLAGS_install_root_basename}" -v -T 0 "${BUILD_DIR}/fs-root/usr/share/flatcar/etc/selinux/mcs/contexts/files/file_contexts" "${BUILD_DIR}/${FLAGS_install_root_basename}"
+umount "${BUILD_DIR}/fs-root"
+
+info "Creating squashfs image"
 mksquashfs "${BUILD_DIR}/${FLAGS_install_root_basename}" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
                -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
 rm -rf "${BUILD_DIR}"/{fs-root,"${FLAGS_install_root_basename}",workdir}
 
-# Generate reports
+info "Generating reports"
 mkdir "${BUILD_DIR}/img-rootfs"
 mount -rt squashfs -o loop,nodev "${BUILD_DIR}/${SYSEXTNAME}.raw" "${BUILD_DIR}/img-rootfs"
 write_contents "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents.txt"
