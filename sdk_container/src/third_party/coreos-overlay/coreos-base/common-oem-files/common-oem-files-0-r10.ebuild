@@ -49,6 +49,7 @@ AMD64_ONLY_OEMIDS=(
     digitalocean
     gce
     vmware
+    nutanix
 )
 
 OEMIDS=(

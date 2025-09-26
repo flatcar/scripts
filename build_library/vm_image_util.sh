@@ -43,6 +43,7 @@ VALID_IMG_TYPES=(
     vmware_ova
     vmware_raw
     xen
+    nutanix
 )
 
 #list of oem package names, minus the oem- prefix
@@ -349,6 +350,13 @@ IMG_proxmoxve_DISK_LAYOUT=vm
 IMG_proxmoxve_OEM_PACKAGE=common-oem-files
 IMG_proxmoxve_OEM_USE=proxmoxve
 IMG_proxmoxve_OEM_SYSEXT=oem-proxmoxve
+
+## nutanix
+IMG_nutanix_DISK_FORMAT=qcow2
+IMG_nutanix_DISK_LAYOUT=vm
+IMG_nutanix_OEM_USE=nutanix
+IMG_nutanix_OEM_PACKAGE=common-oem-files
+IMG_nutanix_OEM_SYSEXT=oem-nutanix
 
 ###########################################################
 
