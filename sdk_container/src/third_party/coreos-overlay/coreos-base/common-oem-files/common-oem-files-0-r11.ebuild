@@ -50,6 +50,7 @@ AMD64_ONLY_OEMIDS=(
     gce
     hyperv
     vmware
+    nutanix
 )
 
 OEMIDS=(
