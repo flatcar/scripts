@@ -116,6 +116,9 @@ src_prepare() {
 	# TODO: past 2025, we may need to add our own hack for bug #907474.
 	local PATCHES=(
 		# Upstream patches
+		"${FILESDIR}"/${PN}-9.8-no-pclmul.patch
+		"${FILESDIR}"/${P}-tail-offset.patch
+		"${FILESDIR}"/${P}-basenc-base58.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
