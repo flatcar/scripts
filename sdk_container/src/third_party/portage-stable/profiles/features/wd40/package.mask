@@ -1,7 +1,17 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Vincent de Phily <moltonel@gmail.com (2025-09-01)
+# Azamat H. Hackimov <azamat.hackimov@gmail.com> (2025-09-22)
+# app-i18n/libchewing was ported to Rust.
+>=app-i18n/ibus-chewing-2.1.7
+>=app-i18n/libchewing-0.10.3
+dev-build/corrosion
+
+# Patrick McLean <chutzpah@gentoo.org> (2025-09-16)
+# New version is rewritten in rust
+>=app-misc/asciinema-3.0.0
+
+# Vincent de Phily <moltonel@gmail.com> (2025-09-01)
 # Another package requiring Rust
 app-portage/emlop
 
@@ -34,6 +44,7 @@ dev-python/betterproto
 dev-python/pypi-attestations
 dev-python/securesystemslib
 dev-python/sigstore
+dev-python/sigstore-models
 dev-python/sigstore-protobuf-specs
 dev-python/sigstore-rekor-types
 dev-python/rfc3161-client
@@ -207,7 +218,6 @@ app-eselect/eselect-gnome-shell-extensions
 app-emacs/rg
 app-emacs/emacs-ipython-notebook
 app-crypt/yubikey-manager
-app-crypt/yubikey-manager-qt
 app-crypt/sequoia-sq
 app-crypt/sequoia-sqv
 app-crypt/certbot-apache
