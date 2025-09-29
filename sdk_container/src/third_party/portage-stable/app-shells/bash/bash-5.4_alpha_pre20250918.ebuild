@@ -15,7 +15,7 @@ MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 MY_PATCHES=()
 
-# Determine the patchlevel. See https://ftp.gnu.org/gnu/bash/bash-5.3-patches/.
+# Determine the patchlevel.
 case ${PV} in
 	9999|*_alpha*|*_beta*|*_rc*)
 		# Set a negative patchlevel to indicate that it's a pre-release.
@@ -46,7 +46,7 @@ elif (( PLEVEL < 0 )) && [[ ${PV} == *_p* ]] ; then
 	# the alpha, and the next pre-release is usually quite far away.
 	#
 	# i.e. if it's worth packaging the alpha, it's worth packaging a followup.
-	BASH_COMMIT="b35866a2891a9b069e37ca5684d4309c0391e261"
+	BASH_COMMIT="cf8a2518c8b94f75b330d398f5daa0ee21417e1b"
 	SRC_URI="https://git.savannah.gnu.org/cgit/bash.git/snapshot/bash-${BASH_COMMIT}.tar.gz -> ${P}-${BASH_COMMIT}.tar.gz"
 	S=${WORKDIR}/${PN}-${BASH_COMMIT}
 else
@@ -74,7 +74,7 @@ fi
 LICENSE="GPL-3+"
 SLOT="0"
 if (( PLEVEL >= 0 )); then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="afs bashlogger examples mem-scramble +net nls plugins pgo +readline"
 
@@ -101,8 +101,7 @@ PATCHES=(
 	#"${WORKDIR}"/${PN}-${GENTOO_PATCH_VER}/
 
 	# Patches to or from Chet, posted to the bug-bash mailing list.
-	"${FILESDIR}"/${PN}-5.0-syslog-history-extern.patch
-	"${FILESDIR}"/${PN}-5.3-read-sys.patch
+	"${FILESDIR}/${PN}-5.0-syslog-history-extern.patch"
 )
 
 pkg_setup() {
@@ -310,14 +309,14 @@ src_install() {
 
 	insinto /etc/bash
 	doins "${FILESDIR}"/bash_logout
-	my_prefixify bashrc.d "${FILESDIR}"/bashrc-r2 | newins - bashrc
+	my_prefixify bashrc.d "${FILESDIR}"/bashrc-r1 | newins - bashrc
 
 	insinto /etc/bash/bashrc.d
 	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color-r2.bash | newins - 10-gentoo-color.bash
 	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r2.bash 10-gentoo-title.bash
-
-	insinto /etc/profile.d
-	doins "${FILESDIR}/profile.d/00-prompt-command.sh"
+	if [[ ! ${EPREFIX} ]]; then
+		doins "${FILESDIR}"/bashrc.d/15-gentoo-bashrc-check.bash
+	fi
 
 	insinto /etc/skel
 	for f in bash{_logout,_profile,rc}; do
