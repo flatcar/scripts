@@ -40,10 +40,10 @@ def LoadPartitionConfig(options):
       '_comment', 'type', 'num', 'label', 'blocks', 'block_size', 'fs_blocks',
       'fs_block_size', 'fs_type', 'features', 'uuid', 'part_alignment', 'mount',
       'binds', 'fs_subvolume', 'fs_bytes_per_inode', 'fs_inode_size', 'fs_label',
-      'fs_compression'))
+      'fs_compression', 'extract_blocks'))
   integer_layout_keys = set((
       'blocks', 'block_size', 'fs_blocks', 'fs_block_size', 'part_alignment',
-      'fs_bytes_per_inode', 'fs_inode_size'))
+      'fs_bytes_per_inode', 'fs_inode_size', 'extract_blocks'))
   required_layout_keys = set(('type', 'num', 'label', 'blocks'))
 
   filename = options.disk_layout_file
@@ -136,6 +136,13 @@ def LoadPartitionConfig(options):
       part.setdefault('fs_block_size', metadata['fs_block_size'])
       part.setdefault('fs_blocks', part['bytes'] // part['fs_block_size'])
       part['fs_bytes'] = part['fs_blocks'] * part['fs_block_size']
+      # The partition may specify extract_blocks to limit what content gets
+      # extracted. The use case is the /usr partition where we can grow the
+      # partition but can't directly grow the filesystem and the update
+      # payload until all (or most) nodes are running the partition layout
+      # with the grown /usr partition (which can take a few years).
+      if part.get('extract_blocks', None):
+        part['extract_bytes'] = part['extract_blocks'] * metadata['block_size']
 
       if part['fs_bytes'] > part['bytes']:
         raise InvalidLayout(
@@ -823,6 +830,7 @@ def Extract(options):
   if not part['image_compat']:
     raise InvalidLayout("Disk layout is incompatible with existing image")
 
+  extract_size = part.get('extract_bytes', part['image_bytes'])
   subprocess.check_call(['dd',
                          'bs=10MB',
                          'iflag=count_bytes,skip_bytes',
@@ -831,7 +839,7 @@ def Extract(options):
                          'if=%s' % options.disk_image,
                          'of=%s' % options.output,
                          'skip=%s' % part['image_first_byte'],
-                         'count=%s' % part['image_bytes']])
+                         'count=%s' % extract_size])
 
 
 def GetPartitionByNumber(partitions, num):
