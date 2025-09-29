@@ -36,6 +36,55 @@
 
 #--- END OF EXAMPLES ---
 
+# Ionen Wolkens <ionen@gentoo.org> (2025-09-23)
+# Abandoned and barely functional, and will just keep getting worse if
+# it does not keep up with website changes. net-misc/youtube-viewer
+# can be used as an alternative albeit it requires a YouTube API key.
+# Removal on 2025-10-23.
+net-misc/ytfzf
+
+# Sam James <sam@gentoo.org> (2025-09-21)
+# Breaks (common) mt7921e WiFi driver with a hang in many cases, affecting
+# not just network. See bug #963106.
+=sys-kernel/linux-firmware-20250917
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-09-18)
+# No revdeps left, in-tree version is broken with cmake4, and is a pain
+# to maintain due to its overly custom cmake usage. Also outdated given
+# the latest version was unusable with its old revdep (been breaking API
+# somewhat often). Removal on 2025-10-18. Bug #963014
+dev-cpp/rapidyaml
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-09-16)
+# Appears dead upstream w/ last release from 2016, no reponse to Qt5 EOL
+# notice, only sporadic code changes for a long time w/ last commit from
+# 7 months ago. Removal on 2025-10-16. Bug #955964
+net-p2p/classified-ads
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-09-16)
+# Abandoned upstream, based on Qt5, "must be run as root", then fails to
+# start w/ current kde-plasma/kdesu-gui[X] within Wayland sessions too.
+# Removal on 2025-10-16. Bug #957179
+sys-boot/unetbootin
+
+# Viorel Munteanu <ceamac@gentoo.org> (2025-09-16)
+# Masked for testing.  This package is supposed to be installed in the livecd,
+# not on user's system.  We need a few more reports of it working before
+# unmasking.
+app-misc/calamares-gentoo-livecd
+
+# Viorel Munteanu <ceamac@gentoo.org> (2025-09-16)
+# Unmaintained upstream, last release more than 7 years old.
+# Old data is getting harder to read.
+# Alternatives: sys-fs/gocryptfs or rclone crypt.
+# Removal on 2025-12-16.  Bug #960358.
+sys-fs/encfs
+
+# Michał Górny <mgorny@gentoo.org> (2025-09-15)
+# Masking due to regressions.
+# https://github.com/pyparsing/pyparsing/issues/618
+=dev-python/pyparsing-3.2.4
+
 # Conrad Kostecki <conikost@gentoo.org> (2025-09-14)
 # Replaced by >=media-libs/libv4l-1.30.1[utils], as merged by upstream.
 # Bugs #953534 and #962841.
@@ -114,26 +163,12 @@ dev-libs/grantlee
 # Obsolete transitional meta package. Bug #961795. Removal on 2025-09-28.
 media-sound/pulseaudio
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-29)
-# More than a dozen pending bugs, still stuck on python3_11 and EAPI-7.
-# If you need this, raise your hand by fixing most of the bugs.
-# I guess dev-lang/swi-prolog would be the alternative to switch to.
-# Bugs #929405, #957228, #957433. Removal on 2025-09-28.
-dev-lang/yap
-
 # Arthur Zamarin <arthurzam@gentoo.org> (2025-08-29)
 # EAPI=7, maintainer-needed, gentoo last distro to package it. If you
 # really need this tool, you can use 'openssl dgst -md4 -provider legacy'
 # instead.
 # Removal on 2025-09-28.  Bugs #962124, #729162.
 app-crypt/md4sum
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-29)
-# A version bump pending since 2020, Qt5-based and stuck on EAPI-7.
-# This package needs a maintainer. Step up if you need this, try to make
-# sense of upstream's repositories and contact them about the need to port
-# to Qt6. Bugs #759976, #910052, #961794. Removal on 2025-09-28.
-app-text/djview
 
 # Mike Pagano <mpagano@gentoo.org> (2025-08-28)
 # Long unmaintained upstream (20+ years since last release).
@@ -154,71 +189,6 @@ dev-cpp/metslib
 # Removal on 2025-09-27.  Bug #962064.
 app-misc/glastree
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# EAPI-7 cmake.eclass straggler sci-libs/ libraries without revdeps.
-# If you need them, raise your hand by doing the necessary EAPI-8 porting.
-# Removal on 2025-09-26.
-sci-libs/clapack
-sci-libs/cminpack
-sci-libs/coinor-cppad
-sci-libs/exodusii
-sci-libs/fcl
-sci-libs/kim-api
-sci-libs/libccd
-sci-libs/neartree
-sci-libs/nemesis
-sci-libs/orocos_kdl
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# EAPI-7 cmake.eclass straggler dev-libs/ libraries without revdeps.
-# If you need them, raise your hand by doing the necessary EAPI-8 porting.
-# Bugs #957252, #957234. Removal on 2025-09-26.
-dev-libs/libdynd
-dev-libs/libflatarray
-dev-libs/redis-ipc
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# EAPI-7 cmake.eclass straggler libraries without revdeps.
-# If you need them, raise your hand by doing the necessary EAPI-8 porting.
-# Bugs #957225, #957238. Removal on 2025-09-26.
-dev-cpp/cpp-hocon
-dev-libs/leatherman
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# EAPI-7 cmake.eclass library without any revdeps.
-# Removal on 2025-09-26.
-dev-cpp/robin-hood-hashing
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# Only translation commits since 2020, still Qt5-based. Worse, packaged
-# version in Gentoo is from 2016, no one bothered to bump it since then.
-# Really needs a package maintainer while upstream is looking into Qt6.
-# Bug #955260. Removal on 2025-09-26.
-media-sound/fmit
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# Qt5 based, still EAPI-7, last commit in upstream repo 7 years ago.
-# Alternatives are games-emulation/mednafen or, from guru overlay,
-# games-emulation/RetroArch. Bugs #953641, #957257, #879693.
-# Removal on 2025-09-26.
-games-emulation/yabause
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# Qt5 based, last release >3 years ago and no commits since then.
-# Bug #953258. Removal on 2025-09-26
-x11-terms/cool-retro-term
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-27)
-# Qt5 based and still EAPI-7, last release from 2016, broken Qt6 "support"
-# in upstream repo. Needs someone to pick up the pieces of upstream's
-# porting effort. Bugs #953885, #955828, #957574. Removal on 2025-09-26.
-sci-calculators/speedcrunch
-
-# Arthur Zamarin <arthurzam@gentoo.org> (2025-08-22)
-# maintainer-needed, depends on Qt5, no upstream activity since 2017.
-# Removal on 2025-09-21.  Bugs #961889, #960823.
-x11-misc/fracplanet
-
 # James Le Cuirot <chewi@gentoo.org> (2025-08-21)
 # The required Direct3D 9 feature is being dropped from Mesa. Use DXVK or
 # WineD3D instead. Removal on 2025-09-21.
@@ -227,69 +197,6 @@ app-emulation/gallium-nine-standalone
 # Michał Górny <mgorny@gentoo.org> (2025-08-21)
 # Version yanked due to "unintended change in behavior".
 =dev-python/click-8.2.2
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-19)
-# x11-libs/gtkglext is finally without revdeps, tracker bug #698950
-# Removal on 2025-09-16
-x11-libs/gtkglext
-
-# Mario Haustein <mario.haustein@hrz.tu-chemnitz.de> (2025-08-18)
-# Deprecated by upstream, depends on Qt5. Use app-crypt/yubikey-manager
-# instead. Removal on 2025-09-16. Bug #955646
-sys-auth/yubikey-personalization-gui
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-18)
-# Unmaintained in Gentoo for a long time, resulting in a very outdated
-# package. Many bugs, selecting just #803635, #884609, #890762, #958160
-# Needs a dedicated maintainer. Removal on 2025-09-16.
-dev-db/percona-server
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-18)
-# Effectively unmaintained in Gentoo with many unattended bugs, still
-# EAPI-7 based, broken with non-ancient dev-games/ogre, broken with non-
-# ancient sci-libs/pcl. Bugs #729576, #796806, #834469.
-# Removal on 2025-09-16.
-sci-libs/ViSP
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# Dead upstream, based on Qt5, hardware obsolete. Removal on 2025-09-16.
-# Bugs #954122, #955638, #957411, #957589, #957590
-app-crypt/nitrokey-app
-app-crypt/libnitrokey
-dev-libs/cppcodec
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# Dead upstream for > 10 years. Only a snapshot could save this from
-# cleanup in 2018 for Qt5, but not this time (for Qt6). Bug #958435.
-# Removal on 2025-09-16.
-media-sound/qtagger
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# Unmaintained upstream with no prospect to port from Qt5 to Qt6.
-# Alternatives exist. Bug #961635. Removal on 2025-09-16.
-media-sound/coquillo
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# 1.2.3 is almost 10 years old, upstream repository archived, Qt5- and
-# EAPI-7 based. Bugs #832577, #830262, #846416 and finally #961631.
-# Removal on 2025-09-16.
-dev-util/qstlink2
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# Hopelessly outdated and unmaintained package in Gentoo, upstream still
-# Qt5- and EAPI-7 based, no revdeps. Bugs #729746, #729746
-# Removal on 2025-09-16.
-dev-util/sasm
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# Last release over 5 years ago, Qt5-based, no upstream reaction to Qt6
-# porting PR for more than 1.5 years. Bug #955208. Removal on 2025-09-16.
-sci-electronics/NanoVNA-QT
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-08-17)
-# Archived and unmaintained upstream, Qt5-based, build broken for >1 year.
-# Bugs #932756, #952103. Removal on 2025-09-16.
-app-crypt/yubikey-manager-qt
 
 # Hans de Graaff <graaff@gentoo.org> (2025-08-08)
 # ruby-openid fails tests and is archived upstream. Last release 6 years
@@ -372,6 +279,7 @@ virtual/perl-Unicode-Normalize
 # > Connecting to github.com|20.26.156.215|:443... connected.
 # > ERROR: cannot verify github.com's certificate, issued by 'CN=Sectigo ECC Domain Validation Secure Server CA,O=Sectigo Limited,L=Salford,ST=Greater Manchester,C=GB':
 # >  Unable to locally verify the issuer's authority.
+# See bug #963400.
 =app-misc/ca-certificates-20250419.3.112
 
 # Sam James <sam@gentoo.org> (2025-05-26)

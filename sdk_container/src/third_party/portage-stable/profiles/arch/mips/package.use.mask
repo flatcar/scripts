@@ -1,6 +1,10 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Philipp Rösner <rndxelement@protonmail.com> (2025-09-23)
+# media-libs/zxingcpp is not keyworded here
+app-text/mupdf barcode
+
 # Eli Schwartz <eschwartz@gentoo.org> (2025-09-05)
 # dev-python/sphinx-tabs is not keyworded.
 dev-python/anyio doc
@@ -174,7 +178,6 @@ app-crypt/pinentry efl
 app-text/doxygen gui
 dev-build/cmake gui
 dev-db/mysql cjk
-dev-db/percona-server cjk
 dev-libs/libisoburn frontend-optional
 dev-python/uvicorn test-rust
 dev-util/glade gjs
