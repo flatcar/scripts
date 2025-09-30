@@ -1,4 +1,4 @@
-From 4028416511d3e2b1ea8172efe3546b7c1c104a28 Mon Sep 17 00:00:00 2001
+From 4b757ed34995a4f8c6ac51523c2d46415b5d8f6c Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
@@ -13,7 +13,8 @@ Subject: [PATCH] Flatcar modifications
  policy/modules/services/container.te    | 170 +++++++++++++++++++++++-
  policy/modules/system/init.te           |   8 ++
  policy/modules/system/locallogin.te     |   9 +-
- 9 files changed, 418 insertions(+), 3 deletions(-)
+ policy/modules/system/systemd.fc        |  13 ++
+ 10 files changed, 431 insertions(+), 3 deletions(-)
 
 diff --git a/refpolicy/policy/modules/admin/netutils.te b/refpolicy/policy/modules/admin/netutils.te
 index ac11d1c99..c5501c28f 100644
@@ -547,6 +548,30 @@ index 89b852574..08b822fa4 100644
  allow local_login_t self:fd use;
  allow local_login_t self:fifo_file rw_fifo_file_perms;
  allow local_login_t self:sock_file read_sock_file_perms;
+diff --git a/refpolicy/policy/modules/system/systemd.fc b/refpolicy/policy/modules/system/systemd.fc
+index c648266c1..cdc258dc7 100644
+--- a/refpolicy/policy/modules/system/systemd.fc
++++ b/refpolicy/policy/modules/system/systemd.fc
+@@ -123,6 +123,19 @@ HOME_ROOT/.+\.home	--	gen_context(system_u:object_r:systemd_homed_storage_t,s0)
+ /run/systemd/seats(/.*)?	gen_context(system_u:object_r:systemd_sessions_runtime_t,s0)
+ /run/systemd/sessions(/.*)?	gen_context(system_u:object_r:systemd_sessions_runtime_t,s0)
+ /run/systemd/shutdown(/.*)?	gen_context(system_u:object_r:systemd_logind_runtime_t,s0)
++
++#
++# FLATCAR:
++#
++# This is to fix a label of a merged filesystem.
++#
++/run/systemd/sysext/meta/usr   -d      gen_context(system_u:object_r:usr_t,s0)
++/run/systemd/sysext/meta/opt   -d      gen_context(system_u:object_r:usr_t,s0)
++/run/systemd/sysext/usr        -d      gen_context(system_u:object_r:usr_t,s0)
++/run/systemd/sysext/opt        -d      gen_context(system_u:object_r:usr_t,s0)
++/var/lib/extensions.mutable/usr        -d      gen_context(system_u:object_r:usr_t,s0)
++/var/lib/extensions.mutable/opt        -d      gen_context(system_u:object_r:usr_t,s0)
++
+ /run/systemd/users(/.*)?	gen_context(system_u:object_r:systemd_logind_runtime_t,s0)
+ /run/systemd/userdb(/.*)?	gen_context(system_u:object_r:systemd_userdbd_runtime_t,s0)
+ /run/systemd/inhibit(/.*)?	gen_context(system_u:object_r:systemd_logind_inhibit_runtime_t,s0)
 -- 
 2.52.0
 
