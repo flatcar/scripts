@@ -93,10 +93,6 @@ INSTALL_MASK="
   /usr/share/portage/config/repos.conf
 "
 
-# Prevent binaries from being installed to rootfs from binary packages
-PKG_INSTALL_MASK="
-"
-
 # Keep the default languages small.
 # (not many things respect this though)
 LINGUAS="en"
