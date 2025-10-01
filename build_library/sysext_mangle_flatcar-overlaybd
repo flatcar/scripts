@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}"
+
+pushd ./usr/lib/systemd/system
+mkdir -p "multi-user.target.d"
+{ echo "[Unit]"; echo "Upholds=overlaybd-tcmu.service overlaybd-snapshotter.service"; } > "multi-user.target.d/10-overlaybd.conf"
+popd
