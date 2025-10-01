@@ -105,3 +105,6 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-fs/lxcfs-6.0.4 ~arm64
+
+# Bump systemd v257 from SDK to base.
+=sys-apps/systemd-257.7 ~amd64 ~arm64
