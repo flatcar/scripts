@@ -164,9 +164,20 @@ function copy_from_bincache_to_bucket() {
     local arch="${2}"
     local version="${3}"
 
+    echo "Experimental (i.e ignore if it fails) - copy the images to CloudFlare bucket"
+    (
+    set +eu
     rclone --config "${RCLONE_CONFIGURATION_FILE}" \
       sync \
-      --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}/${version}"
+      --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}"
+    # Exit the function cleanly for now:
+    true
+    )
+    # Note: There is no "current" symlink and when switching the release to current we
+    # could at a later stage (when the update payloads are selected in Nebraska) either
+    # use folder copies where we delete the old "current" folder first, or we could
+    # use a clever Caddy redirect to make "current" point to the wanted version for
+    # each channel.
 }
 
 function publish_sdk() {
@@ -206,6 +217,8 @@ function _release_build_impl() {
     local vernum="${FLATCAR_VERSION}"
     local docker_vernum=""
     docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+    local channel=
+    channel="$(get_git_channel)"
 
     local container_name="flatcar-publish-${docker_vernum}"
     local mantle_ref
@@ -222,6 +235,7 @@ function _release_build_impl() {
       create_digests "${SIGNER}" "aws-${arch}/flatcar_production_ami_"*txt "aws-${arch}/flatcar_production_ami_"*json
       sign_artifacts "${SIGNER}" "aws-${arch}/flatcar_production_ami_"*txt "aws-${arch}/flatcar_production_ami_"*json
       copy_to_buildcache "images/${arch}/${vernum}/" "aws-${arch}/flatcar_production_ami_"*txt* "aws-${arch}/flatcar_production_ami_"*json*
+      copy_from_bincache_to_bucket "${channel}" "${arch}" "${vernum}"
     done
     if [ "${vernum}" = "${sdk_version}" ]; then
       publish_sdk "${docker_sdk_vernum}"
@@ -230,9 +244,6 @@ function _release_build_impl() {
     echo "Done, now you can copy the images to Origin"
     echo "===="
 
-    echo "Experimental (i.e ignore if it fails) - copy the images to CloudFlare bucket for Alpha channel"
-    [[ "${CHANNEL}" != "alpha" ]] && exit 0
-    copy_from_bincache_to_bucket "${CHANNEL}" "${arch}" "${vernum}"
 
     # Future: trigger copy to Origin in a secure way
     # Future: trigger update payload signing
