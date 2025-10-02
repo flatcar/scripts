@@ -1,0 +1,1 @@
+- open-iscsi ([2.1.11](https://raw.githubusercontent.com/open-iscsi/open-iscsi/refs/tags/2.1.11/Changelog))
