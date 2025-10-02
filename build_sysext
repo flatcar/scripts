@@ -158,6 +158,7 @@ cleanup() {
     "${BUILD_DIR}/img-rootfs"
     "${BUILD_DIR}/selinux-root"
     "${BUILD_DIR}/selinux-root-workdir"
+    "${BUILD_DIR}/install-root"
   )
   umount "${dirs[@]}" 2>/dev/null || true
   rm -rf "${dirs[@]}" || true
