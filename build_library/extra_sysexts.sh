@@ -9,6 +9,7 @@ EXTRA_SYSEXTS=(
   "nvidia-drivers-570-open|x11-drivers/nvidia-drivers:0/570|kernel-open persistenced|amd64"
   "podman|app-containers/podman,net-misc/passt"
   "python|dev-lang/python,dev-python/pip"
+  "tools|app-editors/vim"
   "zfs|sys-fs/zfs"
 )
 
