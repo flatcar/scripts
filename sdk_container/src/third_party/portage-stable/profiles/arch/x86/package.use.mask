@@ -1,6 +1,24 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (2025-10-03)
+# Now keyworded on x86 too.
+sci-libs/flexiblas -system-blas
+sci-libs/lapack -flexiblas
+virtual/blas -flexiblas
+virtual/cblas -flexiblas
+virtual/lapack -flexiblas
+virtual/lapacke -flexiblas
+
+# Cristian Othón Martínez Vera <cfuga@cfuga.mx> (2025-10-02)
+# Michael Palimaka <kensington@gentoo.org> (2018-10-12)
+# Unmask arch-specific USE flag available on x86
+<net-analyzer/testssl-3.1 -bundled-openssl
+
+# Nicolas PARLANT <nicolas.parlant@parhuet.fr> (2025-09-20)
+# Require dev-libs/libtsm, keyworded here
+>=media-gfx/fbida-2.14_p20241216 -fbcon
+
 # Michał Górny <mgorny@gentoo.org> (2025-09-12)
 # These BLAS/LAPACK providers are keyworded here.
 sci-libs/flexiblas -blis -openblas
@@ -373,10 +391,6 @@ app-admin/conserver -freeipmi
 # Requires dev-db/mongodb which has dropped x86 support
 dev-php/pecl-mongodb test
 
-# Michael Palimaka <kensington@gentoo.org> (2018-10-12)
-# Unmask arch-specific USE flag available on x86
-net-analyzer/testssl -bundled-openssl
-
 # Jan Ziak <0xe2.0x9a.0x9b@gmail.com> (2018-03-14)
 # Expose SVGA backend for x86 users
 app-emulation/fuse -backend-svga
@@ -435,7 +449,6 @@ app-metrics/collectd -collectd_plugins_mqtt
 # Thomas Deutschmann <whissi@gentoo.org> (2016-08-26)
 # Enable numa support on supported architectures
 dev-db/mysql -numa
-dev-db/percona-server -numa
 
 # Brian Evans <grknight@gentoo.org> (2016-08-18)
 # Allow jdbc on this arch
