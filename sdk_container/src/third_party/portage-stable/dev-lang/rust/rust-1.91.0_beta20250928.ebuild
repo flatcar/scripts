@@ -3,7 +3,7 @@
 
 EAPI=8
 
-LLVM_COMPAT=( 20 )
+LLVM_COMPAT=( 21 )
 PYTHON_COMPAT=( python3_{11..14} )
 
 RUST_PATCH_VER=${PVR}
@@ -42,7 +42,7 @@ else
 		verify-sig? ( https://static.rust-lang.org/dist/${MY_P}-src.tar.xz.asc )
 	"
 	S="${WORKDIR}/${MY_P}-src"
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 DESCRIPTION="Systems programming language originally developed by Mozilla"
@@ -724,7 +724,7 @@ src_install() {
 
 	# bug #689562, #689160
 	rm -v "${ED}/usr/lib/${PN}/${SLOT}/etc/bash_completion.d/cargo" || die
-	rmdir -v "${ED}/usr/lib/${PN}/${SLOT}"/etc{/bash_completion.d,} || die
+	rmdir -v "${ED}/usr/lib/${PN}/${SLOT}"/etc/bash_completion.d || die
 
 	local symlinks=(
 		cargo
