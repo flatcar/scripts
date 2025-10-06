@@ -36,6 +36,7 @@ SLOT="0"
 IUSE="nls +standalone static"
 
 RDEPEND="
+	|| ( app-doc/info-manual >=app-editors/emacs-26:* )
 	>=sys-libs/ncurses-5.2-r2:=
 	standalone? ( >=dev-lang/perl-5.8.1 )
 	!standalone?  (
