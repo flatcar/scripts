@@ -9,6 +9,7 @@ EXTRA_SYSEXTS=(
   "overlaybd|sys-fs/overlaybd,app-containers/accelerated-container-image"
   "podman|app-containers/podman,net-misc/passt"
   "python|dev-lang/python,dev-python/pip"
+  "selinux|sys-apps/policycoreutils,app-admin/setools"
   "zfs|sys-fs/zfs"
 )
 
