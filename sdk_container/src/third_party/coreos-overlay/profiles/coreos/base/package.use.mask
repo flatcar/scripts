@@ -10,13 +10,6 @@ sys-boot/syslinux perl
 # not needed, problems building with GCC 7.3.0
 sys-libs/ncurses cxx
 
-# app-editors/nano with `USE=unicode` results in build failures in SDK
-# stage1, because ncurses >= 6.2_p20210619 which does not have the USE
-# flag at all.
-# To fix that, exclude the unicode USE flag from packages.use.force list,
-# which is defined in portage-stable.
-app-editors/nano unicode
-
 # Pulls dev-python/sphinx, which in turn pulls a lot of other python stuff.
 sys-fs/btrfs-progs man
 
