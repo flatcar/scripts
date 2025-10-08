@@ -1,0 +1,1 @@
+- Fixed the QEMU launcher script to include HVF acceleration on arm64-based Macs for faster performance ([Flatcar#1901](https://github.com/flatcar/Flatcar/issues/1901))
