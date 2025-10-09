@@ -582,6 +582,8 @@ finish_image() {
   local image_initrd_contents="${11}"
   local image_initrd_contents_wtd="${12}"
   local image_disk_space_usage="${13}"
+  local image_realinitrd_contents="${14}"
+  local image_realinitrd_contents_wtd="${15}"
 
   local install_grub=0
   local disk_img="${BUILD_DIR}/${image_name}"
@@ -876,6 +878,20 @@ EOF
       fi
       rm -rf "${BUILD_DIR}/tmp_initrd_contents"
   fi
+
+  if [[ -n ${image_realinitrd_contents} || -n ${image_realinitrd_contents_wtd} ]]; then
+        mkdir -p "${BUILD_DIR}/tmp_initrd_contents"
+        sudo mount "${root_fs_dir}/usr/lib/flatcar/bootengine.img" "${BUILD_DIR}/tmp_initrd_contents"
+        if [[ -n ${image_realinitrd_contents} ]]; then
+            write_contents "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_realinitrd_contents}"
+        fi
+
+        if [[ -n ${image_realinitrd_contents_wtd} ]]; then
+            write_contents_with_technical_details "${BUILD_DIR}/tmp_initrd_contents" "${BUILD_DIR}/${image_realinitrd_contents_wtd}"
+        fi
+        sudo umount "${BUILD_DIR}/tmp_initrd_contents"
+        rm -rf "${BUILD_DIR}/tmp_initrd_contents"
+    fi
 
   if [[ -n "${image_disk_space_usage}" ]]; then
       write_disk_space_usage "${root_fs_dir}" "${BUILD_DIR}/${image_disk_space_usage}"
