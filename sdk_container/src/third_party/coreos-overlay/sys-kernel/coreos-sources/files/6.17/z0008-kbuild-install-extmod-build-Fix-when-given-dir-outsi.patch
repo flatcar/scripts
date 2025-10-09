@@ -1,0 +1,34 @@
+From 1f3c6658098ad3016c27e3842005150e44e3617c Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Wed, 15 Oct 2025 23:20:32 +0100
+Subject: [PATCH 8/8] kbuild: install-extmod-build: Fix when given dir outside
+ the build dir
+
+Commit b5e395653546 ("kbuild: install-extmod-build: Fix build when
+specifying KBUILD_OUTPUT") tried to address the "build" variable
+expecting a relative path by using `realpath --relative-base=.`, but
+this only works when the given directory is below the current directory.
+`realpath --relative-to=.` will return a relative path in all cases.
+
+Fixes: b5e395653546 ("kbuild: install-extmod-build: Fix build when specifying KBUILD_OUTPUT")
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+---
+ scripts/package/install-extmod-build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/package/install-extmod-build b/scripts/package/install-extmod-build
+index b96538787f3d..054fdf45cc37 100755
+--- a/scripts/package/install-extmod-build
++++ b/scripts/package/install-extmod-build
+@@ -63,7 +63,7 @@ if [ "${CC}" != "${HOSTCC}" ]; then
+ 	# Clear VPATH and srcroot because the source files reside in the output
+ 	# directory.
+ 	# shellcheck disable=SC2016 # $(MAKE) and $(build) will be expanded by Make
+-	"${MAKE}" run-command KBUILD_RUN_COMMAND='+$(MAKE) HOSTCC='"${CC}"' VPATH= srcroot=. $(build)='"$(realpath --relative-base=. "${destdir}")"/scripts
++	"${MAKE}" run-command KBUILD_RUN_COMMAND='+$(MAKE) HOSTCC='"${CC}"' VPATH= srcroot=. $(build)='"$(realpath --relative-to=. "${destdir}")"/scripts
+ 
+ 	rm -f "${destdir}/scripts/Kbuild"
+ fi
+-- 
+2.51.0
+
