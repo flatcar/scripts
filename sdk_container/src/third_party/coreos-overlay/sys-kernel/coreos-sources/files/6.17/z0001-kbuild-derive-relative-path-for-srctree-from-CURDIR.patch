@@ -1,0 +1,33 @@
+From a227e1105bcb7444f4b01a36b4164667cadde7bf Mon Sep 17 00:00:00 2001
+From: Vito Caputo <vito.caputo@coreos.com>
+Date: Wed, 25 Nov 2015 02:59:45 -0800
+Subject: [PATCH 1/8] kbuild: derive relative path for srctree from CURDIR
+
+This enables relocating source and build trees to different roots,
+provided they stay reachable relative to one another.  Useful for
+builds done within a sandbox where the eventual root is prefixed
+by some undesirable path component.
+---
+ Makefile | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 389bfac0adaa..aa948c41c105 100644
+--- a/Makefile
++++ b/Makefile
+@@ -272,7 +272,11 @@ else ifeq ($(srcroot)/,$(dir $(CURDIR)))
+     srcroot := ..
+ endif
+ 
+-export srctree := $(if $(KBUILD_EXTMOD),$(abs_srctree),$(srcroot))
++ifneq ($(KBUILD_OUTPUT),)
++    export srctree := $(shell realpath --relative-to=$(KBUILD_OUTPUT) $(abs_srctree))
++else
++    export srctree := $(if $(KBUILD_EXTMOD),$(abs_srctree),$(srcroot))
++endif
+ 
+ ifdef building_out_of_srctree
+ export VPATH := $(srcroot)
+-- 
+2.51.0
+
