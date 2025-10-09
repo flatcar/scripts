@@ -142,7 +142,7 @@ _get_sysext_arch() {
 }
 
 if [[ ${FLAGS_install_root_basename} = */* || ${FLAGS_install_root_basename} = . || ${FLAGS_install_root_basename} = .. ]]; then
-    die "Just use a normal install root basename instead of ${FLAGS_install_root_basename@Q}, will ya?!"
+    die "Just use a normal install root basename like 'my-best-rootfs-with-no-slashes' instead of ${FLAGS_install_root_basename@Q}, will ya?!"
 fi
 
 # Put the custom install root directory inside the install-root
