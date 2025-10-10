@@ -156,7 +156,7 @@ src_prepare() {
 
 	# Fail if any firmware is missing.
 	einfo "Scanning for files required by ${KV_FULL}"
-	echo -n > "${T}/firmware-scan"
+	echo "# Remove files that shall not be installed from this list." > ${PN}.conf
 	local kofile fwfile failed
 	for kofile in $(find "${kernel_mods}" -name '*.ko' -o -name '*.ko.xz'); do
 		for fwfile in $(modinfo --field firmware "${kofile}"); do
@@ -164,10 +164,9 @@ src_prepare() {
 				eerror "Missing firmware: ${fwfile} (${kofile##*/})"
 				failed=1
 			elif [[ -L "${fwfile}" ]]; then
-				echo "${fwfile}" >> "${T}/firmware-scan"
-				realpath --relative-to=. "${fwfile}" >> "${T}/firmware-scan"
+				printf "%s\n" "${fwfile}" "$(realpath --relative-to=. "${fwfile}")" >> ${PN}.conf
 			else
-				echo "${fwfile}" >> "${T}/firmware-scan"
+				printf "%s\n" "${fwfile}" >> ${PN}.conf
 			fi
 		done
 	done
@@ -177,19 +176,12 @@ src_prepare() {
 
 	# AMD's microcode is shipped as part of coreos-firmware, but not a dependency to
 	# any module, so add it manually
-	use amd64 && find amd-ucode/ -type f -not -name "*.asc" >> "${T}/firmware-scan"
+	use amd64 && find amd-ucode/ -type f -not -name "*.asc" >> ${PN}.conf
 
 	einfo "Pruning all unneeded firmware files..."
-	sort -u "${T}/firmware-scan" > "${T}/firmware"
-	find * -not -type d \
-		| sort "${T}/firmware" "${T}/firmware" - \
-		| uniq -u | xargs -r rm
-	find * -type f -name "* *" -exec rm -f {} \;
+	find * -not -type d -not -name ${PN}.conf -print0 | grep -Fzxvf ${PN}.conf | xargs -r0 rm -v
 
 	default
-
-	echo "# Remove files that shall not be installed from this list." > ${PN}.conf
-	find * \( \! -type d -and \! -name ${PN}.conf \) >> ${PN}.conf
 
 	# whitelist of misc files
 	local misc_files=(
@@ -318,7 +310,7 @@ src_prepare() {
 	if use !unknown-license; then
 		einfo "Removing files with unknown license ..."
 		# Flatcar: do not die even if no such license file is there.
-		rm -v "${unknown_license[@]}"
+		rm -vf "${unknown_license[@]}"
 	fi
 
 	if use !redistributable; then
