@@ -13,7 +13,7 @@
         "label":"EFI-SYSTEM",
         "fs_label":"EFI-SYSTEM",
         "type":"efi",
-        "blocks":"262144",
+        "blocks":"2097152",
         "fs_type":"vfat",
         "mount":"/boot",
         "features": []
@@ -27,7 +27,8 @@
         "label":"USR-A",
         "uuid":"7130c94a-213a-4e5a-8e26-6cce9662f132",
         "type":"flatcar-rootfs",
-        "blocks":"2097152",
+        "blocks":"4194304",
+        "extract_blocks":"2097152",
         "fs_blocks":"260094",
         "fs_type":"btrfs",
         "fs_compression":"zstd",
@@ -38,7 +39,8 @@
         "label":"USR-B",
         "uuid":"e03dd35c-7c2d-4a47-b3fe-27f15780a57c",
         "type":"flatcar-rootfs",
-        "blocks":"2097152",
+        "blocks":"4194304",
+        "extract_blocks":"2097152",
         "fs_blocks":"262144"
       },
       "5":{
@@ -51,7 +53,7 @@
         "label":"OEM",
         "fs_label":"OEM",
         "type":"data",
-        "blocks":"262144",
+        "blocks":"2097152",
         "fs_type":"btrfs",
         "fs_compression":"zlib",
         "mount":"/oem"
@@ -70,7 +72,7 @@
         "label":"ROOT",
         "fs_label":"ROOT",
         "type":"flatcar-resize",
-        "blocks":"4427776",
+        "blocks":"3653632",
         "fs_type":"ext4",
         "mount":"/"
       }

@@ -1,0 +1,1 @@
+- Increased all partition sizes: `/boot` to 1 GB, the two `/usr` partitions to 2 GB, `/oem` to 1 GB so that we can use more space in a few years when we can assume that most nodes run the new partition layout - existing nodes can still update for the next years ([scripts#3027](https://github.com/flatcar/scripts/pull/3027))

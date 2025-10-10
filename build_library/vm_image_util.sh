@@ -224,9 +224,11 @@ IMG_ami_vmdk_DISK_FORMAT=vmdk_stream
 IMG_ami_vmdk_OEM_USE=ami
 IMG_ami_vmdk_OEM_PACKAGE=common-oem-files
 IMG_ami_vmdk_SYSEXT=oem-ami
+IMG_ami_vmdk_DISK_LAYOUT=vm
 IMG_ami_OEM_USE=ami
 IMG_ami_OEM_PACKAGE=common-oem-files
 IMG_ami_OEM_SYSEXT=oem-ami
+IMG_ami_DISK_LAYOUT=vm
 
 ## openstack
 IMG_openstack_DISK_FORMAT=qcow2
@@ -342,6 +344,7 @@ IMG_kubevirt_OEM_SYSEXT=oem-kubevirt
 IMG_kubevirt_DISK_EXTENSION=qcow2
 
 ## akamai (Linode)
+IMG_akamai_DISK_LAYOUT=vm
 IMG_akamai_OEM_PACKAGE=common-oem-files
 IMG_akamai_OEM_USE=akamai
 IMG_akamai_OEM_SYSEXT=oem-akamai
