@@ -90,3 +90,7 @@
 
 # Keep versions on both arches in sync.
 =sys-process/audit-4.0.2-r1 ~arm64
+
+# Needed for Linux 6.17.
+=sys-fs/zfs-2.4* **
+=sys-fs/zfs-kmod-2.4* **
