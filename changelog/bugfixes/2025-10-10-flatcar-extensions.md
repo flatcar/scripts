@@ -1,0 +1,1 @@
+- Fixed that the needed Flatcar extensions don't get removed on update which caused a re-download ([update_engine#51](https://github.com/flatcar/update_engine/pull/51))
