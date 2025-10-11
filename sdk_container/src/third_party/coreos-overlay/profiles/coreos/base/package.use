@@ -158,6 +158,7 @@ sys-fs/zfs minimal -rootfs
 
 # Do not tinker with /boot partition at installation time.
 sys-fs/zfs-kmod -initramfs
+sys-kernel/coreos-firmware -initramfs
 
 # Only needed for direct loading by the kernel, which is dangerous, and we
 # include all the microcode in the initrd anyway.
