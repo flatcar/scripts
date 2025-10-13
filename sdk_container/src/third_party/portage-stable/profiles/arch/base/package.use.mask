@@ -1,6 +1,16 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (2025-09-28)
+# Masked until sci-libs/flexiblas and sci-libs/blas-lapack-aux-wrappers
+# are keyworded everywhere.  And for some more testing.
+sci-libs/flexiblas system-blas
+sci-libs/lapack flexiblas
+virtual/blas flexiblas
+virtual/cblas flexiblas
+virtual/lapack flexiblas
+virtual/lapacke flexiblas
+
 # Sasha Finkelstein <fnkl.kernel@gmail.com> (2025-09-17)
 # Arm64-specific ABI that does not make sense anywhere else
 app-emulation/wine-proton arm64ec
@@ -155,12 +165,6 @@ sys-kernel/installkernel grub
 # Michał Górny <mgorny@gentoo.org> (2023-12-31)
 # Requires dev-libs/level-zero.
 dev-lang/ispc gpu
-
-# Nowa Ammerlaan <nowa@gentoo.org> (2023-12-18)
-# Experimental and only available on a subset of architectures
-sys-kernel/gentoo-kernel generic-uki
-sys-kernel/gentoo-kernel-bin generic-uki
-sys-kernel/vanilla-kernel generic-uki
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-12-02)
 # dev-qt/qtwebengine:6 and dev-qt/qtremoteobjects:6 have few keywords.
