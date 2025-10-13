@@ -83,7 +83,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-9.6_p1-fix-xmss-c99.patch"
 	"${FILESDIR}/${PN}-9.7_p1-config-tweaks.patch"
 	# Backports from upstream release branch
-	#"${FILESDIR}/${PV}"
+	"${FILESDIR}/${PV}"
 	# Our own backports
 	"${FILESDIR}/${PN}-9.9_p1-x-forwarding-slow.patch"
 )
