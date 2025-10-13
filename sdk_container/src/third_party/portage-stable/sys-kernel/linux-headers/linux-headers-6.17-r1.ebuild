@@ -9,7 +9,7 @@ inherit kernel-2
 detect_version
 
 PATCH_PV=${PV} # to ease testing new versions against not existing patches
-PATCH_VER="1"
+PATCH_VER="2"
 PATCH_DEV="sam"
 SRC_URI="
 	${KERNEL_URI}
@@ -17,7 +17,7 @@ SRC_URI="
 "
 S="${WORKDIR}/linux-${PV}"
 
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 
 BDEPEND="
 	app-arch/xz-utils
