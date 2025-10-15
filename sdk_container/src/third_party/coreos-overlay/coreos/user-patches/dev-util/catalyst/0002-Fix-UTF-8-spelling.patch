@@ -1,0 +1,41 @@
+From 8f3dad52ef6b7360f69f93554172d76aa5d59d8a Mon Sep 17 00:00:00 2001
+From: Sam James <sam@gentoo.org>
+Date: Mon, 15 Sep 2025 12:35:43 +0100
+Subject: [PATCH 2/2] Fix UTF-8 spelling
+
+Bug: https://bugs.gentoo.org/962878
+Signed-off-by: Sam James <sam@gentoo.org>
+---
+ catalyst/base/stagebase.py | 2 +-
+ targets/stage1/chroot.sh   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/catalyst/base/stagebase.py b/catalyst/base/stagebase.py
+index 8a3d2af6..d09b3aad 100644
+--- a/catalyst/base/stagebase.py
++++ b/catalyst/base/stagebase.py
+@@ -1252,7 +1252,7 @@ class StageBase(TargetBase, ClearBase, GenBase):
+                 '\n'
+                 '# This sets the language of build output to English.\n'
+                 '# Please keep this setting intact when reporting bugs.\n'
+-                'LC_MESSAGES=C.utf8\n')
++                'LC_MESSAGES=C.UTF-8\n')
+ 
+     def write_binrepos_conf(self):
+         # only if catalyst.conf defines the host and the spec defines the path...
+diff --git a/targets/stage1/chroot.sh b/targets/stage1/chroot.sh
+index 541c060f..dc8571bd 100755
+--- a/targets/stage1/chroot.sh
++++ b/targets/stage1/chroot.sh
+@@ -67,7 +67,7 @@ sed -i "/USE=\"${USE} build\"/d" ${clst_make_conf}
+ 
+ echo "$locales" > /etc/locale.gen
+ for etc in /etc "$ROOT"/etc; do
+-	echo "LANG=C.UTF8" > ${etc}/env.d/02locale
++	echo "LANG=C.UTF-8" > ${etc}/env.d/02locale
+ done
+ update_env_settings
+ 
+-- 
+2.51.0
+
