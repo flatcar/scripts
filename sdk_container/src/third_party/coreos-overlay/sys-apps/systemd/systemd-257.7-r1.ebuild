@@ -1,4 +1,4 @@
-# Copyright 2011-2024 Gentoo Authors
+# Copyright 2011-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -21,7 +21,7 @@ else
 
 	if [[ ${PV} != *rc* ]] ; then
 		# Flatcar: mark as stable
-		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	fi
 fi
 
@@ -256,18 +256,15 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-test-process-util.patch"
-		"${FILESDIR}/256-bpf-gcc.patch"
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
 		"${FILESDIR}/0003-needs-update-don-t-require-strictly-newer-usr.patch"
 		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
 		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
-		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
+		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin-257.patch"
 		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
 		"${FILESDIR}/0009-initrd-parse-etc.service.patch"
-		"${FILESDIR}/0010-network-netdev-also-check-ifindex-iftype-and-kind-wh.patch"
-		"${FILESDIR}/0011-network-also-check-ID_NET_MANAGED_BY-property-on-rec.patch"
+		"${FILESDIR}/0012-units-allow-mount-syscalls-for-systemd-udevd.patch"
 	)
 
 	if ! use vanilla; then
@@ -342,45 +339,45 @@ multilib_src_configure() {
 		-Ddebug-shell="${EPREFIX}/bin/sh"
 		-Ddefault-user-shell="${EPREFIX}/bin/bash"
 		# Optional components/dependencies
-		$(meson_native_use_bool acl)
-		$(meson_native_use_bool apparmor)
-		$(meson_native_use_bool audit)
-		$(meson_native_use_bool boot bootloader)
-		$(meson_native_use_bool bpf bpf-framework)
+		$(meson_native_use_feature acl)
+		$(meson_native_use_feature apparmor)
+		$(meson_native_use_feature audit)
+		$(meson_native_use_feature boot bootloader)
+		$(meson_native_use_feature bpf bpf-framework)
 		-Dbpf-compiler=gcc
-		$(meson_native_use_bool cryptsetup libcryptsetup)
-		$(meson_native_use_bool curl libcurl)
+		$(meson_native_use_feature cryptsetup libcryptsetup)
+		$(meson_native_use_feature curl libcurl)
 		$(meson_native_use_bool dns-over-tls dns-over-tls)
-		$(meson_native_use_bool elfutils)
-		$(meson_native_use_bool fido2 libfido2)
-		$(meson_use gcrypt)
-		$(meson_native_use_bool gnutls)
-		$(meson_native_use_bool homed)
-		$(meson_native_use_bool http microhttpd)
+		$(meson_native_use_feature elfutils)
+		$(meson_native_use_feature fido2 libfido2)
+		$(meson_feature gcrypt)
+		$(meson_native_use_feature gnutls)
+		$(meson_native_use_feature homed)
+		$(meson_native_use_feature http microhttpd)
 		$(meson_native_use_bool idn)
-		$(meson_native_use_bool importd)
-		$(meson_native_use_bool importd bzip2)
-		$(meson_native_use_bool importd zlib)
+		$(meson_native_use_feature importd)
+		$(meson_native_use_feature importd bzip2)
+		$(meson_native_use_feature importd zlib)
 		$(meson_native_use_bool kernel-install)
-		$(meson_native_use_bool kmod)
-		$(meson_use lz4)
-		$(meson_use lzma xz)
+		$(meson_native_use_feature kmod)
+		$(meson_feature lz4)
+		$(meson_feature lzma xz)
 		$(meson_use test tests)
-		$(meson_use zstd)
-		$(meson_native_use_bool iptables libiptc)
-		$(meson_native_use_bool openssl)
-		$(meson_use pam)
-		$(meson_native_use_bool pkcs11 p11kit)
-		$(meson_native_use_bool pcre pcre2)
-		$(meson_native_use_bool policykit polkit)
-		$(meson_native_use_bool pwquality)
-		$(meson_native_use_bool qrcode qrencode)
-		$(meson_native_use_bool seccomp)
-		$(meson_native_use_bool selinux)
-		$(meson_native_use_bool tpm tpm2)
-		$(meson_native_use_bool test dbus)
-		$(meson_native_use_bool ukify)
-		$(meson_native_use_bool xkb xkbcommon)
+		$(meson_feature zstd)
+		$(meson_native_use_feature iptables libiptc)
+		$(meson_native_use_feature openssl)
+		$(meson_feature pam)
+		$(meson_native_use_feature pkcs11 p11kit)
+		$(meson_native_use_feature pcre pcre2)
+		$(meson_native_use_feature policykit polkit)
+		$(meson_native_use_feature pwquality)
+		$(meson_native_use_feature qrcode qrencode)
+		$(meson_native_use_feature seccomp)
+		$(meson_native_use_feature selinux)
+		$(meson_native_use_feature tpm tpm2)
+		$(meson_native_use_feature test dbus)
+		$(meson_native_use_feature ukify)
+		$(meson_native_use_feature xkb xkbcommon)
 		# Flatcar: Use our ntp servers.
 		-Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
 		# Breaks screen, tmux, etc.
@@ -398,7 +395,7 @@ multilib_src_configure() {
 		$(meson_native_true hostnamed)
 		$(meson_native_true ldconfig)
 		$(meson_native_true localed)
-		$(meson_native_true man)
+		$(meson_native_enabled man)
 		$(meson_native_true networkd)
 		$(meson_native_true quotacheck)
 		$(meson_native_true randomseed)
@@ -448,7 +445,7 @@ multilib_src_configure() {
 	)
 
 	case $(tc-arch) in
-		amd64|arm|arm64|ppc|ppc64|s390|x86)
+		amd64|arm|arm64|loong|ppc|ppc64|riscv|s390|x86)
 			# src/vmspawn/vmspawn-util.h: QEMU_MACHINE_TYPE
 			myconf+=( $(meson_native_enabled vmspawn) ) ;;
 		*)
