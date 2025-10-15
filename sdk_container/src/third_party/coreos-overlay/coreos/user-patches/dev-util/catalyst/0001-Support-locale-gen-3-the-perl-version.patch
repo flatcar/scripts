@@ -1,0 +1,47 @@
+From 2478055bf48a54c0fcb518bbd48a30b307db0009 Mon Sep 17 00:00:00 2001
+From: Kerin Millar <kfm@plushkava.net>
+Date: Mon, 18 Aug 2025 14:25:20 +0200
+Subject: [PATCH 1/2] Support locale-gen-3 (the perl version)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas K. Hüttel <dilfridge@gentoo.org>
+---
+ targets/stage1/chroot.sh            | 6 +++++-
+ targets/support/chroot-functions.sh | 2 +-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/targets/stage1/chroot.sh b/targets/stage1/chroot.sh
+index e0587b59..541c060f 100755
+--- a/targets/stage1/chroot.sh
++++ b/targets/stage1/chroot.sh
+@@ -91,7 +91,11 @@ run_merge --implicit-system-deps=n --oneshot "${buildpkgs[@]}"
+ # not run locale-gen when ROOT is set. Since we've set LANG, we need to run
+ # locale-gen explicitly.
+ if [ -x "$(command -v locale-gen)" ]; then
+-	locale-gen --destdir "$ROOT"/ || die "locale-gen failed"
++	if ! locale-gen -V | grep -q '^locale-gen-2\.'; then
++		locale-gen --config /etc/locale.gen --prefix "$ROOT"/
++	else
++		locale-gen --destdir "$ROOT"/
++	fi || die "locale-gen failed"
+ fi
+ 
+ # Why are we removing these? Don't we need them for final make.conf?
+diff --git a/targets/support/chroot-functions.sh b/targets/support/chroot-functions.sh
+index d8472d46..08738d0a 100755
+--- a/targets/support/chroot-functions.sh
++++ b/targets/support/chroot-functions.sh
+@@ -284,7 +284,7 @@ show_debug() {
+ }
+ 
+ readonly locales="
+-C.UTF8 UTF-8
++C.UTF-8 UTF-8
+ "
+ 
+ if [[ ${RUN_DEFAULT_FUNCS} != no ]]
+-- 
+2.51.0
+

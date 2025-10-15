@@ -20,9 +20,3 @@
 
 # Pulls in LLVM and clang.
 >=sys-block/thin-provisioning-tools-1.0.14
-
-# Too large to fit into our /boot partition - the size grew by 3MB. We
-# mask a specific version in hope that the future update may be smaller,
-# who knows.
-=sys-firmware/intel-microcode-20250512_p20250513
-=sys-firmware/intel-microcode-20250812_p20250813
