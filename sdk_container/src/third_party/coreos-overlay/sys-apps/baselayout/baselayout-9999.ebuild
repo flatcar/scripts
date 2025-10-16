@@ -8,7 +8,7 @@ if [[ "${PV}" == 9999 ]]; then
 	inherit git-r3
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="79d3a0c3595dbbea207592dbd9fc2156349764f2" # flatcar-master
+	EGIT_COMMIT="ffce3a727a152a5f627063325acda62ba3c9463f" # flatcar-master
 	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
 	KEYWORDS="amd64 arm64"
@@ -47,12 +47,6 @@ src_prepare() {
 	else
 		# Don't install /etc/issue since it is handled by coreos-init right now
 		rm -f lib/tmpfiles.d/baselayout-etc-issue.conf || die
-	fi
-
-	# sssd not yet building on arm64
-	if use arm64; then
-		sed -i -e 's/ sss//' share/baselayout/nsswitch.conf || die
-		sed -i -e '/pam_sss.so/d' lib/pam.d/* || die
 	fi
 
 	# handle multilib paths.  do it here because we want this behavior
@@ -126,6 +120,11 @@ pkg_postinst() {
 		# Also create the directory to avoid having dangling
 		# symlinks.
 		mkdir -p "${ROOT}/oem"
+
+		# pam situation was messed up big time, create some
+		# symlinks to point to just a single place
+		ln -snfT "pam" "${ROOT}/usr/lib/pam.d"
+		ln -snfT "../lib/pam" "${ROOT}/usr/share/pam.d"
 	fi
 
 	# The default passwd/group files must exist for some ebuilds
