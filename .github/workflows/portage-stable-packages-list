@@ -633,6 +633,7 @@ sys-apps/util-linux
 sys-apps/which
 sys-apps/zram-generator
 
+sys-auth/pambase
 sys-auth/polkit
 sys-auth/sssd
 
