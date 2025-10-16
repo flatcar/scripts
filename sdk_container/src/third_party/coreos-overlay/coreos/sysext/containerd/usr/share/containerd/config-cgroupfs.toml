@@ -4,8 +4,6 @@ version = 2
 root = "/var/lib/containerd"
 # runtime state information
 state = "/run/containerd"
-# set containerd as a subreaper on linux when it is not running as PID 1
-subreaper = true
 # set containerd's OOM score
 oom_score = -999
 disabled_plugins = []
