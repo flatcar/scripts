@@ -414,9 +414,6 @@ multilib_src_configure() {
 		-Ddbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
 		-Ddbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
 
-		# Flatcar: PAM config directory.
-		-Dpamconfdir=/usr/share/pam.d
-
 		# Flatcar: The CoreOS epoch, Mon Jul 1 00:00:00 UTC
 		# 2013. Used by timesyncd as a sanity check for the
 		# minimum acceptable time. Explicitly set to avoid
