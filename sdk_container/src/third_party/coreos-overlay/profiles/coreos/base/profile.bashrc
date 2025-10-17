@@ -134,6 +134,23 @@ cros_pre_pkg_postinst_no_modifications_of_users() {
     export ACCT_USER_NO_MODIFY=x
 }
 
+# Move pam files from /etc to /usr. It is a no-op for SDK builds.
+#
+# Invoke this in post_src_install hook.
+vendorize_pam_files() {
+    if [[ ${FLATCAR_TYPE} = 'sdk' ]]; then
+        # We don't care about PAM inside SDK.
+        return 0
+    fi
+
+    mkdir -p "${ED}/usr/lib/pam/security"
+
+    tar --create --remove-files --directory "${ED}/etc/security" . | \
+        tar --extract --directory "${ED}/usr/lib/pam/security"
+    tar --create --remove-files --directory "${ED}/etc/pam.d" . | \
+        tar --extract --directory "${ED}/usr/lib/pam"
+}
+
 # Source hooks for SLSA build provenance report generation
 source "${BASH_SOURCE[0]}.slsa-provenance"
 
