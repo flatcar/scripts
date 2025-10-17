@@ -1,9 +1,12 @@
-cros_post_src_install_keep_etc_sudoers_d() {
-    # Flatcar: Build system installs /etc/sudoers.d, let's make
-    # sure we keep having it.
+cros_post_src_install_flatcar_modifications() {
+    # Build system installs /etc/sudoers.d, let's make sure we keep
+    # having it.
     #
     # Upstream PR: https://github.com/gentoo/gentoo/pull/37397
     keepdir /etc/sudoers.d
+
+    # Move pam files to /usr.
+    vendorize_pam_files
 }
 
 # We don't ship OpenLDAP schemas (why?) and we provide sudo.conf

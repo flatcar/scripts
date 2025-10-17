@@ -1,3 +1,7 @@
 # New mount API does not work very well for mounting overlayfs when we
 # are building sysexts.
 export EXTRA_ECONF="--disable-libmount-mountfd-support"
+
+cros_post_src_install_vendorize_pam() {
+    vendorize_pam_files
+}
