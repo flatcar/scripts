@@ -3,3 +3,7 @@
 # obviously won't work in case of cross-compilation, so we state up
 # front that SPNEGO is supported.
 export ac_cv_gssapi_supports_spnego=yes
+
+cros_post_src_install_vendorize_pam() {
+    vendorize_pam_files
+}
