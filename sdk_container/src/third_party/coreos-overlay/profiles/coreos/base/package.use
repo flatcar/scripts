@@ -194,3 +194,7 @@ dev-lang/rust -system-llvm
 # disable mpfr in gawk, this ends up being pulled into initrd, making
 # it grow by another 2mb
 sys-apps/gawk -mpfr
+
+# We never had passwdqc stuff in old pam sys configs, so disable it
+# for now. Maybe this is something to enable later.
+sys-auth/pambase securetty -passwdqc
