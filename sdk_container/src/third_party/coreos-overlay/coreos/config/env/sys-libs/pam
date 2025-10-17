@@ -1,0 +1,5 @@
+export MYMESONARGS='-Dvendordir=/usr/lib/pam'
+
+cros_post_pkg_postinst_vendorize_pam() {
+    vendorize_pam_files
+}
