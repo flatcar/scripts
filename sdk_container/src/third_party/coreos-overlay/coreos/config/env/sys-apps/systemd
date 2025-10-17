@@ -11,3 +11,18 @@ After=ensure-sysext.service
 EOF
   popd
 }
+
+cros_post_src_install_add_pam_configs() {
+    newpamd - "systemd-user" <<'EOF'
+account include system-auth
+session include system-login
+EOF
+    newpamd - "systemd-run0" <<'EOF'
+account include system-auth
+session include system-login
+EOF
+}
+
+cros_post_pkg_postinst_vendorize_pam() {
+    vendorize_pam_files
+}
