@@ -134,6 +134,56 @@ cros_pre_pkg_postinst_no_modifications_of_users() {
     export ACCT_USER_NO_MODIFY=x
 }
 
+# Move pam files to /usr. This is done differently for base/OEM images
+# and for sysext images.
+#
+# Base/OEM images keep stuff in /etc, but create some symlinks to the
+# stuff's counterparts in /usr/share/flatcar/etc assuming that /etc
+# contents will be moved to /usr/share/flatcar/etc by the build
+# scripts.
+#
+# For sysext images, we simply move the files from /etc to /usr.
+#
+# Invoke this in some pkg_postinst hook.
+vendorize_pam_files() (
+    shopt -s nullglob
+    shopt -s dotglob
+
+    local -a pairs=(
+        /etc/security /usr/lib/pam/security
+        /etc/pam.d /usr/lib/pam
+    )
+
+    local vpf_target_type
+    flatcar_target_ref vpf_target_type
+
+    if [[ ${vpf_target_type} = 'sdk' ]]; then
+        # We don't care about PAM inside SDK.
+        return 0
+    fi
+
+    local path target_dir f b
+    while [[ ${#pairs[@]} -gt 0 ]]; do
+        path=${pairs[0]}
+        target_dir=${pairs[1]}
+        pairs=( "${pairs[@]:2}" )
+
+        for f in "${ROOT}${path}"/*; do
+            b=${f##*/}
+            # f is already prefixed with ${ROOT}, so it can't be used
+            # as a suffix like in ${target_dir}/${f}
+            #
+            # f = ${ROOT}${path}/${b}
+            if [[ -d ${f} ]]; then
+                pairs=( "${path}/${b}" "${target_dir}/${b}" "${pairs[@]}")
+            else
+                mkdir -p "${ROOT}${target_dir}"
+                mv "${f}" "${ROOT}${target_dir}/${b}"
+            fi
+        done
+    done
+)
+
 # Source hooks for SLSA build provenance report generation
 source "${BASH_SOURCE[0]}.slsa-provenance"
 
