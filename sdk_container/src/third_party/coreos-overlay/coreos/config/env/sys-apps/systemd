@@ -11,3 +11,20 @@ After=ensure-sysext.service
 EOF
   popd
 }
+
+cros_post_src_install_add_pam_configs() {
+    # Drop systemd units installed by systemd build system. Since
+    # pamconfdir was not overridden, it defaults to /usr/lib/pam.d.
+    rm "${ED}"/usr/lib/pam.d/systemd-{user,run0} || die
+    newpamd - "systemd-user" <<'EOF'
+account include system-auth
+session include system-login
+EOF
+    newpamd - "systemd-run0" <<'EOF'
+account include system-auth
+session include system-login
+EOF
+
+    # And move them to /usr.
+    vendorize_pam_files
+}
