@@ -631,6 +631,7 @@ sys-apps/util-linux
 sys-apps/which
 sys-apps/zram-generator
 
+sys-auth/pambase
 sys-auth/polkit
 sys-auth/sssd
 
@@ -703,6 +704,7 @@ sys-libs/libunwind
 sys-libs/liburing
 sys-libs/libxcrypt
 sys-libs/ncurses
+sys-libs/pam
 sys-libs/readline
 sys-libs/talloc
 sys-libs/tdb
