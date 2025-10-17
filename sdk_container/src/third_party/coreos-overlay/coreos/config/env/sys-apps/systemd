@@ -9,9 +9,6 @@ flatcar_systemd_meson_args_array=(
     -Dsystem-gid-max=999
     -Dsystem-uid-max=999
 
-    # PAM config directory.
-    -Dpamconfdir="${EPREFIX}/usr/share/pam.d"
-
     # The CoreOS epoch, Mon Jul 1 00:00:00 UTC 2013. Used by timesyncd
     # as a sanity check for the minimum acceptable time. Explicitly
     # set to avoid using the current build time.
@@ -85,16 +82,24 @@ flatcar_systemctl_preset() {
 }
 
 cros_post_src_install_flatcar_stuff() {
-    # We provide our own systemd-user config file in baselayout.
-    #
-    # This one is installed by systemd build system regardless of
-    # USE=pam (the ebuild ought to pass -Dpamconfdir=no to disable the
-    # installation).
-    rm "${ED}/usr/share/pam.d/systemd-user" || die
-    # This one is installed by Gentoo's systemd ebuild only if USE=pam
-    # is enabled.
+    # Drop systemd PAM config files installed by systemd build
+    # system. We will replace them below with our own configs if we
+    # have pam enabled.
+    rm "${ED}"/usr/lib/pam.d/systemd-{user,run0} || die
     if use pam; then
-        rm "${ED}/etc/pam.d/systemd-user" || die
+        # Clobber systemd-user config file installed by the ebuild
+        # with our own.
+        newpamd - "systemd-user" <<'EOF'
+account include system-auth
+session include system-login
+EOF
+        newpamd - "systemd-run0" <<'EOF'
+account include system-auth
+session include system-login
+EOF
+
+        # And move them to /usr.
+        vendorize_pam_files
     fi
 
     # Ensure journal directory has correct ownership/mode in inital
