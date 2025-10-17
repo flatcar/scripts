@@ -1,0 +1,9 @@
+flatcar_pam_meson_args_array=(
+    '-Dvendordir=/usr/lib/pam'
+)
+export MYMESONARGS=${flatcar_pam_meson_args_array[*]@Q}
+unset 'flatcar_pam_meson_args_array'
+
+cros_post_pkg_postinst_vendorize_pam() {
+    vendorize_pam_files
+}
