@@ -1,0 +1,16 @@
+flatcar_pam_meson_args_array=(
+    '-Dvendordir=/usr/lib/pam'
+)
+export MYMESONARGS=${flatcar_pam_meson_args_array[*]@Q}
+unset 'flatcar_pam_meson_args_array'
+
+cros_post_src_install_stuff_in_etc() {
+    # Keep empty pam.d and security directories in /etc. In theory we
+    # could omit creating them, but 1. some kola tests rely on them to
+    # exist and 2. empty directories are probably less confusing to
+    # users then no directories at all. For the latter reason, create
+    # also the symlink to the environment file.
+    keepdir /etc/pam.d
+    keepdir /etc/security
+    dosym /usr/lib/pam/environment /etc/environment
+}
