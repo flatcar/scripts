@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..13} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -20,12 +20,12 @@ else
 	SRC_URI="https://github.com/systemd/${PN}/archive/refs/tags/v${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 
 	if [[ ${PV} != *rc* ]] ; then
-		# Flatcar: mark as stable
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 	fi
 fi
 
 inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-single-r1
+# Flatcar: Inherited tmpfiles
 inherit secureboot systemd tmpfiles toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
@@ -144,11 +144,11 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
-		!sys-apps/openrc-navi[sysv-utils(-)]
 		!sys-apps/sysvinit
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
+	!sys-apps/hwids[udev]
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
 	!sys-fs/udev
@@ -168,7 +168,7 @@ BDEPEND="
 	sys-devel/gettext
 	virtual/pkgconfig
 	bpf? (
-		dev-util/bpftool
+		>=dev-util/bpftool-7.0.0
 		sys-devel/bpf-toolchain
 	)
 	test? (
@@ -194,13 +194,38 @@ BDEPEND="
 QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
 QA_EXECSTACK="usr/lib/systemd/boot/efi/*"
 
+check_cgroup_layout() {
+	# https://bugs.gentoo.org/935261
+	[[ ${MERGE_TYPE} != buildonly ]] || return
+	[[ -z ${ROOT} ]] || return
+	[[ -e /sys/fs/cgroup/unified ]] || return
+	grep -q 'SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1' /proc/cmdline && return
+
+	eerror "This system appears to be booted with the 'hybrid' cgroup layout."
+	eerror "This layout obsolete and is disabled in systemd."
+
+	if grep -qF 'systemd.unified_cgroup_hierarchy'; then
+		eerror "Remove the systemd.unified_cgroup_hierarchy option"
+		eerror "from the kernel command line and reboot."
+		die "hybrid cgroup layout detected"
+	fi
+}
+
 pkg_pretend() {
-	# Flatcar: We keep using split-usr for SDK.
-	# if use split-usr; then
-	# 	eerror "Please complete the migration to merged-usr."
-	# 	eerror "https://wiki.gentoo.org/wiki/Merge-usr"
-	# 	die "systemd no longer supports split-usr"
-	# fi
+	if use split-usr; then
+		eerror "Please complete the migration to merged-usr."
+		eerror "https://wiki.gentoo.org/wiki/Merge-usr"
+		die "systemd no longer supports split-usr"
+	fi
+
+	check_cgroup_layout
+
+	if use cgroup-hybrid; then
+		eerror "Disable the 'cgroup-hybrid' USE flag."
+		eerror "Rebuild any initramfs images after rebuilding systemd."
+		die "cgroup-hybrid is no longer supported"
+	fi
+
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
 		local CONFIG_CHECK="~BLK_DEV_BSG ~CGROUPS
 			~CGROUP_BPF ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
@@ -256,14 +281,15 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
+		"${FILESDIR}"/systemd-257-cred-util-tpm2.patch
 		# Flatcar: Adding our own patches here.
 		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
-		"${FILESDIR}/0003-needs-update-don-t-require-strictly-newer-usr.patch"
-		"${FILESDIR}/0004-core-use-max-for-DefaultTasksMax.patch"
-		"${FILESDIR}/0005-systemd-Disable-SELinux-permissions-checks.patch"
-		"${FILESDIR}/0006-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin-257.patch"
-		"${FILESDIR}/0007-units-Keep-using-old-journal-file-format.patch"
-		"${FILESDIR}/0009-initrd-parse-etc.service.patch"
+		"${FILESDIR}/0002-needs-update-don-t-require-strictly-newer-usr.patch"
+		"${FILESDIR}/0003-core-use-max-for-DefaultTasksMax.patch"
+		"${FILESDIR}/0004-systemd-Disable-SELinux-permissions-checks.patch"
+		"${FILESDIR}/0005-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
+		"${FILESDIR}/0006-units-Keep-using-old-journal-file-format.patch"
+		"${FILESDIR}/0007-Revert-Revert-initrd-parse-etc-override-argv-0-to-av.patch"
 	)
 
 	if ! use vanilla; then
@@ -271,9 +297,6 @@ src_prepare() {
 			"${FILESDIR}/gentoo-journald-audit-r1.patch"
 		)
 	fi
-
-	# Fails with split-usr.
-	sed -i -e '2i exit 77' test/test-rpm-macros.sh || die
 
 	# Flatcar: The Kubelet takes /etc/resolv.conf for, e.g.,
 	# CoreDNS which has dnsPolicy "default", but unless the
@@ -301,14 +324,10 @@ src_configure() {
 	multilib-minimal_src_configure
 }
 
-# Flatcar: Our function, we use it in some places below.
-get_rootprefix() {
-	usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr"
-}
-
 multilib_src_configure() {
 	local myconf=(
 		--localstatedir="${EPREFIX}/var"
+		-Ddocdir="share/doc/${PF}"
 		# default is developer, bug 918671
 		-Dmode=release
 		# Flatcar: Point to our user mailing list.
@@ -316,19 +335,7 @@ multilib_src_configure() {
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
-		# Flatcar: We keep using split-usr in SDK.
-		$(meson_use split-usr)
-		# Flatcar: Always set split-bin to true, we always
-		# have separate bin and sbin directories
-		-Dsplit-bin=true
-		# Flatcar: Use get_rootprefix. No functional change
-		# from upstream, just refactoring the common code used
-		# in some places.
-		#
-		# TODO: Drop -Drootprefix and -Drootlibdir we get rid
-		# of split-usr in SDK
-		-Drootprefix="$(get_rootprefix)"
-		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
+		-Dsplit-bin=false
 		# Disable compatibility with sysvinit
 		-Dsysvinit-path=
 		-Dsysvrcnd-path=
@@ -381,7 +388,6 @@ multilib_src_configure() {
 		-Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		-Ddefault-kill-user-processes=false
-		# Flatcar: TODO: Investigate if we want this.
 		-Dcreate-log-dirs=false
 
 		# multilib options
@@ -404,7 +410,6 @@ multilib_src_configure() {
 		$(meson_native_true timesyncd)
 		$(meson_native_true tmpfiles)
 		$(meson_native_true vconsole)
-		$(meson_native_enabled vmspawn)
 		# Flatcar: Specify this, or meson breaks due to no
 		# /etc/login.defs.
 		-Dsystem-gid-max=999
@@ -437,10 +442,10 @@ multilib_src_configure() {
 		# Flatcar: Combined log format: name plus description
 		-Dstatus-unit-format-default=combined
 
-		# Flatcar: Unported options, still needed?
-		-Dquotaon-path=/usr/sbin/quotaon
-		-Dquotacheck-path=/usr/sbin/quotacheck
+		# Flatcar: Disable multicast-dns, Link-Local Multicast Name Resolution and dnssec
 		-Ddefault-mdns=no
+		-Ddefault-llmnr=no
+		-Ddefault-dnssec=no
 	)
 
 	case $(tc-arch) in
@@ -467,9 +472,6 @@ multilib_src_test() {
 }
 
 multilib_src_install_all() {
-	# meson doesn't know about docdir
-	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
-
 	einstalldocs
 	# Flatcar: Do not install sample nsswitch.conf, we don't
 	# provide it.
@@ -491,8 +493,6 @@ multilib_src_install_all() {
 	# https://bugs.gentoo.org/761763
 	rm -r "${ED}"/usr/lib/sysusers.d || die
 
-	# Flatcar: Upstream uses keepdir commands to keep some empty
-	# directories. We use tmpfiles.
 	# Preserve empty dirs in /etc & /var, bug #437008
 	keepdir /etc/{binfmt.d,modules-load.d,tmpfiles.d}
 	keepdir /etc/kernel/install.d
@@ -501,12 +501,13 @@ multilib_src_install_all() {
 
 	keepdir /etc/udev/hwdb.d
 
-	# keepdir /usr/lib/systemd/{system-sleep,system-shutdown}
-	# keepdir /usr/lib/{binfmt.d,modules-load.d}
-	# keepdir /usr/lib/systemd/user-generators
-	# keepdir /var/lib/systemd
-	# keepdir /var/log/journal
+	keepdir /usr/lib/systemd/{system-sleep,system-shutdown}
+	keepdir /usr/lib/{binfmt.d,modules-load.d}
+	keepdir /usr/lib/systemd/user-generators
+	keepdir /var/lib/systemd
+	keepdir /var/log/journal
 
+	# Flatcar: We provide our own systemd-user config file in baselayout.
 	# if use pam; then
 	# 	if use selinux; then
 	# 		newpamd "${FILESDIR}"/systemd-user-selinux.pam systemd-user
@@ -614,7 +615,7 @@ multilib_src_install_all() {
 # Flatcar: Our own version of systemd_get_systemunitdir, that returns
 # a path inside /usr, not /etc.
 builddir_systemd_get_systemunitdir() {
-	echo "$(get_rootprefix)/lib/systemd/system"
+	echo "${EPREFIX}/usr/lib/systemd/system"
 }
 
 # Flatcar: Our own version of systemd_enable_service, that does
@@ -683,23 +684,6 @@ pkg_preinst() {
 		dosym ../../../etc/sysctl.conf /usr/lib/sysctl.d/99-sysctl.conf
 	fi
 
-	# Flatcar: This used to be in upstream ebuild, but now it's
-	# gone. We should drop it once we get rid of split-usr in SDK.
-	if ! use split-usr; then
-		local dir
-		# Flatcar: We still use separate bin and sbin, so drop usr/sbin from the list.
-		for dir in bin sbin lib; do
-			if [[ ! -L ${EROOT}/${dir} ]]; then
-				eerror "'${EROOT}/${dir}' is not a symbolic link."
-				FAIL=1
-			fi
-		done
-		if [[ ${FAIL} ]]; then
-			eerror "Migration to system layout with merged directories must be performed before"
-			eerror "installing ${CATEGORY}/${PN} with USE=\"-split-usr\" to avoid run-time breakage."
-			die "System layout with split directories still used"
-		fi
-	fi
 	if ! use boot && has_version "sys-apps/systemd[gnuefi(-)]"; then
 		ewarn "The 'gnuefi' USE flag has been renamed to 'boot'."
 		ewarn "Make sure to enable the 'boot' USE flag if you use systemd-boot."
