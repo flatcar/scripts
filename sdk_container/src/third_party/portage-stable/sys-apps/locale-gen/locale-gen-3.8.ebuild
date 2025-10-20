@@ -12,7 +12,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/locale-gen.git/snapshot/${P}.tar.bz2"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -47,8 +47,12 @@ src_install() {
 		# See the locale.gen(5) and locale-gen(8) man pages for more details.
 
 		EOF
-		# Run the interpreter by name so as not to have to prefixify mkconfig.
-		perl mkconfig "${EROOT}"
+		if [[ -e ${EROOT}/usr/share/i18n/SUPPORTED ]]; then
+			# Run the interpreter by name so as not to have to prefixify.
+			perl mkconfig "${EROOT}"
+		else
+			ewarn "Skipping the incorporation of locale.gen examples because the SUPPORTED file is absent"
+		fi
 	} | newins - locale.gen
 	if (( PIPESTATUS[0] || PIPESTATUS[1] )); then
 		die "Failed to generate and/or install locale.gen"
