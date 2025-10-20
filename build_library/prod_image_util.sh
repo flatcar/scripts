@@ -158,6 +158,56 @@ create_prod_image() {
 L+  /etc/ld.so.conf     -   -   -   -   ../usr/lib/ld.so.conf
 EOF
 
+  # Make sure we have put every PAM config in vendor directory
+  # (/usr/lib/pam)
+  local -a pam_dir_pairs=(
+      /etc/security /usr/lib/pam/security
+      /etc/pam.d /usr/lib/pam
+  )
+  local -a missing_in_vendor_dir=() type_mismatch=()
+  local ed ud f vf t sf svf
+  while [[ ${#pam_dir_pairs} -gt 0 ]]; do
+      ed=${pam_dir_pairs[0]}
+      ud=${pam_dir_pairs[1]}
+      pam_dir_pairs=( "${pam_dir_pairs[@]:2}" )
+
+      for f in "${root_fs_dir}${ed}/"*; do
+          vf=${root_fs_dir}${ud}/${f#"${root_fs_dir}${ed}/"}
+          sf=${f#"${root_fs_dir}"}
+          svf=${vf#"${root_fs_dir}"}
+          if [[ ! -e ${vf} ]]; then
+              missing_in_vendor_dir+=( "${sf}" "${svf}" )
+              continue
+          fi
+          t=''
+          if [[ -d ${f} ]]; then t+=d; else t+=n; fi
+          if [[ -d ${vf} ]]; then t+=d; else t+=n; fi
+          case ${t} in
+              dd) pam_dir_pairs=( "${sf}" "${svf}" "${pam_dir_pairs[@]}" );;
+              nn) :;;
+              *) type_mismatch+=( "${sf}" "${svf}" );;
+          esac
+      done
+  done
+
+  local -i errors=$(( ${#missing_in_vendor_dir[@]} + ${#type_mismatch[@]} ))
+
+  while [[ ${#missing_in_vendor_dir[@]} -gt 0 ]]; do
+      f=${missing_in_vendor_dir[0]}
+      vf=${missing_in_vendor_dir[1]}
+      missing_in_vendor_dir=( "${missing_in_vendor_dir[@]:2}" )
+      error "PAM config at ${f@Q} missing in vendor dir (${vf@Q} does not exist)"
+  done
+  while [[ ${#type_mismatch[@]} -gt 0 ]]; do
+      f=${type_mismatch[0]}
+      vf=${type_mismatch[1]}
+      type_mismatch=( "${type_mismatch[@]:2}" )
+      error "File type mismatch between ${f@Q} and ${vf@Q} (one is directory, another is non-directory, expected either both to be directories or non-directories)"
+  done
+  if [[ errors -gt 0 ]]; then
+      die "PAM config errors spotted"
+  fi
+
   # Remove source locale data, only need to ship the compiled archive.
   sudo rm -rf ${root_fs_dir}/usr/share/i18n/
 
