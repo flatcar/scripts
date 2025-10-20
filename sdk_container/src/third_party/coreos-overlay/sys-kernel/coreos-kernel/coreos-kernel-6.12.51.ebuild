@@ -96,20 +96,9 @@ src_compile() {
 	lsinitrd --kver SILENCEERROR --unpack "${S}"/build/bootengine.cpio || die
 	mksquashfs . "${S}"/build/bootengine.img -noappend -xattrs-exclude ^btrfs. || die
 	popd || die
+	# No early cpio, drop full initrd
+	> "${S}"/build/bootengine.cpio
 	# Create minimal initrd
-	if use amd64; then
-		mkdir "${S}"/build/early-cpio || die
-		pushd "${S}"/build/early-cpio || die
-		lsinitrd --kver SILENCEERROR --unpackearly "${S}"/build/bootengine.cpio || die
-		# Recreate to only contain the early cpio for microcode
-		find . -print0 | cpio --null --create --verbose --format=newc > "${S}"/build/bootengine.cpio || die
-		# Debug: List contents after recreation
-		cpio -t < "${S}"/build/bootengine.cpio
-		popd || die
-	else
-		# No early cpio, drop full initrd
-		> "${S}"/build/bootengine.cpio
-	fi
 	mkdir "${S}"/build/minimal || die
 	pushd "${S}"/build/minimal || die
 	mkdir -p {etc,dev,proc,sys,dev,usr/bin,usr/lib64,realinit,sysusr/usr} || die
@@ -141,6 +130,7 @@ src_compile() {
 	mknod ./dev/random c 1 8 || die
 	mknod ./dev/zero c 1 5 || die
 	# No compression because CONFIG_INITRAMFS_COMPRESSION_XZ should take care of it
+	# (Note: The kernel build system does not support prepending an uncompressed microcode early cpio here)
 	find . -print0 | cpio --null --create --verbose --format=newc >> "${S}"/build/bootengine.cpio || die
 	popd || die
 	kmake "$(kernel_target)"
