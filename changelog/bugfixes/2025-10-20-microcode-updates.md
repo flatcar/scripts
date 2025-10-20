@@ -1,0 +1,1 @@
+- Fixed Intel microcode updates which were broken in recent Alpha and Beta releases by switching back to built-in extra firmware instead of early cpio inclusion ([Flatcar#1909](https://github.com/flatcar/Flatcar/issues/1909))
