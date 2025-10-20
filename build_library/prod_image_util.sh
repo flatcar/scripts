@@ -158,6 +158,57 @@ create_prod_image() {
 L+  /etc/ld.so.conf     -   -   -   -   ../usr/lib/ld.so.conf
 EOF
 
+  # Make sure we have put every PAM config in vendor directory
+  # (/usr/lib/pam)
+  local -a pam_dir_pairs=(
+      /etc/security /usr/lib/pam/security
+      /etc/pam.d /usr/lib/pam
+  )
+
+  local dir_in_etc dir_in_usr etc_f usr_f stripped_etc_f stripped_usr_f
+  local -a not_moved_from_etc=() duplicates_in_etc=()
+  while [[ ${#pam_dir_pairs[0]} -gt 0 ]]; do
+      dir_in_etc=${pam_dir_pairs[0]}
+      dir_in_usr=${pam_dir_pairs[1]}
+      pam_dir_pairs=( "${pam_dir_pairs[@]:2}" )
+
+      for etc_f in "${root_fs_dir}${dir_in_etc}/"*; do
+          usr_f=${root_fs_dir}${dir_in_usr}/${etc_f#"${root_fs_dir}${dir_in_etc}/"}
+          stripped_etc_f=${etc_f#"${root_fs_dir}"}
+          stripped_usr_f=${usr_f#"${root_fs_dir}"}
+          if [[ -d ${etc_f} ]]; then
+              pam_dir_pairs=( "${stripped_etc_f}" "${stripped_usr_f}" "${pam_dir_pairs[@]}" )
+          elif [[ -e ${etc_f} ]]; then
+              if [[ -e ${usr_f} ]]; then
+                  duplicates_in_etc+=( "${stripped_etc_f}" "${stripped_usr_f}" )
+              else
+                  not_moved_from_etc+=( "${stripped_etc_f}" "${stripped_usr_f}" )
+              fi
+          fi
+      done
+  done
+
+  local -i errors=$(( ${#not_moved_from_etc[@]} + ${#duplicates_in_etc[@]} ))
+
+  while [[ ${#not_moved_from_etc[@]} -gt 0 ]]; do
+      etc_f=${not_moved_from_etc[0]}
+      usr_f=${not_moved_from_etc[1]}
+      not_moved_from_etc=( "${not_moved_from_etc[@]:2}" )
+      error "PAM config at ${etc_f@Q} not moved to vendor directory, expected it to be at ${usr_f@Q}"
+  done
+  while [[ ${#duplicates_in_etc[@]} -gt 0 ]]; do
+      etc_f=${duplicates_in_etc[0]}
+      usr_f=${duplicates_in_etc[1]}
+      duplicates_in_etc=( "${duplicates_in_etc[@]:2}" )
+      error "PAM config at ${etc_f@Q} is a duplicate of ${usr_f@Q}, expected the file in /etc to be removed"
+  done
+  if [[ errors -gt 0 ]]; then
+      die "PAM config errors spotted"
+  fi
+  # Drop the PAM directory tree - by now there are no files, only
+  # directories.
+  sudo rm -rf "${root_fs_dir}"/etc/{security,pam.d}
+
   # Remove source locale data, only need to ship the compiled archive.
   sudo rm -rf ${root_fs_dir}/usr/share/i18n/
 
