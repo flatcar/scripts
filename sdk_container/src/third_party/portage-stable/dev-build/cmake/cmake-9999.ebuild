@@ -16,6 +16,8 @@ CMAKE_DOCS_VERSION=4.0.0_rc1
 # See bug #784815
 CMAKE_DOCS_USEFLAG="+doc"
 
+CMAKE_QA_COMPAT_SKIP=1 # bug #964514; cmake itself is the last pkg we worry about
+
 # TODO RunCMake.LinkWhatYouUse fails consistently w/ ninja
 # ... but seems fine as of 3.22.3?
 # TODO ... but bootstrap sometimes(?) fails with ninja now. bug #834759.
@@ -66,12 +68,13 @@ SLOT="0"
 IUSE="${CMAKE_DOCS_USEFLAG} dap gui ncurses test"
 RESTRICT="!test? ( test )"
 
+# >= 1.51.0-r1 for ppc32 workaround (bug #941738)
 RDEPEND="
 	>=app-arch/libarchive-3.3.3:=
 	app-crypt/rhash:0=
 	>=dev-libs/expat-2.0.1
 	>=dev-libs/jsoncpp-1.9.2-r2:0=
-	>=dev-libs/libuv-1.10.0:=
+	>=dev-libs/libuv-1.51.0-r1:=
 	>=net-misc/curl-7.21.5[ssl]
 	sys-libs/zlib
 	virtual/pkgconfig
