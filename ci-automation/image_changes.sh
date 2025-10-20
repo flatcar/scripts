@@ -43,7 +43,7 @@ function image_changes() (
     rm -rf "${fbs_repo}"
     git clone \
         --depth 1 \
-        --single-branch \
+        --single-branch --branch kai/size-report \
         "https://github.com/flatcar/flatcar-build-scripts" \
         "${fbs_repo}"
     if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
