@@ -6,6 +6,34 @@
 
 # New entries go on top.
 
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-10-16)
+# No suitable versions of dev-libs/protobuf available.
+~dev-java/protobuf-java-4.33.0 system-protoc
+
+# Fabian Groffen <grobian@gentoo.org> (2025-10-18)
+# PAM support is discouraged due to not being secure via Exim
+# https://bugs.gentoo.org/964377
+mail-mta/exim pam
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-10-05)
+# Preparation for sci-geosciences/liblas removal. Bug #957235
+<=dev-games/openscenegraph-3.6.5-r117 las
+<=dev-games/openscenegraph-openmw-3.6_p20221115-r2 las
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-10-03)
+# No suitable versions of dev-libs/protobuf available.
+~dev-java/protobuf-java-4.32.1 system-protoc
+
+# Michał Górny <mgorny@gentoo.org> (2025-09-27)
+# Building NumPy with ILP64 LAPACK can cause revdeps to segfault if they
+# link to LP64 LAPACK.  To support this properly, we either need to
+# ensure matching index64 flags along the whole chain of dependencies,
+# or support only ILP64 LAPACK implementations that use suffixed
+# symbols (so there are no symbol collisions).  Given the flag was only
+# really added to test if ILP64 packaging works, mask it for the time
+# being.
+dev-python/numpy index64
+
 # Nicolas PARLANT <nicolas.parlant@parhuet.fr> (2025-09-20)
 # Require dev-libs/libtsm, only keyworded on amd64 and x86
 >=media-gfx/fbida-2.14_p20241216 fbcon
@@ -129,10 +157,6 @@ kde-frameworks/knewstuff:5 opds
 # Dependencies e.g. bindgen/netcdf/pypy not keyworded or stable in
 # most places.
 dev-build/meson test-full
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-01-09)
-# No suitable versions of dev-libs/protobuf available.
-=dev-java/protobuf-java-4.29.3 system-protoc
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-31)
 # None of the sci-libs/symengine versions work with the modern versions
