@@ -157,11 +157,8 @@ sys-libs/libsemanage -python
 sys-fs/zfs minimal -rootfs
 
 # Do not tinker with /boot partition at installation time.
+sys-firmware/intel-microcode -initramfs
 sys-fs/zfs-kmod -initramfs
-
-# Only needed for direct loading by the kernel, which is dangerous, and we
-# include all the microcode in the initrd anyway.
-sys-firmware/intel-microcode -split-ucode
 
 # For sys-auth/sssd
 net-dns/bind       gssapi
