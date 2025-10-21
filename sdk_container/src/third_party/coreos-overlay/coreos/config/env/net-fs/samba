@@ -32,3 +32,7 @@ cros_post_src_install_samba_flatcar_modifications() {
     rm -rf "${ED}/usr/$(get_libdir)/python"*
     rm -rf "${ED}/var"
 }
+
+cros_post_pkg_postinst_vendorize_pam() {
+    vendorize_pam_files
+}
