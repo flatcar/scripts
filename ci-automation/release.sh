@@ -167,9 +167,12 @@ function copy_from_bincache_to_bucket() {
     echo "Experimental (i.e ignore if it fails) - copy the images to CloudFlare bucket"
     (
     set +eu
-    rclone --config "${RCLONE_CONFIGURATION_FILE}" \
-      sync \
-      --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}"
+    docker run --rm -ti \
+      -v "${RCLONE_CONFIGURATION_FILE}:/opt/rclone.conf:ro" \
+      docker.io/rclone/rclone:1.71.1 \
+        --config "/opt/rclone.conf" \
+        sync \
+        --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}"
     # Exit the function cleanly for now:
     true
     )
