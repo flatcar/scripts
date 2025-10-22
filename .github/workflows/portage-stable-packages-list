@@ -319,8 +319,8 @@ dev-python/fastjsonschema
 dev-python/flit-core
 dev-python/gentoo-common
 dev-python/gpep517
-dev-python/hatchling
 dev-python/hatch-vcs
+dev-python/hatchling
 dev-python/idna
 dev-python/installer
 dev-python/jaraco-collections
@@ -505,8 +505,8 @@ licenses
 
 media-libs/libpng
 
-net-analyzer/openbsd-netcat
 net-analyzer/netperf
+net-analyzer/openbsd-netcat
 net-analyzer/tcpdump
 net-analyzer/traceroute
 
