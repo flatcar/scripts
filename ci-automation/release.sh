@@ -164,18 +164,13 @@ function copy_from_bincache_to_bucket() {
     local arch="${2}"
     local version="${3}"
 
-    echo "Experimental (i.e ignore if it fails) - copy the images to CloudFlare bucket"
-    (
-    set +eu
+    echo "Copy the images from bincache to CloudFlare bucket"
     docker run --rm -ti \
       -v "${RCLONE_CONFIGURATION_FILE}:/opt/rclone.conf:ro" \
       docker.io/rclone/rclone:1.71.1 \
         --config "/opt/rclone.conf" \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}"
-    # Exit the function cleanly for now:
-    true
-    )
     # Note: There is no "current" symlink and when switching the release to current we
     # could at a later stage (when the update payloads are selected in Nebraska) either
     # use folder copies where we delete the old "current" folder first, or we could
