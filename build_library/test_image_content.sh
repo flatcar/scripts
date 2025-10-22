@@ -68,5 +68,14 @@ test_image_content() {
       returncode=1
   fi
 
+  # TODO: merge this check with the blacklisted directories above,
+  # when it stops being a warning-only check.
+  if [ -d "${root}/build" ]; then
+      error "test_image_content: ${root}/build directory found"
+      info "contents of ${root}/build"
+      ls -lAR "${root}/build"
+      returncode=1
+  fi
+
   return $returncode
 }
