@@ -1,0 +1,1 @@
+- Switched `/etc/` from a custom overlayfs for A/B updates to using a systemd-confext extension providing the default contents by using systemd-confext in the mutable mode where `/etc/` gets used as upperdir [scripts#3555](https://github.com/flatcar/scripts/pull/3555)

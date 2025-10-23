@@ -737,8 +737,30 @@ EOF
   if [[ $(sudo find "${root_fs_dir}/usr/share/flatcar/etc" -size +0 ! -type d 2>/dev/null | wc -l) -gt 0 ]]; then
     die "Unexpected non-empty files in ${root_fs_dir}/usr/share/flatcar/etc"
   fi
+  # Some backwards-compat symlinks still use this folder as target,
+  # we can't remove it yet
   sudo rm -rf "${root_fs_dir}/usr/share/flatcar/etc"
   sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/share/flatcar/etc"
+  # Now set up a default confext and enable it.
+  # It's important to use dm-verity not only for stricter image policies
+  # but also because it allows us the refresh to identify this image and
+  # skip setting it up again in the final boot, which not only saves us
+  # a daemon-reload during boot but also from /etc contents shortly
+  # disappearing until systemd-sysext uses mount beneath for an atomic
+  # remount. Instead of a temporary directory we first prepare it as
+  # folder and then convert it to a DDI and remove the folder.
+  sudo rm -rf "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
+  sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
+  sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc"
+  sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/"
+  echo ID=_any | sudo tee "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/extension-release.00-flatcar-default" > /dev/null
+  sudo systemd-repart \
+    --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
+    --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
+    --make-ddi=confext \
+    --copy-source="${root_fs_dir}/usr/lib/confexts/00-flatcar-default" \
+    "${root_fs_dir}/usr/lib/confexts/00-flatcar-default.raw"
+  sudo rm -rf "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
 
   # Remove the rootfs state as it should be recreated through the
   # tmpfiles and may not be present on updating machines. This
