@@ -161,19 +161,6 @@ EOF
         -e '/^C!* \/etc\/issue/d' || die
 
     (
-        # Some OEMs prefer chronyd, so allow them to replace
-        # systemd-timesyncd with it.
-        insinto "$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
-        newins - flatcar.conf <<'EOF'
-# Allow sysexts to ship timesyncd replacements which can have
-# a Conflicts=systemd-timesyncd directive that would result
-# in systemd-timesyncd not being started.
-[Unit]
-After=ensure-sysext.service
-EOF
-    )
-
-    (
         # Allow @mount syscalls for systemd-udevd.service
         insinto "$(systemd_get_systemunitdir)/systemd-udevd.service.d"
         newins - flatcar.conf <<'EOF'
