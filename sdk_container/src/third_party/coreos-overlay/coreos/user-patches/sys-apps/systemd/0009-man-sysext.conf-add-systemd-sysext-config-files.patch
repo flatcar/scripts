@@ -1,0 +1,156 @@
+From 88943429fbf80cf55fc7307ea34b5942524c2f45 Mon Sep 17 00:00:00 2001
+From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Date: Thu, 17 Jul 2025 05:28:21 -0400
+Subject: [PATCH 2/4] man/sysext.conf: add systemd-sysext config files
+
+Add sysext.conf, which similar to other configs like coredump, will be
+searched in:
+/{etc run usr/lib}/systemd/{sysext/confext}.conf
+but also
+/{etc run usr/lib}/systemd/{sysext/confext}.conf.d/*
+
+This config is an alternative to command line options, especially useful
+if we want to extend the service units without modifying them.
+---
+ man/rules/meson.build  |  1 +
+ man/sysext.conf.xml    | 89 ++++++++++++++++++++++++++++++++++++++++++
+ man/systemd-sysext.xml |  8 +++-
+ 3 files changed, 97 insertions(+), 1 deletion(-)
+ create mode 100644 man/sysext.conf.xml
+
+diff --git a/man/rules/meson.build b/man/rules/meson.build
+index 33f44b0659..6284183756 100644
+--- a/man/rules/meson.build
++++ b/man/rules/meson.build
+@@ -1138,6 +1138,7 @@ manpages = [
+    'systemd-sysext-initrd.service',
+    'systemd-sysext.service'],
+   'ENABLE_SYSEXT'],
++ ['sysext.conf', '5', ['confext.conf'], 'ENABLE_SYSEXT'],
+  ['systemd-system-update-generator', '8', [], ''],
+  ['systemd-system.conf',
+   '5',
+diff --git a/man/sysext.conf.xml b/man/sysext.conf.xml
+new file mode 100644
+index 0000000000..cdd88f2447
+--- /dev/null
++++ b/man/sysext.conf.xml
+@@ -0,0 +1,89 @@
++<?xml version='1.0'?> <!--*-nxml-*-->
++<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
++  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
++<!-- SPDX-License-Identifier: LGPL-2.1-or-later -->
++
++<refentry id="sysext.conf" conditional='ENABLE_SYSEXT'
++    xmlns:xi="http://www.w3.org/2001/XInclude">
++
++  <refentryinfo>
++    <title>sysext.conf</title>
++    <productname>systemd</productname>
++  </refentryinfo>
++
++  <refmeta>
++    <refentrytitle>sysext.conf</refentrytitle>
++    <manvolnum>5</manvolnum>
++  </refmeta>
++
++  <refnamediv>
++    <refname>sysext.conf</refname>
++    <refname>confext.conf</refname>
++    <refname>sysext.conf.d</refname>
++    <refname>confext.conf.d</refname>
++    <refpurpose>Configuration files for systemd-sysext</refpurpose>
++  </refnamediv>
++
++  <refsynopsisdiv>
++    <para><filename>/etc/systemd/sysext.conf</filename></para>
++    <para><filename>/etc/systemd/sysext.conf.d/*.conf</filename></para>
++    <para><filename>/run/systemd/sysext.conf</filename></para>
++    <para><filename>/run/systemd/sysext.conf.d/*.conf</filename></para>
++    <para><filename>/usr/lib/systemd/sysext.conf</filename></para>
++    <para><filename>/usr/lib/systemd/sysext.conf.d/*.conf</filename></para>
++    <para><filename>/etc/systemd/confext.conf</filename></para>
++    <para><filename>/etc/systemd/confext.conf.d/*.conf</filename></para>
++    <para><filename>/run/systemd/confext.conf</filename></para>
++    <para><filename>/run/systemd/confext.conf.d/*.conf</filename></para>
++    <para><filename>/usr/lib/systemd/confext.conf</filename></para>
++    <para><filename>/usr/lib/systemd/confext.conf.d/*.conf</filename></para>
++  </refsynopsisdiv>
++
++  <refsect1>
++    <title>Description</title>
++
++    <para>These configuration files control the behavior of
++    <citerefentry><refentrytitle>systemd-sysext</refentrytitle><manvolnum>8</manvolnum></citerefentry> and
++    <citerefentry><refentrytitle>systemd-confext</refentrytitle><manvolnum>8</manvolnum></citerefentry>.
++    They are especially useful when needing to customize the behavior of the
++    respective extension service units.</para>
++  </refsect1>
++
++  <xi:include href="standard-conf.xml" xpointer="main-conf" />
++
++  <refsect1>
++    <title>Options</title>
++
++    <para>The following options are understood in both the <literal>[Sysext]</literal> and
++    <literal>[Confext]</literal> sections:</para>
++
++    <refsect2>
++      <title>Section Options</title>
++
++      <variablelist class='config-directives'>
++        <varlistentry>
++          <term><varname>Mutable=</varname></term>
++          <listitem><para>Set the mutable mode for system extensions. Takes one of <literal>no</literal>,
++          <literal>yes</literal>, <literal>auto</literal>, <literal>import</literal>,
++          <literal>ephemeral</literal>, or <literal>ephemeral-import</literal>. For details about the modes,
++          see the <option>--mutable=</option> option in
++          <citerefentry><refentrytitle>systemd-sysext</refentrytitle><manvolnum>8</manvolnum></citerefentry>.
++          Defaults to <literal>no</literal>.</para>
++
++          <xi:include href="version-info.xml" xpointer="v259"/>
++          </listitem>
++        </varlistentry>
++      </variablelist>
++    </refsect2>
++  </refsect1>
++
++  <refsect1>
++    <title>See Also</title>
++    <para><simplelist type="inline">
++      <member><citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
++      <member><citerefentry><refentrytitle>systemd-sysext</refentrytitle><manvolnum>8</manvolnum></citerefentry></member>
++      <member><citerefentry><refentrytitle>systemd.syntax</refentrytitle><manvolnum>7</manvolnum></citerefentry></member>
++    </simplelist></para>
++  </refsect1>
++
++</refentry>
+diff --git a/man/systemd-sysext.xml b/man/systemd-sysext.xml
+index 3f60c85dba..6df2d94e9f 100644
+--- a/man/systemd-sysext.xml
++++ b/man/systemd-sysext.xml
+@@ -74,7 +74,12 @@
+     <para>System extension images are strictly read-only by default. On mutable host file systems,
+     <filename>/usr/</filename> and <filename>/opt/</filename> hierarchies become read-only while extensions
+     are merged, unless mutability is enabled. Mutability may be enabled via the <option>--mutable=</option>
+-    option; see "Mutability" below for more information.</para>
++    option and the <varname>Mutable=</varname> option in the configuration file;
++    see "Mutability" below for more information.</para>
++
++    <para>Various command options can be configured globally via configuration files. See
++    <citerefentry><refentrytitle>sysext.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry>
++    for details.</para>
+ 
+     <para>System extensions are supposed to be purely additive, i.e. they are supposed to include only files
+     that do not exist in the underlying basic OS image. However, the underlying mechanism (overlayfs) also
+@@ -491,6 +496,7 @@
+     <title>See Also</title>
+     <para><simplelist type="inline">
+       <member><citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
++      <member><citerefentry><refentrytitle>sysext.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry></member>
+       <member><citerefentry><refentrytitle>systemd-nspawn</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+       <member><citerefentry><refentrytitle>systemd-stub</refentrytitle><manvolnum>7</manvolnum></citerefentry></member>
+       <member><citerefentry><refentrytitle>importctl</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+-- 
+2.51.0
+

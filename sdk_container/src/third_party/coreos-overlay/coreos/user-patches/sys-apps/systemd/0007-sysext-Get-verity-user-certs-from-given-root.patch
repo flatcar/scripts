@@ -1,0 +1,361 @@
+From 439fb373b7360ba3759b8978d0354d4fe760c8f2 Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Thu, 27 Nov 2025 17:49:15 +0900
+Subject: [PATCH 2/3] sysext: Get verity user certs from given --root=
+
+The verity user certs weren't looked up in the given --root= for
+systemd-sysext which made it fail to set up extensions with a strict
+image policy.
+Look up verity user certs from inside the --root= when we operate on
+images in it. The main use case where this matters is when the initrd
+sets up the extensions for the final system and thus systemd-sysext
+should do the same thing as it would do in the final system.
+
+Signed-off-by: Kai Lueke <kailuke@microsoft.com>
+---
+ src/core/namespace.c                 |  1 +
+ src/machine/image-dbus.c             |  8 ++--
+ src/machine/machined-varlink.c       |  2 +-
+ src/mountfsd/mountwork.c             |  1 +
+ src/portable/portabled-image-bus.c   |  2 +-
+ src/shared/discover-image.c          |  2 +-
+ src/shared/discover-image.h          |  2 +-
+ src/shared/dissect-image.c           | 22 ++++++-----
+ src/shared/dissect-image.h           |  2 +-
+ src/sysext/sysext.c                  |  4 +-
+ test/units/TEST-50-DISSECT.sysext.sh | 58 ++++++++++++++++++++++++++++
+ 11 files changed, 84 insertions(+), 20 deletions(-)
+
+diff --git a/src/core/namespace.c b/src/core/namespace.c
+index 283a1108ce..97cf008194 100644
+--- a/src/core/namespace.c
++++ b/src/core/namespace.c
+@@ -2593,6 +2593,7 @@ int setup_namespace(const NamespaceParameters *p, char **reterr_path) {
+                         r = dissected_image_decrypt(
+                                         dissected_image,
+                                         NULL,
++                                        NULL,
+                                         p->verity,
+                                         dissect_image_flags);
+                         if (r < 0)
+diff --git a/src/machine/image-dbus.c b/src/machine/image-dbus.c
+index 8bc6565079..2857cd18be 100644
+--- a/src/machine/image-dbus.c
++++ b/src/machine/image-dbus.c
+@@ -284,7 +284,7 @@ int bus_image_method_get_hostname(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container);
++                r = image_read_metadata(image, NULL, &image_policy_container);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+@@ -302,7 +302,7 @@ int bus_image_method_get_machine_id(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container);
++                r = image_read_metadata(image, NULL, &image_policy_container);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+@@ -330,7 +330,7 @@ int bus_image_method_get_machine_info(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container);
++                r = image_read_metadata(image, NULL, &image_policy_container);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+@@ -347,7 +347,7 @@ int bus_image_method_get_os_release(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container);
++                r = image_read_metadata(image, NULL, &image_policy_container);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+diff --git a/src/machine/machined-varlink.c b/src/machine/machined-varlink.c
+index 52b1fc12d2..1e8f4ce9a8 100644
+--- a/src/machine/machined-varlink.c
++++ b/src/machine/machined-varlink.c
+@@ -621,7 +621,7 @@ static int list_image_one_and_maybe_read_metadata(sd_varlink *link, Image *image
+         assert(image);
+ 
+         if (should_acquire_metadata(am) && !image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container);
++                r = image_read_metadata(image, NULL, &image_policy_container);
+                 if (r < 0 && am != ACQUIRE_METADATA_GRACEFUL)
+                         return log_debug_errno(r, "Failed to read image metadata: %m");
+                 if (r < 0)
+diff --git a/src/mountfsd/mountwork.c b/src/mountfsd/mountwork.c
+index bfb8c05c22..260a668525 100644
+--- a/src/mountfsd/mountwork.c
++++ b/src/mountfsd/mountwork.c
+@@ -495,6 +495,7 @@ static int vl_method_mount_image(
+ 
+         r = dissected_image_decrypt(
+                         di,
++                        NULL,
+                         p.password,
+                         &verity,
+                         dissect_flags);
+diff --git a/src/portable/portabled-image-bus.c b/src/portable/portabled-image-bus.c
+index e8bcb900ef..380a6d5d45 100644
+--- a/src/portable/portabled-image-bus.c
++++ b/src/portable/portabled-image-bus.c
+@@ -61,7 +61,7 @@ int bus_image_common_get_os_release(
+                 return 1;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_service);
++                r = image_read_metadata(image, NULL, &image_policy_service);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+diff --git a/src/shared/discover-image.c b/src/shared/discover-image.c
+index 9ce5f028fc..822ea2bd24 100644
+--- a/src/shared/discover-image.c
++++ b/src/shared/discover-image.c
+@@ -1766,7 +1766,7 @@ int image_set_pool_limit(ImageClass class, uint64_t referenced_max) {
+         return 0;
+ }
+ 
+-int image_read_metadata(Image *i, const ImagePolicy *image_policy) {
++int image_read_metadata(Image *i, const char *root, const ImagePolicy *image_policy) {
+         _cleanup_(release_lock_file) LockFile global_lock = LOCK_FILE_INIT, local_lock = LOCK_FILE_INIT;
+         int r;
+ 
+diff --git a/src/shared/discover-image.h b/src/shared/discover-image.h
+index 7b5593f08d..4d64a306c8 100644
+--- a/src/shared/discover-image.h
++++ b/src/shared/discover-image.h
+@@ -73,7 +73,7 @@ int image_name_lock(const char *name, int operation, LockFile *ret);
+ int image_set_limit(Image *i, uint64_t referenced_max);
+ int image_set_pool_limit(ImageClass class, uint64_t referenced_max);
+ 
+-int image_read_metadata(Image *i, const ImagePolicy *image_policy);
++int image_read_metadata(Image *i, const char *root, const ImagePolicy *image_policy);
+ 
+ bool image_in_search_path(RuntimeScope scope, ImageClass class, const char *root, const char *image);
+ 
+diff --git a/src/shared/dissect-image.c b/src/shared/dissect-image.c
+index 715afc8882..8ffb63e1d3 100644
+--- a/src/shared/dissect-image.c
++++ b/src/shared/dissect-image.c
+@@ -2611,7 +2611,7 @@ static char* dm_deferred_remove_clean(char *name) {
+ }
+ DEFINE_TRIVIAL_CLEANUP_FUNC(char *, dm_deferred_remove_clean);
+ 
+-static int validate_signature_userspace(const VeritySettings *verity, DissectImageFlags flags) {
++static int validate_signature_userspace(const VeritySettings *verity, const char *root, DissectImageFlags flags) {
+         int r;
+ 
+         if (!FLAGS_SET(flags, DISSECT_IMAGE_ALLOW_USERSPACE_VERITY)) {
+@@ -2656,7 +2656,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
+         /* Because installing a signature certificate into the kernel chain is so messy, let's optionally do
+          * userspace validation. */
+ 
+-        r = conf_files_list_nulstr(&certs, ".crt", NULL, CONF_FILES_REGULAR|CONF_FILES_FILTER_MASKED, CONF_PATHS_NULSTR("verity.d"));
++        r = conf_files_list_nulstr(&certs, ".crt", root, CONF_FILES_REGULAR|CONF_FILES_FILTER_MASKED, CONF_PATHS_NULSTR("verity.d"));
+         if (r < 0)
+                 return log_debug_errno(r, "Failed to enumerate certificates: %m");
+         if (strv_isempty(certs)) {
+@@ -2718,6 +2718,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
+ 
+ static int do_crypt_activate_verity(
+                 struct crypt_device *cd,
++                const char *root,
+                 const char *name,
+                 const VeritySettings *verity,
+                 DissectImageFlags flags) {
+@@ -2765,7 +2766,7 @@ static int do_crypt_activate_verity(
+ 
+                 /* Preferably propagate the original kernel error, so that the fallback logic can work,
+                  * as the device-mapper is finicky around concurrent activations of the same volume */
+-                k = validate_signature_userspace(verity, flags);
++                k = validate_signature_userspace(verity, root, flags);
+                 if (k < 0)
+                         return r < 0 ? r : k;
+                 if (k == 0)
+@@ -2805,8 +2806,9 @@ static usec_t verity_timeout(void) {
+ 
+ static int verity_partition(
+                 PartitionDesignator designator,
+-                DissectedPartition *m,
+-                DissectedPartition *v,
++                DissectedPartition *m, /* data partition */
++                DissectedPartition *v, /* verity partition */
++                const char *root, /* The root to get user verity certs from (for a sysext) */
+                 const VeritySettings *verity,
+                 DissectImageFlags flags,
+                 DecryptedImage *d) {
+@@ -2886,7 +2888,7 @@ static int verity_partition(
+                         goto check; /* The device already exists. Let's check it. */
+ 
+                 /* The symlink to the device node does not exist yet. Assume not activated, and let's activate it. */
+-                r = do_crypt_activate_verity(cd, name, verity, flags);
++                r = do_crypt_activate_verity(cd, root, name, verity, flags);
+                 if (r >= 0)
+                         goto try_open; /* The device is activated. Let's open it. */
+                 /* libdevmapper can return EINVAL when the device is already in the activation stage.
+@@ -2980,7 +2982,7 @@ static int verity_partition(
+                  */
+                 sym_crypt_free(cd);
+                 cd = NULL;
+-                return verity_partition(designator, m, v, verity, flags & ~DISSECT_IMAGE_VERITY_SHARE, d);
++                return verity_partition(designator, m, v, root, verity, flags & ~DISSECT_IMAGE_VERITY_SHARE, d);
+         }
+ 
+         return log_debug_errno(SYNTHETIC_ERRNO(EBUSY), "All attempts to activate verity device %s failed.", name);
+@@ -3000,6 +3002,7 @@ success:
+ 
+ int dissected_image_decrypt(
+                 DissectedImage *m,
++                const char *root, /* The root to get user verity certs from (for a sysext) */
+                 const char *passphrase,
+                 const VeritySettings *verity,
+                 DissectImageFlags flags) {
+@@ -3047,7 +3050,7 @@ int dissected_image_decrypt(
+                 if (k >= 0) {
+                         flags |= getenv_bool("SYSTEMD_VERITY_SHARING") != 0 ? DISSECT_IMAGE_VERITY_SHARE : 0;
+ 
+-                        r = verity_partition(i, p, m->partitions + k, verity, flags, d);
++                        r = verity_partition(i, p, m->partitions + k, root, verity, flags, d);
+                         if (r < 0)
+                                 return r;
+                 }
+@@ -3080,7 +3083,7 @@ int dissected_image_decrypt_interactively(
+                 n--;
+ 
+         for (;;) {
+-                r = dissected_image_decrypt(m, passphrase, verity, flags);
++                r = dissected_image_decrypt(m, NULL, passphrase, verity, flags);
+                 if (r >= 0)
+                         return r;
+                 if (r == -EKEYREJECTED)
+@@ -4367,6 +4370,7 @@ int verity_dissect_and_mount(
+         r = dissected_image_decrypt(
+                         dissected_image,
+                         NULL,
++                        NULL,
+                         verity,
+                         dissect_image_flags);
+         if (r < 0)
+diff --git a/src/shared/dissect-image.h b/src/shared/dissect-image.h
+index 97431bca67..004dc46dc3 100644
+--- a/src/shared/dissect-image.h
++++ b/src/shared/dissect-image.h
+@@ -171,7 +171,7 @@ void dissected_image_close(DissectedImage *m);
+ DissectedImage* dissected_image_unref(DissectedImage *m);
+ DEFINE_TRIVIAL_CLEANUP_FUNC(DissectedImage*, dissected_image_unref);
+ 
+-int dissected_image_decrypt(DissectedImage *m, const char *passphrase, const VeritySettings *verity, DissectImageFlags flags);
++int dissected_image_decrypt(DissectedImage *m, const char *root, const char *passphrase, const VeritySettings *verity, DissectImageFlags flags);
+ int dissected_image_decrypt_interactively(DissectedImage *m, const char *passphrase, const VeritySettings *verity, DissectImageFlags flags);
+ int dissected_image_mount(DissectedImage *m, const char *where, uid_t uid_shift, uid_t uid_range, int userns_fd, DissectImageFlags flags);
+ int dissected_image_mount_and_warn(DissectedImage *m, const char *where, uid_t uid_shift, uid_t uid_range, int userns_fd, DissectImageFlags flags);
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index c33ce0d0a4..dbd6df63b4 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -1888,7 +1888,7 @@ static int merge_subprocess(
+                                         return log_error_errno(r, "Failed to create origin verity entry for '%s': %m", img->name);
+                         }
+ 
+-                        r = dissected_image_decrypt(m, /* passphrase= */ NULL, &verity_settings, flags);
++                        r = dissected_image_decrypt(m, arg_root, /* passphrase= */ NULL, &verity_settings, flags);
+                         if (r < 0)
+                                 return r;
+ 
+@@ -2308,7 +2308,7 @@ static int image_discover_and_read_metadata(ImageClass image_class, Hashmap **re
+                 return log_error_errno(r, "Failed to discover images: %m");
+ 
+         HASHMAP_FOREACH(img, images) {
+-                r = image_read_metadata(img, image_class_info[image_class].default_image_policy);
++                r = image_read_metadata(img, arg_root, image_class_info[image_class].default_image_policy);
+                 if (r < 0)
+                         return log_error_errno(r, "Failed to read metadata for image %s: %m", img->name);
+         }
+diff --git a/test/units/TEST-50-DISSECT.sysext.sh b/test/units/TEST-50-DISSECT.sysext.sh
+index 05f691b457..6e64eea492 100755
+--- a/test/units/TEST-50-DISSECT.sysext.sh
++++ b/test/units/TEST-50-DISSECT.sysext.sh
+@@ -181,6 +181,52 @@ prepare_extension_image_raw() {
+     prepend_trap "rm -rf ${ext_dir@Q}.raw"
+ }
+ 
++prepare_extension_image_raw_verity() {
++    local root=${1:-}
++    local hierarchy=${2:?}
++    local ext_dir ext_release name tmpcrt
++
++    name="test-extension"
++    ext_dir="$root/var/lib/extensions/$name"
++    ext_release="$ext_dir/usr/lib/extension-release.d/extension-release.$name"
++    tmpcrt=$(mktemp --directory "/tmp/test-sysext.crt.XXXXXXXXXX")
++
++    prepend_trap "rm -rf ${ext_dir@Q} ${ext_dir@Q}.raw '$root/etc/verity.d/test-ext.crt' '$tmpcrt'"
++
++    mkdir -p "${ext_release%/*}"
++    echo "ID=_any" >"$ext_release"
++    mkdir -p "$ext_dir/$hierarchy"
++    touch "$ext_dir$hierarchy/preexisting-file-in-extension-image"
++    tee >"$tmpcrt/verity.openssl.cnf" <<EOF
++[ req ]
++prompt = no
++distinguished_name = req_distinguished_name
++[ req_distinguished_name ]
++C = DE
++ST = Test State
++L = Test Locality
++O = Org Name
++OU = Org Unit Name
++CN = Common Name
++emailAddress = test@email.com
++EOF
++    openssl req \
++        -config "$tmpcrt/verity.openssl.cnf" \
++        -new -x509 \
++        -newkey rsa:1024 \
++        -keyout "$tmpcrt/test-ext.key" \
++        -out "$tmpcrt/test-ext.crt" \
++        -days 365 \
++        -nodes
++    systemd-repart --make-ddi=sysext \
++        --private-key="$tmpcrt/test-ext.key" --certificate="$tmpcrt/test-ext.crt" \
++        --copy-source="$ext_dir" "$ext_dir.raw"
++    rm -rf "$ext_dir"
++    mkdir -p "$root/etc/verity.d"
++    mv "$tmpcrt/test-ext.crt" "$root/etc/verity.d/"
++    rm -rf "$tmpcrt"
++}
++
+ prepare_extension_mutable_dir() {
+     local dir=${1:?}
+ 
+@@ -1439,6 +1485,18 @@ if [ "$MOUNTID2" = "$MOUNTID3" ]; then
+     exit 1
+ fi
+ 
++( init_trap
++: "Check if verity user certs get loaded from --root="
++fake_root=${roots_dir:+"$roots_dir/verity-user-cert-from-root"}
++hierarchy=/opt
++
++prepare_root "$fake_root" "$hierarchy"
++prepare_extension_image_raw_verity "$fake_root" "$hierarchy"
++prepare_read_only_hierarchy "$fake_root" "$hierarchy"
++
++run_systemd_sysext "$fake_root" merge --image-policy=root=signed+absent:usr=signed+absent
++extension_verify_after_merge "$fake_root" "$hierarchy" -e -h
++
+ run_systemd_sysext "$fake_root" unmerge
+ extension_verify_after_unmerge "$fake_root" "$hierarchy" -h
+ )
+-- 
+2.52.0
+
