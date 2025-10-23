@@ -1,0 +1,1007 @@
+From 34f3aeb2b92388e26cabe51e48dea99845e0930f Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Wed, 26 Nov 2025 00:04:43 +0900
+Subject: [PATCH 1/3] sysext: Skip refresh if no changes are found
+
+When the extensions for the final system are already set up from the
+initrd we should avoid disrupting the boot process with the remount
+(which currently isn't atomic) and the daemon reload for
+systemd-confext and systemd-sysext. Similarly, when sysupdate ran and
+updated extensions it's best to avoid the remount and daemon reload if
+no changes are found.
+To do this, encode the current extension state in more detail than
+before where only the names of the extensions where encoded in the
+overlay mount. This can also be used to provide more details about the
+extension origin in "systemd-sysext status (--json=)". During the
+refresh add a check whether the old state matches the new state and in
+this case skip the refresh unless the user provides a flag to always
+refresh. Besides the extension name and the resolved path the best
+method for identification is the verity hash but that is not available
+for plain image files or directories. Therefore, also include data to
+check for file/directory replacements. The creation/modification times
+are not always real on reproducible images or extracted archive content.
+The file handle together with the unique mount ID is the next best
+identifier we can use when we have no verity hash. Fall back to an inode
+when we get no handle. With the creation/modification time and the path
+this should be good enough. Using a unique mount ID is important (with
+a fallback to the regular non-unique mount ID) instead of st_dev because
+st_dev gets reused too easily, e.g., by a loop device mount and the
+mount ID helps to catch this. For the mount ID to be valid it has to be
+resolved before we enter the new mount namespace. Thus, it gets provided
+by the image dissect logic and handed over to the sysext subprocess
+which runs in a new mount namespace.
+Luckily, we can rule out online modification of directories or image
+files because this is anyway not well supported with overlay mounts, so
+we don't do a file checksum nor do we recurse into a directory to look
+for the most recently touched files.  But, as said, with the
+always-refresh flag one can force a reload. Another case that is not
+supported is changed values of SYSTEMD_SYSEXT_OVERLAYFS_MOUNT_OPTIONS=
+and these also need an explicit refresh to be applied.
+---
+ man/systemd-sysext.xml                 |  14 ++
+ shell-completion/bash/systemd-sysext   |   1 +
+ src/basic/mountpoint-util.c            |  98 ++++++++-
+ src/basic/mountpoint-util.h            |   4 +-
+ src/include/override/fcntl.h           |   5 +
+ src/shared/discover-image.c            |  54 +++++
+ src/shared/discover-image.h            |   4 +
+ src/shared/varlink-io.systemd.sysext.c |   1 +
+ src/sysext/sysext.c                    | 271 ++++++++++++++++++++++---
+ test/units/TEST-50-DISSECT.sysext.sh   |  41 ++++
+ 10 files changed, 458 insertions(+), 35 deletions(-)
+
+diff --git a/man/systemd-sysext.xml b/man/systemd-sysext.xml
+index 07e97071a5..3f60c85dba 100644
+--- a/man/systemd-sysext.xml
++++ b/man/systemd-sysext.xml
+@@ -366,6 +366,20 @@
+         <xi:include href="version-info.xml" xpointer="v248"/></listitem>
+       </varlistentry>
+ 
++      <varlistentry>
++        <term><option>--always-refresh=yes|no</option></term>
++
++        <listitem><para>When refreshing system extensions on <filename>/usr/</filename> and
++        <filename>/opt/</filename> for sysext and <filename>/etc/</filename> for confext,
++        ignore when the existing merged extensions already match what would be merged.
++        By default the refresh is skipped when no changes are found. Note that changes
++        done to an extension directory while it's merged are ignored without this flag
++        (unless an other extension got changed). Note that changing the contents while
++        merged is also undefined behavior in overlayfs.</para>
++
++        <xi:include href="version-info.xml" xpointer="v250"/></listitem>
++      </varlistentry>
++
+       <varlistentry>
+         <term><option>--image-policy=<replaceable>policy</replaceable></option></term>
+ 
+diff --git a/shell-completion/bash/systemd-sysext b/shell-completion/bash/systemd-sysext
+index c605237ed6..69d786c33e 100644
+--- a/shell-completion/bash/systemd-sysext
++++ b/shell-completion/bash/systemd-sysext
+@@ -36,6 +36,7 @@ _systemd-sysext() {
+         [ARG]='--root
+                --json
+                --noexec
++               --always-refresh
+                --image-policy
+                --mutable'
+     )
+diff --git a/src/basic/mountpoint-util.c b/src/basic/mountpoint-util.c
+index b7c4870931..0d52d4cfea 100644
+--- a/src/basic/mountpoint-util.c
++++ b/src/basic/mountpoint-util.c
+@@ -51,12 +51,16 @@ int name_to_handle_at_loop(
+                 const char *path,
+                 struct file_handle **ret_handle,
+                 int *ret_mnt_id,
++                uint64_t *ret_unique_mnt_id,
+                 int flags) {
+ 
+         size_t n = ORIGINAL_MAX_HANDLE_SZ;
+ 
+         assert(fd >= 0 || fd == AT_FDCWD);
+-        assert((flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH|AT_HANDLE_FID)) == 0);
++        assert((flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH|AT_HANDLE_FID|AT_HANDLE_MNT_ID_UNIQUE)) == 0);
++
++        if (isempty(path))
++                flags |= AT_EMPTY_PATH;
+ 
+         /* We need to invoke name_to_handle_at() in a loop, given that it might return EOVERFLOW when the specified
+          * buffer is too small. Note that in contrast to what the docs might suggest, MAX_HANDLE_SZ is only good as a
+@@ -67,7 +71,8 @@ int name_to_handle_at_loop(
+ 
+         for (;;) {
+                 _cleanup_free_ struct file_handle *h = NULL;
+-                int mnt_id = -1;
++                int mnt_id = -1, r;
++                uint64_t unique_mnt_id = 0;
+ 
+                 h = malloc0(offsetof(struct file_handle, f_handle) + n);
+                 if (!h)
+@@ -75,12 +80,20 @@ int name_to_handle_at_loop(
+ 
+                 h->handle_bytes = n;
+ 
+-                if (name_to_handle_at(fd, strempty(path), h, &mnt_id, flags) >= 0) {
++                if (flags & AT_HANDLE_MNT_ID_UNIQUE)
++                        /* The kernel will still use this as uint64_t pointer */
++                        r = name_to_handle_at(fd, strempty(path), h, (int *) &unique_mnt_id, flags);
++                else
++                        r = name_to_handle_at(fd, strempty(path), h, &mnt_id, flags);
++
++                if (r >= 0) {
+ 
+                         if (ret_handle)
+                                 *ret_handle = TAKE_PTR(h);
+ 
+-                        if (ret_mnt_id)
++                        if (ret_unique_mnt_id && flags & AT_HANDLE_MNT_ID_UNIQUE)
++                                *ret_unique_mnt_id = unique_mnt_id;
++                        if (ret_mnt_id && (flags & AT_HANDLE_MNT_ID_UNIQUE) == 0)
+                                 *ret_mnt_id = mnt_id;
+ 
+                         return 0;
+@@ -88,13 +101,16 @@ int name_to_handle_at_loop(
+                 if (errno != EOVERFLOW)
+                         return -errno;
+ 
+-                if (!ret_handle && ret_mnt_id && mnt_id >= 0) {
++                if (!ret_handle && ((ret_mnt_id && mnt_id >= 0) || (ret_unique_mnt_id && unique_mnt_id > 0))) {
+ 
+                         /* As it appears, name_to_handle_at() fills in mnt_id even when it returns EOVERFLOW when the
+                          * buffer is too small, but that's undocumented. Hence, let's make use of this if it appears to
+                          * be filled in, and the caller was interested in only the mount ID an nothing else. */
+ 
+-                        *ret_mnt_id = mnt_id;
++                        if (ret_unique_mnt_id && flags & AT_HANDLE_MNT_ID_UNIQUE)
++                                *ret_unique_mnt_id = unique_mnt_id;
++                        else if (ret_mnt_id)
++                                *ret_mnt_id = mnt_id;
+                         return 0;
+                 }
+ 
+@@ -128,11 +144,52 @@ int name_to_handle_at_try_fid(
+          * we'll try without the flag, in order to support older kernels that didn't have AT_HANDLE_FID
+          * (i.e. older than Linux 6.5). */
+ 
+-        r = name_to_handle_at_loop(fd, path, ret_handle, ret_mnt_id, flags | AT_HANDLE_FID);
++        r = name_to_handle_at_loop(fd, path, ret_handle, ret_mnt_id, NULL, flags | AT_HANDLE_FID);
+         if (r >= 0 || is_name_to_handle_at_fatal_error(r))
+                 return r;
+ 
+-        return name_to_handle_at_loop(fd, path, ret_handle, ret_mnt_id, flags & ~AT_HANDLE_FID);
++        return name_to_handle_at_loop(fd, path, ret_handle, ret_mnt_id, NULL, flags & ~AT_HANDLE_FID);
++}
++
++int name_to_handle_at_try_unique_mntid_fid(
++                int fd,
++                const char *path,
++                struct file_handle **ret_handle,
++                uint64_t *ret_mnt_id,
++                int flags) {
++
++        int mnt_id = -1, r;
++
++        assert(fd >= 0 || fd == AT_FDCWD);
++
++        /* First issues name_to_handle_at() with AT_HANDLE_MNT_ID_UNIQUE and AT_HANDLE_FID.
++         * If this fails and this is not a fatal error we'll try without the
++         * AT_HANDLE_MNT_ID_UNIQUE flag because it's only available from Linux 6.12 onwards. */
++        r = name_to_handle_at_loop(fd, path, ret_handle, NULL, ret_mnt_id, flags | AT_HANDLE_MNT_ID_UNIQUE | AT_HANDLE_FID);
++        if (r >= 0 || is_name_to_handle_at_fatal_error(r))
++                return r;
++
++        flags &= ~AT_HANDLE_MNT_ID_UNIQUE;
++
++        /* Then issues name_to_handle_at() with AT_HANDLE_FID. If this fails and this is not a fatal error
++         * we'll try without the flag, in order to support older kernels that didn't have AT_HANDLE_FID
++         * (i.e. older than Linux 6.5). */
++
++        r = name_to_handle_at_loop(fd, path, ret_handle, &mnt_id, NULL, flags | AT_HANDLE_FID);
++        if (ret_mnt_id && mnt_id >= 0) {
++                /* See if we can do better because statx can do unique mount IDs since Linux 6.8
++                 * and only if this doesn't work we use the non-unique mnt_id as returned.
++                 * The function only sets mnt_id after checking the error code, so omitted above. */
++                if (path_get_unique_mnt_id_at(fd, path, ret_mnt_id) < 0)
++                        *ret_mnt_id = mnt_id;
++        }
++        if (r >= 0 || is_name_to_handle_at_fatal_error(r))
++                return r;
++
++        r = name_to_handle_at_loop(fd, path, ret_handle, &mnt_id, NULL, flags & ~AT_HANDLE_FID);
++        if (ret_mnt_id && mnt_id >= 0)
++                *ret_mnt_id = mnt_id;
++        return r;
+ }
+ 
+ static int fd_fdinfo_mnt_id(int fd, const char *filename, int flags, int *ret_mnt_id) {
+@@ -373,7 +430,7 @@ int path_get_mnt_id_at_fallback(int dir_fd, const char *path, int *ret) {
+         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+         assert(ret);
+ 
+-        r = name_to_handle_at_loop(dir_fd, path, NULL, ret, isempty(path) ? AT_EMPTY_PATH : 0);
++        r = name_to_handle_at_loop(dir_fd, path, NULL, ret, NULL, 0);
+         if (r >= 0 || is_name_to_handle_at_fatal_error(r))
+                 return r;
+ 
+@@ -403,6 +460,29 @@ int path_get_mnt_id_at(int dir_fd, const char *path, int *ret) {
+         return path_get_mnt_id_at_fallback(dir_fd, path, ret);
+ }
+ 
++int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret) {
++        struct statx sx;
++
++        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
++        assert(ret);
++
++        if (statx(dir_fd,
++                  strempty(path),
++                  (isempty(path) ? AT_EMPTY_PATH : AT_SYMLINK_NOFOLLOW) |
++                  AT_NO_AUTOMOUNT |    /* don't trigger automounts, mnt_id is a local concept */
++                  AT_STATX_DONT_SYNC,  /* don't go to the network, mnt_id is a local concept */
++                  STATX_MNT_ID_UNIQUE,
++                  &sx) < 0)
++                return -errno;
++
++        if (FLAGS_SET(sx.stx_mask, STATX_MNT_ID_UNIQUE)) {
++                *ret = sx.stx_mnt_id;
++                return 0;
++        }
++
++        return -EOPNOTSUPP;
++}
++
+ bool fstype_is_network(const char *fstype) {
+         const char *x;
+ 
+diff --git a/src/basic/mountpoint-util.h b/src/basic/mountpoint-util.h
+index 004d2b2af5..2d3e8390ba 100644
+--- a/src/basic/mountpoint-util.h
++++ b/src/basic/mountpoint-util.h
+@@ -34,8 +34,9 @@
+ 
+ bool is_name_to_handle_at_fatal_error(int err);
+ 
+-int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, int flags);
++int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
+ int name_to_handle_at_try_fid(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, int flags);
++int name_to_handle_at_try_unique_mntid_fid(int fd, const char *path, struct file_handle **ret_handle, uint64_t *ret_mnt_id, int flags);
+ 
+ bool file_handle_equal(const struct file_handle *a, const struct file_handle *b);
+ 
+@@ -44,6 +45,7 @@ int path_get_mnt_id_at(int dir_fd, const char *path, int *ret);
+ static inline int path_get_mnt_id(const char *path, int *ret) {
+         return path_get_mnt_id_at(AT_FDCWD, path, ret);
+ }
++int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
+ 
+ int is_mount_point_at(int fd, const char *filename, int flags);
+ int path_is_mount_point_full(const char *path, const char *root, int flags);
+diff --git a/src/include/override/fcntl.h b/src/include/override/fcntl.h
+index 5f1d90ad79..f244ffa9f1 100644
+--- a/src/include/override/fcntl.h
++++ b/src/include/override/fcntl.h
+@@ -17,3 +17,8 @@
+ #ifndef AT_HANDLE_FID
+ #define AT_HANDLE_FID AT_REMOVEDIR
+ #endif
++
++/* This is defined since glibc-2.42. */
++#ifndef AT_HANDLE_MNT_ID_UNIQUE
++#define AT_HANDLE_MNT_ID_UNIQUE	0x001	/* Return the u64 unique mount ID. */
++#endif
+diff --git a/src/shared/discover-image.c b/src/shared/discover-image.c
+index d6d41b4ecf..ddb2edaa33 100644
+--- a/src/shared/discover-image.c
++++ b/src/shared/discover-image.c
+@@ -35,6 +35,9 @@
+ #include "log.h"
+ #include "loop-util.h"
+ #include "mkdir.h"
++#include "mountpoint-util.h"
++#include "namespace-util.h"
++#include "nsresource.h"
+ #include "nulstr-util.h"
+ #include "os-util.h"
+ #include "path-util.h"
+@@ -125,6 +128,8 @@ static Image* image_free(Image *i) {
+         free(i->name);
+         free(i->path);
+ 
++        free(i->fh);
++
+         free(i->hostname);
+         strv_free(i->machine_info);
+         strv_free(i->os_release);
+@@ -194,6 +199,9 @@ static int image_new(
+                 bool read_only,
+                 usec_t crtime,
+                 usec_t mtime,
++                struct file_handle *fh,
++                uint64_t on_mount_id,
++                uint64_t inode,
+                 Image **ret) {
+ 
+         _cleanup_(image_unrefp) Image *i = NULL;
+@@ -215,12 +223,24 @@ static int image_new(
+                 .read_only = read_only,
+                 .crtime = crtime,
+                 .mtime = mtime,
++                .on_mount_id = on_mount_id,
++                .inode = inode,
+                 .usage = UINT64_MAX,
+                 .usage_exclusive = UINT64_MAX,
+                 .limit = UINT64_MAX,
+                 .limit_exclusive = UINT64_MAX,
+         };
+ 
++        if (fh) {
++                i->fh = malloc0(offsetof(struct file_handle, f_handle) + fh->handle_bytes);
++                if (!i->fh)
++                        return -ENOMEM;
++
++                i->fh->handle_bytes = fh->handle_bytes;
++                i->fh->handle_type = fh->handle_type;
++                memcpy(i->fh->f_handle, fh->f_handle, fh->handle_bytes);
++        }
++
+         i->name = strdup(pretty);
+         if (!i->name)
+                 return -ENOMEM;
+@@ -391,6 +411,28 @@ static int image_make(
+                 (dir_path && path_startswith(dir_path, "/usr")) ||
+                 (faccessat(fd, "", W_OK, AT_EACCESS|AT_EMPTY_PATH) < 0 && errno == EROFS);
+ 
++        uint64_t on_mount_id = 0;
++        _cleanup_free_ struct file_handle *fh = NULL;
++
++        r = name_to_handle_at_try_unique_mntid_fid(fd, NULL, &fh, &on_mount_id, 0);
++        if (r < 0) {
++                if (is_name_to_handle_at_fatal_error(r))
++                        return r;
++
++                r = path_get_unique_mnt_id_at(fd, NULL, &on_mount_id);
++                if (r < 0) {
++                        if (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
++                                return r;
++
++                        int on_mount_id_fallback = -1;
++                        r = path_get_mnt_id_at(fd, NULL, &on_mount_id_fallback);
++                        if (r < 0)
++                                return r;
++
++                        on_mount_id = on_mount_id_fallback;
++                }
++        }
++
+         if (S_ISDIR(st->st_mode)) {
+                 unsigned file_attr = 0;
+                 usec_t crtime = 0;
+@@ -433,6 +475,9 @@ static int image_make(
+                                               info.read_only || read_only,
+                                               info.otime,
+                                               info.ctime,
++                                              fh,
++                                              on_mount_id,
++                                              (uint64_t) st->st_ino,
+                                               ret);
+                                 if (r < 0)
+                                         return r;
+@@ -458,6 +503,9 @@ static int image_make(
+                               read_only || (file_attr & FS_IMMUTABLE_FL),
+                               crtime,
+                               0, /* we don't use mtime of stat() here, since it's not the time of last change of the tree, but only of the top-level dir */
++                              fh,
++                              on_mount_id,
++                              (uint64_t) st->st_ino,
+                               ret);
+                 if (r < 0)
+                         return r;
+@@ -495,6 +543,9 @@ static int image_make(
+                               !(st->st_mode & 0222) || read_only,
+                               crtime,
+                               timespec_load(&st->st_mtim),
++                              fh,
++                              on_mount_id,
++                              (uint64_t) st->st_ino,
+                               ret);
+                 if (r < 0)
+                         return r;
+@@ -553,6 +604,9 @@ static int image_make(
+                               !(st->st_mode & 0222) || read_only,
+                               0,
+                               0,
++                              fh,
++                              on_mount_id,
++                              (uint64_t) st->st_ino,
+                               ret);
+                 if (r < 0)
+                         return r;
+diff --git a/src/shared/discover-image.h b/src/shared/discover-image.h
+index 60f5a4dce1..7b5593f08d 100644
+--- a/src/shared/discover-image.h
++++ b/src/shared/discover-image.h
+@@ -27,6 +27,10 @@ typedef struct Image {
+         usec_t crtime;
+         usec_t mtime;
+ 
++        struct file_handle *fh;
++        uint64_t on_mount_id;
++        uint64_t inode;
++
+         uint64_t usage;
+         uint64_t usage_exclusive;
+         uint64_t limit;
+diff --git a/src/shared/varlink-io.systemd.sysext.c b/src/shared/varlink-io.systemd.sysext.c
+index 90eb8177d1..e48804c148 100644
+--- a/src/shared/varlink-io.systemd.sysext.c
++++ b/src/shared/varlink-io.systemd.sysext.c
+@@ -31,6 +31,7 @@ static SD_VARLINK_DEFINE_METHOD(
+                 SD_VARLINK_DEFINE_INPUT_BY_TYPE(class, ImageClass, SD_VARLINK_NULLABLE),
+                 SD_VARLINK_DEFINE_INPUT(force, SD_VARLINK_BOOL, SD_VARLINK_NULLABLE),
+                 SD_VARLINK_DEFINE_INPUT(noReload, SD_VARLINK_BOOL, SD_VARLINK_NULLABLE),
++                SD_VARLINK_DEFINE_INPUT(alwaysRefresh, SD_VARLINK_BOOL, SD_VARLINK_NULLABLE),
+                 SD_VARLINK_DEFINE_INPUT(noexec, SD_VARLINK_BOOL, SD_VARLINK_NULLABLE));
+ 
+ static SD_VARLINK_DEFINE_METHOD_FULL(
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index d63cf39fbb..bfe71f2267 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -8,6 +8,7 @@
+ #include <sys/mount.h>
+ #include <unistd.h>
+ 
++#include "sd-json.h"
+ #include "sd-varlink.h"
+ 
+ #include "argv-util.h"
+@@ -87,6 +88,7 @@ static PagerFlags arg_pager_flags = 0;
+ static bool arg_legend = true;
+ static bool arg_force = false;
+ static bool arg_no_reload = false;
++static bool arg_always_refresh = false;
+ static int arg_noexec = -1;
+ static ImagePolicy *arg_image_policy = NULL;
+ static bool arg_varlink = false;
+@@ -1401,6 +1403,28 @@ static int write_extensions_file(ImageClass image_class, char **extensions, cons
+         return 0;
+ }
+ 
++static int write_origin_file(ImageClass image_class, const char *origin_content, const char *meta_path, const char *hierarchy) {
++        _cleanup_free_ char *f = NULL;
++        int r;
++
++        assert(meta_path);
++
++        /* The origin file is compared to know if a refresh can be skipped (opt-in, used at service startup). */
++        f = path_join(meta_path, image_class_info[image_class].dot_directory_name, "origin");
++        if (!f)
++                return log_oom();
++
++        _cleanup_free_ char *hierarchy_path = path_join(hierarchy, image_class_info[image_class].dot_directory_name, image_class_info[image_class].short_identifier_plural);
++        if (!hierarchy_path)
++                return log_oom();
++
++        r = write_string_file_full(AT_FDCWD, f, strempty(origin_content), WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_MKDIR_0755|WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_AVOID_NEWLINE, /* ts= */ NULL, hierarchy_path);
++        if (r < 0)
++                return log_error_errno(r, "Failed to write origin meta file '%s': %m", f);
++
++        return 0;
++}
++
+ static int write_dev_file(ImageClass image_class, const char *meta_path, const char *overlay_path, const char *hierarchy) {
+         _cleanup_free_ char *f = NULL;
+         struct stat st;
+@@ -1505,6 +1529,7 @@ static int write_work_dir_file(ImageClass image_class, const char *meta_path, co
+ static int store_info_in_meta(
+                 ImageClass image_class,
+                 char **extensions,
++                const char *origin_content,
+                 const char *meta_path,
+                 const char *overlay_path,
+                 const char *work_dir,
+@@ -1537,6 +1562,10 @@ static int store_info_in_meta(
+         if (r < 0)
+                 return r;
+ 
++        r = write_origin_file(image_class, origin_content, meta_path, hierarchy);
++        if (r < 0)
++                return r;
++
+         r = write_dev_file(image_class, meta_path, overlay_path, hierarchy);
+         if (r < 0)
+                 return r;
+@@ -1595,6 +1624,7 @@ static int merge_hierarchy(
+                 int noexec,
+                 char **extensions,
+                 char **paths,
++                const char *origin_content,
+                 const char *meta_path,
+                 const char *overlay_path,
+                 const char *workspace_path) {
+@@ -1640,7 +1670,7 @@ static int merge_hierarchy(
+         if (r < 0)
+                 return r;
+ 
+-        r = store_info_in_meta(image_class, extensions, meta_path, overlay_path, op->work_dir, op->hierarchy, backing);
++        r = store_info_in_meta(image_class, extensions, origin_content, meta_path, overlay_path, op->work_dir, op->hierarchy, backing);
+         if (r < 0)
+                 return r;
+ 
+@@ -1692,19 +1722,29 @@ static int merge_subprocess(
+                 ImageClass image_class,
+                 char **hierarchies,
+                 bool force,
++                bool always_refresh,
+                 int noexec,
+                 Hashmap *images,
+                 const char *workspace) {
+ 
+         _cleanup_free_ char *host_os_release_id = NULL, *host_os_release_id_like = NULL,
+                         *host_os_release_version_id = NULL, *host_os_release_api_level = NULL,
+-                        *filename = NULL;
++                        *filename = NULL, *old_origin_content = NULL,
++                        *extensions_origin_content = NULL, *arg_root_resolved = NULL;
+         _cleanup_strv_free_ char **extensions = NULL, **extensions_v = NULL, **paths = NULL;
++        _cleanup_(sd_json_variant_unrefp) sd_json_variant *extensions_origin_entries = NULL,
++                        *extensions_origin_json = NULL, *mutable_dir_entries = NULL;
+         size_t n_extensions = 0;
+         unsigned n_ignored = 0;
+         Image *img;
+         int r;
+ 
++        if (!isempty(arg_root)) {
++                r = chase(arg_root, NULL, CHASE_MUST_BE_DIRECTORY, &arg_root_resolved, NULL);
++                if (r < 0)
++                        return log_error_errno(r, "Failed to resolve --root='%s': %m", strempty(arg_root));
++        }
++
+         assert(path_startswith(workspace, "/run/"));
+ 
+         /* Mark the whole of /run as MS_SLAVE, so that we can mount stuff below it that doesn't show up on
+@@ -1742,7 +1782,8 @@ static int merge_subprocess(
+ 
+         /* Let's now mount all images */
+         HASHMAP_FOREACH(img, images) {
+-                _cleanup_free_ char *p = NULL;
++                _cleanup_free_ char *p = NULL, *path_without_root = NULL;
++                _cleanup_(sd_json_variant_unrefp) sd_json_variant *verity_hash = NULL;
+ 
+                 p = path_join(workspace, image_class_info[image_class].short_identifier_plural, img->name);
+                 if (!p)
+@@ -1841,6 +1882,12 @@ static int merge_subprocess(
+                         if (r < 0)
+                                 return r;
+ 
++                        if (verity_settings.root_hash) {
++                                r = sd_json_variant_new_hex(&verity_hash, verity_settings.root_hash, verity_settings.root_hash_size);
++                                if (r < 0)
++                                        return log_error_errno(r, "Failed to create origin verity entry for '%s': %m", img->name);
++                        }
++
+                         r = dissected_image_decrypt(m, /* passphrase= */ NULL, &verity_settings, flags);
+                         if (r < 0)
+                                 return r;
+@@ -1910,6 +1957,59 @@ static int merge_subprocess(
+                 if (r < 0)
+                         return log_oom();
+ 
++                /* Encode extension image origin to check if we can skip the refresh.
++                 * It can also be used to provide more detail in "systemd-sysext status". */
++
++                if (!isempty(arg_root)) {
++                        const char *without_root = NULL;
++                        without_root = path_startswith(img->path, arg_root_resolved);
++                        if (!isempty(without_root))
++                                path_without_root = strjoin("/", without_root);
++                }
++                if (!path_without_root)
++                        path_without_root = strdup(img->path);
++
++                /* The verity hash is not available for all extension types,
++                 * thus, but only as fallback, also include data to check for
++                 * file/directory replacements through a file handle and unique
++                 * mount ID (or inode and mount ID as fallback).
++                 * A unique mount ID is best because st_dev gets reused too easily,
++                 * e.g., by a loop dev mount. For the mount ID to be valid it
++                 * has to be resolved before we enter the new mount namespace.
++                 * Thus, here it wouldn't work and so instead it gets provided
++                 * by the image dissect logic and handed over to this subprocess
++                 * we are in.
++                 * Online modification is not well supported with overlay
++                 * mounts, so we don't do a file checksum nor do we recurse
++                 * into a directory to look for touched files. If users want
++                 * modifications to be picked up, they need to set the
++                 * --always-refresh=yes flag (as will be printed out). */
++
++                _cleanup_(sd_json_variant_unrefp) sd_json_variant *origin_entry = NULL;
++
++                /* We suppress inclusion of weak identifiers when a strong one is there
++                 * so that, e.g., a confext image stored on /usr gets identified only
++                 * by the verity hash instead of also the mount ID because that changes
++                 * when a sysext overlay mount appears but since the verity hash is the
++                 * same for the confext it can actually be reused. */
++                r = sd_json_buildo(&origin_entry,
++                                   SD_JSON_BUILD_PAIR_STRING("path", path_without_root),
++                                   SD_JSON_BUILD_PAIR_CONDITION(!!verity_hash, "verityHash", SD_JSON_BUILD_VARIANT(verity_hash)),
++                                   SD_JSON_BUILD_PAIR_CONDITION(!verity_hash, "onMountId", SD_JSON_BUILD_UNSIGNED(img->on_mount_id)),
++                                   SD_JSON_BUILD_PAIR_CONDITION(!verity_hash && !!img->fh, "fileHandle",
++                                                                SD_JSON_BUILD_OBJECT(SD_JSON_BUILD_PAIR_INTEGER("type", img->fh->handle_type),
++                                                                                     SD_JSON_BUILD_PAIR_HEX("handle", img->fh->f_handle,
++                                                                                                            img->fh->handle_bytes))),
++                                   SD_JSON_BUILD_PAIR_CONDITION(!verity_hash && !img->fh, "inode", SD_JSON_BUILD_UNSIGNED(img->inode)),
++                                   SD_JSON_BUILD_PAIR_CONDITION(!verity_hash, "crtime", SD_JSON_BUILD_UNSIGNED(img->crtime)),
++                                   SD_JSON_BUILD_PAIR_CONDITION(!verity_hash, "mtime", SD_JSON_BUILD_UNSIGNED(img->mtime)));
++                if (r < 0)
++                        return log_error_errno(r, "Failed to create origin entry for '%s': %m", img->name);
++
++                r = sd_json_variant_set_field(&extensions_origin_entries, img->name, origin_entry);
++                if (r < 0)
++                        return log_error_errno(r, "Failed to add origin entry for '%s': %m", img->name);
++
+                 n_extensions++;
+         }
+ 
+@@ -1926,6 +2026,96 @@ static int merge_subprocess(
+         typesafe_qsort(extensions, n_extensions, strverscmp_improvedp);
+         typesafe_qsort(extensions_v, n_extensions, strverscmp_improvedp);
+ 
++        STRV_FOREACH(h, hierarchies) {
++                _cleanup_(overlayfs_paths_freep) OverlayFSPaths *op = NULL;
++                _cleanup_free_ char *f = NULL, *buf = NULL, *resolved = NULL, *mutable_directory_without_root = NULL;
++
++                /* The origin file includes the backing directories for mutable overlays. */
++                r = overlayfs_paths_new(*h, workspace, &op);
++                if (r < 0)
++                        return r;
++
++                if (op->resolved_mutable_directory && !isempty(arg_root)) {
++                        const char *without_root = NULL;
++                        without_root = path_startswith(op->resolved_mutable_directory, arg_root_resolved);
++                        if (!isempty(without_root))
++                                mutable_directory_without_root = strjoin("/", without_root);
++                }
++                if (!mutable_directory_without_root && op->resolved_mutable_directory)
++                        mutable_directory_without_root = strdup(op->resolved_mutable_directory);
++
++                if (mutable_directory_without_root) {
++                        r = sd_json_variant_set_field_string(&mutable_dir_entries, *h, mutable_directory_without_root);
++                        if (r < 0)
++                                return log_error_errno(r, "Failed to add mutable directory to origin JSON entry: %m");
++                }
++
++                /* Find existing origin file for comparison. */
++                r = chase(*h, arg_root, CHASE_PREFIX_ROOT|CHASE_NONEXISTENT, &resolved, NULL);
++                if (r < 0)
++                        return log_error_errno(r, "Failed to resolve hierarchy '%s%s': %m", strempty(arg_root), *h);
++
++                f = path_join(resolved, image_class_info[image_class].dot_directory_name, "origin");
++                if (!f)
++                        return log_oom();
++
++                r = is_our_mount_point(image_class, resolved);
++                if (r < 0)
++                        return r;
++                if (r == 0)
++                        continue;
++
++                if (old_origin_content)
++                        continue;
++
++                r = read_full_file(f, &buf, NULL);
++                if (r < 0) {
++                        log_debug_errno(r, "Failed to open '%s', continuing search: %m", f);
++                        continue;
++                }
++
++                old_origin_content = TAKE_PTR(buf);
++        }
++
++        r = sd_json_buildo(&extensions_origin_json,
++                           SD_JSON_BUILD_PAIR_OBJECT("mutable",
++                                                     SD_JSON_BUILD_PAIR_INTEGER("mode", arg_mutable),
++                                                     SD_JSON_BUILD_PAIR_CONDITION(!!mutable_dir_entries,
++                                                                                  "mutableDirs",
++                                                                                  SD_JSON_BUILD_VARIANT(mutable_dir_entries))),
++                           SD_JSON_BUILD_PAIR_CONDITION(!!extensions_origin_entries,
++                                                        "extensions",
++                                                        SD_JSON_BUILD_VARIANT(extensions_origin_entries)));
++        if (r < 0)
++                return log_error_errno(r, "Failed to create extensions origin JSON object: %m");
++
++        r = sd_json_variant_format(extensions_origin_json, SD_JSON_FORMAT_PRETTY|SD_JSON_FORMAT_NEWLINE, &extensions_origin_content);
++        if (r < 0)
++                return log_error_errno(r, "Failed to format extension origin as JSON: %m");
++
++        log_debug("New extension origin entry (unordered):\n%s\n", extensions_origin_content);
++
++        if (old_origin_content) {
++                _cleanup_(sd_json_variant_unrefp) sd_json_variant *old_origin_json = NULL;
++
++                log_debug("Old extension origin entry (unordered):\n%s\n", old_origin_content);
++                r = sd_json_parse(old_origin_content, 0, &old_origin_json, NULL, NULL);
++                if (r < 0)
++                        return log_error_errno(r, "Failed to parse existing extension origin content: %m");
++
++                /* This works well with unordered entries. */
++                if (sd_json_variant_equal(extensions_origin_json, old_origin_json)) {
++                        if (!always_refresh) {
++                                /* This only happens during refresh, not merge, thus talk about refresh here. */
++                                log_info("Skipping extension refresh because no change was found, use --always-refresh=yes to always do a refresh.");
++                                return 2;
++                        }
++
++                        log_debug("No change found based on origin entry but continuing as requested by --always-refresh=yes.");
++                } else
++                        log_debug("Found changes based on origin entry, continuing with the refresh.");
++        }
++
+         if (n_extensions == 0) {
+                 assert(arg_mutable != MUTABLE_NO);
+                 log_info("No extensions found, proceeding in mutable mode.");
+@@ -2008,6 +2198,7 @@ static int merge_subprocess(
+                                 noexec,
+                                 extensions,
+                                 paths,
++                                extensions_origin_content,
+                                 meta_path,
+                                 overlay_path,
+                                 merge_hierarchy_workspace);
+@@ -2059,6 +2250,7 @@ static int merge(ImageClass image_class,
+                  char **hierarchies,
+                  bool force,
+                  bool no_reload,
++                 bool always_refresh,
+                  int noexec,
+                  Hashmap *images) {
+         pid_t pid;
+@@ -2070,14 +2262,20 @@ static int merge(ImageClass image_class,
+         if (r == 0) {
+                 /* Child with its own mount namespace */
+ 
+-                r = merge_subprocess(image_class, hierarchies, force, noexec, images, "/run/systemd/sysext");
+-                if (r < 0)
+-                        _exit(EXIT_FAILURE);
++                r = merge_subprocess(image_class, hierarchies, force, always_refresh, noexec, images, "/run/systemd/sysext");
+ 
+                 /* Our namespace ceases to exist here, also implicitly detaching all temporary mounts we
+                  * created below /run. Nice! */
+ 
+-                _exit(r > 0 ? EXIT_SUCCESS : 123); /* 123 means: didn't find any extensions */
++                /* 0/123 means: didn't find any extensions, 2/124 means: skipped refresh */
++                if (r < 0)
++                        _exit(EXIT_FAILURE);
++                if (r == 0)
++                        _exit(123);
++                if (r == 2)
++                        _exit(124);
++
++                _exit(EXIT_SUCCESS);
+         }
+ 
+         r = wait_for_terminate_and_check("(sd-merge)", pid, WAIT_LOG_ABNORMAL);
+@@ -2085,6 +2283,8 @@ static int merge(ImageClass image_class,
+                 return r;
+         if (r == 123) /* exit code 123 means: didn't do anything */
+                 return 0;
++        if (r == 124) /* exit code 124 means: skipped refresh */
++                return 1;
+         if (r > 0)
+                 return log_error_errno(SYNTHETIC_ERRNO(EPROTO), "Failed to merge hierarchies");
+ 
+@@ -2182,6 +2382,7 @@ static int verb_merge(int argc, char **argv, void *userdata) {
+                      arg_hierarchies,
+                      arg_force,
+                      arg_no_reload,
++                     arg_always_refresh,
+                      arg_noexec,
+                      images);
+ }
+@@ -2190,16 +2391,18 @@ typedef struct MethodMergeParameters {
+         const char *class;
+         int force;
+         int no_reload;
++        int always_refresh;
+         int noexec;
+ } MethodMergeParameters;
+ 
+ static int parse_merge_parameters(sd_varlink *link, sd_json_variant *parameters, MethodMergeParameters *p) {
+ 
+         static const sd_json_dispatch_field dispatch_table[] = {
+-                { "class",    SD_JSON_VARIANT_STRING,  sd_json_dispatch_const_string, offsetof(MethodMergeParameters, class),     0 },
+-                { "force",    SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_tristate,     offsetof(MethodMergeParameters, force),     0 },
+-                { "noReload", SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_tristate,     offsetof(MethodMergeParameters, no_reload), 0 },
+-                { "noexec",   SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_tristate,     offsetof(MethodMergeParameters, noexec),    0 },
++                { "class",         SD_JSON_VARIANT_STRING,  sd_json_dispatch_const_string, offsetof(MethodMergeParameters, class),          0 },
++                { "force",         SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_tristate,     offsetof(MethodMergeParameters, force),          0 },
++                { "noReload",      SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_tristate,     offsetof(MethodMergeParameters, no_reload),      0 },
++                { "alwaysRefresh", SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_tristate,     offsetof(MethodMergeParameters, always_refresh), 0 },
++                { "noexec",        SD_JSON_VARIANT_BOOLEAN, sd_json_dispatch_tristate,     offsetof(MethodMergeParameters, noexec),         0 },
+                 {}
+         };
+ 
+@@ -2215,6 +2418,7 @@ static int vl_method_merge(sd_varlink *link, sd_json_variant *parameters, sd_var
+         MethodMergeParameters p = {
+                 .force = -1,
+                 .no_reload = -1,
++                .always_refresh = -1,
+                 .noexec = -1,
+         };
+         _cleanup_strv_free_ char **hierarchies = NULL;
+@@ -2249,6 +2453,7 @@ static int vl_method_merge(sd_varlink *link, sd_json_variant *parameters, sd_var
+                   hierarchies ?: arg_hierarchies,
+                   p.force >= 0 ? p.force : arg_force,
+                   p.no_reload >= 0 ? p.no_reload : arg_no_reload,
++                  p.always_refresh >= 0 ? p.always_refresh : arg_always_refresh,
+                   p.noexec >= 0 ? p.noexec : arg_noexec,
+                   images);
+         if (r < 0)
+@@ -2262,6 +2467,7 @@ static int refresh(
+                 char **hierarchies,
+                 bool force,
+                 bool no_reload,
++                bool always_refresh,
+                 int noexec) {
+ 
+         _cleanup_hashmap_free_ Hashmap *images = NULL;
+@@ -2272,9 +2478,10 @@ static int refresh(
+                 return r;
+ 
+         /* Returns > 0 if it did something, i.e. a new overlayfs is mounted now. When it does so it
+-         * implicitly unmounts any overlayfs placed there before. Returns == 0 if it did nothing, i.e. no
++         * implicitly unmounts any overlayfs placed there before. It also returns == 1 if there were
++         * no changes found to apply and the mount stays intact. Returns == 0 if it did nothing, i.e. no
+          * extension images found. In this case the old overlayfs remains in place if there was one. */
+-        r = merge(image_class, hierarchies, force, no_reload, noexec, images);
++        r = merge(image_class, hierarchies, force, no_reload, always_refresh, noexec, images);
+         if (r < 0)
+                 return r;
+         if (r == 0) /* No images found? Then unmerge. The goal of --refresh is after all that after having
+@@ -2286,7 +2493,8 @@ static int refresh(
+          * 1. If an overlayfs was mounted before and no extensions exist anymore, we'll have unmerged things.
+          *
+          * 2. If an overlayfs was mounted before, and there are still extensions installed' we'll have
+-         *    unmerged and then merged things again.
++         *    unmerged and then merged things again or we have skipped the refresh because no changes
++         *    were found.
+          *
+          * 3. If an overlayfs so far wasn't mounted, and there are extensions installed, we'll have it
+          *    mounted now.
+@@ -2310,6 +2518,7 @@ static int verb_refresh(int argc, char **argv, void *userdata) {
+                        arg_hierarchies,
+                        arg_force,
+                        arg_no_reload,
++                       arg_always_refresh,
+                        arg_noexec);
+ }
+ 
+@@ -2318,6 +2527,7 @@ static int vl_method_refresh(sd_varlink *link, sd_json_variant *parameters, sd_v
+         MethodMergeParameters p = {
+                 .force = -1,
+                 .no_reload = -1,
++                .always_refresh = -1,
+                 .noexec = -1,
+         };
+         _cleanup_strv_free_ char **hierarchies = NULL;
+@@ -2338,6 +2548,7 @@ static int vl_method_refresh(sd_varlink *link, sd_json_variant *parameters, sd_v
+                     hierarchies ?: arg_hierarchies,
+                     p.force >= 0 ? p.force : arg_force,
+                     p.no_reload >= 0 ? p.no_reload : arg_no_reload,
++                    p.always_refresh >= 0 ? p.always_refresh : arg_always_refresh,
+                     p.noexec >= 0 ? p.noexec : arg_noexec);
+         if (r < 0)
+                 return r;
+@@ -2456,6 +2667,8 @@ static int verb_help(int argc, char **argv, void *userdata) {
+                "                          Generate JSON output\n"
+                "     --force              Ignore version incompatibilities\n"
+                "     --no-reload          Do not reload the service manager\n"
++               "     --always-refresh=yes|no\n"
++               "                          Do not skip refresh when no changes were found\n"
+                "     --image-policy=POLICY\n"
+                "                          Specify disk image dissection policy\n"
+                "     --noexec=BOOL        Whether to mount extension overlay with noexec\n"
+@@ -2483,21 +2696,23 @@ static int parse_argv(int argc, char *argv[]) {
+                 ARG_IMAGE_POLICY,
+                 ARG_NOEXEC,
+                 ARG_NO_RELOAD,
++                ARG_ALWAYS_REFRESH,
+                 ARG_MUTABLE,
+         };
+ 
+         static const struct option options[] = {
+-                { "help",         no_argument,       NULL, 'h'              },
+-                { "version",      no_argument,       NULL, ARG_VERSION      },
+-                { "no-pager",     no_argument,       NULL, ARG_NO_PAGER     },
+-                { "no-legend",    no_argument,       NULL, ARG_NO_LEGEND    },
+-                { "root",         required_argument, NULL, ARG_ROOT         },
+-                { "json",         required_argument, NULL, ARG_JSON         },
+-                { "force",        no_argument,       NULL, ARG_FORCE        },
+-                { "image-policy", required_argument, NULL, ARG_IMAGE_POLICY },
+-                { "noexec",       required_argument, NULL, ARG_NOEXEC       },
+-                { "no-reload",    no_argument,       NULL, ARG_NO_RELOAD    },
+-                { "mutable",      required_argument, NULL, ARG_MUTABLE      },
++                { "help",           no_argument,       NULL, 'h'                },
++                { "version",        no_argument,       NULL, ARG_VERSION        },
++                { "no-pager",       no_argument,       NULL, ARG_NO_PAGER       },
++                { "no-legend",      no_argument,       NULL, ARG_NO_LEGEND      },
++                { "root",           required_argument, NULL, ARG_ROOT           },
++                { "json",           required_argument, NULL, ARG_JSON           },
++                { "force",          no_argument,       NULL, ARG_FORCE          },
++                { "image-policy",   required_argument, NULL, ARG_IMAGE_POLICY   },
++                { "noexec",         required_argument, NULL, ARG_NOEXEC         },
++                { "no-reload",      no_argument,       NULL, ARG_NO_RELOAD      },
++                { "always-refresh", required_argument, NULL, ARG_ALWAYS_REFRESH },
++                { "mutable",        required_argument, NULL, ARG_MUTABLE        },
+                 {}
+         };
+ 
+@@ -2561,6 +2776,12 @@ static int parse_argv(int argc, char *argv[]) {
+                         arg_no_reload = true;
+                         break;
+ 
++                case ARG_ALWAYS_REFRESH:
++                        r = parse_boolean_argument("--always-refresh", optarg, &arg_always_refresh);
++                        if (r < 0)
++                                return r;
++                        break;
++
+                 case ARG_MUTABLE:
+                         r = parse_mutable_mode(optarg);
+                         if (r < 0)
+diff --git a/test/units/TEST-50-DISSECT.sysext.sh b/test/units/TEST-50-DISSECT.sysext.sh
+index 3eec224eb6..05f691b457 100755
+--- a/test/units/TEST-50-DISSECT.sysext.sh
++++ b/test/units/TEST-50-DISSECT.sysext.sh
+@@ -1402,6 +1402,47 @@ rm -rf "$fake_root/var/lib/extensions/test-extension.raw.v" "$fake_root/var/othe
+ 
+ # Done with the above vpick symlink tests for --root= and without
+ 
++( init_trap
++: "Check if refresh skips correctly"
++fake_root=${roots_dir:+"$roots_dir/refresh-skip"}
++hierarchy=/opt
++
++findmnt --kernel=listmount >/dev/null || {
++    echo >&2 "Can't run test on old kernel, skipping test."
++    exit 0
++}
++
++prepare_root "$fake_root" "$hierarchy"
++prepare_extension_image "$fake_root" "$hierarchy"
++prepare_hierarchy "$fake_root" "$hierarchy"
++
++run_systemd_sysext "$fake_root" merge
++extension_verify_after_merge "$fake_root" "$hierarchy" -e -h
++# The mountinfo ID gets reused and is useless here, we require a unique ID from listmount
++MOUNTID1=$(findmnt --kernel=listmount -o UNIQ-ID --raw --noheadings --target "$fake_root$hierarchy")
++run_systemd_sysext "$fake_root" refresh
++extension_verify_after_merge "$fake_root" "$hierarchy" -e -h
++MOUNTID2=$(findmnt --kernel=listmount -o UNIQ-ID --raw --noheadings --target "$fake_root$hierarchy")
++if [ "$MOUNTID1" != "$MOUNTID2" ]; then
++    echo >&2 "Unexpected remount with 'refresh'"
++    exit 1
++fi
++rm -rf "$fake_root/var/lib/extensions/test-extension2"
++cp -ar "$fake_root/var/lib/extensions/test-extension" "$fake_root/var/lib/extensions/test-extension2"
++rm -rf "$fake_root/var/lib/extensions/test-extension"
++mv "$fake_root/var/lib/extensions/test-extension2" "$fake_root/var/lib/extensions/test-extension"
++run_systemd_sysext "$fake_root" refresh
++extension_verify_after_merge "$fake_root" "$hierarchy" -e -h
++MOUNTID3=$(findmnt --kernel=listmount -o UNIQ-ID --raw --noheadings --target "$fake_root$hierarchy")
++if [ "$MOUNTID2" = "$MOUNTID3" ]; then
++    echo >&2 "Unexpected skip with 'refresh'"
++    exit 1
++fi
++
++run_systemd_sysext "$fake_root" unmerge
++extension_verify_after_unmerge "$fake_root" "$hierarchy" -h
++)
++
+ } # End of run_sysext_tests
+ 
+ 
+-- 
+2.52.0
+

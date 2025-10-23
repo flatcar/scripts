@@ -1,0 +1,33 @@
+From 6f4b065b626edd8a06ff0c8028173e060b5e444b Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Thu, 20 Nov 2025 23:43:55 +0900
+Subject: [PATCH 03/10] vpick: Don't use openat directly but resolve symlinks
+ in given root
+
+With systemd-sysext --root= all symlinks should be followed relative to
+the given root and direct openat usage doesn't work.
+Change the openat call to use the chase helper function to resolve the
+symlink in the given root.
+---
+ src/shared/vpick.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/shared/vpick.c b/src/shared/vpick.c
+index b1b2d93054..dfe58cafa5 100644
+--- a/src/shared/vpick.c
++++ b/src/shared/vpick.c
+@@ -471,9 +471,9 @@ static int make_choice(
+         if (!p)
+                 return log_oom_debug();
+ 
+-        object_fd = openat(dir_fd, best_filename, O_CLOEXEC|O_PATH);
++        object_fd = chase_and_openat(toplevel_fd, p, CHASE_AT_RESOLVE_IN_ROOT, O_PATH|O_CLOEXEC, NULL);
+         if (object_fd < 0)
+-                return log_debug_errno(errno, "Failed to open '%s/%s': %m",
++                return log_debug_errno(object_fd, "Failed to open '%s/%s': %m",
+                                        empty_to_root(toplevel_path), skip_leading_slash(inode_path));
+ 
+         return pin_choice(
+-- 
+2.52.0
+
