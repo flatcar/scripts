@@ -35,10 +35,10 @@ DEFINE_boolean generate_pkginfo "${FLAGS_FALSE}" \
   "Generate an additional squashfs '<sysext_name>_pkginfo.raw' with portage package meta-information (/var/db ...). Useful for creating sysext dependencies; see 'base_pkginfo' below."
 DEFINE_string base_pkginfo "" \
   "Colon-separated list of pkginfo squashfs paths / files generated via 'generate_pkginfo' to base this sysext on. The corresponding base sysexts are expected to be merged with the sysext generated."
-DEFINE_string compression "zstd" \
-  "Compression to use for sysext squashfs. One of 'gzip', 'lzo', 'lz4', 'xz', or 'zstd'. Must be supported by the Flatcar squashfs kernel module in order for the sysext to work."
-DEFINE_string mksquashfs_opts "" \
-  "Additional command line options to pass to mksquashfs. See 'man 1 mksquashfs'. If <compression> is 'zstd' (the default), this option defaults to '-Xcompression-level 22 -b 512K'. Otherwise the default is empty."
+DEFINE_string compression "lz4hc" \
+  "Compression to use for sysext EROFS image. Options: 'lz4', 'lz4hc', 'zstd', or 'none'. Default is 'lz4hc'."
+DEFINE_string mkerofs_opts "" \
+  "Additional mkfs.erofs options to pass via SYSTEMD_REPART_MKFS_OPTIONS_EROFS. If not specified, defaults are used based on compression type."
 DEFINE_boolean ignore_version_mismatch "${FLAGS_FALSE}" \
   "Ignore version mismatch between SDK board packages and base squashfs. DANGEROUS."
 DEFINE_string install_root_basename "${default_install_root_basename}" \
@@ -111,10 +111,6 @@ if [[ -z "${FLAGS_image_builddir}" ]]; then
 fi
 BUILD_DIR=$(realpath "${FLAGS_image_builddir}")
 mkdir -p "${BUILD_DIR}"
-
-if [[ "${FLAGS_compression}" = "zstd" && -z "${FLAGS_mksquashfs_opts}" ]] ; then
-    FLAGS_mksquashfs_opts="-Xcompression-level 22 -b 512k"
-fi
 
 source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
@@ -248,7 +244,7 @@ if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
   cp -R "${BUILD_DIR}/${FLAGS_install_root_basename}/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
   mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" \
-              -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
+              -noappend -xattrs-exclude '^btrfs.' -comp zstd -Xcompression-level 22 -b 512k
 fi
 
 info "Writing ${SYSEXTNAME}_packages.txt"
@@ -302,6 +298,25 @@ info "Checking for invalid file ownership"
 invalid_files=$(find "${BUILD_DIR}/${FLAGS_install_root_basename}" -user sdk -or -group sdk)
 if [[ -n "${invalid_files}" ]]; then
   die "Invalid file ownership: ${invalid_files}"
+fi
+
+# Set up EROFS compression options based on compression type
+if [[ "${FLAGS_compression}" != "none" ]]; then
+  export SYSTEMD_REPART_MKFS_OPTIONS_EROFS="-z${FLAGS_compression}"
+
+  if [[ -n "${FLAGS_mkerofs_opts}" ]]; then
+    # User provided custom options
+    export SYSTEMD_REPART_MKFS_OPTIONS_EROFS="${SYSTEMD_REPART_MKFS_OPTIONS_EROFS} ${FLAGS_mkerofs_opts}"
+  elif [[ "${FLAGS_compression}" = "lz4hc" ]]; then
+    # Default options for lz4hc
+    export SYSTEMD_REPART_MKFS_OPTIONS_EROFS="${SYSTEMD_REPART_MKFS_OPTIONS_EROFS},12 -C65536 -Efragments,ztailpacking"
+  elif [[ "${FLAGS_compression}" = "zstd" ]]; then
+    # Default options for zstd
+    export SYSTEMD_REPART_MKFS_OPTIONS_EROFS="${SYSTEMD_REPART_MKFS_OPTIONS_EROFS},level=22 -C524288 -Efragments,ztailpacking"
+  fi
+  info "Building sysext with ${FLAGS_compression} compression"
+else
+  info "Building sysext without compression (built-in sysexts)"
 fi
 
 systemd-repart \
