@@ -63,11 +63,15 @@ create_prod_sysext() {
   # The --install_root_basename="${name}-base-sysext-rootfs" flag is
   # important - it sets the name of a rootfs directory, which is used
   # to determine the package target in coreos/base/profile.bashrc
+  #
+  # Built-in sysexts are stored in the compressed /usr partition, so we
+  # disable compression to avoid double-compression.
   sudo -E "FLATCAR_BUILD_ID=$FLATCAR_BUILD_ID" "${SCRIPTS_DIR}/build_sysext" \
             --board="${BOARD}" \
             --image_builddir="${workdir}/sysext-build" \
             --squashfs_base="${base_sysext}" \
             --generate_pkginfo \
+            --compression=none \
             --install_root_basename="${name}-base-sysext-rootfs" \
             "${build_sysext_opts[@]}" \
             "${name}" "${grp_pkg[@]}"
