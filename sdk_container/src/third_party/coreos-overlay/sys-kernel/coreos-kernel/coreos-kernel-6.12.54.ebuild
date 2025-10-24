@@ -9,7 +9,10 @@ DESCRIPTION="CoreOS Linux kernel"
 KEYWORDS="amd64 arm64"
 RESTRICT="userpriv" # dracut (via bootengine) needs root
 
-RDEPEND="=sys-kernel/coreos-modules-${PVR}"
+RDEPEND="
+	=sys-kernel/coreos-modules-${PVR}
+	sys-apps/kbd
+"
 BDEPEND="
 	sys-kernel/dracut
 "
