@@ -269,10 +269,12 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   # systemd[tpm] -> tpm2-tss -> util-linux[udev] -> virtual/udev -> systemd
   # curl[http2] -> nghttp2[systemd] -> systemd[curl] -> curl
   # sys-libs/pam[systemd] -> sys-apps/system[pam] -> sys-libs/pam
+  #   not dropping pam from sys-apps/systemd, otherwise we would need
+  #   to drop pam from sys-auth/pambase
   break_dep_loop sys-apps/util-linux udev,systemd,cryptsetup \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 udev,systemd \
-                 sys-apps/systemd cryptsetup,pam,tpm \
+                 sys-apps/systemd cryptsetup,tpm \
                  net-misc/curl http2 \
                  net-libs/nghttp2 systemd \
                  sys-libs/pam systemd
