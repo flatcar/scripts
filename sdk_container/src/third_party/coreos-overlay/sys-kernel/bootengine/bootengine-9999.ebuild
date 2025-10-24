@@ -1,7 +1,7 @@
 # Copyright (c) 2013 CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
 
 if [[ "${PV}" == 9999 ]]; then
@@ -18,6 +18,16 @@ SRC_URI=""
 
 LICENSE="BSD"
 SLOT="0/${PVR}"
+
+# Add a dep on sys-apps/kbd. It provides a loadkeys binary needed by
+# dracut's systemd-vconsole-setup module.
+DEPEND="
+	sys-apps/kbd
+"
+
+RDEPEND="
+        ${DEPEND}
+"
 
 src_install() {
 	insinto /usr/lib/dracut/modules.d/
