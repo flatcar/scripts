@@ -8,7 +8,7 @@ Delegate=yes
 Environment=CONTAINERD_CONFIG=/usr/share/containerd/config.toml
 ExecStartPre=mkdir -p /run/docker/libcontainerd
 ExecStartPre=ln -fs /run/containerd/containerd.sock /run/docker/libcontainerd/docker-containerd.sock
-ExecStart=/usr/bin/containerd --config ${TORCX_UNPACKDIR}${TORCX_IMAGEDIR}${CONTAINERD_CONFIG}
+ExecStart=/usr/bin/containerd --config ${CONTAINERD_CONFIG}
 KillMode=process
 Type=notify
 Restart=always
