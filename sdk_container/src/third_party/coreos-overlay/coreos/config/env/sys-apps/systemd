@@ -1,20 +1,177 @@
-cros_post_src_install_timesync() {
-  local dir="${D}$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
-  mkdir -p "${dir}"
-  pushd "${dir}"
-  cat <<EOF >flatcar.conf || die
+flatcar_systemd_meson_args_array=(
+    # Point to our user mailing list.
+    -Dsupport-url='https://groups.google.com/forum/#!forum/flatcar-linux-user'
+
+    # Use our ntp servers.
+    -Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
+
+    # Specify this, or meson breaks due to no /etc/login.defs.
+    -Dsystem-gid-max=999
+    -Dsystem-uid-max=999
+
+    # PAM config directory.
+    -Dpamconfdir="${EPREFIX}/usr/share/pam.d"
+
+    # The CoreOS epoch, Mon Jul 1 00:00:00 UTC 2013. Used by timesyncd
+    # as a sanity check for the minimum acceptable time. Explicitly
+    # set to avoid using the current build time.
+    -Dtime-epoch=1372636800
+
+    # No default name servers.
+    -Ddns-servers=
+
+    # Disable the "First Boot Wizard", it isn't very applicable to us.
+    -Dfirstboot=false
+
+    # Set latest network interface naming scheme for
+    # https://github.com/flatcar/Flatcar/issues/36
+    -Ddefault-net-naming-scheme=latest
+
+    # Combined log format: name plus description
+    -Dstatus-unit-format-default=combined
+
+    # Disable multicast-dns, Link-Local Multicast Name Resolution and
+    # dnssec
+    -Ddefault-mdns=no
+    -Ddefault-llmnr=no
+    -Ddefault-dnssec=no
+)
+export MYMESONARGS="${flatcar_systemd_meson_args_array[*]@Q}"
+unset 'flatcar_systemd_meson_args_array'
+
+# Save the original path to systemctl command, so we can use it for
+# presetting, even after stubbing systemctl out below.
+if [[ -z ${flatcar_hacked_systemctl} ]]; then
+    flatcar_hacked_systemctl=$(command -v systemctl) || die "systemctl not found"
+fi
+# Stubbed out completely - it is being invoked in the pkg_postinst to
+# enable getty service and do some reexecs/reloads. None of these are
+# necessary for us.
+systemctl() {
+    :
+}
+
+flatcar_systemctl_preset() {
+    local scope=${1}
+
+    local systemctl_scope_arg
+    case ${scope} in
+        system) systemctl_scope_arg=--system;;
+        user) systemctl_scope_arg=--global;; # don't ask, using --user
+                                             # results in an "invalid
+                                             # argument" error
+        *) die "wrong scope ${scope@Q}, ought to be either system or user";;
+    esac
+
+    "${flatcar_hacked_systemctl}" --root="${ED}" "${systemctl_scope_arg}" --preset-mode=enable-only preset-all || die
+
+    local escaped_path
+    escaped_path=$(printf '%s' "${ED}/etc/systemd/" | sed -e 's/[#\&]/\\&/g') || die
+
+    # make symlinks relative
+    find "${ED}/etc/systemd/${scope}" -type l -lname "/usr/lib/systemd/${scope}/*" -printf "%l\0%p\0" | \
+        sed -z -e "s#^/usr/lib/systemd/#${escaped_path}#" | \
+        xargs -0 -n2 ln -sfTr || die
+
+    # This will print an error like:
+    #
+    # tar: <PATH TO /etc/systemd/${scope}: Cannot rmdir: Directory not empty
+    #
+    # It's fine, ignore it. We excluded .keep file from putting into
+    # tarball, so we can preserve the toplevel directory. Avoiding the
+    # warning only results in stupid complexity.
+    tar --create --exclude='.keep*' --remove-files --directory "${ED}/etc/systemd/${scope}" . | \
+        tar --extract --directory "${ED}/usr/lib/systemd/${scope}"
+}
+
+cros_post_src_install_flatcar_stuff() {
+    # We provide our own systemd-user config file in baselayout.
+    #
+    # This one is installed by systemd build system regardless of
+    # USE=pam (the ebuild ought to pass -Dpamconfdir=no to disable the
+    # installation).
+    rm "${ED}/usr/share/pam.d/systemd-user" || die
+    # This one is installed by Gentoo's systemd ebuild only if USE=pam
+    # is enabled.
+    if use pam; then
+        rm "${ED}/etc/pam.d/systemd-user" || die
+    fi
+
+    # Ensure journal directory has correct ownership/mode in inital
+    # image. This is fixed by systemd-tmpfiles *but* journald starts
+    # before that and will create the journal if the filesystem is
+    # already read-write. Conveniently the systemd build system sets
+    # this up completely wrong.
+    keepdir /var/log/journal
+    fowners root:systemd-journal /var/log/journal
+    fperms 2755 /var/log/journal
+
+    keepdir /var/log/journal/remote
+    fowners systemd-journal-remote:systemd-journal-remote /var/log/journal/remote
+
+    (
+        insopts -m 0644
+        insinto /usr/lib/tmpfiles.d
+        # Add tmpfiles rule for resolv.conf. This path has changed
+        # after v213 so it must be handled here instead of baselayout
+        # now.
+        newins - systemd-resolv.conf <<'EOF'
+d   /run/systemd/network                -   -   -   -   -
+L   /run/systemd/network/resolv.conf    -   -   -   -   ../resolve/resolv.conf
+EOF
+    )
+
+    # Don't set any extra environment variables by default.
+    rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
+
+    # enable system units
+    flatcar_systemctl_preset system
+    # enable user units
+    flatcar_systemctl_preset user
+
+    # Use an empty preset file, because systemctl preset-all puts
+    # symlinks in /etc, not in /usr. We don't use /etc, because it is
+    # not autoupdated. We do the "preset" above.
+    rm "${ED}/usr/lib/systemd/system-preset/90-systemd.preset" || die
+    rm "${ED}/usr/lib/systemd/user-preset/90-systemd.preset" || die
+    (
+        insinto /usr/lib/systemd/system-preset
+        newins - 99-default.preset <<'EOF'
+# Do not enable any services if /etc is detected as empty.
+disable *
+EOF
+        insinto /usr/lib/systemd/user-preset
+        newins - 99-default.preset <<'EOF'
+# Do not enable any services if /etc is detected as empty.
+disable *
+EOF
+    )
+
+    # Do not ship distro-specific files (nsswitch.conf pam.d). This
+    # conflicts with our own configuration provided by baselayout.
+    rm -r "${ED}"/usr/share/factory || die
+    sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
+        -e '/^C!* \/etc\/nsswitch\.conf/d' \
+        -e '/^C!* \/etc\/pam\.d/d' \
+        -e '/^C!* \/etc\/issue/d' || die
+
+    (
+        # Some OEMs prefer chronyd, so allow them to replace
+        # systemd-timesyncd with it.
+        insinto "$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
+        newins - flatcar.conf <<'EOF'
 # Allow sysexts to ship timesyncd replacements which can have
 # a Conflicts=systemd-timesyncd directive that would result
 # in systemd-timesyncd not being started.
 [Unit]
 After=ensure-sysext.service
 EOF
-  popd
-}
+    )
 
-cros_post_src_install_udev() {
-  insinto "$(systemd_get_systemunitdir)/systemd-udevd.service.d"
-  newins - flatcar.conf <<EOF
+    (
+        # Allow @mount syscalls for systemd-udevd.service
+        insinto "$(systemd_get_systemunitdir)/systemd-udevd.service.d"
+        newins - flatcar.conf <<'EOF'
 # In Flatcar we are using modprobe helpers that run depmod in temporary
 # overlay. systemd-udevd.service may try to load drivers for some block devices
 # (e.g. ZFS), which ends up calling our helpers, which invoke mount command.
@@ -23,4 +180,5 @@ cros_post_src_install_udev() {
 [Service]
 SystemCallFilter=@mount
 EOF
+    )
 }

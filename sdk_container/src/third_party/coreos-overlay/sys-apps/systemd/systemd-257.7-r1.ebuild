@@ -25,8 +25,7 @@ else
 fi
 
 inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-single-r1
-# Flatcar: Inherited tmpfiles
-inherit secureboot systemd tmpfiles toolchain-funcs udev
+inherit secureboot systemd toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="https://systemd.io/"
@@ -300,8 +299,7 @@ multilib_src_configure() {
 		-Ddocdir="share/doc/${PF}"
 		# default is developer, bug 918671
 		-Dmode=release
-		# Flatcar: Point to our user mailing list.
-		-Dsupport-url="https://groups.google.com/forum/#!forum/flatcar-linux-user"
+		-Dsupport-url="https://gentoo.org/support/"
 		-Dpamlibdir="$(getpam_mod_dir)"
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
@@ -354,8 +352,7 @@ multilib_src_configure() {
 		$(meson_native_use_feature test dbus)
 		$(meson_native_use_feature ukify)
 		$(meson_native_use_feature xkb xkbcommon)
-		# Flatcar: Use our ntp servers.
-		-Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
+		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		-Ddefault-kill-user-processes=false
 		-Dcreate-log-dirs=false
@@ -380,42 +377,6 @@ multilib_src_configure() {
 		$(meson_native_true timesyncd)
 		$(meson_native_true tmpfiles)
 		$(meson_native_true vconsole)
-		# Flatcar: Specify this, or meson breaks due to no
-		# /etc/login.defs.
-		-Dsystem-gid-max=999
-		-Dsystem-uid-max=999
-
-		# Flatcar: DBus paths.
-		-Ddbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
-		-Ddbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
-
-		# Flatcar: PAM config directory.
-		-Dpamconfdir=/usr/share/pam.d
-
-		# Flatcar: The CoreOS epoch, Mon Jul 1 00:00:00 UTC
-		# 2013. Used by timesyncd as a sanity check for the
-		# minimum acceptable time. Explicitly set to avoid
-		# using the current build time.
-		-Dtime-epoch=1372636800
-
-		# Flatcar: No default name servers.
-		-Ddns-servers=
-
-		# Flatcar: Disable the "First Boot Wizard", it isn't
-		# very applicable to us.
-		-Dfirstboot=false
-
-		# Flatcar: Set latest network interface naming scheme
-		# for https://github.com/flatcar/Flatcar/issues/36
-		-Ddefault-net-naming-scheme=latest
-
-		# Flatcar: Combined log format: name plus description
-		-Dstatus-unit-format-default=combined
-
-		# Flatcar: Disable multicast-dns, Link-Local Multicast Name Resolution and dnssec
-		-Ddefault-mdns=no
-		-Ddefault-llmnr=no
-		-Ddefault-dnssec=no
 	)
 
 	case $(tc-arch) in
@@ -443,9 +404,7 @@ multilib_src_test() {
 
 multilib_src_install_all() {
 	einstalldocs
-	# Flatcar: Do not install sample nsswitch.conf, we don't
-	# provide it.
-	# dodoc "${FILESDIR}"/nsswitch.conf
+	dodoc "${FILESDIR}"/nsswitch.conf
 
 	insinto /usr/lib/tmpfiles.d
 	doins "${FILESDIR}"/legacy.conf
@@ -477,129 +436,23 @@ multilib_src_install_all() {
 	keepdir /var/lib/systemd
 	keepdir /var/log/journal
 
-	# Flatcar: We provide our own systemd-user config file in baselayout.
-	# if use pam; then
-	# 	if use selinux; then
-	# 		newpamd "${FILESDIR}"/systemd-user-selinux.pam systemd-user
-	#	else
-	#		newpamd "${FILESDIR}"/systemd-user.pam systemd-user
-	#	fi
-	# fi
+	if use pam; then
+		if use selinux; then
+			newpamd "${FILESDIR}"/systemd-user-selinux.pam systemd-user
+		else
+			newpamd "${FILESDIR}"/systemd-user.pam systemd-user
+		fi
+	fi
 
 	if use kernel-install; then
 		# Dummy config, remove to make room for sys-kernel/installkernel
 		rm "${ED}/usr/lib/kernel/install.conf" || die
 	fi
-	# Flatcar: Ensure journal directory has correct ownership/mode
-	# in inital image.  This is fixed by systemd-tmpfiles *but*
-	# journald starts before that and will create the journal if
-	# the filesystem is already read-write.  Conveniently the
-	# systemd Makefile sets this up completely wrong.
-	#
-	# Flatcar: TODO: Is this still a problem?
-	dodir /var/log/journal
-	fowners root:systemd-journal /var/log/journal
-	fperms 2755 /var/log/journal
-
-	# Flatcar: Don't prune systemd dirs.
-	dotmpfiles "${FILESDIR}"/systemd-flatcar.conf
-	# Flatcar: Add tmpfiles rule for resolv.conf. This path has
-	# changed after v213 so it must be handled here instead of
-	# baselayout now.
-	dotmpfiles "${FILESDIR}"/systemd-resolv.conf
-
-	# Flatcar: Don't set any extra environment variables by default.
-	rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
-
-	# Flatcar: These lines more or less follow the systemd's
-	# preset file (90-systemd.preset). We do it that way, to avoid
-	# putting symlinks in /etc. Please keep the lines in the same
-	# order as the "enable" lines appear in the preset file. For a
-	# single enable line in preset, there may be more lines if the
-	# unit file had Also: clause which has units we enable here
-	# too.
-
-	# Flatcar: enable remote-fs.target
-	builddir_systemd_enable_service multi-user.target remote-fs.target
-	# Flatcar: enable remote-cryptsetup.target
-	if use cryptsetup; then
-		builddir_systemd_enable_service multi-user.target remote-cryptsetup.target
-	fi
-	# Flatcar: enable machines.target
-	builddir_systemd_enable_service multi-user.target machines.target
-	# Flatcar: enable getty@.service
-	dodir "${unitdir}/getty.target.wants"
-	dosym ../getty@.service "${unitdir}/getty.target.wants/getty@tty1.service"
-	# Flatcar: enable systemd-timesyncd.service
-	builddir_systemd_enable_service sysinit.target systemd-timesyncd.service
-	# Flatcar: enable systemd-networkd.service (Also: systemd-networkd.socket, systemd-networkd-wait-online.service)
-	builddir_systemd_enable_service multi-user.target systemd-networkd.service
-	builddir_systemd_enable_service sockets.target systemd-networkd.socket
-	builddir_systemd_enable_service network-online.target systemd-networkd-wait-online.service
-	# Flatcar: enable systemd-network-generator.service
-	builddir_systemd_enable_service sysinit.target systemd-network-generator.service
-	# Flatcar: enable systemd-resolved.service
-	builddir_systemd_enable_service multi-user.target systemd-resolved.service
-	# Flatcar: enable systemd-homed.service (Also: systemd-userdbd.service [not enabled - has no WantedBy entry])
-	if use homed; then
-		builddir_systemd_enable_service multi-user.target systemd-homed.target
-	fi
-	# Flatcar: enable systemd-userdbd.socket
-	builddir_systemd_enable_service sockets.target systemd-userdbd.socket
-	# Flatcar: enable systemd-pstore.service
-	builddir_systemd_enable_service sysinit.target systemd-pstore.service
-	# Flatcar: enable systemd-boot-update.service
-	if use boot; then
-		builddir_systemd_enable_service sysinit.target systemd-boot-update.service
-	fi
-	# Flatcar: enable reboot.target (not enabled - has no WantedBy
-	# entry)
-
-	# Flatcar: enable systemd-sysext.service by default
-	builddir_systemd_enable_service sysinit.target systemd-sysext.service
-
-	# Flatcar: Use an empty preset file, because systemctl
-	# preset-all puts symlinks in /etc, not in /usr. We don't use
-	# /etc, because it is not autoupdated. We do the "preset" above.
-	rm "${ED}/usr/lib/systemd/system-preset/90-systemd.preset" || die
-	insinto /usr/lib/systemd/system-preset
-	doins "${FILESDIR}"/99-default.preset
-
-	# Flatcar: Do not ship distro-specific files (nsswitch.conf
-	# pam.d). This conflicts with our own configuration provided
-	# by baselayout.
-	rm -rf "${ED}"/usr/share/factory
-	sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
-		-e '/^C!* \/etc\/nsswitch\.conf/d' \
-		-e '/^C!* \/etc\/pam\.d/d' \
-		-e '/^C!* \/etc\/issue/d'
 
 	use ukify && python_fix_shebang "${ED}"
 	use boot && secureboot_auto_sign
 }
 
-# Flatcar: Our own version of systemd_get_systemunitdir, that returns
-# a path inside /usr, not /etc.
-builddir_systemd_get_systemunitdir() {
-	echo "${EPREFIX}/usr/lib/systemd/system"
-}
-
-# Flatcar: Our own version of systemd_enable_service, that does
-# operations inside /usr, not /etc.
-builddir_systemd_enable_service() {
-	local target=${1}
-	local service=${2}
-	local ud=$(builddir_systemd_get_systemunitdir)
-	local destname=${service##*/}
-
-	dodir "${ud}"/"${target}".wants && \
-	dosym ../"${service}" "${ud}"/"${target}".wants/"${destname}"
-
-	if use boot; then
-		python_fix_shebang "${ED}"
-		secureboot_auto_sign
-	fi
-}
 migrate_locale() {
 	local envd_locale_def="${EROOT}/etc/env.d/02locale"
 	local envd_locale=( "${EROOT}"/etc/env.d/??locale )
@@ -669,15 +522,13 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	# Flatcar: We enable getty and remote-fs targets in /usr
-	# ourselves above.
-	# if [[ -z ${REPLACING_VERSIONS} ]]; then
-	# 	if type systemctl &>/dev/null; then
-	# 		systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
-	# 	fi
-	# 	elog "To enable a useful set of services, run the following:"
-	# 	elog "  systemctl preset-all --preset-mode=enable-only"
-	# fi
+	if [[ -z ${REPLACING_VERSIONS} ]]; then
+		if type systemctl &>/dev/null; then
+			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
+		fi
+		elog "To enable a useful set of services, run the following:"
+		elog "  systemctl preset-all --preset-mode=enable-only"
+	fi
 
 	if [[ -L ${EROOT}/var/lib/systemd/timesync ]]; then
 		rm "${EROOT}/var/lib/systemd/timesync"
