@@ -98,11 +98,6 @@ DEPEND="${COMMON_DEPEND}
 PEFILE_DEPEND='dev-python/pefile[${PYTHON_USEDEP}]'
 
 # baselayout-2.2 has /run
-#
-# Flatcar: Drop sec-policy/selinux-ntp from deps (under selinux use
-# flag). The image stage fails with "Failed to resolve
-# typeattributeset statement at
-# /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
 RDEPEND="${COMMON_DEPEND}
 	>=acct-group/adm-0-r1
 	>=acct-group/wheel-0-r1
@@ -137,6 +132,7 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	selinux? (
 		sec-policy/selinux-base-policy[systemd]
+		sec-policy/selinux-ntp
 	)
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
