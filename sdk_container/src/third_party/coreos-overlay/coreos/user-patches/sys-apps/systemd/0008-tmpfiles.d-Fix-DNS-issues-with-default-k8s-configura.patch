@@ -1,0 +1,36 @@
+From 3938b8d561e747ef1dea83afc9f254d594291dc1 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Wed, 22 Oct 2025 10:39:42 +0200
+Subject: [PATCH 8/9] tmpfiles.d: Fix DNS issues with default k8s configuration
+
+The Kubelet takes /etc/resolv.conf for, e.g., CoreDNS which has dnsPolicy
+"default", but unless the kubelet `--resolv-conf` flag is set to point to
+`/run/systemd/resolve/resolv.conf` this won't work with `/etc/resolv.conf`
+pointing to `/run/systemd/resolve/stub-resolv.conf` which configures
+`127.0.0.53`. See:
+
+https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/#known-issues
+
+This means that users who need split DNS to work should point
+`/etc/resolv.conf` back to `/run/systemd/resolve/stub-resolv.conf` (and if
+using K8s configure the kubelet `resolvConf` variable/`--resolv-conf` flag to
+`/run/systemd/resolve/resolv.conf`).
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ tmpfiles.d/systemd-resolve.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tmpfiles.d/systemd-resolve.conf b/tmpfiles.d/systemd-resolve.conf
+index be5edc98e0..bea686682a 100644
+--- a/tmpfiles.d/systemd-resolve.conf
++++ b/tmpfiles.d/systemd-resolve.conf
+@@ -7,4 +7,4 @@
+ 
+ # See tmpfiles.d(5) for details.
+ 
+-L! /etc/resolv.conf - - - - ../run/systemd/resolve/stub-resolv.conf
++L! /etc/resolv.conf - - - - ../run/systemd/resolve/resolv.conf
+-- 
+2.51.0
+
