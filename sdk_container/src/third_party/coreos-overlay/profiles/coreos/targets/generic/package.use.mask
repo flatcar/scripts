@@ -1,2 +1,14 @@
-# Only needed by Catalyst in the SDK, requires dev-lang/python-exec.
-sys-apps/util-linux python
+# Selinux profile force-enables USE=caps, but we don't need it for
+# smartmontools - it is only relevant for smartd daemon, which we do
+# not build.
+sys-apps/smartmontools caps
+
+# Allow USE=python for sys-libs/libselinux - it is needed by portage
+# with USE=selinux. For production images, we will filter python files
+# out with an install mask.
+sys-libs/libselinux -python
+
+# Allow USE=python for sys-process/audit - it is needed by
+# policycoreutils. For production images, we will filter python files
+# out with an install mask.
+sys-process/audit -python
