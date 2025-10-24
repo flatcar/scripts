@@ -32,6 +32,7 @@ DEPEND="
 	sys-apps/grep
 	sys-apps/ignition:=
 	sys-apps/iproute2
+	sys-apps/kbd
 	sys-apps/less
 	sys-apps/nvme-cli
 	sys-apps/sed
