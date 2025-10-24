@@ -625,6 +625,7 @@ sys-apps/sed
 sys-apps/semodule-utils
 sys-apps/shadow
 sys-apps/smartmontools
+sys-apps/systemd
 sys-apps/texinfo
 sys-apps/usbutils
 sys-apps/util-linux
