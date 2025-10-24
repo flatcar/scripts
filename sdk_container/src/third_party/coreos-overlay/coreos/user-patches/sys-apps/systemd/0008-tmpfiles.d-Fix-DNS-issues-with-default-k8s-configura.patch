@@ -1,4 +1,4 @@
-From 3938b8d561e747ef1dea83afc9f254d594291dc1 Mon Sep 17 00:00:00 2001
+From f7484b8e2d94114825cba25fa937b23ab1159b4f Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Wed, 22 Oct 2025 10:39:42 +0200
 Subject: [PATCH 8/9] tmpfiles.d: Fix DNS issues with default k8s configuration
