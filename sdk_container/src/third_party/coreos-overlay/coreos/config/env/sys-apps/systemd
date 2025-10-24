@@ -49,9 +49,12 @@ if [[ -z ${flatcar_hacked_systemctl:-} ]]; then
     flatcar_hacked_systemctl=$(command -v systemctl)
 fi
 systemctl() {
+    ewarn "called our systemctl wrapper with args: ${*@Q}"
     if [[ ${#} -eq 4 && ${1} = '--root='* && ${2} = 'enable' && ${3} = 'getty@.service' && ${4} = 'remote-fs.target' ]]; then
+        ewarn "ignoring"
         return 0
     fi
+    ewarn "forwarding to actual systemctl"
     "${flatcar_hacked_systemctl}" "${@}"
 }
 
@@ -352,6 +355,7 @@ flatcar_preset_all_enable() {
 }
 
 cros_post_src_install_flatcar_stuff() {
+    ewarn 'Dropping systemd-user pam config'
     # We provide our own systemd-user config file in baselayout.
     #
     # This one is installed by systemd build system regardless of
@@ -369,14 +373,23 @@ cros_post_src_install_flatcar_stuff() {
     # before that and will create the journal if the filesystem is
     # already read-write. Conveniently the systemd build system sets
     # this up completely wrong.
+    ewarn 'Setting up /var/log/journal'
+    local dirinfo=$(stat "${ED}/var/log/journal" 2>/dev/null)
+    ewarn 'Info about existing directory:'
+    ewarn "${dirinfo}"
     keepdir /var/log/journal
     fowners root:systemd-journal /var/log/journal
     fperms 2755 /var/log/journal
 
+    ewarn 'Setting up /var/log/journal/remote'
+    dirinfo=$(stat "${ED}/var/log/journal/remote" 2>/dev/null)
+    ewarn 'Info about existing directory:'
+    ewarn "${dirinfo}"
     keepdir /var/log/journal/remote
     fowners systemd-journal-remote:systemd-journal-remote /var/log/journal/remote
 
     (
+        ewarn 'Setting up tmpfiles.d entry for resolv.conf'
         insopts -m 0644
         insinto /usr/lib/tmpfiles.d
         # Add tmpfiles rule for resolv.conf. This path has changed
@@ -388,25 +401,31 @@ L   /run/systemd/network/resolv.conf    -   -   -   -   ../resolve/resolv.conf
 EOF
     )
 
+    ewarn 'Dropping 99-environment.conf'
     # Don't set any extra environment variables by default.
     rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
 
+    ewarn 'Doing preset of system units'
     # enable system units
     flatcar_preset_all_enable "${ED}/usr/lib/systemd/system-preset/90-systemd.preset" system
+    ewarn 'Doing preset of user units'
     # enable user units
     flatcar_preset_all_enable "${ED}/usr/lib/systemd/user-preset/90-systemd.preset" user
 
+    ewarn 'Dropping systemd presets'
     # Use an empty preset file, because systemctl preset-all puts
     # symlinks in /etc, not in /usr. We don't use /etc, because it is
     # not autoupdated. We do the "preset" above.
     rm "${ED}/usr/lib/systemd/system-preset/90-systemd.preset" || die
     rm "${ED}/usr/lib/systemd/user-preset/90-systemd.preset" || die
     (
+        ewarn 'Inserting our own empty system preset'
         insinto /usr/lib/systemd/system-preset
         newins - 99-default.preset <<'EOF'
 # Do not enable any services if /etc is detected as empty.
 disable *
 EOF
+        ewarn 'Inserting our own empty user preset'
         insinto /usr/lib/systemd/user-preset
         newins - 99-default.preset <<'EOF'
 # Do not enable any services if /etc is detected as empty.
@@ -414,15 +433,24 @@ disable *
 EOF
     )
 
+    ewarn 'Removing /usr/share/factory'
     # Do not ship distro-specific files (nsswitch.conf pam.d). This
     # conflicts with our own configuration provided by baselayout.
     rm -r "${ED}"/usr/share/factory || die
+    ewarn 'Editing etc.conf tmpfiles.d'
+    local contents=$(cat "${ED}"/usr/lib/tmpfiles.d/etc.conf)
+    ewarn 'Contents before edit:'
+    ewarn "${contents}"
     sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
         -e '/^C!* \/etc\/nsswitch\.conf/d' \
         -e '/^C!* \/etc\/pam\.d/d' \
         -e '/^C!* \/etc\/issue/d' || die
+    contents=$(cat "${ED}"/usr/lib/tmpfiles.d/etc.conf)
+    ewarn 'Contents after edit:'
+    ewarn "${contents}"
 
     (
+        ewarn 'Setting up systemd-timesyncd.service drop-in'
         # Some OEMs prefer chronyd, so allow them to replace
         # systemd-timesyncd with it.
         insinto "$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
@@ -434,4 +462,5 @@ EOF
 After=ensure-sysext.service
 EOF
     )
+    ewarn 'Hook done'
 }
