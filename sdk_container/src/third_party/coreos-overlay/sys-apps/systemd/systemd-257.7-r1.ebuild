@@ -103,9 +103,6 @@ PEFILE_DEPEND='dev-python/pefile[${PYTHON_USEDEP}]'
 # flag). The image stage fails with "Failed to resolve
 # typeattributeset statement at
 # /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
-#
-# Flatcar: Added a dep on sys-apps/kbd. It provides a loadkeys binary
-# needed by dracut's systemd-vconsole-setup module.
 RDEPEND="${COMMON_DEPEND}
 	>=acct-group/adm-0-r1
 	>=acct-group/wheel-0-r1
@@ -134,7 +131,6 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
-	sys-apps/kbd
 	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
