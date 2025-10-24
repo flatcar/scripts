@@ -1,7 +1,7 @@
-From f5635c6b5153d894cf1bf6dca92219150d4252d5 Mon Sep 17 00:00:00 2001
+From 6f691278df570cc87cb863a98fe320a1997c6dad Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
-Subject: [PATCH 3/9] core: use max for DefaultTasksMax
+Subject: [PATCH 3/8] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This

@@ -14,10 +14,7 @@ Most of these patches are not really upstreamable.
   - this will be dropped when we increase SELinux coverage also to a host system
 - `0006-units-Keep-using-old-journal-file-format.patch`
   - backward compat stuff
-- `0007-Revert-Revert-initrd-parse-etc-override-argv-0-to-av.patch`
-  - dracut issue workaround
-  - should be dropped when we update dracut to a version without the issue
-- `0008-tmpfiles.d-Fix-DNS-issues-with-default-k8s-configura.patch`
+- `0007-tmpfiles.d-Fix-DNS-issues-with-default-k8s-configura.patch`
   - workaround for issues with default k8s coredns config
-- `0009-units-Make-multi-user.target-the-default-target.patch`
+- `0008-units-Make-multi-user.target-the-default-target.patch`
   - change default.target to a suitable symlink for Flatcar

@@ -1,7 +1,7 @@
-From 946db05da46d3c453b129c6413d1fd0b3794d038 Mon Sep 17 00:00:00 2001
+From f0ab1c6c59056afe1650f749d1af6ecc6ee8f5ec Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 24 Oct 2025 11:06:57 +0200
-Subject: [PATCH 9/9] units: Make multi-user.target the default target
+Subject: [PATCH 8/8] units: Make multi-user.target the default target
 
 Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/units/meson.build b/units/meson.build
-index 96f4852741..4b1efbc4b1 100644
+index ef18dcae4a..887231840f 100644
 --- a/units/meson.build
 +++ b/units/meson.build
 @@ -46,7 +46,7 @@ units = [
