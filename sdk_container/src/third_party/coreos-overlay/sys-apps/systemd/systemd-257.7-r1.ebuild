@@ -282,14 +282,6 @@ src_unpack() {
 src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}"/systemd-257-cred-util-tpm2.patch
-		# Flatcar: Adding our own patches here.
-		"${FILESDIR}/0001-wait-online-set-any-by-default.patch"
-		"${FILESDIR}/0002-needs-update-don-t-require-strictly-newer-usr.patch"
-		"${FILESDIR}/0003-core-use-max-for-DefaultTasksMax.patch"
-		"${FILESDIR}/0004-systemd-Disable-SELinux-permissions-checks.patch"
-		"${FILESDIR}/0005-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch"
-		"${FILESDIR}/0006-units-Keep-using-old-journal-file-format.patch"
-		"${FILESDIR}/0007-Revert-Revert-initrd-parse-etc-override-argv-0-to-av.patch"
 	)
 
 	if ! use vanilla; then
@@ -298,20 +290,6 @@ src_prepare() {
 		)
 	fi
 
-	# Flatcar: The Kubelet takes /etc/resolv.conf for, e.g.,
-	# CoreDNS which has dnsPolicy "default", but unless the
-	# kubelet --resolv-conf flag is set to point to
-	# /run/systemd/resolve/resolv.conf this won't work with
-	# /etc/resolv.conf pointing to
-	# /run/systemd/resolve/stub-resolv.conf which configures
-	# 127.0.0.53.  See
-	# https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/#known-issues
-	# This means that users who need split DNS to work should
-	# point /etc/resolv.conf back to
-	# /run/systemd/resolve/stub-resolv.conf (and if using K8s
-	# configure the kubelet resolvConf variable/--resolv-conf flag
-	# to /run/systemd/resolve/resolv.conf).
-	sed -i -e 's,/run/systemd/resolve/stub-resolv.conf,/run/systemd/resolve/resolv.conf,' tmpfiles.d/systemd-resolve.conf || die
 	default
 }
 
@@ -537,10 +515,6 @@ multilib_src_install_all() {
 	# changed after v213 so it must be handled here instead of
 	# baselayout now.
 	dotmpfiles "${FILESDIR}"/systemd-resolv.conf
-
-	# Flatcar: Don't default to graphical.target.
-	local unitdir=$(builddir_systemd_get_systemunitdir)
-	dosym multi-user.target "${unitdir}"/default.target
 
 	# Flatcar: Don't set any extra environment variables by default.
 	rm "${ED}/usr/lib/environment.d/99-environment.conf" || die

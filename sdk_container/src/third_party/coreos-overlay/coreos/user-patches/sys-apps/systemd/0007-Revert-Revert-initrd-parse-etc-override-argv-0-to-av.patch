@@ -1,7 +1,7 @@
 From 93775241c5f873a5862c2e7b06532bd3969341a0 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Wed, 25 Sep 2024 15:51:02 +0000
-Subject: [PATCH 7/7] Revert "Revert "initrd-parse-etc: override argv[0] to
+Subject: [PATCH 7/9] Revert "Revert "initrd-parse-etc: override argv[0] to
  avoid dracut issue""
 
 This reverts commit 1c585a4ccda3258088d7bc27b27a314e7ed8be80.
