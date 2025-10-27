@@ -5,6 +5,8 @@ EAPI=8
 
 [[ ${PV} == 9999* ]] || CRATES="${PN}@${PV}"
 
+RUST_MIN_VER="1.83"
+
 inherit cargo systemd
 
 DESCRIPTION="A container network stack"
