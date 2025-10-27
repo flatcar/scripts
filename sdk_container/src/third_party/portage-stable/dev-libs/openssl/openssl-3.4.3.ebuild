@@ -4,7 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
-inherit edo flag-o-matic linux-info sysroot toolchain-funcs
+inherit edo flag-o-matic linux-info toolchain-funcs
 inherit multilib multilib-minimal multiprocessing preserve-libs
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
@@ -27,7 +27,7 @@ else
 	"
 
 	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 
 	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-openssl-20240920 )"
@@ -275,12 +275,12 @@ multilib_src_install_all() {
 pkg_preinst() {
 	if use fips; then
 		# Regen fipsmodule.cnf, bug 900625
-		einfo "Running openssl fipsinstall"
+		ebegin "Running openssl fipsinstall"
 		LD_LIBRARY_PATH="${ED}/usr/$(get_libdir)" \
-			sysroot_run_prefixed "${ED}/usr/bin/openssl" fipsinstall \
+			"${ED}/usr/bin/openssl" fipsinstall -quiet \
 			-out "${ED}${SSL_CNF_DIR}/fipsmodule.cnf" \
-			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so" \
-			|| die "fipsinstall failed"
+			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so"
+		eend $?
 	fi
 
 	preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
