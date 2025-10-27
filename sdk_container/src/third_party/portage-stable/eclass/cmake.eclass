@@ -106,8 +106,18 @@ fi
 # @DESCRIPTION:
 # Warn about variables that are declared on the command line
 # but not used. Might give false-positives.
-# "no" to disable (default) or anything else to enable.
+# "no" to disable or anything else to enable.
+# The default is set to "yes" (enabled).
 : "${CMAKE_WARN_UNUSED_CLI:=yes}"
+
+# @ECLASS_VARIABLE: CMAKE_ECM_MODE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Default value is "auto", which means _cmake_modify-cmakelists will make an
+# effort to detect find_package(ECM) in CMakeLists.txt.  If set to true, make
+# extra checks and add common config settings related to ECM (KDE Extra CMake
+# Modules).  If set to false, do nothing.
+: "${CMAKE_ECM_MODE:=auto}"
 
 # @ECLASS_VARIABLE: CMAKE_EXTRA_CACHE_FILE
 # @USER_VARIABLE
@@ -123,11 +133,31 @@ fi
 # If set, skip detection of CMakeLists.txt unsupported in CMake 4 in case of
 # false positives (e.g. unused outdated bundled libs).
 
-# @ECLASS_VARIABLE: _CMAKE_MINREQVER_UNSUPPORTED
+# @ECLASS_VARIABLE: _CMAKE_MINREQVER_CMAKE305
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# Internal status set by _cmake_minreqver-lt(); is true if an unsupported
-# cmake_minimum_required value was detected.
+# Internal array containing <file>:<version> tuples detected by
+# _cmake_minreqver-check() for any CMakeLists.txt with cmake_minimum_required
+# version lower than 3.5.
+_CMAKE_MINREQVER_CMAKE305=()
+
+# @ECLASS_VARIABLE: _CMAKE_MINREQVER_CMAKE310
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Internal array containing <file>:<version> tuples detected by
+# _cmake_minreqver-check() for any CMakeLists.txt with cmake_minimum_required
+# version lower than 3.10 (causes CMake warnings as of 4.0) on top of those
+# already added to _CMAKE_MINREQVER_CMAKE305.
+_CMAKE_MINREQVER_CMAKE310=()
+
+# @ECLASS_VARIABLE: _CMAKE_MINREQVER_CMAKE316
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Internal array containing <file>:<version> tuples detected by
+# _cmake_minreqver-check() for any CMakeLists.txt with cmake_minimum_required
+# version lower than 3.16 (causes ECM warnings since 5.100), on top of those
+# already added to _CMAKE_MINREQVER_CMAKE305 and _CMAKE_MINREQVER_CMAKE310.
+_CMAKE_MINREQVER_CMAKE316=()
 
 # @ECLASS_VARIABLE: CMAKE_QA_SRC_DIR_READONLY
 # @USER_VARIABLE
@@ -149,6 +179,14 @@ fi
 [[ ${WANT_CMAKE} ]] && die "WANT_CMAKE has been removed and is a no-op"
 [[ ${PREFIX} ]] && die "PREFIX has been removed and is a no-op"
 
+case ${CMAKE_ECM_MODE} in
+	auto|true|false) ;;
+	*)
+		eerror "Unknown value for \${CMAKE_ECM_MODE}"
+		die "Value ${CMAKE_ECM_MODE} is not supported"
+		;;
+esac
+
 case ${CMAKE_MAKEFILE_GENERATOR} in
 	emake)
 		BDEPEND="dev-build/make"
@@ -163,7 +201,7 @@ case ${CMAKE_MAKEFILE_GENERATOR} in
 esac
 
 if [[ ${PN} != cmake ]]; then
-	BDEPEND+=" >=dev-build/cmake-3.20.5"
+	BDEPEND+=" >=dev-build/cmake-3.28.5"
 fi
 
 # @FUNCTION: cmake_run_in
@@ -303,6 +341,8 @@ _cmake_check_build_dir() {
 	if [[ ${EAPI} == 7 ]]; then
 		: "${CMAKE_USE_DIR:=${S}}"
 	else
+		# Since EAPI-8 we use current working directory, bug #704524
+		# esp. test with 'special' pkgs like: app-arch/brotli, net-libs/quiche
 		: "${CMAKE_USE_DIR:=${PWD}}"
 	fi
 	if [[ -n ${CMAKE_IN_SOURCE_BUILD} ]]; then
@@ -327,23 +367,139 @@ _cmake_check_build_dir() {
 	mkdir -p "${BUILD_DIR}" || die
 }
 
-# @FUNCTION: _cmake_minreqver-lt
-# @USAGE: <lt-version> <path>
+# @FUNCTION: _cmake_minreqver-check
+# @USAGE: <path> or <path> <lt-version>
 # @INTERNAL
 # @DESCRIPTION:
-# Internal function for detecting occurrence of lower-than-specified
-# <lt-version> in cmake_minimum_required of a given CMake file <path>.
+# Internal function for flagging any deprecated or unsupported
+# cmake_minimum_required version in a given CMake file <path>.
+# If <lt-version> is specified as second arg, only check against that value.
 # Returns 0 if the regex matched (a lower-than-specified version found).
-_cmake_minreqver-lt() {
+_cmake_minreqver-check() {
 	local ver chk=1
+	if [[ "$#" == 2 ]]; then
+		local file="${1}"
+		local lt_version="${2}"
+	elif [[ "$#" == 1 ]]; then
+		local file="${1}"
+	else
+		die "${FUNCNAME[0]} must be passed either one or two arguments"
+	fi
 	ver=$(sed -ne "/^\s*cmake_minimum_required/I{s/.*\(\.\.\.*\|\s\)\([0-9][0-9.]*\)\([)]\|\s\).*$/\2/p;q}" \
-		"${2}" 2>/dev/null \
+		"${file}" 2>/dev/null \
 	)
-	if [[ -n ${ver} ]] && ver_test "${ver}" -lt "${1}"; then
-		_CMAKE_MINREQVER_UNSUPPORTED=true
-		chk=0
+	if [[ -z ${ver} ]]; then
+		return 1 # no cmake_minimum_required found
+	fi
+	if [[ -n ${lt_version} ]]; then
+		chk=$(ver_test "${ver}" -lt "${lt_version}")
+	else
+		if ver_test "${ver}" -lt "3.5"; then
+			_CMAKE_MINREQVER_CMAKE305+=( "${file}":"${ver}" )
+			chk=0
+		fi
+		# we don't want duplicates that were already flagged
+		if [[ $chk != 0 ]] && ver_test "${ver}" -lt "3.10"; then
+			_CMAKE_MINREQVER_CMAKE310+=( "${file}":"${ver}" )
+			chk=0
+		fi
+		# we don't want duplicates that were already flagged
+		if [[ $chk != 0 ]] && ver_test "${ver}" -lt "3.16"; then
+			_CMAKE_MINREQVER_CMAKE316+=( "${file}":"${ver}" )
+			chk=0
+		fi
 	fi
 	return ${chk}
+}
+
+# @FUNCTION: _cmake_minreqver-info
+# @INTERNAL
+# @DESCRIPTION:
+# QA Notice and file listings for any CMakeLists.txt file not meeting various
+# minimum standards for cmake_minimum_required.
+_cmake_minreqver-info() {
+	local warnlvl
+	[[ -n ${_CMAKE_MINREQVER_CMAKE305[@]} ]] && warnlvl=305
+	[[ -n ${_CMAKE_MINREQVER_CMAKE310[@]} ]] || [[ ${warnlvl} ]] && warnlvl=310
+	[[ ${CMAKE_ECM_MODE} == true ]] &&
+		{ [[ -n ${_CMAKE_MINREQVER_CMAKE316[@]} ]] || [[ ${warnlvl} ]]; } && warnlvl=316
+
+	local weak_qaw="QA Notice: "
+	minreqver_qanotice() {
+		case ${1} in
+			305)
+				eqawarn "${weak_qaw}Compatibility with CMake < 3.5 has been removed from CMake 4,"
+				eqawarn "${CATEGORY}/${PN} will fail to build w/o a fix."
+				eqawarn "See also tracker bug #951350; check existing bug or file a new one for"
+				eqawarn "this package, and take it upstream."
+				;;
+			310)
+				eqawarn "${weak_qaw}Compatibility with CMake < 3.10 will be removed in a future release."
+				eqawarn "If not fixed in upstream's code repository, we should make sure they are aware."
+				eqawarn "See also tracker bug #964405; check existing or file a new bug for this package."
+				;;
+			316)
+				eqawarn "${weak_qaw}Compatibility w/ CMake < 3.16 will be removed in future ECM release."
+				eqawarn "If not fixed in upstream's code repository, we should make sure they are aware."
+				eqawarn "See also tracker bug #964407; check existing or file a new bug for this package."
+				;;
+		esac
+		eqawarn
+		weak_qaw="" # weak notice: no "QA Notice" starting with second call
+	}
+
+	local info
+	minreqver_listing() {
+		case ${1} in
+			305)
+				eqawarn "The following CMakeLists.txt files are causing errors:"
+				for info in ${_CMAKE_MINREQVER_CMAKE305[*]}; do
+					eqawarn "  ${info#"${CMAKE_USE_DIR}/"}";
+				done
+				eqawarn
+				;;
+			310)
+				if [[ -n ${_CMAKE_MINREQVER_CMAKE310[@]} ]]; then
+					eqawarn "The following CMakeLists.txt files are causing warnings:"
+					for info in ${_CMAKE_MINREQVER_CMAKE310[*]}; do
+						eqawarn "  ${info#"${CMAKE_USE_DIR}/"}";
+					done
+					eqawarn
+				fi
+				;;
+			316)
+				if [[ ${warnlvl} -ge 316 ]] && [[ -n ${_CMAKE_MINREQVER_CMAKE316[@]} ]]; then
+					eqawarn "The following CMakeLists.txt files are causing warnings:"
+					for info in ${_CMAKE_MINREQVER_CMAKE316[*]}; do
+						eqawarn "  ${info#"${CMAKE_USE_DIR}/"}";
+					done
+					eqawarn
+				fi
+				;;
+		esac
+	}
+
+	# CMake 4-caused error is highest priority and must always be shown
+	if [[ -n ${_CMAKE_MINREQVER_CMAKE305[@]} ]]; then
+		minreqver_qanotice 305
+		minreqver_listing 305
+	fi
+	# for warnings, we only want the latest relevant one, but list all flagged files
+	if [[ ${warnlvl} -ge 310 ]]; then
+		minreqver_qanotice ${warnlvl}
+		for info in 310 316; do minreqver_listing ${info}; done
+	fi
+	if [[ ${warnlvl} ]]; then
+		if [[ -n ${_CMAKE_MINREQVER_CMAKE305[@]} ]] && has_version -b ">=dev-build/cmake-4"; then
+			eqawarn "CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+			eqawarn "This is merely a workaround to avoid CMake Error and *not* a permanent fix;"
+			eqawarn "there may be new build or runtime bugs as a result."
+			eqawarn
+		fi
+		eqawarn "An upstreamable patch should take any resulting CMake policy changes"
+		eqawarn "into account. See also:"
+		eqawarn "  https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html"
+	fi
 }
 
 # @FUNCTION: _cmake_modify-cmakelists
@@ -372,9 +528,12 @@ _cmake_modify-cmakelists() {
 				einfo "${mod_line:22:99}"
 			done
 		fi
+		if [[ ${CMAKE_ECM_MODE} == auto ]] && grep -Eq "\s*find_package\s*\(\s*ECM " "${file}"; then
+			CMAKE_ECM_MODE=true
+		fi
 		# Detect unsupported minimum CMake versions unless CMAKE_QA_COMPAT_SKIP is set
-		if [[ -z ${_CMAKE_MINREQVER_UNSUPPORTED} ]] && ! [[ ${CMAKE_QA_COMPAT_SKIP} ]]; then
-			_cmake_minreqver-lt "3.5" "${file}"
+		if ! [[ ${CMAKE_QA_COMPAT_SKIP} ]]; then
+			_cmake_minreqver-check "${file}"
 		fi
 	done < <(find "${CMAKE_USE_DIR}" -type f -iname "CMakeLists.txt" -print0 || die)
 
@@ -394,22 +553,21 @@ _cmake_modify-cmakelists() {
 	_EOF_
 }
 
-# @FUNCTION: cmake_src_prepare
+# @FUNCTION: cmake_prepare
 # @DESCRIPTION:
-# Apply ebuild and user patches. *MUST* be run or cmake_src_configure will fail.
-cmake_src_prepare() {
+# Check existence of and sanitise CMake files, then make ${CMAKE_USE_DIR}
+# read-only.  *MUST* be run or cmake_src_configure will fail.  EAPI-8 only.
+cmake_prepare() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	if [[ ${EAPI} == 7 ]]; then
-		pushd "${S}" > /dev/null || die # workaround from cmake-utils
-		# in EAPI-8, we use current working directory instead, bug #704524
-		# esp. test with 'special' pkgs like: app-arch/brotli, net-libs/quiche
+		eerror "${FUNCNAME} is EAPI-8 only. Call cmake_src_prepare instead."
+		die "FATAL: Forbidden function call."
 	fi
+
 	_cmake_check_build_dir
 
-	default_src_prepare
-
-	# check if CMakeLists.txt exists and if not then die
+	# Check if CMakeLists.txt exists and if not then die
 	if [[ ! -e ${CMAKE_USE_DIR}/CMakeLists.txt ]] ; then
 		eerror "Unable to locate CMakeLists.txt under:"
 		eerror "\"${CMAKE_USE_DIR}/CMakeLists.txt\""
@@ -417,54 +575,68 @@ cmake_src_prepare() {
 		die "FATAL: Unable to find CMakeLists.txt"
 	fi
 
-	local modules_list
-	if [[ ${EAPI} == 7 && $(declare -p CMAKE_REMOVE_MODULES_LIST) != "declare -a"* ]]; then
-		modules_list=( ${CMAKE_REMOVE_MODULES_LIST} )
-	else
-		modules_list=( "${CMAKE_REMOVE_MODULES_LIST[@]}" )
-	fi
+	local modules_list=( "${CMAKE_REMOVE_MODULES_LIST[@]}" )
 
 	local name
 	for name in "${modules_list[@]}" ; do
-		if [[ ${EAPI} == 7 ]]; then
-			find "${S}" -name "${name}.cmake" -exec rm -v {} + || die
-		else
-			find -name "${name}.cmake" -exec rm -v {} + || die
-		fi
+		find -name "${name}.cmake" -exec rm -v {} + || die
 	done
 
 	# Remove dangerous things.
 	_cmake_modify-cmakelists
+	_cmake_minreqver-info
 
-	if [[ ${_CMAKE_MINREQVER_UNSUPPORTED} ]]; then
-		eqawarn "QA Notice: Compatibility with CMake < 3.5 has been removed from CMake 4,"
-		eqawarn "${CATEGORY}/${PN} will fail to build w/o a fix."
-		eqawarn "See also tracker bug #951350; check existing bug or file a new one for"
-		eqawarn "this package, and take it upstream."
-		if has_version -b ">=dev-build/cmake-4"; then
-			eqawarn "CMake 4 detected; building with -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
-			eqawarn "This is merely a workaround and *not* a permanent fix."
-		fi
-		if [[ ${EAPI} == 7 ]]; then
-			eqawarn "QA Notice: EAPI=7 detected; this package is now a prime last-rites target."
-		fi
+	# Make ${CMAKE_USE_DIR} read-only in order to detect broken build systems
+	if [[ ${CMAKE_QA_SRC_DIR_READONLY} && ! ${CMAKE_IN_SOURCE_BUILD} ]]; then
+		chmod -R a-w "${CMAKE_USE_DIR}"
 	fi
+
+	_CMAKE_PREPARE_HAS_RUN=1
+}
+
+# @FUNCTION: cmake_src_prepare
+# @DESCRIPTION:
+# Apply ebuild and user patches via default_src_prepare.  In case of
+# conflict with another eclass' src_prepare phase, use cmake_prepare
+# instead (EAPI-8 only).
+# In EAPI-7, this phase *must* be run or cmake_src_configure will fail.
+cmake_src_prepare() {
+	debug-print-function ${FUNCNAME} "$@"
 
 	if [[ ${EAPI} == 7 ]]; then
+		pushd "${S}" > /dev/null || die # workaround from cmake-utils
+			default_src_prepare
+			_cmake_check_build_dir
+			# check if CMakeLists.txt exists and if not then die
+			if [[ ! -e ${CMAKE_USE_DIR}/CMakeLists.txt ]] ; then
+				eerror "Unable to locate CMakeLists.txt under:"
+				eerror "\"${CMAKE_USE_DIR}/CMakeLists.txt\""
+				eerror "Consider not inheriting the cmake eclass."
+				die "FATAL: Unable to find CMakeLists.txt"
+			fi
+			local modules_list
+			if [[ $(declare -p CMAKE_REMOVE_MODULES_LIST) != "declare -a"* ]]; then
+				modules_list=( ${CMAKE_REMOVE_MODULES_LIST} )
+			else
+				modules_list=( "${CMAKE_REMOVE_MODULES_LIST[@]}" )
+			fi
+			local name
+			for name in "${modules_list[@]}" ; do
+				find "${S}" -name "${name}.cmake" -exec rm -v {} + || die
+			done
+			_cmake_modify-cmakelists # Remove dangerous things.
+			_cmake_minreqver-info
 		popd > /dev/null || die
-	fi
-
-	# Make ${CMAKE_USE_DIR} (in EAPI-7: ${S}) read-only in order to detect
-	# broken build systems.
-	if [[ ${CMAKE_QA_SRC_DIR_READONLY} && ! ${CMAKE_IN_SOURCE_BUILD} ]]; then
-		if [[ ${EAPI} == 7 ]]; then
+		# Make ${S} read-only in order to detect broken build systems
+		if [[ ${CMAKE_QA_SRC_DIR_READONLY} && ! ${CMAKE_IN_SOURCE_BUILD} ]]; then
 			chmod -R a-w "${S}"
-		else
-			chmod -R a-w "${CMAKE_USE_DIR}"
 		fi
+		_CMAKE_PREPARE_HAS_RUN=1
+		eqawarn "QA Notice: cmake.eclass will throw unsupported EAPI=7 error after 2025-11-01."
+	else
+		default_src_prepare
+		cmake_prepare
 	fi
-
-	_CMAKE_SRC_PREPARE_HAS_RUN=1
 }
 
 # @VARIABLE: MYCMAKEARGS
@@ -490,8 +662,13 @@ cmake_src_prepare() {
 cmake_src_configure() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	[[ ${_CMAKE_SRC_PREPARE_HAS_RUN} ]] || \
-		die "FATAL: cmake_src_prepare has not been run"
+	if [[ -z ${_CMAKE_PREPARE_HAS_RUN} ]]; then
+		if [[ ${EAPI} == 7 ]]; then
+			die "FATAL: cmake_src_prepare has not been run"
+		else
+			die "FATAL: cmake_src_prepare (or cmake_prepare) has not been run"
+		fi
+	fi
 
 	_cmake_check_build_dir
 
@@ -593,13 +770,16 @@ cmake_src_configure() {
 		set(CMAKE_USER_MAKE_RULES_OVERRIDE "${build_rules}" CACHE FILEPATH "Gentoo override rules")
 		set(CMAKE_INSTALL_DOCDIR "${EPREFIX}/usr/share/doc/${PF}" CACHE PATH "")
 		set(BUILD_SHARED_LIBS ON CACHE BOOL "")
-		set(Python3_FIND_UNVERSIONED_NAMES FIRST CACHE STRING "")
+		set(Python3_FIND_UNVERSIONED_NAMES FIRST CACHE STRING "") # FindPythonInterp, Gentoo-bug #835799
+		set(CMAKE_POLICY_DEFAULT_CMP0094 NEW CACHE STRING "" ) # FindPython, Gentoo-bug #959154
 		set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON CACHE BOOL "")
+		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF CACHE BOOL "")
 		set(CMAKE_TLS_VERIFY ON CACHE BOOL "")
 		set(CMAKE_COMPILE_WARNING_AS_ERROR OFF CACHE BOOL "")
+		set(CMAKE_LINK_WARNING_AS_ERROR OFF CACHE BOOL "")
 	_EOF_
 
-	if [[ -n ${_ECM_ECLASS} ]]; then
+	if [[ ${CMAKE_ECM_MODE} == true ]]; then
 		cat >> ${common_config} <<- _EOF_ || die
 			set(ECM_DISABLE_QMLPLUGINDUMP ON CACHE BOOL "")
 			set(ECM_DISABLE_APPSTREAMTEST ON CACHE BOOL "")
@@ -678,7 +858,9 @@ cmake_src_configure() {
 		cmakeargs+=( -C "${CMAKE_EXTRA_CACHE_FILE}" )
 	fi
 
-	if [[ ${_CMAKE_MINREQVER_UNSUPPORTED} ]] && has_version -b ">=dev-build/cmake-4"; then
+	if ! [[ ${CMAKE_QA_COMPAT_SKIP} ]] &&
+		[[ -n ${_CMAKE_MINREQVER_CMAKE305[@]} ]] &&
+		has_version -b ">=dev-build/cmake-4"; then
 		cmakeargs+=( -DCMAKE_POLICY_VERSION_MINIMUM=3.5 )
 	fi
 
@@ -779,9 +961,11 @@ cmake_src_test() {
 			eerror "--START TEST LOG--------------------------------------------------------------"
 			cat "${BUILD_DIR}/Testing/Temporary/LastTest.log"
 			eerror "--END TEST LOG----------------------------------------------------------------"
-			die "Tests failed."
+			die -n "Tests failed."
 		else
-			die "Tests failed. When you file a bug, please attach the following file: \n\t${BUILD_DIR}/Testing/Temporary/LastTest.log"
+			eerror "Tests failed. When you file a bug, please attach the following file:"
+			eerror "\t${BUILD_DIR}/Testing/Temporary/LastTest.log"
+			die -n "Tests failed."
 		fi
 
 		# die might not die due to nonfatal
@@ -796,7 +980,7 @@ cmake_src_test() {
 cmake_src_install() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	DESTDIR="${D}" cmake_build install "$@"
+	DESTDIR="${D}" cmake_build "$@" install
 
 	if [[ ${EAPI} == 7 ]]; then
 		pushd "${S}" > /dev/null || die
@@ -812,7 +996,7 @@ cmake_src_install() {
 	while read -d '' -r file ; do
 		# Detect unsupported minimum CMake versions unless CMAKE_QA_COMPAT_SKIP is set
 		if ! [[ ${CMAKE_QA_COMPAT_SKIP} ]]; then
-			_cmake_minreqver-lt "3.5" "${file}" && files+=( "${file#"${D}"}" )
+			_cmake_minreqver-check "3.5" "${file}" && files+=( "${file#"${D}"}" )
 		fi
 	done < <(find "${D}" -type f -iname "*.cmake" -print0 || die)
 	if [[ ${#files[*]} -gt 0 ]]; then
