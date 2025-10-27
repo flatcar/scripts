@@ -1,0 +1,1 @@
+- Excluded TUN/TAP interfaces from the default DHCP network configuration to solve conflicts with the programs that created them ([Flatcar#1933](https://github.com/flatcar/Flatcar/issues/1933))
