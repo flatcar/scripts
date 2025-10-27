@@ -18,9 +18,9 @@ case ${PV}  in
 	inherit git-r3
 	;;
 *)
-	SRC_URI="https://storage.googleapis.com/golang/go${MY_PV}.src.tar.gz "
+	SRC_URI="https://go.dev/dl/go${MY_PV}.src.tar.gz "
 	S="${WORKDIR}"/go
-	KEYWORDS="-* ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="-* amd64 arm arm64 ~loong ~mips ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 	;;
 esac
 
@@ -68,6 +68,7 @@ PATCHES=(
 	"${FILESDIR}"/go-1.24-skip-gdb-tests.patch
 	"${FILESDIR}"/go-1.24-dont-force-gold-arm.patch
 	"${FILESDIR}"/go-1.25-no-dwarf5.patch
+	"${FILESDIR}"/go-1.25.3-ipv6-validation.patch # https://go-review.googlesource.com/c/go/+/712240
 	"${FILESDIR}"/go-never-download-newer-toolchains.patch
 )
 
