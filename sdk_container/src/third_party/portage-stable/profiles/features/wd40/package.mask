@@ -1,6 +1,16 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2025-10-06)
+# Rewritten in Rust.
+>=app-misc/task-3
+
+# Azamat H. Hackimov <azamat.hackimov@gmail.com> (2025-09-22)
+# app-i18n/libchewing was ported to Rust.
+>=app-i18n/ibus-chewing-2.1.7
+>=app-i18n/libchewing-0.10.3
+dev-build/corrosion
+
 # Patrick McLean <chutzpah@gentoo.org> (2025-09-16)
 # New version is rewritten in rust
 >=app-misc/asciinema-3.0.0
@@ -14,7 +24,9 @@ app-portage/emlop
 # requiring Rust to install, and their dependencies.
 dev-python/gherkin-official
 dev-python/pytest-bdd
+dev-python/pytest-describe
 dev-python/uv-build
+sys-auth/ssh-ldap-pubkey
 
 # Sebastian Pipping <sping@gentoo.org> (2025-06-20)
 # Requires masked packages (bug #958030)
@@ -325,6 +337,7 @@ dev-python/orjson
 dev-python/os-client-config
 dev-python/osc-lib
 dev-python/paramiko
+dev-python/patiencediff
 dev-python/pooch
 dev-python/pydantic
 dev-python/pydantic-core
@@ -354,7 +367,6 @@ dev-python/secretstorage
 dev-python/selenium
 dev-python/service-identity
 dev-python/setuptools-rust
-dev-python/spur
 dev-python/sshpubkeys
 dev-python/sshtunnel
 dev-python/tempest
@@ -390,7 +402,7 @@ gnome-extra/gnome-browser-connector
 gnome-extra/gnome-tweaks
 gnome-extra/sushi
 >=media-gfx/libimagequant-4
-media-gfx/gimp
+<media-gfx/gimp-3.0.6
 >=media-libs/libopenraw-0.3.2
 media-plugins/gimp-lqr
 media-video/rav1e
@@ -413,3 +425,5 @@ virtual/rust
 www-apps/radicale
 >=x11-themes/adwaita-icon-theme-3.36
 x11-themes/adwaita-icon-theme-legacy
+>=gui-libs/gtk-4.20.1
+>=dev-cpp/gtkmm-4.20

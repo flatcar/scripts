@@ -1,6 +1,23 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Z. Liu <zhixu.liu@gmail.com> (2025-10-18)
+# nvidia-drivers only works against glibc.
+dev-python/nvidia-ml-py
+
+# Robert Siebeck <gentoo.2019@r123.de> (2025-10-17)
+# Binary compiled against glibc
+# Bug #964371
+net-im/signal-desktop-bin
+
+# PPN-SD <nicolas.parlant@parhuet.fr> (2025-10-08)
+# Binary bazel is compiled against glibc
+>=app-i18n/mozc-2.31.5851.102
+
+# Michał Górny <mgorny@gentoo.org> (2025-09-28)
+# Required DT_AUXILIARY support in the dynamic linker.
+=sci-libs/blas-lapack-aux-wrappers-0
+
 # PPN-SD <nicolas.parlant@parhuet.fr> (2025-07-28)
 # Bundled pcap-thread, not ported to musl
 # bug #713498, https://github.com/DNS-OARC/pcap-thread/issues/128
@@ -292,6 +309,7 @@ dev-games/ps2-packer
 dev-java/openjdk-bin
 dev-java/openjdk-jre-bin
 dev-lang/dafny-bin
+dev-lang/deno-bin
 dev-libs/luise
 dev-libs/nwjs
 dev-perl/Lab-Zhinst
