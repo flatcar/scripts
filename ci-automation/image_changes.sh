@@ -705,7 +705,7 @@ function print_image_reports() {
 
     underline "Image kernel config changes, compared to ${previous_version_description}:"
     env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt \
+        "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt CUTSIGKEYPATH=1 \
         "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
 
     underline "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${previous_version_description}:"
