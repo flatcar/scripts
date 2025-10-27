@@ -54,6 +54,9 @@ strip_completions() {
 
 		# Now-dead symlinks to deprecated completions
 		hd ncal
+
+		# Now installed by patchutils
+		interdiff
 	)
 
 	rm -v "${strip_completions[@]/#/${ED}/usr/share/bash-completion/completions/}" || die
