@@ -9,7 +9,7 @@ if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
 	EGIT_BRANCH="flatcar-4230-backport"
-	EGIT_COMMIT="1f89e0e11c81e273c225ea5b02cfc727865f236b" # flatcar-4230-backport
+	EGIT_COMMIT="d51b08a4a3f92212c98dcfc17ba5c4db7fac6c97" # flatcar-4230-backport
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
