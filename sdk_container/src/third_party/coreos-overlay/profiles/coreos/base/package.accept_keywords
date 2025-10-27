@@ -122,3 +122,5 @@ sys-apps/azure-vm-utils
 
 # erofs
 =sys-fs/erofs-utils-1.8.10 ~amd64 ~arm64
+=app-containers/containerd-2.1* ~amd64 ~arm64
+=app-containers/runc-1.3* ~amd64 ~arm64
