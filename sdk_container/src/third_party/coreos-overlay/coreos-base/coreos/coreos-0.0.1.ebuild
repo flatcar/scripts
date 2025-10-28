@@ -192,6 +192,7 @@ RDEPEND="${RDEPEND}
 	sys-fs/cryptsetup
 	sys-fs/dosfstools
 	sys-fs/e2fsprogs
+	sys-fs/erofs-utils
 	sys-fs/lsscsi
 	sys-fs/lvm2
 	sys-fs/mdadm
