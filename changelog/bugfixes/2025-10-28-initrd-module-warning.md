@@ -1,0 +1,1 @@
+- Fixed a kernel boot warning when loading an explicit list of kernel modules in the minimal first-stage initrd ([Flatcar#1934](https://github.com/flatcar/Flatcar/issues/1934))
