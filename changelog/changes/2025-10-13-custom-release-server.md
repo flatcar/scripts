@@ -1,0 +1,1 @@
+- Added support for the kernel cmdline parameters `flatcar.release_file_server_url` and `flatcar.dev_file_server_url` to specify custom servers where Flatcar extensions should be downloaded on boot ([bootengine#112](https://github.com/flatcar/bootengine/pull/112))
