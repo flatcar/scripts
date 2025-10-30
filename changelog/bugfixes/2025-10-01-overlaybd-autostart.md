@@ -1,0 +1,1 @@
+- Configured the services in the overlaybd sysext to start automatically like the other sysexts. Note that the sysext must be enabled at boot time for this to happen, otherwise you need to call `systemd-tmpfiles --create` and `systemctl daemon-reload` first.
