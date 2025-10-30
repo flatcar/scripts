@@ -161,6 +161,7 @@ EOF
   # Move the PAM configuration into /usr
   sudo mkdir -p ${root_fs_dir}/usr/lib/pam.d
   sudo mv -n ${root_fs_dir}/etc/pam.d/* ${root_fs_dir}/usr/lib/pam.d/
+  ls -laR ${root_fs_dir}/etc/pam.d
   sudo rmdir ${root_fs_dir}/etc/pam.d
 
   # Remove source locale data, only need to ship the compiled archive.
