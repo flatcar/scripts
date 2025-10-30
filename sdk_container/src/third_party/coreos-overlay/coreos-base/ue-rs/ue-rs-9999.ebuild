@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 	CRATES=""
 else
-	EGIT_COMMIT="5d4db088f2f8bb44ea82e505ea487dac8b69a3d2" # main
+	EGIT_COMMIT="572d70d012962bac11ed34602b7750a9e29e0517" # contributions/ue-rs-remove-anyhow
 	KEYWORDS="amd64 arm64"
 	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
@@ -19,7 +19,6 @@ else
 		addr2line@0.24.2
 		adler2@2.0.0
 		aho-corasick@1.1.3
-		anyhow@1.0.98
 		argh@0.1.13
 		argh_derive@0.1.13
 		argh_shared@0.1.13
@@ -43,6 +42,7 @@ else
 		core-foundation@0.9.4
 		cpufeatures@0.2.17
 		crypto-common@0.1.6
+		ct-codecs@1.1.6
 		der@0.7.9
 		digest@0.10.7
 		displaydoc@0.2.5
@@ -99,7 +99,7 @@ else
 		libm@0.2.11
 		linux-raw-sys@0.9.4
 		litemap@0.7.5
-		log@0.4.27
+		log@0.4.28
 		memchr@2.7.4
 		mime@0.3.17
 		miniz_oxide@0.8.8
