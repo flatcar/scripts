@@ -108,15 +108,16 @@ src_compile() {
 	ln -s usr/lib64 lib || die
 	ln -s usr/lib64 lib64 || die
 	ln -s lib64 usr/lib || die
-	mkdir -p lib/modules/"${KV_FULL}"/ || die
 	# Instead from ESYSROOT we can also copy kernel modules from the dracut pre-selection
-	cp "${S}"/build/bootengine/usr/lib/modules/"${KV_FULL}"/modules.* lib/modules/"${KV_FULL}"/ || die
 	mkdir -p lib/modprobe.d/ || die
 	cp "${S}"/build/bootengine/lib/modprobe.d/* lib/modprobe.d/ || die
 	# Only include modules related to mounting /usr and for interacting with the emergency console
 	pushd "${S}/build/bootengine/usr/lib/modules/${KV_FULL}" || die
 	find kernel/drivers/{ata,block,hid,hv,input/serio,mmc,nvme,pci,scsi,usb} kernel/fs/{btrfs,overlayfs,squashfs} kernel/security/keys -name "*.ko.*" -printf "%f\0" | DRACUT_NO_XATTR=1 xargs --null "${BROOT}"/usr/lib/dracut/dracut-install --destrootdir "${S}"/build/minimal --kerneldir . --sysrootdir "${S}"/build/bootengine/ --firmwaredirs "${S}"/build/bootengine/usr/lib/firmware --module dm-verity dm-mod virtio_console || die
 	popd || die
+	# Double compression only makes the image bigger and slower
+	find . -name "*.ko.xz" -exec unxz {} + || die
+	depmod -a -b . "${KV_FULL}" || die
 	echo '$MODALIAS=.*	0:0 660 @/sbin/modprobe "$MODALIAS"' > ./etc/mdev.conf || die
 	# We can't use busybox's modprobe because it doesn't support the globs in module.alias, breaking module loading
 	DRACUT_NO_XATTR=1 "${BROOT}"/usr/lib/dracut/dracut-install --destrootdir . --sysrootdir "${ESYSROOT}" --ldd /bin/veritysetup /bin/dmsetup /bin/busybox /sbin/modprobe || die
