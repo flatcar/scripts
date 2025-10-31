@@ -1,0 +1,1 @@
+- set default containerd [registry config](https://github.com/containerd/containerd/blob/main/docs/hosts.md#cri)
