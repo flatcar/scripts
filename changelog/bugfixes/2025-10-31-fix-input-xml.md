@@ -1,0 +1,1 @@
+- Alpha only: Fixed systemd-sysext payload handling for air-gapped/self-hosted updates which was a known bug for 4487.0.0 ([ue-rs#93](https://github.com/flatcar/ue-rs/pull/93))
