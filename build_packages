@@ -266,13 +266,18 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   # lvm2[udev] -> virtual/udev -> systemd[cryptsetup] -> cryptsetup -> lvm2
   # lvm2[systemd] -> systemd[cryptsetup] -> cryptsetup -> lvm2
   # systemd[cryptsetup] -> cryptsetup[udev] -> virtual/udev -> systemd
+  # systemd[tpm] -> tpm2-tss -> util-linux[udev] -> virtual/udev -> systemd
   # curl[http2] -> nghttp2[systemd] -> systemd[curl] -> curl
+  # sys-libs/pam[systemd] -> sys-apps/system[pam] -> sys-libs/pam
+  #   not dropping pam from sys-apps/systemd, otherwise we would need
+  #   to drop pam from sys-auth/pambase
   break_dep_loop sys-apps/util-linux udev,systemd,cryptsetup \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 udev,systemd \
                  sys-apps/systemd cryptsetup,tpm \
                  net-misc/curl http2 \
-                 net-libs/nghttp2 systemd
+                 net-libs/nghttp2 systemd \
+                 sys-libs/pam systemd
 fi
 
 if [[ "${FLAGS_only_resolve_circular_deps}" -eq "${FLAGS_TRUE}" ]]; then
