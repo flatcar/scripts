@@ -1,5 +1,6 @@
 cros_post_src_install_timesync() {
-  local dir="${D}$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
+  local sysunit_dir="${D}$(systemd_get_systemunitdir)"
+  local dir="${sysunit_dir}/systemd-timesyncd.service.d"
   mkdir -p "${dir}"
   pushd "${dir}"
   cat <<EOF >flatcar.conf || die
@@ -8,6 +9,20 @@ cros_post_src_install_timesync() {
 # in systemd-timesyncd not being started.
 [Unit]
 After=ensure-sysext.service
+EOF
+  popd
+
+  local dir="${sysunit_dir}/systemd-udevd.service.d"
+  mkdir -p "${dir}"
+  pushd "${dir}"
+  cat <<EOF >flatcar.conf || die
+# In Flatcar we are using modprobe helpers that run depmod in temporary
+# overlay. systemd-udevd.service may try to load drivers for some block devices
+# (e.g. ZFS), which ends up calling our helpers, which invoke mount command.
+# The mount syscalls are forbidden by the default systemd-udevd syscall filter.
+
+[Service]
+SystemCallFilter=@mount
 EOF
   popd
 }
