@@ -1,13 +1,466 @@
-cros_post_src_install_timesync() {
-  local dir="${D}$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
-  mkdir -p "${dir}"
-  pushd "${dir}"
-  cat <<EOF >flatcar.conf || die
+flatcar_systemd_meson_args_array=(
+    # Point to our user mailing list.
+    -Dsupport-url='https://groups.google.com/forum/#!forum/flatcar-linux-user'
+
+    # Use our ntp servers.
+    -Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
+
+    # Specify this, or meson breaks due to no /etc/login.defs.
+    -Dsystem-gid-max=999
+    -Dsystem-uid-max=999
+
+    # DBus paths.
+    -Ddbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
+    -Ddbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
+
+    # PAM config directory.
+    -Dpamconfdir=/usr/share/pam.d
+
+    # The CoreOS epoch, Mon Jul 1 00:00:00 UTC 2013. Used by timesyncd
+    # as a sanity check for the minimum acceptable time. Explicitly
+    # set to avoid using the current build time.
+    -Dtime-epoch=1372636800
+
+    # No default name servers.
+    -Ddns-servers=
+
+    # Disable the "First Boot Wizard", it isn't very applicable to us.
+    -Dfirstboot=false
+
+    # Set latest network interface naming scheme for
+    # https://github.com/flatcar/Flatcar/issues/36
+    -Ddefault-net-naming-scheme=latest
+
+    # Combined log format: name plus description
+    -Dstatus-unit-format-default=combined
+
+    # Disable multicast-dns, Link-Local Multicast Name Resolution and
+    # dnssec
+    -Ddefault-mdns=no
+    -Ddefault-llmnr=no
+    -Ddefault-dnssec=no
+)
+export MYMESONARGS="${flatcar_systemd_meson_args_array[*]@Q}"
+unset 'flatcar_systemd_meson_args_array'
+
+# A hack to avoid enabling getty remote-fs targets in pkg_postinst, we
+# already do it ourselves in this file with presets.
+if [[ -z ${flatcar_hacked_systemctl:-} ]]; then
+    flatcar_hacked_systemctl=$(command -v systemctl)
+fi
+systemctl() {
+    ewarn "called our systemctl wrapper with args: ${*@Q}"
+    if [[ ${#} -eq 4 && ${1} = '--root='* && ${2} = 'enable' && ${3} = 'getty@.service' && ${4} = 'remote-fs.target' ]]; then
+        ewarn "ignoring"
+        return 0
+    fi
+    ewarn "forwarding to actual systemctl"
+    "${flatcar_hacked_systemctl}" "${@}"
+}
+
+# 1 - path to a preset file ("${ED}/usr/lib/systemd/system-preset/90-systemd.preset")
+# 2 - scope ("system" or "user")
+flatcar_preset_all_enable() {
+    local preset_file=${1}; shift
+    local scope=${1}; shift
+
+    local -r systemd_dir=/usr/lib/systemd
+
+    # Regexes for parsing unit files.
+    #
+    # matches empty line or line with whitespaces only
+    local -r empty_regexp='^[[:space:]]*$'
+    # matches comment lines (starting with # or ;)
+    local -r comment_regexp='^[[:space:]]*[#;]'
+    # matches [Foo]
+    local -r section_regexp='^[[:space:]]*\[[[:space:]]*([^[:space:]]+)[[:space:]]*\][[:space:]]*$'
+    # matches Foo = Bar
+    local -r key_value_regexp='^[[:space:]]*([^=[:space:]]+)[[:space:]]*=[[:space:]]*([^[:space:]]*([[:space:]]+[^[:space:]]+)*)[[:space:]]*$'
+
+    local -a tokens units instance_overrides BASH_REMATCH
+    local unit_name unit_path in_install line
+    local in_continuation continuation_key continuation_value handle_finished_continuation
+
+    local -a unit_type_pairs
+    local default_instance
+    local -a tmp_array
+    local tmp_value
+
+    local this_desc pair_desc
+    local -a instances
+    local related_unit_name related_unit_type do_by_dir this_unit_name_to_use
+    local -a this_unit_names_to_use
+
+    local -A handled_units=()
+
+    # The only lines in preset files we are interested in are ones
+    # that begin with 'enable' keyword. The line has a format like:
+    #
+    # enable <unit_name> [<instance_name>…]
+    #
+    # <unit_name> possibly contains wildcards, so it can match several
+    # units. <instance_name> is used for template units and they
+    # override the unit's DefaultInstance option.
+    while read -r -a tokens; do
+        if [[ ${#tokens[@]} -eq 0 || ${tokens[0]} != 'enable' ]]; then
+            continue
+        fi
+
+        if [[ ${#tokens[@]} -lt 2 ]]; then
+            ewarn "Malformed line in preset ${preset_file@Q}: ${line@Q}, ignoring"
+            continue
+        fi
+        # tokens[1] possibly contains wildcard characters, so we can
+        # end up with more than one unit to enable
+        if [[ ${tokens[1]} = *'*'* || ${tokens[1]} = *'?'* ]]; then
+            # TODO: Is this the best way to evaluate a variable with
+            # wildcards?
+            units=( "${ED}/${systemd_dir}/${scope}/"${tokens[1]} )
+            # These are supposed to be unit names only so take only the
+            # basename.
+            units=( "${units[@]##*/}" )
+        else
+            units=( "${tokens[1]}" )
+        fi
+        # Insert a fake name like '-----' to separate units with
+        # overriden instances from units with instance names taken
+        # from DefaultInstance. The former come from the preset file,
+        # the latter from unit's "Also" options.
+        units+=( '-----' )
+        instance_overrides=()
+        if [[ ${#tokens[@]} -gt 2 ]]; then
+            instance_overrides+=( "${tokens[@]:2}" )
+        fi
+        tokens=()
+
+        while [[ ${#units[@]} -gt 0 ]]; do
+            unit_name=${units[0]}
+            units=( "${units[@]:1}" )
+            if [[ ${unit_name} = '-----' ]]; then
+                instance_overrides=()
+                continue
+            fi
+            if [[ -n ${handled_units["${unit_name}"]:-} ]]; then
+                continue
+            fi
+            handled_units["${unit_name}"]=x
+            unit_path=${ED}/${systemd_dir}/${scope}/${unit_name}
+            if [[ ! -e ${unit_path} ]]; then
+                ewarn "${unit_name} not found at ${systemd_dir}/${scope}/${unit_name}"
+                continue
+            fi
+            # If we are in [Install] section. Affects handling of
+            # finished continuations.
+            in_install=''
+            # If we are in continuation of the key-value entry, like:
+            #
+            # Also = unit_one \
+            #        unit_two \
+            #        unit_three
+            in_continuation=''
+            # Key of the continuation, in the example above, it's
+            # Also. If it's empty during continuation, it means we
+            # don't care about the key-value pair, because it is
+            # outside the Install section.
+            continuation_key=''
+            # Value of the continuation, in the example above, it
+            # starts with "unit_one", ends up eventually with
+            # "unit_one unit_two unit_three".
+            continuation_value=''
+            # If continuation has finished, we have the whole value
+            # for key-value pair, so handle it - this only happens for
+            # continuations inside the [Install] section
+            handle_finished_continuation=''
+            # Holds pairs of unit names and types (being basically
+            # keys from key-value pairs), for example:
+            #
+            # multi-user.target WantedBy dbus-org.freedesktop.network1.service Alias
+            unit_type_pairs=()
+
+            while read -r line; do
+                if [[ ${line} =~ ${empty_regexp} ]]; then
+                    # empty line, finish continuation if there's any
+                    if [[ -n ${in_continuation} ]]; then
+                        if [[ -n ${continuation_key} ]]; then
+                            handle_finished_continuation=x
+                        fi
+                        in_continuation=''
+                    fi
+                elif [[ ${line} =~ ${comment_regexp} ]]; then
+                    # comment, just skip, does not affect continuation state
+                    continue
+                elif [[ -n ${in_continuation} ]]; then
+                    # we are in continuation, either continue it if
+                    # line ends with backslash, otherwise finish the
+                    # continuation (and handle it if we care about it)
+                    if [[ -n ${continuation_key} ]]; then
+                        continuation_value+=" ${line}"
+                        if [[ ${continuation_value} = *'\' ]]; then
+                            continuation_value=${continuation_value%'\'}
+                        else
+                            in_continuation=''
+                            handle_finished_continuation=x
+                        fi
+                    elif [[ ${line} != *'\' ]]; then
+                        in_continuation=''
+                    fi
+                elif [[ ${line} =~ ${section_regexp} ]]; then
+                    if [[ ${BASH_REMATCH[1]} = 'Install' ]]; then
+                        in_install=x
+                    else
+                        in_install=''
+                    fi
+                elif [[ ${line} =~ ${key_value_regexp} ]]; then
+                    continuation_key=${BASH_REMATCH[1]}
+                    continuation_value=${BASH_REMATCH[2]}
+                    if [[ ${continuation_value} = *'\' ]]; then
+                        in_continuation=x
+                        if [[ -n ${in_install} ]]; then
+                            continuation_value=${continuation_value%'\'}
+                        else
+                            # we are in continuation, but outside the
+                            # [Install] section, so clear key and
+                            # value to show that we don't care about
+                            # them
+                            continuation_key=''
+                            continuation_value=''
+                        fi
+                    elif [[ -n ${in_install} ]]; then
+                        handle_finished_continuation=x
+                    fi
+                else
+                    die "Malformed line in ${unit_path}: ${line}"
+                fi
+
+                if [[ -n ${handle_finished_continuation} ]]; then
+                    handle_finished_continuation=''
+                    # simplify whitespace
+                    read -r -a tmp_array <<<"${continuation_value}"
+                    case ${continuation_key} in
+                        'Alias'|'WantedBy'|'RequiredBy'|'UpheldBy')
+                            for tmp_value in "${tmp_array[@]}"; do
+                                unit_type_pairs+=( "${tmp_value}" "${continuation_key}" )
+                            done
+                            ;;
+                        'Also')
+                            units+=( "${tmp_array[@]}" )
+                            ;;
+                        'DefaultInstance')
+                            if [[ ${#tmp_array[@]} -gt 1 ]]; then
+                                ewarn "DefaultInstance value (${tmp_array[*]}) in ${unit_path} looks wrong"
+                            fi
+                            default_instance=${tmp_array[*]}
+                            ;;
+                        *)
+                            einfo "Ignoring unknown option ${continuation_key@Q} in Install section of ${unit_path}"
+                            ;;
+                    esac
+                fi
+            done <"${unit_path}"
+
+            # 1. if this unit is a template and related unit is also a
+            # template -> symlink from related template to this
+            # template
+            #
+            # 2. if this unit is a template and related unit is not ->
+            # symlink from related unit to this template with default
+            # instance
+            #
+            # 3. if this unit is not a template and related unit is a
+            # template -> symlink from the related template with the
+            # default instance to this unit (not implemented - would
+            # need to acquire default instance information from the
+            # related unit, didn't bother as this scenario does not
+            # currently happen in the presets; I'm also not sure if it
+            # makes any sense)
+            #
+            # 4. if this unit is not a template and related unit is
+            # also not a template -> symlink from related unit to this
+            # unit
+
+            if [[ ${unit_name%.*} = *'@' ]]; then
+                this_desc='t'
+                if [[ ${#instance_overrides[@]} -gt 0 ]]; then
+                    instances=( "${instance_overrides[@]}" )
+                else
+                    instances=( "${default_instance}" )
+                fi
+            else
+                this_desc='n'
+                instances=()
+            fi
+
+            while [[ ${#unit_type_pairs[@]} -gt 1 ]]; do
+                related_unit_name=${unit_type_pairs[0]}
+                related_unit_type=${unit_type_pairs[1]}
+                unit_type_pairs=( "${unit_type_pairs[@]:2}" )
+
+                pair_desc=${this_desc}
+                if [[ ${related_unit_name%.*} = *'@' ]]; then pair_desc+='t'; else pair_desc+='n'; fi
+
+                case ${pair_desc} in
+                    'tt'|'nn') # 1. or 4.
+                        this_unit_names_to_use=( ${unit_name} )
+                        ;;
+                    'tn') # 2.
+                        this_unit_names_to_use=( ${instances[@]/#/"${unit_name%.*}"} )
+                        this_unit_names_to_use=( ${this_unit_names_to_use[@]/%/".${unit_name##*.}"} )
+                        ;;
+                    'nt') # 3.
+                        die "Case 3. not implemented, need to acquire default instance of the related unit, I was too lazy to implement that; if you have hit this case, congratulations - you get to implement it (debug info: unit name: ${unit_name}, related unit name: ${related_unit_name}, relation: ${related_unit_type}, scope: ${scope})"
+                        ;;
+                    *)
+                        die "Should not happen"
+                        ;;
+                esac
+
+                # this_unit_names_to_use (getty@tty1.service) can be
+                # used for symlink name, but not for the target - we
+                # want the symlink to point to the actual file (like
+                # getty@.service)
+
+                do_by_dir=''
+                tmp_array=()
+                case ${related_unit_type} in
+                    'Alias')
+                        # put paths in array, so I can quote them nicely for einfo
+                        tmp_array+=(
+                            "${systemd_dir}/${scope}/${related_unit_name}"
+                            "${unit_name}"
+                        )
+                        ;;
+                    'WantedBy') do_by_dir='wants';;
+                    'RequiredBy') do_by_dir='requires';;
+                    'UpheldBy') do_by_dir='upholds';;
+                    *) die "Should not happen";;
+                esac
+                if [[ -n ${do_by_dir} ]]; then
+                    dodir "${systemd_dir}/${scope}/${related_unit_name}.${do_by_dir}"
+                    for this_unit_name_to_use in "${this_unit_names_to_use[@]}"; do
+                        # put paths in array, so I can quote them nicely for einfo
+                        tmp_array+=(
+                            "${systemd_dir}/${scope}/${related_unit_name}.${do_by_dir}/${this_unit_name_to_use}"
+                            "../${unit_name}"
+                        )
+                    done
+                fi
+                while [[ ${#tmp_array[@]} -gt 0 ]]; do
+                    dosym "${tmp_array[1]}" "${tmp_array[0]}"
+                    einfo "Created symlink ${tmp_array[0]@Q} -> ${tmp_array[1]@Q}"
+                    tmp_array=( "${tmp_array[@]:2}" )
+                done
+            done
+        done
+    done <"${preset_file}"
+}
+
+cros_post_src_install_flatcar_stuff() {
+    ewarn 'Dropping systemd-user pam config'
+    # We provide our own systemd-user config file in baselayout.
+    #
+    # This one is installed by systemd build system regardless of
+    # USE=pam (the ebuild ought to pass -Dpamconfdir=no to disable the
+    # installation).
+    rm "${ED}/usr/share/pam.d/systemd-user" || die
+    # This one is installed by Gentoo's systemd ebuild only if USE=pam
+    # is enabled.
+    if use pam; then
+        rm "${ED}/etc/pam.d/systemd-user" || die
+    fi
+
+    # Ensure journal directory has correct ownership/mode in inital
+    # image. This is fixed by systemd-tmpfiles *but* journald starts
+    # before that and will create the journal if the filesystem is
+    # already read-write. Conveniently the systemd build system sets
+    # this up completely wrong.
+    ewarn 'Setting up /var/log/journal'
+    local dirinfo=$(stat "${ED}/var/log/journal" 2>/dev/null)
+    ewarn 'Info about existing directory:'
+    ewarn "${dirinfo}"
+    keepdir /var/log/journal
+    fowners root:systemd-journal /var/log/journal
+    fperms 2755 /var/log/journal
+
+    ewarn 'Setting up /var/log/journal/remote'
+    dirinfo=$(stat "${ED}/var/log/journal/remote" 2>/dev/null)
+    ewarn 'Info about existing directory:'
+    ewarn "${dirinfo}"
+    keepdir /var/log/journal/remote
+    fowners systemd-journal-remote:systemd-journal-remote /var/log/journal/remote
+
+    (
+        ewarn 'Setting up tmpfiles.d entry for resolv.conf'
+        insopts -m 0644
+        insinto /usr/lib/tmpfiles.d
+        # Add tmpfiles rule for resolv.conf. This path has changed
+        # after v213 so it must be handled here instead of baselayout
+        # now.
+        newins - systemd-resolv.conf <<'EOF'
+d   /run/systemd/network                -   -   -   -   -
+L   /run/systemd/network/resolv.conf    -   -   -   -   ../resolve/resolv.conf
+EOF
+    )
+
+    ewarn 'Dropping 99-environment.conf'
+    # Don't set any extra environment variables by default.
+    rm "${ED}/usr/lib/environment.d/99-environment.conf" || die
+
+    ewarn 'Doing preset of system units'
+    # enable system units
+    flatcar_preset_all_enable "${ED}/usr/lib/systemd/system-preset/90-systemd.preset" system
+    ewarn 'Doing preset of user units'
+    # enable user units
+    flatcar_preset_all_enable "${ED}/usr/lib/systemd/user-preset/90-systemd.preset" user
+
+    ewarn 'Dropping systemd presets'
+    # Use an empty preset file, because systemctl preset-all puts
+    # symlinks in /etc, not in /usr. We don't use /etc, because it is
+    # not autoupdated. We do the "preset" above.
+    rm "${ED}/usr/lib/systemd/system-preset/90-systemd.preset" || die
+    rm "${ED}/usr/lib/systemd/user-preset/90-systemd.preset" || die
+    (
+        ewarn 'Inserting our own empty system preset'
+        insinto /usr/lib/systemd/system-preset
+        newins - 99-default.preset <<'EOF'
+# Do not enable any services if /etc is detected as empty.
+disable *
+EOF
+        ewarn 'Inserting our own empty user preset'
+        insinto /usr/lib/systemd/user-preset
+        newins - 99-default.preset <<'EOF'
+# Do not enable any services if /etc is detected as empty.
+disable *
+EOF
+    )
+
+    ewarn 'Removing /usr/share/factory'
+    # Do not ship distro-specific files (nsswitch.conf pam.d). This
+    # conflicts with our own configuration provided by baselayout.
+    rm -r "${ED}"/usr/share/factory || die
+    ewarn 'Editing etc.conf tmpfiles.d'
+    local contents=$(cat "${ED}"/usr/lib/tmpfiles.d/etc.conf)
+    ewarn 'Contents before edit:'
+    ewarn "${contents}"
+    sed -i "${ED}"/usr/lib/tmpfiles.d/etc.conf \
+        -e '/^C!* \/etc\/nsswitch\.conf/d' \
+        -e '/^C!* \/etc\/pam\.d/d' \
+        -e '/^C!* \/etc\/issue/d' || die
+    contents=$(cat "${ED}"/usr/lib/tmpfiles.d/etc.conf)
+    ewarn 'Contents after edit:'
+    ewarn "${contents}"
+
+    (
+        ewarn 'Setting up systemd-timesyncd.service drop-in'
+        # Some OEMs prefer chronyd, so allow them to replace
+        # systemd-timesyncd with it.
+        insinto "$(systemd_get_systemunitdir)/systemd-timesyncd.service.d"
+        newins - flatcar.conf <<'EOF'
 # Allow sysexts to ship timesyncd replacements which can have
 # a Conflicts=systemd-timesyncd directive that would result
 # in systemd-timesyncd not being started.
 [Unit]
 After=ensure-sysext.service
 EOF
-  popd
+    )
+    ewarn 'Hook done'
 }
