@@ -3,12 +3,14 @@
 
 EAPI=8
 
+# Bump notes: https://wiki.gentoo.org/wiki/Project:Rust/Rust_bump
+
 LLVM_COMPAT=( 21 )
 PYTHON_COMPAT=( python3_{11..14} )
 
-RUST_PATCH_VER=${PVR}
-
+RUST_PATCH_VER=${PV#*_p}
 RUST_MAX_VER=${PV%%_*}
+
 if [[ ${PV} == *9999* ]]; then
 	RUST_MIN_VER="1.91.0" # Update this as new `beta` releases come out.
 elif [[ ${PV} == *beta* ]]; then
@@ -416,6 +418,9 @@ src_configure() {
 			build_channel="stable"
 			;;
 	esac
+
+	# TODO: Add optimized-compiler-builtins for system-llvm to avoid
+	# building bundled compiler-rt.
 	cat <<- _EOF_ > "${S}"/bootstrap.toml
 		# Suppresses a warning about tracking changes which we don't care about.
 		change-id = "ignore"
@@ -732,9 +737,10 @@ src_install() {
 
 	docompress /usr/lib/${PN}/${SLOT}/share/man/
 
-	# bug #689562, #689160
+	# bash-completion files are installed by dev-lang/rust-common instead
+	# bug #689562, #689160.
 	rm -v "${ED}/usr/lib/${PN}/${SLOT}/etc/bash_completion.d/cargo" || die
-	rmdir -v "${ED}/usr/lib/${PN}/${SLOT}"/etc{/bash_completion.d,} || die
+	rmdir -v "${ED}/usr/lib/${PN}/${SLOT}/etc/bash_completion.d" || die
 
 	local symlinks=(
 		cargo
