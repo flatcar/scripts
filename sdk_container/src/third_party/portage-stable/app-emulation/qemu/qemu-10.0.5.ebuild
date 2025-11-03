@@ -44,7 +44,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc ppc64 ~riscv x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -290,7 +290,7 @@ PPC_FIRMWARE_DEPEND="
 
 # See bug #913084 for pip dep
 BDEPEND="
-	$(python_gen_impl_dep)
+	${PYTHON_DEPS}
 	dev-python/distlib[${PYTHON_USEDEP}]
 	dev-lang/perl
 	>=dev-build/meson-0.63.0
