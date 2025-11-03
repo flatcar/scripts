@@ -7,6 +7,7 @@ app-alternatives/awk gawk
 app-alternatives/bc gnu
 app-alternatives/bzip2 reference
 app-alternatives/cpio gnu
+app-alternatives/gpg reference
 app-alternatives/gzip reference
 app-alternatives/lex flex
 app-alternatives/ninja reference
