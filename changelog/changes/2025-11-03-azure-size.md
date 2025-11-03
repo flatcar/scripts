@@ -1,0 +1,1 @@
+- Alpha only: Reduced Azure image size again to 30 GB as before by shrinking the root partition to compensate for the growth of the other partitions ([scripts#TODO](https://github.com/flatcar/scripts/pull/TODO))
