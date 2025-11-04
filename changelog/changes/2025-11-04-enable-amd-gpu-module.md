@@ -1,0 +1,1 @@
+- Build AMD GPU driver as module ([#3461](https://github.com/flatcar/scripts/pull/3461))
