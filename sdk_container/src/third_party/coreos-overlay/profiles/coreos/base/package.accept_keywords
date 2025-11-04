@@ -71,9 +71,6 @@ dev-cpp/azure-security-keyvault-keys
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.0.0 ~amd64 ~arm64
 
-# CVE-2025-7039
-=dev-util/glib-utils-2.84.4 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 
