@@ -99,6 +99,9 @@ dev-cpp/azure-security-keyvault-keys
 # latest version of the package with the unstable keywords.
 sys-apps/azure-vm-utils
 
+# Keep versions on both arches in sync.
+=sys-apps/coreutils-9.8-r1 ~amd64
+
 # Bump systemd v257 from SDK to base.
 =sys-apps/systemd-257.7 ~amd64 ~arm64
 
