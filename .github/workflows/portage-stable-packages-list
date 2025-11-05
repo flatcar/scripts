@@ -79,6 +79,7 @@ app-alternatives/awk
 app-alternatives/bc
 app-alternatives/bzip2
 app-alternatives/cpio
+app-alternatives/gpg
 app-alternatives/gzip
 app-alternatives/lex
 app-alternatives/ninja
