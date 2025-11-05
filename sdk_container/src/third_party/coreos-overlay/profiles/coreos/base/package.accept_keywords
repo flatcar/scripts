@@ -99,7 +99,6 @@ sys-apps/azure-vm-utils
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-devel/binutils-2.45-r1 ~arm64
 =sys-fs/lxcfs-6.0.4 ~arm64
 =sys-libs/binutils-libs-2.45-r1 ~arm64
 
