@@ -11,3 +11,16 @@ After=ensure-sysext.service
 EOF
   popd
 }
+
+cros_post_src_install_udev() {
+  insinto "$(systemd_get_systemunitdir)/systemd-udevd.service.d"
+  newins - flatcar.conf <<EOF
+# In Flatcar we are using modprobe helpers that run depmod in temporary
+# overlay. systemd-udevd.service may try to load drivers for some block devices
+# (e.g. ZFS), which ends up calling our helpers, which invoke mount command.
+# The mount syscalls are forbidden by the default systemd-udevd syscall filter.
+
+[Service]
+SystemCallFilter=@mount
+EOF
+}
