@@ -1,0 +1,25 @@
+From 72d823c414a1416dffc2276e5a0a17f03c5e4549 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 28 Jul 2025 12:16:50 +0100
+Subject: [PATCH 1/2] Patch Photon after fetching to fix cross issues
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ CMake/Findphoton.cmake | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/CMake/Findphoton.cmake b/CMake/Findphoton.cmake
+index c905bd9..5507f66 100644
+--- a/CMake/Findphoton.cmake
++++ b/CMake/Findphoton.cmake
+@@ -6,6 +6,7 @@ FetchContent_Declare(
+   photon
+   GIT_REPOSITORY https://github.com/alibaba/PhotonLibOS.git
+   GIT_TAG v0.6.17
++  PATCH_COMMAND patch -p1 -i @FILESDIR@/photon-cross.patch
+ )
+ 
+ if(BUILD_TESTING)
+-- 
+2.51.0
+

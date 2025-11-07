@@ -44,13 +44,13 @@ RDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-cross.patch
-	"${FILESDIR}"/${PN}-pin-tcmu.patch
+	"${FILESDIR}"/0001-Patch-Photon-after-fetching-to-fix-cross-issues.patch
+	"${FILESDIR}"/0002-Patch-yaml-cpp-after-fetching-to-fix-cmake-issues.patch
 )
 
 src_prepare() {
 	cmake_src_prepare
-	sed -i "s:@FILESDIR@:${FILESDIR}:g" CMake/Findphoton.cmake || die
+	sed -i "s:@FILESDIR@:${FILESDIR}:g" CMakeLists.txt CMake/Findphoton.cmake || die
 }
 
 src_configure() {
@@ -58,7 +58,7 @@ src_configure() {
 	# runtime. Only DSA hard requires at least AVX2. However, the code doesn't
 	# try especially hard to avoid these instructions from being implicitly used
 	# outside these runtime checks. :(
-  # ISAL similarly leads to "illegal instruction" termination on QEMU.
+	# ISAL similarly leads to "illegal instruction" termination on QEMU.
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=no
 		-DBUILD_TESTING=no
