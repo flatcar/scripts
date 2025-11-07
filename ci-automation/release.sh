@@ -164,8 +164,8 @@ function copy_from_bincache_to_bucket() {
     local arch="${2}"
     local version="${3}"
 
-    echo "Copy the images from bincache to CloudFlare bucket"
-    docker run --rm -ti \
+    echo "Copying the images from bincache to CloudFlare bucket"
+    docker run --rm \
       -v "${RCLONE_CONFIGURATION_FILE}:/opt/rclone.conf:ro" \
       docker.io/rclone/rclone:1.71.1 \
         --config "/opt/rclone.conf" \
