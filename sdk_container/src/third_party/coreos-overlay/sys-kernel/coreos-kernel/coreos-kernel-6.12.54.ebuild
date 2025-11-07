@@ -115,7 +115,7 @@ src_compile() {
 	cp "${S}"/build/bootengine/lib/modprobe.d/* lib/modprobe.d/ || die
 	# Only include modules related to mounting /usr and for interacting with the emergency console
 	pushd "${S}/build/bootengine/usr/lib/modules/${KV_FULL}" || die
-	find kernel/drivers/{ata,block,hid,hv,input/serio,mmc,nvme,pci,scsi,usb} kernel/fs/{btrfs,overlayfs,squashfs} kernel/security/keys -name "*.ko.*" -printf "%f\0" | DRACUT_NO_XATTR=1 xargs --null "${BROOT}"/usr/lib/dracut/dracut-install --destrootdir "${S}"/build/minimal --kerneldir . --sysrootdir "${S}"/build/bootengine/ --firmwaredirs "${S}"/build/bootengine/usr/lib/firmware --module dm-verity dm-mod virtio_console || die
+	find kernel/drivers/{ata,block,hid,hv,input/serio,message/fusion,mmc,nvme,pci,scsi,usb} kernel/fs/{btrfs,overlayfs,squashfs} kernel/security/keys -name "*.ko.*" -printf "%f\0" | DRACUT_NO_XATTR=1 xargs --null "${BROOT}"/usr/lib/dracut/dracut-install --destrootdir "${S}"/build/minimal --kerneldir . --sysrootdir "${S}"/build/bootengine/ --firmwaredirs "${S}"/build/bootengine/usr/lib/firmware --module dm-verity dm-mod virtio_console || die
 	popd || die
 	echo '$MODALIAS=.*	0:0 660 @/sbin/modprobe "$MODALIAS"' > ./etc/mdev.conf || die
 	# We can't use busybox's modprobe because it doesn't support the globs in module.alias, breaking module loading

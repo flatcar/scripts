@@ -1,0 +1,1 @@
+- Alpha only: Added Fusion SCSI disk drivers back to the initrd after they got lost in the rework ([Flatcar#1924](https://github.com/flatcar/Flatcar/issues/1924))
