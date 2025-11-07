@@ -1,0 +1,1 @@
+- The way that files for building custom kernel modules are installed has changed from a Ubuntu-inspired method to the standard upstream kernel method. In the unlikely event that this breaks your module builds, please let the Flatcar team know immediately.
