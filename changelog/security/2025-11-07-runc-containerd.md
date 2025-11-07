@@ -1,0 +1,2 @@
+- containerd ([CVE-2024-25621](https://www.cve.org/CVERecord?id=CVE-2024-25621), [CVE-2025-64329](https://www.cve.org/CVERecord?id=CVE-2025-64329))
+- runc ([CVE-2025-31133](https://www.cve.org/CVERecord?id=CVE-2025-31133), [CVE-2025-52565](https://www.cve.org/CVERecord?id=CVE-2025-52565), [CVE-2025-52881](https://www.cve.org/CVERecord?id=CVE-2025-52881))
