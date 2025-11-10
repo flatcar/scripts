@@ -27,8 +27,8 @@ CRATES="
 	memoffset@0.9.1
 	once_cell@1.21.3
 	openssl-macros@0.1.1
-	openssl-sys@0.9.109
-	openssl@0.10.73
+	openssl-sys@0.9.110
+	openssl@0.10.74
 	pem@3.0.5
 	pkg-config@0.3.32
 	portable-atomic@1.11.1
@@ -69,7 +69,7 @@ LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD MIT Unicode-3.0
 "
 SLOT="0"
-KEYWORDS="~amd64 ~arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 RDEPEND="
 	>=dev-libs/openssl-1.0.2o-r6:0=
