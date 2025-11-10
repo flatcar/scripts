@@ -24,16 +24,16 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-IUSE="bzip2 doc ldap nls readline selinux +smartcard ssl test +tofu tpm tools usb user-socket wks-server"
+IUSE="+alternatives bzip2 doc ldap nls readline selinux +smartcard ssl test +tofu tpm tools usb user-socket wks-server"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="test? ( tofu )"
 
 # Existence of executables is checked during configuration.
 # Note: On each bump, update dep bounds on each version from configure.ac!
 DEPEND="
-	>=dev-libs/libassuan-3.0.0:=
-	>=dev-libs/libgcrypt-1.11.0:=
-	>=dev-libs/libgpg-error-1.51
+	>=dev-libs/libassuan-2.5.0:=
+	>=dev-libs/libgcrypt-1.9.1:=
+	>=dev-libs/libgpg-error-1.46
 	>=dev-libs/libksba-1.6.3
 	>=dev-libs/npth-1.2
 	virtual/zlib:=
@@ -53,6 +53,9 @@ RDEPEND="
 "
 PDEPEND="
 	app-crypt/pinentry
+	alternatives? (
+		app-alternatives/gpg[-freepg(-)]
+	)
 "
 BDEPEND="
 	virtual/pkgconfig
@@ -93,10 +96,6 @@ src_prepare() {
 	# which in turn requires discovery in Autoconf, something that upstream deeply resents.
 	sed -e "/DirectoryMode=/a ExecStartPost=-${EPREFIX}/bin/systemctl --user set-environment SSH_AUTH_SOCK=%t/gnupg/S.gpg-agent.ssh" \
 		-i "${T}"/gpg-agent-ssh.socket || die
-
-	# Since 2.5.3, --supervised is called --deprecated-supervised.  See
-	# https://dev.gnupg.org/rGa019a0fcd8dfb9d1eae5bc991fdd54b7cf55641e
-	sed -i "s/--supervised/--deprecated-supervised/g" "${T}"/*.service || die
 }
 
 my_src_configure() {
@@ -146,7 +145,7 @@ my_src_configure() {
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# https://dev.gnupg.org/T7368
-		export ac_cv_should_define__xopen_source=yes
+		append-cppflags -D_XOPEN_SOURCE=500
 	fi
 
 	# bug #663142
@@ -177,10 +176,18 @@ my_src_install() {
 
 	use tools && dobin tools/{gpgconf,gpgsplit,gpg-check-pattern} tools/make-dns-cert
 
-	dosym gpg /usr/bin/gpg2
-	dosym gpgv /usr/bin/gpgv2
-	echo ".so man1/gpg.1" > "${ED}"/usr/share/man/man1/gpg2.1 || die
-	echo ".so man1/gpgv.1" > "${ED}"/usr/share/man/man1/gpgv2.1 || die
+	if use alternatives; then
+		# rename for app-alternatives/gpg
+		mv "${ED}"/usr/bin/gpg{,-reference} || die
+		mv "${ED}"/usr/bin/gpgv{,-reference} || die
+		mv "${ED}"/usr/share/man/man1/gpg{,-reference}.1 || die
+		mv "${ED}"/usr/share/man/man1/gpgv{,-reference}.1 || die
+	else
+		dosym gpg /usr/bin/gpg2
+		dosym gpgv /usr/bin/gpgv2
+		echo ".so man1/gpg.1" > "${ED}"/usr/share/man/man1/gpg2.1 || die
+		echo ".so man1/gpgv.1" > "${ED}"/usr/share/man/man1/gpgv2.1 || die
+	fi
 
 	dodir /etc/env.d
 	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >> "${ED}"/etc/env.d/30gnupg || die
@@ -197,4 +204,15 @@ my_src_install_all() {
 	# Dropped upstream in https://git.gnupg.org/cgi-bin/gitweb.cgi?p=gnupg.git;a=commitdiff;h=eae28f1bd4a5632e8f8e85b7248d1c4d4a10a5ed.
 	dodoc "${FILESDIR}"/README-systemd
 	systemd_douserunit "${GNUPG_SYSTEMD_UNITS[@]/#/${T}/}"
+}
+
+pkg_postinst() {
+	# If /usr/bin/gpg and /usr/bin/gpgv do not exist, provide them.
+	if [[ ! -e ${EROOT}/usr/bin/gpg ]]; then
+		ln -sf -- gpg-reference "${EROOT}"/usr/bin/gpg || die
+	fi
+
+	if [[ ! -e ${EROOT}/usr/bin/gpgv ]]; then
+		ln -sf -- gpgv-reference "${EROOT}"/usr/bin/gpgv || die
+	fi
 }
