@@ -50,7 +50,7 @@ if [[ ${PV} != *9999 ]]; then
 	SRC_URI+=" doc? ( ${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX} )"
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -58,7 +58,7 @@ S="${WORKDIR}"/${MY_P}
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+curl cgi cvs doc keyring +gpg highlight +iconv mediawiki +nls +pcre perforce +perl +safe-directory selinux subversion test tk +webdav xinetd"
+IUSE="+curl cgi cvs doc keyring +gpg highlight +iconv +nls +pcre perforce +perl +safe-directory selinux subversion test tk +webdav xinetd"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -93,11 +93,6 @@ RDEPEND="
 			>=dev-vcs/cvsps-2.1:0
 			dev-perl/DBI
 			dev-perl/DBD-SQLite
-		)
-		mediawiki? (
-			dev-perl/DateTime-Format-ISO8601
-			dev-perl/HTML-Tree
-			dev-perl/MediaWiki-API
 		)
 		subversion? (
 			dev-vcs/subversion[-dso(-),perl]
@@ -139,7 +134,6 @@ SITEFILE="50${PN}-gentoo.el"
 REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
-	mediawiki? ( perl )
 	perforce? ( ${PYTHON_REQUIRED_USE} )
 	subversion? ( perl )
 	webdav? ( curl )
@@ -149,13 +143,13 @@ RESTRICT="!test? ( test )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.48.1-macos-no-fsmonitor.patch
-	"${FILESDIR}"/${PN}-2.49.0-meson-use-test_environment-conditionally.patch
-	"${FILESDIR}"/${PN}-2.49.0-docs.patch
 
 	# This patch isn't merged upstream but is kept in the ebuild by
 	# demand from developers. It's opt-in (needs a config option)
 	# and the documentation mentions that it is a Gentoo addition.
-	"${FILESDIR}"/${PN}-2.49.0-diff-implement-config.diff.renames-copies-harder.patch
+	"${FILESDIR}"/${PN}-2.50.0-diff-implement-config.diff.renames-copies-harder.patch
+
+	"${FILESDIR}"/${PN}-2.51.1-openssh-10.1-tests.patch
 )
 
 pkg_setup() {
@@ -194,15 +188,6 @@ src_prepare() {
 		# bugs #838271, #838223
 		PATCHES+=(
 			"${FILESDIR}"/git-2.46.2-unsafe-directory.patch
-		)
-	fi
-
-	if [[ ${CHOST} == *-solaris* ]] ; then
-		# meson.build doesn't carry any Solaris logic, and "sees"
-		# functions that are not available by default, provide backup
-		# definitions to match autoconf/Makefile
-		PATCHES+=(
-			"${FILESDIR}"/${PN}-2.49.0-meson-solaris-override.patch
 		)
 	fi
 
@@ -279,12 +264,15 @@ src_configure() {
 	meson_src_configure
 
 	if use tk ; then
-		(
-			EMESON_SOURCE="${S}"/gitk-git
-			BUILD_DIR="${WORKDIR}"/gitk-git_build
-			emesonargs=()
-			meson_src_configure
-		)
+		local tkdir
+		for tkdir in git-gui gitk-git ; do
+			(
+				EMESON_SOURCE="${S}"/${tkdir}
+				BUILD_DIR="${WORKDIR}"/${tkdir}_build
+				emesonargs=()
+				meson_src_configure
+			)
+		done
 	fi
 }
 
@@ -318,19 +306,15 @@ git_emake() {
 src_compile() {
 	meson_src_compile
 
-	if use mediawiki ; then
-		git_emake -C contrib/mw-to-git
-	fi
-
 	if use tk ; then
-		git_emake -C git-gui gitexecdir="${EPREFIX}/usr/libexec/git-core"
-
-		(
-			EMESON_SOURCE="${S}"/gitk-git
-			BUILD_DIR="${WORKDIR}"/gitk-git_build
-			meson_src_compile
-		)
-
+		local tkdir
+		for tkdir in git-gui gitk-git ; do
+			(
+				EMESON_SOURCE="${S}"/${tkdir}
+				BUILD_DIR="${WORKDIR}"/${tkdir}_build
+				meson_src_compile
+			)
+		done
 	fi
 
 	if use doc ; then
@@ -380,8 +364,6 @@ src_install() {
 	#dobin contrib/fast-import/git-p4 # Moved upstream
 	#dodoc contrib/fast-import/git-p4.txt # Moved upstream
 	newbin contrib/fast-import/import-tars.perl import-tars
-	exeinto /usr/libexec/git-core/
-	newexe contrib/git-resurrect.sh git-resurrect
 
 	# diff-highlight
 	dobin contrib/diff-highlight/diff-highlight
@@ -396,25 +378,18 @@ src_install() {
 	# The following are excluded:
 	# completion - installed above
 	# diff-highlight - done above
-	# emacs - removed upstream
-	# examples - these are stuff that is not used in Git anymore actually
 	# git-jump - done above
 	# gitview - installed above
 	# p4import - excluded because fast-import has a better one
 	# patches - stuff the Git guys made to go upstream to other places
-	# persistent-https - TODO
-	# mw-to-git - TODO
 	# subtree - built seperately
 	# svnimport - use git-svn
 	# thunderbird-patch-inline - fixes thunderbird
 	local contrib_objects=(
 		buildsystems
 		fast-import
-		hooks
-		remotes2config.sh
 		rerere-train.sh
 		stats
-		workdir
 	)
 	local i
 	for i in "${contrib_objects[@]}" ; do
@@ -448,10 +423,6 @@ src_install() {
 		mv "${ED}"/usr/share/perl5/Git "${ED}/$(perl_get_vendorlib)" || die
 	fi
 
-	if use mediawiki ; then
-		git_emake -C contrib/mw-to-git DESTDIR="${D}" install
-	fi
-
 	if ! use subversion ; then
 		rm -f "${ED}"/usr/libexec/git-core/git-svn \
 			"${ED}"/usr/share/man/man1/git-svn.1*
@@ -470,13 +441,14 @@ src_install() {
 	fi
 
 	if use tk ; then
-		(
-			EMESON_SOURCE="${S}"/gitk-git
-			BUILD_DIR="${WORKDIR}"/gitk-git_build
-			meson_src_install
-		)
-
-		git_emake -C git-gui gitexecdir="${EPREFIX}/usr/libexec/git-core" DESTDIR="${D}" install
+		local tkdir
+		for tkdir in git-gui gitk-git ; do
+			(
+				EMESON_SOURCE="${S}"/${tkdir}
+				BUILD_DIR="${WORKDIR}"/${tkdir}_build
+				meson_src_install
+			)
+		done
 	fi
 
 	perl_delete_localpod
