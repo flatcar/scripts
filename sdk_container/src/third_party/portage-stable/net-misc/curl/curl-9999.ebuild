@@ -98,8 +98,11 @@ REQUIRED_USE="
 # However 'supported' vs 'works' are two entirely different things; be sane but
 # don't be afraid to require a later version.
 # ngtcp2 = https://bugs.gentoo.org/912029 - can only build with one tls backend at a time.
+# TODO: OpenSSL-QUIC support is going to be removed in 2026; depend on ngtcp2[{gnutls,openssl}] before that point.
+# - https://github.com/curl/curl/pull/18820 (Deprecate OpenSSL QUIC support)
+# - https://github.com/curl/curl/issues/18336 (curl w/ OpenSSL QUIC fails to fetch Google.com)
 RDEPEND="
-	>=sys-libs/zlib-1.2.5[${MULTILIB_USEDEP}]
+	>=virtual/zlib-1.2.5:=[${MULTILIB_USEDEP}]
 	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.15.0:=[${MULTILIB_USEDEP}] )
@@ -123,7 +126,7 @@ RDEPEND="
 		)
 		mbedtls? (
 			app-misc/ca-certificates
-			net-libs/mbedtls:0=[${MULTILIB_USEDEP}]
+			net-libs/mbedtls:3=[${MULTILIB_USEDEP}]
 		)
 		openssl? (
 			>=dev-libs/openssl-1.0.2:=[static-libs?,${MULTILIB_USEDEP}]
