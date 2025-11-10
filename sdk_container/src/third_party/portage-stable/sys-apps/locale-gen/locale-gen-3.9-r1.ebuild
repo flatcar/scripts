@@ -12,7 +12,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/locale-gen.git/snapshot/${P}.tar.bz2"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -31,6 +31,7 @@ src_prepare() {
 	# EPREFIX is readonly.
 	local -x MY_EPREFIX=${EPREFIX}
 
+	eapply "${FILESDIR}/${PV}-suppress-bash-setlocale-warnings.patch"
 	eapply_user
 
 	perl -pi -e '$f //= ($. == 1 && s/^#!\h*\K/$ENV{MY_EPREFIX}/); END { exit !$f }' "${PN}" \
@@ -58,4 +59,14 @@ src_install() {
 		die "Failed to generate and/or install locale.gen"
 	fi
 	keepdir /usr/lib/locale
+}
+
+pkg_postinst() {
+	while read -r; do ewarn "${REPLY}"; done <<-'EOF'
+	As of version 3.9, locale-gen(8) only supports locale/charmap pairs that are
+	officially supported by glibc itself. For most users, there should be no
+	impact. Nevertheless, if running locale-gen(8) raises errors regarding
+	unsupported combinations, it will be necessary to modify its config file.
+	The locale.gen(5) man page explains how to determine which are supported.
+	EOF
 }
