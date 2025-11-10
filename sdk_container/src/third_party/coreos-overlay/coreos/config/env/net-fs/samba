@@ -22,7 +22,6 @@ cros_post_src_install_samba_flatcar_modifications() {
     # clean up unnecessary files
     rm -f "${ED}/usr/lib/tmpfiles.d/samba.conf"
     rm -f "${ED}/etc/samba/"*
-    rm -f "${ED}/usr/$(get_libdir)/samba/ldb/"*
     mv "${ED}/usr/bin/net" "${T}/net"
     rm -f "${ED}/usr/bin/"* "${ED}/usr/sbin/"*
     mv "${T}/net" "${ED}/usr/bin/net"
