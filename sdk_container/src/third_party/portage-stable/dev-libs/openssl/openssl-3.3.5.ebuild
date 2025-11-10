@@ -42,7 +42,7 @@ RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	!<net-misc/openssh-9.2_p1-r3
-	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )
+	tls-compression? ( >=virtual/zlib-1.2.8-r1:=[static-libs(+)?,${MULTILIB_USEDEP}] )
 "
 BDEPEND+="
 	>=dev-lang/perl-5
@@ -216,6 +216,9 @@ multilib_src_configure() {
 
 multilib_src_compile() {
 	emake build_sw
+	if multilib_is_native_abi; then
+		emake build_docs
+	fi
 }
 
 multilib_src_test() {
