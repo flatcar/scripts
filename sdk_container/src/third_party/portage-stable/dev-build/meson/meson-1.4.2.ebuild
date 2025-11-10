@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} pypy3 )
+PYTHON_COMPAT=( python3_{11..12} )
 DISTUTILS_USE_PEP517=setuptools
 
 inherit shell-completion edo distutils-r1 flag-o-matic toolchain-funcs
@@ -48,10 +48,10 @@ RESTRICT="!test? ( test )"
 DEPEND="
 	test? (
 		dev-libs/glib:2
-		dev-libs/gobject-introspection
+		>=dev-libs/gobject-introspection-1.82.0-r2
 		app-alternatives/ninja
 		dev-vcs/git
-		sys-libs/zlib[static-libs(+)]
+		virtual/zlib:=[static-libs(+)]
 		virtual/pkgconfig
 	)
 "

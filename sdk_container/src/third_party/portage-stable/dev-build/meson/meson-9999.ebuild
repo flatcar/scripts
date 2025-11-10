@@ -52,10 +52,10 @@ REQUIRED_USE="test-full? ( test )"
 DEPEND="
 	test? (
 		dev-libs/glib:2
-		dev-libs/gobject-introspection
+		>=dev-libs/gobject-introspection-1.82.0-r2
 		app-alternatives/ninja
 		dev-vcs/git
-		sys-libs/zlib[static-libs(+)]
+		virtual/zlib:=[static-libs(+)]
 		virtual/pkgconfig
 		dev-build/cmake
 	)
@@ -102,7 +102,7 @@ RDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.2.1-python-path.patch
+	"${FILESDIR}"/${PN}-1.10.0-python-path.patch
 )
 
 src_unpack() {
