@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -279,13 +279,11 @@ src_unpack() {
 src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}/systemd-258-shared-add-missing-alloc-util.patch"
-		"${FILESDIR}/systemd-258-resolve-undo-change-to-return-code.patch"
-		"${FILESDIR}/systemd-258-curl-warnings.patch"
 	)
 
 	if ! use vanilla; then
 		PATCHES+=(
-			"${FILESDIR}/gentoo-journald-audit-r2.patch"
+			"${FILESDIR}/gentoo-journald-audit-r3.patch"
 		)
 	fi
 
