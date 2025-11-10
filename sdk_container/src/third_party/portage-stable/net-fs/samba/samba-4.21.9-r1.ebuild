@@ -84,11 +84,15 @@ COMMON_DEPEND="
 	virtual/libiconv
 	$(python_gen_cond_dep '
 		addc? (
+			dev-python/cryptography[${PYTHON_USEDEP}]
 			dev-python/dnspython:=[${PYTHON_USEDEP}]
 			dev-python/markdown[${PYTHON_USEDEP}]
+			net-dns/bind[gssapi]
 		)
 		ads? (
+			dev-python/cryptography[${PYTHON_USEDEP}]
 			dev-python/dnspython:=[${PYTHON_USEDEP}]
+			dev-python/markdown[${PYTHON_USEDEP}]
 			net-dns/bind[gssapi]
 		)
 	')
