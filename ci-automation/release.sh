@@ -177,11 +177,6 @@ function copy_from_bincache_to_bucket() {
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}"
     )
-    # Note: There is no "current" symlink and when switching the release to current we
-    # could at a later stage (when the update payloads are selected in Nebraska) either
-    # use folder copies where we delete the old "current" folder first, or we could
-    # use a clever Caddy redirect to make "current" point to the wanted version for
-    # each channel.
 }
 
 function publish_sdk() {
@@ -249,12 +244,13 @@ function _release_build_impl() {
     echo "===="
 
 
-    # Future: trigger copy to Origin in a secure way
     # Future: trigger update payload signing
+
+    # In separate unified pipeline with sub jobs per channel?
     # Future: trigger website update
     # Future: trigger release email sending
     # Future: trigger push to nebraska
-    # Future: trigger Origin symlink switch
+    # Future: trigger Origin current-release.txt switch
 }
 
 TEMPLATE='
