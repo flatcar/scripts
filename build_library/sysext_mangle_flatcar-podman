@@ -5,7 +5,7 @@ rootfs="${1}"
 
 pushd "${rootfs}"
 
-rm -rf ./usr/{lib/debug/,lib64/cmake/,lib64/pkgconfig,include/,share/fish,share/aclocal,share/SLSA}
+rm -rf ./usr/{lib/debug,lib64/cmake,lib64/pkgconfig,include,share/aclocal,share/fish}/
 
 mkdir -p ./usr/share/podman/etc
 cp -a ./etc/{fuse.conf,containers} ./usr/share/podman/etc/
