@@ -91,8 +91,6 @@ function _inside_mantle() {
     secret_to_file gcp_json_key_path "${GCP_JSON_KEY}"
     google_release_credentials_file=""
     secret_to_file google_release_credentials_file "${GOOGLE_RELEASE_CREDENTIALS}"
-    rclone_configuration_file=""
-    secret_to_file rclone_configuration_file "${RCLONE_CONFIGURATION_FILE}"
 
     for platform in aws azure; do
       for arch in amd64 arm64; do
@@ -164,18 +162,21 @@ function copy_from_bincache_to_bucket() {
     local arch="${2}"
     local version="${3}"
 
+    rclone_configuration_file="$(mktemp)"
+    chmod 600 "${rclone_configuration_file}"
+
+    (
+    trap "rm -f ${rclone_configuration_file}" EXIT
+    echo "${RCLONE_CONFIGURATION_FILE}" | base64 --decode > "${rclone_configuration_file}"
+
     echo "Copying the images from bincache to CloudFlare bucket"
     docker run --rm \
-      -v "${RCLONE_CONFIGURATION_FILE}:/opt/rclone.conf:ro" \
+      -v "${rclone_configuration_file}:/opt/rclone.conf:ro" \
       docker.io/rclone/rclone:1.71.1 \
         --config "/opt/rclone.conf" \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}"
-    # Note: There is no "current" symlink and when switching the release to current we
-    # could at a later stage (when the update payloads are selected in Nebraska) either
-    # use folder copies where we delete the old "current" folder first, or we could
-    # use a clever Caddy redirect to make "current" point to the wanted version for
-    # each channel.
+    )
 }
 
 function publish_sdk() {
@@ -243,12 +244,13 @@ function _release_build_impl() {
     echo "===="
 
 
-    # Future: trigger copy to Origin in a secure way
     # Future: trigger update payload signing
+
+    # In separate unified pipeline with sub jobs per channel?
     # Future: trigger website update
     # Future: trigger release email sending
     # Future: trigger push to nebraska
-    # Future: trigger Origin symlink switch
+    # Future: trigger Origin current-release.txt switch
 }
 
 TEMPLATE='
