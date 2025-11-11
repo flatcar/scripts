@@ -1,4 +1,4 @@
-From 9462666b714de55accace1c9291b79c8e58c5d8d Mon Sep 17 00:00:00 2001
+From 3eb1fea6104cd4bbc978e11974f337549edaf2e4 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Thu, 9 Oct 2025 17:32:38 +0200
 Subject: [PATCH 1/2] Reorganize the login sessions
@@ -21,6 +21,8 @@ Subject: [PATCH 1/2] Reorganize the login sessions
 
 - Add pam_namespace.so and pam_keyinit.so to system-login.
 
+- Add pam_umask.so to system-session.
+
 With these changes, the session part of the systemd-user PAM config in
 sys-apps/systemd FILESDIR can be simplified to something like
 (assuming that pambase was installed with USE=systemd):
@@ -40,7 +42,8 @@ Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
  templates/system-postlogin.tpl    |  3 +++
  templates/system-remote-login.tpl |  7 +++++++
  templates/system-selinux.tpl      |  2 ++
- 6 files changed, 26 insertions(+), 14 deletions(-)
+ templates/system-session.tpl      |  1 +
+ 7 files changed, 27 insertions(+), 14 deletions(-)
  create mode 100644 templates/system-postlogin.tpl
  create mode 100644 templates/system-selinux.tpl
 
@@ -147,6 +150,18 @@ index 0000000..c094c88
 @@ -0,0 +1,2 @@
 +session		required	pam_selinux.so close
 +session		required	pam_selinux.so open
+diff --git a/templates/system-session.tpl b/templates/system-session.tpl
+index 150061f..690396f 100644
+--- a/templates/system-session.tpl
++++ b/templates/system-session.tpl
+@@ -12,6 +12,7 @@ session		[success=1 default=ignore]	pam_krb5.so {{ debug }} ignore_root try_firs
+ session		[success=1 default=ignore]	pam_systemd_home.so
+ {% endif %}
+ 
++session		optional	pam_umask.so {% if debug %}debug{% else %}silent{% endif +%}
+ session		required	pam_unix.so {{ debug }}
+ 
+ {% if sssd %}
 -- 
 2.51.0
 
