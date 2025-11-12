@@ -170,12 +170,12 @@ function copy_from_bincache_to_bucket() {
     echo "${RCLONE_CONFIGURATION_FILE}" | base64 --decode > "${rclone_configuration_file}"
 
     echo "Copying the images from bincache to CloudFlare bucket"
-    docker run --rm \
+    docker run --rm --net host \
       -v "${rclone_configuration_file}:/opt/rclone.conf:ro" \
       docker.io/rclone/rclone:1.71.1 \
         --config "/opt/rclone.conf" \
         sync \
-        --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}"
+        --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}" || { echo "ERROR: Skipping bucket copy due to failure" ; }
     )
 }
 
