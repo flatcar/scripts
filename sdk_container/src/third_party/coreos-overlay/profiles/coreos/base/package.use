@@ -103,9 +103,6 @@ app-portage/portage-utils -qmanifest
 # winbind needed by sssd
 net-fs/samba -regedit winbind
 
-# Drop extra dependencies
-sys-libs/ldb -lmdb -python
-
 # Enable nftables backend for the iptables instead of legacy backend
 net-firewall/iptables nftables
 net-firewall/nftables json
@@ -162,8 +159,7 @@ sys-fs/zfs-kmod -initramfs
 sys-kernel/coreos-firmware -initramfs
 
 # For sys-auth/sssd
-net-dns/bind       gssapi
-net-dns/bind-tools gssapi
+net-dns/bind gssapi
 
 # Avoid initrd bloat by using OpenSSL instead of gcrypt in systemd.
 # systemd-journal's FSS feature requires gcrypt, but Flatcar doesn't need it.
