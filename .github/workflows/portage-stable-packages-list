@@ -179,6 +179,7 @@ app-shells/gentoo-bashcomp
 app-text/asciidoc
 app-text/build-docbook-catalog
 app-text/docbook-xml-dtd
+app-text/docbook-xsl-ns-stylesheets
 app-text/docbook-xsl-stylesheets
 app-text/mandoc
 app-text/manpager
@@ -318,8 +319,8 @@ dev-python/fastjsonschema
 dev-python/flit-core
 dev-python/gentoo-common
 dev-python/gpep517
-dev-python/hatchling
 dev-python/hatch-vcs
+dev-python/hatchling
 dev-python/idna
 dev-python/installer
 dev-python/jaraco-collections
@@ -504,8 +505,8 @@ licenses
 
 media-libs/libpng
 
-net-analyzer/openbsd-netcat
 net-analyzer/netperf
+net-analyzer/openbsd-netcat
 net-analyzer/tcpdump
 net-analyzer/traceroute
 
@@ -633,6 +634,7 @@ sys-apps/util-linux
 sys-apps/which
 sys-apps/zram-generator
 
+sys-auth/pambase
 sys-auth/polkit
 sys-auth/sssd
 
@@ -705,6 +707,7 @@ sys-libs/libunwind
 sys-libs/liburing
 sys-libs/libxcrypt
 sys-libs/ncurses
+sys-libs/pam
 sys-libs/readline
 sys-libs/talloc
 sys-libs/tdb

@@ -14,3 +14,7 @@ cros_post_src_install_set_up_var_lib_selinux() {
     mv "${ED}/var/lib/selinux" "${ED}/usr/lib/selinux/policy"
     dosym -r /usr/lib/selinux/policy /var/lib/selinux
 }
+
+cros_post_src_install_vendorize_pam() {
+    vendorize_pam_files
+}

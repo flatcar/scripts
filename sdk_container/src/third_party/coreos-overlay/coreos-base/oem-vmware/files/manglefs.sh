@@ -8,8 +8,6 @@ cd "${rootfs}"
 
 # Move stuff out of /etc. The systemd unit files are patched to create
 # symlinks from /etc to those directories.
-mkdir -p usr/lib/pam.d
-mv etc/pam.d/vmtoolsd usr/lib/pam.d/vmtoolsd
 mkdir -p usr/share/flatcar/oem-vmware
 mv etc/vmware-tools usr/share/flatcar/oem-vmware/vmware-tools
 

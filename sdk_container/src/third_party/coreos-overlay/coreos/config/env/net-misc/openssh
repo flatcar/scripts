@@ -8,3 +8,7 @@ if [[ $(flatcar_target) != 'sdk' ]] ; then
 	INSTALL_MASK+="${openssh_mask}"
 	unset openssh_mask
 fi
+
+cros_post_src_install_vendorize_pam() {
+    vendorize_pam_files
+}
