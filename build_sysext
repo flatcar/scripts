@@ -267,27 +267,29 @@ info "Writing ${SYSEXTNAME}_packages.txt"
 ROOT="${THE_INSTALL_ROOT}" PORTAGE_CONFIGROOT="${THE_INSTALL_ROOT}" \
       equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
 
-# Check if there are forbidden packages
-mapfile -t pairs <<<"${FLAGS_forbidden_packages//,/$'\n'}"
-declare -A re_msg_pairs=()
-for pair in "${pairs[@]}"; do
-    re=${pair%%;*}
-    msg=${pair#.;}
-    re_msg_pairs["${re}"]="${msg}"
-done
-
-mapfile -t pkgs <"${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
-has_forbidden_pkg=
-for pkg in "${pkgs[@]}"; do
-    for re in "${!re_msg_pairs[@]}"; do
-        if [[ ${pkg} =~ ${re} ]]; then
-            has_forbidden_pkg=x
-            error "Forbidden package ${pkg}: ${msg}"
-        fi
+if [[ -n ${FLAGS_forbidden_packages} ]]; then
+    # Check if there are forbidden packages
+    mapfile -t pairs <<<"${FLAGS_forbidden_packages//,/$'\n'}"
+    declare -A re_msg_pairs=()
+    for pair in "${pairs[@]}"; do
+        re=${pair%%;*}
+        msg=${pair#.;}
+        re_msg_pairs["${re}"]="${msg}"
     done
-done
-if [[ -n ${has_forbidden_pkg} ]]; then
-    die "Forbidden packages encountered"
+
+    mapfile -t pkgs <"${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+    has_forbidden_pkg=
+    for pkg in "${pkgs[@]}"; do
+        for re in "${!re_msg_pairs[@]}"; do
+            if [[ ${pkg} =~ ${re} ]]; then
+                has_forbidden_pkg=x
+                error "Forbidden package ${pkg}: ${msg}"
+            fi
+        done
+    done
+    if [[ -n ${has_forbidden_pkg} ]]; then
+        die "Forbidden packages encountered"
+    fi
 fi
 
 if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
