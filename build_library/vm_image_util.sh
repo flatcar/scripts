@@ -5,6 +5,8 @@
 # Format options. Each variable uses the form IMG_<type>_<opt>.
 # Default values use the format IMG_DEFAULT_<opt>.
 
+. "${BUILD_LIBRARY_DIR}/pkg_util.sh" || exit 1
+
 VALID_IMG_TYPES=(
     akamai
     ami
@@ -593,6 +595,9 @@ install_oem_sysext() {
         --install_root_basename="${VM_IMG_TYPE}-oem-sysext-rootfs"
         --forbidden_packages='sec-policy/selinux-.*;selinux policy packages must be in base image' \
     )
+    if is_selinux_enabled "${BOARD}"; then
+        build_sysext_flags+=( --selinux )
+    fi
     local overlay_path mangle_fs
     overlay_path=$(portageq get_repo_path / coreos-overlay)
     mangle_fs="${overlay_path}/${metapkg}/files/manglefs.sh"

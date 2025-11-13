@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+source "${BUILD_LIBRARY_DIR}/pkg_util.sh" || exit 1
+
 # Lookup the current version of a binary package, downloading it if needed.
 # Usage: get_binary_pkg some-pkg/name
 # Prints: some-pkg/name-1.2.3
@@ -222,6 +224,14 @@ create_prod_tar() {
 create_prod_sysexts() {
   local image_name="$1"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
+  local -a extra_args
+
+  local selinux=''
+  if is_selinux_enabled "${BOARD}"; then
+    selinux=x
+  fi
+
+  local sysext
   for sysext in "${EXTRA_SYSEXTS[@]}"; do
     local name pkgs useflags arches
     IFS="|" read -r name pkgs useflags arches <<< "$sysext"
@@ -230,9 +240,13 @@ create_prod_sysexts() {
     local arch_array=(${arches//,/ })
     local useflags_array=(${useflags//,/ })
 
+    extra_args=()
     local mangle_script="${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
-    if [[ ! -x "${mangle_script}" ]]; then
-      mangle_script=
+    if [[ -x "${mangle_script}" ]]; then
+      extra_args+=( --manglefs_script="${mangle_script}" )
+    fi
+    if [[ -n ${selinux} ]]; then
+      extra_args+=( --selinux )
     fi
 
     if [[ -n "$arches" ]]; then
@@ -248,8 +262,8 @@ create_prod_sysexts() {
     fi
 
     sudo rm -f "${BUILD_DIR}/${name}.raw" \
-	"${BUILD_DIR}/flatcar-test-update-${name}.gz" \
-	"${BUILD_DIR}/${name}_*"
+        "${BUILD_DIR}/flatcar-test-update-${name}.gz" \
+        "${BUILD_DIR}/${name}_*"
     # we use -E to pass the USE flags, but also MODULES_SIGN variables
     #
     # The --install_root_basename="${name}-extra-sysext-rootfs" flag
@@ -260,8 +274,8 @@ create_prod_sysexts() {
         --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
         --image_builddir="${BUILD_DIR}" \
         --install_root_basename="${name}-extra-sysext-rootfs" \
-        ${mangle_script:+--manglefs_script=${mangle_script}} \
         --forbidden_packages='sec-policy/selinux-.*;selinux policy packages must be in base image' \
+        "${extra_args[@]}" \
         "${name}" "${pkg_array[@]}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
