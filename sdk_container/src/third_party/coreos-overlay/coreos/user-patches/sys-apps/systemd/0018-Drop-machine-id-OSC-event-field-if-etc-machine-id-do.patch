@@ -1,7 +1,7 @@
-From 4bf1282faa430669eba4169837657f00f2cba019 Mon Sep 17 00:00:00 2001
+From 971d5e977a542ad55d8abd9a641766e6d5357bdf Mon Sep 17 00:00:00 2001
 From: Justin Kromlinger <hashworks@archlinux.org>
 Date: Wed, 8 Oct 2025 16:55:09 +0200
-Subject: [PATCH 20/20] Drop `machine-id` OSC event field if /etc/machine-id
+Subject: [PATCH 18/18] Drop `machine-id` OSC event field if /etc/machine-id
  doesn't exist
 
 While we can safely assume that `/proc/sys/kernel/random/boot_id`

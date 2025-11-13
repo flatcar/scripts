@@ -1,7 +1,7 @@
-From a228e6433b6febd4d252a3cb71bb0c2e63156b93 Mon Sep 17 00:00:00 2001
+From c74b5cf79f5c02c08494b3144193b3d9fac8c72f Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 27 Nov 2025 17:49:15 +0900
-Subject: [PATCH 15/20] sysext: Get verity user certs from given --root=
+Subject: [PATCH 13/18] sysext: Get verity user certs from given --root=
 
 The verity user certs weren't looked up in the given --root= for
 systemd-sysext which made it fail to set up extensions with a strict
