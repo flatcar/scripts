@@ -1,7 +1,7 @@
-From b3430348f5ae93251076fb4e3b4aecbfa02513b5 Mon Sep 17 00:00:00 2001
+From 31f24142e91c9ef656d23d1b85c6fbabbb71b4b0 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 24 Oct 2025 11:06:57 +0200
-Subject: [PATCH 08/20] units: Make multi-user.target the default target
+Subject: [PATCH 06/18] units: Make multi-user.target the default target
 
 Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
 ---

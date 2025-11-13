@@ -1,7 +1,7 @@
-From 42b6a55f8d2bdf68ff93764219b3bedffb11f4e0 Mon Sep 17 00:00:00 2001
+From c5dd7db23332534f315d30c36e7bc78191f98741 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 20 Nov 2025 23:43:55 +0900
-Subject: [PATCH 09/20] vpick: Don't use openat directly but resolve symlinks
+Subject: [PATCH 07/18] vpick: Don't use openat directly but resolve symlinks
  in given root
 
 With systemd-sysext --root= all symlinks should be followed relative to
