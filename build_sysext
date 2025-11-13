@@ -45,6 +45,8 @@ DEFINE_string install_root_basename "${default_install_root_basename}" \
   "Name of a root directory where packages will be installed. ${default_install_root_basename@Q} by default."
 DEFINE_string forbidden_packages "" \
   "Comma-separated list of pairs describing packages that are forbidden in the sysext. Every pair consist of regexp and message, separated with semicolon. The regexp is for matching a package name (<category>/<name>-<version>::<repo>), and message is printed if the regexp matched a package name. Be careful to not include commas in the regexp or message."
+DEFINE_boolean selinux "${FLAGS_FALSE}" \
+  "Relabel the files in sysext using policies installed in the base squashfs image."
 
 FLAGS_HELP="USAGE: build_sysext [flags] <sysext_name> <binary_package> [<binary_package> ...]
 
@@ -155,6 +157,8 @@ cleanup() {
     "${BUILD_DIR}/workdir"
     "${BUILD_DIR}/img-rootfs"
     "${BUILD_DIR}/install-root"
+    "${BUILD_DIR}/selinux-root"
+    "${BUILD_DIR}/selinux-root-workdir"
   )
   umount "${dirs[@]}" 2>/dev/null || true
   rm -rf "${dirs[@]}" || true
@@ -254,6 +258,13 @@ export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release
 # Unmount in order to get rid of the overlay, but keep fs-root for
 # now, so we can use selinux file contexts.
 umount "${THE_INSTALL_ROOT}"
+if [[ ${FLAGS_selinux} = "${FLAGS_TRUE}" ]]; then
+    mkdir "${BUILD_DIR}/selinux-root"
+    mkdir "${BUILD_DIR}/selinux-root-workdir"
+    mount -t overlay overlay -o lowerdir="${BUILD_DIR}/fs-root${pkginfo_lowerdirs}",upperdir="${BUILD_DIR}/selinux-root",workdir="${BUILD_DIR}/selinux-root-workdir" "${BUILD_DIR}/selinux-root"
+else
+    umount "${BUILD_DIR}/fs-root"
+fi
 
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
@@ -340,9 +351,21 @@ if [[ -n "${invalid_files}" ]]; then
   die "Invalid file ownership: ${invalid_files}"
 fi
 
-info "Relabeling sysext contents"
-setfiles -D -E -F -r "${THE_INSTALL_ROOT}" -v -T 0 "${BUILD_DIR}/fs-root/usr/share/flatcar/etc/selinux/mcs/contexts/files/file_contexts" "${THE_INSTALL_ROOT}"
-umount "${BUILD_DIR}/fs-root"
+if [[ ${FLAGS_selinux} = "${FLAGS_TRUE}" ]]; then
+    info "Build temporary selinux modules"
+    chroot "${BUILD_DIR}/selinux-root" bash -s <<'EOF'
+cd /usr/share/selinux/mcs
+set -x
+semodule -s mcs -n -i *.pp
+EOF
+
+    info "Relabeling sysext contents"
+    spec_file="${BUILD_DIR}/selinux-root/etc/selinux/mcs/contexts/files/file_contexts"
+    setfiles -D -E -F -r "${THE_INSTALL_ROOT}" -v -T 0 "${spec_file}" "${THE_INSTALL_ROOT}"
+    ls -laRZ "${THE_INSTALL_ROOT}"
+    umount "${BUILD_DIR}/selinux-root"
+    umount "${BUILD_DIR}/fs-root"
+fi
 
 info "Creating squashfs image"
 mksquashfs "${THE_INSTALL_ROOT}" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
