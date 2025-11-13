@@ -1,7 +1,7 @@
-From d8ccdfe333a2eda7770371112cf5dea0ae67598c Mon Sep 17 00:00:00 2001
+From 55f0a48977fa987c0fc381bd9307fb29373d2611 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Wed, 26 Nov 2025 00:04:43 +0900
-Subject: [PATCH 14/20] sysext: Skip refresh if no changes are found
+Subject: [PATCH 12/18] sysext: Skip refresh if no changes are found
 
 When the extensions for the final system are already set up from the
 initrd we should avoid disrupting the boot process with the remount

@@ -1,7 +1,7 @@
-From 5d8c8737ea0b44c50e4e60a9c93c7321051f7955 Mon Sep 17 00:00:00 2001
+From cfc96a7db2cafd9baae52717a7b9702ee7b3e538 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 11 Dec 2025 19:49:20 +0900
-Subject: [PATCH 19/20] sysext: Fix config file support with --root=
+Subject: [PATCH 17/18] sysext: Fix config file support with --root=
 
 Config files for --root= weren't picked up as expected because the
 --root= flag got parsed after the config file.

@@ -1,7 +1,7 @@
-From 6a95919888a99d92636e0aa28c68d0f95f16e48e Mon Sep 17 00:00:00 2001
+From 15c0eb34ccdeba791e7ac41b7a7f48dc210326c8 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 20 Nov 2025 23:43:55 +0900
-Subject: [PATCH 11/20] sysext: Use correct image name for extension release
+Subject: [PATCH 09/18] sysext: Use correct image name for extension release
  checks
 
 For the extension release check the image name is needed and was derived

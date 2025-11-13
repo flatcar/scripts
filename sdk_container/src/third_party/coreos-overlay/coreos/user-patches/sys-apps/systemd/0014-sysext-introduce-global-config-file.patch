@@ -1,7 +1,7 @@
-From aeacbbca05e0479c0768c4b368a2ea68668d20bc Mon Sep 17 00:00:00 2001
+From 51f70f9d464b21799b9837829df54ac3d437c829 Mon Sep 17 00:00:00 2001
 From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
 Date: Thu, 17 Jul 2025 05:03:54 -0400
-Subject: [PATCH 16/20] sysext: introduce global config file
+Subject: [PATCH 14/18] sysext: introduce global config file
 
 Introduce systemd/{sysext/confext}.conf and systemd/{sysext/confext}.conf.d to provide an
 alternative way of setting the cmdline options in systemd-sysext.
