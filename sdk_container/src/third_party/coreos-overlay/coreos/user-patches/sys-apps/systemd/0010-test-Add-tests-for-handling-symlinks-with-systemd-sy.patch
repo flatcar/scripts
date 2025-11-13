@@ -1,7 +1,7 @@
-From 187e60032a26fb58b8944aac5c48a495f9de2644 Mon Sep 17 00:00:00 2001
+From c1b9d59876d3a225e01c0ef357cc630e5abbc1c5 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 20 Nov 2025 23:43:55 +0900
-Subject: [PATCH 12/20] test: Add tests for handling symlinks with
+Subject: [PATCH 10/18] test: Add tests for handling symlinks with
  systemd-sysext
 
 When we now allow following symlinks inside a --root= we should also
