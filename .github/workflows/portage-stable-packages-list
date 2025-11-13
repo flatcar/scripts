@@ -313,7 +313,6 @@ dev-python/docutils
 dev-python/editables
 dev-python/ensurepip-pip
 dev-python/ensurepip-setuptools
-dev-python/ensurepip-wheels
 dev-python/fasteners
 dev-python/fastjsonschema
 dev-python/flit-core
@@ -514,7 +513,6 @@ net-dialup/lrzsz
 net-dialup/minicom
 
 net-dns/bind
-net-dns/bind-tools
 net-dns/c-ares
 net-dns/dnsmasq
 net-dns/libidn2
@@ -538,7 +536,6 @@ net-libs/libnetfilter_cttimeout
 net-libs/libnetfilter_queue
 net-libs/libnfnetlink
 net-libs/libnftnl
-net-libs/libnsl
 net-libs/libpcap
 net-libs/libpsl
 net-libs/libslirp
@@ -696,7 +693,6 @@ sys-libs/cracklib
 sys-libs/efivar
 sys-libs/gdbm
 sys-libs/glibc
-sys-libs/ldb
 sys-libs/libcap
 sys-libs/libcap-ng
 sys-libs/libnvme
@@ -740,10 +736,8 @@ virtual/openssh
 virtual/os-headers
 virtual/package-manager
 virtual/pager
-virtual/perl-Data-Dumper
 virtual/perl-Encode
 virtual/perl-ExtUtils-MakeMaker
-virtual/perl-Unicode-Collate
 virtual/pkgconfig
 virtual/resolvconf
 virtual/service-manager
