@@ -1,0 +1,1 @@
+- Dropped debug symbols from containerd, incus, and overlaybd system extensions to reduce download size.

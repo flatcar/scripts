@@ -5,6 +5,8 @@ rootfs="${1}"
 
 pushd "${rootfs}"
 
+rm -rf ./usr/{lib/debug,lib64/pkgconfig,include}/
+
 pushd ./usr/lib/systemd/system
 mkdir -p "multi-user.target.d"
 { echo "[Unit]"; echo "Upholds=incus.service"; } > "multi-user.target.d/10-incus.conf"
@@ -23,4 +25,3 @@ mkdir -p ./usr/lib/userdb/
 echo " " > ./usr/lib/userdb/core:incus-admin.membership
 
 popd
-
