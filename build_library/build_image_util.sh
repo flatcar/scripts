@@ -19,6 +19,7 @@ fi
 BUILD_DIR="${FLAGS_output_root}/${BOARD}/${IMAGE_SUBDIR}"
 OUTSIDE_OUTPUT_DIR="../build/images/${BOARD}/${IMAGE_SUBDIR}"
 
+source "${BUILD_LIBRARY_DIR}/pkg_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/sbsign_util.sh" || exit 1
 
@@ -685,7 +686,7 @@ EOF
   fi
 
   # Build the selinux policy
-  if pkg_use_enabled coreos-base/coreos selinux; then
+  if is_selinux_enabled "${BOARD}"; then
     info "Building selinux mcs policy"
     sudo chroot "${root_fs_dir}" bash -s <<'EOF'
 cd /usr/share/selinux/mcs
@@ -725,7 +726,7 @@ EOF
   # SELinux: Label the root filesystem for using 'file_contexts'.
   # The labeling has to be done before moving /etc to /usr/share/flatcar/etc to prevent wrong labels for these files and as
   # the relabeling on boot would cause upcopies in the overlay.
-  if pkg_use_enabled coreos-base/coreos selinux; then
+  if is_selinux_enabled "${BOARD}"; then
     # -D - set or update any directory SHA1 digests
     # -E - treat conflicting specifications as errors
     # -F - force reset of context to match file_context
