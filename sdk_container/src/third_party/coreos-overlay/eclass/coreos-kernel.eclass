@@ -169,6 +169,12 @@ setup_keys() {
 
 	echo "Preparing keys at $sig_key"
 
+	if [[ ${COREOS_OFFICIAL:-0} -eq 0 ]]; then
+          # Allow portage sandbox to write to the module signing key directory,
+          # which is in home for unofficial builds
+          addwrite "${MODULE_SIGNING_KEY_DIR}"
+        fi
+
 	mkdir -p $MODULE_SIGNING_KEY_DIR
 	pushd $MODULE_SIGNING_KEY_DIR
 

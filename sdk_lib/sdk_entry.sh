@@ -67,7 +67,13 @@ fi
 
 # Create key directory if not already configured in .bashrc
 if ! grep -q 'export MODULE_SIGNING_KEY_DIR' /home/sdk/.bashrc; then
-    MODULE_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+    # For official builds, use ephemeral keys. For unofficial builds, use persistent directory
+    if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+        MODULE_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+    else
+        MODULE_SIGNING_KEY_DIR="/home/sdk/.module-signing-keys"
+        su sdk -c "mkdir -p '$MODULE_SIGNING_KEY_DIR'"
+    fi
     if [[ ! "$MODULE_SIGNING_KEY_DIR" || ! -d "$MODULE_SIGNING_KEY_DIR" ]]; then
         echo "Failed to create directory for module signing keys."
     else
