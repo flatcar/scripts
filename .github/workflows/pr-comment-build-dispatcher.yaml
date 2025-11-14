@@ -13,7 +13,7 @@ concurrency:
 jobs:
   run_pre_checks:
     # Only run if this is a PR comment that contains a valid command
-    if: ${{ github.event.issue.pull_request }} && ( contains(github.event.comment.body, '/build-image') || contains(github.event.comment.body, '/update-sdk'))
+    if: ${{ github.event.issue.pull_request && (contains(github.event.comment.body, '/build-image') || contains(github.event.comment.body, '/update-sdk')) }}
     name: Check if commenter is in the Flatcar maintainers team
     outputs:
       maintainers: steps.step1.output.maintainers
