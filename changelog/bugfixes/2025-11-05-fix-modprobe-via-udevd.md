@@ -1,0 +1,1 @@
+- Fixed the loading of kernel modules from system extensions via udev (e.g. at boot time).
