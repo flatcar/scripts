@@ -6,15 +6,9 @@ Most of these patches are not really upstreamable.
   - trigger updates only when /usr changes
 - `0003-core-use-max-for-DefaultTasksMax.patch`
   - increase the too-low limits
-- `0004-systemd-Disable-SELinux-permissions-checks.patch`
-  - disable interactions between systemd and SELinux policies
-  - this will be dropped when we increase SELinux coverage also to a host system
-- `0005-Revert-getty-Pass-tty-to-use-by-agetty-via-stdin.patch`
-  - SELinux denial workaround
-  - this will be dropped when we increase SELinux coverage also to a host system
-- `0006-units-Keep-using-old-journal-file-format.patch`
+- `0004-units-Keep-using-old-journal-file-format.patch`
   - backward compat stuff
-- `0007-tmpfiles.d-Fix-DNS-issues-with-default-k8s-configura.patch`
+- `0005-tmpfiles.d-Fix-DNS-issues-with-default-k8s-configura.patch`
   - workaround for issues with default k8s coredns config
-- `0008-units-Make-multi-user.target-the-default-target.patch`
+- `0006-units-Make-multi-user.target-the-default-target.patch`
   - change default.target to a suitable symlink for Flatcar
