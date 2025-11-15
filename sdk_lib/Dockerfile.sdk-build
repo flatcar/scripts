@@ -17,3 +17,8 @@ RUN /home/sdk/sdk_entry.sh ./build_packages --board="amd64-usr" --only_resolve_c
 
 RUN rm /mnt/host/source/.env
 RUN rm -rf /home/sdk/toolchain-pkgs
+
+# Clean up ephemeral key directory variables that were added during build
+RUN sed -i '/export MODULE_SIGNING_KEY_DIR/d' /home/sdk/.bashrc && \
+    sed -i '/export MODULES_SIGN_KEY/d' /home/sdk/.bashrc && \
+    sed -i '/export MODULES_SIGN_CERT/d' /home/sdk/.bashrc
