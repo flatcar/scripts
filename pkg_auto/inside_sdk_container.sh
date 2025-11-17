@@ -26,6 +26,7 @@
 ##
 ## Parameters:
 ## -h: this help
+## -d: debug output
 ##
 ## Positional:
 ## 1 - reports directory
@@ -37,17 +38,23 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/impl/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/inside_sdk_container_lib.sh"
 
+debug_args=()
+
 while [[ ${#} -gt 0 ]]; do
     case ${1} in
-        -h)
+        '-d')
+            debug_args=(-d)
+            shift
+            ;;
+        '-h')
             print_help
             exit 0
             ;;
-        --)
+        '--')
             shift
             break
             ;;
-        -*)
+        '-'*)
             fail "unknown flag '${1}'"
             ;;
         *)
@@ -68,22 +75,22 @@ mkdir -p "${reports_dir}"
 set_eo "${reports_dir}" "${@}"
 
 echo 'Running egencache for portage-stable'
-generate_cache_for 'portage-stable' 2>"${EGENCACHE_W}"
+generate_cache_for "${debug_args[@]}" 'portage-stable' 2>"${EGENCACHE_W}"
 echo 'Running egencache for coreos-overlay'
-generate_cache_for 'coreos-overlay' 2>>"${EGENCACHE_W}"
+generate_cache_for "${debug_args[@]}" 'coreos-overlay' 2>>"${EGENCACHE_W}"
 
 echo 'Copying portage-stable cache to reports'
-copy_cache_to_reports 'portage-stable' "${reports_dir}" 2>>"${EGENCACHE_W}"
+copy_cache_to_reports "${debug_args[@]}" 'portage-stable' "${reports_dir}" 2>>"${EGENCACHE_W}"
 echo 'Copying coreos-overlay cache to reports'
-copy_cache_to_reports 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
+copy_cache_to_reports "${debug_args[@]}" 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
 
 echo 'Running pretend-emerge to get complete report for SDK'
-package_info_for_sdk >"${SDK_EO}" 2>"${SDK_EO_W}"
+package_info_for_sdk "${debug_args[@]}" "${SDK_EO}" 2>"${SDK_EO_W}"
 for arch; do
     be=${arch^^}_BOARD_EO
     bew=${arch^^}_BOARD_EO_W
     echo "Running pretend-emerge to get complete report for ${arch} board"
-    package_info_for_board "${arch}" >"${!be}" 2>"${!bew}"
+    package_info_for_board "${debug_args[@]}" "${arch}" "${!be}" 2>"${!bew}"
 done
 
 ensure_no_errors "${@}"
