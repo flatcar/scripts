@@ -43,5 +43,4 @@ reports: ../../reports
 #
 # Optional, defaults to
 # ghcr.io/flatcar/flatcar-sdk-all:${last_nightly_version_id_in_base}-${last_nightly_build_id_in_base}
-#amd64-sdk-img=
-#arm64-sdk-img=
+#sdk-image-override: 

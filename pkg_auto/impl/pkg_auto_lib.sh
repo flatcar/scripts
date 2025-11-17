@@ -75,8 +75,8 @@ function setup_workdir_with_config() {
     workdir=${1}; shift
     config_file=${1}; shift
 
-    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base cfg_sdk_image_override
-    local -a cfg_cleanups cfg_debug_packages
+    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base cfg_sdk_image_override cfg_inside_debug
+    local -a cfg_cleanups cfg_debug_packages cfg_ignore_packages
 
     # some defaults
     cfg_old_base='origin/main'
@@ -84,6 +84,8 @@ function setup_workdir_with_config() {
     cfg_cleanups=('ignore')
     cfg_sdk_image_override=''
     cfg_debug_packages=()
+    cfg_inside_debug=''
+    cfg_ignore_packages=()
 
     local line key value swwc_stripped var_name arch
     while read -r line; do
@@ -95,7 +97,7 @@ function setup_workdir_with_config() {
             fail "empty value for ${key} in config"
         fi
         case ${key} in
-            scripts|aux|reports)
+            scripts|aux|reports|inside-debug)
                 var_name="cfg_${key//-/_}"
                 local -n var_ref=${var_name}
                 var_ref=$(realpath "${value}")
@@ -107,7 +109,7 @@ function setup_workdir_with_config() {
                 var_ref=${value}
                 unset -n var_ref
                 ;;
-            cleanups|debug-packages)
+            cleanups|debug-packages|ignore-packages)
                 var_name="cfg_${key//-/_}"
                 mapfile -t "${var_name}" <<<"${value//,/$'\n'}"
                 ;;
@@ -116,6 +118,10 @@ function setup_workdir_with_config() {
     if [[ -z "${cfg_new_base}" ]]; then
         cfg_new_base=${cfg_old_base}
     fi
+    if [[ -n ${cfg_inside_debug} ]]; then
+        cfg_inside_debug=x
+    fi
+
     for key in scripts aux reports; do
         var_name="cfg_${key//-/_}"
         if [[ -z "${!var_name}" ]]; then
@@ -127,11 +133,12 @@ function setup_workdir_with_config() {
     setup_workdir "${workdir}"
     add_cleanup "rm -f ${WORKDIR@Q}/config"
     cp -a "${config_file}" "${WORKDIR}/config"
-    setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}"
+    setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}" "${cfg_inside_debug}"
     if [[ -n ${cfg_sdk_image_override} ]]; then
         override_sdk_image_name "${cfg_sdk_image_override}"
     fi
     pkg_debug_add "${cfg_debug_packages[@]}"
+    add_ignore_packages "${cfg_ignore_packages[@]}"
 }
 
 # Goes over the list of automatically updated packages and synces them
@@ -276,13 +283,15 @@ function setup_workdir() {
 # 2 - base for the old state worktree (e.g. origin/main)
 # 3 - base for the new state worktree (e.g. origin/main)
 # 4 - path to reports directory
+# 5 - path to aux directory
+# 6 - bool for debugging inside SDK container
 function setup_worktrees_in_workdir() {
-    local scripts old_base new_base reports_dir aux_dir
-    scripts=${1}; shift
-    old_base=${1}; shift
-    new_base=${1}; shift
-    reports_dir=${1}; shift
-    aux_dir=${1}; shift
+    local scripts=${1}; shift
+    local old_base=${1}; shift
+    local new_base=${1}; shift
+    local reports_dir=${1}; shift
+    local aux_dir=${1}; shift
+    local inside_debug=${1}; shift
 
     local old_state new_state
     old_state="${WORKDIR}/old_state"
@@ -294,7 +303,7 @@ function setup_worktrees_in_workdir() {
 
     setup_worktree "${scripts}" "${old_base}" "old-state-${RANDOM}" "${old_state}"
     setup_worktree "${scripts}" "${new_base}" "new-state-${RANDOM}" "${new_state}"
-    extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}" "${old_base}" "${new_base}"
+    extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}" "${old_base}" "${new_base}" "${inside_debug}"
 }
 
 # Adds an overridden SDK image name to the globals file.
@@ -305,7 +314,15 @@ function setup_worktrees_in_workdir() {
 function override_sdk_image_name() {
     local image_name=${1}; shift
 
-    append_to_globals "SDK_IMAGE=${image_name@Q}"
+    append_to_globals "local SDK_IMAGE=${image_name@Q}"
+}
+
+function add_ignore_packages() {
+    local map_def
+
+    local -a map_members
+    mapfile -t map_members < <(printf '[%q]=x\n' "${@}")
+    append_to_globals "local -A IGNORE_PACKAGES=( ${map_members[*]} )"
 }
 
 # Appends passed lines to the globals file.
@@ -522,6 +539,9 @@ EOF
 # 3 - path to scripts worktree with new state
 # 4 - path to reports directory
 # 5 - path to aux directory
+# 6 - name of the old base branch
+# 7 - name of the new base branch
+# 8 - bool for debugging inside SDK container
 function extend_globals_file() {
     local scripts=${1}; shift
     local old_state=${1}; shift
@@ -530,6 +550,7 @@ function extend_globals_file() {
     local aux_dir=${1}; shift
     local old_base=${1}; shift
     local new_base=${1}; shift
+    local inside_debug=${1}; shift
 
     local globals_file
     globals_file="${WORKDIR}/globals"
@@ -557,6 +578,7 @@ local SCRIPTS OLD_BASE NEW_BASE OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_B
 local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
 local NEW_STATE_PACKAGES_LIST AUX_DIR
 local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
+local INSIDE_DEBUG
 
 SCRIPTS=${scripts@Q}
 OLD_BASE=${old_base@Q}
@@ -577,6 +599,7 @@ NEW_COREOS_OVERLAY=${new_coreos_overlay@Q}
 NEW_STATE_PACKAGES_LIST="\${NEW_STATE}/.github/workflows/portage-stable-packages-list"
 
 AUX_DIR=${aux_dir@Q}
+INSIDE_DEBUG=${inside_debug@Q}
 EOF
 
     # shellcheck source=for-shellcheck/globals
@@ -1221,6 +1244,11 @@ function generate_sdk_reports() {
     # (referred as old) and "after updates" (referred as new)
     # jobs. This means creating a separate worktrees, state
     # directories, and preparing commands to be run as a job.
+    local -a inside_sdk_container_args=()
+    if [[ -n ${INSIDE_DEBUG} ]]; then
+        inside_sdk_container_args+=( -d )
+    fi
+    inside_sdk_container_args+=( pkg-reports "${ARCHES[@]}" )
     for sdk_run_kind in "${WHICH[@]}"; do
         state_var_name="${sdk_run_kind^^}_STATE"
         sdk_run_state="${!state_var_name}_sdk_run"
@@ -1251,8 +1279,7 @@ function generate_sdk_reports() {
                     -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
                     --rm
                     ./pkg_auto/inside_sdk_container.sh
-                        pkg-reports
-                        "${ARCHES[@]}"
+                    "${inside_sdk_container_args[@]}"
         )
         unset -n job_args_ref
 
@@ -1551,17 +1578,41 @@ function pkginfo_c_process_file() {
             ;;
     esac
 
-    local pkg version_slot throw_away v s
+    local pkg version_slot throw_away v s pcpf_ignored
     while read -r pkg version_slot throw_away; do
         pkg_debug_enable "${pkg}"
         pkg_debug "${which} ${arch} ${report}: ${version_slot}"
         v=${version_slot%%:*}
         s=${version_slot##*:}
+        check_ignores IGNORE_PACKAGES "${which}" "${pkg}" "${s}" pcpf_ignored
+        if [[ -n ${pcpf_ignored} ]]; then
+            pkg_debug_disable
+            continue
+        fi
         mvm_c_add "${pkg}" "${s}" "${v}"
         pkg_set_ref["${pkg}"]='x'
         mvm_add "${pkg_slots_set_mvm_var_name}" "${pkg}" "${s}"
         pkg_debug_disable
     done <"${report_file}"
+}
+
+function check_ignores() {
+    local -n ignores_map_ref=${1}; shift
+    local which=${1}; shift
+    local pkg=${1}; shift
+    local slot=${1}; shift
+    local -n ignored_ref=${1}; shift
+
+    local key mark
+    ignored_ref=''
+    for key in "${pkg}" "${pkg}:${s}" "${which}#${pkg}" "${which}#${pkg}:${s}"; do
+        mark=${ignores_map_ref["${key}"]:-}
+        if [[ -n ${mark} ]]; then
+            pkg_debug "ignored by key ${key@Q}"
+            ignored_ref='x'
+            break
+        fi
+    done
 }
 
 # Gets a profile of the pkginfo mvm. The "profile" is a confusing
@@ -1884,11 +1935,13 @@ function consistency_checks() {
         verminmax_map_var_names=()
         for name in "${all_mvm_names[@]}"; do
             mvm_get "${name}" "${pkg}" cc_slot_verminmax_map_var_name
-            verminmax_map_var_names+=("${cc_slot_verminmax_map_var_name}")
+            if [[ -n ${cc_slot_verminmax_map_var_name} ]]; then
+                verminmax_map_var_names+=( "${cc_slot_verminmax_map_var_name}" )
+            fi
         done
         if pkg_debug_enabled; then
             for name in "${verminmax_map_var_names[@]}"; do
-                local -n slot_verminmax_map_ref=${name:-empty_map}
+                local -n slot_verminmax_map_ref=${name}
                 pkg_debug_print "all slots in ${name}: ${!slot_verminmax_map_ref[*]}"
                 pkg_debug_print "all vmms in ${name}: ${slot_verminmax_map_ref[*]}"
                 unset -n slot_verminmax_map_ref
@@ -1963,7 +2016,7 @@ function read_package_sources() {
                         "    - ${repo}"
                 fi
             else
-                pkg_debug "source repo: ${saved_repo}"
+                pkg_debug "source repo: ${repo}"
                 package_sources_map_ref["${pkg}"]=${repo}
             fi
             pkg_debug_disable
@@ -3134,7 +3187,8 @@ function handle_pkg_update() {
 
     local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
 
-    if ver_test "${new_no_r}" -gt "${old_no_r}"; then
+    if [[ ${old_pkg%%/*} != 'virtual' && ${new_pkg%%/*} != 'virtual' ]] && \
+           ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
         lines+=( '0:release notes: TODO' )
@@ -3268,7 +3322,8 @@ function handle_pkg_downgrade() {
 
     local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
 
-    if ver_test "${new_no_r}" -lt "${old_no_r}"; then
+    if [[ ${old_pkg%%/*} != 'virtual' && ${new_pkg%%/*} != 'virtual' ]] && \
+           ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
         generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
         lines+=( "0:release notes: TODO" )
