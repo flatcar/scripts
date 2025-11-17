@@ -29,6 +29,7 @@ acct-group/portage
 acct-group/render
 acct-group/root
 acct-group/sgx
+acct-group/shadow
 acct-group/sshd
 acct-group/systemd-coredump
 acct-group/systemd-journal
