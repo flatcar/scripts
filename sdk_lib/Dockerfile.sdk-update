@@ -21,6 +21,6 @@ RUN mv /home/sdk/.bashrc.bak /home/sdk/.bashrc
 RUN chown sdk:sdk /home/sdk/.bashrc
 
 # Clean up ephemeral key directory variables that were added during build
-RUN sed -i '/export MODULE_SIGNING_KEY_DIR/d' /home/sdk/.bashrc && \
-    sed -i '/export MODULES_SIGN_KEY/d' /home/sdk/.bashrc && \
-    sed -i '/export MODULES_SIGN_CERT/d' /home/sdk/.bashrc
+RUN sed -i -e '/export MODULE_SIGNING_KEY_DIR=/d' \
+        -e '/export MODULES_SIGN_KEY=/d' \
+        -e '/export MODULES_SIGN_CERT=/d' /home/sdk/.bashrc

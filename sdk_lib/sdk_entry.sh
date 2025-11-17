@@ -53,28 +53,28 @@ sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/c
 # moreover, if multiple shells are attached to the same container,
 # we want all of them to share the same value of the variable, therefore we need to save it in .bashrc
 # Check if MODULE_SIGNING_KEY_DIR exists in .bashrc and if the directory actually exists
-if grep -q 'export MODULE_SIGNING_KEY_DIR' /home/sdk/.bashrc; then
+if grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
     # Extract the existing path
-    EXISTING_DIR=$(grep 'export MODULE_SIGNING_KEY_DIR' /home/sdk/.bashrc | sed "s/.*MODULE_SIGNING_KEY_DIR='\(.*\)'/\1/")
+    EXISTING_DIR=$(source /home/sdk/.bashrc 2>/dev/null; echo "$MODULE_SIGNING_KEY_DIR")
     # If directory doesn't exist (stale from image build), remove the old entries and recreate
-    if [[ ! -d "$EXISTING_DIR" ]]; then
+    if [[ ! -d ${EXISTING_DIR} ]]; then
         echo "Deleting stale module signing directory."
-        sed -i '/export MODULE_SIGNING_KEY_DIR/d' /home/sdk/.bashrc
-        sed -i '/export MODULES_SIGN_KEY/d' /home/sdk/.bashrc
-        sed -i '/export MODULES_SIGN_CERT/d' /home/sdk/.bashrc
+        sed -i -e '/export MODULE_SIGNING_KEY_DIR=/d' \
+            -e '/export MODULES_SIGN_KEY=/d' \
+            -e '/export MODULES_SIGN_CERT=/d' /home/sdk/.bashrc
     fi
 fi
 
 # Create key directory if not already configured in .bashrc
-if ! grep -q 'export MODULE_SIGNING_KEY_DIR' /home/sdk/.bashrc; then
+if ! grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
     # For official builds, use ephemeral keys. For unofficial builds, use persistent directory
     if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
         MODULE_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
     else
         MODULE_SIGNING_KEY_DIR="/home/sdk/.module-signing-keys"
-        su sdk -c "mkdir -p '$MODULE_SIGNING_KEY_DIR'"
+        su sdk -c "mkdir -p ${MODULE_SIGNING_KEY_DIR@Q}"
     fi
-    if [[ ! "$MODULE_SIGNING_KEY_DIR" || ! -d "$MODULE_SIGNING_KEY_DIR" ]]; then
+    if [[ ! ${MODULE_SIGNING_KEY_DIR} || ! -d ${MODULE_SIGNING_KEY_DIR} ]]; then
         echo "Failed to create directory for module signing keys."
     else
         echo "export MODULE_SIGNING_KEY_DIR='$MODULE_SIGNING_KEY_DIR'" >> /home/sdk/.bashrc
