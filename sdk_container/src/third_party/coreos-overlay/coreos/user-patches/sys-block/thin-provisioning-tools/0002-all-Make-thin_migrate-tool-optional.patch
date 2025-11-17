@@ -1,0 +1,135 @@
+From 74215dade7bbddbfc0a46e1903fc289a56df3915 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Thu, 20 Nov 2025 13:17:36 +0100
+Subject: [PATCH 2/2] [all] Make thin_migrate tool optional
+
+The tool pulls in, indirectly through the devicemapper crate, a
+dependency on libclang. Make it possible to skip the tool to avoid the
+dependency, but keep it enabled by default.
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ Cargo.toml             |  4 +++-
+ Makefile               | 20 ++++++++++++++++++--
+ src/bin/pdata_tools.rs |  1 +
+ src/commands/mod.rs    |  1 +
+ src/thin/mod.rs        |  1 +
+ 5 files changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index 8594c6ba..155285a8 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -18,7 +18,7 @@ clap = { version = "4.5", default-features = false, features = [
+ ] }
+ crc32c = "0.6"
+ data-encoding = "2.9"
+-devicemapper = "0.34"
++devicemapper ={ version = "0.34", optional = true }
+ exitcode = "1.1.2"
+ fixedbitset = "0.5"
+ flate2 = "1.1"
+@@ -51,9 +51,11 @@ tempfile = "3.23"
+ thinp = { path = ".", features = ["devtools"] }
+ 
+ [features]
++default = ["thin_migrate"]
+ devtools = ["ratatui", "termion"]
+ io_uring = ["dep:io-uring"]
+ no_cleanup = []
++thin_migrate = ["dep:devicemapper"]
+ 
+ [profile.release]
+ debug = true
+diff --git a/Makefile b/Makefile
+index 44c99c99..a2dd51a4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,9 +2,10 @@ V=@
+ 
+ PDATA_TOOLS:=\
+ 	target/release/pdata_tools
++CARGO_FLAGS:=$(if $(DISABLE_THIN_MIGRATE),--no-default-features)
+ 
+ $(PDATA_TOOLS):
+-	$(V) cargo build --release
++	$(V) cargo build --release $(CARGO_FLAGS)
+ 
+ PREFIX:=/usr
+ BINDIR:=$(DESTDIR)$(PREFIX)/sbin
+@@ -31,6 +32,21 @@ clean:
+ 	cargo clean
+ 	$(RM) man8/*.8
+ 
++HAS_PDATA_TOOLS_BINARY:=$(shell if [ -f $(PDATA_TOOLS) ]; then echo 1; fi)
++ifneq ($(HAS_PDATA_TOOLS_BINARY),)
++
++HAS_THIN_MIGRATE:=$(shell grep -qF thin_migrate.rs $(PDATA_TOOLS).d && echo 1)
++
++ifneq ($(DISABLE_THIN_MIGRATE),)
++$(warning DISABLE_THIN_MIGRATE variable is ignored, the pdata_tools binary exists and it has $(if $(HAS_THIN_MIGRATE),,no )thin_migrate tool built in)
++endif
++
++else
++
++HAS_THIN_MIGRATE:=$(if $(DISABLE_THIN_MIGRATE),,1)
++
++endif
++
+ TOOLS:=\
+ 	cache_check \
+ 	cache_dump \
+@@ -42,13 +58,13 @@ TOOLS:=\
+ 	thin_delta \
+ 	thin_dump \
+ 	thin_ls \
++	$(if $(HAS_THIN_MIGRATE),thin_migrate) \
+ 	thin_repair \
+ 	thin_restore \
+ 	thin_rmap \
+ 	thin_metadata_size \
+ 	thin_metadata_pack \
+ 	thin_metadata_unpack \
+-	thin_migrate \
+ 	thin_trim \
+ 	era_check \
+ 	era_dump \
+diff --git a/src/bin/pdata_tools.rs b/src/bin/pdata_tools.rs
+index c288fe03..67ef0d7d 100644
+--- a/src/bin/pdata_tools.rs
++++ b/src/bin/pdata_tools.rs
+@@ -29,6 +29,7 @@ fn register_commands<'a>() -> Vec<Box<dyn Command<'a>>> {
+         Box::new(thin_metadata_pack::ThinMetadataPackCommand),
+         Box::new(thin_metadata_size::ThinMetadataSizeCommand),
+         Box::new(thin_metadata_unpack::ThinMetadataUnpackCommand),
++        #[cfg(feature = "thin_migrate")]
+         Box::new(thin_migrate::ThinMigrateCommand),
+         Box::new(thin_repair::ThinRepairCommand),
+         Box::new(thin_restore::ThinRestoreCommand),
+diff --git a/src/commands/mod.rs b/src/commands/mod.rs
+index 5eeb66ab..72481eba 100644
+--- a/src/commands/mod.rs
++++ b/src/commands/mod.rs
+@@ -17,6 +17,7 @@ pub mod thin_ls;
+ pub mod thin_metadata_pack;
+ pub mod thin_metadata_size;
+ pub mod thin_metadata_unpack;
++#[cfg(feature = "thin_migrate")]
+ pub mod thin_migrate;
+ pub mod thin_repair;
+ pub mod thin_restore;
+diff --git a/src/thin/mod.rs b/src/thin/mod.rs
+index 1ef0e1be..eeed031e 100644
+--- a/src/thin/mod.rs
++++ b/src/thin/mod.rs
+@@ -10,6 +10,7 @@ pub mod ls;
+ pub mod metadata;
+ pub mod metadata_repair;
+ pub mod metadata_size;
++#[cfg(feature = "thin_migrate")]
+ pub mod migrate;
+ pub mod repair;
+ pub mod restore;
+-- 
+2.51.2
+
