@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Source SDK environment variables if available (includes COREOS_OFFICIAL, etc.)
+if [ -f /mnt/host/source/.sdkenv ]; then
+    source /mnt/host/source/.sdkenv
+fi
+
 if [ -n "${SDK_USER_ID:-}" ] ; then
     # If the "core" user from /usr/share/baselayout/passwd has the same ID, allow to take it instead
     usermod --non-unique -u $SDK_USER_ID sdk
