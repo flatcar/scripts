@@ -115,7 +115,7 @@ BDEPEND="${PYTHON_DEPS}
 DEPEND="
 	>=app-arch/xz-utils-5.2
 	net-misc/curl:=[http2,ssl]
-	sys-libs/zlib:=
+	virtual/zlib:=
 	dev-libs/openssl:0=
 	system-llvm? (
 		${LLVM_DEPEND[*]}
@@ -324,11 +324,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	if [[ ${PV} = *9999* ]]; then
-		# We need to update / generate lockfiles for the workspace
-		${CARGO} generate-lockfile --offline || die "Failed to generate lockfiles"
-	fi
-
 	# Commit patches to the appropriate branch in proj/rust-patches.git
 	# then cut a new tag / tarball. Don't add patches to ${FILESDIR}
 	PATCHES=(
