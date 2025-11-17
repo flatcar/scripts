@@ -11,10 +11,23 @@ source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
 # Params:
 #
 # 1 - root filesystem with the portage config
-# @ - packages and metapackages to get the deps from
+# @ - packages and metapackages to get the deps from, optionally
+#     followed by double dash and use flags
 function emerge_pretend() {
-    local root
-    root=${1}; shift
+    local root=${1}; shift
+    local -a pkgs=()
+    local arg
+    local -i count=0
+
+    for arg; do
+        ((++count))
+        if [[ ${arg} == '--' ]]; then
+            break
+        fi
+        pkgs+=( "${arg}" )
+    done
+    shift ${count}
+    # rest are uses, if any
 
     # Probably a bunch of those flags are not necessary, but I'm not
     # touching it - they seem to be working. :)
@@ -49,14 +62,28 @@ function emerge_pretend() {
     )
     local rv
     rv=0
-    emerge "${emerge_opts[@]}" "${@}" || rv=${?}
+    if [[ ${#} -gt 0 ]]; then
+        USE="${*}" emerge "${emerge_opts[@]}" "${pkgs[@]}" || rv=${?}
+    else
+        emerge "${emerge_opts[@]}" "${pkgs[@]}" || rv=${?}
+    fi
     if [[ ${rv} -ne 0 ]]; then
         echo "WARNING: emerge exited with status ${rv}" >&2
     fi
 }
 
 # Gets package list for SDK.
+#
+# Params:
+#
+# ? - optional -d flag for debugging output
+# 1 - path to emerge output file
 function package_info_for_sdk() {
+    local debug=''
+    if [[ ${1} = '-d' ]]; then
+        debug=x; shift
+    fi
+    local output_file=${1}; shift
     local root='/' rust_slot d arches='' match='|' awk_code='{ print $'
     local -i awk_idx=6
 
@@ -74,6 +101,12 @@ function package_info_for_sdk() {
     match+=' |'
     awk_code+=${awk_idx}
     awk_code+=' }'
+
+    debug_print "${debug}" \
+                'grep regexp used:' \
+                "${match}" \
+                'awk code used:' \
+                "${awk_code}"
 
     # rust is annoying - it is slotted, thus parallel-installable and
     # also bdepends on some older version of rust and all of it causes
@@ -98,16 +131,18 @@ function package_info_for_sdk() {
     #
     # from that line we want to print the slot which is at index 6 +
     # number of architectures (in the example output, the index is 8)
-    rust_slot=$(equery --no-color keywords --arch "${arches}" dev-lang/rust | \
-        grep --fixed-strings "${match}" | \
+    local equery_output=$(equery --no-color keywords --arch "${arches}" dev-lang/rust)
+    debug_print "${debug}" 'equery output' "${equery_output}"
+    rust_slot=$(grep --fixed-strings "${match}" <<<"${equery_output}" | \
         tail -n1 | \
         awk "${awk_code}")
+    debug_print "${debug}" "found rust slot: ${rust_slot}"
 
     ignore_crossdev_stuff "${root}"
     # stage4 build of SDK builds coreos-devel/sdk-depends, fsscript
     # pulls in cross toolchains with crossdev (which we have just
     # ignored) and dev-lang/rust
-    emerge_pretend "${root}" coreos-devel/sdk-depends dev-lang/rust:"${rust_slot}"
+    emerge_pretend "${root}" coreos-devel/sdk-depends dev-lang/rust:"${rust_slot}" >"${output_file}"
     revert_crossdev_stuff "${root}"
 }
 
@@ -115,22 +150,30 @@ function package_info_for_sdk() {
 #
 # Params:
 #
+# ? - optional -d flag for debugging output
 # 1 - architecture
+# 2 - path to emerge output file
 function package_info_for_board() {
-    local arch
-    arch=${1}; shift
+    local debug=''
+    if [[ ${1} = '-d' ]]; then
+        debug=x; shift
+    fi
+    local arch=${1}; shift
+    local output_file=${1}; shift
 
-    local root
-    root="/build/${arch}-usr"
+    local root="/build/${arch}-usr" debug_output_file='/dev/null'
 
-    local output_file
-    output_file=$(mktemp --tmpdir 'emerge-output.XXXXXXXX')
+    if [[ -n ${debug} ]]; then
+        debug_output_file=${output_file}.debug.main
+    fi
 
     # Ignore crossdev stuff in both SDK root and board root - emerge
     # may query SDK stuff for the board packages.
     ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
-    emerge_pretend "${root}" coreos-devel/board-packages | tee "${output_file}"
+    local pkg='coreos-devel/board-packages'
+    debug_print "${debug}" "package ${pkg}"
+    emerge_pretend "${root}" coreos-devel/board-packages | tee "${debug_output_file}" >"${output_file}"
 
     # There are packages that are installed only in sysexts and are
     # not pulled in by the coreos-devel/board-packages
@@ -160,10 +203,11 @@ function package_info_for_board() {
     source <(head --lines=${line_idx} build_library/extra_sysexts.sh)
 
     # Get sysext packages only if they are valid for the passed
-    # architecture.
-    local -A sysext_pkgs_set=()
-    local entry name pkgs_csv uses_csv arches_csv ok_arch ok pkg
-    local -a arches pkgs
+    # architecture and are missing from the reports.
+    local -A sysext_pkgs_csv_to_uses_csv_flags_map=()
+    local entry name pkgs_csv uses_csv arches_csv ok_arch ok
+    local -a arches pkgs uses
+    local slot stripped_escaped_pkg do_emerge escaped_slot
     for entry in "${EXTRA_SYSEXTS[@]}"; do
         # The "uses" field has spaces, so turn them into commas, so we
         # can turn pipes into spaces and make a use of read for entire
@@ -186,48 +230,74 @@ function package_info_for_board() {
         if [[ -z ${ok} ]]; then
             continue
         fi
-        read -r -a pkgs <<<"${pkgs_csv//,/ }"
-        for pkg in "${pkgs[@]}"; do
-            sysext_pkgs_set["${pkg}"]=x
-        done
-    done
-
-    # Do the check if the package was already in the report. If not,
-    # generate another one.
-    local slot stripped_escaped_pkg do_emerge escaped_slot
-    for pkg in "${!sysext_pkgs_set[@]}"; do
-        # strip possible slot information in package name
-        stripped_escaped_pkg=${pkg%:*}
-        slot=''
-        if [[ ${stripped_escaped_pkg} != "${pkg}" ]]; then
-            slot=${pkg##*:}
-        fi
-        # the only allowed character in category that is also a
-        # special character in regexp is a dot; there are no allowed
-        # characters in package name that are special characters in
-        # regexps; thus we escape all the dots only
-        stripped_escaped_pkg=${stripped_escaped_pkg//./'\.'}
-        do_emerge=
-        if [[ -z ${slot} ]]; then
-            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*' "${output_file}"; then
-                do_emerge=x
-            fi
-        else
-            # bah, a more complicated regexp to see if the package
-            # name with the specific slot was listed
+        do_emerge=''
+        if [[ -n ${uses_csv} ]]; then
+            # Nevermind if packages are already in report - do a
+            # report anyway, with custom USE flags.
             #
-            # a slot is similar to a category with regard to special
-            # regexp characters - we escape only dots
-            escaped_slot=${slot//./'\.'}
-            if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*\[[^] ]*:'"${escaped_slot}"'::' "${output_file}"; then
-                do_emerge=x
-            fi
+            # This has potential to be messy, though, by having
+            # packages with different USE flags in reports…
+            do_emerge=x
+        else
+            # Check if any of the packages was is missing from the
+            # report. If so, we will generate another one for this set
+            # of packages.
+            read -r -a pkgs <<<"${pkgs_csv//,/ }"
+            for pkg in "${pkgs[@]}"; do
+                # Strip possible slot information in package name.
+                stripped_escaped_pkg=${pkg%:*}
+                slot=''
+                if [[ ${stripped_escaped_pkg} != "${pkg}" ]]; then
+                    slot=${pkg##*:}
+                fi
+                # The only allowed character in category that is also
+                # a special character in regexp is a dot. There are no
+                # allowed characters in package name that are special
+                # characters in regexps. Thus we escape all the dots
+                # only.
+                stripped_escaped_pkg=${stripped_escaped_pkg//./'\.'}
+                if [[ -z ${slot} ]]; then
+                    if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*' "${output_file}"; then
+                        do_emerge=x
+                        break
+                    fi
+                else
+                    # Bah, a more complicated regexp to see if the
+                    # package name with the specific slot was listed.
+                    #
+                    # A slot is similar to a category with regard to
+                    # special regexp characters - we escape only dots.
+                    escaped_slot=${slot//./'\.'}
+                    if ! grep -q -e '^\[[^]]*\]\s*'"${stripped_escaped_pkg}"'\s*\[[^] ]*:'"${escaped_slot}"'::' "${output_file}"; then
+                        do_emerge=x
+                        break
+                    fi
+                fi
+            done
         fi
         if [[ -n ${do_emerge} ]]; then
-            emerge_pretend "${root}" "${pkg}"
+            sysext_pkgs_csv_to_uses_csv_flags_map["${pkgs_csv}"]=${uses_csv}
         fi
     done
-    rm -f "${output_file}"
+
+    # Generate additional reports for the yet unreported sysext
+    # packages.
+    local dbg_suffix
+    for pkgs_csv in "${!sysext_pkgs_csv_to_uses_csv_flags_map[@]}"; do
+        uses_csv=${sysext_pkgs_csv_to_uses_csv_flags_map["${pkgs_csv}"]}
+        if [[ -n ${debug} ]]; then
+            dbg_suffix=${pkgs_csv//\//-}
+            if [[ -n ${uses_csv} ]]; then
+                dbg_suffix+='.uses.'
+                dbg_suffix+=${uses_csv}
+            fi
+            debug_output_file=${output_file}.debug.pkgs.${dbg_suffix}
+        fi
+        read -r -a pkgs <<<"${pkgs_csv//,/ }"
+        read -r -a uses <<<"${uses_csv//,/ }"
+        debug_print "${debug}" "packages ${pkgs[*]} with USE ${uses[*]}"
+        emerge_pretend "${root}" "${pkgs[@]}" -- "${uses[@]}" | tee "${debug_output_file}" >>"${output_file}"
+    done
     revert_crossdev_stuff "${root}"
     revert_crossdev_stuff /
 }
@@ -599,23 +669,61 @@ function clean_empty_warning_files() {
     done
 }
 
+# Generates the md5-metadata cache for the passed ebuid repository.
+# The generated cache is stored within the repository
+#
+# Params:
+#
+# ? - optional -d flag for debugging output
+# 1 - repository name
 function generate_cache_for() {
+    local debug=''
+    if [[ ${1} = '-d' ]]; then
+        debug=x; shift
+    fi
     local repo=${1}; shift
 
     local -i gcf_num_proc
     local load_avg
     get_num_proc gcf_num_proc
     load_avg=$(bc <<< "${gcf_num_proc} * 0.75")
+    debug_print "${debug}" "using ${gcf_num_proc} jobs with ${load_avg} load average"
     egencache --repo "${repo}" --jobs="${gcf_num_proc}" --load-average="${load_avg}" --update
 }
 
+# Copies the generated md5-metadata cache into reports directory.
+#
+# Params:
+#
+# ? - optional -d flag for debugging output
+# 1 - repository name
+# 2 - reports directory
 function copy_cache_to_reports() {
+    local debug=''
+    if [[ ${1} = '-d' ]]; then
+        debug=x; shift
+    fi
     local repo=${1}; shift
     local reports_dir=${1}; shift
 
     local repo_dir
     repo_dir=$(portageq get_repo_path / "${repo}")
+    debug_print "${debug}" "repo dir at ${repo_dir}"
     cp -a "${repo_dir}/metadata/md5-cache" "${reports_dir}/${repo}-cache"
+}
+
+# Prints if first parameter is not empty. Meant to be used like:
+#
+# debug_print "${debug}" "some debug message"
+#
+# params:
+#
+# 1 - debug marker - the function will be no op if this is empty
+# @ - messages to be printed
+function debug_print() {
+    if [[ -z ${1} ]]; then return 0; fi
+    shift
+    printf '%s\n' "${@}"
 }
 
 fi
