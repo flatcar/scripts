@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -74,7 +74,7 @@ COMMON_DEPEND="
 	idn? ( net-dns/libidn2:= )
 	importd? (
 		app-arch/bzip2:0=
-		sys-libs/zlib:0=
+		virtual/zlib:=
 	)
 	kmod? ( >=sys-apps/kmod-15:0= )
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
