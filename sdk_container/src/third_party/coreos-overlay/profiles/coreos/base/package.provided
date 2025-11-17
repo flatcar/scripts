@@ -30,3 +30,7 @@ sec-policy/selinux-ntp-2.20250618-r1
 # patches, but the dependency in the ebuild still need to be taken
 # care of.
 llvm-core/clang-9999
+
+# Pulled in by sys-apps/texinfo, contains only an info file, which
+# will get masked anyway during installation.
+app-doc/info-manual-9999
