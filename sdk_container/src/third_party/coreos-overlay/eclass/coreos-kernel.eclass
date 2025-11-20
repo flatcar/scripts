@@ -143,14 +143,18 @@ get_sig_key() {
 		die "MODULE_SIG_KEY is using the default value"
 	fi
 
-	if [[ ${sig_key} != /tmp/* ]]; then
-		die "Refusing to to continue with modules key outside of /tmp, so that it stays in RAM only."
+	# For official builds, enforce /tmp to keep keys in RAM only
+	# For unofficial builds, allow persistent directory
+	if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+		if [[ ${sig_key} != /tmp/* ]]; then
+			die "Refusing to continue with modules key outside of /tmp for official builds, so that it stays in RAM only."
+		fi
 	fi
 	if [ "$sig_key" != "${MODULES_SIGN_KEY}" ]; then
 		die "MODULES_SIGN_KEY variable is different than MODULE_SIG_KEY in kernel config."
 	fi
 
-	echo $sig_key
+	echo "$sig_key"
 }
 
 validate_sig_key() {
@@ -165,8 +169,14 @@ setup_keys() {
 
 	echo "Preparing keys at $sig_key"
 
-	mkdir -p $MODULE_SIGNING_KEY_DIR
-	pushd $MODULE_SIGNING_KEY_DIR
+	if [[ ${COREOS_OFFICIAL:-0} -eq 0 ]]; then
+		# Allow portage sandbox to write to the module signing key directory,
+		# which is in home for unofficial builds
+		addwrite "${MODULE_SIGNING_KEY_DIR}"
+	fi
+
+	mkdir -p "$MODULE_SIGNING_KEY_DIR"
+	pushd "$MODULE_SIGNING_KEY_DIR"
 
 	mkdir -p gen_certs || die
 	# based on the default config the kernel auto-generates
