@@ -74,9 +74,6 @@ dev-cpp/azure-security-keyvault-keys
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# CVE-2025-9086, CVE-2025-10148
-=net-misc/curl-8.16.0-r1 ~arm64
-
 # CVE-2025-61984, CVE-2025-61985
 =net-misc/openssh-10.2_p1 ~amd64 ~arm64
 
