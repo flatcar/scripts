@@ -34,7 +34,7 @@ DEPEND="
 	dev-libs/openssl:=
 	net-misc/curl
 	sys-fs/e2fsprogs
-	sys-libs/zlib
+	virtual/zlib:=
 	dsa? ( sys-apps/pciutils )
 	qat? ( sys-apps/pciutils )
 "
