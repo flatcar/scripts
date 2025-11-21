@@ -27,6 +27,7 @@ sys-libs/libseccomp static-libs
 sys-libs/ncurses static-libs
 sys-libs/zlib static-libs
 virtual/jpeg static-libs
+virtual/zlib static-libs
 x11-libs/pixman static-libs
 
 # Get latest EDK2 firmware for Secure Boot on arm64.
