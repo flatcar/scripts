@@ -73,6 +73,7 @@ acct-user/tss
 app-admin/eselect
 app-admin/logrotate
 app-admin/perl-cleaner
+app-admin/setools
 app-admin/sudo
 
 app-alternatives/awk
@@ -339,6 +340,7 @@ dev-python/markupsafe
 dev-python/mdurl
 dev-python/more-itertools
 dev-python/msgpack
+dev-python/networkx
 dev-python/olefile
 dev-python/packaging
 dev-python/pathspec
@@ -571,13 +573,48 @@ scripts
 
 sec-keys/openpgp-keys-gentoo-release
 
+sec-policy/selinux-apache
+sec-policy/selinux-apm
 sec-policy/selinux-base
 sec-policy/selinux-base-policy
+sec-policy/selinux-bind
+sec-policy/selinux-brctl
+sec-policy/selinux-cdrecord
+sec-policy/selinux-chronyd
 sec-policy/selinux-container
 sec-policy/selinux-dbus
+sec-policy/selinux-dirmngr
+sec-policy/selinux-dnsmasq
+sec-policy/selinux-docker
+sec-policy/selinux-dracut
+sec-policy/selinux-git
+sec-policy/selinux-gpg
+sec-policy/selinux-kdump
+sec-policy/selinux-kerberos
+sec-policy/selinux-ldap
+sec-policy/selinux-loadkeys
+sec-policy/selinux-logrotate
+sec-policy/selinux-makewhatis
+sec-policy/selinux-mandb
+sec-policy/selinux-ntp
+sec-policy/selinux-pcscd
+sec-policy/selinux-podman
 sec-policy/selinux-policykit
+sec-policy/selinux-qemu
+sec-policy/selinux-quota
+sec-policy/selinux-rpc
+sec-policy/selinux-rpcbind
+sec-policy/selinux-samba
+sec-policy/selinux-sasl
+sec-policy/selinux-smartmon
 sec-policy/selinux-sssd
+sec-policy/selinux-sudo
+sec-policy/selinux-tcsd
 sec-policy/selinux-unconfined
+sec-policy/selinux-virt
+sec-policy/selinux-wireguard
+sec-policy/selinux-xfs
+sec-policy/selinux-zfs
 
 sys-apps/acl
 sys-apps/attr
@@ -620,10 +657,12 @@ sys-apps/nvme-cli
 sys-apps/pciutils
 sys-apps/pcsc-lite
 sys-apps/pkgcore
+sys-apps/policycoreutils
 sys-apps/portage
 sys-apps/pv
 sys-apps/sandbox
 sys-apps/sed
+sys-apps/selinux-python
 sys-apps/semodule-utils
 sys-apps/shadow
 sys-apps/smartmontools
@@ -701,6 +740,7 @@ sys-libs/libcap-ng
 sys-libs/libnvme
 sys-libs/libseccomp
 sys-libs/libselinux
+sys-libs/libsemanage
 sys-libs/libsepol
 sys-libs/libunwind
 sys-libs/liburing

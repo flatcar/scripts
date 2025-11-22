@@ -18,8 +18,3 @@ sys-devel/bpf-toolchain-14.2.0_p1
 # Pulled by app-crypt/sbsigntools - we never needed it and it pulls a
 # ton of other packages.
 dev-perl/Locale-gettext-1.70.0_p20181130
-
-# Pulled in by sys-apps/systemd, breaks the build - the image stage
-# fails with "Failed to resolve typeattributeset statement at
-# /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
-sec-policy/selinux-ntp-2.20250618-r1
