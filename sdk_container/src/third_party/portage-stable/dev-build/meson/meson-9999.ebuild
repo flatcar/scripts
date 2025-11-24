@@ -55,7 +55,7 @@ DEPEND="
 		>=dev-libs/gobject-introspection-1.82.0-r2
 		app-alternatives/ninja
 		dev-vcs/git
-		sys-libs/zlib[static-libs(+)]
+		virtual/zlib:=[static-libs(+)]
 		virtual/pkgconfig
 		dev-build/cmake
 	)
@@ -78,7 +78,7 @@ DEPEND="
 		media-libs/libsdl2
 		media-libs/libwmf
 		net-libs/libpcap
-		sci-libs/hdf5[fortran]
+		sci-libs/hdf5[cxx,fortran]
 		sci-libs/netcdf
 		sys-cluster/openmpi[fortran]
 		sys-devel/bison
@@ -102,7 +102,7 @@ RDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.2.1-python-path.patch
+	"${FILESDIR}"/${PN}-1.10.0-python-path.patch
 )
 
 src_unpack() {
