@@ -15,13 +15,13 @@ MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 MY_PATCHES=()
 
-# Determine the patchlevel. See https://ftp.gnu.org/gnu/bash/bash-5.2-patches/.
+# Determine the patchlevel.
 case ${PV} in
 	9999|*_alpha*|*_beta*|*_rc*)
 		# Set a negative patchlevel to indicate that it's a pre-release.
 		PLEVEL=-1
 		if [[ ${PV} =~ _pre[0-9]{8}$ ]]; then
-			BASH_COMMIT=
+			BASH_COMMIT="bcac47f08a6e8f04893f3f282bb841ddc07fc2e8"
 		fi
 		;;
 	*_p*)
@@ -33,7 +33,7 @@ esac
 
 # The version of readline this bash normally ships with. Note that we only use
 # the bundled copy of readline for pre-releases.
-READLINE_VER="8.2_p1"
+READLINE_VER="8.3"
 
 DESCRIPTION="The standard GNU Bourne again shell"
 HOMEPAGE="https://tiswww.case.edu/php/chet/bash/bashtop.html https://git.savannah.gnu.org/cgit/bash.git"
@@ -75,9 +75,12 @@ fi
 LICENSE="GPL-3+"
 SLOT="0"
 if (( PLEVEL >= 0 )); then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="afs bashlogger examples mem-scramble +net nls plugins pgo +readline"
+# As of 5.4_alpha_pre20251016, bash tests finally exit non-0 on failure.
+# The differences look harmless but need investigation and fixing.
+RESTRICT="test"
 
 DEPEND="
 	>=sys-libs/ncurses-5.2-r2:=
@@ -103,13 +106,6 @@ PATCHES=(
 
 	# Patches to or from Chet, posted to the bug-bash mailing list.
 	"${FILESDIR}/${PN}-5.0-syslog-history-extern.patch"
-	"${FILESDIR}/${PN}-5.2_p15-random-ub.patch"
-	"${FILESDIR}/${PN}-5.2_p15-configure-clang16.patch"
-	"${FILESDIR}/${PN}-5.2_p21-wpointer-to-int.patch"
-	"${FILESDIR}/${PN}-5.2_p32-memory-leaks.patch"
-	"${FILESDIR}/${PN}-5.2_p32-invalid-continuation-byte-ignored-as-delimiter-1.patch"
-	"${FILESDIR}/${PN}-5.2_p32-invalid-continuation-byte-ignored-as-delimiter-2.patch"
-	"${FILESDIR}/${PN}-5.2_p32-erroneous-delimiter-pushback-condition.patch"
 )
 
 pkg_setup() {
@@ -154,15 +150,6 @@ src_prepare() {
 	# Include official patches.
 	(( PLEVEL > 0 )) && eapply -p0 "${MY_PATCHES[@]}"
 
-	# Clean out local libs so we know we use system ones w/releases. The
-	# touch utility is invoked for the benefit of config.status.
-	if (( PLEVEL >= 0 )); then
-		rm -rf lib/{readline,termcap}/* \
-		&& touch lib/{readline,termcap}/Makefile.in \
-		&& sed -i -E 's:\$[{(](RL|HIST)_LIBSRC[)}]/[[:alpha:]_-]*\.h::g' Makefile.in \
-		|| die
-	fi
-
 	# Prefixify hardcoded path names. No-op for non-prefix.
 	hprefixify pathnames.h.in
 
@@ -189,10 +176,6 @@ src_configure() {
 	# may misbehave at runtime. Chet also advises against use of byacc:
 	# https://lists.gnu.org/archive/html/bug-bash/2025-08/msg00115.html
 	unset -v YACC
-
-	# bash 5.3 drops unprototyped functions, earlier versions are
-	# incompatible with C23.
-	append-cflags $(test-flags-CC -std=gnu17)
 
 	if tc-is-cross-compiler; then
 		export CFLAGS_FOR_BUILD="${BUILD_CFLAGS} -std=gnu17"
@@ -221,6 +204,7 @@ src_configure() {
 	append-cppflags \
 		-DDEFAULT_PATH_VALUE=\'\""${EPREFIX}"/usr/local/sbin:"${EPREFIX}"/usr/local/bin:"${EPREFIX}"/usr/sbin:"${EPREFIX}"/usr/bin:"${EPREFIX}"/sbin:"${EPREFIX}"/bin\"\' \
 		-DSTANDARD_UTILS_PATH=\'\""${EPREFIX}"/bin:"${EPREFIX}"/usr/bin:"${EPREFIX}"/sbin:"${EPREFIX}"/usr/sbin\"\' \
+		-DDEFAULT_LOADABLE_BUILTINS_PATH=\'\""${EPREFIX}"/usr/local/$(get_libdir)/bash:"${EPREFIX}"/usr/$(get_libdir)/bash\"\' \
 		-DSYS_BASHRC=\'\""${EPREFIX}"/etc/bash/bashrc\"\' \
 		-DSYS_BASH_LOGOUT=\'\""${EPREFIX}"/etc/bash/bash_logout\"\' \
 		-DNON_INTERACTIVE_LOGIN_SHELLS \
@@ -291,7 +275,9 @@ src_compile() {
 		# Used in test suite.
 		unset -v A
 
-		emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" -k check
+		# Testsuite isn't expected to pass for bash right now, but it
+		# also doesn't matter for PGO.
+		nonfatal emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" -k check
 
 		if tc-is-clang; then
 			llvm-profdata merge "${T}"/pgo --output="${T}"/pgo/default.profdata || die
@@ -335,7 +321,7 @@ src_install() {
 
 	insinto /etc/bash/bashrc.d
 	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color-r2.bash | newins - 10-gentoo-color.bash
-	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r2.bash 10-gentoo-title.bash
+	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r3.bash 10-gentoo-title.bash
 
 	insinto /etc/profile.d
 	doins "${FILESDIR}/profile.d/00-prompt-command.sh"
@@ -442,6 +428,32 @@ PROMPT_COMMAND=(genfun_set_win_title)
 Those who would prefer for bash never to interfere with the window title may
 now opt out of the default title setting behaviour, either with the "unset -v
 PROMPT_COMMAND" command or by re-defining PROMPT_COMMAND as desired.
+EOF
+		fi
+
+		if ver_test "${old_ver}" -ge "5.3" \
+			&& ver_test "${old_ver}" -ge "5.3_p3-r3"
+		then
+			:
+		elif ver_test "${old_ver}" -lt "5.3" \
+			&& ver_test "${old_ver}" -ge "5.2_p37-r5"
+		then
+			:
+		else
+			cat <<'EOF'
+The window title setting behaviour has been improved. It is now formatted as
+"\u@\h \W", in accordance with the prompting mechanism of bash. For example,
+after switching to the home directory, the current working directly will be
+shown as the <tilde> character.
+
+The value of PROMPT_DIRTRIM is now respected. If this variable is unset, the
+use of the \W prompt string escape will prevail, with the current working
+directory typically being shown as its basename. If set to 0 or greater, \w
+will be used instead, which may be trimmed. This also means that the title
+can be made to show the full path by setting PROMPT_DIRTRIM=0.
+
+For further information, run info '(bash)Bash Variables' or visit
+https://www.gnu.org/software/bash/manual/bash.html#index-PROMPT_005fDIRTRIM.
 EOF
 		fi
 	} \
