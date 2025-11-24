@@ -1,0 +1,1 @@
+- `/etc/shadow`, `/etc/gshadow` are now owned by the `shadow` group, `/usr/bin/unix_chkpwd`, `/usr/bin/chage` and `/usr/bin/expiry` are now also owned by the `shadow` group with a sticky bit enabled.
