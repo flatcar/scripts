@@ -1,1 +1,1 @@
-- Fixed the loading of kernel modules from system extensions via udev (e.g. at boot time).
+- Fixed the loading of kernel modules from system extensions via udev (e.g. at boot time). ([flatcar/scripts#3367](https://github.com/flatcar/scripts/pull/3367))
