@@ -15,9 +15,6 @@ python_single_target_python3_12
 python_targets_python3_13
 python_single_target_python3_13
 
-# Unmask selinux so it can be enabled selectively in package.use
--selinux
-
 # We don't care about i10n, takes too much space, pulls in too many
 # extra dependencies.
 nls

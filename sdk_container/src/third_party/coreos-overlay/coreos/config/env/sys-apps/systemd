@@ -91,10 +91,13 @@ cros_post_src_install_flatcar_stuff() {
         # with our own.
         newpamd - "systemd-user" <<'EOF'
 account include system-auth
+session required pam_selinux.so close
+session required pam_selinux.so nottys open
 session include system-login
 EOF
         newpamd - "systemd-run0" <<'EOF'
 account include system-auth
+session include system-selinux
 session include system-login
 EOF
 

@@ -45,7 +45,7 @@ BOOTSTRAP_USE="${BOOTSTRAP_USE} curl_ssl_openssl ssl"
 BOOTSTRAP_USE="${BOOTSTRAP_USE} xml"
 
 # Set SELinux policy
-POLICY_TYPES="targeted mcs mls"
+POLICY_TYPES="mcs"
 
 # Disable packages or optional features with distribution issues.
 ACCEPT_RESTRICT="* -bindist"
@@ -91,10 +91,6 @@ INSTALL_MASK="
   /usr/lib/debug/.build-id
   /etc/acpi
   /usr/share/portage/config/repos.conf
-"
-
-# Prevent binaries from being installed to rootfs from binary packages
-PKG_INSTALL_MASK="
 "
 
 # Keep the default languages small.

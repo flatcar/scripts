@@ -1,0 +1,33 @@
+From dbd686eb40a1d7e8ac1daeb46d1deab32214fcac Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Mon, 8 Sep 2025 14:02:29 +0200
+Subject: [PATCH] Mask selinux when building glibc
+
+Disabling selinux via USE=-selinux may not work, if the profile forces
+it.
+---
+ crossdev | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/crossdev b/crossdev
+index 1e5c4ac..e150d30 100755
+--- a/crossdev
++++ b/crossdev
+@@ -1585,6 +1585,14 @@ for f in package.{accept_keywords,env,mask,use} env/${CROSSDEV_OVERLAY_CATEGORY}
+ 	rm -f "${f}/${CROSSDEV_OVERLAY_CATEGORY}"
+ done
+ 
++# selinux won't work in bootstrap environment - libselinux may not be
++# available, need to mask selinux since it could be forced by the
++# profile
++if [[ ${LPKG} = 'glibc' ]]; then
++    LMASK+=" selinux"
++    LFORCE+=" -selinux"
++fi
++
+ pkglist=( K L )
+ if [[ ${LLVM} == "yes" ]] ; then
+ 	pkglist+=( R C )
+-- 
+2.49.1
+
