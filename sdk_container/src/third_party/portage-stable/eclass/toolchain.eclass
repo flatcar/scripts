@@ -16,6 +16,7 @@ _TOOLCHAIN_ECLASS=1
 
 RUST_OPTIONAL="1"
 
+# See tc_version_is_at_least below wrt old EAPIs vs old GCCs.
 case ${EAPI} in
 	8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
@@ -263,6 +264,10 @@ fi
 # Require minimum gcc version to simplify assumptions.
 # Normally we would require gcc-6+ (based on sys-devel/gcc)
 # but we still have sys-devel/gcc-apple-4.2.1_p5666.
+#
+# Older GCC support lives in toolchain-legacy.eclass in the toolchain
+# repository at https://gitweb.gentoo.org/proj/toolchain.git/. Patches
+# welcome!
 tc_version_is_at_least 8 || die "${ECLASS}: ${GCC_RELEASE_VER} is too old."
 
 PREFIX=${TOOLCHAIN_PREFIX:-${EPREFIX}/usr}
@@ -354,7 +359,7 @@ fi
 #---->> DEPEND <<----
 
 RDEPEND="
-	sys-libs/zlib
+	virtual/zlib:=
 	virtual/libiconv
 	nls? ( virtual/libintl )
 "
@@ -426,9 +431,8 @@ if [[ ${PN} != gnat-gpl ]] && tc_has_feature ada ; then
 		BDEPEND+="
 			ada? (
 				|| (
-					<sys-devel/gcc-${SLOT}[ada]
+					<sys-devel/gcc-$((${SLOT} + 1))[ada]
 					<dev-lang/ada-bootstrap-$((${SLOT} + 1))
-					sys-devel/gcc:${SLOT}[ada]
 				)
 			)
 		"
@@ -451,7 +455,7 @@ if tc_has_feature d && tc_version_is_at_least 12.0 ; then
 	# D in 12+ is self-hosting and needs D to bootstrap.
 	# TODO: package some binary we can use, like for Ada
 	# bug #840182
-	BDEPEND+=" d? ( || ( <sys-devel/gcc-${SLOT}[d(-)] <sys-devel/gcc-12[d(-)] sys-devel/gcc:${SLOT}[d(-)] ) )"
+	BDEPEND+=" d? ( || ( <sys-devel/gcc-$((${SLOT} + 1))[d(-)] sys-devel/gcc:11 ) )"
 fi
 
 if tc_has_feature rust && tc_version_is_at_least 14.1 ; then
@@ -468,7 +472,7 @@ PDEPEND=">=sys-devel/gcc-config-2.11"
 # @DESCRIPTION:
 # Used to override compression used for for patchsets.
 # Default is xz for EAPI 8+.
-	: "${TOOLCHAIN_PATCH_SUFFIX:=xz}"
+: "${TOOLCHAIN_PATCH_SUFFIX:=xz}"
 
 # @ECLASS_VARIABLE: TOOLCHAIN_SET_S
 # @DESCRIPTION:
@@ -1883,7 +1887,7 @@ toolchain_src_configure() {
 		confgcc+=( --enable-host-shared )
 	fi
 
-	if tc_version_is_at_least 15.1 ${PV} ; then
+	if tc_version_is_at_least 15.1 ${PV} && _tc_use_if_iuse libgdiagnostics ; then
 		confgcc+=( $(use_enable libgdiagnostics) )
 	fi
 
