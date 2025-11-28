@@ -23,3 +23,14 @@ dev-perl/Locale-gettext-1.70.0_p20181130
 # fails with "Failed to resolve typeattributeset statement at
 # /var/lib/selinux/mcs/tmp/modules/400/ntp/cil:120"
 sec-policy/selinux-ntp-2.20250618-r1
+
+# The sys-block/thin-provisioning-tools package depends on it, because
+# of the thin_migrate tool using devicemapper crate that indirectly
+# depends on clang (through bindgen). We disable the tool anyway with
+# patches, but the dependency in the ebuild still need to be taken
+# care of.
+llvm-core/clang-9999
+
+# Pulled in by sys-apps/texinfo, contains only an info file, which
+# will get masked anyway during installation.
+app-doc/info-manual-9999
