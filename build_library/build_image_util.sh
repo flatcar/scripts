@@ -728,6 +728,17 @@ EOF
     sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/etc
   fi
 
+  # Temporary hack: set group ownership of /etc/{g,}shadow to the
+  # shadow group, that way unix_chkpwd, chage and expiry can act on
+  # those files.
+  #
+  # This permissions setting should likely be done in some ebuild, but
+  # currently files in /usr/share/baselayout are installed by the
+  # baselayout package, we don't want to add more deps to it.
+  sudo chgrp \
+      --reference="${root_fs_dir}/usr/bin/chage" \
+      "${root_fs_dir}"/{etc,usr/share/baselayout}/{g,}shadow
+
   # Backup the /etc contents to /usr/share/flatcar/etc to serve as
   # source for creating missing files. Make sure that the preexisting
   # /usr/share/flatcar/etc does not have any meaningful (non-empty)
