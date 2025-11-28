@@ -8,7 +8,7 @@ if [[ "${PV}" == 9999 ]]; then
 	inherit git-r3
 	KEYWORDS="~amd64 ~arm64"
 else
-	EGIT_COMMIT="ffce3a727a152a5f627063325acda62ba3c9463f" # flatcar-master
+	EGIT_COMMIT="b6bcb70019f3dfefeb58c585aed3fae73368e4f4" # krnowak/shadow
 	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
 	KEYWORDS="amd64 arm64"
