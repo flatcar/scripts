@@ -88,6 +88,43 @@ if ! grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
     fi
 fi
 
+# Ensure sysext signing keys exist; regenerate if directory or files missing
+if grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc; then
+    _existing_sysext_dir=$(source /home/sdk/.bashrc 2>/dev/null; echo "$SYSEXT_SIGNING_KEY_DIR")
+    if [[ -z "$_existing_sysext_dir" || ! -d "$_existing_sysext_dir" || ! -s "$_existing_sysext_dir/sysexts.key" || ! -s "$_existing_sysext_dir/sysexts.crt" ]]; then
+        # Drop stale export so block below regenerates
+        sed -i -e '/export SYSEXT_SIGNING_KEY_DIR=/d' /home/sdk/.bashrc
+    fi
+fi
+grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
+    if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+        SYSEXT_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+    else
+        SYSEXT_SIGNING_KEY_DIR="/home/sdk/.sysext-signing-keys"
+        su sdk -c "mkdir -p ${SYSEXT_SIGNING_KEY_DIR@Q}"
+    fi
+    if [[ ! "$SYSEXT_SIGNING_KEY_DIR" || ! -d "$SYSEXT_SIGNING_KEY_DIR" ]]; then
+        echo "Failed to create directory for sysext signing keys."
+    else
+        echo "export SYSEXT_SIGNING_KEY_DIR='$SYSEXT_SIGNING_KEY_DIR'" >> /home/sdk/.bashrc
+    fi
+    pushd "$SYSEXT_SIGNING_KEY_DIR" > /dev/null
+    build_id=$(source "/mnt/host/source/.repo/manifests/version.txt"; echo "$FLATCAR_BUILD_ID")
+    # Generate sysext signing key only if missing or empty
+    if [[ ! -s sysexts.key || ! -s sysexts.crt ]]; then
+      su sdk -c "openssl req -new -nodes -utf8 \
+        -x509 -batch -sha256 \
+        -days 36000 \
+        -outform PEM \
+        -out sysexts.crt \
+        -keyout sysexts.key \
+        -newkey 4096 \
+        -subj '/CN=Flatcar sysext key/OU=$build_id'" \
+          || echo "Generating sysext signing key failed"
+    fi
+    popd > /dev/null
+}
+
 # This is ugly.
 #   We need to sudo su - sdk -c so the SDK user gets a fresh login.
 #    'sdk' is member of multiple groups, and plain docker USER only
