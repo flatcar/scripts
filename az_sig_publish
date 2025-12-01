@@ -1,0 +1,194 @@
+#!/bin/bash
+
+# Copyright (c) 2024-2025 The Flatcar Maintainers.
+# Use of this source code is governed by the Apache 2.0 license.
+
+# Script to publish Flatcar images to Azure Shared Galley Images
+
+# Set defaults for environment variables (allow override via --env or directly in script)
+AZURE_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-3be1ff13-7eef-458c-b1ef-97a01af1b2f4}"
+IMAGE_PUBLISHER_NAME="${IMAGE_PUBLISHER_NAME:-flatcar}"
+AZURE_LOCATION="${AZURE_LOCATION:-westeurope}"
+SIG_RESOURCE_GROUP="${STAGING_SIG_RESOURCE_GROUP:-sayan-flatcar-image-gallery-staging}"
+
+FLATCAR_GALLERY_NAME="${FLATCAR_STAGING_GALLERY_NAME:-sayan_flatcar_staging}"
+FLATCAR_IMAGE_NAME="${FLATCAR_IMAGE_NAME:-"flatcar-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}"}"
+FLATCAR_CHANNEL="${FLATCAR_CHANNEL:-developer}"
+FLATCAR_VERSION="${FLATCAR_VERSION:-3374.2.1}"
+FLATCAR_ARCH="${FLATCAR_ARCH:-amd64}"
+FLATCAR_LOCAL_FILE_NAME="${FLATCAR_LOCAL_FILE_NAME:-flatcar_production_azure_image.vhd}"
+FLATCAR_LOCAL_FILE_URL="${FLATCAR_LOCAL_FILE_URL:-}"
+FLATCAR_IMAGE_OFFER="${FLATCAR_IMAGE_OFFER:-${FLATCAR_CHANNEL}}"
+
+FLATCAR_GALLERY_IMAGE_NAME="${FLATCAR_GALLERY_IMAGE_NAME:-"flatcar-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}"}"
+FLATCAR_GALLERY_VERSION="${FLATCAR_GALLERY_VERSION:-3374.2.9999}"
+
+VHD_STORAGE_ACCOUNT_NAME="${VHD_STORAGE_ACCOUNT_NAME:-flatcar}"
+VHD_STORAGE_RESOURCE_GROUP_NAME="${VHD_STORAGE_RESOURCE_GROUP_NAME:-flatcar}"
+VHD_STORAGE_CONTAINER_NAME="${VHD_STORAGE_CONTAINER_NAME:-developer}"
+BLACKLISTED_TARGET_REGIONS="${BLACKLISTED_TARGET_REGIONS:-polandcentral australiacentral2 brazilsoutheast centraluseuap eastus2euap eastusstg francesouth germanynorth jioindiacentral norwaywest southafricawest switzerlandwest uaecentral brazilus southcentralusstg}"
+TARGET_REGIONS="${TARGET_REGIONS:-}"
+
+function publish-flatcar-sig-image-version-from-vhd() {
+  login
+
+  get-target-regions
+  ensure-vhd-uri-exists
+  ensure-resource-group
+  ensure-sig
+  IMAGE_OFFER="${FLATCAR_IMAGE_OFFER}" IMAGE_PUBLISHER="${IMAGE_PUBLISHER_NAME}" ensure-image-definition
+
+  STORAGE_ACCOUNT_ID="/subscriptions/${AZURE_SUBSCRIPTION_ID}/resourceGroups/${VHD_STORAGE_RESOURCE_GROUP_NAME}/providers/Microsoft.Storage/storageAccounts/${VHD_STORAGE_ACCOUNT_NAME}"
+  VHD_URI="https://${VHD_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${VHD_STORAGE_CONTAINER_NAME}/flatcar-linux-${FLATCAR_GALLERY_VERSION}-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}.vhd"
+
+  if ! sig-image-version-exists; then
+    echo "Creating SIG image version ${FLATCAR_GALLERY_VERSION}"
+    az sig image-version create \
+      --resource-group "${SIG_RESOURCE_GROUP}" \
+      --gallery-name "${FLATCAR_GALLERY_NAME}" \
+      --gallery-image-definition "${FLATCAR_GALLERY_IMAGE_NAME}" \
+      --gallery-image-version "${FLATCAR_GALLERY_VERSION}" \
+      --os-vhd-storage-account "${STORAGE_ACCOUNT_ID}" \
+      --os-vhd-uri "${VHD_URI}"
+  else
+    echo "SIG image version ${FLATCAR_GALLERY_VERSION} already exists, skipping creation"
+  fi
+
+  sig-image-version-update-regions
+}
+
+function get-target-regions() {
+  if [[ -n "${TARGET_REGIONS:-}" ]]; then
+    return 0
+  fi
+
+  echo "Fetching target regions"
+  TARGET_REGIONS=$(az account list-locations -o json | jq --args -r '[.[] | select(.metadata.regionType != "Logical") | .name] - $ARGS.positional | sort | join(" ")' ${BLACKLISTED_TARGET_REGIONS})
+}
+
+function ensure-vhd-uri-exists() {
+  EXISTS=$(az storage blob exists \
+    --account-name "${VHD_STORAGE_ACCOUNT_NAME}" \
+    --container-name "${VHD_STORAGE_CONTAINER_NAME}" \
+    --auth-mode login \
+    --name "flatcar-linux-${FLATCAR_GALLERY_VERSION}-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}.vhd" \
+    --query "exists" -o tsv)
+
+  if [[ "${EXISTS}" = "true" ]]; then
+    echo "flatcar-linux-${FLATCAR_GALLERY_VERSION}-${FLATCAR_CHANNEL}-${FLATCAR_ARCH} Blob already exists. Skipping upload."
+    return 0
+  fi
+
+  if [[ -z "${FLATCAR_LOCAL_FILE_URL:-}" ]]; then
+    echo "FLATCAR_LOCAL_FILE_URL variable is empty. Please set."
+    exit 1
+  fi
+
+  echo "Blob doesn't exist. Downloading flatcar-linux-${FLATCAR_GALLERY_VERSION}-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}"
+  # Download the VHD file (only if blob doesn't exist)
+  echo "Downloading ${FLATCAR_LOCAL_FILE_URL}..."
+  if ! curl -f -L -o "/data/${FLATCAR_LOCAL_FILE_NAME}.bz2" "${FLATCAR_LOCAL_FILE_URL}"; then
+    echo "ERROR: Download failed. Exiting"
+    exit 1
+  fi
+
+  # Decompress the file
+  echo "Decompressing ${FLATCAR_LOCAL_FILE_NAME}.bz2"
+  if ! bzip2 -d "/data/${FLATCAR_LOCAL_FILE_NAME}.bz2"; then
+    echo "ERROR: Decompression failed. Exiting"
+    exit 1
+  fi
+
+  echo "Uploading blob - flatcar-linux-${FLATCAR_GALLERY_VERSION}-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}"
+  if ! az storage blob upload \
+    --account-name "${VHD_STORAGE_ACCOUNT_NAME}" \
+    --auth-mode login \
+    --container "${VHD_STORAGE_CONTAINER_NAME}" \
+    --name "flatcar-linux-${FLATCAR_GALLERY_VERSION}-${FLATCAR_CHANNEL}-${FLATCAR_ARCH}.vhd" \
+    --file "/data/${FLATCAR_LOCAL_FILE_NAME}"; then
+    echo "ERROR: Blob upload failed. Exiting"
+    exit 1
+  fi
+}
+
+function sig-image-version-exists() {
+  if ! az sig image-version show \
+    --gallery-image-definition "${FLATCAR_GALLERY_IMAGE_NAME}" \
+    --gallery-image-version "${FLATCAR_GALLERY_VERSION}" \
+    --gallery-name "${FLATCAR_GALLERY_NAME}" \
+    --resource-group "${SIG_RESOURCE_GROUP}" \
+    --output none \
+    --only-show-errors; then
+    echo "SIG image ${SIG_RESOURCE_GROUP}/${FLATCAR_GALLERY_NAME}/${FLATCAR_GALLERY_VERSION}/${FLATCAR_GALLERY_IMAGE_NAME} does not exist"
+    return 1
+  fi
+
+  echo "SIG image ${SIG_RESOURCE_GROUP}/${FLATCAR_GALLERY_NAME}/${FLATCAR_GALLERY_VERSION}/${FLATCAR_GALLERY_IMAGE_NAME} already exists"
+  return 0
+}
+
+function sig-image-version-update-regions() {
+  echo "DEBUG: Source location: ${AZURE_LOCATION}"
+  echo "DEBUG: Target regions: ${TARGET_REGIONS}"
+  az sig image-version update \
+    --resource-group "${SIG_RESOURCE_GROUP}" \
+    --gallery-name "${FLATCAR_GALLERY_NAME}" \
+    --gallery-image-definition "${FLATCAR_GALLERY_IMAGE_NAME}" \
+    --gallery-image-version "${FLATCAR_GALLERY_VERSION}" \
+    --target-regions ${TARGET_REGIONS}
+}
+
+function ensure-image-definition() {
+  local architecture
+  case "${FLATCAR_ARCH}" in
+    amd64) architecture=x64 ;;
+    arm64) architecture=Arm64 ;;
+    *) echo "Unsupported architecture: '${FLATCAR_ARCH}'"; exit 1 ;;
+  esac
+
+  az sig image-definition create \
+    --gallery-image-definition "${FLATCAR_GALLERY_IMAGE_NAME}" \
+    --gallery-name "${FLATCAR_GALLERY_NAME}" \
+    --offer "${FLATCAR_IMAGE_OFFER}" \
+    --os-type Linux \
+    --publisher "${IMAGE_PUBLISHER_NAME}" \
+    --resource-group "${SIG_RESOURCE_GROUP}" \
+    --sku "${FLATCAR_GALLERY_IMAGE_NAME}" \
+    --architecture "${architecture}" \
+    --hyper-v-generation V2
+}
+
+function ensure-sig() {
+  az sig create \
+    --gallery-name "${FLATCAR_GALLERY_NAME}" \
+    --resource-group "${SIG_RESOURCE_GROUP}"
+}
+
+function ensure-resource-group() {
+  if ! az group show -n "${SIG_RESOURCE_GROUP}" -o none 2>/dev/null; then
+    az group create -n "${SIG_RESOURCE_GROUP}" -l "${AZURE_LOCATION}"
+  fi
+}
+
+function login() {
+  echo "Authenticating to Azure using managed identity"
+  AZURE_LOGIN_ERR_FILE=$(mktemp)
+  trap 'rm -f "$AZURE_LOGIN_ERR_FILE"' EXIT
+
+  if ! az login --identity >/dev/null 2>"$AZURE_LOGIN_ERR_FILE"; then
+    echo "Azure login failed. Error:" >&2
+    cat "$AZURE_LOGIN_ERR_FILE" >&2
+    exit 1
+  fi
+
+  echo "Azure login successful."
+  echo "Setting active subscription to ${AZURE_SUBSCRIPTION_ID}"
+  if ! az account set -s "${AZURE_SUBSCRIPTION_ID}" >/dev/null 2>&1; then
+    echo "Failed to set Azure subscription."
+    exit 1
+  fi
+  echo "Subscription set."
+}
+
+# Entrypoint
+publish-flatcar-sig-image-version-from-vhd
