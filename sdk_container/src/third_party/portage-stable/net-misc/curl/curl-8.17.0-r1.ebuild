@@ -102,7 +102,7 @@ REQUIRED_USE="
 # - https://github.com/curl/curl/pull/18820 (Deprecate OpenSSL QUIC support)
 # - https://github.com/curl/curl/issues/18336 (curl w/ OpenSSL QUIC fails to fetch Google.com)
 RDEPEND="
-	>=sys-libs/zlib-1.2.5[${MULTILIB_USEDEP}]
+	>=virtual/zlib-1.2.5:=[${MULTILIB_USEDEP}]
 	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.15.0:=[${MULTILIB_USEDEP}] )
@@ -178,6 +178,9 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 PATCHES=(
 	"${FILESDIR}/${PN}-prefix-5.patch"
 	"${FILESDIR}/${PN}-respect-cflags-3.patch"
+	"${FILESDIR}/${P}-progress-parallel.patch"
+	"${FILESDIR}/${P}-curlopt-capath.patch"
+	"${FILESDIR}/${P}-wcurl-CVE-2025-11563.patch"
 )
 
 src_prepare() {
