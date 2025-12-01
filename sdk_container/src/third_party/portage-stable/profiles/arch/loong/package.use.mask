@@ -1,6 +1,14 @@
 # Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michal Rostecki <vadorovsky@protonmail.com> (2025-11-26)
+# llvm-core/lld supports loong from 17.x.
+<=llvm-core/clang-linker-config-16 default-lld
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-11-13)
+# media-libs/libvmaf is keyworded here
+media-libs/x265 -vmaf
+
 # PPN-SD <nicolas.parlant@parhuet.fr> (2025-10-04)
 # media-libs/libemf is not keyworded here
 app-office/dia wmf
@@ -382,5 +390,6 @@ sys-libs/libxcrypt compat
 # These aren't ported to LoongArch yet
 dev-libs/libpcre jit
 www-servers/nginx pcre-jit
+www-apache/mod_security jit
 
 # End snippets taken from riscv
