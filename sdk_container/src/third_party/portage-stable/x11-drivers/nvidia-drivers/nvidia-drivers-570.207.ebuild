@@ -8,27 +8,23 @@ inherit desktop dot-a eapi9-pipestatus flag-o-matic linux-mod-r1
 inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
 MODULES_KERNEL_MAX=6.17
-NV_PIN=580.95.05
+NV_URI="https://download.nvidia.com/XFree86/"
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
-HOMEPAGE="https://developer.nvidia.com/vulkan-driver/"
+HOMEPAGE="https://www.nvidia.com/"
 SRC_URI="
-	https://developer.nvidia.com/downloads/vulkan-beta-${PV//.}-linux
-		-> NVIDIA-Linux-x86_64-${PV}.run
-	$(printf "https://download.nvidia.com/XFree86/%s/%s-${NV_PIN}.tar.bz2 " \
+	amd64? ( ${NV_URI}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
+	arm64? ( ${NV_URI}Linux-aarch64/${PV}/NVIDIA-Linux-aarch64-${PV}.run )
+	$(printf "${NV_URI}%s/%s-${PV}.tar.bz2 " \
 		nvidia-{installer,modprobe,persistenced,settings,xconfig}{,})
-	https://github.com/NVIDIA/open-gpu-kernel-modules/archive/refs/tags/${PV}.tar.gz
-		-> open-gpu-kernel-modules-${PV}.tar.gz
+	${NV_URI}NVIDIA-kernel-module-source/NVIDIA-kernel-module-source-${PV}.tar.xz
 "
 # nvidia-installer is unused but here for GPL-2's "distribute sources"
 S=${WORKDIR}
 
-LICENSE="
-	NVIDIA-2025 Apache-2.0 Boost-1.0 BSD BSD-2 GPL-2 MIT ZLIB
-	curl openssl public-domain
-"
-SLOT="0/vulkan"
-KEYWORDS="-* ~amd64"
+LICENSE="NVIDIA-2025 Apache-2.0 BSD BSD-2 GPL-2 MIT ZLIB curl openssl"
+SLOT="0/${PV%%.*}"
+KEYWORDS="-* ~amd64 ~arm64"
 IUSE="+X abi_x86_32 abi_x86_64 kernel-open persistenced powerd +static-libs +tools wayland"
 REQUIRED_USE="kernel-open? ( modules )"
 
@@ -90,7 +86,6 @@ DEPEND="
 	)
 "
 BDEPEND="
-	app-alternatives/awk
 	sys-devel/m4
 	virtual/pkgconfig
 "
@@ -155,11 +150,11 @@ pkg_setup() {
 
 src_prepare() {
 	# make patches usable across versions
-	rm nvidia-modprobe && mv nvidia-modprobe{-${NV_PIN},} || die
-	rm nvidia-persistenced && mv nvidia-persistenced{-${NV_PIN},} || die
-	rm nvidia-settings && mv nvidia-settings{-${NV_PIN},} || die
-	rm nvidia-xconfig && mv nvidia-xconfig{-${NV_PIN},} || die
-	mv open-gpu-kernel-modules-${PV} kernel-module-source || die
+	rm nvidia-modprobe && mv nvidia-modprobe{-${PV},} || die
+	rm nvidia-persistenced && mv nvidia-persistenced{-${PV},} || die
+	rm nvidia-settings && mv nvidia-settings{-${PV},} || die
+	rm nvidia-xconfig && mv nvidia-xconfig{-${PV},} || die
+	mv NVIDIA-kernel-module-source-${PV} kernel-module-source || die
 
 	default
 
@@ -286,7 +281,7 @@ src_install() {
 	local skip_modules=(
 		$(usev !X "nvfbc vdpau xdriver")
 		$(usev !modules gsp)
-		$(usev !powerd nvtopps)
+		$(usev !powerd powerd)
 		installer nvpd # handled separately / built from source
 	)
 	local skip_types=(
@@ -542,7 +537,7 @@ pkg_postinst() {
 
 	if [[ -r /proc/driver/nvidia/version &&
 		$(</proc/driver/nvidia/version) != *"  ${PV}  "* ]]; then
-		ewarn "Currently loaded NVIDIA modules do not match the newly installed"
+		ewarn "\nCurrently loaded NVIDIA modules do not match the newly installed"
 		ewarn "libraries and may prevent launching GPU-accelerated applications."
 		if use modules; then
 			ewarn "Easiest way to fix this is normally to reboot. If still run into issues"
@@ -553,16 +548,14 @@ pkg_postinst() {
 	fi
 
 	if [[ $(</proc/cmdline) == *slub_debug=[!-]* ]]; then
-		ewarn "Detected that the current kernel command line is using 'slub_debug=',"
+		ewarn "\nDetected that the current kernel command line is using 'slub_debug=',"
 		ewarn "this may lead to system instability/freezes with this version of"
 		ewarn "${PN}. Bug: https://bugs.gentoo.org/796329"
 	fi
 
 	if [[ -v NV_LEGACY_MASK ]]; then
-		ewarn
-		ewarn "***WARNING***"
-		ewarn
-		ewarn "You are installing a version of ${PN} known not to work"
+		ewarn "\n***WARNING***"
+		ewarn "\nYou are installing a version of ${PN} known not to work"
 		ewarn "with a GPU of the current system. If unwanted, add the mask:"
 		if [[ -d ${EROOT}/etc/portage/package.mask ]]; then
 			ewarn "  echo '${NV_LEGACY_MASK}' > ${EROOT}/etc/portage/package.mask/${PN}"
@@ -576,15 +569,13 @@ pkg_postinst() {
 	fi
 
 	if use kernel-open && [[ ! -v NV_HAD_KERNEL_OPEN ]]; then
-		ewarn
-		ewarn "Open source variant of ${PN} was selected, note that it requires"
+		ewarn "\nOpen source variant of ${PN} was selected, note that it requires"
 		ewarn "Turing/Ampere+ GPUs (aka GTX 1650+). Try disabling if run into issues."
 		ewarn "Also see: ${EROOT}/usr/share/doc/${PF}/html/kernel_open.html"
 	fi
 
 	if use wayland && use modules && [[ ! -v NV_HAD_WAYLAND ]]; then
-		elog
-		elog "Note that with USE=wayland, nvidia-drm.modeset=1 will be enabled"
+		elog "\nNote that with USE=wayland, nvidia-drm.modeset=1 will be enabled"
 		elog "in '${EROOT}/etc/modprobe.d/nvidia.conf'. *If* experience issues,"
 		elog "either disable wayland or edit nvidia.conf."
 	fi
