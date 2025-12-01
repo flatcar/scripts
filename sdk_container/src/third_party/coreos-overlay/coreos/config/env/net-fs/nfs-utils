@@ -1,7 +1,4 @@
-nfs_utils_install_mask=" /etc/exports /etc/exports.d "
-INSTALL_MASK+=${nfs_utils_install_mask}
-PKG_INSTALL_MASK+=${nfs_utils_install_mask}
-unset nfs_utils_install_mask
+INSTALL_MASK+=" /etc/exports /etc/exports.d "
 
 cros_post_src_install_nfs_utils_flatcar_modifications() {
     (

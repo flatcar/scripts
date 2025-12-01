@@ -1,0 +1,35 @@
+From e8dd05237ac4a454a5b6c89be895f0d17540efc2 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Fri, 24 Oct 2025 11:06:57 +0200
+Subject: [PATCH 6/6] units: Make multi-user.target the default target
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ units/meson.build | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/units/meson.build b/units/meson.build
+index ef18dcae4a..887231840f 100644
+--- a/units/meson.build
++++ b/units/meson.build
+@@ -46,7 +46,7 @@ units = [
+         },
+         {
+           'file' : 'graphical.target',
+-          'symlinks' : ['default.target'] + (with_runlevels ? ['runlevel5.target'] : []),
++          'symlinks' : with_runlevels ? ['runlevel5.target'] : [],
+         },
+         { 'file' : 'halt.target' },
+         {
+@@ -140,7 +140,7 @@ units = [
+         { 'file' : 'modprobe@.service' },
+         {
+           'file' : 'multi-user.target',
+-          'symlinks' : with_runlevels ? ['runlevel2.target', 'runlevel3.target', 'runlevel4.target'] : [],
++          'symlinks' : ['default.target'] + (with_runlevels ? ['runlevel2.target', 'runlevel3.target', 'runlevel4.target'] : []),
+         },
+         { 'file' : 'network-online.target' },
+         { 'file' : 'network-pre.target' },
+-- 
+2.51.0
+
