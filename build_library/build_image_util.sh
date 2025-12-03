@@ -735,7 +735,7 @@ EOF
   # This permissions setting should likely be done in some ebuild, but
   # currently files in /usr/share/baselayout are installed by the
   # baselayout package, we don't want to add more deps to it.
-  chgrp \
+  sudo chgrp \
       --reference="${root_fs_dir}/usr/bin/chage" \
       "${root_fs_dir}"/{etc,usr/share/baselayout}/{g,}shadow
 
