@@ -61,10 +61,7 @@ if [[ -n "${FLAGS_dev_builds_sdk}" ]]; then
   FLATCAR_DEV_BUILDS_SDK="${FLAGS_dev_builds_sdk}"
 fi
 
-PORTAGE_STABLE_OVERLAY="${REPO_ROOT}/src/third_party/portage-stable"
 CROSSDEV_OVERLAY="/usr/local/portage/crossdev"
-COREOS_OVERLAY="${REPO_ROOT}/src/third_party/coreos-overlay"
-COREOS_CONFIG="${COREOS_OVERLAY}/coreos/config"
 PORTAGE_BINHOST="$FLAGS_binhost $(get_sdk_binhost)"
 
 # PORTAGE_USERNAME may already be in the env but set just to be safe.
@@ -103,17 +100,24 @@ EMERGE_DEFAULT_OPTS="--verbose --oneshot"
 source "/etc/portage/make.conf.user"
 EOF
 
-sudo_clobber "/etc/portage/repos.conf/portage-stable.conf" <<EOF
+for REPO_NAME in $(cat "${REPO_ROOT}"/src/third_party/*/profiles/repo_name); do
+  [[ ${REPO_NAME} == prefix ]] && continue # Ignore for now.
+
+  for CONF in "${REPO_ROOT}/src/third_party/${REPO_NAME}"/coreos/config/portage/*; do
+    [[ ${CONF} == *.md || ! -e ${CONF} ]] && continue
+    sudo mkdir -p "/etc/portage/${CONF##*/}"
+    sudo ln -snf "${CONF}" "/etc/portage/${CONF##*/}/${REPO_NAME}.conf"
+  done
+
+  sudo_clobber "/etc/portage/repos.conf/${REPO_NAME}.conf" <<EOF
+[${REPO_NAME}]
+location = ${REPO_ROOT}/src/third_party/${REPO_NAME}
+EOF
+done
+
+sudo_append "/etc/portage/repos.conf/portage-stable.conf" <<EOF
 [DEFAULT]
 main-repo = portage-stable
-
-[portage-stable]
-location = ${PORTAGE_STABLE_OVERLAY}
-EOF
-
-sudo_clobber "/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
-[coreos-overlay]
-location = ${COREOS_OVERLAY}
 EOF
 
 # Automatically symlink any provided portage repo configurations into
