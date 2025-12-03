@@ -29,6 +29,7 @@ acct-group/portage
 acct-group/render
 acct-group/root
 acct-group/sgx
+acct-group/shadow
 acct-group/sshd
 acct-group/systemd-coredump
 acct-group/systemd-journal
@@ -246,6 +247,7 @@ dev-libs/gmp
 dev-libs/gobject-introspection-common
 dev-libs/inih
 dev-libs/jansson
+dev-libs/jose
 dev-libs/json-c
 dev-libs/jsoncpp
 dev-libs/libaio
