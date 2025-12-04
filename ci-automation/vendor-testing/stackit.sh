@@ -34,7 +34,7 @@ timeout --signal=SIGQUIT 2h kola run \
   --platform=stackit \
   --stackit-service-account-key-path=<(echo "${STACKIT_SERVICE_ACCOUNT}" | base64 --decode) \
   --stackit-project-id="${STACKIT_PROJECT_ID}" \
-  --stackit-image-id="${STACKIT_IMAGE_ID}" \
+  --stackit-image-id="${IMAGE_ID}" \
   --image-version "${CIA_VERNUM}" \
   "${@}"
 
