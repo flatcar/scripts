@@ -11,8 +11,13 @@ ETYPE="sources"
 K_BASE_VER="5.15"
 
 inherit kernel-2
-EXTRAVERSION="-flatcar"
 detect_version
+
+# Replace the -coreos suffix with -flatcar. Don't simply reset the whole
+# variable because it may have additional numbers before the suffix. This
+# doesn't affect the sources directory, which is still suffixed with -coreos,
+# but it does affect the Makefile that is used in the build.
+EXTRAVERSION="${EXTRAVERSION/-coreos/-flatcar}"
 
 DESCRIPTION="Full sources for the CoreOS Linux kernel"
 HOMEPAGE="http://www.kernel.org"

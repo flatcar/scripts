@@ -56,14 +56,10 @@ DEPEND="
 "
 
 src_prepare() {
-	# Fail early if we didn't detect the build installed by coreos-modules
-	[[ -n "${KV_OUT_DIR}" ]] || die "Failed to detect modules build tree"
-
 	default
 
 	# KV_OUT_DIR points to the minimal build tree installed by coreos-modules
 	# Pull in the config and public module signing key
-	KV_OUT_DIR="${ESYSROOT}/lib/modules/${COREOS_SOURCE_NAME#linux-}/build"
 	cp -v "${KV_OUT_DIR}/.config" build/ || die
 	validate_sig_key
 

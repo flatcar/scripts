@@ -51,7 +51,7 @@ src_install() {
 	# Replace the broken /lib/modules/${KV_FULL}/build symlink with a copy of
 	# the files needed to build out-of-tree modules.
 	rm "${ED}/usr/${build}" || die
-	kmake run-command KBUILD_RUN_COMMAND="${KERNEL_DIR}/scripts/package/install-extmod-build ${ED}/usr/${build}"
+	kmake run-command KBUILD_RUN_COMMAND="${KV_DIR}/scripts/package/install-extmod-build ${ED}/usr/${build}"
 
 	# Install the original config because the above doesn't.
 	insinto "/usr/${build}"
