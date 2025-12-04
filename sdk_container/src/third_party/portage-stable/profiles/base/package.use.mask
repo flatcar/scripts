@@ -32,10 +32,6 @@ mail-mta/exim pam
 <=dev-games/openscenegraph-3.6.5-r117 las
 <=dev-games/openscenegraph-openmw-3.6_p20251012 las
 
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-10-03)
-# No suitable versions of dev-libs/protobuf available.
-~dev-java/protobuf-java-4.32.1 system-protoc
-
 # Michał Górny <mgorny@gentoo.org> (2025-09-27)
 # Building NumPy with ILP64 LAPACK can cause revdeps to segfault if they
 # link to LP64 LAPACK.  To support this properly, we either need to
@@ -219,10 +215,6 @@ dev-libs/elfutils stacktrace
 # Leads to missing symbols while building testcases
 # Masked for further testing.
 dev-cpp/gtest abseil
-
-# Yongxiang Liang <tanekliang@gmail.com> (2024-10-10)
-# Fcitx 4 has been archived.
-app-i18n/mozc fcitx4
 
 # Michael Orlitzky <mjo@gentoo.org> (2024-10-07)
 # Disable "webservices" support for gthumb because it pulls in the old
@@ -508,8 +500,13 @@ gnome-base/gnome-extra-apps tracker
 # USE=compat / possibly allowing sys-libs/zlib needs to be figured out,
 # but packages want to use the actual zlib-ng library, so we need to
 # mask it and can't hold the whole thing up on the compat effort.
-sys-libs/zlib-ng compat
-sys-libs/minizip-ng compat
+#
+# Michał Górny <mgorny@gentoo.org> (2025-11-04)
+# Unmasking on the revbumped versions that install both the compat
+# library and the regular zlib-ng/minizip-ng library for dependency
+# compatibility.
+<sys-libs/zlib-ng-2.2.5-r1 compat
+<sys-libs/minizip-ng-4.0.10-r1 compat
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2022-09-17)
 # po4a crashes while translating
@@ -799,10 +796,6 @@ net-libs/ngtcp2 openssl
 # PGO not yet supported for comm-central, bug #693160
 >=mail-client/thunderbird-68 pgo
 
-# Matt Turner <mattst88@gentoo.org> (2019-09-01)
-# <dev-scheme/guile-2 is package.mask'd
-www-client/elinks guile
-
 # Kent Fredric <kentnl@gentoo.org> (2019-08-07)
 # Newer versions of nqp need newer versions of jdk to run on the jvm,
 # but these currently don't exist in gentoo. The USE flags have to be
@@ -968,10 +961,6 @@ media-libs/libsdl2 custom-cflags
 # Bernard Cafarelli <voyageur@gentoo.org> (2013-04-04)
 # Broken for now (segmentation fault on play)
 gnustep-apps/cynthiune flac
-
-# Tom Wijsman <TomWij@gentoo.org> (2013-03-10)
-# Experimental, masked until it compiles and works.
-media-libs/avidemux-core system-ffmpeg
 
 # Jory A. Pratt <anarchy@gentoo.org> (2012-12-15)
 # PGO is known to be busted with most configurations

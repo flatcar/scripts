@@ -121,10 +121,6 @@ dev-python/pyside -webview
 # Dependencies e.g. pypy keyworded (not stable) here.
 dev-build/meson -test-full
 
-# Sv. Lockal <lockalsash@gmail.com> (2025-01-11)
-# dev-cpp/prometheus-cpp is not keyworded
-dev-cpp/opentelemetry-cpp prometheus
-
 # Michał Górny <mgorny@gentoo.org> (2024-12-24)
 # OpenMP offloading is supported on 64-bit architectures only.
 llvm-runtimes/clang-runtime -offload
@@ -274,11 +270,6 @@ app-metrics/collectd collectd_plugins_varnish
 # Matt Turner <mattst88@gentoo.org> (2022-04-18)
 # app-text/nuspell is not keyworded
 app-text/enchant nuspell
-
-# Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
-# Untested useflag on other arches, needs keywording
-media-video/ffmpeg vmaf
-media-video/ffmpeg-compat vmaf
 
 # Sam James <sam@gentoo.org> (2022-02-26)
 # Supports 64-bit NEON
