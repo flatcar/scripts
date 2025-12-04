@@ -25,6 +25,7 @@ IMAGE_ID=$(ore stackit \
   --stackit-service-account-key-path=<(echo "${STACKIT_SERVICE_ACCOUNT}" | base64 --decode) \
   --stackit-project-id="${STACKIT_PROJECT_ID}" \
   create-image \
+  --board="${CIA_ARCH}-usr" \
   --name "${kola_test_basename}" \
   --file="${STACKIT_IMAGE_NAME}"
 )
