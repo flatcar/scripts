@@ -10,6 +10,12 @@ set -euo pipefail
 
 source ci-automation/vendor_test.sh
 
+stackit_instance_type_var="STACKIT_${CIA_ARCH}_INSTANCE_TYPE"
+stackit_instance_type="${!stackit_instance_type_var}"
+
+stackit_location_var="STACKIT_${CIA_ARCH}_LOCATION"
+stackit_location="${!stackit_location_var}"
+
 copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${STACKIT_IMAGE_NAME}" .
 
 kola_test_basename="ci-${CIA_VERNUM//[+.]/-}"
@@ -35,6 +41,8 @@ timeout --signal=SIGQUIT 2h kola run \
   --stackit-service-account-key-path=<(echo "${STACKIT_SERVICE_ACCOUNT}" | base64 --decode) \
   --stackit-project-id="${STACKIT_PROJECT_ID}" \
   --stackit-image-id="${IMAGE_ID}" \
+  --stackit-type="${stackit_instance_type}" \
+  --stackit-availability-zone="${stackit_location}" \
   --image-version "${CIA_VERNUM}" \
   "${@}"
 
