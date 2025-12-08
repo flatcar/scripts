@@ -11,10 +11,10 @@ inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
 REAL_PV=${PV#0.}
-MY_PV=${REAL_PV/_/}
+MY_PV=${REAL_PV}
 MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 2-3)t"
-PATCHSET="python-gentoo-patches-${MY_PV}_p1"
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="Freethreading (no-GIL) version of Python programming language"
 HOMEPAGE="
@@ -53,7 +53,7 @@ RDEPEND="
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
-	>=sys-libs/zlib-1.1.3:=
+	>=virtual/zlib-1.1.3:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	kernel_linux? ( sys-apps/util-linux:= )
@@ -86,6 +86,12 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
+	tail-call-interp? (
+		|| (
+			>=sys-devel/gcc-15:*
+			>=llvm-core/clang-19:*
+		)
+	)
 "
 if [[ ${PV} != *_alpha* ]]; then
 	RDEPEND+="
@@ -128,6 +134,10 @@ pkg_setup() {
 				CONFIG_CHECK+="~${f} "
 			done
 			linux-info_pkg_setup
+		fi
+		if use tail-call-interp; then
+			tc-check-min_ver gcc 15
+			tc-check-min_ver clang 19
 		fi
 	fi
 }
@@ -350,6 +360,10 @@ src_configure() {
 			# Hangs (actually runs indefinitely executing itself w/ many cpython builds)
 			# bug #900429
 			-x test_tools
+
+			# Test terminates abruptly which corrupts written profile data
+			# bug #964023
+			-x test_pyrepl
 		)
 
 		if has_version "app-arch/rpm" ; then
@@ -608,7 +622,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	if ver_replacing -lt 3.14.0_beta3; then
+	if ver_replacing -lt 0.3.14.0_beta3; then
 		ewarn "Python 3.14.0b3 has changed its module ABI.  The .pyc files"
 		ewarn "installed previously are no longer valid and will be regenerated"
 		ewarn "(or ignored) on the next import.  This may cause sandbox failures"
