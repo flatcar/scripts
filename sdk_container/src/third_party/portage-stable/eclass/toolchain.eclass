@@ -16,6 +16,7 @@ _TOOLCHAIN_ECLASS=1
 
 RUST_OPTIONAL="1"
 
+# See tc_version_is_at_least below wrt old EAPIs vs old GCCs.
 case ${EAPI} in
 	8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
@@ -263,6 +264,10 @@ fi
 # Require minimum gcc version to simplify assumptions.
 # Normally we would require gcc-6+ (based on sys-devel/gcc)
 # but we still have sys-devel/gcc-apple-4.2.1_p5666.
+#
+# Older GCC support lives in toolchain-legacy.eclass in the toolchain
+# repository at https://gitweb.gentoo.org/proj/toolchain.git/. Patches
+# welcome!
 tc_version_is_at_least 8 || die "${ECLASS}: ${GCC_RELEASE_VER} is too old."
 
 PREFIX=${TOOLCHAIN_PREFIX:-${EPREFIX}/usr}
@@ -341,6 +346,7 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	tc_version_is_at_least 13.3.1_p20250522 ${PV} && IUSE+=" time64"
 	tc_version_is_at_least 15.1 ${PV} && IUSE+=" libgdiagnostics"
 	tc_version_is_at_least 15.1 ${PV} && IUSE+=" cobol" TC_FEATURES+=( cobol )
+	tc_version_is_at_least 16.0.0_p20251130 ${PV} && IUSE+=" algol68"
 fi
 
 if tc_version_is_at_least 10; then
@@ -354,7 +360,7 @@ fi
 #---->> DEPEND <<----
 
 RDEPEND="
-	sys-libs/zlib
+	virtual/zlib:=
 	virtual/libiconv
 	nls? ( virtual/libintl )
 "
@@ -418,7 +424,7 @@ if tc_has_feature zstd ; then
 fi
 
 if tc_has_feature valgrind ; then
-	BDEPEND+=" valgrind? ( dev-debug/valgrind )"
+	DEPEND+=" valgrind? ( dev-debug/valgrind )"
 fi
 
 if [[ ${PN} != gnat-gpl ]] && tc_has_feature ada ; then
@@ -426,9 +432,8 @@ if [[ ${PN} != gnat-gpl ]] && tc_has_feature ada ; then
 		BDEPEND+="
 			ada? (
 				|| (
-					<sys-devel/gcc-${SLOT}[ada]
+					<sys-devel/gcc-$((${SLOT} + 1))[ada]
 					<dev-lang/ada-bootstrap-$((${SLOT} + 1))
-					sys-devel/gcc:${SLOT}[ada]
 				)
 			)
 		"
@@ -451,7 +456,7 @@ if tc_has_feature d && tc_version_is_at_least 12.0 ; then
 	# D in 12+ is self-hosting and needs D to bootstrap.
 	# TODO: package some binary we can use, like for Ada
 	# bug #840182
-	BDEPEND+=" d? ( || ( <sys-devel/gcc-${SLOT}[d(-)] <sys-devel/gcc-12[d(-)] sys-devel/gcc:${SLOT}[d(-)] ) )"
+	BDEPEND+=" d? ( || ( <sys-devel/gcc-$((${SLOT} + 1))[d(-)] sys-devel/gcc:11 ) )"
 fi
 
 if tc_has_feature rust && tc_version_is_at_least 14.1 ; then
@@ -468,7 +473,7 @@ PDEPEND=">=sys-devel/gcc-config-2.11"
 # @DESCRIPTION:
 # Used to override compression used for for patchsets.
 # Default is xz for EAPI 8+.
-	: "${TOOLCHAIN_PATCH_SUFFIX:=xz}"
+: "${TOOLCHAIN_PATCH_SUFFIX:=xz}"
 
 # @ECLASS_VARIABLE: TOOLCHAIN_SET_S
 # @DESCRIPTION:
@@ -1297,6 +1302,7 @@ toolchain_src_configure() {
 	is_f95 && GCC_LANG+=",f95"
 	is_ada && GCC_LANG+=",ada"
 	is_cobol && GCC_LANG+=",cobol"
+	is_algol68 && GCC_LANG+=",algol68"
 	is_modula2 && GCC_LANG+=",m2"
 	is_rust && GCC_LANG+=",rust"
 	is_jit && GCC_LANG+=",jit"
@@ -1791,6 +1797,16 @@ toolchain_src_configure() {
 
 	if in_iuse valgrind ; then
 		confgcc+=( $(use_enable valgrind valgrind-annotations) )
+
+		# We patch this in w/ PR66487-object-lifetime-instrumentation-for-Valgrind.patch,
+		# so it may not always be available.
+		if grep -q -- '--enable-valgrind-interop' "${S}"/libgcc/configure.ac ; then
+			if ! is_crosscompile || $(tc-getCPP ${CTARGET}) -E - <<<"#include <valgrind/memcheck.h>" >& /dev/null ; then
+				confgcc+=( $(use_enable valgrind valgrind-interop) )
+			else
+				confgcc+=( --disable-valgrind-interop )
+			fi
+		fi
 	fi
 
 	if in_iuse vtv ; then
@@ -1883,7 +1899,7 @@ toolchain_src_configure() {
 		confgcc+=( --enable-host-shared )
 	fi
 
-	if tc_version_is_at_least 15.1 ${PV} ; then
+	if tc_version_is_at_least 15.1 ${PV} && _tc_use_if_iuse libgdiagnostics ; then
 		confgcc+=( $(use_enable libgdiagnostics) )
 	fi
 
@@ -2139,6 +2155,8 @@ gcc_do_filter_flags() {
 
 	# Avoid shooting self in foot
 	filter-flags '-mabi*' -m31 -m32 -m64
+	# gcc will try to find libgomp.spec, which may not exist yet (bug #966882)
+	filter-flags -fopenmp
 
 	# bug #490738
 	filter-flags -frecord-gcc-switches
@@ -2272,7 +2290,7 @@ gcc_do_make() {
 			ewarn "This is NOT a safe configuration for end users!"
 			ewarn "This compiler may not be safe or reliable for production use!"
 		elif _tc_use_if_iuse pgo; then
-			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-profiledbootstrap}
+			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-profiledbootstrap-lean}
 		else
 			GCC_MAKE_TARGET=${GCC_MAKE_TARGET-bootstrap-lean}
 		fi
@@ -2589,7 +2607,7 @@ toolchain_src_install() {
 	cd "${D}"${BINPATH} || die
 	# Ugh: we really need to auto-detect this list.
 	#      It's constantly out of date.
-	for x in cpp gcc gccrs g++ c++ gcobol gcov gdc g77 gfortran gccgo gnat* ; do
+	for x in cpp gcc gccrs g++ c++ ga68 gcobol gcov gdc g77 gfortran gccgo gnat* ; do
 		# For some reason, g77 gets made instead of ${CTARGET}-g77...
 		# this should take care of that
 		if [[ -f ${x} ]] ; then
@@ -3148,6 +3166,11 @@ is_objcxx() {
 is_cobol() {
 	gcc-lang-supported cobol || return 1
 	_tc_use_if_iuse cobol
+}
+
+is_algol68() {
+	gcc-lang-supported algol68 || return 1
+	_tc_use_if_iuse algol68
 }
 
 is_modula2() {
