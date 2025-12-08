@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
 DISTUTILS_USE_PEP517=setuptools
 
 inherit shell-completion edo distutils-r1 flag-o-matic toolchain-funcs
@@ -29,11 +29,15 @@ else
 		verify-sig? ( https://github.com/mesonbuild/meson/releases/download/${MY_PV}/${MY_P}.tar.gz.asc )
 		https://github.com/mesonbuild/meson/releases/download/${MY_PV}/meson-reference.3 -> meson-reference-${MY_PV}.3
 	"
-	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-jpakkane )"
+	# Releases may be signed by those listed in Releasing.md. Jussi
+	# remains the default release manager.
+	# https://github.com/mesonbuild/meson/commit/c2d795735fa1c46c54d6aed4d4a30f36a1f853cb
+	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-eschwartz-20250723-r1 sec-keys/openpgp-keys-jpakkane )"
+	#VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/eschwartz.asc
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/jpakkane.gpg
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 fi
 
@@ -75,7 +79,7 @@ DEPEND="
 		media-libs/libsdl2
 		media-libs/libwmf
 		net-libs/libpcap
-		sci-libs/hdf5[fortran]
+		sci-libs/hdf5[cxx,fortran]
 		sci-libs/netcdf
 		sys-cluster/openmpi[fortran]
 		sys-devel/bison
@@ -84,6 +88,7 @@ DEPEND="
 		dev-qt/linguist-tools:5
 		dev-qt/qtwidgets:5
 		dev-qt/qtbase:6[gui,widgets]
+		dev-qt/qtdeclarative:6
 		dev-qt/qttools:6
 		dev-util/gdbus-codegen
 		x11-libs/gtk+:3
@@ -115,6 +120,8 @@ python_prepare_all() {
 		# ASAN and sandbox both want control over LD_PRELOAD
 		# https://bugs.gentoo.org/673016
 		-e 's/test_generate_gir_with_address_sanitizer/_&/'
+		-e 's/test_env_cflags_ldflags/_&/'
+		-e 's/test_c_link_args_and_env/_&/'
 
 		# ASAN is unsupported on some targets
 		# https://bugs.gentoo.org/692822
