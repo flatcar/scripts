@@ -107,3 +107,6 @@ dev-db/etcd amd64
 
 # Bump early for newer features.
 =sys-kernel/dracut-109* ~amd64 ~arm64
+
+# Use new systemd
+=sys-apps/systemd-258.2 ~amd64 ~arm64
