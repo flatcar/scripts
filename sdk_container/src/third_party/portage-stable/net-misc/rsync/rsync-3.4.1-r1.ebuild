@@ -27,7 +27,7 @@ else
 		SRC_DIR="src-previews"
 	else
 		SRC_DIR="src"
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 	fi
 
 	SRC_URI="https://rsync.samba.org/ftp/rsync/${SRC_DIR}/${P/_/}.tar.gz
@@ -37,7 +37,7 @@ fi
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="acl examples iconv lz4 rrsync ssl stunnel system-zlib xattr xxhash zstd"
+IUSE="acl examples iconv lz4 rrsync ssl stunnel system-zlib xattr +xxhash zstd"
 REQUIRED_USE+=" examples? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+=" rrsync? ( ${PYTHON_REQUIRED_USE} )"
 
