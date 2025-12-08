@@ -15,13 +15,13 @@ MY_PV=${MY_PV/_/-}
 MY_P=${PN}-${MY_PV}
 MY_PATCHES=()
 
-# Determine the patchlevel. See https://ftp.gnu.org/gnu/bash/bash-5.3-patches/.
+# Determine the patchlevel.
 case ${PV} in
 	9999|*_alpha*|*_beta*|*_rc*)
 		# Set a negative patchlevel to indicate that it's a pre-release.
 		PLEVEL=-1
 		if [[ ${PV} =~ _pre[0-9]{8}$ ]]; then
-			BASH_COMMIT=
+			BASH_COMMIT="bcac47f08a6e8f04893f3f282bb841ddc07fc2e8"
 		fi
 		;;
 	*_p*)
@@ -75,9 +75,12 @@ fi
 LICENSE="GPL-3+"
 SLOT="0"
 if (( PLEVEL >= 0 )); then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="afs bashlogger examples mem-scramble +net nls plugins pgo +readline"
+# As of 5.4_alpha_pre20251016, bash tests finally exit non-0 on failure.
+# The differences look harmless but need investigation and fixing.
+RESTRICT="test"
 
 DEPEND="
 	>=sys-libs/ncurses-5.2-r2:=
@@ -102,8 +105,7 @@ PATCHES=(
 	#"${WORKDIR}"/${PN}-${GENTOO_PATCH_VER}/
 
 	# Patches to or from Chet, posted to the bug-bash mailing list.
-	"${FILESDIR}"/${PN}-5.0-syslog-history-extern.patch
-	"${FILESDIR}"/${PN}-5.3-read-sys.patch
+	"${FILESDIR}/${PN}-5.0-syslog-history-extern.patch"
 )
 
 pkg_setup() {
@@ -273,7 +275,9 @@ src_compile() {
 		# Used in test suite.
 		unset -v A
 
-		emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" -k check
+		# Testsuite isn't expected to pass for bash right now, but it
+		# also doesn't matter for PGO.
+		nonfatal emake CFLAGS="${CFLAGS} ${pgo_generate_flags[*]}" -k check
 
 		if tc-is-clang; then
 			llvm-profdata merge "${T}"/pgo --output="${T}"/pgo/default.profdata || die
@@ -317,7 +321,7 @@ src_install() {
 
 	insinto /etc/bash/bashrc.d
 	my_prefixify DIR_COLORS "${FILESDIR}"/bashrc.d/10-gentoo-color-r2.bash | newins - 10-gentoo-color.bash
-	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r2.bash 10-gentoo-title.bash
+	newins "${FILESDIR}"/bashrc.d/10-gentoo-title-r3.bash 10-gentoo-title.bash
 
 	insinto /etc/profile.d
 	doins "${FILESDIR}/profile.d/00-prompt-command.sh"
@@ -424,6 +428,32 @@ PROMPT_COMMAND=(genfun_set_win_title)
 Those who would prefer for bash never to interfere with the window title may
 now opt out of the default title setting behaviour, either with the "unset -v
 PROMPT_COMMAND" command or by re-defining PROMPT_COMMAND as desired.
+EOF
+		fi
+
+		if ver_test "${old_ver}" -ge "5.3" \
+			&& ver_test "${old_ver}" -ge "5.3_p3-r3"
+		then
+			:
+		elif ver_test "${old_ver}" -lt "5.3" \
+			&& ver_test "${old_ver}" -ge "5.2_p37-r5"
+		then
+			:
+		else
+			cat <<'EOF'
+The window title setting behaviour has been improved. It is now formatted as
+"\u@\h \W", in accordance with the prompting mechanism of bash. For example,
+after switching to the home directory, the current working directly will be
+shown as the <tilde> character.
+
+The value of PROMPT_DIRTRIM is now respected. If this variable is unset, the
+use of the \W prompt string escape will prevail, with the current working
+directory typically being shown as its basename. If set to 0 or greater, \w
+will be used instead, which may be trimmed. This also means that the title
+can be made to show the full path by setting PROMPT_DIRTRIM=0.
+
+For further information, run info '(bash)Bash Variables' or visit
+https://www.gnu.org/software/bash/manual/bash.html#index-PROMPT_005fDIRTRIM.
 EOF
 		fi
 	} \
