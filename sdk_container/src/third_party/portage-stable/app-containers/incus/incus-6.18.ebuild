@@ -11,8 +11,8 @@ SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
 	verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
 
 LICENSE="Apache-2.0 BSD LGPL-3 MIT"
-SLOT="0/lts"
-KEYWORDS="amd64 ~arm64"
+SLOT="0/stable"
+KEYWORDS="~amd64 ~arm64"
 IUSE="apparmor fuidshift nls qemu"
 
 DEPEND="acct-group/incus
@@ -20,7 +20,7 @@ DEPEND="acct-group/incus
 	app-arch/xz-utils
 	>=app-containers/lxc-5.0.0:=[apparmor?,seccomp(+)]
 	dev-db/sqlite:3
-	>=dev-libs/cowsql-1.15.9
+	>=dev-libs/cowsql-1.15.7
 	dev-libs/lzo
 	>=dev-libs/raft-0.22.1:=[lz4]
 	>=dev-util/xdelta-3.0[lzma(+)]
@@ -45,7 +45,7 @@ RDEPEND="${DEPEND}
 		app-emulation/qemu[spice,usbredir,virtfs]
 		sys-apps/gptfdisk
 	)"
-BDEPEND=">=dev-lang/go-1.21
+BDEPEND=">=dev-lang/go-1.24.7
 	nls? ( sys-devel/gettext )
 	verify-sig? ( sec-keys/openpgp-keys-linuxcontainers )"
 
@@ -141,17 +141,24 @@ src_compile() {
 
 	ego install -v -x -tags libsqlite3 "${S}"/cmd/incusd
 
+	# Needs to be built statically
 	CGO_ENABLED=0 go install -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-migrate
 
 	# Build the VM agents, statically too
 	if use amd64 ; then
-		GOARCH=amd64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.x86_64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
-		GOARCH=386 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.i686 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
-		GOARCH=amd64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.x86_64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
-		GOARCH=386 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.i686 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=amd64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.x86_64 -v \
+			-tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=386 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.i686 -v \
+			-tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=amd64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.x86_64 -v \
+			-tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=386 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.i686 -v \
+			-tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
 	elif use arm64 ; then
-		GOARCH=arm64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.aarch64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
-		GOARCH=arm64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.aarch64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=arm64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.aarch64 -v \
+			-tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=arm64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.aarch64 -v \
+			-tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
 	else
 		echo "No VM support for this arch."
 		return
@@ -241,9 +248,9 @@ pkg_postinst() {
 	elog
 	optfeature "OCI container images support" app-containers/skopeo app-containers/umoci
 	optfeature "support for ACME certificate issuance" app-crypt/lego
+	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "ipv6 support" net-dns/dnsmasq[ipv6]
 	optfeature "full incus-migrate support" net-misc/rsync
-	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "lvm2 storage backend" sys-fs/lvm2
 	optfeature "zfs storage backend" sys-fs/zfs
 	elog
