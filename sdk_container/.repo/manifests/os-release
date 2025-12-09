@@ -1,6 +1,0 @@
-NAME="Flatcar Container Linux by Kinvolk"
-ID=flatcar
-ID_LIKE=coreos
-ANSI_COLOR="38;5;75"
-HOME_URL="https://flatcar.org/"
-BUG_REPORT_URL="https://issues.flatcar.org"
