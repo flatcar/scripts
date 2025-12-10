@@ -11,7 +11,7 @@ SCRIPT_ROOT=$(readlink -f $(dirname "$0")/..)
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # Flags
-DEFINE_string board "" "The board to build an image for."
+DEFINE_string board "${DEFAULT_BOARD}" "The board to build an image for."
 DEFINE_string root "" "The root file system to write /etc/lsb-release to."
 DEFINE_string group "" "The default update group for update_engine."
 
@@ -25,17 +25,16 @@ ROOT_FS_DIR="$FLAGS_root"
 [ -n "$ROOT_FS_DIR" ] || die "--root is required."
 [ -d "$ROOT_FS_DIR" ] || die "Root FS does not exist? ($ROOT_FS_DIR)"
 
-OS_NAME="Flatcar Container Linux by Kinvolk"
-OS_ID="flatcar"
-OS_ID_LIKE="coreos"
-OS_PRETTY_NAME="$OS_NAME $FLATCAR_VERSION"
+# These variables are set in the base profile.
+eval $("portageq-${FLAGS_board}" envvar -v BRANDING_OS_\*)
+BRANDING_OS_PRETTY_NAME="${BRANDING_OS_NAME} ${FLATCAR_VERSION}"
 
 FLATCAR_APPID="{e96281a6-d1af-4bde-9a0a-97b76e56dc57}"
 
 # DISTRIB_* are the standard lsb-release names
 sudo mkdir -p "${ROOT_FS_DIR}/usr/share/flatcar" "${ROOT_FS_DIR}/etc/flatcar"
 sudo_clobber "${ROOT_FS_DIR}/usr/share/flatcar/lsb-release" <<EOF
-DISTRIB_ID="$OS_NAME"
+DISTRIB_ID="$BRANDING_OS_NAME"
 DISTRIB_RELEASE=$FLATCAR_VERSION
 DISTRIB_DESCRIPTION="$BRANDING_OS_PRETTY_NAME"
 EOF
@@ -44,19 +43,20 @@ sudo ln -sf "../usr/share/flatcar/lsb-release" "${ROOT_FS_DIR}/etc/lsb-release"
 # And the new standard, os-release
 # https://www.freedesktop.org/software/systemd/man/os-release.html
 sudo_clobber "${ROOT_FS_DIR}/usr/lib/os-release" <<EOF
-NAME="$OS_NAME"
-ID=$OS_ID
-ID_LIKE=$OS_ID_LIKE
-VERSION=$FLATCAR_VERSION
-VERSION_ID=$FLATCAR_VERSION_ID
-BUILD_ID=$FLATCAR_BUILD_ID
-SYSEXT_LEVEL=1.0
-PRETTY_NAME="$OS_PRETTY_NAME"
+NAME="$BRANDING_OS_NAME"
+ID="$BRANDING_OS_ID"
+ID_LIKE="$BRANDING_OS_ID_LIKE"
+VERSION="$FLATCAR_VERSION"
+VERSION_ID="$FLATCAR_VERSION_ID"
+BUILD_ID="$FLATCAR_BUILD_ID"
+SYSEXT_LEVEL="1.0"
+PRETTY_NAME="$BRANDING_OS_PRETTY_NAME"
 ANSI_COLOR="38;5;75"
-HOME_URL="https://flatcar.org/"
-BUG_REPORT_URL="https://issues.flatcar.org"
+HOME_URL="$BRANDING_OS_HOME_URL"
+BUG_REPORT_URL="$BRANDING_OS_BUG_REPORT_URL"
+SUPPORT_URL="$BRANDING_OS_SUPPORT_URL"
 FLATCAR_BOARD="$FLAGS_board"
-CPE_NAME="cpe:2.3:o:${OS_ID}-linux:${OS_ID}_linux:${FLATCAR_VERSION}:*:*:*:*:*:*:*"
+CPE_NAME="cpe:2.3:o:${BRANDING_OS_ID}-linux:${BRANDING_OS_ID}_linux:${FLATCAR_VERSION}:*:*:*:*:*:*:*"
 EOF
 sudo ln -sf "../usr/lib/os-release" "${ROOT_FS_DIR}/etc/os-release"
 sudo ln -sf "../../lib/os-release" "${ROOT_FS_DIR}/usr/share/flatcar/os-release"
