@@ -26,10 +26,9 @@ ROOT_FS_DIR="$FLAGS_root"
 [ -d "$ROOT_FS_DIR" ] || die "Root FS does not exist? ($ROOT_FS_DIR)"
 
 OS_NAME="Flatcar Container Linux by Kinvolk"
-OS_CODENAME="Oklo"
 OS_ID="flatcar"
 OS_ID_LIKE="coreos"
-OS_PRETTY_NAME="$OS_NAME $FLATCAR_VERSION (${OS_CODENAME})"
+OS_PRETTY_NAME="$OS_NAME $FLATCAR_VERSION"
 
 FLATCAR_APPID="{e96281a6-d1af-4bde-9a0a-97b76e56dc57}"
 
@@ -38,8 +37,7 @@ sudo mkdir -p "${ROOT_FS_DIR}/usr/share/flatcar" "${ROOT_FS_DIR}/etc/flatcar"
 sudo_clobber "${ROOT_FS_DIR}/usr/share/flatcar/lsb-release" <<EOF
 DISTRIB_ID="$OS_NAME"
 DISTRIB_RELEASE=$FLATCAR_VERSION
-DISTRIB_CODENAME="$OS_CODENAME"
-DISTRIB_DESCRIPTION="$OS_PRETTY_NAME"
+DISTRIB_DESCRIPTION="$BRANDING_OS_PRETTY_NAME"
 EOF
 sudo ln -sf "../usr/share/flatcar/lsb-release" "${ROOT_FS_DIR}/etc/lsb-release"
 
