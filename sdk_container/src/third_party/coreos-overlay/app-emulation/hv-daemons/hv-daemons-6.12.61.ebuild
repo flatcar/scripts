@@ -1,1 +1,27 @@
-hv-daemons-9999.ebuild
+# Copyright 2025 The Flatcar Maintainers
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=8
+
+inherit coreos-kernel savedconfig systemd
+
+DESCRIPTION="HyperV guest support daemons"
+KEYWORDS="amd64 arm64"
+
+src_compile() {
+	# Build hv_vss_daemon, hv_kvp_daemon, hv_fcopy_daemon
+	kmake tools/hv
+}
+
+src_install() {
+	local -a HV_DAEMONS=(hv_vss_daemon hv_kvp_daemon hv_fcopy_daemon hv_fcopy_uio_daemon)
+	local HV_DAEMON
+	for HV_DAEMON in "${HV_DAEMONS[@]}"
+	do
+		if [ -f "${S}/build/tools/hv/${HV_DAEMON}" ]; then
+			dobin "${S}/build/tools/hv/${HV_DAEMON}"
+			systemd_dounit "${FILESDIR}/${HV_DAEMON}.service"
+			systemd_enable_service "multi-user.target" "${HV_DAEMON}.service"
+		fi
+	done
+}
