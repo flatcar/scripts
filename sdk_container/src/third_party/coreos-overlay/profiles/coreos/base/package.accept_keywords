@@ -101,3 +101,6 @@ sys-apps/azure-vm-utils
 
 =app-containers/containerd-2.1* ~amd64 ~arm64
 =app-containers/runc-1.3* ~amd64 ~arm64
+
+# Not stabilised for arm64 yet.
+dev-db/etcd amd64
