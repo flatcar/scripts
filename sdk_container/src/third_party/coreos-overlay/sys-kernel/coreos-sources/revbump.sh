@@ -2688,7 +2688,7 @@ mv "${srcdir}"/[0-9]*.patch .
 for f in [0-9]*.patch; do
     mv "$f" "z$f"
 done
-ls z[0-9]*.patch | sed -e 's/^/\t${PATCH_DIR}\//g' -e 's/$/ \\/g' >> \
+ls z[0-9]*.patch | sed -e 's/^/\t${PATCH_DIR}\//g' >> \
         "../../${new_ebuild}"
 popd >/dev/null
 
