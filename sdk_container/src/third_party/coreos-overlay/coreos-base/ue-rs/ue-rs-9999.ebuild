@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm64"
 	CRATES=""
 else
-	EGIT_COMMIT="87ebec63fc3a7bf57274d26da89e3969095dd2cd" # main
+	EGIT_COMMIT="5ce2ec1e4fea0a54ef84edc653573d06d9209983" # main
 	KEYWORDS="amd64 arm64"
 	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
