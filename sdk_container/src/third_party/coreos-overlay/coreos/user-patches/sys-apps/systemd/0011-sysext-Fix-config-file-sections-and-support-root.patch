@@ -1,0 +1,196 @@
+From 818344e0a18406f6f11d1beb36877424ad99da32 Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Thu, 11 Dec 2025 19:49:20 +0900
+Subject: [PATCH 4/4] sysext: Fix config file sections and support --root=
+
+The config file added for 259 is documented to use [Sysext] and
+[Confext] sections for sysext.conf/confext.conf but the code used SysExt
+and ConfExt. Also, config files for --root= weren't picked up as
+expected because the --root= flag got parsed after the config file.
+Align the section names with the docs (and commit message) and switch
+the order of config file and CLI flag parsing while letting the CLI
+flags overwrite things set by the config files by using a special
+uninitialized state during parsing.
+---
+ src/sysext/sysext.c                  | 50 +++++++++++++++++++-------
+ test/units/TEST-50-DISSECT.sysext.sh | 52 ++++++++++++++++++++++++++++
+ 2 files changed, 90 insertions(+), 12 deletions(-)
+
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 9656e975c4..f22d0a7ae8 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -91,9 +91,9 @@ static bool arg_force = false;
+ static bool arg_no_reload = false;
+ static bool arg_always_refresh = false;
+ static int arg_noexec = -1;
+-static ImagePolicy *arg_image_policy = NULL;
++static ImagePolicy *arg_image_policy = POINTER_MAX; /* Special value to track initialization */
+ static bool arg_varlink = false;
+-static MutableMode arg_mutable = MUTABLE_NO;
++static MutableMode arg_mutable = _MUTABLE_INVALID; /* Special value to track initialization */
+ 
+ /* Is set to IMAGE_CONFEXT when systemd is called with the confext functionality instead of the default */
+ static ImageClass arg_image_class = IMAGE_SYSEXT;
+@@ -102,7 +102,14 @@ static ImageClass arg_image_class = IMAGE_SYSEXT;
+ 
+ STATIC_DESTRUCTOR_REGISTER(arg_hierarchies, strv_freep);
+ STATIC_DESTRUCTOR_REGISTER(arg_root, freep);
+-STATIC_DESTRUCTOR_REGISTER(arg_image_policy, image_policy_freep);
++
++static void image_policy_init_freep(ImagePolicy **p) {
++        if (*p == POINTER_MAX)
++                return;
++
++        image_policy_freep(p);
++}
++STATIC_DESTRUCTOR_REGISTER(arg_image_policy, image_policy_init_freep);
+ 
+ /* Helper struct for naming simplicity and reusability */
+ static const struct {
+@@ -154,10 +161,12 @@ static int parse_mutable_mode(const char *p) {
+ static DEFINE_CONFIG_PARSE_ENUM(config_parse_mutable_mode, mutable_mode, MutableMode);
+ 
+ static int parse_config_file(ImageClass image_class) {
+-        const char *section = image_class == IMAGE_SYSEXT ? "SysExt" : "ConfExt";
++        _cleanup_(image_policy_freep) ImagePolicy *config_image_policy = NULL;
++        MutableMode config_mutable = MUTABLE_NO;
++        const char *section = image_class == IMAGE_SYSEXT ? "Sysext" : "Confext";
+         const ConfigTableItem items[] = {
+-                { section, "Mutable",           config_parse_mutable_mode,      0,      &arg_mutable            },
+-                { section, "ImagePolicy",       config_parse_image_policy,      0,      &arg_image_policy       },
++                { section, "Mutable",           config_parse_mutable_mode,      0,      &config_mutable            },
++                { section, "ImagePolicy",       config_parse_image_policy,      0,      &config_image_policy       },
+                 {}
+         };
+         _cleanup_free_ char *config_file = NULL;
+@@ -170,7 +179,7 @@ static int parse_config_file(ImageClass image_class) {
+         r = config_parse_standard_file_with_dropins_full(
+                         arg_root,
+                         config_file,
+-                        image_class == IMAGE_SYSEXT ? "SysExt\0" : "ConfExt\0",
++                        section,
+                         config_item_table_lookup, items,
+                         CONFIG_PARSE_WARN,
+                         /* userdata = */ NULL,
+@@ -179,6 +188,14 @@ static int parse_config_file(ImageClass image_class) {
+         if (r < 0)
+                 return r;
+ 
++        /* Because this runs after parse_argv we only overwrite when things aren't set yet.
++         * This must take care of initialization even if there was no config file. */
++        if (arg_mutable == _MUTABLE_INVALID)
++                arg_mutable = config_mutable;
++
++        if (arg_image_policy == POINTER_MAX)
++                arg_image_policy = TAKE_PTR(config_image_policy);
++
+         return 0;
+ }
+ 
+@@ -2791,6 +2808,11 @@ static int parse_argv(int argc, char *argv[]) {
+                         break;
+ 
+                 case ARG_IMAGE_POLICY:
++                        /* When the CLI flag is given we initialize in any case
++                         * so that the config file entry won't overwrite it and
++                         * because parse_image_policy_argument calls free(). */
++                        if (arg_image_policy == POINTER_MAX)
++                                arg_image_policy = NULL;
+                         r = parse_image_policy_argument(optarg, &arg_image_policy);
+                         if (r < 0)
+                                 return r;
+@@ -2871,11 +2893,6 @@ static int run(int argc, char *argv[]) {
+                         arg_mutable = r;
+         }
+ 
+-        /* Parse configuration file */
+-        r = parse_config_file(arg_image_class);
+-        if (r < 0)
+-                log_warning_errno(r, "Failed to parse global config file, ignoring: %m");
+-
+         /* Parse command line */
+         r = parse_argv(argc, argv);
+         if (r <= 0)
+@@ -2888,6 +2905,15 @@ static int run(int argc, char *argv[]) {
+         if (r < 0)
+                 return log_error_errno(r, "Failed to parse environment variable: %m");
+ 
++        /* Parse configuration file after argv because it needs --root=.
++         * The config entries will not overwrite values set by env/argv
++         * which it can detect because these values are not initialized.
++         * The function also takes care of initializing the values it
++         * needed to be uninitialized. */
++        r = parse_config_file(arg_image_class);
++        if (r < 0)
++                log_warning_errno(r, "Failed to parse global config file, ignoring: %m");
++
+         if (arg_varlink) {
+                 _cleanup_(sd_varlink_server_unrefp) sd_varlink_server *varlink_server = NULL;
+ 
+diff --git a/test/units/TEST-50-DISSECT.sysext.sh b/test/units/TEST-50-DISSECT.sysext.sh
+index 6e64eea492..4d8f600957 100755
+--- a/test/units/TEST-50-DISSECT.sysext.sh
++++ b/test/units/TEST-50-DISSECT.sysext.sh
+@@ -1501,6 +1501,58 @@ run_systemd_sysext "$fake_root" unmerge
+ extension_verify_after_unmerge "$fake_root" "$hierarchy" -h
+ )
+ 
++
++( init_trap
++: "Check config file support for --root="
++fake_root=${roots_dir:+"$roots_dir/config-file"}
++hierarchy=/opt
++extension_data_dir="$fake_root/var/lib/extensions.mutable$hierarchy"
++
++[[ "$FSTYPE" == "fuseblk" ]] && exit 0
++if [ "$roots_dir" = "" ]; then
++    echo >&2 "Skipping test when --root= is not used"
++    exit 0
++fi
++
++prepare_root "$fake_root" "$hierarchy"
++prepare_extension_image_raw "$fake_root" "$hierarchy"
++prepare_extension_mutable_dir "$extension_data_dir"
++prepare_read_only_hierarchy "$fake_root" "$hierarchy"
++
++mkdir -p "$fake_root/etc/systemd/"
++{ echo "[Sysext]" ; echo "Mutable=auto" ; } > "$fake_root/etc/systemd/sysext.conf"
++# Config file should be picked up with --root= set
++run_systemd_sysext "$fake_root" merge
++MNTOPT=$(findmnt "$fake_root$hierarchy" --first-only --direction backward --raw --noheadings -o VFS-OPTIONS | grep -o rw || true)
++if [ "$MNTOPT" != "rw" ]; then
++    echo >&2 "Merge did not pick up mutable setting from config file"
++    exit 1
++fi
++extension_verify_after_merge "$fake_root" "$hierarchy" -e -h -u
++run_systemd_sysext "$fake_root" unmerge
++
++# CLI arg should be able to overwrite config file
++run_systemd_sysext "$fake_root" merge --mutable=no
++MNTOPT=$(findmnt "$fake_root$hierarchy" --first-only --direction backward --raw --noheadings -o VFS-OPTIONS | grep -o ro || true)
++if [ "$MNTOPT" != "ro" ]; then
++    echo >&2 "Merge did not pick up CLI arg to overwrite mutable setting from config file"
++    exit 1
++fi
++extension_verify_after_merge "$fake_root" "$hierarchy" -e -h
++run_systemd_sysext "$fake_root" unmerge
++
++{ echo "[Sysext]" ; echo "ImagePolicy=root=signed+absent:usr=signed+absent" ; } > "$fake_root/etc/systemd/sysext.conf"
++# Config file should be picked up with --root= set
++if run_systemd_sysext "$fake_root" merge; then
++    echo >&2 "Merge did not fail with strict image policy in config file"
++    exit 1
++fi
++# CLI arg should be able to overwrite config file
++run_systemd_sysext "$fake_root" merge --image-policy="*"
++extension_verify_after_merge "$fake_root" "$hierarchy" -e -h
++run_systemd_sysext "$fake_root" unmerge
++)
++
+ } # End of run_sysext_tests
+ 
+ 
+-- 
+2.51.0
+
