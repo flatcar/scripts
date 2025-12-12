@@ -10,7 +10,8 @@ timeout --signal=SIGQUIT 60m ore brightbox gc --duration 6h \
 timeout --signal=SIGQUIT 60m ore akamai gc --duration 6h \
   --akamai-token="${AKAMAI_TOKEN}"
 timeout --signal=SIGQUIT 60m ore stackit gc --duration 6h \
-  --stackit-service-account-key-path=<(echo "${STACKIT_SERVICE_ACCOUNT}" | base64 --decode)
+  --stackit-service-account-key-path=<(echo "${STACKIT_SERVICE_ACCOUNT}" | base64 --decode) \
+  --stackit-project-id="${STACKIT_PROJECT_ID}"
 secret_to_file aws_credentials_config_file "${AWS_CREDENTIALS}"
 for channel in alpha beta stable lts; do
   for arch in amd64 arm64; do
