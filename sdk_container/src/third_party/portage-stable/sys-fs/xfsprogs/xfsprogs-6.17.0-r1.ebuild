@@ -28,6 +28,10 @@ DEPEND="
 BDEPEND="nls? ( sys-devel/gettext )"
 RDEPEND+=" selinux? ( sec-policy/selinux-xfs )"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-6.17.0-ioctl.patch
+)
+
 src_prepare() {
 	default
 
