@@ -569,6 +569,7 @@ install_oem_package() {
 }
 
 # Write the OEM sysext file into the OEM partition.
+# Requires pre-built sysext from oem-sysexts/ directory (from build_image).
 install_oem_sysext() {
     local oem_sysext=$(_get_vm_opt OEM_SYSEXT)
 
@@ -576,63 +577,36 @@ install_oem_sysext() {
         return 0
     fi
 
-    local built_sysext_dir="${FLAGS_to}/${oem_sysext}-sysext"
-    local built_sysext_filename="${oem_sysext}.raw"
-    local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
     local version="${FLATCAR_VERSION}"
-    local metapkg="coreos-base/${oem_sysext}"
-    # The --install_root_basename="${name}-oem-sysext-rootfs" flag is
-    # important - it sets the name of a rootfs directory, which is
-    # used to determine the package target in
-    # coreos/base/profile.bashrc
-    #
-    # OEM sysexts are stored in the compressed partition, so we disable
-    # compression to avoid double-compression.
-    local build_sysext_flags=(
-        --board="${BOARD}"
-        --squashfs_base="${VM_SRC_SYSEXT_IMG}"
-        --image_builddir="${built_sysext_dir}"
-        --metapkgs="${metapkg}"
-        --compression=none
-        --install_root_basename="${VM_IMG_TYPE}-oem-sysext-rootfs"
-    )
-    local overlay_path mangle_fs
-    overlay_path=$(portageq get_repo_path / coreos-overlay)
-    mangle_fs="${overlay_path}/${metapkg}/files/manglefs.sh"
-    if [[ -x "${mangle_fs}" ]]; then
-        build_sysext_flags+=(
-            --manglefs_script="${mangle_fs}"
-        )
+    local built_sysext_filename="${oem_sysext}.raw"
+    local prebuilt_sysext_dir="${FLAGS_from}/oem-sysexts"
+    local prebuilt_sysext_path="${prebuilt_sysext_dir}/${built_sysext_filename}"
+
+    if [[ ! -f "${prebuilt_sysext_path}" ]]; then
+        die "Pre-built OEM sysext not found: ${prebuilt_sysext_path}. Run build_image with --oem_sysexts=${oem_sysext}:<use_flags> first."
     fi
 
-    mkdir -p "${built_sysext_dir}"
-    sudo -E "${build_sysext_env[@]}" "${SCRIPT_ROOT}/build_sysext" "${build_sysext_flags[@]}" "${oem_sysext}"
+    info "Using pre-built OEM sysext: ${prebuilt_sysext_path}"
 
     local installed_sysext_oem_dir='/oem/sysext'
     local installed_sysext_file_prefix="${oem_sysext}-${version}"
     local installed_sysext_filename="${installed_sysext_file_prefix}.raw"
     local installed_sysext_abspath="${installed_sysext_oem_dir}/${installed_sysext_filename}"
-    info "Installing ${oem_sysext} sysext"
+
+    info "Installing pre-built ${oem_sysext} sysext"
     sudo install -Dpm 0644 \
-         "${built_sysext_path}" \
+         "${prebuilt_sysext_path}" \
          "${VM_TMP_ROOT}${installed_sysext_abspath}" ||
         die "Could not install ${oem_sysext} sysext"
-    # Move sysext image and reports to a destination directory to
-    # upload them, thus making them available as separate artifacts to
-    # download.
-    local upload_dir to_move
+
+    # Copy sysext and related files to destination directory for upload
+    local upload_dir to_copy
     upload_dir="$(_dst_dir)"
-    for to_move in "${built_sysext_dir}/${oem_sysext}"*; do
-        mv "${to_move}" "${upload_dir}/${to_move##*/}"
+    for to_copy in "${prebuilt_sysext_dir}/${oem_sysext}"*; do
+        if [[ -f "${to_copy}" ]]; then
+            cp "${to_copy}" "${upload_dir}/${to_copy##*/}"
+        fi
     done
-    # Generate dev-key-signed update payload for testing
-    delta_generator \
-      -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
-      -new_image "${upload_dir}/${built_sysext_filename}" \
-      -out_file "${upload_dir}/flatcar_test_update-${oem_sysext}.gz"
-    # Remove sysext_dir if building sysext and installing it
-    # succeeded.
-    rm -rf "${built_sysext_dir}"
 
     # Mark the installed sysext as active.
     sudo touch "${VM_TMP_ROOT}${installed_sysext_oem_dir}/active-${oem_sysext}"

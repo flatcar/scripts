@@ -35,6 +35,8 @@ DEFINE_string base_dev_pkg "coreos-base/coreos-dev" \
   "The base portage package to base the build off of (only applies to dev containers)"
 DEFINE_string base_sysexts "containerd-flatcar|app-containers/containerd,docker-flatcar|app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx" \
   "Comma-separated list of name:package[&package[&package]] - build 'package' (a single package or a list of packages separated by '&') into sysext 'name', and include with OS image and update payload. Must be in order of dependencies, base sysexts come first."
+DEFINE_string oem_sysexts "" \
+  "Comma-separated list of OEM sysexts to pre-build. Format: oem-name[:use_flags],... Example: oem-azure:azure,oem-qemu:qemu,oem-gce:gce. Pre-built sysexts will be used by image_to_vm.sh instead of building them on-demand."
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"
 DEFINE_string disk_layout "" \
@@ -183,6 +185,8 @@ if [[ "${PROD_IMAGE}" -eq 1 ]]; then
   if [[ "${PROD_TAR}" -eq 1 ]]; then
     create_prod_tar ${FLATCAR_PRODUCTION_IMAGE_NAME}
   fi
+  # Build OEM sysexts (if FLAGS_oem_sysexts is empty, all available OEMs will be built)
+  create_oem_sysexts "${FLATCAR_PRODUCTION_IMAGE_NAME}" "${FLAGS_oem_sysexts}"
 fi
 if [[ "${SYSEXT}" -eq 1 ]]; then
   create_prod_sysexts "${FLATCAR_PRODUCTION_IMAGE_NAME}"

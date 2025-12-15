@@ -1,0 +1,163 @@
+#!/bin/bash
+# Copyright (c) 2024 by the Flatcar Maintainers.
+# Use of this source code is governed by the Apache 2.0 license.
+
+# Helper script for building OEM sysexts during build_image.
+# Called by build_image -> prod_image_util.sh.
+# This is a separate script mainly so we can trap EXIT and clean up our mounts
+# without interfering with traps set by build_image.
+
+# We're in build_library/, script root is one up
+SCRIPT_ROOT="$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd)"
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+switch_to_strict_mode
+
+. "${BUILD_LIBRARY_DIR}/build_image_util.sh" || exit 1
+
+# Get all unique OEM sysexts with their USE flags by parsing vm_image_util.sh
+# Output format: oem-name:use_flags (one per line)
+# This dynamically extracts from IMG_*_OEM_SYSEXT and IMG_*_OEM_USE variables
+get_all_oem_sysexts() {
+    local vm_util="${BUILD_LIBRARY_DIR}/vm_image_util.sh"
+
+    # Source vm_image_util.sh to get all IMG_* variables
+    . "${vm_util}"
+
+    local -A seen_sysexts
+    local var img_type oem_sysext use_var use_flags
+
+    # Find all IMG_*_OEM_SYSEXT variables
+    for var in $(compgen -v | grep '^IMG_.*_OEM_SYSEXT$'); do
+        oem_sysext="${!var}"
+        # Skip empty, DEFAULT, and FORCE variables
+        if [[ -z "${oem_sysext}" ]] || [[ "${var}" == "IMG_DEFAULT_OEM_SYSEXT" ]] || [[ "${var}" == "IMG_FORCE_OEM_SYSEXT" ]]; then
+            continue
+        fi
+        # Skip if already seen
+        if [[ -n "${seen_sysexts[$oem_sysext]:-}" ]]; then
+            continue
+        fi
+        seen_sysexts[$oem_sysext]=1
+
+        # Extract img_type from variable name (e.g., IMG_azure_OEM_SYSEXT -> azure)
+        img_type="${var#IMG_}"
+        img_type="${img_type%_OEM_SYSEXT}"
+
+        # Get corresponding USE flags
+        use_var="IMG_${img_type}_OEM_USE"
+        use_flags="${!use_var:-}"
+
+        if [[ -n "${use_flags}" ]]; then
+            echo "${oem_sysext}:${use_flags}"
+        else
+            echo "${oem_sysext}"
+        fi
+    done
+}
+
+# Build a single OEM sysext.
+# Arguments:
+#   BOARD - target board (e.g., amd64-usr)
+#   output_dir - directory to place built sysext
+#   workdir - temporary working directory
+#   base_sysext - path to base squashfs image
+#   oem_name - name of the OEM sysext (e.g., oem-azure)
+#   oem_use - USE flags for the OEM package
+build_oem_sysext() {
+    local BOARD="$1"
+    local output_dir="$2"
+    local workdir="$3"
+    local base_sysext="$4"
+    local oem_name="$5"
+    local oem_use="${6:-}"
+
+    local metapkg="coreos-base/${oem_name}"
+    local overlay_path mangle_fs
+
+    local -a build_sysext_opts=(
+        --board="${BOARD}"
+        --squashfs_base="${base_sysext}"
+        --image_builddir="${workdir}/${oem_name}-build"
+        --metapkgs="${metapkg}"
+        --compression=none
+        --install_root_basename="${oem_name}-oem-sysext-rootfs"
+    )
+
+    # Check for manglefs script in the overlay
+    overlay_path=$(portageq get_repo_path / coreos-overlay)
+    mangle_fs="${overlay_path}/${metapkg}/files/manglefs.sh"
+    if [[ -x "${mangle_fs}" ]]; then
+        build_sysext_opts+=( --manglefs_script="${mangle_fs}" )
+        info "Building OEM sysext ${oem_name} with mangle script"
+    else
+        info "Building OEM sysext ${oem_name}"
+    fi
+
+    mkdir -p "${workdir}/${oem_name}-build"
+
+    # Build the sysext
+    USE="${oem_use}" sudo -E "FLATCAR_BUILD_ID=${FLATCAR_BUILD_ID}" \
+        "${SCRIPTS_DIR}/build_sysext" "${build_sysext_opts[@]}" "${oem_name}"
+
+    # Move outputs to the output directory
+    mv "${workdir}/${oem_name}-build/${oem_name}.raw" "${output_dir}/"
+    mv "${workdir}/${oem_name}-build/${oem_name}"_*.txt "${output_dir}/" 2>/dev/null || true
+
+    # Generate dev-key-signed update payload for testing
+    delta_generator \
+        -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
+        -new_image "${output_dir}/${oem_name}.raw" \
+        -out_file "${output_dir}/flatcar_test_update-${oem_name}.gz"
+
+    # Cleanup build directory
+    rm -rf "${workdir}/${oem_name}-build"
+
+    info "Built OEM sysext: ${output_dir}/${oem_name}.raw"
+}
+
+# Main execution
+BOARD="$1"
+BUILD_DIR="$2"
+base_sysext="$3"
+oem_sysexts_list="${4:-}"
+
+oem_output_dir="${BUILD_DIR}/oem-sysexts"
+oem_workdir="${BUILD_DIR}/oem-sysext-work"
+
+function cleanup() {
+    rm -rf "${oem_workdir}" || true
+}
+
+trap cleanup EXIT
+
+rm -rf "${oem_workdir}" "${oem_output_dir}"
+mkdir -p "${oem_workdir}" "${oem_output_dir}"
+
+# If no OEM sysexts specified, build all available ones
+if [[ -z "${oem_sysexts_list}" ]]; then
+    info "No OEM sysexts specified, detecting all available OEM sysexts..."
+    oem_sysexts_list=$(get_all_oem_sysexts | tr '\n' ',')
+    oem_sysexts_list="${oem_sysexts_list%,}"  # Remove trailing comma
+    info "Will build: ${oem_sysexts_list}"
+fi
+
+# Parse and build each OEM sysext
+# Format: oem-name[:use_flags],oem-name[:use_flags],...
+for oem_entry in ${oem_sysexts_list//,/ }; do
+    oem_name="${oem_entry%%:*}"
+    oem_use=""
+    if [[ "${oem_entry}" == *:* ]]; then
+        oem_use="${oem_entry#*:}"
+    fi
+
+    build_oem_sysext "${BOARD}" "${oem_output_dir}" "${oem_workdir}" \
+                     "${base_sysext}" "${oem_name}" "${oem_use}"
+done
+
+cleanup
+trap -- EXIT
+
+info "All OEM sysexts built in ${oem_output_dir}"

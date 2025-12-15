@@ -273,6 +273,31 @@ create_prod_sysexts() {
   done
 }
 
+# Build OEM sysexts during build_image so they can be reused by image_to_vm.sh
+# Arguments:
+#   image_name - base image name (e.g., flatcar_production_image.bin)
+#   oem_sysexts - comma-separated list of OEM sysext names with optional USE flags
+#                 Format: oem-name[:use_flags],oem-name[:use_flags],...
+#                 Example: oem-azure:azure,oem-qemu:qemu,oem-gce:gce
+#                 If empty, all available OEM sysexts will be built.
+create_oem_sysexts() {
+  local image_name="$1"
+  local oem_sysexts="${2:-}"
+  local image_sysext_base="${image_name%.bin}_sysext.squashfs"
+
+  if [[ -z "${oem_sysexts}" ]]; then
+    info "Building all available OEM sysexts"
+  else
+    info "Building OEM sysexts: ${oem_sysexts}"
+  fi
+
+  "${BUILD_LIBRARY_DIR}/oem_sysext_builder" \
+      "${BOARD}" \
+      "${BUILD_DIR}" \
+      "${BUILD_DIR}/${image_sysext_base}" \
+      "${oem_sysexts}"
+}
+
 sbsign_prod_image() {
   local image_name="$1"
   local disk_layout="$2"
