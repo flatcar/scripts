@@ -56,11 +56,7 @@ A **Software Development Kit (SDK)** is a complete development environment that 
 
 - **Customize the OS**: Add, remove, or update applications and libraries using Gentoo Portage
 - **Modify the kernel**: Change kernel configuration, add drivers, and manage kernel modules
-- **Build images**: Create OS images for different deployment targets:
-  - **Cloud platforms**: AWS AMIs, Azure VHDs, GCP images, VMware OVAs
-  - **Bare metal servers**: ISO installers, PXE boot images
-  - **Virtual machines**: QEMU/KVM images, VirtualBox, VMware
-  - **Container platforms**: Optimized images for Kubernetes, Docker environments
+- **Build images**: Create OS images for different deployment targets like _Cloud platforms_, _Bare metal servers_, _Virtual machines_, etc.
 - **Develop packages**: Create and maintain software packages using ebuilds (Gentoo's package format)
 - **SDK maintenance**: Upgrade SDK packages, update toolchains, and build new SDK versions
 
