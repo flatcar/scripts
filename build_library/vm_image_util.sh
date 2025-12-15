@@ -585,15 +585,11 @@ install_oem_sysext() {
     # important - it sets the name of a rootfs directory, which is
     # used to determine the package target in
     # coreos/base/profile.bashrc
-    #
-    # OEM sysexts are stored in the compressed partition, so we disable
-    # compression to avoid double-compression.
     local build_sysext_flags=(
         --board="${BOARD}"
         --squashfs_base="${VM_SRC_SYSEXT_IMG}"
         --image_builddir="${built_sysext_dir}"
         --metapkgs="${metapkg}"
-        --compression=none
         --install_root_basename="${VM_IMG_TYPE}-oem-sysext-rootfs"
     )
     local overlay_path mangle_fs
@@ -606,7 +602,7 @@ install_oem_sysext() {
     fi
 
     mkdir -p "${built_sysext_dir}"
-    sudo -E "${build_sysext_env[@]}" "${SCRIPT_ROOT}/build_sysext" "${build_sysext_flags[@]}" "${oem_sysext}"
+    sudo "${build_sysext_env[@]}" "${SCRIPT_ROOT}/build_sysext" "${build_sysext_flags[@]}" "${oem_sysext}"
 
     local installed_sysext_oem_dir='/oem/sysext'
     local installed_sysext_file_prefix="${oem_sysext}-${version}"
