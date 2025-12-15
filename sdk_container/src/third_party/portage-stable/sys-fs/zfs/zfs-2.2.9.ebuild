@@ -3,16 +3,12 @@
 
 EAPI=8
 
-# Maintainers should consider lurking in the ZFS IRC channels (there's several)
-# and regularly checking ZFS GitHub issues and PRs. Look out for the 'zfs-*'
-# stable backport PRs when they're opened and subscribe to them for any important
-# cherry-picks that may be needed in advance.
-
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
-inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info pam systemd udev usr-ldscript
+inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info
+inherit pam systemd udev usr-ldscript
 
 DESCRIPTION="Userland utilities for ZFS Linux kernel module"
 HOMEPAGE="https://github.com/openzfs/zfs"
@@ -38,7 +34,7 @@ LICENSE="BSD-2 CDDL MIT"
 # just libzfs soname major for now.
 # possible candidates: libuutil, libzpool, libnvpair. Those do not provide stable abi, but are considered.
 # see libsoversion_check() below as well
-SLOT="0/6"
+SLOT="0/5"
 IUSE="custom-cflags debug dist-kernel kernel-builtin minimal nls pam python +rootfs selinux test-suite unwind"
 
 DEPEND="
@@ -112,6 +108,7 @@ RESTRICT="test"
 PATCHES=(
 	"${FILESDIR}"/2.1.5-dracut-zfs-missing.patch
 	"${FILESDIR}"/2.3.4-musl.patch
+	"${FILESDIR}"/2.2.9-nfs-truncate-shares.patch
 )
 
 pkg_pretend() {
