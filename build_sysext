@@ -288,6 +288,7 @@ all_fields=(
   'ID=flatcar'
   "${version_field}"
   "ARCHITECTURE=${ARCH}"
+  "EXTENSION_RELOAD_MANAGER=1"
 )
 printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
 
