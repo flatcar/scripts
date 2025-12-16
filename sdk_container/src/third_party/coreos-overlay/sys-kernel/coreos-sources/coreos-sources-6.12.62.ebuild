@@ -11,8 +11,13 @@ ETYPE="sources"
 K_BASE_VER="5.15"
 
 inherit kernel-2
-EXTRAVERSION="-flatcar"
 detect_version
+
+# Replace the -coreos suffix with -flatcar. Don't simply reset the whole
+# variable because it may have additional numbers before the suffix. This
+# doesn't affect the sources directory, which is still suffixed with -coreos,
+# but it does affect the Makefile that is used in the build.
+EXTRAVERSION="${EXTRAVERSION/-coreos/-flatcar}"
 
 DESCRIPTION="Full sources for the CoreOS Linux kernel"
 HOMEPAGE="http://www.kernel.org"
@@ -35,13 +40,12 @@ IUSE=""
 # patchlevel revision.  We mustn't apply our patches first, it fails when the
 # local patches overlap with the upstream patch.
 UNIPATCH_LIST="
-	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
-	${PATCH_DIR}/z0002-pahole-support-reproducible-builds.patch \
-	${PATCH_DIR}/z0003-Revert-x86-boot-Remove-the-bugger-off-message.patch \
-	${PATCH_DIR}/z0004-efi-add-an-efi_secure_boot-flag-to-indicate-secure-b.patch \
-	${PATCH_DIR}/z0005-efi-lock-down-the-kernel-if-booted-in-secure-boot-mo.patch \
-	${PATCH_DIR}/z0006-mtd-disable-slram-and-phram-when-locked-down.patch \
-	${PATCH_DIR}/z0007-arm64-add-kernel-config-option-to-lock-down-when.patch \
-	${PATCH_DIR}/z0008-tools-hv-fix-cross-compilation-for-ARM64.patch \
-	${PATCH_DIR}/z0009-block-add-partition-uuid-into-uevent.patch \
+	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch
+	${PATCH_DIR}/z0002-pahole-support-reproducible-builds.patch
+	${PATCH_DIR}/z0003-Revert-x86-boot-Remove-the-bugger-off-message.patch
+	${PATCH_DIR}/z0004-efi-add-an-efi_secure_boot-flag-to-indicate-secure-b.patch
+	${PATCH_DIR}/z0005-efi-lock-down-the-kernel-if-booted-in-secure-boot-mo.patch
+	${PATCH_DIR}/z0006-mtd-disable-slram-and-phram-when-locked-down.patch
+	${PATCH_DIR}/z0007-arm64-add-kernel-config-option-to-lock-down-when.patch
+	${PATCH_DIR}/z0009-block-add-partition-uuid-into-uevent.patch
 "

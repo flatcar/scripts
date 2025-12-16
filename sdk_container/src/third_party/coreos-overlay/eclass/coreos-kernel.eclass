@@ -7,24 +7,6 @@
 # Revision of the source ebuild, e.g. -r1. default is ""
 : ${COREOS_SOURCE_REVISION:=}
 
-COREOS_SOURCE_VERSION="${PV}${COREOS_SOURCE_REVISION}"
-
-# $COREOS_KERNEL_SOURCE_NAME is the kernel source name to be used for
-# $KERNEL_DIR, e.g. linux-4.19.0-coreos. This comes from upstream, so
-# Flatcar should not change it.
-#
-# On the other hand, $COREOS_SOURCE_NAME is the kernel name to be used for
-# $KV_OUT_DIR in individual coreos-kernel*.ebuild files. That one needs to
-# have a flatcar-specific name. We cannot define another variable like
-# $FLATCAR_SOURCE_NAME, because it will then be rewritten by upstream changes
-# that set $COREOS_SOURCE_NAME by default. In the Gentoo world, the ebuild
-# for each new version has a totally new file name. So it's hard to replace
-# a new $COREOS_SOURCE_NAME variable for every new ebuild.
-# $COREOS_SOURCE_NAME should be a name without a revision suffix (e.g. "-r1"),
-# because $KV_FULL would not include such a suffix.
-COREOS_KERNEL_SOURCE_NAME="linux-${PV/_rc/-rc}-coreos${COREOS_SOURCE_REVISION}"
-COREOS_SOURCE_NAME="linux-${PV/_rc/-rc}-flatcar"
-
 [[ ${EAPI} != [78] ]] && die "Only EAPI 7 and 8 are supported"
 
 inherit linux-info toolchain-funcs
@@ -36,7 +18,7 @@ SRC_URI=""
 IUSE=""
 
 BDEPEND="dev-util/pahole"
-DEPEND="=sys-kernel/coreos-sources-${COREOS_SOURCE_VERSION}"
+DEPEND="=sys-kernel/coreos-sources-${PV}${COREOS_SOURCE_REVISION}"
 
 # Do not analyze or strip installed files
 RESTRICT="binchecks strip"
@@ -44,10 +26,8 @@ RESTRICT="binchecks strip"
 # The build tools are OK and shouldn't trip up multilib-strict.
 QA_MULTILIB_PATHS="usr/lib/modules/.*/build/scripts/kconfig/.*"
 
-# Use source installed by coreos-sources
-# KERNEL_DIR must find the kernel source tree under /usr/src/linux-*-coreos,
-# not /usr/src/linux-*-flatcar, which does not exist at all.
-KERNEL_DIR="${SYSROOT}/usr/src/${COREOS_KERNEL_SOURCE_NAME}"
+# Force linux-info to detect version-matched source installed by coreos-sources
+KERNEL_DIR="${ESYSROOT}/usr/src/linux-${PV/_rc/-rc}-coreos${COREOS_SOURCE_REVISION}"
 
 # Search for an apropriate config in ${FILESDIR}. The config should reflect
 # the kernel version but partial matching is allowed if the config is
@@ -117,7 +97,7 @@ kmake() {
 	if gcc-specs-pie; then
 		kernel_cflags="-nopie -fstack-check=no ${kernel_cflags}"
 	fi
-	emake "--directory=${KERNEL_DIR}" \
+	emake "--directory=${KV_DIR}" \
 		ARCH="${kernel_arch}" \
 		CROSS_COMPILE="${CHOST}-" \
 		KBUILD_OUTPUT="${S}/build" \
@@ -219,9 +199,9 @@ setup_keys() {
 coreos-kernel_pkg_pretend() {
 	[[ "${MERGE_TYPE}" == binary ]] && return
 
-	if [[ -f "${KERNEL_DIR}/.config" || -d "${KERNEL_DIR}/include/config" ]]
+	if [[ -f "${KV_DIR}/.config" || -d "${KV_DIR}/include/config" ]]
 	then
-		die "Source is not clean! Run make mrproper in ${KERNEL_DIR}"
+		die "Source is not clean! Run make mrproper in ${KV_DIR}"
 	fi
 }
 
@@ -229,7 +209,7 @@ coreos-kernel_pkg_setup() {
 	[[ "${MERGE_TYPE}" == binary ]] && return
 
 	# tc-arch-kernel requires a call to get_version from linux-info.eclass
-	get_version || die "Failed to detect kernel version in ${KERNEL_DIR}"
+	get_version || die "Failed to detect kernel version in ${KV_DIR}"
 }
 
 coreos-kernel_src_unpack() {
