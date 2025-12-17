@@ -279,18 +279,18 @@ __md_print_test_verdict() {
     local failed_vendors="$4"
 
 
-    v="![${verdict}](https://via.placeholder.com/50x20/00ff00/000000?text=PASS)"
+    v="🟢 ${verdict}"
     if [ "${verdict}" = "not ok" ] ; then
-        v="![${verdict}](https://via.placeholder.com/50x20/ff0000/ffffff?text=FAIL)"
+        v="❌ ${verdict}"
     fi
 
     echo
     echo -n "${v} **${name}**"
     if [ -n "${succeded_vendors}" ] ; then
-        echo -n " 🟢 Succeeded: ${succeded_vendors}"
+        echo -n "; Succeeded: ${succeded_vendors}"
     fi
     if [ -n "${failed_vendors}" ] ; then
-        echo -n " ❌ Failed: ${failed_vendors}"
+        echo -n "; Failed: ${failed_vendors}"
     fi
     echo
     if    [ "${verdict}" = "not ok" ] \
