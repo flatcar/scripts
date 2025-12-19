@@ -3,360 +3,33 @@
 
 EAPI=8
 
-EGIT_REPO_URI="https://github.com/coreos/afterburn.git"
+# This crate is required by our patch but missing from the vendor tarball.
+CRATES="hostname@0.4.1"
 
-if [[ ${PV} == 9999 ]]; then
-	KEYWORDS="~amd64 ~arm64"
-	CRATES=""
-else
-	EGIT_COMMIT="3c0ee8a6c0e9cee9247f1f83b4f9d39c0701e4ae" # v5.10.0
-	KEYWORDS="amd64 arm64"
+inherit cargo systemd
 
-	CRATES="
-		addr2line@0.24.2
-		adler2@2.0.1
-		adler32@1.2.0
-		ahash@0.8.12
-		aho-corasick@1.1.3
-		allocator-api2@0.2.21
-		android_system_properties@0.1.5
-		anstyle@1.0.11
-		anyhow@1.0.99
-		arc-swap@1.7.1
-		assert-json-diff@2.0.2
-		async-broadcast@0.7.2
-		async-channel@2.5.0
-		async-executor@1.13.3
-		async-io@2.6.0
-		async-lock@3.4.1
-		async-process@2.5.0
-		async-recursion@1.1.1
-		async-signal@0.2.13
-		async-task@4.7.1
-		async-trait@0.1.89
-		atomic-waker@1.1.2
-		autocfg@1.5.0
-		backtrace@0.3.75
-		base64@0.21.7
-		base64@0.22.1
-		bitflags@2.9.4
-		block-buffer@0.10.4
-		blocking@1.6.2
-		bumpalo@3.19.0
-		byteorder@1.5.0
-		bytes@1.10.1
-		cc@1.2.37
-		cfg-if@1.0.3
-		cfg_aliases@0.2.1
-		charset@0.1.5
-		chrono@0.4.42
-		clap@4.5.47
-		clap_builder@4.5.47
-		clap_derive@4.5.47
-		clap_lex@0.7.5
-		colored@3.0.0
-		concurrent-queue@2.5.0
-		core-foundation-sys@0.8.7
-		core-foundation@0.9.4
-		core2@0.4.0
-		cpufeatures@0.2.17
-		crc32fast@1.5.0
-		crossbeam-channel@0.5.15
-		crossbeam-utils@0.8.21
-		crypto-common@0.1.6
-		dary_heap@0.3.8
-		data-encoding@2.9.0
-		deranged@0.5.3
-		digest@0.10.7
-		displaydoc@0.2.5
-		encoding_rs@0.8.35
-		endi@1.1.0
-		enumflags2@0.7.12
-		enumflags2_derive@0.7.12
-		equivalent@1.0.2
-		errno@0.3.14
-		event-listener-strategy@0.5.4
-		event-listener@5.4.1
-		fastrand@2.3.0
-		find-msvc-tools@0.1.1
-		fnv@1.0.7
-		foreign-types-shared@0.1.1
-		foreign-types@0.3.2
-		form_urlencoded@1.2.2
-		futures-channel@0.3.31
-		futures-core@0.3.31
-		futures-io@0.3.31
-		futures-lite@2.6.1
-		futures-sink@0.3.31
-		futures-task@0.3.31
-		futures-util@0.3.31
-		generic-array@0.14.7
-		getrandom@0.2.16
-		getrandom@0.3.3
-		gimli@0.31.1
-		h2@0.4.12
-		hashbrown@0.14.5
-		hashbrown@0.15.5
-		heck@0.5.0
-		hermit-abi@0.5.2
-		hex@0.4.3
-		hmac@0.12.1
-		hostname@0.4.1
-		http-body-util@0.1.3
-		http-body@1.0.1
-		http@1.3.1
-		httparse@1.10.1
-		httpdate@1.0.3
-		hyper-rustls@0.27.7
-		hyper-tls@0.6.0
-		hyper-util@0.1.17
-		hyper@1.7.0
-		iana-time-zone-haiku@0.1.2
-		iana-time-zone@0.1.64
-		icu_collections@2.0.0
-		icu_locale_core@2.0.0
-		icu_normalizer@2.0.0
-		icu_normalizer_data@2.0.0
-		icu_properties@2.0.1
-		icu_properties_data@2.0.1
-		icu_provider@2.0.0
-		idna@1.1.0
-		idna_adapter@1.2.1
-		indexmap@2.11.3
-		io-uring@0.7.10
-		ipnet@2.11.0
-		ipnetwork@0.20.0
-		iri-string@0.7.8
-		is-terminal@0.4.16
-		itoa@1.0.15
-		js-sys@0.3.80
-		lazy_static@1.5.0
-		libc@0.2.175
-		libflate@2.1.0
-		libflate_lz77@2.1.0
-		libsystemd@0.7.2
-		linux-raw-sys@0.11.0
-		litemap@0.8.0
-		lock_api@0.4.13
-		log@0.4.28
-		mailparse@0.16.1
-		maplit@1.0.2
-		md-5@0.10.6
-		memchr@2.7.5
-		memoffset@0.9.1
-		mime@0.3.17
-		miniz_oxide@0.8.9
-		mio@1.0.4
-		mockito@1.7.0
-		native-tls@0.2.14
-		nix@0.29.0
-		nix@0.30.1
-		no-std-net@0.6.0
-		nom@8.0.0
-		num-conv@0.1.0
-		num-traits@0.2.19
-		object@0.36.7
-		once_cell@1.21.3
-		openssh-keys@0.6.4
-		openssl-macros@0.1.1
-		openssl-probe@0.1.6
-		openssl-sys@0.9.109
-		openssl@0.10.73
-		ordered-stream@0.2.0
-		parking@2.2.1
-		parking_lot@0.12.4
-		parking_lot_core@0.9.11
-		percent-encoding@2.3.2
-		pin-project-lite@0.2.16
-		pin-utils@0.1.0
-		piper@0.2.4
-		pkg-config@0.3.32
-		pnet_base@0.35.0
-		pnet_datalink@0.35.0
-		pnet_sys@0.35.0
-		polling@3.11.0
-		potential_utf@0.1.3
-		powerfmt@0.2.0
-		ppv-lite86@0.2.21
-		proc-macro-crate@3.4.0
-		proc-macro2@1.0.101
-		quote@1.0.40
-		quoted_printable@0.5.1
-		r-efi@5.3.0
-		rand@0.9.2
-		rand_chacha@0.9.0
-		rand_core@0.9.3
-		redox_syscall@0.5.17
-		regex-automata@0.4.10
-		regex-syntax@0.8.6
-		regex@1.11.2
-		reqwest@0.12.23
-		ring@0.17.14
-		rle-decode-fast@1.0.3
-		rustc-demangle@0.1.26
-		rustix@1.1.2
-		rustls-pki-types@1.12.0
-		rustls-webpki@0.103.6
-		rustls@0.23.31
-		rustversion@1.0.22
-		ryu@1.0.20
-		schannel@0.1.28
-		scopeguard@1.2.0
-		security-framework-sys@2.15.0
-		security-framework@2.11.1
-		serde-xml-rs@0.8.1
-		serde@1.0.225
-		serde_core@1.0.225
-		serde_derive@1.0.225
-		serde_json@1.0.145
-		serde_repr@0.1.20
-		serde_urlencoded@0.7.1
-		serde_yaml@0.9.34+deprecated
-		sha2@0.10.9
-		shlex@1.3.0
-		signal-hook-registry@1.4.6
-		similar@2.7.0
-		slab@0.4.11
-		slog-async@2.8.0
-		slog-scope@4.4.0
-		slog-term@2.9.2
-		slog@2.7.0
-		smallvec@1.15.1
-		socket2@0.6.0
-		stable_deref_trait@1.2.0
-		static_assertions@1.1.0
-		strsim@0.11.1
-		subtle@2.6.1
-		syn@2.0.106
-		sync_wrapper@1.0.2
-		synstructure@0.13.2
-		system-configuration-sys@0.6.0
-		system-configuration@0.6.1
-		take_mut@0.2.2
-		tempfile@3.22.0
-		term@1.2.0
-		terminal_size@0.4.3
-		thiserror-impl@1.0.69
-		thiserror-impl@2.0.16
-		thiserror@1.0.69
-		thiserror@2.0.16
-		thread_local@1.1.9
-		time-core@0.1.6
-		time-macros@0.2.24
-		time@0.3.43
-		tinystr@0.8.1
-		tokio-native-tls@0.3.1
-		tokio-rustls@0.26.3
-		tokio-util@0.7.16
-		tokio@1.47.1
-		toml_datetime@0.7.1
-		toml_edit@0.23.5
-		toml_parser@1.0.2
-		tower-http@0.6.6
-		tower-layer@0.3.3
-		tower-service@0.3.3
-		tower@0.5.2
-		tracing-attributes@0.1.30
-		tracing-core@0.1.34
-		tracing@0.1.41
-		try-lock@0.2.5
-		typenum@1.18.0
-		uds_windows@1.1.0
-		unicode-ident@1.0.19
-		unsafe-libyaml@0.2.11
-		untrusted@0.9.0
-		url@2.5.7
-		utf8_iter@1.0.4
-		uuid@1.18.1
-		uzers@0.12.1
-		vcpkg@0.2.15
-		version_check@0.9.5
-		vmw_backdoor@0.2.4
-		want@0.3.1
-		wasi@0.11.1+wasi-snapshot-preview1
-		wasi@0.14.7+wasi-0.2.4
-		wasip2@1.0.1+wasi-0.2.4
-		wasm-bindgen-backend@0.2.103
-		wasm-bindgen-futures@0.4.53
-		wasm-bindgen-macro-support@0.2.103
-		wasm-bindgen-macro@0.2.103
-		wasm-bindgen-shared@0.2.103
-		wasm-bindgen@0.2.103
-		web-sys@0.3.80
-		winapi-i686-pc-windows-gnu@0.4.0
-		winapi-x86_64-pc-windows-gnu@0.4.0
-		winapi@0.3.9
-		windows@0.62.0
-		windows-core@0.62.0
-		windows-implement@0.60.0
-		windows-interface@0.59.1
-		windows-link@0.1.3
-		windows-link@0.2.0
-		windows-registry@0.5.3
-		windows-result@0.3.4
-		windows-result@0.4.0
-		windows-strings@0.4.2
-		windows-strings@0.5.0
-		windows-sys@0.52.0
-		windows-sys@0.59.0
-		windows-sys@0.60.2
-		windows-sys@0.61.0
-		windows-targets@0.52.6
-		windows-targets@0.53.3
-		windows_aarch64_gnullvm@0.52.6
-		windows_aarch64_gnullvm@0.53.0
-		windows_aarch64_msvc@0.52.6
-		windows_aarch64_msvc@0.53.0
-		windows_i686_gnu@0.52.6
-		windows_i686_gnu@0.53.0
-		windows_i686_gnullvm@0.52.6
-		windows_i686_gnullvm@0.53.0
-		windows_i686_msvc@0.52.6
-		windows_i686_msvc@0.53.0
-		windows_x86_64_gnu@0.52.6
-		windows_x86_64_gnu@0.53.0
-		windows_x86_64_gnullvm@0.52.6
-		windows_x86_64_gnullvm@0.53.0
-		windows_x86_64_msvc@0.52.6
-		windows_x86_64_msvc@0.53.0
-		winnow@0.7.13
-		wit-bindgen@0.46.0
-		writeable@0.6.1
-		xml-rs@0.8.27
-		yoke-derive@0.8.0
-		yoke@0.8.0
-		zbus@5.11.0
-		zbus_macros@5.11.0
-		zbus_names@4.2.0
-		zerocopy-derive@0.8.27
-		zerocopy@0.8.27
-		zerofrom-derive@0.1.6
-		zerofrom@0.1.6
-		zeroize@1.8.1
-		zerotrie@0.2.2
-		zerovec-derive@0.11.1
-		zerovec@0.11.4
-		zvariant@5.7.0
-		zvariant_derive@5.7.0
-		zvariant_utils@3.2.1
-"
-
-fi
-
-inherit cargo git-r3 systemd
-
+SRC_URI="${CARGO_CRATE_URIS}"
 DESCRIPTION="A tool for collecting instance metadata from various providers"
 HOMEPAGE="https://github.com/coreos/afterburn"
-SRC_URI="${CARGO_CRATE_URIS}"
+
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/coreos/afterburn.git"
+	inherit git-r3
+else
+	SRC_URI+=" https://github.com/coreos/afterburn/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+		https://github.com/coreos/afterburn/releases/download/v${PV}/${P}-vendor.tar.gz"
+	KEYWORDS="amd64 arm64"
+	ECARGO_VENDOR="${WORKDIR}/vendor"
+fi
 
 LICENSE="Apache-2.0"
 SLOT="0"
 
-DEPEND="dev-libs/openssl:0="
-
+DEPEND="
+	dev-libs/openssl:0=
+"
 RDEPEND="
 	${DEPEND}
-	!coreos-base/coreos-metadata
 "
 
 PATCHES=(
@@ -366,13 +39,11 @@ PATCHES=(
 )
 
 src_unpack() {
-	git-r3_src_unpack
-
 	if [[ ${PV} == 9999 ]]; then
+		git-r3_src_unpack
 		cargo_live_src_unpack
-	else
-		cargo_src_unpack
 	fi
+	cargo_src_unpack
 }
 
 src_compile() {
@@ -381,10 +52,10 @@ src_compile() {
 
 src_install() {
 	cargo_src_install --features cl-legacy
-	mv "${D}/usr/bin/afterburn" "${D}/usr/bin/coreos-metadata"
+	mv "${ED}"/usr/bin/afterburn "${ED}"/usr/bin/coreos-metadata || die
 
-	systemd_dounit "${FILESDIR}/coreos-metadata.service"
-	systemd_dounit "${FILESDIR}/coreos-metadata-sshkeys@.service"
+	systemd_dounit "${FILESDIR}"/coreos-metadata.service
+	systemd_newunit "${FILESDIR}"/coreos-metadata-sshkeys.service coreos-metadata-sshkeys@.service
 }
 
 src_test() {
