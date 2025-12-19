@@ -8,7 +8,7 @@ EGIT_REPO_URI="https://github.com/flatcar/init.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="860090d932a0bcdf71a73619f270845a06b64af0" # flatcar-master
+	EGIT_COMMIT="e4a70e49b97fbcc427f8e2bea5f8406c10bebeac" # flatcar-4081
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
