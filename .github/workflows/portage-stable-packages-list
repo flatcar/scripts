@@ -211,6 +211,7 @@ dev-cpp/gflags
 dev-cpp/glog
 dev-cpp/gtest
 
+dev-db/etcd
 dev-db/sqlite
 
 dev-debug/gdb
