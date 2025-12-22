@@ -1,31 +1,29 @@
 # Copyright (c) 2014 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/coreos-cloudinit.git"
+EAPI=8
+
 COREOS_GO_PACKAGE="github.com/flatcar/coreos-cloudinit"
 COREOS_GO_GO111MODULE="on"
-inherit git-r3 systemd toolchain-funcs udev coreos-go
+inherit systemd toolchain-funcs udev coreos-go
 
-if [[ "${PV}" == 9999 ]]; then
-	KEYWORDS="~amd64 ~arm64"
+DESCRIPTION="Enables a user to customize Flatcar Container Linux machines"
+HOMEPAGE="https://github.com/flatcar/coreos-cloudinit"
+
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/flatcar/coreos-cloudinit.git"
+	inherit git-r3
 else
-	EGIT_COMMIT="1c1d7f4ae6b933350d7fd36e882dda170123cccc" # main
+	EGIT_VERSION="1c1d7f4ae6b933350d7fd36e882dda170123cccc" # main
+	SRC_URI="https://github.com/flatcar/coreos-cloudinit/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
+	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
 fi
 
-DESCRIPTION="coreos-cloudinit"
-HOMEPAGE="https://github.com/flatcar/coreos-cloudinit"
-SRC_URI=""
-
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE=""
 
-DEPEND="!<coreos-base/coreos-init-0.0.1-r69"
-RDEPEND="
-	>=sys-apps/shadow-4.1.5.1
-"
+RDEPEND=">=sys-apps/shadow-4.1.5.1"
 
 src_prepare() {
 	coreos-go_src_prepare
@@ -36,7 +34,7 @@ src_prepare() {
 }
 
 src_compile() {
-	GO_LDFLAGS="-X main.version=$(git describe --dirty)" || die
+	GO_LDFLAGS="-X main.version=v${PV}-g${EGIT_VERSION:0:7}" || die
 	coreos-go_src_compile
 }
 
