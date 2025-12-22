@@ -1,29 +1,30 @@
 # Copyright (c) 2014 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-EGIT_REPO_URI="https://github.com/coreos/nova-agent-watcher.git"
+EAPI=8
+
 COREOS_GO_PACKAGE="github.com/coreos/nova-agent-watcher"
 COREOS_GO_GO111MODULE="off"
-inherit git-r3 systemd coreos-go
+inherit coreos-go
 
-if [[ "${PV}" == 9999 ]]; then
-	KEYWORDS="~amd64  ~arm64"
+DESCRIPTION="Watches for changes from Nova and reapplies them with coreos-cloudinit"
+HOMEPAGE="https://github.com/coreos/nova-agent-watcher"
+
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/coreos/nova-agent-watcher.git"
+	inherit git-r3
 else
-	EGIT_COMMIT="2262401fe363cfdcc4c6f02144622466d506de43"
+	EGIT_VERSION="f750d8e5e91a7e7e22e26c9d241d27b1b7563d70"
+	SRC_URI="https://github.com/coreos/nova-agent-watcher/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
+	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
 fi
 
-DESCRIPTION="nova-agent-watcher"
-HOMEPAGE="https://github.com/coreos/nova-agent-watcher"
-SRC_URI=""
-
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE=""
 
 src_install() {
-	into "/oem"
-	dobin ${S}/scripts/gentoo-to-networkd
-	dobin ${GOBIN}/nova-agent-watcher
+	into /oem
+	dobin scripts/gentoo-to-networkd
+	dobin "${GOBIN}"/nova-agent-watcher
 }
