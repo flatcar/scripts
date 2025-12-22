@@ -1,33 +1,30 @@
 # Copyright (c) 2013 The CoreOS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/nss-altfiles.git"
+EAPI=8
 
-if [[ "${PV}" == 9999 ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/flatcar/nss-altfiles.git"
+	inherit git-r3
 else
-	EGIT_COMMIT="c8e05a08a2e28eb48c6c788e3007d94f8d8de5cd" # main
+	EGIT_VERSION="c8e05a08a2e28eb48c6c788e3007d94f8d8de5cd" # main
+	SRC_URI="https://github.com/flatcar/nss-altfiles/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
+	S="${WORKDIR}/nss-altfiles-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-inherit git-r3 toolchain-funcs
+inherit toolchain-funcs
 
-DESCRIPTION="NSS module for data sources under /usr on for CoreOS"
-HOMEPAGE="https://github.com/coreos/nss-altfiles"
-SRC_URI=""
+DESCRIPTION="NSS module for data sources under /usr on for Flatcar"
+HOMEPAGE="https://github.com/flatcar/nss-altfiles"
 
 LICENSE="LGPL-2.1+"
 SLOT="0"
-IUSE=""
-
-DEPEND=""
-RDEPEND=""
 
 src_configure() {
 	tc-export CC
 	econf \
-		--datadir=/usr/share/baselayout \
+		--datadir="${EPREFIX}/usr/share/baselayout" \
 		--with-module-name=usrfiles \
 		--with-types=all
 }
