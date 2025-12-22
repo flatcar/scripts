@@ -4,7 +4,7 @@
 EAPI=8
 
 # This crate is required by our patch but missing from the vendor tarball.
-CRATES="hostname@0.4.1"
+CRATES="hostname@0.4.2"
 
 inherit cargo systemd
 
