@@ -31,9 +31,9 @@ REQUIRED_USE="test? ( tofu )"
 # Existence of executables is checked during configuration.
 # Note: On each bump, update dep bounds on each version from configure.ac!
 DEPEND="
-	>=dev-libs/libassuan-2.5.0:=
-	>=dev-libs/libgcrypt-1.9.1:=
-	>=dev-libs/libgpg-error-1.46
+	>=dev-libs/libassuan-3.0.0-r1:=
+	>=dev-libs/libgcrypt-1.11.0:=
+	>=dev-libs/libgpg-error-1.56
 	>=dev-libs/libksba-1.6.3
 	>=dev-libs/npth-1.2
 	virtual/zlib:=
@@ -96,6 +96,10 @@ src_prepare() {
 	# which in turn requires discovery in Autoconf, something that upstream deeply resents.
 	sed -e "/DirectoryMode=/a ExecStartPost=-${EPREFIX}/bin/systemctl --user set-environment SSH_AUTH_SOCK=%t/gnupg/S.gpg-agent.ssh" \
 		-i "${T}"/gpg-agent-ssh.socket || die
+
+	# Since 2.5.3, --supervised is called --deprecated-supervised.  See
+	# https://dev.gnupg.org/rGa019a0fcd8dfb9d1eae5bc991fdd54b7cf55641e
+	sed -i "s/--supervised/--deprecated-supervised/g" "${T}"/*.service || die
 }
 
 my_src_configure() {
@@ -144,8 +148,10 @@ my_src_configure() {
 	fi
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
-		# https://dev.gnupg.org/T7368
-		append-cppflags -D_XOPEN_SOURCE=500
+		# these somehow are treated as fatal, but Solaris has different
+		# types for getpeername with socket_t
+		append-flags -Wno-incompatible-pointer-types
+		append-flags -Wno-unused-label
 	fi
 
 	# bug #663142
@@ -180,13 +186,14 @@ my_src_install() {
 		# rename for app-alternatives/gpg
 		mv "${ED}"/usr/bin/gpg{,-reference} || die
 		mv "${ED}"/usr/bin/gpgv{,-reference} || die
+		mv "${ED}"/usr/share/man/man1/gpg{,-reference}.1 || die
+		mv "${ED}"/usr/share/man/man1/gpgv{,-reference}.1 || die
 	else
 		dosym gpg /usr/bin/gpg2
 		dosym gpgv /usr/bin/gpgv2
+		echo ".so man1/gpg.1" > "${ED}"/usr/share/man/man1/gpg2.1 || die
+		echo ".so man1/gpgv.1" > "${ED}"/usr/share/man/man1/gpgv2.1 || die
 	fi
-
-	echo ".so man1/gpg.1" > "${ED}"/usr/share/man/man1/gpg2.1 || die
-	echo ".so man1/gpgv.1" > "${ED}"/usr/share/man/man1/gpgv2.1 || die
 
 	dodir /etc/env.d
 	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >> "${ED}"/etc/env.d/30gnupg || die
