@@ -1,28 +1,29 @@
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/update_engine.git"
+EAPI=8
 
-if [[ "${PV}" == 9999 ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
+TMPFILES_OPTIONAL=1
+inherit autotools flag-o-matic toolchain-funcs systemd tmpfiles
+
+DESCRIPTION="Update daemon for Flatcar Container Linux"
+HOMEPAGE="https://github.com/flatcar/update_engine"
+
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/flatcar/update_engine.git"
+	inherit git-r3
 else
-	EGIT_COMMIT="3a44be455f7c6978e99f9e3d4f01401d80301c40" # main
+	EGIT_VERSION="3a44be455f7c6978e99f9e3d4f01401d80301c40" # main
+	SRC_URI="https://github.com/flatcar/update_engine/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
+	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
 fi
 
-TMPFILES_OPTIONAL=1
-inherit autotools flag-o-matic toolchain-funcs git-r3 systemd tmpfiles
-
-DESCRIPTION="CoreOS OS Update Engine"
-HOMEPAGE="https://github.com/coreos/update_engine"
-SRC_URI=""
-
 LICENSE="BSD"
 SLOT="0"
-IUSE="cros_host +debug -delta_generator"
+IUSE="cros_host +debug delta_generator"
 
-RDEPEND="!coreos-base/coreos-installer
+RDEPEND="
 	app-arch/bzip2
 	coreos-base/coreos-au-key
 	dev-cpp/gflags
@@ -36,11 +37,16 @@ RDEPEND="!coreos-base/coreos-installer
 	dev-util/bsdiff
 	net-misc/curl
 	>=sys-apps/seismograph-2.2.0
-	sys-fs/e2fsprogs"
-BDEPEND="dev-util/glib-utils"
-DEPEND="dev-cpp/gtest
-	${BDEPEND}
-	${RDEPEND}"
+	sys-fs/e2fsprogs
+"
+DEPEND="
+	${RDEPEND}
+	dev-cpp/gtest
+"
+BDEPEND="
+	dev-util/glib-utils
+	virtual/pkgconfig
+"
 
 src_prepare() {
 	default
@@ -67,8 +73,7 @@ src_configure() {
 
 	if tc-is-cross-compiler; then
 		# Override glib-genmarshal path
-		local build_pkg_config="$(tc-getBUILD_PROG PKG_CONFIG pkg-config)"
-		myconf+=(GLIB_GENMARSHAL="$("${build_pkg_config}" --variable=glib_genmarshal glib-2.0)")
+		myconf+=(GLIB_GENMARSHAL="$("$(tc-getBUILD_PKG_CONFIG)" --variable=glib_genmarshal glib-2.0)")
 	fi
 
 	econf "${myconf[@]}"
