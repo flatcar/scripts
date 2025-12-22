@@ -55,7 +55,7 @@ DEPEND="${RDEPEND}
 "
 BDEPEND="
 	virtual/pkgconfig
-	verify-sig? ( >=sec-keys/openpgp-keys-libarchive-20221209 )
+	verify-sig? ( >=sec-keys/openpgp-keys-libarchive-20251118 )
 	elibc_musl? ( sys-libs/queue-standalone )
 "
 
