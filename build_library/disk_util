@@ -775,6 +775,25 @@ def Tune(options):
   if not action_done:
     raise Exception("No options specified!")
 
+def SudoOutputToConsole(cmd):
+  print(SudoOutput(cmd).decode())
+
+def LogBtrfsUsage(mount_point, section=None):
+  print('Btrfs usage for mount point `%s` %s' % (mount_point, section))
+  try:
+      SudoOutputToConsole(['btrfs', 'fi', 'usage', mount_point])
+  except Exception as ex:
+      print('Btrfs usage could not be retrieved for mount point `%s` %s' % (mount_point, section))
+      print(ex)
+
+def BtrfsResetAllocation(options):
+
+    LogBtrfsUsage(options.disk_image, 'before disk resize')
+    try:
+        Sudo(['btrfs', 'fi', 'resize', '-500m', options.disk_image])
+    except Exception as ex:
+        print(ex)
+    LogBtrfsUsage(options.disk_image, 'after disk resize')
 
 def Verity(options):
   """Hash verity protected filesystems.
@@ -1126,6 +1145,10 @@ def main(argv):
 
   a = actions.add_parser('parseonly', help='validate config')
   a.set_defaults(func=DoParseOnly)
+
+  a = actions.add_parser('btrfsresetallocation', help='btrfs reset allocation')
+  a.add_argument('disk_image', help='path to disk image file')
+  a.set_defaults(func=BtrfsResetAllocation)
 
   options = parser.parse_args(argv[1:])
   options.func(options)
