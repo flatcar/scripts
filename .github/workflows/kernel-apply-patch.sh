@@ -28,22 +28,14 @@ fi
 extra_pkgs=(
     sys-kernel/coreos-modules
     sys-kernel/coreos-kernel
+    app-emulation/hv-daemons
 )
 
-for pkg in sources modules kernel; do
-    pushd "sys-kernel/coreos-${pkg}"
-    git mv "coreos-${pkg}"-*.ebuild "coreos-${pkg}-${VERSION_NEW}.ebuild"
-    sed -i -e '/^COREOS_SOURCE_REVISION=/s/=.*/=""/' "coreos-${pkg}-${VERSION_NEW}.ebuild"
-    popd
+for pkg in sys-kernel/coreos-{sources,modules,kernel} app-emulation/hv-daemons; do
+    pkg+=/${pkg##*/}
+    git mv "${pkg}"-*.ebuild "${pkg}-${VERSION_NEW}.ebuild"
+    sed -i -e '/^COREOS_SOURCE_REVISION=/s/=.*/=""/' "${pkg}-${VERSION_NEW}.ebuild"
 done
-
-if [[ -d app-emulation/hv-daemons ]]; then
-    # Update hyperv daemons ebuild soft-link to reflect new kernel version
-    find -D exec app-emulation/hv-daemons/ -type l -exec rm '{}' \;
-    ln --relative -s app-emulation/hv-daemons/hv-daemons-9999.ebuild \
-          app-emulation/hv-daemons/hv-daemons-${VERSION_NEW}.ebuild
-    extra_pkgs+=( app-emulation/hv-daemons )
-fi
 
 # Leave ebuild repo section of SDK
 popd
