@@ -7,7 +7,9 @@ EGIT_REPO_URI="https://github.com/flatcar/flatcar-dev-util.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="00396595376d8d6a3c4b9251ba94e9de2d7a9e39" # flatcar-master
+	#EGIT_COMMIT="00396595376d8d6a3c4b9251ba94e9de2d7a9e39" # flatcar-master
+	EGIT_COMMIT="cd1b814127e8d8dbe8513ba10195eab70c853579" # flatcar-master
+	EGIT_BRANCH="jepio/fetch-head"
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
