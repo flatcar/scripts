@@ -197,3 +197,6 @@ sys-auth/pambase securetty -passwdqc
 
 # We run the server in a container.
 dev-db/etcd -server
+
+# We only need the non-Python-based tools.
+app-emulation/open-vmdk -python
