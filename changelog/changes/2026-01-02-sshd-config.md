@@ -1,0 +1,1 @@
+- Dropped Ciphers, MACs, and KexAlgorithms from the sshd configuration so that the OpenSSH upstream defaults are used. This introduces post-quantum key exchange algorithms for better security.
