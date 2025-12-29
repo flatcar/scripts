@@ -10,10 +10,9 @@ EAPI=8
 
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
-inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic \
-	linux-info pam systemd udev usr-ldscript
+inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info pam systemd udev usr-ldscript
 
 DESCRIPTION="Userland utilities for ZFS Linux kernel module"
 HOMEPAGE="https://github.com/openzfs/zfs"
@@ -110,7 +109,10 @@ REQUIRED_USE="
 
 RESTRICT="test"
 
-PATCHES=()
+PATCHES=(
+	"${FILESDIR}"/2.1.5-dracut-zfs-missing.patch
+	"${FILESDIR}"/2.3.4-musl.patch
+)
 
 pkg_pretend() {
 	use rootfs || return 0
