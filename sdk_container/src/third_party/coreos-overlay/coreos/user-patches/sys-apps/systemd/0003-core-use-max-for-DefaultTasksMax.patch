@@ -1,4 +1,4 @@
-From 6f691278df570cc87cb863a98fe320a1997c6dad Mon Sep 17 00:00:00 2001
+From 78f39098dfa948db45fe2542f738cf830f079760 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
 Subject: [PATCH 3/8] core: use max for DefaultTasksMax
@@ -14,6 +14,7 @@ accommodate stale values.
 This change is built on previous patch by David Michael(dm0-).
 
 Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
 ---
  man/systemd-system.conf.xml | 2 +-
  src/core/manager.c          | 2 +-
@@ -21,10 +22,10 @@ Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index f7b414da5c..9c07e235ab 100644
+index cf5a3612f6..a0f9f8ba57 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
-@@ -230,7 +230,7 @@
+@@ -227,7 +227,7 @@
          <listitem><para>Configure the default value for the per-unit <varname>TasksMax=</varname> setting. See
          <citerefentry><refentrytitle>systemd.resource-control</refentrytitle><manvolnum>5</manvolnum></citerefentry>
          for details. This setting applies to all unit types that support resource control settings, with the exception
@@ -34,10 +35,10 @@ index f7b414da5c..9c07e235ab 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/manager.c b/src/core/manager.c
-index 4ccaba9054..3ab59c5bb3 100644
+index 20a535f2f4..be1c352045 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
-@@ -117,7 +117,7 @@
+@@ -112,7 +112,7 @@
  /* How many units and jobs to process of the bus queue before returning to the event loop. */
  #define MANAGER_BUS_MESSAGE_BUDGET 100U
  
@@ -45,12 +46,12 @@ index 4ccaba9054..3ab59c5bb3 100644
 +#define DEFAULT_TASKS_MAX ((CGroupTasksMax) { 100U, 100U }) /* 15% */
  
  static int manager_dispatch_notify_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
- static int manager_dispatch_cgroups_agent_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
+ static int manager_dispatch_signal_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
 diff --git a/src/core/system.conf.in b/src/core/system.conf.in
-index 1c08aa4d22..2faea3605e 100644
+index 54196e8489..b0b5c78b56 100644
 --- a/src/core/system.conf.in
 +++ b/src/core/system.conf.in
-@@ -59,7 +59,7 @@
+@@ -58,7 +58,7 @@
  #DefaultIPAccounting=no
  #DefaultMemoryAccounting={{ 'yes' if MEMORY_ACCOUNTING_DEFAULT else 'no' }}
  #DefaultTasksAccounting=yes
@@ -60,5 +61,5 @@ index 1c08aa4d22..2faea3605e 100644
  #DefaultLimitFSIZE=
  #DefaultLimitDATA=
 -- 
-2.51.0
+2.52.0
 

@@ -1,4 +1,4 @@
-From c2924cc57c9e4aa836021ec2567c0fdbebecf944 Mon Sep 17 00:00:00 2001
+From 1a06127f1df8612d4d23c3597e9fdf004e8961f7 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:29:04 +0000
 Subject: [PATCH 6/8] units: Keep using old journal file format
@@ -8,13 +8,14 @@ force journald to use the old journal format to give logging containers more
 time to adapt to the new format.
 
 Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
 ---
  units/systemd-journald.service.in  | 1 +
  units/systemd-journald@.service.in | 1 +
  2 files changed, 2 insertions(+)
 
 diff --git a/units/systemd-journald.service.in b/units/systemd-journald.service.in
-index 4404af963b..323af7cfb0 100644
+index 1fb080d268..960568aaff 100644
 --- a/units/systemd-journald.service.in
 +++ b/units/systemd-journald.service.in
 @@ -30,6 +30,7 @@ IgnoreOnIsolate=yes
@@ -38,5 +39,5 @@ index b705ce08ff..874701dac4 100644
  FileDescriptorStoreMax=4224
  Group=systemd-journal
 -- 
-2.51.0
+2.52.0
 

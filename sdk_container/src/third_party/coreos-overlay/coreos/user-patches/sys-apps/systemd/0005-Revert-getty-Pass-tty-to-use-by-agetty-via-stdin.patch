@@ -1,4 +1,4 @@
-From 8064e1544a2b89f8389c0469ed4879a287a045a7 Mon Sep 17 00:00:00 2001
+From 7bda1ee4a6e129e07ad91b1e9ca4a8e389468a73 Mon Sep 17 00:00:00 2001
 From: Sayan Chowdhury <schowdhury@microsoft.com>
 Date: Fri, 16 Dec 2022 16:28:26 +0530
 Subject: [PATCH 5/8] Revert "getty: Pass tty to use by agetty via stdin"
@@ -9,6 +9,7 @@ This is to work around a SELinux denial that happens when setting up standard
 input for serial consoles (which is used for SSH connections).
 
 Signed-off-by: Sayan Chowdhury <schowdhury@microsoft.com>
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
 ---
  units/console-getty.service.in    | 4 +---
  units/container-getty@.service.in | 4 +---
@@ -17,15 +18,15 @@ Signed-off-by: Sayan Chowdhury <schowdhury@microsoft.com>
  4 files changed, 4 insertions(+), 12 deletions(-)
 
 diff --git a/units/console-getty.service.in b/units/console-getty.service.in
-index 33e6368db1..1f2d8b910f 100644
+index 967d8337ab..cde822afc8 100644
 --- a/units/console-getty.service.in
 +++ b/units/console-getty.service.in
-@@ -22,12 +22,10 @@ ConditionPathExists=/dev/console
+@@ -20,12 +20,10 @@ Before=getty.target
+ ConditionPathExists=/dev/console
+ 
  [Service]
- # The '-o' option value tells agetty to replace 'login' arguments with '--' for
- # safety, and then the entered username.
--ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear --keep-baud 115200,57600,38400,9600 - ${TERM}
-+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear --keep-baud 115200,57600,38400,9600 console ${TERM}
+-ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d --keep-baud 115200,57600,38400,9600 - ${TERM}
++ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d --keep-baud 115200,57600,38400,9600 console ${TERM}
  Type=idle
  Restart=always
  UtmpIdentifier=cons
@@ -35,15 +36,15 @@ index 33e6368db1..1f2d8b910f 100644
  TTYReset=yes
  TTYVHangup=yes
 diff --git a/units/container-getty@.service.in b/units/container-getty@.service.in
-index 7573532d6d..5f27653d1f 100644
+index e0b27613df..2868d56ad0 100644
 --- a/units/container-getty@.service.in
 +++ b/units/container-getty@.service.in
-@@ -27,13 +27,11 @@ Before=rescue.service
+@@ -25,13 +25,11 @@ Conflicts=rescue.service
+ Before=rescue.service
+ 
  [Service]
- # The '-o' option value tells agetty to replace 'login' arguments with '--' for
- # safety, and then the entered username.
--ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear - ${TERM}
-+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear pts/%I ${TERM}
+-ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d - ${TERM}
++ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d pts/%I ${TERM}
  Type=idle
  Restart=always
  RestartSec=0
@@ -54,15 +55,15 @@ index 7573532d6d..5f27653d1f 100644
  TTYReset=yes
  TTYVHangup=yes
 diff --git a/units/getty@.service.in b/units/getty@.service.in
-index f30bba406d..1819627d1c 100644
+index 104c4acc96..bedf0aae54 100644
 --- a/units/getty@.service.in
 +++ b/units/getty@.service.in
-@@ -36,13 +36,11 @@ ConditionPathExists=/dev/tty0
+@@ -34,13 +34,11 @@ Before=rescue.service
+ ConditionPathExists=/dev/tty0
+ 
  [Service]
- # The '-o' option value tells agetty to replace 'login' arguments with '--' for
- # safety, and then the entered username.
--ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear - ${TERM}
-+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear %I ${TERM}
+-ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d - ${TERM}
++ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d %I ${TERM}
  Type=idle
  Restart=always
  RestartSec=0
@@ -73,15 +74,15 @@ index f30bba406d..1819627d1c 100644
  TTYReset=yes
  TTYVHangup=yes
 diff --git a/units/serial-getty@.service.in b/units/serial-getty@.service.in
-index 20a5eb2754..ba4cbc0edb 100644
+index 0134c83d48..7e5c8797ca 100644
 --- a/units/serial-getty@.service.in
 +++ b/units/serial-getty@.service.in
-@@ -32,12 +32,10 @@ Before=rescue.service
+@@ -30,12 +30,10 @@ Conflicts=rescue.service
+ Before=rescue.service
+ 
  [Service]
- # The '-o' option value tells agetty to replace 'login' arguments with '--' for
- # safety, and then the entered username.
--ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear --keep-baud 115200,57600,38400,9600 - ${TERM}
-+ExecStart=-/sbin/agetty -o '-- \\u' --noreset --noclear --keep-baud 115200,57600,38400,9600 %I ${TERM}
+-ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d --keep-baud 115200,57600,38400,9600 - ${TERM}
++ExecStart=-/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d --keep-baud 115200,57600,38400,9600 %I ${TERM}
  Type=idle
  Restart=always
  UtmpIdentifier=%I
@@ -91,5 +92,5 @@ index 20a5eb2754..ba4cbc0edb 100644
  TTYReset=yes
  TTYVHangup=yes
 -- 
-2.51.0
+2.52.0
 
