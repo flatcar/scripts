@@ -105,7 +105,8 @@ python_test() {
 			--exclude 'run.test_patma*'
 			# Slight output difference (missing '<')
 			--exclude 'run.cpp_exception_ptr_just_handler'
-
+			# No freethreading here
+			--exclude 'run.freethreaded_list_indexing_stress_test'
 		)
 	fi
 
