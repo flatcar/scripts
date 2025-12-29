@@ -1,35 +1,42 @@
-From f0ab1c6c59056afe1650f749d1af6ecc6ee8f5ec Mon Sep 17 00:00:00 2001
+From d7289d3ae89e0db5968665c3cb056c4bd4cefa2e Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 24 Oct 2025 11:06:57 +0200
 Subject: [PATCH 8/8] units: Make multi-user.target the default target
 
 Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
 ---
- units/meson.build | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ units/meson.build | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/units/meson.build b/units/meson.build
-index ef18dcae4a..887231840f 100644
+index 4f47a3b2bd..63940a72be 100644
 --- a/units/meson.build
 +++ b/units/meson.build
-@@ -46,7 +46,7 @@ units = [
+@@ -47,10 +47,7 @@ units = [
+           'file' : 'getty@.service.in',
+           'symlinks' : ['autovt@.service'],
          },
-         {
-           'file' : 'graphical.target',
--          'symlinks' : ['default.target'] + (with_runlevels ? ['runlevel5.target'] : []),
-+          'symlinks' : with_runlevels ? ['runlevel5.target'] : [],
-         },
+-        {
+-          'file' : 'graphical.target',
+-          'symlinks' : ['default.target'],
+-        },
++        { 'file' : 'graphical.target' },
          { 'file' : 'halt.target' },
          {
-@@ -140,7 +140,7 @@ units = [
-         { 'file' : 'modprobe@.service' },
-         {
-           'file' : 'multi-user.target',
--          'symlinks' : with_runlevels ? ['runlevel2.target', 'runlevel3.target', 'runlevel4.target'] : [],
-+          'symlinks' : ['default.target'] + (with_runlevels ? ['runlevel2.target', 'runlevel3.target', 'runlevel4.target'] : []),
+           'file' : 'hibernate.target',
+@@ -142,7 +139,10 @@ units = [
+           'conditions' : ['ENABLE_MACHINED'],
          },
+         { 'file' : 'modprobe@.service' },
+-        { 'file' : 'multi-user.target' },
++        {
++          'file' : 'multi-user.target',
++          'symlinks' : ['default.target'],
++        },
          { 'file' : 'network-online.target' },
          { 'file' : 'network-pre.target' },
+         { 'file' : 'network.target' },
 -- 
-2.51.0
+2.52.0
 

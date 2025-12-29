@@ -1,4 +1,4 @@
-From 83043596b6cc74b6f049999fa660afd983dc493a Mon Sep 17 00:00:00 2001
+From 70cef8f6795abc3e689053ea584f1fa499745487 Mon Sep 17 00:00:00 2001
 From: David Michael <dm0@redhat.com>
 Date: Tue, 16 Apr 2019 02:44:51 +0000
 Subject: [PATCH 1/8] wait-online: set --any by default
@@ -10,23 +10,25 @@ still configuring.  There is a new flag --any to change this.
 Preserve previous Container Linux behavior for compatibility by
 setting the --any flag by default.  See patches from v241 (or
 earlier) for the original implementation.
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
 ---
  src/network/wait-online/wait-online.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/network/wait-online/wait-online.c b/src/network/wait-online/wait-online.c
-index 6f5aef903a..0acb3e76b9 100644
+index b1d0b9cde2..e07c11d807 100644
 --- a/src/network/wait-online/wait-online.c
 +++ b/src/network/wait-online/wait-online.c
-@@ -21,7 +21,7 @@ static Hashmap *arg_interfaces = NULL;
+@@ -24,7 +24,7 @@ static Hashmap *arg_interfaces = NULL;
  static char **arg_ignore = NULL;
  static LinkOperationalStateRange arg_required_operstate = LINK_OPERSTATE_RANGE_INVALID;
  static AddressFamily arg_required_family = ADDRESS_FAMILY_NO;
 -static bool arg_any = false;
 +static bool arg_any = true;
+ static bool arg_requires_dns = false;
  
- STATIC_DESTRUCTOR_REGISTER(arg_interfaces, hashmap_free_free_freep);
- STATIC_DESTRUCTOR_REGISTER(arg_ignore, strv_freep);
+ STATIC_DESTRUCTOR_REGISTER(arg_interfaces, hashmap_freep);
 -- 
-2.51.0
+2.52.0
 
