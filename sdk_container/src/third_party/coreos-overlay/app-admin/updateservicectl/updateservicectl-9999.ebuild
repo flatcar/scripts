@@ -1,30 +1,24 @@
 # Copyright (c) 2014 CoreOS, Inc.. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-EGIT_REPO_URI="https://github.com/flatcar/updateservicectl.git"
+EAPI=8
+
 COREOS_GO_PACKAGE="github.com/flatcar/updateservicectl"
 COREOS_GO_GO111MODULE="on"
-inherit git-r3 coreos-go
+inherit coreos-go
 
-if [[ "${PV}" == 9999 ]]; then
-	KEYWORDS="~amd64 ~arm64"
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/flatcar/updateservicectl.git"
+	inherit git-r3
 else
-	EGIT_COMMIT="446f13594465503a3fdfc9106fd8a0c3123249c2" # main
+	EGIT_VERSION="bfcb21e4c5ef7077231ef1d879c867f1655da09a" # main
+	SRC_URI="https://github.com/flatcar/updateservicectl/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
+	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
 fi
 
-DESCRIPTION="CoreUpdate Management CLI"
+DESCRIPTION="Flatcar Container Linux update service CLI"
 HOMEPAGE="https://github.com/flatcar/updateservicectl"
-SRC_URI=""
 
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE=""
-
-RDEPEND="!app-admin/updatectl"
-
-src_prepare() {
-	coreos-go_src_prepare
-	GOPATH+=":${S}/Godeps/_workspace"
-}

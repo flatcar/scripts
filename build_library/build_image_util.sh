@@ -304,13 +304,12 @@ get_metadata() {
     if [ "${key}" = "SRC_URI" ]; then
         local package_name="$(echo "${pkg%%:*}" | cut -d / -f 2)"
         local ebuild_path="${prefix}/var/db/pkg/${pkg%%:*}/${package_name}.ebuild"
-        # SRC_URI is empty for the special github.com/flatcar projects
         if [ -z "${val}" ]; then
             # The grep invocation gives errors when the ebuild file is not present.
             # This can happen when the binary packages from ./build_packages are outdated.
             val="$(grep "EGIT_REPO_URI=" "${ebuild_path}" | cut -d '"' -f 2)"
             if [ -n "${val}" ]; then
-                # All github.com/flatcar projects specify their commit
+                # If using git, then the package was probably pinned to a commit.
                 local commit=""
                 commit="$(grep "EGIT_COMMIT=" "${ebuild_path}" | cut -d '"' -f 2)"
                 if [ -n "${commit}" ]; then
@@ -322,10 +321,6 @@ get_metadata() {
         if [ -z "${val}" ]; then
             # Do not attempt to postprocess by resolving ${P} and friends because it does not affect production images
             val="$(cat "${ebuild_path}" | tr '\n' ' ' | grep -P -o 'SRC_URI=".*?"' | cut -d '"' -f 2)"
-        fi
-        # Some packages use nothing from the above but EGIT_REPO_URI (currently only app-crypt/go-tspi)
-        if [ -z "${val}" ]; then
-            val="$(grep "EGIT_REPO_URI=" "${ebuild_path}" | cut -d '"' -f 2)"
         fi
         # Replace all mirror://MIRRORNAME/ parts with the actual URL prefix of the mirror
         new_val=""
