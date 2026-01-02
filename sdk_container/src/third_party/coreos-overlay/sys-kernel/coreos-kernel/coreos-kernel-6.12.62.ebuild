@@ -52,7 +52,10 @@ DEPEND="
 	>=sys-kernel/bootengine-0.0.38-r37:=
 	>=sys-kernel/coreos-firmware-20180103-r1:=
 	virtual/udev
-	amd64? ( sys-firmware/intel-microcode:= )
+	amd64? (
+		app-admin/google-guest-configs
+		sys-firmware/intel-microcode:=
+	)
 "
 
 src_prepare() {
