@@ -149,7 +149,7 @@ function run_image_changes_job() {
     "${cb}"
 
     local -a oemids base_sysexts extra_sysexts
-    get_oem_id_list . "${arch}" oemids
+    get_oem_id_list "${arch}" oemids
     get_base_sysext_list . base_sysexts
     get_extra_sysext_list . "${arch}" extra_sysexts
     generate_image_changes_report \
@@ -241,38 +241,7 @@ function git_tag_for_nightly() {
     git_tag_ref=$(git -C "${scripts_repo}" describe --tags --abbrev=0 --match='*-nightly-*' --exclude='*-INTERMEDIATE' "${search_object}")
 }
 
-# Gets a list of OEMs that are using sysexts.
-#
-# 1 - scripts repo
-# 2 - arch
-# 3 - name of an array variable to store the result in
-function get_oem_id_list() {
-    local scripts_repo arch list_var_name
-    scripts_repo=${1}; shift
-    arch=${1}; shift
-    list_var_name=${1}; shift
-
-    local -a ebuilds=("${scripts_repo}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/common-oem-files-"*'.ebuild')
-    if [[ ${#ebuilds[@]} -eq 0 ]] || [[ ! -e ${ebuilds[0]} ]]; then
-        echo "No coreos-base/common-oem-files ebuilds?!" >&2
-        exit 1
-    fi
-
-    # This defines local COMMON_OEMIDS, AMD64_ONLY_OEMIDS,
-    # ARM64_ONLY_OEMIDS and OEMIDS variable. We don't use the last
-    # one. Also defines global-by-default EAPI, which we make local
-    # here to avoid making it global.
-    local EAPI
-    source "${ebuilds[0]}" flatcar-local-variables
-
-    local -n arch_oemids_ref="${arch^^}_ONLY_OEMIDS"
-    local all_oemids=(
-        "${COMMON_OEMIDS[@]}"
-        "${arch_oemids_ref[@]}"
-    )
-
-    mapfile -t "${list_var_name}" < <(printf '%s\n' "${all_oemids[@]}" | sort)
-}
+source build_library/oem_sysexts.sh
 
 function get_base_sysext_list() {
     local scripts_repo=${1}; shift

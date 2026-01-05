@@ -103,7 +103,7 @@ function _image_build_impl() {
                           --base_sysexts="${base_sysexts_param}" \
                           --output_root="${CONTAINER_IMAGE_ROOT}" \
                           --only_store_compressed \
-                          prodtar container sysext
+                          prodtar container sysext oem_sysext
 
     # copy resulting images + push to buildcache
     local images_out="images/"
