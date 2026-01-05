@@ -41,7 +41,7 @@ esac
 if [[ -z ${_MESON_ECLASS} ]]; then
 _MESON_ECLASS=1
 
-inherit flag-o-matic multiprocessing ninja-utils python-utils-r1 toolchain-funcs
+inherit flag-o-matic multiprocessing ninja-utils python-utils-r1 sysroot toolchain-funcs
 
 BDEPEND=">=dev-build/meson-1.2.3
 	${NINJA_DEPEND}
@@ -103,7 +103,7 @@ BDEPEND=">=dev-build/meson-1.2.3
 #          '--unicode-16=𐐷', '--unicode-32=𐤅']
 #
 _meson_env_array() {
-	meson-format-array "$@"
+	meson-format-array "$@" || die
 }
 
 # @FUNCTION: _meson_get_machine_info
@@ -150,11 +150,12 @@ _meson_create_cross_file() {
 
 	local fn=${T}/meson.${CHOST}.${ABI}.ini
 
-	cat > "${fn}" <<-EOF
+	cat > "${fn}" <<-EOF || die "failed to create cross file"
 	[binaries]
 	ar = $(_meson_env_array "$(tc-getAR)")
 	c = $(_meson_env_array "$(tc-getCC)")
 	cpp = $(_meson_env_array "$(tc-getCXX)")
+	exe_wrapper = '$(sysroot_make_run_prefixed)'
 	fortran = $(_meson_env_array "$(tc-getFC)")
 	llvm-config = '$(tc-getPROG LLVM_CONFIG llvm-config)'
 	nm = $(_meson_env_array "$(tc-getNM)")
@@ -181,7 +182,7 @@ _meson_create_cross_file() {
 	objcpp_link_args = $(_meson_env_array "${OBJCXXFLAGS} ${LDFLAGS}")
 
 	[properties]
-	needs_exe_wrapper = true
+	needs_exe_wrapper = $(tc-is-cross-compiler && echo true || echo false)
 	sys_root = '${SYSROOT}'
 	pkg_config_libdir = '${PKG_CONFIG_LIBDIR:-${EPREFIX}/usr/$(get_libdir)/pkgconfig}'
 
@@ -205,9 +206,9 @@ _meson_create_native_file() {
 	local system cpu_family cpu
 	_meson_get_machine_info "${CBUILD}"
 
-	local fn=${T}/meson.${CBUILD}.${ABI}.ini
+	local fn=${T}/meson.${CBUILD}.ini
 
-	cat > "${fn}" <<-EOF
+	cat > "${fn}" <<-EOF || die "failed to create native file"
 	[binaries]
 	ar = $(_meson_env_array "$(tc-getBUILD_AR)")
 	c = $(_meson_env_array "$(tc-getBUILD_CC)")
@@ -382,7 +383,7 @@ setup_meson_src_configure() {
 		MESONARGS+=( -Dbuildtype="${EMESON_BUILDTYPE}" )
 	fi
 
-	if tc-is-cross-compiler; then
+	if tc-is-cross-compiler || [[ "${ABI}" != "${DEFAULT_ABI}" ]]; then
 		MESONARGS+=( --cross-file "$(_meson_create_cross_file)" )
 	fi
 
