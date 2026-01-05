@@ -118,6 +118,7 @@ fi
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/test_image_content.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/extra_sysexts.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/oem_sysexts.sh" || exit 1
 
 # Setup all the emerge command/flags.
 EMERGE_FLAGS=( --update --deep --newuse --verbose --backtrack=30 --select )
@@ -288,50 +289,55 @@ fi
 export KBUILD_BUILD_USER="${BUILD_USER:-build}"
 export KBUILD_BUILD_HOST="${BUILD_HOST:-pony-truck.infra.kinvolk.io}"
 
+# Build sysext packages from an array of sysext definitions.
+# Usage: build_sysext_packages "description" "${SYSEXT_ARRAY[@]}"
+# Array format: "name|packages|useflags|arches"
+build_sysext_packages() {
+  local description="$1"
+  shift
+  local sysexts=("$@")
+
+  info "Merging ${description} packages now"
+  for sysext in "${sysexts[@]}"; do
+    local sysext_name package_atoms useflags arches
+    IFS="|" read -r sysext_name package_atoms useflags arches <<< "$sysext"
+    [[ -z ${arches} || ,${arches}, == *,"${ARCH}",* ]] || continue
+
+    info "Building packages for $sysext_name sysext with USE=$useflags"
+    IFS=,
+    for package in $package_atoms; do
+       # --buildpkgonly does not install dependencies, so we install them
+       # separately before building the binary package
+       sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
+         env USE="$useflags" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
+         "${EMERGE_FLAGS[@]}" \
+         --quiet \
+         --onlydeps \
+         --binpkg-respect-use=y \
+         "${package}"
+
+       sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
+         env USE="$useflags" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
+         "${EMERGE_FLAGS[@]}" \
+         --quiet \
+         --buildpkgonly \
+         --binpkg-respect-use=y \
+         "${package}"
+    done
+    unset IFS
+  done
+}
+
 info "Merging board packages now"
 sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
-info "Merging sysext packages now"
-for sysext in "${EXTRA_SYSEXTS[@]}"; do
-  IFS="|" read -r SYSEXT_NAME PACKAGE_ATOMS USEFLAGS ARCHES <<< "$sysext"
+build_sysext_packages "extra sysexts" "${EXTRA_SYSEXTS[@]}"
 
-  arch_array=("${ARCHES//,/ }")
-  if [[ -n $ARCHES ]]; then
-    should_skip=1
-    for arch in "${arch_array[@]}"; do
-      if [[ $arch == "$ARCH" ]]; then
-        should_skip=0
-      fi
-    done
-    if [[ $should_skip -eq 1 ]]; then
-      continue
-    fi
-  fi
-
-
-  info "Building packages for $SYSEXT_NAME sysext with USE=$USEFLAGS"
-  IFS=,
-  for package in $PACKAGE_ATOMS; do
-     # --buildpkgonly does not install dependencies, so we install them
-     # separately before building the binary package
-     sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
-       env USE="$USEFLAGS" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
-       "${EMERGE_FLAGS[@]}" \
-       --quiet \
-       --onlydeps \
-       --binpkg-respect-use=y \
-       "${package}"
-
-     sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
-       env USE="$USEFLAGS" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
-       "${EMERGE_FLAGS[@]}" \
-       --quiet \
-       --buildpkgonly \
-       --binpkg-respect-use=y \
-       "${package}"
-  done
-  unset IFS
-done
+declare -a oem_sysexts
+get_oem_sysext_matrix "${ARCH}" oem_sysexts
+if [[ ${#oem_sysexts[@]} -gt 0 ]]; then
+  build_sysext_packages "OEM sysexts" "${oem_sysexts[@]}"
+fi
 
 info "Removing obsolete packages"
 # The return value of emerge is not clearly reliable. It may fail with

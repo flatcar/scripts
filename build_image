@@ -60,10 +60,12 @@ different forms.  This scripts can be used to build the following:
 prod - Production image for CoreOS. This image is for booting (default if no argument is given).
 prodtar - Production container tar ball (implies prod). This can e.g. be used to run the Flatcar production image as a container (run machinectl import-tar or docker import).
 container - Developer image with single filesystem, bootable by nspawn.
+sysext - Build extra sysexts (podman, python, zfs, etc.).
+oem_sysext - Build OEM sysexts for all supported platforms.
 
 Examples:
 
-build_image --board=<board> [prod] [prodtar] [container] - builds developer and production images/tars.
+build_image --board=<board> [prod] [prodtar] [container] [sysext] [oem_sysext] - builds developer and production images/tars.
 ...
 "
 show_help_if_requested "$@"
@@ -81,7 +83,7 @@ DEFINE_string version "" \
 # Parse command line.
 FLAGS "$@" || exit 1
 
-eval set -- "${FLAGS_ARGV:-prod}"
+eval set -- "${FLAGS_ARGV:-prod oem_sysext}"
 
 # Only now can we die on error.  shflags functions leak non-zero error codes,
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
@@ -103,17 +105,20 @@ fi
 . "${BUILD_LIBRARY_DIR}/test_image_content.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/vm_image_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/extra_sysexts.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/oem_sysexts.sh" || exit 1
 
 PROD_IMAGE=0
 PROD_TAR=0
 CONTAINER=0
 SYSEXT=0
+OEM_SYSEXT=0
 for arg in "$@"; do
   case "${arg}" in
     prod) PROD_IMAGE=1 ;;
     prodtar) PROD_IMAGE=1 PROD_TAR=1 ;;
     container) CONTAINER=1 ;;
     sysext) SYSEXT=1 ;;
+    oem_sysext) OEM_SYSEXT=1 ;;
     *)    die_notrace "Unknown image type ${arg}" ;;
   esac
 done
@@ -186,6 +191,9 @@ if [[ "${PROD_IMAGE}" -eq 1 ]]; then
 fi
 if [[ "${SYSEXT}" -eq 1 ]]; then
   create_prod_sysexts "${FLATCAR_PRODUCTION_IMAGE_NAME}"
+fi
+if [[ "${OEM_SYSEXT}" -eq 1 ]]; then
+  create_oem_sysexts "${FLATCAR_PRODUCTION_IMAGE_NAME}"
 fi
 
 if [[ ${FLAGS_extract_update} -eq ${FLAGS_TRUE} ]]; then
