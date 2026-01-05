@@ -17,7 +17,7 @@ else
 	SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> vim-${PV}.tar.gz
 		https://gitweb.gentoo.org/proj/vim-patches.git/snapshot/vim-patches-vim-${VIM_PATCHES_VERSION}-patches.tar.bz2"
 		# https://github.com/douglarek/gentoo-vim-patches/releases/download/vim-${VIM_PATCHES_VERSION}-patches/vim-${VIM_PATCHES_VERSION}-patches.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 fi
 
 DESCRIPTION="vim and gvim shared files"
@@ -137,6 +137,7 @@ src_configure() {
 	local myconf=(
 		--with-modified-by="Gentoo-${PVR} (RIP Bram)"
 		--enable-gui=no
+		--without-wayland
 		--without-x
 		--disable-darwin
 		--disable-perlinterp
@@ -190,7 +191,7 @@ src_install() {
 	# default vimrc is installed by vim-core since it applies to
 	# both vim and gvim
 	insinto /etc/vim/
-	newins "${FILESDIR}"/vimrc-r7 vimrc
+	newins "${FILESDIR}"/vimrc-r8 vimrc
 	eprefixify "${ED}"/etc/vim/vimrc
 
 	if use minimal; then
