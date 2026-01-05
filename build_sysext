@@ -216,7 +216,7 @@ if [[ ${#} -lt 1 ]]; then
    show_help_if_requested -h
 fi
 
-info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
+info "Building '${SYSEXTNAME}' sysext with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
 
 for package; do
   echo "Installing package into sysext image: $package"
