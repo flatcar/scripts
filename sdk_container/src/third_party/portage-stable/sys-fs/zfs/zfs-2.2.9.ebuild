@@ -5,9 +5,10 @@ EAPI=8
 
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{11..14} )
 
-inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info pam systemd udev usr-ldscript
+inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info
+inherit pam systemd udev usr-ldscript
 
 DESCRIPTION="Userland utilities for ZFS Linux kernel module"
 HOMEPAGE="https://github.com/openzfs/zfs"
@@ -25,7 +26,7 @@ else
 	S="${WORKDIR}/${MY_P}"
 
 	if [[ ${PV} != *_rc* ]]; then
-		KEYWORDS="amd64 arm64 ~loong ppc64 ~riscv ~sparc"
+		KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc"
 	fi
 fi
 
@@ -106,8 +107,8 @@ RESTRICT="test"
 
 PATCHES=(
 	"${FILESDIR}"/2.1.5-dracut-zfs-missing.patch
-	"${FILESDIR}"/2.2.2-no-USER_NS.patch
-	"${FILESDIR}"/2.2.3-musl.patch
+	"${FILESDIR}"/2.3.4-musl.patch
+	"${FILESDIR}"/2.2.9-nfs-truncate-shares.patch
 )
 
 pkg_pretend() {
@@ -289,7 +290,7 @@ pkg_postinst() {
 	fi
 
 	if systemd_is_booted || has_version sys-apps/systemd; then
-		einfo "Please refer to ${EROOT}/$(systemd_get_systempresetdir)/50-zfs.preset"
+		einfo "Please refer to $(systemd_get_systempresetdir)/50-zfs.preset"
 		einfo "for default zfs systemd service configuration"
 	else
 		[[ -e "${EROOT}/etc/runlevels/boot/zfs-import" ]] || \
