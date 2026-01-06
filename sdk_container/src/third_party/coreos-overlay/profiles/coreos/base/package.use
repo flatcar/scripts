@@ -40,7 +40,7 @@ net-firewall/ipset -modules
 dev-libs/glib -mime
 
 # keep grub build simple
-sys-boot/grub -multislot -themes -fonts -device-mapper
+sys-boot/grub -branding -multislot -themes -fonts -device-mapper
 
 # disable "high performance ssh" patch, turn on kerberos
 net-misc/openssh -hpn kerberos
