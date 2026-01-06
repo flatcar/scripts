@@ -28,3 +28,6 @@ app-emulation/qemu X
 # disable all tools for NVIDIA driver, keep just kmods
 x11-drivers/nvidia-drivers tools X static-libs
 x11-drivers/old-nvidia-drivers tools X static-libs
+
+# We don't maintain the tarballs needed to build these features offline.
+<sys-fs/overlaybd-9999 dsa isal
