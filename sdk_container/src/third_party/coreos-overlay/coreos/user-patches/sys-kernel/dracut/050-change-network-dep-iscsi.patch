@@ -1,12 +1,14 @@
 As Flatcar uses the flatcar-network module, we need to replace it in the iscsi
 module setup in order to enable iscsi support.
-diff --git a/modules.d/95iscsi/module-setup.sh b/modules.d/95iscsi/module-setup.sh
-@@ -183,7 +183,7 @@
+
+--- a/modules.d/74iscsi/module-setup.sh
++++ b/modules.d/74iscsi/module-setup.sh
+@@ -154,7 +154,7 @@ install_softiscsi() {
  
  # called by dracut
  depends() {
--    echo network rootfs-block
-+    echo flatcar-network rootfs-block
+-    echo network rootfs-block initqueue
++    echo flatcar-network rootfs-block initqueue
  }
  
  # called by dracut

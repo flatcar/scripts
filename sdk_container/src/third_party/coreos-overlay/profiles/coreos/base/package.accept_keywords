@@ -104,3 +104,6 @@ sys-apps/azure-vm-utils
 
 # Not stabilised for arm64 yet.
 dev-db/etcd amd64
+
+# Bump early for newer features.
+=sys-kernel/dracut-109* ~amd64 ~arm64
