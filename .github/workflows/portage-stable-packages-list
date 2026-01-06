@@ -291,6 +291,7 @@ dev-libs/openssl
 dev-libs/popt
 dev-libs/protobuf
 dev-libs/raft
+dev-libs/rapidjson
 dev-libs/tree-sitter
 dev-libs/tree-sitter-bash
 dev-libs/userspace-rcu
