@@ -11,7 +11,7 @@ else
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
-PYTHON_COMPAT=( python3_{6..11} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 inherit git-r3 python-single-r1
 
