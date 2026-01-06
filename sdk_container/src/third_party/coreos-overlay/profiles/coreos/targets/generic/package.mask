@@ -1,0 +1,8 @@
+# Copyright (c) 2026 The Flatcar Maintainers.
+# Distributed under the terms of the GNU General Public License v2
+
+# Do not install python versions that were "disabled" in
+# PYTHON_TARGETS. For some reason emerge still insists on installing
+# those as a dependency for some packages.
+<dev-lang/python-3.12
+>=dev-lang/python-3.13

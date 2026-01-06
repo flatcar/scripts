@@ -11,9 +11,11 @@
 # certificate store provided in NSS rather than the Gentoo/Debian package.
 >=app-misc/ca-certificates-20000000
 
-# Python 3.12 is in portage-stable (currently testing), so avoid picking it
-# up. Update this to mask later versions when we switch to 3.11.
->=dev-lang/python-3.12
-
 # Update engine needs updating to use a newer version of protobuf.
 >=dev-libs/protobuf-22.0
+
+# Do not install python versions that were "disabled" in
+# PYTHON_TARGETS. For some reason emerge still insists on installing
+# those as a dependency for some packages.
+<dev-lang/python-3.11
+>=dev-lang/python-3.13

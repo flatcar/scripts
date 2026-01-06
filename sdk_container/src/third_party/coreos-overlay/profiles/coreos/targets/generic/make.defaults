@@ -3,6 +3,10 @@
 
 FLATCAR_TYPE=generic
 
+# Use Python 3.12 as the default version.
+PYTHON_SINGLE_TARGET="-pypy3_11 -python3_11 python3_12 -python3_13 -python3_14 -python3_13t -python3_14t"
+PYTHON_TARGETS="-pypy3_11 -python3_11 python3_12 -python3_13 -python3_14 -python3_13t -python3_14t"
+
 USE="acpi usb cryptsetup policykit"
 USE="${USE} -cros_host -expat -cairo -X -man"
 USE="${USE} -acl -gpm -python"
