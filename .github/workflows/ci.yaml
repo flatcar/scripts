@@ -34,11 +34,7 @@ permissions:
 jobs:
   packages:
     name: "Build Flatcar packages"
-    runs-on:
-      - self-hosted
-      - ubuntu
-      - build
-      - amd64
+    runs-on: oracle-vm-32cpu-128gb-x86-64
     strategy:
       fail-fast: false
       matrix:
