@@ -27,14 +27,17 @@ DEPEND="
 	app-shells/bash
 	coreos-base/afterburn
 	coreos-base/coreos-init:=
+	net-misc/iputils
 	sys-apps/azure-vm-utils[dracut]
 	sys-apps/baselayout
 	sys-apps/busybox
 	sys-apps/coreutils
 	sys-apps/findutils
 	sys-apps/grep
+	sys-apps/hwdata
 	sys-apps/ignition:=
 	sys-apps/iproute2
+	sys-apps/kexec-tools
 	sys-apps/less
 	sys-apps/nvme-cli
 	sys-apps/sed
@@ -51,6 +54,7 @@ DEPEND="
 	sys-fs/xfsprogs
 	>=sys-kernel/bootengine-0.0.38-r37:=
 	>=sys-kernel/coreos-firmware-20180103-r1:=
+	sys-process/procps
 	virtual/udev
 	amd64? ( sys-firmware/intel-microcode:= )
 "
