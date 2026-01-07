@@ -100,13 +100,12 @@ src_compile() {
 	# Create minimal initrd
 	mkdir "${S}"/build/minimal || die
 	pushd "${S}"/build/minimal || die
-	mkdir -p {etc,dev,proc,sys,dev,usr/bin,usr/lib64,realinit,sysusr/usr} || die
+	mkdir -p {etc,dev,proc,sys,dev,usr/bin,usr/lib,usr/lib64,realinit,sysusr/usr} || die
 	ln -s usr/bin bin || die
 	ln -s usr/bin sbin || die
 	ln -s bin usr/sbin || die
-	ln -s usr/lib64 lib || die
+	ln -s usr/lib lib || die
 	ln -s usr/lib64 lib64 || die
-	ln -s lib64 usr/lib || die
 	# Instead from ESYSROOT we can also copy kernel modules from the dracut pre-selection
 	mkdir -p lib/modprobe.d/ || die
 	cp "${S}"/build/bootengine/lib/modprobe.d/* lib/modprobe.d/ || die
