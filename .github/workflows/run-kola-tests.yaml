@@ -31,8 +31,6 @@ jobs:
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
           sudo apt update && sudo apt install -y ca-certificates curl gnupg lsb-release qemu-system git bzip2 jq dnsmasq python3 zstd
-          sudo systemctl stop dnsmasq
-          sudo systemctl mask dnsmasq
 
           # Set up MASQUERADE. Don't care much to secure it.
           # This is needed for the VMs kola spins up to have internet access.
