@@ -7,7 +7,7 @@ EGIT_REPO_URI="https://github.com/flatcar/bootengine.git"
 if [[ "${PV}" == 9999 ]]; then
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 else
-	EGIT_COMMIT="5d3ac4819005c92bc1b64d73ccf8d8b959443c3e" # flatcar-master
+	EGIT_COMMIT="7d9895ce55617b18a78294975197975ac17b5bc3" # flatcar-master
 	KEYWORDS="amd64 arm arm64 x86"
 fi
 
@@ -27,16 +27,16 @@ src_install() {
 
 	# must be executable since dracut's install scripts just
 	# re-use existing filesystem permissions during initrd creation.
-	chmod +x "${D}"/usr/lib/dracut/modules.d/10*-generator/*-generator \
-		"${D}"/usr/lib/dracut/modules.d/10diskless-generator/diskless-btrfs \
-		"${D}"/usr/lib/dracut/modules.d/10networkd-dependency-generator/*-generator \
-		"${D}"/usr/lib/dracut/modules.d/03flatcar-network/parse-ip-for-networkd.sh \
-		"${D}"/usr/lib/dracut/modules.d/30disk-uuid/disk-uuid.sh \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-generator \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup.sh \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-setup-pre.sh \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/ignition-kargs-helper \
-		"${D}"/usr/lib/dracut/modules.d/30ignition/retry-umount.sh \
+	chmod +x "${D}"/usr/lib/dracut/modules.d/51*-generator/*-generator \
+		"${D}"/usr/lib/dracut/modules.d/51diskless-generator/diskless-btrfs \
+		"${D}"/usr/lib/dracut/modules.d/51networkd-dependency-generator/*-generator \
+		"${D}"/usr/lib/dracut/modules.d/50flatcar-network/parse-ip-for-networkd.sh \
+		"${D}"/usr/lib/dracut/modules.d/53disk-uuid/disk-uuid.sh \
+		"${D}"/usr/lib/dracut/modules.d/53ignition/ignition-generator \
+		"${D}"/usr/lib/dracut/modules.d/53ignition/ignition-setup.sh \
+		"${D}"/usr/lib/dracut/modules.d/53ignition/ignition-setup-pre.sh \
+		"${D}"/usr/lib/dracut/modules.d/53ignition/ignition-kargs-helper \
+		"${D}"/usr/lib/dracut/modules.d/53ignition/retry-umount.sh \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/initrd-setup-root-after-ignition \
 		"${D}"/usr/lib/dracut/modules.d/99setup-root/gpg-agent-wrapper \
