@@ -1,0 +1,1 @@
+- python ([3.12.12](https://www.python.org/downloads/release/python-31212/) (includes [3.12.0](https://www.python.org/downloads/release/python-3120/)))
