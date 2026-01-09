@@ -31,11 +31,14 @@ extra_pkgs=(
     app-emulation/hv-daemons
 )
 
+shopt -s extglob
 for pkg in sys-kernel/coreos-{sources,modules,kernel} app-emulation/hv-daemons; do
     pkg+=/${pkg##*/}
-    git mv "${pkg}"-*.ebuild "${pkg}-${VERSION_NEW}.ebuild"
-    sed -i -e '/^COREOS_SOURCE_REVISION=/s/=.*/=""/' "${pkg}-${VERSION_NEW}.ebuild"
+    new=${pkg}-${VERSION_NEW}.ebuild
+    git mv "${pkg}"-!(9999*).ebuild "${new}"
+    [[ -L ${new} ]] || sed -i -e '/^COREOS_SOURCE_REVISION=/s/=.*/=""/' "${new}"
 done
+shopt -u extglob
 
 # Leave ebuild repo section of SDK
 popd
