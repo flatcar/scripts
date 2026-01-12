@@ -3,21 +3,19 @@
 
 EAPI=8
 
-RUST_MIN_VER="1.82.0"
-
 CRATES="
 	adler2@2.0.1
-	aho-corasick@1.1.3
+	aho-corasick@1.1.4
 	allocator-api2@0.2.21
 	anstream@0.6.21
 	anstyle-parse@0.2.7
-	anstyle-query@1.1.4
-	anstyle-wincon@3.0.10
+	anstyle-query@1.1.5
+	anstyle-wincon@3.0.11
 	anstyle@1.0.13
 	anyhow@1.0.100
 	autocfg@1.5.0
 	base64@0.22.1
-	bindgen@0.71.1
+	bindgen@0.72.1
 	bitflags@2.10.0
 	bumpalo@3.19.0
 	bytemuck@1.24.0
@@ -28,8 +26,8 @@ CRATES="
 	cfg-if@1.0.4
 	cfg_aliases@0.2.1
 	clang-sys@1.8.1
-	clap@4.5.50
-	clap_builder@4.5.50
+	clap@4.5.52
+	clap_builder@4.5.52
 	clap_lex@0.7.6
 	colorchoice@1.0.4
 	compact_str@0.8.1
@@ -40,10 +38,10 @@ CRATES="
 	darling_core@0.20.11
 	darling_macro@0.20.11
 	data-encoding@2.9.0
-	devicemapper-sys@0.3.2
+	devicemapper-sys@0.3.3
 	devicemapper@0.34.5
 	downcast@0.11.0
-	duct@1.1.0
+	duct@1.1.1
 	either@1.15.0
 	encode_unicode@1.0.0
 	env_filter@0.1.4
@@ -54,7 +52,7 @@ CRATES="
 	exitcode@1.1.2
 	fastrand@2.3.0
 	fixedbitset@0.5.7
-	flate2@1.1.4
+	flate2@1.1.5
 	fnv@1.0.7
 	foldhash@0.1.5
 	fragile@2.0.1
@@ -66,18 +64,18 @@ CRATES="
 	hermit-abi@0.3.9
 	hermit-abi@0.5.2
 	ident_case@1.0.1
-	indicatif@0.18.1
+	indicatif@0.18.3
 	indoc@2.0.7
 	instability@0.3.9
 	io-lifetimes@1.0.11
-	io-uring@0.7.10
+	io-uring@0.7.11
 	iovec@0.1.4
 	is_terminal_polyfill@1.70.2
 	itertools@0.13.0
 	itoa@1.0.15
-	jiff-static@0.2.15
-	jiff@0.2.15
-	js-sys@0.3.81
+	jiff-static@0.2.16
+	jiff@0.2.16
+	js-sys@0.3.82
 	libc@0.2.177
 	libloading@0.8.9
 	libredox@0.1.10
@@ -109,18 +107,18 @@ CRATES="
 	predicates-tree@1.0.12
 	predicates@3.1.3
 	prettyplease@0.2.37
-	proc-macro2@1.0.101
-	quick-xml@0.38.3
+	proc-macro2@1.0.103
+	quick-xml@0.38.4
 	quickcheck@1.0.3
 	quickcheck_macros@1.1.0
-	quote@1.0.41
+	quote@1.0.42
 	r-efi@5.3.0
 	rand@0.8.5
 	rand@0.9.2
 	rand_chacha@0.9.0
 	rand_core@0.6.4
 	rand_core@0.9.3
-	rangemap@1.6.0
+	rangemap@1.7.0
 	ratatui@0.29.0
 	redox_syscall@0.5.18
 	redox_termios@0.1.3
@@ -149,27 +147,26 @@ CRATES="
 	strsim@0.11.1
 	strum@0.26.3
 	strum_macros@0.26.4
-	syn@2.0.107
+	syn@2.0.110
 	tempfile@3.23.0
 	termion@4.0.5
 	termtree@0.5.1
 	thiserror-impl@2.0.17
 	thiserror@2.0.17
 	udev@0.9.3
-	unicode-ident@1.0.20
+	unicode-ident@1.0.22
 	unicode-segmentation@1.12.0
 	unicode-truncate@1.1.0
 	unicode-width@0.1.14
 	unicode-width@0.2.0
-	unit-prefix@0.5.1
+	unit-prefix@0.5.2
 	utf8parse@0.2.2
 	wasi@0.11.1+wasi-snapshot-preview1
 	wasip2@1.0.1+wasi-0.2.4
-	wasm-bindgen-backend@0.2.104
-	wasm-bindgen-macro-support@0.2.104
-	wasm-bindgen-macro@0.2.104
-	wasm-bindgen-shared@0.2.104
-	wasm-bindgen@0.2.104
+	wasm-bindgen-macro-support@0.2.105
+	wasm-bindgen-macro@0.2.105
+	wasm-bindgen-shared@0.2.105
+	wasm-bindgen@0.2.105
 	web-time@1.1.0
 	windows-link@0.2.1
 	windows-sys@0.48.0
@@ -197,7 +194,9 @@ CRATES="
 	zerocopy@0.8.27
 "
 
-LLVM_COMPAT=( {17..20} )
+LLVM_COMPAT=( {19..21} )
+RUST_MIN_VER="1.82.0"
+RUST_NEEDS_LLVM=1
 
 inherit cargo llvm-r1
 
@@ -212,7 +211,7 @@ else
 		https://github.com/jthornber/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
 		${CARGO_CRATE_URIS}
 	"
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 arm arm64 ~loong ppc64 ~riscv ~sparc x86"
 fi
 
 LICENSE="GPL-3"
