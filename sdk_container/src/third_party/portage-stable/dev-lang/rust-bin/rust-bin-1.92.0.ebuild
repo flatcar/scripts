@@ -22,12 +22,12 @@ elif [[ ${PV} == *beta* ]]; then
 else
 	# curl -Ls static.rust-lang.org/dist/channel-rust-${PV}.toml | grep "xz_url.*rust-src"
 	SRC_URI="$(rust_all_arch_uris "rust-${PV}")
-		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2025-10-30/rust-src-${PV}.tar.xz )
+		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2025-12-11/rust-src-${PV}.tar.xz )
 		ppc64? ( elibc_musl? ( !big-endian? (
 			$(rust_arch_uri powerpc64le-unknown-linux-musl rust-${PV})
 		) ) )
 	"
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PVR}" # omit trailing slash
