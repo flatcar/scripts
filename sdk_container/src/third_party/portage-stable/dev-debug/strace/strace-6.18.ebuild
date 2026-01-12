@@ -16,7 +16,7 @@ else
 		https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.xz
 		verify-sig? ( https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.xz.asc )
 	"
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/strace.asc
@@ -29,7 +29,7 @@ REQUIRED_USE="?? ( unwind elfutils )"
 
 BDEPEND="
 	virtual/pkgconfig
-	verify-sig? ( >=sec-keys/openpgp-keys-strace-20151021 )
+	verify-sig? ( >=sec-keys/openpgp-keys-strace-20251130 )
 "
 LIB_DEPEND="
 	unwind? ( sys-libs/libunwind[static-libs(+)] )
