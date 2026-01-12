@@ -8,7 +8,7 @@
 # (the following packages are "unstable" upstream; we're stabilising these)
 
 # We always want the latest version available.
-=app-containers/containerd-2.1* ~amd64 ~arm64
+=app-containers/containerd-2.2* ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.33.0 ~arm64
@@ -19,7 +19,7 @@
 =app-containers/podman-5.5.2 ~amd64 ~arm64
 
 # We always want the latest version available.
-=app-containers/runc-1.3* ~amd64 ~arm64
+=app-containers/runc-1.4* ~amd64 ~arm64
 
 # No stable keywords.
 =app-containers/syft-1.18.1 ~amd64 ~arm64
