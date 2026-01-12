@@ -7,13 +7,7 @@ inherit shell-completion go-module
 MY_PV=${PV/_/-}
 
 # update this on every bump
-GIT_COMMIT=d8eb465f86cfceeb57f8582e373d41a558d35503
-
-# To create the man pages tarball, run the following in the git source
-# directory:
-#git checkout ${PV}
-# make manpages
-# tar -acf ${P}-man.tar.xz man/man?
+GIT_COMMIT=f52814d454173982e6692dd7e290a41b828d9cbc
 
 DESCRIPTION="the command line binary for docker"
 HOMEPAGE="https://www.docker.com/"
@@ -22,23 +16,18 @@ S="${WORKDIR}/cli-${PV}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ~loong ppc64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 IUSE="hardened selinux"
 
 RDEPEND="selinux? ( sec-policy/selinux-docker )"
 
 RESTRICT="installsources strip test"
 
-src_unpack() {
-	default
-	cd "${S}"
-	ln -s vendor.mod go.mod
-	ln -s vendor.sum go.sum
-}
-
 src_prepare() {
 	default
 	sed -i 's@dockerd\?\.exe@@g' contrib/completion/bash/docker || die
+	ln -s vendor.mod go.mod
+	ln -s vendor.sum go.sum
 }
 
 src_compile() {
