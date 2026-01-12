@@ -3,31 +3,27 @@
 
 EAPI=8
 
-inherit git-r3 go-module systemd tmpfiles
+inherit go-module systemd tmpfiles
 
 DESCRIPTION="Remote container image format (overlaybd) and snapshotter based on block-device"
 HOMEPAGE="https://github.com/containerd/accelerated-container-image"
-EGIT_REPO_URI="https://github.com/containerd/accelerated-container-image.git"
 
 if [[ ${PV} == 9999* ]]; then
-	KEYWORDS="~amd64 ~arm64"
+	EGIT_REPO_URI="https://github.com/containerd/accelerated-container-image.git"
+	inherit git-r3
 else
-	EGIT_COMMIT="v${PV}"
+	SRC_URI="https://github.com/containerd/accelerated-container-image/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+		https://dev.gentoo.org/~chewi/distfiles/${P}-vendor.tar.xz"
 	KEYWORDS="amd64 arm64"
 fi
 
 LICENSE="Apache-2.0"
 SLOT="0"
 
-# FIXME HACK ALERT: the build pulls go modules during src_compile.
-# This fails if network sandbox is enabled.
-RESTRICT="${RESTRICT} network-sandbox"
-
-
 RDEPEND="sys-fs/overlaybd"
 
 src_unpack() {
-	git-r3_src_unpack
+	[[ ${PV} == 9999* ]] && git-r3_src_unpack
 	go-module_src_unpack
 }
 
@@ -40,9 +36,9 @@ src_install() {
 	sed -i 's,/opt/overlaybd,/usr/local/overlaybd,' \
 		"${ED}/usr/local/overlaybd/snapshotter/overlaybd-snapshotter.service" || die
 
-  # tmpfiles will take care of symlinking /usr/local/overlaybd/snapshotter
-  # to /opt/overlaybd/snapshotter, where upstream expects the binaries.
-  # (we need them in /usr to be used in a sysext)
+	# tmpfiles will take care of symlinking /usr/local/overlaybd/snapshotter
+	# to /opt/overlaybd/snapshotter, where upstream expects the binaries.
+	# (we need them in /usr to be used in a sysext)
 	dotmpfiles "${FILESDIR}/10-overlaybd-snapshotter.conf"
 
 	systemd_dounit "${ED}/usr/local/overlaybd/snapshotter/overlaybd-snapshotter.service"

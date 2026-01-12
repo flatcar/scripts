@@ -7,6 +7,7 @@
 	</maintainer>
 	<use>
 		<flag name="dsa">Accelerate CRC calculations with Intel Data Streaming Accelerator</flag>
+		<flag name="isal">Accelerate CRC calculations with Intel Intelligent Storage Acceleration Library</flag>
 		<flag name="qat">Accelerate compression with Intel QuickAssist Technology</flag>
 	</use>
 	<upstream>

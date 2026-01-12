@@ -3,31 +3,39 @@
 
 EAPI=8
 
-inherit cmake git-r3 systemd tmpfiles
+inherit cmake systemd tmpfiles
 
 DESCRIPTION="Novel layering block-level image format for containers"
 HOMEPAGE="https://containerd.github.io/overlaybd"
-EGIT_REPO_URI="https://github.com/containerd/overlaybd.git"
 
 if [[ ${PV} == 9999* ]]; then
-	KEYWORDS="~amd64 ~arm64"
+	EGIT_REPO_URI="https://github.com/containerd/overlaybd.git"
+	inherit git-r3
+	RESTRICT="network-sandbox"
 else
-	EGIT_COMMIT="v${PV}"
+	EROFS_UTILS_COMMIT="eec6f7a2755dfccc8f655aa37cf6f26db9164e60"
+	PHOTON_COMMIT="v0.6.17"
+	TCMU_COMMIT="813fd65361bb2f348726b9c41478a44211847614"
+	OCF_COMMIT="c2dd2259e47c2e5e72dc77f99d0150a5d05496d7"
+	SRC_URI="https://github.com/containerd/overlaybd/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+		https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/snapshot/erofs-utils-${EROFS_UTILS_COMMIT}.tar.gz
+		https://github.com/alibaba/PhotonLibOS/archive/${PHOTON_COMMIT}.tar.gz -> PhotonLibOS-${PHOTON_COMMIT}.tar.gz
+		https://github.com/data-accelerator/photon-libtcmu/archive/${TCMU_COMMIT}.tar.gz -> photon-libtcmu-${TCMU_COMMIT}.tar.gz
+		https://github.com/Open-CAS/ocf/archive/${OCF_COMMIT}.tar.gz -> ocf-${OCF_COMMIT}.tar.gz"
 	KEYWORDS="amd64 arm64"
 fi
 
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE="cpu_flags_x86_avx2 dsa qat isal"
-REQUIRED_USE="dsa? ( cpu_flags_x86_avx2 )"
-RESTRICT="test"
+IUSE="cpu_flags_x86_avx2 cpu_flags_x86_avx512f dsa isal qat test"
+REQUIRED_USE="
+	dsa? ( cpu_flags_x86_avx2 )
+	isal? ( cpu_flags_x86_avx512f )
+"
+RESTRICT+=" test" # Mostly fails with operation not supported?
+PROPERTIES="test_network"
 
-# FIXME HACK ALERT: overlaybd build pulls sources during src_configure.
-# (https://github.com/alibaba/PhotonLibOS.git/
-# This fails if network sandbox is enabled.
-RESTRICT="${RESTRICT} network-sandbox"
-
-DEPEND="
+RDEPEND="
 	app-arch/zstd:=
 	dev-libs/libaio
 	dev-libs/libnl:3
@@ -38,38 +46,64 @@ DEPEND="
 	dsa? ( sys-apps/pciutils )
 	qat? ( sys-apps/pciutils )
 "
-
-RDEPEND="
-	${DEPEND}
+DEPEND="
+	${RDEPEND}
+	dev-libs/rapidjson
+	test? (
+		dev-cpp/gflags
+		dev-cpp/gtest
+	)
+"
+BDEPEND="
+	virtual/pkgconfig
 "
 
 PATCHES=(
 	"${FILESDIR}"/0001-Patch-Photon-after-fetching-to-fix-cross-issues.patch
-	"${FILESDIR}"/0002-Patch-yaml-cpp-after-fetching-to-fix-cmake-issues.patch
+	"${FILESDIR}"/${PN}-offline-build.patch
 )
 
 src_prepare() {
 	cmake_src_prepare
-	sed -i "s:@FILESDIR@:${FILESDIR}:g" CMakeLists.txt CMake/Findphoton.cmake || die
+	sed -i "s:@FILESDIR@:${FILESDIR}:g" CMake/Findphoton.cmake || die
+
+	if [[ ${PV} != 9999* ]]; then
+		rmdir src/overlaybd/cache/ocf_cache/ocf || die
+		ln -sr "${WORKDIR}/ocf-${OCF_COMMIT#v}" src/overlaybd/cache/ocf_cache/ocf || die
+
+		mkdir -p "${BUILD_DIR}"/_deps || die
+		cd "${BUILD_DIR}"/_deps || die
+
+		ln -sr "${WORKDIR}/erofs-utils-${EROFS_UTILS_COMMIT}" erofs-utils-src || die
+		ln -sr "${WORKDIR}/PhotonLibOS-${PHOTON_COMMIT#v}" photon-src || die
+		ln -sr "${WORKDIR}/photon-libtcmu-${TCMU_COMMIT#v}" tcmu-src || die
+
+		cd photon-src || die
+		eapply "${FILESDIR}"/photon-cross.patch
+	fi
 }
 
 src_configure() {
 	# crc32c.cpp explicitly uses special instructions but checks for them at
-	# runtime. Only DSA hard requires at least AVX2. However, the code doesn't
-	# try especially hard to avoid these instructions from being implicitly used
-	# outside these runtime checks. :(
-	# ISAL similarly leads to "illegal instruction" termination on QEMU.
+	# runtime. However, the code doesn't try especially hard to avoid these
+	# instructions from being implicitly used outside these runtime checks. :(
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=no
-		-DBUILD_TESTING=no
+		-DBUILD_STREAM_CONVERTOR=no
+		-DBUILD_TESTING=$(usex test)
 		-DENABLE_DSA=$(usex dsa)
 		-DENABLE_ISAL=$(usex isal)
 		-DENABLE_QAT=$(usex qat)
 		-DORIGIN_EXT2FS=yes
 	)
 
+	# Ensure we're building offline.
+	[[ ${PV} == 9999* ]] || mycmakeargs+=( -DFETCHCONTENT_FULLY_DISCONNECTED=yes )
+
 	# Make erofs-utils configure work when cross-compiling.
+	# Set dummy gflags/gtest dirs because they are in standard dirs anyway.
 	host_alias="${CHOST}" build_alias="${CBUILD:-${CHOST}}" \
+	GFLAGS=/no/where GTEST=/no/where \
 	cmake_src_configure
 }
 
