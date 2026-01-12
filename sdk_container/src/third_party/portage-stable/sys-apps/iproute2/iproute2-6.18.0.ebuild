@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://www.kernel.org/pub/linux/utils/net/${PN}/${P}.tar.xz"
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 DESCRIPTION="kernel routing and traffic control utilities"
@@ -51,6 +51,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.9.0-mtu.patch # bug #291907
 	"${FILESDIR}"/${PN}-6.8.0-configure-nomagic-nolibbsd.patch # bug #643722 & #911727
 	"${FILESDIR}"/${PN}-6.8.0-disable-libbsd-fallback.patch # bug #911727
+	"${FILESDIR}"/${PN}-6.18.0-netshaper.patch # bug #967691
+	"${FILESDIR}"/${PN}-6.18.0-musl.patch # bug #967701
 )
 
 src_prepare() {
@@ -87,6 +89,9 @@ src_prepare() {
 src_configure() {
 	tc-export AR CC PKG_CONFIG
 	lto-guarantee-fat
+
+	tc-export_build_env
+	export CBUILD_CFLAGS=${BUILD_CFLAGS}
 
 	# This sure is ugly. Should probably move into toolchain-funcs at some point.
 	local setns
