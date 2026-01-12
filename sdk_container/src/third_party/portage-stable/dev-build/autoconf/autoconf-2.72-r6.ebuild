@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -58,6 +58,8 @@ RDEPEND="
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Invoke-autopoint-in-more-situations.patch
 	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Adapt-to-the-on-disk-situation-after-auto.patch
+	"${FILESDIR}"/${PN}-2.72-Port-C11-test-to-C-20.patch
+	"${FILESDIR}"/${PN}-2.72-Port-AC_SYS_LARGEFILE-to-CXX.patch
 )
 
 src_prepare() {
