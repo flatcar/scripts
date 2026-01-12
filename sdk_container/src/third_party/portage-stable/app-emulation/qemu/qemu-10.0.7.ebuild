@@ -13,10 +13,8 @@ QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{12..13} )
 PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
-
-FIRMWARE_ABI_VERSION="7.2.0"
 
 inherit eapi9-ver flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps \
 		readme.gentoo-r1 pax-utils xdg-utils
@@ -239,7 +237,23 @@ SOFTMMU_TOOLS_DEPEND="
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
 
-EDK2_OVMF_VERSION="202202"
+#
+# With USE=+pin-upstream-blobs we pin firmware versions to known good
+# version in order to  minimize the frequency of disruptive changes. This
+# avoids unnecessary frustration on user side because changing the firmware
+# version can break resume of hibernated guest, inhibit live migrations,
+# and might have other unwanted consequences. For now, let us try to
+# synchronize firmware blobs with the ones bundled in upstream qemu. Simply
+# check the upstream git repository for any changes, for example:
+#   https://github.com/qemu/qemu/tree/v10.0.2/roms for the 10.0.2 release.
+#
+# When changing pinned firmware versions
+#  - create a separate ebuild with revision -r50
+#  - update the FIRMWARE_ABI_VERSION to the current package version
+#
+
+FIRMWARE_ABI_VERSION="10.0.2"
+EDK2_OVMF_VERSION="202408"
 SEABIOS_VERSION="1.16.3"
 
 X86_FIRMWARE_DEPEND="
@@ -406,7 +420,7 @@ pkg_pretend() {
 			use test && CONFIG_CHECK+=" IP_MULTICAST"
 			ERROR_IP_MULTICAST="Test suite requires IP_MULTICAST"
 
-			if use amd64 || use x86 || use amd64-linux || use x86-linux; then
+			if use amd64 || use x86; then
 				if grep -q AuthenticAMD /proc/cpuinfo; then
 					CONFIG_CHECK+=" ~KVM_AMD"
 				elif grep -q GenuineIntel /proc/cpuinfo; then
@@ -968,8 +982,7 @@ pkg_postinst() {
 		ewarn "This might break resume of hibernated guests (started with a different"
 		ewarn "firmware version) and live migration to/from qemu versions with different"
 		ewarn "firmware. Please (cold) restart all running guests. For functional"
-		ewarn "guest migration ensure that all"
-		ewarn "hosts run at least"
+		ewarn "guest migration ensure that all hosts run at least"
 		ewarn "	app-emulation/qemu-${FIRMWARE_ABI_VERSION}."
 	fi
 }
