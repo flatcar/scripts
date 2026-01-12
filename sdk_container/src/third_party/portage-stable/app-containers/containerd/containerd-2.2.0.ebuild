@@ -3,7 +3,7 @@
 
 EAPI=8
 inherit go-env go-module systemd toolchain-funcs
-GIT_REVISION=fcd43222d6b07379a4be9786bda52438f0dd16a1
+GIT_REVISION=1c4457e00facac03ce1d75f7b6777a7a851e5c41
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -26,7 +26,7 @@ ${COMMON_DEPEND}
 # recommended minimum version of runc is found in script/setup/runc-version
 RDEPEND="
 	${COMMON_DEPEND}
-	>=app-containers/runc-1.3.3[apparmor?,seccomp?]
+	>=app-containers/runc-1.3.0[apparmor?,seccomp?]
 "
 
 BDEPEND="
