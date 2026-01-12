@@ -6,12 +6,12 @@ MY_PV=${PV/_/-}
 
 inherit go-module linux-info optfeature systemd toolchain-funcs udev
 
-GIT_COMMIT=249d679a6baf8a32bb6d72d6ac5cc7ab9c90b4ea
+GIT_COMMIT=fbf3ed25f893e6ce21336f1101590e40a13934f4
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
-SRC_URI="https://github.com/moby/moby/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
-S="${WORKDIR}/moby-${PV}"
+SRC_URI="https://github.com/moby/moby/archive/${PN}-v${MY_PV}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/moby-${PN}-v${PV}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -21,6 +21,7 @@ IUSE="apparmor btrfs +container-init cuda +overlay2 seccomp selinux systemd"
 DEPEND="
 	acct-group/docker
 	>=dev-db/sqlite-3.7.9:3
+	net-firewall/nftables:=
 	apparmor? ( sys-libs/libapparmor )
 	btrfs? ( >=sys-fs/btrfs-progs-3.16.1 )
 	seccomp? ( >=sys-libs/libseccomp-2.2.1 )
@@ -31,11 +32,10 @@ DEPEND="
 # https://github.com/moby/moby/blob/master/project/PACKAGERS.md#optional-dependencies
 RDEPEND="
 	${DEPEND}
-	>=net-firewall/iptables-1.4
 	sys-process/procps
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
-	>=app-containers/containerd-2.1.4[apparmor?,btrfs?,seccomp?]
+	>=app-containers/containerd-2.2.0[apparmor?,btrfs?,seccomp?]
 	>=app-containers/runc-1.2.6[apparmor?,seccomp?]
 	!app-containers/docker-proxy
 	!<app-containers/docker-cli-${PV}
@@ -296,8 +296,6 @@ src_install() {
 
 	systemd_dounit contrib/init/systemd/docker.{service,socket}
 
-	udev_dorules contrib/udev/*.rules
-
 	dodoc AUTHORS CONTRIBUTING.md NOTICE README.md
 	dodoc -r docs/*
 	doman man/man8/dockerd.8
@@ -333,8 +331,4 @@ pkg_postinst() {
 	optfeature "rootless mode support" sys-apps/rootlesskit
 	optfeature_header "for rootless mode you also need a network stack"
 	optfeature "rootless mode network stack" app-containers/slirp4netns
-}
-
-pkg_postrm() {
-	udev_reload
 }
