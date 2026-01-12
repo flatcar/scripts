@@ -6,7 +6,7 @@ EAPI=8
 inherit dot-a libtool multilib-minimal
 
 APNG_REPO=libpng-apng # sometimes libpng-apng is more up to date
-APNG_VERSION="1.6.49"
+APNG_VERSION="1.6.51"
 DESCRIPTION="Portable Network Graphics library"
 HOMEPAGE="https://www.libpng.org/"
 SRC_URI="
@@ -19,7 +19,7 @@ SRC_URI="
 
 LICENSE="libpng2"
 SLOT="0/16"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="apng cpu_flags_x86_sse static-libs test"
 RESTRICT="!test? ( test )"
 
