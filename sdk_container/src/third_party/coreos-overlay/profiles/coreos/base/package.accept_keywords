@@ -45,7 +45,6 @@ app-crypt/azure-keyvault-pkcs11
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
 # Keep versions on both arches in sync.
-=app-emulation/qemu-10.0.5 ~arm64
 =app-emulation/qemu-guest-agent-9.2.0 ~arm64
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
