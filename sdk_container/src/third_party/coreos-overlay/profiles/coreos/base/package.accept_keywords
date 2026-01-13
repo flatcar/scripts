@@ -18,9 +18,6 @@
 =app-containers/incus-6.0.5 ~arm64
 =app-containers/lxc-6.0.5 ~arm64
 
-# CVE-2025-6032
-=app-containers/podman-5.5.2 ~amd64 ~arm64
-
 # We always want the latest version available.
 =app-containers/runc-1.4* ~amd64 ~arm64
 
