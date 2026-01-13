@@ -7,6 +7,9 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
+# To address CVE-2025-60753
+=app-arch/libarchive-3.8.5 ~amd64 ~arm64
+
 # We always want the latest version available.
 =app-containers/containerd-2.2* ~amd64 ~arm64
 
