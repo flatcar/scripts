@@ -27,14 +27,17 @@ DEPEND="
 	app-shells/bash
 	coreos-base/afterburn
 	coreos-base/coreos-init:=
+	net-misc/iputils
 	sys-apps/azure-vm-utils[dracut]
 	sys-apps/baselayout
 	sys-apps/busybox
 	sys-apps/coreutils
 	sys-apps/findutils
 	sys-apps/grep
+	sys-apps/hwdata
 	sys-apps/ignition:=
 	sys-apps/iproute2
+	sys-apps/kexec-tools
 	sys-apps/less
 	sys-apps/nvme-cli
 	sys-apps/sed
@@ -51,6 +54,7 @@ DEPEND="
 	sys-fs/xfsprogs
 	>=sys-kernel/bootengine-0.0.38-r37:=
 	>=sys-kernel/coreos-firmware-20180103-r1:=
+	sys-process/procps
 	virtual/udev
 	amd64? ( sys-firmware/intel-microcode:= )
 "
@@ -100,13 +104,12 @@ src_compile() {
 	# Create minimal initrd
 	mkdir "${S}"/build/minimal || die
 	pushd "${S}"/build/minimal || die
-	mkdir -p {etc,dev,proc,sys,dev,usr/bin,usr/lib64,realinit,sysusr/usr} || die
+	mkdir -p {etc,dev,proc,sys,dev,usr/bin,usr/lib,usr/lib64,realinit,sysusr/usr} || die
 	ln -s usr/bin bin || die
 	ln -s usr/bin sbin || die
 	ln -s bin usr/sbin || die
-	ln -s usr/lib64 lib || die
+	ln -s usr/lib lib || die
 	ln -s usr/lib64 lib64 || die
-	ln -s lib64 usr/lib || die
 	# Instead from ESYSROOT we can also copy kernel modules from the dracut pre-selection
 	mkdir -p lib/modprobe.d/ || die
 	cp "${S}"/build/bootengine/lib/modprobe.d/* lib/modprobe.d/ || die
