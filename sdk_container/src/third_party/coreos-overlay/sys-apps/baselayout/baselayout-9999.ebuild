@@ -2,22 +2,21 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-EGIT_REPO_URI="https://github.com/flatcar/baselayout.git"
-
-if [[ "${PV}" == 9999 ]]; then
-	inherit git-r3
-	KEYWORDS="~amd64 ~arm64"
-else
-	EGIT_COMMIT="bb76459c3338ce0e76c4e48d545795bfbc9dbfd9" # flatcar-master
-	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_COMMIT}.tar.gz -> flatcar-${PN}-${EGIT_COMMIT}.tar.gz"
-	S="${WORKDIR}/${PN}-${EGIT_COMMIT}"
-	KEYWORDS="amd64 arm64"
-fi
 
 inherit multilib
 
 DESCRIPTION="Filesystem baselayout for Flatcar"
 HOMEPAGE="https://www.flatcar.org/"
+
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://github.com/flatcar/baselayout.git"
+	inherit git-r3
+else
+	EGIT_VERSION="bb76459c3338ce0e76c4e48d545795bfbc9dbfd9" # flatcar-master
+	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz"
+	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
+	KEYWORDS="amd64 arm64"
+fi
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -81,7 +80,8 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${ED}" install
 	# GID 190 is taken from acct-group/systemd-journal eclass
-	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 DESTDIR=${D} ./dumb-tmpfiles-proc.sh --exclude d "${ED}/usr/lib/tmpfiles.d" || die
+	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
+		DESTDIR=${D} ./dumb-tmpfiles-proc.sh --exclude d "${ED}/usr/lib/tmpfiles.d" || die
 
 	insinto /usr/share/baselayout
 	doins Makefile
@@ -93,7 +93,8 @@ pkg_preinst() {
 	local libdirs
 	libdirs=$(get_all_libdirs)
 	emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
-	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
+	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
+		DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
 	rm -f "${ED}/usr/share/${PN}/Makefile" "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" || die
 }
 

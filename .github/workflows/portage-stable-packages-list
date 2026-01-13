@@ -151,6 +151,7 @@ app-editors/nano
 app-editors/vim
 app-editors/vim-core
 
+app-emulation/open-vmdk
 app-emulation/qemu
 app-emulation/qemu-guest-agent
 app-emulation/virt-firmware

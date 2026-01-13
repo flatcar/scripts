@@ -166,7 +166,7 @@ list() {
   return 0
 }
 
-case "$1" in
+case "${1-}" in
   start)
     find_ebuild "${2-}"
     start ;;
@@ -177,5 +177,5 @@ case "$1" in
     list ;;
   *)
     flags_help
-    die "$0: command \"$1\" not recognized" ;;
+    [[ ${1-} ]] && die "$0: command \"$1\" not recognized" ;;
 esac
