@@ -194,3 +194,6 @@ dev-db/etcd -server
 
 # We only need the non-Python-based tools.
 app-emulation/open-vmdk -python
+
+# Avoid pulling extra perl packages
+dev-perl/File-Slurper minimal
