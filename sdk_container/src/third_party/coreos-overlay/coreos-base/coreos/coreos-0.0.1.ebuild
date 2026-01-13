@@ -212,6 +212,7 @@ RDEPEND="${RDEPEND}
 # OEM specific bits that need to go in USR
 RDEPEND+="
 	amd64? (
+		app-admin/google-guest-configs[-gce]
 		sys-auth/google-oslogin
 	)
 "
