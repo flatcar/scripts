@@ -2,4 +2,3 @@
 
 # Needed for building signed sysexts with systemd-repart
 dev-libs/xxhash
-sys-fs/erofs-utils
