@@ -104,6 +104,11 @@ sys-apps/azure-vm-utils
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
+# Used to be in sdk target profile, unversioned, so pinning it to a
+# version used at a time of the move. Needed for building signed
+# sysexts with systemd-repart
+=sys-fs/erofs-utils-1.8.10-r1
+
 # Keep versions on both arches in sync.
 =sys-fs/lxcfs-6.0.5 ~arm64
 =sys-fs/zfs-2.3.4 ~arm64
