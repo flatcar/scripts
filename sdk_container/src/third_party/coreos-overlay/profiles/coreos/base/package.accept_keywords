@@ -89,9 +89,6 @@ dev-db/etcd amd64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# CVE-2025-61984, CVE-2025-61985
-=net-misc/openssh-10.2_p1 ~amd64 ~arm64
-
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
