@@ -74,7 +74,11 @@ dev-db/etcd amd64
 
 # Keep versions on both arches in sync.
 =dev-libs/raft-0.22.1 ~arm64
-=dev-libs/xxhash-0.8.3-r1 ~arm64
+
+# Used to be in sdk target profile, unversioned, so pinning it to a
+# version used at a time of the move. Needed for building signed
+# sysexts with systemd-repart
+=dev-libs/xxhash-0.8.3-r1
 
 # No arm64 keyword in package.
 =dev-util/bsdiff-4.3-r4 **
