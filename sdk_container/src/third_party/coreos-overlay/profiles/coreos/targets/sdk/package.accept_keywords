@@ -1,4 +1,0 @@
-# Temporarily put the SDK version ahead for sd-json support in Dracut.
-
-# Needed for building signed sysexts with systemd-repart
-dev-libs/xxhash
