@@ -1,0 +1,9 @@
+# Override python settings
+
+# Use Python 3.12 as the default version, allow python 3.11 for a transition.
+PYTHON_SINGLE_TARGET="-pypy3_11 -python3_11 python3_12 -python3_13 -python3_14 -python3_13t -python3_14t"
+PYTHON_TARGETS="-pypy3_11 python3_11 python3_12 -python3_13 -python3_14 -python3_13t -python3_14t"
+
+# Same as above, but for bootstrapping.
+BOOTSTRAP_USE="${BOOTSTRAP_USE} -python_single_target_pypy3_11 -python_single_target_python3_11 python_single_target_python3_12 -python_single_target_python3_13 -python_single_target_python3_14  -python_single_target_python3_13t -python_single_target_python3_14t"
+BOOTSTRAP_USE="${BOOTSTRAP_USE} -python_targets_pypy3_11 python_targets_python3_11 python_targets_python3_12 -python_targets_python3_13 -python_targets_python3_14 -python_targets_python3_13t -python_targets_python3_14t"
