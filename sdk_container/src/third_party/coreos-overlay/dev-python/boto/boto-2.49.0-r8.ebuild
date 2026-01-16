@@ -25,6 +25,7 @@ PATCHES=(
 	"${FILESDIR}"/${P}-unbundle-six.patch
 	"${FILESDIR}"/${P}-py310.patch
 	"${FILESDIR}"/${P}-mock-spec.patch
+	"${FILESDIR}"/${P}-py312.patch
 )
 
 RDEPEND="
