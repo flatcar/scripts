@@ -17,5 +17,5 @@
 # Do not install python versions that were "disabled" in
 # PYTHON_TARGETS. For some reason emerge still insists on installing
 # those as a dependency for some packages.
-<dev-lang/python-3.11
+<dev-lang/python-3.12
 >=dev-lang/python-3.13
