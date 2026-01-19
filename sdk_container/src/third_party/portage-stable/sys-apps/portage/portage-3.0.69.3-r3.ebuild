@@ -4,7 +4,7 @@
 EAPI=8
 
 # py3.14: bug #957070
-PYTHON_COMPAT=( pypy3_11 python3_{11..13} )
+PYTHON_COMPAT=( python3_{12..13} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 TMPFILES_OPTIONAL=1
 
@@ -92,6 +92,7 @@ PDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/0001-emerge-webrsync-restore-the-missing-option-arg-for-c.patch
+	"${FILESDIR}"/0001-bin-emerge-ebuild-don-t-define-signal-handlers-in-gl.patch
 )
 
 pkg_pretend() {
