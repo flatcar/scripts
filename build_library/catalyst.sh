@@ -80,7 +80,8 @@ export ac_cv_posix_semaphores_enabled=yes
 EOF
 }
 
-# Common values for all stage spec files
+# Common values for all stage spec files. Takes a stage number and,
+# optionally, a profile name as parameters.
 catalyst_stage_default() {
 cat <<EOF
 target: stage$1
@@ -89,7 +90,7 @@ rel_type: $TYPE
 portage_confdir: $TEMPDIR/portage
 repos: $FLAGS_coreos_overlay
 keep_repos: portage-stable coreos-overlay
-profile: $FLAGS_profile
+profile: ${2:-$FLAGS_profile}
 snapshot_treeish: $FLAGS_version
 version_stamp: $FLAGS_version
 cflags: -O2 -pipe
@@ -107,7 +108,7 @@ pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
 update_seed: yes
 update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
 EOF
-catalyst_stage_default 1
+catalyst_stage_default 1 "${FLAGS_profile}/transition"
 }
 
 catalyst_stage3() {
