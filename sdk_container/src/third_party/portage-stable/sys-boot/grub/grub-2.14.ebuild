@@ -16,10 +16,8 @@ EAPI=8
 # If any of the above applies to a user patch, the user should set the
 # corresponding variable in make.conf or the environment.
 
-if [[ ${PV} == 9999  ]]; then
-	GRUB_AUTORECONF=1
-	GRUB_BOOTSTRAP=1
-fi
+GRUB_AUTOGEN=1
+GRUB_AUTORECONF=1
 
 PYTHON_COMPAT=( python3_{11..14} )
 WANT_LIBTOOL=none
@@ -146,6 +144,10 @@ QA_EXECSTACK="usr/bin/grub-emu* usr/lib/grub/*"
 QA_PRESTRIPPED="usr/lib/grub/.*"
 QA_MULTILIB_PATHS="usr/lib/grub/.*"
 QA_WX_LOAD="usr/lib/grub/*"
+
+PATCHES=(
+	"${FILESDIR}/grub-2.14-revert-image-base.patch"
+)
 
 pkg_setup() {
 	:
