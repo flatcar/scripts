@@ -1,7 +1,7 @@
-From 7dce3aef1c67e5884aa7962c5c34a51d9760bd13 Mon Sep 17 00:00:00 2001
+From c5be94c717fc86bd055efdca8f9e828b3098f9aa Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Thu, 9 Oct 2025 17:32:38 +0200
-Subject: [PATCH 1/2] Reorganize the login sessions
+Subject: [PATCH 2/3] Reorganize the login sessions
 
 - Move selinux parts from system-login to separate a system-selinux
   file. It is conditionally included by system-local-login and
@@ -37,13 +37,13 @@ pam_selinux.so lines would be absent.
 Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
 ---
  pambase.py                        |  2 ++
- templates/system-local-login.tpl  |  9 +++++++++
+ templates/system-local-login.tpl  |  8 ++++++++
  templates/system-login.tpl        | 17 +++--------------
  templates/system-postlogin.tpl    |  3 +++
  templates/system-remote-login.tpl |  7 +++++++
  templates/system-selinux.tpl      |  2 ++
  templates/system-session.tpl      |  1 +
- 7 files changed, 27 insertions(+), 14 deletions(-)
+ 7 files changed, 26 insertions(+), 14 deletions(-)
  create mode 100644 templates/system-postlogin.tpl
  create mode 100644 templates/system-selinux.tpl
 
@@ -61,10 +61,10 @@ index 4180cbb..0c7450d 100755
      ]
  
 diff --git a/templates/system-local-login.tpl b/templates/system-local-login.tpl
-index 5e01090..34d8459 100644
+index b1bd7e7..53f420a 100644
 --- a/templates/system-local-login.tpl
 +++ b/templates/system-local-login.tpl
-@@ -2,12 +2,21 @@ auth		include		system-login
+@@ -2,11 +2,16 @@ auth		include		system-login
  {% if gnome_keyring %}
  auth		optional	pam_gnome_keyring.so
  {% endif %}
@@ -75,14 +75,16 @@ index 5e01090..34d8459 100644
  {% if gnome_keyring %}
  password	optional	pam_gnome_keyring.so use_authtok
  {% endif %}
-+
 +{% if selinux %}
 +session		include		system-selinux
 +{% endif %}
- {% if gnome_keyring %}
+ {% if gnome_keyring and openrc %}
  session		optional	pam_gnome_keyring.so auto_start
  {% endif %}
- session		include		system-login
+@@ -14,3 +19,6 @@ session		include		system-login
+ {% if gnome_keyring and not openrc %}
+ session		optional	pam_gnome_keyring.so auto_start
+ {% endif %}
 +{% if not minimal %}
 +session		include		system-postlogin
 +{% endif %}
