@@ -4,7 +4,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{11..14} )
 inherit systemd python-any-r1
 
 DESCRIPTION="Init scripts for Flatcar"

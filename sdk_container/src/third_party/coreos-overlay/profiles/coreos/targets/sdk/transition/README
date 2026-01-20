@@ -1,0 +1,2 @@
+This profile is only used for stage1 build of the SDK. It can be used
+to ease into some rather disruptive updates, like Python update.
