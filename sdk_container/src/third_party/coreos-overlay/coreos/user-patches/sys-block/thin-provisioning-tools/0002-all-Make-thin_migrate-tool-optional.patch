@@ -1,4 +1,4 @@
-From 74215dade7bbddbfc0a46e1903fc289a56df3915 Mon Sep 17 00:00:00 2001
+From ced04b3f4f96072d627210038aaa726e864419b6 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Thu, 20 Nov 2025 13:17:36 +0100
 Subject: [PATCH 2/2] [all] Make thin_migrate tool optional
@@ -17,7 +17,7 @@ Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
  5 files changed, 24 insertions(+), 3 deletions(-)
 
 diff --git a/Cargo.toml b/Cargo.toml
-index 8594c6ba..155285a8 100644
+index 39853af1..02d77483 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
 @@ -18,7 +18,7 @@ clap = { version = "4.5", default-features = false, features = [
@@ -131,5 +131,5 @@ index 1ef0e1be..eeed031e 100644
  pub mod repair;
  pub mod restore;
 -- 
-2.51.2
+2.52.0
 

@@ -1,4 +1,4 @@
-From c5fbb32be0509e4368268a79e7aacc6b5e34d28e Mon Sep 17 00:00:00 2001
+From 557ce4b7dd9204696fb0992a47123721470a407a Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Thu, 20 Nov 2025 13:16:09 +0100
 Subject: [PATCH 1/2] [build] Simplify installation of symlinks and manpages
@@ -77,5 +77,5 @@ index b04937aa..44c99c99 100644
  
  .PHONY: install
 -- 
-2.51.2
+2.52.0
 
