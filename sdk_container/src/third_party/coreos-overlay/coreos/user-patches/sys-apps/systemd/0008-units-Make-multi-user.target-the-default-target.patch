@@ -1,4 +1,4 @@
-From f0ab1c6c59056afe1650f749d1af6ecc6ee8f5ec Mon Sep 17 00:00:00 2001
+From 3d702165a3517eb23657d613bbbbb0ec45fd672e Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 24 Oct 2025 11:06:57 +0200
 Subject: [PATCH 8/8] units: Make multi-user.target the default target
@@ -31,5 +31,5 @@ index ef18dcae4a..887231840f 100644
          { 'file' : 'network-online.target' },
          { 'file' : 'network-pre.target' },
 -- 
-2.51.0
+2.52.0
 

@@ -1,4 +1,4 @@
-From 7ee314dc08ea65e6951c7007a5f872fd32f0399a Mon Sep 17 00:00:00 2001
+From a31573ecdeff40d109951750c7adf086c52c2869 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Wed, 22 Oct 2025 10:39:42 +0200
 Subject: [PATCH 7/8] tmpfiles.d: Fix DNS issues with default k8s configuration
@@ -32,5 +32,5 @@ index be5edc98e0..bea686682a 100644
 -L! /etc/resolv.conf - - - - ../run/systemd/resolve/stub-resolv.conf
 +L! /etc/resolv.conf - - - - ../run/systemd/resolve/resolv.conf
 -- 
-2.51.0
+2.52.0
 
