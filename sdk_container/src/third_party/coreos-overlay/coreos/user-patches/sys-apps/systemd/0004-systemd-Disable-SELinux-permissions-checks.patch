@@ -1,4 +1,4 @@
-From 78b2d8b1a6df073003d64cffa532c3a320e96ad4 Mon Sep 17 00:00:00 2001
+From 1716754b1f3ea3d5d3f232d9fe50ba1df0c5eff7 Mon Sep 17 00:00:00 2001
 From: Matthew Garrett <mjg59@coreos.com>
 Date: Tue, 20 Dec 2016 16:43:22 +0000
 Subject: [PATCH 4/8] systemd: Disable SELinux permissions checks
@@ -25,5 +25,5 @@ index a67a520a3b..3365b920eb 100644
  #include <errno.h>
  #include <selinux/avc.h>
 -- 
-2.51.0
+2.52.0
 
