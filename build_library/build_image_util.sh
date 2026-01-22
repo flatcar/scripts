@@ -782,6 +782,8 @@ EOF
     sudo fstrim "${root_fs_dir}/usr" || true
   fi
 
+  "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" btrfsresetallocation \
+      "${root_fs_dir}/usr"
   # Make the filesystem un-mountable as read-write and setup verity.
   if [[ ${disable_read_write} -eq ${FLAGS_TRUE} ]]; then
     # Unmount /usr partition
