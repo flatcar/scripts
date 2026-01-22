@@ -490,10 +490,14 @@ binutils_set_latest_profile() {
 # The extra flag can be blank, hardenednopie, and so on. See gcc-config -l
 # Usage: gcc_get_latest_profile chost [extra]
 gcc_get_latest_profile() {
-    local prefix="${1}-"
-    local suffix="${2+-$2}"
+    local prefix=${1}
+    local suffix=${2+-${2}}
     local status
-    gcc-config -l | cut -d' ' -f3 | grep "^${prefix}[0-9\\.]*${suffix}$" | tail -n1
+    gcc-config --list-profiles --nocolor | \
+        sed -e 's/^\s*//' | \
+        cut -d' ' -f2 | \
+        grep "^${prefix}-[0-9\\.]*${suffix}$" | \
+        tail -n1
 
     # return 1 if anything in the above pipe failed
     for status in ${PIPESTATUS[@]}; do
