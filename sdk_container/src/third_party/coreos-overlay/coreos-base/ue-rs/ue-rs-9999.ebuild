@@ -10,16 +10,16 @@ CRATES="
 	argh@0.1.13
 	argh_derive@0.1.13
 	argh_shared@0.1.13
+	atomic-waker@1.1.2
 	autocfg@1.4.0
 	backtrace@0.3.74
-	base64@0.21.7
+	base64@0.22.1
 	base64ct@1.7.3
 	bitflags@1.3.2
 	bitflags@2.9.0
 	block-buffer@0.10.4
 	bstr@1.12.0
 	bumpalo@3.17.0
-	byteorder@1.5.0
 	bytes@1.10.1
 	bzip2-sys@0.1.13+1.0.8
 	bzip2@0.4.4
@@ -54,16 +54,18 @@ CRATES="
 	getrandom@0.3.2
 	gimli@0.31.1
 	globset@0.4.16
-	h2@0.3.26
+	h2@0.4.12
 	hashbrown@0.15.2
 	hermit-abi@0.5.0
-	http-body@0.4.6
-	http@0.2.12
+	http-body-util@0.1.3
+	http-body@1.0.1
+	http@1.4.0
 	httparse@1.10.1
-	httpdate@1.0.3
 	humantime@2.2.0
-	hyper-tls@0.5.0
-	hyper@0.14.32
+	hyper-rustls@0.27.7
+	hyper-tls@0.6.0
+	hyper-util@0.1.19
+	hyper@1.8.1
 	icu_collections@1.5.0
 	icu_locid@1.5.0
 	icu_locid_transform@1.5.0
@@ -78,6 +80,7 @@ CRATES="
 	idna_adapter@1.2.0
 	indexmap@2.9.0
 	ipnet@2.11.0
+	iri-string@0.7.9
 	is-terminal@0.4.16
 	itoa@1.0.15
 	jetscii@0.5.3
@@ -93,7 +96,7 @@ CRATES="
 	miniz_oxide@0.8.8
 	mio@1.0.3
 	native-tls@0.2.14
-	num-bigint-dig@0.8.4
+	num-bigint-dig@0.8.6
 	num-integer@0.1.46
 	num-iter@0.1.45
 	num-traits@0.2.19
@@ -122,12 +125,15 @@ CRATES="
 	regex-automata@0.4.9
 	regex-syntax@0.8.5
 	regex@1.11.1
-	reqwest@0.11.27
-	rsa@0.9.8
+	reqwest@0.12.26
+	ring@0.17.14
+	rsa@0.9.10
 	rust-fuzzy-search@0.1.1
 	rustc-demangle@0.1.24
 	rustix@1.0.5
-	rustls-pemfile@1.0.4
+	rustls-pki-types@1.13.1
+	rustls-webpki@0.103.8
+	rustls@0.23.35
 	rustversion@1.0.20
 	ryu@1.0.20
 	schannel@0.1.27
@@ -150,7 +156,7 @@ CRATES="
 	subtle@2.6.1
 	syn@1.0.109
 	syn@2.0.100
-	sync_wrapper@0.1.2
+	sync_wrapper@1.0.2
 	synstructure@0.13.1
 	system-configuration-sys@0.5.0
 	system-configuration@0.5.1
@@ -160,14 +166,19 @@ CRATES="
 	thiserror@1.0.69
 	tinystr@0.7.6
 	tokio-native-tls@0.3.1
+	tokio-rustls@0.26.4
 	tokio-util@0.7.14
 	tokio@1.44.2
+	tower-http@0.6.8
+	tower-layer@0.3.3
 	tower-service@0.3.3
+	tower@0.5.2
 	tracing-core@0.1.33
 	tracing@0.1.41
 	try-lock@0.2.5
 	typenum@1.18.0
 	unicode-ident@1.0.18
+	untrusted@0.9.0
 	url@2.5.4
 	utf16_iter@1.0.5
 	utf8_iter@1.0.4
@@ -185,27 +196,21 @@ CRATES="
 	wasm-bindgen@0.2.100
 	web-sys@0.3.77
 	winapi-util@0.1.9
-	windows-sys@0.48.0
+	windows-link@0.2.1
+	windows-registry@0.6.1
+	windows-result@0.4.1
+	windows-strings@0.5.1
 	windows-sys@0.52.0
 	windows-sys@0.59.0
-	windows-targets@0.48.5
 	windows-targets@0.52.6
-	windows_aarch64_gnullvm@0.48.5
 	windows_aarch64_gnullvm@0.52.6
-	windows_aarch64_msvc@0.48.5
 	windows_aarch64_msvc@0.52.6
-	windows_i686_gnu@0.48.5
 	windows_i686_gnu@0.52.6
 	windows_i686_gnullvm@0.52.6
-	windows_i686_msvc@0.48.5
 	windows_i686_msvc@0.52.6
-	windows_x86_64_gnu@0.48.5
 	windows_x86_64_gnu@0.52.6
-	windows_x86_64_gnullvm@0.48.5
 	windows_x86_64_gnullvm@0.52.6
-	windows_x86_64_msvc@0.48.5
 	windows_x86_64_msvc@0.52.6
-	winreg@0.50.0
 	wit-bindgen-rt@0.39.0
 	write16@1.0.0
 	writeable@0.5.5
@@ -230,7 +235,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/ue-rs.git"
 	inherit git-r3
 else
-	EGIT_VERSION="5ce2ec1e4fea0a54ef84edc653573d06d9209983" # main
+	EGIT_VERSION="8464c05429d9a034d38b48563d59479fa471606b" # main
 	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz
 		${CARGO_CRATE_URIS}"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
