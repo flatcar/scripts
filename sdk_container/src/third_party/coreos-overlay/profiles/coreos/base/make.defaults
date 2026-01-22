@@ -46,6 +46,7 @@ BOOTSTRAP_USE="${BOOTSTRAP_USE} xml"
 
 # Set SELinux policy
 POLICY_TYPES="targeted mcs mls"
+SELINUX_POLICY_TYPES="targeted mcs mls"
 
 # Disable packages or optional features with distribution issues.
 ACCEPT_RESTRICT="* -bindist"
@@ -133,3 +134,14 @@ MODULES_SIGN_CERT="/tmp/certs/modules.pub.pem"
 
 # enable signing kernel modules from portage
 USE="${USE} modules-sign"
+
+# Branding stuff
+BRANDING_OS_NAME="Flatcar Container Linux by Kinvolk"
+BRANDING_OS_ID="flatcar"
+BRANDING_OS_ID_LIKE="coreos"
+BRANDING_OS_HOME_URL="https://flatcar.org"
+BRANDING_OS_SUPPORT_URL="https://groups.google.com/forum/#!forum/flatcar-linux-user"
+BRANDING_OS_BUG_REPORT_URL="https://issues.flatcar.org"
+#BRANDING_OS_VERSION=
+#BRANDING_OS_VERSION_ID=
+#BRANDING_OS_PRETTY_NAME=

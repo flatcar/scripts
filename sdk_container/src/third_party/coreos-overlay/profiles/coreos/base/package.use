@@ -40,7 +40,7 @@ net-firewall/ipset -modules
 dev-libs/glib -mime
 
 # keep grub build simple
-sys-boot/grub -multislot -themes -fonts -device-mapper
+sys-boot/grub -branding -multislot -themes -fonts -device-mapper
 
 # disable "high performance ssh" patch, turn on kerberos
 net-misc/openssh -hpn kerberos
@@ -171,17 +171,11 @@ sys-apps/azure-vm-utils dracut
 # Enable SELinux for lxc
 app-containers/lxc selinux
 
-# required by app-containers/incus-6.0.3-r1::portage-stable
-# required by incus (argument)
+# required by app-containers/incus
 dev-libs/raft lz4
-
-# required by app-containers/incus-6.0.3-r1::portage-stable
-# required by incus (argument)
 dev-util/xdelta lzma
 
-# required by app-containers/lxc-6.0.3::portage-stable[tools,caps]
-# required by app-containers/incus-6.0.3-r1::portage-stable
-# required by incus (argument)
+# required by app-containers/lxc[tools,caps] and app-containers/incus
 sys-libs/libcap static-libs
 
 # do not force a dependency on llvm-core/llvm yet
@@ -200,3 +194,6 @@ dev-db/etcd -server
 
 # We only need the non-Python-based tools.
 app-emulation/open-vmdk -python
+
+# Avoid pulling extra perl packages
+dev-perl/File-Slurper minimal
