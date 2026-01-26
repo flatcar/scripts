@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit multiprocessing
+inherit autotools multiprocessing
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit autotools git-r3
@@ -12,7 +12,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	if [[ $(ver_cut 3) -lt 90 ]] ; then
 		SRC_URI="https://www.kernel.org/pub/linux/utils/kbd/${P}.tar.xz"
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 	else
 		inherit autotools
 		SRC_URI="https://github.com/legionus/kbd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
@@ -48,6 +48,14 @@ BDEPEND="
 	test? ( dev-libs/check )
 "
 
+PATCHES=(
+	"${FILESDIR}"/${P}-install-no-attr.patch
+	"${FILESDIR}"/${P}-install-posix.patch
+	"${FILESDIR}"/${P}-nullptr.patch
+	"${FILESDIR}"/${P}-uninit.patch
+	"${FILESDIR}"/${P}-time64.patch
+)
+
 src_prepare() {
 	default
 
@@ -60,9 +68,12 @@ src_prepare() {
 	mv qwerty/cz.map qwerty/cz-qwerty.map || die
 	popd &> /dev/null || die
 
-	if [[ ${PV} == 9999 ]] || [[ $(ver_cut 3) -ge 90 ]] ; then
-		eautoreconf
-	fi
+	#if [[ ${PV} == 9999 ]] || [[ $(ver_cut 3) -ge 90 ]] ; then
+	#	eautoreconf
+	#fi
+
+	# Drop after 2.9.0
+	eautoreconf
 }
 
 src_configure() {
