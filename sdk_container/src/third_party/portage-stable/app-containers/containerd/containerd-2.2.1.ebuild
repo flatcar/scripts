@@ -1,9 +1,9 @@
-# Copyright 2022-2025 Gentoo Authors
+# Copyright 2022-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 inherit go-env go-module systemd toolchain-funcs
-GIT_REVISION=fcd43222d6b07379a4be9786bda52438f0dd16a1
+GIT_REVISION=dea7da592f5d1d2b7755e3a161be07f43fad8f75
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -26,7 +26,7 @@ ${COMMON_DEPEND}
 # recommended minimum version of runc is found in script/setup/runc-version
 RDEPEND="
 	${COMMON_DEPEND}
-	>=app-containers/runc-1.3.3[apparmor?,seccomp?]
+	>=app-containers/runc-1.3.4[apparmor?,seccomp?]
 "
 
 BDEPEND="
