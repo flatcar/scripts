@@ -1,4 +1,4 @@
-# Copyright 2017-2025 Gentoo Authors
+# Copyright 2017-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: meson.eclass
@@ -41,7 +41,8 @@ esac
 if [[ -z ${_MESON_ECLASS} ]]; then
 _MESON_ECLASS=1
 
-inherit flag-o-matic multiprocessing ninja-utils python-utils-r1 toolchain-funcs
+inherit flag-o-matic multiprocessing ninja-utils python-utils-r1 sysroot toolchain-funcs
+[[ ${EAPI} != 7 ]] && inherit rust-toolchain
 
 BDEPEND=">=dev-build/meson-1.2.3
 	${NINJA_DEPEND}
@@ -75,8 +76,8 @@ BDEPEND=">=dev-build/meson-1.2.3
 # @VARIABLE: emesonargs
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# Optional meson arguments as Bash array; this should be defined before
-# calling meson_src_configure.
+# Optional meson arguments as Bash array; this should be defined before calling
+# meson_src_configure, meson_add_machine_file, or meson_add_native_file.
 
 # @VARIABLE: MYMESONARGS
 # @DEFAULT_UNSET
@@ -103,7 +104,7 @@ BDEPEND=">=dev-build/meson-1.2.3
 #          '--unicode-16=𐐷', '--unicode-32=𐤅']
 #
 _meson_env_array() {
-	meson-format-array "$@"
+	meson-format-array "$@" || die
 }
 
 # @FUNCTION: _meson_get_machine_info
@@ -149,12 +150,23 @@ _meson_create_cross_file() {
 	_meson_get_machine_info "${CHOST}"
 
 	local fn=${T}/meson.${CHOST}.${ABI}.ini
+	local CFLAGS_ABI=CFLAGS_${ABI:-${DEFAULT_ABI}}
 
-	cat > "${fn}" <<-EOF
+	if has rust-toolchain ${INHERITED}; then
+		local LD_A=( $(tc-getCC) ${LDFLAGS} )
+		local RUSTC=( rustc --target="$(rust_abi)" --codegen=linker="${LD_A[0]}" )
+		LD_A=( "${LD_A[@]:1}" )
+		[[ ${LD_A[@]} ]] && RUSTC+=( "${LD_A[@]/#/--codegen=link-arg=}" )
+	else
+		unset RUSTC
+	fi
+
+	cat > "${fn}" <<-EOF || die "failed to create cross file"
 	[binaries]
 	ar = $(_meson_env_array "$(tc-getAR)")
 	c = $(_meson_env_array "$(tc-getCC)")
 	cpp = $(_meson_env_array "$(tc-getCXX)")
+	exe_wrapper = '$(sysroot_make_run_prefixed)'
 	fortran = $(_meson_env_array "$(tc-getFC)")
 	llvm-config = '$(tc-getPROG LLVM_CONFIG llvm-config)'
 	nm = $(_meson_env_array "$(tc-getNM)")
@@ -165,6 +177,7 @@ _meson_create_cross_file() {
 	# >=1.3.0.
 	pkgconfig = '$(tc-getPKG_CONFIG)'
 	pkg-config = '$(tc-getPKG_CONFIG)'
+	rust = $(_meson_env_array "${RUSTC[@]@Q}")
 	strip = $(_meson_env_array "$(tc-getSTRIP)")
 	windres = $(_meson_env_array "$(tc-getRC)")
 
@@ -181,9 +194,10 @@ _meson_create_cross_file() {
 	objcpp_link_args = $(_meson_env_array "${OBJCXXFLAGS} ${LDFLAGS}")
 
 	[properties]
-	needs_exe_wrapper = true
-	sys_root = '${SYSROOT}'
+	needs_exe_wrapper = $(tc-is-cross-compiler && echo true || echo false)
 	pkg_config_libdir = '${PKG_CONFIG_LIBDIR:-${EPREFIX}/usr/$(get_libdir)/pkgconfig}'
+	bindgen_clang_arguments = $(_meson_env_array "${!CFLAGS_ABI}")
+	sys_root = '${SYSROOT}'
 
 	[host_machine]
 	system = '${system}'
@@ -205,9 +219,14 @@ _meson_create_native_file() {
 	local system cpu_family cpu
 	_meson_get_machine_info "${CBUILD}"
 
-	local fn=${T}/meson.${CBUILD}.${ABI}.ini
+	local fn=${T}/meson.${CBUILD}.ini
 
-	cat > "${fn}" <<-EOF
+	local LD_A=( $(tc-getBUILD_CC) ${BUILD_LDFLAGS} )
+	local RUSTC=( rustc --codegen=linker="${LD_A[0]}" )
+	LD_A=( "${LD_A[@]:1}" )
+	[[ ${LD_A[@]} ]] && RUSTC+=( "${LD_A[@]/#/--codegen=link-arg=}" )
+
+	cat > "${fn}" <<-EOF || die "failed to create native file"
 	[binaries]
 	ar = $(_meson_env_array "$(tc-getBUILD_AR)")
 	c = $(_meson_env_array "$(tc-getBUILD_CC)")
@@ -222,6 +241,7 @@ _meson_create_native_file() {
 	# >=1.3.0.
 	pkgconfig = '$(tc-getBUILD_PKG_CONFIG)'
 	pkg-config = '$(tc-getBUILD_PKG_CONFIG)'
+	rust = $(_meson_env_array "${RUSTC[@]@Q}")
 	strip = $(_meson_env_array "$(tc-getBUILD_STRIP)")
 	windres = $(_meson_env_array "$(tc-getBUILD_PROG RC windres)")
 
@@ -249,6 +269,33 @@ _meson_create_native_file() {
 	EOF
 
 	echo "${fn}"
+}
+
+# @FUNCTION: meson_add_machine_file
+# @USAGE: <name> < <data>
+# @DESCRIPTION:
+# Appends --native-file or --cross-file to emesonargs with the data given via
+# standard input. Assumes emesonargs has already been defined as an array.
+meson_add_machine_file() {
+	local file=${T}/meson.${CHOST}.${ABI}.${1}.ini
+	cat > "${file}" || die
+
+	if tc-is-cross-compiler || [[ ${ABI} != "${DEFAULT_ABI}" ]]; then
+		emesonargs+=( --cross-file "${file}" )
+	else
+		emesonargs+=( --native-file "${file}" )
+	fi
+}
+
+# @FUNCTION: meson_add_native_file
+# @USAGE: <name> < <data>
+# @DESCRIPTION:
+# Appends --native-file (never --cross-file) to emesonargs with the data given
+# via standard input. Assumes emesonargs has already been defined as an array.
+meson_add_native_file() {
+	# Ensure the filename is unique by including the target tuple and ABI.
+	local name=${CHOST}.${ABI}.${1} CHOST=${CBUILD} ABI=${DEFAULT_ABI}
+	meson_add_machine_file "${name}"
 }
 
 # @FUNCTION: meson_use
@@ -382,7 +429,7 @@ setup_meson_src_configure() {
 		MESONARGS+=( -Dbuildtype="${EMESON_BUILDTYPE}" )
 	fi
 
-	if tc-is-cross-compiler; then
+	if tc-is-cross-compiler || [[ "${ABI}" != "${DEFAULT_ABI}" ]]; then
 		MESONARGS+=( --cross-file "$(_meson_create_cross_file)" )
 	fi
 
