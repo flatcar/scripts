@@ -174,6 +174,16 @@ EOF
     )
 
     (
+        insinto "$(systemd_get_systemunitdir)/systemd-sysctl.service.d"
+        newins - flatcar.conf <<'EOF'
+# sysctl runs early from the initrd, so wait for sysexts with additional
+# configuration to be mounted before running it again.
+[Unit]
+After=ensure-sysext.service
+EOF
+    )
+
+    (
         # Allow @mount syscalls for systemd-udevd.service
         insinto "$(systemd_get_systemunitdir)/systemd-udevd.service.d"
         newins - flatcar.conf <<'EOF'
