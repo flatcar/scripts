@@ -1,9 +1,10 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+CARGO_OPTIONAL=1
 
-inherit flag-o-matic bash-completion-r1 edo optfeature systemd toolchain-funcs
+inherit cargo flag-o-matic bash-completion-r1 edo optfeature systemd toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
@@ -21,11 +22,15 @@ HOMEPAGE="https://github.com/dracut-ng/dracut-ng/wiki"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="selinux test"
+IUSE="dracut-cpio selinux systemd test"
 RESTRICT="test"
 PROPERTIES="test? ( test_privileged test_network )"
 
-RDEPEND="
+COMMON_DEPEND="
+	>=sys-apps/kmod-23
+	systemd? ( >=sys-apps/systemd-257:= )
+"
+RDEPEND="${COMMON_DEPEND}
 	app-alternatives/cpio
 	>=app-shells/bash-4.0:0
 	sys-apps/coreutils[xattr(-)]
@@ -47,17 +52,20 @@ RDEPEND="
 		sys-libs/libsepol
 	)
 "
-DEPEND="
-	>=sys-apps/kmod-23
+DEPEND="${COMMON_DEPEND}
 	elibc_musl? ( sys-libs/fts-standalone )
 "
 
 BDEPEND="
-	app-text/asciidoc
+	|| (
+		dev-ruby/asciidoctor
+		app-text/asciidoc
+	)
 	app-text/docbook-xml-dtd:4.5
 	>=app-text/docbook-xsl-stylesheets-1.75.2
 	>=dev-libs/libxslt-1.1.26
 	virtual/pkgconfig
+	dracut-cpio? ( ${RUST_DEPEND} )
 	test? (
 		net-nds/rpcbind
 		net-fs/nfs-utils
@@ -97,12 +105,20 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
 	# Gentoo specific acct-user and acct-group conf adjustments
-	"${FILESDIR}"/${PN}-103-acct-user-group-gentoo.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/507
-	"${FILESDIR}"/${PN}-103-systemd-udev-256-kmod.patch
-	# libsystemd-core is sometimes missing
-	"${FILESDIR}"/${PN}-103-always-install-libsystemd.patch
+	"${FILESDIR}"/${PN}-108-acct-user-group-gentoo.patch
+	# https://github.com/dracut-ng/dracut-ng/pull/1447
+	"${FILESDIR}"/${PN}-108-respect-objcopy-and-objdump.patch
+	# https://github.com/dracut-ng/dracut-ng/pull/1538
+	"${FILESDIR}"/${PN}-108-elf-parsing-fixes.patch
+	# https://github.com/dracut-ng/dracut-ng/pull/1122#issuecomment-3192110686
+	"${FILESDIR}"/${PN}-108-disable-ukify-magic.patch
+	# https://github.com/dracut-ng/dracut-ng/pull/1562
+	"${FILESDIR}"/${PN}-108-hostonly_cmdline-default-yes.patch
 )
+
+pkg_setup() {
+	use dracut-cpio && rust_pkg_setup
+}
 
 src_configure() {
 	local myconf=(
@@ -110,14 +126,35 @@ src_configure() {
 		--sysconfdir="${EPREFIX}/etc"
 		--bashcompletiondir="$(get_bashcompdir)"
 		--systemdsystemunitdir="$(systemd_get_systemunitdir)"
+		--disable-dracut-cpio
 	)
+
+	if ! has_version -b dev-ruby/asciidoctor; then
+		myconf+=( --disable-asciidoctor )
+	fi
 
 	# this emulates what the build system would be doing without us
 	append-cflags -D_FILE_OFFSET_BITS=64
 
 	tc-export CC PKG_CONFIG
 
+	# https://bugs.gentoo.org/968765
+	use systemd || export SYSTEMD_CFLAGS= SYSTEMD_LIBS=
+
 	edo ./configure "${myconf[@]}"
+	if use dracut-cpio; then
+		cargo_gen_config
+		cargo_src_configure
+	fi
+}
+
+src_compile() {
+	default
+	if use dracut-cpio; then
+		pushd src/dracut-cpio >/dev/null || die
+		cargo_src_compile
+		popd >/dev/null || die
+	fi
 }
 
 src_test() {
@@ -143,17 +180,33 @@ src_install() {
 		AUTHORS
 		NEWS.md
 		README.md
-		docs/HACKING.md
-		docs/README.cross
-		docs/README.kernel
-		docs/RELEASE.md
-		docs/SECURITY.md
 	)
-
 	default
+	if use dracut-cpio; then
+		exeinto /usr/lib/dracut
+		doexe "src/dracut-cpio/$(cargo_target_dir)/dracut-cpio"
+	fi
 
-	docinto html
-	dodoc dracut.html
+	# Use our own from sys-kernel/installkernel[dracut]
+	rm -r "${ED}/usr/lib/kernel" || die
+}
+
+pkg_preinst() {
+	# Remove directory/symlink conflicts
+	# https://bugs.gentoo.org/943007
+	local save_nullglob=$(shopt -p nullglob)
+	shopt -s nullglob
+	local module
+	for module in "${EROOT}"/usr/lib/dracut/modules.d/{80test,80test-makeroot,80test-root}; do
+		if [[ ! -L ${module} && -d ${module} ]]; then
+			rm -rv "${module}" || die
+		fi
+		local backups=( "${module}".backup.* )
+		if [[ ${#backups[@]} -gt 0 ]]; then
+			rm -v "${backups[@]}" || die
+		fi
+	done
+	eval "${save_nullglob}"
 }
 
 pkg_postinst() {
@@ -167,7 +220,7 @@ pkg_postinst() {
 	optfeature "Decrypt devices encrypted with cryptsetup/LUKS" \
 		"sys-fs/cryptsetup[-static-libs]"
 	optfeature "Support for GPG-encrypted keys for crypt module" \
-		app-crypt/gnupg
+		"app-alternatives/gpg[reference]" "app-alternatives/gpg[freepg(-)]"
 	optfeature \
 		"Allows use of dash instead of default bash (on your own risk)" \
 		app-shells/dash
