@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,7 +9,7 @@ EAPI=8
 TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
 PATCH_GCC_VER="16.0.0"
-PATCH_VER="23"
+PATCH_VER="31"
 MUSL_VER="1"
 MUSL_GCC_VER="16.0.0"
 PYTHON_COMPAT=( python3_{11..14} )
@@ -24,6 +24,8 @@ if [[ -n ${TOOLCHAIN_GCC_RC} ]] ; then
 fi
 
 inherit toolchain
+
+SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}_p20260113-patches.tar.xz"
 
 if tc_is_live ; then
 	# Needs to be after inherit (for now?), bug #830908
@@ -52,5 +54,6 @@ src_prepare() {
 
 	toolchain_src_prepare
 	eapply "${FILESDIR}"/${PN}-13-fix-cross-fixincludes.patch
+	eapply "${WORKDIR}"/${P}_p20260113-patches
 	eapply_user
 }
