@@ -312,13 +312,17 @@ build_sysext_packages() {
     qatom -F "%{CATEGORY}/%{PN}" ${package_atoms} >> "${eclean_excludes}"
     for package in $package_atoms; do
        # --buildpkgonly does not install dependencies, so we install them
-       # separately before building the binary package
+       # separately before building the binary package. --ignore-world is needed
+       # to allow packages to be installed to both /usr and sysexts with
+       # conflicting USE flags. This will "break" the board root, but it's not
+       # used for execution, and affected packages will be rebuilt as needed.
        sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
          env USE="$useflags" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
          "${EMERGE_FLAGS[@]}" \
          --quiet \
          --onlydeps \
          --binpkg-respect-use=y \
+         --ignore-world=y \
          "${package}"
 
        sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
@@ -327,6 +331,7 @@ build_sysext_packages() {
          --quiet \
          --buildpkgonly \
          --binpkg-respect-use=y \
+         --ignore-world=y \
          "${package}"
     done
     unset IFS
@@ -377,6 +382,11 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
     sudo -E "${EMERGE_CMD[@]}" "${REBUILD_FLAGS[@]}" @preserved-rebuild
   fi
 fi
+
+# Additionally avoid cleaning packages that have the flatcar-oem USE flag, which
+# may be off in /usr but on in sysexts. This query doesn't check whether the
+# flag is currently enabled or not, but that's fine in practise.
+quse --root="${BOARD_ROOT}" -qeI flatcar-oem >> "${eclean_excludes}" || :
 
 eclean-"$BOARD" --deep --exclude-file="${eclean_excludes}" packages
 rm -f "${eclean_excludes}"
