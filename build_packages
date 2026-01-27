@@ -312,13 +312,17 @@ build_sysext_packages() {
     qatom -F "%{CATEGORY}/%{PN}" ${package_atoms} >> "${eclean_excludes}"
     for package in $package_atoms; do
        # --buildpkgonly does not install dependencies, so we install them
-       # separately before building the binary package
+       # separately before building the binary package. --ignore-world is needed
+       # to allow packages to be installed to both /usr and sysexts with
+       # conflicting USE flags. This will "break" the board root, but it's not
+       # used for execution, and affected packages will be rebuilt as needed.
        sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
          env USE="$useflags" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
          "${EMERGE_FLAGS[@]}" \
          --quiet \
          --onlydeps \
          --binpkg-respect-use=y \
+         --ignore-world=y \
          "${package}"
 
        sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
@@ -327,6 +331,7 @@ build_sysext_packages() {
          --quiet \
          --buildpkgonly \
          --binpkg-respect-use=y \
+         --ignore-world=y \
          "${package}"
     done
     unset IFS
@@ -378,11 +383,11 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   fi
 fi
 
-eclean-"$BOARD" --deep --exclude-file="${eclean_excludes}" packages
+eclean-"$BOARD" --deep --exclude-file="${eclean_excludes}" packages --unique-use
 rm -f "${eclean_excludes}"
 # run eclean again, this time without the --deep option, to clean old versions
 # of sysext packages (those, for which .ebuild file no  longer exists)
-eclean-"$BOARD" packages
+eclean-"$BOARD" packages --unique-use
 
 info "Checking build root"
 test_image_content "${BOARD_ROOT}"
