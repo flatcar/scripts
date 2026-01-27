@@ -23,13 +23,12 @@ gets built into a developer image and is not OEM specific.
 gets built into the Container Linux SDK.
 
 `coreos-devel/board-packages` is everything that could be built into a
-development or production image, plus any OEM specific packages.
+development or production image.
 
 `coreos-base/oem-*` are the OEM specific packages. They mostly install things
-that belong in the OEM partition. Any RDEPENDS from these packages should
-be copied to the RDEPENDS in `board-packages` to ensure they are built.
+that belong in the OEM partition.
 
-`coreos-base/coreos-oem-*` are metapackages for OEM specific ACIs. 
+`coreos-base/coreos-oem-*` are metapackages for OEM specific ACIs.
 
 # Updating
 
