@@ -100,12 +100,6 @@ IMG_DEFAULT_OEM_PACKAGE=
 # Forced OEM package name overriding what may be in the format
 IMG_FORCE_OEM_PACKAGE=
 
-# USE flags for the OEM package
-IMG_DEFAULT_OEM_USE=
-
-# Forced USE flags for the OEM package
-IMG_FORCE_OEM_USE=
-
 # If set install the given package name to the OEM sysext image
 IMG_DEFAULT_OEM_SYSEXT=
 
@@ -141,7 +135,6 @@ IMG_DEFAULT_CPUS=2
 IMG_qemu_uefi_DISK_FORMAT=qcow2
 IMG_qemu_uefi_DISK_LAYOUT=vm
 IMG_qemu_uefi_CONF_FORMAT=qemu_uefi
-IMG_qemu_uefi_OEM_USE=qemu
 IMG_qemu_uefi_OEM_PACKAGE=common-oem-files
 IMG_qemu_uefi_OEM_SYSEXT=oem-qemu
 
@@ -190,7 +183,6 @@ IMG_vagrant_parallels_OEM_PACKAGE=oem-vagrant
 IMG_vmware_DISK_FORMAT=vmdk_scsi
 IMG_vmware_DISK_LAYOUT=vm
 IMG_vmware_CONF_FORMAT=vmx
-IMG_vmware_OEM_USE=vmware
 IMG_vmware_OEM_PACKAGE=common-oem-files
 IMG_vmware_OEM_SYSEXT=oem-vmware
 
@@ -199,12 +191,10 @@ IMG_vmware_ova_DISK_FORMAT=vmdk_stream
 IMG_vmware_ova_DISK_LAYOUT=vm
 IMG_vmware_ova_CONF_FORMAT=ovf_vmware
 IMG_vmware_ova_BUNDLE_FORMAT=ova
-IMG_vmware_ova_OEM_USE=vmware
 IMG_vmware_ova_OEM_PACKAGE=common-oem-files
 IMG_vmware_ova_OEM_SYSEXT=oem-vmware
 
 ## vmware_raw
-IMG_vmware_raw_OEM_USE=vmware
 IMG_vmware_raw_OEM_PACKAGE=common-oem-files
 IMG_vmware_raw_OEM_SYSEXT=oem-vmware
 
@@ -222,11 +212,9 @@ IMG_parallels_CONF_FORMAT=pvs
 
 ## ami
 IMG_ami_vmdk_DISK_FORMAT=vmdk_stream
-IMG_ami_vmdk_OEM_USE=ami
 IMG_ami_vmdk_OEM_PACKAGE=common-oem-files
 IMG_ami_vmdk_SYSEXT=oem-ami
 IMG_ami_vmdk_DISK_LAYOUT=vm
-IMG_ami_OEM_USE=ami
 IMG_ami_OEM_PACKAGE=common-oem-files
 IMG_ami_OEM_SYSEXT=oem-ami
 IMG_ami_DISK_LAYOUT=vm
@@ -235,13 +223,11 @@ IMG_ami_DISK_LAYOUT=vm
 IMG_openstack_DISK_FORMAT=qcow2
 IMG_openstack_DISK_LAYOUT=vm
 IMG_openstack_OEM_PACKAGE=common-oem-files
-IMG_openstack_OEM_USE=openstack
 IMG_openstack_OEM_SYSEXT=oem-openstack
 
 ## openstack but without a resized root partition for more flexibility
 IMG_openstack_mini_DISK_FORMAT=qcow2
 IMG_openstack_mini_OEM_PACKAGE=common-oem-files
-IMG_openstack_mini_OEM_USE=openstack
 IMG_openstack_mini_OEM_SYSEXT=oem-openstack
 
 ## pxe, which is an cpio image
@@ -260,7 +246,6 @@ IMG_iso_MEM=2048
 IMG_gce_DISK_LAYOUT=vm
 IMG_gce_CONF_FORMAT=gce
 IMG_gce_OEM_PACKAGE=common-oem-files
-IMG_gce_OEM_USE=gce
 IMG_gce_OEM_SYSEXT=oem-gce
 
 ## rackspace
@@ -280,7 +265,6 @@ IMG_cloudstack_vhd_OEM_PACKAGE=oem-cloudstack
 
 ## digitalocean
 IMG_digitalocean_OEM_PACKAGE=common-oem-files
-IMG_digitalocean_OEM_USE=digitalocean
 IMG_digitalocean_OEM_SYSEXT=oem-digitalocean
 
 ## exoscale
@@ -290,25 +274,21 @@ IMG_exoscale_OEM_PACKAGE=oem-exoscale
 ## azure
 IMG_azure_DISK_FORMAT=vhd_fixed
 IMG_azure_DISK_LAYOUT=azure
-IMG_azure_OEM_USE=azure
 IMG_azure_OEM_PACKAGE=common-oem-files
 IMG_azure_OEM_SYSEXT=oem-azure
 
 ## hetzner
 IMG_hetzner_DISK_LAYOUT=vm
-IMG_hetzner_OEM_USE=hetzner
 IMG_hetzner_OEM_PACKAGE=common-oem-files
 IMG_hetzner_OEM_SYSEXT=oem-hetzner
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
-IMG_hyperv_OEM_USE=hyperv
 IMG_hyperv_OEM_PACKAGE=common-oem-files
 IMG_hyperv_OEM_SYSEXT=oem-hyperv
 
 ## hyper-v vhdx
 IMG_hyperv_vhdx_DISK_FORMAT=vhdx
-IMG_hyperv_vhdx_OEM_USE=hyperv
 IMG_hyperv_vhdx_OEM_PACKAGE=common-oem-files
 IMG_hyperv_vhdx_OEM_SYSEXT=oem-hyperv
 
@@ -319,13 +299,11 @@ IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
 ## packet
 IMG_packet_OEM_PACKAGE=common-oem-files
 IMG_packet_OEM_SYSEXT=oem-packet
-IMG_packet_OEM_USE=packet
 
 ## scaleway
 IMG_scaleway_DISK_FORMAT=qcow2
 IMG_scaleway_DISK_LAYOUT=vm
 IMG_scaleway_OEM_PACKAGE=common-oem-files
-IMG_scaleway_OEM_USE=scaleway
 IMG_scaleway_OEM_SYSEXT=oem-scaleway
 IMG_scaleway_DISK_EXTENSION=qcow2
 
@@ -333,34 +311,29 @@ IMG_scaleway_DISK_EXTENSION=qcow2
 IMG_stackit_DISK_FORMAT=qcow2
 IMG_stackit_DISK_LAYOUT=vm
 IMG_stackit_OEM_PACKAGE=common-oem-files
-IMG_stackit_OEM_USE=stackit
 IMG_stackit_OEM_SYSEXT=oem-stackit
 
 ## kubevirt
 IMG_kubevirt_DISK_FORMAT=qcow2
 IMG_kubevirt_DISK_LAYOUT=vm
 IMG_kubevirt_OEM_PACKAGE=common-oem-files
-IMG_kubevirt_OEM_USE=kubevirt
 IMG_kubevirt_OEM_SYSEXT=oem-kubevirt
 IMG_kubevirt_DISK_EXTENSION=qcow2
 
 ## akamai (Linode)
 IMG_akamai_DISK_LAYOUT=vm
 IMG_akamai_OEM_PACKAGE=common-oem-files
-IMG_akamai_OEM_USE=akamai
 IMG_akamai_OEM_SYSEXT=oem-akamai
 
 # proxmoxve
 IMG_proxmoxve_DISK_FORMAT=qcow2
 IMG_proxmoxve_DISK_LAYOUT=vm
 IMG_proxmoxve_OEM_PACKAGE=common-oem-files
-IMG_proxmoxve_OEM_USE=proxmoxve
 IMG_proxmoxve_OEM_SYSEXT=oem-proxmoxve
 
 ## nutanix
 IMG_nutanix_DISK_FORMAT=qcow2
 IMG_nutanix_DISK_LAYOUT=vm
-IMG_nutanix_OEM_USE=nutanix
 IMG_nutanix_OEM_PACKAGE=common-oem-files
 IMG_nutanix_OEM_SYSEXT=oem-nutanix
 
@@ -397,12 +370,10 @@ set_vm_type() {
 
 # Validate and set the oem package, colon delimited USE optional
 set_vm_oem_pkg() {
-    local oem_pkg="${1%:*}" oem_use="${1##*:}"
-    local valid_pkg
+    local oem_pkg="${1}" valid_pkg
     for valid_pkg in "${VALID_OEM_PACKAGES[@]}"; do
         if [[ "${oem_pkg}" == "${valid_pkg}" ]]; then
             IMG_FORCE_OEM_PACKAGE="oem-${oem_pkg}"
-            IMG_FORCE_OEM_USE="${oem_use}"
             return 0
         fi
     done
