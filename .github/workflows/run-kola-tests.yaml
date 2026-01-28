@@ -137,7 +137,8 @@ jobs:
           # For the sake of that test we will serve both via a temporary local web server.
           TESTS_WEBSERVER_WEBROOT="scripts/devcontainer-webroot"
           default_rout_device="$(sudo ip -j route sh default |jq -r .[0].dev)"
-          TESTS_WEBSERVER_IP="$(sudo ip -j address show dev "${default_rout_device}" | jq -r .[0].addr_info[0].local)"
+          # TESTS_WEBSERVER_IP="$(sudo ip -j address show dev "${default_rout_device}" | jq -r .[0].addr_info[0].local)"
+          TESTS_WEBSERVER_IP="10.0.2.2"
           TESTS_WEBSERVER_PORT=12345
           echo "TESTS_WEBSERVER_WEBROOT=${TESTS_WEBSERVER_WEBROOT}" >> "$GITHUB_ENV"
           echo "TESTS_WEBSERVER_IP=${TESTS_WEBSERVER_IP}" >> "$GITHUB_ENV"
@@ -161,7 +162,7 @@ jobs:
           set -x
           set -euo pipefail
 
-          python3 -m http.server -d "${TESTS_WEBSERVER_WEBROOT}" -b "${TESTS_WEBSERVER_IP}" "${TESTS_WEBSERVER_PORT}" &
+          python3 -m http.server -d "${TESTS_WEBSERVER_WEBROOT}" "${TESTS_WEBSERVER_PORT}" &
 
           pushd scripts
 
