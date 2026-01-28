@@ -34,8 +34,8 @@ build_target_toolchain() {
         PORTAGE_CONFIGROOT="$ROOT" run_merge --root="$ROOT" --sysroot="$ROOT" "${@}"
     }
 
-    # install baselayout first - with the selinux profile, this is
-    # pulled into the dependency chain
+    # install baselayout first - for some reason this is pulled into
+    # the dependency chain when building toolchain
     btt_emerge --oneshot --nodeps sys-apps/baselayout
 
     # copy libraries from sysroot to root - sysroot seems to be
@@ -90,9 +90,15 @@ build_target_toolchain() {
     # util-linux[systemd] -> systemd -> util-linux
     # util-linux[udev] -> libudev[systemd] -> systemd -> util-linux
     args_for_bdl+=(
-        sys-apps/systemd cryptsetup,curl,importd,tpm
-        sys-apps/util-linux audit,cryptsetup,pam,selinux,su,systemd,udev
-        sys-libs/glibc nscd,selinux
+        # sys-apps/systemd cryptsetup,curl,importd,tpm
+        # sys-apps/util-linux audit,cryptsetup,pam,selinux,su,systemd,udev
+        # sys-libs/glibc nscd,selinux
+        # sys-libs/pam systemd
+        net-libs/nghttp2 systemd
+        sys-apps/systemd cryptsetup,tpm
+        sys-apps/util-linux cryptsetup,systemd,udev
+        sys-fs/cryptsetup systemd,udev
+        sys-fs/lvm2 systemd
         sys-libs/pam systemd
     )
     BDL_ROOT=${ROOT} \
