@@ -1,0 +1,32 @@
+From 9df29be2af3e2e1a08e14dfe23ab4141a1ae85ca Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Wed, 28 Jan 2026 16:13:44 +0100
+Subject: [PATCH] afterburn: sync network kars with supported provider
+
+There is now a support for ProxmoxVE and Kubevirt:
+https://github.com/coreos/afterburn/blob/8f6d5877c96b4d974f18a4782e6e275efdbd94d6/src/initrd/mod.rs#L20-L24
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ dracut/50flatcar-network/afterburn-network-kargs.service | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/dracut/50flatcar-network/afterburn-network-kargs.service b/dracut/50flatcar-network/afterburn-network-kargs.service
+index 595e831..0c04b3b 100644
+--- a/dracut/50flatcar-network/afterburn-network-kargs.service
++++ b/dracut/50flatcar-network/afterburn-network-kargs.service
+@@ -10,6 +10,11 @@ PartOf=systemd-networkd.service
+ # For extra safety
+ ConditionKernelCommandLine=|coreos.oem.id=vmware
+ ConditionKernelCommandLine=|flatcar.oem.id=vmware
++ConditionKernelCommandLine=|coreos.oem.id=proxmoxve
++ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
++ConditionKernelCommandLine=|coreos.oem.id=kubevirt
++ConditionKernelCommandLine=|flatcar.oem.id=kubevirt
++
+ OnFailure=emergency.target
+ OnFailureJobMode=isolate
+ 
+-- 
+2.52.0
+
