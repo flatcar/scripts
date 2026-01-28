@@ -26,3 +26,7 @@
 # who knows.
 =sys-firmware/intel-microcode-20250512_p20250513
 =sys-firmware/intel-microcode-20250812_p20250813
+
+# Make sure that we stay on version 3.4.x for OpenSSL on this branch
+# even if `::portage-stable` holds more recent version (3.5.x)
+>=dev-libs/openssl-3.5
