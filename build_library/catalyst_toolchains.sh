@@ -94,6 +94,12 @@ build_target_toolchain() {
         # sys-apps/util-linux audit,cryptsetup,pam,selinux,su,systemd,udev
         # sys-libs/glibc nscd,selinux
         # sys-libs/pam systemd
+        net-libs/nghttp2 systemd
+        sys-apps/systemd cryptsetup,tpm
+        sys-apps/util-linux cryptsetup,systemd,udev
+        sys-fs/cryptsetup systemd,udev
+        sys-fs/lvm2 systemd
+        sys-libs/pam systemd
     )
     BDL_ROOT=${ROOT} \
     BDL_PORTAGEQ=btt_bdl_portageq \
