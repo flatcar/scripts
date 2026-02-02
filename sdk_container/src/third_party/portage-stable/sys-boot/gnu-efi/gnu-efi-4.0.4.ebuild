@@ -1,4 +1,4 @@
-# Copyright 2004-2025 Gentoo Authors
+# Copyright 2004-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -118,7 +118,9 @@ efimake() {
 src_compile() {
 	tc-export BUILD_CC AR AS CC LD OBJCOPY
 
-	if ! use custom-cflags; then
+	if use custom-cflags; then
+		LDFLAGS="$(raw-ldflags)"
+	else
 		unset CFLAGS CPPFLAGS LDFLAGS
 	fi
 
