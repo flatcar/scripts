@@ -76,6 +76,7 @@ MULTILIB_WRAPPED_HEADERS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.11.0-no-iproute2.patch
+	"${FILESDIR}"/${P}-tests.patch
 )
 
 src_prepare() {
