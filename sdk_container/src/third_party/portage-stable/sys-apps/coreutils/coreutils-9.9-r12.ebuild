@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -33,7 +33,7 @@ else
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
@@ -83,6 +83,7 @@ RDEPEND+="
 	!sys-apps/mktemp
 	!<app-forensics/tct-1.18-r1
 	!<net-fs/netatalk-2.0.3-r4
+	!<sys-apps/shadow-4.19.0_rc1
 "
 
 QA_CONFIG_IMPL_DECL_SKIP=(
@@ -115,8 +116,10 @@ src_unpack() {
 src_prepare() {
 	# TODO: past 2025, we may need to add our own hack for bug #907474.
 	local PATCHES=(
+		"${FILESDIR}"/${PN}-9.5-skip-readutmp-test.patch
 		# Upstream patches
-		"${FILESDIR}"/${PN}-9.8-no-pclmul.patch
+		"${FILESDIR}"/${PN}-9.9-cp-SEEK_HOLE-loop.patch
+		"${FILESDIR}"/${PN}-9.9-glibc-2.43-c23.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
@@ -158,10 +161,9 @@ src_configure() {
 		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
 		--with-packager-bug-reports="https://bugs.gentoo.org/"
 		# kill/uptime - procps
-		# groups/su   - shadow
 		# hostname    - net-tools
 		--enable-install-program="arch,$(usev hostname),$(usev kill)"
-		--enable-no-install-program="groups,$(usev !hostname),$(usev !kill),su,uptime"
+		--enable-no-install-program="$(usev !hostname),$(usev !kill),su,uptime"
 		$(usev !caps --disable-libcap)
 		$(use_enable nls)
 		$(use_enable acl)

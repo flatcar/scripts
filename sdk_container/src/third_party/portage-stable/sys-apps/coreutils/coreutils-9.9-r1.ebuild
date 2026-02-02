@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,7 +9,7 @@ EAPI=8
 #
 # Also recommend subscribing to the coreutils and bug-coreutils MLs.
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..13} )
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/coreutils.asc
 inherit flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
@@ -23,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 elif [[ ${PV} == *_p* ]] ; then
 	# Note: could put this in devspace, but if it's gone, we don't want
 	# it in tree anyway. It's just for testing.
-	MY_SNAPSHOT="$(ver_cut 1-2).185-541b02"
+	MY_SNAPSHOT="$(ver_cut 1-2).327-71a8c"
 	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
 	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
@@ -33,14 +33,14 @@ else
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x86-linux"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 
 SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
 
 LICENSE="GPL-3+"
 SLOT="0"
-IUSE="acl caps gmp hostname kill multicall nls +openssl selinux +split-usr static test vanilla xattr"
+IUSE="acl caps gmp hostname kill multicall nls +openssl selinux +split-usr static test test-full vanilla xattr"
 RESTRICT="!test? ( test )"
 
 LIB_DEPEND="
@@ -115,7 +115,9 @@ src_unpack() {
 src_prepare() {
 	# TODO: past 2025, we may need to add our own hack for bug #907474.
 	local PATCHES=(
+		"${FILESDIR}"/${PN}-9.5-skip-readutmp-test.patch
 		# Upstream patches
+		"${FILESDIR}"/${PN}-9.9-cp-SEEK_HOLE-loop.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
@@ -141,6 +143,14 @@ src_prepare() {
 }
 
 src_configure() {
+	# Running Valgrind in an ebuild is too unreliable. Skip such tests.
+	cat <<-EOF >> init.cfg || die
+	require_valgrind_()
+	{
+		skip_ "requires a working valgrind"
+	}
+	EOF
+
 	# TODO: in future (>9.4?), we may want to wire up USE=systemd:
 	# still experimental at the moment, but:
 	# https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=85edb4afbd119fb69a0d53e1beb71f46c9525dd0
@@ -216,7 +226,7 @@ src_test() {
 
 	addwrite /dev/full
 
-	#local -x RUN_EXPENSIVE_TESTS="yes"
+	local -x RUN_{VERY_,}EXPENSIVE_TESTS=$(usex test-full yes no)
 	#local -x COREUTILS_GROUPS="portage wheel"
 	local -x PATH="${T}/mount-wrappers:${PATH}"
 	local -x gl_public_submodule_commit=
@@ -233,15 +243,6 @@ src_test() {
 			# bug #675802
 			tests/env/env-S
 			tests/env/env-S.pl
-
-			# bug #413621 and bug #548250
-			tests/du/long-from-unreadable.sh
-			tests/ls/removed-directory
-			tests/ls/removed-directory.sh
-			tests/ls/stat-free-symlinks
-			tests/ls/stat-free-symlinks.sh
-			tests/rm/deep-2
-			tests/rm/deep-2.sh
 
 			# We have a patch which fixes this (bug #259876)
 			#tests/touch/not-owner
