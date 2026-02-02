@@ -12,7 +12,7 @@ TMPFILES_OPTIONAL=1
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=1
+PATCH_VER=7
 PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
@@ -43,7 +43,7 @@ HOMEPAGE="https://www.gnu.org/software/libc/"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
 else
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/glibc/${P}.tar.xz.sig )"
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
@@ -54,7 +54,7 @@ SRC_URI+=" systemd? ( https://gitweb.gentoo.org/proj/toolchain/glibc-systemd.git
 
 LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
 SLOT="2.2"
-IUSE="audit caps cet clang compile-locales custom-cflags doc gd hash-sysv-compat headers-only +multiarch multilib multilib-bootstrap nscd perl profile selinux sframe +ssp stack-realign +static-libs suid systemd systemtap test vanilla"
+IUSE="audit caps cet compile-locales custom-cflags doc gd hash-sysv-compat headers-only +multiarch multilib multilib-bootstrap nscd perl profile selinux sframe +ssp stack-realign +static-libs suid systemd systemtap test vanilla"
 
 # Here's how the cross-compile logic breaks down ...
 #  CTARGET - machine that will target the binaries
@@ -155,10 +155,7 @@ if [[ ${CATEGORY} == cross-* ]] ; then
 else
 	BDEPEND+="
 		>=sys-devel/binutils-2.27
-		clang? ( || ( ( >=sys-devel/gcc-6.2 )
-			( >=sys-devel/gcc-6.2 >=llvm-core/clang-18 )
-			( >=llvm-core/clang-18 >=llvm-runtimes/libgcc-18 ) ) )
-		!clang? ( >=sys-devel/gcc-6.2 )
+		>=sys-devel/gcc-6.2
 	"
 	DEPEND+=" virtual/os-headers "
 	RDEPEND+="
@@ -475,11 +472,6 @@ setup_flags() {
 		append-ldflags '-Wl,--hash-style=both'
 	fi
 
-	# clang warns about linker flags unused during compilation, but we don't
-	# want that to turn into errors!
-	# Let's turn the warning off entirely since it spams.
-	append-flags -Wno-unused-command-line-argument
-
 	# #492892
 	filter-flags -frecord-gcc-switches
 
@@ -611,7 +603,7 @@ setup_env() {
 	export glibc__ORIG_CXX=${CXX}
 	export glibc__ORIG_CPP=${CPP}
 
-	if tc-is-clang && ! ( use clang || use custom-cflags ) && ! is_crosscompile ; then
+	if tc-is-clang && ! use custom-cflags && ! is_crosscompile ; then
 		export glibc__force_gcc=yes
 		# once this is toggled on, it needs to stay on, since with CPP manipulated
 		# tc-is-clang does not work correctly anymore...
@@ -622,8 +614,9 @@ setup_env() {
 		# recover the proper gcc and binutils settings here, at least until glibc
 		# is finally building with clang. So let's override everything that is
 		# set in the clang profiles.
-		# Want to shoot yourself into the foot? Set USE="clang" or USE="custom-cflags".
-		# Also, if you are crosscompiling, let's assume you know what you are doing.
+		# Want to shoot yourself into the foot? Set USE=custom-cflags, that's always
+		# a good start into that direction.
+		# Also, if you're crosscompiling, let's assume you know what you are doing.
 		# Hopefully.
 		# Last, we need the settings of the *build* environment, not of the
 		# target environment...
@@ -652,22 +645,26 @@ setup_env() {
 		filter-flags '-D_FORTIFY_SOURCE=*'
 
 	else
+
 		# this is the "normal" case
+
+		export CC="$(tc-getCC ${CTARGET})"
+		export CXX="$(tc-getCXX ${CTARGET})"
+		export CPP="$(tc-getCPP ${CTARGET})"
 
 		# Always use tuple-prefixed toolchain. For non-native ABI glibc's configure
 		# can't detect them automatically due to ${CHOST} mismatch and fallbacks
 		# to unprefixed tools. Similar to multilib.eclass:multilib_toolchain_setup().
-		export CC="$(tc-getCC ${CTARGET})"
-		export CXX="$(tc-getCXX ${CTARGET})"
-		export CPP="$(tc-getCPP ${CTARGET})"
 		export NM="$(tc-getNM ${CTARGET})"
 		export READELF="$(tc-getREADELF ${CTARGET})"
 
 	fi
 
-	# We need to move CFLAGS with abi information into CC etc per glibc upstream
-	# requirement. Keep around the original clean value to avoid appending
-	# multiple ABIs on top of each other.
+	# We need to export CFLAGS with abi information in them because glibc's
+	# configure script checks CFLAGS for some targets (like mips).  Keep
+	# around the original clean value to avoid appending multiple ABIs on
+	# top of each other. (Why does the comment talk about CFLAGS if the code
+	# acts on CC?)
 	export glibc__GLIBC_CC=${CC}
 	export glibc__GLIBC_CXX=${CXX}
 	export glibc__GLIBC_CPP=${CPP}
