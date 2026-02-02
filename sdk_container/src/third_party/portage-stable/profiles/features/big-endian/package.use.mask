@@ -45,6 +45,7 @@ media-video/vlc aom
 media-libs/libheif aom
 media-libs/libavif aom
 mail-client/thunderbird system-av1
+>=kde-frameworks/kimageformats-6.22.0 avif
 
 # matoro <matoro_gentoo@matoro.tk> (2023-04-11)
 # dev-libs/weston casualties (#833010)
@@ -62,6 +63,7 @@ gui-libs/gtk wayland
 gui-libs/vte wayland
 media-libs/clutter wayland
 media-libs/clutter-gtk wayland
+media-video/celluloid wayland
 net-libs/webkit-gtk:6 wayland
 sys-apps/xdg-desktop-portal-gnome wayland
 x11-libs/vte wayland
