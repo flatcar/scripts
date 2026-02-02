@@ -1,4 +1,4 @@
-# Copyright 1999-2026 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -53,7 +53,7 @@ BDEPEND="
 # For whirlpool hash, require python[ssl] (bug #425046).
 RDEPEND="
 	${PYTHON_DEPS}
-	>=acct-user/portage-0-r4
+	acct-user/portage
 	>=app-arch/tar-1.27
 	app-arch/zstd
 	>=app-misc/pax-utils-0.1.17
@@ -88,6 +88,10 @@ PDEPEND="
 		>=sys-apps/file-5.44-r3
 	)
 "
+
+PATCHES=(
+	"${FILESDIR}"/0001-bin-emerge-ebuild-don-t-define-signal-handlers-in-gl.patch
+)
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
