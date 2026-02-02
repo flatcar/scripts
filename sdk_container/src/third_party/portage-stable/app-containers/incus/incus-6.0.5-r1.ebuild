@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,8 +11,8 @@ SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
 	verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
 
 LICENSE="Apache-2.0 BSD LGPL-3 MIT"
-SLOT="0/stable"
-KEYWORDS="~amd64 ~arm64"
+SLOT="0/lts"
+KEYWORDS="amd64 ~arm64"
 IUSE="apparmor fuidshift nls qemu"
 
 DEPEND="acct-group/incus
@@ -20,7 +20,7 @@ DEPEND="acct-group/incus
 	app-arch/xz-utils
 	>=app-containers/lxc-5.0.0:=[apparmor?,seccomp(+)]
 	dev-db/sqlite:3
-	>=dev-libs/cowsql-1.15.7
+	>=dev-libs/cowsql-1.15.9
 	dev-libs/lzo
 	>=dev-libs/raft-0.22.1:=[lz4]
 	>=dev-util/xdelta-3.0[lzma(+)]
@@ -94,7 +94,8 @@ RESTRICT="test"
 
 GOPATH="${S}/_dist"
 
-PATCHES=( "${FILESDIR}"/incus-6.14-fix-qemu-memory-calculation-logic.patch )
+PATCHES=( "${FILESDIR}"/incus-CVE-2026-23953.patch
+	"${FILESDIR}"/incus-CVE-2026-23954.patch )
 
 src_unpack() {
 	verify-sig_src_unpack
@@ -116,7 +117,7 @@ src_prepare() {
 		-e "s:OVMF_VARS.ms.fd:OVMF_VARS.fd:g" \
 		internal/server/instance/drivers/edk2/driver_edk2.go || die "Failed to fix hardcoded ovmf paths."
 
-	cp "${FILESDIR}"/incus-0.4.service "${T}"/incus.service || die
+	cp "${FILESDIR}"/incus-6.14-r1.service "${T}"/incus.service || die
 	if use apparmor; then
 		sed -i \
 			'/^EnvironmentFile=.*/a ExecStartPre=\/usr\/libexec\/lxc\/lxc-apparmor-load' \
@@ -143,19 +144,17 @@ src_compile() {
 
 	ego install -v -x -tags libsqlite3 "${S}"/cmd/incusd
 
-	# Needs to be built statically
-	CGO_ENABLED=0 go install -v -tags netgo "${S}"/cmd/incus-migrate
+	CGO_ENABLED=0 go install -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-migrate
 
 	# Build the VM agents, statically too
-	# 32-bit agents couldn't be built with the settings below, will need to investigate later - maybe
 	if use amd64 ; then
-		GOARCH=amd64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.x86_64 -v -tags agent,netgo "${S}"/cmd/incus-agent
-		# GOARCH=386 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.i686 -v -tags agent,netgo "${S}"/cmd/incus-agent
-		GOARCH=amd64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.x86_64 -v -tags agent,netgo "${S}"/cmd/incus-agent
-		# GOARCH=386 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.i686 -v -tags agent,netgo "${S}"/cmd/incus-agent
+		GOARCH=amd64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.x86_64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=386 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.i686 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=amd64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.x86_64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=386 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.i686 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
 	elif use arm64 ; then
-		GOARCH=arm64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.aarch64 -v -tags agent,netgo "${S}"/cmd/incus-agent
-		GOARCH=arm64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.aarch64 -v -tags agent,netgo "${S}"/cmd/incus-agent
+		GOARCH=arm64 CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.linux.aarch64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
+		GOARCH=arm64 GOOS=windows CGO_ENABLED=0 ego build -o "${S}"/_dist/bin/incus-agent.windows.aarch64 -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-agent
 	else
 		echo "No VM support for this arch."
 		return
@@ -192,13 +191,15 @@ src_install() {
 
 	# VM Agents
 	if use amd64 ; then
-		dobin ${bindir}/incus-agent.linux.x86_64
-		# dobin ${bindir}/incus-agent.linux.i686
-		dobin ${bindir}/incus-agent.windows.x86_64
-		# dobin ${bindir}/incus-agent.windows.i686
+		exeinto /usr/libexec/incus/agents
+		doexe ${bindir}/incus-agent.linux.x86_64
+		doexe ${bindir}/incus-agent.linux.i686
+		doexe ${bindir}/incus-agent.windows.x86_64
+		doexe ${bindir}/incus-agent.windows.i686
 	elif use arm64 ; then
-		dobin ${bindir}/incus-agent.linux.aarch64
-		dobin ${bindir}/incus-agent.windows.aarch64
+		exeinto /usr/libexec/incus
+		doexe ${bindir}/incus-agent.linux.aarch64
+		doexe ${bindir}/incus-agent.windows.aarch64
 	fi
 
 	# fuidshift, should be moved under admin tools at some point
@@ -230,10 +231,9 @@ src_install() {
 	dodoc -r doc/*
 	use nls && domo po/*.mo
 
-	# Incus needs INCUS_EDK2_PATH in env to find OVMF files for virtual machines, #946184
-	newenvd - 90incus <<- _EOF_
-		INCUS_EDK2_PATH=${EPREFIX}/usr/share/edk2-ovmf
-	_EOF_
+	# Incus needs INCUS_EDK2_PATH in env to find OVMF files for virtual machines, #946184,
+	# and INCUS_AGENT_PATH to find multi-setup agents for VMs, #959878.
+	newenvd "${FILESDIR}"/90incus.envd 90incus
 }
 
 pkg_postinst() {
@@ -244,9 +244,9 @@ pkg_postinst() {
 	elog
 	optfeature "OCI container images support" app-containers/skopeo app-containers/umoci
 	optfeature "support for ACME certificate issuance" app-crypt/lego
-	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "ipv6 support" net-dns/dnsmasq[ipv6]
 	optfeature "full incus-migrate support" net-misc/rsync
+	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "lvm2 storage backend" sys-fs/lvm2
 	optfeature "zfs storage backend" sys-fs/zfs
 	elog
