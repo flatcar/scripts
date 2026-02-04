@@ -289,6 +289,10 @@ fi
 export KBUILD_BUILD_USER="${BUILD_USER:-build}"
 export KBUILD_BUILD_HOST="${BUILD_HOST:-pony-truck.infra.kinvolk.io}"
 
+# Gather a list of packages we build with --buildpkgonly to prevent them from
+# getting cleaned by `eclean --deep packages` below.
+eclean_excludes=$(mktemp) || die_notrace "Couldn't create temporary exclusions file for eclean"
+
 # Build sysext packages from an array of sysext definitions.
 # Usage: build_sysext_packages "description" "${SYSEXT_ARRAY[@]}"
 # Array format: "name|packages|useflags|arches"
@@ -305,6 +309,7 @@ build_sysext_packages() {
 
     info "Building packages for $sysext_name sysext with USE=$useflags"
     IFS=,
+    qatom -F "%{CATEGORY}/%{PN}" ${package_atoms} >> "${eclean_excludes}"
     for package in $package_atoms; do
        # --buildpkgonly does not install dependencies, so we install them
        # separately before building the binary package
@@ -373,13 +378,8 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   fi
 fi
 
-exclusions_file=$(mktemp)
-if [ ! -f "$exclusions_file" ]; then
-    die_notrace "Couldn't create temporary exclusions file $exclusions_file for eclean"
-fi
-get_unversioned_sysext_packages > "$exclusions_file"
-eclean-"$BOARD" -d --exclude-file="$exclusions_file" packages
-rm -f "$exclusions_file"
+eclean-"$BOARD" --deep --exclude-file="${eclean_excludes}" packages
+rm -f "${eclean_excludes}"
 # run eclean again, this time without the --deep option, to clean old versions
 # of sysext packages (those, for which .ebuild file no  longer exists)
 eclean-"$BOARD" packages
