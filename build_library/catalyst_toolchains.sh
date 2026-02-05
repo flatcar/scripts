@@ -38,13 +38,13 @@ build_target_toolchain() {
     # the dependency chain when building toolchain
     btt_emerge --oneshot --nodeps sys-apps/baselayout
 
-    # copy libraries from sysroot to root - sysroot seems to be
+    # copy libraries and binaries from sysroot to root - sysroot seems to be
     # split-usr, whereas root does not, so take this into account
     (
         shopt -s nullglob
         local d f
         local -a files
-        for d in "${SYSROOT}"/lib* "${SYSROOT}"/usr/lib*; do
+        for d in "${SYSROOT}"/lib* "${SYSROOT}"/usr/lib* "${SYSROOT}"/{usr/,}{bin,sbin}; do
             if [[ ! -d ${d} ]]; then
                 continue
             fi
