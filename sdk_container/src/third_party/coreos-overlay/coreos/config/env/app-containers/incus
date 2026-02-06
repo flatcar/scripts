@@ -1,3 +1,21 @@
-cros_pre_src_compile_pkgconfig() {
-	export PKG_CONFIG="$(tc-getPKG_CONFIG)"
+# https://codeberg.org/gentoo/gentoo/pulls/36
+cros_post_src_compile_move_agent_binaries() {
+    local bindir="_dist/bin"
+    local host_arch=$(go-env_goarch "${CBUILD}")
+    if [[ "${GOARCH}" = "${host_arch}" ]]; then
+        # nothing to fix
+        return 0
+    fi
+    local correct_bindir="_dist/bin/linux_${GOARCH}"
+    mv '_dist/bin/incus-agent.'* "${correct_bindir}" || die
+}
+
+# https://codeberg.org/gentoo/gentoo/pulls/36
+cros_post_src_install_move_agent_binaries() {
+    if use amd64; then
+        # nothing to fix
+        return 0
+    fi
+    dodir '/usr/libexec/incus/agents'
+    mv "${ED}/usr/libexec/incus/incus-agent."* "${ED}/usr/libexec/incus/agents" || die
 }
