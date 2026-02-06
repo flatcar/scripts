@@ -1,0 +1,5 @@
+cros_pre_src_configure_gcc15_workaround() {
+	# nettest_bsd.c:4497:19: error: too many arguments to function 'alloc_sendfile_buf_ring'; expected 0, have 4
+	# TODO: drop once https://github.com/HewlettPackard/netperf/pull/86 is merged
+	append-cflags -std=gnu17
+}
