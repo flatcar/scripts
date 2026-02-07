@@ -75,7 +75,7 @@ get_oem_sysext_matrix() {
   local -a matrix=()
   local oem_id
   for oem_id in "${oem_ids[@]}"; do
-    matrix+=("oem-${oem_id}|coreos-base/oem-${oem_id}|${oem_id}")
+    matrix+=("oem-${oem_id}|coreos-base/oem-${oem_id}|flatcar-oem")
   done
 
   local -n matrix_ref="${list_var_name}"
