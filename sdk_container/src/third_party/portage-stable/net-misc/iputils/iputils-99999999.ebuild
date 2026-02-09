@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,8 +11,17 @@ if [[ ${PV} == *9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/iputils/iputils.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/iputils/iputils/releases/download/${PV}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/pevik.asc
+	inherit verify-sig
+
+	SRC_URI="
+		https://github.com/iputils/iputils/releases/download/${PV}/${P}.tar.xz
+		verify-sig? ( https://github.com/iputils/iputils/releases/download/${PV}/${P}.tar.xz.asc )
+	"
+
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+
+	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-pevik )"
 fi
 
 DESCRIPTION="Network monitoring tools including ping and ping6"
@@ -27,7 +36,8 @@ LICENSE="
 	tracepath? ( GPL-2+ )
 "
 SLOT="0"
-IUSE="+arping caps clockdiff doc idn nls test tracepath"
+IUSE="+arping +caps clockdiff doc idn nls +suid test tracepath"
+REQUIRED_USE="filecaps? ( caps )"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -39,7 +49,7 @@ DEPEND="
 	${RDEPEND}
 	virtual/os-headers
 "
-BDEPEND="
+BDEPEND+="
 	virtual/pkgconfig
 	test? ( sys-apps/iproute2 )
 	nls? ( sys-devel/gettext )
@@ -54,10 +64,6 @@ if [[ ${PV} == 9999 ]] ; then
 		dev-libs/libxslt
 	"
 fi
-
-PATCHES=(
-	"${FILESDIR}/meson-build-strict-check-for-error-function.patch"
-)
 
 src_prepare() {
 	default
@@ -107,9 +113,18 @@ src_test() {
 src_install() {
 	meson_src_install
 
-	FILECAPS=( cap_net_raw usr/bin/ping )
-	use arping && FILECAPS+=( usr/bin/arping )
-	use clockdiff && FILECAPS+=( usr/bin/clockdiff )
+	# See build-aux/setcap-setuid.sh
+	# For suidctl compat: enable suid in src_install and remove it if fcaps is successful
+	use suid && fperms u+s /usr/bin/ping
+	FILECAPS=( -M u-s cap_net_admin,cap_net_raw+p usr/bin/ping )
+	if use arping; then
+		use suid && fperms u+s /usr/bin/arping
+		FILECAPS+=( -- -M u-s cap_net_raw+p usr/bin/arping )
+	fi
+	if use clockdiff; then
+		use suid && fperms u+s /usr/bin/clockdiff
+		FILECAPS+=( -- -M u-s cap_net_raw,cap_sys_nice+ep usr/bin/clockdiff )
+	fi
 
 	dosym ping /usr/bin/ping4
 	dosym ping /usr/bin/ping6
