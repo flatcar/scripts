@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,7 +11,7 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/dracut-ng/dracut-ng"
 else
 	if [[ "${PV}" != *_rc* ]]; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~sparc x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 	fi
 	SRC_URI="https://github.com/dracut-ng/dracut-ng/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/${PN}-ng-${PV}"
@@ -22,11 +22,15 @@ HOMEPAGE="https://github.com/dracut-ng/dracut-ng/wiki"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="dracut-cpio selinux test"
+IUSE="dracut-cpio selinux systemd test"
 RESTRICT="test"
 PROPERTIES="test? ( test_privileged test_network )"
 
-RDEPEND="
+COMMON_DEPEND="
+	>=sys-apps/kmod-23
+	systemd? ( >=sys-apps/systemd-257:= )
+"
+RDEPEND="${COMMON_DEPEND}
 	app-alternatives/cpio
 	>=app-shells/bash-4.0:0
 	sys-apps/coreutils[xattr(-)]
@@ -48,13 +52,15 @@ RDEPEND="
 		sys-libs/libsepol
 	)
 "
-DEPEND="
-	>=sys-apps/kmod-23
+DEPEND="${COMMON_DEPEND}
 	elibc_musl? ( sys-libs/fts-standalone )
 "
 
 BDEPEND="
-	app-text/asciidoc
+	|| (
+		dev-ruby/asciidoctor
+		app-text/asciidoc
+	)
 	app-text/docbook-xml-dtd:4.5
 	>=app-text/docbook-xsl-stylesheets-1.75.2
 	>=dev-libs/libxslt-1.1.26
@@ -99,11 +105,9 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
 	# Gentoo specific acct-user and acct-group conf adjustments
-	"${FILESDIR}"/${PN}-106-acct-user-group-gentoo.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1207
-	"${FILESDIR}"/${PN}-106-fix-rngd-module.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1250
-	"${FILESDIR}"/${PN}-106-fix-mdraid-module.patch
+	"${FILESDIR}"/${PN}-108-acct-user-group-gentoo.patch
+	# https://github.com/dracut-ng/dracut-ng/pull/1122#issuecomment-3192110686
+	"${FILESDIR}"/${PN}-108-disable-ukify-magic.patch
 )
 
 pkg_setup() {
@@ -119,10 +123,17 @@ src_configure() {
 		--disable-dracut-cpio
 	)
 
+	if ! has_version -b dev-ruby/asciidoctor; then
+		myconf+=( --disable-asciidoctor )
+	fi
+
 	# this emulates what the build system would be doing without us
 	append-cflags -D_FILE_OFFSET_BITS=64
 
 	tc-export CC PKG_CONFIG
+
+	# https://bugs.gentoo.org/968765
+	use systemd || export SYSTEMD_CFLAGS= SYSTEMD_LIBS=
 
 	edo ./configure "${myconf[@]}"
 	if use dracut-cpio; then
@@ -169,6 +180,9 @@ src_install() {
 		exeinto /usr/lib/dracut
 		doexe "src/dracut-cpio/$(cargo_target_dir)/dracut-cpio"
 	fi
+
+	# Use our own from sys-kernel/installkernel[dracut]
+	rm -r "${ED}/usr/lib/kernel" || die
 }
 
 pkg_preinst() {
