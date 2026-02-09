@@ -1,10 +1,11 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=8
 
 DISTUTILS_USE_PEP517=hatchling
+PYPI_VERIFY_REPO=https://github.com/urllib3/urllib3
 PYTHON_TESTED=( python3_{11..14} pypy3_11 )
 PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" )
 PYTHON_REQ_USE="ssl(+)"
@@ -36,12 +37,16 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	>=dev-python/pysocks-1.5.8[${PYTHON_USEDEP}]
 	<dev-python/pysocks-2.0[${PYTHON_USEDEP}]
-	brotli? ( >=dev-python/brotlicffi-0.8.0[${PYTHON_USEDEP}] )
+	brotli? ( >=dev-python/brotlicffi-1.2.0.0[${PYTHON_USEDEP}] )
 	http2? (
 		<dev-python/h2-5[${PYTHON_USEDEP}]
 		>=dev-python/h2-4[${PYTHON_USEDEP}]
 	)
-	zstd? ( >=dev-python/zstandard-0.18.0[${PYTHON_USEDEP}] )
+	zstd? (
+		$(python_gen_cond_dep '
+			>=dev-python/backports-zstd-1.0.0[${PYTHON_USEDEP}]
+		' 3.{11..13})
+	)
 "
 BDEPEND="
 	dev-python/hatch-vcs[${PYTHON_USEDEP}]
@@ -61,8 +66,10 @@ BDEPEND="
 			dev-python/trio[\${PYTHON_USEDEP}]
 			>=dev-python/tornado-4.2.1[\${PYTHON_USEDEP}]
 			>=dev-python/trustme-0.5.3[\${PYTHON_USEDEP}]
-			>=dev-python/zstandard-0.18.0[\${PYTHON_USEDEP}]
 		" "${PYTHON_TESTED[@]}")
+		$(python_gen_cond_dep '
+			>=dev-python/backports-zstd-1.0.0[${PYTHON_USEDEP}]
+		' 3.{11..13})
 	)
 "
 
@@ -93,7 +100,8 @@ python_test() {
 		test/with_dummyserver/test_https.py::TestHTTPS_TLSv1_{2,3}::test_http2_probe_blocked_per_thread
 	)
 
-	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+	local EPYTEST_PLUGINS=( pytest-timeout )
+	local EPYTEST_RERUNS=10
 	local EPYTEST_XDIST=1
-	epytest -p timeout -p rerunfailures --reruns=10 --reruns-delay=2
+	epytest --reruns-delay=2
 }
