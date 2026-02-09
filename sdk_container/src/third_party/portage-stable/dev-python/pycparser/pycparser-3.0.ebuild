@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # please keep this ebuild at EAPI 8 -- sys-apps/portage dep
@@ -17,7 +17,7 @@ HOMEPAGE="
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 
 RDEPEND="
 	dev-python/ply:=[${PYTHON_USEDEP}]
@@ -29,19 +29,14 @@ BDEPEND="
 distutils_enable_tests unittest
 
 python_prepare_all() {
-	# remove the original files to guarantee their regen
-	rm pycparser/{c_ast,lextab,yacctab}.py || die
+	# c_ast.py is preprocessed from _c_ast.cfg, really no point
+	# in regenerating it
 
 	# kill sys.path manipulations to force the tests to use built files
 	sed -i -e '/sys\.path/d' tests/*.py || die
 
 	# Ensure we can find tests in our directory
 	sed -i -e 's/from tests.test_util/from test_util/g' tests/test_*.py || die
-
-	# unbundle ply
-	rm -r pycparser/ply || die
-	sed -i -e 's:\(from \)[.]\(ply\b\):\1\2:' pycparser/*.py || die
-	sed -i -e "s:'pycparser.ply'::" setup.py || die
 
 	ln -s "${S}"/examples tests/examples || die
 
