@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -29,7 +29,7 @@ else
 	S="${WORKDIR}"/${MY_P}
 
 	if [[ ${PV} != *_beta* ]] && ! [[ $(ver_cut 3) =~ [a-z] ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 	fi
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-zackweinberg )"
@@ -42,7 +42,6 @@ HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
 
 LICENSE="GPL-3+"
 SLOT="$(ver_cut 1-2)"
-IUSE="emacs"
 
 BDEPEND+="
 	>=dev-lang/perl-5.10
@@ -55,7 +54,13 @@ RDEPEND="
 	!~${CATEGORY}/${P}:2.5
 "
 [[ ${PV} == 9999 ]] && BDEPEND+=" >=sys-apps/texinfo-4.3"
-PDEPEND="emacs? ( app-emacs/autoconf-mode )"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Invoke-autopoint-in-more-situations.patch
+	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Adapt-to-the-on-disk-situation-after-auto.patch
+	"${FILESDIR}"/${PN}-2.72-Port-C11-test-to-C-20.patch
+	"${FILESDIR}"/${PN}-2.72-Port-AC_SYS_LARGEFILE-to-CXX.patch
+)
 
 src_prepare() {
 	if [[ ${PV} == *9999 ]] ; then
