@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,7 +9,8 @@ inherit autotools python-single-r1 toolchain-funcs
 
 DESCRIPTION="Collection of tools that operate on patch files"
 HOMEPAGE="https://cyberelk.net/tim/software/patchutils/"
-SRC_URI="https://github.com/twaugh/patchutils/releases/download/${PV}/${P}.tar.xz"
+SRC_URI="https://github.com/twaugh/patchutils/releases/download/${PV}/${P}.tar.xz
+	https://dev.gentoo.org/~dilfridge/distfiles/${P}-gnulib.patch.xz"
 
 LICENSE="GPL-2+"
 SLOT="0"
@@ -34,6 +35,7 @@ pkg_setup() {
 
 src_prepare() {
 	default
+	eapply "${WORKDIR}/${P}-gnulib.patch"
 	eautoreconf
 	python_fix_shebang patchview
 }
