@@ -7,7 +7,9 @@ inherit go-module linux-info
 
 # update on bump, look for commit ID on release tag.
 # https://github.com/opencontainers/runc
-RUNC_COMMIT=d842d7719497cc3b774fd71620278ac9e17710e0
+RUNC_COMMIT=8bd78a9977e604c4d5f67a7415d7b8b8c109cdc4
+
+CONFIG_CHECK="~USER_NS"
 
 DESCRIPTION="runc container cli tools"
 HOMEPAGE="https://github.com/opencontainers/runc/"
@@ -17,7 +19,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="Apache-2.0 BSD-2 BSD MIT"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ppc64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
 IUSE="apparmor hardened +kmem +seccomp selinux test"
 
 COMMON_DEPEND="
