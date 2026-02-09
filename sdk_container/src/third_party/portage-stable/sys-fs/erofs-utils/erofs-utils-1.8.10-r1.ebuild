@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Gentoo Authors
+# Copyright 2021-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,21 +12,19 @@ SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/xiang/${PN}.git/snapsho
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~loong"
+KEYWORDS="amd64 arm64 ~loong"
 
 IUSE="fuse libdeflate +lz4 +lzma selinux static-libs +threads +uuid +zlib +zstd"
 
 RDEPEND="
 	dev-libs/xxhash:0=
 	fuse? ( sys-fs/fuse:0 )
+	libdeflate? ( app-arch/libdeflate:0= )
 	lz4? ( app-arch/lz4:0= )
 	lzma? ( >=app-arch/xz-utils-5.4.0:0= )
 	selinux? ( sys-libs/libselinux:0= )
 	uuid? ( sys-apps/util-linux )
-	zlib? (
-		libdeflate? ( app-arch/libdeflate:0= )
-		!libdeflate? ( virtual/zlib:= )
-	)
+	zlib? ( virtual/zlib:= )
 	zstd? ( app-arch/zstd:0= )
 "
 DEPEND="${RDEPEND}"
