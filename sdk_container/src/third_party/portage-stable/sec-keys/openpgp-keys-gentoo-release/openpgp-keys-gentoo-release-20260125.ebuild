@@ -1,12 +1,13 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DESCRIPTION="OpenPGP keys used for Gentoo releases (snapshots, stages)"
 HOMEPAGE="https://www.gentoo.org/downloads/signatures/"
+# https://dev.gentoo.org/~mgorny/dist/openpgp-keys/gentoo-release.asc.${PV}.gz
 SRC_URI="
-	https://dev.gentoo.org/~mgorny/dist/openpgp-keys/gentoo-release.asc.${PV}.gz
+	https://dev.gentoo.org/~sam/dist/sec-keys/${PN}/gentoo-release.asc.${PV}.gz
 	test? (
 		https://dev.gentoo.org/~mgorny/dist/openpgp-keys/gentoo-release-test-sigs-20190224.tar.gz
 	)
@@ -28,6 +29,16 @@ BDEPEND="
 	)
 "
 
+# Generated with:
+# 1. export GNUPGHOME=$(mktemp -d)
+# 2. gpg --import-options no-import-clean,no-self-sigs-only --import /usr/share/openpgp-keys/gentoo-auth.asc
+# 3. gpg --import-options no-import-clean,no-self-sigs-only --import /usr/share/openpgp-keys/gentoo-release.asc
+# 4. Verify gpg --list-keys shows only expected L1 and L2 authority keys
+# 5. gpg --armor --export > gentoo-release.asc.${PV}
+# 6. diff the existing version with the new version with pgpdump, make sure
+#    the changes look expected.
+# 7. gzip gentoo-release.asc.${PV}
+#
 # Keys included:
 # DCD05B71EAB94199527F44ACDB6B8C1F96D8BF6D
 # D99EAC7379A850BCE47DA5F29E6438C817072058
