@@ -193,4 +193,4 @@ sys-apps/gawk -mpfr
 
 # We never had passwdqc stuff in old pam sys configs, so disable it
 # for now. Maybe this is something to enable later.
-sys-auth/pambase securetty -passwdqc
+sys-auth/pambase securetty -passwdqc sssd
