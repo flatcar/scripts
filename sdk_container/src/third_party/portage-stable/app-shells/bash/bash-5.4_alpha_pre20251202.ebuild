@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -21,7 +21,7 @@ case ${PV} in
 		# Set a negative patchlevel to indicate that it's a pre-release.
 		PLEVEL=-1
 		if [[ ${PV} =~ _pre[0-9]{8}$ ]]; then
-			BASH_COMMIT="c299f535be51179b1e0c989ad9ba4365e182ec28"
+			BASH_COMMIT="5a104e96d869e2bbf0f7f364f45d21e6fc151721"
 		fi
 		;;
 	*_p*)
@@ -75,7 +75,7 @@ fi
 LICENSE="GPL-3+"
 SLOT="0"
 if (( PLEVEL >= 0 )); then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="afs bashlogger examples mem-scramble +net nls plugins pgo +readline"
 # As of 5.4_alpha_pre20251016, bash tests finally exit non-0 on failure.
@@ -443,7 +443,7 @@ EOF
 			cat <<'EOF'
 The window title setting behaviour has been improved. It is now formatted as
 "\u@\h \W", in accordance with the prompting mechanism of bash. For example,
-after switching to the home directory, the current working directly will be
+after switching to the home directory, the current working directory will be
 shown as the <tilde> character.
 
 The value of PROMPT_DIRTRIM is now respected. If this variable is unset, the
