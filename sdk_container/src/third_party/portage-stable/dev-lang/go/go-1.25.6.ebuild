@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -20,7 +20,7 @@ case ${PV}  in
 *)
 	SRC_URI="https://go.dev/dl/go${MY_PV}.src.tar.gz "
 	S="${WORKDIR}"/go
-	KEYWORDS="-* ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
+	KEYWORDS="-* ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~x86 ~x64-macos ~x64-solaris"
 	;;
 esac
 
@@ -68,6 +68,7 @@ PATCHES=(
 	"${FILESDIR}"/go-1.24-skip-gdb-tests.patch
 	"${FILESDIR}"/go-1.24-dont-force-gold-arm.patch
 	"${FILESDIR}"/go-1.25-no-dwarf5.patch
+	"${FILESDIR}"/go-1.25-strip-top-level-const.patch
 	"${FILESDIR}"/go-never-download-newer-toolchains.patch
 )
 
