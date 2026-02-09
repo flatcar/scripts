@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -9,7 +9,7 @@ MY_P="Linux-${PN^^}-${PV}"
 # Can reconsider w/ EAPI 8 and IDEPEND, bug #810979
 TMPFILES_OPTIONAL=1
 
-inherit db-use fcaps flag-o-matic meson-multilib toolchain-funcs
+inherit db-use flag-o-matic meson-multilib user-info
 
 DESCRIPTION="Linux-PAM (Pluggable Authentication Modules)"
 HOMEPAGE="https://github.com/linux-pam/linux-pam"
@@ -30,18 +30,19 @@ else
 	"
 	S="${WORKDIR}/${MY_P}"
 
-	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-pam )"
+	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-pam-20260122 )"
 fi
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="audit berkdb elogind examples debug nis nls selinux systemd"
 REQUIRED_USE="?? ( elogind systemd )"
 
 # meson.build specifically checks for bison and then byacc
 # also requires xsltproc
 BDEPEND+="
+	acct-group/shadow
 	|| ( sys-devel/bison dev-util/byacc )
 	app-text/docbook-xsl-ns-stylesheets
 	dev-libs/libxslt
@@ -63,7 +64,9 @@ DEPEND="
 		>=net-libs/libtirpc-0.2.4-r2:=[${MULTILIB_USEDEP}]
 	)
 "
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	acct-group/shadow
+"
 PDEPEND=">=sys-auth/pambase-20200616"
 
 src_configure() {
@@ -90,15 +93,9 @@ multilib_src_configure() {
 	w3m='true'
 	EOF
 
-	local emesonargs=()
+	local emesonargs=(
+		--native-file "${machine_file}"
 
-	if tc-is-cross-compiler; then
-		emesonargs+=( --cross-file "${machine_file}" )
-	else
-		emesonargs+=( --native-file "${machine_file}" )
-	fi
-
-	emesonargs+=(
 		$(meson_feature audit)
 		$(meson_native_use_bool examples)
 		$(meson_use debug pam-debug)
@@ -113,6 +110,7 @@ multilib_src_configure() {
 		-Ddocdir="${EPREFIX}"/usr/share/doc/${PF}
 		-Dhtmldir="${EPREFIX}"/usr/share/doc/${PF}/html
 		-Dpdfdir="${EPREFIX}"/usr/share/doc/${PF}/pdf
+		-Dvendordir="${EPREFIX}"/usr/share/pam
 
 		$(meson_native_enabled docs)
 
@@ -162,6 +160,9 @@ multilib_src_configure() {
 multilib_src_install_all() {
 	find "${ED}" -type f -name '*.la' -delete || die
 
+	fowners :shadow /sbin/unix_chkpwd
+	fperms g+s /sbin/unix_chkpwd
+
 	# tmpfiles.eclass is impossible to use because
 	# there is the pam -> tmpfiles -> systemd -> pam dependency loop
 	dodir /usr/lib/tmpfiles.d
@@ -175,6 +176,15 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
+	if [[ -n ${ROOT} ]]; then
+		# Portage does not currently update the gid on installed files
+		# based on ${EROOT}/etc/group.
+		local gid=$(egetent group shadow | cut -d: -f3)
+		if [[ -n ${gid} ]]; then
+			chgrp "${gid}" "${EROOT}/sbin/unix_chkpwd" &&
+			chmod g+s "${EROOT}/sbin/unix_chkpwd"
+		fi
+	fi
 	ewarn "Some software with pre-loaded PAM libraries might experience"
 	ewarn "warnings or failures related to missing symbols and/or versions"
 	ewarn "after any update. While unfortunate this is a limit of the"
@@ -185,8 +195,4 @@ pkg_postinst() {
 	ewarn "  lsof / | grep -E -i 'del.*libpam\\.so'"
 	ewarn ""
 	ewarn "Alternatively, simply reboot your system."
-
-	# The pam_unix module needs to check the password of the user which requires
-	# read access to /etc/shadow only.
-	fcaps -m u+s cap_dac_override sbin/unix_chkpwd
 }
