@@ -1,4 +1,4 @@
-From 3eb1fea6104cd4bbc978e11974f337549edaf2e4 Mon Sep 17 00:00:00 2001
+From 7dce3aef1c67e5884aa7962c5c34a51d9760bd13 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Thu, 9 Oct 2025 17:32:38 +0200
 Subject: [PATCH 1/2] Reorganize the login sessions
@@ -163,5 +163,5 @@ index 150061f..690396f 100644
  
  {% if sssd %}
 -- 
-2.51.0
+2.52.0
 
