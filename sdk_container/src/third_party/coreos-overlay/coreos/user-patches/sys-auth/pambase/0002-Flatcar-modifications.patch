@@ -1,14 +1,14 @@
-From 55c811bb55334a9c5ba19e5c7ec61a9ede365a37 Mon Sep 17 00:00:00 2001
+From 41efbef049829f738d1e6ad172f4b1a8bc6a6e6d Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 10 Oct 2025 11:47:43 +0200
 Subject: [PATCH 2/2] Flatcar modifications
 
 ---
- templates/system-auth.tpl | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ templates/system-auth.tpl | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
 diff --git a/templates/system-auth.tpl b/templates/system-auth.tpl
-index 905d04f..c78f9d6 100644
+index 905d04f..b211abb 100644
 --- a/templates/system-auth.tpl
 +++ b/templates/system-auth.tpl
 @@ -9,11 +9,15 @@ auth		[default={{ 3 + homed + (sssd * 3) }}]	pam_permit.so
@@ -30,7 +30,22 @@ index 905d04f..c78f9d6 100644
  
  {% if homed %}
  auth		[success=2 default=ignore]	pam_systemd_home.so
-@@ -45,9 +49,13 @@ account		[success={{ 2 if sssd else 1 }} default=ignore]	pam_systemd_home.so
+@@ -21,13 +25,11 @@ auth		[success=2 default=ignore]	pam_systemd_home.so
+ 
+ {% if sssd %}
+ auth		sufficient	pam_unix.so {{ nullok }} {{ debug }}
++auth		sufficient	pam_sss.so forward_pass {{ debug }}
+ {% else %}
+ auth		[success=1 new_authtok_reqd=1 ignore=ignore default=bad]	pam_unix.so {{ nullok }} {{ debug }} try_first_pass
+ {% endif %}
+ auth		[default=die]	pam_faillock.so authfail
+-{% if sssd %}
+-auth		sufficient	pam_sss.so forward_pass {{ debug }}
+-{% endif %}
+ {% if caps %}
+ auth		optional	pam_cap.so
+ {% endif %}
+@@ -45,9 +47,13 @@ account		[success={{ 2 if sssd else 1 }} default=ignore]	pam_systemd_home.so
  account		required	pam_unix.so {{ debug }}
  account		required	pam_faillock.so
  {% if sssd %}
@@ -48,5 +63,5 @@ index 905d04f..c78f9d6 100644
  {% endif %}
  
 -- 
-2.51.0
+2.52.0
 
