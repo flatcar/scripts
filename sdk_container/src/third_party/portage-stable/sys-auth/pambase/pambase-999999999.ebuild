@@ -24,7 +24,7 @@ fi
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="caps debug elogind gnome-keyring homed minimal mktemp +nullok pam_krb5 pam_ssh +passwdqc pwhistory pwquality securetty selinux +sha512 sssd systemd yescrypt"
+IUSE="caps debug elogind gnome-keyring homed minimal mktemp +nullok pam_krb5 pam_ssh +passwdqc pwhistory pwquality securetty selinux sha512 sssd systemd +yescrypt"
 
 RESTRICT="binchecks"
 

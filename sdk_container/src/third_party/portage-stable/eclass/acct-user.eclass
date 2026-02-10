@@ -8,7 +8,7 @@
 # @AUTHOR:
 # Michael Orlitzky <mjo@gentoo.org>
 # Michał Górny <mgorny@gentoo.org>
-# @SUPPORTED_EAPIS: 7 8
+# @SUPPORTED_EAPIS: 7 8 9
 # @BLURB: Eclass used to create and maintain a single user entry
 # @DESCRIPTION:
 # This eclass represents and creates a single user entry.  The name
@@ -45,7 +45,7 @@ if [[ -z ${_ACCT_USER_ECLASS} ]]; then
 _ACCT_USER_ECLASS=1
 
 case ${EAPI} in
-	7|8) ;;
+	7|8|9) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -144,7 +144,7 @@ ACCT_USER_NAME=${PN}
 # << Boilerplate ebuild variables >>
 : "${DESCRIPTION:="System user: ${ACCT_USER_NAME}"}"
 : "${SLOT:=0}"
-: "${KEYWORDS:=~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris}"
+: "${KEYWORDS:=~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris}"
 S=${WORKDIR}
 
 

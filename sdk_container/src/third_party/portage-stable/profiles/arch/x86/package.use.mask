@@ -1,5 +1,17 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Mike Gilbert <floppym@gentoo.org> (2025-12-15)
+# arch-specific platform values
+sys-boot/grub -grub_platforms_pc
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2025-12-03)
+# media-video/ffmpeg-chromium is not available here
+dev-libs/nwjs ffmpeg-chromium
+
+# Alfred Wingate <parona@protonmail.com> (2025-11-23)
+# Requires dev-qt/qtwebengine
+media-sound/easyeffects webengine
 
 # Ionen Wolkens <ionen@gentoo.org> (2025-11-13)
 # media-libs/libvmaf is keyworded here
@@ -389,10 +401,6 @@ app-admin/conserver -freeipmi
 # Tomáš Mózes <hydrapolic@gmail.com> (2019-11-02)
 # Requires dev-db/mongodb which has dropped x86 support
 dev-php/pecl-mongodb test
-
-# Jan Ziak <0xe2.0x9a.0x9b@gmail.com> (2018-03-14)
-# Expose SVGA backend for x86 users
-app-emulation/fuse -backend-svga
 
 # Thomas Deutschmann <whissi@gentoo.org> (2018-02-10)
 # Requires dev-db/mongodb which has dropped x86 support

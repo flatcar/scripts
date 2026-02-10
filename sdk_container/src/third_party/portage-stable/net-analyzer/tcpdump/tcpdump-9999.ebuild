@@ -1,11 +1,11 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 inherit autotools
 
-DESCRIPTION="A tool for network monitoring and data acquisition"
+DESCRIPTION="Tool for network monitoring and data acquisition"
 HOMEPAGE="https://www.tcpdump.org/ https://github.com/the-tcpdump-group/tcpdump"
 
 if [[ ${PV} == *9999* ]] ; then
@@ -19,7 +19,7 @@ else
 	SRC_URI="https://www.tcpdump.org/release/${P}.tar.gz"
 	SRC_URI+=" verify-sig? ( https://www.tcpdump.org/release/${P}.tar.gz.sig )"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 LICENSE="BSD"
@@ -28,8 +28,10 @@ IUSE="+caps +smi +ssl +samba suid test"
 REQUIRED_USE="test? ( samba )"
 RESTRICT="!test? ( test )"
 
+# The minimum version of libpcap for tests to pass is often mentioned
+# at https://www.tcpdump.org/index.html#latest-releases
 RDEPEND="
-	>=net-libs/libpcap-1.10.1
+	>=net-libs/libpcap-1.10.5
 	caps? (
 		acct-group/pcap
 		acct-user/pcap
@@ -53,8 +55,13 @@ DEPEND="
 BDEPEND="caps? ( virtual/pkgconfig )"
 
 if [[ ${PV} != *9999* ]] ; then
-	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-tcpdump-20240901 )"
+	BDEPEND+=" verify-sig? ( >=sec-keys/openpgp-keys-tcpdump-20260104 )"
 fi
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-4.99.5-libdir.patch
+	"${FILESDIR}"/${PN}-4.99.5-lfs.patch
+)
 
 src_prepare() {
 	default
@@ -62,12 +69,15 @@ src_prepare() {
 }
 
 src_configure() {
-	econf \
-		$(use_enable samba smb) \
-		$(use_with caps cap-ng) \
-		$(use_with smi) \
-		$(use_with ssl crypto "${ESYSROOT}/usr") \
+	local myeconfargs=(
+		$(use_enable samba smb)
+		$(use_with caps cap-ng)
+		$(use_with smi)
+		$(use_with ssl crypto "${ESYSROOT}/usr")
 		$(usex caps "--with-user=pcap" "")
+	)
+
+	econf "${myeconfargs[@]}"
 }
 
 src_test() {

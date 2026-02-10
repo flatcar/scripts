@@ -1,9 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit autotools toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
 DESCRIPTION="Communication package providing the X, Y, and ZMODEM file transfer protocols"
 HOMEPAGE="https://www.ohse.de/uwe/software/lrzsz.html"
@@ -14,7 +14,7 @@ SRC_URI="
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="nls"
 
 DEPEND="nls? ( virtual/libintl )"
@@ -55,6 +55,9 @@ src_prepare() {
 
 src_configure() {
 	tc-export CC
+
+	# bug #943880, bug #969297
+	append-cppflags -DSTRICT_PROTOTYPES
 
 	econf $(use_enable nls)
 }

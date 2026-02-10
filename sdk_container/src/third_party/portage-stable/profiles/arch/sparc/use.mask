@@ -1,8 +1,12 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
 -sparc
+
+# Lukas Schmelting <lschmelting@posteo.com> (2025-11-09)
+# gnome-online-accounts is not keyworded for sparc
+gnome-online-accounts
 
 # matoro <matoro_gentoo@matoro.tk> (2024-06-11)
 # Extensive use of unaligned access, no plans to fix, #636552
@@ -182,7 +186,6 @@ redis
 
 # USE-flags from differents origins
 brltty
-djbfft
 dvb
 java
 lirc
