@@ -1,1 +1,0 @@
-- Function tracer (ftrace) enabled in ARM64 builds. (Enables CONFIG_FUNCTION_TRACER & CONFIG_DYNAMIC_FTRACE for observability and security tools) ([flatcar/scripts#3685](https://github.com/flatcar/scripts/pull/3685))
