@@ -124,3 +124,5 @@ sys-apps/azure-vm-utils
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.
 =sys-libs/libselinux-3.8.1-r3 ~amd64 ~arm64
+
+=sys-firmware/edk2-bin-202511* ~amd64 ~arm64
