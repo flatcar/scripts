@@ -1,7 +1,7 @@
 # Bump the flatcar version stated here every time we or Red Hat change patches
 # that modify parts of GRUB that are installed to the boot partition. Reset the
 # version back to 1 when the upstream GRUB version changes.
-FLATCAR_VERSION=flatcar3
+FLATCAR_VERSION=flatcar4
 
 # Gentoo's patches conflict with Red Hat's patches, and none of Gentoo's patches
 # affect Flatcar, so skip them all.
@@ -43,7 +43,7 @@ cros_post_src_install_sbat() {
 	insinto /usr/share/grub
 	newins - sbat.csv <<-EOF
 		sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
-		grub,4,Free Software Foundation,grub,${PV},https://www.gnu.org/software/grub/
+		grub,5,Free Software Foundation,grub,${PV},https://www.gnu.org/software/grub/
 		grub.flatcar,1,Flatcar,grub2,${PV}-${FLATCAR_VERSION},https://github.com/flatcar/Flatcar
 	EOF
 }

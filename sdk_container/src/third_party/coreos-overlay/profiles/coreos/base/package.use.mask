@@ -31,3 +31,6 @@ x11-drivers/old-nvidia-drivers tools X static-libs
 
 # We don't maintain the tarballs needed to build these features offline.
 <sys-fs/overlaybd-9999 dsa isal
+
+# We don't include the package for Gentoo's themes.
+sys-boot/grub branding
