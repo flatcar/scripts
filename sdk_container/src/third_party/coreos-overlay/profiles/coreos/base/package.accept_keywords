@@ -107,3 +107,5 @@ dev-db/etcd amd64
 
 # Bump early for newer features.
 =sys-kernel/dracut-109* ~amd64 ~arm64
+
+=sys-firmware/edk2-bin-202511* ~amd64 ~arm64
