@@ -25,7 +25,7 @@ LICENSE="BSD GPL-2"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam +pie security-key selinux +ssl static test xmss"
+IUSE="abi_mips_n32 audit debug kerberos ldns legacy-ciphers libedit livecd pam +pie security-key selinux +ssl static test xmss"
 
 RESTRICT="!test? ( test )"
 
@@ -83,8 +83,9 @@ PATCHES=(
 	"${FILESDIR}/${PN}-9.6_p1-fix-xmss-c99.patch"
 	"${FILESDIR}/${PN}-9.7_p1-config-tweaks.patch"
 	# Backports from upstream release branch
-	#"${FILESDIR}/${PV}"
+	"${FILESDIR}/${PV}"
 	# Our own backports
+	"${FILESDIR}/${PN}-9.9_p1-x-forwarding-slow.patch"
 )
 
 pkg_pretend() {
@@ -200,12 +201,10 @@ src_configure() {
 		# proven reliable.
 		--without-hardening
 
-		# wtmpdb not yet packaged
-		--without-wtmpdb
-
 		$(use_with audit audit linux)
 		$(use_with kerberos kerberos5 "${EPREFIX}"/usr)
 		$(use_with ldns)
+		$(use_enable legacy-ciphers dsa-keys)
 		$(use_with libedit)
 		$(use_with pam)
 		$(use_with pie)
@@ -219,6 +218,10 @@ src_configure() {
 		# musl defines bogus values for UTMP_FILE and WTMP_FILE (bug #753230)
 		myconf+=( --disable-utmp --disable-wtmp )
 	fi
+
+	# Workaround for Clang 15 miscompilation with -fzero-call-used-regs=all
+	# bug #869839 (https://github.com/llvm/llvm-project/issues/57692)
+	tc-is-clang && myconf+=( --without-hardening )
 
 	econf "${myconf[@]}"
 }

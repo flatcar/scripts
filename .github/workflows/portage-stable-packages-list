@@ -744,6 +744,7 @@ virtual/service-manager
 virtual/ssh
 virtual/tmpfiles
 virtual/udev
+virtual/zlib
 
 x11-drivers/nvidia-drivers
 

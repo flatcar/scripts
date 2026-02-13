@@ -11,7 +11,7 @@ inherit user-info flag-o-matic autotools optfeature pam systemd toolchain-funcs 
 
 # Make it more portable between straight releases
 # and _p? releases.
-PARCH=${P/_}
+PARCH=${PN}-10.0p1
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
@@ -19,19 +19,21 @@ SRC_URI="
 	mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
 	verify-sig? ( mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz.asc )
 "
-S="${WORKDIR}/${PARCH}"
+if [[ ${PV} != 10.0_p2 ]] ; then
+	die "Please restore the old S/PATCHES. 10.0_p2 had a workaround that should be dropped."
+fi
+S="${WORKDIR}/${PN}-10.0p1"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="abi_mips_n32 audit debug kerberos ldns legacy-ciphers libedit livecd pam +pie security-key selinux +ssl static test xmss"
+IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam security-key selinux +ssl static test xmss"
 
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	ldns? ( ssl )
-	pie? ( !static )
 	static? ( !kerberos !pam )
 	xmss? ( ssl  )
 	test? ( ssl )
@@ -51,7 +53,7 @@ LIB_DEPEND="
 	selinux? ( >=sys-libs/libselinux-1.28[static-libs(+)] )
 	ssl? ( >=dev-libs/openssl-1.1.1l-r1:0=[static-libs(+)] )
 	virtual/libcrypt:=[static-libs(+)]
-	>=sys-libs/zlib-1.2.3:=[static-libs(+)]
+	>=virtual/zlib-1.2.3:=[static-libs(+)]
 "
 RDEPEND="
 	acct-group/sshd
@@ -83,9 +85,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-9.6_p1-fix-xmss-c99.patch"
 	"${FILESDIR}/${PN}-9.7_p1-config-tweaks.patch"
 	# Backports from upstream release branch
-	#"${FILESDIR}/${PV}"
+	"${FILESDIR}/${PV}"
 	# Our own backports
-	"${FILESDIR}/${PN}-9.9_p1-x-forwarding-slow.patch"
 )
 
 pkg_pretend() {
@@ -192,22 +193,25 @@ src_configure() {
 		#    Clang (bug #872548), ICEs on m68k (bug #920350, gcc PR113086,
 		#    gcc PR104820, gcc PR104817, gcc PR110934)).
 		#
-		# Furthermore, OSSH_CHECK_CFLAG_COMPILE does not use AC_CACHE_CHECK,
-		# so we cannot just disable -fzero-call-used-regs=used.
+		# Furthermore, OSSH_CHECK_CFLAG_COMPILE does not use AC_CACHE_CHECK
+		# util 10.1_p1, so we cannot just disable -fzero-call-used-regs=used.
 		#
 		# Therefore, just pass --without-hardening, given it doesn't negate
 		# our already hardened toolchain defaults, and avoids adding flags
 		# which are known-broken in both Clang and GCC and haven't been
 		# proven reliable.
 		--without-hardening
+		--without-pie
+		--without-stackprotect
+
+		# wtmpdb not yet packaged
+		--without-wtmpdb
 
 		$(use_with audit audit linux)
 		$(use_with kerberos kerberos5 "${EPREFIX}"/usr)
 		$(use_with ldns)
-		$(use_enable legacy-ciphers dsa-keys)
 		$(use_with libedit)
 		$(use_with pam)
-		$(use_with pie)
 		$(use_with selinux)
 		$(use_with security-key security-key-builtin)
 		$(use_with ssl openssl)
@@ -218,10 +222,6 @@ src_configure() {
 		# musl defines bogus values for UTMP_FILE and WTMP_FILE (bug #753230)
 		myconf+=( --disable-utmp --disable-wtmp )
 	fi
-
-	# Workaround for Clang 15 miscompilation with -fzero-call-used-regs=all
-	# bug #869839 (https://github.com/llvm/llvm-project/issues/57692)
-	tc-is-clang && myconf+=( --without-hardening )
 
 	econf "${myconf[@]}"
 }
@@ -299,7 +299,7 @@ src_test() {
 	if [[ ${shell} == */nologin ]] || [[ ${shell} == */false ]] ; then
 		ewarn "Running the full OpenSSH testsuite requires a usable shell for the 'portage'"
 		ewarn "user, so we will run a subset only."
-		tests+=( interop-tests )
+		tests+=( interop-tests file-tests unit )
 	else
 		tests+=( tests )
 	fi
