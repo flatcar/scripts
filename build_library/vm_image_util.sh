@@ -835,6 +835,20 @@ _write_qemu_uefi_conf() {
     local flash_rw="$(_dst_name "_efi_vars.qcow2")"
     local script="$(_dst_dir)/$(_dst_name ".sh")"
 
+    # We now only support building qemu_uefi and generate the
+    # other artifacts from here
+    if [[ ${VM_IMG_TYPE} == qemu_uefi ]]; then
+      # Ensure the UEFI firmware is up to date first.
+      sudo emerge --oneshot --verbose --update --newuse sys-firmware/edk2-bin
+
+      local qemu="${VM_DST_IMG/qemu_uefi/qemu}"
+      local qemu_uefi_secure="${VM_DST_IMG/qemu_uefi/qemu_uefi_secure}"
+      local qemu_name="${VM_NAME/qemu_uefi/qemu}"
+      local qemu_uefi_secure_name="${VM_NAME/qemu_uefi/qemu_uefi_secure}"
+      [[ ${BOARD} == amd64-usr ]] && VM_IMG_TYPE=qemu VM_DST_IMG="${qemu}" VM_NAME="${qemu_name}" _write_qemu_conf
+      VM_IMG_TYPE=qemu_uefi_secure VM_DST_IMG="${qemu_uefi_secure}" VM_NAME="${qemu_uefi_secure_name}" _write_qemu_uefi_secure_conf
+    fi
+
     _write_qemu_conf
 
     case $BOARD in
@@ -851,19 +865,6 @@ _write_qemu_uefi_conf() {
     sed -e "s%^VM_PFLASH_RO=.*%VM_PFLASH_RO=\"\${SCRIPT_DIR}/${flash_ro}\"%" \
         -e "s%^VM_PFLASH_RW=.*%VM_PFLASH_RW=\"\${SCRIPT_DIR}/${flash_rw}\"%" -i "${script}"
     VM_GENERATED_FILES+=( "$(_dst_dir)/${flash_ro}" "$(_dst_dir)/${flash_rw}" )
-
-    # We now only support building qemu_uefi and generate the
-    # other artifacts from here
-    if [ "${VM_IMG_TYPE}" = qemu_uefi ]; then
-      local qemu="${VM_DST_IMG/qemu_uefi/qemu}"
-      local qemu_uefi_secure="${VM_DST_IMG/qemu_uefi/qemu_uefi_secure}"
-      local qemu_name="${VM_NAME/qemu_uefi/qemu}"
-      local qemu_uefi_secure_name="${VM_NAME/qemu_uefi/qemu_uefi_secure}"
-      if [ "${BOARD}" = amd64-usr ]; then
-        VM_IMG_TYPE=qemu VM_DST_IMG="${qemu}" VM_NAME="${qemu_name}" _write_qemu_conf
-      fi
-      VM_IMG_TYPE=qemu_uefi_secure VM_DST_IMG="${qemu_uefi_secure}" VM_NAME="${qemu_uefi_secure_name}" _write_qemu_uefi_secure_conf
-    fi
 }
 
 _write_qemu_uefi_secure_conf() {
