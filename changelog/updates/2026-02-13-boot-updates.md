@@ -1,0 +1,3 @@
+- grub (2.12-flatcar4, rebased against Fedora 44)
+- shim ([16.1](https://github.com/rhboot/shim/releases/tag/16.1) (includes [16.0](https://github.com/rhboot/shim/releases/tag/16.0)))
+- SDK: edk2-bin ([202511](https://github.com/tianocore/edk2/releases/tag/edk2-stable202511) (includes [202508](https://github.com/tianocore/edk2/releases/tag/edk2-stable202508), [202505](https://github.com/tianocore/edk2/releases/tag/edk2-stable202505), [202502](https://github.com/tianocore/edk2/releases/tag/edk2-stable202502), [202411](https://github.com/tianocore/edk2/releases/tag/edk2-stable202411)))
