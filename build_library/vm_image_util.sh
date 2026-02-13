@@ -870,7 +870,7 @@ _write_qemu_uefi_secure_conf() {
     local flash_rw="$(_dst_name "_efi_vars.qcow2")"
     local flash_ro="$(_dst_name "_efi_code.qcow2")"
     local script="$(_dst_dir)/$(_dst_name ".sh")"
-    local owner="00000000-0000-0000-0000-000000000000"
+    local owner=$(</usr/share/sb_keys/owner.txt)
     local flash_in
 
     _write_qemu_uefi_conf
@@ -893,7 +893,7 @@ _write_qemu_uefi_secure_conf() {
     virt-fw-vars \
         --input "${flash_in}" \
         --output "$(_dst_dir)/${flash_rw}" \
-        --add-db "${owner}" /usr/share/sb_keys/DB.crt \
+        --add-db "${owner}" /usr/share/sb_keys/unofficial/DB.pem \
         --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-shim-2025.cert"
 
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"

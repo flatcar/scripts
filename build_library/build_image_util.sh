@@ -805,7 +805,6 @@ EOF
   # calculated. Only for unofficial builds as official builds get signed later.
   if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
     do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
-    cleanup_sbsign_certs
   fi
 
   if [[ -n "${image_kernel}" ]]; then
@@ -926,7 +925,7 @@ sbsign_image() {
 
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
       mount "${disk_img}" "${root_fs_dir}"
-  trap "cleanup_mounts '${root_fs_dir}'; cleanup_sbsign_certs" EXIT
+  trap "cleanup_mounts '${root_fs_dir}'" EXIT
 
   # Sign the kernel with the shim-embedded key.
   do_sbsign --output "${root_fs_dir}/boot/flatcar/vmlinuz-a"{,}
@@ -956,7 +955,6 @@ sbsign_image() {
   fi
 
   cleanup_mounts "${root_fs_dir}"
-  cleanup_sbsign_certs
   trap - EXIT
 
   if [[ -n "${pcr_policy}" ]]; then
