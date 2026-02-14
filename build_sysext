@@ -22,7 +22,7 @@ default_install_root_basename='install-root'
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build a sysext for."
 DEFINE_string metapkgs '' \
-  "Comma-separated list of meta-packages to build from source and install into sysext image."
+  "Comma-separated list of binary meta-packages to install into the sysext image."
 DEFINE_string squashfs_base '' \
   "The path to the squashfs base image. Defaults to the most current image built in '${default_imagedir}/${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}'."
 DEFINE_string image_builddir '' \
@@ -206,9 +206,9 @@ if [ "$VERSION_BOARD" != "$FLATCAR_VERSION" ]; then
 fi
 
 if [[ -n "${FLAGS_metapkgs}" ]]; then
-  mapfile -t metapkgs < <(tr ',' '\n' <<<"${FLAGS_metapkgs}")
-  "emerge-${FLAGS_board}" --nodeps --buildpkgonly --usepkg n --verbose "${metapkgs[@]}"
-  set -- "${metapkgs[@]}" "${@}"
+  IFS=,
+  set -- ${FLAGS_metapkgs} "${@}"
+  unset IFS
 fi
 
 if [[ ${#} -lt 1 ]]; then

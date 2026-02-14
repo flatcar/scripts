@@ -289,6 +289,10 @@ fi
 export KBUILD_BUILD_USER="${BUILD_USER:-build}"
 export KBUILD_BUILD_HOST="${BUILD_HOST:-pony-truck.infra.kinvolk.io}"
 
+# Gather a list of packages we build with --buildpkgonly to prevent them from
+# getting cleaned by `eclean --deep packages` below.
+eclean_excludes=$(mktemp) || die_notrace "Couldn't create temporary exclusions file for eclean"
+
 # Build sysext packages from an array of sysext definitions.
 # Usage: build_sysext_packages "description" "${SYSEXT_ARRAY[@]}"
 # Array format: "name|packages|useflags|arches"
@@ -305,15 +309,20 @@ build_sysext_packages() {
 
     info "Building packages for $sysext_name sysext with USE=$useflags"
     IFS=,
+    qatom -F "%{CATEGORY}/%{PN}" ${package_atoms} >> "${eclean_excludes}"
     for package in $package_atoms; do
        # --buildpkgonly does not install dependencies, so we install them
-       # separately before building the binary package
+       # separately before building the binary package. --ignore-world is needed
+       # to allow packages to be installed to both /usr and sysexts with
+       # conflicting USE flags. This will "break" the board root, but it's not
+       # used for execution, and affected packages will be rebuilt as needed.
        sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
          env USE="$useflags" FEATURES="-ebuild-locks binpkg-multi-instance" "${EMERGE_CMD[@]}" \
          "${EMERGE_FLAGS[@]}" \
          --quiet \
          --onlydeps \
          --binpkg-respect-use=y \
+         --ignore-world=y \
          "${package}"
 
        sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT \
@@ -322,6 +331,7 @@ build_sysext_packages() {
          --quiet \
          --buildpkgonly \
          --binpkg-respect-use=y \
+         --ignore-world=y \
          "${package}"
     done
     unset IFS
@@ -373,13 +383,13 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   fi
 fi
 
-exclusions_file=$(mktemp)
-if [ ! -f "$exclusions_file" ]; then
-    die_notrace "Couldn't create temporary exclusions file $exclusions_file for eclean"
-fi
-get_unversioned_sysext_packages > "$exclusions_file"
-eclean-"$BOARD" -d --exclude-file="$exclusions_file" packages
-rm -f "$exclusions_file"
+# Additionally avoid cleaning packages that have the flatcar-oem USE flag, which
+# may be off in /usr but on in sysexts. This query doesn't check whether the
+# flag is currently enabled or not, but that's fine in practise.
+quse --root="${BOARD_ROOT}" -qeI flatcar-oem >> "${eclean_excludes}" || :
+
+eclean-"$BOARD" --deep --exclude-file="${eclean_excludes}" packages
+rm -f "${eclean_excludes}"
 # run eclean again, this time without the --deep option, to clean old versions
 # of sysext packages (those, for which .ebuild file no  longer exists)
 eclean-"$BOARD" packages
