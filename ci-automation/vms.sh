@@ -118,14 +118,14 @@ function _vm_build_impl() {
     done
 
     # Download prebuilt OEM sysexts
-    source build_library/oem_sysexts.sh
-    local -a oem_ids
-    get_oem_id_list "${arch}" oem_ids
-    local oem_id name
-    for oem_id in "${oem_ids[@]}"; do
-        name="oem-${oem_id}"
-        copy_from_buildcache "images/${arch}/${vernum}/${name}.raw" "${images_in}"
-    done
+    # source build_library/oem_sysexts.sh
+    # local -a oem_ids
+    # get_oem_id_list "${arch}" oem_ids
+    # local oem_id name
+    # for oem_id in "${oem_ids[@]}"; do
+    #     name="oem-${oem_id}"
+    #     copy_from_buildcache "images/${arch}/${vernum}/${name}.raw" "${images_in}"
+    # done
 
     lbunzip2 "${images_in}/flatcar_production_image.bin.bz2"
     ./run_sdk_container -x ./ci-cleanup.sh -n "${vms_container}" -C "${packages_image}" \
