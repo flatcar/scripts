@@ -1,8 +1,8 @@
-# Copyright 2011-2025 Gentoo Authors
+# Copyright 2011-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -20,12 +20,12 @@ else
 	SRC_URI="https://github.com/systemd/${PN}/archive/refs/tags/v${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 
 	if [[ ${PV} != *rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	fi
 fi
 
-inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-single-r1
-inherit secureboot systemd toolchain-funcs udev
+inherit branding linux-info meson-multilib optfeature pam python-single-r1
+inherit secureboot shell-completion systemd toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="https://systemd.io/"
@@ -35,15 +35,17 @@ SLOT="0/2"
 IUSE="
 	acl apparmor audit boot bpf cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
 	fido2 +gcrypt gnutls homed http idn importd iptables +kernel-install +kmod
-	+lz4 lzma +openssl pam pcre pkcs11 policykit pwquality qrcode
+	+lz4 lzma +openssl pam passwdqc pcre pkcs11 policykit pwquality qrcode
 	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm ukify vanilla xkb +zstd
 "
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
-	dns-over-tls? ( || ( gnutls openssl ) )
+	dns-over-tls? ( openssl )
 	fido2? ( cryptsetup openssl )
 	homed? ( cryptsetup pam openssl )
-	importd? ( curl lzma || ( gcrypt openssl ) )
+	importd? ( curl lzma openssl )
+	?? ( passwdqc pwquality )
+	passwdqc? ( homed )
 	pwquality? ( homed )
 	boot? ( kernel-install )
 	ukify? ( boot )
@@ -63,7 +65,9 @@ COMMON_DEPEND="
 	cryptsetup? ( >=sys-fs/cryptsetup-2.0.1:0= )
 	curl? ( >=net-misc/curl-7.32.0:0= )
 	elfutils? ( >=dev-libs/elfutils-0.158:0= )
-	fido2? ( dev-libs/libfido2:0= )
+	fido2? (
+		dev-libs/libfido2:0=
+	)
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5:0=[${MULTILIB_USEDEP}] )
 	gnutls? ( >=net-libs/gnutls-3.6.0:0= )
 	http? ( >=net-libs/libmicrohttpd-0.9.33:0=[epoll(+)] )
@@ -78,6 +82,7 @@ COMMON_DEPEND="
 	iptables? ( net-firewall/iptables:0= )
 	openssl? ( >=dev-libs/openssl-1.1.0:0= )
 	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
+	passwdqc? ( sys-auth/passwdqc:0= )
 	pkcs11? ( >=app-crypt/p11-kit-0.23.3:0= )
 	pcre? ( dev-libs/libpcre2 )
 	pwquality? ( >=dev-libs/libpwquality-1.4.1:0= )
@@ -105,6 +110,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-group/utmp-0-r1
 	>=acct-group/audio-0-r1
 	>=acct-group/cdrom-0-r1
+	acct-group/clock
 	>=acct-group/dialout-0-r1
 	>=acct-group/disk-0-r1
 	>=acct-group/input-0-r1
@@ -125,6 +131,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
+	elibc_musl? ( >=sys-libs/musl-1.2.5-r8 )
 	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
@@ -272,12 +279,12 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}"/systemd-257-cred-util-tpm2.patch
+		"${FILESDIR}/systemd-259-test-echo.patch"
 	)
 
 	if ! use vanilla; then
 		PATCHES+=(
-			"${FILESDIR}/gentoo-journald-audit-r1.patch"
+			"${FILESDIR}/gentoo-journald-audit-r4.patch"
 		)
 	fi
 
@@ -299,10 +306,12 @@ multilib_src_configure() {
 		-Ddocdir="share/doc/${PF}"
 		# default is developer, bug 918671
 		-Dmode=release
-		-Dsupport-url="https://gentoo.org/support/"
+		-Dsupport-url="${BRANDING_OS_SUPPORT_URL}"
 		-Dpamlibdir="$(getpam_mod_dir)"
+		-Dlibc=$(usex elibc_musl musl glibc)
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
+		-Dzshcompletiondir="$(get_zshcompdir)"
 		-Dsplit-bin=false
 		# Disable compatibility with sysvinit
 		-Dsysvinit-path=
@@ -341,6 +350,7 @@ multilib_src_configure() {
 		$(meson_native_use_feature iptables libiptc)
 		$(meson_native_use_feature openssl)
 		$(meson_feature pam)
+		$(meson_native_use_feature passwdqc)
 		$(meson_native_use_feature pkcs11 p11kit)
 		$(meson_native_use_feature pcre pcre2)
 		$(meson_native_use_feature policykit polkit)

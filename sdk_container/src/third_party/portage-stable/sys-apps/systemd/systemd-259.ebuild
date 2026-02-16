@@ -1,4 +1,4 @@
-# Copyright 2011-2025 Gentoo Authors
+# Copyright 2011-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -131,6 +131,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
+	elibc_musl? ( >=sys-libs/musl-1.2.5-r8 )
 	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
@@ -278,12 +279,12 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-258-shared-add-missing-alloc-util.patch"
+		"${FILESDIR}/systemd-259-vmspawn-use-indexed-loop.patch"
 	)
 
 	if ! use vanilla; then
 		PATCHES+=(
-			"${FILESDIR}/gentoo-journald-audit-r3.patch"
+			"${FILESDIR}/gentoo-journald-audit-r4.patch"
 		)
 	fi
 
@@ -307,6 +308,7 @@ multilib_src_configure() {
 		-Dmode=release
 		-Dsupport-url="https://gentoo.org/support/"
 		-Dpamlibdir="$(getpam_mod_dir)"
+		-Dlibc=$(usex elibc_musl musl glibc)
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
 		-Dsplit-bin=false
