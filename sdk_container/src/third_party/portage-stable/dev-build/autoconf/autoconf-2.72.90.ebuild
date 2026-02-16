@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,25 +11,31 @@ EAPI=8
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/autoconf.git"
 	inherit git-r3
+	AUTOCONF_SLOT="9999"
 else
-	# For _beta handling replace with real version number
-	MY_PV="${PV}"
-	MY_P="${PN}-${MY_PV}"
 	#PATCH_TARBALL_NAME="${PN}-2.70-patches-01"
 
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/zackweinberg.asc
 	inherit verify-sig
 
 	SRC_URI="
-		mirror://gnu/${PN}/${MY_P}.tar.xz
-		https://alpha.gnu.org/pub/gnu/${PN}/${MY_P}.tar.xz
+		mirror://gnu/${PN}/${P}.tar.xz
+		https://alpha.gnu.org/gnu/${PN}/${P}.tar.xz
 		https://meyering.net/ac/${P}.tar.xz
-		verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.xz.sig )
+		verify-sig? (
+			https://alpha.gnu.org/gnu/${PN}/${P}.tar.xz.sig
+			mirror://gnu/${PN}/${P}.tar.xz.sig
+		)
 	"
-	S="${WORKDIR}"/${MY_P}
 
-	if [[ ${PV} != *_beta* ]] && ! [[ $(ver_cut 3) =~ [a-z] ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	AUTOCONF_EXTRA_VER=$(ver_cut 3)
+	if [[ ${AUTOCONF_EXTRA_VER} -ge 90 ]] ; then
+		# Prereleases get no keywords and their slot bumped up
+		# e.g. SLOT for 2.72(.90) -> 2.73
+		AUTOCONF_SLOT=$(ver_cut 1).$((($(ver_cut 2) + 1)))
+	else
+		AUTOCONF_SLOT=$(ver_cut 1-2)
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 	fi
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-zackweinberg )"
@@ -41,7 +47,7 @@ DESCRIPTION="Used to create autoconfiguration files"
 HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
 
 LICENSE="GPL-3+"
-SLOT="$(ver_cut 1-2)"
+SLOT="${AUTOCONF_SLOT}"
 
 BDEPEND+="
 	>=dev-lang/perl-5.10
@@ -55,11 +61,6 @@ RDEPEND="
 "
 [[ ${PV} == 9999 ]] && BDEPEND+=" >=sys-apps/texinfo-4.3"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Invoke-autopoint-in-more-situations.patch
-	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Adapt-to-the-on-disk-situation-after-auto.patch
-)
-
 src_prepare() {
 	if [[ ${PV} == *9999 ]] ; then
 		# Avoid the "dirty" suffix in the git version by generating it
@@ -67,7 +68,11 @@ src_prepare() {
 		local ver=$(./build-aux/git-version-gen .tarball-version)
 		echo "${ver}" > .tarball-version || die
 
-		autoreconf -f -i || die
+		export WANT_AUTOCONF=2.5
+		export WANT_AUTOMAKE=1.17
+		# Don't try wrapping the autotools - this thing runs as it tends
+		# to be a bit esoteric, and the script does `set -e` itself.
+		./bootstrap || die
 	fi
 
 	# usr/bin/libtool is provided by binutils-apple, need gnu libtool
