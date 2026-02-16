@@ -1,25 +1,30 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 MODULES_OPTIONAL_IUSE=+modules
-inherit desktop dot-a eapi9-pipestatus flag-o-matic linux-mod-r1
+inherit desktop dot-a eapi9-pipestatus eapi9-ver flag-o-matic linux-mod-r1
 inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
-MODULES_KERNEL_MAX=6.17
+# note: *can* build with 6.19 but it depends on the kernel configs, notably
+# (at least) CONFIG_HMM_MIRROR needs to *not* be set -- recommend to stick to
+# <=6.18.x until the next version nonetheless as NVIDIA is aware and has a fix
+# pending (we do not intend to patch this downstream)
+# https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1021
+# https://github.com/NVIDIA/open-gpu-kernel-modules/pull/1015
+MODULES_KERNEL_MAX=6.18
 NV_URI="https://download.nvidia.com/XFree86/"
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
 HOMEPAGE="https://www.nvidia.com/"
 SRC_URI="
 	amd64? ( ${NV_URI}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
+	arm64? ( ${NV_URI}Linux-aarch64/${PV}/NVIDIA-Linux-aarch64-${PV}.run )
 	$(printf "${NV_URI}%s/%s-${PV}.tar.bz2 " \
 		nvidia-{installer,modprobe,persistenced,settings,xconfig}{,})
 	${NV_URI}NVIDIA-kernel-module-source/NVIDIA-kernel-module-source-${PV}.tar.xz
 "
-# TODO: arm64 tarball is currently missing, restore + keyword when back
-#	arm64? ( ${NV_URI}Linux-aarch64/${PV}/NVIDIA-Linux-aarch64-${PV}.run )
 # nvidia-installer is unused but here for GPL-2's "distribute sources"
 S=${WORKDIR}
 
@@ -28,9 +33,11 @@ LICENSE="
 	curl openssl public-domain
 "
 SLOT="0/${PV%%.*}"
-KEYWORDS="-* ~amd64" # ~arm64 (see SRC_URI's TODO)
-IUSE="+X abi_x86_32 abi_x86_64 kernel-open persistenced powerd +static-libs +tools wayland"
-REQUIRED_USE="kernel-open? ( modules )"
+KEYWORDS="-* ~amd64 ~arm64"
+IUSE="
+	+X abi_x86_32 abi_x86_64 +kernel-open persistenced powerd
+	+static-libs +tools wayland
+"
 
 COMMON_DEPEND="
 	acct-group/video
@@ -53,6 +60,9 @@ COMMON_DEPEND="
 		x11-libs/pango
 	)
 "
+# egl-wayland2: nvidia currently ships both versions so, to ensure
+# everything works properly, depend on both at same time for now
+# (may use one or the other depending on setup)
 RDEPEND="
 	${COMMON_DEPEND}
 	dev-libs/openssl:0/3
@@ -65,10 +75,8 @@ RDEPEND="
 	powerd? ( sys-apps/dbus[abi_x86_32(-)?] )
 	wayland? (
 		>=gui-libs/egl-gbm-1.1.1-r2[abi_x86_32(-)?]
-		|| (
-			>=gui-libs/egl-wayland-1.1.13.1[abi_x86_32(-)?]
-			gui-libs/egl-wayland2[abi_x86_32(-)?]
-		)
+		>=gui-libs/egl-wayland-1.1.13.1[abi_x86_32(-)?]
+		gui-libs/egl-wayland2[abi_x86_32(-)?]
 		X? ( gui-libs/egl-x11[abi_x86_32(-)?] )
 	)
 "
@@ -117,6 +125,8 @@ pkg_setup() {
 		~SYSVIPC
 		~!LOCKDEP
 		~!PREEMPT_RT
+		~!RANDSTRUCT_FULL
+		~!RANDSTRUCT_PERFORMANCE
 		~!SLUB_DEBUG_ON
 		!DEBUG_MUTEXES
 		$(usev powerd '~CPU_FREQ')
@@ -133,22 +143,31 @@ pkg_setup() {
 	selection of a DRM device even if unused, e.g. CONFIG_DRM_QXL=m or
 	DRM_AMDGPU=m (among others, consult the kernel config's help), can
 	also use DRM_NOUVEAU=m as long as built as module *not* built-in."
-	local ERROR_DRM_KMS_HELPER="CONFIG_DRM_KMS_HELPER: is not set but needed for Xorg auto-detection
-	of drivers (no custom config), and for wayland / nvidia-drm.modeset=1.
+	local ERROR_DRM_KMS_HELPER="CONFIG_DRM_KMS_HELPER: is not set but is needed for nvidia-drm.modeset=1
+	support (see ${EPREFIX}/etc/modprobe.d/nvidia.conf) which is needed for wayland
+	and for config-less Xorg auto-detection.
 	${drm_helper_msg}"
 	local ERROR_DRM_TTM_HELPER="CONFIG_DRM_TTM_HELPER: is not set but is needed to compile when using
 	kernel version 6.11.x or newer while DRM_FBDEV_EMULATION is set.
 	${drm_helper_msg}"
 	local ERROR_DRM_FBDEV_EMULATION="CONFIG_DRM_FBDEV_EMULATION: is not set but is needed for
-	nvidia-drm.fbdev=1 support, currently off-by-default and it could
-	be ignored, but note that is due to change in the future."
+	nvidia-drm.fbdev=1 support (see ${EPREFIX}/etc/modprobe.d/nvidia.conf), may
+	result in a blank console/tty."
 	local ERROR_MMU_NOTIFIER="CONFIG_MMU_NOTIFIER: is not set but needed to build with USE=kernel-open.
 	Cannot be directly selected in the kernel's menuconfig, and may need
-	selection of another option that requires it such as CONFIG_KVM."
+	selection of another option that requires it such as CONFIG_AMD_IOMMU=y,
+	or DRM_I915=m (among others, consult the kernel config's help)."
 	local ERROR_PREEMPT_RT="CONFIG_PREEMPT_RT: is set but is unsupported by NVIDIA upstream and
 	will fail to build unless the env var IGNORE_PREEMPT_RT_PRESENCE=1 is
 	set. Please do not report issues if run into e.g. kernel panics while
 	ignoring this."
+	local randstruct_msg="is set but NVIDIA may be unstable with
+	it such as causing a kernel panic on shutdown, it is recommended to
+	disable with CONFIG_RANDSTRUCT_NONE=y (https://bugs.gentoo.org/969413
+	-- please report if this appears fixed on NVIDIA's side so can remove
+	this warning)."
+	local ERROR_RANDSTRUCT_FULL="CONFIG_RANDSTRUCT_FULL: ${randstruct_msg}"
+	local ERROR_RANDSTRUCT_PERFORMANCE="CONFIG_RANDSTRUCT_PERFORMANCE: ${randstruct_msg}"
 
 	linux-mod-r1_pkg_setup
 }
@@ -163,20 +182,12 @@ src_prepare() {
 
 	default
 
-	# prevent detection of incomplete kernel DRM support (bug #603818)
-	sed 's/defined(CONFIG_DRM/defined(CONFIG_DRM_KMS_HELPER/g' \
-		-i kernel{,-module-source/kernel-open}/conftest.sh || die
-
 	sed 's/__USER__/nvpd/' \
 		nvidia-persistenced/init/systemd/nvidia-persistenced.service.template \
 		> "${T}"/nvidia-persistenced.service || die
 
 	# use alternative vulkan icd option if USE=-X (bug #909181)
 	use X || sed -i 's/"libGLX/"libEGL/' nvidia_{layers,icd}.json || die
-
-	# enable nvidia-drm.modeset=1 by default with USE=wayland
-	cp "${FILESDIR}"/nvidia-570.conf "${T}"/nvidia.conf || die
-	use !wayland || sed -i '/^#.*modeset=1$/s/^#//' "${T}"/nvidia.conf || die
 
 	# makefile attempts to install wayland library even if not built
 	use wayland || sed -i 's/ WAYLAND_LIB_install$//' \
@@ -190,6 +201,14 @@ src_compile() {
 	local xnvflags=-fPIC #840389
 	tc-is-lto && xnvflags+=" $(test-flags-CC -ffat-lto-objects)"
 
+	# Same as uname -m.
+	local target_arch
+	case ${ARCH} in
+		amd64) target_arch=x86_64 ;;
+		arm64) target_arch=aarch64 ;;
+		*) die "Unrecognised architecture: ${ARCH}" ;;
+	esac
+
 	NV_ARGS=(
 		PREFIX="${EPREFIX}"/usr
 		HOST_CC="$(tc-getBUILD_CC)"
@@ -197,6 +216,7 @@ src_compile() {
 		BUILD_GTK2LIB=
 		NV_USE_BUNDLED_LIBJANSSON=0
 		NV_VERBOSE=1 DO_STRIP= MANPAGE_GZIP= OUTPUTDIR=out
+		TARGET_ARCH="${target_arch}"
 		WAYLAND_AVAILABLE=$(usex wayland 1 0)
 		XNVCTRL_CFLAGS="${xnvflags}"
 	)
@@ -221,6 +241,7 @@ src_compile() {
 		local modargs=(
 			IGNORE_CC_MISMATCH=yes NV_VERBOSE=1
 			SYSOUT="${KV_OUT_DIR}" SYSSRC="${KV_DIR}"
+			TARGET_ARCH="${target_arch}"
 
 			# kernel takes "x86" and "x86_64" as meaning the same, but nvidia
 			# makes the distinction (since 550.135) and is not happy with "x86"
@@ -279,6 +300,7 @@ src_install() {
 		libnvidia-{gtk,wayland-client} nvidia-{settings,xconfig} # from source
 		libnvidia-egl-gbm 15_nvidia_gbm # gui-libs/egl-gbm
 		libnvidia-egl-wayland 10_nvidia_wayland # gui-libs/egl-wayland
+		libnvidia-egl-wayland2 99_nvidia_wayland2 # gui-libs/egl-wayland2
 		libnvidia-egl-xcb 20_nvidia_xcb.json # gui-libs/egl-x11
 		libnvidia-egl-xlib 20_nvidia_xlib.json # gui-libs/egl-x11
 		libnvidia-pkcs11.so # using the openssl3 version instead
@@ -326,12 +348,6 @@ $(use amd64 && usev !abi_x86_32 "
 Note that without USE=abi_x86_32 on ${PN}, 32bit applications
 (typically using wine / steam) will not be able to use GPU acceleration.")
 
-Be warned that USE=kernel-open may need to be either enabled or
-disabled for certain cards to function:
-- GTX 50xx (blackwell) and higher require it to be enabled
-- GTX 1650 and higher (pre-blackwell) should work either way
-- Older cards require it to be disabled
-
 For additional information or for troubleshooting issues, please see
 https://wiki.gentoo.org/wiki/NVIDIA/nvidia-drivers and NVIDIA's own
 documentation that is installed alongside this README."
@@ -341,7 +357,7 @@ documentation that is installed alongside this README."
 		linux-mod-r1_src_install
 
 		insinto /etc/modprobe.d
-		doins "${T}"/nvidia.conf
+		newins "${FILESDIR}"/nvidia-590.conf nvidia.conf
 
 		# used for gpu verification with binpkgs (not kept, see pkg_preinst)
 		insinto /usr/share/nvidia
@@ -510,9 +526,6 @@ documentation that is installed alongside this README."
 }
 
 pkg_preinst() {
-	has_version "${CATEGORY}/${PN}[kernel-open]" && NV_HAD_KERNEL_OPEN=
-	has_version "${CATEGORY}/${PN}[wayland]" && NV_HAD_WAYLAND=
-
 	use modules || return
 
 	# set video group id based on live system (bug #491414)
@@ -542,7 +555,7 @@ pkg_postinst() {
 
 	if [[ -r /proc/driver/nvidia/version &&
 		$(</proc/driver/nvidia/version) != *"  ${PV}  "* ]]; then
-		ewarn "Currently loaded NVIDIA modules do not match the newly installed"
+		ewarn "\nCurrently loaded NVIDIA modules do not match the newly installed"
 		ewarn "libraries and may prevent launching GPU-accelerated applications."
 		if use modules; then
 			ewarn "Easiest way to fix this is normally to reboot. If still run into issues"
@@ -553,16 +566,14 @@ pkg_postinst() {
 	fi
 
 	if [[ $(</proc/cmdline) == *slub_debug=[!-]* ]]; then
-		ewarn "Detected that the current kernel command line is using 'slub_debug=',"
+		ewarn "\nDetected that the current kernel command line is using 'slub_debug=',"
 		ewarn "this may lead to system instability/freezes with this version of"
 		ewarn "${PN}. Bug: https://bugs.gentoo.org/796329"
 	fi
 
 	if [[ -v NV_LEGACY_MASK ]]; then
-		ewarn
-		ewarn "***WARNING***"
-		ewarn
-		ewarn "You are installing a version of ${PN} known not to work"
+		ewarn "\n***WARNING***"
+		ewarn "\nYou are installing a version of ${PN} known not to work"
 		ewarn "with a GPU of the current system. If unwanted, add the mask:"
 		if [[ -d ${EROOT}/etc/portage/package.mask ]]; then
 			ewarn "  echo '${NV_LEGACY_MASK}' > ${EROOT}/etc/portage/package.mask/${PN}"
@@ -575,17 +586,16 @@ pkg_postinst() {
 		ewarn "[2] https://wiki.gentoo.org/wiki/Nouveau"
 	fi
 
-	if use kernel-open && [[ ! -v NV_HAD_KERNEL_OPEN ]]; then
-		ewarn
-		ewarn "Open source variant of ${PN} was selected, note that it requires"
-		ewarn "Turing/Ampere+ GPUs (aka GTX 1650+). Try disabling if run into issues."
-		ewarn "Also see: ${EROOT}/usr/share/doc/${PF}/html/kernel_open.html"
-	fi
-
-	if use wayland && use modules && [[ ! -v NV_HAD_WAYLAND ]]; then
-		elog
-		elog "Note that with USE=wayland, nvidia-drm.modeset=1 will be enabled"
-		elog "in '${EROOT}/etc/modprobe.d/nvidia.conf'. *If* experience issues,"
-		elog "either disable wayland or edit nvidia.conf."
+	if ver_replacing -lt 590; then
+		elog "\n>=${PN}-590 has changes that may or may not need attention:"
+		elog "1. support for Pascal, Maxwell, and Volta cards has been dropped"
+		elog "  (if affected, there should be a another message about this above)"
+		elog "2. USE=kernel-open is now enabled by default"
+		elog "  (generally safe and recommended, but some setups may hit regressions)"
+		elog "3. nvidia-drm.modeset=1 is now default regardless of USE=wayland"
+		elog "4. nvidia-drm.fbdev=1 is now also tentatively default to match upstream"
+		elog "(3+4 were also later changed in >=580.126.09-r1, may already be in-use)"
+		elog "See ${EROOT}/etc/modprobe.d/nvidia.conf to modify settings if needed,"
+		elog "fbdev=1 *could* cause issues for the console display with some setups."
 	fi
 }
