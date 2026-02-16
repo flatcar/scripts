@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,25 +11,29 @@ HOMEPAGE="https://sourceware.org/lvm2/"
 SRC_URI="https://sourceware.org/ftp/lvm2/${PN^^}.${PV}.tgz"
 S="${WORKDIR}/${PN^^}.${PV}"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
-IUSE="lvm readline sanlock selinux static static-libs systemd thin +udev valgrind"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+IUSE="lvm nvme readline sanlock selinux static static-libs systemd test thin +udev valgrind xfs"
 REQUIRED_USE="
-	static? ( !systemd !udev )
+	static? ( !systemd !udev !nvme )
 	static-libs? ( static !udev )
 	systemd? ( udev )
+	test? ( lvm )
 	thin? ( lvm )
 "
+RESTRICT="!test? ( test )"
 
+# Doesn't strictly need >=sanlock-4.0.0 but autodetects features, so pick
+# the best we have for predictability. Ditto systemd.
 DEPEND_COMMON="
 	udev? ( virtual/libudev:= )
 	lvm? (
 		dev-libs/libaio
-		sys-apps/util-linux
+		>=sys-apps/util-linux-2.24
 		readline? ( sys-libs/readline:= )
-		sanlock? ( sys-cluster/sanlock )
-		systemd? ( sys-apps/systemd:= )
+		sanlock? ( >=sys-cluster/sanlock-4.0.0 )
+		systemd? ( >=sys-apps/systemd-234:= )
 	)
 "
 # /run is now required for locking during early boot. /var cannot be assumed to
@@ -39,6 +43,7 @@ RDEPEND="
 	${DEPEND_COMMON}
 	>=sys-apps/baselayout-2.2
 	lvm? ( virtual/tmpfiles )
+	nvme? ( >=sys-libs/libnvme-1.1 )
 "
 
 PDEPEND="
@@ -58,6 +63,7 @@ DEPEND="
 		selinux? ( sys-libs/libselinux[static-libs] )
 	)
 	valgrind? ( >=dev-debug/valgrind-3.6 )
+	xfs? ( sys-fs/xfsprogs )
 "
 BDEPEND="
 	dev-build/autoconf-archive
@@ -69,12 +75,10 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.03.20-example.conf.in.patch
 
 	# For upstream -- review and forward:
-	"${FILESDIR}"/${PN}-2.03.20-dmeventd-no-idle-exit.patch
+	"${FILESDIR}"/${PN}-2.03.37-dmeventd-no-idle-exit.patch
 	"${FILESDIR}"/${PN}-2.03.20-freopen-musl.patch
 	"${FILESDIR}"/${PN}-2.03.22-autoconf-2.72-egrep.patch
-	"${FILESDIR}"/${PN}-2.03.22-thin-version-checking.patch
 	"${FILESDIR}"/${PN}-2.03.22-thin-autodetect.patch
-	"${FILESDIR}"/${PN}-2.03.22-basename-musl.patch
 )
 
 pkg_setup() {
@@ -115,8 +119,7 @@ src_prepare() {
 src_configure() {
 	filter-lto
 
-	# Workaround for bug #822210
-	tc-ld-disable-gold
+	export ac_cv_header_xfs_xfs_h=$(usex xfs)
 
 	# Most of this package does weird stuff.
 	# The build options are tristate, and --without is NOT supported
@@ -175,11 +178,16 @@ src_configure() {
 		$(use_with udev udevdir "${EPREFIX}$(get_udevdir)"/rules.d)
 		# USE=sanlock requires USE=lvm
 		$(use_enable $(usex lvm sanlock lvm) lvmlockd-sanlock)
+		$(use_with systemd)
+		$(use_enable systemd sd-notify)
+		$(use_enable systemd systemd-journal)
 		$(use_enable systemd notify-dbus)
 		$(use_enable systemd app-machineid)
 		$(use_enable systemd systemd-journal)
 		$(use_with systemd systemd-run "/usr/bin/systemd-run")
 		$(use_enable valgrind valgrind-pool)
+		$(use_with nvme libnvme)
+		$(use_enable nvme nvme-wwid)
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
 		CLDFLAGS="${LDFLAGS}"
 	)
@@ -201,8 +209,11 @@ src_compile() {
 }
 
 src_test() {
-	einfo "Tests are disabled because of device-node mucking, if you want to"
-	einfo "run tests, compile the package and see ${S}/tests"
+	einfo "Tests other than unit tests are disabled because of device-node"
+	einfo "mucking, run tests, compile the package and see ${S}/tests"
+
+	# run only unit tests
+	emake V=1 -C "${S}"/test -j1 run-unit-test
 }
 
 src_install() {
