@@ -1,4 +1,4 @@
-# Copyright 2004-2025 Gentoo Authors
+# Copyright 2004-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,7 +7,7 @@ inherit flag-o-matic toolchain-funcs
 
 DESCRIPTION="Library for build EFI Applications"
 HOMEPAGE="https://sourceforge.net/projects/gnu-efi/"
-SRC_URI="https://downloads.sourceforge.net/gnu-efi/${P}.tar.bz2"
+SRC_URI="https://github.com/ncroxon/gnu-efi/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 # inc/, lib/ dirs (README.efilib)
 # - BSD-2
@@ -32,32 +32,39 @@ QA_EXECSTACK="usr/*/lib*efi.a:* usr/*/crt*.o"
 RESTRICT="strip"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-clang.patch
-	"${FILESDIR}"/${PN}-3.0.18-remove-linux-headers.patch
+	"${FILESDIR}"/${PN}-4.0.2-remove-linux-headers.patch
 )
+
+DOCS="README* SECURITY* docs/*"
 
 check_and_set_objcopy() {
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
+
+		if use arm || use riscv; then
+			# bug #939338
+			# objcopy does not understand PE/COFF on these arches: arm32, riscv64 and mips64le
+			# gnu-efi containes a workaround
+			return 0
+		fi
+
 		# bug #931792
 		# llvm-objcopy does not support EFI target, try to use binutils objcopy or fail
 		tc-export OBJCOPY
-		OBJCOPY="${OBJCOPY/llvm-/}"
 		# Test OBJCOPY to see if it supports EFI targets, and return if it does
 		LC_ALL=C "${OBJCOPY}" --help | grep -q '\<pei-' && return 0
+
 		# If OBJCOPY does not support EFI targets, it is possible that the 'objcopy' on our path is
 		# still LLVM if the 'binutils-plugin' USE flag is set. In this case, we check to see if the
 		# '(prefix)/usr/bin/objcopy' binary is available (it should be, it's a dependency), and if
 		# so, we use the absolute path explicitly.
-		local binutils_objcopy="${EPREFIX}"/usr/bin/"${OBJCOPY}"
+		local binutils_objcopy="${EPREFIX}"/usr/bin/objcopy
 		if [[ -e "${binutils_objcopy}" ]]; then
 			OBJCOPY="${binutils_objcopy}"
+			einfo "Forcing OBJCOPY=${OBJCOPY}"
 		fi
-		if ! use arm && ! use riscv; then
-			# bug #939338
-			# objcopy does not understand PE/COFF on these arches: arm32, riscv64 and mips64le
-			# gnu-efi containes a workaround
-			LC_ALL=C "${OBJCOPY}" --help | grep -q '\<pei-' || die "${OBJCOPY} (objcopy) does not support EFI target"
-		fi
+
+		# Test OBJCOPY again to see if it supports EFI targets, and fail if it doesn't
+		LC_ALL=C "${OBJCOPY}" --help | grep -q '\<pei-' || die "${OBJCOPY} (objcopy) does not support EFI target"
 	fi
 }
 
@@ -111,7 +118,9 @@ efimake() {
 src_compile() {
 	tc-export BUILD_CC AR AS CC LD OBJCOPY
 
-	if ! use custom-cflags; then
+	if use custom-cflags; then
+		LDFLAGS="$(raw-ldflags)"
+	else
 		unset CFLAGS CPPFLAGS LDFLAGS
 	fi
 
