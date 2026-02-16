@@ -6,7 +6,7 @@ EAPI=8
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/gnutls.asc
 inherit dot-a libtool multilib-minimal verify-sig
 
-DESCRIPTION="A secure communications library implementing the SSL, TLS and DTLS protocols"
+DESCRIPTION="Secure communications library implementing the SSL, TLS and DTLS protocols"
 HOMEPAGE="https://www.gnutls.org/"
 SRC_URI="mirror://gnupg/gnutls/v$(ver_cut 1-2)/${P}.tar.xz"
 SRC_URI+=" verify-sig? ( mirror://gnupg/gnutls/v$(ver_cut 1-2)/${P}.tar.xz.sig )"
@@ -17,12 +17,12 @@ LICENSE="GPL-3 LGPL-2.1+"
 # Subslot format:
 # <libgnutls.so number>.<libgnutlsxx.so number>
 SLOT="0/30.30"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
-IUSE="brotli +cxx dane doc examples +idn nls +openssl pkcs11 sslv2 sslv3 static-libs test test-full +tls-heartbeat tools zlib zstd"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+IUSE="brotli +cxx dane doc examples +idn nls +openssl pkcs11 sslv2 sslv3"
+IUSE+=" systemtap static-libs test test-full +tls-heartbeat tools zlib zstd"
 REQUIRED_USE="test-full? ( cxx dane doc examples idn nls openssl pkcs11 tls-heartbeat tools )"
 RESTRICT="!test? ( test )"
 
-# >=nettle-3.10 as a workaround for bug #936011
 RDEPEND="
 	>=dev-libs/libtasn1-4.9:=[${MULTILIB_USEDEP}]
 	dev-libs/libunistring:=[${MULTILIB_USEDEP}]
@@ -39,6 +39,7 @@ RDEPEND="
 DEPEND="
 	${RDEPEND}
 	test-full? ( sys-libs/libseccomp )
+	systemtap? ( dev-debug/systemtap )
 "
 BDEPEND="
 	dev-build/gtk-doc-am
@@ -64,11 +65,6 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 	MIN
 	alignof
 	static_assert
-)
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.8.10-tests.patch
-	"${FILESDIR}"/${PN}-3.8.10-tls-migration-qemu-regression.patch
 )
 
 src_prepare() {
@@ -136,6 +132,7 @@ multilib_src_configure() {
 		$(use_enable sslv2 ssl2-support)
 		$(use_enable sslv3 ssl3-support)
 		$(use_enable static-libs static)
+		$(use_enable systemtap crypto-auditing)
 		$(use_enable tls-heartbeat heartbeat-support)
 		$(use_with brotli '' link)
 		$(use_with idn)
