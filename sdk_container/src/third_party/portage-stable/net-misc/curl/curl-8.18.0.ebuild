@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -8,7 +8,7 @@ EAPI=8
 # https://lists.haxx.se/listinfo/curl-distros
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/danielstenberg.asc
-inherit autotools multilib-minimal multiprocessing prefix toolchain-funcs verify-sig
+inherit dot-a autotools multilib-minimal multiprocessing prefix toolchain-funcs verify-sig
 
 DESCRIPTION="A Client that groks URLs"
 HOMEPAGE="https://curl.se/"
@@ -151,7 +151,7 @@ BDEPEND="
 	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
 "
 
-DOCS=( README docs/{FEATURES.md,INTERNALS.md,FAQ,BUGS.md,CONTRIBUTE.md} )
+DOCS=( README docs/{FEATURES.md,INTERNALS.md,FAQ.md,BUGS.md,CONTRIBUTE.md} )
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/curl/curlbuild.h
@@ -176,7 +176,7 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-prefix-5.patch"
+	"${FILESDIR}/${PN}-prefix-6.patch"
 	"${FILESDIR}/${PN}-respect-cflags-3.patch"
 )
 
@@ -238,6 +238,7 @@ _get_curl_tls_configure_opts() {
 }
 
 multilib_src_configure() {
+	use static-libs && lto-guarantee-fat
 	# We make use of the fact that later flags override earlier ones
 	# So start with all ssl providers off until proven otherwise
 	# TODO: in the future, we may want to add wolfssl (https://www.wolfssl.com/)
@@ -430,6 +431,9 @@ multilib_src_install() {
 multilib_src_install_all() {
 	einstalldocs
 	find "${ED}" -type f -name '*.la' -delete || die
+
+	use static-libs && strip-lto-bytecode
+
 	rm -rf "${ED}"/etc/ || die
 }
 
