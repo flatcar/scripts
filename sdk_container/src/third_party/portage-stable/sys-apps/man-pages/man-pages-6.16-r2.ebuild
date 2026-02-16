@@ -1,7 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+
+inherit eapi9-ver
 
 # Maintenance notes:
 # - Upstream are very friendly, do approach them if have any questions;
@@ -22,6 +24,7 @@ GENTOO_PATCH=2
 
 DESCRIPTION="A somewhat comprehensive collection of Linux man pages"
 HOMEPAGE="https://www.kernel.org/doc/man-pages/"
+
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git"
 	inherit git-r3
@@ -34,13 +37,22 @@ else
 	if [[ ${MAN_PAGES_GENTOO_DIST} -eq 1 ]] ; then
 		SRC_URI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-gentoo.tar.xz"
 	else
+		VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/alejandro-colomar.asc
+		inherit verify-sig
+
 		SRC_URI="
 			https://www.kernel.org/pub/linux/docs/man-pages/Archive/${P}.tar.xz
 			https://www.kernel.org/pub/linux/docs/man-pages/${P}.tar.xz
+			verify-sig? (
+				https://www.kernel.org/pub/linux/docs/man-pages/Archive/${P}.tar.sign
+				https://www.kernel.org/pub/linux/docs/man-pages/${P}.tar.sign
+			)
 		"
+
+		BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-alejandro-colomar-20260122 )"
 	fi
 
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos"
 fi
 
 SRC_URI+="
@@ -51,19 +63,12 @@ SRC_URI+="
 LICENSE="man-pages GPL-2+ BSD"
 SLOT="0"
 # Keep the following in sync with app-i18n/man-pages-l10n
-MY_L10N=( cs da de el es fi fr hu id it mk nb nl pl pt-BR ro sr sv uk vi )
+MY_L10N=( cs da de el es fi fr hu id it ko mk nb nl pl pt-BR ro ru sr sv uk vi )
 IUSE="l10n_ja l10n_ru l10n_zh-CN ${MY_L10N[@]/#/l10n_}"
 RESTRICT="binchecks"
 
-BDEPEND="
-	app-alternatives/bc
-"
-# Block packages that used to install colliding man pages:
-# bug #341953, bug #548900, bug #612640, bug #617462
 RDEPEND="
 	virtual/man
-	!<sys-apps/keyutils-1.5.9-r4
-	!<dev-libs/libbsd-0.8.3-r1
 "
 PDEPEND="
 	l10n_ja? ( app-i18n/man-pages-ja )
@@ -79,28 +84,44 @@ done
 unset lang
 
 src_unpack() {
-	default
-
-	[[ ${PV} == 9999 ]] && git-r3_src_unpack
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+		unpack man-pages-gentoo-${GENTOO_PATCH}.tar.bz2
+	elif [[ ${PV} != *_rc* ]] && ! [[ ${MAN_PAGES_GENTOO_DIST} -eq 1 ]] && use verify-sig ; then
+		verify-sig_uncompress_verify_unpack "${DISTDIR}"/${P}.tar.xz \
+			"${DISTDIR}"/${P}.tar.sign
+		unpack man-pages-gentoo-${GENTOO_PATCH}.tar.bz2
+	else
+		default
+	fi
 }
 
 src_prepare() {
 	default
 
+	# installed by sys-libs/libxcrypt
+	rm man/man3/crypt{,_r}.3 || die
+
 	# passwd.5 installed by sys-apps/shadow, bug #776787
-	rm man5/passwd.5 || die
+	rm man/man5/passwd.5 || die
 }
 
-src_compile() { :; }
+src_configure() {
+	export prefix="${EPREFIX}/usr"
+}
+
+src_compile() {
+	emake -R
+}
 
 src_test() {
 	# We don't use the 'check' target right now because of known errors
 	# https://lore.kernel.org/linux-man/0dfd5319-2d22-a8ad-f085-d635eb6d0678@gmail.com/T/#t
-	emake lint-man-tbl
+	emake -R lint-man-tbl
 }
 
 src_install() {
-	emake install prefix="${EPREFIX}"/usr DESTDIR="${D}"
+	emake -R DESTDIR="${D}" install
 	dodoc README Changes*
 
 	# Override with Gentoo specific or additional Gentoo pages
@@ -110,13 +131,10 @@ src_install() {
 }
 
 pkg_postinst() {
-	for ver in ${REPLACING_VERSIONS} ; do
-		if ver_test ${ver} -lt 5.13-r2 ; then
-			# Avoid ACCEPT_LICENSE issues for users by default
-			# bug #871636
-			ewarn "This version of ${PN} no longer depends on sys-apps/man-pages-posix!"
-			ewarn "Please install sys-apps/man-pages-posix yourself if needed."
-			break
-		fi
-	done
+	if ver_replacing -lt 5.13-r2 ; then
+		# Avoid ACCEPT_LICENSE issues for users by default
+		# bug #871636
+		ewarn "This version of ${PN} no longer depends on sys-apps/man-pages-posix!"
+		ewarn "Please install sys-apps/man-pages-posix yourself if needed."
+	fi
 }

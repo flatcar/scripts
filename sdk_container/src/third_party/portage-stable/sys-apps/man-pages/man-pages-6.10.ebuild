@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -52,7 +52,7 @@ else
 		BDEPEND="verify-sig? ( sec-keys/openpgp-keys-alejandro-colomar )"
 	fi
 
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~arm64-macos"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos"
 fi
 
 SRC_URI+="
@@ -67,9 +67,6 @@ MY_L10N=( cs da de el es fi fr hu id it ko mk nb nl pl pt-BR ro ru sr sv uk vi )
 IUSE="l10n_ja l10n_ru l10n_zh-CN ${MY_L10N[@]/#/l10n_}"
 RESTRICT="binchecks"
 
-BDEPEND+="
-	app-alternatives/bc
-"
 # Block packages that used to install colliding man pages:
 # bug #341953, bug #548900, bug #612640, bug #617462
 RDEPEND="
@@ -97,11 +94,8 @@ src_unpack() {
 	fi
 
 	if [[ ${PV} != *_rc* ]] && ! [[ ${MAN_PAGES_GENTOO_DIST} -eq 1 ]] && use verify-sig ; then
-		# Upstream sign the decompressed .tar
-		einfo "Unpacking ${P}.tar.xz ..."
-		verify-sig_verify_detached - "${DISTDIR}"/${P}.tar.sign \
-			< <(xz -cd "${DISTDIR}"/${P}.tar.xz | tee >(tar -xf -))
-		assert "Unpack failed"
+		verify-sig_uncompress_verify_unpack "${DISTDIR}"/${P}.tar.xz \
+			"${DISTDIR}"/${P}.tar.sign
 
 		unpack man-pages-gentoo-${GENTOO_PATCH}.tar.bz2
 	else
