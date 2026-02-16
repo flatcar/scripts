@@ -24,7 +24,7 @@ S=${WORKDIR}/${MY_P}/backend
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -96,6 +96,6 @@ python_test() {
 		tests/backend/builders/test_binary.py::TestBuildBootstrap::test_no_cargo
 	)
 
-	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-	epytest -p pytest_mock tests/backend
+	local EPYTEST_PLUGINS=( pytest-mock )
+	epytest tests/backend
 }
