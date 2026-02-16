@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -23,7 +23,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="+alternatives bzip2 doc ldap nls readline selinux +smartcard ssl test +tofu tpm tools usb user-socket wks-server"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="test? ( tofu )"
@@ -71,6 +71,8 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
+	"${FILESDIR}"/0001-Fix-stub-functions-to-avoid-LTO-linking-bugs.patch
+	"${FILESDIR}"/0002-Fix-stub-functions-to-avoid-LTO-linking-bugs-followup.patch
 )
 
 src_prepare() {
@@ -103,9 +105,6 @@ src_prepare() {
 }
 
 my_src_configure() {
-	# Upstream don't support LTO, bug #854222.
-	filter-lto
-
 	local myconf=(
 		$(use_enable bzip2)
 		$(use_enable nls)
@@ -194,9 +193,6 @@ my_src_install() {
 		echo ".so man1/gpg.1" > "${ED}"/usr/share/man/man1/gpg2.1 || die
 		echo ".so man1/gpgv.1" > "${ED}"/usr/share/man/man1/gpgv2.1 || die
 	fi
-
-	dodir /etc/env.d
-	echo "CONFIG_PROTECT=/usr/share/gnupg/qualified.txt" >> "${ED}"/etc/env.d/30gnupg || die
 
 	use doc && dodoc doc/gnupg.html/*
 }
