@@ -1,9 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..12} )
+PYTHON_COMPAT=( python3_{11..14} )
 DISTUTILS_EXT=1
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
@@ -17,7 +17,7 @@ S="${WORKDIR}/${PN}-${P}"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ppc64 ~riscv x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
 IUSE="python test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -37,10 +37,6 @@ BDEPEND="
 	)
 	test? ( dev-libs/check )
 "
-
-PATCHES=(
-	"${FILESDIR}/${PN}-1.18.0-fix-incompatible-function-pointer.patch"
-)
 
 DOCS=( README.md THANKS )
 
