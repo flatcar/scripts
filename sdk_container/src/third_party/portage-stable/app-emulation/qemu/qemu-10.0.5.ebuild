@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -13,7 +13,7 @@ QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{12..13} )
 PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 inherit eapi9-ver flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps \
@@ -44,7 +44,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc ppc64 ~riscv x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -294,6 +294,7 @@ BDEPEND="
 	dev-python/distlib[${PYTHON_USEDEP}]
 	dev-lang/perl
 	>=dev-build/meson-0.63.0
+	>=dev-util/gdbus-codegen-2.80.5-r1
 	app-alternatives/ninja
 	virtual/pkgconfig
 	doc? (
@@ -421,7 +422,7 @@ pkg_pretend() {
 			use test && CONFIG_CHECK+=" IP_MULTICAST"
 			ERROR_IP_MULTICAST="Test suite requires IP_MULTICAST"
 
-			if use amd64 || use x86 || use amd64-linux || use x86-linux; then
+			if use amd64 || use x86; then
 				if grep -q AuthenticAMD /proc/cpuinfo; then
 					CONFIG_CHECK+=" ~KVM_AMD"
 				elif grep -q GenuineIntel /proc/cpuinfo; then
