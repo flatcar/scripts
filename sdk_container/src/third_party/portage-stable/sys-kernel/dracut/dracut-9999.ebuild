@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -22,11 +22,15 @@ HOMEPAGE="https://github.com/dracut-ng/dracut-ng/wiki"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="dracut-cpio selinux test"
+IUSE="dracut-cpio selinux systemd test"
 RESTRICT="test"
 PROPERTIES="test? ( test_privileged test_network )"
 
-RDEPEND="
+COMMON_DEPEND="
+	>=sys-apps/kmod-23
+	systemd? ( >=sys-apps/systemd-257:= )
+"
+RDEPEND="${COMMON_DEPEND}
 	app-alternatives/cpio
 	>=app-shells/bash-4.0:0
 	sys-apps/coreutils[xattr(-)]
@@ -48,15 +52,14 @@ RDEPEND="
 		sys-libs/libsepol
 	)
 "
-DEPEND="
-	>=sys-apps/kmod-23
+DEPEND="${COMMON_DEPEND}
 	elibc_musl? ( sys-libs/fts-standalone )
 "
 
 BDEPEND="
 	|| (
-		dev-ruby/asciidoctor
 		app-text/asciidoc
+		dev-ruby/asciidoctor
 	)
 	app-text/docbook-xml-dtd:4.5
 	>=app-text/docbook-xsl-stylesheets-1.75.2
@@ -102,9 +105,7 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
 	# Gentoo specific acct-user and acct-group conf adjustments
-	"${FILESDIR}"/${PN}-108-acct-user-group-gentoo.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1122#issuecomment-3192110686
-	"${FILESDIR}"/${PN}-108-disable-ukify-magic.patch
+	"${FILESDIR}"/${PN}-110-acct-user-group-gentoo.patch
 )
 
 pkg_setup() {
@@ -128,6 +129,9 @@ src_configure() {
 	append-cflags -D_FILE_OFFSET_BITS=64
 
 	tc-export CC PKG_CONFIG
+
+	# https://bugs.gentoo.org/968765
+	use systemd || export SYSTEMD_CFLAGS= SYSTEMD_LIBS=
 
 	edo ./configure "${myconf[@]}"
 	if use dracut-cpio; then
