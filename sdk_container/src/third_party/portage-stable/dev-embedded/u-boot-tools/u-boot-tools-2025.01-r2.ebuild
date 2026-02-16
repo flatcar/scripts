@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -21,6 +21,7 @@ IUSE="envtools"
 RDEPEND="
 	dev-libs/openssl:=
 	net-libs/gnutls:=
+	>=sys-apps/dtc-1.4.6
 	sys-apps/util-linux:=
 "
 DEPEND="${RDEPEND}"
@@ -30,6 +31,10 @@ BDEPEND="
 	app-alternatives/lex
 	virtual/pkgconfig
 "
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2025.01-no-bundled-dtc.patch
+)
 
 src_prepare() {
 	default
@@ -55,10 +60,12 @@ src_compile() {
 		HOSTCC="${BUILD_CC}"
 		HOSTCFLAGS="${BUILD_CFLAGS} ${BUILD_CPPFLAGS}"' $(HOSTCPPFLAGS)'
 		HOSTLDFLAGS="${BUILD_LDFLAGS}"
+		DTC="dtc"
+		# Provided by sys-apps/dtc[python]
+		NO_PYTHON=1
 	)
 
 	emake "${myemakeargs[@]}" tools-only_defconfig
-
 	emake "${myemakeargs[@]}" \
 		NO_SDL=1 \
 		HOSTSTRIP=: \
