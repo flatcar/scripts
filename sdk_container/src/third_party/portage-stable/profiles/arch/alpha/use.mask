@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
@@ -14,7 +14,6 @@ flatpak
 
 # matoro <matoro_gentoo@matoro.tk> (2023-11-14)
 # Qt is not keyworded here
-qt5
 qt6
 
 # matoro <matoro_gentoo@matoro.tk> (2023-06-17)
@@ -78,7 +77,6 @@ luajittex
 
 # Tobias Klausmann <klausman@gentoo.org> (2016-06-07)
 # We currently do not have the resources to AT qt5 packages.
-# This may change when/if qt4 goes away.
 qt5
 
 # This file masks out USE flags that are simply NOT allowed in the default
@@ -112,7 +110,6 @@ dmi
 
 # Stuff that doesn't work on alpha, or not tested
 clang
-djbfft
 hardened
 mecab
 netbeans
@@ -148,14 +145,9 @@ gts
 # Needs to be tested
 video_cards_nouveau
 
-# Ben de Groot <yngwin@gentoo.org> (2009-02-11)
-# Both dev-qt/qtphonon and media-sound/phonon are unkeyworded
-phonon
-
 # Raúl Porcel <armin76@gentoo.org> (2007-05-14)
 # Alpha doesn't have wpa_supplicant keyworded, bug 175714
 networkmanager
-
 
 # alpha doesn't have java support
 java

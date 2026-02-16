@@ -1,8 +1,12 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
 -m68k
+
+# James Le Cuirot <chewi@gentoo.org> (2025-11-22)
+# Vala looks like it would work well enough, but m68k doesn't need it.
+vala
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-06-12)
 # x11-drivers/xf86-input-wacom is not keyworded here
@@ -37,6 +41,7 @@ vim-syntax
 # James Le Cuirot <chewi@gentoo.org> (2022-01-01)
 # Hardware that probably doesn't apply to m68k.
 input_devices_elographics
+tpm
 video_cards_amdgpu
 video_cards_mga
 video_cards_nouveau
@@ -129,7 +134,6 @@ cups
 dbus
 devil
 diet
-djbfft
 djvu
 emacs
 emf
@@ -157,14 +161,3 @@ slang
 tcl
 tk
 xemacs
-
-# Andreas K. Hüttel <dilfridge@gentoo.org>
-# Requires 32bit alignment, so we mask it for the moment
-python_targets_python3_13
-python_targets_python3_13t
-python_targets_python3_14
-python_targets_python3_14t
-python_single_target_python3_13
-python_single_target_python3_13t
-python_single_target_python3_14
-python_single_target_python3_14t

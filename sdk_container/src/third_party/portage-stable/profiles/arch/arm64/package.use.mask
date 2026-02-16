@@ -1,5 +1,17 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Fabian Groffen <grobian@gentoo.org> (2026-02-11)
+# bitwarden-cli is not available for linux-arm64
+app-admin/vaultwarden cli
+
+# Ionen Wolkens <ionen@gentoo.org> (2026-02-11)
+# net-libs/librist is available here
+media-video/ffmpeg -rist
+
+# Sam James <sam@gentoo.org> (2025-12-23)
+# sys-process/numactl is available here
+sys-fs/fuse -io-uring
 
 # Michał Górny <mgorny@gentoo.org> (2025-11-01)
 # app-crypt/sequoia-chameleon-gnupg is keyworded here.
@@ -42,10 +54,6 @@ sci-libs/flexiblas -blis -openblas
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-08-16)
 # dev-games/ogre is not keyworded here
 >=dev-games/mygui-3.4.1 ogre
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-08-06)
-# aarch64 supports sframe
->=sys-libs/glibc-2.42 -sframe
 
 # Ionen Wolkens <ionen@gentoo.org> (2025-08-01)
 # dev-qt/qtlanguageserver:6 is keyworded here
@@ -120,10 +128,6 @@ dev-python/pyside -webview
 # Eli Schwartz <eschwartz@gentoo.org> (2025-01-27)
 # Dependencies e.g. pypy keyworded (not stable) here.
 dev-build/meson -test-full
-
-# Sv. Lockal <lockalsash@gmail.com> (2025-01-11)
-# dev-cpp/prometheus-cpp is not keyworded
-dev-cpp/opentelemetry-cpp prometheus
 
 # Michał Górny <mgorny@gentoo.org> (2024-12-24)
 # OpenMP offloading is supported on 64-bit architectures only.
@@ -354,10 +358,6 @@ llvm-runtimes/compiler-rt-sanitizers -ubsan -safestack -cfi -scudo
 llvm-runtimes/compiler-rt-sanitizers -gwp-asan -shadowcallstack
 llvm-runtimes/compiler-rt-sanitizers -libfuzzer -profile -xray -rtsan
 >=llvm-runtimes/compiler-rt-sanitizers-16 -orc
-
-# Roy Bamford <neddyseagoon@gentoo.org> (2020-12-07)
-# media-libs/liblastfm fails to build with tests Bug #758896
-media-sound/clementine lastfm
 
 # Sam James <sam@gentoo.org> (2020-10-03)
 # Builds & tests pass on arm64.

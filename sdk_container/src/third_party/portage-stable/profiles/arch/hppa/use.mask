@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
@@ -6,13 +6,6 @@
 
 # NOTE: When masking a USE flag due to missing keywords, please file a keyword
 # request bug for the hppa arch.
-
-# Sam James <sam@gentoo.org> (2025-11-05)
-# Fails to build on HPPA (stack size calculation goes wrong), bug #959416.
-python_targets_python3_14
-python_targets_python3_14t
-python_single_target_python3_14
-python_single_target_python3_14t
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2025-06-12)
 # x11-drivers/xf86-input-wacom is not keyworded here
@@ -269,7 +262,6 @@ pda
 # all of these are binary-only, and not presently available on this
 # architecture.
 ibm
-djbfft
 
 # Added because of xmms-plugin.eclass.  Please test out
 # media-sound/beep-media-player and remove if
