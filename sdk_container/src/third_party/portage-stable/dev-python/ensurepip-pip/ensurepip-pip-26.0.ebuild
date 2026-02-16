@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -29,7 +29,7 @@ S=${WORKDIR}/${MY_P}
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test test-rust"
 RESTRICT="!test? ( test )"
 
@@ -83,7 +83,7 @@ python_prepare_all() {
 	local PATCHES=(
 		# remove coverage & pytest-subket wheel expectation from test suite
 		# (from dev-python/pip)
-		"${FILESDIR}/pip-25.2-test-wheels.patch"
+		"${FILESDIR}/pip-26.0-test-wheels.patch"
 	)
 
 	distutils-r1_python_prepare_all
@@ -159,6 +159,8 @@ python_test() {
 				tests/functional/test_install_config.py::test_prompt_for_authentication
 				# wrong path
 				tests/functional/test_install.py::test_install_editable_with_prefix_setup_py
+				# wrong exception assumptions
+				tests/unit/test_utils_datetime.py::test_parse_iso_datetime_invalid
 			)
 			;;
 	esac
