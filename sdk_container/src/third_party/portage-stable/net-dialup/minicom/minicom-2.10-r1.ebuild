@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,7 +11,7 @@ SRC_URI="https://salsa.debian.org/${PN}-team/${PN}/-/archive/${PV}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="nls"
 
 DEPEND="sys-libs/ncurses:="
@@ -33,6 +33,12 @@ PATCHES=(
 
 src_prepare() {
 	default
+
+	# Drop a little while after glibc-2.42 is stable (bug #969713)
+	if ! has_version "sys-libs/glibc" || has_version ">=sys-libs/glibc-2.42" ; then
+		eapply "${FILESDIR}"/${PN}-2.10-glibc-2.42.patch
+	fi
+
 	eautoreconf
 }
 
