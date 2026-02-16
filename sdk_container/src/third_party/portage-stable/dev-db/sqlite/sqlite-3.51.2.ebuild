@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -19,12 +19,12 @@ else
 	#printf -v DOC_PV "%u%02u%02u00" $(ver_rs 1-3 " ")
 
 	SRC_URI="
-		https://sqlite.org/2025/${PN}-src-${SRC_PV}.zip
-		doc? ( https://sqlite.org/2025/${PN}-doc-${DOC_PV}.zip )
+		https://sqlite.org/2026/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2026/${PN}-doc-${DOC_PV}.zip )
 	"
 	S="${WORKDIR}/${PN}-src-${SRC_PV}"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="public-domain"
