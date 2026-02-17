@@ -9,11 +9,11 @@ inherit python-any-r1 systemd tmpfiles
 RTM_NAME="NSS_${PV//./_}_RTM"
 MY_PN="nss"
 MY_P="${MY_PN}-${PV}"
-S="${WORKDIR}"
+S="${WORKDIR}/${MY_PN}-${RTM_NAME}"
 
 DESCRIPTION="Mozilla's CA Certificate Store"
 HOMEPAGE="http://www.mozilla.org/en-US/about/governance/policies/security-group/certs/"
-SRC_URI="https://archive.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/${MY_P}.tar.gz"
+SRC_URI="https://github.com/nss-dev/nss/archive/refs/tags/${RTM_NAME}.tar.gz -> ${MY_P}.tar.gz"
 
 # NSS is licensed under the MPL, files/certdata2pem.py is GPL
 LICENSE="MPL-2.0 GPL-2"
@@ -68,7 +68,7 @@ gen_tmpfiles() {
 }
 
 src_compile() {
-	local certdata="${MY_P}/nss/lib/ckfw/builtins/certdata.txt"
+	local certdata="${S}/lib/ckfw/builtins/certdata.txt"
 	${PYTHON} "${FILESDIR}/certdata2pem.py" "${certdata}" certs || die
 
 	cd certs || die
