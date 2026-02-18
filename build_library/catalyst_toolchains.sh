@@ -29,8 +29,8 @@ build_target_toolchain() {
     local SYSROOT="/usr/$(get_board_chost "${board}")"
 
     mkdir -p "${ROOT}/usr"
-    cp -at "${ROOT}" "${SYSROOT}"/lib*
-    cp -at "${ROOT}"/usr "${SYSROOT}"/usr/include "${SYSROOT}"/usr/lib*
+    cp -at "${ROOT}" "${SYSROOT}"/lib* "${SYSROOT}"/{bin,sbin}
+    cp -at "${ROOT}"/usr "${SYSROOT}"/usr/{bin,sbin,include} "${SYSROOT}"/usr/lib*
 
     # --root is required because run_merge overrides ROOT=
     PORTAGE_CONFIGROOT="$ROOT" \
