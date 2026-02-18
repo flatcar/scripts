@@ -28,9 +28,25 @@ build_target_toolchain() {
     local ROOT="/build/${board}"
     local SYSROOT="/usr/$(get_board_chost "${board}")"
 
-    mkdir -p "${ROOT}/usr"
-    cp -at "${ROOT}" "${SYSROOT}"/lib* "${SYSROOT}"/{bin,sbin}
-    cp -at "${ROOT}"/usr "${SYSROOT}"/usr/{bin,sbin,include} "${SYSROOT}"/usr/lib*
+    # copy libraries and binaries from sysroot to root - sysroot may
+    # be using split-usr, whereas root does not, so take this into
+    # account
+    (
+        shopt -s nullglob
+        local d f
+        local -a files
+        for d in "${SYSROOT}"/lib* "${SYSROOT}"/usr/lib* "${SYSROOT}"/{usr/,}{bin,sbin}; do
+            if [[ ! -d ${d} ]]; then
+                continue
+            fi
+            files=( "${d}"/* )
+            if [[ ${#files[@]} -gt 0 ]]; then
+                f=${d##*/}
+                cp -at "${ROOT}/usr/${f}" "${files[@]}"
+            fi
+        done
+    )
+    cp -at "${ROOT}"/usr "${SYSROOT}"/usr/include
 
     # --root is required because run_merge overrides ROOT=
     PORTAGE_CONFIGROOT="$ROOT" \
