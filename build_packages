@@ -272,7 +272,7 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   # sys-libs/pam[systemd] -> sys-apps/systemd[pam] -> sys-libs/pam
   #   dropping USE=pam from sys-apps/systemd requires dropping
   #   USE=systemd from sys-auth/pambase
-  # sys-apps/pambase[sssd] -> sys-auth/sssd -> sys-apps/shadow[pam] -> sys-apps/pambase
+  # sys-auth/pambase[sssd] -> sys-auth/sssd -> sys-apps/shadow[pam] -> sys-auth/pambase
   break_dep_loop sys-apps/util-linux cryptsetup,systemd,udev \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 systemd,udev \
@@ -280,7 +280,7 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
                  net-misc/curl http2 \
                  net-libs/nghttp2 systemd \
                  sys-libs/pam systemd \
-                 sys-apps/pambase sssd,systemd
+                 sys-auth/pambase sssd,systemd
 fi
 
 if [[ "${FLAGS_only_resolve_circular_deps}" -eq "${FLAGS_TRUE}" ]]; then
