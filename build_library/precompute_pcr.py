@@ -50,6 +50,7 @@ PCR measurement details (SHA-256):
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 
@@ -987,10 +988,24 @@ def replay_eventlog_simple(eventlog_path, hash_algo='sha256'):
 # ---------------------------------------------------------------------------
 
 
+# Default partition layout values from build_library/disk_layout.json
+DEFAULT_OEM_PARTITION = 'hd0,gpt6'        # partition 6 = OEM
+DEFAULT_USR_UUID = '7130c94a-213a-4e5a-8e26-6cce9662f132'  # partition 3 = USR-A
+
+# @@MOUNTUSR@@ replacements from build_library/grub_install.sh
+MOUNTUSR_VERITY = 'mount.usr=/dev/mapper/usr verity.usr'
+MOUNTUSR_PLAIN = 'mount.usr'
+
+
 def _eval_grub_cfg_from_args(args):
     """Build the evaluated GRUB command list from pcr8-eval CLI args."""
     with open(args.grub_cfg, 'r') as f:
         grub_cfg = f.read()
+
+    # Substitute @@MOUNTUSR@@ if present
+    if '@@MOUNTUSR@@' in grub_cfg:
+        replacement = MOUNTUSR_VERITY if args.verity else MOUNTUSR_PLAIN
+        grub_cfg = grub_cfg.replace('@@MOUNTUSR@@', replacement)
 
     oem_grub_cfg = None
     if args.oem_grub_cfg:
@@ -1060,7 +1075,10 @@ def main():
     p8e = sub.add_parser('pcr8-eval',
                           help='Compute PCR 8 by evaluating grub.cfg')
     p8e.add_argument('--grub-cfg', required=True,
-                     help='Path to grub.cfg (with @@MOUNTUSR@@ replaced)')
+                     help='Path to grub.cfg (@@MOUNTUSR@@ is substituted automatically)')
+    p8e.add_argument('--verity', action=argparse.BooleanOptionalAction,
+                     default=True,
+                     help='Use dm-verity mount.usr (default: --verity)')
     p8e.add_argument('--oem-grub-cfg',
                      help='Path to OEM grub.cfg to source')
     p8e.add_argument('--root', default='hd0,gpt1',
@@ -1068,10 +1086,10 @@ def main():
     p8e.add_argument('--grub-cpu', default='x86_64',
                      choices=['x86_64', 'arm64'],
                      help='CPU architecture (default: x86_64)')
-    p8e.add_argument('--oem-partition',
-                     help='OEM partition device (e.g. hd0,gpt6)')
-    p8e.add_argument('--usr-uuid', required=True,
-                     help='USR partition UUID from gptprio')
+    p8e.add_argument('--oem-partition', default=DEFAULT_OEM_PARTITION,
+                     help='OEM partition device (default: %(default)s)')
+    p8e.add_argument('--usr-uuid', default=DEFAULT_USR_UUID,
+                     help='USR partition UUID from gptprio (default: %(default)s)')
     p8e.add_argument('--first-boot', action='store_true',
                      help='Simulate first boot (first_boot file exists)')
     p8e.add_argument('--menuentry', default='flatcar',
