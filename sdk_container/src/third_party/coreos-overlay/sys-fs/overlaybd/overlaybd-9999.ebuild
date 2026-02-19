@@ -60,7 +60,8 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/0001-Patch-Photon-after-fetching-to-fix-cross-issues.patch
-	"${FILESDIR}"/${PN}-offline-build.patch
+	"${FILESDIR}"/0002-overlaybd-offline-build.patch
+	"${FILESDIR}"/0003-Fix-build-with-gcc15.patch
 )
 
 src_prepare() {
