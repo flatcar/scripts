@@ -1,0 +1,28 @@
+From 2d718a67568588d6f98cb536142fa5c8be1c0475 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Thu, 19 Feb 2026 12:46:14 +0100
+Subject: [PATCH 3/3] Fix build with gcc15
+
+uint32_t stopped being brought in indirectly through some other header
+files in gcc 15.
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ src/prefetch.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/prefetch.h b/src/prefetch.h
+index da778d5..3e91564 100644
+--- a/src/prefetch.h
++++ b/src/prefetch.h
+@@ -16,6 +16,7 @@ limitations under the License.
+ #pragma once
+ 
+ #include <cctype>
++#include <cstdint>
+ #include <string>
+ #include <photon/fs/filesystem.h>
+ 
+-- 
+2.52.0
+

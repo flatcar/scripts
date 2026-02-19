@@ -1,3 +1,30 @@
+From 8df6807f569ebca98678d6ca5370d3575f469181 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 19 Feb 2026 12:45:13 +0100
+Subject: [PATCH 2/3] overlaybd-offline-build
+
+---
+ CMake/{Findcurl.cmake => FindCURL.cmake}      |  6 ++---
+ .../{Findopenssl.cmake => FindOpenSSL.cmake}  |  4 +---
+ CMake/FindRapidJSON.cmake                     | 19 ++++++++++++++++
+ CMake/Finde2fs.cmake                          |  4 +---
+ CMake/Findphoton.cmake                        |  4 ++--
+ CMake/Findrapidjson.cmake                     | 12 ----------
+ CMakeLists.txt                                | 22 +++++++++++--------
+ src/CMakeLists.txt                            | 10 ++++-----
+ src/overlaybd/CMakeLists.txt                  |  5 ++++-
+ .../cache/ocf_cache/test/CMakeLists.txt       |  2 +-
+ src/overlaybd/registryfs/CMakeLists.txt       |  4 ++--
+ src/overlaybd/stream_convertor/CMakeLists.txt |  2 +-
+ src/overlaybd/tar/erofs/test/CMakeLists.txt   |  4 ++--
+ src/test/CMakeLists.txt                       |  6 ++---
+ src/tools/CMakeLists.txt                      |  4 ++--
+ 15 files changed, 58 insertions(+), 50 deletions(-)
+ rename CMake/{Findcurl.cmake => FindCURL.cmake} (95%)
+ rename CMake/{Findopenssl.cmake => FindOpenSSL.cmake} (96%)
+ create mode 100644 CMake/FindRapidJSON.cmake
+ delete mode 100644 CMake/Findrapidjson.cmake
+
 diff --git a/CMake/Findcurl.cmake b/CMake/FindCURL.cmake
 similarity index 95%
 rename from CMake/Findcurl.cmake
@@ -77,10 +104,10 @@ index 15c58fd..e5615a2 100644
  
          add_custom_command(
 diff --git a/CMake/Findphoton.cmake b/CMake/Findphoton.cmake
-index c905bd9..cdc72d2 100644
+index 5507f66..e00b939 100644
 --- a/CMake/Findphoton.cmake
 +++ b/CMake/Findphoton.cmake
-@@ -17,8 +17,8 @@ else()
+@@ -18,8 +18,8 @@ else()
  endif()
  
  if (BUILD_CURL_FROM_SOURCE)
@@ -181,10 +208,10 @@ index 4d0e696..69652f3 100644
  )
  target_link_libraries(overlaybd-tcmu
 diff --git a/src/overlaybd/CMakeLists.txt b/src/overlaybd/CMakeLists.txt
-index 1c5a912..af095b7 100644
+index fd57ee2..3328b43 100644
 --- a/src/overlaybd/CMakeLists.txt
 +++ b/src/overlaybd/CMakeLists.txt
-@@ -6,7 +6,10 @@ add_subdirectory(cache)
+@@ -5,7 +5,10 @@ add_subdirectory(cache)
  add_subdirectory(tar)
  add_subdirectory(gzip)
  add_subdirectory(gzindex)
@@ -310,3 +337,6 @@ index b551b84..ecf5c32 100644
  target_link_libraries(turboOCI-apply photon_static overlaybd_lib overlaybd_image_lib)
  set_target_properties(turboOCI-apply PROPERTIES INSTALL_RPATH "/opt/overlaybd/lib")
  
+-- 
+2.52.0
+
