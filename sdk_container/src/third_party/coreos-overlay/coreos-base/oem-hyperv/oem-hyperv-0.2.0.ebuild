@@ -16,7 +16,7 @@ RDEPEND="
   app-emulation/hv-daemons
 "
 
-OEM_NAME="Microsoft Hyper-V"
+SYSEXT_NAME="Microsoft Hyper-V"
 
 # no source directory
 S="${WORKDIR}"

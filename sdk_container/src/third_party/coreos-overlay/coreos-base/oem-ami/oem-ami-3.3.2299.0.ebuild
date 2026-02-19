@@ -20,7 +20,7 @@ RDEPEND="
 "
 
 # for coreos-base/common-oem-files
-OEM_NAME="Amazon EC2"
+SYSEXT_NAME="Amazon EC2"
 
 S="${WORKDIR}"
 

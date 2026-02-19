@@ -22,7 +22,7 @@ RDEPEND="
 S="${WORKDIR}"
 
 # for coreos-base/common-oem-files
-OEM_NAME="VMware"
+SYSEXT_NAME="VMware"
 
 src_install() {
 	local unit_dir

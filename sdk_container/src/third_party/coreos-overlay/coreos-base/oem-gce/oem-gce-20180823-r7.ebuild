@@ -23,7 +23,7 @@ RDEPEND="
     app-emulation/google-compute-engine
 "
 
-OEM_NAME="Google Compute Engine"
+SYSEXT_NAME="Google Compute Engine"
 
 src_install() {
     systemd_dounit "${FILESDIR}/units/oem-gce.service"

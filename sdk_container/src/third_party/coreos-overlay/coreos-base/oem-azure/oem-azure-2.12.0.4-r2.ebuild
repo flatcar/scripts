@@ -23,7 +23,7 @@ RDEPEND="
 "
 
 # for coreos-base/common-oem-files
-OEM_NAME="Microsoft Azure"
+SYSEXT_NAME="Microsoft Azure"
 
 S="${WORKDIR}"
 

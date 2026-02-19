@@ -12,4 +12,4 @@ SLOT="0"
 KEYWORDS="amd64 arm64"
 IUSE=""
 
-OEM_NAME="DigitalOcean"
+SYSEXT_NAME="DigitalOcean"

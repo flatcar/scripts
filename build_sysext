@@ -93,8 +93,8 @@ switch_to_strict_mode -uo pipefail
 
 # Validate command line parameters
 
-SYSEXTNAME="${1:-}"
-if [[ -z "${SYSEXTNAME}" ]]; then
+SYSEXT_ID="${1:-}"
+if [[ -z "${SYSEXT_ID}" ]]; then
   die "No sysext name provided."
 fi
 shift
@@ -216,7 +216,7 @@ if [[ ${#} -lt 1 ]]; then
    show_help_if_requested -h
 fi
 
-info "Building '${SYSEXTNAME}' sysext with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
+info "Building '${SYSEXT_ID}' sysext with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
 
 for package; do
   echo "Installing package into sysext image: $package"
@@ -232,6 +232,13 @@ for package; do
     "${package}"
 done
 
+# If there's only one package, grab its metadata for the sysext.
+unset PVR HOMEPAGE SYSEXT_NAME
+if [[ ${#} -eq 1 ]]; then
+  CPV=$(portageq best_version "${BUILD_DIR}/${FLAGS_install_root_basename}" "$1")
+  IFS=$'\n' read -r -d '' PVR HOMEPAGE SYSEXT_NAME < <(portageq metadata "${BUILD_DIR}/${FLAGS_install_root_basename}" installed "${CPV}" PVR HOMEPAGE SYSEXT_NAME; printf '\0')
+fi
+
 # Make squashfs generation more reproducible.
 export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release")
 
@@ -240,16 +247,16 @@ umount "${BUILD_DIR}/${FLAGS_install_root_basename}"
 umount "${BUILD_DIR}/fs-root"
 
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
-  info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
+  info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXT_ID}_pkginfo.raw'"
   mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
   cp -R "${BUILD_DIR}/${FLAGS_install_root_basename}/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
-  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" \
+  mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXT_ID}_pkginfo.raw" \
               -noappend -xattrs-exclude '^btrfs.' -comp zstd -Xcompression-level 22 -b 512k
 fi
 
-info "Writing ${SYSEXTNAME}_packages.txt"
+info "Writing ${SYSEXT_ID}_packages.txt"
 ROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" PORTAGE_CONFIGROOT="/build/${FLAGS_board}" \
-      equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+      equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXT_ID}_packages.txt"
 
 
 if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
@@ -283,11 +290,16 @@ for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   rm -rf "${entry}"
 done
 
-grep . <<EOF | install -m0644 -D /dev/stdin "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
+grep . <<EOF | install -m0644 -D /dev/stdin "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXT_ID}"
 ID='flatcar'
 ${VERSION_FIELD_OVERRIDE:-VERSION_ID}=${FLATCAR_VERSION_ID@Q}
 ARCHITECTURE=${ARCH@Q}
 EXTENSION_RELOAD_MANAGER=1
+SYSEXT_ID=${SYSEXT_ID@Q}
+${SYSEXT_NAME:+SYSEXT_NAME=${SYSEXT_NAME@Q}}
+${PVR:+SYSEXT_VERSION_ID=${PVR@Q}}
+${HOMEPAGE:+SYSEXT_HOME_URL=${HOMEPAGE@Q}}
+SYSEXT_BUG_REPORT_URL='https://issues.flatcar.org'
 EOF
 
 info "Removing opaque directory markers to always merge all contents"
@@ -323,7 +335,7 @@ systemd-repart \
   --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
   --make-ddi=sysext \
   --copy-source="${BUILD_DIR}/${FLAGS_install_root_basename}" \
-  "${BUILD_DIR}/${SYSEXTNAME}.raw"
+  "${BUILD_DIR}/${SYSEXT_ID}.raw"
 
 rm -rf "${BUILD_DIR}"/{fs-root,"${FLAGS_install_root_basename}",workdir}
 
@@ -333,10 +345,10 @@ systemd-dissect --read-only \
   --mount \
   --mkdir \
   --image-policy='root=encrypted+unprotected+absent:usr=encrypted+unprotected+absent' \
-  "${BUILD_DIR}/${SYSEXTNAME}.raw" \
+  "${BUILD_DIR}/${SYSEXT_ID}.raw" \
   "${BUILD_DIR}/img-rootfs"
 
-write_contents "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents.txt"
-write_contents_with_technical_details "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents_wtd.txt"
-write_disk_space_usage_in_paths "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_disk_usage.txt"
+write_contents "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXT_ID}_contents.txt"
+write_contents_with_technical_details "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXT_ID}_contents_wtd.txt"
+write_disk_space_usage_in_paths "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXT_ID}_disk_usage.txt"
 systemd-dissect --umount --rmdir "${BUILD_DIR}/img-rootfs"

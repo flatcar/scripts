@@ -20,7 +20,7 @@ RDEPEND="
 
 S="${WORKDIR}"
 
-OEM_NAME="STACKIT"
+SYSEXT_NAME="STACKIT"
 
 src_install() {
     systemd_install_dropin chronyd.service "${FILESDIR}"/chronyd-overwrite.conf

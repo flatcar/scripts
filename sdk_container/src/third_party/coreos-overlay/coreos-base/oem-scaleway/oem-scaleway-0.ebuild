@@ -12,4 +12,4 @@ SLOT="0"
 KEYWORDS="amd64 arm64"
 IUSE=""
 
-OEM_NAME="Scaleway"
+SYSEXT_NAME="Scaleway"

@@ -97,9 +97,9 @@ src_compile() {
     if [[ -z "${version}" ]]; then
         die "Could not deduce a version from ebuild ${ebuild##*/} (${ebuild})"
     fi
-    name=$(source <(grep -F 'OEM_NAME=' "${ebuild}"); echo "${OEM_NAME}")
+    name=$(source <(grep -F 'SYSEXT_NAME=' "${ebuild}"); echo "${SYSEXT_NAME}")
     if [[ -z "${name}" ]]; then
-        die "Missing OEM_NAME variable in ${ebuild##*/}"
+        die "Missing SYSEXT_NAME variable in ${ebuild##*/}"
     fi
     # We need to prefix the HOMEPAGE variable with SYSEXT_, because
     # portage marks HOMEPAGE as readonly and this gets propagated to
