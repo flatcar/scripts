@@ -282,15 +282,13 @@ for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   info "  Removing ${entry##*/}"
   rm -rf "${entry}"
 done
-mkdir -p "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d"
-version_field="${VERSION_FIELD_OVERRIDE:-VERSION_ID=${FLATCAR_VERSION_ID}}"
-all_fields=(
-  'ID=flatcar'
-  "${version_field}"
-  "ARCHITECTURE=${ARCH}"
-  "EXTENSION_RELOAD_MANAGER=1"
-)
-printf '%s\n' "${all_fields[@]}" >"${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
+
+grep . <<EOF | install -m0644 -D /dev/stdin "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXTNAME}"
+ID='flatcar'
+${VERSION_FIELD_OVERRIDE:-VERSION_ID}=${FLATCAR_VERSION_ID@Q}
+ARCHITECTURE=${ARCH@Q}
+EXTENSION_RELOAD_MANAGER=1
+EOF
 
 info "Removing opaque directory markers to always merge all contents"
 find "${BUILD_DIR}/${FLAGS_install_root_basename}" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
