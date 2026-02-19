@@ -192,13 +192,15 @@ def load_commands_file(filepath):
     """Load GRUB commands from a text file (one command per line).
 
     Empty lines and lines starting with '#' are skipped.
+    Literal '\\n' sequences are unescaped back to newlines to support
+    multi-line commands (e.g. menuentry blocks) produced by --print-commands.
     """
     commands = []
     with open(filepath, 'r') as f:
         for line in f:
             line = line.rstrip('\n')
             if line and not line.startswith('#'):
-                commands.append(line)
+                commands.append(line.replace('\\n', '\n'))
     return commands
 
 
@@ -1121,7 +1123,7 @@ def main():
         commands = _eval_grub_cfg_from_args(args)
         if args.print_commands:
             for cmd in commands:
-                print(cmd)
+                print(cmd.replace('\n', '\\n'))
         else:
             results['pcr8'] = compute_pcr8(commands, args.algo)
 
