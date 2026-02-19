@@ -367,76 +367,6 @@ class GrubEvaluator:
                 i += 1
         return ''.join(result)
 
-    def _expand_to_words(self, s):
-        """Expand variables and remove quotes, returning word-split list.
-
-        Unquoted variable expansions are subject to word splitting
-        (whitespace-separated). Quoted sections are not split.
-        Returns a list of strings (words).
-        """
-        # Build segments: each is (text, splittable)
-        segments = []
-        i = 0
-        while i < len(s):
-            if s[i] == '"':
-                # Double-quoted: no word splitting
-                parts = []
-                i += 1
-                while i < len(s) and s[i] != '"':
-                    if s[i] == '$':
-                        val, consumed = self._expand_var(s, i)
-                        parts.append(val)
-                        i += consumed
-                    else:
-                        parts.append(s[i])
-                        i += 1
-                if i < len(s):
-                    i += 1
-                segments.append((''.join(parts), False))
-            elif s[i] == "'":
-                # Single-quoted: no word splitting
-                parts = []
-                i += 1
-                while i < len(s) and s[i] != "'":
-                    parts.append(s[i])
-                    i += 1
-                if i < len(s):
-                    i += 1
-                segments.append((''.join(parts), False))
-            elif s[i] == '$':
-                # Unquoted variable: subject to word splitting
-                val, consumed = self._expand_var(s, i)
-                segments.append((val, True))
-                i += consumed
-            else:
-                # Unquoted literal
-                j = i
-                while j < len(s) and s[j] not in ('"', "'", '$'):
-                    j += 1
-                segments.append((s[i:j], False))
-                i = j
-
-        # Concatenate segments, tracking which chars are splittable
-        full = []
-        splittable = []
-        for text, is_split in segments:
-            full.extend(text)
-            splittable.extend([is_split] * len(text))
-
-        # Word-split: split on whitespace in splittable regions
-        words = []
-        current = []
-        for ch, sp in zip(full, splittable):
-            if sp and ch in (' ', '\t'):
-                if current:
-                    words.append(''.join(current))
-                    current = []
-            else:
-                current.append(ch)
-        if current:
-            words.append(''.join(current))
-        return words
-
     def _expand_var(self, s, i):
         """Expand a variable reference starting at position i.
 
@@ -507,96 +437,44 @@ class GrubEvaluator:
     def _eval_test(self, args):
         """Evaluate a [ ... ] test expression.
 
-        Handles: -n, -z, -f, -a (AND), -o (OR), =, !=, -ne, -eq
+        Supports: -n, -z, -f, =, !=, -ne, -a (AND), -o (OR).
+        In the Flatcar grub.cfg only simple two/three-arg tests
+        are used, combined with -a and -o.
         """
-        # Remove trailing ]
         if args and args[-1] == ']':
             args = args[:-1]
 
-        # Split on -o (OR) first
-        or_groups = []
-        current = []
-        for a in args:
-            if a == '-o':
-                or_groups.append(current)
-                current = []
-            else:
-                current.append(a)
-        or_groups.append(current)
+        def _single(a):
+            if len(a) == 2 and a[0] == '-n':
+                return a[1] != ''
+            if len(a) == 2 and a[0] == '-z':
+                return a[1] == ''
+            if len(a) == 2 and a[0] == '-f':
+                return a[1] in self.existing_files
+            if len(a) == 3 and a[1] == '=':
+                return a[0] == a[2]
+            if len(a) == 3 and a[1] == '!=':
+                return a[0] != a[2]
+            if len(a) == 3 and a[1] == '-ne':
+                try:
+                    return int(a[0]) != int(a[2])
+                except ValueError:
+                    return True
+            return len(a) == 1 and a[0] != ''
 
-        for group in or_groups:
-            if self._eval_and_group(group):
-                return True
-        return False
+        def _split(lst, sep):
+            groups, cur = [], []
+            for x in lst:
+                if x == sep:
+                    groups.append(cur); cur = []
+                else:
+                    cur.append(x)
+            groups.append(cur)
+            return groups
 
-    def _eval_and_group(self, args):
-        """Evaluate a group of AND-separated test expressions."""
-        and_parts = []
-        current = []
-        for a in args:
-            if a == '-a':
-                and_parts.append(current)
-                current = []
-            else:
-                current.append(a)
-        and_parts.append(current)
-
-        for part in and_parts:
-            if not self._eval_single_test(part):
-                return False
-        return True
-
-    def _eval_single_test(self, args):
-        if not args:
-            return False
-        if len(args) == 2 and args[0] == '-n':
-            return args[1] != ''
-        if len(args) == 2 and args[0] == '-z':
-            return args[1] == ''
-        if len(args) == 2 and args[0] == '-f':
-            return args[1] in self.existing_files
-        if len(args) == 3 and args[1] == '=':
-            return args[0] == args[2]
-        if len(args) == 3 and args[1] == '!=':
-            return args[0] != args[2]
-        if len(args) == 3 and args[1] == '-ne':
-            try:
-                return int(args[0]) != int(args[2])
-            except ValueError:
-                return True
-        if len(args) == 3 and args[1] == '-eq':
-            try:
-                return int(args[0]) == int(args[2])
-            except ValueError:
-                return False
-        # Single arg: true if non-empty
-        if len(args) == 1:
-            return args[0] != ''
-        return False
-
-    def _find_block_end(self, lines, start):
-        """Find matching fi/done/} for a block starting at 'start'.
-
-        Returns (then_lines, elif_parts, else_lines, end_index)
-        for if blocks, or (body_lines, end_index) for { } blocks.
-        """
-        # For if/elif/else/fi blocks
-        depth = 0
-        i = start
-        while i < len(lines):
-            tokens = self._tokenize(lines[i])
-            if not tokens:
-                i += 1
-                continue
-            cmd = tokens[0]
-            if cmd == 'if':
-                depth += 1
-            elif cmd == 'fi':
-                depth -= 1
-                if depth == 0:
-                    return i
-            i += 1
-        return len(lines) - 1
+        return any(
+            all(_single(part) for part in _split(group, '-a'))
+            for group in _split(args, '-o'))
 
     def _parse_if_block(self, lines, start):
         """Parse an if/elif/else/fi block starting at 'start'.
@@ -724,10 +602,7 @@ class GrubEvaluator:
                 # Measure the test command
                 test_str = ' '.join(expanded)
                 self._measure_cmd(test_str)
-                if expanded[0] == '[':
-                    result = self._eval_test(expanded[1:])
-                else:
-                    result = self._run_cmd_for_test(expanded)
+                result = self._eval_test(expanded[1:]) if expanded[0] == '[' else False
                 if result:
                     self._execute(body)
                     break
@@ -772,19 +647,20 @@ class GrubEvaluator:
             return j + 1
 
         # --- regular commands ---
-        # Expand each token with word splitting (unquoted $vars get split)
+        # Expand each token: quoted tokens stay whole, unquoted ones
+        # are subject to word splitting (whitespace in expanded $vars).
         expanded_words = []
         for t in tokens:
-            expanded_words.extend(self._expand_to_words(t))
+            val = self._expand_and_unquote(t)
+            if '"' in t or "'" in t:
+                if val:
+                    expanded_words.append(val)
+            else:
+                expanded_words.extend(val.split())
         cmd_str = ' '.join(expanded_words)
         self._measure_cmd(cmd_str)
         self._handle_cmd(expanded_words)
         return i + 1
-
-    def _run_cmd_for_test(self, tokens):
-        """Run a command used as an if condition, return success/failure."""
-        # For now only [ is used as a test command
-        return False
 
     def _handle_cmd(self, tokens):
         """Handle side effects of a command (variable changes, etc.)."""
