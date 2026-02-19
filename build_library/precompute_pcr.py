@@ -50,95 +50,28 @@ PCR measurement details (SHA-256):
 import argparse
 import hashlib
 import json
-import struct
+import subprocess
 import sys
 
 
 # ---------------------------------------------------------------------------
-# PE Authenticode hash (Microsoft spec: Windows Authenticode PE Signature)
+# PE Authenticode hash via pesign(1)
 # Used by UEFI firmware to measure EFI binaries into PCR 4.
 # ---------------------------------------------------------------------------
 
 def pe_authenticode_hash(filepath, hash_algo='sha256'):
-    """Compute the PE Authenticode hash of an EFI binary.
+    """Compute the PE Authenticode hash of an EFI binary using pesign(1).
 
-    This hashes the PE file contents excluding the CheckSum field,
-    the Certificate Table directory entry, and the Certificate Table data,
-    matching UEFI firmware behavior for EV_EFI_BOOT_SERVICES_APPLICATION.
+    This invokes 'pesign --hash' which computes the hash per the
+    Microsoft PE Authenticode spec (excluding CheckSum, Certificate Table
+    directory entry, and Certificate Table data), matching UEFI firmware
+    behavior for EV_EFI_BOOT_SERVICES_APPLICATION measurements.
     """
-    with open(filepath, 'rb') as f:
-        data = f.read()
-
-    # DOS header: e_lfanew at offset 0x3c gives PE signature offset
-    pe_offset = struct.unpack_from('<I', data, 0x3c)[0]
-
-    # COFF header starts after PE signature ("PE\0\0", 4 bytes)
-    coff_offset = pe_offset + 4
-    num_sections = struct.unpack_from('<H', data, coff_offset + 2)[0]
-    size_of_optional_header = struct.unpack_from('<H', data, coff_offset + 16)[0]
-
-    optional_offset = coff_offset + 20
-    optional_magic = struct.unpack_from('<H', data, optional_offset)[0]
-
-    # CheckSum is at optional_header + 64 for both PE32 and PE32+
-    checksum_offset = optional_offset + 64
-
-    # Certificate Table directory entry offset differs by PE format
-    if optional_magic == 0x20b:  # PE32+ (64-bit)
-        cert_table_offset = optional_offset + 144
-    elif optional_magic == 0x10b:  # PE32 (32-bit)
-        cert_table_offset = optional_offset + 128
-    else:
-        raise ValueError("Unknown PE optional header magic: 0x%x" % optional_magic)
-
-    # SizeOfHeaders (always at optional_header + 60)
-    size_of_headers = struct.unpack_from('<I', data, optional_offset + 60)[0]
-
-    # Certificate Table VA and size (8 bytes)
-    cert_table_va = 0
-    cert_table_size = 0
-    if cert_table_offset + 8 <= optional_offset + size_of_optional_header:
-        cert_table_va, cert_table_size = struct.unpack_from(
-            '<II', data, cert_table_offset)
-
-    # Section table follows the optional header
-    section_table_offset = optional_offset + size_of_optional_header
-
-    h = hashlib.new(hash_algo)
-
-    # 1. Hash from file start to CheckSum field
-    h.update(data[:checksum_offset])
-    # 2. Skip CheckSum (4 bytes)
-    # 3. Hash from after CheckSum to Certificate Table directory entry
-    h.update(data[checksum_offset + 4:cert_table_offset])
-    # 4. Skip Certificate Table entry (8 bytes)
-    # 5. Hash from after Certificate Table entry to end of headers
-    h.update(data[cert_table_offset + 8:size_of_headers])
-
-    # 6. Hash sections sorted by PointerToRawData
-    sections = []
-    for i in range(num_sections):
-        off = section_table_offset + i * 40
-        raw_size = struct.unpack_from('<I', data, off + 16)[0]
-        raw_ptr = struct.unpack_from('<I', data, off + 20)[0]
-        if raw_size > 0:
-            sections.append((raw_ptr, raw_size))
-    sections.sort(key=lambda s: s[0])
-
-    sum_of_bytes_hashed = size_of_headers
-    for ptr, size in sections:
-        h.update(data[ptr:ptr + size])
-        sum_of_bytes_hashed += size
-
-    # 7. Hash any extra data between sections and certificate table
-    file_size = len(data)
-    extra_end = file_size
-    if cert_table_size > 0:
-        extra_end = cert_table_va
-    if sum_of_bytes_hashed < extra_end:
-        h.update(data[sum_of_bytes_hashed:extra_end])
-
-    return h.hexdigest()
+    result = subprocess.run(
+        ['pesign', '-h', '-i', filepath, '-d', hash_algo],
+        capture_output=True, text=True, check=True)
+    # Output format: "hash: <hex>\n"
+    return result.stdout.strip().split(': ', 1)[1]
 
 
 # ---------------------------------------------------------------------------
