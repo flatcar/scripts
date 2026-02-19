@@ -3,20 +3,13 @@
 
 EAPI=8
 
-DESCRIPTION="OEM suite for Hyper-V"
-HOMEPAGE=""
-SRC_URI=""
+DESCRIPTION="OEM suite for Microsoft Hyper-V"
+HOMEPAGE="https://learn.microsoft.com/windows-server/virtualization/hyper-v/"
 
-LICENSE="Apache-2.0"
+LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE=""
 
-RDEPEND="
-  app-emulation/hv-daemons
-"
+RDEPEND="app-emulation/hv-daemons"
 
 SYSEXT_NAME="Microsoft Hyper-V"
-
-# no source directory
-S="${WORKDIR}"

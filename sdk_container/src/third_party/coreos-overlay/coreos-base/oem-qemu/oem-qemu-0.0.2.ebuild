@@ -5,11 +5,9 @@ EAPI=8
 
 DESCRIPTION="OEM suite for QEMU"
 HOMEPAGE="https://www.qemu.org/"
-SRC_URI=""
 
-LICENSE="GPL-2"
+LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64 arm64"
-IUSE=""
 
 SYSEXT_NAME="QEMU"

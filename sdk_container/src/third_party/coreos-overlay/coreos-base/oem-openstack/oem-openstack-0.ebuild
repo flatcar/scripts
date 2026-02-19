@@ -3,13 +3,11 @@
 
 EAPI=8
 
-DESCRIPTION="OpenStack suite for OpenStack"
+DESCRIPTION="OEM suite for OpenStack"
 HOMEPAGE="https://www.openstack.org/"
-SRC_URI=""
 
-LICENSE="GPL-2"
+LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64 arm64"
-IUSE=""
 
-SYSEXT_NAME="Openstack"
+SYSEXT_NAME="OpenStack"

@@ -12,7 +12,7 @@ coreos:
           [Service]
           Type=oneshot
           StandardOutput=journal+console
-          ExecStart=/oem/bin/cloudstack-ssh-key
+          ExecStart=/usr/bin/cloudstack-ssh-key
       - name: cloudstack-cloudinit.service
         command: restart
         runtime: yes
@@ -25,10 +25,10 @@ coreos:
           [Service]
           Type=oneshot
           EnvironmentFile=/etc/environment
-          ExecStart=/oem/bin/cloudstack-coreos-cloudinit
+          ExecStart=/usr/bin/cloudstack-coreos-cloudinit
     oem:
       id: cloudstack
       name: CloudStack
       version-id: @@OEM_VERSION_ID@@
-      home-url: http://cloudstack.apache.org/
+      home-url: https://cloudstack.apache.org/
       bug-report-url: https://github.com/coreos/coreos-overlay

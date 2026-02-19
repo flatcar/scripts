@@ -1,4 +1,0 @@
-ID=virtualbox
-VERSION_ID=@@OEM_VERSION_ID@@
-NAME="Oracle VirtualBox"
-BUG_REPORT_URL="https://issues.flatcar.org"

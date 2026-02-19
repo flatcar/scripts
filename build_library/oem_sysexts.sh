@@ -20,42 +20,35 @@ get_oem_overlay_root() {
   printf '%s' "${overlay_root}"
 }
 
-_get_oem_ids() {
-  local arch list_var_name
-  arch=${1}; shift
-  list_var_name=${1}; shift
-
-  local overlay_root
-  overlay_root=$(get_oem_overlay_root)
-
-  local -a ebuilds=("${overlay_root}/coreos-base/common-oem-files/common-oem-files-"*'.ebuild')
-  if [[ ${#ebuilds[@]} -eq 0 ]] || [[ ! -e ${ebuilds[0]} ]]; then
-    echo "No coreos-base/common-oem-files ebuilds?!" >&2
-    exit 1
-  fi
-
-  # This defines local COMMON_OEMIDS, AMD64_ONLY_OEMIDS,
-  # ARM64_ONLY_OEMIDS and OEMIDS variable. We don't use the last
-  # one. Also defines global-by-default EAPI, which we make local
-  # here to avoid making it global.
-  local EAPI
-  source "${ebuilds[0]}" flatcar-local-variables
-
-  local -n arch_oemids_ref="${arch^^}_ONLY_OEMIDS"
-  local all_oemids=(
-    "${COMMON_OEMIDS[@]}"
-    "${arch_oemids_ref[@]}"
-  )
-
-  mapfile -t "${list_var_name}" < <(printf '%s\n' "${all_oemids[@]}" | sort)
-}
-
 # Gets a list of OEMs that are using sysexts.
 #
 # 1 - arch
 # 2 - name of an array variable to store the result in
 get_oem_id_list() {
-  _get_oem_ids "$@"
+  local arch=${1}; shift
+  local -n list_var_ref=${1}; shift
+
+  local overlay_root dir ebuild regex
+  overlay_root=$(get_oem_overlay_root)
+
+  for dir in "${overlay_root}"/coreos-base/oem-*; do
+    for ebuild in "${dir}"/*.ebuild; do
+      if [[ ! -e ${ebuild} ]]; then
+        echo "No coreos-base/oem-* ebuilds?!" >&2
+        exit 1
+      fi
+
+      # Check the KEYWORDS by sourcing the ebuild. We can't rely on Portage
+      # because this needs to work outside the SDK. OEM ebuilds are relatively
+      # boring, so this should be sufficient. This doesn't check whether the
+      # KEYWORDS are stable, but that shouldn't matter.
+      regex="\b${arch}\b"
+      if ( set +eu; . "${ebuild}" &>/dev/null; [[ ${KEYWORDS} =~ ${regex} ]] ); then
+        list_var_ref+=( "${dir##*/oem-}" )
+        break
+      fi
+    done
+  done
 }
 
 # Gets a list of OEM sysext descriptors.
@@ -65,19 +58,14 @@ get_oem_id_list() {
 #
 # Format: "name|metapackage|useflags"
 get_oem_sysext_matrix() {
-  local arch list_var_name
-  arch=${1}; shift
-  list_var_name=${1}; shift
+  local arch=${1}; shift
+  declare -n list_var_ref=${1}; shift
 
   local -a oem_ids
-  _get_oem_ids "${arch}" oem_ids
+  get_oem_id_list "${arch}" oem_ids
 
-  local -a matrix=()
   local oem_id
   for oem_id in "${oem_ids[@]}"; do
-    matrix+=("oem-${oem_id}|coreos-base/oem-${oem_id}|")
+    list_var_ref+=( "oem-${oem_id}|coreos-base/oem-${oem_id}|" )
   done
-
-  local -n matrix_ref="${list_var_name}"
-  matrix_ref=("${matrix[@]}")
 }

@@ -39,28 +39,6 @@ VALID_IMG_TYPES=(
     nutanix
 )
 
-#list of oem package names, minus the oem- prefix
-VALID_OEM_PACKAGES=(
-    akamai
-    azure
-    cloudsigma
-    cloudstack
-    digitalocean
-    exoscale
-    gce
-    hetzner
-    hyperv
-    kubevirt
-    openstack
-    proxmoxve
-    qemu
-    scaleway
-    stackit
-    vagrant
-    virtualbox
-    vmware
-)
-
 # Set at runtime to one of the above types
 VM_IMG_TYPE=DEFAULT
 
@@ -82,17 +60,8 @@ VM_GENERATED_FILES=()
 # If set to 0 then a partition skeleton won't be laid out on VM_TMP_IMG
 IMG_DEFAULT_PARTITIONED_IMG=1
 
-# If set install the given package name to the OEM partition
-IMG_DEFAULT_OEM_PACKAGE=
-
-# Forced OEM package name overriding what may be in the format
-IMG_FORCE_OEM_PACKAGE=
-
 # If set install the given package name to the OEM sysext image
 IMG_DEFAULT_OEM_SYSEXT=
-
-# Forced OEM package name overriding what may be in the format
-IMG_FORCE_OEM_SYSEXT=
 
 # Hook to do any final tweaks or grab data while fs is mounted.
 IMG_DEFAULT_FS_HOOK=
@@ -123,8 +92,7 @@ IMG_DEFAULT_CPUS=2
 IMG_qemu_uefi_DISK_FORMAT=qcow2
 IMG_qemu_uefi_DISK_LAYOUT=vm
 IMG_qemu_uefi_CONF_FORMAT=qemu_uefi
-IMG_qemu_uefi_OEM_PACKAGE=common-oem-files
-IMG_qemu_uefi_OEM_SYSEXT=oem-qemu
+IMG_qemu_uefi_OEM_SYSEXT=qemu
 
 ## xen
 IMG_xen_CONF_FORMAT=xl
@@ -133,42 +101,37 @@ IMG_xen_CONF_FORMAT=xl
 IMG_virtualbox_DISK_FORMAT=vmdk_ide
 IMG_virtualbox_DISK_LAYOUT=vm
 IMG_virtualbox_CONF_FORMAT=ovf_virtualbox
-IMG_virtualbox_OEM_PACKAGE=oem-virtualbox
+IMG_virtualbox_OEM_SYSEXT=virtualbox
 
 ## vagrant
-IMG_vagrant_FS_HOOK=box
 IMG_vagrant_BUNDLE_FORMAT=box
 IMG_vagrant_DISK_FORMAT=vmdk_ide
 IMG_vagrant_DISK_LAYOUT=vagrant
 IMG_vagrant_CONF_FORMAT=vagrant
-IMG_vagrant_OEM_PACKAGE=oem-vagrant
+IMG_vagrant_OEM_SYSEXT=vagrant
 
 ## vagrant_parallels
-IMG_vagrant_parallels_FS_HOOK=box
 IMG_vagrant_parallels_BUNDLE_FORMAT=box
 IMG_vagrant_parallels_DISK_FORMAT=hdd
 IMG_vagrant_parallels_DISK_LAYOUT=vagrant
 IMG_vagrant_parallels_CONF_FORMAT=vagrant_parallels
-IMG_vagrant_parallels_OEM_PACKAGE=oem-vagrant
+IMG_vagrant_parallels_OEM_SYSEXT=vagrant
 
 ## vmware
 IMG_vmware_DISK_FORMAT=vmdk_scsi
 IMG_vmware_DISK_LAYOUT=vm
 IMG_vmware_CONF_FORMAT=vmx
-IMG_vmware_OEM_PACKAGE=common-oem-files
-IMG_vmware_OEM_SYSEXT=oem-vmware
+IMG_vmware_OEM_SYSEXT=vmware
 
 ## vmware_ova
+IMG_vmware_ova_BUNDLE_FORMAT=ova
 IMG_vmware_ova_DISK_FORMAT=vmdk_stream
 IMG_vmware_ova_DISK_LAYOUT=vm
 IMG_vmware_ova_CONF_FORMAT=ovf_vmware
-IMG_vmware_ova_BUNDLE_FORMAT=ova
-IMG_vmware_ova_OEM_PACKAGE=common-oem-files
-IMG_vmware_ova_OEM_SYSEXT=oem-vmware
+IMG_vmware_ova_OEM_SYSEXT=vmware
 
 ## vmware_raw
-IMG_vmware_raw_OEM_PACKAGE=common-oem-files
-IMG_vmware_raw_OEM_SYSEXT=oem-vmware
+IMG_vmware_raw_OEM_SYSEXT=vmware
 
 ## parallels
 IMG_parallels_BUNDLE_FORMAT=pvm_tgz
@@ -178,23 +141,19 @@ IMG_parallels_CONF_FORMAT=pvs
 
 ## ami
 IMG_ami_vmdk_DISK_FORMAT=vmdk_stream
-IMG_ami_vmdk_OEM_PACKAGE=common-oem-files
-IMG_ami_vmdk_SYSEXT=oem-ami
 IMG_ami_vmdk_DISK_LAYOUT=vm
-IMG_ami_OEM_PACKAGE=common-oem-files
-IMG_ami_OEM_SYSEXT=oem-ami
+IMG_ami_vmdk_OEM_SYSEXT=ami
 IMG_ami_DISK_LAYOUT=vm
+IMG_ami_OEM_SYSEXT=ami
 
 ## openstack
 IMG_openstack_DISK_FORMAT=qcow2
 IMG_openstack_DISK_LAYOUT=vm
-IMG_openstack_OEM_PACKAGE=common-oem-files
-IMG_openstack_OEM_SYSEXT=oem-openstack
+IMG_openstack_OEM_SYSEXT=openstack
 
 ## openstack but without a resized root partition for more flexibility
 IMG_openstack_mini_DISK_FORMAT=qcow2
-IMG_openstack_mini_OEM_PACKAGE=common-oem-files
-IMG_openstack_mini_OEM_SYSEXT=oem-openstack
+IMG_openstack_mini_OEM_SYSEXT=openstack
 
 ## pxe, which is an cpio image
 IMG_pxe_DISK_FORMAT=cpio
@@ -211,83 +170,71 @@ IMG_iso_MEM=2048
 ## gce, image tarball
 IMG_gce_DISK_LAYOUT=vm
 IMG_gce_CONF_FORMAT=gce
-IMG_gce_OEM_PACKAGE=common-oem-files
-IMG_gce_OEM_SYSEXT=oem-gce
+IMG_gce_OEM_SYSEXT=gce
 
 ## cloudstack
-IMG_cloudstack_OEM_PACKAGE=oem-cloudstack
+IMG_cloudstack_OEM_SYSEXT=cloudstack
 IMG_cloudstack_vhd_DISK_FORMAT=vhd
-IMG_cloudstack_vhd_OEM_PACKAGE=oem-cloudstack
+IMG_cloudstack_vhd_OEM_SYSEXT=cloudstack
 
 ## digitalocean
-IMG_digitalocean_OEM_PACKAGE=common-oem-files
-IMG_digitalocean_OEM_SYSEXT=oem-digitalocean
+IMG_digitalocean_OEM_SYSEXT=digitalocean
 
 ## exoscale
 IMG_exoscale_DISK_FORMAT=qcow2
-IMG_exoscale_OEM_PACKAGE=oem-exoscale
+IMG_exoscale_OEM_SYSEXT=exoscale
 
 ## azure
 IMG_azure_DISK_FORMAT=vhd_fixed
 IMG_azure_DISK_LAYOUT=azure
-IMG_azure_OEM_PACKAGE=common-oem-files
-IMG_azure_OEM_SYSEXT=oem-azure
+IMG_azure_OEM_SYSEXT=azure
 
 ## hetzner
 IMG_hetzner_DISK_LAYOUT=vm
-IMG_hetzner_OEM_PACKAGE=common-oem-files
-IMG_hetzner_OEM_SYSEXT=oem-hetzner
+IMG_hetzner_OEM_SYSEXT=hetzner
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
-IMG_hyperv_OEM_PACKAGE=common-oem-files
-IMG_hyperv_OEM_SYSEXT=oem-hyperv
+IMG_hyperv_OEM_SYSEXT=hyperv
 
 ## hyper-v vhdx
 IMG_hyperv_vhdx_DISK_FORMAT=vhdx
-IMG_hyperv_vhdx_OEM_PACKAGE=common-oem-files
-IMG_hyperv_vhdx_OEM_SYSEXT=oem-hyperv
+IMG_hyperv_vhdx_OEM_SYSEXT=hyperv
 
 ## cloudsigma
 IMG_cloudsigma_DISK_FORMAT=qcow2
-IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
+IMG_cloudsigma_OEM_SYSEXT=cloudsigma
 
 ## scaleway
 IMG_scaleway_DISK_FORMAT=qcow2
 IMG_scaleway_DISK_LAYOUT=vm
-IMG_scaleway_OEM_PACKAGE=common-oem-files
-IMG_scaleway_OEM_SYSEXT=oem-scaleway
+IMG_scaleway_OEM_SYSEXT=scaleway
 IMG_scaleway_DISK_EXTENSION=qcow2
 
 ## stackit
 IMG_stackit_DISK_FORMAT=qcow2
 IMG_stackit_DISK_LAYOUT=vm
-IMG_stackit_OEM_PACKAGE=common-oem-files
-IMG_stackit_OEM_SYSEXT=oem-stackit
+IMG_stackit_OEM_SYSEXT=stackit
 
 ## kubevirt
 IMG_kubevirt_DISK_FORMAT=qcow2
 IMG_kubevirt_DISK_LAYOUT=vm
-IMG_kubevirt_OEM_PACKAGE=common-oem-files
-IMG_kubevirt_OEM_SYSEXT=oem-kubevirt
+IMG_kubevirt_OEM_SYSEXT=kubevirt
 IMG_kubevirt_DISK_EXTENSION=qcow2
 
 ## akamai (Linode)
 IMG_akamai_DISK_LAYOUT=vm
-IMG_akamai_OEM_PACKAGE=common-oem-files
-IMG_akamai_OEM_SYSEXT=oem-akamai
+IMG_akamai_OEM_SYSEXT=akamai
 
 # proxmoxve
 IMG_proxmoxve_DISK_FORMAT=qcow2
 IMG_proxmoxve_DISK_LAYOUT=vm
-IMG_proxmoxve_OEM_PACKAGE=common-oem-files
-IMG_proxmoxve_OEM_SYSEXT=oem-proxmoxve
+IMG_proxmoxve_OEM_SYSEXT=proxmoxve
 
 ## nutanix
 IMG_nutanix_DISK_FORMAT=qcow2
 IMG_nutanix_DISK_LAYOUT=vm
-IMG_nutanix_OEM_PACKAGE=common-oem-files
-IMG_nutanix_OEM_SYSEXT=oem-nutanix
+IMG_nutanix_OEM_SYSEXT=nutanix
 
 ###########################################################
 
@@ -314,18 +261,6 @@ set_vm_type() {
     for valid_type in "${VALID_IMG_TYPES[@]}"; do
         if [[ "${vm_type}" == "${valid_type}" ]]; then
             VM_IMG_TYPE="${vm_type}"
-            return 0
-        fi
-    done
-    return 1
-}
-
-# Validate and set the oem package, colon delimited USE optional
-set_vm_oem_pkg() {
-    local oem_pkg="${1}" valid_pkg
-    for valid_pkg in "${VALID_OEM_PACKAGES[@]}"; do
-        if [[ "${oem_pkg}" == "${valid_pkg}" ]]; then
-            IMG_FORCE_OEM_PACKAGE="oem-${oem_pkg}"
             return 0
         fi
     done
@@ -365,8 +300,7 @@ _get_vm_opt() {
     local opt="$1"
     local type_opt="IMG_${VM_IMG_TYPE}_${opt}"
     local default_opt="IMG_DEFAULT_${opt}"
-    local force_opt="IMG_FORCE_${opt}"
-    echo "${!force_opt:-${!type_opt:-${!default_opt}}}"
+    echo "${!type_opt:-${!default_opt}}"
 }
 
 # Translate source image names to output names.
@@ -455,42 +389,6 @@ setup_disk_image() {
     fi
 }
 
-# If the current type defines a oem package install it to the given fs image.
-install_oem_package() {
-    local oem_pkg=$(_get_vm_opt OEM_PACKAGE)
-    local oem_use=$(_get_vm_opt OEM_USE)
-    # The "${VM_IMG_TYPE}-oem-image-rootfs" directory name is
-    # important - it is used to determine the package target in
-    # coreos/base/profile.bashrc
-    local oem_tmp="${VM_TMP_DIR}/${VM_IMG_TYPE}-oem-image-rootfs"
-
-    if [[ -z "${oem_pkg}" ]]; then
-        return 0
-    fi
-
-    # Split into two steps because we want to always install $oem_pkg from
-    # the ebuild (build_packages doesn't handle it) *but* we never want to
-    # build anything else from source here. emerge doesn't have a way to
-    # enforce this in a single command.
-    info "Building ${oem_pkg}"
-    USE="${oem_use}" emerge-${BOARD} \
-        --nodeps --buildpkgonly --usepkg n \
-        --verbose "${oem_pkg}"
-
-    local getbinpkg
-    if [[ ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
-        getbinpkg=--getbinpkg
-    fi
-
-    info "Installing ${oem_pkg} to OEM partition"
-    USE="${oem_use}" emerge-${BOARD} \
-        --root="${oem_tmp}" --sysroot="${oem_tmp}" \
-        --usepkgonly ${getbinpkg} \
-        --verbose --jobs=2 "${oem_pkg}"
-    sudo rsync -a "${oem_tmp}/oem/" "${VM_TMP_ROOT}/oem/"
-    sudo rm -rf "${oem_tmp}"
-}
-
 # Install the prebuilt OEM sysext file into the OEM partition.
 # The sysext should have been built by 'build_image oem_sysext'.
 install_oem_sysext() {
@@ -500,7 +398,7 @@ install_oem_sysext() {
         return 0
     fi
 
-    local prebuilt_sysext_filename="${oem_sysext}.raw"
+    local prebuilt_sysext_filename="oem-${oem_sysext}.raw"
     local prebuilt_sysext_path="${FLAGS_from}/${prebuilt_sysext_filename}"
     local version="${FLATCAR_VERSION}"
 
@@ -509,34 +407,27 @@ install_oem_sysext() {
     fi
 
     local installed_sysext_oem_dir='/oem/sysext'
-    local installed_sysext_file_prefix="${oem_sysext}-${version}"
+    local installed_sysext_file_prefix="oem-${oem_sysext}-${version}"
     local installed_sysext_filename="${installed_sysext_file_prefix}.raw"
     local installed_sysext_abspath="${installed_sysext_oem_dir}/${installed_sysext_filename}"
 
-    info "Installing ${oem_sysext} sysext from prebuilt image"
+    info "Installing oem-${oem_sysext} sysext from prebuilt image"
     sudo install -Dpm 0644 \
          "${prebuilt_sysext_path}" \
          "${VM_TMP_ROOT}${installed_sysext_abspath}" ||
-        die "Could not install ${oem_sysext} sysext"
+        die "Could not install oem-${oem_sysext} sysext"
 
     # Mark the installed sysext as active.
-    sudo touch "${VM_TMP_ROOT}${installed_sysext_oem_dir}/active-${oem_sysext}"
-}
+    sudo touch "${VM_TMP_ROOT}${installed_sysext_oem_dir}/active-oem-${oem_sysext}"
 
-# Any other tweaks required?
-run_fs_hook() {
-    local fs_hook=$(_get_vm_opt FS_HOOK)
-    if [[ -n "${fs_hook}" ]]; then
-        info "Running ${fs_hook} fs hook"
-        _run_${fs_hook}_fs_hook "$@"
-    fi
-}
+    # Extract metadata from the sysext and write it to oem-release. Chop off the
+    # oem- prefix from SYSEXT_ID because that's how it has traditionally looked.
+    sudo systemd-dissect --json=short "${prebuilt_sysext_path}" | jq -r '.sysextRelease[]' |
+        sed --quiet --regexp-extended -e "s/^SYSEXT_ID=oem-/SYSEXT_ID=/" -e "s/^SYSEXT_//p" |
+        sudo install -m0644 /dev/stdin "${VM_TMP_ROOT}/oem/oem-release"
 
-_run_box_fs_hook() {
-    # Copy basic Vagrant configs from OEM
-    mkdir -p "${VM_TMP_DIR}/box"
-    cp -R "${VM_TMP_ROOT}/oem/box/." "${VM_TMP_DIR}/box"
-    sudo rm -fr "${VM_TMP_ROOT}/oem/box"
+    # Copy the OEM-specific grub.cfg.
+    sudo install -m0644 "${BUILD_LIBRARY_DIR}/oem/${oem_sysext}/grub.cfg" "${VM_TMP_ROOT}/oem/grub.cfg"
 }
 
 # Write the vm disk image to the target directory in the proper format
@@ -980,11 +871,17 @@ EOF
     VM_GENERATED_FILES+=( "$ovf" "${VM_README}" )
 }
 
+_copy_vagrant_files() {
+    local oem_sysext=$(_get_vm_opt OEM_SYSEXT)
+    cp -r "${BUILD_LIBRARY_DIR}/oem/${oem_sysext}/build/box" "${VM_TMP_DIR}/"
+}
+
 _write_vagrant_conf() {
     local vm_mem="${1:-$(_get_vm_opt MEM)}"
     local ovf="${VM_TMP_DIR}/box/box.ovf"
     local mac="${VM_TMP_DIR}/box/base_mac.rb"
 
+    _copy_vagrant_files
     "${BUILD_LIBRARY_DIR}/virtualbox_ovf.sh" \
             --vm_name "$VM_NAME" \
             --disk_vmdk "${VM_DST_IMG}" \
@@ -997,6 +894,7 @@ _write_vagrant_parallels_conf() {
     local vm_mem="${1:-$(_get_vm_opt MEM)}"
     local pvs=$(_dst_path ".pvs")
 
+    _copy_vagrant_files
     "${BUILD_LIBRARY_DIR}/parallels_pvs.sh" \
             --vm_name "$VM_NAME" \
             --disk_image "$VM_DST_IMG" \

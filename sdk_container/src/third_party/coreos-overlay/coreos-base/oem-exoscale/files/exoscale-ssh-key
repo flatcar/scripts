@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /oem/bin/exoscale-dhcp
+. /usr/bin/exoscale-dhcp
 
 DHCP_SERVER=$(get_dhcp_ip)
 KEY_URL="http://${DHCP_SERVER}/latest/public-keys"

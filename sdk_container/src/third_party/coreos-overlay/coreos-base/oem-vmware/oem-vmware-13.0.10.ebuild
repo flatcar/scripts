@@ -7,21 +7,16 @@ inherit systemd
 
 DESCRIPTION="OEM suite for VMware"
 HOMEPAGE="https://www.vmware.com/"
-SRC_URI=""
+S="${WORKDIR}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 arm64"
-IUSE=""
+KEYWORDS="amd64"
 
 RDEPEND="
 	~app-emulation/open-vm-tools-${PV}
 "
 
-# no source directory
-S="${WORKDIR}"
-
-# for coreos-base/common-oem-files
 SYSEXT_NAME="VMware"
 
 src_install() {

@@ -1,0 +1,1 @@
+- All the legacy OEMs (CloudSigma, CloudStack, Exoscale, Vagrant, VirtualBox) have been converted to sysexts. The transition should be seamless, but the Flatcar team was only able to test VirtualBox with and without Vagrant, so please report any issues.
