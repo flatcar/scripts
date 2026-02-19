@@ -5,39 +5,48 @@ EAPI=8
 
 CRATES="
 	addr2line@0.24.2
-	adler2@2.0.0
+	adler2@2.0.1
 	aho-corasick@1.1.3
 	argh@0.1.13
 	argh_derive@0.1.13
 	argh_shared@0.1.13
 	atomic-waker@1.1.2
-	autocfg@1.4.0
-	backtrace@0.3.74
+	autocfg@1.5.0
+	backtrace@0.3.75
+	base16ct@0.3.0
 	base64@0.22.1
-	base64ct@1.7.3
+	base64ct@1.8.0
 	bitflags@1.3.2
-	bitflags@2.9.0
+	bitflags@2.9.1
 	block-buffer@0.10.4
+	block-buffer@0.11.0
 	bstr@1.12.0
-	bumpalo@3.17.0
-	bytes@1.10.1
+	bumpalo@3.19.0
+	bytes@1.11.1
 	bzip2-sys@0.1.13+1.0.8
 	bzip2@0.4.4
-	cc@1.2.19
-	cfg-if@1.0.0
-	const-oid@0.9.6
+	cc@1.2.29
+	cfg-if@1.0.1
+	cmov@0.5.2
+	const-oid@0.10.1
 	core-foundation-sys@0.8.7
 	core-foundation@0.9.4
+	cpubits@0.1.0
 	cpufeatures@0.2.17
+	crypto-bigint@0.7.0-rc.27
 	crypto-common@0.1.6
+	crypto-common@0.2.0
+	crypto-primes@0.7.0-pre.9
 	ct-codecs@1.1.6
-	der@0.7.9
+	ctutils@0.4.0
+	der@0.8.0-rc.12
 	digest@0.10.7
+	digest@0.11.0
 	displaydoc@0.2.5
 	encoding_rs@0.8.35
 	env_logger@0.10.2
 	equivalent@1.0.2
-	errno@0.3.11
+	errno@0.3.13
 	fastrand@2.3.0
 	fnv@1.0.7
 	foreign-types-shared@0.1.1
@@ -50,35 +59,34 @@ CRATES="
 	futures-task@0.3.31
 	futures-util@0.3.31
 	generic-array@0.14.7
-	getrandom@0.2.15
-	getrandom@0.3.2
+	getrandom@0.2.16
+	getrandom@0.3.3
 	gimli@0.31.1
 	globset@0.4.16
 	h2@0.4.12
-	hashbrown@0.15.2
-	hermit-abi@0.5.0
+	hashbrown@0.15.4
+	hermit-abi@0.5.2
 	http-body-util@0.1.3
 	http-body@1.0.1
 	http@1.4.0
 	httparse@1.10.1
 	humantime@2.2.0
+	hybrid-array@0.4.7
 	hyper-rustls@0.27.7
 	hyper-tls@0.6.0
 	hyper-util@0.1.19
 	hyper@1.8.1
-	icu_collections@1.5.0
-	icu_locid@1.5.0
-	icu_locid_transform@1.5.0
-	icu_locid_transform_data@1.5.1
-	icu_normalizer@1.5.0
-	icu_normalizer_data@1.5.1
-	icu_properties@1.5.1
-	icu_properties_data@1.5.1
-	icu_provider@1.5.0
-	icu_provider_macros@1.5.0
+	icu_collections@2.0.0
+	icu_locale_core@2.0.0
+	icu_normalizer@2.0.0
+	icu_normalizer_data@2.0.0
+	icu_properties@2.0.1
+	icu_properties_data@2.0.1
+	icu_provider@2.0.0
 	idna@1.0.3
-	idna_adapter@1.2.0
-	indexmap@2.9.0
+	idna_adapter@1.2.1
+	indexmap@2.10.0
+	io-uring@0.7.8
 	ipnet@2.11.0
 	iri-string@0.7.9
 	is-terminal@0.4.16
@@ -86,55 +94,50 @@ CRATES="
 	jetscii@0.5.3
 	js-sys@0.3.77
 	lazy_static@1.5.0
-	libc@0.2.172
-	libm@0.2.11
+	libc@0.2.174
+	libm@0.2.15
 	linux-raw-sys@0.9.4
-	litemap@0.7.5
+	litemap@0.8.0
 	log@0.4.28
-	memchr@2.7.4
+	memchr@2.7.5
 	mime@0.3.17
-	miniz_oxide@0.8.8
-	mio@1.0.3
+	miniz_oxide@0.8.9
+	mio@1.0.4
 	native-tls@0.2.14
-	num-bigint-dig@0.8.6
-	num-integer@0.1.46
-	num-iter@0.1.45
 	num-traits@0.2.19
 	object@0.36.7
 	once_cell@1.21.3
 	openssl-macros@0.1.1
 	openssl-probe@0.1.6
-	openssl-sys@0.9.107
-	openssl@0.10.72
-	pem-rfc7468@0.7.0
+	openssl-sys@0.9.109
+	openssl@0.10.73
+	pem-rfc7468@1.0.0
 	percent-encoding@2.3.1
 	pin-project-lite@0.2.16
 	pin-utils@0.1.0
-	pkcs1@0.7.5
-	pkcs8@0.10.2
+	pkcs1@0.8.0-rc.4
+	pkcs8@0.11.0-rc.11
 	pkg-config@0.3.32
-	ppv-lite86@0.2.21
-	proc-macro2@1.0.94
+	potential_utf@0.1.2
+	proc-macro2@1.0.95
 	protobuf-support@3.7.2
 	protobuf@3.7.2
 	quote@1.0.40
-	r-efi@5.2.0
-	rand@0.8.5
-	rand_chacha@0.3.1
-	rand_core@0.6.4
+	r-efi@5.3.0
+	rand_core@0.10.0
 	regex-automata@0.4.9
 	regex-syntax@0.8.5
 	regex@1.11.1
 	reqwest@0.12.26
 	ring@0.17.14
-	rsa@0.9.10
+	rsa@0.10.0-rc.15
 	rust-fuzzy-search@0.1.1
-	rustc-demangle@0.1.24
-	rustix@1.0.5
+	rustc-demangle@0.1.25
+	rustix@1.0.7
 	rustls-pki-types@1.13.1
 	rustls-webpki@0.103.8
 	rustls@0.23.35
-	rustversion@1.0.20
+	rustversion@1.0.21
 	ryu@1.0.20
 	schannel@0.1.27
 	security-framework-sys@2.14.0
@@ -143,50 +146,50 @@ CRATES="
 	serde_derive@1.0.219
 	serde_json@1.0.140
 	serde_urlencoded@0.7.1
+	serdect@0.4.1
 	sha1@0.10.6
-	sha2@0.10.8
+	sha2@0.10.9
+	sha2@0.11.0-rc.5
 	shlex@1.3.0
-	signature@2.2.0
-	slab@0.4.9
-	smallvec@1.15.0
-	socket2@0.5.9
-	spin@0.9.8
-	spki@0.7.3
+	signature@3.0.0-rc.10
+	slab@0.4.11
+	smallvec@1.15.1
+	socket2@0.5.10
+	spki@0.8.0-rc.4
 	stable_deref_trait@1.2.0
 	subtle@2.6.1
 	syn@1.0.109
-	syn@2.0.100
+	syn@2.0.104
 	sync_wrapper@1.0.2
-	synstructure@0.13.1
+	synstructure@0.13.2
 	system-configuration-sys@0.5.0
 	system-configuration@0.5.1
 	tempfile@3.20.0
 	termcolor@1.4.1
 	thiserror-impl@1.0.69
 	thiserror@1.0.69
-	tinystr@0.7.6
+	tinystr@0.8.1
 	tokio-native-tls@0.3.1
 	tokio-rustls@0.26.4
-	tokio-util@0.7.14
-	tokio@1.44.2
+	tokio-util@0.7.15
+	tokio@1.46.1
 	tower-http@0.6.8
 	tower-layer@0.3.3
 	tower-service@0.3.3
 	tower@0.5.2
-	tracing-core@0.1.33
+	tracing-core@0.1.34
 	tracing@0.1.41
 	try-lock@0.2.5
 	typenum@1.18.0
 	unicode-ident@1.0.18
 	untrusted@0.9.0
 	url@2.5.4
-	utf16_iter@1.0.5
 	utf8_iter@1.0.4
-	uuid@1.16.0
+	uuid@1.17.0
 	vcpkg@0.2.15
 	version_check@0.9.5
 	want@0.3.1
-	wasi@0.11.0+wasi-snapshot-preview1
+	wasi@0.11.1+wasi-snapshot-preview1
 	wasi@0.14.2+wasi-0.2.4
 	wasm-bindgen-backend@0.2.100
 	wasm-bindgen-futures@0.4.50
@@ -202,28 +205,36 @@ CRATES="
 	windows-strings@0.5.1
 	windows-sys@0.52.0
 	windows-sys@0.59.0
+	windows-sys@0.60.2
 	windows-targets@0.52.6
+	windows-targets@0.53.2
 	windows_aarch64_gnullvm@0.52.6
+	windows_aarch64_gnullvm@0.53.0
 	windows_aarch64_msvc@0.52.6
+	windows_aarch64_msvc@0.53.0
 	windows_i686_gnu@0.52.6
+	windows_i686_gnu@0.53.0
 	windows_i686_gnullvm@0.52.6
+	windows_i686_gnullvm@0.53.0
 	windows_i686_msvc@0.52.6
+	windows_i686_msvc@0.53.0
 	windows_x86_64_gnu@0.52.6
+	windows_x86_64_gnu@0.53.0
 	windows_x86_64_gnullvm@0.52.6
+	windows_x86_64_gnullvm@0.53.0
 	windows_x86_64_msvc@0.52.6
+	windows_x86_64_msvc@0.53.0
 	wit-bindgen-rt@0.39.0
-	write16@1.0.0
-	writeable@0.5.5
+	writeable@0.6.1
 	xmlparser@0.13.6
-	yoke-derive@0.7.5
-	yoke@0.7.5
-	zerocopy-derive@0.8.24
-	zerocopy@0.8.24
+	yoke-derive@0.8.0
+	yoke@0.8.0
 	zerofrom-derive@0.1.6
 	zerofrom@0.1.6
 	zeroize@1.8.1
-	zerovec-derive@0.10.3
-	zerovec@0.10.4
+	zerotrie@0.2.2
+	zerovec-derive@0.11.1
+	zerovec@0.11.2
 "
 
 inherit cargo
@@ -235,7 +246,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/ue-rs.git"
 	inherit git-r3
 else
-	EGIT_VERSION="8464c05429d9a034d38b48563d59479fa471606b" # main
+	EGIT_VERSION="2c5ce147fc6b656e9734dd4799759a86a0549fd9" # dongsu/rsa-0.10.0
 	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz
 		${CARGO_CRATE_URIS}"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
