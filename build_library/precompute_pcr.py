@@ -132,6 +132,35 @@ EV_EFI_ACTION_BOOT = "Calling EFI Application from Boot Option"
 EV_SEPARATOR_DATA = b"\x00\x00\x00\x00"
 
 
+def compute_pcr4_hashes(shim_path, grub_path, kernel_path=None, hash_algo='sha256'):
+    """Compute PCR 4 and return (final_hex, entries).
+
+    Returns:
+        (pcr_hex, entries) where entries is a list of (description, digest_hex)
+        tuples representing each measurement extended into PCR 4.
+    """
+    entries = []
+
+    action_digest = hash_bytes(EV_EFI_ACTION_BOOT.encode('utf-8'), hash_algo)
+    entries.append(('EV_EFI_ACTION: ' + EV_EFI_ACTION_BOOT, action_digest))
+
+    separator_digest = hash_bytes(EV_SEPARATOR_DATA, hash_algo)
+    entries.append(('EV_SEPARATOR', separator_digest))
+
+    binaries = [shim_path, grub_path]
+    if kernel_path:
+        binaries.append(kernel_path)
+    for path in binaries:
+        digest = pe_authenticode_hash(path, hash_algo)
+        entries.append((path, digest))
+
+    pcr = pcr_init(hash_algo)
+    for _, digest in entries:
+        pcr = pcr_extend(pcr, digest, hash_algo)
+
+    return pcr.hex(), entries
+
+
 def compute_pcr4(shim_path, grub_path, kernel_path=None, hash_algo='sha256'):
     """Compute PCR 4 from the EFI boot chain binaries.
 
@@ -147,29 +176,35 @@ def compute_pcr4(shim_path, grub_path, kernel_path=None, hash_algo='sha256'):
     shim verification, and the kernel is NOT measured into PCR 4.  Pass
     kernel_path=None to model this case.
     """
-    pcr = pcr_init(hash_algo)
-
-    # Firmware events
-    action_digest = hash_bytes(EV_EFI_ACTION_BOOT.encode('utf-8'), hash_algo)
-    pcr = pcr_extend(pcr, action_digest, hash_algo)
-
-    separator_digest = hash_bytes(EV_SEPARATOR_DATA, hash_algo)
-    pcr = pcr_extend(pcr, separator_digest, hash_algo)
-
-    # EFI application measurements (PE Authenticode hashes)
-    binaries = [shim_path, grub_path]
-    if kernel_path:
-        binaries.append(kernel_path)
-    for path in binaries:
-        digest = pe_authenticode_hash(path, hash_algo)
-        pcr = pcr_extend(pcr, digest, hash_algo)
-
-    return pcr.hex()
+    return compute_pcr4_hashes(shim_path, grub_path, kernel_path, hash_algo)[0]
 
 
 # ---------------------------------------------------------------------------
 # PCR 8: GRUB commands and kernel command line
 # ---------------------------------------------------------------------------
+
+def compute_pcr8_hashes(commands, hash_algo='sha256'):
+    """Compute PCR 8 and return (final_hex, entries).
+
+    Returns:
+        (pcr_hex, entries) where entries is a list of (description, digest_hex)
+        tuples for each measured command.
+    """
+    entries = []
+    for cmd in commands:
+        for prefix in ("grub_cmd: ", "kernel_cmdline: "):
+            if cmd.startswith(prefix):
+                cmd = cmd[len(prefix):]
+                break
+        digest = hash_string(cmd, hash_algo)
+        entries.append((cmd, digest))
+
+    pcr = pcr_init(hash_algo)
+    for _, digest in entries:
+        pcr = pcr_extend(pcr, digest, hash_algo)
+
+    return pcr.hex(), entries
+
 
 def compute_pcr8(commands, hash_algo='sha256'):
     """Compute PCR 8 from a list of GRUB command strings.
@@ -185,18 +220,7 @@ def compute_pcr8(commands, hash_algo='sha256'):
             Lines starting with "grub_cmd: " or "kernel_cmdline: " will
             have the prefix stripped automatically for convenience.
     """
-    pcr = pcr_init(hash_algo)
-
-    for cmd in commands:
-        # Strip common prefixes if present (convenience for eventlog copy-paste)
-        for prefix in ("grub_cmd: ", "kernel_cmdline: "):
-            if cmd.startswith(prefix):
-                cmd = cmd[len(prefix):]
-                break
-        digest = hash_string(cmd, hash_algo)
-        pcr = pcr_extend(pcr, digest, hash_algo)
-
-    return pcr.hex()
+    return compute_pcr8_hashes(commands, hash_algo)[0]
 
 
 def load_commands_file(filepath):
@@ -749,6 +773,29 @@ def evaluate_grub_cfg(grub_cfg, env=None, oem_partition=None,
 # PCR 9: GRUB source'd files and loaded kernel
 # ---------------------------------------------------------------------------
 
+def compute_pcr9_hashes(kernel_path, oem_grub_cfg_paths=None, hash_algo='sha256'):
+    """Compute PCR 9 and return (final_hex, entries).
+
+    Returns:
+        (pcr_hex, entries) where entries is a list of (description, digest_hex)
+        tuples for each measured file.
+    """
+    entries = []
+    if oem_grub_cfg_paths:
+        for cfg_path in oem_grub_cfg_paths:
+            digest = hash_file(cfg_path, hash_algo)
+            entries.append((cfg_path, digest))
+
+    digest = hash_file(kernel_path, hash_algo)
+    entries.append((kernel_path, digest))
+
+    pcr = pcr_init(hash_algo)
+    for _, digest in entries:
+        pcr = pcr_extend(pcr, digest, hash_algo)
+
+    return pcr.hex(), entries
+
+
 def compute_pcr9(kernel_path, oem_grub_cfg_paths=None, hash_algo='sha256'):
     """Compute PCR 9 from measured files.
 
@@ -764,19 +811,7 @@ def compute_pcr9(kernel_path, oem_grub_cfg_paths=None, hash_algo='sha256'):
         oem_grub_cfg_paths: list of paths to OEM grub.cfg files that
             are source'd during boot (measured before the kernel)
     """
-    pcr = pcr_init(hash_algo)
-
-    # Source'd config files (OEM grub.cfg etc.)
-    if oem_grub_cfg_paths:
-        for cfg_path in oem_grub_cfg_paths:
-            digest = hash_file(cfg_path, hash_algo)
-            pcr = pcr_extend(pcr, digest, hash_algo)
-
-    # Kernel file content
-    digest = hash_file(kernel_path, hash_algo)
-    pcr = pcr_extend(pcr, digest, hash_algo)
-
-    return pcr.hex()
+    return compute_pcr9_hashes(kernel_path, oem_grub_cfg_paths, hash_algo)[0]
 
 
 # ---------------------------------------------------------------------------
@@ -889,8 +924,12 @@ def _eval_grub_cfg_from_args(args):
         grub_cfg = grub_cfg.replace('@@MOUNTUSR@@', replacement)
 
     oem_grub_cfg = None
-    if args.oem_grub_cfg:
-        with open(args.oem_grub_cfg, 'r') as f:
+    oem_path = args.oem_grub_cfg
+    # Handle list (from 'all') vs single path (from 'pcr8-eval')
+    if isinstance(oem_path, list):
+        oem_path = oem_path[0] if oem_path else None
+    if oem_path:
+        with open(oem_path, 'r') as f:
             oem_grub_cfg = f.read()
 
     root = args.root
@@ -921,7 +960,40 @@ def main():
                         help='Hash algorithm (default: sha256)')
     parser.add_argument('--json', action='store_true',
                         help='Output results as JSON')
+    parser.add_argument('--print-hashes', action='store_true',
+                        help='Print intermediate measurement digests')
     sub = parser.add_subparsers(dest='command')
+
+    # all
+    pa = sub.add_parser('all', help='Compute PCR 4, 8, and 9')
+    pa.add_argument('--shim', required=True, help='Path to shim (bootx64.efi)')
+    pa.add_argument('--grub', required=True, help='Path to GRUB (grubx64.efi)')
+    pa.add_argument('--kernel', required=True, help='Path to kernel (vmlinuz-a)')
+    pa.add_argument('--no-sb', action='store_true',
+                    help='SecureBoot disabled: skip kernel measurement in PCR 4')
+    pcr8_source = pa.add_mutually_exclusive_group(required=True)
+    pcr8_source.add_argument('--commands-file',
+                    help='File with GRUB commands, one per line')
+    pcr8_source.add_argument('--grub-cfg',
+                    help='Path to grub.cfg (evaluates for PCR 8)')
+    pa.add_argument('--verity', action=argparse.BooleanOptionalAction,
+                    default=True,
+                    help='Use dm-verity mount.usr (default: --verity)')
+    pa.add_argument('--oem-grub-cfg', nargs='*', default=[],
+                    help='Path(s) to OEM grub.cfg file(s)')
+    pa.add_argument('--root', default='hd0,gpt1',
+                    help='GRUB root device (default: hd0,gpt1)')
+    pa.add_argument('--grub-cpu', default='x86_64',
+                    choices=['x86_64', 'arm64'],
+                    help='CPU architecture (default: x86_64)')
+    pa.add_argument('--oem-partition', default=DEFAULT_OEM_PARTITION,
+                    help='OEM partition device (default: %(default)s)')
+    pa.add_argument('--usr-uuid', default=DEFAULT_USR_UUID,
+                    help='USR partition UUID from gptprio (default: %(default)s)')
+    pa.add_argument('--first-boot', action='store_true',
+                    help='Simulate first boot (first_boot file exists)')
+    pa.add_argument('--menuentry', default='flatcar',
+                    help='Menuentry --id to boot (default: flatcar)')
 
     # pcr4
     p4 = sub.add_parser('pcr4', help='Compute PCR 4 from EFI binaries')
@@ -936,25 +1008,6 @@ def main():
                          help='Compute PCR 8 from GRUB command list')
     p8.add_argument('--commands-file', required=True,
                     help='File with GRUB commands, one per line')
-
-    # pcr9
-    p9 = sub.add_parser('pcr9',
-                         help='Compute PCR 9 from kernel and config files')
-    p9.add_argument('--kernel', required=True, help='Path to kernel (vmlinuz-a)')
-    p9.add_argument('--oem-grub-cfg', nargs='*', default=[],
-                    help='Path(s) to OEM grub.cfg file(s) sourced during boot')
-
-    # all
-    pa = sub.add_parser('all', help='Compute PCR 4, 8, and 9')
-    pa.add_argument('--shim', required=True, help='Path to shim (bootx64.efi)')
-    pa.add_argument('--grub', required=True, help='Path to GRUB (grubx64.efi)')
-    pa.add_argument('--kernel', required=True, help='Path to kernel (vmlinuz-a)')
-    pa.add_argument('--no-sb', action='store_true',
-                    help='SecureBoot disabled: skip kernel measurement in PCR 4')
-    pa.add_argument('--commands-file', required=True,
-                    help='File with GRUB commands, one per line')
-    pa.add_argument('--oem-grub-cfg', nargs='*', default=[],
-                    help='Path(s) to OEM grub.cfg file(s) sourced during boot')
 
     # pcr8-eval
     p8e = sub.add_parser('pcr8-eval',
@@ -982,6 +1035,13 @@ def main():
     p8e.add_argument('--print-commands', action='store_true',
                      help='Print the evaluated command list instead of PCR')
 
+    # pcr9
+    p9 = sub.add_parser('pcr9',
+                         help='Compute PCR 9 from kernel and config files')
+    p9.add_argument('--kernel', required=True, help='Path to kernel (vmlinuz-a)')
+    p9.add_argument('--oem-grub-cfg', nargs='*', default=[],
+                    help='Path(s) to OEM grub.cfg file(s) sourced during boot')
+
     # replay
     pr = sub.add_parser('replay',
                          help='Replay an eventlog to verify PCR values')
@@ -993,17 +1053,19 @@ def main():
         sys.exit(1)
 
     results = {}
+    hashes = {}  # pcr_name -> [(description, digest_hex)]
 
     if args.command == 'pcr4':
         kernel = None if args.no_sb else args.kernel
         if not args.no_sb and not args.kernel:
             parser.error('pcr4: --kernel is required unless --no-sb is given')
-        results['pcr4'] = compute_pcr4(
+        results['pcr4'], hashes['pcr4'] = compute_pcr4_hashes(
             args.shim, args.grub, kernel, args.algo)
 
     elif args.command == 'pcr8':
         commands = load_commands_file(args.commands_file)
-        results['pcr8'] = compute_pcr8(commands, args.algo)
+        results['pcr8'], hashes['pcr8'] = compute_pcr8_hashes(
+            commands, args.algo)
 
     elif args.command == 'pcr8-eval':
         commands = _eval_grub_cfg_from_args(args)
@@ -1011,31 +1073,43 @@ def main():
             for cmd in commands:
                 print(cmd.replace('\n', '\\n'))
         else:
-            results['pcr8'] = compute_pcr8(commands, args.algo)
+            results['pcr8'], hashes['pcr8'] = compute_pcr8_hashes(
+                commands, args.algo)
 
     elif args.command == 'pcr9':
-        results['pcr9'] = compute_pcr9(
-            args.kernel,
-            args.oem_grub_cfg if args.oem_grub_cfg else None,
-            args.algo)
+        oem_cfgs = args.oem_grub_cfg if args.oem_grub_cfg else None
+        results['pcr9'], hashes['pcr9'] = compute_pcr9_hashes(
+            args.kernel, oem_cfgs, args.algo)
 
     elif args.command == 'all':
         kernel_pcr4 = None if args.no_sb else args.kernel
-        results['pcr4'] = compute_pcr4(
+        oem_cfgs = args.oem_grub_cfg if args.oem_grub_cfg else None
+        if args.grub_cfg:
+            commands = _eval_grub_cfg_from_args(args)
+        else:
+            commands = load_commands_file(args.commands_file)
+        results['pcr4'], hashes['pcr4'] = compute_pcr4_hashes(
             args.shim, args.grub, kernel_pcr4, args.algo)
-        commands = load_commands_file(args.commands_file)
-        results['pcr8'] = compute_pcr8(commands, args.algo)
-        results['pcr9'] = compute_pcr9(
-            args.kernel,
-            args.oem_grub_cfg if args.oem_grub_cfg else None,
-            args.algo)
+        results['pcr8'], hashes['pcr8'] = compute_pcr8_hashes(
+            commands, args.algo)
+        results['pcr9'], hashes['pcr9'] = compute_pcr9_hashes(
+            args.kernel, oem_cfgs, args.algo)
 
     elif args.command == 'replay':
         results = {("pcr%d" % k): v
                    for k, v in replay_eventlog(
                        args.eventlog, args.algo).items()}
 
-    if args.json:
+    if args.print_hashes and hashes:
+        # JSON output with intermediate measurement digests, keyed by
+        # PCR number to match the generate_grub_hashes.py format.
+        output = {}
+        for name in sorted(hashes):
+            pcr_num = name.replace('pcr', '')
+            output[pcr_num] = [{'value': digest, 'description': desc}
+                               for desc, digest in hashes[name]]
+        print(json.dumps(output, indent=2))
+    elif args.json:
         print(json.dumps(results, indent=2))
     else:
         for name, value in sorted(results.items()):
