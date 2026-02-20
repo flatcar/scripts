@@ -50,7 +50,6 @@ PCR measurement details (SHA-256):
 import argparse
 import hashlib
 import json
-import os
 import subprocess
 import sys
 
@@ -147,9 +146,7 @@ def compute_pcr4(shim_path, grub_path, kernel_path, hash_algo='sha256'):
     pcr = pcr_extend(pcr, separator_digest, hash_algo)
 
     # EFI application measurements (PE Authenticode hashes)
-    for label, path in [("shim", shim_path),
-                        ("grub", grub_path),
-                        ("kernel", kernel_path)]:
+    for path in (shim_path, grub_path, kernel_path):
         digest = pe_authenticode_hash(path, hash_algo)
         pcr = pcr_extend(pcr, digest, hash_algo)
 
@@ -248,7 +245,6 @@ class GrubEvaluator:
         self.usr_uuid = usr_uuid or ''
         self.menuentry = menuentry
         self.commands = []       # PCR 8 measured commands
-        self.pcr9_files = []     # PCR 9 measured file contents
         self.functions = {}      # name -> list of lines
         self.kernel_cmdline = None
         self._raw_text = grub_cfg
@@ -484,10 +480,8 @@ class GrubEvaluator:
         """
         branches = []
         depth = 0
-        i = start
         current_cond = lines[start]  # the 'if ...; then' line
         current_body = []
-        in_block = True
 
         i = start + 1
         while i < len(lines):
@@ -541,7 +535,7 @@ class GrubEvaluator:
             if tokens and tokens[0] == 'menuentry':
                 # Collect the menuentry, measure it, but defer body execution
                 entry_id = None
-                for k, t in enumerate(tokens):
+                for t in tokens:
                     if t.startswith('--id='):
                         entry_id = t[5:]
                         break
@@ -690,7 +684,6 @@ class GrubEvaluator:
         elif cmd == 'source' and len(tokens) >= 2:
             # source (oem)/grub.cfg — measure file in PCR 9
             if self.oem_grub_cfg is not None:
-                self.pcr9_files.append(self.oem_grub_cfg)
                 # Execute the OEM config
                 oem_lines = self._preprocess(self.oem_grub_cfg)
                 self._execute(oem_lines)
@@ -725,9 +718,8 @@ def evaluate_grub_cfg(grub_cfg, env=None, oem_partition=None,
     This is the main entry point for the GRUB config evaluator.
     See GrubEvaluator for argument descriptions.
 
-    Returns (commands, kernel_cmdline) where commands is the list of
-    measured command strings and kernel_cmdline is the full kernel
-    command line string (also measured as the final PCR 8 entry).
+    Returns a list of measured command strings. The kernel command line,
+    if produced by the selected menuentry, is appended as the final entry.
     """
     ev = GrubEvaluator(grub_cfg, env=env, oem_partition=oem_partition,
                        oem_grub_cfg=oem_grub_cfg,
@@ -793,16 +785,13 @@ def replay_eventlog(eventlog_path, hash_algo='sha256'):
         data = yaml.safe_load(f)
 
     pcrs = {}
-    algo_map = {'sha1': 'sha1', 'sha256': 'sha256', 'sha384': 'sha384'}
-
     for event in data.get('events', []):
         pcr_index = event.get('PCRIndex')
         if pcr_index not in (4, 8, 9):
             continue
         digests = event.get('Digests', [])
         for d in digests:
-            algo = algo_map.get(d.get('AlgorithmId'))
-            if algo != hash_algo:
+            if d.get('AlgorithmId') != hash_algo:
                 continue
             digest_hex = d['Digest']
             key = pcr_index
