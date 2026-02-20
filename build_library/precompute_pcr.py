@@ -73,7 +73,10 @@ def pe_authenticode_hash(filepath, hash_algo='sha256'):
     """
     result = subprocess.run(
         ['pesign', '-h', '-i', filepath, '-d', hash_algo],
-        capture_output=True, text=True, check=True)
+        capture_output=True, text=True)
+    if result.returncode != 0:
+        msg = result.stderr.strip() or f'pesign failed with exit code {result.returncode}'
+        raise RuntimeError(f'{filepath}: {msg}')
     # Output format: "hash: <hex>\n"
     return result.stdout.strip().split(': ', 1)[1]
 
