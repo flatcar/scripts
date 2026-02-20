@@ -34,7 +34,11 @@ PCR measurement details (SHA-256):
       2. EV_SEPARATOR 0x00000000                                    (always)
       3. PE Authenticode hash of shim   (bootx64.efi)
       4. PE Authenticode hash of GRUB   (grubx64.efi)
-      5. PE Authenticode hash of kernel (vmlinuz-a)
+      5. PE Authenticode hash of kernel (vmlinuz-a)  [SecureBoot only]
+
+    When SecureBoot is disabled, the kernel is loaded by GRUB without
+    shim verification, and GRUB does not measure it into PCR 4.  Use
+    --no-sb (or kernel_path=None) to skip the kernel measurement.
 
     PCR 8:
       Each GRUB command is measured as SHA-256(command_text) where
@@ -125,7 +129,7 @@ EV_EFI_ACTION_BOOT = "Calling EFI Application from Boot Option"
 EV_SEPARATOR_DATA = b"\x00\x00\x00\x00"
 
 
-def compute_pcr4(shim_path, grub_path, kernel_path, hash_algo='sha256'):
+def compute_pcr4(shim_path, grub_path, kernel_path=None, hash_algo='sha256'):
     """Compute PCR 4 from the EFI boot chain binaries.
 
     The UEFI firmware measures:
@@ -134,7 +138,11 @@ def compute_pcr4(shim_path, grub_path, kernel_path, hash_algo='sha256'):
     Then each EFI application is measured with its PE Authenticode hash:
       3. shim    (bootx64.efi)
       4. GRUB    (grubx64.efi)
-      5. kernel  (vmlinuz-a)
+      5. kernel  (vmlinuz-a)  — only when SecureBoot is enabled
+
+    When SecureBoot is disabled, GRUB loads the kernel directly without
+    shim verification, and the kernel is NOT measured into PCR 4.  Pass
+    kernel_path=None to model this case.
     """
     pcr = pcr_init(hash_algo)
 
@@ -146,7 +154,10 @@ def compute_pcr4(shim_path, grub_path, kernel_path, hash_algo='sha256'):
     pcr = pcr_extend(pcr, separator_digest, hash_algo)
 
     # EFI application measurements (PE Authenticode hashes)
-    for path in (shim_path, grub_path, kernel_path):
+    binaries = [shim_path, grub_path]
+    if kernel_path:
+        binaries.append(kernel_path)
+    for path in binaries:
         digest = pe_authenticode_hash(path, hash_algo)
         pcr = pcr_extend(pcr, digest, hash_algo)
 
@@ -913,7 +924,9 @@ def main():
     p4 = sub.add_parser('pcr4', help='Compute PCR 4 from EFI binaries')
     p4.add_argument('--shim', required=True, help='Path to shim (bootx64.efi)')
     p4.add_argument('--grub', required=True, help='Path to GRUB (grubx64.efi)')
-    p4.add_argument('--kernel', required=True, help='Path to kernel (vmlinuz-a)')
+    p4.add_argument('--kernel', help='Path to kernel (vmlinuz-a)')
+    p4.add_argument('--no-sb', action='store_true',
+                    help='SecureBoot disabled: skip kernel measurement in PCR 4')
 
     # pcr8
     p8 = sub.add_parser('pcr8',
@@ -933,6 +946,8 @@ def main():
     pa.add_argument('--shim', required=True, help='Path to shim (bootx64.efi)')
     pa.add_argument('--grub', required=True, help='Path to GRUB (grubx64.efi)')
     pa.add_argument('--kernel', required=True, help='Path to kernel (vmlinuz-a)')
+    pa.add_argument('--no-sb', action='store_true',
+                    help='SecureBoot disabled: skip kernel measurement in PCR 4')
     pa.add_argument('--commands-file', required=True,
                     help='File with GRUB commands, one per line')
     pa.add_argument('--oem-grub-cfg', nargs='*', default=[],
@@ -977,8 +992,11 @@ def main():
     results = {}
 
     if args.command == 'pcr4':
+        kernel = None if args.no_sb else args.kernel
+        if not args.no_sb and not args.kernel:
+            parser.error('pcr4: --kernel is required unless --no-sb is given')
         results['pcr4'] = compute_pcr4(
-            args.shim, args.grub, args.kernel, args.algo)
+            args.shim, args.grub, kernel, args.algo)
 
     elif args.command == 'pcr8':
         commands = load_commands_file(args.commands_file)
@@ -999,8 +1017,9 @@ def main():
             args.algo)
 
     elif args.command == 'all':
+        kernel_pcr4 = None if args.no_sb else args.kernel
         results['pcr4'] = compute_pcr4(
-            args.shim, args.grub, args.kernel, args.algo)
+            args.shim, args.grub, kernel_pcr4, args.algo)
         commands = load_commands_file(args.commands_file)
         results['pcr8'] = compute_pcr8(commands, args.algo)
         results['pcr9'] = compute_pcr9(
