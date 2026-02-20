@@ -49,6 +49,13 @@ PCR measurement details (SHA-256):
     PCR 9:
       Each source'd config file is measured as SHA-256(file_contents).
       The loaded kernel is measured as SHA-256(kernel_file_contents).
+
+Replay a single PCR from --print-hashes output using bash:
+    pcr=0000000000000000000000000000000000000000000000000000000000000000
+    while read -r digest; do
+      pcr=$(printf '%s%s' "$pcr" "$digest" | xxd -r -p | sha256sum | cut -d' ' -f1)
+    done < <(jq -r '.["4"][].value' pcr_hashes.json)
+    echo "pcr4: $pcr"
 """
 
 import argparse
