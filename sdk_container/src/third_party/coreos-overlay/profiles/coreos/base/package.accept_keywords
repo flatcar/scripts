@@ -7,13 +7,19 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# Keep versions on both arches in sync.
-=app-containers/cri-tools-1.32.0 ~arm64
-=app-containers/incus-6.0.4-r1 ~arm64
-=app-containers/lxc-6.0.4-r1 ~arm64
+# To address CVE-2025-60753
+=app-arch/libarchive-3.8.5 ~amd64 ~arm64
 
-# CVE-2025-6032
-=app-containers/podman-5.5.2 ~amd64 ~arm64
+# We always want the latest version available.
+=app-containers/containerd-2.2* ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
+=app-containers/cri-tools-1.33.0 ~arm64
+=app-containers/incus-6.0.5 ~arm64
+=app-containers/lxc-6.0.5 ~arm64
+
+# We always want the latest version available.
+=app-containers/runc-1.4* ~amd64 ~arm64
 
 # No stable keywords.
 =app-containers/syft-1.18.1 ~amd64 ~arm64
@@ -32,11 +38,13 @@ app-crypt/azure-keyvault-pkcs11
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =app-crypt/clevis-19-r1 **
 
+# Keep versions on both arches in sync.
+=app-crypt/mit-krb5-1.21.3-r1 ~arm64
+
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
 # Keep versions on both arches in sync.
-=app-emulation/qemu-10.0.5 ~arm64
 =app-emulation/qemu-guest-agent-9.2.0 ~arm64
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
@@ -47,19 +55,30 @@ dev-cpp/azure-identity
 dev-cpp/azure-security-keyvault-certificates
 dev-cpp/azure-security-keyvault-keys
 
+# Not stabilised for arm64 yet.
+dev-db/etcd amd64
+
 # Keep versions on both arches in sync.
-=dev-lang/yasm-1.3.0-r1 ~arm64
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
+=dev-libs/elfutils-0.194 ~amd64
 
 # The only available ebuild has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-14 **
+
+# Keep versions on both arches in sync.
+=dev-libs/libnl-3.11.0 ~amd64
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
 # Keep versions on both arches in sync.
 =dev-libs/raft-0.22.1 ~arm64
+
+# Used to be in sdk target profile, unversioned, so pinning it to a
+# version used at a time of the move. Needed for building signed
+# sysexts with systemd-repart
+=dev-libs/xxhash-0.8.3-r1
 
 # No arm64 keyword in package.
 =dev-util/bsdiff-4.3-r4 **
@@ -74,9 +93,6 @@ dev-cpp/azure-security-keyvault-keys
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# CVE-2025-61984, CVE-2025-61985
-=net-misc/openssh-10.2_p1 ~amd64 ~arm64
-
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
@@ -86,24 +102,25 @@ sys-apps/azure-vm-utils
 =sys-apps/zram-generator-1.2.1 ~arm64
 =sys-auth/sssd-2.9.7 ~arm64
 
-# So it builds with rust provided by SDK without pulling some older
-# version of rust-bin, that does not support aarch64 for some reason.
-=sys-block/thin-provisioning-tools-1.3.0 ~amd64 ~arm64
-
 # Keep versions on both arches in sync.
 =sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
+# Used to be in sdk target profile, unversioned, so pinning it to a
+# version used at a time of the move. Needed for building signed
+# sysexts with systemd-repart
+=sys-fs/erofs-utils-1.8.10-r1
+
 # Keep versions on both arches in sync.
-=sys-fs/lxcfs-6.0.4 ~arm64
-
-=app-containers/containerd-2.1* ~amd64 ~arm64
-=app-containers/runc-1.3* ~amd64 ~arm64
-
-# Not stabilised for arm64 yet.
-dev-db/etcd amd64
+=sys-fs/lxcfs-6.0.5 ~arm64
+=sys-fs/zfs-2.3.4 ~arm64
+=sys-fs/zfs-kmod-2.3.4 ~arm64
 
 # Bump early for newer features.
 =sys-kernel/dracut-109* ~amd64 ~arm64
+
+# Our own ebuild fixing issues in Gentoo, hopefully will be fixed
+# there too eventually.
+=sys-libs/libselinux-3.8.1-r3 ~amd64 ~arm64

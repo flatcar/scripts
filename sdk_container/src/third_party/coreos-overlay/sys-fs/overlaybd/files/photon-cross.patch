@@ -88,3 +88,29 @@ Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
 -- 
 2.49.0
 
+
+From 9a4327f3dbb225fbce772fec18862f0b6884d9f5 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Thu, 19 Feb 2026 10:07:08 +0100
+Subject: [PATCH] Add missing cstdint include
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ fs/path.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/fs/path.h b/fs/path.h
+index fe5514e..13d653d 100644
+--- a/fs/path.h
++++ b/fs/path.h
+@@ -20,6 +20,7 @@ limitations under the License.
+ #include <stack>
+ #include <memory>
+ #include <climits>
++#include <cstdint>
+ #include <photon/fs/filesystem.h>
+ #include <photon/common/string_view.h>
+ 
+-- 
+2.52.0
+

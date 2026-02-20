@@ -1,0 +1,6 @@
+- bind ([CVE-2025-40778](https://www.cve.org/CVERecord?id=CVE-2025-40778), [CVE-2025-40780](https://www.cve.org/CVERecord?id=CVE-2025-40780), [CVE-2025-8677](https://www.cve.org/CVERecord?id=CVE-2025-8677))
+- gnutls ([CVE-2025-9820](https://www.cve.org/CVERecord?id=CVE-2025-9820))
+- go ([CVE-2025-61727](https://www.cve.org/CVERecord?id=CVE-2025-61727), [CVE-2025-61729](https://www.cve.org/CVERecord?id=CVE-2025-61729))
+- libarchive ([CVE-2025-60753](https://www.cve.org/CVERecord?id=CVE-2025-60753))
+- podman ([CVE-2025-9566](https://www.cve.org/CVERecord?id=CVE-2025-9566), [CVE-2025-52881](https://www.cve.org/CVERecord?id=CVE-2025-52881))
+- urllib3 ([CVE-2025-66418](https://www.cve.org/CVERecord?id=CVE-2025-66418), [CVE-2025-66471](https://www.cve.org/CVERecord?id=CVE-2025-66471))

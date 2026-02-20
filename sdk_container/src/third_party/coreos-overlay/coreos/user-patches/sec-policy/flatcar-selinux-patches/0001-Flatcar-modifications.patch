@@ -1,4 +1,4 @@
-From 9398464fe4d29cb3e9ad3c04c2c749747438fb65 Mon Sep 17 00:00:00 2001
+From 4028416511d3e2b1ea8172efe3546b7c1c104a28 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
@@ -13,14 +13,13 @@ Subject: [PATCH] Flatcar modifications
  policy/modules/services/container.te    | 170 +++++++++++++++++++++++-
  policy/modules/system/init.te           |   8 ++
  policy/modules/system/locallogin.te     |   9 +-
- policy/modules/system/logging.te        |   9 ++
- 10 files changed, 427 insertions(+), 3 deletions(-)
+ 9 files changed, 418 insertions(+), 3 deletions(-)
 
 diff --git a/refpolicy/policy/modules/admin/netutils.te b/refpolicy/policy/modules/admin/netutils.te
-index 63d2f9cb8..62dff5f94 100644
+index ac11d1c99..c5501c28f 100644
 --- a/refpolicy/policy/modules/admin/netutils.te
 +++ b/refpolicy/policy/modules/admin/netutils.te
-@@ -128,6 +128,16 @@ corenet_raw_sendrecv_generic_if(ping_t)
+@@ -133,6 +133,16 @@ corenet_raw_sendrecv_generic_if(ping_t)
  corenet_raw_sendrecv_generic_node(ping_t)
  corenet_tcp_sendrecv_generic_node(ping_t)
  corenet_raw_bind_generic_node(ping_t)
@@ -37,7 +36,7 @@ index 63d2f9cb8..62dff5f94 100644
  
  dev_read_urand(ping_t)
  
-@@ -213,6 +223,16 @@ corenet_udp_bind_traceroute_port(traceroute_t)
+@@ -218,6 +228,16 @@ corenet_udp_bind_traceroute_port(traceroute_t)
  corenet_tcp_connect_all_ports(traceroute_t)
  corenet_sendrecv_all_client_packets(traceroute_t)
  corenet_sendrecv_traceroute_server_packets(traceroute_t)
@@ -92,7 +91,7 @@ index 1f0ad3df4..6a1cdba0e 100644
  ## <summary>
  ##	Bind TCP sockets to generic nodes.
 diff --git a/refpolicy/policy/modules/kernel/corenetwork.te.in b/refpolicy/policy/modules/kernel/corenetwork.te.in
-index b1649ec3a..ca612de44 100644
+index 6902c41f0..afb537ab7 100644
 --- a/refpolicy/policy/modules/kernel/corenetwork.te.in
 +++ b/refpolicy/policy/modules/kernel/corenetwork.te.in
 @@ -381,7 +381,17 @@ allow corenet_unconfined_type port_type:sctp_socket { name_connect };
@@ -115,10 +114,10 @@ index b1649ec3a..ca612de44 100644
  # Infiniband
  corenet_ib_access_all_pkeys(corenet_unconfined_type)
 diff --git a/refpolicy/policy/modules/kernel/files.if b/refpolicy/policy/modules/kernel/files.if
-index 709a1b71b..73b17285e 100644
+index fe81fd9a0..8f620c8f8 100644
 --- a/refpolicy/policy/modules/kernel/files.if
 +++ b/refpolicy/policy/modules/kernel/files.if
-@@ -8118,3 +8118,48 @@ interface(`files_relabel_all_pidfiles',`
+@@ -8246,3 +8246,48 @@ interface(`files_relabel_all_pidfiles',`
  	relabel_files_pattern($1, pidfile, pidfile)
  	relabel_lnk_files_pattern($1, pidfile, pidfile)
  ')
@@ -168,10 +167,10 @@ index 709a1b71b..73b17285e 100644
 +	relabelfrom_chr_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
 +')
 diff --git a/refpolicy/policy/modules/kernel/kernel.te b/refpolicy/policy/modules/kernel/kernel.te
-index 6d8ec0f77..df620faef 100644
+index 3751b3082..e7f45a5e6 100644
 --- a/refpolicy/policy/modules/kernel/kernel.te
 +++ b/refpolicy/policy/modules/kernel/kernel.te
-@@ -374,6 +374,131 @@ files_mounton_default(kernel_t)
+@@ -375,6 +375,131 @@ files_mounton_default(kernel_t)
  
  mcs_process_set_categories(kernel_t)
  
@@ -304,10 +303,10 @@ index 6d8ec0f77..df620faef 100644
  mls_process_write_all_levels(kernel_t)
  mls_file_write_all_levels(kernel_t)
 diff --git a/refpolicy/policy/modules/services/container.fc b/refpolicy/policy/modules/services/container.fc
-index f98e68ba0..045b1b5b2 100644
+index 010387a3a..ba0619561 100644
 --- a/refpolicy/policy/modules/services/container.fc
 +++ b/refpolicy/policy/modules/services/container.fc
-@@ -38,6 +38,12 @@ HOME_DIR/\.docker(/.*)?		gen_context(system_u:object_r:container_conf_home_t,s0)
+@@ -42,6 +42,12 @@ HOME_DIR/\.docker(/.*)?		gen_context(system_u:object_r:container_conf_home_t,s0)
  /etc/cni(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
  /etc/docker(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
  /etc/containerd(/.*)?		gen_context(system_u:object_r:container_config_t,s0)
@@ -321,10 +320,10 @@ index f98e68ba0..045b1b5b2 100644
  /run/containers(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
  /run/crun(/.*)?		gen_context(system_u:object_r:container_runtime_t,s0)
 diff --git a/refpolicy/policy/modules/services/container.te b/refpolicy/policy/modules/services/container.te
-index c71ae54f4..a231f7664 100644
+index 4ff585bf6..859cff514 100644
 --- a/refpolicy/policy/modules/services/container.te
 +++ b/refpolicy/policy/modules/services/container.te
-@@ -58,6 +58,52 @@ gen_tunable(container_use_dri, false)
+@@ -84,6 +84,52 @@ gen_tunable(container_use_dri, false)
  ## </desc>
  gen_tunable(container_use_ecryptfs, false)
  
@@ -377,7 +376,7 @@ index c71ae54f4..a231f7664 100644
  ## <desc>
  ##	<p>
  ##	Allow containers to use all capabilities in a
-@@ -65,7 +111,7 @@ gen_tunable(container_use_ecryptfs, false)
+@@ -91,7 +137,7 @@ gen_tunable(container_use_ecryptfs, false)
  ##	directly on the host.
  ##	</p>
  ## </desc>
@@ -386,7 +385,7 @@ index c71ae54f4..a231f7664 100644
  
  ## <desc>
  ##	<p>
-@@ -1249,3 +1295,125 @@ optional_policy(`
+@@ -1431,3 +1477,125 @@ optional_policy(`
         unconfined_domain_noaudit(spc_user_t)
         domain_ptrace_all_domains(spc_user_t)
  ')
@@ -513,10 +512,10 @@ index c71ae54f4..a231f7664 100644
 +#
 +allow container_t tmp_t:file { read };
 diff --git a/refpolicy/policy/modules/system/init.te b/refpolicy/policy/modules/system/init.te
-index 1320f7aae..61ead9795 100644
+index c2f33c2bd..4415fa6eb 100644
 --- a/refpolicy/policy/modules/system/init.te
 +++ b/refpolicy/policy/modules/system/init.te
-@@ -1728,3 +1728,11 @@ optional_policy(`
+@@ -1754,3 +1754,11 @@ optional_policy(`
  	userdom_dontaudit_write_user_tmp_files(systemprocess)
  	userdom_dontaudit_use_user_terminals(systemprocess)
  ')
@@ -529,7 +528,7 @@ index 1320f7aae..61ead9795 100644
 +require { type unconfined_t; }
 +allow init_t unconfined_t:file exec_file_perms;
 diff --git a/refpolicy/policy/modules/system/locallogin.te b/refpolicy/policy/modules/system/locallogin.te
-index 995c80be2..933278d2f 100644
+index 89b852574..08b822fa4 100644
 --- a/refpolicy/policy/modules/system/locallogin.te
 +++ b/refpolicy/policy/modules/system/locallogin.te
 @@ -34,7 +34,14 @@ role system_r types sulogin_t;
@@ -548,26 +547,6 @@ index 995c80be2..933278d2f 100644
  allow local_login_t self:fd use;
  allow local_login_t self:fifo_file rw_fifo_file_perms;
  allow local_login_t self:sock_file read_sock_file_perms;
-diff --git a/refpolicy/policy/modules/system/logging.te b/refpolicy/policy/modules/system/logging.te
-index 14d3132be..ce40abc52 100644
---- a/refpolicy/policy/modules/system/logging.te
-+++ b/refpolicy/policy/modules/system/logging.te
-@@ -507,6 +507,15 @@ userdom_dontaudit_search_user_home_dirs(syslogd_t)
- 
- ifdef(`init_systemd',`
- 	# for systemd-journal
-+
-+	#
-+	# FLATCAR:
-+	#
-+	# TODO: What AVC does this fix?
-+	#
-+	require { type kernel_t; }
-+	allow syslogd_t kernel_t:netlink_audit_socket getattr;
-+
- 	allow syslogd_t self:capability audit_control;
- 	allow syslogd_t self:netlink_audit_socket connected_socket_perms;
- 	allow syslogd_t self:capability2 audit_read;
 -- 
-2.49.1
+2.52.0
 

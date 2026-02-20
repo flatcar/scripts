@@ -28,13 +28,37 @@ build_target_toolchain() {
     local ROOT="/build/${board}"
     local SYSROOT="/usr/$(get_board_chost "${board}")"
 
-    mkdir -p "${ROOT}/usr"
-    cp -at "${ROOT}" "${SYSROOT}"/lib*
-    cp -at "${ROOT}"/usr "${SYSROOT}"/usr/include "${SYSROOT}"/usr/lib*
+    function btt_emerge() {
+        # --root is required because run_merge overrides ROOT=
+        PORTAGE_CONFIGROOT="$ROOT" run_merge --root="$ROOT" --sysroot="$ROOT" "${@}"
+    }
 
-    # --root is required because run_merge overrides ROOT=
-    PORTAGE_CONFIGROOT="$ROOT" \
-        run_merge -u --root="$ROOT" --sysroot="$ROOT" "${TOOLCHAIN_PKGS[@]}"
+    # install baselayout first so we have the basic directory
+    # structure for libraries and binaries copied from sysroot
+    btt_emerge --oneshot --nodeps sys-apps/baselayout
+
+    # copy libraries, binaries and header files from sysroot to root -
+    # sysroot may be using split-usr, whereas root does not, so take
+    # this into account
+    (
+        shopt -s nullglob
+        local d f
+        local -a files
+        for d in "${SYSROOT}"/{,usr/}{bin,sbin,lib*}; do
+            if [[ ! -d ${d} ]]; then
+                continue
+            fi
+            files=( "${d}"/* )
+            if [[ ${#files[@]} -gt 0 ]]; then
+                f=${d##*/}
+                cp -at "${ROOT}/usr/${f}" "${files[@]}"
+            fi
+        done
+        cp -at "${ROOT}"/usr "${SYSROOT}"/usr/include
+    )
+
+    btt_emerge --update "${TOOLCHAIN_PKGS[@]}"
+    unset -f btt_emerge
 }
 
 configure_crossdev_overlay / /usr/local/portage/crossdev

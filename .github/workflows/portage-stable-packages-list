@@ -3,6 +3,7 @@
 acct-group/adm
 acct-group/audio
 acct-group/cdrom
+acct-group/cuse
 acct-group/dialout
 acct-group/disk
 acct-group/dnsmasq
@@ -11,6 +12,7 @@ acct-group/floppy
 acct-group/incus
 acct-group/incus-admin
 acct-group/input
+acct-group/jobserver
 acct-group/kmem
 acct-group/kvm
 acct-group/lp
@@ -303,7 +305,6 @@ dev-libs/yajl
 
 dev-perl/File-Slurper
 dev-perl/Parse-Yapp
-dev-perl/PerlIO-utf8_strict
 
 dev-python/backports-tarfile
 dev-python/cachecontrol
@@ -392,6 +393,7 @@ dev-util/pkgcheck
 dev-util/pkgconf
 dev-util/re2c
 dev-util/xdelta
+dev-util/xxd
 
 dev-vcs/git
 
@@ -401,6 +403,7 @@ eclass/alternatives.eclass
 eclass/app-alternatives.eclass
 eclass/autotools.eclass
 eclass/bash-completion-r1.eclass
+eclass/branding.eclass
 eclass/cargo.eclass
 eclass/check-reqs.eclass
 eclass/cmake-multilib.eclass
@@ -750,7 +753,6 @@ virtual/perl-Carp
 virtual/perl-Encode
 virtual/perl-Exporter
 virtual/perl-ExtUtils-MakeMaker
-virtual/perl-XSLoader
 virtual/pkgconfig
 virtual/resolvconf
 virtual/service-manager

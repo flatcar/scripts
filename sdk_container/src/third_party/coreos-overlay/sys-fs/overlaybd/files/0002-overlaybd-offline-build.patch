@@ -1,0 +1,342 @@
+From 8df6807f569ebca98678d6ca5370d3575f469181 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 19 Feb 2026 12:45:13 +0100
+Subject: [PATCH 2/3] overlaybd-offline-build
+
+---
+ CMake/{Findcurl.cmake => FindCURL.cmake}      |  6 ++---
+ .../{Findopenssl.cmake => FindOpenSSL.cmake}  |  4 +---
+ CMake/FindRapidJSON.cmake                     | 19 ++++++++++++++++
+ CMake/Finde2fs.cmake                          |  4 +---
+ CMake/Findphoton.cmake                        |  4 ++--
+ CMake/Findrapidjson.cmake                     | 12 ----------
+ CMakeLists.txt                                | 22 +++++++++++--------
+ src/CMakeLists.txt                            | 10 ++++-----
+ src/overlaybd/CMakeLists.txt                  |  5 ++++-
+ .../cache/ocf_cache/test/CMakeLists.txt       |  2 +-
+ src/overlaybd/registryfs/CMakeLists.txt       |  4 ++--
+ src/overlaybd/stream_convertor/CMakeLists.txt |  2 +-
+ src/overlaybd/tar/erofs/test/CMakeLists.txt   |  4 ++--
+ src/test/CMakeLists.txt                       |  6 ++---
+ src/tools/CMakeLists.txt                      |  4 ++--
+ 15 files changed, 58 insertions(+), 50 deletions(-)
+ rename CMake/{Findcurl.cmake => FindCURL.cmake} (95%)
+ rename CMake/{Findopenssl.cmake => FindOpenSSL.cmake} (96%)
+ create mode 100644 CMake/FindRapidJSON.cmake
+ delete mode 100644 CMake/Findrapidjson.cmake
+
+diff --git a/CMake/Findcurl.cmake b/CMake/FindCURL.cmake
+similarity index 95%
+rename from CMake/Findcurl.cmake
+rename to CMake/FindCURL.cmake
+index de370a5..041bd5e 100644
+--- a/CMake/Findcurl.cmake
++++ b/CMake/FindCURL.cmake
+@@ -14,10 +14,8 @@ if(${BUILD_CURL_FROM_SOURCE})
+     # In libcurl, CMakeLists build static lib is broken add build command via
+     # make
+     if(NOT TARGET libcurl_static_build)
+-        if (NOT curl_bundle_POPULATED)
+-            FetchContent_Populate(curl_bundle)
+-        endif()
+-        find_package(openssl)
++        FetchContent_MakeAvailable(curl_bundle)
++        find_package(OpenSSL)
+         add_custom_command(
+             OUTPUT ${curl_bundle_BINARY_DIR}/lib/libcurl.a
+             WORKING_DIRECTORY ${curl_bundle_SOURCE_DIR}
+diff --git a/CMake/Findopenssl.cmake b/CMake/FindOpenSSL.cmake
+similarity index 96%
+rename from CMake/Findopenssl.cmake
+rename to CMake/FindOpenSSL.cmake
+index 02e55b9..dbe1d54 100644
+--- a/CMake/Findopenssl.cmake
++++ b/CMake/FindOpenSSL.cmake
+@@ -14,9 +14,7 @@ if(${BUILD_CURL_FROM_SOURCE})
+     FetchContent_GetProperties(openssl102)
+ 
+     if(NOT TARGET openssl102_static_build)
+-        if(NOT openssl102_POPULATED)
+-            FetchContent_Populate(openssl102)
+-        endif()
++        FetchContent_MakeAvailable(openssl102)
+         add_custom_command(
+             OUTPUT ${openssl102_BINARY_DIR}/lib/libssl.a
+             WORKING_DIRECTORY ${openssl102_SOURCE_DIR}
+diff --git a/CMake/FindRapidJSON.cmake b/CMake/FindRapidJSON.cmake
+new file mode 100644
+index 0000000..f142f5c
+--- /dev/null
++++ b/CMake/FindRapidJSON.cmake
+@@ -0,0 +1,19 @@
++find_package(PkgConfig)
++if (PKG_CONFIG_FOUND)
++    pkg_check_modules(RAPIDJSON RapidJSON)
++endif()
++
++if (NOT RAPIDJSON_FOUND)
++    if (NOT rapidjson_POPULATED)
++      FetchContent_Populate(
++        rapidjson
++        GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
++        GIT_TAG 80b6d1c83402a5785c486603c5611923159d0894
++        GIT_SUBMODULES ""
++      )
++    endif()
++    FetchContent_GetProperties(rapidjson)
++    set(RAPIDJSON_INCLUDE_DIRS "${rapidjson_SOURCE_DIR}/include")
++endif()
++
++add_definitions("-DRAPIDJSON_HAS_STDSTRING=1")
+diff --git a/CMake/Finde2fs.cmake b/CMake/Finde2fs.cmake
+index 15c58fd..e5615a2 100644
+--- a/CMake/Finde2fs.cmake
++++ b/CMake/Finde2fs.cmake
+@@ -9,9 +9,7 @@ if(NOT ORIGIN_EXT2FS)
+     FetchContent_GetProperties(e2fsprogs)
+ 
+     if(NOT TARGET libext2fs_build)
+-        if (NOT e2fsprogs_POPULATED)
+-            FetchContent_Populate(e2fsprogs)
+-        endif()
++        FetchContent_MakeAvailable(e2fsprogs)
+         set(LIBEXT2FS_INSTALL_DIR ${e2fsprogs_SOURCE_DIR}/build/libext2fs CACHE STRING "")
+ 
+         add_custom_command(
+diff --git a/CMake/Findphoton.cmake b/CMake/Findphoton.cmake
+index 5507f66..e00b939 100644
+--- a/CMake/Findphoton.cmake
++++ b/CMake/Findphoton.cmake
+@@ -18,8 +18,8 @@ else()
+ endif()
+ 
+ if (BUILD_CURL_FROM_SOURCE)
+-  find_package(openssl REQUIRED)
+-  find_package(curl REQUIRED)
++  find_package(OpenSSL REQUIRED)
++  find_package(CURL REQUIRED)
+   add_dependencies(photon_obj CURL::libcurl OpenSSL::SSL OpenSSL::Crypto)
+ endif()
+ 
+diff --git a/CMake/Findrapidjson.cmake b/CMake/Findrapidjson.cmake
+deleted file mode 100644
+index 79bc3d7..0000000
+--- a/CMake/Findrapidjson.cmake
++++ /dev/null
+@@ -1,12 +0,0 @@
+-FetchContent_Declare(
+-  rapidjson
+-  GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
+-  GIT_TAG 80b6d1c83402a5785c486603c5611923159d0894
+-  GIT_SUBMODULES ""
+-)
+-FetchContent_GetProperties(rapidjson)
+-if (NOT rapidjson_POPULATED)
+-  FetchContent_Populate(rapidjson)
+-endif()
+-
+-add_definitions("-DRAPIDJSON_HAS_STDSTRING=1")
+\ No newline at end of file
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 753b081..f6beb46 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -44,19 +44,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
+ set(ENABLE_MIMIC_VDSO off)
+ 
+ option(BUILD_CURL_FROM_SOURCE "Compile static libcurl" off)
++option(BUILD_STREAM_CONVERTOR "Build the stream convertor" on)
+ option(ORIGIN_EXT2FS "Use original libext2fs" off)
++
+ find_package(photon REQUIRED)
+ find_package(tcmu REQUIRED)
+-find_package(yaml-cpp)
+-if (NOT yaml-cpp_FOUND)
+-  FetchContent_Declare(
+-    yaml-cpp
+-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+-    GIT_TAG 0.8.0
+-  )
+-  FetchContent_MakeAvailable(yaml-cpp)
+-endif()
+ 
++if(BUILD_STREAM_CONVERTOR)
++    find_package(yaml-cpp)
++    if (NOT yaml-cpp_FOUND)
++        FetchContent_Declare(
++            yaml-cpp
++            GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
++            GIT_TAG 0.8.0
++        )
++        FetchContent_MakeAvailable(yaml-cpp)
++    endif()
++endif()
+ 
+ if(BUILD_TESTING)
+   enable_testing()
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 4d0e696..69652f3 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,7 +1,7 @@
+-find_package(curl REQUIRED)
+-find_package(openssl REQUIRED)
++find_package(CURL REQUIRED)
++find_package(OpenSSL REQUIRED)
+ find_package(aio REQUIRED)
+-find_package(rapidjson REQUIRED)
++find_package(RapidJSON REQUIRED MODULE)
+ 
+ link_libraries(rt pthread resolv)
+ 
+@@ -19,7 +19,7 @@ add_library(overlaybd_image_lib
+ target_include_directories(overlaybd_image_lib PUBLIC
+   ${CURL_INCLUDE_DIRS}
+   ${OPENSSL_INCLUDE_DIR}
+-  ${rapidjson_SOURCE_DIR}/include
++  ${RAPIDJSON_INCLUDE_DIRS}
+   ${PHOTON_INCLUDE_DIR}
+ )
+ 
+@@ -39,7 +39,7 @@ target_include_directories(overlaybd-tcmu PUBLIC
+   ${TCMU_INCLUDE_DIR}
+   ${CURL_INCLUDE_DIRS}
+   ${OPENSSL_INCLUDE_DIR}
+-  ${rapidjson_SOURCE_DIR}/include
++  ${RAPIDJSON_INCLUDE_DIRS}
+   ${PHOTON_INCLUDE_DIR}
+ )
+ target_link_libraries(overlaybd-tcmu
+diff --git a/src/overlaybd/CMakeLists.txt b/src/overlaybd/CMakeLists.txt
+index fd57ee2..3328b43 100644
+--- a/src/overlaybd/CMakeLists.txt
++++ b/src/overlaybd/CMakeLists.txt
+@@ -5,7 +5,10 @@ add_subdirectory(cache)
+ add_subdirectory(tar)
+ add_subdirectory(gzip)
+ add_subdirectory(gzindex)
+-add_subdirectory(stream_convertor)
++
++if(BUILD_STREAM_CONVERTOR)
++    add_subdirectory(stream_convertor)
++endif()
+ 
+ add_library(overlaybd_lib INTERFACE)
+ target_include_directories(overlaybd_lib INTERFACE
+diff --git a/src/overlaybd/cache/ocf_cache/test/CMakeLists.txt b/src/overlaybd/cache/ocf_cache/test/CMakeLists.txt
+index 6c629cc..9476e11 100644
+--- a/src/overlaybd/cache/ocf_cache/test/CMakeLists.txt
++++ b/src/overlaybd/cache/ocf_cache/test/CMakeLists.txt
+@@ -1,7 +1,7 @@
+ include_directories($ENV{GFLAGS}/include)
+ link_directories($ENV{GFLAGS}/lib)
+ 
+-find_package(curl REQUIRED)
++find_package(CURL REQUIRED)
+ 
+ add_executable(ocf_perf_test ocf_perf_test.cpp)
+ target_include_directories(
+diff --git a/src/overlaybd/registryfs/CMakeLists.txt b/src/overlaybd/registryfs/CMakeLists.txt
+index 7ce30ab..a7f59e1 100644
+--- a/src/overlaybd/registryfs/CMakeLists.txt
++++ b/src/overlaybd/registryfs/CMakeLists.txt
+@@ -1,10 +1,10 @@
+ file(GLOB SOURCE_REGISTRYFS "*.cpp")
+ 
+-find_package(curl REQUIRED)
++find_package(CURL REQUIRED)
+ 
+ add_library(registryfs_lib STATIC ${SOURCE_REGISTRYFS})
+ target_include_directories(registryfs_lib PUBLIC
+     ${CURL_INCLUDE_DIRS}
+-    ${rapidjson_SOURCE_DIR}/include
++    ${RAPIDJSON_INCLUDE_DIRS}
+     ${PHOTON_INCLUDE_DIR}
+ )
+diff --git a/src/overlaybd/stream_convertor/CMakeLists.txt b/src/overlaybd/stream_convertor/CMakeLists.txt
+index d0465e5..19f1acd 100644
+--- a/src/overlaybd/stream_convertor/CMakeLists.txt
++++ b/src/overlaybd/stream_convertor/CMakeLists.txt
+@@ -3,7 +3,7 @@ file(GLOB SOURCE_SERV "*.cpp")
+ add_executable(overlaybd-streamConv ${SOURCE_SERV})
+ target_include_directories(overlaybd-streamConv PUBLIC
+     ${PHOTON_INCLUDE_DIR}
+-    ${rapidjson_SOURCE_DIR}/include
++    ${RAPIDJSON_INCLUDE_DIRS}
+ )
+ target_link_libraries(overlaybd-streamConv
+     photon_static
+diff --git a/src/overlaybd/tar/erofs/test/CMakeLists.txt b/src/overlaybd/tar/erofs/test/CMakeLists.txt
+index db03d8b..0c10f34 100644
+--- a/src/overlaybd/tar/erofs/test/CMakeLists.txt
++++ b/src/overlaybd/tar/erofs/test/CMakeLists.txt
+@@ -12,7 +12,7 @@ target_link_libraries(erofs_simple_test gtest gtest_main pthread photon_static
+ 
+ target_include_directories(erofs_simple_test PUBLIC
+     ${PHOTON_INCLUDE_DIR}
+-    ${rapidjson_SOURCE_DIR}/include
++    ${RAPIDJSON_INCLUDE_DIRS}
+ )
+ 
+ add_test(
+@@ -28,7 +28,7 @@ target_link_libraries(erofs_stress_test gtest gtest_main pthread photon_static
+ 
+ target_include_directories(erofs_stress_test PUBLIC
+     ${PHOTON_INCLUDE_DIR}
+-    ${rapidjson_SOURCE_DIR}/include
++    ${RAPIDJSON_INCLUDE_DIRS}
+ )
+ 
+ add_test(
+diff --git a/src/test/CMakeLists.txt b/src/test/CMakeLists.txt
+index f613a09..15336c9 100644
+--- a/src/test/CMakeLists.txt
++++ b/src/test/CMakeLists.txt
+@@ -7,7 +7,7 @@ link_directories($ENV{GTEST}/lib)
+ add_executable(image_service_test image_service_test.cpp)
+ target_include_directories(image_service_test PUBLIC
+     ${PHOTON_INCLUDE_DIR}
+-    ${rapidjson_SOURCE_DIR}/include
++    ${RAPIDJSON_INCLUDE_DIRS}
+ )
+ target_link_libraries(image_service_test gtest gtest_main gflags pthread photon_static overlaybd_lib overlaybd_image_lib)
+ 
+@@ -34,14 +34,14 @@ gtest
+ 
+ target_include_directories(simple_credsrv_test PUBLIC
+     ${PHOTON_INCLUDE_DIR}
+-    ${rapidjson_SOURCE_DIR}/include
++    ${RAPIDJSON_INCLUDE_DIRS}
+     $ENV{GTEST}/googletest/include
+ )
+ 
+ add_executable(trace_test trace_test.cpp ../tools/comm_func.cpp)
+ target_include_directories(trace_test PUBLIC
+     ${PHOTON_INCLUDE_DIR}
+-    ${rapidjson_SOURCE_DIR}/include
++    ${RAPIDJSON_INCLUDE_DIRS}
+ )
+ target_link_libraries(trace_test gtest gtest_main gflags pthread photon_static overlaybd_lib overlaybd_image_lib)
+ 
+diff --git a/src/tools/CMakeLists.txt b/src/tools/CMakeLists.txt
+index b551b84..ecf5c32 100644
+--- a/src/tools/CMakeLists.txt
++++ b/src/tools/CMakeLists.txt
+@@ -17,12 +17,12 @@ target_include_directories(overlaybd-zfile PUBLIC ${PHOTON_INCLUDE_DIR})
+ target_link_libraries(overlaybd-zfile photon_static overlaybd_lib)
+ 
+ add_executable(overlaybd-apply overlaybd-apply.cpp)
+-target_include_directories(overlaybd-apply PUBLIC ${PHOTON_INCLUDE_DIR} ${rapidjson_SOURCE_DIR}/include)
++target_include_directories(overlaybd-apply PUBLIC ${PHOTON_INCLUDE_DIR} ${RAPIDJSON_INCLUDE_DIRS})
+ target_link_libraries(overlaybd-apply photon_static overlaybd_lib overlaybd_image_lib checksum_lib)
+ set_target_properties(overlaybd-apply PROPERTIES INSTALL_RPATH "/opt/overlaybd/lib")
+ 
+ add_executable(turboOCI-apply turboOCI-apply.cpp)
+-target_include_directories(turboOCI-apply PUBLIC ${PHOTON_INCLUDE_DIR} ${rapidjson_SOURCE_DIR}/include)
++target_include_directories(turboOCI-apply PUBLIC ${PHOTON_INCLUDE_DIR} ${RAPIDJSON_INCLUDE_DIRS})
+ target_link_libraries(turboOCI-apply photon_static overlaybd_lib overlaybd_image_lib)
+ set_target_properties(turboOCI-apply PROPERTIES INSTALL_RPATH "/opt/overlaybd/lib")
+ 
+-- 
+2.52.0
+
