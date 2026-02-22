@@ -124,10 +124,8 @@ for arg in "$@"; do
 done
 
 # Check that the build root is sane.
-if [[ ${skip_test_build_root} -ne 1 ]]; then
-  info "Checking build root"
-  test_image_content "${BOARD_ROOT}"
-fi
+info "Checking build root"
+test_image_content "${BOARD_ROOT}"
 
 # Handle existing directory.
 if [[ -e "${BUILD_DIR}" ]] && [[ "${PROD_IMAGE}" = 1 ]]; then
