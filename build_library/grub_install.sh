@@ -92,7 +92,6 @@ ESP_DIR=
 LOOP_DEV=
 
 cleanup() {
-    cleanup_sbsign_certs
     if [[ -d "${ESP_DIR}" ]]; then
         if mountpoint -q "${ESP_DIR}"; then
             sudo umount "${ESP_DIR}"
@@ -202,8 +201,8 @@ case "${FLAGS_target}" in
 
             # Unofficial build: Sign shim with our development key.
             sudo sbsign \
-                --key /usr/share/sb_keys/DB.key \
-                --cert /usr/share/sb_keys/DB.crt \
+                --key /usr/share/sb_keys/unofficial/DB.key \
+                --cert /usr/share/sb_keys/unofficial/DB.pem \
                 --output "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
                 "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi"
         else

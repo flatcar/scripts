@@ -12,5 +12,4 @@ Generate the our shim certificates:
 ```
 openssl genrsa -out "shim.key" 2048
 openssl req -new -x509 -sha256 -subj "/CN=shim/" -key "shim.key" -out "shim.pem" -days 7300
-openssl x509 -in "shim.pem" -inform PEM -out "shim.der" -outform DER
 ```
