@@ -17,15 +17,11 @@ on:
 jobs:
   tests:
     name: "Run Kola tests"
-    runs-on:
-      - self-hosted
-      - ubuntu
-      - kola
-      - ${{ matrix.arch }}
+    runs-on: oracle-vm-32cpu-128gb-x86-64
     strategy:
       fail-fast: false
       matrix:
-        arch: ["amd64", "arm64"]
+        arch: ["amd64"]
 
     steps:
       - name: Prepare machine
@@ -34,9 +30,7 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-system git bzip2 jq dnsmasq python3 zstd
-          sudo systemctl stop dnsmasq
-          sudo systemctl mask dnsmasq
+          sudo apt update && sudo apt install -y ca-certificates curl gnupg lsb-release qemu-system git bzip2 jq dnsmasq python3 zstd iproute2 iptables
 
           # Set up MASQUERADE. Don't care much to secure it.
           # This is needed for the VMs kola spins up to have internet access.
@@ -186,7 +180,7 @@ jobs:
 
           source ci-automation/test.sh
 
-          PARALLEL_ARCH=10
+          PARALLEL_ARCH=5
 
           cat > sdk_container/.env <<EOF
           # export the QEMU_IMAGE_NAME to avoid to download it.
@@ -239,10 +233,7 @@ jobs:
     name: "Merge TAP reports and post results"
     needs: tests
     if: always() && !cancelled()
-    runs-on:
-      - self-hosted
-      - ubuntu
-      - kola
+    runs-on: oracle-vm-32cpu-128gb-x86-64
     permissions:
       pull-requests: write
 
@@ -253,7 +244,7 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install -y ca-certificates curl gnupg lsb-release git bzip2 jq sqlite3
+          sudo apt update && sudo apt install -y ca-certificates curl gnupg lsb-release git bzip2 jq sqlite3
 
       - uses: actions/checkout@v4
         with:
