@@ -1,5 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org> (2026-01-16)
+# Unkeyworded dependencies (bug #968238)
+media-video/pipewire libcamera
 
 # Alfred Wingate <parona@protonmail.com> (2025-12-24)
 # media-libs/jasper are not keyworded here
@@ -131,10 +135,6 @@ dev-perl/Template-Toolkit gd latex vim-syntax
 # Christopher Byrne <salah.coronya@gmail.com> (2024-12-01)
 # requires dev-libs/hidapi to be keyworded
 dev-libs/libfido2 hidapi
-
-# Matt Jolly <kangie@gentoo.org> (2024-11-03)
-# Requires llvm 16 which is not keyworded
-~dev-lang/rust-1.71.1 system-llvm
 
 # Felix Janda <felix.janda@posteo.de> (2024-10-20)
 # requires dev-libs/libcss and net-libs/libdom to be keyworded
