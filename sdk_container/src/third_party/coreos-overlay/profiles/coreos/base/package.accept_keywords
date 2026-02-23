@@ -137,3 +137,6 @@ sys-apps/azure-vm-utils
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.
 =sys-libs/libselinux-3.8.1-r3 ~amd64 ~arm64
+
+# Needed to build this amd64-specific package on other arches.
+=sys-apps/iucode_tool-2.3.1-r2 ~amd64 ~arm64
