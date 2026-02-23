@@ -91,7 +91,6 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-	"${FILESDIR}"/${PN}-2.84.4-libpcre2-10.47.patch
 )
 
 python_check_deps() {
