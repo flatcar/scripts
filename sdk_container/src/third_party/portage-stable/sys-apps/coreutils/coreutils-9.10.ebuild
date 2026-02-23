@@ -11,7 +11,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{11..13} )
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/coreutils.asc
-inherit flag-o-matic python-any-r1 toolchain-funcs verify-sig
+inherit branding flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
 MY_PATCH="${PN}-9.6-patches"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
@@ -118,7 +118,7 @@ src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}"/${PN}-9.5-skip-readutmp-test.patch
 		# Upstream patches
-		"${FILESDIR}"/${PN}-9.9-cp-SEEK_HOLE-loop.patch
+		"${FILESDIR}"/${PN}-9.10-dash-tests.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
@@ -156,9 +156,7 @@ src_configure() {
 	# still experimental at the moment, but:
 	# https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=85edb4afbd119fb69a0d53e1beb71f46c9525dd0
 	local myconf=(
-		--with-packager="Gentoo"
 		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
-		--with-packager-bug-reports="https://bugs.gentoo.org/"
 		# kill/uptime - procps
 		# hostname    - net-tools
 		--enable-install-program="arch,$(usev hostname),$(usev kill)"
@@ -170,6 +168,7 @@ src_configure() {
 		$(use_enable xattr)
 		$(use_with gmp libgmp)
 		$(use_with openssl)
+		$(use_with selinux)
 	)
 
 	if use gmp ; then
@@ -192,12 +191,9 @@ src_configure() {
 		sed -i '/elf_sys=yes/s:yes:no:' configure || die
 	fi
 
-	if ! use selinux ; then
-		# bug #301782
-		export ac_cv_{header_selinux_{context,flash,selinux}_h,search_setfilecon}=no
-	fi
-
-	econf "${myconf[@]}"
+	# TODO: Drop CONFIG_SHELL for bash after 9.10
+	# https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=a72ad1216d8cf96be542e2e7a4dd1d6151d6087b
+	CONFIG_SHELL="${BROOT}"/bin/bash econf "${myconf[@]}"
 }
 
 src_test() {
