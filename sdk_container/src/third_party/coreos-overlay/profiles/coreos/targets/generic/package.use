@@ -22,7 +22,6 @@ net-misc/ntp            caps
 sys-apps/smartmontools	-daemon -update-drivedb -systemd
 sys-block/parted        device-mapper
 sys-fs/lvm2		-readline thin lvm
-sys-libs/ncurses	minimal
 sys-libs/pam		audit
 
 # enable journal gateway, bootctl and container features
