@@ -248,7 +248,7 @@ if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
 fi
 
 info "Writing ${SYSEXTNAME}_packages.txt"
-ROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" PORTAGE_CONFIGROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" \
+ROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" PORTAGE_CONFIGROOT="/build/${FLAGS_board}" \
       equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
 
 
