@@ -900,6 +900,7 @@ setup_multilib_osdirnames() {
 
 # @FUNCTION: _get_bootstrap_gcc_info
 # @USAGE: [gcc_pkg|gcc_bin_base]...
+# @INTERNAL
 # @DESCRIPTION:
 # Get some information about the gcc that would be used to build this package.
 # All the variables that are passed as arguments will be set to their apropriate
@@ -1416,17 +1417,19 @@ toolchain_src_configure() {
 		confgcc+=( --disable-libstdcxx-pch )
 	fi
 
-	# build-id was disabled for file collisions: bug #526144
-	#
-	# # Turn on the -Wl,--build-id flag by default for ELF targets. bug #525942
-	# # This helps with locating debug files.
-	# case ${CTARGET} in
-	# *-linux-*|*-elf|*-eabi)
-	# 	tc_version_is_at_least 4.5 && confgcc+=(
-	# 		--enable-linker-build-id
-	# 	)
-	# 	;;
-	# esac
+	# Turn on the -Wl,--build-id flag by default for ELF targets. bug #953869
+	# This helps with locating debug files.
+	case ${CTARGET} in
+		*-linux-*|*-elf|*-eabi)
+			tc_version_is_at_least 4.5 && confgcc+=(
+				--enable-linker-build-id
+			)
+		;;
+	esac
+
+	if in_iuse ada ; then
+		confgcc+=( $(use_enable ada libada) )
+	fi
 
 	### Cross-compiler option
 	#
@@ -1449,11 +1452,15 @@ toolchain_src_configure() {
 				;;
 			*-elf|*-eabi)
 				needed_libc=newlib
-				# Bare-metal targets don't have access to clock_gettime()
-				# arm-none-eabi example: bug #589672
-				# But we explicitly do --enable-libstdcxx-time above.
-				# Undoing it here.
-				confgcc+=( --disable-libstdcxx-time )
+				confgcc+=(
+					# Bare-metal targets don't have access to clock_gettime()
+					# arm-none-eabi example: bug #589672
+					# But we explicitly do --enable-libstdcxx-time above.
+					# Undoing it here.
+					--disable-libstdcxx-time
+					# bug #970098
+					--disable-libada
+				)
 				;;
 			*-gnu*)
 				needed_libc=glibc
@@ -1778,10 +1785,6 @@ toolchain_src_configure() {
 		fi
 	fi
 
-	if in_iuse ada ; then
-		confgcc+=( $(use_enable ada libada) )
-	fi
-
 	if in_iuse cet ; then
 		# Usage: triple_arch triple_env cet_name
 		enable_cet_for() {
@@ -1809,7 +1812,7 @@ toolchain_src_configure() {
 		# We patch this in w/ PR66487-object-lifetime-instrumentation-for-Valgrind.patch,
 		# so it may not always be available.
 		if grep -q -- '--enable-valgrind-interop' "${S}"/libgcc/configure.ac ; then
-			if ! is_crosscompile || $(unset CC; unset CPP; tc-getCPP ${CTARGET#accel-}) -E - <<<"#include <valgrind/memcheck.h>" >& /dev/null ; then
+			if ! is_crosscompile && $(unset CC; unset CPP; tc-getCPP ${CTARGET#accel-}) -E - <<<"#include <valgrind/memcheck.h>" >& /dev/null ; then
 				confgcc+=( $(use_enable valgrind valgrind-interop) )
 			else
 				confgcc+=( --disable-valgrind-interop )
@@ -1846,19 +1849,27 @@ toolchain_src_configure() {
 	fi
 
 	if in_iuse pie ; then
-		confgcc+=( $(use_enable pie default-pie) )
+		# Workaround for broken configure logic (bug #970413)
+		if use pie ; then
+			confgcc+=( --enable-default-pie )
+		fi
 
 		if tc_version_is_at_least 14.1 ${PV} || tc_version_is_at_least 13.4.1_p20250814 ${PV} ; then
-			confgcc+=( --enable-host-pie )
+			# Workaround for broken configure logic (bug #970413)
+			if use pie ; then
+				confgcc+=( --enable-host-pie )
+			fi
 		fi
 	fi
 
 	if in_iuse default-znow && { tc_version_is_at_least 14.1 ${PV} || tc_version_is_at_least 13.4.1_p20250814 ${PV} ; } ; then
 		# See https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=33ebb0dff9bb022f1e0709e0e73faabfc3df7931.
 		# TODO: Add to LDFLAGS_FOR_TARGET?
-		confgcc+=(
-			$(use_enable default-znow host-bind-now)
-		)
+		#
+		# Workaround for broken configure logic (bug #970413)
+		if use default-znow ; then
+			confgcc+=( --enable-host-bind-now )
+		fi
 	fi
 
 	if in_iuse ssp ; then
