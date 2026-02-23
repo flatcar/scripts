@@ -20,7 +20,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/portage.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 
 LICENSE="GPL-2"
@@ -53,7 +53,7 @@ BDEPEND="
 # For whirlpool hash, require python[ssl] (bug #425046).
 RDEPEND="
 	${PYTHON_DEPS}
-	acct-user/portage
+	>=acct-user/portage-0-r4
 	>=app-arch/tar-1.27
 	app-arch/zstd
 	>=app-misc/pax-utils-0.1.17
@@ -64,6 +64,7 @@ RDEPEND="
 		>=app-admin/eselect-1.2
 		app-portage/getuto
 		>=app-shells/bash-5.3:0
+		dev-util/debugedit
 		>=sec-keys/openpgp-keys-gentoo-release-20240703
 		>=sys-apps/sed-4.0.5
 		rsync-verify? (
@@ -88,6 +89,10 @@ PDEPEND="
 		>=sys-apps/file-5.44-r3
 	)
 "
+
+PATCHES=(
+	"${FILESDIR}"/0001-estrip-silence-noise-from-objcopy-if-build-ID-sectio.patch
+)
 
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
