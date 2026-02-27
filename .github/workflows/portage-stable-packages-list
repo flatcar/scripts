@@ -346,11 +346,9 @@ dev-python/markupsafe
 dev-python/mdurl
 dev-python/more-itertools
 dev-python/msgpack
-dev-python/olefile
 dev-python/packaging
 dev-python/pathspec
 dev-python/pefile
-dev-python/pillow
 dev-python/pip
 dev-python/platformdirs
 dev-python/pluggy
