@@ -34,3 +34,9 @@ llvm-core/clang-9999
 # Pulled in by sys-apps/texinfo, contains only an info file, which
 # will get masked anyway during installation.
 app-doc/info-manual-9999
+
+# Pillow is a dependency of docutils. Ebuild unconditionally requires
+# it, but docutils actually autodetects pillow. So let's skip it then
+# - it is only used for docs, which we don't ship in production
+# images.
+dev-python/pillow-9999
