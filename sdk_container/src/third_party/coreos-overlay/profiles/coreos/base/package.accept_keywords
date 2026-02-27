@@ -78,7 +78,7 @@ dev-db/etcd amd64
 # Used to be in sdk target profile, unversioned, so pinning it to a
 # version used at a time of the move. Needed for building signed
 # sysexts with systemd-repart
-=dev-libs/xxhash-0.8.3-r1
+=dev-libs/xxhash-0.8.3-r2
 
 # No arm64 keyword in package.
 =dev-util/bsdiff-4.3-r4 **
