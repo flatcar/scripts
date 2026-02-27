@@ -84,7 +84,7 @@ dev-db/etcd amd64
 =dev-util/bsdiff-4.3-r4 **
 
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
-=dev-util/catalyst-4.0.0 ~amd64 ~arm64
+=dev-util/catalyst-4.1.1 ~amd64 ~arm64
 
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
