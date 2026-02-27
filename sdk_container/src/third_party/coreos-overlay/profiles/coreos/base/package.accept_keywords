@@ -15,7 +15,7 @@
 
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.33.0 ~arm64
-=app-containers/incus-6.0.5 ~arm64
+=app-containers/incus-6.0.5-r1 ~arm64
 =app-containers/lxc-6.0.5 ~arm64
 
 # We always want the latest version available.
