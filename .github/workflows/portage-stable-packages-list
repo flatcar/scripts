@@ -3,6 +3,7 @@
 acct-group/adm
 acct-group/audio
 acct-group/cdrom
+acct-group/clock
 acct-group/cuse
 acct-group/dialout
 acct-group/disk
