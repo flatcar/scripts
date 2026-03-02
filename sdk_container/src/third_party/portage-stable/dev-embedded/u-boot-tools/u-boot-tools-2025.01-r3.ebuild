@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,19 +10,18 @@ DESCRIPTION="utilities for working with Das U-Boot"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
 SRC_URI="
 	https://ftp.denx.de/pub/u-boot/${MY_P}.tar.bz2
-	https://github.com/u-boot/u-boot/commit/88b9b9c44c859bdd9bb227e2fdbc4cbf686c3343.patch
-		-> u-boot-tools-2024.01-fix-invalid-escape-sequence.patch
 "
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ppc ppc64 ~riscv x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~riscv ~x86"
 IUSE="envtools"
 
 RDEPEND="
 	dev-libs/openssl:=
 	net-libs/gnutls:=
+	>=sys-apps/dtc-1.4.6
 	sys-apps/util-linux:=
 "
 DEPEND="${RDEPEND}"
@@ -34,8 +33,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	# https://github.com/u-boot/u-boot/pull/489
-	"${DISTDIR}"/u-boot-tools-2024.01-fix-invalid-escape-sequence.patch
+	"${FILESDIR}"/${PN}-2025.01-no-bundled-dtc.patch
 )
 
 src_prepare() {
@@ -44,6 +42,7 @@ src_prepare() {
 		scripts/kconfig/{g,m,n,q}conf-cfg.sh \
 		scripts/kconfig/Makefile \
 		tools/Makefile || die
+	sed -i -e 's/cross_tools: tools/& envtools /' "${S}/Makefile"
 }
 
 src_configure() {
@@ -55,23 +54,37 @@ src_compile() {
 	# Unset a few KBUILD variables. Bug #540476
 	unset KBUILD_OUTPUT KBUILD_SRC
 
-	local myemakeargs=(
+	if [[ ${CBUILD} != ${CHOST} ]] ; then
+		local myemakeargs=(
+			CROSS_COMPILE="${CHOST}"-
+			CROSS_BUILD=y
+		)
+		local maketarget=$(usex envtools envtools cross_tools)
+	else
+		local myemakeargs=(
+			AR="${AR}"
+			CC="${CC}"
+			HOSTCC="${BUILD_CC}"
+			HOSTCFLAGS="${CFLAGS} ${CPPFLAGS}"' $(HOSTCPPFLAGS)'
+			HOSTLDFLAGS="${LDFLAGS}"
+		)
+		local maketarget=$(usex envtools envtools tools-all)
+	fi
+
+	myemakeargs+=(
 		V=1
-		AR="${AR}"
-		CC="${CC}"
-		HOSTCC="${BUILD_CC}"
-		HOSTCFLAGS="${BUILD_CFLAGS} ${BUILD_CPPFLAGS}"' $(HOSTCPPFLAGS)'
-		HOSTLDFLAGS="${BUILD_LDFLAGS}"
+		DTC="dtc"
+		# Provided by sys-apps/dtc[python]
+		NO_PYTHON=1
 	)
 
 	emake "${myemakeargs[@]}" tools-only_defconfig
-
 	emake "${myemakeargs[@]}" \
 		NO_SDL=1 \
 		HOSTSTRIP=: \
 		STRIP=: \
 		CONFIG_ENV_OVERWRITE=y \
-		$(usex envtools envtools tools-all)
+		"${maketarget}"
 }
 
 src_test() { :; }
@@ -80,7 +93,11 @@ src_install() {
 	cd tools || die
 
 	if ! use envtools; then
-		dobin dumpimage fdtgrep gen_eth_addr img2srec mkeficapsule mkenvimage mkimage
+		dobin dumpimage fdtgrep img2srec mkeficapsule mkenvimage mkimage
+	fi
+
+	if [[ ${CBUILD} == ${CHOST} ]]; then
+		dobin gen_eth_addr
 	fi
 
 	dobin env/fw_printenv
