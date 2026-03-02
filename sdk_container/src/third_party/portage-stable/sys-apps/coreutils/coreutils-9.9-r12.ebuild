@@ -119,6 +119,7 @@ src_prepare() {
 		"${FILESDIR}"/${PN}-9.5-skip-readutmp-test.patch
 		# Upstream patches
 		"${FILESDIR}"/${PN}-9.9-cp-SEEK_HOLE-loop.patch
+		"${FILESDIR}"/${PN}-9.9-glibc-2.43-c23.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
