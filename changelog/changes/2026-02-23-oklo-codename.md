@@ -1,0 +1,1 @@
+- Dropped the "Oklo" release codename as it was never updated in a meaningful way.
