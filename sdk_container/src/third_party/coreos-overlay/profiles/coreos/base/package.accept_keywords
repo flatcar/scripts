@@ -61,7 +61,6 @@ dev-db/etcd amd64
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
-=dev-libs/elfutils-0.194 ~amd64
 
 # The only available ebuild has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-14 **
