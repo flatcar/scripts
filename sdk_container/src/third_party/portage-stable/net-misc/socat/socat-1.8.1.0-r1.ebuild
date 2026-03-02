@@ -28,7 +28,10 @@ RDEPEND="${DEPEND}"
 
 DOCS=( BUGREPORTS CHANGES DEVELOPMENT EXAMPLES FAQ FILES PORTING README SECURITY )
 
-PATCHES=( "${FILESDIR}"/${PN}-1.8.1.0-const.patch )
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.8.1.0-const.patch
+	"${FILESDIR}"/${PN}-1.8.1.0-musl-fix.patch # bug #968110
+)
 
 src_configure() {
 	# bug #293324
