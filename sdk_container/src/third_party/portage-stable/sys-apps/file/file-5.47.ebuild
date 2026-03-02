@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -18,7 +18,7 @@ else
 	SRC_URI="https://astron.com/pub/file/${P}.tar.gz"
 	SRC_URI+=" verify-sig? ( https://astron.com/pub/file/${P}.tar.gz.asc )"
 
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-file )"
 fi
@@ -60,8 +60,6 @@ QA_CONFIG_IMPL_DECL_SKIP=( makedev )
 PATCHES=(
 	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
 	"${FILESDIR}/file-5.45-seccomp-sandbox.patch"
-	"${FILESDIR}/file-5.46-zip.patch"
-	"${FILESDIR}/file-5.46-buffer-overflow.patch"
 )
 
 src_prepare() {
