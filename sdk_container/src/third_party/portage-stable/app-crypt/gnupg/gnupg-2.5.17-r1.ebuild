@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -71,6 +71,8 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
+	"${FILESDIR}"/0001-Fix-stub-functions-to-avoid-LTO-linking-bugs.patch
+	"${FILESDIR}"/0002-Fix-stub-functions-to-avoid-LTO-linking-bugs-followup.patch
 )
 
 src_prepare() {
@@ -103,9 +105,6 @@ src_prepare() {
 }
 
 my_src_configure() {
-	# Upstream don't support LTO, bug #854222.
-	filter-lto
-
 	local myconf=(
 		$(use_enable bzip2)
 		$(use_enable nls)
