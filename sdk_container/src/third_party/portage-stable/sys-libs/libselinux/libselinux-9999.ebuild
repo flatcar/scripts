@@ -1,10 +1,11 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_EXT=1
+DISTUTILS_OPTIONAL=1
 PYTHON_COMPAT=( python3_{11..14} )
 USE_RUBY="ruby32 ruby33"
 
@@ -45,13 +46,28 @@ BDEPEND="virtual/pkgconfig
 	python? (
 		>=dev-lang/swig-2.0.9
 		dev-python/pip[${PYTHON_USEDEP}]
-)
+		${PYTHON_DEPS}
+		${DISTUTILS_DEPS}
+	)
 	ruby? ( >=dev-lang/swig-2.0.9 )"
 
 src_prepare() {
 	eapply_user
 
+	if use python; then
+		distutils-r1_src_prepare
+	fi
+
 	multilib_copy_sources
+}
+
+multilib_src_configure() {
+	default
+	if multilib_is_native_abi; then
+		if use python; then
+			distutils-r1_src_configure
+		fi
+	fi
 }
 
 multilib_src_compile() {
@@ -148,6 +164,13 @@ python_install() {
 	# install the C extension symlink
 	local pycext="$(python -c 'import importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])' || die)"
 	dosym -r "$(python_get_sitedir)/selinux/_selinux${pycext}" "$(python_get_sitedir)/_selinux${pycext}"
+}
+
+multilib_src_test() {
+	default
+	if use python; then
+		distutils-r1_src_test
+	fi
 }
 
 pkg_postinst() {
