@@ -65,9 +65,6 @@ dev-db/etcd amd64
 # The only available ebuild has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-14 **
 
-# Keep versions on both arches in sync.
-=dev-libs/libnl-3.11.0 ~amd64
-
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
