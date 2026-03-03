@@ -1,0 +1,57 @@
+From 5480f56002399069f74f30ce3ef620ec44ecf527 Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Thu, 20 Nov 2025 23:43:55 +0900
+Subject: [PATCH 3/7] sysext: Use correct image name for extension release
+ checks
+
+For the extension release check the image name is needed and was derived
+from the backing file of the loop device. However, this can have a
+different name when symlinks were resolved. The surprising behavior was
+that it worked when the target name started with the extension name and
+_ because that's what's supported to chop off version suffixes. However,
+we should not have such strict requirements for the target name and also
+allow - as version separator and entirely different names/prefixes, the
+same way as we also do for directories instead of raw images.
+
+Do not use the image name derived from the backing file of the loop
+device but directly the extension name we have at hand.
+---
+ src/shared/discover-image.c | 5 +++++
+ src/sysext/sysext.c         | 5 +++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/src/shared/discover-image.c b/src/shared/discover-image.c
+index 91f4407b0e..480ffd221c 100644
+--- a/src/shared/discover-image.c
++++ b/src/shared/discover-image.c
+@@ -1822,6 +1822,11 @@ int image_read_metadata(Image *i, const ImagePolicy *image_policy) {
+                 if (r < 0)
+                         return r;
+ 
++                /* Do not use the image name derived from the backing file of the loop device */
++                r = free_and_strdup(&m->image_name, i->name);
++                if (r < 0)
++                        return r;
++
+                 r = dissected_image_acquire_metadata(
+                                 m,
+                                 /* userns_fd= */ -EBADF,
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 5d432b42da..72da02cd89 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -1819,6 +1819,11 @@ static int merge_subprocess(
+                         if (r < 0)
+                                 return r;
+ 
++                        /* Do not use the image name derived from the backing file of the loop device */
++                        r = free_and_strdup(&m->image_name, img->name);
++                        if (r < 0)
++                                return r;
++
+                         r = dissected_image_load_verity_sig_partition(
+                                         m,
+                                         d->fd,
+-- 
+2.51.1
+

@@ -1,0 +1,45 @@
+From cf36f845e6a806161e008def40a271e9e9746c4f Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Wed, 3 Dec 2025 00:02:32 +0900
+Subject: [PATCH 5/7] sysext: Create mutable directory with the right mode
+
+When the mutable directory didn't exist but gets created with
+--mutable=yes then it used to get mode 700 and later it got patched by
+a chmod because it is the top layer and must match the target hierarchy.
+This meant one could not call the function to resolve the mutable
+directory twice before the mount because it has a check for a proper
+mode when the directory exists which is the case for the second call.
+Also, this resulted in /var/lib/extensions.mutable getting created with
+mode 700 which is not really required.
+
+Don't rely on the chmod for the upper dir but directly create the
+directory with the right mode by first creating all missing directories
+with 755 as a sane default and then changing the mode as needed for the
+mutable directory.
+---
+ src/sysext/sysext.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 72da02cd89..d63cf39fbb 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -952,10 +952,14 @@ static int resolve_mutable_directory(
+                 if (!path_in_root)
+                         return log_oom();
+ 
+-                r = mkdir_p(path_in_root, 0700);
++                /* This also creates /var/lib/extensions.mutable if needed */
++                r = mkdir_p(path_in_root, 0755);
+                 if (r < 0)
+                         return log_error_errno(r, "Failed to create a directory '%s': %m", path_in_root);
+ 
++                if (chmod(path_in_root, hierarchy_mode) < 0)
++                        return log_error_errno(errno, "Failed to chmod directory '%s': %m", path_in_root);
++
+                 _cleanup_close_ int atfd = open(path_in_root, O_DIRECTORY|O_CLOEXEC);
+                 if (atfd < 0)
+                         return log_error_errno(errno, "Failed to open directory '%s': %m", path_in_root);
+-- 
+2.51.1
+
