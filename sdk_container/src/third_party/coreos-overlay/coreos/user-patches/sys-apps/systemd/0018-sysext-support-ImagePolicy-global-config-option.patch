@@ -1,7 +1,7 @@
-From 363c849b4faed27449a0e3ee41c302709aec0807 Mon Sep 17 00:00:00 2001
+From dccee58738d9602dd62f482ed11152f51b4da896 Mon Sep 17 00:00:00 2001
 From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
 Date: Thu, 17 Jul 2025 10:16:24 -0400
-Subject: [PATCH 3/4] sysext: support ImagePolicy global config option
+Subject: [PATCH 18/20] sysext: support ImagePolicy global config option
 
 Just as Mutable=, support ImagePolicy in systemd/{sysext/confext}.conf and
 dropins in systemd/{sysext.confext}.conf.d/* configs.
@@ -46,5 +46,5 @@ index 332fc55bb3..9656e975c4 100644
          };
          _cleanup_free_ char *config_file = NULL;
 -- 
-2.51.0
+2.52.0
 
