@@ -1,10 +1,8 @@
-This can be dropped in v285.5+.
-
-From b1d53ddea750f761234c2d8fb04b10f23f77347e Mon Sep 17 00:00:00 2001
+From 025e4f390cef6edad1669a9973297bc7f2271791 Mon Sep 17 00:00:00 2001
 From: Justin Kromlinger <hashworks@archlinux.org>
 Date: Wed, 8 Oct 2025 16:55:09 +0200
-Subject: [PATCH] Drop `machine-id` OSC event field if /etc/machine-id doesn't
- exist
+Subject: [PATCH 20/20] Drop `machine-id` OSC event field if /etc/machine-id
+ doesn't exist
 
 While we can safely assume that `/proc/sys/kernel/random/boot_id`
 exists, the same can't be said for `/etc/machine-id` in environments
@@ -18,9 +16,15 @@ no such file or directory` with the OSC events introduced in dadbb34
 [0] https://gitlab.archlinux.org/archlinux/archlinux-docker/-/issues/107
 
 (cherry picked from commit 0fe45b98dd737da86fcbb703809ebf2163c397f3)
+---
+ profile.d/80-systemd-osc-context.sh | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/profile.d/80-systemd-osc-context.sh b/profile.d/80-systemd-osc-context.sh
+index a0ac858828..ead61b6753 100644
 --- a/profile.d/80-systemd-osc-context.sh
 +++ b/profile.d/80-systemd-osc-context.sh
-@@ -32,7 +32,10 @@ __systemd_osc_context_escape() {
+@@ -28,7 +28,10 @@ __systemd_osc_context_escape() {
  }
  
  __systemd_osc_context_common() {
@@ -32,3 +36,6 @@ no such file or directory` with the OSC events introduced in dadbb34
  }
  
  __systemd_osc_context_precmdline() {
+-- 
+2.52.0
+

@@ -1,7 +1,8 @@
-From f2e3cd402e64528454d3825681ccf242ff1b46af Mon Sep 17 00:00:00 2001
+From 187e60032a26fb58b8944aac5c48a495f9de2644 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 20 Nov 2025 23:43:55 +0900
-Subject: [PATCH 4/7] test: Add tests for handling symlinks with systemd-sysext
+Subject: [PATCH 12/20] test: Add tests for handling symlinks with
+ systemd-sysext
 
 When we now allow following symlinks inside a --root= we should also
 test that it works in various cases from simple relative and absolute
@@ -330,5 +331,5 @@ index ecf0b83b1d..3eec224eb6 100755
  
  
 -- 
-2.51.1
+2.52.0
 

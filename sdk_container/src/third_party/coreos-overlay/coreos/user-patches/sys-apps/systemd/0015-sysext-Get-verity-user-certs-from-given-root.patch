@@ -1,7 +1,7 @@
-From 439fb373b7360ba3759b8978d0354d4fe760c8f2 Mon Sep 17 00:00:00 2001
+From 6ff96ca2438ddbe65ed75b95c9f7a23472304e2b Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 27 Nov 2025 17:49:15 +0900
-Subject: [PATCH 2/3] sysext: Get verity user certs from given --root=
+Subject: [PATCH 15/20] sysext: Get verity user certs from given --root=
 
 The verity user certs weren't looked up in the given --root= for
 systemd-sysext which made it fail to set up extensions with a strict
@@ -27,7 +27,7 @@ Signed-off-by: Kai Lueke <kailuke@microsoft.com>
  11 files changed, 84 insertions(+), 20 deletions(-)
 
 diff --git a/src/core/namespace.c b/src/core/namespace.c
-index 283a1108ce..97cf008194 100644
+index 2e3b2a4177..95f8714ea6 100644
 --- a/src/core/namespace.c
 +++ b/src/core/namespace.c
 @@ -2593,6 +2593,7 @@ int setup_namespace(const NamespaceParameters *p, char **reterr_path) {
@@ -79,7 +79,7 @@ index 8bc6565079..2857cd18be 100644
                          return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
          }
 diff --git a/src/machine/machined-varlink.c b/src/machine/machined-varlink.c
-index 52b1fc12d2..1e8f4ce9a8 100644
+index 064ffab137..f3676e625c 100644
 --- a/src/machine/machined-varlink.c
 +++ b/src/machine/machined-varlink.c
 @@ -621,7 +621,7 @@ static int list_image_one_and_maybe_read_metadata(sd_varlink *link, Image *image
@@ -117,7 +117,7 @@ index e8bcb900ef..380a6d5d45 100644
                          return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
          }
 diff --git a/src/shared/discover-image.c b/src/shared/discover-image.c
-index 9ce5f028fc..822ea2bd24 100644
+index 192ed18687..2c97e31497 100644
 --- a/src/shared/discover-image.c
 +++ b/src/shared/discover-image.c
 @@ -1766,7 +1766,7 @@ int image_set_pool_limit(ImageClass class, uint64_t referenced_max) {
@@ -143,10 +143,10 @@ index 7b5593f08d..4d64a306c8 100644
  bool image_in_search_path(RuntimeScope scope, ImageClass class, const char *root, const char *image);
  
 diff --git a/src/shared/dissect-image.c b/src/shared/dissect-image.c
-index 715afc8882..8ffb63e1d3 100644
+index 64639000b1..cec4225e92 100644
 --- a/src/shared/dissect-image.c
 +++ b/src/shared/dissect-image.c
-@@ -2611,7 +2611,7 @@ static char* dm_deferred_remove_clean(char *name) {
+@@ -2740,7 +2740,7 @@ static char* dm_deferred_remove_clean(char *name) {
  }
  DEFINE_TRIVIAL_CLEANUP_FUNC(char *, dm_deferred_remove_clean);
  
@@ -155,7 +155,7 @@ index 715afc8882..8ffb63e1d3 100644
          int r;
  
          if (!FLAGS_SET(flags, DISSECT_IMAGE_ALLOW_USERSPACE_VERITY)) {
-@@ -2656,7 +2656,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
+@@ -2785,7 +2785,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
          /* Because installing a signature certificate into the kernel chain is so messy, let's optionally do
           * userspace validation. */
  
@@ -164,7 +164,7 @@ index 715afc8882..8ffb63e1d3 100644
          if (r < 0)
                  return log_debug_errno(r, "Failed to enumerate certificates: %m");
          if (strv_isempty(certs)) {
-@@ -2718,6 +2718,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
+@@ -2847,6 +2847,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
  
  static int do_crypt_activate_verity(
                  struct crypt_device *cd,
@@ -172,7 +172,7 @@ index 715afc8882..8ffb63e1d3 100644
                  const char *name,
                  const VeritySettings *verity,
                  DissectImageFlags flags) {
-@@ -2765,7 +2766,7 @@ static int do_crypt_activate_verity(
+@@ -2894,7 +2895,7 @@ static int do_crypt_activate_verity(
  
                  /* Preferably propagate the original kernel error, so that the fallback logic can work,
                   * as the device-mapper is finicky around concurrent activations of the same volume */
@@ -181,7 +181,7 @@ index 715afc8882..8ffb63e1d3 100644
                  if (k < 0)
                          return r < 0 ? r : k;
                  if (k == 0)
-@@ -2805,8 +2806,9 @@ static usec_t verity_timeout(void) {
+@@ -2934,8 +2935,9 @@ static usec_t verity_timeout(void) {
  
  static int verity_partition(
                  PartitionDesignator designator,
@@ -193,7 +193,7 @@ index 715afc8882..8ffb63e1d3 100644
                  const VeritySettings *verity,
                  DissectImageFlags flags,
                  DecryptedImage *d) {
-@@ -2886,7 +2888,7 @@ static int verity_partition(
+@@ -3015,7 +3017,7 @@ static int verity_partition(
                          goto check; /* The device already exists. Let's check it. */
  
                  /* The symlink to the device node does not exist yet. Assume not activated, and let's activate it. */
@@ -202,7 +202,7 @@ index 715afc8882..8ffb63e1d3 100644
                  if (r >= 0)
                          goto try_open; /* The device is activated. Let's open it. */
                  /* libdevmapper can return EINVAL when the device is already in the activation stage.
-@@ -2980,7 +2982,7 @@ static int verity_partition(
+@@ -3109,7 +3111,7 @@ static int verity_partition(
                   */
                  sym_crypt_free(cd);
                  cd = NULL;
@@ -211,7 +211,7 @@ index 715afc8882..8ffb63e1d3 100644
          }
  
          return log_debug_errno(SYNTHETIC_ERRNO(EBUSY), "All attempts to activate verity device %s failed.", name);
-@@ -3000,6 +3002,7 @@ success:
+@@ -3129,6 +3131,7 @@ success:
  
  int dissected_image_decrypt(
                  DissectedImage *m,
@@ -219,7 +219,7 @@ index 715afc8882..8ffb63e1d3 100644
                  const char *passphrase,
                  const VeritySettings *verity,
                  DissectImageFlags flags) {
-@@ -3047,7 +3050,7 @@ int dissected_image_decrypt(
+@@ -3176,7 +3179,7 @@ int dissected_image_decrypt(
                  if (k >= 0) {
                          flags |= getenv_bool("SYSTEMD_VERITY_SHARING") != 0 ? DISSECT_IMAGE_VERITY_SHARE : 0;
  
@@ -228,7 +228,7 @@ index 715afc8882..8ffb63e1d3 100644
                          if (r < 0)
                                  return r;
                  }
-@@ -3080,7 +3083,7 @@ int dissected_image_decrypt_interactively(
+@@ -3209,7 +3212,7 @@ int dissected_image_decrypt_interactively(
                  n--;
  
          for (;;) {
@@ -237,7 +237,7 @@ index 715afc8882..8ffb63e1d3 100644
                  if (r >= 0)
                          return r;
                  if (r == -EKEYREJECTED)
-@@ -4367,6 +4370,7 @@ int verity_dissect_and_mount(
+@@ -4455,6 +4458,7 @@ int verity_dissect_and_mount(
          r = dissected_image_decrypt(
                          dissected_image,
                          NULL,
@@ -259,7 +259,7 @@ index 97431bca67..004dc46dc3 100644
  int dissected_image_mount(DissectedImage *m, const char *where, uid_t uid_shift, uid_t uid_range, int userns_fd, DissectImageFlags flags);
  int dissected_image_mount_and_warn(DissectedImage *m, const char *where, uid_t uid_shift, uid_t uid_range, int userns_fd, DissectImageFlags flags);
 diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
-index c33ce0d0a4..dbd6df63b4 100644
+index bfe71f2267..20acc60724 100644
 --- a/src/sysext/sysext.c
 +++ b/src/sysext/sysext.c
 @@ -1888,7 +1888,7 @@ static int merge_subprocess(
@@ -271,7 +271,7 @@ index c33ce0d0a4..dbd6df63b4 100644
                          if (r < 0)
                                  return r;
  
-@@ -2308,7 +2308,7 @@ static int image_discover_and_read_metadata(ImageClass image_class, Hashmap **re
+@@ -2312,7 +2312,7 @@ static int image_discover_and_read_metadata(ImageClass image_class, Hashmap **re
                  return log_error_errno(r, "Failed to discover images: %m");
  
          HASHMAP_FOREACH(img, images) {

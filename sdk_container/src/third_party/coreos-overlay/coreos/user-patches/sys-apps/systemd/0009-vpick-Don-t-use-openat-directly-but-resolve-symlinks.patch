@@ -1,7 +1,7 @@
-From 6f4b065b626edd8a06ff0c8028173e060b5e444b Mon Sep 17 00:00:00 2001
+From 42b6a55f8d2bdf68ff93764219b3bedffb11f4e0 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 20 Nov 2025 23:43:55 +0900
-Subject: [PATCH 03/10] vpick: Don't use openat directly but resolve symlinks
+Subject: [PATCH 09/20] vpick: Don't use openat directly but resolve symlinks
  in given root
 
 With systemd-sysext --root= all symlinks should be followed relative to
@@ -13,7 +13,7 @@ symlink in the given root.
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/shared/vpick.c b/src/shared/vpick.c
-index b1b2d93054..dfe58cafa5 100644
+index 07d9d9ffd8..b203609cc9 100644
 --- a/src/shared/vpick.c
 +++ b/src/shared/vpick.c
 @@ -471,9 +471,9 @@ static int make_choice(

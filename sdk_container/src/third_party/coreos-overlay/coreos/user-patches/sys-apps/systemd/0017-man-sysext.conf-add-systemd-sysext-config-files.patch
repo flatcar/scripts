@@ -1,7 +1,7 @@
-From 88943429fbf80cf55fc7307ea34b5942524c2f45 Mon Sep 17 00:00:00 2001
+From 85ee35f1074923c4ebef4fba3cee707ac270f859 Mon Sep 17 00:00:00 2001
 From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
 Date: Thu, 17 Jul 2025 05:28:21 -0400
-Subject: [PATCH 2/4] man/sysext.conf: add systemd-sysext config files
+Subject: [PATCH 17/20] man/sysext.conf: add systemd-sysext config files
 
 Add sysext.conf, which similar to other configs like coredump, will be
 searched in:
@@ -152,5 +152,5 @@ index 3f60c85dba..6df2d94e9f 100644
        <member><citerefentry><refentrytitle>systemd-stub</refentrytitle><manvolnum>7</manvolnum></citerefentry></member>
        <member><citerefentry><refentrytitle>importctl</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
 -- 
-2.51.0
+2.52.0
 

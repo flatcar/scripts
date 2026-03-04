@@ -1,7 +1,7 @@
-From 63fe9e7a742c070c83919be74c383f74420e6777 Mon Sep 17 00:00:00 2001
+From b097e139801009d722c33a9580bcda23a4a7a1e1 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:29:04 +0000
-Subject: [PATCH 6/8] units: Keep using old journal file format
+Subject: [PATCH 06/20] units: Keep using old journal file format
 
 Systemd 252 made an incompatible change in journal file format. Temporarily
 force journald to use the old journal format to give logging containers more
@@ -14,7 +14,7 @@ Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
  2 files changed, 2 insertions(+)
 
 diff --git a/units/systemd-journald.service.in b/units/systemd-journald.service.in
-index 4404af963b..323af7cfb0 100644
+index 1fb080d268..960568aaff 100644
 --- a/units/systemd-journald.service.in
 +++ b/units/systemd-journald.service.in
 @@ -30,6 +30,7 @@ IgnoreOnIsolate=yes
