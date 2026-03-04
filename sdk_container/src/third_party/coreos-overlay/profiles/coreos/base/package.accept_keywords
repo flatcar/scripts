@@ -41,6 +41,9 @@ app-crypt/azure-keyvault-pkcs11
 # Keep versions on both arches in sync.
 =app-crypt/mit-krb5-1.21.3-r1 ~arm64
 
+# Needed to address CVE-2026-2100.
+=app-crypt/p11-kit-0.26.2
+
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
@@ -61,6 +64,9 @@ dev-db/etcd amd64
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
+
+# Needed to address CVE-2025-13601, CVE-2025-14087
+=dev-libs/glib-2.84.4-r2
 
 # The only available ebuild has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-14 **
@@ -87,6 +93,9 @@ dev-db/etcd amd64
 
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
+
+# Needed to address CVE-2025-14831, CVE-2026-1584
+=net-libs/gnutls-3.8.12
 
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
