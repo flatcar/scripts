@@ -200,3 +200,4 @@ dev-perl/File-Slurper minimal
 # We don't need debuginfod support.
 dev-debug/gdb -debuginfod
 dev-util/elfutils -debuginfod -libarchive
+sys-devel/binutils -debuginfod
