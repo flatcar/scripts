@@ -11,7 +11,7 @@ SCRIPT_ROOT=$(readlink -f $(dirname "$0")/..)
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # Flags
-DEFINE_string board "${DEFAULT_BOARD}" "The board to build an image for."
+DEFINE_string board "" "The board to build an image for."
 DEFINE_string root "" "The root file system to write /etc/lsb-release to."
 DEFINE_string group "" "The default update group for update_engine."
 
@@ -26,7 +26,7 @@ ROOT_FS_DIR="$FLAGS_root"
 [ -d "$ROOT_FS_DIR" ] || die "Root FS does not exist? ($ROOT_FS_DIR)"
 
 # These variables are set in the base profile.
-eval $("portageq-${FLAGS_board}" envvar -v BRANDING_OS_\*)
+eval $("portageq${FLAGS_board:+-}${FLAGS_board}" envvar -v BRANDING_OS_\*)
 BRANDING_OS_PRETTY_NAME="${BRANDING_OS_NAME} ${FLATCAR_VERSION}"
 
 FLATCAR_APPID="{e96281a6-d1af-4bde-9a0a-97b76e56dc57}"
