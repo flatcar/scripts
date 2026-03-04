@@ -79,4 +79,11 @@ DEPEND="${DEPEND}
 	virtual/ssh
 "
 
+# These packages tend to disappear for some reason from reports, even
+# if they are a part of the default set of packages.
+DEPEND="${DEPEND}
+	sys-apps/man-pages
+	virtual/man
+"
+
 RDEPEND="${DEPEND}"
