@@ -105,7 +105,9 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.2.1 ~arm64
-=sys-auth/sssd-2.9.7 ~arm64
+
+# Needed to address CVE-2025-11561
+=sys-auth/sssd-2.9.8
 
 # Keep versions on both arches in sync.
 =sys-boot/mokutil-0.7.2 **
