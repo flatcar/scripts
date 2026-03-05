@@ -3,10 +3,7 @@
 # Do not install the config snippet that defines a subsystem. We have
 # our own definition in coreos-init.
 if [[ $(flatcar_target) != 'sdk' ]] ; then
-	openssh_mask=" /usr/lib*/misc/ssh-keysign /etc/ssh/sshd_config.d/*gentoo-subsystem.conf "
-	PKG_INSTALL_MASK+="${openssh_mask}"
-	INSTALL_MASK+="${openssh_mask}"
-	unset openssh_mask
+	INSTALL_MASK+=" /usr/lib*/misc/ssh-keysign /etc/ssh/sshd_config.d/*gentoo-subsystem.conf "
 fi
 
 cros_post_src_install_vendorize_pam() {

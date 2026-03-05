@@ -70,6 +70,7 @@ DEPEND="${DEPEND}
 DEPEND="${DEPEND}
 	app-alternatives/sh
 	app-editors/nano
+	dev-python/backports-zstd
 	virtual/dev-manager
 	virtual/libc
 	virtual/openssh
@@ -77,6 +78,13 @@ DEPEND="${DEPEND}
 	virtual/pager
 	virtual/service-manager
 	virtual/ssh
+"
+
+# These packages tend to disappear for some reason from reports, even
+# if they are a part of the default set of packages.
+DEPEND="${DEPEND}
+	sys-apps/man-pages
+	virtual/man
 "
 
 RDEPEND="${DEPEND}"

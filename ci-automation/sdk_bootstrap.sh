@@ -176,13 +176,17 @@ function _sdk_bootstrap_impl() {
     fi
     apply_local_patches
 
-    ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}"
+    local failed=''
+    local logdir='__build__/sdk-bootstrap-logs-to-upload/'
+    mkdir -p "${logdir}"
+    ./bootstrap_sdk_container -l "${logdir}" -x ./ci-cleanup.sh "${seed_version}" "${vernum}" || failed=x
 
     # push SDK tarball to buildcache
     # Get Flatcar version number format (separator is '+' instead of '-',
     # equal to $(strip_version_prefix "$version")
     source sdk_container/.repo/manifests/version.txt
     local dest_tarball="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
+    local logs_tarball="sdk-bootstrap-logs-${ARCH}-$(date --utc '+%F-%H%M-%S').tar.xz"
 
     # change the owner of the files and directories in __build__ back
     # to ourselves, otherwise we could fail to sign the artifacts as
@@ -193,11 +197,54 @@ function _sdk_bootstrap_impl() {
     uid=$(id --user)
     gid=$(id --group)
     sudo chown --recursive "${uid}:${gid}" __build__
-    (
-        cd "__build__/images/catalyst/builds/flatcar-sdk"
-        create_digests "${SIGNER}" "${dest_tarball}"
-        sign_artifacts "${SIGNER}" "${dest_tarball}"*
-        copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
-    )
+    if [[ -z ${failed} ]]; then
+        (
+            cd "__build__/images/catalyst/builds/flatcar-sdk"
+            create_digests "${SIGNER}" "${dest_tarball}"
+            sign_artifacts "${SIGNER}" "${dest_tarball}"*
+            copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
+        )
+    fi
+
+    # collect logs
+    local catalyst_log='__build__/images/catalyst/log/flatcar-sdk'
+    if dir_contains_globs "${catalyst_log}" 'stage*'; then
+        cp -a "${catalyst_log}/stage"* "${logdir}"
+    fi
+    mkdir -p "${logdir}/config-logs"
+    # TODO: Add more interesting files (meson logs, cmake logs)
+    local -a interesting_files=( config.log ) find_flags=()
+    for f in "${interesting_files[@]}"; do
+        if [[ ${#find_flags[@]} -ne 0 ]]; then
+            find_flags+=( '-o' )
+        fi
+        find_flags+=( '-name' "${f}" )
+    done
+    local catalyst_tmp='__build__/images/catalyst/tmp/flatcar-sdk'
+    local -a logs
+    local l d
+    mapfile -t logs < <(find "${catalyst_tmp}" "${find_flags[@]}")
+    for l in "${logs[@]}"; do
+        d=${l#"${catalyst_tmp}"}
+        d=${d#/}
+        if [[ ${d} = */* ]]; then
+            d=${d%/*}
+            mkdir -p "${logdir}/config-logs/${d}"
+        else
+            d='.'
+        fi
+        cp -a "${l}" "${logdir}/config-logs/${d}"
+    done
+    if dir_contains_globs "${logdir}" '*'; then
+        (
+            cd "${logdir}"
+            tar -cJf "${logs_tarball}" *
+            create_digests "${SIGNER}" "${logs_tarball}"
+            sign_artifacts "${SIGNER}" "${logs_tarball}"*
+            copy_to_buildcache "build-logs/${FLATCAR_SDK_VERSION}" "${logs_tarball}"*
+        )
+    fi
+    upload_fail_logs
+    if [[ -n ${failed} ]]; then exit 1; fi
 }
 # --

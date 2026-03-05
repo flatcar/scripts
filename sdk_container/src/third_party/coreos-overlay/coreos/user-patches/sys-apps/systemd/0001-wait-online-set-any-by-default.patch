@@ -1,7 +1,7 @@
-From 61ae07bbf1d7032eef32137b1fe299647602e3de Mon Sep 17 00:00:00 2001
+From 6055d8b50c4a39d3e5f4fa0cf017a3b04786c5ba Mon Sep 17 00:00:00 2001
 From: David Michael <dm0@redhat.com>
 Date: Tue, 16 Apr 2019 02:44:51 +0000
-Subject: [PATCH] wait-online: set --any by default
+Subject: [PATCH 01/18] wait-online: set --any by default
 
 The systemd-networkd-wait-online command would normally continue
 waiting after a network interface is usable if other interfaces are
@@ -11,8 +11,8 @@ Preserve previous Container Linux behavior for compatibility by
 setting the --any flag by default.  See patches from v241 (or
 earlier) for the original implementation.
 ---
- src/network/wait-online/wait-online.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ src/network/wait-online/wait-online.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/network/wait-online/wait-online.c b/src/network/wait-online/wait-online.c
 index b1d0b9cde2..e07c11d807 100644
@@ -28,5 +28,5 @@ index b1d0b9cde2..e07c11d807 100644
  
  STATIC_DESTRUCTOR_REGISTER(arg_interfaces, hashmap_freep);
 -- 
-2.51.0
+2.52.0
 

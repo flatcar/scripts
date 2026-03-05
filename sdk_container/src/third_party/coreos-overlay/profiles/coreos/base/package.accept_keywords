@@ -15,7 +15,7 @@
 
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.33.0 ~arm64
-=app-containers/incus-6.0.5 ~arm64
+=app-containers/incus-6.0.5-r1 ~arm64
 =app-containers/lxc-6.0.5 ~arm64
 
 # We always want the latest version available.
@@ -41,6 +41,9 @@ app-crypt/azure-keyvault-pkcs11
 # Keep versions on both arches in sync.
 =app-crypt/mit-krb5-1.21.3-r1 ~arm64
 
+# Needed to address CVE-2026-2100.
+=app-crypt/p11-kit-0.26.2
+
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
@@ -61,13 +64,12 @@ dev-db/etcd amd64
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
-=dev-libs/elfutils-0.194 ~amd64
+
+# Needed to address CVE-2025-13601, CVE-2025-14087
+=dev-libs/glib-2.84.4-r2
 
 # The only available ebuild has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-14 **
-
-# Keep versions on both arches in sync.
-=dev-libs/libnl-3.11.0 ~amd64
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
@@ -78,29 +80,43 @@ dev-db/etcd amd64
 # Used to be in sdk target profile, unversioned, so pinning it to a
 # version used at a time of the move. Needed for building signed
 # sysexts with systemd-repart
-=dev-libs/xxhash-0.8.3-r1
+=dev-libs/xxhash-0.8.3-r2
 
 # No arm64 keyword in package.
 =dev-util/bsdiff-4.3-r4 **
 
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
-=dev-util/catalyst-4.0.0 ~amd64 ~arm64
+=dev-util/catalyst-4.1.1 ~amd64 ~arm64
+
+# Needed to build with gcc 15
+=net-analyzer/netperf-2.7.0_p20210121-r1
 
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 
+# Needed to address CVE-2025-14831, CVE-2026-1584
+=net-libs/gnutls-3.8.12
+
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
+
+# Needed to address CVE-2025-10158
+=net-misc/rsync-3.4.1-r2
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
 sys-apps/azure-vm-utils
 
+# Will be handy for arm64 sdk.
+=sys-apps/iucode_tool-2.3.1-r2
+
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.2.1 ~arm64
-=sys-auth/sssd-2.9.7 ~arm64
+
+# Needed to address CVE-2025-11561
+=sys-auth/sssd-2.9.8
 
 # Keep versions on both arches in sync.
 =sys-boot/mokutil-0.7.2 **
@@ -108,15 +124,8 @@ sys-apps/azure-vm-utils
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
-# Used to be in sdk target profile, unversioned, so pinning it to a
-# version used at a time of the move. Needed for building signed
-# sysexts with systemd-repart
-=sys-fs/erofs-utils-1.8.10-r1
-
 # Keep versions on both arches in sync.
 =sys-fs/lxcfs-6.0.5 ~arm64
-=sys-fs/zfs-2.3.4 ~arm64
-=sys-fs/zfs-kmod-2.3.4 ~arm64
 
 # Bump early for newer features.
 =sys-kernel/dracut-109* ~amd64 ~arm64
@@ -124,6 +133,3 @@ sys-apps/azure-vm-utils
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.
 =sys-libs/libselinux-3.8.1-r3 ~amd64 ~arm64
-
-# Use new systemd
-=sys-apps/systemd-258.2 ~amd64 ~arm64

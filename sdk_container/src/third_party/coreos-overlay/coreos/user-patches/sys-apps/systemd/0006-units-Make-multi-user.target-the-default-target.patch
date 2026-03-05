@@ -1,0 +1,41 @@
+From 31f24142e91c9ef656d23d1b85c6fbabbb71b4b0 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Fri, 24 Oct 2025 11:06:57 +0200
+Subject: [PATCH 06/18] units: Make multi-user.target the default target
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ units/meson.build | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/units/meson.build b/units/meson.build
+index 4f47a3b2bd..63940a72be 100644
+--- a/units/meson.build
++++ b/units/meson.build
+@@ -47,10 +47,7 @@ units = [
+           'file' : 'getty@.service.in',
+           'symlinks' : ['autovt@.service'],
+         },
+-        {
+-          'file' : 'graphical.target',
+-          'symlinks' : ['default.target'],
+-        },
++        { 'file' : 'graphical.target' },
+         { 'file' : 'halt.target' },
+         {
+           'file' : 'hibernate.target',
+@@ -142,7 +139,10 @@ units = [
+           'conditions' : ['ENABLE_MACHINED'],
+         },
+         { 'file' : 'modprobe@.service' },
+-        { 'file' : 'multi-user.target' },
++        {
++          'file' : 'multi-user.target',
++          'symlinks' : ['default.target'],
++        },
+         { 'file' : 'network-online.target' },
+         { 'file' : 'network-pre.target' },
+         { 'file' : 'network.target' },
+-- 
+2.52.0
+
