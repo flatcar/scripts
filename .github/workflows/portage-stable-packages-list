@@ -309,6 +309,7 @@ dev-perl/File-Slurper
 dev-perl/Parse-Yapp
 
 dev-python/backports-tarfile
+dev-python/backports-zstd
 dev-python/cachecontrol
 dev-python/certifi
 dev-python/cffi
