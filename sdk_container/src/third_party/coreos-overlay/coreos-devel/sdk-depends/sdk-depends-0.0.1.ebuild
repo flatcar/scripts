@@ -70,6 +70,7 @@ DEPEND="${DEPEND}
 DEPEND="${DEPEND}
 	app-alternatives/sh
 	app-editors/nano
+	dev-python/backports-zstd
 	virtual/dev-manager
 	virtual/libc
 	virtual/openssh
