@@ -165,6 +165,8 @@ die_notrace() {
     error "${DIE_PREFIX}${line}"
   done
   if [[ ! -e "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME" ]]; then
+    local ts="$(date --rfc-3339=seconds | sed -e 's/ /_/' -e 's/:/-/g' -e 's/+.*//')"
+    (
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
       error "${DIE_PREFIX}!! BEGIN DEBUG OUTPUT: !!"
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -185,6 +187,8 @@ die_notrace() {
       error "${DIE_PREFIX}!! END DEBUG OUTPUT: !!"
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
       touch "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME"
+    ) > "FAILURE-${ts}.log" 2>&1
+    error "    =====>  Full debug output in FAILURE-${ts}.log"
   fi
   exit 1
 }
