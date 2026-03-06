@@ -194,6 +194,16 @@ XFAIL_TEST_LIST=(
 
 	# https://sourceware.org/bugzilla/show_bug.cgi?id=31877 (bug #927973)
 	tst-shstk-legacy-1g
+
+	# https://sourceware.org/bugzilla/show_bug.cgi?id=33239
+	test-double-compoundn
+	test-float-compoundn
+	test-float32-compoundn
+	test-float32x-compoundn
+	test-float64-compoundn
+
+	# Fails only in portage. Needs investigation.
+	tst-setvbuf2
 )
 
 XFAIL_NSPAWN_TEST_LIST=(

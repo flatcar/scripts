@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -43,16 +43,16 @@ RDEPEND="
 	>=dev-libs/libffi-3.0.13-r1:=[${MULTILIB_USEDEP}]
 	>=virtual/zlib-1.2.8-r1:=[${MULTILIB_USEDEP}]
 	>=virtual/libintl-0-r2[${MULTILIB_USEDEP}]
-	introspection? (
-		>=dev-libs/gobject-introspection-common-${INTROSPECTION_PV}
-	)
 	kernel_linux? ( >=sys-apps/util-linux-2.23[${MULTILIB_USEDEP}] )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r5[${MULTILIB_USEDEP}] )
 	xattr? ( !elibc_glibc? ( >=sys-apps/attr-2.4.47-r1[${MULTILIB_USEDEP}] ) )
 	elf? ( virtual/libelf:0= )
 	sysprof? ( >=dev-util/sysprof-capture-3.40.1:4[${MULTILIB_USEDEP}] )
 "
-DEPEND="${RDEPEND}"
+DEPEND="
+	${RDEPEND}
+	systemtap? ( >=dev-debug/systemtap-1.3 )
+"
 # libxml2 used for optional tests that get automatically skipped
 BDEPEND="
 	app-text/docbook-xsl-stylesheets
@@ -356,13 +356,12 @@ multilib_src_configure() {
 	)
 
 	# Workaround for bug #938302
-	if use systemtap && has_version "dev-debug/systemtap[-dtrace-symlink(+)]" ; then
-		local native_file="${T}"/meson.${CHOST}.ini.local
-		cat >> ${native_file} <<-EOF || die
+	if use systemtap; then
+		tc-export CC
+		meson_add_machine_file dtrace <<-EOF
 		[binaries]
 		dtrace='stap-dtrace'
 		EOF
-		emesonargs+=( --native-file "${native_file}" )
 	fi
 
 	meson_src_configure

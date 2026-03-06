@@ -1,0 +1,41 @@
+From 4bf1282faa430669eba4169837657f00f2cba019 Mon Sep 17 00:00:00 2001
+From: Justin Kromlinger <hashworks@archlinux.org>
+Date: Wed, 8 Oct 2025 16:55:09 +0200
+Subject: [PATCH 20/20] Drop `machine-id` OSC event field if /etc/machine-id
+ doesn't exist
+
+While we can safely assume that `/proc/sys/kernel/random/boot_id`
+exists, the same can't be said for `/etc/machine-id` in environments
+where systemd is installed, but not running. An example would be OCI
+containers like with the official Arch Linux image, see [0].
+
+Without this check the prompt would constantly output `/etc/machine-id:
+no such file or directory` with the OSC events introduced in dadbb34
+(v258).
+
+[0] https://gitlab.archlinux.org/archlinux/archlinux-docker/-/issues/107
+
+(cherry picked from commit 0fe45b98dd737da86fcbb703809ebf2163c397f3)
+---
+ profile.d/80-systemd-osc-context.sh | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/profile.d/80-systemd-osc-context.sh b/profile.d/80-systemd-osc-context.sh
+index a0ac858828..ead61b6753 100644
+--- a/profile.d/80-systemd-osc-context.sh
++++ b/profile.d/80-systemd-osc-context.sh
+@@ -28,7 +28,10 @@ __systemd_osc_context_escape() {
+ }
+ 
+ __systemd_osc_context_common() {
+-    printf ";user=%s;hostname=%s;machineid=%s;bootid=%s;pid=%s" "$USER" "$HOSTNAME" "$(</etc/machine-id)" "$(</proc/sys/kernel/random/boot_id)" "$$"
++    if [ -f /etc/machine-id ]; then
++        printf ";machineid=%s" "$(</etc/machine-id)"
++    fi
++    printf ";user=%s;hostname=%s;bootid=%s;pid=%s" "$USER" "$HOSTNAME" "$(</proc/sys/kernel/random/boot_id)" "$$"
+ }
+ 
+ __systemd_osc_context_precmdline() {
+-- 
+2.52.0
+

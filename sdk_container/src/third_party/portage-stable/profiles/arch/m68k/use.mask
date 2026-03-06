@@ -1,8 +1,12 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
 -m68k
+
+# James Le Cuirot <chewi@gentoo.org> (2026-02-28)
+# Unkeyworded and untested on m68k.
+systemtap
 
 # James Le Cuirot <chewi@gentoo.org> (2025-11-22)
 # Vala looks like it would work well enough, but m68k doesn't need it.
@@ -134,7 +138,6 @@ cups
 dbus
 devil
 diet
-djbfft
 djvu
 emacs
 emf
@@ -162,14 +165,3 @@ slang
 tcl
 tk
 xemacs
-
-# Andreas K. Hüttel <dilfridge@gentoo.org>
-# Requires 32bit alignment, so we mask it for the moment
-python_targets_python3_13
-python_targets_python3_13t
-python_targets_python3_14
-python_targets_python3_14t
-python_single_target_python3_13
-python_single_target_python3_13t
-python_single_target_python3_14
-python_single_target_python3_14t
