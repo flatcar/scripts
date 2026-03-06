@@ -25,3 +25,9 @@ x11-drivers/old-nvidia-drivers tools X static-libs
 
 # We don't maintain the tarballs needed to build these features offline.
 <sys-fs/overlaybd-9999 dsa isal
+
+# We don't need debuginfod support. And just disabling it in
+# package.use did no trick.
+dev-debug/gdb debuginfod
+dev-util/elfutils debuginfod libarchive
+sys-devel/binutils debuginfod
