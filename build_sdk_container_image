@@ -125,6 +125,10 @@ fi
 
 # --
 
+docker_build() {
+    PROGRESS_NO_TRUNC=1 $docker build --progress plain "${@}"
+}
+
 # build plain SDK container w/o board support
 #
 import_image="flatcar-sdk-import:${docker_vernum}"
@@ -137,7 +141,7 @@ else
     if [ -n "$cleanup" ] ; then
         echo "$docker image rm -f '${import_image}'" >> "$cleanup"
     fi
-    $docker build -t "$import_image" \
+    docker_build -t "$import_image" \
                  --build-arg VERSION="${docker_vernum}" \
                  -f sdk_lib/Dockerfile.sdk-import \
                  .
@@ -208,7 +212,7 @@ else
     if [ -n "$cleanup" ] ; then
         echo "$docker image rm -f '${sdk_build_image}'" >> "$cleanup"
     fi
-    $docker build -t "${sdk_build_image}" \
+    docker_build -t "${sdk_build_image}" \
                  --build-arg VERSION="${docker_vernum}" \
                  --build-arg BINHOST="http://${binhost}" \
                  --build-arg OFFICIAL="${official}" \
@@ -231,7 +235,7 @@ for a in all arm64 amd64; do
         arm64) rmarch="amd64-usr"; rmcross="x86_64-cros-linux-gnu";;
         amd64) rmarch="arm64-usr"; rmcross="aarch64-cros-linux-gnu";;
     esac
-    $docker build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
+    docker_build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
                  --build-arg VERSION="${docker_vernum}" \
                  --build-arg RMARCH="${rmarch}" \
                  --build-arg RMCROSS="${rmcross}" \
