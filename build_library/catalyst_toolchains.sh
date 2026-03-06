@@ -70,7 +70,7 @@ build_target_toolchain() {
     }
     # Breaking the following loops here:
     #
-    # glibc[nscd] -> libcap[pam] -> sys-libs/pam -> libcrypt -> libxcrypt[system] -> glibc
+    # glibc[nscd] -> libcap[pam] -> pam -> libcrypt -> libxcrypt[system] -> glibc
     # glibc[nscd] -> audit[python] -> python -> libcrypt -> libxcrypt[system] -> glibc
     # glibc[selinux] -> libselinux[python] -> python -> libcrypt -> libxcrypt[system] -> glibc
     # systemd[cryptsetup] -> cryptsetup[udev] -> libudev[systemd] -> systemd
@@ -80,19 +80,21 @@ build_target_toolchain() {
     # systemd[curl] -> curl -> nghttp2[systemd] -> systemd
     #     importd requires curl, so needs to be disabled too
     # systemd[pam] -> pam[systemd] -> systemd
-    #     not dropping pam from sys-apps/systemd, otherwise we would
-    #     need to drop pam from sys-auth/pambase
+    #     dropping USE=pam from systemd requires dropping USE=systemd
+    #     from pambase
     # systemd[tpm] -> tpm2-tss -> tmpfiles[systemd] -> systemd
     # util-linux[audit] -> audit[python] -> python -> util-linux
     # util-linux[cryptsetup] -> cryptsetup -> util-linux
-    # util-linux[pam] -> sys-libs/pam[audit] -> sys-process/audit[python] -> python -> util-linux
+    # util-linux[pam] -> pam[audit] -> audit[python] -> python -> util-linux
     #     su requires pam, so needs to be disabled too
     # util-linux[selinux] -> libselinux[python] -> python -> util-linux
     # util-linux[systemd] -> systemd -> util-linux
     # util-linux[udev] -> libudev[systemd] -> systemd -> util-linux
+    # pambase[sssd] -> sssd -> shadow[pam] -> pambase
     args_for_bdl+=(
-        sys-apps/systemd cryptsetup,curl,importd,tpm
+        sys-apps/systemd cryptsetup,curl,importd,pam,tpm
         sys-apps/util-linux audit,cryptsetup,pam,selinux,su,systemd,udev
+        sys-auth/pambase sssd,systemd
         sys-libs/glibc nscd,selinux
         sys-libs/pam systemd
     )
