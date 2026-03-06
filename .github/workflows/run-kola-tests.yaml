@@ -276,12 +276,6 @@ jobs:
           name: amd64-raw-tapfiles
           path: scripts/__TAP__/amd64
 
-      - name: Download arm64 tapfiles
-        uses: actions/download-artifact@v4
-        with:
-          name: arm64-raw-tapfiles
-          path: scripts/__TAP__/arm64
-
       - name: Create Test Summary
         shell: bash
         run: |
