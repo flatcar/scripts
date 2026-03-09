@@ -44,7 +44,8 @@ fi
 
 LICENSE="GPL-3+"
 SLOT="0"
-IUSE="nls +standalone static"
+IUSE="nls +standalone static test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	|| ( app-doc/info-manual >=app-editors/emacs-26:* )
@@ -60,6 +61,7 @@ DEPEND="${RDEPEND}"
 BDEPEND="
 	${REGEN_BDEPEND}
 	nls? ( >=sys-devel/gettext-0.19.6 )
+	test? ( dev-perl/Test-Deep )
 "
 
 src_prepare() {
