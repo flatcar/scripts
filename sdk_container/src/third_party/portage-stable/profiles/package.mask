@@ -36,6 +36,11 @@
 
 #--- END OF EXAMPLES ---
 
+# Alfredo Tupone <tupone@gentoo.org> (2026-03-05)
+# Need more testing
+>=dev-lang/tcl-9
+>=dev-lang/tk-9
+
 # Michał Górny <mgorny@gentoo.org> (2026-02-28)
 # The test suite is broken since 1.16.0 (Nov 2025), and upstream did not
 # address the problem so far: https://github.com/pypa/hatch/issues/2123
@@ -205,11 +210,6 @@ net-analyzer/labrea
 net-analyzer/echoping
 
 # Sam James <sam@gentoo.org> (2026-02-09)
-# Only needed by last-rited hyprland stack. Out-of-date by quite a few
-# versions. Removal on 2026-03-11.
-dev-cpp/glaze
-
-# Sam James <sam@gentoo.org> (2026-02-09)
 # This suite of packages is currently best placed in an overlay/external
 # repository where users can more easily contribute. The ecosystem moves
 # quickly and users expect even the live ebuilds to be updated apace.
@@ -231,15 +231,15 @@ dev-cpp/glaze
 #
 # Quite out-of-date, many open bugs, and needs several new dependencies.
 # Removal on 2026-03-11.
-gui-libs/aquamarine
-gui-libs/hyprutils
-gui-libs/hyprland-qt-support
-gui-libs/hyprcursor
-dev-util/hyprwayland-scanner
-dev-libs/hyprlang
-dev-libs/hyprland-protocols
-dev-libs/hyprgraphics
-gui-wm/hyprland
+<=gui-libs/aquamarine-0.9.3
+<=gui-libs/hyprutils-0.8.4
+<=gui-libs/hyprland-qt-support-0.1.0
+<=gui-libs/hyprcursor-0.1.13
+<=dev-util/hyprwayland-scanner-0.4.5
+<=dev-libs/hyprlang-0.6.4
+<=dev-libs/hyprland-protocols-0.6.4
+<=dev-libs/hyprgraphics-0.1.5
+<=gui-wm/hyprland-0.51.1
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-02-09)
 # Broken for ages with dev-libs/boost-1.85 but no one except tinderbox

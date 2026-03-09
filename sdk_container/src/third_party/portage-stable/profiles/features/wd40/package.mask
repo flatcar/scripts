@@ -1,6 +1,10 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Alexey Sokolov <alexey+gentoo@asokolov.org> (2026-03-02)
+# Rewritten in Rust.
+>=dev-util/bear-4
+
 # Michał Górny <mgorny@gentoo.org> (2025-01-27)
 # google-auth now unconditionally requires cryptography.
 dev-python/google-api-core
@@ -64,6 +68,7 @@ dev-python/sphinxcontrib-doxylink
 >=dev-python/sphinxcontrib-httpdomain-2.0
 dev-python/sybil
 dev-python/testfixtures
+dev-python/toml-fmt-common
 dev-python/uv-build
 dev-python/zmq-anyio
 net-analyzer/fail2ban
