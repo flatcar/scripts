@@ -3,8 +3,11 @@
 
 EAPI=8
 
+# Remember to check the upstream release/stable branches for patches
+# to backport! See https://marc.info/?l=openssh-unix-dev&m=172723798122122&w=2.
+
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssh.org.asc
-inherit user-info flag-o-matic autotools optfeature pam systemd toolchain-funcs verify-sig
+inherit user-info flag-o-matic autotools optfeature pam systemd toolchain-funcs verify-sig eapi9-ver
 
 # Make it more portable between straight releases
 # and _p? releases.
@@ -15,28 +18,22 @@ HOMEPAGE="https://www.openssh.com/"
 SRC_URI="
 	mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
 	verify-sig? ( mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz.asc )
-	https://dev.gentoo.org/~floppym/dist/${P}-backports.tar.gz
 "
 S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="abi_mips_n32 audit debug kerberos ldns legacy-ciphers libedit livecd pam +pie security-key selinux +ssl static test xmss"
+IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam security-key selinux +ssl static test"
 
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	ldns? ( ssl )
-	pie? ( !static )
 	static? ( !kerberos !pam )
-	xmss? ( ssl  )
 	test? ( ssl )
 "
-
-# tests currently fail with XMSS
-REQUIRED_USE+="test? ( !xmss )"
 
 LIB_DEPEND="
 	audit? ( sys-process/audit[static-libs(+)] )
@@ -78,11 +75,10 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-9.4_p1-Allow-MAP_NORESERVE-in-sandbox-seccomp-filter-maps.patch"
-	"${FILESDIR}/${PN}-9.6_p1-fix-xmss-c99.patch"
 	"${FILESDIR}/${PN}-9.7_p1-config-tweaks.patch"
-	"${FILESDIR}/${PN}-9.8_p1-inetd.patch"
 	# Backports from upstream release branch
-	"${WORKDIR}/${P}-backports"
+	#"${FILESDIR}/${PV}"
+	# Our own backports
 )
 
 pkg_pretend() {
@@ -156,7 +152,6 @@ src_configure() {
 
 	use debug && append-cppflags -DSANDBOX_SECCOMP_FILTER_DEBUG
 	use static && append-ldflags -static
-	use xmss && append-cflags -DWITH_XMSS
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# Solaris' glob.h doesn't have things like GLOB_TILDE, configure
@@ -189,22 +184,25 @@ src_configure() {
 		#    Clang (bug #872548), ICEs on m68k (bug #920350, gcc PR113086,
 		#    gcc PR104820, gcc PR104817, gcc PR110934)).
 		#
-		# Furthermore, OSSH_CHECK_CFLAG_COMPILE does not use AC_CACHE_CHECK,
-		# so we cannot just disable -fzero-call-used-regs=used.
+		# Furthermore, OSSH_CHECK_CFLAG_COMPILE did not use AC_CACHE_CHECK
+		# until 10.1_p1, so we couldn't disable -fzero-call-used-regs=used.
 		#
 		# Therefore, just pass --without-hardening, given it doesn't negate
 		# our already hardened toolchain defaults, and avoids adding flags
 		# which are known-broken in both Clang and GCC and haven't been
 		# proven reliable.
 		--without-hardening
+		--without-pie
+		--without-stackprotect
+
+		# wtmpdb not yet packaged
+		--without-wtmpdb
 
 		$(use_with audit audit linux)
 		$(use_with kerberos kerberos5 "${EPREFIX}"/usr)
 		$(use_with ldns)
-		$(use_enable legacy-ciphers dsa-keys)
 		$(use_with libedit)
 		$(use_with pam)
-		$(use_with pie)
 		$(use_with selinux)
 		$(use_with security-key security-key-builtin)
 		$(use_with ssl openssl)
@@ -215,10 +213,6 @@ src_configure() {
 		# musl defines bogus values for UTMP_FILE and WTMP_FILE (bug #753230)
 		myconf+=( --disable-utmp --disable-wtmp )
 	fi
-
-	# Workaround for Clang 15 miscompilation with -fzero-call-used-regs=all
-	# bug #869839 (https://github.com/llvm/llvm-project/issues/57692)
-	tc-is-clang && myconf+=( --without-hardening )
 
 	econf "${myconf[@]}"
 }
@@ -296,7 +290,7 @@ src_test() {
 	if [[ ${shell} == */nologin ]] || [[ ${shell} == */false ]] ; then
 		ewarn "Running the full OpenSSH testsuite requires a usable shell for the 'portage'"
 		ewarn "user, so we will run a subset only."
-		tests+=( interop-tests )
+		tests+=( interop-tests file-tests unit )
 	else
 		tests+=( tests )
 	fi
@@ -310,8 +304,10 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
-	newinitd "${FILESDIR}"/sshd-r1.initd sshd
-	newconfd "${FILESDIR}"/sshd-r1.confd sshd
+	newinitd "${FILESDIR}"/sshd-r2.initd sshd
+	newconfd "${FILESDIR}"/sshd-r2.confd sshd
+	exeinto /etc/user/init.d
+	newexe "${FILESDIR}"/ssh-agent.initd ssh-agent
 
 	if use pam; then
 		newpamd "${FILESDIR}"/sshd.pam_include.2 sshd
@@ -347,53 +343,55 @@ pkg_postinst() {
 	# bug #139235
 	optfeature "x11 forwarding" x11-apps/xauth
 
-	local old_ver
-	for old_ver in ${REPLACING_VERSIONS}; do
-		if ver_test "${old_ver}" -lt "5.8_p1"; then
-			elog "Starting with openssh-5.8p1, the server will default to a newer key"
-			elog "algorithm (ECDSA).  You are encouraged to manually update your stored"
-			elog "keys list as servers update theirs.  See ssh-keyscan(1) for more info."
-		fi
-		if ver_test "${old_ver}" -lt "7.0_p1"; then
-			elog "Starting with openssh-6.7, support for USE=tcpd has been dropped by upstream."
-			elog "Make sure to update any configs that you might have.  Note that xinetd might"
-			elog "be an alternative for you as it supports USE=tcpd."
-		fi
-		if ver_test "${old_ver}" -lt "7.1_p1"; then #557388 #555518
-			elog "Starting with openssh-7.0, support for ssh-dss keys were disabled due to their"
-			elog "weak sizes.  If you rely on these key types, you can re-enable the key types by"
-			elog "adding to your sshd_config or ~/.ssh/config files:"
-			elog "	PubkeyAcceptedKeyTypes=+ssh-dss"
-			elog "You should however generate new keys using rsa or ed25519."
+	if ver_replacing -lt "5.8_p1"; then
+		elog "Starting with openssh-5.8p1, the server will default to a newer key"
+		elog "algorithm (ECDSA).  You are encouraged to manually update your stored"
+		elog "keys list as servers update theirs.  See ssh-keyscan(1) for more info."
+	fi
+	if ver_replacing -lt "7.0_p1"; then
+		elog "Starting with openssh-6.7, support for USE=tcpd has been dropped by upstream."
+		elog "Make sure to update any configs that you might have.  Note that xinetd might"
+		elog "be an alternative for you as it supports USE=tcpd."
+	fi
+	if ver_replacing -lt "7.1_p1"; then #557388 #555518
+		elog "Starting with openssh-7.0, support for ssh-dss keys were disabled due to their"
+		elog "weak sizes.  If you rely on these key types, you can re-enable the key types by"
+		elog "adding to your sshd_config or ~/.ssh/config files:"
+		elog "	PubkeyAcceptedKeyTypes=+ssh-dss"
+		elog "You should however generate new keys using rsa or ed25519."
 
-			elog "Starting with openssh-7.0, the default for PermitRootLogin changed from 'yes'"
-			elog "to 'prohibit-password'.  That means password auth for root users no longer works"
-			elog "out of the box.  If you need this, please update your sshd_config explicitly."
-		fi
-		if ver_test "${old_ver}" -lt "7.6_p1"; then
-			elog "Starting with openssh-7.6p1, openssh upstream has removed ssh1 support entirely."
-			elog "Furthermore, rsa keys with less than 1024 bits will be refused."
-		fi
-		if ver_test "${old_ver}" -lt "7.7_p1"; then
-			elog "Starting with openssh-7.7p1, we no longer patch openssh to provide LDAP functionality."
-			elog "Install sys-auth/ssh-ldap-pubkey and use OpenSSH's \"AuthorizedKeysCommand\" option"
-			elog "if you need to authenticate against LDAP."
-			elog "See https://wiki.gentoo.org/wiki/SSH/LDAP_migration for more details."
-		fi
-		if ver_test "${old_ver}" -lt "8.2_p1"; then
-			ewarn "After upgrading to openssh-8.2p1 please restart sshd, otherwise you"
-			ewarn "will not be able to establish new sessions. Restarting sshd over a ssh"
-			ewarn "connection is generally safe."
-		fi
-		if ver_test "${old_ver}" -lt "9.2_p1-r1" && systemd_is_booted; then
-			ewarn "From openssh-9.2_p1-r1 the supplied systemd unit file defaults to"
-			ewarn "'Restart=on-failure', which causes the service to automatically restart if it"
-			ewarn "terminates with an unclean exit code or signal. This feature is useful for most users,"
-			ewarn "but it can increase the vulnerability of the system in the event of a future exploit."
-			ewarn "If you have a web-facing setup or are concerned about security, it is recommended to"
-			ewarn "set 'Restart=no' in your sshd unit file."
-		fi
-	done
+		elog "Starting with openssh-7.0, the default for PermitRootLogin changed from 'yes'"
+		elog "to 'prohibit-password'.  That means password auth for root users no longer works"
+		elog "out of the box.  If you need this, please update your sshd_config explicitly."
+	fi
+	if ver_replacing -lt "7.6_p1"; then
+		elog "Starting with openssh-7.6p1, openssh upstream has removed ssh1 support entirely."
+		elog "Furthermore, rsa keys with less than 1024 bits will be refused."
+	fi
+	if ver_replacing -lt "7.7_p1"; then
+		elog "Starting with openssh-7.7p1, we no longer patch openssh to provide LDAP functionality."
+		elog "Install sys-auth/ssh-ldap-pubkey and use OpenSSH's \"AuthorizedKeysCommand\" option"
+		elog "if you need to authenticate against LDAP."
+		elog "See https://wiki.gentoo.org/wiki/SSH/LDAP_migration for more details."
+	fi
+	if ver_replacing -lt "8.2_p1"; then
+		ewarn "After upgrading to openssh-8.2p1 please restart sshd, otherwise you"
+		ewarn "will not be able to establish new sessions. Restarting sshd over a ssh"
+		ewarn "connection is generally safe."
+	fi
+	if ver_replacing -lt "9.2_p1-r1" && systemd_is_booted; then
+		ewarn "From openssh-9.2_p1-r1 the supplied systemd unit file defaults to"
+		ewarn "'Restart=on-failure', which causes the service to automatically restart if it"
+		ewarn "terminates with an unclean exit code or signal. This feature is useful for most users,"
+		ewarn "but it can increase the vulnerability of the system in the event of a future exploit."
+		ewarn "If you have a web-facing setup or are concerned about security, it is recommended to"
+		ewarn "set 'Restart=no' in your sshd unit file."
+	fi
+	if ver_replacing -lt "10.2_p1-r1"; then
+		ewarn "The sshd init script no longer greps for ListenAddress in the sshd config."
+		ewarn "If you have configured the ListenAddress parameter, you may need to adjust"
+		ewarn "init script dependencies via rc_need in /etc/conf.d/sshd."
+	fi
 
 	if [[ -n ${show_ssl_warning} ]]; then
 		elog "Be aware that by disabling openssl support in openssh, the server and clients"
