@@ -78,7 +78,7 @@ function ricj_callback() {
     )
     show_changes_env+=(
         # Provide a python3 command for the CVE DB parsing
-        "PATH=${PATH}:${PWD}/ci-automation/python-bin"
+        "PATH=${PWD}/ci-automation/python-bin:${PATH}"
         # Override the default locations of repositories.
         "SCRIPTS_REPO=."
         "COREOS_OVERLAY_REPO=../coreos-overlay"
