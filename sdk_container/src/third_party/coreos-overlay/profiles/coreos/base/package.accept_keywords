@@ -125,10 +125,14 @@ sys-apps/azure-vm-utils
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-devel/binutils-2.46.0
 =sys-fs/lxcfs-6.0.5 ~arm64
 
 # Bump early for newer features.
 =sys-kernel/dracut-109* ~amd64 ~arm64
+
+# Keep versions on both arches in sync.
+=sys-libs/binutils-libs-2.46.0
 
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.
