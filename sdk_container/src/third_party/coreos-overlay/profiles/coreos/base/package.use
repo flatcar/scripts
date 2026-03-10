@@ -197,9 +197,5 @@ app-emulation/open-vmdk -python
 # Avoid pulling extra perl packages
 dev-perl/File-Slurper minimal
 
-# We don't need debuginfod support.
-dev-debug/gdb -debuginfod
-dev-libs/elfutils -debuginfod -libarchive
-sys-devel/binutils -debuginfod
-cross-x86_64-cros-linux-gnu/gdb -debuginfod
-cross-aarch64-cros-linux-gnu/gdb -debuginfod
+# This is only needed for debuginfod support, which we masked.
+dev-libs/elfutils -libarchive
