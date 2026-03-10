@@ -18,7 +18,8 @@
 #
 #   1. SDK version and OS image version are recorded in sdk_container/.repo/manifests/version.txt
 #   2. Scripts repo version tag of OS image version to be built is available and checked out.
-#   3. Mantle container docker image reference is stored in sdk_container/.repo/manifests/mantle-container.
+#   3. Mantle container name and tag is stored in sdk_container/.repo/manifests/mantle-container
+#         (or MANTLE_REF is set).
 #   4. Vendor image to run tests for are available on buildcache
 #         ( images/[ARCH]/[FLATCAR_VERSION]/ )
 #
@@ -36,6 +37,7 @@
 #   MAX_RETRIES. Environment variable. Number of re-runs to overcome transient failures. Defaults to 20.
 #   PARALLEL_TESTS. Environment variable. Number of test cases to run in parallel.
 #                   Default is image / vendor specific and defined in ci-automation/ci-config.env.
+#   MANTLE_REF. Environment variable. Overrides the Mantle container name and tag to run the tests with.
 #
 # OUTPUT:
 #
@@ -129,8 +131,8 @@ function _test_run_impl() {
     get_git_channel >"${work_dir}/git_channel"
 
     local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
-    local mantle_ref
-    mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
+    local -I MANTLE_REF
+    : "${MANTLE_REF:=$(< sdk_container/.repo/manifests/mantle-container)}"
 
     local tap_merged_summary="results-${image}"
     local tap_merged_detailed="results-${image}-detailed"
@@ -168,7 +170,7 @@ function _test_run_impl() {
         set +e
         touch sdk_container/.env
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
-          -w /work -v "$PWD":/work "${mantle_ref}" \
+          -w /work -v "$PWD":/work "${MANTLE_REF}" \
          bash -c "git config --global --add safe.directory /work && \
                   source sdk_container/.env && \
                   ci-automation/vendor-testing/${image_escaped}.sh ${common_test_args_escaped[*]} ${tapfile_escaped} ${tests_escaped[*]}"
@@ -177,7 +179,7 @@ function _test_run_impl() {
 
         # Note: git safe.directory is not set in this run as it does not use git
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
-          -w /work -v "$PWD":/work "${mantle_ref}" \
+          -w /work -v "$PWD":/work "${MANTLE_REF}" \
             ci-automation/test_update_reruns.sh \
                 "${arch}" "${vernum}" "${image}" "${retry}" \
                 "${tests_dir}/${tapfile}" \
