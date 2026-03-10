@@ -493,7 +493,7 @@ gcc_get_latest_profile() {
     local prefix=${1}
     local suffix=${2+-${2}}
     local status
-    gcc-config --list-profiles --nocolor | \
+    NO_COLOR=1 gcc-config --list-profiles | \
         sed -e 's/^\s*//' | \
         cut -d' ' -f2 | \
         grep "^${prefix}-[0-9\\.]*${suffix}$" | \
