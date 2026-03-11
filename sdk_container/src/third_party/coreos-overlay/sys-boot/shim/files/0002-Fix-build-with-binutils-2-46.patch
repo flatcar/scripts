@@ -1,0 +1,39 @@
+The following entry from binutils 2.46 NEWS file explains the breaking change:
+
+* Internal changes to plugin support, and stricter target checking may result
+  in some errors being exposed in user options passed to the various binutils.
+  For example objcopy --target=TARGET now will only work if the input file is
+  for TARGET whereas prior versions of objcopy accepted other target input
+  files and produced a TARGET output.  If you do in fact want the old
+  behaviour the correct usage is objcopy --output-target=TARGET.
+
+Thus update the FORMAT variables to use --output-target instead.
+
+diff '--color=auto' -u -r shim-15.8/Make.defaults shim-15.8-patched/Make.defaults
+--- shim-15.8/Make.defaults	2024-01-22 19:18:05.000000000 -0000
++++ shim-15.8-patched/Make.defaults	2026-03-11 08:58:33.972284263 -0000
+@@ -159,7 +159,7 @@
+ 
+ LIB_GCC		= $(shell $(CC) $(ARCH_CFLAGS) -print-libgcc-file-name)
+ EFI_LIBS	= -lefi -lgnuefi --start-group Cryptlib/libcryptlib.a Cryptlib/OpenSSL/libopenssl.a --end-group $(LIB_GCC)
+-FORMAT		?= --target efi-app-$(ARCH)
++FORMAT		?= --output-target efi-app-$(ARCH)
+ LOCAL_EFI_PATH	= gnu-efi/$(ARCH_GNUEFI)/gnuefi
+ LIBDIR		= gnu-efi/$(ARCH_GNUEFI)/lib
+ 
+diff '--color=auto' -u -r shim-15.8/gnu-efi/apps/Makefile shim-15.8-patched/gnu-efi/apps/Makefile
+--- shim-15.8/gnu-efi/apps/Makefile	2024-01-22 19:18:05.000000000 -0000
++++ shim-15.8-patched/gnu-efi/apps/Makefile	2026-03-11 08:59:11.613462517 -0000
+@@ -66,9 +66,9 @@
+ 
+ ifneq ($(HAVE_EFI_OBJCOPY),)
+ 
+-FORMAT		:= --target efi-app-$(ARCH)
+-$(TARGET_BSDRIVERS): FORMAT=--target efi-bsdrv-$(ARCH)
+-$(TARGET_RTDRIVERS): FORMAT=--target efi-rtdrv-$(ARCH)
++FORMAT		:= --output-target efi-app-$(ARCH)
++$(TARGET_BSDRIVERS): FORMAT=--output-target efi-bsdrv-$(ARCH)
++$(TARGET_RTDRIVERS): FORMAT=--output-target efi-rtdrv-$(ARCH)
+ 
+ else
+ 

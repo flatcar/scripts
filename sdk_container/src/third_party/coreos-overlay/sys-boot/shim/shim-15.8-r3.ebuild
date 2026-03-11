@@ -25,6 +25,7 @@ DEPEND="
 
 PATCHES=(
 	"${FILESDIR}/0001-Fix-parallel-build-of-gnu-efi.patch"
+	"${FILESDIR}/0002-Fix-build-with-binutils-2-46.patch"
 )
 
 src_compile() {
