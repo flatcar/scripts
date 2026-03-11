@@ -213,7 +213,7 @@ function _sdk_bootstrap_impl() {
     fi
     mkdir -p "${logdir}/config-logs"
     # TODO: Add more interesting files (meson logs, cmake logs)
-    local -a interesting_files=( config.log ) find_flags=()
+    local -a interesting_files=( config.log CMakeConfigureLog.yaml meson-log.txt ) find_flags=()
     for f in "${interesting_files[@]}"; do
         if [[ ${#find_flags[@]} -ne 0 ]]; then
             find_flags+=( '-o' )

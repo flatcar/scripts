@@ -65,11 +65,11 @@ function _sdk_container_build_impl() {
     copy_from_buildcache "sdk/${ARCH}/${vernum}/${sdk_tarball}" "./__build__"
 
 
-    # This will update the SDK_VERSION in versionfile
     logdir=__build__/sdk-container-logs-to-upload
     mkdir -p "${logdir}"
     local failed=''
     local logs_tarball="sdk-container-logs-${ARCH}-$(date --utc '+%F-%H%M-%S').tar.xz"
+    # This will update the SDK_VERSION in versionfile
     ./build_sdk_container_image -l "${PWD}/${logdir}" -x ./ci-cleanup.sh ./__build__/"${sdk_tarball}" || failed=x
 
     if [[ -z ${failed} ]]; then
