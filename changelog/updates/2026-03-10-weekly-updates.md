@@ -1,0 +1,5 @@
+- base, dev: binutils-libs ([2.46.0](https://sourceware.org/pipermail/binutils/2026-February/148149.html))
+- base, dev: intel-microcode ([20260227_p20260227](https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-20260227))
+- base, dev: libnl ([3.12.0](https://lists.infradead.org/pipermail/libnl/2025-December/002442.html))
+- base, dev: pam ([1.7.2](https://github.com/linux-pam/linux-pam/releases/tag/v1.7.2))
+- dev: binutils ([2.46.0](https://sourceware.org/pipermail/binutils/2026-February/148149.html))
