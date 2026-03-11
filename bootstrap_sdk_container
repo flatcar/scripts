@@ -11,6 +11,7 @@ source sdk_lib/sdk_container_common.sh
 
 seed_version=""
 target_version=""
+logdir=''
 
 declare -a cleanup
 
@@ -30,6 +31,7 @@ usage() {
     echo "      -x <cleanup-script> - For each resource generated during build (container etc.)"
     echo "                             add a cleanup line to <script> which, when run, will free"
     echo "                             the resource. Useful for CI."
+    echo "      -l <directory>      - Gather build logs here."
     echo "      -h                  - Print this help."
     echo
 }
@@ -38,6 +40,7 @@ usage() {
 while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
+    -l) logdir=${2}; shift 2;;
     -x) cleanup=("-x" "$2"); shift; shift;;
     *)  if [ -z "$seed_version" ] ; then
             seed_version="$1"
@@ -72,8 +75,11 @@ if $official; then
 fi
 
 # bootstrap_sdk needs FLATCAR_SDK_VERSION set to the seed version
+failed=''
 ./run_sdk_container "${cleanup[@]}" -V "$seed_version" -v "$target_version" \
-          sudo -E ./bootstrap_sdk
+          sudo -E ./bootstrap_sdk || failed=x
 
 # Update versionfile to the actual SDK version
 create_versionfile "${target_version}"
+
+if [[ -n ${failed} ]]; then exit 1; fi
