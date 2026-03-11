@@ -96,7 +96,7 @@ function _packages_build_impl() {
 
     # Copy the build logs to a directory accessible for us.
     ./run_sdk_container -n "${packages_container}" -v "${vernum}" -C "${sdk_image}" \
-        cp -a "/build/${arch}-usr/var/log/portage" "${logdir}" || :
+        bash -c "source sdk_lib/sdk_container_common.sh; cp -a /build/${arch@Q}-usr/var/log/portage ${logdir@Q}; scavenge_for_configure_logs /build/${arch@Q}-usr/var/tmp/portage ${logdir@Q}" || :
 
     if [[ -z ${failed} ]]; then
         # run_sdk_container updates the version file, use that version from here on

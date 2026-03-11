@@ -185,8 +185,13 @@ else
     ./run_sdk_container -C "${import_image}" -n "${toolchains_container}" \
             sudo ./build_toolchains --seed_tarball="./${tarball}" || failed=x
 
-    if [[ -n ${logdir} ]] && sudo test -d __build__/images/catalyst/log/coreos-toolchains; then
-        sudo cp -a __build__/images/catalyst/log/coreos-toolchains "${logdir}/coreos-toolchains"
+    if [[ -n ${logdir} ]]; then
+        if sudo test -d __build__/images/catalyst/log/coreos-toolchains; then
+            sudo cp -a __build__/images/catalyst/log/coreos-toolchains "${logdir}/coreos-toolchains"
+        fi
+        if sudo test -d __build__/images/catalyst/tmp/coreos-toolchains; then
+            scavenge_for_configure_logs --use-sudo __build__/images/catalyst/tmp/coreos-toolchains "${logdir}"
+        fi
     fi
     if [[ -n ${failed} ]]; then exit 1; fi
 

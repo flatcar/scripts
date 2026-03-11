@@ -211,30 +211,10 @@ function _sdk_bootstrap_impl() {
     if dir_contains_globs "${catalyst_log}" 'stage*'; then
         cp -a "${catalyst_log}/stage"* "${logdir}"
     fi
-    mkdir -p "${logdir}/config-logs"
-    # TODO: Add more interesting files (meson logs, cmake logs)
-    local -a interesting_files=( config.log CMakeConfigureLog.yaml meson-log.txt ) find_flags=()
-    for f in "${interesting_files[@]}"; do
-        if [[ ${#find_flags[@]} -ne 0 ]]; then
-            find_flags+=( '-o' )
-        fi
-        find_flags+=( '-name' "${f}" )
-    done
-    local catalyst_tmp='__build__/images/catalyst/tmp/flatcar-sdk'
-    local -a logs
-    local l d
-    mapfile -t logs < <(find "${catalyst_tmp}" "${find_flags[@]}")
-    for l in "${logs[@]}"; do
-        d=${l#"${catalyst_tmp}"}
-        d=${d#/}
-        if [[ ${d} = */* ]]; then
-            d=${d%/*}
-            mkdir -p "${logdir}/config-logs/${d}"
-        else
-            d='.'
-        fi
-        cp -a "${l}" "${logdir}/config-logs/${d}"
-    done
+    (
+        source sdk_lib/sdk_container_common.sh
+        scavenge_for_configure_logs __build__/images/catalyst/tmp/flatcar-sdk "${logdir}"
+    )
     if dir_contains_globs "${logdir}" '*'; then
         (
             cd "${logdir}"
