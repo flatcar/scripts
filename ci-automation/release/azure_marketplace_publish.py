@@ -46,6 +46,19 @@ CONFIG = {
 }
 
 
+def get_active_plans():
+    resp = requests.get('https://flatcar.cdn.cncf.io/channel-info.txt')
+
+    if resp.status_code != 200:
+        logging.error("There is some issue with the channel-info.txt file. Please check https://flatcar.cdn.cncf.io/channel-info.txt")
+        logging.error(f"Returned status code: {resp.status_code}")
+
+    plans = [i.split("=")[0].replace('_CURRENT','').lower() for i in resp.text.strip().split('\n')]
+    plans = [plan for plan in plans if plan != 'lts']
+
+    return plans
+
+
 def generate_partner_center_token(tenant_id, client_id, secret_value):
     data = f"grant_type=client_credentials&client_id={client_id}&client_secret={secret_value}&resource=https://graph.microsoft.com"
     resp = requests.post(
@@ -258,9 +271,10 @@ def main():
         logging.error("Both version and plan is required")
         return
 
+    active_plans = get_active_plans()
     plan = args.plan
-    if not args.test_mode and plan not in ("alpha", "beta", "stable", "lts2022", "lts2023", "lts2024"):
-        logging.error("plan value should be either alpha, beta, stable, lts2024, lts2023 or lts2022")
+    if not args.test_mode and plan not in active_plans:
+        logging.error(f"plan value should be either {', '.join(active_plans)}")
         return
 
     test_plan = None
