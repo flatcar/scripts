@@ -3,22 +3,20 @@
 # Copyright (c) 2025 The Flatcar Maintainers.
 # Use of this source code is governed by the Apache 2.0 license.
 
+# Run a subshell, so the traps, environment changes and global
+# variables are not spilled into the caller.
 function release_azure_marketplace() {
-    # Run a subshell, so the traps, environment changes and global
-    # variables are not spilled into the caller.
-    (
-        set -euo pipefail
+  set -euo pipefail
 
-        _release_azure_marketplace_impl "${@}"
-    )
+  _release_azure_marketplace_impl "${@}"
 }
 
 secret_from_base64() {
-    local key="$1"
-    local base64_string="$2"
+  local key="$1"
+  local base64_string="$2"
 
-    # Decode base64 and extract the value using jq
-    echo "$base64_string" | base64 -d | jq -r ".$key"
+  # Decode base64 and extract the value using jq
+  echo "$base64_string" | base64 -d | jq -r ".$key"
 }
 
 function _release_azure_marketplace_impl() {
@@ -29,7 +27,7 @@ function _release_azure_marketplace_impl() {
   source sdk_container/.repo/manifests/version.txt
 
   local docker_vernum=""
-  docker_vernum="$(vernum_to_docker_image_version "${vernum}")"
+  docker_vernum=$(vernum_to_docker_image_version "${vernum}")
   local container_name="az-marketplace-publish-${docker_vernum}"
 
   # A job on each worker prunes old mantle images (docker image prune), no need to do it here
