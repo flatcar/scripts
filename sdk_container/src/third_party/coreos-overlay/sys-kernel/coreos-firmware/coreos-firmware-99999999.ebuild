@@ -154,13 +154,28 @@ src_prepare() {
 	# Flatcar: generate a list of firmware
 	local kernel_mods="${SYSROOT%/}/lib/modules/${KV_FULL}"
 
+	# It happens that some modules uses `MODULE_FIRMWARE` with a file
+	# not shipped into 'linux-firmware'.
+	# In such a case, we can safely ignore those.
+	# e.g 'amdgpu/ip_discovery.bin' is not a file shipped by linux-firmware (see: https://github.com/torvalds/linux/commit/a79d3709c40d492fb859fb5cec4bb0b3eaa09a12)
+	local module_firmware_skip_list=(
+		amdgpu/cyan_skillfish_gpu_info.bin
+		amdgpu/ip_discovery.bin
+		amdgpu/vega10_cap.bin
+		amdgpu/sienna_cichlid_cap.bin
+		amdgpu/navi12_cap.bin
+		amdgpu/aldebaran_cap.bin
+		amdgpu/gc_11_0_0_toc.bin
+		amdgpu/gc_11_0_3_mes.bin
+	)
+
 	# Fail if any firmware is missing.
 	einfo "Scanning for files required by ${KV_FULL}"
 	echo "# Remove files that shall not be installed from this list." > ${PN}.conf
 	local kofile fwfile failed
 	for kofile in $(find "${kernel_mods}" -name '*.ko' -o -name '*.ko.xz'); do
 		for fwfile in $(modinfo --field firmware "${kofile}"); do
-			if [[ ! -e "${fwfile}" ]]; then
+			if [[ ! -e "${fwfile}" ]] && ! [[ "${module_firmware_skip_list[*]}" =~ "${fwfile}" ]]; then
 				eerror "Missing firmware: ${fwfile} (${kofile##*/})"
 				failed=1
 			elif [[ -L "${fwfile}" ]]; then
