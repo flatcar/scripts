@@ -34,7 +34,7 @@ LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
 	acl apparmor audit boot bpf cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnutls homed http idn importd iptables +kernel-install +kmod
+	fido2 +gcrypt gnutls homed http idn importd +kernel-install +kmod
 	+lz4 lzma +openssl pam passwdqc pcre pkcs11 policykit pwquality qrcode
 	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm ukify vanilla xkb +zstd
 "
@@ -79,7 +79,6 @@ COMMON_DEPEND="
 	kmod? ( >=sys-apps/kmod-15:0= )
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
-	iptables? ( net-firewall/iptables:0= )
 	openssl? ( >=dev-libs/openssl-1.1.0:0= )
 	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
 	passwdqc? ( sys-auth/passwdqc:0= )
@@ -146,17 +145,19 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
-	!sys-apps/hwids[udev]
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
 	!sys-fs/udev
 "
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
-PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
+PDEPEND="
+	>=sys-apps/dbus-1.9.8[systemd]
 	>=sys-fs/udev-init-scripts-34
 	policykit? ( sys-auth/polkit )
-	!vanilla? ( sys-apps/gentoo-systemd-integration )"
+	!sysv-utils? ( sys-apps/systemd-initctl )
+	!vanilla? ( sys-apps/gentoo-systemd-integration )
+"
 
 BDEPEND="
 	app-arch/xz-utils:0
@@ -345,7 +346,6 @@ multilib_src_configure() {
 		$(meson_feature lz4)
 		$(meson_feature lzma xz)
 		$(meson_feature zstd)
-		$(meson_native_use_feature iptables libiptc)
 		$(meson_native_use_feature openssl)
 		$(meson_feature pam)
 		$(meson_native_use_feature passwdqc)

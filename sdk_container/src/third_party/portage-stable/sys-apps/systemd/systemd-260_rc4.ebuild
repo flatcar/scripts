@@ -33,10 +33,10 @@ HOMEPAGE="https://systemd.io/"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
-	acl apparmor audit boot bpf cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnutls homed http idn importd iptables +kernel-install +kmod
+	acl apparmor audit boot bpf cryptsetup curl +dns-over-tls elfutils
+	fido2 +gcrypt gnutls homed http idn importd +kernel-install +kmod
 	+lz4 lzma +openssl pam passwdqc pcre pkcs11 policykit pwquality qrcode
-	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm ukify vanilla xkb +zstd
+	+resolvconf +seccomp selinux +sysv-utils test tpm ukify vanilla xkb +zstd
 "
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
@@ -52,46 +52,51 @@ REQUIRED_USE="
 "
 RESTRICT="!test? ( test )"
 
-MINKV="4.15"
+MINKV="5.10"
 
 COMMON_DEPEND="
-	>=sys-apps/util-linux-2.32:0=[${MULTILIB_USEDEP}]
-	sys-libs/libcap:0=[${MULTILIB_USEDEP}]
-	virtual/libcrypt:=[${MULTILIB_USEDEP}]
-	acl? ( sys-apps/acl:0= )
-	apparmor? ( >=sys-libs/libapparmor-2.13:0= )
-	audit? ( >=sys-process/audit-2:0= )
-	bpf? ( >=dev-libs/libbpf-1.4.0:0= )
-	cryptsetup? ( >=sys-fs/cryptsetup-2.0.1:0= )
+	>=sys-apps/util-linux-2.37
+	acl? ( sys-apps/acl )
+	apparmor? ( >=sys-libs/libapparmor-2.13 )
+	audit? ( >=sys-process/audit-2 )
+	bpf? ( >=dev-libs/libbpf-1.4.0 )
+	cryptsetup? ( >=sys-fs/cryptsetup-2.4.0:= )
 	curl? ( >=net-misc/curl-7.32.0:0= )
-	elfutils? ( >=dev-libs/elfutils-0.158:0= )
-	fido2? (
-		dev-libs/libfido2:0=
+	elfutils? ( >=dev-libs/elfutils-0.177 )
+	elibc_glibc? (
+		>=sys-libs/glibc-2.34
+		>=sys-libs/libxcrypt-4.4.0
 	)
-	gcrypt? ( >=dev-libs/libgcrypt-1.4.5:0=[${MULTILIB_USEDEP}] )
+	elibc_musl? (
+		>=sys-libs/musl-1.2.5-r8
+		virtual/libcrypt
+	)
+	fido2? (
+		dev-libs/libfido2
+	)
+	gcrypt? ( >=dev-libs/libgcrypt-1.4.5 )
 	gnutls? ( >=net-libs/gnutls-3.6.0:0= )
 	http? ( >=net-libs/libmicrohttpd-0.9.33:0=[epoll(+)] )
-	idn? ( net-dns/libidn2:= )
+	idn? ( net-dns/libidn2 )
 	importd? (
 		app-arch/bzip2:0=
 		virtual/zlib:=
 	)
 	kmod? ( >=sys-apps/kmod-15:0= )
-	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
-	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
-	iptables? ( net-firewall/iptables:0= )
-	openssl? ( >=dev-libs/openssl-1.1.0:0= )
+	lz4? ( >=app-arch/lz4-0_p131:0= )
+	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0= )
+	openssl? ( >=dev-libs/openssl-3.0.0:0= )
 	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
-	passwdqc? ( sys-auth/passwdqc:0= )
-	pkcs11? ( >=app-crypt/p11-kit-0.23.3:0= )
+	passwdqc? ( sys-auth/passwdqc )
+	pkcs11? ( >=app-crypt/p11-kit-0.23.3 )
 	pcre? ( dev-libs/libpcre2 )
-	pwquality? ( >=dev-libs/libpwquality-1.4.1:0= )
+	pwquality? ( >=dev-libs/libpwquality-1.4.1 )
 	qrcode? ( >=media-gfx/qrencode-3:0= )
-	seccomp? ( >=sys-libs/libseccomp-2.3.3:0= )
-	selinux? ( >=sys-libs/libselinux-2.1.9:0= )
-	tpm? ( app-crypt/tpm2-tss:0= )
-	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )
-	zstd? ( >=app-arch/zstd-1.4.0:0=[${MULTILIB_USEDEP}] )
+	seccomp? ( >=sys-libs/libseccomp-2.4.0 )
+	selinux? ( >=sys-libs/libselinux-2.1.9 )
+	tpm? ( app-crypt/tpm2-tss )
+	xkb? ( >=x11-libs/libxkbcommon-0.4.1 )
+	zstd? ( >=app-arch/zstd-1.4.0:0= )
 "
 
 # Newer linux-headers needed by ia64, bug #480218
@@ -131,7 +136,6 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
-	elibc_musl? ( >=sys-libs/musl-1.2.5-r8 )
 	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
@@ -146,17 +150,19 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
-	!sys-apps/hwids[udev]
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
 	!sys-fs/udev
 "
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
-PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
+PDEPEND="
+	>=sys-apps/dbus-1.9.8[systemd]
 	>=sys-fs/udev-init-scripts-34
 	policykit? ( sys-auth/polkit )
-	!vanilla? ( sys-apps/gentoo-systemd-integration )"
+	!sysv-utils? ( sys-apps/systemd-initctl )
+	!vanilla? ( sys-apps/gentoo-systemd-integration )
+"
 
 BDEPEND="
 	app-arch/xz-utils:0
@@ -192,38 +198,7 @@ BDEPEND="
 QA_FLAGS_IGNORED="usr/lib/systemd/boot/efi/.*"
 QA_EXECSTACK="usr/lib/systemd/boot/efi/*"
 
-check_cgroup_layout() {
-	# https://bugs.gentoo.org/935261
-	[[ ${MERGE_TYPE} != buildonly ]] || return
-	[[ -z ${ROOT} ]] || return
-	[[ -e /sys/fs/cgroup/unified ]] || return
-	grep -q 'SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1' /proc/cmdline && return
-
-	eerror "This system appears to be booted with the 'hybrid' cgroup layout."
-	eerror "This layout obsolete and is disabled in systemd."
-
-	if grep -qF 'systemd.unified_cgroup_hierarchy'; then
-		eerror "Remove the systemd.unified_cgroup_hierarchy option"
-		eerror "from the kernel command line and reboot."
-		die "hybrid cgroup layout detected"
-	fi
-}
-
 pkg_pretend() {
-	if use split-usr; then
-		eerror "Please complete the migration to merged-usr."
-		eerror "https://wiki.gentoo.org/wiki/Merge-usr"
-		die "systemd no longer supports split-usr"
-	fi
-
-	check_cgroup_layout
-
-	if use cgroup-hybrid; then
-		eerror "Disable the 'cgroup-hybrid' USE flag."
-		eerror "Rebuild any initramfs images after rebuilding systemd."
-		die "cgroup-hybrid is no longer supported"
-	fi
-
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
 		local CONFIG_CHECK="~BLK_DEV_BSG ~CGROUPS
 			~CGROUP_BPF ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
@@ -279,7 +254,6 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-259-test-echo.patch"
 	)
 
 	if ! use vanilla; then
@@ -304,88 +278,30 @@ multilib_src_configure() {
 	local myconf=(
 		--localstatedir="${EPREFIX}/var"
 		-Ddocdir="share/doc/${PF}"
-		# default is developer, bug 918671
-		-Dmode=release
+		-Dmode=release # default is developer, bug 918671
+		-Dlibc=$(usex elibc_musl musl glibc)
 		-Dsupport-url="${BRANDING_OS_SUPPORT_URL}"
 		-Dpamlibdir="$(getpam_mod_dir)"
-		-Dlibc=$(usex elibc_musl musl glibc)
-		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
 		-Dzshcompletiondir="$(get_zshcompdir)"
 		-Dsplit-bin=false
-		# Disable compatibility with sysvinit
-		-Dsysvinit-path=
-		-Dsysvrcnd-path=
-		# no deps
-		-Dima=true
-		# Match /etc/shells, bug 919749
-		-Ddebug-shell="${EPREFIX}/bin/sh"
+		-Dima=true # no deps
+		-Ddebug-shell="${EPREFIX}/bin/sh" # Match /etc/shells, bug 919749
 		-Ddefault-user-shell="${EPREFIX}/bin/bash"
-		# Optional components/dependencies
-		$(meson_native_use_feature acl)
-		$(meson_native_use_feature apparmor)
-		$(meson_native_use_feature audit)
-		$(meson_native_use_feature boot bootloader)
-		$(meson_native_use_feature bpf bpf-framework)
 		-Dbpf-compiler=gcc
-		$(meson_native_use_feature cryptsetup libcryptsetup)
-		$(meson_native_use_feature curl libcurl)
-		$(meson_native_use_bool dns-over-tls dns-over-tls)
-		$(meson_native_use_feature elfutils)
-		$(meson_native_use_feature fido2 libfido2)
-		$(meson_feature gcrypt)
-		$(meson_native_use_feature gnutls)
-		$(meson_native_use_feature homed)
-		$(meson_native_use_feature http microhttpd)
-		$(meson_native_use_bool idn)
-		$(meson_native_use_feature importd)
-		$(meson_native_use_feature importd bzip2)
-		$(meson_native_use_feature importd zlib)
-		$(meson_native_use_bool kernel-install)
-		$(meson_native_use_feature kmod)
-		$(meson_feature lz4)
-		$(meson_feature lzma xz)
-		$(meson_feature zstd)
-		$(meson_native_use_feature iptables libiptc)
-		$(meson_native_use_feature openssl)
-		$(meson_feature pam)
-		$(meson_native_use_feature passwdqc)
-		$(meson_native_use_feature pkcs11 p11kit)
-		$(meson_native_use_feature pcre pcre2)
-		$(meson_native_use_feature policykit polkit)
-		$(meson_native_use_feature pwquality)
-		$(meson_native_use_feature qrcode qrencode)
-		$(meson_native_use_feature seccomp)
-		$(meson_native_use_feature selinux)
-		$(meson_native_use_feature tpm tpm2)
-		$(meson_native_use_feature test dbus)
-		$(meson_native_use_feature ukify)
-		$(meson_native_use_feature xkb xkbcommon)
 		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		-Ddefault-kill-user-processes=false
 		-Dcreate-log-dirs=false
+		-Dlibcrypt=enabled
+		-Dcompat-mutable-uid-boundaries=true
 
-		# multilib options
-		$(meson_native_true backlight)
-		$(meson_native_true binfmt)
-		$(meson_native_true coredump)
-		$(meson_native_true environment-d)
-		$(meson_native_true firstboot)
-		$(meson_native_true hibernate)
-		$(meson_native_true hostnamed)
-		$(meson_native_true ldconfig)
-		$(meson_native_true localed)
-		$(meson_native_enabled man)
-		$(meson_native_true networkd)
-		$(meson_native_true quotacheck)
-		$(meson_native_true randomseed)
-		$(meson_native_true rfkill)
-		$(meson_native_true sysusers)
-		$(meson_native_true timedated)
-		$(meson_native_true timesyncd)
-		$(meson_native_true tmpfiles)
-		$(meson_native_true vconsole)
+		# options affecting multilib
+		$(meson_use !elibc_musl nss-myhostname)
+		$(meson_feature !elibc_musl nss-mymachines)
+		$(meson_feature !elibc_musl nss-resolve)
+		$(meson_use !elibc_musl nss-systemd)
+		$(meson_feature pam)
 	)
 
 	# workaround for bug 969103
@@ -395,18 +311,88 @@ multilib_src_configure() {
 		myconf+=( $(meson_use test tests) )
 	fi
 
-	case $(tc-arch) in
-		amd64|arm|arm64|loong|ppc|ppc64|riscv|s390|x86)
-			# src/vmspawn/vmspawn-util.h: QEMU_MACHINE_TYPE
-			myconf+=( $(meson_native_enabled vmspawn) ) ;;
-		*)
-			myconf+=( -Dvmspawn=disabled ) ;;
-	esac
+	if multilib_is_native_abi; then
+		myconf+=(
+			--auto-features=enabled
+			-Dman=enabled
+			-Dxenctrl=disabled
+
+			# Optional components/dependencies
+			$(meson_feature acl)
+			$(meson_feature apparmor)
+			$(meson_feature audit)
+			$(meson_feature boot bootloader)
+			$(meson_feature bpf bpf-framework)
+			$(meson_feature cryptsetup libcryptsetup)
+			$(meson_feature curl libcurl)
+			$(meson_use dns-over-tls dns-over-tls)
+			$(meson_feature elfutils)
+			$(meson_feature fido2 libfido2)
+			$(meson_feature gcrypt)
+			$(meson_feature gnutls)
+			$(meson_feature http microhttpd)
+			$(meson_feature homed)
+			$(meson_use idn)
+			$(meson_feature importd)
+			$(meson_feature importd bzip2)
+			$(meson_feature importd zlib)
+			$(meson_use kernel-install)
+			$(meson_feature kmod)
+			$(meson_feature lz4)
+			$(meson_feature lzma xz)
+			$(meson_feature zstd)
+			$(meson_feature openssl)
+			$(meson_feature passwdqc)
+			$(meson_feature pkcs11 p11kit)
+			$(meson_feature pcre pcre2)
+			$(meson_feature policykit polkit)
+			$(meson_feature pwquality)
+			$(meson_feature qrcode qrencode)
+			$(meson_feature seccomp)
+			$(meson_feature selinux)
+			$(meson_feature tpm tpm2)
+			$(meson_feature test dbus)
+			$(meson_feature ukify)
+			$(meson_feature xkb xkbcommon)
+		)
+
+		case $(tc-arch) in
+			amd64|arm|arm64|loong|ppc|ppc64|riscv|s390|x86)
+				# src/vmspawn/vmspawn-util.h: QEMU_MACHINE_TYPE
+				myconf+=( $(meson_native_enabled vmspawn) ) ;;
+			*)
+				myconf+=( -Dvmspawn=disabled ) ;;
+		esac
+	else
+		myconf+=(
+			--auto-features=disabled
+		)
+	fi
 
 	meson_src_configure "${myconf[@]}"
 }
 
+multilib_src_compile() {
+	local args=()
+	if ! multilib_is_native_abi; then
+		args+=(
+			devel libsystemd libudev
+			$(usex elibc_musl '' nss)
+			$(usev pam)
+		)
+	fi
+	meson_src_compile "${args[@]}"
+}
+
 multilib_src_test() {
+	local args=( --timeout-multiplier=10 )
+	if ! multilib_is_native_abi; then
+		args+=(
+			--suite libsystemd --suite libudev
+			$(usex elibc_musl '' '--suite nss')
+			$(usex pam '--suite pam' '')
+		)
+	fi
 	(
 		unset DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
 		export COLUMNS=80
@@ -414,8 +400,19 @@ multilib_src_test() {
 		addpredict /proc
 		addpredict /run
 		addpredict /sys/fs/cgroup
-		meson_src_test --timeout-multiplier=10
+		meson_src_test "${args[@]}"
 	) || die
+}
+
+multilib_src_install() {
+	local args=()
+	if ! multilib_is_native_abi; then
+		local tags=devel,libsystemd,libudev
+		use !elibc_musl && tags+=,nss
+		use pam && tags+=,pam
+		args+=( --tags "${tags}" )
+	fi
+	meson_src_install "${args[@]}"
 }
 
 multilib_src_install_all() {
