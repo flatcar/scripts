@@ -13,7 +13,7 @@ if [[ ${PV} == 9999* ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/containerd/accelerated-container-image/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~chewi/distfiles/${P}-vendor.tar.xz"
+		https://github.com/containerd/accelerated-container-image/releases/download/v${PV}/${P}-vendor.tar.xz"
 	KEYWORDS="amd64 arm64"
 fi
 
@@ -21,6 +21,10 @@ LICENSE="Apache-2.0"
 SLOT="0"
 
 RDEPEND="sys-fs/overlaybd"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-go-1.25.patch
+)
 
 src_unpack() {
 	[[ ${PV} == 9999* ]] && git-r3_src_unpack
