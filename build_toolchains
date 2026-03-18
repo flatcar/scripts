@@ -51,7 +51,7 @@ ROOT_OVERLAY="${TEMPDIR}/stage4-${ARCH}-$FLAGS_version-overlay"
 
 # toolchain_util.sh and break_dep_loop.sh are required by
 # catalyst_toolchains.sh
-mkdir -p "${ROOT_OVERLAY}/tmp"
+mkdir -p -m1777 "${ROOT_OVERLAY}/tmp"
 cp "${BUILD_LIBRARY_DIR}/toolchain_util.sh" "${BUILD_LIBRARY_DIR}/break_dep_loop.sh" "${ROOT_OVERLAY}/tmp"
 create_provenance_overlay "${ROOT_OVERLAY}"
 
