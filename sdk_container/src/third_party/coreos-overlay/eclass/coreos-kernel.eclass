@@ -117,10 +117,10 @@ kmake() {
 	if gcc-specs-pie; then
 		kernel_cflags="-nopie -fstack-check=no ${kernel_cflags}"
 	fi
-	emake "--directory=${S}/source" \
+	emake "--directory=${KERNEL_DIR}" \
 		ARCH="${kernel_arch}" \
 		CROSS_COMPILE="${CHOST}-" \
-		KBUILD_OUTPUT="../build" \
+		KBUILD_OUTPUT="${S}/build" \
 		KCFLAGS="${kernel_cflags}" \
 		LDFLAGS="" \
 		"V=1" \
@@ -206,85 +206,6 @@ setup_keys() {
 	popd
 }
 
-# Populate /lib/modules/$(uname -r)/{build,source}
-install_build_source() {
-	local kernel_arch=$(tc-arch-kernel)
-	local host_kernel_arch=$(tc-ninja_magic_to_arch kern "${CBUILD}")
-
-	# NOTE: We have to get ${archabspaths} before removing symlinks under
-	# /usr/lib/modules. However, do not exclude "dt-bindings" for now,
-	# as it looks architecture-independent.
-	local archabspaths=($(ls -1d ${D}/usr/lib/modules/${KV_FULL}/source/scripts/dtc/include-prefixes/* \
-		| grep -v dt-bindings ))
-
-	# remove the broken symlinks referencing $ROOT
-	rm "${D}/usr/lib/modules/${KV_FULL}/build" || die
-
-	# Compose list of architectures to be excluded from the kernel modules
-	# tree in the final image. It is an array to be used as a pattern for
-	# grep command below at the end of "find source/scripts" command for
-	# fetching kernel modules list, e.g.:
-	#   find source/scripts -follow -print \
-	#   | grep -E -v -w "include-prefixes/arc|include-prefixes/xtensa"
-	declare -a excarchlist
-	local excarchstr
-
-	for apath in "${archabspaths[@]}"; do
-		local arch
-		arch=$(basename "${apath}")
-		if [[ "${arch}" != "${kernel_arch}" ]]; then
-			excarchlist+=("include-prefixes/${arch}")
-
-			# Do not append delimiter '|' in case of the last element.
-			if [[ "${apath}" != "${archabspaths[-1]}" ]]; then
-				excarchlist+=("|")
-			fi
-		fi
-	done
-
-	# Remove every whitespace from the grep pattern string, to make pattern
-	# matching work well.
-	excarchstr=$(echo "${excarchlist[@]}" | sed -e 's/[[:space:]]*//g')
-
-	# Install a stripped source for out-of-tree module builds (Debian-derived)
-	#
-	# NOTE: we need to exclude unsupported architectures from source/scripts,
-	# to prevent the final image from having unnecessary directories under
-	# /usr/lib/modules/${KV_FULL}/source/scripts/dtc/include-prefixes.
-	# The grep must run with "-w" to exclude exact patterns like either arm
-	# or arm64.
-	{
-		echo source/Makefile
-		find source/arch/${host_kernel_arch} -follow -maxdepth 1 -name 'Makefile*' -print
-		find source/arch/${kernel_arch} -follow -maxdepth 1 -name 'Makefile*' -print
-		find source/arch/${kernel_arch} -follow \( -name 'module.lds' -o -name 'Kbuild.platforms' -o -name 'Platform' \) -print
-		find $(find source/arch/${kernel_arch} -follow \( -name include -o -name scripts \) -follow -type d -print) -print
-		find source/include -follow -print
-		find source/scripts -follow -print | grep -E -v -w "${excarchstr}"
-		find build/ -print
-	} | cpio -pd \
-		--preserve-modification-time \
-		--owner=root:root \
-		--dereference \
-		"${D}/usr/lib/modules/${KV_FULL}" || die
-	# ./build/source is a symbolic link so cpio ends up creating an empty dir.
-	# Restore the symlink.
-	pushd "${D}/usr/lib/modules/${KV_FULL}"
-	rmdir build/source || die
-	ln -sr source build || die
-	# Symlink includes into the build directory to resemble Ubuntu's /lib/modules
-	# layout. This lets the Nvidia driver build when passing SYSSRC=/lib/modules/../build
-	# instead of requiring SYSOUT/SYSSRC.
-	{
-		find source/include -mindepth 1 -maxdepth 1 -type d
-		find source/arch/${kernel_arch}/include -mindepth 1 -maxdepth 1 -type d
-	} | while read src; do
-		dst="${src/source/build}"
-		ln -sr "${src}" "${dst}" || die
-	done || die
-	popd
-}
-
 coreos-kernel_pkg_pretend() {
 	[[ "${MERGE_TYPE}" == binary ]] && return
 
@@ -302,10 +223,7 @@ coreos-kernel_pkg_setup() {
 }
 
 coreos-kernel_src_unpack() {
-	# we more or less reproduce the layout in /lib/modules/$(uname -r)/
 	mkdir -p "${S}/build" || die
-	mkdir -p "${S}/source" || die
-	ln -s "${KERNEL_DIR}"/* "${S}/source/" || die
 }
 
 coreos-kernel_src_configure() {
