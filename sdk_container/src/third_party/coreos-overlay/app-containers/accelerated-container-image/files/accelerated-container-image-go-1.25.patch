@@ -1,0 +1,12 @@
+Flatcar is not quite ready for 1.26 yet.
+
+--- a/go.mod
++++ b/go.mod
+@@ -1,6 +1,6 @@
+ module github.com/containerd/accelerated-container-image
+ 
+-go 1.26.0
++go 1.25.0
+ 
+ require (
+ 	github.com/containerd/containerd/api v1.8.0
