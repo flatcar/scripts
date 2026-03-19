@@ -1,4 +1,4 @@
-Welcome! 👋 We're so glad you're here and interested in contributing to Flatcar! 💖
+Welcome! We're so glad you're here and interested in contributing to Flatcar! 💖
 
 Whether you're fixing a bug, adding a feature, or improving docs — we appreciate you!
 
