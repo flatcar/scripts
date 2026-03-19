@@ -1,71 +1,38 @@
-# How to Contribute
+Welcome! We're so glad you're here and interested in contributing to Flatcar! 💖
 
-CoreOS projects are [Apache 2.0 licensed](LICENSE) and accept contributions via
-GitHub pull requests.  This document outlines some of the conventions on
-development workflow, commit message formatting, contact points and other
-resources to make it easier to get your contribution accepted.
+Whether you're fixing a bug, adding a feature, or improving docs — we appreciate you!
 
-# Certificate of Origin
+## Before You Submit
 
-By contributing to this project you agree to the Developer Certificate of
-Origin (DCO). This document was created by the Linux Kernel community and is a
-simple statement that you, as a contributor, have the legal right to make the
-contribution. See the [DCO](DCO) file for details.
+### Certificate of Origin (DCO)
 
-# Email and Chat
+By contributing to this project, you agree to the **Developer Certificate of Origin** aka **DCO**. This means you have the right to submit the code that you are submitting and you're licensing it under the project's license.
 
-The project currently uses the general CoreOS email list and IRC channel:
-- Email: [coreos-dev](https://groups.google.com/forum/#!forum/coreos-dev)
-- IRC: #[coreos](irc://irc.freenode.org:6667/#coreos) IRC channel on freenode.org
-
-Please avoid emailing maintainers found in the MAINTAINERS file directly. They
-are very busy and read the mailing lists.
-
-## Getting Started
-
-- Fork the repository on GitHub
-- Read the [README](README.md) for build and test instructions
-- Play with the project, submit bugs, submit patches!
-
-## Contribution Flow
-
-This is a rough outline of what a contributor's workflow looks like:
-
-- Create a topic branch from where you want to base your work (usually master).
-- Make commits of logical units.
-- Make sure your commit messages are in the proper format (see below).
-- Push your changes to a topic branch in your fork of the repository.
-- Make sure the tests pass, and add any new tests as appropriate.
-- Submit a pull request to the original repository.
-
-Thanks for your contributions!
-
-### Format of the Commit Message
-
-We follow a rough convention for commit messages that is designed to answer two
-questions: what changed and why. The subject line should feature the what and
-the body of the commit should describe the why.
-
+**Sign your commits** by adding a `Signed-off-by` line:
 ```
-scripts: add the test-cluster command
-
-this uses tmux to setup a test cluster that you can easily kill and
-start for debugging.
-
-Fixes #38
+Signed-off-by: Your Name <your.email@example.com>
 ```
 
-The format can be described more formally as follows:
+The easiest way is to use the git CLI with the `-s` flag: `git commit -s` — this adds the sign-off automatically!
 
-```
-<subsystem>: <what changed>
-<BLANK LINE>
-<why this change was made>
-<BLANK LINE>
-<footer>
-```
+### Contribution Flow
 
-The first line is the subject and should be no longer than 70 characters, the
-second line is always blank, and other lines should be wrapped at 80 characters.
-This allows the message to be easier to read on GitHub as well as in various
-git tools.
+1. **Fork** the repository on GitHub
+2. **Create a topic branch** from `main` for your work
+3. **Make commits** of logical units with clear commit messages
+4. **Push** your changes to your fork
+5. **Open a pull request** against the original repository
+
+That's it! We'll review your PR and work with you to get it merged.
+
+---
+
+For more detailed guidelines (finding issues, community meetings, PR lifecycle, commit message format, and more), check out the [main Flatcar CONTRIBUTING guide](https://github.com/flatcar/Flatcar/blob/main/CONTRIBUTING.md).
+
+---
+
+## Repository Specific Guidelines
+
+Any guidelines specific to this repository that are not covered in the main contribution guide will be listed here.
+
+<!-- Add repo-specific guidelines below this line -->
