@@ -1,0 +1,7 @@
+# Mark python as provided for selinux stuff. We have put all the
+# python stuff into install masks by now.
+dev-lang/python-3.11.12
+
+# Pulled in by sys-apps/policycoreutils, python stuff.
+app-admin/setools-4.5.1
+sys-apps/selinux-python-3.8.1
