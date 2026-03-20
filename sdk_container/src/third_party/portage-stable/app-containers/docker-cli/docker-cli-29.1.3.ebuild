@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit shell-completion go-module
+inherit shell-completion go-env go-module toolchain-funcs
 MY_PV=${PV/_/-}
 
 # update this on every bump
@@ -32,14 +32,14 @@ src_prepare() {
 
 src_compile() {
 	export DISABLE_WARN_OUTSIDE_CONTAINER=1
-	# setup CFLAGS and LDFLAGS for separate build target
-	# see https://github.com/tianon/docker-overlay/pull/10
-	CGO_CFLAGS+=" -I${ESYSROOT}/usr/include"
-	CGO_LDFLAGS+=" -L${ESYSROOT}/usr/$(get_libdir)"
-		emake \
-		VERSION="${PV}" \
-		GITCOMMIT="${GIT_COMMIT}" \
-		dynbinary manpages
+
+	myemakeargs=(
+		VERSION="${PV}"
+		GITCOMMIT="${GIT_COMMIT}"
+	)
+
+	emake "${myemakeargs[@]}" dynbinary
+	tc-env_build go-env_run emake "${myemakeargs[@]}" manpages
 }
 
 src_install() {
