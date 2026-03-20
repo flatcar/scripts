@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -176,6 +176,14 @@ src_compile() {
 	local xnvflags=-fPIC #840389
 	tc-is-lto && xnvflags+=" $(test-flags-CC -ffat-lto-objects)"
 
+	# Same as uname -m.
+	local target_arch
+	case ${ARCH} in
+		amd64) target_arch=x86_64 ;;
+		arm64) target_arch=aarch64 ;;
+		*) die "Unrecognised architecture: ${ARCH}" ;;
+	esac
+
 	NV_ARGS=(
 		PREFIX="${EPREFIX}"/usr
 		HOST_CC="$(tc-getBUILD_CC)"
@@ -183,6 +191,7 @@ src_compile() {
 		BUILD_GTK2LIB=
 		NV_USE_BUNDLED_LIBJANSSON=0
 		NV_VERBOSE=1 DO_STRIP= MANPAGE_GZIP= OUTPUTDIR=out
+		TARGET_ARCH="${target_arch}"
 		WAYLAND_AVAILABLE=$(usex wayland 1 0)
 		XNVCTRL_CFLAGS="${xnvflags}"
 	)
@@ -211,6 +220,7 @@ src_compile() {
 			CC="${KERNEL_CC}" # needed for above gnu17 workaround
 			IGNORE_CC_MISMATCH=yes NV_VERBOSE=1
 			SYSOUT="${KV_OUT_DIR}" SYSSRC="${KV_DIR}"
+			TARGET_ARCH="${target_arch}"
 
 			# kernel takes "x86" and "x86_64" as meaning the same, but nvidia
 			# makes the distinction (since 550.135) and is not happy with "x86"
