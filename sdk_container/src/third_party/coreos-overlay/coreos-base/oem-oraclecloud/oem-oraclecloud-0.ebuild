@@ -3,8 +3,8 @@
 
 EAPI=8
 
-DESCRIPTION="OEM suite for Akamai (previously Linode)"
-HOMEPAGE="https://www.linode.com"
+DESCRIPTION="OEM suite for Oracle Cloud"
+HOMEPAGE="https://cloud.oracle.com/"
 SRC_URI=""
 
 LICENSE="GPL-2"
