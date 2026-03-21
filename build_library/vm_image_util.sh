@@ -6,6 +6,7 @@
 # Default values use the format IMG_DEFAULT_<opt>.
 
 VALID_IMG_TYPES=(
+    oraclecloud
     akamai
     ami
     ami_vmdk
@@ -48,6 +49,7 @@ VALID_IMG_TYPES=(
 
 #list of oem package names, minus the oem- prefix
 VALID_OEM_PACKAGES=(
+    oraclecloud
     akamai
     azure
     cloudsigma
@@ -349,6 +351,13 @@ IMG_akamai_DISK_LAYOUT=vm
 IMG_akamai_OEM_PACKAGE=common-oem-files
 IMG_akamai_OEM_USE=akamai
 IMG_akamai_OEM_SYSEXT=oem-akamai
+
+## Oracle Cloud
+IMG_oraclecloud_DISK_FORMAT=qcow2
+IMG_oraclecloud_DISK_LAYOUT=vm
+IMG_oraclecloud_OEM_PACKAGE=common-oem-files
+IMG_oraclecloud_OEM_USE=oraclecloud
+IMG_oraclecloud_OEM_SYSEXT=oem-oraclecloud
 
 # proxmoxve
 IMG_proxmoxve_DISK_FORMAT=qcow2
