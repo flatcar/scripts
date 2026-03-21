@@ -10,3 +10,6 @@ nls
 
 # We don't care about GObject introspection.
 introspection
+
+# We don't need debuginfod support.
+debuginfod

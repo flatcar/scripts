@@ -15,7 +15,7 @@ dev-vcs/git		webdav curl
 # I'm not sure we really need it.)
 # Disable websockets, we never had them, and now they are enabled by default.
 net-misc/curl		kerberos telnet -http3 -quic -curl_quic_openssl -websockets
-net-misc/iputils	arping tracepath
+net-misc/iputils	arping tracepath -suid
 sys-devel/gettext	-git
 
 # for profile migration, needs to be enabled despite the fact it's
@@ -143,7 +143,6 @@ sys-apps/findutils selinux
 # Flatcar defaults formerly defined in coreos-overlay ebuilds
 app-containers/containerd btrfs device-mapper
 app-containers/docker btrfs overlay seccomp
-app-containers/docker-cli hardened
 
 # Drop python dependencies from some SELinux packages.
 #
@@ -197,3 +196,6 @@ app-emulation/open-vmdk -python
 
 # Avoid pulling extra perl packages
 dev-perl/File-Slurper minimal
+
+# This is only needed for debuginfod support, which we masked.
+dev-libs/elfutils -libarchive

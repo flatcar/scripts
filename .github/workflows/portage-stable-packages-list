@@ -3,6 +3,7 @@
 acct-group/adm
 acct-group/audio
 acct-group/cdrom
+acct-group/clock
 acct-group/cuse
 acct-group/dialout
 acct-group/disk
@@ -379,6 +380,7 @@ dev-python/wheel
 dev-util/bpftool
 dev-util/bsdiff
 dev-util/catalyst
+dev-util/debugedit
 dev-util/gdbus-codegen
 dev-util/glib-utils
 dev-util/gperf
@@ -660,6 +662,7 @@ sys-devel/binutils
 sys-devel/binutils-config
 sys-devel/bison
 sys-devel/crossdev
+sys-devel/dwz
 sys-devel/flex
 sys-devel/gcc
 sys-devel/gcc-config

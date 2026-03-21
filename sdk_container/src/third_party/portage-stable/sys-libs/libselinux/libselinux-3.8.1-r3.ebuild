@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -46,7 +46,9 @@ BDEPEND="virtual/pkgconfig
 	python? (
 		>=dev-lang/swig-2.0.9
 		dev-python/pip[${PYTHON_USEDEP}]
-)
+		${PYTHON_DEPS}
+		${DISTUTILS_DEPS}
+	)
 	ruby? ( >=dev-lang/swig-2.0.9 )"
 
 src_prepare() {
@@ -60,6 +62,7 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	default
 	if multilib_is_native_abi; then
 		if use python; then
 			distutils-r1_src_configure
@@ -164,8 +167,11 @@ python_install() {
 }
 
 multilib_src_test() {
-	if use python; then
-		distutils-r1_src_test
+	default
+	if multilib_is_native_abi; then
+		if use python; then
+			distutils-r1_src_test
+		fi
 	fi
 }
 

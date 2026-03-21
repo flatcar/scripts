@@ -166,8 +166,6 @@ fi
 get_board_and_variant $FLAGS_board $FLAGS_variant
 
 # Locations we will need
-COREOS_OVERLAY="${REPO_ROOT}/src/third_party/coreos-overlay"
-COREOS_CONFIG="${COREOS_OVERLAY}/coreos/config"
 BOARD_ROOT="/build/${BOARD_VARIANT}"
 BOARD_ETC="${BOARD_ROOT}/etc"
 BOARD_ARCH=$(get_board_arch "$BOARD")
@@ -248,6 +246,17 @@ sudo mkdir -p "${BOARD_ETC}/portage/"{profile,repos.conf}
 sudo ln -sfT "$(portageq get_repo_path / coreos-overlay)/coreos/user-patches" \
    "${BOARD_ETC}/portage/patches"
 sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
+
+for REPO_NAME in $(cat "${REPO_ROOT}"/src/third_party/*/profiles/repo_name); do
+  [[ ${REPO_NAME} == prefix ]] && continue # Ignore for now.
+
+  for CONF in "${REPO_ROOT}/src/third_party/${REPO_NAME}"/coreos/config/portage/*; do
+    [[ ${CONF} == *.md || ! -e ${CONF} ]] && continue
+    sudo mkdir -p "${BOARD_ETC}/portage/${CONF##*/}"
+    sudo ln -snf "${CONF}" "${BOARD_ETC}/portage/${CONF##*/}/${REPO_NAME}.conf"
+  done
+done
+
 # set PORTAGE_CONFIGROOT to tell eselect to modify the profile inside
 # /build/<arch>-usr, but set ROOT to /, so eselect will actually find
 # the profile which is outside /build/<arch>-usr, set SYSROOT to / as

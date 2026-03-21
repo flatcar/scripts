@@ -1,14 +1,14 @@
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-DESCRIPTION="CoreOS developer images and containers (meta package)"
-HOMEPAGE="http://coreos.com"
+DESCRIPTION="Flatcar developer images and containers (meta package)"
+HOMEPAGE="https://www.flatcar.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 x86"
+KEYWORDS="amd64 arm64"
 
 # The dependencies here are meant to capture "all the packages
 # developers want to use for development, test, or debug".  This
@@ -38,6 +38,7 @@ RDEPEND="
 	sys-apps/i2c-tools
 	sys-apps/kbd
 	sys-apps/less
+	sys-apps/man-pages
 	sys-apps/portage
 	sys-apps/smartmontools
 	sys-apps/which
@@ -47,4 +48,5 @@ RDEPEND="
 	sys-fs/squashfs-tools
 	sys-process/procps
 	sys-process/psmisc
-	"
+	virtual/man
+"

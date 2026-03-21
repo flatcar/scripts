@@ -1,5 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org> (2026-02-11)
+# sys-libs/libnvme not keyworded here
+sys-fs/lvm2 nvme
 
 # Sam James <sam@gentoo.org> (2025-12-18)
 # dev-lang/ada-bootstrap exists here
@@ -292,7 +296,6 @@ app-portage/nattka depgraph-order
 # Adel Kara Slimane <adel.ks@zegrapher.com> (2022-03-14)
 # Untested useflag on other arches, needs keywording
 media-video/ffmpeg vmaf
-media-video/ffmpeg-compat vmaf
 
 # Sam James <sam@gentoo.org> (2021-11-05)
 # Avoid keywording unnecessary depenencies for now, bug #804115
