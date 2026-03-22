@@ -36,6 +36,62 @@
 
 #--- END OF EXAMPLES ---
 
+# Jakov Smolić <jsmolic@gentoo.org> (2026-03-13)
+# sqlite-3.52.0 has been withdrawn shortly after its release due to
+# backwards-compatibility issues
+# https://sqlite.org/releaselog/3_52_0.html
+=dev-db/sqlite-3.52.0-r1
+=dev-python/apsw-3.52.0.0
+
+# Ionen Wolkens <ionen@gentoo.org> (2026-03-12)
+# Package was added for games-strategy/naev-0.12.x but 0.13.x no longer
+# needs it and it never gained other consumers. Have no intentions to
+# keep maintaining this so may as well remove rather than leave it m-n.
+# (note: may be moved to ::guru, upper bound is to facililate this)
+# Removal on 2026-04-11.
+<dev-libs/nativefiledialog-extended-1.2.1-r1
+
+# Mike Pagano <mpagano@gentoo.org> (2026-03-13)
+# Upstream has announced the archiving of this application
+# at repo location: https://github.com/nginx/unit/
+# This announcement includes the statement that security
+# issues may not be addressed. Possible alternatives
+# are www-servers/nginx or www-servers/apache
+# depending on your application needs.
+# Removal on 2026-04-13.
+www-servers/nginx-unit
+
+# Alfredo Tupone <tupone@gentoo.org> (2026-03-12)
+# No reverse dependency. Included in dev-tcltk/tklib
+# Removeal on 2026-04-12. Bug #971127
+dev-tcltk/tablelist
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2026-03-10)
+# Unused Java library.
+# Last consumer was net-p2p/freenet-0.7.5_p1505-r0.
+# Removal on 2026-04-10. Bug #971058.
+dev-java/mersennetwister
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2026-03-09)
+# Latest release is >21 years old, no one else packages this, buffer overflow
+# at launch, packaged only in gentoo. Alternatives exist, including the dockapp
+# x11-plugins/wmamixer. Bug #969091
+# Removal on 2026-04-08.
+media-sound/alsamixer-app
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2026-03-09)
+# Dead CORBA implementation, no one else packages this, impossible to build.
+# Many bugs: #298101, #515938, #725192, #871237, #874090, #882479, #882633,
+# #898086, #919509, #952927, #967177
+# Removal on 2026-04-08.
+net-misc/mico
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2026-03-09)
+# Live only package, Upstream archived, integrated into
+# app-shells/bash-completion-2.17.0, which was already stabled.
+# Removal on 2026-04-08.  Bugs #792303, #960480.
+app-shells/tmux-bash-completion
+
 # Alfredo Tupone <tupone@gentoo.org> (2026-03-05)
 # Need more testing
 >=dev-lang/tcl-9
@@ -135,13 +191,6 @@ media-plugins/vdr-skinelchi
 # Removal on 2026-03-01. Bug #953260.
 x11-misc/projecteur
 
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2026-02-10)
-# Unused Java library. Upstream is gone. SRC_URI points to
-# 'https://dev.gentoo.org/~monsieurp' which does not exist.
-# Last consumer was net-p2p/freenet-0.7.5_p1503-r2.
-# Removal on 2026-03-10. Bug #969322.
-dev-java/fec
-
 # Thomas Beierlein <tomjbe@gentoo.org> (2026-02-14)
 # Move ebuild versioning to classical x.y.z number scheme
 # Should be kept until net-wireless/sdrplay-3.15.2 (dep for coming
@@ -191,6 +240,7 @@ net-misc/lanmap
 # Removal on 2026-03-12. Bug #963013.
 net-libs/libpcapnav
 
+# David Seifert <soap@gentoo.org> (2026-02-10)
 # Noone packages this anymore, dead upstream, lots of C23 and QA issues.
 # Removal on 2026-03-12. Bug #945187.
 net-analyzer/trafshow
@@ -200,6 +250,7 @@ net-analyzer/trafshow
 # issues. Removal on 2026-03-12. Bug #945190.
 net-analyzer/tcptrace
 
+# David Seifert <soap@gentoo.org> (2026-02-10)
 # Removed by most distros, last release over 20 years ago, C23 issues.
 # Removal on 2026-03-12. Bug #945193.
 net-analyzer/labrea
@@ -240,19 +291,6 @@ net-analyzer/echoping
 <=dev-libs/hyprland-protocols-0.6.4
 <=dev-libs/hyprgraphics-0.1.5
 <=gui-wm/hyprland-0.51.1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-09)
-# Broken for ages with dev-libs/boost-1.85 but no one except tinderbox
-# complained, still needs porting to Python 3.13, no revdeps. Upstream
-# available 2025.1 claims to fix at least boost, but needs a maintainer.
-# Bugs #936978, #952658.  Removal on 2026-03-11.
-sci-chemistry/votca
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-09)
-# Broken for >1 year with dev-libs/boost-1.87 but no one except tinderbox
-# complained, no revdeps. Upstream disappeared, almost no one else is
-# packaging this.  Bug #946533.  Removal on 2026-03-11.
-net-analyzer/sinfo
 
 # Michał Górny <mgorny@gentoo.org> (2026-02-09)
 # setuptools-82 removes pkg_sources, inevitably leading to breakage.
@@ -369,10 +407,6 @@ net-analyzer/arp-sk
 # See-Also: https://github.com/emersion/slurp/issues/187
 # Bug #969685
 =gui-apps/slurp-1.6.0
-
-# Sam James <sam@gentoo.org> (2026-01-22)
-# eclean-dist -d needs fixing
-=app-portage/gentoolkit-0.7
 
 # Eray Aslan <eras@gentoo.org> (2025-12-24)
 # Mask experimental software
@@ -702,8 +736,11 @@ www-plugins/chrome-binary-plugins:unstable
 # Diego E. Pettenò <flameeyes@gentoo.org> (2009-01-03)
 # These packages are not supposed to be merged directly, instead
 # please use sys-devel/crossdev to install them.
+dev-util/mig
 dev-util/mingw64-runtime
 sys-libs/newlib
 dev-embedded/avr-libc
 sys-devel/nvptx-tools
 sys-devel/clang-crossdev-wrappers
+sys-kernel/gnumach
+sys-kernel/hurd
