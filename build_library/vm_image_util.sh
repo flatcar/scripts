@@ -23,6 +23,7 @@ VALID_IMG_TYPES=(
     kubevirt
     openstack
     openstack_mini
+    oraclecloud
     parallels
     proxmoxve
     pxe
@@ -154,6 +155,11 @@ IMG_openstack_OEM_SYSEXT=openstack
 ## openstack but without a resized root partition for more flexibility
 IMG_openstack_mini_DISK_FORMAT=qcow2
 IMG_openstack_mini_OEM_SYSEXT=openstack
+
+## Oracle Cloud
+IMG_oraclecloud_DISK_FORMAT=qcow2
+IMG_oraclecloud_DISK_LAYOUT=vm
+IMG_oraclecloud_OEM_SYSEXT=oraclecloud
 
 ## pxe, which is an cpio image
 IMG_pxe_DISK_FORMAT=cpio
