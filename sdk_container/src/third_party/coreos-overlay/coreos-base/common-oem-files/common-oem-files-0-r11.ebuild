@@ -29,12 +29,12 @@ if [[ ${1:-} = 'flatcar-local-variables' ]]; then
 fi
 
 COMMON_OEMIDS=(
-    oraclecloud
     akamai
     ami
     azure
     hetzner
     openstack
+    oraclecloud
     packet
     proxmoxve
     qemu
