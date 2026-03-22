@@ -34,6 +34,7 @@ COMMON_OEMIDS=(
     azure
     hetzner
     openstack
+    oraclecloud
     packet
     proxmoxve
     qemu
