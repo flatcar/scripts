@@ -23,6 +23,7 @@ VALID_IMG_TYPES=(
     kubevirt
     openstack
     openstack_mini
+    oraclecloud
     packet
     parallels
     proxmoxve
@@ -59,6 +60,7 @@ VALID_OEM_PACKAGES=(
     hyperv
     kubevirt
     openstack
+    oraclecloud
     packet
     proxmoxve
     qemu
@@ -243,6 +245,13 @@ IMG_openstack_mini_DISK_FORMAT=qcow2
 IMG_openstack_mini_OEM_PACKAGE=common-oem-files
 IMG_openstack_mini_OEM_USE=openstack
 IMG_openstack_mini_OEM_SYSEXT=oem-openstack
+
+## Oracle Cloud
+IMG_oraclecloud_DISK_FORMAT=qcow2
+IMG_oraclecloud_DISK_LAYOUT=vm
+IMG_oraclecloud_OEM_PACKAGE=common-oem-files
+IMG_oraclecloud_OEM_USE=oraclecloud
+IMG_oraclecloud_OEM_SYSEXT=oem-oraclecloud
 
 ## pxe, which is an cpio image
 IMG_pxe_DISK_FORMAT=cpio
