@@ -553,6 +553,7 @@ net-libs/libpsl
 net-libs/libslirp
 net-libs/libtirpc
 net-libs/nghttp2
+net-libs/ngtcp2
 net-libs/rpcsvc-proto
 
 net-misc/bridge-utils
