@@ -13,14 +13,16 @@ S="${WORKDIR}/${PN^^}.${PV}"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
-IUSE="lvm nvme readline sanlock selinux static static-libs systemd test thin +udev valgrind"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+IUSE="lvm nvme readline sanlock selinux static static-libs systemd test thin +udev valgrind vdo xfs"
 REQUIRED_USE="
 	static? ( !systemd !udev !nvme )
 	static-libs? ( static !udev )
 	systemd? ( udev )
 	test? ( lvm )
 	thin? ( lvm )
+	sanlock? ( lvm )
+	vdo? ( lvm )
 "
 RESTRICT="!test? ( test )"
 
@@ -34,6 +36,7 @@ DEPEND_COMMON="
 		readline? ( sys-libs/readline:= )
 		sanlock? ( >=sys-cluster/sanlock-4.0.0 )
 		systemd? ( >=sys-apps/systemd-234:= )
+		vdo? ( >=sys-block/vdo-8.3.2.1 )
 	)
 	nvme? ( >=sys-libs/libnvme-1.1 )
 "
@@ -63,6 +66,7 @@ DEPEND="
 		selinux? ( sys-libs/libselinux[static-libs] )
 	)
 	valgrind? ( >=dev-debug/valgrind-3.6 )
+	xfs? ( sys-fs/xfsprogs )
 "
 BDEPEND="
 	dev-build/autoconf-archive
@@ -118,6 +122,8 @@ src_prepare() {
 src_configure() {
 	filter-lto
 
+	export ac_cv_header_xfs_xfs_h=$(usex xfs)
+
 	# Most of this package does weird stuff.
 	# The build options are tristate, and --without is NOT supported
 	# options: 'none', 'internal', 'shared'
@@ -127,7 +133,6 @@ src_configure() {
 		$(use_enable lvm cmdlib)
 		$(use_enable lvm fsadm)
 		$(use_enable lvm lvmpolld)
-
 		# This only causes the .static versions to become available
 		$(usev static --enable-static_link)
 
@@ -135,6 +140,9 @@ src_configure() {
 		# so we cannot disable them
 		--with-mirrors="$(usex lvm internal none)"
 		--with-snapshots="$(usex lvm internal none)"
+		# vdo is internal or none only
+		--with-vdo="$(usex vdo internal none)"
+
 	)
 
 	if use lvm && use thin; then
@@ -210,8 +218,7 @@ src_test() {
 	einfo "mucking, run tests, compile the package and see ${S}/tests"
 
 	# run only unit tests
-	cd "${S}"/test || die
-	emake -j1 run-unit-test
+	emake V=1 -C "${S}"/test -j1 run-unit-test
 }
 
 src_install() {
