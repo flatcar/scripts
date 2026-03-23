@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-inherit go-env go-module systemd toolchain-funcs
-GIT_REVISION=dea7da592f5d1d2b7755e3a161be07f43fad8f75
+inherit go-module systemd
+GIT_REVISION=fb4c30d4ede3531652d86197bf3fc9515e5276d9
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -26,7 +26,7 @@ ${COMMON_DEPEND}
 # recommended minimum version of runc is found in script/setup/runc-version
 RDEPEND="
 	${COMMON_DEPEND}
-	>=app-containers/runc-1.3.4[apparmor?,seccomp?]
+	>=app-containers/runc-1.3.3[apparmor?,seccomp?]
 "
 
 BDEPEND="
@@ -41,6 +41,7 @@ src_prepare() {
 	default
 	sed -i \
 		-e "s/-s -w//" \
+		-e "s/-mod=readonly//" \
 		Makefile || die
 	sed -i \
 		-e "s:/usr/local:/usr:" \
@@ -63,10 +64,11 @@ src_compile() {
 		VERSION=v${PV}
 	)
 
+	# race condition in man target https://bugs.gentoo.org/765100
+	# we need to explicitly specify GOFLAGS for "go run" to use vendor source
+	emake "${myemakeargs[@]}" man -j1 #nowarn
 	emake "${myemakeargs[@]}" all
 
-	# race condition in man target https://bugs.gentoo.org/765100
-	tc-env_build go-env_run emake "${myemakeargs[@]}" man -j1 #nowarn
 }
 
 src_install() {
