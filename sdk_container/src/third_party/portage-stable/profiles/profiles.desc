@@ -70,6 +70,9 @@ amd64		default/linux/amd64/23.0/x32					dev
 amd64		default/linux/amd64/23.0/x32/systemd				exp
 amd64		default/linux/amd64/23.0/split-usr/x32				exp
 
+# AMD64 Profiles for GNU Hurd
+# MAINTAINER: sam@gentoo.org
+amd64		default/hurd/amd64/23.0						exp
 
 # ARM Profiles
 # @MAINTAINER: arm@gentoo.org
@@ -450,22 +453,32 @@ x86		default/linux/x86/23.0/i486/time64/split-usr			dev
 x86		default/linux/x86/23.0/i486/time64/split-usr/hardened		dev
 x86		default/linux/x86/23.0/i486/time64/split-usr/hardened/selinux	dev
 
+# X86 Profiles for GNU Hurd
+# MAINTAINER: sam@gentoo.org
+x86		default/hurd/x86/23.0/i686					exp
 
 # musl profiles
 # @MAINTAINER: musl@gentoo.org
 amd64		default/linux/amd64/23.0/musl					dev
+amd64		default/linux/amd64/23.0/musl/systemd				dev
 amd64		default/linux/amd64/23.0/musl/llvm				exp
+amd64		default/linux/amd64/23.0/musl/llvm/systemd			exp
 amd64		default/linux/amd64/23.0/musl/hardened				exp
+amd64		default/linux/amd64/23.0/musl/hardened/systemd			exp
 amd64		default/linux/amd64/23.0/musl/hardened/selinux			exp
 amd64		default/linux/amd64/23.0/split-usr/musl				dev
 amd64		default/linux/amd64/23.0/split-usr/musl/llvm			exp
 amd64		default/linux/amd64/23.0/split-usr/musl/hardened		exp
 amd64		default/linux/amd64/23.0/split-usr/musl/hardened/selinux	exp
 arm		default/linux/arm/23.0/armv6j_hf/musl				dev
+arm		default/linux/arm/23.0/armv6j_hf/musl/systemd			exp
 arm		default/linux/arm/23.0/armv6j_hf/musl/hardened			exp
+arm		default/linux/arm/23.0/armv6j_hf/musl/hardened/systemd		exp
 arm		default/linux/arm/23.0/armv6j_hf/musl/hardened/selinux		exp
 arm		default/linux/arm/23.0/armv7a_hf/musl				dev
+arm		default/linux/arm/23.0/armv7a_hf/musl/systemd			dev
 arm		default/linux/arm/23.0/armv7a_hf/musl/hardened			exp
+arm		default/linux/arm/23.0/armv7a_hf/musl/hardened/systemd		exp
 arm		default/linux/arm/23.0/armv7a_hf/musl/hardened/selinux		exp
 arm		default/linux/arm/23.0/split-usr/armv6j_hf/musl			dev
 arm		default/linux/arm/23.0/split-usr/armv6j_hf/musl/hardened	exp
@@ -482,10 +495,13 @@ arm64		default/linux/arm64/23.0/split-usr/musl/llvm			exp
 arm64		default/linux/arm64/23.0/split-usr/musl/hardened		exp
 arm64		default/linux/arm64/23.0/split-usr/musl/hardened/selinux	exp
 m68k		default/linux/m68k/23.0/musl					exp
+m68k		default/linux/m68k/23.0/musl/systemd				exp
 m68k		default/linux/m68k/23.0/split-usr/musl				exp
 mips		default/linux/mips/23.0/mipsel/o32/musl				dev
+mips		default/linux/mips/23.0/mipsel/o32/musl/systemd			exp
 mips		default/linux/mips/23.0/mipsel/n64/musl				exp
 mips		default/linux/mips/23.0/o32/musl				dev
+mips		default/linux/mips/23.0/o32/musl/systemd			exp
 mips		default/linux/mips/23.0/n64/musl				exp
 mips		default/linux/mips/23.0/split-usr/mipsel/o32/musl		exp
 mips		default/linux/mips/23.0/split-usr/mipsel/n64/musl		exp
