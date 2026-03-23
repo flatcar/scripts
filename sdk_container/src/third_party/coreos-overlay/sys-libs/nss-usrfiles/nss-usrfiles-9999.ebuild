@@ -7,8 +7,8 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/nss-altfiles.git"
 	inherit git-r3
 else
-	EGIT_VERSION="c8e05a08a2e28eb48c6c788e3007d94f8d8de5cd" # main
-	SRC_URI="https://github.com/flatcar/nss-altfiles/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
+	EGIT_VERSION="fb9a49c9548c5487c7a7c50a9c108c0ebcf12b16"
+	SRC_URI="https://github.com/jcpunk/nss-altfiles/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/nss-altfiles-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm arm64 x86"
 fi
@@ -23,6 +23,7 @@ SLOT="0"
 
 src_configure() {
 	tc-export CC
+	unset LDFLAGS
 	econf \
 		--datadir="${EPREFIX}/usr/share/baselayout" \
 		--with-module-name=usrfiles \
