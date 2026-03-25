@@ -1,0 +1,34 @@
+From daab4ae13c6511183609c5160999ab1e011a0d8c Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Wed, 25 Mar 2026 11:12:37 +0000
+Subject: [PATCH 21/21] Replace deprecated ioutil.TempDir call with
+ os.MkdirTemp
+
+---
+ internal/resource/url.go | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/internal/resource/url.go b/internal/resource/url.go
+index 86136422..a38f4e87 100644
+--- a/internal/resource/url.go
++++ b/internal/resource/url.go
+@@ -23,7 +23,6 @@ import (
+ 	"fmt"
+ 	"hash"
+ 	"io"
+-	"io/ioutil"
+ 	"net"
+ 	"net/http"
+ 	"net/url"
+@@ -483,7 +482,7 @@ func (f *Fetcher) fetchFromOEM(u url.URL, dest io.Writer, opts FetchOptions) err
+ 		return err
+ 	}
+ 
+-	oemMountPath, err := ioutil.TempDir("/mnt", "oem")
++	oemMountPath, err := os.MkdirTemp("/mnt", "oem")
+ 	if err != nil {
+ 		f.Logger.Err("failed to create mount path for oem partition: %v", err)
+ 		return ErrFailed
+-- 
+2.53.0
+
