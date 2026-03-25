@@ -1,0 +1,1 @@
+- Fixed loading Ignition config from the initrd with `ignition.config.url=oem:///myconf.ign`. This was broken since moving to the minimal initrd.
