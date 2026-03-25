@@ -1,0 +1,44 @@
+From 14b7be1a0a51408df54b36590a25d2cbab228bbc Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Wed, 25 Mar 2026 11:09:40 +0000
+Subject: [PATCH 20/21] Create /mnt directory before attempting to mount OEM
+ partition
+
+This was previously fixed, but it then broke again when the /mnt/oem
+mount path was replaced with a temp directory under /mnt. Parent
+directories are not created for you when requesting a temp directory.
+---
+ internal/resource/url.go | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/internal/resource/url.go b/internal/resource/url.go
+index 4471db96..86136422 100644
+--- a/internal/resource/url.go
++++ b/internal/resource/url.go
+@@ -478,6 +478,11 @@ func (f *Fetcher) fetchFromOEM(u url.URL, dest io.Writer, opts FetchOptions) err
+ 	f.Logger.Info("oem config not found in %q, looking on oem partition",
+ 		distro.OEMLookasideDir())
+ 
++	if err := os.MkdirAll("/mnt", 0755); err != nil {
++		f.Logger.Err("failed to create /mnt directory for oem mount path: %v", err)
++		return err
++	}
++
+ 	oemMountPath, err := ioutil.TempDir("/mnt", "oem")
+ 	if err != nil {
+ 		f.Logger.Err("failed to create mount path for oem partition: %v", err)
+@@ -800,11 +805,6 @@ func (f *Fetcher) mountOEM(oemMountPath string) error {
+ 		return err
+ 	}
+ 
+-	if err := os.MkdirAll(oemMountPath, 0700); err != nil {
+-		f.Logger.Err("failed to create oem mount point: %v", err)
+-		return err
+-	}
+-
+ 	if err := f.Logger.LogOp(
+ 		func() error {
+ 			return syscall.Mount(dev[0], oemMountPath, "ext4", 0, "")
+-- 
+2.53.0
+
