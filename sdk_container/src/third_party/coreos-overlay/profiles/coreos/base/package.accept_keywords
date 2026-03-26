@@ -91,9 +91,6 @@ dev-db/etcd amd64
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 
-# Needed to address CVE-2025-14831, CVE-2026-1584
-=net-libs/gnutls-3.8.12
-
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
