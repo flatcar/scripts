@@ -41,9 +41,6 @@ app-crypt/azure-keyvault-pkcs11
 # Keep versions on both arches in sync.
 =app-crypt/mit-krb5-1.21.3-r1 ~arm64
 
-# Needed to address CVE-2026-2100.
-=app-crypt/p11-kit-0.26.2
-
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
