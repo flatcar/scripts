@@ -124,6 +124,18 @@ cros_pre_pkg_setup_sysroot_build_bin_dir() {
 	PATH+=":${CROS_BUILD_BOARD_BIN}"
 }
 
+# Remove any debug build-id symlinks that are broken because of INSTALL_MASK,
+# and also remove their associated debug files to avoid wasting space.
+cros_post_pkg_preinst_rm_masked_debug_files() {
+	[[ -d ${ED}/usr/lib/debug/.build-id ]] || return
+	local link debug
+	while read -d $'\n' -r link; do
+		debug=$(realpath "${link}.debug") || die
+		rm -- "${link}" "${link}.debug" "${debug}" || die
+	done < <(find "${ED}"/usr/lib/debug/.build-id -xtype l)
+	find "${ED}"/usr/lib/debug -type d -empty -delete || die
+}
+
 # Avoid modifications of the preexisting users - these are provided by
 # our baselayout and usermod can't change anything there anyway (it
 # complains that the user is not in /etc/passwd).
