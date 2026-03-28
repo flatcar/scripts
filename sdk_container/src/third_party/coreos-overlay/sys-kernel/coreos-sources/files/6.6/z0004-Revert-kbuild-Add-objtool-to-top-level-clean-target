@@ -1,0 +1,58 @@
+From d2498944ecd30f80ba5431e52360f590e19d4bc7 Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+Date: Fri, 20 Mar 2026 17:17:11 +0530
+Subject: [PATCH 1/1] Revert "kbuild: Add objtool to top-level clean target"
+
+This reverts commit d809ee17c0d15857c768d1abaea0ce4387776c7b.
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+---
+ Makefile               | 11 +----------
+ tools/objtool/Makefile |  2 --
+ 2 files changed, 1 insertion(+), 12 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 022aed903173..141167bc280a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1356,15 +1356,6 @@ ifneq ($(wildcard $(resolve_btfids_O)),)
+ 	$(Q)$(MAKE) -sC $(srctree)/tools/bpf/resolve_btfids O=$(resolve_btfids_O) clean
+ endif
+ 
+-PHONY += objtool_clean
+-
+-objtool_O = $(abspath $(objtree))/tools/objtool
+-
+-objtool_clean:
+-ifneq ($(wildcard $(objtool_O)),)
+-	$(Q)$(MAKE) -sC $(abs_srctree)/tools/objtool O=$(objtool_O) srctree=$(abs_srctree) clean
+-endif
+-
+ tools/: FORCE
+ 	$(Q)mkdir -p $(objtree)/tools
+ 	$(Q)$(MAKE) O=$(abspath $(objtree)) subdir=tools -C $(srctree)/tools/
+@@ -1518,7 +1509,7 @@ vmlinuxclean:
+ 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/link-vmlinux.sh clean
+ 	$(Q)$(if $(ARCH_POSTLINK), $(MAKE) -f $(ARCH_POSTLINK) clean)
+ 
+-clean: archclean vmlinuxclean resolve_btfids_clean objtool_clean
++clean: archclean vmlinuxclean resolve_btfids_clean
+ 
+ # mrproper - Delete all generated files, including .config
+ #
+diff --git a/tools/objtool/Makefile b/tools/objtool/Makefile
+index e9a0f89e9c39..83b100c1e7f6 100644
+--- a/tools/objtool/Makefile
++++ b/tools/objtool/Makefile
+@@ -7,8 +7,6 @@ srctree := $(patsubst %/,%,$(dir $(CURDIR)))
+ srctree := $(patsubst %/,%,$(dir $(srctree)))
+ endif
+ 
+-RM ?= rm -f
+-
+ LIBSUBCMD_DIR = $(srctree)/tools/lib/subcmd/
+ ifneq ($(OUTPUT),)
+   LIBSUBCMD_OUTPUT = $(abspath $(OUTPUT))/libsubcmd
+-- 
+2.53.0
+
