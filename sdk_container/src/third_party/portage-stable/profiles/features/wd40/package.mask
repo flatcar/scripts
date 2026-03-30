@@ -1,6 +1,10 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (2025-03-27)
+# Requires dev-python/pydantic-settings.
+dev-python/oct2py
+
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2026-03-02)
 # Rewritten in Rust.
 >=dev-util/bear-4
@@ -139,6 +143,7 @@ dev-python/textile
 # Additional entries exposed by correcting musl, #936643
 x11-terms/alacritty
 www-client/firefox
+www-client/firefox-l10n
 www-misc/buku
 www-client/seamonkey
 www-misc/urlwatch
@@ -340,6 +345,7 @@ dev-python/cfn-lint
 >=dev-python/cryptography-36
 dev-python/aioquic
 dev-python/apprise
+dev-python/bitstring
 dev-python/cramjam
 dev-python/dirty-equals
 dev-python/hatch-jupyter-builder
@@ -422,6 +428,7 @@ dev-python/setuptools-rust
 dev-python/sshpubkeys
 dev-python/sshtunnel
 dev-python/tempest
+dev-python/tibs
 dev-python/trustme
 dev-python/trio
 dev-python/trio-websocket
