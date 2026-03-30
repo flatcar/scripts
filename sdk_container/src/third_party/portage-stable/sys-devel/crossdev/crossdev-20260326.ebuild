@@ -1,7 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
+
+inherit toolchain-funcs
 
 if [[ ${PV} == "99999999" ]] ; then
 	inherit git-r3
@@ -29,6 +31,8 @@ RDEPEND="
 BDEPEND="app-arch/xz-utils"
 
 src_install() {
+	tc-export PKG_CONFIG # Bug 955822
+
 	default
 
 	if [[ ${PV} == "99999999" ]] ; then
