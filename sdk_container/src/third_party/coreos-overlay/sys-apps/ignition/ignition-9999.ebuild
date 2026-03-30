@@ -35,8 +35,6 @@ else
 		"${FILESDIR}/0017-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
 		"${FILESDIR}/0018-usr-share-oem-oem.patch"
 		"${FILESDIR}/0019-internal-exec-stages-mount-Mount-oem.patch"
-		"${FILESDIR}/0020-Create-mnt-directory-before-attempting-to-mount-OEM-.patch"
-		"${FILESDIR}/0021-Replace-deprecated-ioutil.TempDir-call-with-os.Mkdir.patch"
 	)
 fi
 
