@@ -72,10 +72,14 @@ fi
 
 # Create key directory if not already configured in .bashrc
 if ! grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
-    # For official builds, use ephemeral keys. For unofficial builds, use persistent directory
-    if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+    if [[ -n ${MODULE_SIGNING_KEY_DIR:-} ]]; then
+        # Pre-set via environment (e.g. .sdkenv) — use as-is
+        :
+    elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+        # For official builds, use ephemeral keys
         MODULE_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
     else
+        # For unofficial builds, use persistent directory
         MODULE_SIGNING_KEY_DIR="/home/sdk/.module-signing-keys"
         su sdk -c "mkdir -p ${MODULE_SIGNING_KEY_DIR@Q}"
     fi
@@ -97,7 +101,10 @@ if grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc; then
     fi
 fi
 grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
-    if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
+    if [[ -n ${SYSEXT_SIGNING_KEY_DIR:-} ]]; then
+        # Pre-set via environment (e.g. .sdkenv) — use as-is
+        :
+    elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
         SYSEXT_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
     else
         SYSEXT_SIGNING_KEY_DIR="/home/sdk/.sysext-signing-keys"

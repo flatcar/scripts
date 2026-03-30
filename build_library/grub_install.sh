@@ -37,6 +37,9 @@ switch_to_strict_mode
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/sbsign_util.sh" || exit 1
 
+SBSIGN_DB_KEY="${SBSIGN_DB_KEY:-/usr/share/sb_keys/DB.key}"
+SBSIGN_DB_CERT="${SBSIGN_DB_CERT:-/usr/share/sb_keys/DB.crt}"
+
 # Our GRUB lives under flatcar/grub so new pygrub versions cannot find grub.cfg
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
 
@@ -202,8 +205,8 @@ case "${FLAGS_target}" in
 
             # Unofficial build: Sign shim with our development key.
             sudo sbsign \
-                --key /usr/share/sb_keys/DB.key \
-                --cert /usr/share/sb_keys/DB.crt \
+                --key "${SBSIGN_DB_KEY}" \
+                --cert "${SBSIGN_DB_CERT}" \
                 --output "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
                 "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi"
         else

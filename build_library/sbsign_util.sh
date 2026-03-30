@@ -3,8 +3,8 @@
 # found in the LICENSE file.
 
 if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-    SBSIGN_KEY="/usr/share/sb_keys/shim.key"
-    SBSIGN_CERT="/usr/share/sb_keys/shim.pem"
+    SBSIGN_KEY="${SBSIGN_KEY:-/usr/share/sb_keys/shim.key}"
+    SBSIGN_CERT="${SBSIGN_CERT:-/usr/share/sb_keys/shim.pem}"
 else
     SBSIGN_KEY="pkcs11:token=flatcar-secure-boot-prod-2026-04"
     unset SBSIGN_CERT

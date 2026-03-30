@@ -890,11 +890,17 @@ _write_qemu_uefi_secure_conf() {
     esac
 
     # TODO: Remove the temporary flatcar shim signing cert
+    local _sb_db_cert="${SBSIGN_DB_CERT:-/usr/share/sb_keys/DB.crt}"
+    local _sb_extra_db_certs=()
+    if [[ -z ${SBSIGN_DB_CERT:-} ]]; then
+        # Default behavior: include the temporary dev shim cert alongside DB.crt
+        _sb_extra_db_certs=( --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-shim-2025.cert" )
+    fi
     virt-fw-vars \
         --input "${flash_in}" \
         --output "$(_dst_dir)/${flash_rw}" \
-        --add-db "${owner}" /usr/share/sb_keys/DB.crt \
-        --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-shim-2025.cert"
+        --add-db "${owner}" "${_sb_db_cert}" \
+        "${_sb_extra_db_certs[@]}"
 
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }

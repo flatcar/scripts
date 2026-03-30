@@ -54,7 +54,7 @@ src_compile() {
     fi
     emake_args+=( VENDOR_CERT_FILE="${SHIM_SIGNING_CERTIFICATE}" )
   else
-    emake_args+=( VENDOR_CERT_FILE="/usr/share/sb_keys/shim.der" )
+    emake_args+=( VENDOR_CERT_FILE="${SHIM_SIGNING_CERTIFICATE:-/usr/share/sb_keys/shim.der}" )
   fi
   emake "${emake_args[@]}" || die
 }

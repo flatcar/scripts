@@ -213,6 +213,9 @@ function setup_sdk_env() {
         \
         USE FEATURES PORTAGE_USERNAME FORCE_STAGES \
         SIGNER \
+        SBSIGN_KEY SBSIGN_CERT SBSIGN_DB_KEY SBSIGN_DB_CERT \
+        SHIM_SIGNING_CERTIFICATE \
+        MODULE_SIGNING_KEY_DIR SYSEXT_SIGNING_KEY_DIR \
         all_proxy ftp_proxy http_proxy https_proxy no_proxy; do
 
         if [ -n "${!var:-}" ] ; then
