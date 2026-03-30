@@ -18,13 +18,13 @@ SRC_URI="
 "
 # ^ tarball also includes test-crates' Cargo.lock(s) crates for tests
 
-LICENSE="|| ( Apache-2.0 MIT ) doc? ( OFL-1.1 )"
+LICENSE="|| ( Apache-2.0 MIT ) doc? ( Apache-2.0 OFL-1.1 )"
 LICENSE+="
 	0BSD Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD
 	CDLA-Permissive-2.0 MIT MPL-2.0 Unicode-3.0 ZLIB BZIP2
 " # crates
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="amd64 arm arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="doc +ssl test"
 RESTRICT="!test? ( test )"
 
