@@ -1,7 +1,4 @@
 flatcar_systemd_meson_args_array=(
-    # Point to our user mailing list.
-    -Dsupport-url='https://groups.google.com/forum/#!forum/flatcar-linux-user'
-
     # Use our ntp servers.
     -Dntp-servers="0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
 
