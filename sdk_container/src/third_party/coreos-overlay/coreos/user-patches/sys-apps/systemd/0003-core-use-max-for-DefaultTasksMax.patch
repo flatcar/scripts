@@ -1,7 +1,7 @@
-From df56cf2ad0c6c84a22e9fca8893c610b82b78377 Mon Sep 17 00:00:00 2001
+From 2cc519ebec4f01f76bcdcde61259ba23a810ea30 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
-Subject: [PATCH 03/20] core: use max for DefaultTasksMax
+Subject: [PATCH 03/14] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This
@@ -21,7 +21,7 @@ Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index cf5a3612f6..a0f9f8ba57 100644
+index b7fe53dc9c..175fe67139 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
 @@ -227,7 +227,7 @@
@@ -34,10 +34,10 @@ index cf5a3612f6..a0f9f8ba57 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/manager.c b/src/core/manager.c
-index 20a535f2f4..be1c352045 100644
+index a5a51023c5..ef0ce9e31d 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
-@@ -112,7 +112,7 @@
+@@ -113,7 +113,7 @@
  /* How many units and jobs to process of the bus queue before returning to the event loop. */
  #define MANAGER_BUS_MESSAGE_BUDGET 100U
  

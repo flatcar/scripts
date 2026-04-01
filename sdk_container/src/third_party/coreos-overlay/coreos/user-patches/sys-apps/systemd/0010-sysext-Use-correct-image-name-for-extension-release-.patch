@@ -1,7 +1,7 @@
-From 6a95919888a99d92636e0aa28c68d0f95f16e48e Mon Sep 17 00:00:00 2001
+From 3a1d8cb52278fb7926d7666385d9b7ef120508d6 Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Thu, 20 Nov 2025 23:43:55 +0900
-Subject: [PATCH 11/20] sysext: Use correct image name for extension release
+Subject: [PATCH 10/14] sysext: Use correct image name for extension release
  checks
 
 For the extension release check the image name is needed and was derived
@@ -21,10 +21,10 @@ device but directly the extension name we have at hand.
  2 files changed, 10 insertions(+)
 
 diff --git a/src/shared/discover-image.c b/src/shared/discover-image.c
-index 53ee30c3f8..2801793d6d 100644
+index 6366316088..34512ea6da 100644
 --- a/src/shared/discover-image.c
 +++ b/src/shared/discover-image.c
-@@ -1844,6 +1844,11 @@ int image_read_metadata(Image *i, const ImagePolicy *image_policy) {
+@@ -2172,6 +2172,11 @@ int image_read_metadata(Image *i, const ImagePolicy *image_policy, RuntimeScope
                  if (r < 0)
                          return log_debug_errno(r, "Failed to decrypt image '%s': %m", i->path);
  
@@ -37,10 +37,10 @@ index 53ee30c3f8..2801793d6d 100644
                                  m,
                                  /* userns_fd= */ -EBADF,
 diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
-index 5d432b42da..72da02cd89 100644
+index 2f6bee58c4..cb0a3046e1 100644
 --- a/src/sysext/sysext.c
 +++ b/src/sysext/sysext.c
-@@ -1819,6 +1819,11 @@ static int merge_subprocess(
+@@ -1885,6 +1885,11 @@ static int merge_subprocess(
                          if (r < 0)
                                  return r;
  
