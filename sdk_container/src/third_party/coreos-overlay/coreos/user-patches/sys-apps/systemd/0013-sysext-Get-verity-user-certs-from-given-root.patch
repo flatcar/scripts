@@ -1,0 +1,290 @@
+From c910dda50a611fbada3f1166b9c1cf3b91091cc6 Mon Sep 17 00:00:00 2001
+From: Kai Lueke <kailuke@microsoft.com>
+Date: Thu, 27 Nov 2025 17:49:15 +0900
+Subject: [PATCH 13/14] sysext: Get verity user certs from given --root=
+
+The verity user certs weren't looked up in the given --root= for
+systemd-sysext which made it fail to set up extensions with a strict
+image policy.
+Look up verity user certs from inside the --root= when we operate on
+images in it. The main use case where this matters is when the initrd
+sets up the extensions for the final system and thus systemd-sysext
+should do the same thing as it would do in the final system.
+---
+ src/core/namespace.c               |  3 ++-
+ src/machine/image-dbus.c           |  8 ++++----
+ src/machine/machined-varlink.c     |  2 +-
+ src/mountfsd/mountwork.c           |  1 +
+ src/portable/portabled-image-bus.c |  2 +-
+ src/shared/discover-image.c        |  3 ++-
+ src/shared/discover-image.h        |  2 +-
+ src/shared/dissect-image.c         | 20 ++++++++++++--------
+ src/shared/dissect-image.h         |  2 +-
+ src/sysext/sysext.c                |  4 ++--
+ 10 files changed, 27 insertions(+), 20 deletions(-)
+
+diff --git a/src/core/namespace.c b/src/core/namespace.c
+index 0a78c4922a..ead9caafe6 100644
+--- a/src/core/namespace.c
++++ b/src/core/namespace.c
+@@ -2596,7 +2596,8 @@ int setup_namespace(const NamespaceParameters *p, char **reterr_path) {
+ 
+                         r = dissected_image_decrypt(
+                                         dissected_image,
+-                                        NULL,
++                                        /* root= */ NULL,
++                                        /* passphrase= */ NULL,
+                                         p->verity,
+                                         p->root_image_policy,
+                                         dissect_image_flags);
+diff --git a/src/machine/image-dbus.c b/src/machine/image-dbus.c
+index f7e3f7f93c..966948be44 100644
+--- a/src/machine/image-dbus.c
++++ b/src/machine/image-dbus.c
+@@ -295,7 +295,7 @@ int bus_image_method_get_hostname(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container, m->runtime_scope);
++                r = image_read_metadata(image, /* root= */ NULL, &image_policy_container, m->runtime_scope);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+@@ -314,7 +314,7 @@ int bus_image_method_get_machine_id(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container, m->runtime_scope);
++                r = image_read_metadata(image, /* root= */ NULL, &image_policy_container, m->runtime_scope);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+@@ -343,7 +343,7 @@ int bus_image_method_get_machine_info(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container, m->runtime_scope);
++                r = image_read_metadata(image, /* root= */ NULL, &image_policy_container, m->runtime_scope);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+@@ -361,7 +361,7 @@ int bus_image_method_get_os_release(
+         int r;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container, m->runtime_scope);
++                r = image_read_metadata(image, /* root= */ NULL, &image_policy_container, m->runtime_scope);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+diff --git a/src/machine/machined-varlink.c b/src/machine/machined-varlink.c
+index 56abcb9438..2697a87b6d 100644
+--- a/src/machine/machined-varlink.c
++++ b/src/machine/machined-varlink.c
+@@ -627,7 +627,7 @@ static int list_image_one_and_maybe_read_metadata(Manager *m, sd_varlink *link,
+         assert(image);
+ 
+         if (should_acquire_metadata(am) && !image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_container, m->runtime_scope);
++                r = image_read_metadata(image, /* root= */ NULL, &image_policy_container, m->runtime_scope);
+                 if (r < 0 && am != ACQUIRE_METADATA_GRACEFUL)
+                         return log_debug_errno(r, "Failed to read image metadata: %m");
+                 if (r < 0)
+diff --git a/src/mountfsd/mountwork.c b/src/mountfsd/mountwork.c
+index b078dc17a3..5ed4552d52 100644
+--- a/src/mountfsd/mountwork.c
++++ b/src/mountfsd/mountwork.c
+@@ -538,6 +538,7 @@ static int vl_method_mount_image(
+ 
+         r = dissected_image_decrypt(
+                         di,
++                        /* root= */ NULL,
+                         p.password,
+                         &verity,
+                         use_policy,
+diff --git a/src/portable/portabled-image-bus.c b/src/portable/portabled-image-bus.c
+index 21d7bab262..b5dc0f5955 100644
+--- a/src/portable/portabled-image-bus.c
++++ b/src/portable/portabled-image-bus.c
+@@ -61,7 +61,7 @@ int bus_image_common_get_os_release(
+                 return 1;
+ 
+         if (!image->metadata_valid) {
+-                r = image_read_metadata(image, &image_policy_service, m->runtime_scope);
++                r = image_read_metadata(image, /* root= */ NULL, &image_policy_service, m->runtime_scope);
+                 if (r < 0)
+                         return sd_bus_error_set_errnof(error, r, "Failed to read image metadata: %m");
+         }
+diff --git a/src/shared/discover-image.c b/src/shared/discover-image.c
+index d480848473..03fffad37e 100644
+--- a/src/shared/discover-image.c
++++ b/src/shared/discover-image.c
+@@ -2087,7 +2087,7 @@ int image_setup_pool(RuntimeScope scope, ImageClass class, bool use_btrfs_subvol
+         return 0;
+ }
+ 
+-int image_read_metadata(Image *i, const ImagePolicy *image_policy, RuntimeScope scope) {
++int image_read_metadata(Image *i, const char *root, const ImagePolicy *image_policy, RuntimeScope scope) {
+         _cleanup_(release_lock_file) LockFile global_lock = LOCK_FILE_INIT, local_lock = LOCK_FILE_INIT;
+         int r;
+ 
+@@ -2213,6 +2213,7 @@ int image_read_metadata(Image *i, const ImagePolicy *image_policy, RuntimeScope
+ 
+                 r = dissected_image_decrypt(
+                                 m,
++                                root,
+                                 /* passphrase= */ NULL,
+                                 &verity,
+                                 image_policy,
+diff --git a/src/shared/discover-image.h b/src/shared/discover-image.h
+index b28d961fb0..c1838f9959 100644
+--- a/src/shared/discover-image.h
++++ b/src/shared/discover-image.h
+@@ -78,7 +78,7 @@ int image_get_pool_usage(RuntimeScope scope, ImageClass class, uint64_t *ret);
+ int image_get_pool_limit(RuntimeScope scope, ImageClass class, uint64_t *ret);
+ int image_setup_pool(RuntimeScope scope, ImageClass class, bool use_btrfs_subvol, bool use_btrfs_quota);
+ 
+-int image_read_metadata(Image *i, const ImagePolicy *image_policy, RuntimeScope scope);
++int image_read_metadata(Image *i, const char *root, const ImagePolicy *image_policy, RuntimeScope scope);
+ 
+ bool image_in_search_path(RuntimeScope scope, ImageClass class, const char *root, const char *image);
+ 
+diff --git a/src/shared/dissect-image.c b/src/shared/dissect-image.c
+index 51725e6cfb..b2be12e842 100644
+--- a/src/shared/dissect-image.c
++++ b/src/shared/dissect-image.c
+@@ -2810,7 +2810,7 @@ static char* dm_deferred_remove_clean(char *name) {
+ }
+ DEFINE_TRIVIAL_CLEANUP_FUNC(char *, dm_deferred_remove_clean);
+ 
+-static int validate_signature_userspace(const VeritySettings *verity, DissectImageFlags flags) {
++static int validate_signature_userspace(const VeritySettings *verity, const char *root, DissectImageFlags flags) {
+         int r;
+ 
+         /* Returns > 0 if signature checks out, == 0 if not, < 0 on unexpected errors */
+@@ -2855,7 +2855,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
+         /* Because installing a signature certificate into the kernel chain is so messy, let's optionally do
+          * userspace validation. */
+ 
+-        r = conf_files_list_nulstr(&certs, ".crt", NULL, CONF_FILES_REGULAR|CONF_FILES_FILTER_MASKED, CONF_PATHS_NULSTR("verity.d"));
++        r = conf_files_list_nulstr(&certs, ".crt", root, CONF_FILES_REGULAR|CONF_FILES_FILTER_MASKED, CONF_PATHS_NULSTR("verity.d"));
+         if (r < 0)
+                 return log_debug_errno(r, "Failed to enumerate certificates: %m");
+         if (strv_isempty(certs)) {
+@@ -2917,6 +2917,7 @@ static int validate_signature_userspace(const VeritySettings *verity, DissectIma
+ 
+ static int do_crypt_activate_verity(
+                 struct crypt_device *cd,
++                const char *root,
+                 const char *name,
+                 const VeritySettings *verity,
+                 DissectImageFlags flags,
+@@ -2966,7 +2967,7 @@ static int do_crypt_activate_verity(
+ 
+                 /* Preferably propagate the original kernel error, so that the fallback logic can work,
+                  * as the device-mapper is finicky around concurrent activations of the same volume */
+-                k = validate_signature_userspace(verity, flags);
++                k = validate_signature_userspace(verity, root, flags);
+                 if (k < 0)
+                         return k;
+                 if (k == 0) {
+@@ -3026,6 +3027,7 @@ static int verity_partition(
+                 PartitionDesignator designator,
+                 DissectedPartition *m, /* data partition */
+                 DissectedPartition *v, /* verity partition */
++                const char *root, /* The root to get user verity certs from (for a sysext) */
+                 const VeritySettings *verity,
+                 DissectImageFlags flags,
+                 PartitionPolicyFlags policy_flags,
+@@ -3111,7 +3113,7 @@ static int verity_partition(
+                         goto check; /* The device already exists. Let's check it. */
+ 
+                 /* The symlink to the device node does not exist yet. Assume not activated, and let's activate it. */
+-                r = do_crypt_activate_verity(cd, name, verity, flags, policy_flags);
++                r = do_crypt_activate_verity(cd, root, name, verity, flags, policy_flags);
+                 if (r >= 0)
+                         goto try_open; /* The device is activated. Let's open it. */
+                 /* libdevmapper can return EINVAL when the device is already in the activation stage.
+@@ -3205,7 +3207,7 @@ static int verity_partition(
+                  */
+                 sym_crypt_free(cd);
+                 cd = NULL;
+-                return verity_partition(designator, m, v, verity, flags & ~DISSECT_IMAGE_VERITY_SHARE, policy_flags, d);
++                return verity_partition(designator, m, v, root, verity, flags & ~DISSECT_IMAGE_VERITY_SHARE, policy_flags, d);
+         }
+ 
+         return log_debug_errno(SYNTHETIC_ERRNO(EBUSY), "All attempts to activate verity device %s failed.", name);
+@@ -3225,6 +3227,7 @@ success:
+ 
+ int dissected_image_decrypt(
+                 DissectedImage *m,
++                const char *root, /* The root to get user verity certs from (for a sysext) */
+                 const char *passphrase,
+                 const VeritySettings *verity,
+                 const ImagePolicy *policy,
+@@ -3281,7 +3284,7 @@ int dissected_image_decrypt(
+ 
+                 k = partition_verity_hash_of(i);
+                 if (k >= 0) {
+-                        r = verity_partition(i, p, m->partitions + k, verity, flags, fl, d);
++                        r = verity_partition(i, p, m->partitions + k, root, verity, flags, fl, d);
+                         if (r < 0)
+                                 return r;
+                 }
+@@ -3314,7 +3317,7 @@ int dissected_image_decrypt_interactively(
+                 n--;
+ 
+         for (;;) {
+-                r = dissected_image_decrypt(m, passphrase, verity, image_policy, flags);
++                r = dissected_image_decrypt(m, /* root= */ NULL, passphrase, verity, image_policy, flags);
+                 if (r >= 0)
+                         return r;
+                 if (r == -EKEYREJECTED)
+@@ -4564,7 +4567,8 @@ int verity_dissect_and_mount(
+ 
+                 r = dissected_image_decrypt(
+                                 dissected_image,
+-                                NULL,
++                                /* root= */ NULL,
++                                /* passphrase= */ NULL,
+                                 verity,
+                                 image_policy,
+                                 dissect_image_flags);
+diff --git a/src/shared/dissect-image.h b/src/shared/dissect-image.h
+index 951ae66055..674a87f684 100644
+--- a/src/shared/dissect-image.h
++++ b/src/shared/dissect-image.h
+@@ -170,7 +170,7 @@ void dissected_image_close(DissectedImage *m);
+ DissectedImage* dissected_image_unref(DissectedImage *m);
+ DEFINE_TRIVIAL_CLEANUP_FUNC(DissectedImage*, dissected_image_unref);
+ 
+-int dissected_image_decrypt(DissectedImage *m, const char *passphrase, const VeritySettings *verity, const ImagePolicy *image_policy, DissectImageFlags flags);
++int dissected_image_decrypt(DissectedImage *m, const char *root, const char *passphrase, const VeritySettings *verity, const ImagePolicy *image_policy, DissectImageFlags flags);
+ int dissected_image_decrypt_interactively(DissectedImage *m, const char *passphrase, const VeritySettings *verity, const ImagePolicy *image_policy, DissectImageFlags flags);
+ int dissected_image_mount(DissectedImage *m, const char *where, uid_t uid_shift, uid_t uid_range, int userns_fd, DissectImageFlags flags);
+ int dissected_image_mount_and_warn(DissectedImage *m, const char *where, uid_t uid_shift, uid_t uid_range, int userns_fd, DissectImageFlags flags);
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index 30e33a01e5..76d84f108a 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -1965,7 +1965,7 @@ static int merge_subprocess(
+                                         return log_error_errno(r, "Failed to create origin verity entry for '%s': %m", img->name);
+                         }
+ 
+-                        r = dissected_image_decrypt(m, /* passphrase= */ NULL, &verity_settings, pick_image_policy(img), flags);
++                        r = dissected_image_decrypt(m, arg_root, /* passphrase= */ NULL, &verity_settings, pick_image_policy(img), flags);
+                         if (r < 0)
+                                 return r;
+ 
+@@ -2402,7 +2402,7 @@ static int image_discover_and_read_metadata(ImageClass image_class, Hashmap **re
+                 return log_error_errno(r, "Failed to discover images: %m");
+ 
+         HASHMAP_FOREACH(img, images) {
+-                r = image_read_metadata(img, image_class_info[image_class].default_image_policy, RUNTIME_SCOPE_SYSTEM);
++                r = image_read_metadata(img, arg_root, image_class_info[image_class].default_image_policy, RUNTIME_SCOPE_SYSTEM);
+                 if (r < 0)
+                         return log_error_errno(r, "Failed to read metadata for image %s: %m", img->name);
+         }
+-- 
+2.52.0
+
