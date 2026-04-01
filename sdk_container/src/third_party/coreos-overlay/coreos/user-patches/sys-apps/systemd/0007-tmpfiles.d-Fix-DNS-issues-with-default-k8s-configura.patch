@@ -1,7 +1,7 @@
-From 0ba9b9356861f8012c0e7794d9c61ebf21a9c6d7 Mon Sep 17 00:00:00 2001
+From 9d6db023c34d96b582e763da77c464629266f8e8 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Wed, 22 Oct 2025 10:39:42 +0200
-Subject: [PATCH 07/20] tmpfiles.d: Fix DNS issues with default k8s
+Subject: [PATCH 07/13] tmpfiles.d: Fix DNS issues with default k8s
  configuration
 
 The Kubelet takes /etc/resolv.conf for, e.g., CoreDNS which has dnsPolicy
