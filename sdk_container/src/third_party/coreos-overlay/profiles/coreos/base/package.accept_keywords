@@ -118,9 +118,6 @@ sys-apps/azure-vm-utils
 # Bump early for newer features.
 =sys-kernel/dracut-109* ~amd64 ~arm64
 
-# Keep versions on both arches in sync.
-=sys-libs/binutils-libs-2.46.0
-
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.
 =sys-libs/libselinux-3.8.1-r3 ~amd64 ~arm64
