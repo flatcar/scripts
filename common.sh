@@ -177,9 +177,9 @@ die_notrace() {
       error "${DIE_PREFIX}========"
       error_command_output "${DIE_PREFIX}" df -h
       error
-      error "${DIE_PREFIX}== DMESG =="
-      error "${DIE_PREFIX}==========="
-      error_command_output "${DIE_PREFIX}" sudo dmesg
+      error "${DIE_PREFIX}== DMESG (warn/error) =="
+      error "${DIE_PREFIX}========================"
+      error_command_output "${DIE_PREFIX}" sudo dmesg --color=never --ctime --level=err,warn
       error
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
       error "${DIE_PREFIX}!! END DEBUG OUTPUT: !!"
