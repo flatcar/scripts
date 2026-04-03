@@ -126,16 +126,16 @@ grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
 }
 
 # This is ugly.
-#   We need to sudo su - sdk -c so the SDK user gets a fresh login.
+#   We need to sudo -u sdk -i so the SDK user gets a fresh login.
 #    'sdk' is member of multiple groups, and plain docker USER only
 #    allows specifying membership of a single group.
 #    When a command is passed to the container, we run, respectively:
-#    sudo su - sdk -c "<command>".
+#    sudo -u sdk "<command>".
 #   Then, we need to preserve whitespaces in arguments of commands
 #    passed to the container, e.g.
 #    ./update_chroot --toolchain_boards="amd64-usr arm64-usr".
 #    This is done via a separate ".cmd" file since we have used up
-#    our quotes for su -c "<cmd>" already.
+#    our quotes for sudo "<cmd>" already.
 if [ $# -gt 0 ] ; then
     cmd="/home/sdk/.cmd"
     echo -n "exec bash -l -i -c '" >"$cmd"
@@ -144,10 +144,10 @@ if [ $# -gt 0 ] ; then
     done
     echo "'" >>"$cmd"
     chmod 755 "$cmd"
-    sudo su sdk -c "$cmd"
+    sudo -u sdk "$cmd"
     rc=$?
     rm -f "$cmd"
     exit $rc
 else
-    exec sudo su -l sdk
+    exec sudo -u sdk -i
 fi
