@@ -1,0 +1,41 @@
+From 22332650e3b97479aca7144b04a6dbd2590596de Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 6 Apr 2026 13:13:58 +0100
+Subject: [PATCH 14/18] config: Support oem:// schema in newer config spec
+ versions
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ config/v3_5/types/url.go              | 2 +-
+ config/v3_6_experimental/types/url.go | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/config/v3_5/types/url.go b/config/v3_5/types/url.go
+index b1f96337..752044ce 100644
+--- a/config/v3_5/types/url.go
++++ b/config/v3_5/types/url.go
+@@ -32,7 +32,7 @@ func validateURL(s string) error {
+ 	}
+ 
+ 	switch u.Scheme {
+-	case "http", "https", "tftp", "gs":
++	case "http", "https", "tftp", "gs", "oem":
+ 		return nil
+ 	case "s3":
+ 		if v, ok := u.Query()["versionId"]; ok {
+diff --git a/config/v3_6_experimental/types/url.go b/config/v3_6_experimental/types/url.go
+index b1f96337..752044ce 100644
+--- a/config/v3_6_experimental/types/url.go
++++ b/config/v3_6_experimental/types/url.go
+@@ -32,7 +32,7 @@ func validateURL(s string) error {
+ 	}
+ 
+ 	switch u.Scheme {
+-	case "http", "https", "tftp", "gs":
++	case "http", "https", "tftp", "gs", "oem":
+ 		return nil
+ 	case "s3":
+ 		if v, ok := u.Query()["versionId"]; ok {
+-- 
+2.53.0
+

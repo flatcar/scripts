@@ -28,15 +28,12 @@ else
 		"${FILESDIR}/0010-VMware-Fix-guestinfo.-.config.data-and-.config.url-v.patch"
 		"${FILESDIR}/0011-config-version-handle-configuration-version-1.patch"
 		"${FILESDIR}/0012-config-util-add-cloud-init-detection-to-initial-pars.patch"
-		"${FILESDIR}/0013-Revert-drop-OEM-URI-support.patch"
-		"${FILESDIR}/0014-internal-resource-url-support-btrfs-as-OEM-partition.patch"
+		"${FILESDIR}/0013-Partially-revert-drop-OEM-URI-support.patch"
+		"${FILESDIR}/0014-config-Support-oem-schema-in-newer-config-spec-versi.patch"
 		"${FILESDIR}/0015-translation-support-OEM-and-oem.patch"
 		"${FILESDIR}/0016-revert-internal-oem-drop-noop-OEMs.patch"
 		"${FILESDIR}/0017-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
 		"${FILESDIR}/0018-usr-share-oem-oem.patch"
-		"${FILESDIR}/0019-internal-exec-stages-mount-Mount-oem.patch"
-		"${FILESDIR}/0020-Create-mnt-directory-before-attempting-to-mount-OEM-.patch"
-		"${FILESDIR}/0021-Replace-deprecated-ioutil.TempDir-call-with-os.Mkdir.patch"
 	)
 fi
 
