@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
 	+readline +sqlite +ssl test tk valgrind
@@ -150,10 +150,10 @@ build_cbuild_python() {
 	#
 	# -fno-lto to avoid bug #700012 (not like it matters for mini-CBUILD Python anyway)
 	local -x CFLAGS_NODIST="${BUILD_CFLAGS} -fno-lto"
-	local -x LDFLAGS_NODIST=${BUILD_LDFLAGS}
+	local -x LDFLAGS_NODIST="${BUILD_LDFLAGS} -fno-lto"
 	local -x CFLAGS= LDFLAGS=
 	local -x BUILD_CFLAGS="${CFLAGS_NODIST}"
-	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
+	local -x BUILD_LDFLAGS="${LDFLAGS_NODIST}"
 
 	# We need to build our own Python on CBUILD first, and feed it in.
 	# bug #847910
