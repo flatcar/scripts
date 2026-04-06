@@ -151,7 +151,15 @@ if [[ ${CATEGORY} == cross-* ]] ; then
 		>=${CATEGORY}/binutils-2.27
 		>=${CATEGORY}/gcc-6.2
 	)"
-	[[ ${CATEGORY} == *-linux* ]] && DEPEND+=" ${CATEGORY}/linux-headers"
+
+	case ${CATEGORY} in
+		*-linux*)
+			DEPEND+=" ${CATEGORY}/linux-headers"
+			;;
+		*-gnu)
+			DEPEND+=" ${CATEGORY}/gnumach[-headers-only]"
+			;;
+	esac
 else
 	BDEPEND+="
 		>=sys-devel/binutils-2.27
@@ -247,6 +255,15 @@ dump_build_environment() {
 
 is_crosscompile() {
 	[[ ${CHOST} != ${CTARGET} ]]
+}
+
+is_linux() {
+	[[ ${CTARGET} == *-linux-* ]]
+}
+
+is_hurd() {
+	# Let's hope this holds for a long time
+	[[ ${CTARGET} != *-linux-* ]]
 }
 
 just_headers() {
@@ -376,6 +393,11 @@ setup_target_flags() {
 				# For compatibility with older binaries at slight performance cost.
 				use stack-realign && export CFLAGS_x86+=" -mstackrealign"
 			fi
+
+			if is_hurd ; then
+				# doesnt build with -march=native and probably other values, debugging required
+				filter-flags '-march=*'
+			fi
 		;;
 		mips)
 			# The mips abi cannot support the GNU style hashes. #233233
@@ -498,6 +520,16 @@ setup_flags() {
 
 	# #829583
 	filter-lfs-flags
+
+	case ${CTARGET} in
+		*-linux*)
+			;;
+		*-gnu)
+			# -g3 confuses MIG which relies on preprocessed input
+			replace-flags -ggdb[3-9] -ggdb2
+			replace-flags -g3 -g
+			;;
+	esac
 
 	unset CBUILD_OPT CTARGET_OPT
 	if use multilib ; then
@@ -992,6 +1024,11 @@ src_prepare() {
 		einfo "Applying Gentoo Glibc patchset ${patchsetname}"
 		eapply "${WORKDIR}"/patches
 		einfo "Done."
+
+		# Patches we should apply only for Hurd to be conservative
+		if is_hurd ; then
+			eapply "${FILESDIR}"/glibc-2.43-hurd-CLOCK_MONOTONIC.patch
+		fi
 	fi
 
 	case ${CTARGET} in
@@ -1097,7 +1134,6 @@ glibc_do_configure() {
 		--with-bugurl=https://bugs.gentoo.org/
 		--with-pkgversion="$(glibc_banner)"
 		$(use_multiarch || echo --disable-multi-arch)
-		$(use_enable systemtap)
 		$(use_enable nscd)
 
 		# /usr/bin/mtrace has a Perl shebang. Gentoo Prefix QA checks fail if
@@ -1122,6 +1158,12 @@ glibc_do_configure() {
 
 	# We rely on sys-libs/timezone-data for timezone tools normally.
 	myconf+=( $(use_enable vanilla timezone-tools) )
+
+	if is_crosscompile ; then
+		myconf+=( --disable-systemtap )
+	else
+		myconf+=( $(use_enable systemtap) )
+	fi
 
 	# These libs don't have configure flags.
 	ac_cv_lib_audit_audit_log_user_avc_message=$(usex audit || echo no)
@@ -1371,7 +1413,7 @@ run_locale_gen() {
 	# number of processors saved in the environment of a binary package may
 	# differ strongly from the number of processes available during postinst
 	if [[ ${EMERGE_FROM} != binary ]]; then
-		localegen_args+=( --jobs "$(makeopts_jobs)" )
+		localegen_args+=( --jobs "$(get_makeopts_jobs)" )
 	fi
 
 	printf 'Executing: locale-gen %s\n' "${localegen_args[*]@Q}" >&2
@@ -1457,47 +1499,56 @@ glibc_do_src_install() {
 	# if the main library set isn't installed into the right place.  Maybe
 	# we should query the active gcc for info instead of hardcoding it ?
 	local i ldso_abi ldso_name
-	local ldso_abi_list=(
-		# x86
-		amd64   /lib64/ld-linux-x86-64.so.2
-		x32     /libx32/ld-linux-x32.so.2
-		x86     /lib/ld-linux.so.2
-		# mips
-		o32     /lib/ld.so.1
-		n32     /lib32/ld.so.1
-		n64     /lib64/ld.so.1
-		# powerpc
-		ppc     /lib/ld.so.1
-		# riscv
-		ilp32d  /lib/ld-linux-riscv32-ilp32d.so.1
-		ilp32   /lib/ld-linux-riscv32-ilp32.so.1
-		lp64d   /lib/ld-linux-riscv64-lp64d.so.1
-		lp64    /lib/ld-linux-riscv64-lp64.so.1
-		# s390
-		s390    /lib/ld.so.1
-		s390x   /lib/ld64.so.1
-		# sparc
-		sparc32 /lib/ld-linux.so.2
-		sparc64 /lib64/ld-linux.so.2
-	)
-	case $(tc-endian) in
-	little)
-		ldso_abi_list+=(
-			# arm
-			arm64   /lib/ld-linux-aarch64.so.1
-			# ELFv2 (glibc does not support ELFv1 on LE)
-			ppc64   /lib64/ld64.so.2
+	if is_linux ; then
+		local ldso_abi_list=(
+			# x86
+			amd64   /lib64/ld-linux-x86-64.so.2
+			x32     /libx32/ld-linux-x32.so.2
+			x86     /lib/ld-linux.so.2
+			# mips
+			o32     /lib/ld.so.1
+			n32     /lib32/ld.so.1
+			n64     /lib64/ld.so.1
+			# powerpc
+			ppc     /lib/ld.so.1
+			# riscv
+			ilp32d  /lib/ld-linux-riscv32-ilp32d.so.1
+			ilp32   /lib/ld-linux-riscv32-ilp32.so.1
+			lp64d   /lib/ld-linux-riscv64-lp64d.so.1
+			lp64    /lib/ld-linux-riscv64-lp64.so.1
+			# s390
+			s390    /lib/ld.so.1
+			s390x   /lib/ld64.so.1
+			# sparc
+			sparc32 /lib/ld-linux.so.2
+			sparc64 /lib64/ld-linux.so.2
 		)
-		;;
-	big)
-		ldso_abi_list+=(
-			# arm
-			arm64   /lib/ld-linux-aarch64_be.so.1
-			# ELFv1 (glibc does not support ELFv2 on BE)
-			ppc64   /lib64/ld64.so.1
+		case $(tc-endian) in
+		little)
+			ldso_abi_list+=(
+				# arm
+				arm64   /lib/ld-linux-aarch64.so.1
+				# ELFv2 (glibc does not support ELFv1 on LE)
+				ppc64   /lib64/ld64.so.2
+			)
+			;;
+		big)
+			ldso_abi_list+=(
+				# arm
+				arm64   /lib/ld-linux-aarch64_be.so.1
+				# ELFv1 (glibc does not support ELFv2 on BE)
+				ppc64   /lib64/ld64.so.1
+			)
+			;;
+		esac
+	else
+	# we must be using hurd then
+		local ldso_abi_list=(
+			# x86
+			amd64   /lib64/ld-x86-64.so.1
+			x86     /lib/ld.so.1
 		)
-		;;
-	esac
+	fi
 	if [[ ${SYMLINK_LIB} == "yes" ]] && [[ ! -e ${ED}/$(alt_prefix)/lib ]] ; then
 		dosym $(get_abi_LIBDIR ${DEFAULT_ABI}) $(alt_prefix)/lib
 	fi
@@ -1511,26 +1562,53 @@ glibc_do_src_install() {
 		fi
 	done
 
-	# In the LSB 5.0 definition, someone had the excellent idea to "standardize"
-	# the runtime loader name, see also https://xkcd.com/927/
-	# Normally, in Gentoo one should never come across executables that require this.
-	# However, binary commercial packages are known to adhere to weird practices.
-	# https://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-AMD64/LSB-Core-AMD64.html#BASELIB
-	local lsb_ldso_name native_ldso_name lsb_ldso_abi
-	local lsb_ldso_abi_list=(
-		# x86
-		amd64	ld-linux-x86-64.so.2	ld-lsb-x86-64.so.3
-	)
-	for (( i = 0; i < ${#lsb_ldso_abi_list[@]}; i += 3 )) ; do
-		lsb_ldso_abi=${lsb_ldso_abi_list[i]}
-		native_ldso_name=${lsb_ldso_abi_list[i+1]}
-		lsb_ldso_name=${lsb_ldso_abi_list[i+2]}
-		has ${lsb_ldso_abi} $(get_install_abis) || continue
+	if is_linux ; then
+		# In the LSB 5.0 definition, someone had the excellent idea to "standardize"
+		# the runtime loader name, see also https://xkcd.com/927/
+		# Normally, in Gentoo one should never come across executables that require this.
+		# However, binary commercial packages are known to adhere to weird practices.
+		# https://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-AMD64/LSB-Core-AMD64.html#BASELIB
+		local lsb_ldso_name native_ldso_name lsb_ldso_abi
+		local lsb_ldso_abi_list=(
+			# x86
+			amd64	ld-linux-x86-64.so.2	ld-lsb-x86-64.so.3
+		)
+		for (( i = 0; i < ${#lsb_ldso_abi_list[@]}; i += 3 )) ; do
+			lsb_ldso_abi=${lsb_ldso_abi_list[i]}
+			native_ldso_name=${lsb_ldso_abi_list[i+1]}
+			lsb_ldso_name=${lsb_ldso_abi_list[i+2]}
+			has ${lsb_ldso_abi} $(get_install_abis) || continue
 
-		if [[ ! -L ${ED}/$(get_abi_LIBDIR ${lsb_ldso_abi})/${lsb_ldso_name} && ! -e ${ED}/$(get_abi_LIBDIR ${lsb_ldso_abi})/${lsb_ldso_name} ]] ; then
-			dosym ${native_ldso_name} "$(alt_prefix)/$(get_abi_LIBDIR ${lsb_ldso_abi})/${lsb_ldso_name}"
+			if [[ ! -L ${ED}/$(get_abi_LIBDIR ${lsb_ldso_abi})/${lsb_ldso_name} && ! -e ${ED}/$(get_abi_LIBDIR ${lsb_ldso_abi})/${lsb_ldso_name} ]] ; then
+				dosym ${native_ldso_name} "$(alt_prefix)/$(get_abi_LIBDIR ${lsb_ldso_abi})/${lsb_ldso_name}"
+			fi
+		done
+	fi
+
+	# On Hurd, glibc and (unpatched) gcc tend to disagree about the proper location for
+	# the dynamic loader. Which is maximally stupid since this one information is hardcoded
+	# into every single binary, and even if we were to fix *our* gcc it could still prevent
+	# us from running binaries prepared anywhere else...
+
+	if is_hurd && has amd64 $(get_install_abis) ; then
+		# First, let's check for sanity
+		if [[ -f "${D}/$(alt_prefix)/lib/ld-x86-64.so.1" ]] ; then
+			die "Somehow your amd64 hurd glibc installed /lib/ld-x86-64.so.1 ... this should not happen."
 		fi
-	done
+
+		# Then make a compatibility symlink.
+		dosym ../lib64/ld-x86-64.so.1 "$(alt_prefix)/lib/ld-x86-64.so.1"
+	fi
+
+	if is_hurd && has x86 $(get_install_abis) ; then
+		# First, let's check for sanity
+		if [[ -f "${D}/$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
+			die "Somehow your x86 hurd glibc installed ld.so ... this should not happen."
+		fi
+
+		# Then make a compatibility symlink.
+		dosym ld.so.1 "$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so"
+	fi
 
 	# With devpts under Linux mounted properly, we do not need the pt_chown
 	# binary to be setuid.  This is because the default owners/perms will be
