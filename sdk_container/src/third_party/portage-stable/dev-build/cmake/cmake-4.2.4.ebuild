@@ -53,7 +53,7 @@ else
 	)"
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 	fi
 
 	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20250904 )"
@@ -121,7 +121,7 @@ cmake_src_bootstrap() {
 	# bootstrap script isn't exactly /bin/sh compatible
 	tc-env_build ${CONFIG_SHELL:-sh} ./bootstrap \
 		--prefix="${T}/cmakestrap/" \
-		--parallel=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)") \
+		--parallel=$(get_makeopts_jobs "$(get_nproc)") \
 		|| die "Bootstrap failed"
 }
 
@@ -274,11 +274,12 @@ src_test() {
 	#        debugedit binary is not in the expected location
 	#    RunCMake.CPack_DEB: breaks if app-arch/dpkg is installed because
 	#        it can't find a deb package that owns libc
+	#    RunCMake.CPack_TGZ: requires 64-bit time_t (bug #967480)
 	#    TestUpload, which requires network access
 	#    RunCMake.CMP0125, known failure reported upstream (bug #829414)
 	local myctestargs=(
 		--output-on-failure
-		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM)|TestUpload|RunCMake.CMP0125)" \
+		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM|TGZ)|TestUpload|RunCMake.CMP0125)" \
 	)
 
 	local -x QT_QPA_PLATFORM=offscreen
