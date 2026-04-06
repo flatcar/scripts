@@ -1,6 +1,14 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2026-03-17)
+# Hurd-only packages
+dev-util/mig
+sys-kernel/gnumach
+sys-kernel/hurd
+sys-kernel/rumpkernel
+sys-power/libacpica
+
 # Sam James <sam@gentoo.org> (2026-02-18)
 # Needs systemd so unmasked in targets/systemd
 kde-plasma/plasma-login-manager

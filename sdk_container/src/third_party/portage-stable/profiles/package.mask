@@ -36,6 +36,245 @@
 
 #--- END OF EXAMPLES ---
 
+# Sam James <sam@gentoo.org> (2026-04-06)
+# These versions dropped testtools.tests.* which are used by reverse
+# dependencies like dev-python/python-subunit.
+=dev-python/testtools-2.8.0
+=dev-python/testtools-2.8.2
+=dev-python/testtools-2.8.3
+
+# Michał Górny <mgorny@gentoo.org> (2026-04-05)
+# Needed only by old versions of dev-python/sigstore, along with a bunch
+# of NIH dependencies.
+# Removal on 2026-05-05.  Bug #972007.
+dev-python/betterproto
+dev-python/grpclib
+dev-python/sigstore-protobuf-specs
+
+# Michał Górny <mgorny@gentoo.org> (2026-04-04)
+# Complex high churn package.  It got (incompatibly) renamed
+# to "NumKong" upstream.  No reverse dependencies.
+# Removal on 2026-05-04.  Bug #972000.
+dev-python/simsimd
+
+# Michał Górny <mgorny@gentoo.org> (2026-04-04)
+# NIH dependency for the removed spdx-tools package.  No revdeps.
+# Removal on 2026-05-04.  Bug #971998.
+dev-python/uritools
+
+# Michał Górny <mgorny@gentoo.org> (2026-04-04)
+# Setuptools extension that's not really useful.  The only revdep used
+# to be dev-python/trove-classifiers but we had to workaround it due to
+# cyclic dependencies.
+# Removal on 2026-05-04.  Bug #971991.
+dev-python/calver
+
+# Sam James <sam@gentoo.org> (2026-03-30)
+# >=1.7.0 is an LLM-driven revamp of the project.
+>=sys-fs/quotatool-1.7.0
+
+# Conrad Kostecki <conikost@gentoo.org> (2026-03-28)
+# Version 1.18.x breaks API and needs more testing
+>=net-libs/libupnp-1.18.4
+
+# Fabian Groffen <grobian@gentoo.org> (2026-03-28)
+# Depends on net-libs/ldns, which is in maintenance mode since 2020.
+# Please switch to net-dns/cares-tools which uses net-dns/c-ares
+# instead.
+# Removal on 2026-04-27.
+net-dns/ldns-tools
+
+# Michał Górny <mgorny@gentoo.org> (2026-03-28)
+# pipenv relies very heavily on vendoring.  Every version bump requires
+# a significant effort to unbundle and patch.  On top of that,
+# the resulting packages pin to narrow dependency versions.  Includes
+# dependencies with no other consumers.
+# Removal on 2026-04-27.  Bug #971660.
+dev-python/click-didyoumean
+dev-python/dparse
+dev-python/pipdeptree
+dev-python/pipenv
+dev-python/plette
+dev-python/pythonfinder
+
+# Michał Górny <mgorny@gentoo.org> (2026-03-25)
+# Broken with >=dev-python/numpy-2.  Unmaintained.  No revdeps.
+# Removal on 2026-04-24.  Bug #962941.
+dev-python/amodem
+
+# Ionen Wolkens <ionen@gentoo.org> (2026-03-23)
+# Masked for testing the new .0 version and leave time for packages
+# to catch up on support. Will likely be kept masked until 6.11.1
+# is released unless there is a notable reason to need this earlier.
+#
+# If wanted, feel welcome to add `dev-qt/*:6/6.11.0` to package.unmask
+# and report issues.
+=dev-python/pyqt6-6.11*
+=dev-python/pyqt6-webengine-6.11*
+=dev-python/pyside-6.11.0*
+=dev-qt/qt-docs-6.11.0*
+=dev-qt/qt3d-6.11.0*
+=dev-qt/qt5compat-6.11.0*
+=dev-qt/qtbase-6.11.0*
+=dev-qt/qtcharts-6.11.0*
+=dev-qt/qtconnectivity-6.11.0*
+=dev-qt/qtdeclarative-6.11.0*
+=dev-qt/qtgraphs-6.11.0*
+=dev-qt/qthttpserver-6.11.0*
+=dev-qt/qtimageformats-6.11.0*
+=dev-qt/qtlanguageserver-6.11.0*
+=dev-qt/qtlocation-6.11.0*
+=dev-qt/qtmultimedia-6.11.0*
+=dev-qt/qtnetworkauth-6.11.0*
+=dev-qt/qtpositioning-6.11.0*
+=dev-qt/qtquick3d-6.11.0*
+=dev-qt/qtquicktimeline-6.11.0*
+=dev-qt/qtremoteobjects-6.11.0*
+=dev-qt/qtscxml-6.11.0*
+=dev-qt/qtsensors-6.11.0*
+=dev-qt/qtserialbus-6.11.0*
+=dev-qt/qtserialport-6.11.0*
+=dev-qt/qtshadertools-6.11.0*
+=dev-qt/qtspeech-6.11.0*
+=dev-qt/qtsvg-6.11.0*
+=dev-qt/qttools-6.11.0*
+=dev-qt/qttranslations-6.11.0*
+=dev-qt/qtvirtualkeyboard-6.11.0*
+=dev-qt/qtwayland-6.11.0*
+=dev-qt/qtwebchannel-6.11.0*
+=dev-qt/qtwebengine-6.11.0*
+=dev-qt/qtwebsockets-6.11.0*
+=dev-qt/qtwebview-6.11.0*
+
+# Sam James <sam@gentoo.org> (2026-03-22)
+# Commits since the last release of Crypt-OpenSSL-RSA (0.370) are heavily
+# driven by LLM automation. Avoid exposing users to this (bug #971488).
+# Sadly, other dists by the same maintainers upstream are also affected,
+# and so these are includeed here too.
+>dev-perl/Crypt-OpenSSL-RSA-0.370.0
+>dev-perl/B-COW-0.7.0
+>dev-perl/Business-UPS-2.20.0
+>dev-perl/CDB_File-1.50.0-r1
+>dev-perl/Clone-0.470.0
+>dev-perl/Crypt-RIPEMD160-0.80.0
+>dev-perl/IO-Stty-0.40.0
+>dev-perl/IO-Tty-1.200.0
+>dev-perl/IPC-Run-20250809.0.0
+>dev-perl/Net-Daemon-0.490.0
+>dev-perl/Net-Ident-1.250.0
+>dev-perl/Safe-Hole-0.140.0
+>dev-perl/Schedule-Cron-Events-1.960.0
+>dev-perl/Sys-Mmap-0.200.0
+>dev-perl/Template-Toolkit-3.102.0
+>dev-perl/TimeDate-2.330.0-r1
+>dev-perl/XML-Parser-2.470.1
+>dev-perl/XString-0.5.0
+>dev-perl/YAML-Syck-1.360.0
+
+# Michał Górny <mgorny@gentoo.org> (2026-03-20)
+# Low-value package with a test suite that requires tons of effort to
+# work offline. Upstream made that harder again in the most recent
+# release.  If you need pipx functionality, dev-python/uv provides uvx
+# executable.
+# Removal on 2026-04-19.  Bug #971387.
+dev-python/pipx
+
+# Michał Górny <mgorny@gentoo.org> (2026-03-19)
+#
+# MkDocs 1.x are no longer maintained upstream.  MkDocs 2.x, while not
+# yet released, are not backwards compatible and have made some
+# questionable design choices, such as removing plugin support.  MkDocs
+# 1.x have been then forked into ProperDocs, which are not a drop-in
+# replacment.  Also, Zensical started being independently developed.
+#
+# Over all this time, MkDocs have been barely used in ::gentoo,
+# and the work invested in keeping the whole stack working, along with
+# all the plugins and NIH dependencies, greatly exceeded the benefit.
+# It does not help that most of this is developed with the assumption
+# that docs will be built straight from the git repository.
+#
+# Removal on 2026-04-18.  Bug #971358.
+dev-python/csscompressor
+dev-python/dunamai
+dev-python/ghp-import
+dev-python/griffe
+dev-python/griffe-inherited-docstrings
+dev-python/jsmin
+dev-python/markdown-exec
+dev-python/mergedeep
+dev-python/mkdocs
+dev-python/mkdocs-autorefs
+dev-python/mkdocs-bootstrap
+dev-python/mkdocs-bootswatch
+dev-python/mkdocs-gen-files
+dev-python/mkdocs-get-deps
+dev-python/mkdocs-git-authors-plugin
+dev-python/mkdocs-git-revision-date-localized-plugin
+dev-python/mkdocs-htmlproofer-plugin
+dev-python/mkdocs-i18n
+dev-python/mkdocs-material
+dev-python/mkdocs-material-extensions
+dev-python/mkdocs-minify-plugin
+dev-python/mkdocs-monorepo-plugin
+dev-python/mkdocs-pymdownx-material-extras
+dev-python/mkdocs-redirects
+dev-python/mkdocs-static-i18n
+dev-python/mkdocstrings
+dev-python/mkdocstrings-python
+dev-python/paginate
+dev-python/pygments-ansi-color
+dev-python/pyyaml-env-tag
+dev-python/readtime
+dev-python/uv-dynamic-versioning
+
+# Jakov Smolić <jsmolic@gentoo.org> (2026-03-13)
+# sqlite-3.52.0 has been withdrawn shortly after its release due to
+# backwards-compatibility issues
+# https://sqlite.org/releaselog/3_52_0.html
+=dev-db/sqlite-3.52.0-r1
+=dev-python/apsw-3.52.0.0
+
+# Mike Pagano <mpagano@gentoo.org> (2026-03-13)
+# Upstream has announced the archiving of this application
+# at repo location: https://github.com/nginx/unit/
+# This announcement includes the statement that security
+# issues may not be addressed. Possible alternatives
+# are www-servers/nginx or www-servers/apache
+# depending on your application needs.
+# Removal on 2026-04-13.
+www-servers/nginx-unit
+
+# Alfredo Tupone <tupone@gentoo.org> (2026-03-12)
+# No reverse dependency. Included in dev-tcltk/tklib
+# Removeal on 2026-04-12. Bug #971127
+dev-tcltk/tablelist
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2026-03-10)
+# Unused Java library.
+# Last consumer was net-p2p/freenet-0.7.5_p1505-r0.
+# Removal on 2026-04-10. Bug #971058.
+dev-java/mersennetwister
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2026-03-09)
+# Latest release is >21 years old, no one else packages this, buffer overflow
+# at launch, packaged only in gentoo. Alternatives exist, including the dockapp
+# x11-plugins/wmamixer. Bug #969091
+# Removal on 2026-04-08.
+media-sound/alsamixer-app
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2026-03-09)
+# Dead CORBA implementation, no one else packages this, impossible to build.
+# Many bugs: #298101, #515938, #725192, #871237, #874090, #882479, #882633,
+# #898086, #919509, #952927, #967177
+# Removal on 2026-04-08.
+net-misc/mico
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2026-03-09)
+# Live only package, Upstream archived, integrated into
+# app-shells/bash-completion-2.17.0, which was already stabled.
+# Removal on 2026-04-08.  Bugs #792303, #960480.
+app-shells/tmux-bash-completion
+
 # Alfredo Tupone <tupone@gentoo.org> (2026-03-05)
 # Need more testing
 >=dev-lang/tcl-9
@@ -62,85 +301,15 @@ dev-qt/qtscxml:5
 dev-qt/qtspeech:5
 dev-qt/qtwebsockets:5
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-26)
-# Depends on Qt5 and does not appear to be ported to Qt6 any time soon.
-# Possible alternatives are app-text/xournalpp or media-gfx/pdf4qt (only in
-# guru overlay right now). Many bugs: #965497, #935693, #935692, #935694,
-# #900162, #850064, #935695.
-# Removal on 2026-03-28.
-app-text/master-pdf-editor
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-26)
-# Depends on Qt5 and does not appear to be ported to Qt6. Upstream's main
-# problem is reliance on QtXMLPatterns which is not available in Qt6.
-# Bug #955183
-# Removal on 2026-03-28.
-app-editors/qxmledit
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-26)
-# Current release depends on Qt5, painful to package which may explain why not
-# many other distributions care to do so.  Upstream AppImage available.
-# Many bugs: #909069, #937133, #945721, #947403, #956111, #956112, #956113,
-# #956451, #967186.
-# Removal on 2026-03-28.
-net-p2p/retroshare
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-26)
-# Qt binaries-to-path symlinking tool obsolete with Qt6. Removal on 2026-03-28.
-dev-qt/qtchooser
-
-# Ulrich Müller <ulm@gentoo.org> (2026-02-25)
-# This is an eviscerated version. Several core commands no longer
-# work, notably C-x 2 (split-current-window), M-x describe-bindings
-# and M-? (help). Furthermore, it adds an unconditional dependency
-# on hunspell, hardcoding the American English dictionary.
-# Masking this version for now because it seems inferior to the
-# previous 20180719 snapshot. Bug #970594.
-~app-editors/uemacs-pk-4.0.15_p20260224
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-02-24)
 # Phonon is effectively dead upstream, its only remaining backend depends
 # on VLC-3. Bug #935797  Removal on 2026-03-26.
 media-libs/phonon
 media-libs/phonon-vlc
 
-# Michael Orlitzky <mjo@gentoo.org> (2026-02-24)
-# Haskell package (hard to maintain) that never evolved. Easy to
-# replace with a SQL query. Removal on or after 2026-03-24.
-net-mail/list-remote-forwards
-net-mail/mailbox-count
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-22)
-# Obsolete package blocking vdr-2.2 cleanup.
-# Removal on 2026-03-24.
-media-plugins/vdr-peer
-=media-video/vdr-2.2.0*
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-22)
-# Obsolete package. Use media-plugins/vdr-skinelchihd instead.
-# Bug #945071. Removal on 2026-03-24.
-media-plugins/vdr-skincurses
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-22)
-# Obsolete package. Use media-video/vdr[demoplugins] instead.
-# Removal on 2026-03-24.
-media-plugins/vdr-skinelchi
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-02-15)
 # Masked for testing and possible libvlc revdeps breakage.
-~media-video/vlc-4.0.0_pre20260215
-
-# Conrad Kostecki <conikost@gentoo.org> (2026-02-15)
-# Supports only Qt5 and upstream not making any progress towards Qt6.
-# Removal on 2026-03-01. Bug #953260.
-x11-misc/projecteur
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2026-02-10)
-# Unused Java library. Upstream is gone. SRC_URI points to
-# 'https://dev.gentoo.org/~monsieurp' which does not exist.
-# Last consumer was net-p2p/freenet-0.7.5_p1503-r2.
-# Removal on 2026-03-10. Bug #969322.
-dev-java/fec
+~media-video/vlc-4.0.0_pre20260320
 
 # Thomas Beierlein <tomjbe@gentoo.org> (2026-02-14)
 # Move ebuild versioning to classical x.y.z number scheme
@@ -148,66 +317,11 @@ dev-java/fec
 # new version) gets stable.
 >=net-wireless/soapysdrplay-20000000
 
-# David Seifert <soap@gentoo.org> (2026-02-14)
-# Behemoth package, with a massive and brittle testsuite. No other major distro
-# packages this anymore. Lots of QA issues, broken tests and blocking cleanup
-# efforts. This package will only be allowed back in ::gentoo after a sustained
-# demonstration of maintenance dedication. Removal on 2026-03-16. Bug #966712.
-dev-cpp/muParserX
-dev-python/pylatexenc
-dev-python/python-constraint
-dev-python/qiskit
-dev-python/qiskit-aer
-dev-python/rustworkx
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-02-12)
 # Misc Qt5-based libraries without any revdeps left.
 # Removal on 2026-03-14.
 dev-qt/qtlockedfile
 dev-qt/qtsingleapplication
-
-# David Seifert <soap@gentoo.org> (2026-02-11)
-# No other distro packages this, last release over 12 years ago, C23 issues.
-# Removal on 2026-03-13. Bug #944878.
-sci-biology/qrna
-
-# David Seifert <soap@gentoo.org> (2026-02-11)
-# Obscure package, no revdeps, unmaintained, EAPI 7, lots of build issues.
-# Removal on 2026-03-13. Bug #944918.
-sci-biology/mcl
-
-# David Seifert <soap@gentoo.org> (2026-02-10)
-# Abandoned, sguil-sensor already removed, blocks bug #868468.
-# Removal on 2026-03-12.
-net-analyzer/sguil-client
-
-# David Seifert <soap@gentoo.org> (2026-02-10)
-# Noone packages this anymore, dead upstream, C23 and QA issues.
-# Removal on 2026-03-12. Bug #945039.
-net-misc/lanmap
-
-# David Seifert <soap@gentoo.org> (2026-02-10)
-# Noone packages this anymore, dead upstream, fails tests on newer GCC.
-# Removal on 2026-03-12. Bug #963013.
-net-libs/libpcapnav
-
-# Noone packages this anymore, dead upstream, lots of C23 and QA issues.
-# Removal on 2026-03-12. Bug #945187.
-net-analyzer/trafshow
-
-# David Seifert <soap@gentoo.org> (2026-02-10)
-# Removed by most distros, upstream disappeared, lots of QA and packaging
-# issues. Removal on 2026-03-12. Bug #945190.
-net-analyzer/tcptrace
-
-# Removed by most distros, last release over 20 years ago, C23 issues.
-# Removal on 2026-03-12. Bug #945193.
-net-analyzer/labrea
-
-# David Seifert <soap@gentoo.org> (2026-02-10)
-# Removed by most distros, upstream disappeared, lots of QA and packaging
-# issues. Removal on 2026-03-12. Bug #943786.
-net-analyzer/echoping
 
 # Sam James <sam@gentoo.org> (2026-02-09)
 # This suite of packages is currently best placed in an overlay/external
@@ -240,24 +354,6 @@ net-analyzer/echoping
 <=dev-libs/hyprland-protocols-0.6.4
 <=dev-libs/hyprgraphics-0.1.5
 <=gui-wm/hyprland-0.51.1
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-09)
-# Broken for ages with dev-libs/boost-1.85 but no one except tinderbox
-# complained, still needs porting to Python 3.13, no revdeps. Upstream
-# available 2025.1 claims to fix at least boost, but needs a maintainer.
-# Bugs #936978, #952658.  Removal on 2026-03-11.
-sci-chemistry/votca
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-02-09)
-# Broken for >1 year with dev-libs/boost-1.87 but no one except tinderbox
-# complained, no revdeps. Upstream disappeared, almost no one else is
-# packaging this.  Bug #946533.  Removal on 2026-03-11.
-net-analyzer/sinfo
-
-# Michał Górny <mgorny@gentoo.org> (2026-02-09)
-# setuptools-82 removes pkg_sources, inevitably leading to breakage.
->=dev-python/ensurepip-setuptools-82
->=dev-python/setuptools-82
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-02-08)
 # All remaining KF5 revdeps have been masked.
@@ -338,41 +434,12 @@ kde-apps/libkdcraw:5
 kde-apps/libkexiv2:5
 kde-frameworks/kimageformats:5
 
-# David Seifert <soap@gentoo.org> (2026-02-07)
-# Never packaged by other distros, QA and C23 issues.
-# Removal on 2026-03-09.
-net-analyzer/traceproto
-
-# David Seifert <soap@gentoo.org> (2026-02-07)
-# -Wformat and C23 issues, no other distro packages this anymore.
-# Removal on 2026-03-09.
-net-analyzer/mping
-
-# David Seifert <soap@gentoo.org> (2026-02-07)
-# Abandoned upstream, no other distro packages this anymore, lots of QA and
-# build issues. Removal on 2026-03-09. Bug #945191.
-net-analyzer/nttcp
-
-# David Seifert <soap@gentoo.org> (2026-02-06)
-# Abandoned upstream, no other distro packages this anymore, lots of QA and
-# build issues. Removal on 2026-03-08. Bug #899932.
-net-analyzer/ipcad
-
-# David Seifert <soap@gentoo.org> (2026-02-06)
-# Upstream disappeared, no other distro packages this anymore, lots of QA and
-# build issues. Removal on 2026-03-08. Bug #680718.
-net-analyzer/arp-sk
-
 # Arthur Zamarin <arthurzam@gentoo.org> (2026-02-06)
 # Marked as pre-release post release itself. Released without
 # maintainer ACK.
 # See-Also: https://github.com/emersion/slurp/issues/187
 # Bug #969685
 =gui-apps/slurp-1.6.0
-
-# Sam James <sam@gentoo.org> (2026-01-22)
-# eclean-dist -d needs fixing
-=app-portage/gentoolkit-0.7
 
 # Eray Aslan <eras@gentoo.org> (2025-12-24)
 # Mask experimental software
@@ -399,10 +466,6 @@ net-analyzer/arp-sk
 # any data/messages using this librnp version. <0.18 is fine as is >=0.18.1.
 # See bug #966299.
 =dev-util/librnp-0.18.0
-
-# Sam James <sam@gentoo.org> (2025-10-13)
-# Crashes in memtodest when handling PATH. Not yet reported upstream.
-=app-shells/dash-0.5.13.1
 
 # Michał Górny <mgorny@gentoo.org> (2025-10-12)
 # Requires Rust with RUST_SYSROOTS=bpf, which isn't currently supported
@@ -509,10 +572,6 @@ dev-db/mysql:8.4
 # Doesn't seem to cleanly load, see:
 # https://github.com/lkrg-org/lkrg/issues/364
 =app-antivirus/lkrg-0.9.9
-
-# Eray Aslan <eras@gentoo.org> (2025-02-24)
-# Mask experimental software
-=mail-mta/postfix-3.11*
 
 # Sam James <sam@gentoo.org> (2025-02-22)
 # (Only) needed for no-yet-released LibreOffice. Mask for now to avoid
