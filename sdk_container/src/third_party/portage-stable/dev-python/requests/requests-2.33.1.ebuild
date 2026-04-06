@@ -5,6 +5,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
+PYPI_VERIFY_REPO=https://github.com/psf/requests
 PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
 PYTHON_REQ_USE="threads(+)"
 
@@ -19,7 +20,7 @@ HOMEPAGE="
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos"
 IUSE="socks5 test-rust"
 
 RDEPEND="
@@ -32,6 +33,7 @@ RDEPEND="
 
 BDEPEND="
 	test? (
+		dev-python/httpbin[${PYTHON_USEDEP}]
 		>=dev-python/pysocks-1.5.6[${PYTHON_USEDEP}]
 		test-rust? (
 			dev-python/trustme[${PYTHON_USEDEP}]
