@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 source "${BUILD_LIBRARY_DIR}/oem_sysexts.sh" || exit 1
+source "${BUILD_LIBRARY_DIR}/pkg_util.sh" || exit 1
 
 # Lookup the current version of a binary package, downloading it if needed.
 # Usage: get_binary_pkg some-pkg/name
@@ -228,6 +229,14 @@ create_prod_tar() {
 create_prod_sysexts() {
   local image_name="$1"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
+  local -a extra_args
+
+  local selinux=''
+  if is_selinux_enabled "${BOARD}"; then
+    selinux=x
+  fi
+
+  local sysext
   for sysext in "${EXTRA_SYSEXTS[@]}"; do
     local name pkgs useflags arches
     IFS="|" read -r name pkgs useflags arches <<< "$sysext"
@@ -236,9 +245,13 @@ create_prod_sysexts() {
     local arch_array=(${arches//,/ })
     local useflags_array=(${useflags//,/ })
 
+    extra_args=()
     local mangle_script="${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
-    if [[ ! -x "${mangle_script}" ]]; then
-      mangle_script=
+    if [[ -x "${mangle_script}" ]]; then
+      extra_args+=( --manglefs_script="${mangle_script}" )
+    fi
+    if [[ -n ${selinux} ]]; then
+      extra_args+=( --selinux )
     fi
 
     if [[ -n "$arches" ]]; then
@@ -254,8 +267,8 @@ create_prod_sysexts() {
     fi
 
     sudo rm -f "${BUILD_DIR}/${name}.raw" \
-	"${BUILD_DIR}/flatcar-test-update-${name}.gz" \
-	"${BUILD_DIR}/${name}_*"
+        "${BUILD_DIR}/flatcar-test-update-${name}.gz" \
+        "${BUILD_DIR}/${name}_*"
     # we use -E to pass the USE flags, but also MODULES_SIGN variables
     #
     # The --install_root_basename="${name}-extra-sysext-rootfs" flag
@@ -266,7 +279,8 @@ create_prod_sysexts() {
         --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
         --image_builddir="${BUILD_DIR}" \
         --install_root_basename="${name}-extra-sysext-rootfs" \
-        ${mangle_script:+--manglefs_script=${mangle_script}} \
+        --forbidden_packages='sec-policy/selinux-.*;selinux policy packages must be in base image' \
+        "${extra_args[@]}" \
         "${name}" "${pkg_array[@]}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
@@ -285,20 +299,10 @@ create_oem_sysexts() {
   get_oem_sysext_matrix "${ARCH}" oem_sysexts
 
   local sysext name metapkg useflags
+  local -a build_sysext_flags
   for sysext in "${oem_sysexts[@]}"; do
     IFS="|" read -r name metapkg useflags <<< "${sysext}"
 
-    # Check for manglefs script in the package's files directory
-    local mangle_script="${overlay_path}/${metapkg}/files/manglefs.sh"
-    if [[ ! -x "${mangle_script}" ]]; then
-      mangle_script=
-    fi
-
-    sudo rm -f "${BUILD_DIR}/${name}.raw" \
-        "${BUILD_DIR}/flatcar_test_update-${name}.gz" \
-        "${BUILD_DIR}/${name}_"*
-
-    info "Building OEM sysext ${name} with USE=${useflags}"
     # The --install_root_basename="${name}-oem-sysext-rootfs" flag is
     # important - it sets the name of a rootfs directory, which is
     # used to determine the package target in
@@ -306,14 +310,33 @@ create_oem_sysexts() {
     #
     # OEM sysexts use no compression here since they will be stored
     # in a compressed OEM partition.
-    USE="${useflags}" sudo -E "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
-        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-        --image_builddir="${BUILD_DIR}" \
-        --metapkgs="${metapkg}" \
-        --install_root_basename="${name}-oem-sysext-rootfs" \
-        --compression=none \
-        ${mangle_script:+--manglefs_script="${mangle_script}"} \
-        "${name}"
+    build_sysext_flags=(
+      --board="${BOARD}"
+      --squashfs_base="${BUILD_DIR}/${image_sysext_base}"
+      --image_builddir="${BUILD_DIR}"
+      --metapkgs="${metapkg}"
+      --install_root_basename="${name}-oem-sysext-rootfs"
+      --forbidden_packages='sec-policy/selinux-.*;selinux policy packages must be in base image'
+      --compression=none
+    )
+
+    # Check for manglefs script in the package's files directory
+    local mangle_script="${overlay_path}/${metapkg}/files/manglefs.sh"
+    if [[ -x "${mangle_script}" ]]; then
+      build_sysext_flags+=( --manglefs_script="${mangle_script}" )
+    fi
+    if is_selinux_enabled "${BOARD}"; then
+      build_sysext_flags+=( --selinux )
+    fi
+
+    sudo rm -f "${BUILD_DIR}/${name}.raw" \
+        "${BUILD_DIR}/flatcar_test_update-${name}.gz" \
+        "${BUILD_DIR}/${name}_"*
+
+    info "Building OEM sysext ${name} with USE=${useflags}"
+    USE="${useflags}" sudo -E "${SCRIPT_ROOT}/build_sysext" \
+      "${build_sysext_flags[@]}" \
+      "${name}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \
