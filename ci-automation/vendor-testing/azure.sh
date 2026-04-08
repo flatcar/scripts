@@ -60,8 +60,6 @@ run_kola_tests() {
       --azure-hyper-v-generation="${hyperv_gen}" \
       ${AZURE_USE_GALLERY} \
       ${AZURE_KOLA_VNET:+--azure-kola-vnet=${AZURE_KOLA_VNET}} \
-      ${azure_vnet_subnet_name:+--azure-vnet-subnet-name=${azure_vnet_subnet_name}} \
-      ${AZURE_USE_PRIVATE_IPS:+--azure-use-private-ips=${AZURE_USE_PRIVATE_IPS}} \
       --image-version "${CIA_VERNUM}" \
       "${@}"
 }
