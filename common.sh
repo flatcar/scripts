@@ -296,12 +296,10 @@ load_environment_allowlist() {
 }
 
 load_environment_var() {
-  local file="$1" name value
-  shift
-  for name in "$@"; do
-    value=$(grep "^${name}=" "${file}" | sed 's|"||g')
-    [[ -n "${value}" ]] && export "${value}"
-  done
+  local file="$1"; shift
+  unset "${@}"
+  . <(grep -f <(printf "^%s=\n" "${@}") "${file}")
+  export "${@}"
 }
 
 # Find root of source tree

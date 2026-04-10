@@ -150,7 +150,7 @@ emerge_to_image() {
   fi
 
   sudo -E ROOT="${root_fs_dir}" \
-      FEATURES="-ebuild-locks" \
+      FEATURES="-ebuild-locks -merge-wait" \
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
       emerge --usepkgonly --jobs="${NUM_JOBS}" --verbose "$@"
 
@@ -164,26 +164,6 @@ emerge_to_image() {
   # all tests are fatal, for now let the old function skip soname errors.
   ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
       test_image_content "${root_fs_dir}"
-}
-
-# emerge_to_image without a rootfs check; you should use emerge_to_image unless
-# here's a good reason not to.
-emerge_to_image_unchecked() {
-  local root_fs_dir="$1"; shift
-
-  if [[ ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
-    set -- --getbinpkg "$@"
-  fi
-
-  sudo -E ROOT="${root_fs_dir}" \
-      PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-      emerge --usepkgonly --jobs="${NUM_JOBS}" --verbose "$@"
-
-  # Shortcut if this was just baselayout
-  [[ "$*" == *sys-apps/baselayout ]] && return
-
-  # Make sure profile.env has been generated
-  sudo -E ROOT="${root_fs_dir}" env-update --no-ldconfig
 }
 
 # Switch to the dev or prod sub-profile
