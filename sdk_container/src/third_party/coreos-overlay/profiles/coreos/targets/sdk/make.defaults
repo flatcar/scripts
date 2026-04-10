@@ -2,6 +2,11 @@ FLATCAR_TYPE=sdk
 
 USE="cros_host expat man -pam"
 
+# We don't include -g in the SDK CFLAGS, so don't waste time and space on
+# splitdebug. Other compilers like Rust still generate debug symbols, but we
+# don't need these either.
+FEATURES="-splitdebug"
+
 # Enable CPU architectures needed by Rust builds
 LLVM_TARGETS="X86 AArch64"
 
