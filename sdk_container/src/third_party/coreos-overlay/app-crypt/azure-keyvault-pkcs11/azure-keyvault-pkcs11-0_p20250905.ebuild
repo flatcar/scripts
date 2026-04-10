@@ -12,7 +12,7 @@ SRC_URI="https://github.com/jepio/azure_keyvault_pkcs11/archive/${COMMIT}.tar.gz
 S="${WORKDIR}/${PN}-${COMMIT}"
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~arm64"
 
 # libcurl is only NEEDED because of the Azure SDK.
 RDEPEND="
