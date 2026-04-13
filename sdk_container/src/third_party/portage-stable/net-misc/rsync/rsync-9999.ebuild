@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -131,6 +131,10 @@ src_configure() {
 			byteorder.h || die
 		append-flags -DCAREFUL_ALIGNMENT
 	fi
+
+	# workaround for autoconf-2.73 using C23:
+	# https://bugs.gentoo.org/972320
+	append-cflags -std=gnu17
 
 	econf "${myeconfargs[@]}"
 }
