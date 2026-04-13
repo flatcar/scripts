@@ -92,6 +92,7 @@ python_test() {
 		setuptools/tests/test_sdist.py::test_sanity_check_setuptools_own_sdist
 		setuptools/tests/test_setuptools.py::test_wheel_includes_vendored_metadata
 		setuptools/tests/test_virtualenv.py::test_no_missing_dependencies
+		setuptools/tests/config/test_setupcfg.py::TestOptions::test_entry_points
 		# TODO
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_basic
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_ignore_errors
