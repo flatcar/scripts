@@ -1,0 +1,42 @@
+From ab81f8e0860e2c47283415afd1713188b22127ea Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 13 Apr 2026 11:20:12 +0100
+Subject: [PATCH] Makefile: Don't explicitly pass GOFLAGS to go commands
+
+go automatically checks GOFLAGS and filters unknown flags for you, e.g.
+it will drop the go run -exec flag when doing go build. Explicitly
+passing GOFLAGS breaks this filtering.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ Makefile | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 3576643c03..cf7eb37d0e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -100,7 +100,6 @@ critest: ## Build the critest binary.
+ $(CRITEST):
+ 	CGO_ENABLED=$(CGO_ENABLED) $(GO_TEST) -c -o $@ \
+ 		-ldflags '$(GO_LDFLAGS)' \
+-		$(GOFLAGS) \
+ 	     $(PROJECT)/cmd/critest
+ 
+ .PHONY: crictl
+@@ -110,7 +109,6 @@ crictl: ## Build the crictl binary.
+ $(CRICTL):
+ 	CGO_ENABLED=$(CGO_ENABLED) $(GO_BUILD) -o $@ \
+ 		-ldflags '$(GO_LDFLAGS)' \
+-		$(GOFLAGS) \
+ 		$(PROJECT)/cmd/crictl
+ 
+ .PHONY: clean
+@@ -200,7 +198,6 @@ test-crictl: $(GINKGO) ## Run the crictl test suite.
+ 	# Run go test for templates_test.go and util_test.go
+ 	CGO_ENABLED=$(CGO_ENABLED) $(GO_TEST) \
+ 		-ldflags '$(GO_LDFLAGS)' \
+-		$(GOFLAGS) \
+ 		$(PROJECT)/cmd/crictl
+ 	$(GINKGO) $(TESTFLAGS) \
+ 		-r -p \
