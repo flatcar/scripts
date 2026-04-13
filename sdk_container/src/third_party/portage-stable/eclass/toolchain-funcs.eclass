@@ -369,6 +369,13 @@ tc-export_build_env() {
 		: "${BUILD_CXXFLAGS:=${CXXFLAGS}}"
 		: "${BUILD_CPPFLAGS:=${CPPFLAGS}}"
 		: "${BUILD_LDFLAGS:=${LDFLAGS}}"
+
+		if has go-env ${INHERITED}; then
+			: "${BUILD_GOAMD64:=${GOAMD64}}"
+			: "${BUILD_GOARM64:=${GOARM64}}"
+			: "${BUILD_GOPPC64:=${GOPPC64}}"
+			: "${BUILD_GORISCV64:=${GORISCV64}}"
+		fi
 	fi
 	export BUILD_{C,CXX,CPP,LD}FLAGS
 
@@ -388,6 +395,13 @@ tc-export_build_env() {
 # the target build system does not check.
 tc-env_build() {
 	tc-export_build_env
+
+	has go-env ${INHERITED} && local -x \
+		GOAMD64=${BUILD_GOAMD64} \
+		GOARM64=${BUILD_GOARM64} \
+		GOPPC64=${BUILD_GOPPC64} \
+		GORISCV64=${BUILD_GORISCV64}
+
 	CFLAGS=${BUILD_CFLAGS} \
 	CXXFLAGS=${BUILD_CXXFLAGS} \
 	CPPFLAGS=${BUILD_CPPFLAGS} \
@@ -402,6 +416,9 @@ tc-env_build() {
 	PKG_CONFIG=$(tc-getBUILD_PKG_CONFIG) \
 	RANLIB=$(tc-getBUILD_RANLIB) \
 	READELF=$(tc-getBUILD_READELF) \
+	CHOST=${CBUILD:-${CHOST}} \
+	ESYSROOT=${BROOT} \
+	SYSROOT= \
 	"$@"
 }
 
@@ -445,8 +462,7 @@ tc-env_build() {
 # @CODE
 econf_build() {
 	local CBUILD=${CBUILD:-${CHOST}}
-	econf_env() { CHOST=${CBUILD} econf "$@"; }
-	tc-env_build econf_env "$@"
+	tc-env_build econf "$@"
 }
 
 # @FUNCTION: tc-ld-is-bfd
@@ -783,6 +799,7 @@ tc-ninja_magic_to_arch() {
 		bfin*)		_tc_echo_kernel_alias blackfin bfin;;
 		c6x*)		echo c6x;;
 		cris*)		echo cris;;
+		e2k*)		echo e2k;;
 		frv*)		echo frv;;
 		hexagon*)	echo hexagon;;
 		hppa*)		_tc_echo_kernel_alias parisc hppa;;
@@ -871,6 +888,7 @@ tc-endian() {
 		arm*b*)		echo big;;
 		arm*)		echo little;;
 		cris*)		echo little;;
+		e2k*)		echo little;;
 		hppa*)		echo big;;
 		i?86*)		echo little;;
 		ia64*)		echo little;;
