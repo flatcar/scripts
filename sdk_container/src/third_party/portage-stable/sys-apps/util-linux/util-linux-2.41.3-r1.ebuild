@@ -6,7 +6,8 @@ EAPI=8
 PYTHON_COMPAT=( python3_{11..14} )
 TMPFILES_OPTIONAL=1
 
-inherit flag-o-matic pam python-r1 meson-multilib tmpfiles toolchain-funcs
+inherit toolchain-funcs libtool flag-o-matic bash-completion-r1 \
+	pam python-r1 multilib-minimal multiprocessing systemd tmpfiles
 
 MY_PV="${PV/_/-}"
 MY_P="${PN}-${MY_PV}"
@@ -16,13 +17,13 @@ HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git"
-	inherit git-r3
+	inherit autotools git-r3
 else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/karelzak.asc
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -125,11 +126,6 @@ src_unpack() {
 src_prepare() {
 	default
 
-	# Workaround for bug #961040 (gcc PR120006)
-	if tc-is-gcc && [[ $(gcc-major-version) == 15 && $(gcc-minor-version) -lt 2 ]] ; then
-		append-flags -fno-ipa-pta
-	fi
-
 	if use test ; then
 		# Known-failing tests
 		local known_failing_tests=(
@@ -142,15 +138,6 @@ src_prepare() {
 			lsfd/mkfds-inotify
 			lsfd/mkfds-symlink
 			lsfd/mkfds-rw-character-device
-			lsns/filter
-			findmnt/df-options
-			findmnt/target
-			findmnt/outputs
-			findmnt/filterQ
-			findmnt/filter
-			misc/mountpoint
-			lsblk/lsblk
-			lslocks/lslocks
 			# Fails with network-sandbox at least in nspawn
 			lsfd/option-inet
 			utmp/last-ipv6
@@ -166,13 +153,8 @@ src_prepare() {
 			lsfd/mkfds-eventpoll
 			lsfd/column-xmode
 
-			# bashism
-			kill/decode
-
-			# Format changes?
-			lslogins/checkuser
-			misc/swaplabel
-			misc/setarch
+			# Hangs on some machines
+			script/replay
 		)
 
 		# debug prints confuse the tests which look for a diff
@@ -210,163 +192,196 @@ src_prepare() {
 
 	if [[ ${PV} == 9999 ]] ; then
 		po/update-potfiles
+		eautoreconf
+	else
+		elibtoolize
 	fi
 }
 
 python_configure() {
-	local emesonargs=(
-		-Dauto_features=disabled
-		-Dbuild-python=enabled
-		-Dpython="${EPYTHON}"
-
-		# XXX: The 'check' target doesn't get created with
-		# -Dauto_features=disabled, but there's no Python-specific
-		# tests anyway, so it's not a big deal.
-		# See https://github.com/util-linux/util-linux/pull/3351 for
-		# an incomplete fix.
-		#$(meson_use test program-tests)
-
-		-Dbuild-libblkid=enabled
-		-Dbuild-libmount=enabled
+	local myeconfargs=(
+		"${commonargs[@]}"
+		--disable-all-programs
+		--disable-bash-completion
+		--without-systemdsystemunitdir
+		--with-python
+		--enable-libblkid
+		--enable-libmount
+		--enable-pylibmount
 	)
 
 	mkdir "${BUILD_DIR}" || die
 	pushd "${BUILD_DIR}" >/dev/null || die
-	meson_src_configure
+	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 	popd >/dev/null || die
 }
 
 multilib_src_configure() {
-	local emesonargs=(
-		-Dbuild-python=disabled
-		-Dfs-search-path-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
-		-Duse-tls=$(tc-has-tls && echo true || echo false)
+	# The scanf test in a run-time test which fails while cross-compiling.
+	# Blindly assume a POSIX setup since we require libmount, and libmount
+	# itself fails when the scanf test fails. bug #531856
+	tc-is-cross-compiler && export scanf_cv_alloc_modifier=ms
 
-		$(meson_use test program-tests)
+	# bug #485486
+	export ac_cv_header_security_pam_misc_h=$(multilib_native_usex pam)
+	# bug #545042
+	export ac_cv_header_security_pam_appl_h=$(multilib_native_usex pam)
 
-		$(meson_native_use_feature audit)
-		$(meson_native_use_feature readline)
-		$(meson_native_use_feature slang)
-		$(meson_native_use_feature magic)
-		$(meson_feature unicode widechar)
-		$(meson_native_use_feature uuidd build-uuidd)
+	# Undo bad ncurses handling by upstream. Fall back to pkg-config.
+	# bug #601530
+	export NCURSES6_CONFIG=false NCURSES5_CONFIG=false
+	export NCURSESW6_CONFIG=false NCURSESW5_CONFIG=false
 
-		$(meson_feature nls)
-		$(meson_feature selinux)
-		$(meson_feature ncurses tinfo)
-		-Ddefault_library=$(multilib_native_usex static-libs both shared)
+	# Avoid automagic dependency on ppc*
+	export ac_cv_lib_rtas_rtas_get_sysparm=$(usex rtas)
 
-		# TODO: Wire this up (bug #931118)
-		-Deconf=disabled
-
-		# TODO: Wire this up (bug #931297)
-		-Dbuild-liblastlog2=disabled
-		-Dbuild-pam-lastlog2=disabled
-
-		# Provided by sys-apps/shadow
-		-Dbuild-chfn-chsh=disabled
-		-Dbuild-login=disabled
-		-Dbuild-newgrp=disabled
-		-Dbuild-nologin=disabled
-		-Dbuild-vipw=disabled
-
-		-Dbuild-pylibmount=disabled
-		-Dbuild-raw=disabled
-
-		$(meson_native_enabled build-agetty)
-		$(meson_native_enabled build-bash-completion)
-		$(meson_native_enabled build-line)
-		$(meson_native_enabled build-partx)
-		$(meson_native_enabled build-rename)
-		$(meson_native_enabled build-rfkill)
-		$(meson_native_enabled build-schedutils)
-
-		$(meson_native_use_feature caps build-setpriv)
-		$(meson_native_use_feature cramfs build-cramfs)
-		$(meson_native_use_feature fdformat build-fdformat)
-		$(meson_native_use_feature hardlink build-hardlink)
-		$(meson_native_use_feature kill build-kill)
-		$(meson_native_use_feature logger build-logger)
-		$(meson_native_use_feature ncurses build-pg)
-		$(meson_native_use_feature su build-su)
-		$(meson_native_use_feature tty-helpers build-mesg)
-		$(meson_native_use_feature tty-helpers build-wall)
-		$(meson_native_use_feature tty-helpers build-write)
-		$(meson_native_use_feature cryptsetup)
-
-		# Libraries
-		-Dbuild-libuuid=enabled
-		-Dbuild-libblkid=enabled
-		-Dbuild-libsmartcols=enabled
-		-Dbuild-libfdisk=enabled
-		-Dbuild-libmount=enabled
-
-		# TODO: Support uuidd for non-native libuuid (do we want this still?)
-		#$(use_enable uuidd libuuid-force-uuidd)
+	# configure args shared by python and non-python builds
+	local commonargs=(
+		--localstatedir="${EPREFIX}/var"
+		--runstatedir="${EPREFIX}/run"
+		--enable-fs-paths-extra="${EPREFIX}/usr/sbin:${EPREFIX}/bin:${EPREFIX}/usr/bin"
 	)
 
-	# TODO: udev (which seems to be controlled by just the systemd option right now?)
+	local myeconfargs=(
+		"${commonargs[@]}"
+		--with-bashcompletiondir="$(get_bashcompdir)"
+		--without-python
+		$(multilib_native_use_enable suid makeinstall-chown)
+		$(multilib_native_use_enable suid makeinstall-setuid)
+		$(multilib_native_use_with readline)
+		$(multilib_native_use_with slang)
+		$(multilib_native_usex ncurses "$(use_with magic libmagic)" '--without-libmagic')
+		$(multilib_native_usex ncurses "$(use_with unicode ncursesw)" '--without-ncursesw')
+		$(multilib_native_usex ncurses "$(use_with !unicode ncurses)" '--without-ncurses')
+		$(multilib_native_use_with audit)
+		$(tc-has-tls || echo --disable-tls)
+		$(use_enable nls)
+		$(use_enable nls poman)
+		$(use_enable unicode widechar)
+		$(use_enable static-libs static)
+		$(use_with ncurses tinfo)
+		$(use_with selinux)
+		$(multilib_native_use_enable uuidd)
+
+		# TODO: Wire this up (bug #931118)
+		--without-econf
+
+		# TODO: Wire this up (bug #931297)
+		# TODO: investigate build failure w/ 2.40.1_rc1
+		--disable-liblastlog2
+		--disable-pam-lastlog2
+	)
+
 	if use build ; then
-		emesonargs+=(
-			-Dsystemd=disabled
+		myeconfargs+=(
+			--without-systemd
+			--without-udev
 		)
 	else
-		emesonargs+=(
-			$(meson_native_use_feature systemd)
+		myeconfargs+=(
+			$(multilib_native_use_with systemd)
+			$(multilib_native_use_with udev)
+		)
+	fi
+
+	if multilib_is_native_abi ; then
+		myeconfargs+=(
+			--disable-chfn-chsh
+			--disable-login
+			--disable-newgrp
+			--disable-nologin
+			--disable-pylibmount
+			--disable-raw
+			--disable-vipw
+			--enable-agetty
+			--enable-bash-completion
+			--enable-line
+			--enable-partx
+			--enable-rename
+			--enable-rfkill
+			--enable-schedutils
+			--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+			--with-tmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d
+			$(use_enable caps setpriv)
+			$(use_enable cramfs)
+			$(use_enable fdformat)
+			$(use_enable hardlink)
+			$(use_enable kill)
+			$(use_enable logger)
+			$(use_enable ncurses pg)
+			$(use_enable su)
+			$(use_enable tty-helpers mesg)
+			$(use_enable tty-helpers wall)
+			$(use_enable tty-helpers write)
+			$(use_with cryptsetup)
+		)
+		if [[ ${PV} == *9999 ]] ; then
+			myeconfargs+=( --enable-asciidoc )
+		else
+			# Upstream is shipping pre-generated man-pages for releases
+			myeconfargs+=( --disable-asciidoc )
+		fi
+	else
+		myeconfargs+=(
+			--disable-all-programs
+			--disable-asciidoc
+			--disable-bash-completion
+			--without-systemdsystemunitdir
+			--disable-poman
+
+			# build libraries
+			--enable-libuuid
+			--enable-libblkid
+			--enable-libsmartcols
+			--enable-libfdisk
+			--enable-libmount
+
+			# Support uuidd for non-native libuuid
+			$(use_enable uuidd libuuid-force-uuidd)
 		)
 	fi
 
 	if use kernel_Hurd ; then
 		# Disable Linux-specific features
-		emesonargs+=(
-			-Dbuild-partx=disabled
-			-Dbuild-rfkill=disabled
-			-Dbuild-schedutils=disabled
-			-Dbuild-fsck=disabled
+		myeconfargs+=(
+			--disable-partx
+			--disable-rfkill
+			--disable-schedutils
+			--disable-fsck
 		)
 
 		# This is explicitly needed for some reason? TODO
-		emesonargs+=(
-			-Dbuild-agetty=enabled
+		myeconfargs+=(
+			--enable-agetty
 		)
 	fi
 
-	local native_file="${T}"/meson.${CHOST}.${ABI}.ini.local
-	cat >> ${native_file} <<-EOF || die
-	[binaries]
-	asciidoctor='asciidoctor-falseified'
-	EOF
-	# TODO: Verify this does the right thing for releases (may need to
-	# manually install).
-	if [[ ${PV} != *9999 ]] ; then
-		# Upstream is shipping pre-generated man-pages for releases
-		emesonargs+=(
-			--native-file "${native_file}"
-		)
-	fi
-
-	# TODO: check pam automagic (bug #485486, bug #545042)
-	#export ac_cv_header_security_pam_misc_h=$(multilib_native_usex pam)
-	#export ac_cv_header_security_pam_appl_h=$(multilib_native_usex pam)
-	#
-	# TODO: check librtas automagic to avoid automagic dependency on ppc*
-	#export ac_cv_lib_rtas_rtas_get_sysparm=$(usex rtas)
-
-	meson_src_configure
+	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 
 	if multilib_is_native_abi && use python ; then
 		python_foreach_impl python_configure
 	fi
 }
 
+src_configure() {
+	append-lfs-flags
+
+	# Workaround for bug #961040 (gcc PR120006)
+	if tc-is-gcc && [[ $(gcc-major-version) == 15 && $(gcc-minor-version) -lt 2 ]] ; then
+		append-flags -fno-ipa-pta
+	fi
+
+	multilib-minimal_src_configure
+}
+
 python_compile() {
 	pushd "${BUILD_DIR}" >/dev/null || die
-	meson_src_compile
+	emake all
 	popd >/dev/null || die
 }
 
 multilib_src_compile() {
-	meson_src_compile
+	emake all
 
 	if multilib_is_native_abi && use python ; then
 		python_foreach_impl python_compile
@@ -375,14 +390,12 @@ multilib_src_compile() {
 
 python_test() {
 	pushd "${BUILD_DIR}" >/dev/null || die
-	# XXX: See python_configure
-	#eninja check
+	emake check TS_OPTS="--parallel=$(makeopts_jobs) --nonroot"
 	popd >/dev/null || die
 }
 
 multilib_src_test() {
-	eninja check
-
+	emake check TS_OPTS="--parallel=$(makeopts_jobs) --nonroot"
 	if multilib_is_native_abi && use python ; then
 		python_foreach_impl python_test
 	fi
@@ -390,7 +403,7 @@ multilib_src_test() {
 
 python_install() {
 	pushd "${BUILD_DIR}" >/dev/null || die
-	meson_src_install
+	emake DESTDIR="${D}" install
 	python_optimize
 	popd >/dev/null || die
 }
@@ -400,7 +413,9 @@ multilib_src_install() {
 		python_foreach_impl python_install
 	fi
 
-	meson_src_install
+	# This needs to be called AFTER python_install call, bug #689190
+	# XXX: -j1 as temporary workaround for bug #931301
+	emake DESTDIR="${D}" install -j1
 }
 
 multilib_src_install_all() {
@@ -408,6 +423,9 @@ multilib_src_install_all() {
 
 	dosym hexdump /usr/bin/hd
 	newman - hd.1 <<< '.so man1/hexdump.1'
+
+	# e2fsprogs-libs didn't install .la files, and .pc work fine
+	find "${ED}" -name "*.la" -delete || die
 
 	if use pam ; then
 		# See https://github.com/util-linux/util-linux/blob/master/Documentation/PAM-configuration.txt
