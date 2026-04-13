@@ -3,14 +3,14 @@
 
 EAPI="8"
 
-VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
 inherit autotools check-reqs flag-o-matic linux-info
-inherit multiprocessing pax-utils toolchain-funcs verify-sig
+inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
+inherit verify-sig
 
 REAL_PV=${PV#0.}
-MY_PV=${REAL_PV/_alpha/a}
+MY_PV=${REAL_PV}
 MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 2-3)t"
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -22,18 +22,19 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
+		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
-	+readline +sqlite +ssl tail-call-interp test tk valgrind
+	+readline +sqlite +ssl test tk valgrind
 "
 RESTRICT="!test? ( test )"
 
@@ -45,7 +46,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-arch/zstd:=
+	app-crypt/libb2
 	app-misc/mime-types
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
@@ -76,7 +77,6 @@ DEPEND="
 	test? (
 		dev-python/ensurepip-pip
 		dev-python/ensurepip-setuptools
-		dev-python/ensurepip-wheel
 	)
 	valgrind? ( dev-debug/valgrind )
 "
@@ -85,20 +85,18 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	tail-call-interp? (
-		|| (
-			>=sys-devel/gcc-16:*
-			>=llvm-core/clang-19:*
-		)
-	)
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
+if [[ ${PV} != *_alpha* ]]; then
+	RDEPEND+="
+		dev-lang/python-exec[python_targets_python${PYVER/./_}(-)]
+	"
+fi
 PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
-# https://www.python.org/downloads/metadata/sigstore/
-VERIFY_SIG_CERT_IDENTITY=hugo@python.org
-VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
@@ -135,16 +133,12 @@ pkg_setup() {
 			done
 			linux-info_pkg_setup
 		fi
-		if use tail-call-interp; then
-			tc-check-min_ver gcc 16
-			tc-check-min_ver clang 19
-		fi
 	fi
 }
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
 	fi
 	default
 }
@@ -179,10 +173,10 @@ build_cbuild_python() {
 	#
 	# -fno-lto to avoid bug #700012 (not like it matters for mini-CBUILD Python anyway)
 	local -x CFLAGS_NODIST="${BUILD_CFLAGS} -fno-lto"
-	local -x LDFLAGS_NODIST=${BUILD_LDFLAGS}
+	local -x LDFLAGS_NODIST="${BUILD_LDFLAGS} -fno-lto"
 	local -x CFLAGS= LDFLAGS=
 	local -x BUILD_CFLAGS="${CFLAGS_NODIST}"
-	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
+	local -x BUILD_LDFLAGS="${LDFLAGS_NODIST}"
 
 	# We need to build our own Python on CBUILD first, and feed it in.
 	# bug #847910
@@ -360,10 +354,6 @@ src_configure() {
 			# Hangs (actually runs indefinitely executing itself w/ many cpython builds)
 			# bug #900429
 			-x test_tools
-
-			# Test terminates abruptly which corrupts written profile data
-			# bug #964023
-			-x test_pyrepl
 		)
 
 		if has_version "app-arch/rpm" ; then
@@ -402,7 +392,6 @@ src_configure() {
 		$(use_with debug assertions)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
-		$(use_with tail-call-interp)
 		$(use_with valgrind)
 	)
 
@@ -595,4 +584,28 @@ src_install() {
 		-e "s:@PYDOC@:pydoc${PYVER}:" \
 		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
 		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
+
+	# python-exec wrapping support
+	local pymajor=${PYVER%.*}
+	local EPYTHON=python${PYVER}
+	local scriptdir=${D}$(python_get_scriptdir)
+	mkdir -p "${scriptdir}" || die
+	# python and pythonX
+	ln -s "../../../bin/${abiver}" "${scriptdir}/python${pymajor}" || die
+	ln -s "python${pymajor}" "${scriptdir}/python" || die
+	# python-config and pythonX-config
+	# note: we need to create a wrapper rather than symlinking it due
+	# to some random dirname(argv[0]) magic performed by python-config
+	cat > "${scriptdir}/python${pymajor}-config" <<-EOF || die
+		#!/bin/sh
+		exec "${abiver}-config" "\${@}"
+	EOF
+	chmod +x "${scriptdir}/python${pymajor}-config" || die
+	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
+	# pydoc
+	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
+	# idle
+	if use tk; then
+		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
+	fi
 }

@@ -1,16 +1,17 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
 
+VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic linux-info
+inherit autotools check-reqs eapi9-ver flag-o-matic linux-info
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
 REAL_PV=${PV#0.}
-MY_PV=${REAL_PV}
+MY_PV=${REAL_PV/_/}
 MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 2-3)t"
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -22,9 +23,9 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.asc
+		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
 	)
 "
 S="${WORKDIR}/${MY_P}"
@@ -34,7 +35,7 @@ SLOT="${PYVER}"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
-	+readline +sqlite +ssl test tk valgrind
+	+readline +sqlite +ssl tail-call-interp test tk valgrind
 "
 RESTRICT="!test? ( test )"
 
@@ -46,7 +47,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-crypt/libb2
+	app-arch/zstd:=
 	app-misc/mime-types
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
@@ -85,7 +86,12 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
+	tail-call-interp? (
+		|| (
+			>=sys-devel/gcc-16:*
+			>=llvm-core/clang-19:*
+		)
+	)
 "
 if [[ ${PV} != *_alpha* ]]; then
 	RDEPEND+="
@@ -96,7 +102,9 @@ PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
-VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
+# https://www.python.org/downloads/metadata/sigstore/
+VERIFY_SIG_CERT_IDENTITY=hugo@python.org
+VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
@@ -114,12 +122,6 @@ pkg_pretend() {
 	if use pgo || use test; then
 		check-reqs_pkg_pretend
 	fi
-
-	ewarn "Freethreading build is considered experimental upstream.  Using it"
-	ewarn "could lead to unexpected breakage, including race conditions"
-	ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
-	ewarn "you can reproduce the problem with dev-lang/python.  Instead,"
-	ewarn "please consider reporting freethreading problems upstream."
 }
 
 pkg_setup() {
@@ -133,12 +135,16 @@ pkg_setup() {
 			done
 			linux-info_pkg_setup
 		fi
+		if use tail-call-interp; then
+			tc-check-min_ver gcc 16
+			tc-check-min_ver clang 19
+		fi
 	fi
 }
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
 	fi
 	default
 }
@@ -173,10 +179,10 @@ build_cbuild_python() {
 	#
 	# -fno-lto to avoid bug #700012 (not like it matters for mini-CBUILD Python anyway)
 	local -x CFLAGS_NODIST="${BUILD_CFLAGS} -fno-lto"
-	local -x LDFLAGS_NODIST=${BUILD_LDFLAGS}
+	local -x LDFLAGS_NODIST="${BUILD_LDFLAGS} -fno-lto"
 	local -x CFLAGS= LDFLAGS=
 	local -x BUILD_CFLAGS="${CFLAGS_NODIST}"
-	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
+	local -x BUILD_LDFLAGS="${LDFLAGS_NODIST}"
 
 	# We need to build our own Python on CBUILD first, and feed it in.
 	# bug #847910
@@ -354,6 +360,10 @@ src_configure() {
 			# Hangs (actually runs indefinitely executing itself w/ many cpython builds)
 			# bug #900429
 			-x test_tools
+
+			# Test terminates abruptly which corrupts written profile data
+			# bug #964023
+			-x test_pyrepl
 		)
 
 		if has_version "app-arch/rpm" ; then
@@ -392,6 +402,7 @@ src_configure() {
 		$(use_with debug assertions)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
+		$(use_with tail-call-interp)
 		$(use_with valgrind)
 	)
 
@@ -607,5 +618,18 @@ src_install() {
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
+	fi
+}
+
+pkg_postinst() {
+	if ver_replacing -lt 0.3.14.0_beta3; then
+		ewarn "Python 3.14.0b3 has changed its module ABI.  The .pyc files"
+		ewarn "installed previously are no longer valid and will be regenerated"
+		ewarn "(or ignored) on the next import.  This may cause sandbox failures"
+		ewarn "when installing some packages and checksum mismatches when removing"
+		ewarn "old versions.  To actively prevent this, rebuild all packages"
+		ewarn "installing Python 3.14 modules, e.g. using:"
+		ewarn
+		ewarn "  emerge -1v /usr/lib/python3.14t/site-packages"
 	fi
 }
