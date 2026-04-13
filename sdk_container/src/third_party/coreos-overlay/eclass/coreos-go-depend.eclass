@@ -13,7 +13,7 @@
 # @CODE
 # COREOS_GO_VERSION=go1.20
 # @CODE
-export COREOS_GO_VERSION="${COREOS_GO_VERSION:-go1.23}"
+export COREOS_GO_VERSION="${COREOS_GO_VERSION:-go1.25}"
 
 case "${EAPI:-0}" in
 	7|8) BDEPEND=">=dev-lang/go-${COREOS_GO_VERSION#go}:=" ;;
