@@ -13,13 +13,11 @@ QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{12..13} )
+PYTHON_COMPAT=( python3_{12..14} )
 PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
-FIRMWARE_ABI_VERSION="7.2.0"
-
-inherit flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps readme.gentoo-r1 \
-		pax-utils xdg-utils
+inherit eapi9-ver flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps \
+		readme.gentoo-r1 pax-utils xdg-utils
 
 if [[ ${PV} == *9999* ]]; then
 	QEMU_DOCS_PREBUILT=0
@@ -46,7 +44,7 @@ else
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -61,18 +59,17 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	+fdt fuse glusterfs +gnutls gtk infiniband iscsi io-uring
 	jack jemalloc +jpeg keyutils
 	lzo multipath
-	ncurses nfs nls numa opengl +oss pam +pin-upstream-blobs pipewire
+	ncurses nfs nls numa opengl +oss pam passt +pin-upstream-blobs pipewire
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
-	usbredir vde +vhost-net virgl virtfs +vnc vte wayland X xattr xdp xen
+	usbredir valgrind vde +vhost-net virgl virtfs +vnc vte wayland X xattr xdp xen
 	zstd"
 
 COMMON_TARGETS="
 	aarch64
 	alpha
 	arm
-	cris
 	hppa
 	i386
 	loongarch64
@@ -180,8 +177,8 @@ SOFTMMU_TOOLS_DEPEND="
 	fuse? ( >=sys-fs/fuse-3.1:3=[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	gnutls? (
-		>=net-libs/gnutls-3.0:=[static-libs(+)]
-		dev-libs/nettle:=[static-libs(+)]
+		>=net-libs/gnutls-3.7.5:=[static-libs(+)]
+		>=dev-libs/nettle-3.7.3:=[static-libs(+)]
 	)
 	gtk? (
 		x11-libs/gtk+:3[wayland?,X?]
@@ -210,6 +207,7 @@ SOFTMMU_TOOLS_DEPEND="
 		media-libs/mesa[egl(+),gbm(+)]
 	)
 	pam? ( sys-libs/pam )
+	passt? ( net-misc/passt )
 	pipewire? ( >=media-video/pipewire-0.3.60 )
 	png? ( >=media-libs/libpng-1.6.34:=[static-libs(+)] )
 	pulseaudio? ( media-libs/libpulse )
@@ -240,13 +238,29 @@ SOFTMMU_TOOLS_DEPEND="
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
 
-EDK2_OVMF_VERSION="202202"
+#
+# With USE=+pin-upstream-blobs we pin firmware versions to known good
+# version in order to  minimize the frequency of disruptive changes. This
+# avoids unnecessary frustration on user side because changing the firmware
+# version can break resume of hibernated guest, inhibit live migrations,
+# and might have other unwanted consequences. For now, let us try to
+# synchronize firmware blobs with the ones bundled in upstream qemu. Simply
+# check the upstream git repository for any changes, for example:
+#   https://github.com/qemu/qemu/tree/v10.0.2/roms for the 10.0.2 release.
+#
+# When changing pinned firmware versions
+#  - create a separate ebuild with revision -r50
+#  - update the FIRMWARE_ABI_VERSION to the current package version
+#
+
+FIRMWARE_ABI_VERSION="10.0.2"
+EDK2_OVMF_VERSION="202408"
 SEABIOS_VERSION="1.16.3"
 
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}[qemu_softmmu_targets_x86_64(+)]
-		~sys-firmware/ipxe-1.21.1[binary,qemu]
+		~sys-firmware/ipxe-1.21.1_p20230601[binary,qemu]
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
@@ -290,8 +304,9 @@ BDEPEND="
 	)
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
-		dev-libs/glib[utils]
 		app-alternatives/bc
+		dev-libs/glib[utils]
+		dev-python/pycotap[${PYTHON_USEDEP}]
 	)
 "
 CDEPEND="
@@ -306,6 +321,7 @@ DEPEND="
 	${CDEPEND}
 	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
 	static-user? ( ${ALL_DEPEND} )
+	valgrind? ( dev-debug/valgrind )
 "
 RDEPEND="
 	${CDEPEND}
@@ -317,13 +333,12 @@ RDEPEND="
 "
 
 PATCHES=(
+	"${FILESDIR}"/${PN}-10.1.2-fix_passt.patch
 	"${FILESDIR}"/${PN}-9.0.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-9.1.0-capstone-include-path.patch
-	"${FILESDIR}"/${PN}-9.0.0-also-build-virtfs-proxy-helper.patch
+	"${FILESDIR}"/${PN}-9.2.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
-	"${FILESDIR}"/${PN}-9.0.0-glibc-2.41.patch
-	"${FILESDIR}"/${PN}-7.2.16-optionrom-pass-Wl-no-error-rwx-segments.patch
+	"${FILESDIR}"/${PN}-10.2.2-optionrom-pass-Wl-no-error-rwx-segments.patch
 )
 
 QA_PREBUILT="
@@ -372,12 +387,12 @@ kernel module is loaded is to load it on boot.
 Please review /etc/conf.d/modules for how to load these.
 
 Make sure your user is in the 'kvm' group. Just run
-	$ gpasswd -a <USER> kvm
+	# gpasswd -a <USER> kvm
 then have <USER> re-login.
 
 For brand new installs, the default permissions on /dev/kvm might not let
 you access it.  You can tell udev to reset ownership/perms:
-	$ udevadm trigger -c add /dev/kvm
+	# udevadm trigger -c add /dev/kvm
 
 If you want to register binfmt handlers for qemu user targets:
 For openrc:
@@ -482,8 +497,8 @@ src_prepare() {
 	export WINDRES=${CHOST}-windres
 
 	# defang automagic dependencies
-	use X || append-cppflags -DGENTOO_GTK_HIDE_X11
-	use wayland || append-cppflags -DGENTOO_GTK_HIDE_WAYLAND
+	use X || append-flags -DGENTOO_GTK_HIDE_X11
+	use wayland || append-flags -DGENTOO_GTK_HIDE_WAYLAND
 
 	# Workaround for bug #938302
 	if use systemtap && has_version "dev-debug/systemtap[-dtrace-symlink(+)]" ; then
@@ -559,6 +574,7 @@ qemu_src_configure() {
 		$(use_enable pulseaudio pa)
 		$(use_enable selinux)
 		$(use_enable xattr attr)
+		$(use_enable valgrind)
 	)
 
 	# Disable options not used by user targets. This simplifies building
@@ -621,6 +637,7 @@ qemu_src_configure() {
 		$(conf_notuser numa)
 		$(conf_notuser opengl)
 		$(conf_notuser pam auth-pam)
+		$(conf_notuser passt)
 		$(conf_notuser png)
 		$(conf_notuser rbd)
 		$(conf_notuser sasl vnc-sasl)
@@ -650,6 +667,10 @@ qemu_src_configure() {
 	)
 
 	if [[ ! ${buildtype} == "user" ]] ; then
+		# used by passt and spice, enable it because glib is required anyway
+		conf_opts+=(
+			--enable-gio
+		)
 		# audio options
 		local audio_opts=(
 			# Note: backend order matters here: #716202
@@ -684,6 +705,7 @@ qemu_src_configure() {
 			--disable-tools
 			--enable-cap-ng
 			--enable-seccomp
+			--disable-libcbor
 		)
 		local static_flag="none"
 		;;
@@ -882,6 +904,9 @@ src_install() {
 	pax-mark mr "${softmmu_bins[@]}" "${user_bins[@]}" # bug 575594
 	popd >/dev/null || die
 
+	# suid in src_install to allow FEATURES=suidctl to work properly
+	fperms u+s /usr/libexec/qemu-bridge-helper
+
 	# Install config file example for qemu-bridge-helper
 	insinto "/etc/qemu"
 	doins "${FILESDIR}/bridge.conf"
@@ -937,16 +962,6 @@ src_install() {
 	readme.gentoo_create_doc
 }
 
-firmware_abi_change() {
-	local pv
-	for pv in ${REPLACING_VERSIONS}; do
-		if ver_test ${pv} -lt ${FIRMWARE_ABI_VERSION}; then
-			return 0
-		fi
-	done
-	return 1
-}
-
 pkg_postinst() {
 	if [[ -n ${softmmu_targets} ]] && use kernel_linux; then
 		udev_reload
@@ -955,12 +970,12 @@ pkg_postinst() {
 	xdg_icon_cache_update
 
 	[[ -z ${EPREFIX} ]] && [[ -f ${EROOT}/usr/libexec/qemu-bridge-helper ]] && \
-		fcaps -m u+s cap_net_admin "${EROOT}"/usr/libexec/qemu-bridge-helper
+		fcaps -M u-s cap_net_admin "${EROOT}"/usr/libexec/qemu-bridge-helper
 
 	DISABLE_AUTOFORMATTING=true
 	readme.gentoo_print_elog
 
-	if use pin-upstream-blobs && firmware_abi_change; then
+	if use pin-upstream-blobs && ver_replacing -lt ${FIRMWARE_ABI_VERSION}; then
 		ewarn "This version of qemu pins new versions of firmware blobs:"
 
 		if has_version 'sys-firmware/edk2-bin'; then
@@ -980,8 +995,7 @@ pkg_postinst() {
 		ewarn "This might break resume of hibernated guests (started with a different"
 		ewarn "firmware version) and live migration to/from qemu versions with different"
 		ewarn "firmware. Please (cold) restart all running guests. For functional"
-		ewarn "guest migration ensure that all"
-		ewarn "hosts run at least"
+		ewarn "guest migration ensure that all hosts run at least"
 		ewarn "	app-emulation/qemu-${FIRMWARE_ABI_VERSION}."
 	fi
 }
