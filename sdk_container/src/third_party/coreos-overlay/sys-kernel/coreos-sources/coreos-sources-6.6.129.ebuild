@@ -32,10 +32,11 @@ IUSE=""
 
 # XXX: Note we must prefix the patch filenames with "z" to ensure they are
 # applied _after_ a potential patch-${KV}.patch file, present when building a
-# patchlevel revision.  We mustn't apply our patches first, it fails when the
+# patchlevel revision.	We mustn't apply our patches first, it fails when the
 # local patches overlap with the upstream patch.
 UNIPATCH_LIST="
 	${PATCH_DIR}/z0001-kbuild-derive-relative-path-for-srctree-from-CURDIR.patch \
 	${PATCH_DIR}/z0002-revert-pahole-flags.patch \
 	${PATCH_DIR}/z0003-Revert-x86-boot-Remove-the-bugger-off-message.patch \
+	${PATCH_DIR}/z0004-Revert-kbuild-Add-objtool-to-top-level-clean-target \
 "
