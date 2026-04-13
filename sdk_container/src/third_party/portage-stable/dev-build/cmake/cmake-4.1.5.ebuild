@@ -98,6 +98,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0001-Don-t-use-.so-for-modules-on-darwin-macos.-Use-.bund.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0002-Set-some-proper-paths-to-make-cmake-find-our-tools.patch
 	# Misc
+	"${FILESDIR}"/${PN}-3.31.6-Prefer-pkgconfig-in-FindBLAS.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0004-Ensure-that-the-correct-version-of-Qt-is-always-used.patch
 	"${FILESDIR}"/${PN}-3.27.0_rc1-0005-Respect-Gentoo-s-Python-eclasses.patch
 	# Cuda
@@ -121,7 +122,7 @@ cmake_src_bootstrap() {
 	# bootstrap script isn't exactly /bin/sh compatible
 	tc-env_build ${CONFIG_SHELL:-sh} ./bootstrap \
 		--prefix="${T}/cmakestrap/" \
-		--parallel=$(makeopts_jobs "${MAKEOPTS}" "$(get_nproc)") \
+		--parallel=$(get_makeopts_jobs "$(get_nproc)") \
 		|| die "Bootstrap failed"
 }
 
@@ -274,11 +275,12 @@ src_test() {
 	#        debugedit binary is not in the expected location
 	#    RunCMake.CPack_DEB: breaks if app-arch/dpkg is installed because
 	#        it can't find a deb package that owns libc
+	#    RunCMake.CPack_TGZ: requires 64-bit time_t (bug #967480)
 	#    TestUpload, which requires network access
 	#    RunCMake.CMP0125, known failure reported upstream (bug #829414)
 	local myctestargs=(
 		--output-on-failure
-		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM)|TestUpload|RunCMake.CMP0125)" \
+		-E "(BootstrapTest|BundleUtilities|CMakeOnly.AllFindModules|CompileOptions|CTest.UpdateCVS|Fortran|RunCMake.CompilerLauncher|RunCMake.CPack_(DEB|RPM|TGZ)|TestUpload|RunCMake.CMP0125)" \
 	)
 
 	local -x QT_QPA_PLATFORM=offscreen
