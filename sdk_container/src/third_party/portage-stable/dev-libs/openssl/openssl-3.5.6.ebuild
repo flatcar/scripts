@@ -61,11 +61,6 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
 )
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.5.5-ppc64.patch
-	"${FILESDIR}"/${PN}-3.5.5-ppc64-be.patch
-)
-
 pkg_setup() {
 	if use ktls ; then
 		if kernel_is -lt 4 18 ; then
