@@ -1,31 +1,27 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-COREOS_GO_PACKAGE="${GITHUB_URI}"
+inherit go-env go-module sysroot systemd
 
-inherit coreos-go-depend golang-vcs-snapshot systemd
-
-EGO_PN="github.com/aws/${PN}"
 DESCRIPTION="AWS Systems Manager Agent"
 HOMEPAGE="https://github.com/aws/amazon-ssm-agent"
+SRC_URI="https://github.com/aws/amazon-ssm-agent/archive/${PV}.tar.gz -> ${P}.tar.gz"
+
 LICENSE="Apache-2.0"
-SRC_URI="https://${EGO_PN}/archive/${PV}.tar.gz -> ${P}.tar.gz ${EGO_VENDOR_URI}"
 SLOT="0"
 KEYWORDS="amd64 arm64"
 
-S="${WORKDIR}/${PN}-${PV}/src/${EGO_PN}"
-
 src_prepare() {
 	default
-	ln -s ${PWD}/vendor/src/* ${PWD}/vendor/
+	# Drop clearing of GOARCH and GOOS - it causes go run to
+	# create a binary for CBUILD, but then go run also invokes the
+	# binary using qemu-CHOST, because we use -exec flag when
+	# cross-compiling
+	sed -i -e 's/GOARCH= GOOS= go run/go run/' makefile || die
 }
 
 src_compile() {
-	go_export
-
-	# set agent release version
-	BRAZIL_PACKAGE_VERSION=${PV} ${EGO} run ./agent/version/versiongenerator/version-gen.go
 	# build all the tools
 	if [[ "${ARCH}" == "arm64" ]]; then
 		emake build-arm64
