@@ -5,17 +5,6 @@
 # Fails to build on musl (bug #968134, https://sourceware.org/PR33747)
 ~dev-debug/gdb-17.1
 
-# Mike Gilbert <floppym@gentoo.org> (2026-02-07)
-# Waiting for >=sys-apps/systemd-259 to be stable.
-dev-python/python-systemd
-gnome-extra/office-runner
-gnome-extra/gnome-logs
-sys-apps/dbus-broker
-sys-apps/systemd-readahead
-sys-block/wait-for-dri-devices-rules
-sys-process/systemd-cron
->=www-misc/profile-sync-daemon-6
-
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2026-02-04)
 # New systemd now has experimental support for musl
 <sys-apps/systemd-259
@@ -186,10 +175,6 @@ app-arch/lrzip-next
 # Uses glibc function getsourcefilter(),
 # which are not available on musl.
 net-misc/mcproxy
-
-# Florian Schmaus <flow@gentoo.org> (2023-11-22)
-# Requires systemd which is not supported on musl.
-sys-power/sandmann-bin
 
 # Brahmajit Das <brahmajit.xyz@gmail.com> (2023-06-15)
 # The package uses innetgr which is not available in musl, bug 898556
@@ -443,6 +428,7 @@ www-client/microsoft-edge-dev
 www-client/opera
 www-client/opera-beta
 www-client/opera-developer
+www-client/opera-gx
 www-client/vivaldi
 www-client/vivaldi-snapshot
 www-plugins/chrome-binary-plugins

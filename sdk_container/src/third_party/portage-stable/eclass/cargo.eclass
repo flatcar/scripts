@@ -529,8 +529,7 @@ cargo_src_unpack() {
 		ebegin "Unpacking crates"
 		printf '%s\0' "${crates[@]}" |
 			xargs -0 -P "$(makeopts_jobs)" -n 1 -t -- \
-				tar -x -C "${ECARGO_VENDOR}" -f
-		assert
+				tar -x -C "${ECARGO_VENDOR}" -f || die
 		eend $?
 
 		while read -d '' -r shasum archive; do
