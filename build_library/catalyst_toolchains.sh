@@ -35,7 +35,7 @@ build_target_toolchain() {
 
     # install baselayout first so we have the basic directory
     # structure for libraries and binaries copied from sysroot
-    btt_emerge --oneshot --nodeps sys-apps/baselayout
+    USE+=" build" btt_emerge --oneshot --nodeps sys-apps/baselayout
 
     # copy libraries, binaries and header files from sysroot to root -
     # sysroot may be using split-usr, whereas root does not, so take

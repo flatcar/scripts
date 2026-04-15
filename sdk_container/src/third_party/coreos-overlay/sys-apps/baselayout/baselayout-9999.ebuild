@@ -20,7 +20,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="cros_host"
+IUSE="build cros_host"
 
 # Make sure coreos-init is not installed in the SDK
 RDEPEND="
@@ -92,9 +92,13 @@ src_install() {
 pkg_preinst() {
 	local libdirs
 	libdirs=$(get_all_libdirs)
-	emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
-	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
-		DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
+
+	if use build; then
+		emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
+		SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
+			DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
+	fi
+
 	rm -f "${ED}/usr/share/${PN}/Makefile" "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" || die
 }
 
