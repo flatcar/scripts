@@ -75,7 +75,8 @@ fi
 yell "Creating new SDK container image ${new_sdk_version} from ${base_sdk_version}"
 create_versionfile "${new_sdk_version}" "${os_version}"
 
-$docker build -t "${sdk_build_image}" \
+docker_build \
+    -t "${sdk_build_image}" \
     --build-arg BASE="$sdk_container_common_registry/flatcar-sdk-all:${base_sdk_version}" \
     -f sdk_lib/Dockerfile.sdk-update \
     .
@@ -87,7 +88,7 @@ for a in all arm64 amd64; do
         arm64) rmarch="amd64-usr"; rmcross="x86_64-cros-linux-gnu";;
         amd64) rmarch="arm64-usr"; rmcross="aarch64-cros-linux-gnu";;
     esac
-    $docker build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
+    docker_build -t "$sdk_container_common_registry/flatcar-sdk-${a}:${docker_vernum}" \
                  --build-arg VERSION="${docker_vernum}" \
                  --build-arg RMARCH="${rmarch}" \
                  --build-arg RMCROSS="${rmcross}" \
