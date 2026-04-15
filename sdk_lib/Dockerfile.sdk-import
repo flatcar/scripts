@@ -17,11 +17,6 @@ RUN if ! grep -q portage /etc/passwd; then \
         echo "portage:x:250:250:portage:/var/tmp/portage:/bin/false" >>/etc/passwd; \
     fi
 
-# fix "Unable to unshare: EPERM ..." in containers
-#  (see https://github.com/gentoo/gentoo-docker-images/issues/81)
-RUN echo 'export FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox"' \
-        >> /etc/skel/.bashrc
-
 RUN groupadd sdk
 RUN useradd -g sdk -G portage sdk
 RUN echo "sdk ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/sdk-user
