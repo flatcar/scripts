@@ -13,7 +13,7 @@ fi
 PKCS11_MODULE_PATH="/usr/$(get_sdk_libdir)/pkcs11/azure-keyvault-pkcs11.so"
 
 PKCS11_ENV=(
-    AZURE_KEYVAULT_URL="https://flatcar-sb-dev-kv.vault.azure.net/"
+    AZURE_KEYVAULT_URL="https://flatcar-hsm0001.vault.azure.net/"
     PKCS11_MODULE_PATH="${PKCS11_MODULE_PATH}"
     AZURE_KEYVAULT_PKCS11_DEBUG=1
 )
