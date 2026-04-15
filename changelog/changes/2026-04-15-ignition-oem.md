@@ -1,0 +1,1 @@
+- Reworked how the OEM partition is mounted at boot time so that Ignition no longer has to handle this by itself, thereby requiring less patching. This should not affect any existing usage, but it is a significant underlying change, so it needs to be called out. Please report any unexpected issues. ([flatcar/script#3934](https://github.com/flatcar/scripts/pull/3934))
