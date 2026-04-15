@@ -530,7 +530,7 @@ start_image() {
   trap "cleanup_mounts '${root_fs_dir}' && delete_prompt" EXIT
 
   # First thing first, install baselayout to create a working filesystem.
-  emerge_to_image "${root_fs_dir}" --nodeps --oneshot sys-apps/baselayout
+  USE+=" build" emerge_to_image "${root_fs_dir}" --nodeps --oneshot sys-apps/baselayout
 
   # FIXME(marineam): Work around glibc setting EROOT=$ROOT
   # https://bugs.gentoo.org/show_bug.cgi?id=473728#c12

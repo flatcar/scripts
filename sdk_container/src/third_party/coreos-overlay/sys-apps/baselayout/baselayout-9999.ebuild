@@ -20,7 +20,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="cros_host"
+IUSE="build cros_host"
 
 # Make sure coreos-init is not installed in the SDK
 RDEPEND="
@@ -83,19 +83,24 @@ src_install() {
 	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
 		DESTDIR=${D} ./dumb-tmpfiles-proc.sh --exclude d "${ED}/usr/lib/tmpfiles.d" || die
 
-	insinto /usr/share/baselayout
-	doins Makefile
-	exeinto /usr/share/baselayout
-	doexe dumb-tmpfiles-proc.sh
+	if use build; then
+		insinto /usr/share/baselayout
+		doins Makefile
+		exeinto /usr/share/baselayout
+		doexe dumb-tmpfiles-proc.sh
+	fi
 }
 
 pkg_preinst() {
 	local libdirs
 	libdirs=$(get_all_libdirs)
-	emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
-	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
-		DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
-	rm -f "${ED}/usr/share/${PN}/Makefile" "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" || die
+
+	if use build; then
+		emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
+		SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
+			DESTDIR=${ROOT} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" --exclude CZL+ "${ED}/usr/lib/tmpfiles.d" || die
+		rm -f "${ED}/usr/share/${PN}/Makefile" "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" || die
+	fi
 }
 
 pkg_postinst() {

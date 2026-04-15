@@ -337,7 +337,7 @@ if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
   fi
 
   info "Installing baselayout"
-  "${EMERGE_WRAPPER}" "${EMERGE_FLAGS[@]}" --nodeps sys-apps/baselayout
+  USE+=" build" "${EMERGE_WRAPPER}" "${EMERGE_FLAGS[@]}" --nodeps sys-apps/baselayout
 
   if [[ "${FLAGS_usepkg}" -ne "${FLAGS_TRUE}" ||
         "${FLAGS_getbinpkg}" -ne "${FLAGS_TRUE}" ]]
