@@ -128,7 +128,7 @@ cros_pre_pkg_setup_sysroot_build_bin_dir() {
 # and also remove their associated debug files to avoid wasting space.
 cros_post_pkg_preinst_rm_masked_debug_files() {
 	local link debug dir=${ED}/usr/lib/debug
-	[[ -d ${dir}/.build-id ]] || return
+	[[ -d ${dir}/.build-id ]] || return 0
 	while read -d $'\n' -r link; do
 		debug=$(realpath "${link}.debug") || die
 		rm -f -- "${link}" "${link}.debug" "${debug}" || die
