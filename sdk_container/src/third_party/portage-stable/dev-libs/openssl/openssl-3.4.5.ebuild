@@ -4,8 +4,8 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
-inherit edo flag-o-matic linux-info sysroot toolchain-funcs
-inherit multibuild multilib multilib-build multiprocessing preserve-libs
+inherit edo flag-o-matic linux-info toolchain-funcs
+inherit multilib multilib-minimal multiprocessing preserve-libs
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://openssl-library.org/"
@@ -61,11 +61,6 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openssl/configuration.h
 )
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.5.5-ppc64.patch
-	"${FILESDIR}"/${PN}-3.5.5-ppc64-be.patch
-)
-
 pkg_setup() {
 	if use ktls ; then
 		if kernel_is -lt 4 18 ; then
@@ -115,27 +110,6 @@ src_prepare() {
 	rm test/recipes/30-test_afalg.t || die
 }
 
-_openssl_variant() {
-	local OPENSSL_VARIANT=${MULTIBUILD_VARIANT}
-	mkdir -p "${BUILD_DIR}" || die
-	pushd "${BUILD_DIR}" >/dev/null || die
-	"$@"
-	popd >/dev/null || die
-}
-
-openssl_foreach_variant() {
-	local MULTIBUILD_VARIANTS=( "${OPENSSL_VARIANTS[@]}" )
-	multibuild_foreach_variant _openssl_variant "$@"
-}
-
-openssl_run_phase() {
-	multilib_foreach_abi openssl_foreach_variant "$@"
-}
-
-openssl_is_default_variant() {
-	[[ ${OPENSSL_VARIANT} == shared ]] && multilib_is_native_abi
-}
-
 src_configure() {
 	# Keep this in sync with app-misc/c_rehash
 	SSL_CNF_DIR="/etc/ssl"
@@ -177,13 +151,10 @@ src_configure() {
 
 	tc-export AR CC CXX RANLIB RC
 
-	OPENSSL_VARIANTS=( shared )
-	use static-libs && OPENSSL_VARIANTS+=( static )
-
-	openssl_run_phase openssl_src_configure
+	multilib-minimal_src_configure
 }
 
-openssl_src_configure() {
+multilib_src_configure() {
 	use_ssl() { usex $1 "enable-${2:-$1}" "no-${2:-$1}" " ${*:3}" ; }
 
 	local krb5=$(has_version app-crypt/mit-krb5 && echo "MIT" || echo "Heimdal")
@@ -207,7 +178,7 @@ openssl_src_configure() {
 	local myeconfargs=(
 		${sslout}
 
-		$(openssl_is_default_variant || echo "no-docs")
+		$(multilib_is_native_abi || echo "no-docs")
 		$(use cpu_flags_x86_sse2 || echo "no-sse2")
 		enable-camellia
 		enable-ec
@@ -232,32 +203,21 @@ openssl_src_configure() {
 		--openssldir="${EPREFIX}"${SSL_CNF_DIR}
 		--libdir=$(get_libdir)
 
+		shared
 		threads
 	)
-
-	if [[ ${OPENSSL_VARIANT} == static ]]; then
-		myeconfargs+=( no-module no-shared )
-	fi
 
 	edo perl "${S}/Configure" "${myeconfargs[@]}"
 }
 
-src_compile() {
-	openssl_run_phase openssl_src_compile
-}
-
-openssl_src_compile() {
+multilib_src_compile() {
 	emake build_sw
-	if openssl_is_default_variant; then
+	if multilib_is_native_abi; then
 		emake build_docs
 	fi
 }
 
-src_test() {
-	openssl_run_phase openssl_src_test
-}
-
-openssl_src_test() {
+multilib_src_test() {
 	# See https://github.com/openssl/openssl/blob/master/test/README.md for options.
 	#
 	# VFP = show subtests verbosely and show failed tests verbosely
@@ -269,36 +229,32 @@ openssl_src_test() {
 	emake -Onone -j1 HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
 }
 
-openssl_src_install() {
-	if [[ ${OPENSSL_VARIANT} == static ]]; then
-		dolib.a libcrypto.a libssl.a
-		return
-	fi
-
+multilib_src_install() {
 	# Only -j1 is supported for the install targets:
 	# https://github.com/openssl/openssl/issues/21999#issuecomment-1771150305
 	emake DESTDIR="${D}" -j1 install_sw
-	rm "${ED}"/usr/$(get_libdir)/lib{crypto,ssl}.a || die
-
 	if use fips; then
 		emake DESTDIR="${D}" -j1 install_fips
 		# Regen this in pkg_preinst, bug 900625
 		rm "${ED}${SSL_CNF_DIR}"/fipsmodule.cnf || die
 	fi
 
-	if openssl_is_default_variant; then
+	if multilib_is_native_abi; then
 		emake DESTDIR="${D}" -j1 install_ssldirs
 		emake DESTDIR="${D}" DOCDIR='$(INSTALLTOP)'/share/doc/${PF} -j1 install_docs
 	fi
 
-	multilib_prepare_wrappers
-	multilib_check_headers
+	# This is crappy in that the static archives are still built even
+	# when USE=static-libs. But this is due to a failing in the openssl
+	# build system: the static archives are built as PIC all the time.
+	# Only way around this would be to manually configure+compile openssl
+	# twice; once with shared lib support enabled and once without.
+	if ! use static-libs ; then
+		rm "${ED}"/usr/$(get_libdir)/lib{crypto,ssl}.a || die
+	fi
 }
 
-src_install() {
-	openssl_run_phase openssl_src_install
-	multilib_install_wrappers
-
+multilib_src_install_all() {
 	# openssl installs perl version of c_rehash by default, but
 	# we provide a shell version via app-misc/c_rehash
 	rm "${ED}"/usr/bin/c_rehash || die
@@ -319,12 +275,12 @@ src_install() {
 pkg_preinst() {
 	if use fips; then
 		# Regen fipsmodule.cnf, bug 900625
-		einfo "Running openssl fipsinstall"
+		ebegin "Running openssl fipsinstall"
 		LD_LIBRARY_PATH="${ED}/usr/$(get_libdir)" \
-			sysroot_run_prefixed "${ED}/usr/bin/openssl" fipsinstall \
+			"${ED}/usr/bin/openssl" fipsinstall -quiet \
 			-out "${ED}${SSL_CNF_DIR}/fipsmodule.cnf" \
-			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so" \
-			|| die "fipsinstall failed"
+			-module "${ED}/usr/$(get_libdir)/ossl-modules/fips.so"
+		eend $?
 	fi
 
 	preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
