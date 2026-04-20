@@ -1,6 +1,10 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Michał Górny <mgorny@gentoo.org> (2025-03-27)
+# Requires dev-python/pydantic-settings.
+dev-python/oct2py
+
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2026-03-02)
 # Rewritten in Rust.
 >=dev-util/bear-4
@@ -58,7 +62,6 @@ dev-python/easy-thumbnails
 dev-python/flufl-lock
 dev-python/gherkin-official
 dev-python/logfury
-dev-python/mkdocs-gen-files
 dev-python/pykwalify
 dev-python/pytest-bdd
 dev-python/pytest-describe
@@ -139,6 +142,7 @@ dev-python/textile
 # Additional entries exposed by correcting musl, #936643
 x11-terms/alacritty
 www-client/firefox
+www-client/firefox-l10n
 www-misc/buku
 www-client/seamonkey
 www-misc/urlwatch
@@ -327,6 +331,7 @@ app-eselect/eselect-rust
 app-misc/gramps
 app-misc/khal
 app-text/mdbook
+app-text/papers
 dev-embedded/esptool
 dev-lang/rust
 dev-lang/rust-bin
@@ -340,6 +345,7 @@ dev-python/cfn-lint
 >=dev-python/cryptography-36
 dev-python/aioquic
 dev-python/apprise
+dev-python/bitstring
 dev-python/cramjam
 dev-python/dirty-equals
 dev-python/hatch-jupyter-builder
@@ -348,6 +354,7 @@ dev-python/inline-snapshot
 dev-python/ipyparallel
 dev-python/ipywidgets
 dev-python/jaraco-itertools
+dev-python/joserfc
 dev-python/josepy
 >=dev-python/jsonschema-4.18.0
 dev-python/jsonschema-path
@@ -364,14 +371,6 @@ dev-python/jupyterlab
 dev-python/keyring
 dev-python/apache-libcloud
 dev-python/moto
-dev-python/mkdocs-i18n
-dev-python/mkdocs-git-authors-plugin
-dev-python/mkdocs-git-revision-date-localized-plugin
-dev-python/mkdocs-material
-dev-python/mkdocs-material-extensions
-dev-python/mkdocs-pymdownx-material-extras
-dev-python/mkdocs-redirects
-dev-python/mkdocs-static-i18n
 dev-python/nbclassic
 dev-python/nbdime
 dev-python/nbval
@@ -422,6 +421,7 @@ dev-python/setuptools-rust
 dev-python/sshpubkeys
 dev-python/sshtunnel
 dev-python/tempest
+dev-python/tibs
 dev-python/trustme
 dev-python/trio
 dev-python/trio-websocket
@@ -460,6 +460,7 @@ gnome-extra/gnome-tweaks
 gnome-extra/sushi
 >=gnome-extra/yelp-49
 >=media-gfx/libimagequant-4
+media-gfx/loupe
 <media-gfx/gimp-3.0.6
 >=media-libs/libopenraw-0.3.2
 media-libs/subrandr
@@ -467,6 +468,7 @@ media-plugins/gimp-lqr
 media-video/rav1e
 net-analyzer/wtfis
 net-dns/dnsviz
+net-dns/hash-slinger
 net-dns/pdns-recursor
 net-im/gajim
 >=net-irc/polari-3.37

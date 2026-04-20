@@ -1,6 +1,10 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Ionen Wolkens <ionen@gentoo.org> (2026-03-22)
+# app-text/mdbook is written in rust
+>=dev-libs/wayland-1.25.0 doc
+
 # Alfred Wingate <parona@protonmail.com> (2026-02-18)
 # Requires behave->cucumber-expressions->uv-build
 dev-db/mycli test
@@ -162,10 +166,6 @@ dev-python/django test
 # Hans de Graaff <graaff@gentoo.org> (2023-03-04)
 # The JIT compiler in ruby requires rust
 dev-lang/ruby jit
-
-# Sam James <sam@gentoo.org> (2022-12-26)
-# Needs dev-python/mkdocs-redirects->dev-python/twine which is masked on wd40
-dev-debug/gef doc
 
 # Sam James <sam@gentoo.org> (2022-12-11)
 # net-libs/rustls-ffi needs Rust.

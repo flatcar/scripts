@@ -19,7 +19,7 @@ dev-libs/libpcre2 jit
 dev-lang/php jit
 mail-filter/rspamd jit
 net-proxy/haproxy pcre-jit
-www-servers/varnish jit
+www-servers/vinyl-cache jit
 www-apache/mod_security jit
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2024-03-24)
@@ -37,7 +37,6 @@ dev-python/iminuit test
 dev-python/nbdime test
 dev-python/nbclient test
 dev-python/nbconvert test
-dev-python/qiskit visualization
 sci-mathematics/cadabra jupyter
 sci-mathematics/yacas jupyter
 sci-physics/hepmc root
