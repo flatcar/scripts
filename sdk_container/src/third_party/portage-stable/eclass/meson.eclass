@@ -122,6 +122,7 @@ _meson_get_machine_info() {
 		*-linux*)        system=linux ;;
 		mingw*|*-mingw*) system=windows ;;
 		*-solaris*)      system=sunos ;;
+		*-gnu)           system=gnu ;;
 	esac
 
 	cpu_family=$(tc-arch "${tuple}")
@@ -453,8 +454,8 @@ setup_meson_src_configure() {
 	tc-getPROG READELF readelf >/dev/null
 
 	# https://bugs.gentoo.org/721786
-	export BOOST_INCLUDEDIR="${BOOST_INCLUDEDIR-${EPREFIX}/usr/include}"
-	export BOOST_LIBRARYDIR="${BOOST_LIBRARYDIR-${EPREFIX}/usr/$(get_libdir)}"
+	export BOOST_INCLUDEDIR="${BOOST_INCLUDEDIR-${ESYSROOT}/usr/include}"
+	export BOOST_LIBRARYDIR="${BOOST_LIBRARYDIR-${ESYSROOT}/usr/$(get_libdir)}"
 }
 
 # @FUNCTION: meson_src_configure
