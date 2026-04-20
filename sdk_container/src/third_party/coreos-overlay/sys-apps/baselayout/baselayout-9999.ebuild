@@ -94,7 +94,7 @@ pkg_preinst() {
 	libdirs=$(get_all_libdirs)
 	emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" LIBDIRS="${libdirs}" layout
 	SYSTEMD_JOURNAL_GID=${ACCT_GROUP_SYSTEMD_JOURNAL_ID:-190} ROOT_UID=0 ROOT_GID=0 CORE_UID=500 CORE_GID=500 \
-		DESTDIR=${D} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" "${ED}/usr/lib/tmpfiles.d" || die
+		DESTDIR=${ROOT} "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" --exclude CZL+ "${ED}/usr/lib/tmpfiles.d" || die
 	rm -f "${ED}/usr/share/${PN}/Makefile" "${ED}/usr/share/${PN}/dumb-tmpfiles-proc.sh" || die
 }
 
