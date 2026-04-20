@@ -10,23 +10,36 @@ inherit autotools dot-a flag-o-matic out-of-source-utils python-r1
 
 DESCRIPTION="POSIX 1003.1e capabilities"
 HOMEPAGE="https://people.redhat.com/sgrubb/libcap-ng/"
-SRC_URI="https://people.redhat.com/sgrubb/${PN}/${P}.tar.gz"
+SRC_URI="https://github.com/stevegrubb/libcap-ng/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
-IUSE="python static-libs"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+IUSE="bpf deprecated python static-libs"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-RDEPEND="python? ( ${PYTHON_DEPS} )"
+RDEPEND="
+	bpf? (
+		dev-libs/libbpf:=
+		sys-process/audit
+	)
+	python? ( ${PYTHON_DEPS} )
+"
 DEPEND="
 	${RDEPEND}
 	sys-kernel/linux-headers
+	bpf? ( dev-util/bpftool )
 "
-BDEPEND="python? ( >=dev-lang/swig-2 )"
+BDEPEND="
+	bpf? (
+		llvm-core/clang[llvm_targets_BPF(-)]
+		virtual/pkgconfig
+	)
+	python? ( >=dev-lang/swig-2 )
+"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-python.patch
+	"${FILESDIR}"/${PN}-0.9.3-audit-out-of-source-build.patch
 )
 
 src_prepare() {
@@ -44,6 +57,8 @@ src_configure() {
 	local ECONF_SOURCE="${S}"
 
 	local myconf=(
+		$(use_enable bpf cap-audit)
+		$(use_enable deprecated)
 		$(use_enable static-libs static)
 		--with-capability_header="${ESYSROOT}"/usr/include/linux/capability.h
 	)
