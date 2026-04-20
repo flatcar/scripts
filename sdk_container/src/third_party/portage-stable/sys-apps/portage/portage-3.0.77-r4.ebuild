@@ -94,6 +94,8 @@ PDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/0001-estrip-silence-noise-from-objcopy-if-build-ID-sectio.patch
+	"${FILESDIR}"/0002-Revert-depgraph-earlier-slot-operator-backtracking.patch
+	"${FILESDIR}"/0003-estrip-Don-t-break-the-debuglink-CRC-with-the-salted.patch
 )
 
 pkg_pretend() {
