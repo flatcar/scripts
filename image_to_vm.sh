@@ -48,6 +48,10 @@ DEFINE_string getbinpkgver "" \
 # include upload options
 . "${BUILD_LIBRARY_DIR}/release_util.sh" || exit 1
 
+# Override the default value to false so that
+# ./flatcar_production_qemu_uefi.sh can launch the qemu VM later.
+FLAGS_only_store_compressed=${FLAGS_FALSE}
+
 # Parse command line
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"

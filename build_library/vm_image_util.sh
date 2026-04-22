@@ -806,12 +806,12 @@ _write_qemu_common() {
     cat >"${VM_README}" <<EOF
 If you have qemu installed (or in the SDK), you can start the image with:
   cd path/to/image
-  ./$(basename "${script}") -curses
+  ./$(basename "${script}") -display curses
 
 If you need to use a different ssh key or different ssh port:
-  ./$(basename "${script}") -a ~/.ssh/authorized_keys -p 2223 -- -curses
+  ./$(basename "${script}") -a ~/.ssh/authorized_keys -p 2223 -- -display curses
 
-If you rather you can use the -nographic option instad of -curses. In this
+If you rather you can use the -nographic option instad of '-display curses'. In this
 mode you can switch from the vm to the qemu monitor console with: Ctrl-a c
 See the qemu man page for more details on the monitor console.
 
@@ -917,7 +917,7 @@ _write_pxe_conf() {
     cat >>"${VM_README}" <<EOF
 
 You can pass extra kernel parameters with -append, for example:
-  ./$(basename "${script}") -curses -append 'sshkey="PUT AN SSH KEY HERE"'
+  ./$(basename "${script}") -display curses -append 'sshkey="PUT AN SSH KEY HERE"'
 
 When using -nographic or -serial you must also enable the serial console:
   ./$(basename "${script}") -nographic -append 'console=ttyS0,115200n8'
