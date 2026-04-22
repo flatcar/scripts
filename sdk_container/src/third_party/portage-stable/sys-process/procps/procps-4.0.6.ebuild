@@ -19,7 +19,7 @@ S="${WORKDIR}"/${PN}-ng-${PV}
 # See bug #913210
 LICENSE="GPL-2+ LGPL-2+ LGPL-2.1+"
 SLOT="0/1-ng"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="elogind +kill modern-top +ncurses nls selinux static-libs skill systemd test unicode"
 RESTRICT="!test? ( test )"
 
@@ -56,6 +56,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-4.0.5-sysctl-manpage.patch # bug #565304
 	"${FILESDIR}"/${PN}-4.0.6-sysctl-ignore_failure.patch
 	"${FILESDIR}"/${PN}-4.0.6-pid-off-by-one.patch
+	"${FILESDIR}"/${PN}-4.0.6-hurd.patch
 )
 
 src_prepare() {
@@ -98,6 +99,20 @@ multilib_src_configure() {
 		myeconfargs+=( $(multilib_native_use_enable unicode watch8bit) )
 	fi
 
+	# Needs epoll
+	if ! use kernel_linux ; then
+		myeconfargs+=(
+			--disable-pidwait
+		)
+	fi
+
+	if use kernel_Hurd ; then
+		# Provided by sys-kernel/hurd
+		myeconfargs+=(
+			--disable-w
+		)
+	fi
+
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 }
 
@@ -124,6 +139,12 @@ multilib_src_install() {
 		if use kill; then
 			mv "${ED}"/usr/bin/kill "${ED}"/bin/ || die
 		fi
+	fi
+
+	if use kernel_Hurd ; then
+		# Provided by sys-kernel/hurd
+		rm "${ED}"/usr/bin/{uptime,vmstat} || die
+		rm "${ED}"/bin/ps || die
 	fi
 }
 
