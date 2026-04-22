@@ -107,6 +107,8 @@ fi
 . "${BUILD_LIBRARY_DIR}/extra_sysexts.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/oem_sysexts.sh" || exit 1
 
+check_binfmt_for_cross_build
+
 PROD_IMAGE=0
 PROD_TAR=0
 CONTAINER=0

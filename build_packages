@@ -111,6 +111,8 @@ if [ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_TRUE}" ]; then
   UPDATE_ARGS+=( --skip_chroot_upgrade )
 fi
 
+check_binfmt_for_cross_build
+
 "${SCRIPTS_DIR}"/setup_board --quiet --board=${FLAGS_board} "${UPDATE_ARGS[@]}"
 
 # set BOARD and BOARD_ROOT

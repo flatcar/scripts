@@ -993,6 +993,38 @@ BOAT
   die "$* failed"
 }
 
+require_binfmt_entry() {
+  local entry="/proc/sys/fs/binfmt_misc/qemu-$1"
+
+  if [[ ! -d /proc/sys/fs/binfmt_misc ]]; then
+    sudo mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc || true
+  fi
+
+  if [[ ! -f "${entry}" ]] || ! grep -q '^enabled$' "${entry}"; then
+    die "Cross build requires binfmt_misc entry (missing or disabled): ${entry}
+Please install qemu-user-static package on the host"
+  fi
+}
+
+check_binfmt_for_cross_build() {
+  local host_arch
+
+  host_arch=$(uname -m)
+  case "${FLAGS_board}" in
+    amd64-usr)
+      if [[ "${host_arch}" != "x86_64" ]]; then
+        require_binfmt_entry "x86_64"
+      fi
+      ;;
+    arm64-usr)
+      if [[ "${host_arch}" != "aarch64" ]]; then
+        require_binfmt_entry "aarch64"
+      fi
+      ;;
+    *) die "Unsupported arch" ;;
+  esac
+}
+
 # The binfmt_misc support in the kernel is required.
 # The aarch64 binaries should be executed through
 # "/usr/bin/qemu-aarch64-static"
