@@ -83,6 +83,11 @@ function _inside_mantle() {
     secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
     azure_auth_config_file=""
     secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
+    echo "DEBUG: AZURE_PROFILE content:"
+    cat "${azure_profile_config_file}"
+    echo "DEBUG: AZURE_AUTH_CREDENTIALS content:"
+    cat "${azure_auth_config_file}"
+    exit 0
     aws_credentials_config_file=""
     secret_to_file aws_credentials_config_file "${AWS_CREDENTIALS}"
     aws_marketplace_credentials_file=""
