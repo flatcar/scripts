@@ -34,7 +34,6 @@ COMMON_OEMIDS=(
     azure
     hetzner
     openstack
-    packet
     proxmoxve
     qemu
     scaleway

@@ -1,0 +1,1 @@
+- Dropped support for Equinix Metal (Packet). The servers are due to be switched off on June 30th 2026.

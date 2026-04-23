@@ -23,7 +23,6 @@ VALID_IMG_TYPES=(
     kubevirt
     openstack
     openstack_mini
-    packet
     parallels
     proxmoxve
     pxe
@@ -56,7 +55,6 @@ VALID_OEM_PACKAGES=(
     hyperv
     kubevirt
     openstack
-    packet
     proxmoxve
     qemu
     scaleway
@@ -280,10 +278,6 @@ IMG_hyperv_vhdx_OEM_SYSEXT=oem-hyperv
 ## cloudsigma
 IMG_cloudsigma_DISK_FORMAT=qcow2
 IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
-
-## packet
-IMG_packet_OEM_PACKAGE=common-oem-files
-IMG_packet_OEM_SYSEXT=oem-packet
 
 ## scaleway
 IMG_scaleway_DISK_FORMAT=qcow2
@@ -878,15 +872,6 @@ You can pass extra kernel parameters with -append, for example:
 When using -nographic or -serial you must also enable the serial console:
   ./$(basename "${script}") -nographic -append 'console=ttyS0,115200n8'
 EOF
-    local packetipxe="$(_dst_dir)/flatcar_production_packet.ipxe"
-    cat > "$packetipxe" <<EOF
-#!ipxe
-
-kernel flatcar_production_pxe.vmlinuz initrd=flatcar_production_pxe_image.cpio.gz flatcar.first_boot=1 flatcar.oem.id=packet console=ttyS1,115200n8 flatcar.autologin
-initrd flatcar_production_pxe_image.cpio.gz
-boot
-EOF
-    VM_GENERATED_FILES+=( "$packetipxe" )
 }
 
 _write_iso_conf() {

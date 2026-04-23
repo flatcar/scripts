@@ -27,7 +27,7 @@
 #
 #   1. Architecture (ARCH) of the TARGET vm images ("arm64", "amd64").
 #   2. Image type to be tested. One of:
-#      ami, azure, azure_pro, digitalocean, gce, gce_pro, packet, qemu, qemu_uefi, vmware
+#      ami, azure, azure_pro, digitalocean, gce, gce_pro, qemu, qemu_uefi, vmware
 #
 # OPTIONAL INPUT:
 #
