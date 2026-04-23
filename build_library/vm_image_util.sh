@@ -28,9 +28,6 @@ VALID_IMG_TYPES=(
     proxmoxve
     pxe
     qemu_uefi
-    rackspace
-    rackspace_onmetal
-    rackspace_vhd
     scaleway
     stackit
     vagrant
@@ -62,8 +59,6 @@ VALID_OEM_PACKAGES=(
     packet
     proxmoxve
     qemu
-    rackspace
-    rackspace-onmetal
     scaleway
     stackit
     vagrant
@@ -247,16 +242,6 @@ IMG_gce_DISK_LAYOUT=vm
 IMG_gce_CONF_FORMAT=gce
 IMG_gce_OEM_PACKAGE=common-oem-files
 IMG_gce_OEM_SYSEXT=oem-gce
-
-## rackspace
-IMG_rackspace_OEM_PACKAGE=oem-rackspace
-IMG_rackspace_vhd_DISK_FORMAT=vhd
-IMG_rackspace_vhd_OEM_PACKAGE=oem-rackspace
-
-## rackspace onmetal
-IMG_rackspace_onmetal_DISK_FORMAT=qcow2
-IMG_rackspace_onmetal_DISK_LAYOUT=onmetal
-IMG_rackspace_onmetal_OEM_PACKAGE=oem-rackspace-onmetal
 
 ## cloudstack
 IMG_cloudstack_OEM_PACKAGE=oem-cloudstack

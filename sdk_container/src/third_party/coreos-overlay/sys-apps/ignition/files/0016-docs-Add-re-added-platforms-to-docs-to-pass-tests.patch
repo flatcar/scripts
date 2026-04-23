@@ -21,12 +21,10 @@ index 897eeabd..2a861637 100644
  * [DigitalOcean] (`digitalocean`) - Ignition will read its configuration from the droplet userdata. Cloud SSH keys and network configuration are handled separately.
  * [Exoscale] (`exoscale`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [Google Cloud] (`gcp`) - Ignition will read its configuration from the instance metadata entry named "user-data". Cloud SSH keys are handled separately.
-@@ -31,6 +32,9 @@ Ignition is currently supported for the following platforms:
+@@ -31,6 +32,7 @@ Ignition is currently supported for the following platforms:
  * [Equinix Metal] (`packet`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [IBM Power Systems Virtual Server] (`powervs`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [QEMU] (`qemu`) - Ignition will read its configuration from the 'opt/com.coreos/config' key on the QEMU Firmware Configuration Device (available in QEMU 2.4.0 and higher).
-+* `rackspace` - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
-+* `rackspace-onmetal` - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
 +* `vagrant` - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [Scaleway] (`scaleway`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
  * [UpCloud] (`upcloud`) - Ignition will read its configuration from the instance userdata fetched from the metadata service (which is NOT enabled by default, make sure you enable it if you use custom images). Cloud SSH keys are handled separately.
