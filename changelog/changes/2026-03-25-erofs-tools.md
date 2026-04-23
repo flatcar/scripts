@@ -1,0 +1,1 @@
+- Add EROFS tools for containerd ([Flatcar#2047](https://github.com/flatcar/Flatcar/issues/2047))
