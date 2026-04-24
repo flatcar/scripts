@@ -232,10 +232,15 @@ function docker_image_from_buildcache() {
     local url="https://${BUILDCACHE_SERVER}/containers/${version}/${tgz}"
     local url_release="https://mirror.release.flatcar-linux.net/containers/${version}/${tgz}"
 
-    curl --fail --silent --show-error --location --retry-delay 1 --retry 60 \
+    local curl_progress=(--silent --show-error)
+    if [[ -t 2 ]]; then
+        curl_progress=(--progress-bar)
+    fi
+
+    curl --fail "${curl_progress[@]}" --location --retry-delay 1 --retry 60 \
         --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
         --remote-name "${url}" \
-        || curl --fail --silent --show-error --location --retry-delay 1 --retry 60 \
+        || curl --fail "${curl_progress[@]}" --location --retry-delay 1 --retry 60 \
         --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
         --remote-name "${url_release}"
 
@@ -254,7 +259,7 @@ function docker_image_from_registry_or_buildcache() {
         return
     fi
 
-    echo "Falling back to tar ball download..." >&2
+    echo "Container image not found in registry, downloading SDK tarball instead (this is normal for nightly builds)..." >&2
     docker_image_from_buildcache "${image}" "${version}" zst || \
         docker_image_from_buildcache "${image}" "${version}" gz
 }

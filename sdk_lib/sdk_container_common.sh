@@ -303,6 +303,7 @@ function gnupg_ssh_gcloud_mount_opts() {
     if [[ -e ${GOOGLE_APPLICATION_CREDENTIALS:-} ]] ; then
         creds_dir=$(dirname "${GOOGLE_APPLICATION_CREDENTIALS}")
         if [[ -d ${creds_dir} ]] ; then
+            echo "Mounting gcloud credentials from ${creds_dir} (used for artifact uploads, safe to ignore if not needed, not baked into any image)"
             echo "-v $creds_dir:$creds_dir"
             args_ref+=( -v "${creds_dir}:${creds_dir}" )
         fi
