@@ -118,9 +118,6 @@ pkg_postinst() {
 		done
 		# Create a compatibility symlink for OEM.
 		ln -sfT ../../oem "${ROOT}/usr/share/oem"
-		# Also create the directory to avoid having dangling
-		# symlinks.
-		mkdir -p "${ROOT}/oem"
 
 		# pam situation was messed up big time, create some
 		# symlinks to point to just a single place
