@@ -125,10 +125,6 @@ fi
 
 # --
 
-docker_build() {
-    PROGRESS_NO_TRUNC=1 $docker build --progress plain "${@}"
-}
-
 # build plain SDK container w/o board support
 #
 import_image="flatcar-sdk-import:${docker_vernum}"

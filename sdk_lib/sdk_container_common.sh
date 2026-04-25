@@ -41,6 +41,11 @@ docker=${docker_a[*]}
 function call_docker() {
     "${docker_a[@]}" "${@}"
 }
+
+function docker_build() {
+    PROGRESS_NO_TRUNC=1 call_docker build --progress plain "${@}"
+}
+
 # --
 
 # Common "echo" function

@@ -152,7 +152,12 @@ emerge_to_image() {
   sudo -E ROOT="${root_fs_dir}" \
       FEATURES="-ebuild-locks -merge-wait" \
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-      emerge --usepkgonly --jobs="${NUM_JOBS}" --verbose "$@"
+      emerge \
+      --usepkgonly \
+      --binpkg-respect-use=y \
+      --jobs="${NUM_JOBS}" \
+      --verbose \
+      "$@"
 
   # Shortcut if this was just baselayout
   [[ "$*" == *sys-apps/baselayout ]] && return
