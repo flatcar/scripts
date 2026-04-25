@@ -20,7 +20,7 @@ CRATES="
 	block-buffer@0.10.4
 	bstr@1.12.0
 	bumpalo@3.17.0
-	bytes@1.10.1
+	bytes@1.11.1
 	bzip2-sys@0.1.13+1.0.8
 	bzip2@0.4.4
 	cc@1.2.19
@@ -104,8 +104,8 @@ CRATES="
 	once_cell@1.21.3
 	openssl-macros@0.1.1
 	openssl-probe@0.1.6
-	openssl-sys@0.9.107
-	openssl@0.10.72
+	openssl-sys@0.9.114
+	openssl@0.10.78
 	pem-rfc7468@0.7.0
 	percent-encoding@2.3.1
 	pin-project-lite@0.2.16
@@ -132,7 +132,7 @@ CRATES="
 	rustc-demangle@0.1.24
 	rustix@1.0.5
 	rustls-pki-types@1.13.1
-	rustls-webpki@0.103.8
+	rustls-webpki@0.103.10
 	rustls@0.23.35
 	rustversion@1.0.20
 	ryu@1.0.20
@@ -235,7 +235,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/ue-rs.git"
 	inherit git-r3
 else
-	EGIT_VERSION="8464c05429d9a034d38b48563d59479fa471606b" # main
+	EGIT_VERSION="ce82114a2d46fbb4ca75352b398f76dba31f0f4f" # main
 	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz
 		${CARGO_CRATE_URIS}"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
