@@ -308,3 +308,40 @@ function gnupg_ssh_gcloud_mount_opts() {
         fi
     fi
 }
+
+function scavenge_for_configure_logs() {
+    local -a sudo_cmd=()
+    while [[ $# -gt 0 ]]; do
+        case ${1} in
+            --use-sudo) sudo_cmd=( sudo ); shift;;
+            --) shift; break;;
+            --*) echo "unknown flag for $0: $1" >&2; exit 1;;
+            *) break;;
+        esac
+    done
+    local dir=${1}; shift
+    local logdir=${1}; shift
+
+    # TODO: Add more interesting files
+    local -a interesting_files=( config.log CMakeConfigureLog.yaml meson-log.txt ) find_flags=()
+    for f in "${interesting_files[@]}"; do
+        if [[ ${#find_flags[@]} -ne 0 ]]; then
+            find_flags+=( '-o' )
+        fi
+        find_flags+=( '-name' "${f}" )
+    done
+    local -a logs
+    local l d
+    mapfile -t logs < <("${sudo_cmd[@]}" find "${dir}" "${find_flags[@]}")
+    for l in "${logs[@]}"; do
+        d=${l#"${dir}"}
+        d=${d#/}
+        if [[ ${d} = */* ]]; then
+            d=${d%/*}
+        else
+            d='.'
+        fi
+        "${sudo_cmd[@]}" mkdir -p "${logdir}/config-logs/${d}"
+        "${sudo_cmd[@]}" cp -a "${l}" "${logdir}/config-logs/${d}"
+    done
+}

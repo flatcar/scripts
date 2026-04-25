@@ -5,6 +5,8 @@
 # Format options. Each variable uses the form IMG_<type>_<opt>.
 # Default values use the format IMG_DEFAULT_<opt>.
 
+. "${BUILD_LIBRARY_DIR}/pkg_util.sh" || exit 1
+
 VALID_IMG_TYPES=(
     akamai
     ami
