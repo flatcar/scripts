@@ -51,7 +51,8 @@ MULTILIB_CHOST_TOOLS=(
 )
 
 PATCHES=(
-	"${FILESDIR}"/libxml2-2.14.2-no-git.patch
+	"${FILESDIR}"/${PN}-2.14.2-no-git.patch
+	"${FILESDIR}"/${P}-memory-leak-python.patch
 )
 
 src_unpack() {
