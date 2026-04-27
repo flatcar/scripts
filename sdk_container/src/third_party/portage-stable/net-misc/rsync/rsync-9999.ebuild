@@ -1,11 +1,11 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 # Uncomment when introducing a patch which touches configure
 RSYNC_NEEDS_AUTOCONF=1
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 inherit flag-o-matic prefix python-single-r1 systemd
 
 DESCRIPTION="File transfer program to keep remote files into sync"
@@ -131,6 +131,10 @@ src_configure() {
 			byteorder.h || die
 		append-flags -DCAREFUL_ALIGNMENT
 	fi
+
+	# workaround for autoconf-2.73 using C23:
+	# https://bugs.gentoo.org/972320
+	append-cflags -std=gnu17
 
 	econf "${myeconfargs[@]}"
 }
