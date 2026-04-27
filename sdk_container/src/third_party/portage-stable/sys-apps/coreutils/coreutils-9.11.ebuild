@@ -9,9 +9,9 @@ EAPI=8
 #
 # Also recommend subscribing to the coreutils and bug-coreutils MLs.
 
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/coreutils.asc
-inherit flag-o-matic python-any-r1 toolchain-funcs verify-sig
+inherit branding flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
 MY_PATCH="${PN}-9.6-patches"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
@@ -23,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 elif [[ ${PV} == *_p* ]] ; then
 	# Note: could put this in devspace, but if it's gone, we don't want
 	# it in tree anyway. It's just for testing.
-	MY_SNAPSHOT="$(ver_cut 1-2).327-71a8c"
+	MY_SNAPSHOT="$(ver_cut 1-2).299-27a7c"
 	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
 	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
@@ -118,7 +118,6 @@ src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}"/${PN}-9.5-skip-readutmp-test.patch
 		# Upstream patches
-		"${FILESDIR}"/${PN}-9.9-cp-SEEK_HOLE-loop.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
@@ -156,9 +155,7 @@ src_configure() {
 	# still experimental at the moment, but:
 	# https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=85edb4afbd119fb69a0d53e1beb71f46c9525dd0
 	local myconf=(
-		--with-packager="Gentoo"
 		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
-		--with-packager-bug-reports="https://bugs.gentoo.org/"
 		# kill/uptime - procps
 		# hostname    - net-tools
 		--enable-install-program="arch,$(usev hostname),$(usev kill)"
@@ -170,6 +167,7 @@ src_configure() {
 		$(use_enable xattr)
 		$(use_with gmp libgmp)
 		$(use_with openssl)
+		$(use_with selinux)
 	)
 
 	if use gmp ; then
@@ -190,11 +188,6 @@ src_configure() {
 		append-ldflags -static
 		# bug #321821
 		sed -i '/elf_sys=yes/s:yes:no:' configure || die
-	fi
-
-	if ! use selinux ; then
-		# bug #301782
-		export ac_cv_{header_selinux_{context,flash,selinux}_h,search_setfilecon}=no
 	fi
 
 	econf "${myconf[@]}"
