@@ -189,14 +189,14 @@ jobs:
 
           images_out="images"
 
-          formats="${IMAGE_FORMATS}"
-          if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
-            formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
-            formats+=" vmware vmware_ova vmware_raw"
+          printf -v formats "%s\n" ${IMAGE_FORMATS}
+          if grep -q '^vmware' <<< "${formats}"; then
+              formats=$(grep -v '^vmware' <<< "${formats}")
+              printf -v formats "%s\n" ${formats} vmware vmware_ova vmware_raw
           fi
-          if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
-            formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
-            formats+=" ami ami_vmdk"
+          if grep -q '^ami\|^aws' <<< "${formats}"; then
+              formats=$(grep -v '^ami\|^aws' <<< "${formats}")
+              printf -v formats "%s\n" ${formats} ami ami_vmdk
           fi
 
           for format in ${formats}; do

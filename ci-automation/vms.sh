@@ -80,14 +80,14 @@ function _vm_build_impl() {
     apply_local_patches
 
     # Convert platform names (also used to find the test scripts) to image formats they entail
-    formats="$*"
-    if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
-      formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
-      formats+=" vmware vmware_ova vmware_raw"
+    printf -v formats "%s\n" "${@}"
+    if grep -q '^vmware' <<< "${formats}"; then
+        formats=$(grep -v '^vmware' <<< "${formats}")
+        printf -v formats "%s\n" ${formats} vmware vmware_ova vmware_raw
     fi
-    if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
-      formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
-      formats+=" ami ami_vmdk"
+    if grep -q '^ami\|^aws' <<< "${formats}"; then
+        formats=$(grep -v '^ami\|^aws' <<< "${formats}")
+        printf -v formats "%s\n" ${formats} ami ami_vmdk
     fi
 
     source sdk_lib/sdk_container_common.sh
