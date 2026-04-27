@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
@@ -11,7 +11,7 @@ inherit autotools check-reqs flag-o-matic git-r3 linux-info llvm-r1
 inherit multiprocessing pax-utils toolchain-funcs
 
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-3.14.0b1"
+PATCHSET="python-gentoo-patches-3.15.0a8"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
@@ -19,7 +19,7 @@ HOMEPAGE="
 	https://github.com/python/cpython/
 "
 SRC_URI="
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 "
 EGIT_REPO_URI="https://github.com/python/cpython.git"
 
@@ -177,10 +177,10 @@ build_cbuild_python() {
 	#
 	# -fno-lto to avoid bug #700012 (not like it matters for mini-CBUILD Python anyway)
 	local -x CFLAGS_NODIST="${BUILD_CFLAGS} -fno-lto"
-	local -x LDFLAGS_NODIST=${BUILD_LDFLAGS}
+	local -x LDFLAGS_NODIST="${BUILD_LDFLAGS} -fno-lto"
 	local -x CFLAGS= LDFLAGS=
 	local -x BUILD_CFLAGS="${CFLAGS_NODIST}"
-	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
+	local -x BUILD_LDFLAGS="${LDFLAGS_NODIST}"
 
 	# We need to build our own Python on CBUILD first, and feed it in.
 	# bug #847910
@@ -528,10 +528,14 @@ src_test() {
 
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
+	local build_dir=$(<pybuilddir.txt)
 
 	# -j1 hack for now for bug #843458
 	emake -j1 DESTDIR="${D}" TEST_MODULES=no altinstall
 
+	# Install build-details.json manually because it was randomly removed
+	# from altinstall in https://github.com/python/cpython/pull/142269.
+	cp "${build_dir}"/build-details.json "${libdir}"/ || die
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
 
