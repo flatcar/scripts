@@ -31,7 +31,6 @@ VALID_IMG_TYPES=(
     stackit
     vagrant
     vagrant_parallels
-    vagrant_vmware_fusion
     virtualbox
     vmware
     vmware_ova
@@ -143,14 +142,6 @@ IMG_vagrant_DISK_FORMAT=vmdk_ide
 IMG_vagrant_DISK_LAYOUT=vagrant
 IMG_vagrant_CONF_FORMAT=vagrant
 IMG_vagrant_OEM_PACKAGE=oem-vagrant
-
-## vagrant_vmware
-IMG_vagrant_vmware_fusion_FS_HOOK=box
-IMG_vagrant_vmware_fusion_BUNDLE_FORMAT=box
-IMG_vagrant_vmware_fusion_DISK_FORMAT=vmdk_scsi
-IMG_vagrant_vmware_fusion_DISK_LAYOUT=vagrant
-IMG_vagrant_vmware_fusion_CONF_FORMAT=vagrant_vmware_fusion
-IMG_vagrant_vmware_fusion_OEM_PACKAGE=oem-vagrant
 
 ## vagrant_parallels
 IMG_vagrant_parallels_FS_HOOK=box
@@ -1002,15 +993,6 @@ _write_vagrant_conf() {
             --output_vagrant "$mac"
 }
 
-_write_vagrant_vmware_fusion_conf() {
-    local vm_mem="${1:-$(_get_vm_opt MEM)}"
-    local vmx=$(_dst_path ".vmx")
-
-    mkdir -p "${VM_TMP_DIR}/box"
-    _write_vmx_conf ${vm_mem}
-    mv "${vmx}" "${VM_TMP_DIR}/box"
-}
-
 _write_vagrant_parallels_conf() {
     local vm_mem="${1:-$(_get_vm_opt MEM)}"
     local pvs=$(_dst_path ".pvs")
@@ -1078,9 +1060,7 @@ _write_box_bundle() {
     local image=${VM_DST_IMG}
     local provider="virtualbox"
 
-    if [[ "${VM_IMG_TYPE}" == vagrant_vmware_fusion ]]; then
-        provider="vmware_fusion"
-    elif [[ "${VM_IMG_TYPE}" == vagrant_parallels ]]; then
+    if [[ "${VM_IMG_TYPE}" == vagrant_parallels ]]; then
         provider="parallels"
         image="${VM_TMP_DIR}/tmp.pvm"
         mkdir -p "${image}"
