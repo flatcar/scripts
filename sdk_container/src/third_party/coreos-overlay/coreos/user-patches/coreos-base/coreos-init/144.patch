@@ -1,0 +1,24 @@
+From ef7ebd2f23806a17a432cfce6b1b7c9f64451007 Mon Sep 17 00:00:00 2001
+From: Navaneeth <me@rizexor.com>
+Date: Sat, 25 Apr 2026 22:13:38 +0530
+Subject: [PATCH] feat: enable oraclecloud ssh keys
+
+Signed-off-by: Navaneeth <me@rizexor.com>
+---
+ systemd/system/sshkeys.service | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/systemd/system/sshkeys.service b/systemd/system/sshkeys.service
+index eb16382..4c15597 100644
+--- a/systemd/system/sshkeys.service
++++ b/systemd/system/sshkeys.service
+@@ -36,6 +36,9 @@ ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
+ ConditionKernelCommandLine=|ignition.platform.id=scaleway
+ ConditionKernelCommandLine=|flatcar.oem.id=scaleway
+ 
++ConditionKernelCommandLine=|ignition.platform.id=oraclecloud
++ConditionKernelCommandLine=|flatcar.oem.id=oraclecloud
++
+ [Service]
+ Type=oneshot
+ RemainAfterExit=yes

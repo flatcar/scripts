@@ -1,0 +1,40 @@
+From 8d289d1f35baa6da8c729a3528d9ceb769044e20 Mon Sep 17 00:00:00 2001
+From: Navaneeth <me@rizexor.com>
+Date: Sat, 25 Apr 2026 22:17:12 +0530
+Subject: [PATCH] feat: add oraclecloud support
+
+Signed-off-by: Navaneeth <me@rizexor.com>
+---
+ .idea/.gitignore                                    | 10 ++++++++++
+ dracut/53ignition/flatcar-metadata-hostname.service |  1 +
+ 2 files changed, 11 insertions(+)
+ create mode 100644 .idea/.gitignore
+
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+index 0000000..30cf57e
+--- /dev/null
++++ b/.idea/.gitignore
+@@ -0,0 +1,10 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Editor-based HTTP Client requests
++/httpRequests/
++# Ignored default folder with query files
++/queries/
++# Datasource local storage ignored files
++/dataSources/
++/dataSources.local.xml
+diff --git a/dracut/53ignition/flatcar-metadata-hostname.service b/dracut/53ignition/flatcar-metadata-hostname.service
+index be75de1..bb1e807 100644
+--- a/dracut/53ignition/flatcar-metadata-hostname.service
++++ b/dracut/53ignition/flatcar-metadata-hostname.service
+@@ -38,6 +38,7 @@ ConditionKernelCommandLine=|flatcar.oem.id=hetzner
+ ConditionKernelCommandLine=|flatcar.oem.id=kubevirt
+ ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
+ ConditionKernelCommandLine=|flatcar.oem.id=scaleway
++ConditionKernelCommandLine=|flatcar.oem.id=oraclecloud
+ 
+ OnFailure=emergency.target
+ OnFailureJobMode=replace-irreversibly
