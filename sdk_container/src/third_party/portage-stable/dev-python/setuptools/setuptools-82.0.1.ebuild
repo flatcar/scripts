@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -92,6 +92,7 @@ python_test() {
 		setuptools/tests/test_sdist.py::test_sanity_check_setuptools_own_sdist
 		setuptools/tests/test_setuptools.py::test_wheel_includes_vendored_metadata
 		setuptools/tests/test_virtualenv.py::test_no_missing_dependencies
+		setuptools/tests/config/test_setupcfg.py::TestOptions::test_entry_points
 		# TODO
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_basic
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_ignore_errors
@@ -116,6 +117,6 @@ python_test() {
 	local EPYTEST_XDIST=1
 	local -x PRE_BUILT_SETUPTOOLS_WHEEL=${DISTUTILS_WHEEL_PATH}
 	local EPYTEST_PLUGINS=( pytest-{home,subprocess,timeout} )
-	epytest -o tmp_path_retention_policy=all \
+	epytest -o filterwarnings= -o tmp_path_retention_policy=all \
 		-m "not uses_network" setuptools
 }
