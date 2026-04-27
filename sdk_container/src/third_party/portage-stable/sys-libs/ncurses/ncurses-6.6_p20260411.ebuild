@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -22,7 +22,7 @@ SRC_URI="
 "
 
 GENTOO_PATCH_DEV=sam
-GENTOO_PATCH_PV=6.5_p20250802
+GENTOO_PATCH_PV=6.6_p20260411
 GENTOO_PATCH_NAME=${PN}-${GENTOO_PATCH_PV}-patches
 
 # Populated below in a loop. Do not add patches manually here.
@@ -43,68 +43,20 @@ if [[ ${PV} == *_p* ]] ; then
 	# This array should contain a list of all the snapshots since the last
 	# release if there's no megapatch available yet.
 	PATCH_DATES=(
-		20240504
-		20240511
-		20240518
-		20240519
-		20240525
-		20240601
-		20240608
-		20240615
-		20240622
-		20240629
-		20240706
-		20240713
-		20240720
-		20240727
-		20240810
-		20240817
-		20240824
-		20240831
-		20240914
-		20240922
-		20240928
-		20241006
-		20241019
-		20241026
-		20241102
-		20241109
-		20241123
-		20241130
-		20241207
-		20241214
-		20241221
-		20241228
-		20250104
-		20250111
-		20250118
-		20250125
-		20250201
-		20250208
-		20250215
-		20250216
-		20250222
-		20250301
-		20250308
-		20250315
-		20250322
-		20250329
-		20250405
-		20250412
-		20250419
-		20250426
-		20250503
-		20250510
-		20250517
-		20250524
-		20250531
-		20250614
-		20250621
-		20250628
-		20250705
-		20250712
-		20250720
-		20250726
+		20251231
+		20260103
+		20260117
+		20260124
+		20260131
+		20260207
+		20260214
+		20260221
+		20260301
+		20260307
+		20260314
+		20260321
+		20260328
+		20260404
 
 		# Latest patch is just _pN = $(ver_cut 4)
 		$(ver_cut 4)
@@ -146,11 +98,12 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="MIT"
 # The subslot reflects the SONAME.
 SLOT="0/6"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="ada +cxx debug doc gpm minimal profile split-usr +stack-realign static-libs test tinfo trace"
 # In 6.5_p20250118, the C++ examples fail to link, but there's no automated
 # testsuite anyway. Controlling building examples isn't really what USE=test
-# is for. Just restrict them.
+# is for. Just restrict them. Still seems to fail after
+# https://lists.gnu.org/archive/html/bug-ncurses/2026-03/msg00013.html too.
 RESTRICT="!test? ( test ) test"
 
 # TODO: ncurses allows (and we take advantage of this, even) passing
