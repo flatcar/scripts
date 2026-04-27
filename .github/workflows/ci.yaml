@@ -192,7 +192,7 @@ jobs:
           formats="${IMAGE_FORMATS}"
           if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
             formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
-            formats+=" vmware vmware_insecure vmware_ova vmware_raw"
+            formats+=" vmware vmware_ova vmware_raw"
           fi
           if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
             formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
