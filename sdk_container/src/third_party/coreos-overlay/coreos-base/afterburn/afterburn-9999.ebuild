@@ -3,12 +3,8 @@
 
 EAPI=8
 
-# This crate is required by our patch but missing from the vendor tarball.
-CRATES="hostname@0.4.2"
-
 inherit cargo systemd
 
-SRC_URI="${CARGO_CRATE_URIS}"
 DESCRIPTION="A tool for collecting instance metadata from various providers"
 HOMEPAGE="https://github.com/coreos/afterburn"
 
@@ -16,7 +12,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/coreos/afterburn.git"
 	inherit git-r3
 else
-	SRC_URI+=" https://github.com/coreos/afterburn/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+	SRC_URI="https://github.com/coreos/afterburn/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 		https://github.com/coreos/afterburn/releases/download/v${PV}/${P}-vendor.tar.gz"
 	KEYWORDS="amd64 arm64"
 	ECARGO_VENDOR="${WORKDIR}/vendor"
