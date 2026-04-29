@@ -11,7 +11,4 @@ cros_post_src_install_flatcar_modifications() {
 
 # We don't ship OpenLDAP schemas (why?) and we provide sudo.conf
 # through baselayout.
-sudo_install_mask='/etc/openldap/schema /etc/sudo.conf'
-INSTALL_MASK+=" ${sudo_install_mask}"
-PKG_INSTALL_MASK+=" ${sudo_install_mask}"
-unset sudo_install_mask
+INSTALL_MASK+=' /etc/openldap/schema /etc/sudo.conf '

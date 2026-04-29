@@ -242,13 +242,13 @@ build_stage() {
     fi
 
     info "Starting $stage"
+    # Clean up possible leftovers from possible previous runs
+    rm -rf "$TEMPDIR/$stage-${ARCH}-${FLAGS_version}"
     catalyst \
         "${DEBUG[@]}" \
         --verbose \
         --config "$TEMPDIR/catalyst.conf" \
         --file "$TEMPDIR/${stage}.spec"
-    # Catalyst does not clean up after itself...
-    rm -rf "$TEMPDIR/$stage-${ARCH}-${FLAGS_version}"
     ln -sf "$stage-${ARCH}-${FLAGS_version}.tar.bz2" \
         "$BUILDS/$stage-${ARCH}-latest.tar.bz2"
     info "Finished building $target_tarball"

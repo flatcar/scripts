@@ -1,0 +1,5 @@
+cros_post_src_install_disable_on_sdk() {
+    if [[ $(flatcar_target) = 'sdk' ]] ; then
+        sed -i -e 's/SELINUX=permissive/SELINUX=disabled/' "${ED}"/etc/selinux/config
+    fi
+}
