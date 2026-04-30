@@ -3,6 +3,10 @@
 # to the host packages in the chroot, as well as packages built for a
 # target board.
 
+# Use Python 3.12 as the default version.
+*/* PYTHON_TARGETS: -* python3_12
+*/* PYTHON_SINGLE_TARGET: -* python3_12
+
 app-arch/tar		minimal
 app-crypt/mit-krb5	-keyutils
 dev-libs/dbus-glib	tools

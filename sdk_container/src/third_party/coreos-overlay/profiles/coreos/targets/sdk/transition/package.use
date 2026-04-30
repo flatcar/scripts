@@ -1,0 +1,3 @@
+# Allow python 3.11 for a transition.
+*/* PYTHON_TARGETS: python3_11
+*/* PYTHON_SINGLE_TARGET: python3_11
