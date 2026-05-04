@@ -5,7 +5,7 @@ EAPI=8
 
 inherit flag-o-matic systemd toolchain-funcs udev
 
-DEB_PF="4.5-5"
+DEB_PF="4.6-1"
 DESCRIPTION="Tool for running RAID systems - replacement for the raidtools"
 HOMEPAGE="https://github.com/md-raid-utilities/mdadm https://git.kernel.org/pub/scm/utils/mdadm/mdadm.git/"
 SRC_URI="https://git.kernel.org/pub/scm/utils/mdadm/mdadm.git/snapshot/${P}.tar.gz"
