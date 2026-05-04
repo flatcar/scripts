@@ -11,7 +11,7 @@ DESCRIPTION="The GLib library of C routines"
 HOMEPAGE="https://www.gtk.org/"
 
 INTROSPECTION_PN="gobject-introspection"
-INTROSPECTION_PV="1.82.0"
+INTROSPECTION_PV="1.86.0"
 INTROSPECTION_P="${INTROSPECTION_PN}-${INTROSPECTION_PV}"
 SRC_URI="
 	${SRC_URI}
@@ -91,11 +91,8 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-	"${FILESDIR}"/${PN}-2.84.4-libpcre2-10.47.patch
-	"${FILESDIR}"/${PN}-2.86-MR-4912.patch
-	"${FILESDIR}"/${PN}-2.86-MR-4915-CVE-2025-13601.patch
-	"${FILESDIR}"/${PN}-2.86-MR-4934-CVE-2025-14087.patch
-	"${FILESDIR}"/${PN}-2.86-MR-4936.patch
+	"${FILESDIR}"/${PN}-2.84.4-setlocale-glibc-2.43.patch
+	"${FILESDIR}"/${PN}-2.84.4-fix-const-attribute.patch
 )
 
 python_check_deps() {
@@ -335,6 +332,7 @@ multilib_src_configure() {
 	use debug && EMESON_BUILD_TYPE=debug
 
 	local emesonargs=(
+		--localstatedir="${EPREFIX}"/var
 		-Ddefault_library=$(usex static-libs both shared)
 		-Druntime_dir="${EPREFIX}"/run
 		$(meson_feature debug glib_debug)
