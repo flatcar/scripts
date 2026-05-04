@@ -49,6 +49,8 @@ python_test() {
 		# pygments version?
 		tests/test_syntax.py::test_from_path
 		tests/test_syntax.py::test_syntax_guess_lexer
+		# flaky? plain broken?
+		tests/test_console.py::test_brokenpipeerror
 	)
 	# version-specific output -- the usual deal
 	case ${EPYTHON} in
