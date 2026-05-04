@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -37,7 +37,7 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	>=dev-python/cython-3.1.2[${PYTHON_USEDEP}]
+	>=dev-python/cython-3.1.4[${PYTHON_USEDEP}]
 	doc? (
 		$(python_gen_any_dep '
 			dev-python/docutils[${PYTHON_USEDEP}]
@@ -52,7 +52,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-6.0.0-pypy.patch"
+	"${FILESDIR}/${PN}-6.0.4-pypy.patch"
 )
 
 python_check_deps() {
