@@ -8,19 +8,12 @@ inherit autotools linux-info systemd toolchain-funcs tmpfiles udev flag-o-matic
 
 DESCRIPTION="User-land utilities for LVM2 (device-mapper) software"
 HOMEPAGE="https://sourceware.org/lvm2/"
-
-if [[ ${PV} == 9999 ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://gitlab.com/lvmteam/lvm2.git"
-else
-	SRC_URI="https://sourceware.org/ftp/lvm2/${PN^^}.${PV}.tgz"
-	S="${WORKDIR}/${PN^^}.${PV}"
-
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-fi
+SRC_URI="https://sourceware.org/ftp/lvm2/${PN^^}.${PV}.tgz"
+S="${WORKDIR}/${PN^^}.${PV}"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="lvm nvme readline sanlock selinux static static-libs systemd test thin +udev valgrind vdo xfs"
 REQUIRED_USE="
 	static? ( !systemd !udev !nvme )
