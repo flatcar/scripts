@@ -954,9 +954,15 @@ write_vm_bundle() {
 
 _write_box_bundle() {
     local box=$(_dst_path ".box")
-    local json=$(_dst_path ".json")
     local image=${VM_DST_IMG}
-    local provider="virtualbox"
+
+    # Share the metadata JSON between providers.
+    local json=${VM_SRC_IMG##*/}
+    json=$(_dst_dir)/${json%_image.bin}_vagrant.json
+
+    local -xI FLATCAR_VERSION FLATCAR_VERSION_ID VM_GROUP
+    local -x provider="virtualbox"
+    local -x arch=${BOARD%-usr}
 
     if [[ "${VM_IMG_TYPE}" == vagrant_parallels ]]; then
         provider="parallels"
@@ -966,28 +972,37 @@ _write_box_bundle() {
         mv "$(_dst_path ".pvs")" "${image}"/config.pvs
     fi
 
-    cat > "${VM_TMP_DIR}"/box/metadata.json <<EOF
-{"provider": "${provider}"}
-EOF
+    jq -n '{ provider: env.provider, architecture: env.arch }' > "${VM_TMP_DIR}"/box/metadata.json
 
     mv "${image}" "${VM_TMP_DIR}/box"
     tar -czf "${box}" -C "${VM_TMP_DIR}/box" .
 
-    cat >"${json}" <<EOF
-{
-  "name": "flatcar-${VM_GROUP}",
-  "description": "Flatcar ${VM_GROUP}",
-  "versions": [{
-    "version": "${FLATCAR_VERSION_ID}",
-    "providers": [{
-      "name": "${provider}",
-      "url": "https://${BUILDCACHE_SERVER:-bincache.flatcar-linux.net}/images/${BOARD%-usr}/${FLATCAR_VERSION}/$(_dst_name ".box")",
-      "checksum_type": "sha256",
-      "checksum": "$(sha256sum "${box}" | awk '{print $1}')"
-    }]
-  }]
-}
-EOF
+    local -x checksum=$(sha256sum "${box}")
+    checksum=${checksum%% *}
+
+    # Fetch existing box entries for this Flatcar version that do not match the
+    # provider or architecture we're about to add.
+    local existing="[]"
+    [[ -e ${json} ]] &&
+        existing=$(jq '[ .versions[] | select(.version == env.FLATCAR_VERSION_ID) | .providers[] |
+                         select(.name != env.provider or .architecture != env.arch) ]' "${json}")
+
+    # Generate a new metadata JSON that includes the existing box entries.
+    jq -n --argjson existing "${existing}" --arg server "${BUILDCACHE_SERVER:-bincache.flatcar-linux.net}" --arg box "${box##*/}" '{
+        name: "flatcar-\(env.VM_GROUP)",
+        description: "Flatcar \(env.VM_GROUP)",
+        versions: [{
+            version: env.FLATCAR_VERSION_ID,
+            providers: $existing + [{
+                name: env.provider,
+                url: "https://\($server)/images/\(env.arch)/\(env.FLATCAR_VERSION)/\($box)",
+                checksum_type: "sha256",
+                checksum: env.checksum,
+                architecture: env.arch
+            }]
+        }]
+    }' > "${json}"
+
     VM_GENERATED_FILES+=( "${box}" "${json}" )
 }
 
