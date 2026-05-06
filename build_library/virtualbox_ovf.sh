@@ -6,9 +6,9 @@
 SCRIPT_ROOT=$(readlink -f $(dirname "$0")/..)
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
-DEFINE_string vm_name "CoreOS" "Name for this VM"
+DEFINE_string vm_name "Flatcar" "Name for this VM"
 DEFINE_string disk_vmdk "" "Disk image to reference, only basename is used."
-DEFINE_integer memory_size 1024 "Memory size in MB"
+DEFINE_integer memory_size 2048 "Memory size in MB"
 DEFINE_string output_ovf "" "Path to write ofv file to, required."
 DEFINE_string output_vagrant "" "Path to write Vagrantfile to, optional."
 
@@ -90,12 +90,12 @@ if [[ -n "${FLAGS_output_ovf}" ]]; then
         <vssd:VirtualSystemType>virtualbox-2.2</vssd:VirtualSystemType>
       </System>
       <Item>
-        <rasd:Caption>1 virtual CPU</rasd:Caption>
+        <rasd:Caption>2 virtual CPUs</rasd:Caption>
         <rasd:Description>Number of virtual CPUs</rasd:Description>
-        <rasd:ElementName>1 virtual CPU</rasd:ElementName>
+        <rasd:ElementName>2 virtual CPUs</rasd:ElementName>
         <rasd:InstanceID>1</rasd:InstanceID>
         <rasd:ResourceType>3</rasd:ResourceType>
-        <rasd:VirtualQuantity>1</rasd:VirtualQuantity>
+        <rasd:VirtualQuantity>2</rasd:VirtualQuantity>
       </Item>
       <Item>
         <rasd:AllocationUnits>MegaBytes</rasd:AllocationUnits>
@@ -108,21 +108,20 @@ if [[ -n "${FLAGS_output_ovf}" ]]; then
       </Item>
       <Item>
         <rasd:Address>0</rasd:Address>
-        <rasd:Caption>ideController0</rasd:Caption>
-        <rasd:Description>IDE Controller</rasd:Description>
-        <rasd:ElementName>ideController0</rasd:ElementName>
+        <rasd:Caption>virtioSCSIController0</rasd:Caption>
+        <rasd:Description>VirtioSCSI Controller</rasd:Description>
+        <rasd:ElementName>virtioSCSIController0</rasd:ElementName>
         <rasd:InstanceID>3</rasd:InstanceID>
-        <rasd:ResourceSubType>PIIX4</rasd:ResourceSubType>
-        <rasd:ResourceType>5</rasd:ResourceType>
+        <rasd:ResourceSubType>VirtioSCSI</rasd:ResourceSubType>
+        <rasd:ResourceType>20</rasd:ResourceType>
       </Item>
       <Item>
-        <rasd:Address>1</rasd:Address>
-        <rasd:Caption>ideController1</rasd:Caption>
-        <rasd:Description>IDE Controller</rasd:Description>
-        <rasd:ElementName>ideController1</rasd:ElementName>
+        <rasd:Address>0</rasd:Address>
+        <rasd:Caption>usb</rasd:Caption>
+        <rasd:Description>USB Controller</rasd:Description>
+        <rasd:ElementName>usb</rasd:ElementName>
         <rasd:InstanceID>4</rasd:InstanceID>
-        <rasd:ResourceSubType>PIIX4</rasd:ResourceSubType>
-        <rasd:ResourceType>5</rasd:ResourceType>
+        <rasd:ResourceType>23</rasd:ResourceType>
       </Item>
       <Item>
         <rasd:AutomaticAllocation>true</rasd:AutomaticAllocation>
@@ -130,7 +129,6 @@ if [[ -n "${FLAGS_output_ovf}" ]]; then
         <rasd:Connection>NAT</rasd:Connection>
         <rasd:ElementName>Ethernet adapter on 'NAT'</rasd:ElementName>
         <rasd:InstanceID>5</rasd:InstanceID>
-        <rasd:ResourceSubType>E1000</rasd:ResourceSubType>
         <rasd:ResourceType>10</rasd:ResourceType>
       </Item>
       <Item>
@@ -144,137 +142,47 @@ if [[ -n "${FLAGS_output_ovf}" ]]; then
         <rasd:ResourceType>17</rasd:ResourceType>
       </Item>
     </VirtualHardwareSection>
-    <vbox:Machine ovf:required="false" version="1.12-linux" uuid="{$(uuidgen)}" name="${FLAGS_vm_name}" OSType="Linux26_64" snapshotFolder="Snapshots" lastStateChange="$(datez)">
+    <vbox:Machine ovf:required="false" version="1.19-linux" uuid="{$(uuidgen)}" name="${FLAGS_vm_name}" OSType="Linux26_64" snapshotFolder="Snapshots" lastStateChange="$(datez)">
       <ovf:Info>Complete VirtualBox machine configuration in VirtualBox format</ovf:Info>
-      <Hardware version="2">
-        <CPU count="1" hotplug="false">
-          <HardwareVirtEx enabled="true" exclusive="true"/>
-          <HardwareVirtExNestedPaging enabled="true"/>
-          <HardwareVirtExVPID enabled="true"/>
-          <PAE enabled="true"/>
-          <HardwareVirtExLargePages enabled="false"/>
-          <HardwareVirtForce enabled="false"/>
-        </CPU>
-        <Memory RAMSize="${FLAGS_memory_size}" PageFusion="false"/>
-        <HID Pointing="PS2Mouse" Keyboard="PS2Keyboard"/>
-        <HPET enabled="false"/>
-        <Chipset type="PIIX3"/>
-        <Boot>
-          <Order position="1" device="HardDisk"/>
-          <Order position="2" device="DVD"/>
-          <Order position="3" device="None"/>
-          <Order position="4" device="None"/>
-        </Boot>
-        <Display VRAMSize="8" monitorCount="1" accelerate3D="false" accelerate2DVideo="false"/>
-        <VideoRecording enabled="false" file="Test.webm" horzRes="640" vertRes="480"/>
-        <RemoteDisplay enabled="false" authType="Null"/>
+      <Hardware>
+        <Memory RAMSize="${FLAGS_memory_size}"/>
+        <HID Pointing="USBTablet"/>
+        <Display controller="VMSVGA"/>
+        <Firmware type="EFI"/>
         <BIOS>
-          <ACPI enabled="true"/>
           <IOAPIC enabled="true"/>
-          <Logo fadeIn="true" fadeOut="true" displayTime="0"/>
-          <BootMenu mode="MessageAndMenu"/>
-          <TimeOffset value="0"/>
-          <PXEDebug enabled="false"/>
+          <SmbiosUuidLittleEndian enabled="true"/>
+          <AutoSerialNumGen enabled="true"/>
         </BIOS>
-        <USBController enabled="false" enabledEhci="false"/>
+        <USB>
+          <Controllers>
+            <Controller name="OHCI" type="OHCI"/>
+          </Controllers>
+        </USB>
         <Network>
-          <Adapter slot="0" enabled="true" MACAddress="${PRIMARY_MAC}" cable="true" speed="0" type="virtio">
-            <DisabledModes/>
-            <NAT>
-              <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-              <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-            </NAT>
-          </Adapter>
-          <Adapter slot="1" enabled="false" MACAddress="$(macgen)" cable="true" speed="0" type="virtio">
-            <DisabledModes>
-              <NAT>
-                <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-                <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-              </NAT>
-            </DisabledModes>
-          </Adapter>
-          <Adapter slot="2" enabled="false" MACAddress="$(macgen)" cable="true" speed="0" type="virtio">
-            <DisabledModes>
-              <NAT>
-                <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-                <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-              </NAT>
-            </DisabledModes>
-          </Adapter>
-          <Adapter slot="3" enabled="false" MACAddress="$(macgen)" cable="true" speed="0" type="virtio">
-            <DisabledModes>
-              <NAT>
-                <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-                <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-              </NAT>
-            </DisabledModes>
-          </Adapter>
-          <Adapter slot="4" enabled="false" MACAddress="$(macgen)" cable="true" speed="0" type="virtio">
-            <DisabledModes>
-              <NAT>
-                <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-                <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-              </NAT>
-            </DisabledModes>
-          </Adapter>
-          <Adapter slot="5" enabled="false" MACAddress="$(macgen)" cable="true" speed="0" type="virtio">
-            <DisabledModes>
-              <NAT>
-                <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-                <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-              </NAT>
-            </DisabledModes>
-          </Adapter>
-          <Adapter slot="6" enabled="false" MACAddress="$(macgen)" cable="true" speed="0" type="virtio">
-            <DisabledModes>
-              <NAT>
-                <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-                <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-              </NAT>
-            </DisabledModes>
-          </Adapter>
-          <Adapter slot="7" enabled="false" MACAddress="$(macgen)" cable="true" speed="0" type="virtio">
-            <DisabledModes>
-              <NAT>
-                <DNS pass-domain="true" use-proxy="false" use-host-resolver="false"/>
-                <Alias logging="false" proxy-only="false" use-same-ports="false"/>
-              </NAT>
-            </DisabledModes>
+          <Adapter slot="0" enabled="true" MACAddress="${PRIMARY_MAC}" type="virtio">
+            <NAT localhost-reachable="true"/>
           </Adapter>
         </Network>
-        <UART>
-          <Port slot="0" enabled="false" IOBase="0x3f8" IRQ="4" hostMode="Disconnected"/>
-          <Port slot="1" enabled="false" IOBase="0x2f8" IRQ="3" hostMode="Disconnected"/>
-        </UART>
-        <LPT>
-          <Port slot="0" enabled="false" IOBase="0x378" IRQ="7"/>
-          <Port slot="1" enabled="false" IOBase="0x378" IRQ="7"/>
-        </LPT>
-        <AudioAdapter controller="AC97" driver="Pulse" enabled="false"/>
-        <RTC localOrUTC="local"/>
-        <SharedFolders/>
-        <Clipboard mode="Disabled"/>
-        <DragAndDrop mode="Disabled"/>
-        <IO>
-          <IoCache enabled="true" size="5"/>
-          <BandwidthGroups/>
-        </IO>
-        <HostPci>
-          <Devices/>
-        </HostPci>
-        <EmulatedUSB>
-          <CardReader enabled="false"/>
-        </EmulatedUSB>
-        <Guest memoryBalloonSize="0"/>
-        <GuestProperties/>
+        <AudioAdapter enabled="false"/>
+        <Clipboard/>
+        <StorageControllers>
+          <StorageController name="virtio" type="VirtioSCSI" PortCount="1" useHostIOCache="false" Bootable="true">
+            <AttachedDevice type="HardDisk" port="0" device="0">
+              <Image uuid="{${DISK_UUID}}"/>
+            </AttachedDevice>
+          </StorageController>
+        </StorageControllers>
+        <RTC localOrUTC="UTC"/>
+        <Chipset type="ICH9"/>
+        <CPU count="2">
+          <HardwareVirtExLargePages enabled="false"/>
+          <PAE enabled="false"/>
+          <NestedHWVirt enabled="true"/>
+          <LongMode enabled="true"/>
+          <X2APIC enabled="true"/>
+        </CPU>
       </Hardware>
-      <StorageControllers>
-        <StorageController name="IDE Controller" type="PIIX4" PortCount="2" useHostIOCache="true" Bootable="true">
-          <AttachedDevice type="HardDisk" port="0" device="0">
-            <Image uuid="{${DISK_UUID}}"/>
-          </AttachedDevice>
-        </StorageController>
-      </StorageControllers>
     </vbox:Machine>
   </VirtualSystem>
 </Envelope>
