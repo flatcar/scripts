@@ -2,8 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+
 inherit go-env go-module systemd toolchain-funcs
-GIT_REVISION=dea7da592f5d1d2b7755e3a161be07f43fad8f75
+
+GIT_REVISION=301b2dac98f15c27117da5c8af12118a041a31d9
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -13,29 +15,21 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
 IUSE="apparmor btrfs device-mapper +cri +seccomp selinux test"
+# tests require root or docker
+RESTRICT="test"
 
-COMMON_DEPEND="
+DEPEND="
 	btrfs? ( sys-fs/btrfs-progs )
 	seccomp? ( sys-libs/libseccomp )
 "
-
-DEPEND="
-${COMMON_DEPEND}
-"
-
 # recommended minimum version of runc is found in script/setup/runc-version
-RDEPEND="
-	${COMMON_DEPEND}
+RDEPEND="${DEPEND}
 	>=app-containers/runc-1.3.4[apparmor?,seccomp?]
 "
-
 BDEPEND="
 	dev-go/go-md2man
 	virtual/pkgconfig
 "
-
-# tests require root or docker
-RESTRICT+="test"
 
 src_prepare() {
 	default
@@ -57,7 +51,7 @@ src_compile() {
 		$(usev selinux)
 	)
 
-	myemakeargs=(
+	local myemakeargs=(
 		BUILDTAGS="${options[*]}"
 		REVISION="${GIT_REVISION}"
 		VERSION=v${PV}
