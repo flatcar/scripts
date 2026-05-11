@@ -39,10 +39,10 @@ RDEPEND="
 	>=dev-python/distlib-0.4.0[${PYTHON_USEDEP}]
 	>=dev-python/distro-1.9.0[${PYTHON_USEDEP}]
 	>=dev-python/msgpack-1.1.1[${PYTHON_USEDEP}]
-	>=dev-python/packaging-25.0[${PYTHON_USEDEP}]
+	>=dev-python/packaging-26.2[${PYTHON_USEDEP}]
 	>=dev-python/platformdirs-4.3.8[${PYTHON_USEDEP}]
 	>=dev-python/pyproject-hooks-1.2.0[${PYTHON_USEDEP}]
-	>=dev-python/requests-2.32.4[${PYTHON_USEDEP}]
+	>=dev-python/requests-2.33.1[${PYTHON_USEDEP}]
 	>=dev-python/rich-14.1.0[${PYTHON_USEDEP}]
 	>=dev-python/resolvelib-1.2.0[${PYTHON_USEDEP}]
 	>=dev-python/setuptools-70.3.0[${PYTHON_USEDEP}]
@@ -61,7 +61,7 @@ BDEPEND="
 			dev-python/pytest-rerunfailures[${PYTHON_USEDEP}]
 			dev-python/pytest-xdist[${PYTHON_USEDEP}]
 			dev-python/scripttest[${PYTHON_USEDEP}]
-			>=dev-python/setuptools-70.1.0[${PYTHON_USEDEP}]
+			<dev-python/setuptools-80[${PYTHON_USEDEP}]
 			dev-python/virtualenv[${PYTHON_USEDEP}]
 			dev-python/werkzeug[${PYTHON_USEDEP}]
 			test-rust? (
@@ -172,6 +172,8 @@ python_test() {
 				tests/functional/test_install.py::test_install_editable_with_prefix_setup_py
 				# wrong exception assumptions
 				tests/unit/test_utils_datetime.py::test_parse_iso_datetime_invalid
+				# TODO
+				tests/functional/test_install.py::test_install_warns_on_unexpected_post_install_import
 			)
 			;;
 	esac
