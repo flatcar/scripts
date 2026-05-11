@@ -1,7 +1,7 @@
-From 35265ad5c3948399b9ca85ddb8675cf67961a644 Mon Sep 17 00:00:00 2001
+From 2b6ce6afda965f8c37d26321b523acb8462f1258 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 20 Feb 2024 10:02:28 +0100
-Subject: [PATCH 07/19] provider/qemu: apply fw_cfg patch
+Subject: [PATCH 07/20] provider/qemu: apply fw_cfg patch
 
 we support both CoreOS and Flatcar fw_cfg path to ensure compatiblity
 
@@ -175,5 +175,5 @@ index 863c9601..e8d4fec7 100644
 +
  }
 -- 
-2.51.0
+2.53.0
 

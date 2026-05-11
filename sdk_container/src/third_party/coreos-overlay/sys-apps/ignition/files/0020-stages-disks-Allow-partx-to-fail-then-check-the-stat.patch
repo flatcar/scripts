@@ -1,0 +1,101 @@
+From e9d0f43924886744830a0599880916aef643c66d Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Fri, 8 May 2026 17:58:38 +0100
+Subject: [PATCH 20/20] stages/disks: Allow partx to fail then check the state
+ later
+
+`partx --add` will fail if the kernel is already aware of the new
+partition. It was always theoretically possible that udev might trigger
+early, and that appears to be happening now.
+
+Allow partx to fail and then check that added/updated partitions have
+the right start sector and size and that deleted partitions are absent
+once udev has settled.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ internal/exec/stages/disks/partitions.go | 62 ++++++++++++++++++++----
+ 1 file changed, 53 insertions(+), 9 deletions(-)
+
+diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
+index 327c7efd..86e4a4b8 100644
+--- a/internal/exec/stages/disks/partitions.go
++++ b/internal/exec/stages/disks/partitions.go
+@@ -567,15 +567,9 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 			}
+ 			return nil
+ 		}
+-		if err := runPartxCommand("delete", partxDelete); err != nil {
+-			return err
+-		}
+-		if err := runPartxCommand("update", partxUpdate); err != nil {
+-			return err
+-		}
+-		if err := runPartxCommand("add", partxAdd); err != nil {
+-			return err
+-		}
++		runPartxCommand("delete", partxDelete)
++		runPartxCommand("update", partxUpdate)
++		runPartxCommand("add", partxAdd)
+ 	}
+ 
+ 	// It's best to wait here for the /dev/ABC entries to be
+@@ -586,5 +580,55 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 		return fmt.Errorf("failed to wait for udev on %q after partitioning: %v", devAlias, err)
+ 	}
+ 
++	for _, partNum := range append(append([]int{}, partxAdd...), partxUpdate...) {
++		part := resolvedPartitions[partNum]
++		partDev := fmt.Sprintf("%s%s%d", blockDevResolved, prefix, partNum)
++		sysBlockDir := fmt.Sprintf("/sys/class/block/%s/", filepath.Base(partDev))
++
++		// sysfs always reports in 512-byte sectors; convert our expected
++		// values from logical sectors to 512-byte sectors for comparison
++		logicalTo512 := int64(diskInfo.LogicalSectorSize) / 512
++
++		startStr, err := os.ReadFile(sysBlockDir + "start")
++		if err != nil {
++			return fmt.Errorf("failed to read start of %q from sysfs: %v", partDev, err)
++		}
++		kernelStart, err := strconv.ParseInt(strings.TrimSpace(string(startStr)), 10, 64)
++		if err != nil {
++			return fmt.Errorf("failed to parse start of %q from sysfs: %v", partDev, err)
++		}
++		if part.StartSector != nil {
++			expectedStart := *part.StartSector * logicalTo512
++			if kernelStart != expectedStart {
++				return fmt.Errorf("kernel partition start for %q does not match expected (%d != %d 512-byte sectors)", partDev, kernelStart, expectedStart)
++			}
++		}
++
++		sizeStr, err := os.ReadFile(sysBlockDir + "size")
++		if err != nil {
++			return fmt.Errorf("failed to read size of %q from sysfs: %v", partDev, err)
++		}
++		kernelSize, err := strconv.ParseInt(strings.TrimSpace(string(sizeStr)), 10, 64)
++		if err != nil {
++			return fmt.Errorf("failed to parse size of %q from sysfs: %v", partDev, err)
++		}
++		if part.SizeInSectors != nil {
++			expectedSize := *part.SizeInSectors * logicalTo512
++			if kernelSize != expectedSize {
++				return fmt.Errorf("kernel partition size for %q does not match expected (%d != %d 512-byte sectors)", partDev, kernelSize, expectedSize)
++			}
++		}
++	}
++
++	for _, partNum := range partxDelete {
++		partDev := fmt.Sprintf("%s%s%d", blockDevResolved, prefix, partNum)
++		_, err := os.Stat(partDev)
++		if err == nil {
++			return fmt.Errorf("%q unexpectedly exists after partitioning", partDev)
++		} else if !os.IsNotExist(err) {
++			return fmt.Errorf("failed to stat %q after partitioning: %v", partDev, err)
++		}
++	}
++
+ 	return nil
+ }
+-- 
+2.53.0
+

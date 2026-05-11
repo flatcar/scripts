@@ -1,7 +1,7 @@
-From df6384f8f0e93ab3b61cd04822cf808c7c2d289a Mon Sep 17 00:00:00 2001
+From 80163399609ab18b97cc8aaba63f1fca205b0cfb Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Wed, 1 Apr 2026 16:11:52 +0100
-Subject: [PATCH 13/17] Partially revert "*: drop OEM URI support"
+Subject: [PATCH 13/20] Partially revert "*: drop OEM URI support"
 
 This partially reverts commit 0c088d6de77aa1b1f47b9252a07f51cb1e249df3.
 

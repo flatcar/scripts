@@ -1,16 +1,16 @@
-From f0030362abcedf24149860673ef0596cf3051787 Mon Sep 17 00:00:00 2001
+From a20cefa19baa5e4fd58633af06512a800cad1186 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 4 Mar 2024 15:05:14 +0100
-Subject: [PATCH 17/18] docs: Add re-added platforms to docs to pass tests
+Subject: [PATCH 16/20] docs: Add re-added platforms to docs to pass tests
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Co-Authored-By: Krzesimir Nowak <knowak@microsoft.com
 ---
- docs/supported-platforms.md | 4 ++++
- 1 file changed, 4 insertions(+)
+ docs/supported-platforms.md | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index 897eeabd..2a861637 100644
+index 897eeabd..e4f4d03b 100644
 --- a/docs/supported-platforms.md
 +++ b/docs/supported-platforms.md
 @@ -16,6 +16,7 @@ Ignition is currently supported for the following platforms:

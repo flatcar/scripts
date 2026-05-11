@@ -1,7 +1,7 @@
-From 5f7a7e20cfe8cf4a15fab5bfaa1cf34968f1b33a Mon Sep 17 00:00:00 2001
+From 36a613a980cb15c19275b54b6ecd0897d621a6f0 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Tue, 16 May 2023 17:43:43 +0200
-Subject: [PATCH 19/19] internal/exec/stages/mount: Mount /oem
+Subject: [PATCH 18/20] internal/exec/stages/mount: Mount /oem
 
 When asking to mount the OEM partition to /usr/share/oem, actually
 mount it in /oem. The /usr/share/oem is a symlink pointing to /oem, so
@@ -28,5 +28,5 @@ index 72bd781e..803c40f6 100644
  	if err := checkForNonDirectories(path); err != nil {
  		return err
 -- 
-2.51.0
+2.53.0
 

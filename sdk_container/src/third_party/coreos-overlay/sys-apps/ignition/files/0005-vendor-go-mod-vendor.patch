@@ -1,7 +1,7 @@
-From a063a1dc15568f90e3192ae1250d2aee6677d103 Mon Sep 17 00:00:00 2001
+From 2f2966af34f99767b48722702119e4ab36e0670f Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 12 Aug 2025 15:10:57 +0200
-Subject: [PATCH 05/19] vendor: go mod vendor
+Subject: [PATCH 05/20] vendor: go mod vendor
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
@@ -17091,5 +17091,5 @@ index 2b1e4041..0161a31b 100644
  ## explicit; go 1.24.0
  golang.org/x/crypto/chacha20
 -- 
-2.51.0
+2.53.0
 

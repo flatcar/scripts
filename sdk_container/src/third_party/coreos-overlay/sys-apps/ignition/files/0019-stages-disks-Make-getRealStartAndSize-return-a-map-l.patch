@@ -1,0 +1,108 @@
+From a14bde1c582771b17dfe378efcc213c854cabc45 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 11 May 2026 12:25:38 +0100
+Subject: [PATCH 19/20] stages/disks: Make getRealStartAndSize return a map
+ like it says it does
+
+This is useful for the code I'm about to add. Use int rather than uint64
+because that's what sgdisk.Partition.Number uses. That should be more
+than big enough!
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ internal/exec/stages/disks/partitions.go | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
+index dd6acdac..327c7efd 100644
+--- a/internal/exec/stages/disks/partitions.go
++++ b/internal/exec/stages/disks/partitions.go
+@@ -133,7 +133,7 @@ func convertMiBToSectors(mib *int, sectorSize int) *int64 {
+ // getRealStartAndSize returns a map of partition numbers to a struct that contains what their real start
+ // and end sector should be. It runs sgdisk --pretend to determine what the partitions would look like if
+ // everything specified were to be (re)created.
+-func (s stage) getRealStartAndSize(dev types.Disk, devAlias string, diskInfo util.DiskInfo) ([]sgdisk.Partition, error) {
++func (s stage) getRealStartAndSize(dev types.Disk, devAlias string, diskInfo util.DiskInfo) (map[int]sgdisk.Partition, error) {
+ 	partitions := []sgdisk.Partition{}
+ 	for _, cpart := range dev.Partitions {
+ 		partitions = append(partitions, sgdisk.Partition{
+@@ -182,7 +182,7 @@ func (s stage) getRealStartAndSize(dev types.Disk, devAlias string, diskInfo uti
+ 		return nil, err
+ 	}
+ 
+-	result := []sgdisk.Partition{}
++	result := map[int]sgdisk.Partition{}
+ 	for _, part := range partitions {
+ 		if dims, ok := realDimensions[part.Number]; ok {
+ 			if part.StartSector != nil {
+@@ -192,7 +192,7 @@ func (s stage) getRealStartAndSize(dev types.Disk, devAlias string, diskInfo uti
+ 				part.SizeInSectors = &dims.size
+ 			}
+ 		}
+-		result = append(result, part)
++		result[part.Number] = part
+ 	}
+ 	return result, nil
+ }
+@@ -486,9 +486,9 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 		return err
+ 	}
+ 
+-	var partxAdd []uint64
+-	var partxDelete []uint64
+-	var partxUpdate []uint64
++	var partxAdd []int
++	var partxDelete []int
++	var partxUpdate []int
+ 
+ 	for _, part := range resolvedPartitions {
+ 		shouldExist := partitionShouldExist(part)
+@@ -510,13 +510,13 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 		case !exists && shouldExist:
+ 			op.CreatePartition(part)
+ 			modification = true
+-			partxAdd = append(partxAdd, uint64(part.Number))
++			partxAdd = append(partxAdd, part.Number)
+ 		case exists && !shouldExist && !wipeEntry:
+ 			return fmt.Errorf("partition %d exists but is specified as nonexistant and wipePartitionEntry is false", part.Number)
+ 		case exists && !shouldExist && wipeEntry:
+ 			op.DeletePartition(part.Number)
+ 			modification = true
+-			partxDelete = append(partxDelete, uint64(part.Number))
++			partxDelete = append(partxDelete, part.Number)
+ 		case exists && shouldExist && matches:
+ 			s.Info("partition %d found with correct specifications", part.Number)
+ 		case exists && shouldExist && !wipeEntry && !matches:
+@@ -530,7 +530,7 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 				part.StartSector = &info.StartSector
+ 				op.CreatePartition(part)
+ 				modification = true
+-				partxUpdate = append(partxUpdate, uint64(part.Number))
++				partxUpdate = append(partxUpdate, part.Number)
+ 			} else {
+ 				return fmt.Errorf("partition %d didn't match: %v", part.Number, matchErr)
+ 			}
+@@ -539,7 +539,7 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 			op.DeletePartition(part.Number)
+ 			op.CreatePartition(part)
+ 			modification = true
+-			partxUpdate = append(partxUpdate, uint64(part.Number))
++			partxUpdate = append(partxUpdate, part.Number)
+ 		default:
+ 			// unfortunatey, golang doesn't check that all cases are handled exhaustively
+ 			return fmt.Errorf("unreachable code reached when processing partition %d. golang--", part.Number)
+@@ -558,9 +558,9 @@ func (s stage) partitionDisk(dev types.Disk, devAlias string) error {
+ 	// kernel partition table with BLKPG but only uses BLKRRPART which fails
+ 	// as soon as one partition of the disk is mounted
+ 	if len(activeParts) > 0 {
+-		runPartxCommand := func(op string, partitions []uint64) error {
++		runPartxCommand := func(op string, partitions []int) error {
+ 			for _, partNr := range partitions {
+-				cmd := exec.Command(distro.PartxCmd(), "--"+op, "--nr", strconv.FormatUint(partNr, 10), blockDevResolved)
++				cmd := exec.Command(distro.PartxCmd(), "--"+op, "--nr", fmt.Sprint(partNr), blockDevResolved)
+ 				if _, err := s.LogCmd(cmd, "triggering partition %d %s on %q", partNr, op, devAlias); err != nil {
+ 					return fmt.Errorf("partition %s failed: %v", op, err)
+ 				}
+-- 
+2.53.0
+

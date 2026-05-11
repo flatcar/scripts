@@ -1,7 +1,7 @@
-From 74b323eea057235dd0aa755f115fbb44a9ae7a8a Mon Sep 17 00:00:00 2001
+From 09d762d8d295316a27d5efa4c32de587a5d8f1ea Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 22 Sep 2021 14:53:49 +0200
-Subject: [PATCH 09/19] internal/disk/fs: ignore fs format mismatches for the
+Subject: [PATCH 09/20] internal/disk/fs: ignore fs format mismatches for the
  OEM partition
 
 As soon as the OEM partition's filesystem format changes, all users
@@ -35,5 +35,5 @@ index a12c59d7..360267ff 100644
  			(fs.UUID == nil || canonicalizeFilesystemUUID(info.Type, info.UUID) == canonicalizeFilesystemUUID(fileSystemFormat, *fs.UUID)) {
  			s.Info("filesystem at %q is already correctly formatted. Skipping mkfs...", fs.Device)
 -- 
-2.51.0
+2.53.0
 
