@@ -14,7 +14,6 @@ else
 		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 	fi
 	SRC_URI="https://github.com/dracut-ng/dracut-ng/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/${PN}-ng-${PV}"
 fi
 
 DESCRIPTION="Generic initramfs generation tool"
