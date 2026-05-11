@@ -1,4 +1,4 @@
-# Copyright 2022-2025 Gentoo Authors
+# Copyright 2022-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,10 +10,12 @@ HOMEPAGE="https://linuxcontainers.org/ https://github.com/lxc/lxc"
 SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz
 	verify-sig? ( https://linuxcontainers.org/downloads/lxc/${P}.tar.gz.asc )"
 
-LICENSE="GPL-2 LGPL-2.1 LGPL-3"
-SLOT="0/1.8" # SONAME liblxc.so.1 + ${PV//./} _if_ breaking ABI change while bumping.
-KEYWORDS="amd64 ~arm ~arm64 ~ppc64 ~riscv x86"
-IUSE="apparmor +caps examples io-uring man pam seccomp selinux ssl systemd test +tools"
+LICENSE="GPL-2 LGPL-2.1 LGPL-3" # LGPL-2.1+ is listed, but it's covered by "LGPL-3"
+SLOT="0/1.700" # SONAME liblxc.so.1 + ${PV//./} _if_ breaking ABI change while bumping.
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
+IUSE="apparmor +caps doc examples io-uring landlock man pam seccomp selinux ssl systemd test +tools"
+
+REQUIRED_USE="landlock? ( seccomp )"
 
 RDEPEND="acct-group/lxc
 	acct-user/lxc
@@ -34,6 +36,7 @@ DEPEND="${RDEPEND}
 	tools? ( sys-libs/libcap[static-libs] )
 	sys-kernel/linux-headers"
 BDEPEND="virtual/pkgconfig
+	doc? ( app-text/doxygen )
 	man? ( app-text/docbook2X )
 	verify-sig? ( sec-keys/openpgp-keys-linuxcontainers )"
 
@@ -70,9 +73,12 @@ ERROR_VETH="CONFIG_VETH: needed for internal (host-to-container) networking"
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/linuxcontainers.asc
 
-DOCS=( AUTHORS CONTRIBUTING MAINTAINERS README.md doc/FAQ.txt )
+DOCS=( AUTHORS MAINTAINERS README.md doc/FAQ.txt )
 
 pkg_setup() {
+	if use landlock ; then
+		WARNING_SECURITY_LANDLOCK="CONFIG_SECURITY_LANDLOCK: needed with landlock"
+	fi
 	linux-info_pkg_setup
 }
 
@@ -95,8 +101,10 @@ src_configure() {
 
 		$(meson_use apparmor)
 		$(meson_use caps capabilities)
+		$(meson_use doc api-docs)
 		$(meson_use examples)
 		$(meson_use io-uring io-uring-event-loop)
+		$(meson_use landlock landlock-monitor)
 		$(meson_use man)
 		$(meson_use pam pam-cgroup)
 		$(meson_use seccomp)
@@ -106,7 +114,7 @@ src_configure() {
 		$(meson_use tools)
 
 		$(usex systemd -Ddbus=true -Ddbus=false)
-		$(usex systemd -Dinit-script="systemd" -Dinit-script="sysvinit")
+		$(usex systemd -Dinit-script="systemd" -Dinit-script="openrc")
 
 		-Ddata-path=/var/lib/lxc
 		-Ddoc-path=/usr/share/doc/${PF}
@@ -121,6 +129,9 @@ src_configure() {
 }
 
 src_install() {
+	if use doc ; then
+		local HTML_DOCS=( "${BUILD_DIR}/html/"* )
+	fi
 	meson_src_install
 
 	# The main bash-completion file will collide with lxd, need to relocate and update symlinks.
@@ -135,11 +146,12 @@ src_install() {
 
 	find "${ED}" -name '*.la' -delete -o -name '*.a' -delete || die
 
-	# Replace upstream sysvinit/systemd files.
+	# Replace upstream systemd files.
 	if use systemd ; then
 		rm -r "${D}$(systemd_get_systemunitdir)" || die "Failed to remove systemd lib dir"
 	else
-		rm "${ED}"/etc/init.d/lxc-{containers,net} || die "Failed to remove sysvinit scripts"
+		# The openrc files aren't installed with correct permissions.
+		fperms 0755 /etc/init.d/lxc-{containers,net}
 	fi
 
 	newinitd "${FILESDIR}/${PN}.initd.9" ${PN}
