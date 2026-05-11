@@ -18,7 +18,7 @@ else
 	SRC_URI="https://astron.com/pub/file/${P}.tar.gz"
 	SRC_URI+=" verify-sig? ( https://astron.com/pub/file/${P}.tar.gz.asc )"
 
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-file )"
 fi
@@ -61,6 +61,7 @@ PATCHES=(
 	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
 	"${FILESDIR}/file-5.45-seccomp-sandbox.patch"
 	"${FILESDIR}/file-5.47-magic.py.patch"
+	"${FILESDIR}/${P}-toml.patch"
 )
 
 src_prepare() {
