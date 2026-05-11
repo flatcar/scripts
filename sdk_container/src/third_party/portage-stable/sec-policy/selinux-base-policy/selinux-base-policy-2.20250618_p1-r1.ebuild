@@ -16,7 +16,7 @@ else
 	MY_PV=$(ver_cut 1-2)
 	SRC_URI="https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${MY_PV/./_}/refpolicy-${MY_PV}.tar.bz2
 		https://dev.gentoo.org/~perfinion/patches/${PN}/patchbundle-${PN}-${PV/_p/-r}.tar.bz2"
-	KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86"
+	KEYWORDS="amd64 arm arm64 ~riscv x86"
 fi
 
 S="${WORKDIR}"
@@ -42,6 +42,10 @@ BDEPEND="
 	sys-devel/m4
 "
 
+PATCHES=(
+	"${FILESDIR}/0001-newrole_t-run_init_t-call-auth_run_pam.patch"
+)
+
 MODS="application authlogin bootloader clock consoletype cron dmesg fstools getty hostname init iptables libraries locallogin logging lvm miscfiles modutils mount mta netutils nscd portage raid rsync selinuxutil setrans ssh staff storage su sysadm sysnetwork systemd tmpfiles udev userdomain usermanage unprivuser xdg"
 # A previous, old release of refpolicy had the hotplug policy module. However,
 # it has since been removed[1]. As such, remove it if we see it installed.
@@ -60,7 +64,7 @@ src_prepare() {
 		eapply -p0 "${WORKDIR}/0001-full-patch-against-stable-release.patch"
 	fi
 
-	eapply_user
+	default
 
 	# Collect only those files needed for this particular module
 	for mod in ${MODS}; do
