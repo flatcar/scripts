@@ -104,6 +104,9 @@ QA_CONFIGURE_OPTIONS="--disable-static"
 PATCHES=(
 	#"${WORKDIR}"/${PN}-${GENTOO_PATCH_VER}/
 
+	# bug #971782
+	"${FILESDIR}"/${PN}-5.3_p9-general-workaround-aliasing-violation-in-REVERSE_LIS.patch
+
 	# Patches to or from Chet, posted to the bug-bash mailing list.
 	"${FILESDIR}/${PN}-5.0-syslog-history-extern.patch"
 )
@@ -178,7 +181,23 @@ src_configure() {
 	unset -v YACC
 
 	if tc-is-cross-compiler; then
+		# https://lists.gnu.org/archive/html/bug-bash/2025-05/msg00029.html
 		export CFLAGS_FOR_BUILD="${BUILD_CFLAGS} -std=gnu17"
+
+		if use kernel_Hurd ; then
+			# Necessary for cross-built bash for Hurd, otherwise
+			# config.status generation at end of configure will hang
+			# natively.
+			#
+			# https://lists.debian.org/debian-cross/2023/11/msg00000.html
+			# https://lists.gnu.org/archive/html/bug-bash/2024-11/msg00202.html
+			# https://lists.gnu.org/archive/html/bug-bash/2005-04/msg00074.html
+			cat <<-EOF > builtins/psize.sh || die
+			#!/bin/sh
+			echo "#define PIPESIZE 16384"
+			EOF
+			chmod +x builtins/psize.sh || die
+		fi
 	fi
 
 	myconf=(
