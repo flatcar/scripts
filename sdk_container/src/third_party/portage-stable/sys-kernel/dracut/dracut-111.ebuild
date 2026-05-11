@@ -11,10 +11,9 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/dracut-ng/dracut-ng"
 else
 	if [[ "${PV}" != *_rc* ]]; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~sparc x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	fi
 	SRC_URI="https://github.com/dracut-ng/dracut-ng/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/${PN}-ng-${PV}"
 fi
 
 DESCRIPTION="Generic initramfs generation tool"
@@ -38,7 +37,7 @@ RDEPEND="${COMMON_DEPEND}
 	|| (
 		>=sys-apps/sysvinit-2.87-r3
 		sys-apps/openrc[sysv-utils(-),selinux?]
-		sys-apps/systemd[sysv-utils]
+		sys-apps/systemd[sysv-utils(+)]
 		sys-apps/s6-linux-init[sysv-utils(-)]
 	)
 	>=sys-apps/util-linux-2.21
@@ -58,8 +57,8 @@ DEPEND="${COMMON_DEPEND}
 
 BDEPEND="
 	|| (
-		dev-ruby/asciidoctor
 		app-text/asciidoc
+		dev-ruby/asciidoctor
 	)
 	app-text/docbook-xml-dtd:4.5
 	>=app-text/docbook-xsl-stylesheets-1.75.2
@@ -104,16 +103,6 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
-	# Gentoo specific acct-user and acct-group conf adjustments
-	"${FILESDIR}"/${PN}-108-acct-user-group-gentoo.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1447
-	"${FILESDIR}"/${PN}-108-respect-objcopy-and-objdump.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1538
-	"${FILESDIR}"/${PN}-108-elf-parsing-fixes.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1122#issuecomment-3192110686
-	"${FILESDIR}"/${PN}-108-disable-ukify-magic.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1562
-	"${FILESDIR}"/${PN}-108-hostonly_cmdline-default-yes.patch
 )
 
 pkg_setup() {
@@ -122,11 +111,12 @@ pkg_setup() {
 
 src_configure() {
 	local myconf=(
+		--bashcompletiondir="$(get_bashcompdir)"
+		--disable-dracut-cpio
+		--enable-network-legacy
 		--prefix="${EPREFIX}/usr"
 		--sysconfdir="${EPREFIX}/etc"
-		--bashcompletiondir="$(get_bashcompdir)"
 		--systemdsystemunitdir="$(systemd_get_systemunitdir)"
-		--disable-dracut-cpio
 	)
 
 	if ! has_version -b dev-ruby/asciidoctor; then
