@@ -1,6 +1,18 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Pacho Ramos <pacho@gentoo.org> (2026-05-09)
+# media-plugins/gst-plugin-gtk4 is not keyworded
+>=net-im/gajim-2.3 voice
+
+# Sam James <sam@gentoo.org> (2026-04-28)
+# dev-cpp/cpp-httplib doesn't support 32-bit arches
+dev-util/ccache http
+
+# Robin H. Johnson <robbat2@gentoo.org> (2026-03-22)
+# sys-block/vdo not keyworded here
+sys-fs/lvm2 vdo
+
 # Mike Gilbert <floppym@gentoo.org> (2025-12-15)
 # arch-specific platform values
 sys-boot/grub -grub_platforms_pc
@@ -214,6 +226,7 @@ kde-apps/kde-apps-meta pim
 kde-apps/kdenetwork-meta bittorrent
 kde-apps/umbrello php
 kde-plasma/plasma-nm openconnect
+net-irc/quassel urlpreview
 net-misc/seafile-client shibboleth
 net-p2p/ktorrent rss
 sci-physics/root qt6
@@ -360,10 +373,6 @@ app-admin/syslog-ng test
 # James Le Cuirot <chewi@gentoo.org> (2019-12-10)
 # The JIT feature only works on amd64 and x86.
 app-emulation/aranym -jit
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2019-11-20)
-# media-libs/libplacebo is keyworded on x86
-media-video/vlc -libplacebo
 
 # Thomas Deutschmann <whissi@gentoo.org> (2019-11-11)
 # dev-python/pandas is keyworded for x86
@@ -527,7 +536,6 @@ app-emulation/qemu spice
 # The QML (V4) and JSC JITs are supported only on amd64/arm/x86,
 # so the flag is masked in the base profile and unmasked here.
 dev-qt/qtdeclarative -jit
-dev-qt/qtscript -jit
 
 # Samuli Suominen <ssuominen@gentoo.org> (2011-11-25)
 # Expose USE="suid" for USE="svga" only for x86 users,
