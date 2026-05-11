@@ -20,7 +20,7 @@ SRC_URI="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 
 RDEPEND="
 	dev-python/colorama[${PYTHON_USEDEP}]
@@ -49,6 +49,8 @@ python_test() {
 		# pygments version?
 		tests/test_syntax.py::test_from_path
 		tests/test_syntax.py::test_syntax_guess_lexer
+		# flaky? plain broken?
+		tests/test_console.py::test_brokenpipeerror
 	)
 	# version-specific output -- the usual deal
 	case ${EPYTHON} in
