@@ -5,7 +5,7 @@ EAPI=8
 
 inherit flag-o-matic systemd toolchain-funcs udev
 
-DEB_PF="4.5-5"
+DEB_PF="4.6-1"
 DESCRIPTION="Tool for running RAID systems - replacement for the raidtools"
 HOMEPAGE="https://github.com/md-raid-utilities/mdadm https://git.kernel.org/pub/scm/utils/mdadm/mdadm.git/"
 SRC_URI="https://git.kernel.org/pub/scm/utils/mdadm/mdadm.git/snapshot/${P}.tar.gz"
@@ -14,7 +14,7 @@ SRC_URI+=" mirror://debian/pool/main/m/mdadm/${PN}_${DEB_PF}.debian.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 if [[ ${PV} != *_rc* ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ppc ppc64 ~riscv ~sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ppc ppc64 ~riscv ~s390 ~sparc x86"
 fi
 IUSE="static systemd +udev corosync"
 REQUIRED_USE="static? ( !udev )"
@@ -81,10 +81,6 @@ src_install() {
 	mdadm_emake DESTDIR="${D}" install install-systemd
 
 	einstalldocs
-
-	# install mdcheck_start.service, needed for systemd units (bug #833000)
-	exeinto /usr/share/mdadm/
-	doexe misc/mdcheck
 
 	insinto /etc
 	newins documentation/mdadm.conf-example mdadm.conf
