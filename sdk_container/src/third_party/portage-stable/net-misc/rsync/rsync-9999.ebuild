@@ -1,11 +1,11 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 # Uncomment when introducing a patch which touches configure
 RSYNC_NEEDS_AUTOCONF=1
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 inherit flag-o-matic prefix python-single-r1 systemd
 
 DESCRIPTION="File transfer program to keep remote files into sync"
@@ -41,8 +41,6 @@ IUSE="acl examples iconv lz4 rrsync ssl stunnel system-zlib xattr +xxhash zstd"
 REQUIRED_USE+=" examples? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+=" rrsync? ( ${PYTHON_REQUIRED_USE} )"
 
-# attr is autodetected and then dropped by -Wl,--as-needed:
-# https://github.com/RsyncProject/rsync/pull/753
 RDEPEND="
 	>=dev-libs/popt-1.19
 	acl? ( virtual/acl )
