@@ -24,8 +24,8 @@ else
 	fi
 fi
 
-inherit bash-completion-r1 linux-info meson-multilib optfeature pam python-single-r1
-inherit secureboot systemd toolchain-funcs udev
+inherit branding flag-o-matic linux-info meson-multilib optfeature pam python-single-r1
+inherit secureboot shell-completion systemd toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="https://systemd.io/"
@@ -34,9 +34,9 @@ LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
 	acl apparmor audit boot bpf cgroup-hybrid cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnutls homed http idn importd iptables +kernel-install +kmod
+	fido2 +gcrypt gnutls homed http idn importd +kernel-install +kmod
 	+lz4 lzma +openssl pam passwdqc pcre pkcs11 policykit pwquality qrcode
-	+resolvconf +seccomp selinux split-usr +sysv-utils test tpm ukify vanilla xkb +zstd
+	+resolvconf +seccomp selinux split-usr sysv-utils test tpm ukify vanilla xkb +zstd
 "
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
@@ -79,7 +79,6 @@ COMMON_DEPEND="
 	kmod? ( >=sys-apps/kmod-15:0= )
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
-	iptables? ( net-firewall/iptables:0= )
 	openssl? ( >=dev-libs/openssl-1.1.0:0= )
 	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
 	passwdqc? ( sys-auth/passwdqc:0= )
@@ -131,6 +130,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
+	elibc_musl? ( >=sys-libs/musl-1.2.5-r8 )
 	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
@@ -145,17 +145,19 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
-	!sys-apps/hwids[udev]
 	!sys-auth/nss-myhostname
 	!sys-fs/eudev
 	!sys-fs/udev
 "
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
-PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
+PDEPEND="
+	>=sys-apps/dbus-1.9.8[systemd]
 	>=sys-fs/udev-init-scripts-34
 	policykit? ( sys-auth/polkit )
-	!vanilla? ( sys-apps/gentoo-systemd-integration )"
+	!sysv-utils? ( sys-apps/systemd-initctl )
+	!vanilla? ( sys-apps/gentoo-systemd-integration )
+"
 
 BDEPEND="
 	app-arch/xz-utils:0
@@ -228,7 +230,6 @@ pkg_pretend() {
 			~CGROUP_BPF ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
 			~TIMERFD ~TMPFS_XATTR ~UNIX ~USER_NS
-			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
 			~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
 			~!SYSFS_DEPRECATED_V2"
 
@@ -278,14 +279,12 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-258-shared-add-missing-alloc-util.patch"
-		"${FILESDIR}/systemd-258.3-kernel-install-test.patch"
-		"${FILESDIR}/systemd-259-test-echo.patch"
+		"${FILESDIR}/systemd-260-mips.patch"
 	)
 
 	if ! use vanilla; then
 		PATCHES+=(
-			"${FILESDIR}/gentoo-journald-audit-r3.patch"
+			"${FILESDIR}/gentoo-journald-audit-r4.patch"
 		)
 	fi
 
@@ -295,6 +294,20 @@ src_prepare() {
 src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
 	tc-export AR CC NM OBJCOPY RANLIB
+
+	# Our toolchain sets F_S=2 by default w/ >= -O2, so we need
+	# to unset F_S first, then explicitly set 2, to negate any default
+	# and anything set by the user if they're choosing 3 (or if they've
+	# modified GCC to set 3).
+	#
+	# malloc_usable_size doesn't play well with _F_S=3:
+	#  https://github.com/systemd/systemd/issues/41459 (bug #971773)
+	if tc-is-clang && tc-enables-fortify-source ; then
+		# We can't unconditionally do this b/c we fortify needs
+		# some level of optimisation.
+		filter-flags -D_FORTIFY_SOURCE=3
+		append-cppflags -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+	fi
 
 	python_setup
 
@@ -307,10 +320,12 @@ multilib_src_configure() {
 		-Ddocdir="share/doc/${PF}"
 		# default is developer, bug 918671
 		-Dmode=release
-		-Dsupport-url="https://gentoo.org/support/"
+		-Dsupport-url="${BRANDING_OS_SUPPORT_URL}"
 		-Dpamlibdir="$(getpam_mod_dir)"
+		-Dlibc=$(usex elibc_musl musl glibc)
 		# avoid bash-completion dep
 		-Dbashcompletiondir="$(get_bashcompdir)"
+		-Dzshcompletiondir="$(get_zshcompdir)"
 		-Dsplit-bin=false
 		# Disable compatibility with sysvinit
 		-Dsysvinit-path=
@@ -344,9 +359,7 @@ multilib_src_configure() {
 		$(meson_native_use_feature kmod)
 		$(meson_feature lz4)
 		$(meson_feature lzma xz)
-		$(meson_use test tests)
 		$(meson_feature zstd)
-		$(meson_native_use_feature iptables libiptc)
 		$(meson_native_use_feature openssl)
 		$(meson_feature pam)
 		$(meson_native_use_feature passwdqc)
@@ -387,6 +400,13 @@ multilib_src_configure() {
 		$(meson_native_true tmpfiles)
 		$(meson_native_true vconsole)
 	)
+
+	# workaround for bug 969103
+	if [[ ${CHOST} == riscv32* ]] ; then
+		myconf+=( -Dtests=true )
+	else
+		myconf+=( $(meson_use test tests) )
+	fi
 
 	case $(tc-arch) in
 		amd64|arm|arm64|loong|ppc|ppc64|riscv|s390|x86)
@@ -523,8 +543,7 @@ pkg_postinst() {
 
 	# Keep this here in case the database format changes so it gets updated
 	# when required.
-	systemd-hwdb --root="${ROOT}" update
-
+	udev_hwdb_update || FAIL=1
 	udev_reload || FAIL=1
 
 	# Bug 465468, make sure locales are respected, and ensure consistency
