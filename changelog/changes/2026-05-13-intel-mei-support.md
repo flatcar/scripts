@@ -1,0 +1,1 @@
+- Enabled `CONFIG_DRM_I915_PXP`, `CONFIG_INTEL_MEI_GSC`, and `CONFIG_INTEL_MEI_PXP` ([scripts#4019](https://github.com/flatcar/scripts/pull/4019))
