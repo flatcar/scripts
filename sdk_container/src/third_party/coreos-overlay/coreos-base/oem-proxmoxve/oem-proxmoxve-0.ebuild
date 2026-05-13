@@ -5,11 +5,9 @@ EAPI=8
 
 DESCRIPTION="OEM suite for Proxmox VE"
 HOMEPAGE="https://www.proxmox.com/en/proxmox-virtual-environment/"
-SRC_URI=""
 
-LICENSE="GPL-2"
+LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64 arm64"
-IUSE=""
 
-OEM_NAME="Proxmox VE"
+SYSEXT_NAME="Proxmox VE"

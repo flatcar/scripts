@@ -1,0 +1,1 @@
+- Refreshed the VirtualBox OVF (which is also used by the Vagrant image) so that VMs are configured with modern hardware, including a VirtIO storage controller and UEFI. The clock is configured for UTC rather than local time.

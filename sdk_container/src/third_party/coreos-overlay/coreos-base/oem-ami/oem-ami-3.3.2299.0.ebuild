@@ -7,22 +7,18 @@ inherit systemd
 
 DESCRIPTION="OEM suite for Amazon Machine Images"
 HOMEPAGE="http://aws.amazon.com/ec2/"
-SRC_URI=""
+S="${WORKDIR}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64 arm64"
-IUSE=""
 
 RDEPEND="
-  ~app-emulation/amazon-ssm-agent-${PV}
-  coreos-base/flatcar-eks
+	~app-emulation/amazon-ssm-agent-${PV}
+	coreos-base/flatcar-eks
 "
 
-# for coreos-base/common-oem-files
-OEM_NAME="Amazon EC2"
-
-S="${WORKDIR}"
+SYSEXT_NAME="Amazon EC2"
 
 src_install() {
 	systemd_dounit "${FILESDIR}/setup-oem.service"

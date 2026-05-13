@@ -23,54 +23,20 @@ VALID_IMG_TYPES=(
     kubevirt
     openstack
     openstack_mini
-    packet
     parallels
     proxmoxve
     pxe
     qemu_uefi
-    rackspace
-    rackspace_onmetal
-    rackspace_vhd
     scaleway
     stackit
     vagrant
     vagrant_parallels
-    vagrant_virtualbox
-    vagrant_vmware_fusion
     virtualbox
     vmware
-    vmware_insecure
     vmware_ova
     vmware_raw
     xen
     nutanix
-)
-
-#list of oem package names, minus the oem- prefix
-VALID_OEM_PACKAGES=(
-    akamai
-    azure
-    cloudsigma
-    cloudstack
-    digitalocean
-    exoscale
-    gce
-    hetzner
-    hyperv
-    kubevirt
-    openstack
-    packet
-    proxmoxve
-    qemu
-    rackspace
-    rackspace-onmetal
-    scaleway
-    stackit
-    vagrant
-    vagrant-key
-    vagrant-virtualbox
-    virtualbox
-    vmware
 )
 
 # Set at runtime to one of the above types
@@ -94,23 +60,8 @@ VM_GENERATED_FILES=()
 # If set to 0 then a partition skeleton won't be laid out on VM_TMP_IMG
 IMG_DEFAULT_PARTITIONED_IMG=1
 
-# If set install the given package name to the OEM partition
-IMG_DEFAULT_OEM_PACKAGE=
-
-# Forced OEM package name overriding what may be in the format
-IMG_FORCE_OEM_PACKAGE=
-
-# USE flags for the OEM package
-IMG_DEFAULT_OEM_USE=
-
-# Forced USE flags for the OEM package
-IMG_FORCE_OEM_USE=
-
 # If set install the given package name to the OEM sysext image
 IMG_DEFAULT_OEM_SYSEXT=
-
-# Forced OEM package name overriding what may be in the format
-IMG_FORCE_OEM_SYSEXT=
 
 # Hook to do any final tweaks or grab data while fs is mounted.
 IMG_DEFAULT_FS_HOOK=
@@ -141,9 +92,7 @@ IMG_DEFAULT_CPUS=2
 IMG_qemu_uefi_DISK_FORMAT=qcow2
 IMG_qemu_uefi_DISK_LAYOUT=vm
 IMG_qemu_uefi_CONF_FORMAT=qemu_uefi
-IMG_qemu_uefi_OEM_USE=qemu
-IMG_qemu_uefi_OEM_PACKAGE=common-oem-files
-IMG_qemu_uefi_OEM_SYSEXT=oem-qemu
+IMG_qemu_uefi_OEM_SYSEXT=qemu
 
 ## xen
 IMG_xen_CONF_FORMAT=xl
@@ -152,67 +101,37 @@ IMG_xen_CONF_FORMAT=xl
 IMG_virtualbox_DISK_FORMAT=vmdk_ide
 IMG_virtualbox_DISK_LAYOUT=vm
 IMG_virtualbox_CONF_FORMAT=ovf_virtualbox
-IMG_virtualbox_OEM_PACKAGE=oem-virtualbox
+IMG_virtualbox_OEM_SYSEXT=virtualbox
 
 ## vagrant
-IMG_vagrant_FS_HOOK=box
 IMG_vagrant_BUNDLE_FORMAT=box
 IMG_vagrant_DISK_FORMAT=vmdk_ide
 IMG_vagrant_DISK_LAYOUT=vagrant
 IMG_vagrant_CONF_FORMAT=vagrant
-IMG_vagrant_OEM_PACKAGE=oem-vagrant
-
-## vagrant_virtualbox
-IMG_vagrant_virtualbox_FS_HOOK=box
-IMG_vagrant_virtualbox_BUNDLE_FORMAT=box
-IMG_vagrant_virtualbox_DISK_FORMAT=vmdk_ide
-IMG_vagrant_virtualbox_DISK_LAYOUT=vagrant
-IMG_vagrant_virtualbox_CONF_FORMAT=vagrant
-IMG_vagrant_virtualbox_OEM_PACKAGE=oem-vagrant-virtualbox
-
-## vagrant_vmware
-IMG_vagrant_vmware_fusion_FS_HOOK=box
-IMG_vagrant_vmware_fusion_BUNDLE_FORMAT=box
-IMG_vagrant_vmware_fusion_DISK_FORMAT=vmdk_scsi
-IMG_vagrant_vmware_fusion_DISK_LAYOUT=vagrant
-IMG_vagrant_vmware_fusion_CONF_FORMAT=vagrant_vmware_fusion
-IMG_vagrant_vmware_fusion_OEM_PACKAGE=oem-vagrant
+IMG_vagrant_OEM_SYSEXT=vagrant
 
 ## vagrant_parallels
-IMG_vagrant_parallels_FS_HOOK=box
 IMG_vagrant_parallels_BUNDLE_FORMAT=box
 IMG_vagrant_parallels_DISK_FORMAT=hdd
 IMG_vagrant_parallels_DISK_LAYOUT=vagrant
 IMG_vagrant_parallels_CONF_FORMAT=vagrant_parallels
-IMG_vagrant_parallels_OEM_PACKAGE=oem-vagrant
+IMG_vagrant_parallels_OEM_SYSEXT=vagrant
 
 ## vmware
 IMG_vmware_DISK_FORMAT=vmdk_scsi
 IMG_vmware_DISK_LAYOUT=vm
 IMG_vmware_CONF_FORMAT=vmx
-IMG_vmware_OEM_USE=vmware
-IMG_vmware_OEM_PACKAGE=common-oem-files
-IMG_vmware_OEM_SYSEXT=oem-vmware
+IMG_vmware_OEM_SYSEXT=vmware
 
 ## vmware_ova
+IMG_vmware_ova_BUNDLE_FORMAT=ova
 IMG_vmware_ova_DISK_FORMAT=vmdk_stream
 IMG_vmware_ova_DISK_LAYOUT=vm
 IMG_vmware_ova_CONF_FORMAT=ovf_vmware
-IMG_vmware_ova_BUNDLE_FORMAT=ova
-IMG_vmware_ova_OEM_USE=vmware
-IMG_vmware_ova_OEM_PACKAGE=common-oem-files
-IMG_vmware_ova_OEM_SYSEXT=oem-vmware
+IMG_vmware_ova_OEM_SYSEXT=vmware
 
 ## vmware_raw
-IMG_vmware_raw_OEM_USE=vmware
-IMG_vmware_raw_OEM_PACKAGE=common-oem-files
-IMG_vmware_raw_OEM_SYSEXT=oem-vmware
-
-## vmware_insecure
-IMG_vmware_insecure_DISK_FORMAT=vmdk_scsi
-IMG_vmware_insecure_DISK_LAYOUT=vm
-IMG_vmware_insecure_CONF_FORMAT=vmware_zip
-IMG_vmware_insecure_OEM_PACKAGE=oem-vagrant-key
+IMG_vmware_raw_OEM_SYSEXT=vmware
 
 ## parallels
 IMG_parallels_BUNDLE_FORMAT=pvm_tgz
@@ -222,27 +141,19 @@ IMG_parallels_CONF_FORMAT=pvs
 
 ## ami
 IMG_ami_vmdk_DISK_FORMAT=vmdk_stream
-IMG_ami_vmdk_OEM_USE=ami
-IMG_ami_vmdk_OEM_PACKAGE=common-oem-files
-IMG_ami_vmdk_SYSEXT=oem-ami
 IMG_ami_vmdk_DISK_LAYOUT=vm
-IMG_ami_OEM_USE=ami
-IMG_ami_OEM_PACKAGE=common-oem-files
-IMG_ami_OEM_SYSEXT=oem-ami
+IMG_ami_vmdk_OEM_SYSEXT=ami
 IMG_ami_DISK_LAYOUT=vm
+IMG_ami_OEM_SYSEXT=ami
 
 ## openstack
 IMG_openstack_DISK_FORMAT=qcow2
 IMG_openstack_DISK_LAYOUT=vm
-IMG_openstack_OEM_PACKAGE=common-oem-files
-IMG_openstack_OEM_USE=openstack
-IMG_openstack_OEM_SYSEXT=oem-openstack
+IMG_openstack_OEM_SYSEXT=openstack
 
 ## openstack but without a resized root partition for more flexibility
 IMG_openstack_mini_DISK_FORMAT=qcow2
-IMG_openstack_mini_OEM_PACKAGE=common-oem-files
-IMG_openstack_mini_OEM_USE=openstack
-IMG_openstack_mini_OEM_SYSEXT=oem-openstack
+IMG_openstack_mini_OEM_SYSEXT=openstack
 
 ## pxe, which is an cpio image
 IMG_pxe_DISK_FORMAT=cpio
@@ -259,110 +170,71 @@ IMG_iso_MEM=2048
 ## gce, image tarball
 IMG_gce_DISK_LAYOUT=vm
 IMG_gce_CONF_FORMAT=gce
-IMG_gce_OEM_PACKAGE=common-oem-files
-IMG_gce_OEM_USE=gce
-IMG_gce_OEM_SYSEXT=oem-gce
-
-## rackspace
-IMG_rackspace_OEM_PACKAGE=oem-rackspace
-IMG_rackspace_vhd_DISK_FORMAT=vhd
-IMG_rackspace_vhd_OEM_PACKAGE=oem-rackspace
-
-## rackspace onmetal
-IMG_rackspace_onmetal_DISK_FORMAT=qcow2
-IMG_rackspace_onmetal_DISK_LAYOUT=onmetal
-IMG_rackspace_onmetal_OEM_PACKAGE=oem-rackspace-onmetal
+IMG_gce_OEM_SYSEXT=gce
 
 ## cloudstack
-IMG_cloudstack_OEM_PACKAGE=oem-cloudstack
+IMG_cloudstack_OEM_SYSEXT=cloudstack
 IMG_cloudstack_vhd_DISK_FORMAT=vhd
-IMG_cloudstack_vhd_OEM_PACKAGE=oem-cloudstack
+IMG_cloudstack_vhd_OEM_SYSEXT=cloudstack
 
 ## digitalocean
-IMG_digitalocean_OEM_PACKAGE=common-oem-files
-IMG_digitalocean_OEM_USE=digitalocean
-IMG_digitalocean_OEM_SYSEXT=oem-digitalocean
+IMG_digitalocean_OEM_SYSEXT=digitalocean
 
 ## exoscale
 IMG_exoscale_DISK_FORMAT=qcow2
-IMG_exoscale_OEM_PACKAGE=oem-exoscale
+IMG_exoscale_OEM_SYSEXT=exoscale
 
 ## azure
 IMG_azure_DISK_FORMAT=vhd_fixed
 IMG_azure_DISK_LAYOUT=azure
-IMG_azure_OEM_USE=azure
-IMG_azure_OEM_PACKAGE=common-oem-files
-IMG_azure_OEM_SYSEXT=oem-azure
+IMG_azure_OEM_SYSEXT=azure
 
 ## hetzner
 IMG_hetzner_DISK_LAYOUT=vm
-IMG_hetzner_OEM_USE=hetzner
-IMG_hetzner_OEM_PACKAGE=common-oem-files
-IMG_hetzner_OEM_SYSEXT=oem-hetzner
+IMG_hetzner_OEM_SYSEXT=hetzner
 
 ## hyper-v
 IMG_hyperv_DISK_FORMAT=vhd
-IMG_hyperv_OEM_USE=hyperv
-IMG_hyperv_OEM_PACKAGE=common-oem-files
-IMG_hyperv_OEM_SYSEXT=oem-hyperv
+IMG_hyperv_OEM_SYSEXT=hyperv
 
 ## hyper-v vhdx
 IMG_hyperv_vhdx_DISK_FORMAT=vhdx
-IMG_hyperv_vhdx_OEM_USE=hyperv
-IMG_hyperv_vhdx_OEM_PACKAGE=common-oem-files
-IMG_hyperv_vhdx_OEM_SYSEXT=oem-hyperv
+IMG_hyperv_vhdx_OEM_SYSEXT=hyperv
 
 ## cloudsigma
 IMG_cloudsigma_DISK_FORMAT=qcow2
-IMG_cloudsigma_OEM_PACKAGE=oem-cloudsigma
-
-## packet
-IMG_packet_OEM_PACKAGE=common-oem-files
-IMG_packet_OEM_SYSEXT=oem-packet
-IMG_packet_OEM_USE=packet
+IMG_cloudsigma_OEM_SYSEXT=cloudsigma
 
 ## scaleway
 IMG_scaleway_DISK_FORMAT=qcow2
 IMG_scaleway_DISK_LAYOUT=vm
-IMG_scaleway_OEM_PACKAGE=common-oem-files
-IMG_scaleway_OEM_USE=scaleway
-IMG_scaleway_OEM_SYSEXT=oem-scaleway
+IMG_scaleway_OEM_SYSEXT=scaleway
 IMG_scaleway_DISK_EXTENSION=qcow2
 
 ## stackit
 IMG_stackit_DISK_FORMAT=qcow2
 IMG_stackit_DISK_LAYOUT=vm
-IMG_stackit_OEM_PACKAGE=common-oem-files
-IMG_stackit_OEM_USE=stackit
-IMG_stackit_OEM_SYSEXT=oem-stackit
+IMG_stackit_OEM_SYSEXT=stackit
 
 ## kubevirt
 IMG_kubevirt_DISK_FORMAT=qcow2
 IMG_kubevirt_DISK_LAYOUT=vm
-IMG_kubevirt_OEM_PACKAGE=common-oem-files
-IMG_kubevirt_OEM_USE=kubevirt
-IMG_kubevirt_OEM_SYSEXT=oem-kubevirt
+IMG_kubevirt_OEM_SYSEXT=kubevirt
 IMG_kubevirt_DISK_EXTENSION=qcow2
 
 ## akamai (Linode)
 IMG_akamai_DISK_LAYOUT=vm
-IMG_akamai_OEM_PACKAGE=common-oem-files
-IMG_akamai_OEM_USE=akamai
-IMG_akamai_OEM_SYSEXT=oem-akamai
+IMG_akamai_OEM_SYSEXT=akamai
 
 # proxmoxve
 IMG_proxmoxve_DISK_FORMAT=qcow2
 IMG_proxmoxve_DISK_LAYOUT=vm
-IMG_proxmoxve_OEM_PACKAGE=common-oem-files
-IMG_proxmoxve_OEM_USE=proxmoxve
-IMG_proxmoxve_OEM_SYSEXT=oem-proxmoxve
+IMG_proxmoxve_OEM_SYSEXT=proxmoxve
 
 ## nutanix
 IMG_nutanix_DISK_FORMAT=qcow2
 IMG_nutanix_DISK_LAYOUT=vm
-IMG_nutanix_OEM_USE=nutanix
-IMG_nutanix_OEM_PACKAGE=common-oem-files
-IMG_nutanix_OEM_SYSEXT=oem-nutanix
+IMG_nutanix_OEM_SYSEXT=nutanix
 
 ###########################################################
 
@@ -389,20 +261,6 @@ set_vm_type() {
     for valid_type in "${VALID_IMG_TYPES[@]}"; do
         if [[ "${vm_type}" == "${valid_type}" ]]; then
             VM_IMG_TYPE="${vm_type}"
-            return 0
-        fi
-    done
-    return 1
-}
-
-# Validate and set the oem package, colon delimited USE optional
-set_vm_oem_pkg() {
-    local oem_pkg="${1%:*}" oem_use="${1##*:}"
-    local valid_pkg
-    for valid_pkg in "${VALID_OEM_PACKAGES[@]}"; do
-        if [[ "${oem_pkg}" == "${valid_pkg}" ]]; then
-            IMG_FORCE_OEM_PACKAGE="oem-${oem_pkg}"
-            IMG_FORCE_OEM_USE="${oem_use}"
             return 0
         fi
     done
@@ -442,8 +300,7 @@ _get_vm_opt() {
     local opt="$1"
     local type_opt="IMG_${VM_IMG_TYPE}_${opt}"
     local default_opt="IMG_DEFAULT_${opt}"
-    local force_opt="IMG_FORCE_${opt}"
-    echo "${!force_opt:-${!type_opt:-${!default_opt}}}"
+    echo "${!type_opt:-${!default_opt}}"
 }
 
 # Translate source image names to output names.
@@ -532,42 +389,6 @@ setup_disk_image() {
     fi
 }
 
-# If the current type defines a oem package install it to the given fs image.
-install_oem_package() {
-    local oem_pkg=$(_get_vm_opt OEM_PACKAGE)
-    local oem_use=$(_get_vm_opt OEM_USE)
-    # The "${VM_IMG_TYPE}-oem-image-rootfs" directory name is
-    # important - it is used to determine the package target in
-    # coreos/base/profile.bashrc
-    local oem_tmp="${VM_TMP_DIR}/${VM_IMG_TYPE}-oem-image-rootfs"
-
-    if [[ -z "${oem_pkg}" ]]; then
-        return 0
-    fi
-
-    # Split into two steps because we want to always install $oem_pkg from
-    # the ebuild (build_packages doesn't handle it) *but* we never want to
-    # build anything else from source here. emerge doesn't have a way to
-    # enforce this in a single command.
-    info "Building ${oem_pkg}"
-    USE="${oem_use}" emerge-${BOARD} \
-        --nodeps --buildpkgonly --usepkg n \
-        --verbose "${oem_pkg}"
-
-    local getbinpkg
-    if [[ ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
-        getbinpkg=--getbinpkg
-    fi
-
-    info "Installing ${oem_pkg} to OEM partition"
-    USE="${oem_use}" emerge-${BOARD} \
-        --root="${oem_tmp}" --sysroot="${oem_tmp}" \
-        --usepkgonly ${getbinpkg} \
-        --verbose --jobs=2 "${oem_pkg}"
-    sudo rsync -a "${oem_tmp}/oem/" "${VM_TMP_ROOT}/oem/"
-    sudo rm -rf "${oem_tmp}"
-}
-
 # Install the prebuilt OEM sysext file into the OEM partition.
 # The sysext should have been built by 'build_image oem_sysext'.
 install_oem_sysext() {
@@ -577,7 +398,7 @@ install_oem_sysext() {
         return 0
     fi
 
-    local prebuilt_sysext_filename="${oem_sysext}.raw"
+    local prebuilt_sysext_filename="oem-${oem_sysext}.raw"
     local prebuilt_sysext_path="${FLAGS_from}/${prebuilt_sysext_filename}"
     local version="${FLATCAR_VERSION}"
 
@@ -586,34 +407,27 @@ install_oem_sysext() {
     fi
 
     local installed_sysext_oem_dir='/oem/sysext'
-    local installed_sysext_file_prefix="${oem_sysext}-${version}"
+    local installed_sysext_file_prefix="oem-${oem_sysext}-${version}"
     local installed_sysext_filename="${installed_sysext_file_prefix}.raw"
     local installed_sysext_abspath="${installed_sysext_oem_dir}/${installed_sysext_filename}"
 
-    info "Installing ${oem_sysext} sysext from prebuilt image"
+    info "Installing oem-${oem_sysext} sysext from prebuilt image"
     sudo install -Dpm 0644 \
          "${prebuilt_sysext_path}" \
          "${VM_TMP_ROOT}${installed_sysext_abspath}" ||
-        die "Could not install ${oem_sysext} sysext"
+        die "Could not install oem-${oem_sysext} sysext"
 
     # Mark the installed sysext as active.
-    sudo touch "${VM_TMP_ROOT}${installed_sysext_oem_dir}/active-${oem_sysext}"
-}
+    sudo touch "${VM_TMP_ROOT}${installed_sysext_oem_dir}/active-oem-${oem_sysext}"
 
-# Any other tweaks required?
-run_fs_hook() {
-    local fs_hook=$(_get_vm_opt FS_HOOK)
-    if [[ -n "${fs_hook}" ]]; then
-        info "Running ${fs_hook} fs hook"
-        _run_${fs_hook}_fs_hook "$@"
-    fi
-}
+    # Extract metadata from the sysext and write it to oem-release. Chop off the
+    # oem- prefix from SYSEXT_ID because that's how it has traditionally looked.
+    sudo systemd-dissect --json=short "${prebuilt_sysext_path}" | jq -r '.sysextRelease[]' |
+        sed --quiet --regexp-extended -e "s/^SYSEXT_ID=oem-/SYSEXT_ID=/" -e "s/^SYSEXT_//p" |
+        sudo install -m0644 /dev/stdin "${VM_TMP_ROOT}/oem/oem-release"
 
-_run_box_fs_hook() {
-    # Copy basic Vagrant configs from OEM
-    mkdir -p "${VM_TMP_DIR}/box"
-    cp -R "${VM_TMP_ROOT}/oem/box/." "${VM_TMP_DIR}/box"
-    sudo rm -fr "${VM_TMP_ROOT}/oem/box"
+    # Copy the OEM-specific grub.cfg.
+    sudo install -m0644 "${BUILD_LIBRARY_DIR}/oem/${oem_sysext}/grub.cfg" "${VM_TMP_ROOT}/oem/grub.cfg"
 }
 
 # Write the vm disk image to the target directory in the proper format
@@ -922,15 +736,6 @@ You can pass extra kernel parameters with -append, for example:
 When using -nographic or -serial you must also enable the serial console:
   ./$(basename "${script}") -nographic -append 'console=ttyS0,115200n8'
 EOF
-    local packetipxe="$(_dst_dir)/flatcar_production_packet.ipxe"
-    cat > "$packetipxe" <<EOF
-#!ipxe
-
-kernel flatcar_production_pxe.vmlinuz initrd=flatcar_production_pxe_image.cpio.gz flatcar.first_boot=1 flatcar.oem.id=packet console=ttyS1,115200n8 flatcar.autologin
-initrd flatcar_production_pxe_image.cpio.gz
-boot
-EOF
-    VM_GENERATED_FILES+=( "$packetipxe" )
 }
 
 _write_iso_conf() {
@@ -994,64 +799,6 @@ EOF
     if [[ -z "$(_get_vm_opt BUNDLE_FORMAT)" ]]; then
         VM_GENERATED_FILES+=( "${vmx_path}" )
     fi
-}
-
-_write_vmware_zip_conf() {
-    local src_name=$(basename "$VM_SRC_IMG")
-    local dst_name=$(basename "$VM_DST_IMG")
-    local dst_dir=$(dirname "$VM_DST_IMG")
-    local vmx_path="${dst_dir}/$(_src_to_dst_name "${src_name}" ".vmx")"
-    local vmx_file=$(basename "${vmx_path}")
-    local zip="${dst_dir}/$(_src_to_dst_name "${src_name}" ".zip")"
-
-    _write_vmx_conf "$1"
-
-    # Move the disk/vmx to tmp, they will be zipped.
-    mv "${VM_DST_IMG}" "${VM_TMP_DIR}/${dst_name}"
-    mv "${vmx_path}" "${VM_TMP_DIR}/${vmx_file}"
-    cat > "${VM_TMP_DIR}/insecure_ssh_key" <<EOF
------BEGIN RSA PRIVATE KEY-----
-MIIEogIBAAKCAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzI
-w+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoP
-kcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2
-hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NO
-Td0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcW
-yLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQIBIwKCAQEA4iqWPJXtzZA68mKd
-ELs4jJsdyky+ewdZeNds5tjcnHU5zUYE25K+ffJED9qUWICcLZDc81TGWjHyAqD1
-Bw7XpgUwFgeUJwUlzQurAv+/ySnxiwuaGJfhFM1CaQHzfXphgVml+fZUvnJUTvzf
-TK2Lg6EdbUE9TarUlBf/xPfuEhMSlIE5keb/Zz3/LUlRg8yDqz5w+QWVJ4utnKnK
-iqwZN0mwpwU7YSyJhlT4YV1F3n4YjLswM5wJs2oqm0jssQu/BT0tyEXNDYBLEF4A
-sClaWuSJ2kjq7KhrrYXzagqhnSei9ODYFShJu8UWVec3Ihb5ZXlzO6vdNQ1J9Xsf
-4m+2ywKBgQD6qFxx/Rv9CNN96l/4rb14HKirC2o/orApiHmHDsURs5rUKDx0f9iP
-cXN7S1uePXuJRK/5hsubaOCx3Owd2u9gD6Oq0CsMkE4CUSiJcYrMANtx54cGH7Rk
-EjFZxK8xAv1ldELEyxrFqkbE4BKd8QOt414qjvTGyAK+OLD3M2QdCQKBgQDtx8pN
-CAxR7yhHbIWT1AH66+XWN8bXq7l3RO/ukeaci98JfkbkxURZhtxV/HHuvUhnPLdX
-3TwygPBYZFNo4pzVEhzWoTtnEtrFueKxyc3+LjZpuo+mBlQ6ORtfgkr9gBVphXZG
-YEzkCD3lVdl8L4cw9BVpKrJCs1c5taGjDgdInQKBgHm/fVvv96bJxc9x1tffXAcj
-3OVdUN0UgXNCSaf/3A/phbeBQe9xS+3mpc4r6qvx+iy69mNBeNZ0xOitIjpjBo2+
-dBEjSBwLk5q5tJqHmy/jKMJL4n9ROlx93XS+njxgibTvU6Fp9w+NOFD/HvxB3Tcz
-6+jJF85D5BNAG3DBMKBjAoGBAOAxZvgsKN+JuENXsST7F89Tck2iTcQIT8g5rwWC
-P9Vt74yboe2kDT531w8+egz7nAmRBKNM751U/95P9t88EDacDI/Z2OwnuFQHCPDF
-llYOUI+SpLJ6/vURRbHSnnn8a/XG+nzedGH5JGqEJNQsz+xT2axM0/W/CRknmGaJ
-kda/AoGANWrLCz708y7VYgAtW2Uf1DPOIYMdvo6fxIB5i9ZfISgcJ/bbCUkFrhoH
-+vq/5CIWxCPp0f85R4qxxQ5ihxJ0YDQT9Jpx4TMss4PSavPaBH3RXow5Ohe+bYoQ
-NE5OgEXk2wVfZczCZpigBKbKZHNYcelXtTt/nP3rsCuGcM4h53s=
------END RSA PRIVATE KEY-----
-EOF
-    chmod 600 "${VM_TMP_DIR}/insecure_ssh_key"
-
-    zip --junk-paths "${zip}" \
-        "${VM_TMP_DIR}/${dst_name}" \
-        "${VM_TMP_DIR}/${vmx_file}" \
-        "${VM_TMP_DIR}/insecure_ssh_key"
-
-    cat > "${VM_README}" <<EOF
-Use insecure_ssh_key in the zip for login access.
-TODO: more instructions!
-EOF
-
-    # Replace list, not append, since we packaged up the disk image.
-    VM_GENERATED_FILES=( "${zip}" "${VM_README}" )
 }
 
 # Generate a new-style (xl) Xen config file for both pvgrub and pygrub
@@ -1124,11 +871,17 @@ EOF
     VM_GENERATED_FILES+=( "$ovf" "${VM_README}" )
 }
 
+_copy_vagrant_files() {
+    local oem_sysext=$(_get_vm_opt OEM_SYSEXT)
+    cp -r "${BUILD_LIBRARY_DIR}/oem/${oem_sysext}/build/box" "${VM_TMP_DIR}/"
+}
+
 _write_vagrant_conf() {
     local vm_mem="${1:-$(_get_vm_opt MEM)}"
     local ovf="${VM_TMP_DIR}/box/box.ovf"
     local mac="${VM_TMP_DIR}/box/base_mac.rb"
 
+    _copy_vagrant_files
     "${BUILD_LIBRARY_DIR}/virtualbox_ovf.sh" \
             --vm_name "$VM_NAME" \
             --disk_vmdk "${VM_DST_IMG}" \
@@ -1137,19 +890,11 @@ _write_vagrant_conf() {
             --output_vagrant "$mac"
 }
 
-_write_vagrant_vmware_fusion_conf() {
-    local vm_mem="${1:-$(_get_vm_opt MEM)}"
-    local vmx=$(_dst_path ".vmx")
-
-    mkdir -p "${VM_TMP_DIR}/box"
-    _write_vmx_conf ${vm_mem}
-    mv "${vmx}" "${VM_TMP_DIR}/box"
-}
-
 _write_vagrant_parallels_conf() {
     local vm_mem="${1:-$(_get_vm_opt MEM)}"
     local pvs=$(_dst_path ".pvs")
 
+    _copy_vagrant_files
     "${BUILD_LIBRARY_DIR}/parallels_pvs.sh" \
             --vm_name "$VM_NAME" \
             --disk_image "$VM_DST_IMG" \
@@ -1209,13 +954,17 @@ write_vm_bundle() {
 
 _write_box_bundle() {
     local box=$(_dst_path ".box")
-    local json=$(_dst_path ".json")
     local image=${VM_DST_IMG}
-    local provider="virtualbox"
 
-    if [[ "${VM_IMG_TYPE}" == vagrant_vmware_fusion ]]; then
-        provider="vmware_fusion"
-    elif [[ "${VM_IMG_TYPE}" == vagrant_parallels ]]; then
+    # Share the metadata JSON between providers.
+    local json=${VM_SRC_IMG##*/}
+    json=$(_dst_dir)/${json%_image.bin}_vagrant.json
+
+    local -xI FLATCAR_VERSION FLATCAR_VERSION_ID VM_GROUP
+    local -x provider="virtualbox"
+    local -x arch=${BOARD%-usr}
+
+    if [[ "${VM_IMG_TYPE}" == vagrant_parallels ]]; then
         provider="parallels"
         image="${VM_TMP_DIR}/tmp.pvm"
         mkdir -p "${image}"
@@ -1223,28 +972,37 @@ _write_box_bundle() {
         mv "$(_dst_path ".pvs")" "${image}"/config.pvs
     fi
 
-    cat > "${VM_TMP_DIR}"/box/metadata.json <<EOF
-{"provider": "${provider}"}
-EOF
+    jq -n '{ provider: env.provider, architecture: env.arch }' > "${VM_TMP_DIR}"/box/metadata.json
 
     mv "${image}" "${VM_TMP_DIR}/box"
     tar -czf "${box}" -C "${VM_TMP_DIR}/box" .
 
-    cat >"${json}" <<EOF
-{
-  "name": "flatcar-${VM_GROUP}",
-  "description": "Flatcar ${VM_GROUP}",
-  "versions": [{
-    "version": "${FLATCAR_VERSION_ID}",
-    "providers": [{
-      "name": "${provider}",
-      "url": "https://${BUILDCACHE_SERVER:-bincache.flatcar-linux.net}/images/${BOARD%-usr}/${FLATCAR_VERSION}/$(_dst_name ".box")",
-      "checksum_type": "sha256",
-      "checksum": "$(sha256sum "${box}" | awk '{print $1}')"
-    }]
-  }]
-}
-EOF
+    local -x checksum=$(sha256sum "${box}")
+    checksum=${checksum%% *}
+
+    # Fetch existing box entries for this Flatcar version that do not match the
+    # provider or architecture we're about to add.
+    local existing="[]"
+    [[ -e ${json} ]] &&
+        existing=$(jq '[ .versions[] | select(.version == env.FLATCAR_VERSION_ID) | .providers[] |
+                         select(.name != env.provider or .architecture != env.arch) ]' "${json}")
+
+    # Generate a new metadata JSON that includes the existing box entries.
+    jq -n --argjson existing "${existing}" --arg server "${BUILDCACHE_SERVER:-bincache.flatcar-linux.net}" --arg box "${box##*/}" '{
+        name: "flatcar-\(env.VM_GROUP)",
+        description: "Flatcar \(env.VM_GROUP)",
+        versions: [{
+            version: env.FLATCAR_VERSION_ID,
+            providers: $existing + [{
+                name: env.provider,
+                url: "https://\($server)/images/\(env.arch)/\(env.FLATCAR_VERSION)/\($box)",
+                checksum_type: "sha256",
+                checksum: env.checksum,
+                architecture: env.arch
+            }]
+        }]
+    }' > "${json}"
+
     VM_GENERATED_FILES+=( "${box}" "${json}" )
 }
 

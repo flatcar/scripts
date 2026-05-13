@@ -98,14 +98,6 @@
         "blocks":"33845248"
       }
     },
-    "onmetal":{
-      "7":{
-        "label":"config-2",
-        "fs_label":"config-2",
-        "type":"data",
-        "fs_type":"ext2"
-      }
-    },
     "container":{
       "1":{
         "type":"blank"

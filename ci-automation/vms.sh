@@ -79,28 +79,16 @@ function _vm_build_impl() {
 
     apply_local_patches
 
-    # automatically add PXE to formats if we build for Equinix Metal (packet).
-    local has_packet=0
-    local has_pxe=0
-    for format; do
-        [[ "${format}" = 'packet' ]] || [[ "${format}" = 'equinix_metal' ]] && has_packet=1
-        [[ "${format}" = 'pxe' ]] && has_pxe=1
-    done
-
-    [[ ${has_packet} -eq 1 ]] && [[ ${has_pxe} -eq 0 ]] && set -- 'pxe' "${@}"
-
     # Convert platform names (also used to find the test scripts) to image formats they entail
-    formats="$*"
-    if echo "$formats" | tr ' ' '\n' | grep -q '^vmware'; then
-      formats=$(echo "$formats" | tr ' ' '\n' | sed '/vmware.*/d')
-      formats+=" vmware vmware_insecure vmware_ova vmware_raw"
+    printf -v formats "%s\n" "${@}"
+    if grep -q '^vmware' <<< "${formats}"; then
+        formats=$(grep -v '^vmware' <<< "${formats}")
+        printf -v formats "%s\n" ${formats} vmware vmware_ova vmware_raw
     fi
-    if echo "$formats" | tr ' ' '\n' | grep -q -P '^(ami|aws)'; then
-      formats=$(echo "$formats" | tr ' ' '\n' | sed '/ami.*/d' | sed '/aws/d')
-      formats+=" ami ami_vmdk"
+    if grep -q '^ami\|^aws' <<< "${formats}"; then
+        formats=$(grep -v '^ami\|^aws' <<< "${formats}")
+        printf -v formats "%s\n" ${formats} ami ami_vmdk
     fi
-    # Keep compatibility with SDK scripts where "equinix_metal" remains unknown.
-    formats=$(echo "$formats" | tr ' ' '\n' | sed 's/equinix_metal/packet/g')
 
     source sdk_lib/sdk_container_common.sh
 

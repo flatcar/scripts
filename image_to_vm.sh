@@ -38,8 +38,6 @@ DEFINE_integer mem "${DEFAULT_MEM}" \
   "Memory size for the vm config in MBs."
 DEFINE_string to "" \
   "Destination folder for VM output file(s)"
-DEFINE_string oem_pkg "" \
-  "OEM package to install"
 DEFINE_boolean getbinpkg "${FLAGS_FALSE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
@@ -65,10 +63,6 @@ fi
 
 if ! set_vm_type "${FLAGS_format}"; then
     die_notrace "Invalid format: ${FLAGS_format}"
-fi
-
-if [ ! -z "${FLAGS_oem_pkg}" ] && ! set_vm_oem_pkg "${FLAGS_oem_pkg}"; then
-  die_notrace "Invalid oem : ${FLAGS_oem_pkg}"
 fi
 
 if [ -z "${FLAGS_board}" ] ; then
@@ -117,10 +111,8 @@ fix_mtab
 # Setup new (raw) image, possibly resizing filesystems
 setup_disk_image "${FLAGS_disk_layout}"
 
-# Optionally install any OEM packages
-install_oem_package
+# Optionally install any OEM sysexts
 install_oem_sysext
-run_fs_hook
 
 # Changes done, glue it together
 write_vm_disk

@@ -1,0 +1,1 @@
+- Dropped the VMware "insecure" image. This was added a long time ago, and it is not clear to the current Flatcar team what purpose it served. It included the Vagrant insecure SSH key but without the other Vagrant files. If you want to use Vagrant, then do so with VirtualBox or Parallels. If you want to deploy onto VMware quickly, then use the OVA image.

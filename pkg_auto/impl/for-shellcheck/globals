@@ -56,7 +56,6 @@ LISTING_KINDS=(
     ['hetzner']='oem-hetzner_packages.txt'
     ['kubevirt']='oem-kubevirt_packages.txt'
     ['openstack']='oem-openstack_packages.txt'
-    ['packet']='oem-packet_packages.txt'
     ['prod']='flatcar_production_image_packages.txt'
     ['proxmoxve']='oem-proxmoxve_packages.txt'
     ['qemu']='oem-qemu_packages.txt'

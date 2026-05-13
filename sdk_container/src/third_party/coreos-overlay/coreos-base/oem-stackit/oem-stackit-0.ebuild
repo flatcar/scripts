@@ -6,21 +6,16 @@ EAPI=8
 inherit systemd tmpfiles
 
 DESCRIPTION="OEM suite for STACKIT"
-HOMEPAGE="https://stackit.cloud"
-SRC_URI=""
+HOMEPAGE="https://stackit.com/"
+S="${WORKDIR}"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 arm64"
-IUSE=""
 
-RDEPEND="
-  net-misc/chrony
-"
+RDEPEND="net-misc/chrony"
 
-S="${WORKDIR}"
-
-OEM_NAME="STACKIT"
+SYSEXT_NAME="STACKIT"
 
 src_install() {
     systemd_install_dropin chronyd.service "${FILESDIR}"/chronyd-overwrite.conf

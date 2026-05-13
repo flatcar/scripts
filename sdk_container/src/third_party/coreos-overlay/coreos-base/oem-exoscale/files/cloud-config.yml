@@ -12,7 +12,7 @@ coreos:
           [Service]
           Type=oneshot
           StandardOutput=journal+console
-          ExecStart=/oem/bin/exoscale-ssh-key
+          ExecStart=/usr/bin/exoscale-ssh-key
       - name: exoscale-cloudinit.service
         command: restart
         runtime: yes
@@ -25,10 +25,10 @@ coreos:
           [Service]
           Type=oneshot
           EnvironmentFile=/etc/environment
-          ExecStart=/oem/bin/exoscale-coreos-cloudinit
+          ExecStart=/usr/bin/exoscale-coreos-cloudinit
     oem:
       id: exoscale
       name: exoscale
       version-id: @@OEM_VERSION_ID@@
-      home-url: http://www.exoscale.ch
+      home-url: https://www.exoscale.com/
       bug-report-url: https://github.com/coreos/coreos-overlay

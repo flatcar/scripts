@@ -31,10 +31,9 @@ else
 		"${FILESDIR}/0013-Partially-revert-drop-OEM-URI-support.patch"
 		"${FILESDIR}/0014-config-Support-oem-schema-in-newer-config-spec-versi.patch"
 		"${FILESDIR}/0015-translation-support-OEM-and-oem.patch"
-		"${FILESDIR}/0016-revert-internal-oem-drop-noop-OEMs.patch"
-		"${FILESDIR}/0017-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
-		"${FILESDIR}/0018-usr-share-oem-oem.patch"
-		"${FILESDIR}/0019-internal-exec-stages-mount-Mount-oem.patch"
+		"${FILESDIR}/0016-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
+		"${FILESDIR}/0017-usr-share-oem-oem.patch"
+		"${FILESDIR}/0018-internal-exec-stages-mount-Mount-oem.patch"
 	)
 fi
 

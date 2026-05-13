@@ -5,11 +5,9 @@ EAPI=8
 
 DESCRIPTION="OEM suite for Akamai (previously Linode)"
 HOMEPAGE="https://www.linode.com"
-SRC_URI=""
 
-LICENSE="GPL-2"
+LICENSE="metapackage"
 SLOT="0"
 KEYWORDS="amd64 arm64"
-IUSE=""
 
-OEM_NAME="Akamai"
+SYSEXT_NAME="Akamai"

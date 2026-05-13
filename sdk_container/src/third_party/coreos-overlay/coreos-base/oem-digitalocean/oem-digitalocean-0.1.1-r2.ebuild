@@ -3,13 +3,11 @@
 
 EAPI=8
 
-DESCRIPTION="DigitalOcean suite for DigitalOcean"
+DESCRIPTION="OEM suite for DigitalOcean"
 HOMEPAGE="https://www.digitalocean.com/"
-SRC_URI=""
 
-LICENSE="GPL-2"
+LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="amd64 arm64"
-IUSE=""
+KEYWORDS="amd64"
 
-OEM_NAME="DigitalOcean"
+SYSEXT_NAME="DigitalOcean"

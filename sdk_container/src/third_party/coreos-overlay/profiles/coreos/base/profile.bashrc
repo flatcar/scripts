@@ -12,7 +12,6 @@ CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 #  - generic-board (board sysroot)
 #  - generic-prod (production image)
 #  - generic-dev (developer container image)
-#  - generic-oem-${name} (image for OEM ${name}, like azure, qemu_uefi)
 #  - generic-sysext-base-${name} (sysext image ${name} built-in into
 #    production image, usually docker or containerd)
 #  - generic-sysext-extra-${name} (extra sysext image ${name}, like
@@ -42,11 +41,6 @@ flatcar_target_ref() {
                     name=${ROOT##*/}
                     name=${name%-extra-sysext-rootfs}
                     type_ref="generic-sysext-extra-${name}"
-                    ;;
-                */*-oem-image-rootfs)
-                    name=${ROOT##*/}
-                    name=${name%-oem-image-rootfs}
-                    type_ref="generic-oem-${name}"
                     ;;
                 */*-oem-sysext-rootfs)
                     name=${ROOT##*/}

@@ -1,0 +1,1 @@
+- Dropped support for Rackspace, including OnMetal. Rackspace-specific images are no longer built or published. Flatcar only had community level support for Rackspace, and the Flatcar team is no longer confident that this support actually works. Rackspace themselves have pivoted from being an independent cloud provider to being a management platform for other clouds.

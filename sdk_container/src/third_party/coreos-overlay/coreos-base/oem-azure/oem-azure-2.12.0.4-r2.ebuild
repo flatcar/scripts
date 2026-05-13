@@ -7,12 +7,11 @@ inherit systemd tmpfiles
 
 DESCRIPTION="OEM suite for Azure"
 HOMEPAGE="https://azure.microsoft.com/"
-SRC_URI=""
+S="${WORKDIR}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="amd64 arm64"
-IUSE=""
 
 RDEPEND="
   ~app-emulation/wa-linux-agent-${PV}
@@ -22,10 +21,8 @@ RDEPEND="
   sys-fs/inotify-tools
 "
 
-# for coreos-base/common-oem-files
-OEM_NAME="Microsoft Azure"
+SYSEXT_NAME="Microsoft Azure"
 
-S="${WORKDIR}"
 
 src_install() {
 	systemd_enable_service multi-user.target chronyd.service

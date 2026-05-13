@@ -1,0 +1,1 @@
+- Fixed booting the VirtualBox image, which was broken since upstream Ignition changed how their VirtualBox support works. The Vagrant VirtualBox image was unaffected.
