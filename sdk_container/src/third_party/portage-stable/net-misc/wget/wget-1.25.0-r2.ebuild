@@ -14,7 +14,7 @@ SRC_URI+=" verify-sig? ( mirror://gnu/wget/${P}.tar.lz.sig )"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="cookie-check debug gnutls idn libproxy metalink nls ntlm pcre +ssl static test uuid zlib"
 REQUIRED_USE="
 	ntlm? ( !gnutls ssl )
@@ -67,6 +67,10 @@ DOCS=( AUTHORS MAILING-LIST NEWS README )
 
 # gnulib FPs
 QA_CONFIG_IMPL_DECL_SKIP=( unreachable MIN alignof static_assert fpurge )
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.25.0-openssl-4.patch
+)
 
 pkg_setup() {
 	use test && python-any-r1_pkg_setup
