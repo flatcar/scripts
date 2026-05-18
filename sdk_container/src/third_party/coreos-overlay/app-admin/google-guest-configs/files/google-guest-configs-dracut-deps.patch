@@ -1,0 +1,25 @@
+From a848f8f181e2a7080a7ee06fb87ffbfe05e66a24 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Tue, 20 Jan 2026 15:55:29 +0000
+Subject: [PATCH] dracut: Install dd and ln as these are used by google_nvme_id
+
+I found that the disk name symlink was missing on Flatcar due to the
+lack of dd. I thought about using pure Bash, but it can't handle the
+null bytes. I also thought about using tail, but this is just as likely
+to be missing.
+
+I've also added ln for good measure.
+--- a/src/lib/dracut/modules.d/30gcp-udev-rules/module-setup.sh
++++ b/src/lib/dracut/modules.d/30gcp-udev-rules/module-setup.sh
+@@ -4,7 +4,7 @@
+ 
+ # called by dracut
+ install() {
+-  inst_multiple nvme grep sed
++  inst_multiple nvme dd ln grep sed
+   inst_simple /usr/lib/udev/google_nvme_id
+   inst_simple /usr/lib/udev/rules.d/65-gce-disk-naming.rules
+ }
+-- 
+2.51.2
+

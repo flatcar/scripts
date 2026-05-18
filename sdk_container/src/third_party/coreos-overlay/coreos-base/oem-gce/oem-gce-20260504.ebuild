@@ -3,6 +3,8 @@
 # Copyright (c) 2020 Kinvolk GmbH. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
+# Version this package using the greater version of its date-based dependencies.
+
 EAPI=8
 
 inherit systemd
@@ -16,7 +18,8 @@ SLOT="0"
 KEYWORDS="amd64"
 
 RDEPEND="
-	~app-emulation/google-compute-engine-${PV}
+	app-admin/google-guest-configs
+	app-emulation/google-compute-engine
 "
 
 SYSEXT_NAME="Google Compute Engine"

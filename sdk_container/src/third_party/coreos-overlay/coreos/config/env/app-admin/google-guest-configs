@@ -1,0 +1,7 @@
+cros_post_pkg_preinst_rm_from_board_sysroot() {
+	[[ $(flatcar_target) == generic-board ]] || return
+
+	# Dracut copies all sysctl files unconditionally, but our initrd is shared,
+	# and these rules are GCE-specific, so apply them from the OEM sysext.
+	rm -r "${ED}"/usr/lib/sysctl.d/ || die
+}

@@ -28,3 +28,10 @@ RDEPEND="
 	sys-apps/iproute2
 	sys-apps/shadow
 "
+
+src_install() {
+	distutils-r1_src_install
+
+	# Newer versions are installed by app-admin/google-guest-configs.
+	rm -v "${ED}"/usr/bin/google_{optimize_local_ssd,set_multiqueue} || die
+}
