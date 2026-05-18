@@ -1,10 +1,10 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: git-r3.eclass
 # @MAINTAINER:
 # Michał Górny <mgorny@gentoo.org>
-# @SUPPORTED_EAPIS: 7 8
+# @SUPPORTED_EAPIS: 7 8 9
 # @BLURB: Eclass for fetching and unpacking git repositories.
 # @DESCRIPTION:
 # Third generation eclass for easing maintenance of live ebuilds using
@@ -25,13 +25,13 @@
 # defined but EGIT_LFS is not turned on and vice versa.
 # If non-empty, then the repo likely needs EGIT_LFS to clone properly.
 
-case ${EAPI} in
-	7|8) ;;
-	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-esac
-
 if [[ -z ${_GIT_R3_ECLASS} ]]; then
 _GIT_R3_ECLASS=1
+
+case ${EAPI} in
+	7|8|9) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
 PROPERTIES+=" live"
 
@@ -247,8 +247,8 @@ EVCS_STORE_DIRS=()
 # @FUNCTION: _git-r3_env_setup
 # @INTERNAL
 # @DESCRIPTION:
-# Set the eclass variables as necessary for operation. This can involve
-# setting EGIT_* to defaults or ${PN}_LIVE_* variables.
+# Set the eclass variables as necessary for operation.  This can involve
+# setting EGIT_* to defaults.
 _git-r3_env_setup() {
 	debug-print-function ${FUNCNAME} "$@"
 
@@ -293,30 +293,54 @@ _git-r3_env_setup() {
 	esc_pn=${PN//[-+]/_}
 	[[ ${esc_pn} == [0-9]* ]] && esc_pn=_${esc_pn}
 
+	_git-r3_livevar_warn_or_die() {
+		case ${EAPI} in
+			7|8) ewarn "Using ${livevar}, no support will be provided" ;;
+			*) die "${livevar} is no longer supported in EAPI ${EAPI}" ;;
+		esac
+	}
+
 	# note: deprecated, use EGIT_OVERRIDE_* instead
 	livevar=${esc_pn}_LIVE_REPO
 	EGIT_REPO_URI=${!livevar-${EGIT_REPO_URI}}
-	[[ ${!livevar} ]] \
-		&& ewarn "Using ${livevar}, no support will be provided"
+	[[ ${!livevar} ]] && _git-r3_livevar_warn_or_die
 
 	livevar=${esc_pn}_LIVE_BRANCH
 	EGIT_BRANCH=${!livevar-${EGIT_BRANCH}}
-	[[ ${!livevar} ]] \
-		&& ewarn "Using ${livevar}, no support will be provided"
+	[[ ${!livevar} ]] && _git-r3_livevar_warn_or_die
 
 	livevar=${esc_pn}_LIVE_COMMIT
 	EGIT_COMMIT=${!livevar-${EGIT_COMMIT}}
-	[[ ${!livevar} ]] \
-		&& ewarn "Using ${livevar}, no support will be provided"
+	[[ ${!livevar} ]] && _git-r3_livevar_warn_or_die
 
 	livevar=${esc_pn}_LIVE_COMMIT_DATE
 	EGIT_COMMIT_DATE=${!livevar-${EGIT_COMMIT_DATE}}
-	[[ ${!livevar} ]] \
-		&& ewarn "Using ${livevar}, no support will be provided"
+	[[ ${!livevar} ]] && _git-r3_livevar_warn_or_die
 
 	if [[ ${EGIT_COMMIT} && ${EGIT_COMMIT_DATE} ]]; then
 		die "EGIT_COMMIT and EGIT_COMMIT_DATE can not be specified simultaneously"
 	fi
+}
+
+# @FUNCTION: _git-r3_get_object_format
+# @USAGE: <hash>
+# @INTERNAL
+# @DESCRIPTION:
+# Determine the object format from hash. Prints "sha1" or "sha256".
+_git-r3_get_object_format() {
+	local h=${1}
+
+	case "${#h}" in
+		40)
+			echo sha1
+			;;
+		64)
+			echo sha256
+			;;
+		*)
+			die "Unrecognized hash: ${h}"
+			;;
+	esac
 }
 
 # @FUNCTION: _git-r3_set_gitdir
@@ -331,7 +355,8 @@ _git-r3_env_setup() {
 _git-r3_set_gitdir() {
 	debug-print-function ${FUNCNAME} "$@"
 
-	local repo_name=${1#*://*/}
+	local repo_uri=${1}
+	local repo_name=${repo_uri#*://*/}
 
 	# strip the trailing slash
 	repo_name=${repo_name%/}
@@ -388,7 +413,13 @@ _git-r3_set_gitdir() {
 			umask "${EVCS_UMASK}" || die "Bad options to umask: ${EVCS_UMASK}"
 		fi
 		mkdir "${GIT_DIR}" || die
-		git init --bare -b __init__ || die
+
+		# determine the remote object format
+		local head_ref=(
+			$(git ls-remote "${repo_uri}" "HEAD" || die)
+		)
+		local object_format=$(_git-r3_get_object_format "${head_ref[0]}")
+		git init --object-format="${object_format}" --bare -b __init__ || die
 		if [[ ${saved_umask} ]]; then
 			umask "${saved_umask}" || die
 		fi
@@ -847,7 +878,15 @@ git-r3_fetch() {
 	if [[ ${saved_umask} ]]; then
 		umask "${saved_umask}" || die
 	fi
-	[[ ${success} ]] || die "Unable to fetch from any of EGIT_REPO_URI"
+	if [[ ! ${success} ]]; then
+		eerror "Fetching git repository failed. Please inspect the log for errors."
+		eerror "If you see 'mismatched algorithm' errors, please remove the local clone"
+		eerror "and try again:"
+		eerror "  rm -r ${GIT_DIR}"
+		eerror
+
+		die "Unable to fetch from any of EGIT_REPO_URI"
+	fi
 
 	# submodules can reference commits in any branch
 	# always use the 'mirror' mode to accommodate that, bug #503332
@@ -955,7 +994,8 @@ git-r3_checkout() {
 		# use git init+fetch instead of clone since the latter doesn't like
 		# non-empty directories.
 
-		git init --quiet -b __init__ || die
+		local object_format=$(_git-r3_get_object_format "${new_commit_id}")
+		git init --object-format="${object_format}" --quiet -b __init__ || die
 		if [[ ${EGIT_LFS} ]]; then
 			# The "skip-repo" flag will just skip the installation of the pre-push hooks.
 			# We don't use these hook as we don't do any pushes
