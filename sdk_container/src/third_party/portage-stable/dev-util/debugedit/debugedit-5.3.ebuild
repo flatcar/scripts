@@ -35,16 +35,11 @@ BDEPEND="
 		sys-devel/dwz
 	)
 	verify-sig? (
-		sec-keys/openpgp-keys-debugedit
+		>=sec-keys/openpgp-keys-debugedit-20260311
 	)
 "
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/debugedit.gpg
-
-PATCHES=(
-	"${FILESDIR}"/${P}-bashism.patch
-	"${FILESDIR}"/${P}-buildid.patch
-)
 
 src_configure() {
 	tc-export PKG_CONFIG
@@ -55,9 +50,14 @@ src_configure() {
 	fi
 
 	local myconf=(
-		# avoid BDEP on dwz
+		# avoid bunch of BDEPs, sigh
 		DWZ=dwz
 		ac_cv_dwz_j=yes
+		HAS_CPIO=yes
+		HAS_EU_STRIP=yes
+		HAS_XZ=yes
+		HAS_GDB_ADD_INDEX=yes
+		HAS_EU_ELFLINT=yes
 
 		# We don't want to effectively bundle xxhash. It fails to
 		# build with -Og and such too (bug #956627).
