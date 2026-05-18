@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
@@ -23,7 +23,7 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
 		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
 	)
@@ -88,7 +88,7 @@ BDEPEND="
 	virtual/pkgconfig
 	tail-call-interp? (
 		|| (
-			>=sys-devel/gcc-15:*
+			>=sys-devel/gcc-16:*
 			>=llvm-core/clang-19:*
 		)
 	)
@@ -136,7 +136,7 @@ pkg_setup() {
 			linux-info_pkg_setup
 		fi
 		if use tail-call-interp; then
-			tc-check-min_ver gcc 15
+			tc-check-min_ver gcc 16
 			tc-check-min_ver clang 19
 		fi
 	fi
@@ -179,10 +179,10 @@ build_cbuild_python() {
 	#
 	# -fno-lto to avoid bug #700012 (not like it matters for mini-CBUILD Python anyway)
 	local -x CFLAGS_NODIST="${BUILD_CFLAGS} -fno-lto"
-	local -x LDFLAGS_NODIST=${BUILD_LDFLAGS}
+	local -x LDFLAGS_NODIST="${BUILD_LDFLAGS} -fno-lto"
 	local -x CFLAGS= LDFLAGS=
 	local -x BUILD_CFLAGS="${CFLAGS_NODIST}"
-	local -x BUILD_LDFLAGS=${LDFLAGS_NODIST}
+	local -x BUILD_LDFLAGS="${LDFLAGS_NODIST}"
 
 	# We need to build our own Python on CBUILD first, and feed it in.
 	# bug #847910
