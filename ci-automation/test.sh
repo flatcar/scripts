@@ -171,8 +171,7 @@ function _test_run_impl() {
         touch sdk_container/.env
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
           -w /work -v "$PWD":/work "${MANTLE_REF}" \
-         bash -c "git config --global --add safe.directory /work && \
-                  source sdk_container/.env && \
+         bash -c "source sdk_container/.env && \
                   ci-automation/vendor-testing/${image_escaped}.sh ${common_test_args_escaped[*]} ${tapfile_escaped} ${tests_escaped[*]}"
         set -e
         rm -f "${work_dir}/first_run"
