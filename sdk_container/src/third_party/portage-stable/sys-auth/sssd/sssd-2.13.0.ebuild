@@ -3,14 +3,12 @@
 
 EAPI=8
 
-# Ukrainian translation causes compile failure, so skip it for now
-#PLOCALES="ca de es fr ja ko pt_BR ru sv tr uk"
 PLOCALES="ca de es fr ja ko pt_BR ru sv tr"
 PLOCALES_BIN="${PLOCALES} bg cs eu fi hu id it ka nb nl pl pt tg zh_TW zh_CN"
 PLOCALE_BACKUP="sv"
 PYTHON_COMPAT=( python3_{11..14} )
 
-inherit autotools linux-info multilib-minimal optfeature plocale \
+inherit autotools fcaps linux-info multilib-minimal optfeature plocale \
 	python-single-r1 pam systemd tmpfiles udev toolchain-funcs verify-sig
 
 DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
@@ -18,7 +16,7 @@ HOMEPAGE="https://github.com/SSSD/sssd"
 if [[ ${PV} != 9999 ]]; then
 	SRC_URI="https://github.com/SSSD/sssd/releases/download/${PV}/${P}.tar.gz
 		https://github.com/SSSD/sssd/releases/download/${PV}/${P}.tar.gz.asc"
-	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 ~arm ~arm64 ~ppc ~ppc64 ~riscv ~sparc x86"
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/SSSD/sssd.git"
@@ -27,7 +25,7 @@ fi
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="doc +netlink nfsv4 nls passkey python samba selinux systemd systemtap test"
+IUSE="doc +netlink nfsv4 nls openid passkey python samba selinux systemd systemtap test"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
@@ -57,6 +55,10 @@ DEPEND="
 	netlink? ( dev-libs/libnl:3 )
 	nfsv4? ( >=net-fs/nfs-utils-2.3.1-r2 )
 	nls? ( >=sys-devel/gettext-0.18 )
+	openid? (
+		dev-libs/jose
+		net-misc/curl
+	)
 	passkey? ( dev-libs/libfido2:= )
 	python? (
 		${PYTHON_DEPS}
@@ -92,6 +94,7 @@ BDEPEND="
 	nls? (	app-text/po4a
 		sys-devel/gettext )
 	test? (
+		app-alternatives/bc
 		dev-libs/check
 		dev-libs/softhsm:2
 		dev-util/cmocka
@@ -114,7 +117,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.8.2-krb5_pw_locked.patch"
 	"${FILESDIR}/${PN}-2.9.6-conditional-python-install.patch"
 	"${FILESDIR}/${PN}-2.10.0_beta2-fix-systemd-systemconfdir.patch"
-	"${FILESDIR}/${PN}-2.12.0-dont-clobber-getpwnam-buffer.patch"
 )
 
 MULTILIB_WRAPPED_HEADERS=(
@@ -126,6 +128,16 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/sss_sifp_dbus.h
 	# from 1.15.3
 	/usr/include/sss_certmap.h
+)
+
+# mimic upstream's setcap here, they're liable to get lost
+# https://github.com/SSSD/sssd/blob/a6d0f0cf484aeeead535b7138d1334b309c61a4e/Makefile.am#L5567
+FILECAPS=(
+	cap_dac_read_search=p "usr/libexec/sssd/ldap_child"
+	--
+	cap_dac_read_search,cap_setuid,cap_setgid=p "usr/libexec/sssd/krb5_child"
+	--
+	cap_dac_read_search=p "usr/libexec/sssd/sssd_pam"
 )
 
 pkg_setup() {
@@ -226,7 +238,7 @@ multilib_src_configure() {
 		--with-sudo
 		$(multilib_native_with autofs)
 		$(multilib_native_with ssh)
-		--without-oidc-child
+		$(use_with openid oidc-child)
 		$(multilib_native_with passkey)
 		--with-subid
 		$(use_enable systemtap)
@@ -241,6 +253,7 @@ multilib_src_configure() {
 
 	use systemd && myconf+=(
 		--with-systemdunitdir=$(systemd_get_systemunitdir)
+		--with-syslog=$(usex systemd journald syslog)
 	)
 
 	if ! multilib_is_native_abi; then
@@ -345,6 +358,7 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
+	fcaps_pkg_postinst
 	udev_reload
 	tmpfiles_process sssd-tmpfiles.conf
 	echo
