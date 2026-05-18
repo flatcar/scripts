@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{10..14} )
 PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 inherit edo linux-info python-any-r1 systemd toolchain-funcs udev
@@ -18,7 +18,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2 BSD-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 ~ppc ~ppc64 x86"
+KEYWORDS="~amd64 ~arm64 ~ppc ~ppc64 ~x86"
 
 RDEPEND="dev-libs/glib"
 DEPEND="${RDEPEND}"
