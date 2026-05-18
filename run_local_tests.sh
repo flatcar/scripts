@@ -11,6 +11,18 @@
 # The devcontainer tests will be skipped since these require a valid commit ref in
 #   the upstream scripts repo.
 #
+# Usage:
+#   ./run_local_tests.sh [ARCH] [PARALLEL] [TEST ...]
+#
+#   ARCH      : Machine architecture to test (default: amd64)
+#   PARALLEL  : Number of parallel tests (default: 2)
+#   TEST ...  : Optional list of kola tests/globs to run. If omitted,
+#               all suitable qemu_uefi tests (except devcontainer) are run
+#               and qemu_update tests are executed as well.
+#
+#   Helper options:
+#     -h, --help       : Show this help and exit.
+#
 # Requirements:
 # - Docker (for running the Mantle container).
 #
@@ -60,6 +72,21 @@ EOF
 
   export MAX_RETRIES=5
   export SKIP_COPY_TO_BINCACHE=1
+}
+#--
+
+function usage() {
+  cat <<EOF
+Usage: ./run_local_tests.sh [ARCH] [PARALLEL] [TEST ...]
+
+  ARCH      : Machine architecture to test (default: amd64)
+  PARALLEL  : Number of parallel tests (default: 2)
+  TEST ...  : Optional list of kola tests/globs to run. If omitted,
+              all suitable qemu_uefi tests (except devcontainer) are run
+              and qemu_update tests are executed as well.
+  Helper options:
+    -h, --help       : Show this help and exit.
+EOF
 }
 #--
 
@@ -120,5 +147,10 @@ function run_local_tests() (
 
 if [[ "$(basename "${0}")" = "run_local_tests.sh" ]] ; then
   set -euo pipefail
+  if [[ $# -gt 0 ]] && [[ "$1" = "-h" || "$1" = "--help" ]]; then
+    usage
+    exit 0
+  fi
+
   run_local_tests "${@}"
 fi
