@@ -1,15 +1,20 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=9
 
-inherit autotools
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/alekseysanin.asc
+inherit autotools verify-sig
 
 DESCRIPTION="Command line tool for signing, verifying, encrypting and decrypting XML"
-HOMEPAGE="https://www.aleksey.com/xmlsec"
+HOMEPAGE="https://www.aleksey.com/xmlsec/"
 SRC_URI="
 	https://www.aleksey.com/xmlsec/download/${PN}1-${PV}.tar.gz
 	https://www.aleksey.com/xmlsec/download/older-releases/${PN}1-${PV}.tar.gz
+	verify-sig? (
+		https://www.aleksey.com/xmlsec/download/${PN}1-${PV}.sig
+		https://www.aleksey.com/xmlsec/download/older-releases/${PN}1-${PV}.sig
+	)
 "
 S="${WORKDIR}/${PN}1-${PV}"
 
@@ -43,11 +48,19 @@ BDEPEND="
 			>=dev-libs/nss-3.9[utils]
 		)
 	)
+	verify-sig? ( sec-keys/openpgp-keys-alekseysanin )
 "
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.3.0-optimisation.patch
 )
+
+src_unpack() {
+	if use verify-sig; then
+		verify-sig_verify_detached "${DISTDIR}"/${PN}1-${PV}.{tar.gz,sig}
+	fi
+	default
+}
 
 src_prepare() {
 	default
