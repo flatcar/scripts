@@ -6,12 +6,11 @@ EAPI=8
 # Maintenance notes and explanations of GCC handling are on the wiki:
 # https://wiki.gentoo.org/wiki/Project:Toolchain/sys-devel/gcc
 
-TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
-PATCH_GCC_VER="16.0.0"
-PATCH_VER="34"
-MUSL_VER="1"
-MUSL_GCC_VER="16.0.0"
+PATCH_GCC_VER="14.3.0"
+PATCH_VER="6"
+MUSL_VER="2"
+MUSL_GCC_VER="14.3.0"
 PYTHON_COMPAT=( python3_{11..14} )
 
 if [[ -n ${TOOLCHAIN_GCC_RC} ]] ; then
@@ -27,10 +26,10 @@ inherit toolchain
 
 if tc_is_live ; then
 	# Needs to be after inherit (for now?), bug #830908
-	EGIT_BRANCH=master
+	EGIT_BRANCH=releases/gcc-$(ver_cut 1)
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
-	# Don't keyword live ebuilds
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	# m68k doesnt build (ICE, bug 932733)
+	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	:;
 fi
 
@@ -51,6 +50,7 @@ src_prepare() {
 	done
 
 	toolchain_src_prepare
+
 	eapply "${FILESDIR}"/${PN}-13-fix-cross-fixincludes.patch
 	eapply_user
 }

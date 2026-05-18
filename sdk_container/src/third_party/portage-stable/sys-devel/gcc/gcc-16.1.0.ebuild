@@ -6,12 +6,11 @@ EAPI=8
 # Maintenance notes and explanations of GCC handling are on the wiki:
 # https://wiki.gentoo.org/wiki/Project:Toolchain/sys-devel/gcc
 
-TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
-PATCH_GCC_VER="16.0.0"
-PATCH_VER="35"
+PATCH_GCC_VER="16.1.0"
+PATCH_VER="1"
 MUSL_VER="1"
-MUSL_GCC_VER="16.0.0"
+MUSL_GCC_VER="16.1.0"
 PYTHON_COMPAT=( python3_{11..14} )
 
 if [[ -n ${TOOLCHAIN_GCC_RC} ]] ; then
@@ -30,7 +29,7 @@ if tc_is_live ; then
 	EGIT_BRANCH=master
 elif [[ -z ${TOOLCHAIN_USE_GIT_PATCHES} ]] ; then
 	# Don't keyword live ebuilds
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	:;
 fi
 
@@ -52,5 +51,6 @@ src_prepare() {
 
 	toolchain_src_prepare
 	eapply "${FILESDIR}"/${PN}-13-fix-cross-fixincludes.patch
+	[[ ${CHOST} == m68k-* ]] && eapply "${FILESDIR}"/${PN}-15-m68k-workaround.patch
 	eapply_user
 }
