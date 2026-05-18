@@ -279,6 +279,31 @@ jobs:
           path: |
             scripts/image-changes-reports*.txt
 
+      - name: Post reports to PR
+        if: github.event.pull_request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const glob = require('@actions/glob');
+            const globber = await glob.create('scripts/image-changes-reports*.txt');
+            let body = `### Image changes reports (${{ matrix.arch }})\n\n`;
+            for await (const file of globber.globGenerator()) {
+              const name = require('path').basename(file, '.txt');
+              const content = fs.readFileSync(file, 'utf8').trim();
+              if (content) {
+                body += `<details><summary>${name}</summary>\n\n\`\`\`\n${content}\n\`\`\`\n\n</details>\n\n`;
+              }
+            }
+            if (body.includes('<details>')) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
       # Clean up what we uploaded already so the "vendor images" wildcard
       #  works when uploading artifacts in the next step.
       - name: Remove update, generic and devcontainer images
