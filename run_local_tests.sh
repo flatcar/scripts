@@ -20,8 +20,10 @@
 #               all suitable qemu_uefi tests (except devcontainer) are run
 #               and qemu_update tests are executed as well.
 #
+#
 #   Helper options:
 #     -h, --help       : Show this help and exit.
+#     --list-tests : List all qemu/qemu_update tests and exit.
 #
 # Requirements:
 # - Docker (for running the Mantle container).
@@ -86,6 +88,7 @@ Usage: ./run_local_tests.sh [ARCH] [PARALLEL] [TEST ...]
               and qemu_update tests are executed as well.
   Helper options:
     -h, --help       : Show this help and exit.
+    --list-tests     : List all qemu/qemu_update tests and exit.
 EOF
 }
 #--
@@ -147,10 +150,18 @@ function run_local_tests() (
 
 if [[ "$(basename "${0}")" = "run_local_tests.sh" ]] ; then
   set -euo pipefail
-  if [[ $# -gt 0 ]] && [[ "$1" = "-h" || "$1" = "--help" ]]; then
-    usage
-    exit 0
-  fi
+  case "${1:-}" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --list-tests)
+      # List all qemu/qemu_update tests and exit.
+      mantle_container="$(cat "sdk_container/.repo/manifests/mantle-container")"
+      docker run --rm "${mantle_container}" kola list --platform qemu
+      exit 0
+      ;;
+  esac
 
   run_local_tests "${@}"
 fi
