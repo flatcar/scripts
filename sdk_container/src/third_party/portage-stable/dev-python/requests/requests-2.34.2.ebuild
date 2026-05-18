@@ -5,6 +5,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
+PYPI_VERIFY_REPO=https://github.com/psf/requests
 PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
 PYTHON_REQ_USE="threads(+)"
 
@@ -32,6 +33,7 @@ RDEPEND="
 
 BDEPEND="
 	test? (
+		dev-python/httpbin[${PYTHON_USEDEP}]
 		>=dev-python/pysocks-1.5.6[${PYTHON_USEDEP}]
 		test-rust? (
 			dev-python/trustme[${PYTHON_USEDEP}]
@@ -47,7 +49,7 @@ src_prepare() {
 	distutils-r1_src_prepare
 
 	# remove useless dependency check spam
-	sed -i -e '/def check_compatibility/a\
+	sed -i -e '/urllib3_version_list =/i\
     return' src/requests/__init__.py || die
 }
 
