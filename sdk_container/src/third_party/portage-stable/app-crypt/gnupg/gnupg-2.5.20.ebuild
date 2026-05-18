@@ -23,13 +23,12 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="+alternatives bzip2 doc ldap nls readline selinux +smartcard ssl test +tofu tpm tools usb user-socket wks-server"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="test? ( tofu )"
 
-# Existence of executables is checked during configuration.
-# Note: On each bump, update dep bounds on each version from configure.ac!
+# Existence of executables is checked during configuration
 DEPEND="
 	>=dev-libs/libassuan-3.0.0-r1:=
 	>=dev-libs/libgcrypt-1.11.0:=
@@ -71,6 +70,7 @@ DOCS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
+	"${FILESDIR}"/0002-Fix-stub-functions-to-avoid-LTO-linking-bugs-followup.patch
 )
 
 src_prepare() {
@@ -103,9 +103,6 @@ src_prepare() {
 }
 
 my_src_configure() {
-	# Upstream don't support LTO, bug #854222.
-	filter-lto
-
 	local myconf=(
 		$(use_enable bzip2)
 		$(use_enable nls)
@@ -172,7 +169,7 @@ my_src_compile() {
 }
 
 my_src_test() {
-	export TESTFLAGS="--parallel=$(makeopts_jobs)"
+	export TESTFLAGS="--parallel=$(get_makeopts_jobs)"
 
 	default
 }
