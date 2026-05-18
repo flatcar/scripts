@@ -15,11 +15,11 @@ if [[ "${PV}" = 9999* ]]; then
 else
 	MY_PV=$(ver_cut 1-2)
 	SRC_URI="https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${MY_PV/./_}/refpolicy-${MY_PV}.tar.bz2
-		https://dev.gentoo.org/~perfinion/patches/${PN}/patchbundle-${P}.tar.bz2"
-	KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86"
+		https://dev.gentoo.org/~perfinion/patches/${PN}/patchbundle-${PN}-${PV/_p/-r}.tar.bz2"
+	KEYWORDS="amd64 arm arm64 ~riscv x86"
 fi
 
-S="${WORKDIR}/refpolicy"
+S="${WORKDIR}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -42,6 +42,10 @@ BDEPEND="
 	sys-devel/m4
 "
 
+PATCHES=(
+	"${FILESDIR}/0001-newrole_t-run_init_t-call-auth_run_pam.patch"
+)
+
 MODS="application authlogin bootloader clock consoletype cron dmesg fstools getty hostname init iptables libraries locallogin logging lvm miscfiles modutils mount mta netutils nscd portage raid rsync selinuxutil setrans ssh staff storage su sysadm sysnetwork systemd tmpfiles udev userdomain usermanage unprivuser xdg"
 # A previous, old release of refpolicy had the hotplug policy module. However,
 # it has since been removed[1]. As such, remove it if we see it installed.
@@ -56,19 +60,17 @@ src_prepare() {
 	local modfiles
 
 	if [[ "${PV}" != 9999* ]]; then
-		cd "${WORKDIR}" || die
 		einfo "Applying SELinux policy updates ... "
 		eapply -p0 "${WORKDIR}/0001-full-patch-against-stable-release.patch"
 	fi
 
-	cd "${S}" || die
-	eapply_user
+	default
 
 	# Collect only those files needed for this particular module
 	for mod in ${MODS}; do
-		modfiles="$(find "${S}/policy/modules" -iname "${mod}.te") $modfiles"
-		modfiles="$(find "${S}/policy/modules" -iname "${mod}.fc") $modfiles"
-		modfiles="$(find "${S}/policy/modules" -iname "${mod}.cil") $modfiles"
+		modfiles="$(find "${S}/refpolicy/policy/modules" -iname "${mod}.te") $modfiles"
+		modfiles="$(find "${S}/refpolicy/policy/modules" -iname "${mod}.fc") $modfiles"
+		modfiles="$(find "${S}/refpolicy/policy/modules" -iname "${mod}.cil") $modfiles"
 	done
 
 	# TODO: should probably be done earlier?
@@ -78,12 +80,12 @@ src_prepare() {
 
 	for type in targeted strict mcs mls; do
 		if use "selinux_policy_types_${type}"; then
-			mkdir "${WORKDIR}/${type}" || die "Failed to create directory ${WORKDIR}/${type}"
-			cp "${S}/doc/Makefile.example" "${WORKDIR}/${type}/Makefile" \
-				|| die "Failed to copy Makefile.example to ${WORKDIR}/${type}/Makefile"
+			mkdir "${S}/${type}" || die "Failed to create directory ${S}/${type}"
+			cp "${S}/refpolicy/doc/Makefile.example" "${S}/${type}/Makefile" \
+				|| die "Failed to copy Makefile.example to ${S}/${type}/Makefile"
 
-			cp ${modfiles} "${WORKDIR}/${type}" \
-				|| die "Failed to copy the module files to ${WORKDIR}/${type}"
+			cp ${modfiles} "${S}/${type}" \
+				|| die "Failed to copy the module files to ${S}/${type}"
 		fi
 	done
 }
@@ -109,7 +111,7 @@ src_compile() {
 		if use "selinux_policy_types_${type}"; then
 			# Support USE flags in builds
 			export M4PARAM="${makeuse}"
-			emake NAME="${type}" SHAREDIR="${EPREFIX}/usr/share/selinux" -C "${WORKDIR}/${type}"
+			emake NAME="${type}" SHAREDIR="${EPREFIX}/usr/share/selinux" -C "${S}/${type}"
 		fi
 	done
 }
@@ -122,10 +124,10 @@ src_install() {
 			for mod in ${MODS}; do
 				einfo "Installing ${type} ${mod} policy package"
 				insinto "${BASEDIR}/${type}"
-				if [[ -f "${WORKDIR}/${type}/${mod}.pp" ]]; then
-					doins "${WORKDIR}/${type}/${mod}.pp"
-				elif [[ -f "${WORKDIR}/${type}/${mod}.cil" ]]; then
-					doins "${WORKDIR}/${type}/${mod}.cil"
+				if [[ -f "${S}/${type}/${mod}.pp" ]]; then
+					doins "${S}/${type}/${mod}.pp"
+				elif [[ -f "${S}/${type}/${mod}.cil" ]]; then
+					doins "${S}/${type}/${mod}.cil"
 				fi
 			done
 		fi
