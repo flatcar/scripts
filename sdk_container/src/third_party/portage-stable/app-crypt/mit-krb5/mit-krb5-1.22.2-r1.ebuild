@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -71,6 +71,12 @@ src_configure() {
 	# lto-type-mismatch (bug #854225)
 	filter-lto
 
+	if tc-is-cross-compiler; then
+		# assume modern system
+		export krb5_cv_attr_constructor_destructor=y
+		export ac_cv_printf_positional=y
+	fi
+
 	multilib-minimal_src_configure
 }
 
@@ -82,6 +88,7 @@ multilib_src_configure() {
 		$(use_with openldap ldap) \
 		$(use_enable nls) \
 		$(use_enable pkinit) \
+		$(use_enable cpu_flags_x86_aes aesni) \
 		$(use_with lmdb) \
 		$(use_with keyutils) \
 		--without-hesiod \
