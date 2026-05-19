@@ -7,17 +7,18 @@ MODULES_OPTIONAL_IUSE=+modules
 inherit desktop dot-a eapi9-pipestatus eapi9-ver flag-o-matic linux-mod-r1
 inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
-MODULES_KERNEL_MAX=6.19
-NV_URI="https://download.nvidia.com/XFree86/"
+MODULES_KERNEL_MAX=7.0
+NV_PIN=595.71.05
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
-HOMEPAGE="https://www.nvidia.com/"
+HOMEPAGE="https://developer.nvidia.com/vulkan-driver/"
 SRC_URI="
-	amd64? ( ${NV_URI}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
-	arm64? ( ${NV_URI}Linux-aarch64/${PV}/NVIDIA-Linux-aarch64-${PV}.run )
-	$(printf "${NV_URI}%s/%s-${PV}.tar.bz2 " \
+	https://developer.nvidia.com/downloads/vulkan-beta-${PV//.}-linux
+		-> NVIDIA-Linux-x86_64-${PV}.run
+	$(printf "https://download.nvidia.com/XFree86/%s/%s-${NV_PIN}.tar.bz2 " \
 		nvidia-{installer,modprobe,persistenced,settings,xconfig}{,})
-	${NV_URI}NVIDIA-kernel-module-source/NVIDIA-kernel-module-source-${PV}.tar.xz
+	https://github.com/NVIDIA/open-gpu-kernel-modules/archive/refs/tags/${PV}.tar.gz
+		-> open-gpu-kernel-modules-${PV}.tar.gz
 "
 # nvidia-installer is unused but here for GPL-2's "distribute sources"
 S=${WORKDIR}
@@ -26,9 +27,8 @@ LICENSE="
 	NVIDIA-2025 Apache-2.0 Boost-1.0 BSD BSD-2 GPL-2 MIT ZLIB
 	curl openssl public-domain
 "
-SLOT="0/${PV%%.*}"
-# unkeyworded due to being a beta, feel free to opt-in if want to test
-#KEYWORDS="-* ~amd64 ~arm64"
+SLOT="0/vulkan"
+KEYWORDS="-* ~amd64"
 IUSE="+X abi_x86_32 abi_x86_64 persistenced powerd +static-libs +tools wayland"
 
 COMMON_DEPEND="
@@ -57,7 +57,10 @@ COMMON_DEPEND="
 # (may use one or the other depending on setup)
 RDEPEND="
 	${COMMON_DEPEND}
-	dev-libs/openssl:0/3
+	|| (
+		dev-libs/openssl-compat:3
+		dev-libs/openssl:0/3
+	)
 	sys-libs/glibc
 	X? (
 		media-libs/libglvnd[X,abi_x86_32(-)?]
@@ -90,7 +93,6 @@ DEPEND="
 	)
 "
 BDEPEND="
-	app-alternatives/awk
 	sys-devel/m4
 	virtual/pkgconfig
 "
@@ -117,17 +119,14 @@ pkg_setup() {
 		~SYSVIPC
 		~!LOCKDEP
 		~!PREEMPT_RT
-		~!RANDSTRUCT_FULL
-		~!RANDSTRUCT_PERFORMANCE
 		~!SLUB_DEBUG_ON
 		!DEBUG_MUTEXES
+		$(usev amd64 'X86_PAT')
 		$(usev powerd '~CPU_FREQ')
 	"
 
 	kernel_is -ge 6 11 && linux_chkconfig_present DRM_FBDEV_EMULATION &&
 		CONFIG_CHECK+=" DRM_TTM_HELPER"
-
-	use amd64 && kernel_is -ge 5 8 && CONFIG_CHECK+=" X86_PAT" #817764
 
 	local drm_helper_msg="Cannot be directly selected in the kernel's config menus, and may need
 	selection of a DRM device even if unused, e.g. CONFIG_DRM_QXL=m or
@@ -146,24 +145,17 @@ pkg_setup() {
 	will fail to build unless the env var IGNORE_PREEMPT_RT_PRESENCE=1 is
 	set. Please do not report issues if run into e.g. kernel panics while
 	ignoring this."
-	local randstruct_msg="is set but NVIDIA may be unstable with
-	it such as causing a kernel panic on shutdown, it is recommended to
-	disable with CONFIG_RANDSTRUCT_NONE=y (https://bugs.gentoo.org/969413
-	-- please report if this appears fixed on NVIDIA's side so can remove
-	this warning)."
-	local ERROR_RANDSTRUCT_FULL="CONFIG_RANDSTRUCT_FULL: ${randstruct_msg}"
-	local ERROR_RANDSTRUCT_PERFORMANCE="CONFIG_RANDSTRUCT_PERFORMANCE: ${randstruct_msg}"
 
 	linux-mod-r1_pkg_setup
 }
 
 src_prepare() {
 	# make patches usable across versions
-	rm nvidia-modprobe && mv nvidia-modprobe{-${PV},} || die
-	rm nvidia-persistenced && mv nvidia-persistenced{-${PV},} || die
-	rm nvidia-settings && mv nvidia-settings{-${PV},} || die
-	rm nvidia-xconfig && mv nvidia-xconfig{-${PV},} || die
-	mv NVIDIA-kernel-module-source-${PV} kernel-module-source || die
+	rm nvidia-modprobe && mv nvidia-modprobe{-${NV_PIN},} || die
+	rm nvidia-persistenced && mv nvidia-persistenced{-${NV_PIN},} || die
+	rm nvidia-settings && mv nvidia-settings{-${NV_PIN},} || die
+	rm nvidia-xconfig && mv nvidia-xconfig{-${NV_PIN},} || die
+	mv open-gpu-kernel-modules-${PV} kernel-module-source || die
 
 	default
 
@@ -186,12 +178,12 @@ src_compile() {
 	local xnvflags=-fPIC #840389
 	tc-is-lto && xnvflags+=" $(test-flags-CC -ffat-lto-objects)"
 
-	# Same as uname -m.
+	# same as uname -m
 	local target_arch
 	case ${ARCH} in
-		amd64) target_arch=x86_64 ;;
-		arm64) target_arch=aarch64 ;;
-		*) die "Unrecognised architecture: ${ARCH}" ;;
+		amd64) target_arch=x86_64;;
+		arm64) target_arch=aarch64;;
+		*) die "Unrecognised architecture: ${ARCH}";;
 	esac
 
 	NV_ARGS=(
@@ -215,6 +207,11 @@ src_compile() {
 		filter-lto
 		CC=${KERNEL_CC} CXX=${KERNEL_CXX} strip-unsupported-flags
 		LDFLAGS=$(raw-ldflags)
+
+		# the "blob" uses C++ which is an issue if there is debug symbols
+		# when running pahole, there is a pahole.sh wrapper that tries to
+		# exclude C++ but it did not seem to be enough last time tried
+		linux_chkconfig_present DEBUG_INFO_BTF_MODULES && append-flags -g0
 
 		: video:kernel-module-source:kernel-module-source/kernel-open
 		local modlist=( nvidia{,-drm,-modeset,-peermem,-uvm}=${_} )
@@ -540,17 +537,6 @@ pkg_postinst() {
 		ewarn "are available or fully functional, may need to consider nouveau[2])."
 		ewarn "[1] https://www.nvidia.com/object/IO_32667.html"
 		ewarn "[2] https://wiki.gentoo.org/wiki/Nouveau"
-	fi
-
-	if ver_replacing -lt 590; then
-		elog "\n>=${PN}-590 has changes that may or may not need attention:"
-		elog "1. support for Pascal, Maxwell, and Volta cards has been dropped"
-		elog "  (if affected, there should be a another message about this above)"
-		elog "2. nvidia-drm.modeset=1 is now default regardless of USE=wayland"
-		elog "3. nvidia-drm.fbdev=1 is now also tentatively default to match upstream"
-		elog "(2+3 were also later changed in >=580.126.09-r1, may already be in-use)"
-		elog "See ${EROOT}/etc/modprobe.d/nvidia.conf to modify settings if needed,"
-		elog "fbdev=1 *could* cause issues for the console display with some setups."
 	fi
 
 	if ver_replacing -lt 595; then
