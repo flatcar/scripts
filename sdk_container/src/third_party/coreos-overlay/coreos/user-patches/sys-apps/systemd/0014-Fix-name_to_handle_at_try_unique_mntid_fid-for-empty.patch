@@ -1,0 +1,29 @@
+From bc53b894296eb8650aa20f047335888dac75d258 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Mon, 20 Apr 2026 17:47:14 +0200
+Subject: [PATCH 14/14] Fix name_to_handle_at_try_unique_mntid_fid for empty
+ paths
+
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ src/basic/mountpoint-util.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/basic/mountpoint-util.c b/src/basic/mountpoint-util.c
+index aefbed6346..ce5698b772 100644
+--- a/src/basic/mountpoint-util.c
++++ b/src/basic/mountpoint-util.c
+@@ -156,6 +156,10 @@ int name_to_handle_at_try_unique_mntid_fid(
+ 
+         int mnt_id = -1, r;
+ 
++        if (isempty(path)) {
++                flags |= AT_EMPTY_PATH;
++        }
++
+         assert(fd >= 0 || fd == AT_FDCWD);
+ 
+         /* First issues name_to_handle_at() with AT_HANDLE_MNT_ID_UNIQUE and AT_HANDLE_FID.
+-- 
+2.52.0
+

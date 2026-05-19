@@ -1,7 +1,7 @@
-From 22332650e3b97479aca7144b04a6dbd2590596de Mon Sep 17 00:00:00 2001
+From 59f688e325c701e98cfe921cf115216970280d0a Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Mon, 6 Apr 2026 13:13:58 +0100
-Subject: [PATCH 14/18] config: Support oem:// schema in newer config spec
+Subject: [PATCH 14/20] config: Support oem:// schema in newer config spec
  versions
 
 Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>

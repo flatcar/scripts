@@ -13,14 +13,16 @@ S="${WORKDIR}/${PN^^}.${PV}"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="lvm nvme readline sanlock selinux static static-libs systemd thin +udev valgrind"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+IUSE="lvm nvme readline sanlock selinux static static-libs systemd test thin +udev valgrind"
 REQUIRED_USE="
 	static? ( !systemd !udev !nvme )
 	static-libs? ( static !udev )
 	systemd? ( udev )
+	test? ( lvm )
 	thin? ( lvm )
 "
+RESTRICT="!test? ( test )"
 
 # Doesn't strictly need >=sanlock-4.0.0 but autodetects features, so pick
 # the best we have for predictability. Ditto systemd.
@@ -33,6 +35,7 @@ DEPEND_COMMON="
 		sanlock? ( >=sys-cluster/sanlock-4.0.0 )
 		systemd? ( >=sys-apps/systemd-234:= )
 	)
+	nvme? ( >=sys-libs/libnvme-1.1 )
 "
 # /run is now required for locking during early boot. /var cannot be assumed to
 # be available -- thus, pull in recent enough baselayout for /run.
@@ -41,7 +44,6 @@ RDEPEND="
 	${DEPEND_COMMON}
 	>=sys-apps/baselayout-2.2
 	lvm? ( virtual/tmpfiles )
-	nvme? ( >=sys-libs/libnvme-1.1 )
 "
 
 PDEPEND="

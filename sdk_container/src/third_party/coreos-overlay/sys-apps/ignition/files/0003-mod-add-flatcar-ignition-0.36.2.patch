@@ -1,7 +1,7 @@
-From f5cbc16ad212778818865571136936c07079da51 Mon Sep 17 00:00:00 2001
+From b07614bc00ce9f6e5c8ed70f0dc15ef615900e9c Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 12 Aug 2025 15:10:05 +0200
-Subject: [PATCH 03/19] mod: add flatcar/ignition@0.36.2
+Subject: [PATCH 03/20] mod: add flatcar/ignition@0.36.2
 
 it's required for Ignition conversion.
 
@@ -184,5 +184,5 @@ index 217fbf7c..9f997768 100644
  gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
  gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 -- 
-2.51.0
+2.53.0
 

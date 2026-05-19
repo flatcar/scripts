@@ -41,9 +41,6 @@ app-crypt/azure-keyvault-pkcs11
 # Keep versions on both arches in sync.
 =app-crypt/mit-krb5-1.21.3-r1 ~arm64
 
-# Needed to address CVE-2026-2100.
-=app-crypt/p11-kit-0.26.2
-
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
@@ -94,23 +91,14 @@ dev-db/etcd amd64
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.8-r1 ~arm64
 
-# Needed to address CVE-2025-14831, CVE-2026-1584
-=net-libs/gnutls-3.8.12
-
 # Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
-
-# Needed to address CVE-2025-10158
-=net-misc/rsync-3.4.1-r2
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
 sys-apps/azure-vm-utils
-
-# Will be handy for arm64 sdk.
-=sys-apps/iucode_tool-2.3.1-r2
 
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.2.1 ~arm64
@@ -125,14 +113,10 @@ sys-apps/azure-vm-utils
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
-=sys-devel/binutils-2.46.0
 =sys-fs/lxcfs-6.0.5 ~arm64
 
 # Bump early for newer features.
 =sys-kernel/dracut-109* ~amd64 ~arm64
-
-# Keep versions on both arches in sync.
-=sys-libs/binutils-libs-2.46.0
 
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.

@@ -1,7 +1,7 @@
-From b3430348f5ae93251076fb4e3b4aecbfa02513b5 Mon Sep 17 00:00:00 2001
+From bbc8ff28a7f0208b6b1020d0d2ca900cdfb5a42f Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 24 Oct 2025 11:06:57 +0200
-Subject: [PATCH 08/20] units: Make multi-user.target the default target
+Subject: [PATCH 08/14] units: Make multi-user.target the default target
 
 Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/units/meson.build b/units/meson.build
-index 4f47a3b2bd..63940a72be 100644
+index 12cf47d797..58de76dca9 100644
 --- a/units/meson.build
 +++ b/units/meson.build
 @@ -47,10 +47,7 @@ units = [
@@ -33,9 +33,9 @@ index 4f47a3b2bd..63940a72be 100644
 +          'file' : 'multi-user.target',
 +          'symlinks' : ['default.target'],
 +        },
-         { 'file' : 'network-online.target' },
-         { 'file' : 'network-pre.target' },
-         { 'file' : 'network.target' },
+         {
+           'file' : 'systemd-mute-console.socket',
+           'symlinks' : ['sockets.target.wants/']
 -- 
 2.52.0
 

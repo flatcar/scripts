@@ -1,7 +1,7 @@
-From fcc27c877309fc610b5de7f049ff831bbc7d2de8 Mon Sep 17 00:00:00 2001
+From ed686434658d0f1835f4bcc9231677af537e779f Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 12 Aug 2025 15:04:40 +0200
-Subject: [PATCH 01/19] *: sed `s/coreos/flatcar/`
+Subject: [PATCH 01/20] *: sed `s/coreos/flatcar/`
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
@@ -7459,5 +7459,5 @@ index f32eb29b..390f5ef8 100644
  
  var (
 -- 
-2.51.0
+2.53.0
 
