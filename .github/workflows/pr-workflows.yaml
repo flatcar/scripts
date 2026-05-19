@@ -19,7 +19,10 @@ jobs:
     # to approve the workflow for every job that kicks off. Given that the jobs
     # are sequenced, this is cumbersome. Use this job as a gate and make the rest
     # dependent on it.
-    environment: development
+    #
+    # Skip the environment gate for auto-ci PRs from the bot to allow
+    # automatic triggering without manual approval.
+    environment: ${{ (github.actor != 'flatcar-infra' || !contains(github.event.pull_request.labels.*.name, 'auto-ci')) && 'development' || '' }}
     outputs:
       sdk_changes: ${{ steps.step1.outputs.sdk_changes }}
     steps:
