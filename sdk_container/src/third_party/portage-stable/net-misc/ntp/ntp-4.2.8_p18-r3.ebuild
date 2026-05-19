@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,7 +14,7 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="HPND BSD ISC"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
-IUSE="caps debug ipv6 openntpd parse-clocks readline samba selinux snmp ssl +threads vim-syntax zeroconf"
+IUSE="caps debug openntpd parse-clocks readline samba selinux snmp ssl +threads vim-syntax zeroconf"
 
 DEPEND="
 	>=dev-libs/libevent-2.0.9:=[threads(+)?]
@@ -42,10 +42,13 @@ BDEPEND="
 PDEPEND="openntpd? ( net-misc/openntpd )"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-4.2.8-ipc-caps.patch # bug #533966
+	"${FILESDIR}"/${PN}-4.2.8_p18-ipc-caps.patch # bug #533966
 	"${FILESDIR}"/${PN}-4.2.8-sntp-test-pthreads.patch # bug #563922
 	"${FILESDIR}"/${PN}-4.2.8_p14-add_cap_ipc_lock.patch # bug #711530
 	"${FILESDIR}"/${PN}-4.2.8_p15-configure-clang16.patch
+	"${FILESDIR}"/${PN}-4.2.8_p18-c99.patch # bug #956643
+	"${FILESDIR}"/${PN}-4.2.8_p18-r2-bind-fail-NULL-dereference.patch # bug #962770
+	"${FILESDIR}"/${PN}-4.2.8-configure.patch # bug 969483
 )
 
 src_prepare() {
@@ -62,8 +65,13 @@ src_prepare() {
 }
 
 src_configure() {
+	# Ancient codebase, lto-type-mismatch in testsuite in packetProcesisng.c
+	# where patching it then needs Ruby.
+	filter-lto
+
 	# bug #264109
 	append-cppflags -D_GNU_SOURCE
+	append-cflags -fno-strict-overflow
 
 	# https://bugs.gentoo.org/922508
 	append-lfs-flags
@@ -92,7 +100,6 @@ src_configure() {
 
 		$(use_enable caps linuxcaps)
 		$(use_enable parse-clocks)
-		$(use_enable ipv6)
 		$(use_enable debug debugging)
 		$(use_with readline lineeditlibs readline)
 		$(use_enable samba ntp-signd)
@@ -116,12 +123,9 @@ src_install() {
 	insinto /etc
 	doins "${FILESDIR}"/ntp.conf
 
-	#bug #524726
-	use ipv6 || sed -i '/^restrict .*::1/d' "${ED}"/etc/ntp.conf
-
 	newinitd "${FILESDIR}"/ntpd.rc-r2 ntpd
 	newconfd "${FILESDIR}"/ntpd.confd ntpd
-	newinitd "${FILESDIR}"/ntp-client.rc ntp-client
+	newinitd "${FILESDIR}"/ntp-client.rc-r1 ntp-client
 	newconfd "${FILESDIR}"/ntp-client.confd ntp-client
 	newinitd "${FILESDIR}"/sntp.rc sntp
 	newconfd "${FILESDIR}"/sntp.confd sntp
