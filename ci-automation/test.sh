@@ -157,6 +157,8 @@ function _test_run_impl() {
     local tests_escaped=()
     __escape_multiple tests_escaped "${@}"
 
+    # Remove the old results first
+    rm -f ${tests_dir}/*-run-1.* || true
     # Vendor tests may need to know if it is a first run or a rerun
     touch "${work_dir}/first_run"
     for retry in $(seq "${retries}"); do
@@ -175,6 +177,11 @@ function _test_run_impl() {
                   ci-automation/vendor-testing/${image_escaped}.sh ${common_test_args_escaped[*]} ${tapfile_escaped} ${tests_escaped[*]}"
         set -e
         rm -f "${work_dir}/first_run"
+
+        [[ -s "${tests_dir}/${tapfile}" ]] || {
+            echo "ERROR: something went wrong, result is empty: ${tests_dir}/${tapfile}"
+            break
+        }
 
         # Note: git safe.directory is not set in this run as it does not use git
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
