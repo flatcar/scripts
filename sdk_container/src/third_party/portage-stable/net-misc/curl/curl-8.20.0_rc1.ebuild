@@ -64,6 +64,7 @@ REQUIRED_USE="
 			openssl
 			gnutls
 		)
+		!gnutls
 		!mbedtls
 		!rustls
 		http3
