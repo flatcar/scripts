@@ -64,6 +64,7 @@ RDEPEND="
 		>=app-admin/eselect-1.2
 		app-portage/getuto
 		>=app-shells/bash-5.3:0
+		dev-util/debugedit
 		>=sec-keys/openpgp-keys-gentoo-release-20240703
 		>=sys-apps/sed-4.0.5
 		rsync-verify? (
@@ -93,6 +94,8 @@ PDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/0001-estrip-silence-noise-from-objcopy-if-build-ID-sectio.patch
+	"${FILESDIR}"/0002-Revert-depgraph-earlier-slot-operator-backtracking.patch
+	"${FILESDIR}"/0003-estrip-Don-t-break-the-debuglink-CRC-with-the-salted.patch
 )
 
 pkg_pretend() {
