@@ -139,6 +139,7 @@ create_prod_image() {
   sudo rm -rf "${BUILD_DIR}/root_fs_dir2"
 
   # clean-ups of things we do not need
+  sudo find ${root_fs_dir}/usr/bin -empty -delete # Bind mounts created by bwrap
   sudo rm ${root_fs_dir}/etc/csh.env
   sudo rm -rf ${root_fs_dir}/etc/env.d
   sudo rm -rf ${root_fs_dir}/usr/include

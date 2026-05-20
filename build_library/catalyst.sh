@@ -25,6 +25,7 @@ BINPKGS=
 DISTDIR=
 TEMPDIR=
 STAGES=
+unset QEMU
 
 DEFINE_string catalyst_root "${DEFAULT_CATALYST_ROOT}" \
     "Path to directory for all catalyst images and other files."
@@ -97,6 +98,7 @@ cflags: -O2 -pipe
 cxxflags: -O2 -pipe
 ldflags: -Wl,-O2 -Wl,--as-needed
 source_subpath: ${SEED}
+${QEMU+interpreter: $(type -P "${QEMU}")}
 EOF
 }
 
@@ -207,6 +209,16 @@ catalyst_init() {
         SEED="seed/${FLAGS_seed_tarball##*/}"
         SEED="${SEED%.tar.*}"
     fi
+
+    # Emulate the build, if needed. Note the SDK itself may already be emulated,
+    # so check the requested arch against the kernel's real arch, not uname -m.
+    if [[ ${ARCH} != $(get_portage_arch "$(< /proc/sys/kernel/arch)") ]]; then
+        case "${ARCH}" in
+            amd64) QEMU=qemu-x86_64 ;;
+            arm64) QEMU=qemu-aarch64 ;;
+            riscv) QEMU=qemu-riscv64 ;;
+        esac
+    fi
 }
 
 write_configs() {
@@ -226,6 +238,9 @@ write_configs() {
 
     ln -sfT '/mnt/host/source/src/third_party/coreos-overlay/coreos/user-patches' \
         "${TEMPDIR}"/portage/patches
+
+    [[ -n ${QEMU} ]] ||
+        rm "${TEMPDIR}"/portage/package.env/qemu
 }
 
 build_stage() {
