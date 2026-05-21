@@ -46,7 +46,7 @@ function _release_azure_marketplace_impl() {
     -e AZ_SECRET_VALUE="${AZ_SECRET_VALUE}" \
     -v "${PWD}"/ci-automation/release/azure_marketplace_publish.py:/app/azure_marketplace_publish.py \
     -w /app \
-    ghcr.io/astral-sh/uv:alpine \
+    ghcr.io/flatcar/uv:alpine \
     uv run azure_marketplace_publish.py \
       -p "${channel}" \
       -v "${vernum}"
