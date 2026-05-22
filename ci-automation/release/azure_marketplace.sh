@@ -5,11 +5,11 @@
 
 # Run a subshell, so the traps, environment changes and global
 # variables are not spilled into the caller.
-function release_azure_marketplace() {
+function release_azure_marketplace() (
   set -euo pipefail
 
   _release_azure_marketplace_impl "${@}"
-}
+)
 
 secret_from_base64() {
   local key="$1"
