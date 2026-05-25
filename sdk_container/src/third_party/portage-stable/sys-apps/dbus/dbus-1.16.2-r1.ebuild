@@ -19,9 +19,9 @@ SRC_URI="https://dbus.freedesktop.org/releases/dbus/${P}.tar.xz"
 
 LICENSE="|| ( AFL-2.1 GPL-2+ ) Apache-2.0 BSD GPL-2+ LGPL-2.1+ MIT tcltk"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos ~x64-solaris"
 # TODO: USE=daemon
-IUSE="debug doc elogind selinux static-libs systemd test valgrind X"
+IUSE="apparmor audit debug doc elogind selinux static-libs systemd test valgrind X"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
@@ -35,9 +35,10 @@ BDEPEND="
 "
 COMMON_DEPEND="
 	>=dev-libs/expat-2.1.0
+	apparmor? ( sys-libs/libapparmor )
+	audit? ( sys-process/audit )
 	elogind? ( sys-auth/elogind )
 	selinux? (
-		sys-process/audit
 		sys-libs/libselinux
 	)
 	systemd? ( sys-apps/systemd:= )
@@ -69,7 +70,7 @@ PATCHES=(
 )
 
 pkg_setup() {
-	# Python interpeter required unconditionally (bug #932517)
+	# Python interpreter required unconditionally (bug #932517)
 	python-any-r1_pkg_setup
 
 	if use kernel_linux; then
@@ -94,7 +95,6 @@ multilib_src_configure() {
 
 		-Ddefault_library=$(multilib_native_usex static-libs both shared)
 
-		-Dapparmor=disabled
 		-Dasserts=false # TODO
 		-Dchecks=false # TODO
 		$(meson_use debug stats)
@@ -118,10 +118,9 @@ multilib_src_configure() {
 		$(meson_native_use_feature X x11_autolaunch)
 		$(meson_native_use_feature valgrind)
 
-		# libaudit is *only* used in DBus wrt SELinux support, so disable it if
-		# not on an SELinux profile.
+		$(meson_native_use_feature apparmor)
+		$(meson_native_use_feature audit libaudit)
 		$(meson_native_use_feature selinux)
-		$(meson_native_use_feature selinux libaudit)
 
 		-Dsession_socket_dir="${EPREFIX}"/tmp
 		-Dsystem_pid_file="${EPREFIX}${rundir}"/dbus.pid
