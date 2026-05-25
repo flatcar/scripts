@@ -10,7 +10,7 @@ PLOCALES_BIN="${PLOCALES} bg cs eu fi hu id it ka nb nl pl pt tg zh_TW zh_CN"
 PLOCALE_BACKUP="sv"
 PYTHON_COMPAT=( python3_{11..14} )
 
-inherit autotools linux-info multilib-minimal optfeature plocale \
+inherit autotools fcaps linux-info multilib-minimal optfeature plocale \
 	python-single-r1 pam systemd tmpfiles udev toolchain-funcs verify-sig
 
 DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
@@ -18,7 +18,7 @@ HOMEPAGE="https://github.com/SSSD/sssd"
 if [[ ${PV} != 9999 ]]; then
 	SRC_URI="https://github.com/SSSD/sssd/releases/download/${PV}/${P}.tar.gz
 		https://github.com/SSSD/sssd/releases/download/${PV}/${P}.tar.gz.asc"
-	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc x86"
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/SSSD/sssd.git"
@@ -79,7 +79,6 @@ DEPEND="
 RDEPEND="${DEPEND}
 	acct-user/sssd
 	acct-group/sssd
-	passkey? ( sys-apps/pcsc-lite[policykit] )
 	selinux? ( >=sec-policy/selinux-sssd-2.20120725-r9 )"
 DEPEND+="
 	sys-apps/shadow"
@@ -115,6 +114,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.8.2-krb5_pw_locked.patch"
 	"${FILESDIR}/${PN}-2.9.6-conditional-python-install.patch"
 	"${FILESDIR}/${PN}-2.10.0_beta2-fix-systemd-systemconfdir.patch"
+	"${FILESDIR}/${PN}-2.12.0-dont-clobber-getpwnam-buffer.patch"
 )
 
 MULTILIB_WRAPPED_HEADERS=(
@@ -128,41 +128,19 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/sss_certmap.h
 )
 
-sssd_migrate_files() {
-	if has_version "<=sys-auth/sssd-2.9.9999"
-	then
-		einfo "Checking if sssd is running"
-		if [ -f /run/sssd.pid ]
-		then
-			elog "Please stop sssd after installing before"
-			elog "performing the migration process"
-		fi
-		einfo "Checking if /var/lib/sss ownership"
-		if [ -d /var/lib/sss ] && [ $(stat -c "%U:%G" /var/lib/sss) != "sssd:sssd" ]
-		then
-			elog "After installing, please execute"
-			elog "chown -R sssd:sssd /var/lib/sss"
-		fi
-		einfo "Checking if /var/log/sssd ownership"
-		if [ -d /var/log/sssd ] && [ $(stat -c "%U:%G" /var/log/sssd) != "sssd:sssd" ]
-		then
-			elog "After installing, please execute"
-			elog "chown -R sssd:sssd /var/log/sssd"
-		fi
-		einfo "Checking if /etc/sssd ownership"
-		if ! use systemd && [ -d /etc/sssd ] && [ $(stat -c "%U:%G" /etc/sssd) != "root:sssd" ]
-		then
-			elog "After installing, please execute"
-			elog "chown -R root:sssd /etc/sssd"
-		fi
-	fi
-}
+# mimic upstream's setcap here, they're liable to get lost
+# https://github.com/SSSD/sssd/blob/a6d0f0cf484aeeead535b7138d1334b309c61a4e/Makefile.am#L5567
+FILECAPS=(
+	cap_dac_read_search=p "usr/libexec/sssd/ldap_child"
+	--
+	cap_dac_read_search,cap_setuid,cap_setgid=p "usr/libexec/sssd/krb5_child"
+	--
+	cap_dac_read_search=p "usr/libexec/sssd/sssd_pam"
+)
 
 pkg_setup() {
 	linux-info_pkg_setup
 	python-single-r1_pkg_setup
-
-	sssd_migrate_files
 }
 
 src_prepare() {
@@ -273,6 +251,7 @@ multilib_src_configure() {
 
 	use systemd && myconf+=(
 		--with-systemdunitdir=$(systemd_get_systemunitdir)
+		--with-syslog=$(usex systemd journald syslog)
 	)
 
 	if ! multilib_is_native_abi; then
@@ -377,6 +356,8 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
+	fcaps_pkg_postinst
+	udev_reload
 	tmpfiles_process sssd-tmpfiles.conf
 	echo
 	elog "You must set up sssd.conf (default installed into /etc/sssd)"
@@ -389,4 +370,8 @@ pkg_postinst() {
 		echo
 		ewarn "sssctl analyze will not work because the python USE flag is disabled."
 	fi
+}
+
+pkg_postrm() {
+	udev_reload
 }
