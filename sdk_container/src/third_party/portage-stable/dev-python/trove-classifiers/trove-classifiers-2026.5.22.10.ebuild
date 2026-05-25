@@ -1,11 +1,11 @@
-# Copyright 2022-2025 Gentoo Authors
+# Copyright 2022-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=flit
 PYPI_VERIFY_REPO=https://github.com/pypa/trove-classifiers
-PYTHON_COMPAT=( pypy3_11 python3_{11..14} python3_{13,14}t )
+PYTHON_COMPAT=( pypy3_11 python3_{11..15} python3_{13..15}t )
 
 inherit distutils-r1 pypi
 
@@ -17,7 +17,7 @@ HOMEPAGE="
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 
 EPYTEST_PLUGINS=()
 distutils_enable_tests pytest
