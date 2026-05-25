@@ -6,12 +6,11 @@ EAPI=8
 # Maintenance notes and explanations of GCC handling are on the wiki:
 # https://wiki.gentoo.org/wiki/Project:Toolchain/sys-devel/gcc
 
-TOOLCHAIN_PATCH_DEV="sam"
 TOOLCHAIN_HAS_TESTS=1
-PATCH_GCC_VER="16.0.0"
-PATCH_VER="39"
+PATCH_GCC_VER="17.0.0"
+PATCH_VER="4"
+MUSL_GCC_VER="17.0.0"
 MUSL_VER="1"
-MUSL_GCC_VER="16.0.0"
 PYTHON_COMPAT=( python3_{11..14} )
 
 if [[ -n ${TOOLCHAIN_GCC_RC} ]] ; then
