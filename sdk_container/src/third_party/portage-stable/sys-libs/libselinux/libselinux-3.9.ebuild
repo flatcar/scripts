@@ -5,12 +5,11 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_EXT=1
-DISTUTILS_OPTIONAL=1
 PYTHON_COMPAT=( python3_{11..14} )
 USE_RUBY="ruby32 ruby33"
 
 # No, I am not calling ruby-ng
-inherit distutils-r1 dot-a flag-o-matic toolchain-funcs multilib-minimal
+inherit distutils-r1 flag-o-matic toolchain-funcs multilib-minimal
 
 MY_PV="${PV//_/-}"
 MY_P="${PN}-${MY_PV}"
@@ -24,7 +23,7 @@ if [[ ${PV} == 9999 ]]; then
 	S="${WORKDIR}/${P}/${PN}"
 else
 	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~riscv ~x86"
+	KEYWORDS="amd64 arm arm64 ~mips ~riscv x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -46,17 +45,11 @@ BDEPEND="virtual/pkgconfig
 	python? (
 		>=dev-lang/swig-2.0.9
 		dev-python/pip[${PYTHON_USEDEP}]
-		${PYTHON_DEPS}
-		${DISTUTILS_DEPS}
-	)
+)
 	ruby? ( >=dev-lang/swig-2.0.9 )"
 
 src_prepare() {
 	eapply_user
-
-	if use python; then
-		distutils-r1_src_prepare
-	fi
 
 	multilib_copy_sources
 }
@@ -67,18 +60,7 @@ src_configure() {
 	# https://github.com/SELinuxProject/selinux/issues/512
 	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
-	use static-libs && lto-guarantee-fat
-
 	multilib-minimal_src_configure
-}
-
-multilib_src_configure() {
-	default
-	if multilib_is_native_abi; then
-		if use python; then
-			distutils-r1_src_configure
-		fi
-	fi
 }
 
 multilib_src_compile() {
@@ -125,16 +107,6 @@ multilib_src_compile() {
 	fi
 }
 
-multilib_src_test() {
-	default
-
-	if multilib_is_native_abi; then
-		if use python; then
-			distutils-r1_src_test
-		fi
-	fi
-}
-
 multilib_src_install() {
 	emake DESTDIR="${D}" \
 		LIBDIR="\$(PREFIX)/$(get_libdir)" \
@@ -171,11 +143,7 @@ multilib_src_install() {
 		fi
 	fi
 
-	if use static-libs; then
-		strip-lto-bytecode
-	else
-		rm "${ED}"/usr/$(get_libdir)/*.a || die
-	fi
+	use static-libs || rm "${ED}"/usr/$(get_libdir)/*.a || die
 }
 
 python_install() {
