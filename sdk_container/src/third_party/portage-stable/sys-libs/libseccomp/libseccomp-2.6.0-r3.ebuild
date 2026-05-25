@@ -6,7 +6,7 @@ EAPI=8
 DISTUTILS_EXT=1
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 inherit distutils-r1 multilib-minimal multiprocessing
 
@@ -117,7 +117,7 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
-	local -x LIBSECCOMP_TSTCFG_JOBS="$(makeopts_jobs)"
+	local -x LIBSECCOMP_TSTCFG_JOBS="$(get_makeopts_jobs)"
 	emake -Onone check
 
 	if multilib_is_native_abi && use python ; then
