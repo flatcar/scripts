@@ -442,6 +442,7 @@ eclass/linux-info.eclass
 eclass/linux-mod-r1.eclass
 eclass/linux-mod.eclass
 eclass/llvm-r1.eclass
+eclass/llvm-r2.eclass
 eclass/llvm-utils.eclass
 eclass/llvm.eclass
 eclass/lua-single.eclass
@@ -500,6 +501,7 @@ eclass/udev.eclass
 eclass/unpacker.eclass
 eclass/user-info.eclass
 eclass/usr-ldscript.eclass
+eclass/vala.eclass
 eclass/vcs-clean.eclass
 eclass/vcs-snapshot.eclass
 eclass/verify-sig.eclass
