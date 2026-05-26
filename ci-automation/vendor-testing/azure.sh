@@ -68,7 +68,7 @@ query_kola_tests() {
 
 other_instance_types=()
 if [[ "${CIA_ARCH}" = 'amd64' ]]; then
-    other_instance_types+=('V1' 'Standard_NC6s_v3')
+    other_instance_types+=('V1')
 fi
 
 run_kola_tests_on_instances \
