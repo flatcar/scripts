@@ -199,3 +199,6 @@ dev-perl/File-Slurper minimal
 
 # This is only needed for debuginfod support, which we masked.
 dev-libs/elfutils -libarchive
+
+# Needed by net-fs/samba
+net-libs/ngtcp2 gnutls
