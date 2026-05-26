@@ -25,7 +25,7 @@
 =app-containers/syft-1.18.1 ~amd64 ~arm64
 
 # Seems to be the only available ebuild in portage-stable right now.
-=app-crypt/adcli-0.9.2 ~arm64
+=app-crypt/adcli-0.9.3.1
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
@@ -89,9 +89,7 @@ dev-db/etcd amd64
 =net-analyzer/netperf-2.7.0_p20210121-r1
 
 # Keep versions on both arches in sync.
-=net-firewall/conntrack-tools-1.4.8-r1 ~arm64
-
-# Keep versions on both arches in sync.
+=net-firewall/conntrack-tools-1.4.9
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
@@ -102,11 +100,7 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.2.1 ~arm64
-
-# Needed to address CVE-2025-11561
-=sys-auth/sssd-2.9.8
-
-# Keep versions on both arches in sync.
+=sys-auth/sssd-2.13.0
 =sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
