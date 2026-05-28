@@ -55,6 +55,9 @@ dev-cpp/azure-security-keyvault-keys
 # Not stabilised for arm64 yet.
 dev-db/etcd amd64
 
+# To address a bunch of CVEs.
+=dev-lang/go-1.26.3
+
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
