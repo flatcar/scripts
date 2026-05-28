@@ -62,9 +62,6 @@ dev-db/etcd amd64
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
 
-# Needed to address CVE-2025-13601, CVE-2025-14087
-=dev-libs/glib-2.84.4-r2
-
 # The only available ebuild has ~amd64 and no keyword for arm64 yet.
 =dev-libs/jose-14 **
 
