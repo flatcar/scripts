@@ -205,3 +205,6 @@ net-libs/ngtcp2 gnutls
 
 # Pulls in dev-python/mypy, which pulls in even more stuff.
 dev-python/charset-normalizer -native-extensions
+
+# We only use rust for compiling, not for formatting or linting.
+dev-lang/rust -clippy -doc -rustfmt
