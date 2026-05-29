@@ -55,15 +55,3 @@ jobs:
           SDK_NAME: ${{ steps.setup-flatcar-sdk.outputs.SDK_NAME }}
           TARGET_BRANCH: ${{ steps.figure-out-branch.outputs.BRANCH }}
         run: gha/.github/workflows/cacerts-apply-patch.sh
-      - name: Create pull request
-        if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.BOT_PR_TOKEN }}
-          path: work
-          branch: "cacerts-${{ steps.nss-latest-release.outputs.NSS_VERSION }}-${{ steps.figure-out-branch.outputs.BRANCH }}"
-          base: ${{ steps.figure-out-branch.outputs.BRANCH }}
-          title: Update ca-certificates in ${{ steps.figure-out-branch.outputs.BRANCH }} from ${{ steps.apply-patch.outputs.VERSION_OLD }} to ${{ steps.nss-latest-release.outputs.NSS_VERSION }}
-          body: Subject says it all.
-          labels: ${{ steps.figure-out-branch.outputs.LABEL }}
-          signoff: true
