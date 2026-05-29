@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>maintainer@flatcar-linux.org</email>
+		<name>Flatcar Maintainers</name>
+	</maintainer>
+	<longdescription>
+		librepo is a library for downloading repository metadata and packages.
+		Used by DNF and other package managers.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">rpm-software-management/librepo</remote-id>
+	</upstream>
+</pkgmetadata>

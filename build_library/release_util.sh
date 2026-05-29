@@ -88,8 +88,8 @@ compress_disk_images() {
             # If requested, delete the input file after compression (only if 'none' is not part of the formats)
             # Exclude the generic image and update payload because they are needed for generating other formats
             if [ "${FLAGS_only_store_compressed}" -eq "${FLAGS_TRUE}" ] &&
-               [ "${filename##*/}" != "flatcar_production_image.bin" ] &&
-               [ "${filename##*/}" != "flatcar_production_update.bin" ] &&
+               [[ "${filename##*/}" != *"_production_image.bin" ]] &&
+               [[ "${filename##*/}" != *"_production_update.bin" ]] &&
                ! echo "${FORMATS[@]}" | grep -q "none"; then
                 info "Removing ${filename}"
                 rm "${filename}"

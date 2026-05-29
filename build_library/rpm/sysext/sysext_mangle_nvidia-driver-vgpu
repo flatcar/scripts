@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Mangle script for the nvidia-driver-vgpu sysext.
+#
+# systemd-sysext only merges /usr and /opt, so any files the RPM installs
+# outside those trees must be relocated.
+#
+# Files needing relocation from the nvidia-vgpu-guest-driver RPM:
+#   /var/log/nvidia-installer.log        → removed (build artifact)
+#   /etc/modprobe.d/grid-setup.conf      → /usr/lib/modprobe.d/ (native search path)
+#   /etc/nvidia/gridd.conf               → stashed + tmpfiles.d symlink
+
+set -euo pipefail
+
+SYSEXT_NAME="nvidia-driver-vgpu"
+rootfs="$1"
+
+cd "${rootfs}"
+
+# ── Relocate /etc/modprobe.d/ → /usr/lib/modprobe.d/ ────────────────
+# systemd natively searches /usr/lib/modprobe.d, no symlink needed.
+if [[ -d ./etc/modprobe.d ]]; then
+    mkdir -p ./usr/lib/modprobe.d
+    cp -a ./etc/modprobe.d/. ./usr/lib/modprobe.d/
+    rm -rf ./etc/modprobe.d
+fi
+
+# ── Relocate remaining /etc files → /usr/share/<sysext>/etc/ ────────
+# Create tmpfiles.d rules to symlink them back at boot.
+stash_dir="/usr/share/${SYSEXT_NAME}/etc"
+tmpfiles_conf="/usr/lib/tmpfiles.d/${SYSEXT_NAME}-etc.conf"
+
+if [[ -d ./etc ]]; then
+    rm -f ./etc/ld.so.cache  # regenerated at boot
+
+    ( cd ./etc && find . -type f -o -type l ) | sed 's|^\./||' | sort \
+    | while read -r rel; do
+        mkdir -p ".${stash_dir}/$(dirname "$rel")"
+        mv "./etc/${rel}" ".${stash_dir}/$(dirname "$rel")/"
+        # tmpfiles.d rule: create symlink /etc/<rel> → stash location
+        mkdir -p ".$(dirname "${tmpfiles_conf}")"
+        echo "L+ /etc/${rel} - - - - ${stash_dir}/${rel}" >> ".${tmpfiles_conf}"
+    done
+    rm -rf ./etc
+fi

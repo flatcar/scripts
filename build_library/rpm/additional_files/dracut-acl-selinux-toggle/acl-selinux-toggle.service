@@ -1,0 +1,15 @@
+[Unit]
+Description=Set SELinux mode from Azure IMDS tags (initrd)
+DefaultDependencies=no
+RequiresMountsFor=/sysroot/usr/
+After=initrd-setup-root.service
+Before=initrd-parse-etc.service
+ConditionVirtualization=microsoft
+ConditionKernelCommandLine=flatcar.oem.id=azure
+ConditionPathExists=/sysroot/etc/selinux/config
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/acl-selinux-toggle
+StandardOutput=journal+console

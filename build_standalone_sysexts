@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Build standalone sysext images as .raw artifacts.
+# Designed to run inside the SDK container, analogous to build_sysext.
+# Reads STANDALONE_SYSEXTS_SPEC from the environment and delegates to
+# build_standalone_sysext_images() in build_library/standalone_sysext_util.sh.
+
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
+# Script must run inside the chroot
+assert_inside_chroot
+
+. "${BUILD_LIBRARY_DIR}/standalone_sysext_util.sh" || exit 1
+
+DEFINE_string board "${DEFAULT_BOARD}" \
+  "Board for which to build sysexts."
+DEFINE_string squashfs_base "" \
+  "Path to the sysext base squashfs image."
+DEFINE_string output_dir "" \
+  "Directory for built sysext artifacts."
+
+FLAGS "$@" || exit 1
+eval set -- "${FLAGS_ARGV}"
+
+switch_to_strict_mode
+
+if [[ -z "${FLAGS_squashfs_base}" ]]; then
+    die "--squashfs_base is required"
+fi
+if [[ -z "${FLAGS_output_dir}" ]]; then
+    die "--output_dir is required"
+fi
+
+BOARD="${FLAGS_board}"
+
+build_standalone_sysext_images "${FLAGS_squashfs_base}" "${FLAGS_output_dir}"

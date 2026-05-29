@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>maintainer-needed@gentoo.org</email>
+	</maintainer>
+	<longdescription>
+		Libcomps is a library for structure-like manipulation with content of
+		comps XML files. It supports read/write XML files and structure modification.
+		Comps files define package groups for RPM-based package managers.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">rpm-software-management/libcomps</remote-id>
+	</upstream>
+	<use>
+		<flag name="python">Build Python bindings for libcomps</flag>
+	</use>
+</pkgmetadata>

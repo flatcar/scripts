@@ -1,0 +1,47 @@
+From 1d3a3696f879501302ead9baa348cc937bac9f1c Mon Sep 17 00:00:00 2001
+From: Chris PeBenito <chpebeni@linux.microsoft.com>
+Date: Fri, 22 Aug 2025 13:39:47 -0400
+Subject: [PATCH 58/59] sysnetwork: Silence sys_admin denials.
+
+Fix issues like below log where denials are generated but the syscall
+still succeeds.
+
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: DUID 00:01:00:01:30:3b:27:90:7c:1e:52:7f:40:01
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: IAID 52:7f:40:01
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: soliciting a DHCP lease
+Aug 22 13:05:20 azure-linux audit[1053]: AVC avc:  denied  { sys_admin } for  pid=1053 comm="dhcpcd" capability=21  scontext=system_u:system_r:dhcpc_t:s0 tcontext=system_u:system_r:dhcpc_t:s0 tclass=capability permissive=0
+Aug 22 13:05:20 azure-linux audit[1053]: AVC avc:  denied  { sys_admin } for  pid=1053 comm="dhcpcd" capability=21  scontext=system_u:system_r:dhcpc_t:s0 tcontext=system_u:system_r:dhcpc_t:s0 tclass=capability permissive=0
+Aug 22 13:05:20 azure-linux audit[1053]: AVC avc:  denied  { sys_admin } for  pid=1053 comm="dhcpcd" capability=21  scontext=system_u:system_r:dhcpc_t:s0 tcontext=system_u:system_r:dhcpc_t:s0 tclass=capability permissive=0
+Aug 22 13:05:20 azure-linux audit[1053]: AVC avc:  denied  { sys_admin } for  pid=1053 comm="dhcpcd" capability=21  scontext=system_u:system_r:dhcpc_t:s0 tcontext=system_u:system_r:dhcpc_t:s0 tclass=capability permissive=0
+Aug 22 13:05:20 azure-linux audit[1053]: AVC avc:  denied  { sys_admin } for  pid=1053 comm="dhcpcd" capability=21  scontext=system_u:system_r:dhcpc_t:s0 tcontext=system_u:system_r:dhcpc_t:s0 tclass=capability permissive=0
+Aug 22 13:05:20 azure-linux audit[1053]: SYSCALL arch=c000003e syscall=54 success=yes exit=0 a0=3 a1=1 a2=1a a3=7ffe99d89510 items=0 ppid=1044 pid=1053 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="dhcpcd" exe="/usr/sbin/dhcpcd" subj=system_u:system_r:dhcpc_t:s0 key=(null)
+Aug 22 13:05:20 azure-linux audit: PROCTITLE proctitle=6468637063643A205B42504620424F4F54505D2065746830
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: offered 172.20.0.4 from 168.63.129.16 IAD021070618103
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: leased 172.20.0.4 for infinity
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: adding route to 172.20.0.0/24
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: adding default route via 172.20.0.1
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: adding host route to 168.63.129.16 via 172.20.0.1
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: eth0: adding host route to 169.254.169.254 via 172.20.0.1
+Aug 22 13:05:20 azure-linux dhcpcd[1044]: control command: /usr/sbin/dhcpcd --dumplease --ipv4only eth0
+
+Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+---
+ policy/modules/system/sysnetwork.te | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/policy/modules/system/sysnetwork.te b/policy/modules/system/sysnetwork.te
+index 54139370b..9c27d68fb 100644
+--- a/policy/modules/system/sysnetwork.te
++++ b/policy/modules/system/sysnetwork.te
+@@ -62,7 +62,7 @@ ifdef(`distro_debian',`
+ # DHCP client local policy
+ #
+ allow dhcpc_t self:capability { dac_override fsetid net_admin net_bind_service net_raw setgid setpcap setuid sys_chroot sys_nice sys_resource sys_tty_config };
+-dontaudit dhcpc_t self:capability { sys_ptrace sys_tty_config };
++dontaudit dhcpc_t self:capability { sys_admin sys_ptrace sys_tty_config };
+ # for access("/etc/bashrc", X_OK) on Red Hat
+ dontaudit dhcpc_t self:capability { dac_read_search sys_module };
+ allow dhcpc_t self:process { getcap getsched ptrace setcap setfscreate setrlimit signal_perms };
+-- 
+2.50.1
+

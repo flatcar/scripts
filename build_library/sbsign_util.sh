@@ -10,7 +10,12 @@ else
     unset SBSIGN_CERT
 fi
 
-PKCS11_MODULE_PATH="/usr/$(get_sdk_libdir)/pkcs11/azure-keyvault-pkcs11.so"
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+    _SDK_LIBDIR="$(get_sdk_libdir)"
+elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+    _SDK_LIBDIR="lib"
+fi
+PKCS11_MODULE_PATH="/usr/${_SDK_LIBDIR}/pkcs11/azure-keyvault-pkcs11.so"
 
 PKCS11_ENV=(
     AZURE_KEYVAULT_URL="https://flatcar-sb-dev-kv.vault.azure.net/"
@@ -40,6 +45,12 @@ cleanup_sbsign_certs() {
 }
 
 do_sbsign() {
+    # Skip secure boot signing in RPM mode - Azure Linux kernel may not be EFI stub format
+    if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+        info "RPM mode: Skipping secure boot signing for ${@:$#}"
+        return 0
+    fi
+
     get_sbsign_cert
     info "Signing ${@:$#} with ${SBSIGN_KEY}"
 

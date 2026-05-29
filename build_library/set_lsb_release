@@ -25,56 +25,104 @@ ROOT_FS_DIR="$FLAGS_root"
 [ -n "$ROOT_FS_DIR" ] || die "--root is required."
 [ -d "$ROOT_FS_DIR" ] || die "Root FS does not exist? ($ROOT_FS_DIR)"
 
-OS_NAME="Flatcar Container Linux by Kinvolk"
-OS_CODENAME="Oklo"
-OS_ID="flatcar"
-OS_ID_LIKE="coreos"
-OS_PRETTY_NAME="$OS_NAME $FLATCAR_VERSION (${OS_CODENAME})"
+# Set OS branding based on package source mode
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+  OS_NAME="Flatcar Container Linux by Kinvolk"
+  OS_CODENAME="Oklo"
+  OS_ID="flatcar"
+  OS_ID_LIKE="coreos"
+  OS_PRETTY_NAME="$OS_NAME $FLATCAR_VERSION (${OS_CODENAME})"
+  ANSI_COLOR="38;5;75"
+  HOME_URL="https://flatcar.org/"
+  BUG_REPORT_URL="https://issues.flatcar.org"
+  SUPPORT_URL="https://flatcar.org/"
+  CPE_ORG="$OS_ID-linux"
+  CPE_DISTRO="${OS_ID}_linux"
+elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  OS_NAME="Microsoft Azure Container Linux"
+  OS_CODENAME="AzureContainerLinux"
+  OS_ID="azurelinux"
+  OS_ID_LIKE="flatcar"
+  VARIANT="Azure Container Linux"
+  VARIANT_ID="azurecontainerlinux"
+  OS_PRETTY_NAME="$OS_NAME $IMAGE_VERSION"
+  ANSI_COLOR="1;34"
+  HOME_URL="https://aka.ms/azurelinux"
+  BUG_REPORT_URL="https://aka.ms/azurelinux"
+  SUPPORT_URL="https://aka.ms/azurelinux"
+  CPE_ORG="microsoft"
+  CPE_DISTRO="azure_container_linux"
+fi
 
 FLATCAR_APPID="{e96281a6-d1af-4bde-9a0a-97b76e56dc57}"
 
 # DISTRIB_* are the standard lsb-release names
-sudo mkdir -p "${ROOT_FS_DIR}/usr/share/flatcar" "${ROOT_FS_DIR}/etc/flatcar"
-sudo_clobber "${ROOT_FS_DIR}/usr/share/flatcar/lsb-release" <<EOF
+sudo mkdir -p "${ROOT_FS_DIR}${DISTRO_SHARE_DIR}"
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+  sudo mkdir -p "${ROOT_FS_DIR}/etc/flatcar"
+fi
+# For RPM mode, use IMAGE_VERSION for OS identity; for Portage, use FLATCAR_VERSION
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  _OS_VERSION="${IMAGE_VERSION}"
+  _OS_VERSION_ID="${IMAGE_VERSION_ID}"
+  _OS_BUILD_ID="${IMAGE_BUILD_ID}"
+else
+  _OS_VERSION="${FLATCAR_VERSION}"
+  _OS_VERSION_ID="${FLATCAR_VERSION_ID}"
+  _OS_BUILD_ID="${FLATCAR_BUILD_ID}"
+fi
+
+sudo_clobber "${ROOT_FS_DIR}${DISTRO_SHARE_DIR}/lsb-release" <<EOF
 DISTRIB_ID="$OS_NAME"
-DISTRIB_RELEASE=$FLATCAR_VERSION
+DISTRIB_RELEASE=$_OS_VERSION
 DISTRIB_CODENAME="$OS_CODENAME"
 DISTRIB_DESCRIPTION="$OS_PRETTY_NAME"
 EOF
-sudo ln -sf "../usr/share/flatcar/lsb-release" "${ROOT_FS_DIR}/etc/lsb-release"
+sudo ln -sf "..${DISTRO_SHARE_DIR}/lsb-release" "${ROOT_FS_DIR}/etc/lsb-release"
 
 # And the new standard, os-release
 # https://www.freedesktop.org/software/systemd/man/os-release.html
-sudo_clobber "${ROOT_FS_DIR}/usr/lib/os-release" <<EOF
+  sudo_clobber "${ROOT_FS_DIR}/usr/lib/os-release" <<EOF
 NAME="$OS_NAME"
 ID=$OS_ID
-ID_LIKE=$OS_ID_LIKE
-VERSION=$FLATCAR_VERSION
-VERSION_ID=$FLATCAR_VERSION_ID
-BUILD_ID=$FLATCAR_BUILD_ID
+ID_LIKE="$OS_ID_LIKE"
+${VARIANT:+VARIANT=\"$VARIANT\"}
+${VARIANT_ID:+VARIANT_ID=$VARIANT_ID}
+VERSION=$_OS_VERSION
+VERSION_ID=$_OS_VERSION_ID
+BUILD_ID=$_OS_BUILD_ID
 SYSEXT_LEVEL=1.0
 PRETTY_NAME="$OS_PRETTY_NAME"
-ANSI_COLOR="38;5;75"
-HOME_URL="https://flatcar.org/"
-BUG_REPORT_URL="https://issues.flatcar.org"
-FLATCAR_BOARD="$FLAGS_board"
-CPE_NAME="cpe:2.3:o:${OS_ID}-linux:${OS_ID}_linux:${FLATCAR_VERSION}:*:*:*:*:*:*:*"
+ANSI_COLOR="$ANSI_COLOR"
+HOME_URL="$HOME_URL"
+BUG_REPORT_URL="$BUG_REPORT_URL"
+SUPPORT_URL="$SUPPORT_URL"
+CPE_NAME="cpe:2.3:o:$CPE_ORG:$CPE_DISTRO:${_OS_VERSION}:*:*:*:*:*:*:*"
 EOF
+# FLATCAR_BOARD is only relevant for Portage/Flatcar CL builds.
+if [[ "${PACKAGE_SOURCE_MODE}" != "RPM" ]] && [[ -n "${FLAGS_board}" ]]; then
+  echo "FLATCAR_BOARD=\"${FLAGS_board}\"" | sudo tee -a "${ROOT_FS_DIR}/usr/lib/os-release" > /dev/null
+fi
 sudo ln -sf "../usr/lib/os-release" "${ROOT_FS_DIR}/etc/os-release"
-sudo ln -sf "../../lib/os-release" "${ROOT_FS_DIR}/usr/share/flatcar/os-release"
+sudo mkdir -p "${ROOT_FS_DIR}${DISTRO_SHARE_DIR}"
+sudo ln -sf "../../lib/os-release" "${ROOT_FS_DIR}${DISTRO_SHARE_DIR}/os-release"
 # Compat for split of lib64 into lib and lib64
-if [ ! -e "${ROOT_FS_DIR}/usr/lib64/os-release" ]; then
-  sudo ln -sf "../lib/os-release" "${ROOT_FS_DIR}/usr/lib64/os-release"
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+  if [ ! -e "${ROOT_FS_DIR}/usr/lib64/os-release" ]; then
+    sudo ln -sf "../lib/os-release" "${ROOT_FS_DIR}/usr/lib64/os-release"
+  fi
 fi
 
 # Create the defaults for the coreos configuration files in the usr directory
-sudo_clobber "${ROOT_FS_DIR}/usr/share/flatcar/release" <<EOF
-FLATCAR_RELEASE_VERSION=$FLATCAR_VERSION
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+  sudo_clobber "${ROOT_FS_DIR}${DISTRO_SHARE_DIR}/release" <<EOF
+FLATCAR_RELEASE_VERSION=$_OS_VERSION
 FLATCAR_RELEASE_BOARD=$FLAGS_board
 FLATCAR_RELEASE_APPID=$FLATCAR_APPID
 EOF
 
-sudo_clobber "${ROOT_FS_DIR}/usr/share/flatcar/update.conf" <<EOF
+  sudo_clobber "${ROOT_FS_DIR}${DISTRO_SHARE_DIR}/update.conf" <<EOF
 SERVER=https://public.update.flatcar-linux.net/v1/update/
 GROUP=$FLAGS_group
 EOF
+fi

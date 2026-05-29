@@ -151,6 +151,14 @@ if [[ -z ${stat} ]] ; then
         --network host
         -e SDK_USER_ID="$(id -u)"
         -e SDK_GROUP_ID="$(id -g)"
+        -e PACKAGE_SOURCE_MODE="${PACKAGE_SOURCE_MODE:-}"
+        -e BOOTLOADER_MODE="${BOOTLOADER_MODE:-uki}"
+        -e RPM_STAGING_DIR="/mnt/host/source/src/scripts/__build__/rpm-staging"
+        -e SYSEXT_COMPRESSION="${SYSEXT_COMPRESSION:-}"
+        -e STANDALONE_SYSEXTS_SPEC="${STANDALONE_SYSEXTS_SPEC:-}"
+        -e IMAGE_VERSION="${IMAGE_VERSION:-}"
+        -e IMAGE_VERSION_ID="${IMAGE_VERSION_ID:-}"
+        -e IMAGE_BUILD_ID="${IMAGE_BUILD_ID:-}"
         --name="${name}"
         --hostname="${hostname}"
         --entrypoint /bin/bash
@@ -175,4 +183,4 @@ fi
 # Workaround: The SDK expects to be able to write to /etc/hosts
 call_docker exec "${name}" sh -c 'cp /etc/hosts /etc/hosts2; umount /etc/hosts ; mv /etc/hosts2 /etc/hosts'
 
-call_docker exec "${tty[@]}" -i "${name}" /mnt/host/source/src/scripts/sdk_lib/sdk_entry.sh "$@"
+call_docker exec "${tty[@]}" -i -e INJECT_DOCKER_SYSEXT="${INJECT_DOCKER_SYSEXT:-false}" "${name}" /mnt/host/source/src/scripts/sdk_lib/sdk_entry.sh "$@"

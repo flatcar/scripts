@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}"
+
+# The nvidia-container-toolkit RPM %posttrans generates
+# /etc/nvidia-container-runtime/config.toml via:
+#   nvidia-ctk --quiet config --config-file=/etc/nvidia-container-runtime/config.toml --in-place
+# Since sysext only merges /usr, relocate it there and use tmpfiles.d to
+# restore it at boot.
+
+mkdir -p ./usr/share/nvidia-container-toolkit/etc/nvidia-container-runtime
+cp -a ./etc/nvidia-container-runtime/config.toml \
+      ./usr/share/nvidia-container-toolkit/etc/nvidia-container-runtime/
+
+mkdir -p ./usr/lib/tmpfiles.d
+cat <<EOF > ./usr/lib/tmpfiles.d/nvidia-container-toolkit.conf
+d /etc/nvidia-container-runtime 0755 root root - -
+C /etc/nvidia-container-runtime/config.toml - - - - /usr/share/nvidia-container-toolkit/etc/nvidia-container-runtime/config.toml
+EOF
+
+popd

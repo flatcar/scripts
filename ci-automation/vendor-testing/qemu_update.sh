@@ -117,7 +117,14 @@ run_kola_tests() {
         exit 1
     fi
 
+    debug_flag=""
+    if [[ "${KOLA_DEBUG:-}" == "true" ]]; then
+        debug_flag="--debug"
+    fi
+
     kola run \
+      ${debug_flag} \
+      ${distro_flag:-} \
       --board="${CIA_ARCH}-usr" \
       --parallel="${QEMU_PARALLEL}" \
       --platform=qemu \

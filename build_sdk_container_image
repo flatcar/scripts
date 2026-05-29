@@ -189,18 +189,33 @@ else
     host_ip="$(ip addr show "${docker_interface}" | grep -Po 'inet \K[\d.]+')"
     binhost_port="$((1000 + (RANDOM % 55000) ))"
     binhost="${host_ip}:${binhost_port}"
-    binhost_container="${toolchains_container}-binhost-${binhost_port}"
-    yell "Building SDK container + board support, toolchain packages served at http://${binhost} by ${binhost_container}"
+    yell "Building SDK container + board support, toolchain packages served at http://${binhost}"
 
-    # Spin up temporary toolchains package binhost
+    # Spin up temporary toolchains package binhost using Python's built-in
+    # HTTP server. This avoids pulling external images (e.g., caddy) which
+    # may be blocked by OneBranch network policies.
+    binhost_dir="$(pwd)/__build__/images/catalyst/packages/coreos-toolchains/target"
+    python3 -m http.server "${binhost_port}" --bind 0.0.0.0 --directory "${binhost_dir}" &
+    binhost_pid=$!
     if [ -n "$cleanup" ] ; then
-        echo "$docker container rm -f '${binhost_container}'" >> "$cleanup"
+        echo "kill ${binhost_pid} 2>/dev/null || true" >> "$cleanup"
     fi
-    $docker run --rm -d -p "${binhost}":80 \
-        --name ${binhost_container} \
-        -v "$(pwd)/__build__/images/catalyst/packages/coreos-toolchains/target":/usr/share/caddy \
-        docker.io/library/caddy caddy file-server \
-        --root /usr/share/caddy --browse
+    # Wait for the HTTP server to start listening (up to 30 s)
+    for _try in $(seq 1 30); do
+        if (echo >/dev/tcp/localhost/"${binhost_port}") 2>/dev/null; then
+            break
+        fi
+        if ! kill -0 "${binhost_pid}" 2>/dev/null; then
+            echo "ERROR: Binhost HTTP server (pid ${binhost_pid}) exited unexpectedly" >&2
+            exit 1
+        fi
+        sleep 1
+    done
+    if ! (echo >/dev/tcp/localhost/"${binhost_port}") 2>/dev/null; then
+        echo "ERROR: Binhost HTTP server on port ${binhost_port} not ready after 30 s" >&2
+        kill "${binhost_pid}" 2>/dev/null || true
+        exit 1
+    fi
 
     # --- Full SDK container build ---
 
@@ -215,7 +230,7 @@ else
                  -f sdk_lib/Dockerfile.sdk-build \
                  .
 
-    $docker stop "${binhost_container}"
+    kill "${binhost_pid}" 2>/dev/null || true
 fi
 
 # --

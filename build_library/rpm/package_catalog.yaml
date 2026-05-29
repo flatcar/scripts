@@ -1,0 +1,695 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Package catalog mapping Flatcar/Portage packages to Azure Linux RPMs.
+#
+# Format:
+#   portage-package: rpm-name         — single RPM replacement
+#   portage-package:                  — multiple RPM replacements
+#     - rpm-name-1
+#     - rpm-name-2
+#   portage-package: SKIP             — not installed in RPM mode
+#
+# This file is the source of truth. package_catalog.sh loads it via yq.
+
+packages:
+  # Kernel - always from Azure Linux in RPM mode
+  sys-kernel/coreos-kernel: kernel
+  sys-kernel/coreos-modules: kernel
+
+  # Initramfs generator - needed for Azure Linux kernel (no embedded initramfs)
+  sys-kernel/dracut: dracut
+
+  # Base system packages
+  # Note: for now, we're using systemd to pull in packages that aren't sent
+  # through the catalog.
+  sys-apps/systemd:
+    - systemd
+    - systemd-journal-remote
+    - libselinux-utils
+    - selinux-policy
+    - policycoreutils
+    - ca-certificates
+  sys-libs/systemd-libs: systemd-libs
+  sys-apps/systemd-networkd: systemd-networkd
+  net-misc/systemd-networkd: systemd-networkd
+  sys-apps/baselayout: SKIP
+  sys-apps/filesystem: filesystem
+  sys-apps/coreutils: coreutils
+  sys-apps/util-linux: util-linux
+  sys-apps/shadow: shadow-utils
+  app-shells/bash: bash
+
+  # Compiler and libraries
+  sys-devel/gcc: gcc
+  sys-libs/libgcc: libgcc
+  sys-libs/libstdc++: libstdc++
+  sys-libs/glibc: glibc
+  sys-devel/binutils: binutils
+
+  # Core utilities
+  app-arch/bzip2: bzip2
+  app-arch/bzip2-libs: bzip2-libs
+  app-arch/gzip: gzip
+  app-arch/tar: tar
+  app-arch/xz-utils: xz
+  app-arch/xz-libs: xz-libs
+  app-arch/zstd: zstd
+  app-arch/zstd-libs: zstd-libs
+  app-arch/unzip: unzip
+  app-arch/zip: zip
+  app-arch/cpio: cpio
+  sys-apps/grep: grep
+  sys-apps/sed: sed
+  sys-apps/findutils: findutils
+  sys-apps/gawk: gawk
+  sys-apps/which: which
+  sys-apps/less: less
+  sys-apps/diffutils: diffutils
+  sys-apps/file: file
+  sys-apps/acl: acl
+  sys-libs/libacl: libacl
+  sys-apps/attr: attr
+  sys-libs/libattr: libattr
+  sys-devel/make: make
+  sys-devel/patch: patch
+  sys-apps/texinfo: texinfo
+
+  # Networking
+  sys-apps/iproute2: iproute
+  net-misc/iputils: iputils
+  net-misc/openssh: openssh
+  net-misc/curl: curl
+  net-misc/curl-libs: curl-libs
+  net-misc/wget: wget
+  net-misc/rsync: rsync
+  net-dns/bind-tools: bind
+  net-analyzer/tcpdump: tcpdump
+  net-analyzer/traceroute: traceroute
+  net-misc/dhcp: dhcpcd
+  net-fs/nfs-utils: nfs-utils
+  net-nds/rpcbind: rpcbind
+  net-firewall/conntrack-tools: conntrack-tools
+  net-misc/ntp: ntp
+  net-vpn/wireguard-tools: wireguard-tools
+  net-libs/libpcap: libpcap
+  net-nds/openldap: openldap
+  sys-block/open-iscsi: iscsi-initiator-utils
+
+  # Container runtime
+  app-containers/docker:
+    - moby-engine
+    - sdnotify-proxy
+  app-emulation/docker: moby-engine  # Alternative package name
+  app-containers/docker-cli: docker-cli
+  app-containers/docker-buildx: docker-buildx
+  app-containers/containerd: containerd2
+  app-containers/runc: runc
+  app-containers/cni: cni
+  net-misc/cni: cni
+  app-containers/cni-plugins: containernetworking-plugins
+  net-misc/cni-plugins: containernetworking-plugins
+
+  # Security libraries
+  dev-libs/openssl: openssl
+  dev-libs/openssl-libs: openssl-libs
+  net-libs/libssh2: libssh2
+
+  # Additional libraries
+  sys-libs/zlib: zlib
+  virtual/zlib: zlib
+  dev-libs/libffi: libffi
+  dev-libs/popt: popt
+  dev-libs/expat: expat
+  dev-libs/expat-libs: expat-libs
+  sys-libs/readline: readline
+  dev-libs/gmp: gmp
+  dev-libs/mpfr: mpfr
+  dev-libs/libpcre2: pcre2
+  dev-libs/libpcre2-8: libpcre2-8-0
+  dev-libs/libpcre2-posix: libpcre2-posix2
+  dev-libs/libpcre2-16: libpcre2-16-0
+  dev-libs/libpcre2-32: libpcre2-32-0
+  dev-libs/pcre2-tools: pcre2-tools
+  sys-libs/slang: slang
+  dev-libs/newt: newt
+  sys-libs/rpm-libs: rpm-libs
+  dev-libs/rpm-libs: rpm-libs
+  sys-libs/lua-libs: lua-libs
+  dev-lang/lua-libs: lua-libs
+  dev-libs/libaio: libaio
+  dev-libs/libevent: libevent
+  dev-libs/glib: glib
+  dev-libs/libxml2: libxml2
+  dev-libs/libxslt: libxslt
+  app-arch/libarchive: libarchive
+
+  # Development languages
+  dev-lang/python: python3
+  dev-lang/perl: perl
+  dev-lang/ruby: ruby
+  dev-lang/go: golang
+  dev-lang/rust: rust
+  dev-lang/tcl: tcl
+
+  # Build tools
+  dev-util/cmake: cmake
+  dev-build/meson: meson
+  dev-build/ninja: ninja-build
+  sys-devel/autoconf: autoconf
+  sys-devel/automake: automake
+  sys-devel/libtool: libtool
+  sys-devel/m4: m4
+  sys-devel/flex: flex
+  sys-devel/bison: bison
+  sys-devel/bc: bc
+  app-alternatives/bc: bc
+  dev-build/autoconf: autoconf
+  dev-build/automake: automake
+
+  # Testing and debugging tools
+  dev-cpp/gtest: gtest
+  dev-util/pahole: SKIP
+
+  # Package managers
+  app-arch/rpm: rpm
+  sys-apps/rpm: rpm
+
+  # Editors
+  app-editors/vim: vim
+  app-editors/nano: nano
+
+  # Version control
+  dev-vcs/git: git
+  dev-vcs/mercurial: mercurial
+  dev-vcs/subversion: subversion
+
+  # Debugging tools
+  dev-debug/strace: strace
+  dev-debug/gdb: gdb
+  dev-debug/valgrind: SKIP
+  sys-devel/gdb: gdb
+
+  # Terminal multiplexers
+  app-misc/tmux: tmux
+  app-misc/screen: screen
+
+  # Databases
+  dev-db/sqlite: sqlite
+  dev-db/sqlite-libs: sqlite-libs
+  dev-db/postgresql: postgresql
+  dev-db/mariadb: mariadb
+
+  # Security and authentication
+  app-crypt/gnupg: gnupg2
+  app-admin/sudo: sudo
+  app-crypt/mit-krb5: krb5
+  dev-libs/cyrus-sasl: cyrus-sasl
+  sys-libs/pam: pam
+  app-crypt/adcli: SKIP  # not used, skipping to not bring "adcli" from extended
+  app-crypt/clevis: SKIP
+  sys-auth/realmd: SKIP  # not used, skipping to not bring "realmd" from extended
+  sys-auth/sssd: SKIP
+
+  # System utilities
+  sys-process/procps: procps-ng
+  sys-process/psmisc: psmisc
+  sys-process/lsof: lsof
+  sys-apps/pciutils: pciutils
+  sys-apps/usbutils: usbutils
+  sys-apps/chkconfig: chkconfig
+  app-misc/ca-certificates: ca-certificates
+  app-crypt/ca-certificates-shared: ca-certificates-shared
+  app-crypt/ca-certificates-tools: ca-certificates-tools
+  sys-apps/hwdata: hwdata
+  sys-apps/kbd: kbd
+  app-misc/gettext: gettext
+  sys-devel/gettext: gettext
+  sys-apps/busybox: busybox
+  sys-apps/groff: groff
+  sys-apps/nvme-cli: nvme-cli
+  app-admin/toolbox: SKIP
+
+  # Flatcar-specific packages
+  app-admin/ignition: ignition
+  coreos-base/afterburn: afterburn
+  coreos-base/flatcar-base: azurelinux-release
+  sys-apps/ignition: ignition
+
+  # Dependencies of oem-azure for Azure image building
+  # oras is not sent through the catalog (used to pull sysexts)
+  app-emulation/wa-linux-agent:
+    - WALinuxAgent
+    - oras
+    - fuse
+    - fuse3-libs
+    - blobfuse2
+  app-emulation/hv-daemons: hyperv-daemons
+  net-misc/chrony: chrony
+  dev-python/urllib3:
+    - python3-urllib3
+    - python-setuptools
+  dev-python/distro: python3-distro
+  dev-python/pysocks: SKIP
+  sys-fs/inotify-tools: inotify-tools
+
+  # Flatcar-only packages (skipped in RPM mode)
+  app-admin/etcd-wrapper: SKIP
+  app-admin/flannel-wrapper: SKIP
+  app-admin/locksmith: SKIP
+  app-admin/mayday: SKIP
+  app-admin/sdnotify-proxy: SKIP
+  coreos-base/coreos: SKIP
+  coreos-base/coreos-au-key: SKIP
+  coreos-base/coreos-cloudinit: coreos-cloudinit
+  coreos-base/coreos-init: coreos-init
+  coreos-base/misc-files: SKIP
+  coreos-base/ue-rs: SKIP
+  coreos-base/update-ssh-keys: update-ssh-keys
+  coreos-base/update_engine: SKIP
+  coreos-base/oem-azure: SKIP
+  coreos-base/oem-aws: SKIP
+  coreos-base/oem-qemu: SKIP
+  sys-apps/azure-vm-utils: azure-vm-utils
+  sys-apps/seismograph: SKIP
+  sys-kernel/bootengine: bootengine
+  sys-kernel/coreos-sources: SKIP
+  x11-drivers/nvidia-drivers-service: SKIP
+  app-crypt/go-tspi: SKIP
+
+  # Bootloader
+  # grub2 base package plus subpackages for BIOS and EFI support
+  sys-boot/grub: grub2
+  sys-boot/grub-pc: grub2-pc
+  sys-boot/grub-efi: grub2-efi
+  sys-boot/grub-efi-binary: grub2-efi-binary
+  sys-boot/shim: shim
+  sys-boot/shim-signed: shim
+  sys-boot/efibootmgr: efibootmgr
+
+  # Filesystems
+  sys-fs/e2fsprogs: e2fsprogs
+  sys-libs/e2fsprogs-libs: e2fsprogs-libs
+  sys-fs/xfsprogs: xfsprogs
+  sys-fs/btrfs-progs: btrfs-progs
+  sys-fs/quota: quota
+
+  # Device management
+  sys-fs/udev: systemd-udev
+  sys-apps/kmod: kmod
+
+  # Virtual packages (Gentoo metapackages - skip in RPM mode)
+  virtual/editor: SKIP
+  virtual/krb5: SKIP
+  virtual/ldb: SKIP
+  virtual/libc: glibc
+  virtual/libcrypt: SKIP
+  virtual/libelf: SKIP
+  virtual/libiconv: SKIP
+  virtual/libusb: SKIP
+  virtual/libintl: SKIP
+  virtual/libudev: SKIP
+  virtual/pkgconfig: SKIP
+  virtual/resolvconf: SKIP
+  virtual/tmpfiles: SKIP
+  virtual/udev: SKIP
+
+  # SELinux policy packages (skip in RPM mode)
+  sec-policy/selinux-base: SKIP  # Not sent through catalog, listed for systemd
+  sec-policy/selinux-base-policy: SKIP
+  sec-policy/selinux-container: SKIP
+  sec-policy/selinux-dbus: SKIP
+  sec-policy/selinux-policykit: SKIP
+  sec-policy/selinux-sssd: SKIP
+  sec-policy/selinux-unconfined: SKIP
+
+  # Kernel headers and firmware
+  sys-kernel/linux-headers: SKIP
+  sys-firmware/intel-microcode:
+    rpm: microcode_ctl
+    arch: amd64
+  sys-kernel/coreos-firmware: SKIP
+
+  # Alternatives system (Azure Linux provides alternatives)
+  app-alternatives/awk: gawk
+  app-alternatives/bzip2: bzip2
+  app-alternatives/cpio: cpio
+  app-alternatives/gpg: gnupg2
+  app-alternatives/gzip: gzip
+  app-alternatives/tar: tar
+
+  app-admin/logrotate: logrotate
+
+  # Account management packages (Gentoo-specific group/user creation - skip in hybrid)
+  acct-group/adm: SKIP
+  acct-group/audio: SKIP
+  acct-group/cdrom: SKIP
+  acct-group/dialout: SKIP
+  acct-group/disk: SKIP
+  acct-group/floppy: SKIP
+  acct-group/input: SKIP
+  acct-group/kmem: SKIP
+  acct-group/kvm: SKIP
+  acct-group/lp: SKIP
+  acct-group/man: SKIP
+  acct-group/messagebus: SKIP
+  acct-group/nobody: SKIP
+  acct-group/ntp: SKIP
+  acct-group/pcap: SKIP
+  acct-group/polkitd: SKIP
+  acct-group/render: SKIP
+  acct-group/root: SKIP
+  acct-group/sgx: SKIP
+  acct-group/shadow: SKIP
+  acct-group/sshd: SKIP
+  acct-group/systemd-coredump: SKIP
+  acct-group/systemd-journal: SKIP
+  acct-group/systemd-journal-remote: SKIP
+  acct-group/systemd-network: SKIP
+  acct-group/systemd-oom: SKIP
+  acct-group/systemd-resolve: SKIP
+  acct-group/systemd-timesync: SKIP
+  acct-group/tape: SKIP
+  acct-group/tss: SKIP
+  acct-group/tty: SKIP
+  acct-group/users: SKIP
+  acct-group/utmp: SKIP
+  acct-group/uucp: SKIP
+  acct-group/video: SKIP
+  acct-group/wheel: SKIP
+  acct-group/docker: SKIP
+
+  acct-user/man: SKIP
+  acct-user/messagebus: SKIP
+  acct-user/nobody: SKIP
+  acct-user/ntp: SKIP
+  acct-user/pcap: SKIP
+  acct-user/polkitd: SKIP
+  acct-user/root: SKIP
+  acct-user/sshd: SKIP
+  acct-user/systemd-coredump: SKIP
+  acct-user/systemd-journal-remote: SKIP
+  acct-user/systemd-network: SKIP
+  acct-user/systemd-oom: SKIP
+  acct-user/systemd-resolve: SKIP
+  acct-user/systemd-timesync: SKIP
+  acct-user/tss: SKIP
+
+  # Additional Azure Linux packages - archives/compression
+  app-arch/lz4: lz4
+  app-arch/ncompress: ncompress
+  app-arch/pigz: pigz
+
+  # Container tools
+  app-containers/cri-tools: cri-tools
+
+  # Cryptography libraries
+  app-crypt/libmd: libmd
+  app-crypt/p11-kit: p11-kit
+  app-crypt/p11-kit-trust: p11-kit-trust
+  app-crypt/pesign: pesign
+  app-crypt/pinentry: pinentry
+  app-crypt/tpm2-tools: tpm2-tools
+  app-crypt/tpm2-tss: tpm2-tss
+
+  # Editors
+  app-editors/vim-core: vim
+
+  # Misc utilities
+  app-misc/jq: jq
+
+  # Development libraries - C++
+  dev-cpp/gflags: gflags
+
+  # Development libraries - languages
+  dev-lang/duktape: duktape
+
+  # Development libraries - core
+  dev-libs/dbus-glib:
+    - dbus-glib
+    - glib-devel
+  dev-libs/ding-libs: SKIP  # Not available in Azure Linux
+  dev-libs/elfutils: elfutils
+  dev-libs/elfutils-libelf: elfutils-libelf
+  dev-libs/inih: inih
+  dev-libs/jansson: jansson
+  dev-libs/json-c: json-c
+  dev-libs/libassuan: libassuan
+  dev-libs/libev: libev
+  dev-libs/libgcrypt: libgcrypt
+  dev-libs/libgpg-error: libgpg-error
+  dev-libs/libksba: libksba
+  dev-libs/libnl: libnl3
+  dev-libs/libpwquality: libpwquality
+  dev-libs/libsodium: libsodium
+  dev-libs/libtasn1: libtasn1
+  dev-libs/libunistring: libunistring
+  dev-libs/libusb: libusb
+  dev-libs/libuv: libuv
+  dev-libs/lzo: lzo
+  dev-libs/nettle: nettle
+  dev-libs/npth: npth
+  dev-libs/oniguruma: oniguruma
+  dev-libs/protobuf: protobuf
+  dev-libs/userspace-rcu: userspace-rcu
+
+  # Development utilities
+  dev-util/pkgconf: pkgconf
+
+  # DNS libraries
+  net-dns/bind:
+    - bind
+    - bind-utils
+  net-dns/c-ares: c-ares
+  net-dns/libidn2: libidn2
+
+  # Firewall utilities
+  net-firewall/ebtables: ebtables-legacy
+  net-firewall/ipset: ipset
+  net-firewall/iptables: iptables
+  net-firewall/nftables: nftables
+
+  # Network filesystems
+  net-fs/cifs-utils: cifs-utils
+
+  # Network libraries
+  net-libs/gnutls: gnutls
+  net-libs/libmicrohttpd: libmicrohttpd
+  net-libs/libmnl: libmnl
+  net-libs/libnetfilter_conntrack: libnetfilter_conntrack
+  net-libs/libnetfilter_cthelper: libnetfilter_cthelper
+  net-libs/libnetfilter_cttimeout: libnetfilter_cttimeout
+  net-libs/libnetfilter_queue: libnetfilter_queue
+  net-libs/libnfnetlink: libnfnetlink
+  net-libs/libnftnl: libnftnl
+  net-libs/libpsl: libpsl
+  net-libs/libtirpc: libtirpc
+  net-libs/nghttp2: nghttp2
+  net-libs/rpcsvc-proto: rpcsvc-proto
+
+  # Network utilities
+  net-misc/socat: socat
+
+  # System applications
+  sys-apps/checkpolicy: checkpolicy
+  sys-apps/dbus: dbus
+  sys-apps/ethtool: ethtool
+  sys-apps/gptfdisk: gptfdisk
+  sys-apps/kexec-tools: kexec-tools
+  sys-apps/keyutils: keyutils
+  sys-apps/lshw: lshw
+  sys-apps/net-tools: net-tools
+  sys-apps/policycoreutils: policycoreutils  # not sent through catalog, list under systemd
+
+  # System authentication
+  sys-auth/polkit: polkit
+
+  # Block devices
+  sys-block/parted: parted
+
+  # Boot utilities
+  sys-boot/mokutil: mokutil
+
+  # Clustering
+  sys-cluster/ipvsadm: ipvsadm
+
+  # Filesystems
+  sys-fs/cryptsetup:
+    - cryptsetup
+    - veritysetup
+  sys-libs/cryptsetup-libs: cryptsetup-libs
+  sys-fs/device-mapper: device-mapper
+  sys-fs/device-mapper-libs: device-mapper-libs
+  sys-fs/dosfstools: dosfstools
+  sys-fs/lsscsi: lsscsi
+  sys-fs/lvm2: lvm2
+  sys-fs/mdadm: mdadm
+  sys-fs/veritysetup: veritysetup  # Actually pulled in by sys-fs/cryptsetup
+
+  # System libraries
+  sys-libs/cracklib: cracklib
+  sys-libs/efivar: efivar
+  sys-libs/gdbm: gdbm
+  sys-libs/libcap: libcap
+  sys-libs/libcap-ng: libcap-ng
+  sys-libs/libnvme: libnvme
+  sys-libs/libseccomp: libseccomp
+  sys-libs/libselinux: libselinux
+  sys-libs/libsemanage: libsemanage
+  sys-libs/libsepol: libsepol
+  sys-libs/libunwind: libunwind
+  sys-libs/liburing: liburing
+  sys-libs/libxcrypt: libxcrypt
+  sys-libs/ncurses: ncurses
+  sys-libs/ncurses-libs: ncurses-libs
+  sys-libs/talloc: libtalloc
+  sys-libs/tdb: libtdb
+
+  # System process utilities
+  sys-process/audit: audit
+
+  sys-libs/timezone-data: tzdata
+  dev-util/bpftool: bpftool
+
+  # Remaining packages - marked as SKIP for now (need investigation or not available)
+  app-arch/lbzip2: SKIP
+  app-crypt/argon2: SKIP
+  app-crypt/tpmpolicy: SKIP
+  app-crypt/trousers: SKIP
+  app-emulation/qemu-guest-agent: SKIP
+  app-emulation/xenserver-pv-version: SKIP
+  app-emulation/xenstore: SKIP
+  app-misc/c_rehash: SKIP
+  app-misc/pax-utils: SKIP
+  dev-cpp/glog: SKIP
+  # TODO: we should create a new client package for etcdctl instead of using
+  # the full package
+  dev-db/etcdctl: etcd
+  dev-libs/jose: SKIP  # not used, skipping to not bring "jose" from extended
+  dev-libs/libbsd: SKIP
+  dev-libs/libverto: SKIP
+  dev-libs/luksmeta: SKIP  # not used, skipping to not bring "luksmeta" from extended
+  dev-util/bsdiff: SKIP
+  # non-ideal mapping, as this is not the OpenBSD version of netcat, but Azure
+  # Linux doesn't have a separate package for it
+  net-analyzer/openbsd-netcat: nmap-ncat
+  net-fs/samba: SKIP
+  sys-libs/ldb: SKIP
+  net-misc/bridge-utils: SKIP
+  net-misc/ethertypes: SKIP
+  net-misc/whois: SKIP
+  sys-apps/gentoo-functions: SKIP
+  sys-apps/semodule-utils: SKIP
+  sys-apps/zram-generator: SKIP
+  sys-auth/google-oslogin: SKIP
+  sys-auth/pambase: SKIP
+  sys-block/open-isns: SKIP
+  sys-block/thin-provisioning-tools: SKIP
+
+  # Gentoo/Portage-specific tools (skip in hybrid - not needed at runtime)
+  app-admin/eselect: SKIP
+  app-eselect/eselect-iptables: SKIP
+  app-eselect/eselect-rust: SKIP
+  app-eselect/eselect-lib-bin-symlink: SKIP
+  app-eselect/eselect-pinentry: SKIP
+  app-portage/elt-patches: SKIP
+  sys-devel/gcc-config: SKIP
+  sys-devel/gnuconfig: SKIP
+  sys-apps/locale-gen: SKIP
+  sys-apps/lsb-release: SKIP
+  sys-apps/help2man: SKIP
+  dev-python/gentoo-common: SKIP
+  dev-lang/python-exec: SKIP
+  dev-lang/python-exec-conf: SKIP
+  dev-build/gtk-doc-am: SKIP
+  sys-process/tini: SKIP
+
+  # Virtual packages (Gentoo meta-packages - skip in hybrid)
+  virtual/acl: SKIP
+  virtual/os-headers: SKIP
+  virtual/perl-Carp: SKIP
+  virtual/perl-Encode: SKIP
+  virtual/perl-Exporter: SKIP
+  virtual/perl-ExtUtils-MakeMaker: SKIP
+  virtual/perl-XSLoader: SKIP
+
+  # Build tools available in Azure Linux
+  dev-build/cmake: cmake
+  dev-build/make: make
+  dev-build/libtool: libtool
+  dev-util/gperf: gperf
+  dev-util/re2c: SKIP
+  dev-libs/jsoncpp: SKIP
+  dev-libs/mpc: libmpc
+  dev-libs/mpdecimal: SKIP
+  app-crypt/rhash: SKIP
+  app-crypt/libb2: SKIP
+  dev-go/go-md2man: go-md2man
+
+  # Build tool alternatives (skip - build-time only)
+  app-alternatives/lex: SKIP
+  app-alternatives/ninja: SKIP
+  app-alternatives/yacc: SKIP
+
+  # Build tool wrappers (Gentoo-specific)
+  dev-build/autoconf-archive: SKIP
+  dev-build/autoconf-wrapper: SKIP
+  dev-build/automake-wrapper: SKIP
+  dev-build/meson-format-array: SKIP
+
+  # Documentation tools (skip - build-time only)
+  app-text/build-docbook-catalog: SKIP
+  app-text/docbook-xml-dtd: SKIP
+  app-text/docbook-xsl-ns-stylesheets: SKIP
+  app-text/docbook-xsl-stylesheets: SKIP
+  app-text/scdoc: SKIP
+  app-text/sgml-common: SKIP
+  app-text/xmlto: SKIP
+  app-misc/mime-types: SKIP
+  dev-util/glib-utils: SKIP
+  dev-libs/gobject-introspection-common: SKIP
+
+  # Rust (skip - build-time only, sysext doesn't need rust compiler)
+  dev-lang/rust-bin: SKIP
+
+  # Perl modules (skip - build-time only)
+  dev-perl/File-Slurper: SKIP
+  dev-perl/PerlIO-utf8_strict: SKIP
+
+  # Python build tools (skip - build-time only)
+  dev-python/backports-tarfile: SKIP
+  dev-python/cython: SKIP
+  dev-python/docutils: SKIP
+  dev-python/editables: SKIP
+  dev-python/ensurepip-pip: SKIP
+  dev-python/ensurepip-setuptools: SKIP
+  dev-python/flit-core: SKIP
+  dev-python/gpep517: SKIP
+  dev-python/hatchling: SKIP
+  dev-python/installer: SKIP
+  dev-python/jaraco-collections: SKIP
+  dev-python/jaraco-context: SKIP
+  dev-python/jaraco-functools: SKIP
+  dev-python/jaraco-text: SKIP
+  dev-python/jinja2: SKIP
+  dev-python/lxml: SKIP
+  dev-python/markupsafe: SKIP
+  dev-python/more-itertools: SKIP
+  dev-python/olefile: SKIP
+  dev-python/packaging: SKIP
+  dev-python/pathspec: SKIP
+  dev-python/pillow: SKIP
+  dev-python/platformdirs: SKIP
+  dev-python/pluggy: SKIP
+  dev-python/pygments: SKIP
+  dev-python/setuptools: SKIP
+  dev-python/setuptools-scm: SKIP
+  dev-python/trove-classifiers: SKIP
+  dev-python/wheel: SKIP
+  sys-devel/binutils-config: SKIP
+  sys-fs/multipath-tools: SKIP
+  sys-libs/binutils-libs: SKIP
+  sys-libs/nss-usrfiles: SKIP
+  sys-libs/tevent: SKIP
+  sys-power/acpid: SKIP
+

@@ -1,0 +1,12 @@
+[Unit]
+Description=Load Audit Rules (placeholder)
+Documentation=man:auditctl(8) man:auditd(8)
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+
+[Install]
+WantedBy=multi-user.target

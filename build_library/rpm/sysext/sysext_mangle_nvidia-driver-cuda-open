@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+set -euo pipefail
+
+SCRIPT_NAME=$(basename "$(realpath "${BASH_SOURCE[0]}")")
+SYSEXT_NAME=${SCRIPT_NAME#sysext_mangle_}
+DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
+. "$DIR/sysext_mangle_doca_ofed_relocate"
+
+mangle_doca_ofed_relocate "$SYSEXT_NAME" "$1"

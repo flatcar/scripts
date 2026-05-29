@@ -7,6 +7,7 @@ import argparse
 import contextlib
 import json
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -24,6 +25,38 @@ class PartitionNotFound(Exception):
   pass
 class InvalidLayout(Exception):
   pass
+
+# Discoverable Partitions Specification (DPS) type GUIDs.
+# disk_layout.json can use the symbolic name "dps-root" and the correct
+# architecture-specific GUID will be substituted at load time.
+DPS_ROOT_GUIDS = {
+    'x86_64':  '4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709',
+    'aarch64': 'B921B045-1DF0-41C3-AF44-4C6F280D3FAE',
+}
+
+# Map BOARD names used by the build system to machine architecture values.
+BOARD_TO_ARCH = {
+    'amd64-usr': 'x86_64',
+    'arm64-usr': 'aarch64',
+}
+
+def _resolve_dps_types(config, arch):
+  """Replace symbolic DPS partition type names with architecture-specific GUIDs.
+
+  Currently supported placeholders:
+    dps-root  →  DPS root partition GUID for the target architecture
+  """
+  for layout in config.get('layouts', {}).values():
+    for part in layout.values():
+      if not isinstance(part, dict):
+        continue
+      ptype = part.get('type', '')
+      if ptype == 'dps-root':
+        guid = DPS_ROOT_GUIDS.get(arch)
+        if guid is None:
+          raise InvalidLayout(
+              'No DPS root GUID defined for architecture %r' % arch)
+        part['type'] = guid
 
 
 def LoadPartitionConfig(options):
@@ -51,6 +84,8 @@ def LoadPartitionConfig(options):
     raise ConfigNotFound('Partition config %s was not found!' % filename)
   with open(filename) as f:
     config = json.load(f)
+
+  _resolve_dps_types(config, options.arch)
 
   unknown_keys = set(config.keys()) - valid_keys
   if unknown_keys:
@@ -1033,6 +1068,10 @@ def main(argv):
           help='path to disk layout json file')
   parser.add_argument('--disk_layout', default=default_layout_type,
           help='disk layout type from the json file')
+  parser.add_argument('--arch',
+          default=platform.machine(),
+          help='target architecture (x86_64 or aarch64). '
+               'Also accepts board names (amd64-usr, arm64-usr).')
   actions = parser.add_subparsers(title='actions')
 
   a = actions.add_parser('write_gpt', help='write/update partition table')
@@ -1120,6 +1159,10 @@ def main(argv):
   a.set_defaults(func=DoParseOnly)
 
   options = parser.parse_args(argv[1:])
+
+  # Normalise board names (amd64-usr, arm64-usr) to machine arch values.
+  options.arch = BOARD_TO_ARCH.get(options.arch, options.arch)
+
   options.func(options)
 
 

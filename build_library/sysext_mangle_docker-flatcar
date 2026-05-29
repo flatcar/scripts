@@ -2,6 +2,15 @@
 
 set -euo pipefail
 rootfs="${1}"
+: "${PACKAGE_SOURCE_MODE:=PORTAGE}"
+
+# In RPM mode, moby-engine has 'Requires: containerd' which pulls in
+# containerd2 + runc.  These are already provided by the containerd-flatcar
+# sysext, so strip them here to avoid redundant files.
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  echo ">>> NOTICE: $0: removing containerd/runc (provided by containerd-flatcar sysext)"
+  rpm --root="${rootfs}" -e --nodeps --noscripts containerd2 runc
+fi
 
 # Remove debug and contrib
 echo ">>> NOTICE: $0: removing '/usr/lib/debug/', '/usr/share/docker/contrib' from sysext"
@@ -19,3 +28,8 @@ cp -vdR --preserve=mode,timestamps "${files_dir}/"* "${rootfs}"
 
 mkdir -p "${rootfs}/usr/lib/systemd/system/sockets.target.d"
 { echo "[Unit]"; echo "Upholds=docker.socket"; } > "${rootfs}/usr/lib/systemd/system/sockets.target.d/10-docker-socket.conf"
+
+# RPM-specific mangle (etcd-wrapper, etc.)
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  "$(dirname "$0")/rpm/sysext_mangle_docker-flatcar.sh" "${rootfs}"
+fi

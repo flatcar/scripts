@@ -1,0 +1,102 @@
+{
+    "_comment": "UKI disk layout — UEFI-only, no BIOS boot. See http://www.chromium.org/chromium-os/building-chromium-os/disk-layout-format",
+    "metadata": {
+        "_comment": "Partitions are aligned to 2MB (4096 blocks). For the sake of VHD disks sizes should align to *both* 2MB and a CHS cylender boundry for the common 16H 63S geometry (16*63 = 1008 blocks). The least common multiple of 4096 and 1008 is 258048 blocks.",
+        "part_alignment": 4096,
+        "disk_alignment": 258048,
+        "block_size": 512,
+        "fs_block_size": 4096
+    },
+    "layouts": {
+        "base": {
+            "1": {
+                "label": "EFI-SYSTEM",
+                "fs_label": "EFI-SYSTEM",
+                "type": "efi",
+                "blocks": "262144",
+                "fs_type": "vfat",
+                "mount": "/boot",
+                "features": []
+            },
+            "2": {
+                "label": "USR-A",
+                "uuid": "7130c94a-213a-4e5a-8e26-6cce9662f132",
+                "type": "flatcar-rootfs",
+                "blocks": "2097152",
+                "fs_blocks": "260094",
+                "fs_type": "btrfs",
+                "fs_compression": "zstd",
+                "mount": "/usr",
+                "features": [
+                    "prioritize",
+                    "verity"
+                ]
+            },
+            "3": {
+                "label": "USR-B",
+                "uuid": "e03dd35c-7c2d-4a47-b3fe-27f15780a57c",
+                "type": "flatcar-rootfs",
+                "blocks": "2097152",
+                "fs_blocks": "262144"
+            },
+            "4": {
+                "label": "OEM",
+                "fs_label": "OEM",
+                "type": "data",
+                "blocks": "262144",
+                "fs_type": "btrfs",
+                "fs_compression": "zlib",
+                "mount": "/oem"
+            },
+            "5": {
+                "label": "ROOT",
+                "fs_label": "ROOT",
+                "type": "dps-root",
+                "blocks": "4427776",
+                "fs_type": "ext4",
+                "mount": "/"
+            }
+        },
+        "vm": {
+            "5": {
+                "label": "ROOT",
+                "fs_label": "ROOT",
+                "blocks": "12943360"
+            }
+        },
+        "azure": {
+            "5": {
+                "label": "ROOT",
+                "fs_label": "ROOT",
+                "blocks": "58875904"
+            }
+        },
+        "vagrant": {
+            "5": {
+                "label": "ROOT",
+                "fs_label": "ROOT",
+                "blocks": "33845248"
+            }
+        },
+        "container": {
+            "1": {
+                "type": "blank"
+            },
+            "2": {
+                "type": "blank"
+            },
+            "3": {
+                "type": "blank"
+            },
+            "4": {
+                "type": "blank"
+            },
+            "5": {
+                "label": "ROOT",
+                "fs_label": "ROOT",
+                "type": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+                "blocks": "12582912"
+            }
+        }
+    }
+}

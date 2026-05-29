@@ -120,6 +120,10 @@ source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
 
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  source "${BUILD_LIBRARY_DIR}/rpm/build_sysext"
+fi
+
 # Architecture values are taken from systemd.unit(5).
 declare -A SYSEXT_ARCHES
 SYSEXT_ARCHES['amd64-usr']='x86-64'
@@ -151,6 +155,9 @@ cleanup() {
     rm -rf "${BUILD_DIR}/base-pkginfo" || true
   fi
   rm -rf "${BUILD_DIR}/img-pkginfo"
+  # Remove RPM package log (created by rpm_install_package, root-owned)
+  rm -f "${BUILD_DIR}/.rpm-packages-explicit"
+  rm -f "${BUILD_DIR}/.rpm-base-manifest.tmp" "${BUILD_DIR}/.rpm-all-manifest.tmp" "${BUILD_DIR}/.rpm-sysext-manifest.tmp"
 }
 
 # Set up trap to execute cleanup() on script exit
@@ -199,9 +206,16 @@ if [[ -z $REPO_BUILD_ID ]] && [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
     info "Setting FLATCAR_VERSION to '$FLATCAR_VERSION'"
 fi
 
-if [ "$VERSION_BOARD" != "$FLATCAR_VERSION" ]; then
+# In RPM mode, os-release VERSION uses IMAGE_VERSION (independent of FLATCAR_VERSION).
+# Compare against IMAGE_VERSION instead so the check doesn't false-positive.
+_expected_version="${FLATCAR_VERSION}"
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" && -n "${IMAGE_VERSION:-}" ]]; then
+  _expected_version="${IMAGE_VERSION}"
+fi
+
+if [ "$VERSION_BOARD" != "$_expected_version" ]; then
   warn "Base squashfs version: $VERSION_BOARD"
-  warn "SDK board packages version: $FLATCAR_VERSION"
+  warn "Expected version: $_expected_version"
   if [[ "${FLAGS_ignore_version_mismatch}" = "${FLAGS_TRUE}" ]] ; then
     warn "Ignoring version mismatch as requested."
   else
@@ -211,7 +225,11 @@ fi
 
 if [[ -n "${FLAGS_metapkgs}" ]]; then
   mapfile -t metapkgs < <(tr ',' '\n' <<<"${FLAGS_metapkgs}")
-  "emerge-${FLAGS_board}" --nodeps --buildpkgonly --usepkg n --verbose "${metapkgs[@]}"
+  # In RPM mode the metapkg ebuild is not needed — packages are resolved
+  # via the RPM catalog.  Only build the portage binpkg in portage mode.
+  if [[ "${PACKAGE_SOURCE_MODE}" != "RPM" ]]; then
+    "emerge-${FLAGS_board}" --nodeps --buildpkgonly --usepkg n --verbose "${metapkgs[@]}"
+  fi
   set -- "${metapkgs[@]}" "${@}"
 fi
 
@@ -222,18 +240,32 @@ fi
 
 info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_DIR}' using '${FLAGS_compression}' compression".
 
+# Unlike Portage (one dir per package), RPM uses a single DB file that gets
+# fully copied-up by overlayfs on any write, so rpm -qa after install returns
+# base + new packages. Snapshot here to diff later.
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]] && [[ -d "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm" ]]; then
+  rpm --root="${BUILD_DIR}/${FLAGS_install_root_basename}" -qa 2>/dev/null | sort > "${BUILD_DIR}/.rpm-base.tmp"
+  rpm_query_manifest "${BUILD_DIR}/${FLAGS_install_root_basename}" | sort > "${BUILD_DIR}/.rpm-base-manifest.tmp"
+fi
+
 for package; do
   echo "Installing package into sysext image: $package"
-  FEATURES="-ebuild-locks binpkg-multi-instance" emerge \
-    --root="${BUILD_DIR}/${FLAGS_install_root_basename}" \
-    --config-root="/build/${FLAGS_board}"  \
-    --sysroot="/build/${FLAGS_board}"  \
-    --usepkgonly \
-    --binpkg-respect-use=y \
-    --getbinpkg \
-    --verbose \
-    --jobs=${NUM_JOBS} \
-    "${package}"
+  
+  if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+    # Fall back to Portage for PORTAGE mode or packages not in RPM catalog
+    FEATURES="-ebuild-locks binpkg-multi-instance" emerge \
+      --root="${BUILD_DIR}/${FLAGS_install_root_basename}" \
+      --config-root="/build/${FLAGS_board}"  \
+      --sysroot="/build/${FLAGS_board}"  \
+      --usepkgonly \
+      --binpkg-respect-use=y \
+      --getbinpkg \
+      --verbose \
+      --jobs=${NUM_JOBS} \
+      "${package}"
+  elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+    rpm_install_package_using_portage_name "${BUILD_DIR}/${FLAGS_install_root_basename}" "$package"
+  fi
 done
 
 # Make squashfs generation more reproducible.
@@ -246,14 +278,24 @@ umount "${BUILD_DIR}/fs-root"
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw'"
   mkdir -p "${BUILD_DIR}/img-pkginfo/var/db"
-  cp -R "${BUILD_DIR}/${FLAGS_install_root_basename}/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
+  
+  # In RPM mode, Portage's /var/db/pkg may not exist if packages were installed via RPM
+  if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+    cp -R "${BUILD_DIR}/${FLAGS_install_root_basename}/var/db/pkg" "${BUILD_DIR}/img-pkginfo/var/db/"
+  else
+    info "  No Portage package database found (RPM mode) - creating empty pkginfo"
+  fi
+  
   mksquashfs "${BUILD_DIR}/img-pkginfo" "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw" \
               -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
+  pad_squashfs_for_loopdev "${BUILD_DIR}/${SYSEXTNAME}_pkginfo.raw"
 fi
 
-info "Writing ${SYSEXTNAME}_packages.txt"
-ROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" PORTAGE_CONFIGROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" \
-      equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+  info "Writing ${SYSEXTNAME}_packages.txt"
+  ROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" PORTAGE_CONFIGROOT="${BUILD_DIR}/${FLAGS_install_root_basename}" \
+        equery --no-color list --format '$cpv::$repo' '*' > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+fi
 
 
 if [[ "${FLAGS_strip_binaries}" = "${FLAGS_TRUE}" ]]; then
@@ -278,6 +320,27 @@ if [[ -n "${FLAGS_manglefs_script}" ]]; then
   "${FLAGS_manglefs_script}" "${BUILD_DIR}/${FLAGS_install_root_basename}"
 fi
 
+# In RPM mode, write packages.txt after manglefs so that packages removed
+# by mangle scripts (e.g. containerd2/runc from docker) are excluded.
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  info "Writing ${SYSEXTNAME}_packages.txt"
+  # Create the file unconditionally; the diff below will overwrite it with
+  # actual contents when an RPM database is present.
+  touch "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+  # Diff against pre-install snapshot to list only sysext-added packages.
+  if [[ -d "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm" ]]; then
+    rpm --root="${BUILD_DIR}/${FLAGS_install_root_basename}" -qa 2>/dev/null | sort > "${BUILD_DIR}/.rpm-all.tmp"
+    rpm_query_manifest "${BUILD_DIR}/${FLAGS_install_root_basename}" | sort > "${BUILD_DIR}/.rpm-all-manifest.tmp"
+    # comm -13: output lines unique to the right file (i.e. newly installed packages only)
+    comm -13 "${BUILD_DIR}/.rpm-base.tmp" "${BUILD_DIR}/.rpm-all.tmp" > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+    comm -13 "${BUILD_DIR}/.rpm-base-manifest.tmp" "${BUILD_DIR}/.rpm-all-manifest.tmp" > "${BUILD_DIR}/.rpm-sysext-manifest.tmp"
+    rm -f "${BUILD_DIR}/.rpm-base.tmp" "${BUILD_DIR}/.rpm-all.tmp"
+    rm -f "${BUILD_DIR}/.rpm-base-manifest.tmp" "${BUILD_DIR}/.rpm-all-manifest.tmp"
+  else
+    warn "No RPM database found for ${SYSEXTNAME}; ${SYSEXTNAME}_packages.txt will be empty"
+  fi
+fi
+
 info "Removing non-/usr directories from sysext image"
 for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   if [[ "${entry}" = */usr ]]; then
@@ -287,9 +350,23 @@ for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   rm -rf "${entry}"
 done
 mkdir -p "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d"
-version_field="${VERSION_FIELD_OVERRIDE:-VERSION_ID=${FLATCAR_VERSION_ID}}"
+
+# Set OS branding based on package source mode
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+  OS_ID="flatcar"
+elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  OS_ID="azurelinux"
+fi
+
+# extension-release VERSION_ID must match the host os-release VERSION_ID.
+# In RPM mode that's IMAGE_VERSION_ID, not FLATCAR_VERSION_ID.
+_sysext_version_id="${FLATCAR_VERSION_ID}"
+if [[ "${PACKAGE_SOURCE_MODE:-PORTAGE}" == "RPM" && -n "${IMAGE_VERSION_ID:-}" ]]; then
+  _sysext_version_id="${IMAGE_VERSION_ID}"
+fi
+version_field="${VERSION_FIELD_OVERRIDE:-VERSION_ID=${_sysext_version_id}}"
 all_fields=(
-  'ID=flatcar'
+  "ID=${OS_ID}"
   "${version_field}"
   "ARCHITECTURE=${ARCH}"
 )
@@ -306,11 +383,17 @@ fi
 
 mksquashfs "${BUILD_DIR}/${FLAGS_install_root_basename}" "${BUILD_DIR}/${SYSEXTNAME}.raw" \
                -noappend -xattrs-exclude '^btrfs.' -comp "${FLAGS_compression}" ${FLAGS_mksquashfs_opts}
+pad_squashfs_for_loopdev "${BUILD_DIR}/${SYSEXTNAME}.raw"
 rm -rf "${BUILD_DIR}"/{fs-root,"${FLAGS_install_root_basename}",workdir}
 
 # Generate reports
 mkdir "${BUILD_DIR}/img-rootfs"
 mount -rt squashfs -o loop,nodev "${BUILD_DIR}/${SYSEXTNAME}.raw" "${BUILD_DIR}/img-rootfs"
+sysext_rpm_manifest=""
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" && -s "${BUILD_DIR}/.rpm-sysext-manifest.tmp" ]]; then
+  sysext_rpm_manifest="${BUILD_DIR}/.rpm-sysext-manifest.tmp"
+fi
+write_sysext_sbom "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_sbom.json" "${sysext_rpm_manifest}"
 write_contents "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents.txt"
 write_contents_with_technical_details "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_contents_wtd.txt"
 write_disk_space_usage_in_paths "${BUILD_DIR}/img-rootfs" "${BUILD_DIR}/${SYSEXTNAME}_disk_usage.txt"

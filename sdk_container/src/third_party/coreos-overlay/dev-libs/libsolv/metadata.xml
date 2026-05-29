@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>maintainer@flatcar-linux.org</email>
+		<name>Flatcar Maintainers</name>
+	</maintainer>
+	<longdescription>
+		libsolv is a library for solving packages and reading repositories.
+		Used by DNF and other package managers.
+	</longdescription>
+	<use>
+		<flag name="rpm">Enable RPM database support</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">openSUSE/libsolv</remote-id>
+	</upstream>
+</pkgmetadata>

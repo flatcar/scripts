@@ -1,0 +1,285 @@
+# kola_enforcing.yaml — Enforced kola tests with structured exception rules.
+#
+# This is the source of truth for which kola tests are enforced. It is consumed
+# directly by evaluate_test_results.sh with platform/arch/bootloader context.
+#
+# Each entry is a test name prefix. Tests matching any prefix must pass
+# unless an exception rule applies to the current build context.
+#
+# Exception rules (all fields optional — omitted fields match anything):
+#   platforms:         [qemu, azure]
+#   architectures:     [amd64, aarch64]
+#   bootloader:        [grub, uki]
+#   reason:            human-readable explanation
+#
+# Logic:
+#   - Within a single rule, fields combine with AND (all must match).
+#   - Across rules, they combine with OR (any matching rule allows failure).
+#   - A test with no exceptions is always enforced.
+
+version: 1
+
+tests:
+  - name: acl.basic
+  - name: acl.etcd-member.discovery
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: 3-node etcd cluster on TCG-emulated arm64 races systemd's DefaultDeviceTimeoutSec for /dev/disk/by-label/OEM; tracked by the OEM fsck conditional dropin work
+
+  - name: acl.flannel.udp
+    exceptions:
+      - architectures: [aarch64]
+        reason: Flannel UDP coverage is registered only for amd64
+  - name: acl.flannel.vxlan
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64 in aclmain, failures due to slow device enumeration.
+
+  - name: acl.internet
+    exceptions:
+      - platforms: [qemu]
+        reason: Requires real network connectivity (Azure only)
+      - platforms: [azure]
+        reason: |
+          TEMPORARY (AB#20102): DockerPing fails because kola Azure VMs no longer
+          have a Public IP (mantle PR 27413), and Azure default outbound access
+          does not SNAT ICMP. Revert once mantle/infra restores outbound ICMP
+          (NSG-on-NIC keeping the PIP, or a NAT Gateway on the kola subnet).
+
+  - name: acl.ignition.v1.users
+  - name: acl.ignition.v2.users
+
+  - name: bpf.execsnoop
+  - name: bpf.local-gadget
+
+  - name: cl.cloudinit.basic
+  - name: cl.cloudinit.multipart-mime
+  - name: cl.cloudinit.script
+
+  - name: acl.disk.raid0.data
+    exceptions:
+      - platforms: [azure]
+        reason: ACL data RAID coverage uses a secondary disk, which this Kola test only provisions on QEMU
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakes on TCG-emulated arm64 in the grub nightly
+  - name: acl.disk.raid0.root
+    exceptions:
+      - platforms: [azure]
+        reason: Root RAID coverage requires an additional disk, which this Kola test only provisions on QEMU
+      - bootloader: [grub]
+        reason: Mantle hardcodes UKI partition layout (part5); GRUB uses part9
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64, failures due to slow device enumeration.
+  - name: acl.disk.raid1.data
+    exceptions:
+      - platforms: [azure]
+        reason: ACL data RAID coverage uses a secondary disk, which this Kola test only provisions on QEMU
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64, failures due to slow device enumeration.
+  - name: acl.disk.raid1.root
+    exceptions:
+      - platforms: [azure]
+        reason: Root RAID coverage requires an additional disk, which this Kola test only provisions on QEMU
+      - bootloader: [grub]
+        reason: Mantle hardcodes UKI partition layout (part5); GRUB uses part9
+
+  - name: cl.etcd-member.etcdctlv3
+  - name: cl.etcd-member.v2-backup-restore
+
+  - name: cl.filesystem
+    exceptions:
+      - platforms: [azure]
+        reason: Filesystem audit is not cloud-environment coverage and is limited to QEMU contexts
+
+  - name: cl.ignition.instantiated.enable-unit
+    exceptions:
+      - platforms: [azure]
+        reason: Instantiated unit enablement coverage is not cloud-environment coverage and is limited to QEMU contexts
+  - name: cl.ignition.kargs
+    exceptions:
+      - bootloader: [uki]
+        reason: Dynamic kargs writing is not supported with UKI's immutable bootloader configuration
+  - name: cl.ignition.luks
+  - name: cl.ignition.oem.indirect
+    exceptions:
+      - platforms: [azure]
+        reason: Test rewrites OEM grub.cfg, which does not survive cloud-platform reboot semantics
+  - name: cl.ignition.oem.indirect.new
+    exceptions:
+      - platforms: [azure]
+        reason: Test rewrites OEM grub.cfg, which does not survive cloud-platform reboot semantics
+  - name: cl.ignition.oem.regular
+    exceptions:
+      - platforms: [azure]
+        reason: Test rewrites OEM grub.cfg, which does not survive cloud-platform reboot semantics
+  - name: cl.ignition.oem.regular.new
+    exceptions:
+      - platforms: [azure]
+        reason: Test rewrites OEM grub.cfg, which does not survive cloud-platform reboot semantics
+  - name: cl.ignition.oem.reuse
+    exceptions:
+      - platforms: [azure]
+        reason: Test rewrites OEM grub.cfg, which does not survive cloud-platform reboot semantics
+  - name: cl.ignition.oem.wipe
+    exceptions:
+      - platforms: [azure]
+        reason: Wiping the OEM filesystem can prevent non-QEMU platforms from booting after reboot
+  - name: cl.ignition.partition_on_boot_disk
+    exceptions:
+      - platforms: [azure]
+        reason: Test repartitions the boot disk and is limited to QEMU disk-layout coverage
+  - name: cl.ignition.symlink
+  - name: cl.ignition.translation
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64, failures due to slow device enumeration.
+  - name: cl.ignition.v1.btrfsroot
+  - name: cl.ignition.v1.ext4root
+  - name: cl.ignition.v1.groups
+  - name: cl.ignition.v1.once
+  - name: cl.ignition.v1.sethostname
+    exceptions:
+      - platforms: [azure]
+        reason: Azure requires hostname at instance creation and waagent can overwrite Ignition-set hostnames after boot
+  - name: cl.ignition.v1.xfsroot
+  - name: cl.ignition.v2.btrfsroot
+  - name: cl.ignition.v2.ext4root
+  - name: cl.ignition.v2.xfsroot
+  - name: cl.ignition.v2_1.ext4checkexisting
+  - name: cl.ignition.v2_1.swap
+  - name: cl.ignition.v2_1.vfat
+
+  - name: cl.install.cloudinit
+    exceptions:
+      - platforms: [azure]
+        reason: Test expects installer-written cloud-config to own hostname, which conflicts with Azure hostname handling
+
+  - name: acl.network.initramfs.second-boot
+    exceptions:
+      - platforms: [azure]
+        reason: SELinux toggle reaches out to IMDS on second boot too
+  - name: cl.network.iptables
+  - name: cl.network.listeners
+    exceptions:
+      - platforms: [azure]
+        reason: Listener audit is not cloud-environment coverage unless OEM tools unexpectedly open ports
+  - name: cl.network.nftables
+  - name: cl.network.wireguard
+
+  - name: cl.swap_activation
+  - name: cl.sysext.boot
+    exceptions:
+      - platforms: [azure]
+        reason: Test uses custom OEM files and should not run on cloud platforms
+  - name: cl.users.shells
+  - name: cl.verity
+
+  - name: coreos.auth.verify
+  - name: coreos.ignition.groups
+  - name: coreos.ignition.once
+  - name: coreos.ignition.resource.local
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64, failures due to slow device enumeration.
+  - name: coreos.ignition.resource.remote
+  - name: coreos.ignition.resource.s3.versioned
+    exceptions:
+      - platforms: [azure]
+        reason: Versioned S3 resource coverage is a special case of remote-resource ignition coverage and is limited to QEMU
+  - name: coreos.ignition.security.tls
+  - name: coreos.ignition.sethostname
+    exceptions:
+      - platforms: [azure]
+        reason: Azure requires hostname at instance creation and waagent can overwrite Ignition-set hostnames after boot
+  - name: coreos.ignition.systemd.enable-service
+  - name: coreos.selinux.boolean
+  - name: coreos.tls.fetch-urls
+
+  - name: docker.base
+  - name: docker.btrfs-storage
+  - name: docker.containerd-restart
+  - name: docker.enable-service.sysext
+  - name: docker.selinux
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Slow emulation causes this test to hit the duplicate journal entry bug (azure coverage doesn't exhibit this)
+  - name: docker.userns
+
+  - name: kubeadm.v1.32.4.calico.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.32.4.cilium.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.32.4.flannel.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.33.0.calico.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.33.0.cilium.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.33.0.flannel.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.34.1.calico.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.34.1.cilium.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+  - name: kubeadm.v1.34.1.flannel.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: kubectl wait timeouts on emulated arm64 QEMU
+
+  - name: linux.nfs.v3
+    exceptions:
+      - platforms: [azure]
+        reason: Test requires hostname control that conflicts with Azure instance-level hostname handling
+  - name: linux.nfs.v4
+    exceptions:
+      - platforms: [azure]
+        reason: Test requires hostname control that conflicts with Azure instance-level hostname handling
+  - name: linux.ntp
+    exceptions:
+      - platforms: [azure]
+        reason: Test starts a local NTP server, so it is not cloud-environment coverage
+
+  - name: sysext.custom-docker.sysext
+  - name: sysext.disable-containerd
+  - name: sysext.disable-docker
+  - name: sysext.simple
+
+  - name: systemd.journal.remote
+    exceptions:
+      - platforms: [azure]
+        reason: Test requires instance-level hostname control, which conflicts with Azure hostname handling
+  - name: systemd.journal.user
+  - name: systemd.sysusers.gshadow

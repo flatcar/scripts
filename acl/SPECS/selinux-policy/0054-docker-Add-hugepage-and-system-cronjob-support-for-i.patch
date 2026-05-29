@@ -1,0 +1,39 @@
+From ab0c75d7d038810f5747238bd2e629e6ac62489f Mon Sep 17 00:00:00 2001
+From: Chris PeBenito <chpebeni@linux.microsoft.com>
+Date: Mon, 16 Jun 2025 14:13:25 -0400
+Subject: [PATCH 54/55] docker: Add hugepage and system cronjob support for
+ interactive cli use.
+
+Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+---
+ policy/modules/services/docker.te | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/policy/modules/services/docker.te b/policy/modules/services/docker.te
+index 536f9853d..596da0ab3 100644
+--- a/policy/modules/services/docker.te
++++ b/policy/modules/services/docker.te
+@@ -96,6 +96,9 @@ allow dockerc_t dockerd_t:unix_stream_socket connectto;
+ 
+ corecmd_dontaudit_search_bin(dockerc_t)
+ 
++# read /sys/kernel/mm/transparent_hugepage/hpage_pmd_size
++dev_read_sysfs(dockerc_t)
++
+ domain_use_interactive_fds(dockerc_t)
+ 
+ auth_use_nsswitch(dockerc_t)
+@@ -106,6 +109,10 @@ userdom_use_user_ptys(dockerc_t)
+ 
+ container_stream_connect_system_containers(dockerc_t)
+ 
++optional_policy(`
++	cron_system_entry(dockerc_t, dockerc_exec_t)
++')
++
+ ########################################
+ #
+ # Rootless Docker daemon local policy
+-- 
+2.49.0
+

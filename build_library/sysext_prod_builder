@@ -48,10 +48,16 @@ create_prod_sysext() {
     build_sysext_opts+=( "--base_pkginfo=${output_dir}/${pkginfo}" )
   fi
 
-  # Include FS mangle script if present
+  # Include FS mangle script if present (try exact name, then legacy -flatcar suffix)
+  local mangle_script=""
   if [[ -x "${BUILD_LIBRARY_DIR}/sysext_mangle_${name}" ]] ; then
-    build_sysext_opts+=( "--manglefs_script=${BUILD_LIBRARY_DIR}/sysext_mangle_${name}" )
-    msg="${msg}, FS mangle script 'sysext_mangle_${name}'"
+    mangle_script="${BUILD_LIBRARY_DIR}/sysext_mangle_${name}"
+  elif [[ -x "${BUILD_LIBRARY_DIR}/sysext_mangle_${name}-flatcar" ]] ; then
+    mangle_script="${BUILD_LIBRARY_DIR}/sysext_mangle_${name}-flatcar"
+  fi
+  if [[ -n "${mangle_script}" ]] ; then
+    build_sysext_opts+=( "--manglefs_script=${mangle_script}" )
+    msg="${msg}, FS mangle script '${mangle_script##*/}'"
   fi
 
   info "${msg}."
@@ -63,23 +69,39 @@ create_prod_sysext() {
   # The --install_root_basename="${name}-base-sysext-rootfs" flag is
   # important - it sets the name of a rootfs directory, which is used
   # to determine the package target in coreos/base/profile.bashrc
-  sudo "FLATCAR_BUILD_ID=$FLATCAR_BUILD_ID" "${SCRIPTS_DIR}/build_sysext" \
+  #
+  # SYSEXT_COMPRESSION can be set to override default compression (zstd).
+  local compression_opt=""
+  if [[ -n "${SYSEXT_COMPRESSION:-}" ]]; then
+    compression_opt="--compression=${SYSEXT_COMPRESSION}"
+  fi
+
+  sudo "FLATCAR_BUILD_ID=$FLATCAR_BUILD_ID" \
+      "PACKAGE_SOURCE_MODE=${PACKAGE_SOURCE_MODE:-PORTAGE}" \
+      "RPM_STAGING_DIR=${RPM_STAGING_DIR:-}" \
+      "IMAGE_VERSION=${IMAGE_VERSION:-}" \
+      "IMAGE_VERSION_ID=${IMAGE_VERSION_ID:-}" \
+      "IMAGE_BUILD_ID=${IMAGE_BUILD_ID:-}" \
+      "${SCRIPTS_DIR}/build_sysext" \
             --board="${BOARD}" \
             --image_builddir="${workdir}/sysext-build" \
             --squashfs_base="${base_sysext}" \
             --generate_pkginfo \
             --install_root_basename="${name}-base-sysext-rootfs" \
+            ${compression_opt} \
             "${build_sysext_opts[@]}" \
             "${name}" "${grp_pkg[@]}"
 
   sudo mv "${workdir}/sysext-build/${name}.raw" "${workdir}/sysext-build/${name}_pkginfo.raw" \
-                              "${workdir}/sysext-build/${name}"_*.txt "${output_dir}"
+                              "${workdir}/sysext-build/${name}"_*.txt \
+                              "${workdir}/sysext-build/${name}_sbom.json" \
+                              "${output_dir}"
 
-  sudo mkdir -p "${install_root}"/usr/share/flatcar/sysext
-  sudo install -m 0644 -D "${output_dir}/${name}.raw" "${install_root}"/usr/share/flatcar/sysext/
+  sudo mkdir -p "${install_root}${DISTRO_SHARE_DIR}/sysext"
+  sudo install -m 0644 -D "${output_dir}/${name}.raw" "${install_root}${DISTRO_SHARE_DIR}/sysext/"
 
   sudo mkdir -p "${install_root}"/etc/extensions/
-  sudo ln -sf "/usr/share/flatcar/sysext/${name}.raw" "${install_root}/etc/extensions/${name}.raw"
+  sudo ln -sf "${DISTRO_SHARE_DIR}/sysext/${name}.raw" "${install_root}/etc/extensions/${name}.raw"
 }
 # --
 

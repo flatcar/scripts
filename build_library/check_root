@@ -130,6 +130,8 @@ IGNORE_SYMLINK = (
     b"/etc/coreos",       # set later in the build process
     b"/usr/src/linux-*/tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S", # broken symlink in Kernel source tree
     b"/usr/lib*/python3*/site-packages/*egg-info", # broken symlink from dev-python/certifi that is not filtered by INSTALL_MASK
+    b"/etc/mtab",                 # -> ../proc/self/mounts, needs /proc mounted
+    b"/var/log/dracut.log",       # -> ../opt/dracut/log/dracut.log, created at boot
 )
 
 

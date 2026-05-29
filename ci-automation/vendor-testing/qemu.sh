@@ -74,9 +74,16 @@ if [ -n "${QEMU_DEVCONTAINER_BINHOST_URL}" ] ; then
     devcontainer_opts+=( "--devcontainer-binhost-url" "${QEMU_DEVCONTAINER_BINHOST_URL}" )
 fi
 
+debug_flag=""
+if [[ "${KOLA_DEBUG:-}" == "true" ]]; then
+    debug_flag="--debug"
+fi
+
 set -x
 
 kola run \
+    ${debug_flag} \
+    ${distro_flag:-} \
     --board="${CIA_ARCH}-usr" \
     --parallel="${QEMU_PARALLEL}" \
     --platform=qemu \

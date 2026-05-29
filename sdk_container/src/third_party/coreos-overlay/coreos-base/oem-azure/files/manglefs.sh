@@ -3,6 +3,8 @@
 set -euo pipefail
 
 rootfs="${1}"
+PACKAGE_SOURCE_MODE="${PACKAGE_SOURCE_MODE:-PORTAGE}"
+script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 to_delete=(
     /usr/include
@@ -30,3 +32,17 @@ for p in "${rootfs}"/usr/lib/python*; do
     # avoids searching below those directories)
     find "${p}" \( -name tests -o -name test \) -type d -prune -exec rm -rf '{}' '+'
 done
+
+# Enable symlinks for sysext-delivered services (chronyd, waagent).
+# Preset-all runs before sysext merge so never creates these; without them
+# "systemctl is-enabled <unit>" reports "disabled".  Uses "L" (not "L+")
+# so an admin mask/redirect survives reboots.
+if [[ -f "${script_dir}/sysext-enable.conf" ]]; then
+    mkdir -p "${rootfs}/usr/lib/tmpfiles.d"
+    cp "${script_dir}/sysext-enable.conf" "${rootfs}/usr/lib/tmpfiles.d/sysext-enable.conf"
+fi
+
+# RPM-specific changes if in RPM mode
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+    source "${script_dir}/manglefs_rpm.sh"
+fi

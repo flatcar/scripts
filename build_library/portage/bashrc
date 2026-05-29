@@ -1,0 +1,14 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Ensure /usr/lib/os-release exists in the chroot for packages that need it
+# during configure (e.g., systemd's meson build reads ID, NAME, and
+# BUG_REPORT_URL for SBAT configuration of sd-boot EFI binaries).
+# In a catalyst stage3 chroot, os-release does not exist yet.
+if [[ "${EBUILD_PHASE}" == "setup" && ! -f /usr/lib/os-release ]]; then
+    echo 'ID=flatcar' > /usr/lib/os-release
+    echo 'NAME="Flatcar Container Linux"' >> /usr/lib/os-release
+    echo 'BUG_REPORT_URL="https://issues.flatcar-linux.org"' >> /usr/lib/os-release
+    echo 'HOME_URL="https://flatcar-linux.org/"' >> /usr/lib/os-release
+    [[ ! -e /etc/os-release ]] && ln -sf ../usr/lib/os-release /etc/os-release
+fi

@@ -1,0 +1,40 @@
+From ead5018b62aaa08c526a45a935379ff689887236 Mon Sep 17 00:00:00 2001
+From: Nikola Bojanic <nbojanic@microsoft.com>
+Date: Tue, 5 May 2026 10:04:11 -0700
+Subject: [PATCH] container: Drop unqualified /etc dir filetrans to
+ container_config_t
+
+The unqualified files_etc_filetrans() in the container module installs a
+type_transition that fires in the kernel whenever a member of the
+container_engine_system_domain attribute creates a directory in an
+etc_t-labeled parent, labeling the new directory container_config_t
+regardless of name.
+
+In our compiled policy kernel_t ends up in
+container_engine_system_domain, so directories created in /etc by
+kernel_t (admin shells, systemd, tmpfiles, etc.) get silently mislabeled
+container_config_t instead of inheriting etc_t.
+
+The container config directories (/etc/containers,
+/etc/docker, /etc/containerd, /etc/cni) still have explicit file_contexts
+entries ('/etc/<name>(/.*)?  container_config_t').
+
+Signed-off-by: Nikola Bojanic <nbojanic@microsoft.com>
+---
+ policy/modules/services/container.te | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/policy/modules/services/container.te b/policy/modules/services/container.te
+index d4e6f8e..97fc614 100644
+--- a/policy/modules/services/container.te
++++ b/policy/modules/services/container.te
+@@ -851,7 +851,6 @@ fstools_exec(container_engine_system_domain)
+ logging_send_syslog_msg(container_engine_system_domain)
+ 
+ create_dirs_pattern(container_engine_system_domain, container_config_t, container_config_t)
+-files_etc_filetrans(container_engine_system_domain, container_config_t, dir)
+ 
+ manage_dirs_pattern(container_engine_system_domain, container_log_t, container_log_t)
+ manage_files_pattern(container_engine_system_domain, container_log_t, container_log_t)
+-- 
+2.45.4

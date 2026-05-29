@@ -11,10 +11,43 @@ RUN echo 'export FEATURES="-sandbox -usersandbox -ipc-sandbox -network-sandbox -
         >> /home/sdk/.bashrc
 
 RUN chown sdk:sdk /mnt/host/source
+
+# Regenerate manifest for sdk-depends to pick up the new r58 revision with RPM/DNF5 and UKI tools
+# Use the actual source location since /var/lib/portage/repos/coreos-overlay doesn't exist yet
+RUN sudo bash -c 'cd /mnt/host/source/src/third_party/coreos-overlay/coreos-devel/sdk-depends && for ebuild in *.ebuild; do ebuild "$ebuild" manifest; done'
+
 RUN /home/sdk/sdk_entry.sh ./update_chroot --toolchain_boards="amd64-usr arm64-usr"
+
+# Force rebuild of packages that need new USE flags
+# The base SDK may have these installed without the correct USE flags
+RUN /home/sdk/sdk_entry.sh bash -c 'sudo emerge --ask=n --changed-use --deep dev-cpp/toml11 dev-libs/libcomps dev-libs/libsolv app-arch/rpm app-arch/dnf5 sys-apps/systemd'
 
 RUN /home/sdk/sdk_entry.sh ./setup_board --board="arm64-usr" --regen_configs
 RUN /home/sdk/sdk_entry.sh ./setup_board --board="amd64-usr" --regen_configs
+
+# RPM and DNF5 tools are now installed automatically via sdk-depends
+# (see sdk_container/src/third_party/coreos-overlay/coreos-devel/sdk-depends/sdk-depends-0.0.1-r57.ebuild)
+# Verify DNF5 installation
+RUN echo "=== Checking for DNF5 installation ===" && \
+    find /usr -name 'dnf5*' -type f 2>/dev/null | grep -E '(bin|sbin)' || echo "No dnf5 files found"
+RUN test -x /usr/bin/dnf5 || (echo "ERROR: dnf5 not found at /usr/bin/dnf5" && exit 1)
+RUN echo "Found DNF5 at: /usr/bin/dnf5"
+RUN echo "=== Testing DNF5 ===" && \
+    /usr/bin/dnf5 --version || (echo "ERROR: dnf5 failed to run" && exit 1)
+
+# Remove problematic compatibility alias that references missing builddep plugin
+RUN sudo rm -f /usr/share/dnf5/aliases.d/compatibility-plugins.conf
+
+# Bake the Microsoft RPM GPG key into the SDK container so that GPG signature
+# verification is active from the very first package install.
+COPY acl/MICROSOFT-RPM-GPG-KEY /tmp/MICROSOFT-RPM-GPG-KEY
+RUN sudo mkdir -p /etc/pki/rpm-gpg && \
+    sudo cp /tmp/MICROSOFT-RPM-GPG-KEY /etc/pki/rpm-gpg/MICROSOFT-RPM-GPG-KEY && \
+    sudo chmod 644 /etc/pki/rpm-gpg/MICROSOFT-RPM-GPG-KEY && \
+    rm -f /tmp/MICROSOFT-RPM-GPG-KEY
+
+# Verify ukify is available from systemd[boot,ukify]
+RUN ukify --help >/dev/null 2>&1 || (echo "ERROR: ukify not found or broken" && exit 1)
 
 # Restore original .bashrc to remove sandbox disablement
 RUN mv /home/sdk/.bashrc.bak /home/sdk/.bashrc

@@ -1,0 +1,134 @@
+From f29faf8ef4a3334afe6cfb3bc8c3a110dca144e8 Mon Sep 17 00:00:00 2001
+From: Chris PeBenito <chpebeni@linux.microsoft.com>
+Date: Wed, 9 Jul 2025 10:30:58 -0400
+Subject: [PATCH 56/56] cloudinit: Add container engine admin access.
+
+Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+---
+ policy/modules/admin/cloudinit.te      | 20 ++++++++++++++++++++
+ policy/modules/services/crio.if        |  2 ++
+ policy/modules/services/kubernetes.if  |  6 ------
+ policy/modules/services/rootlesskit.if | 21 +++++++++++++++++++++
+ 4 files changed, 43 insertions(+), 6 deletions(-)
+
+diff --git a/policy/modules/admin/cloudinit.te b/policy/modules/admin/cloudinit.te
+index 056494649..d0530e85c 100644
+--- a/policy/modules/admin/cloudinit.te
++++ b/policy/modules/admin/cloudinit.te
+@@ -325,6 +325,10 @@ optional_policy(`
+ 	corosync_admin(cloud_init_t, system_r)
+ ')
+ 
++optional_policy(`
++	crio_admin(cloud_init_t, system_r)
++')
++
+ optional_policy(`
+ 	couchdb_admin(cloud_init_t, system_r)
+ ')
+@@ -402,6 +406,10 @@ optional_policy(`
+ 	dnsmasq_admin(cloud_init_t, system_r)
+ ')
+ 
++optional_policy(`
++	docker_admin(cloud_init_t, system_r)
++')
++
+ optional_policy(`
+ 	dovecot_admin(cloud_init_t, system_r)
+ ')
+@@ -561,6 +569,10 @@ optional_policy(`
+ 	ksmtuned_admin(cloud_init_t, system_r)
+ ')
+ 
++optional_policy(`
++	kubernetes_admin(cloud_init_t, system_r)
++')
++
+ optional_policy(`
+ 	l2tp_admin(cloud_init_t, system_r)
+ ')
+@@ -770,6 +782,10 @@ optional_policy(`
+ 	plymouthd_admin(cloud_init_t, system_r)
+ ')
+ 
++optional_policy(`
++	podman_admin(cloud_init_t, system_r)
++')
++
+ optional_policy(`
+ 	portage_run(cloud_init_t, system_r)
+ 	portage_run_fetch(cloud_init_t, system_r)
+@@ -875,6 +891,10 @@ optional_policy(`
+ 	rngd_admin(cloud_init_t, system_r)
+ ')
+ 
++optional_policy(`
++	rootlesskit_admin(cloud_init_t, system_r)
++')
++
+ optional_policy(`
+ 	rpc_admin(cloud_init_t, system_r)
+ 	rpc_domtrans_nfsd(cloud_init_t)
+diff --git a/policy/modules/services/crio.if b/policy/modules/services/crio.if
+index bdcf6dad7..48e65475d 100644
+--- a/policy/modules/services/crio.if
++++ b/policy/modules/services/crio.if
+@@ -94,6 +94,8 @@ interface(`crio_admin',`
+ 	allow $1 crio_conmon_t:process { ptrace signal_perms };
+ 	ps_process_pattern($1, crio_conmon_t)
+ 
++	crio_run($1, $2)
++
+ 	# no private type for crictl, so connect directly
+ 	container_stream_connect_system_engine($1)
+ ')
+diff --git a/policy/modules/services/kubernetes.if b/policy/modules/services/kubernetes.if
+index 2af5b64b3..7451fda6f 100644
+--- a/policy/modules/services/kubernetes.if
++++ b/policy/modules/services/kubernetes.if
+@@ -1042,12 +1042,6 @@ interface(`kubernetes_admin',`
+ 	role $2 types kubectl_t;
+ 	domtrans_pattern($1, kubectl_exec_t, kubectl_t)
+ 
+-	# kubectl executes an editor when editing files
+-	# transition back to the user domain when running them
+-	corecmd_bin_domtrans(kubectl_t, $1)
+-	allow $1 kubectl_t:fd use;
+-	allow $1 kubectl_t:fifo_file rw_inherited_fifo_file_perms;
+-
+ 	allow $1 kubeadm_t:process { ptrace signal_perms };
+ 	ps_process_pattern($1, kubeadm_t)
+ 
+diff --git a/policy/modules/services/rootlesskit.if b/policy/modules/services/rootlesskit.if
+index 2be598d70..e42fef622 100644
+--- a/policy/modules/services/rootlesskit.if
++++ b/policy/modules/services/rootlesskit.if
+@@ -104,3 +104,24 @@ template(`rootlesskit_role',`
+ 	')
+ ')
+ 
++########################################
++## <summary>
++##	All of the rules required to
++##	administrate a rootlesskit
++##	environment.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	Role allowed access.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`rootlesskit_admin',`
++	rootlesskit_run($1, $2)
++')
+-- 
+2.49.0
+

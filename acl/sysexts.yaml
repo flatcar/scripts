@@ -1,0 +1,161 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Sysext definitions for Azure Container Linux (ACL)
+# ===================================================
+#
+# This file defines sysexts built alongside ACL images.  Each entry is either
+# embedded into the image (shipped on the /usr filesystem and activated at boot
+# via systemd-sysext) or standalone (built as a separate squashfs .raw image
+# that must be downloaded and placed on the system before activation).
+#
+# Both types are activated at runtime via systemd-sysext; the difference is
+# whether the .raw is included in the image or delivered separately.
+#
+# HOW TO ADD A NEW SYSEXT
+# -----------------------
+# 1. Add an entry under 'sysexts:' below.
+#    Fields:
+#      name      — sysext output filename (e.g. "my-extension" → my-extension.raw)
+#      packages  — list of package names to install into the sysext.
+#                  Names can be RPM package names (e.g. "cuda-open") or portage-style
+#                  category/package names (e.g. "app-containers/docker").
+#                  In RPM mode, each name is first checked against the RPM repos;
+#                  if not found, it falls back to the portage-to-RPM catalog.
+#                  Each entry can be a plain string or an object with 'name' and
+#                  'archs' fields for per-package architecture filtering:
+#                    - qemu-img              # installed on all architectures
+#                    - name: qemu-kvm        # installed only on amd64
+#                      archs: [amd64]
+#      mode      — "embedded" or "standalone" (required).
+#                  "embedded" sysexts are placed on the /usr filesystem inside the
+#                  image and activated at boot.  "standalone" sysexts are built as
+#                  separate .raw images that are not shipped with the image and must
+#                  be downloaded separately before activation.
+#      archs     — (optional) list of architectures to build for: [amd64], [arm64],
+#                  or both.  Omit to build for all architectures.
+#      tags      — (optional) list of string tags for filtering.
+#                  Use --build-standalone-sysexts=TAG to build only sysexts
+#                  that carry the given tag.  Multiple tags can be specified
+#                  as a comma-separated list (--build-standalone-sysexts=TAG1,TAG2)
+#                  and a sysext is included if it matches any of the given tags.
+#                  Omit to include in all builds.
+#                  Note: tags are ignored for embedded sysexts — they are always
+#                  included when building the image.
+#
+# 2. (Optional) Create a mangle script: build_library/sysext_mangle_<name>
+#    Needed when the RPM installs files outside /usr (e.g. /etc, /bin, /lib).
+#    sysexts only ship files under /usr, so the mangle script relocates them.
+#
+# The rest of the pipeline (build_image, build_standalone_sysexts,
+# run_sdk_container, validation) is fully data-driven and picks up new entries
+# automatically.
+
+sysexts:
+ # --- embedded sysexts (shipped on /usr, activated at boot) ----------------
+  - name: containerd
+    mode: embedded
+    packages:
+      - app-containers/containerd
+
+ # --- scenario-specific sysexts -----------------------------------------
+  - name: docker
+    mode: standalone
+    packages:
+      - app-containers/docker
+      - app-containers/docker-cli
+      - app-containers/docker-buildx
+    tags:
+      - kola
+ # --- GPU / hardware sysexts -------------------------------------------
+  - name: nvidia-driver-cuda-open
+    mode: standalone
+    packages:
+      - cuda-open
+    archs:
+      - amd64
+    tags:
+      - gpu
+
+  - name: nvidia-driver-cuda
+    mode: standalone
+    packages:
+      - cuda
+    archs:
+      - amd64
+    tags:
+      - gpu
+
+  - name: nvidia-driver-vgpu
+    mode: standalone
+    packages:
+      - nvidia-vgpu-guest-driver
+    archs:
+      - amd64
+    tags:
+      - gpu
+
+  - name: nvidia-container-toolkit
+    mode: standalone
+    packages:
+      - nvidia-container-toolkit
+    tags:
+      - gpu
+
+  - name: nvidia-fabric-manager
+    mode: standalone
+    packages:
+      - nvidia-fabric-manager
+    tags:
+      - gpu
+
+  # --- Testing framework sysexts ----------------------------------------
+  - name: lisa-testing
+    mode: standalone
+    tags:
+      - lisa
+    packages:
+      - autoconf
+      - automake
+      - binutils
+      - bison
+      - cmake
+      - curl
+      - dhcpcd
+      - dnsmasq
+      - elfutils-devel
+      - fio
+      - firewalld
+      - flex
+      - gcc
+      - gcc-c++
+      - gdb
+      - git
+      - glibc-devel
+      - golang
+      - gzip
+      - iperf3
+      - iptables
+      - kernel-headers
+      - libibverbs
+      - librdmacm
+      - libtool
+      - libvirt
+      - ltrace
+      - make
+      - ninja-build
+      - openssl-devel
+      - patch
+      - pkgconf
+      - python3-devel
+      - python3-pip
+      - qemu-img
+      - name: qemu-kvm
+        archs: [amd64]
+      - rdma-core
+      - strace
+      - stress-ng
+      - sysstat
+      - tar
+      - wget
+      - which

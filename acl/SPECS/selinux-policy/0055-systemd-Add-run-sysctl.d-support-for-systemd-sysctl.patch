@@ -1,0 +1,71 @@
+From 69072906596da220f9f1724b704ec5e71906eb26 Mon Sep 17 00:00:00 2001
+From: Chris PeBenito <chpebeni@linux.microsoft.com>
+Date: Mon, 16 Jun 2025 14:13:49 -0400
+Subject: [PATCH 55/55] systemd: Add /run/sysctl.d support for systemd-sysctl.
+
+Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+---
+ policy/modules/system/init.if    | 19 +++++++++++++++++++
+ policy/modules/system/systemd.te |  3 +++
+ policy/modules/system/udev.te    |  1 +
+ 3 files changed, 23 insertions(+)
+
+diff --git a/policy/modules/system/init.if b/policy/modules/system/init.if
+index f11c7ee11..6a0ad8952 100644
+--- a/policy/modules/system/init.if
++++ b/policy/modules/system/init.if
+@@ -3084,6 +3084,25 @@ interface(`init_runtime_filetrans_utmp',`
+ 	files_runtime_filetrans($1, initrc_runtime_t, file, "utmp")
+ ')
+ 
++########################################
++## <summary>
++##      Read initrc_runtime_t files
++## </summary>
++## <param name="domain">
++##	<summary>
++##	domain
++##	</summary>
++## </param>
++#
++interface(`init_read_script_runtime_files',`
++	gen_require(`
++		type initrc_runtime_t;
++	')
++
++	read_files_pattern($1, initrc_runtime_t, initrc_runtime_t)
++	files_search_runtime($1)
++')
++
+ #######################################
+ ## <summary>
+ ##	Create a directory in the /run/systemd directory.
+diff --git a/policy/modules/system/systemd.te b/policy/modules/system/systemd.te
+index 6287b99d1..4aaa55d11 100644
+--- a/policy/modules/system/systemd.te
++++ b/policy/modules/system/systemd.te
+@@ -1872,6 +1872,9 @@ systemd_log_parse_environment(systemd_sessions_t)
+ # net_admin for network sysctls
+ allow systemd_sysctl_t self:capability { net_admin sys_admin sys_ptrace };
+ 
++# for /run/sysctl.d runtime sysctl files
++init_read_script_runtime_files(systemd_sysctl_t)
++
+ kernel_read_kernel_sysctls(systemd_sysctl_t)
+ kernel_request_load_module(systemd_sysctl_t)
+ kernel_rw_all_sysctls(systemd_sysctl_t)
+diff --git a/policy/modules/system/udev.te b/policy/modules/system/udev.te
+index 23608293b..0f1ac09a2 100644
+--- a/policy/modules/system/udev.te
++++ b/policy/modules/system/udev.te
+@@ -285,6 +285,7 @@ ifdef(`init_systemd',`
+ 
+ 	systemd_read_logind_sessions_files(udev_t)
+ 	systemd_read_logind_runtime_files(udev_t)
++	systemd_domtrans_sysctl(udev_t)
+ 	# udev searches for .link files and applies custom udev rules
+ 	systemd_read_networkd_runtime(udev_t)
+ 
+-- 
+2.49.0
+

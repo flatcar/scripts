@@ -119,3 +119,59 @@ write_disk_space_usage_in_paths() {
 write_disk_space_usage() {
     write_disk_space_usage_in_paths "${1}" "${2}" ./boot ./usr ./
 }
+
+# Write an SPDX SBOM for a rootfs tree.
+write_sysext_sbom() {
+    local rootfs="${1}"; shift
+    local output="${1}"; shift
+    local output_name="${output##*/}"
+    local rpm_manifest="${1:-}"
+    info "Writing ${output_name}"
+    output=$(realpath "${output}")
+
+    local scan_root="${rootfs}"
+    local overlay_root=""
+    local lowerdir=""
+    local overlay_upper
+    local overlay_work
+    local overlay_merged
+    local rc
+
+    if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+        if [[ -n "${rpm_manifest}" ]] && [[ -f "${rpm_manifest}" ]]; then
+            rpm_manifest=$(realpath "${rpm_manifest}")
+            lowerdir=$(realpath "${rootfs}")
+            overlay_root=$(mktemp -d)
+            overlay_upper="${overlay_root}/upper"
+            overlay_work="${overlay_root}/work"
+            overlay_merged="${overlay_root}/merged"
+
+            # Overlay the read-only sysext mount so Syft can see the generated RPM
+            # manifest at its expected path without modifying the original rootfs.
+            sudo mkdir -p "${overlay_upper}" "${overlay_work}" "${overlay_merged}"
+            sudo mount -t overlay overlay \
+                -o "lowerdir=${lowerdir},upperdir=${overlay_upper},workdir=${overlay_work}" \
+                "${overlay_merged}"
+            sudo mkdir -p "${overlay_merged}/var/lib/rpmmanifest"
+            sudo install -m 0644 "${rpm_manifest}" "${overlay_merged}/var/lib/rpmmanifest/container-manifest-2"
+
+            scan_root="${overlay_merged}"
+        else
+            warn "RPM manifest file is unavailable for ${output_name}; continuing with filesystem-only sysext SBOM scan"
+        fi
+    fi
+
+    info "Scanning ${scan_root} with Syft for sysext SBOM generation"
+    if sudo syft scan "${scan_root}" -o spdx-json="${output}"; then
+        rc=0
+    else
+        rc=$?
+    fi
+
+    if [[ -n "${overlay_root}" ]]; then
+        sudo umount "${scan_root}" 2>/dev/null || true
+        sudo rm -rf "${overlay_root}"
+    fi
+
+    return ${rc}
+}

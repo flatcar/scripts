@@ -17,7 +17,20 @@ sdk_container/.env
 sdk_container/.sdkenv
 ci-cleanup.sh
 
+# VM reuse state file
+.vm-state.env
+
 # build cache / artefacts directories
 __build__/
+__TESTS__/
 sdk_container/.cache
 sdk_container/.config
+
+# Test files
+results-*
+
+# Internal environment config (team-specific, not committed)
+acl/acl.internal.env
+results.*
+
+.azure-config/

@@ -34,11 +34,13 @@ DEFINE_string base_pkg "coreos-base/coreos" \
 DEFINE_string base_dev_pkg "coreos-base/coreos-dev" \
   "The base portage package to base the build off of (only applies to dev containers)"
 DEFINE_string base_sysexts "containerd-flatcar|app-containers/containerd,docker-flatcar|app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx" \
-  "Comma-separated list of name:package[&package[&package]] - build 'package' (a single package or a list of packages separated by '&') into sysext 'name', and include with OS image and update payload. Must be in order of dependencies, base sysexts come first."
+  "Comma-separated list of name|package[&package] - base sysexts always included with OS image. Must be in order of dependencies."
 DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"
 DEFINE_string disk_layout "" \
   "The disk layout type to use for this image."
+DEFINE_string image_name "" \
+  "Override the base image name. If not set, defaults to flatcar_production_image.bin"
 DEFINE_string group "${DEFAULT_GROUP}" \
   "The update group."
 DEFINE_boolean extract_update "${FLAGS_TRUE}" \
@@ -104,6 +106,17 @@ fi
 . "${BUILD_LIBRARY_DIR}/vm_image_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/extra_sysexts.sh" || exit 1
 
+# Override image name if provided via flag
+if [[ -n "${FLAGS_image_name}" ]]; then
+  FLATCAR_PRODUCTION_IMAGE_NAME="${FLAGS_image_name}"
+  # Also update sysext base name to match custom image name
+  FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE="${FLAGS_image_name%.bin}_sysext.squashfs"
+  info "Using custom image name: ${FLATCAR_PRODUCTION_IMAGE_NAME}"
+  info "Using custom sysext base name: ${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}"
+else
+  info "Using default image name: ${FLATCAR_PRODUCTION_IMAGE_NAME}"
+fi
+
 PROD_IMAGE=0
 PROD_TAR=0
 CONTAINER=0
@@ -119,14 +132,24 @@ for arg in "$@"; do
 done
 
 # Check that the build root is sane.
-if [[ ${skip_test_build_root} -ne 1 ]]; then
-  info "Checking build root"
-  test_image_content "${BOARD_ROOT}"
+# Skip in RPM mode: the Portage sysroot has scripts with /bin/sh shebangs but
+# no RPM-provided interpreters. The image rootfs is checked in prod_image_util.sh.
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+  if [[ ${skip_test_build_root} -ne 1 ]]; then
+    info "Checking build root"
+    test_image_content "${BOARD_ROOT}"
+  fi
+else
+  info "Skipping build root check in ${PACKAGE_SOURCE_MODE} mode (will check image rootfs instead)"
 fi
 
 # Handle existing directory.
 if [[ -e "${BUILD_DIR}" ]] && [[ "${PROD_IMAGE}" = 1 ]]; then
   if [[ ${FLAGS_replace} -eq ${FLAGS_TRUE} ]]; then
+    # Unmount any pseudo-filesystems left over from a previous build
+    if type -t rpm_cleanup_build_dir &>/dev/null; then
+        rpm_cleanup_build_dir "${BUILD_DIR}"
+    fi
     sudo rm -rf "${BUILD_DIR}"
   else
     error "Directory ${BUILD_DIR} already exists."
@@ -146,6 +169,11 @@ fi
 
 DISK_LAYOUT="${FLAGS_disk_layout:-base}"
 CONTAINER_LAYOUT="${FLAGS_disk_layout:-container}"
+
+# UKI mode uses a dedicated disk layout without BIOS and unused partitions
+if [[ "${BOOTLOADER_MODE:-}" == "uki" ]]; then
+  export DISK_LAYOUT_FILE="${BUILD_LIBRARY_DIR}/disk_layout_uki.json"
+fi
 
 if [[ -n "${FLAGS_developer_data}" ]]; then
   if [[ ! -f "${FLAGS_developer_data}" ]]; then

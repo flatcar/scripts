@@ -22,6 +22,8 @@ DEFINE_string disk_image "" \
   "The disk image containing the EFI System partition."
 DEFINE_boolean verity ${FLAGS_FALSE} \
   "Indicates that boot commands should enable dm-verity."
+DEFINE_string verity_hash "" \
+  "Path to the file containing the dm-verity root hash for /usr."
 DEFINE_string copy_efi_grub "" \
   "Copy the EFI GRUB image to the specified path."
 DEFINE_string copy_shim "" \
@@ -39,6 +41,9 @@ switch_to_strict_mode
 
 # Our GRUB lives under flatcar/grub so new pygrub versions cannot find grub.cfg
 GRUB_DIR="flatcar/grub/${FLAGS_target}"
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+    source "${BUILD_LIBRARY_DIR}/rpm/grub_install.sh" || exit 1
+fi
 
 # Modules required to boot a standard CoreOS configuration
 CORE_MODULES=( normal search test fat part_gpt search_fs_uuid xzio search_part_label terminal gptprio configfile memdisk tar echo read btrfs )
@@ -73,14 +78,29 @@ case "${FLAGS_target}" in
 esac
 
 info "Updating GRUB in ${BOARD_ROOT}"
-emerge-${BOARD} \
-        --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
-        sys-boot/grub \
-        sys-boot/shim \
-        sys-boot/shim-signed
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+    emerge-${BOARD} \
+            --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
+            sys-boot/grub \
+            sys-boot/shim \
+            sys-boot/shim-signed
+elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+    grub_install_rpm
+fi
 
 GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
-[[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+    [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
+elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+    if [[ ! -d "${GRUB_SRC}" ]]; then
+        warn "GRUB modules not found at ${GRUB_SRC}"
+        warn "RPM mode: Skipping GRUB module installation"
+        # List what we have
+        info "Available GRUB directories:"
+        ls -la "${BOARD_ROOT}/usr/lib/grub/" 2>/dev/null || info "  (none)"
+        exit 0
+    fi
+fi
 
 # In order for grub-setup-bios to properly detect the layout of the disk
 # image it expects a normal partitioned block device. For most of the build
@@ -164,83 +184,90 @@ if [[ ! -f "${ESP_DIR}/flatcar/grub/grub.cfg.tar" ]]; then
     info "Generating grub.cfg memdisk"
 
     if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
-      # use dm-verity for /usr
-      cat "${BUILD_LIBRARY_DIR}/grub.cfg" | \
-        sed 's/@@MOUNTUSR@@/mount.usr=\/dev\/mapper\/usr verity.usr/' > \
-        "${GRUB_TEMP_DIR}/grub.cfg"
-    else
-      # uses standard systemd /usr mount
-      cat "${BUILD_LIBRARY_DIR}/grub.cfg" | \
-        sed 's/@@MOUNTUSR@@/mount.usr/' > "${GRUB_TEMP_DIR}/grub.cfg"
+      if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+        # uses standard systemd /usr mount
+        cat "${BUILD_LIBRARY_DIR}/grub.cfg" | \
+          sed 's/@@MOUNTUSR@@/mount.usr/' > "${GRUB_TEMP_DIR}/grub.cfg"
+      elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+        # use dm-verity for /usr with systemd-native parameters
+        # systemd-veritysetup-generator reads usrhash= and creates /dev/mapper/usr
+        cat "${BUILD_LIBRARY_DIR}/rpm/grub.cfg" | \
+          sed 's/@@MOUNTUSR@@/mount.usr=\/dev\/mapper\/usr/' > \
+          "${GRUB_TEMP_DIR}/grub.cfg"
+      fi
     fi
 
     sudo tar cf "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
       -C "${GRUB_TEMP_DIR}" "grub.cfg"
 fi
 
-info "Generating ${GRUB_IMAGE}"
-sudo grub-mkimage \
-    --compression=xz \
-    --format "${FLAGS_target}" \
-    --directory "${GRUB_SRC}" \
-    --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
-    --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
-    "${SBAT_ARG[@]}" \
-    --output "${ESP_DIR}/${GRUB_IMAGE}" \
-    "${CORE_MODULES[@]}"
+if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+    info "Generating ${GRUB_IMAGE}"
+    sudo grub-mkimage \
+        --compression=xz \
+        --format "${FLAGS_target}" \
+        --directory "${GRUB_SRC}" \
+        --config "${ESP_DIR}/${GRUB_DIR}/load.cfg" \
+        --memdisk "${ESP_DIR}/flatcar/grub/grub.cfg.tar" \
+        "${SBAT_ARG[@]}" \
+        --output "${ESP_DIR}/${GRUB_IMAGE}" \
+        "${CORE_MODULES[@]}"
 
-# Now target specific steps to make the system bootable
-case "${FLAGS_target}" in
-    x86_64-efi|arm64-efi)
-        info "Installing default ${FLAGS_target} UEFI bootloader."
+    # Now target specific steps to make the system bootable
+    case "${FLAGS_target}" in
+        x86_64-efi|arm64-efi)
+            info "Installing default ${FLAGS_target} UEFI bootloader."
 
-        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
-            # Sign GRUB and mokmanager(mm) with the shim-embedded key.
-            do_sbsign --output "${ESP_DIR}/${GRUB_IMAGE}"{,}
-            do_sbsign --output "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi" \
-                "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi"
+            if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+                # Sign GRUB and mokmanager(mm) with the shim-embedded key.
+                do_sbsign --output "${ESP_DIR}/${GRUB_IMAGE}"{,}
+                do_sbsign --output "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi" \
+                    "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi"
 
-            # Unofficial build: Sign shim with our development key.
-            sudo sbsign \
-                --key /usr/share/sb_keys/DB.key \
-                --cert /usr/share/sb_keys/DB.crt \
-                --output "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
-                "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi"
-        else
-            # Official build: Copy signed shim and mm for signing later.
-            sudo cp "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi" \
-                "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi"
-            sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi.signed" \
-                "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi"
-        fi
+                # Unofficial build: Sign shim with our development key.
+                sudo sbsign \
+                    --key /usr/share/sb_keys/DB.key \
+                    --cert /usr/share/sb_keys/DB.crt \
+                    --output "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
+                    "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi"
+            else
+                # Official build: Copy signed shim and mm for signing later.
+                sudo cp "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi" \
+                    "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi"
+                sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi.signed" \
+                    "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi"
+            fi
 
-        # copying from vfat so ignore permissions
-        if [[ -n ${FLAGS_copy_efi_grub} ]]; then
-            cp --no-preserve=mode "${ESP_DIR}/${GRUB_IMAGE}" \
-                "${FLAGS_copy_efi_grub}"
-        fi
-        if [[ -n ${FLAGS_copy_shim} ]]; then
-            cp --no-preserve=mode "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
-                "${FLAGS_copy_shim}"
-        fi
-        ;;
-    i386-pc)
-        info "Installing MBR and the BIOS Boot partition."
-        sudo cp "${GRUB_SRC}/boot.img" "${ESP_DIR}/${GRUB_DIR}"
-        sudo grub-bios-setup --device-map=/dev/null \
-            --directory="${ESP_DIR}/${GRUB_DIR}" "${LOOP_DEV}"
-        # boot.img gets manipulated by grub-bios-setup so it alone isn't
-        # sufficient to restore the MBR boot code if it gets corrupted.
-        sudo dd bs=448 count=1 status=none if="${LOOP_DEV}" \
-            of="${ESP_DIR}/${GRUB_DIR}/mbr.bin"
-        ;;
-    x86_64-xen)
-        info "Installing default x86_64 Xen bootloader."
-        sudo mkdir -p "${ESP_DIR}/boot/grub"
-        sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
-            "${ESP_DIR}/boot/grub/menu.lst"
-        ;;
-esac
+            # copying from vfat so ignore permissions
+            if [[ -n ${FLAGS_copy_efi_grub} ]]; then
+                cp --no-preserve=mode "${ESP_DIR}/${GRUB_IMAGE}" \
+                    "${FLAGS_copy_efi_grub}"
+            fi
+            if [[ -n ${FLAGS_copy_shim} ]]; then
+                cp --no-preserve=mode "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
+                    "${FLAGS_copy_shim}"
+            fi
+            ;;
+        i386-pc)
+            info "Installing MBR and the BIOS Boot partition."
+            sudo cp "${GRUB_SRC}/boot.img" "${ESP_DIR}/${GRUB_DIR}"
+            sudo grub-bios-setup --device-map=/dev/null \
+                --directory="${ESP_DIR}/${GRUB_DIR}" "${LOOP_DEV}"
+            # boot.img gets manipulated by grub-bios-setup so it alone isn't
+            # sufficient to restore the MBR boot code if it gets corrupted.
+            sudo dd bs=448 count=1 status=none if="${LOOP_DEV}" \
+                of="${ESP_DIR}/${GRUB_DIR}/mbr.bin"
+            ;;
+        x86_64-xen)
+            info "Installing default x86_64 Xen bootloader."
+            sudo mkdir -p "${ESP_DIR}/boot/grub"
+            sudo cp "${BUILD_LIBRARY_DIR}/menu.lst" \
+                "${ESP_DIR}/boot/grub/menu.lst"
+            ;;
+    esac
+elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+    grub_provision_rpm "${ESP_DIR}"
+fi
 
 cleanup
 trap - EXIT

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Shared mangle library for doca-ofed RPM-based sysexts (nvidia-driver-cuda-open, nvidia-driver-cuda, etc.).
+#
+# Sourced by per-sysext wrapper scripts (e.g. sysext_mangle_nvidia-driver-cuda-open).
+# Provides mangle_doca_ofed_relocate() which handles the common tasks:
+#   - Merging /bin, /sbin, /lib, /lib64 into /usr
+#   - Relocating /etc into /usr (systemd-sysext only merges /usr and /opt)
+#   - Generating tmpfiles.d rules for symlinks back to /etc
+
+mangle_doca_ofed_relocate() {
+    local sysext_name="${1}"
+    local rootfs="${2}"
+
+    local stash_dir="/usr/share/${sysext_name}/etc"
+    local tmpfiles_conf="/usr/lib/tmpfiles.d/${sysext_name}-etc.conf"
+
+    cd "${rootfs}"
+
+    # ── Helpers ──────────────────────────────────────────────────────────
+
+    merge_tree() {   # src dst – move whole tree, no-op if absent
+        [[ -d ".$1" ]] || return 0
+        mkdir -p ".$2"
+        cp -a ".$1/." ".$2/"
+        rm -rf ".$1"
+    }
+
+    tmpfiles_rule() {   # line – append to the tmpfiles.d conf
+        mkdir -p ".$(dirname "${tmpfiles_conf}")"
+        echo "$1" >> ".${tmpfiles_conf}"
+    }
+
+    relocate_etc() {   # rel dst_base [symlink] – move ./etc/$rel → ./$dst_base/$rel
+        local rel="$1" dst="$2" link="${3:-}"
+        mkdir -p ".${dst}/$(dirname "$rel")"
+        mv "./etc/${rel}" ".${dst}/$(dirname "$rel")/"
+        if [[ -n "$link" ]]; then
+            tmpfiles_rule "L+ /etc/${rel} - - - - ${dst}/${rel}"
+        fi
+    }
+
+    # ── 1. Merge top-level dirs into /usr ────────────────────────────────
+
+    merge_tree /bin   /usr/bin
+    merge_tree /sbin  /usr/sbin
+    merge_tree /lib   /usr/lib
+    merge_tree /lib64 /usr/lib64
+
+    # ── 2. Relocate /etc into /usr ──────────────────────────────────────
+
+    rm -f ./etc/ld.so.cache   # build artifact, regenerated at boot
+
+    if [[ -d ./etc ]]; then
+        ( cd ./etc && find . -type f -o -type l ) | sed 's|^\./||' | sort \
+        | while read -r rel; do
+            case "$rel" in
+                modprobe.d/*)  relocate_etc "$rel" /usr/lib         symlink ;;  # + symlink for hardcoded paths
+                systemd/*)     relocate_etc "$rel" /usr/lib                 ;;  # native search path, no symlink
+                *)             relocate_etc "$rel" "${stash_dir}"   symlink ;;  # everything else
+            esac
+        done
+        rm -rf ./etc
+    fi
+}

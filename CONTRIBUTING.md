@@ -1,71 +1,123 @@
-# How to Contribute
+# Azure Container Linux's Contribution Guide
 
-CoreOS projects are [Apache 2.0 licensed](LICENSE) and accept contributions via
-GitHub pull requests.  This document outlines some of the conventions on
-development workflow, commit message formatting, contact points and other
-resources to make it easier to get your contribution accepted.
+## Table of Contents
 
-# Certificate of Origin
+Please use the [auto-generated table of contents](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes#auto-generated-table-of-contents-for-readme-files) GitHub creates. To reveal it, select the three bar menu icon at the top of the page.
 
-By contributing to this project you agree to the Developer Certificate of
-Origin (DCO). This document was created by the Linux Kernel community and is a
-simple statement that you, as a contributor, have the legal right to make the
-contribution. See the [DCO](DCO) file for details.
+## Contributing License Agreement
 
-# Email and Chat
+This project welcomes contributions and suggestions. Most contributions require you to
+agree to a Contributor License Agreement (CLA) declaring that you have the right to,
+and actually do, grant us the rights to use your contribution. For details, visit
+<https://cla.microsoft.com>.
 
-The project currently uses the general CoreOS email list and IRC channel:
-- Email: [coreos-dev](https://groups.google.com/forum/#!forum/coreos-dev)
-- IRC: #[coreos](irc://irc.freenode.org:6667/#coreos) IRC channel on freenode.org
+When you submit a pull request, a CLA-bot will automatically determine whether you need
+to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the
+instructions provided by the bot. You will only need to do this once across all repositories using our CLA.
 
-Please avoid emailing maintainers found in the MAINTAINERS file directly. They
-are very busy and read the mailing lists.
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/)
+or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-## Getting Started
+## Security Vulnerabilities
 
-- Fork the repository on GitHub
-- Read the [README](README.md) for build and test instructions
-- Play with the project, submit bugs, submit patches!
+<!-- BEGIN MICROSOFT SECURITY.MD V0.0.3 BLOCK -->
 
-## Contribution Flow
+### Security
 
-This is a rough outline of what a contributor's workflow looks like:
+Microsoft takes the security of our software products and services seriously, which includes all source code repositories managed through our GitHub organizations, which include [Microsoft](https://github.com/Microsoft), [Azure](https://github.com/Azure), [DotNet](https://github.com/dotnet), [AspNet](https://github.com/aspnet), [Xamarin](https://github.com/xamarin), and [our GitHub organizations](https://opensource.microsoft.com/).
 
-- Create a topic branch from where you want to base your work (usually master).
-- Make commits of logical units.
-- Make sure your commit messages are in the proper format (see below).
-- Push your changes to a topic branch in your fork of the repository.
-- Make sure the tests pass, and add any new tests as appropriate.
-- Submit a pull request to the original repository.
+If you believe you have found a security vulnerability in any Microsoft-owned repository that meets Microsoft's [Microsoft's definition of a security vulnerability](https://docs.microsoft.com/en-us/previous-versions/tn-archive/cc751383(v=technet.10)) of a security vulnerability, please report it to us as described below.
 
-Thanks for your contributions!
+### Reporting Security Issues
 
-### Format of the Commit Message
+**Please do not report security vulnerabilities through public GitHub issues.**
 
-We follow a rough convention for commit messages that is designed to answer two
-questions: what changed and why. The subject line should feature the what and
-the body of the commit should describe the why.
+Instead, please report them to the Microsoft Security Response Center (MSRC) at [https://msrc.microsoft.com/create-report](https://msrc.microsoft.com/create-report).
 
+If you prefer to submit without logging in, send email to [secure@microsoft.com](mailto:secure@microsoft.com).  If possible, encrypt your message with our PGP key; please download it from the the [Microsoft Security Response Center PGP Key page](https://www.microsoft.com/en-us/msrc/pgp-key-msrc).
+
+You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Additional information can be found at [microsoft.com/msrc](https://www.microsoft.com/msrc).
+
+Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
+
+* Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
+* Full paths of source file(s) related to the manifestation of the issue
+* The location of the affected source code (tag/branch/commit or direct URL)
+* Any special configuration required to reproduce the issue
+* Step-by-step instructions to reproduce the issue
+* Proof-of-concept or exploit code (if possible)
+* Impact of the issue, including how an attacker might exploit the issue
+
+This information will help us triage your report more quickly.
+
+If you are reporting for a bug bounty, more complete reports can contribute to a higher bounty award. Please visit our [Microsoft Bug Bounty Program](https://microsoft.com/msrc/bounty) page for more details about our active programs.
+
+### Preferred Languages
+
+We prefer all communications to be in English.
+
+### Policy
+
+Microsoft follows the principle of [Coordinated Vulnerability Disclosure](https://www.microsoft.com/en-us/msrc/cvd).
+
+<!-- END MICROSOFT SECURITY.MD BLOCK -->
+
+### Packages
+
+Azure Container Linux packages live in either [Azure Linux SPECS](https://github.com/microsoft/azurelinux/tree/3.0/SPECS) or this repository under [acl/SPECS](acl/SPECS). 
+
+### Toolkit
+
+We welcome tooling improvements. We have extended the [Flatcar](https://github.com/flatcar/scripts) SDK container with support for RPM package installation. For guidance on building with the toolkit, see our [building instructions](acl/docs/BUILD_RPM_IMAGE_README.md).
+
+### Documentation
+
+We welcome documentation improvements. See [acl/docs](acl/docs) for the latest documentation.
+
+## Pull Request Guidelines
+
+Please direct pull requests to the `main` development branch.
+
+### Branch structure
+
+An overview of how the branches are structured can be seen below
+
+| Git Ref      | Branch / Tag | For PRs | Published | Notes
+|:-------------|:-------------|:--------|:----------|:------------
+|main          |Branch        |Yes      |No         | **Primary development branch**
+|release/3.0   |Branch        |No       |Yes        | Staging branch for publishing
+
+### PR Titles
+
+PR titles should start with an action
+
+```bash
+- Add <package>
+- Bump Release version for October Update
+- Change whatever you changed.
+- Fix <thing you fixed> <reason you fixed it>
+- Patch <package> to fix CVE-XXXX-YYYY, CVE-XXXX-YYYY…
+- Upgrade <package> to version vvvv to fix CVE-XXXX-YYYY…
+- Remove <package> <reason you removed it>
 ```
-scripts: add the test-cluster command
 
-this uses tmux to setup a test cluster that you can easily kill and
-start for debugging.
+Please avoid titles such as
 
-Fixes #38
+```bash
+- package: <whatever you did to the package>
+- CVE-XXXX-YYYY (leaving off what package was patched or upgraded)
+- [3.0] (prefixing with branch or other information)
 ```
 
-The format can be described more formally as follows:
+### PR Checklist
 
-```
-<subsystem>: <what changed>
-<BLANK LINE>
-<why this change was made>
-<BLANK LINE>
-<footer>
-```
+When creating your PR, please ensure the following:
 
-The first line is the subject and should be no longer than 70 characters, the
-second line is always blank, and other lines should be wrapped at 80 characters.
-This allows the message to be easier to read on GitHub as well as in various
-git tools.
+* Ensure that you can build and boot the image following the [building instructions](acl/docs/BUILD_RPM_IMAGE_README.md). 
+
+* Documentation has been updated to match any changes to the build system. See [acl/docs](acl/docs).
+
+## Bugs
+
+If the bug is security related, please use the [security guidelines](#security-vulnerabilities) above. Otherwise, please use the [issues page](https://github.com/microsoft/azure-container-linux/issues) on Azure Container Linux to file bugs.

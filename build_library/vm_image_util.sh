@@ -501,14 +501,14 @@ setup_disk_image() {
     cp --sparse=always "${VM_SRC_IMG}" "${VM_TMP_IMG}"
 
     if [[ $(_get_vm_opt PARTITIONED_IMG) -eq 1 ]]; then
-      "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
+      "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" --arch="${BOARD}" \
           update "${VM_TMP_IMG}"
     fi
 
     assert_image_size "${VM_TMP_IMG}" raw
 
     info "Mounting image to $(relpath "${VM_TMP_ROOT}")"
-    "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
+    "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" --arch="${BOARD}" \
         mount "${VM_TMP_IMG}" "${VM_TMP_ROOT}"
 
     # The only filesystems after this point that may be modified are OEM
@@ -520,12 +520,14 @@ setup_disk_image() {
     # but io will start throwing errors so that clearly isn't sufficient.
     sudo mount -o remount,ro "${VM_TMP_ROOT}"
 
-    VM_GROUP=$(grep --no-messages --no-filename ^GROUP= \
-        "${VM_TMP_ROOT}/usr/share/flatcar/update.conf" \
-        "${VM_TMP_ROOT}/etc/flatcar/update.conf" | \
-        tail -n 1 | sed -e 's/^GROUP=//')
-    if [[ -z "${VM_GROUP}" ]]; then
+    if [ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]; then
+      VM_GROUP=$(grep --no-messages --no-filename ^GROUP= \
+          "${VM_TMP_ROOT}${DISTRO_SHARE_DIR}/update.conf" \
+          "${VM_TMP_ROOT}/etc/flatcar/update.conf" | \
+          tail -n 1 | sed -e 's/^GROUP=//')
+      if [[ -z "${VM_GROUP}" ]]; then
         die "Unable to determine update group for this image."
+      fi
     fi
 }
 
@@ -533,14 +535,44 @@ setup_disk_image() {
 install_oem_package() {
     local oem_pkg=$(_get_vm_opt OEM_PACKAGE)
     local oem_use=$(_get_vm_opt OEM_USE)
+
+    if [[ -z "${oem_pkg}" ]] && [[ -z "${oem_use}" ]]; then
+        return 0
+    fi
+
+    # RPM mode: generate OEM files directly without portage.
+    if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+        if [[ -z "${oem_use}" ]]; then
+            return 0
+        fi
+        local oem_files_dir="${SCRIPT_ROOT}/sdk_container/src/third_party/coreos-overlay/coreos-base/common-oem-files/files"
+        local version="${IMAGE_VERSION:-${FLATCAR_VERSION}}"
+        "${BUILD_LIBRARY_DIR}/rpm/oem_files.sh" \
+            "${oem_use}" \
+            "${version}" \
+            "${VM_TMP_ROOT}/oem" \
+            "${BOOTLOADER_MODE}" \
+            "${oem_files_dir}"
+        if [[ "${BOOTLOADER_MODE}" == "uki" ]]; then
+            install_uki_oem_addon
+        fi
+        return 0
+    fi
+
+    # Portage mode: build and install common-oem-files via emerge.
+    if [[ -z "${oem_pkg}" ]]; then
+        return 0
+    fi
+
+    # In UKI mode, tell the ebuild to skip installing grub.cfg (OEM cmdline
+    # args are delivered via a UKI addon instead).
+    if [[ "${BOOTLOADER_MODE}" == "uki" ]]; then
+        oem_use="${oem_use} uki"
+    fi
     # The "${VM_IMG_TYPE}-oem-image-rootfs" directory name is
     # important - it is used to determine the package target in
     # coreos/base/profile.bashrc
     local oem_tmp="${VM_TMP_DIR}/${VM_IMG_TYPE}-oem-image-rootfs"
-
-    if [[ -z "${oem_pkg}" ]]; then
-        return 0
-    fi
 
     # Split into two steps because we want to always install $oem_pkg from
     # the ebuild (build_packages doesn't handle it) *but* we never want to
@@ -563,6 +595,12 @@ install_oem_package() {
         --verbose --jobs=2 "${oem_pkg}"
     sudo rsync -a "${oem_tmp}/oem/" "${VM_TMP_ROOT}/oem/"
     sudo rm -rf "${oem_tmp}"
+
+    # In UKI mode, OEM-specific kernel cmdline args are delivered via a
+    # UKI addon (replacing the role of grub.cfg).
+    if [[ "${BOOTLOADER_MODE}" == "uki" ]]; then
+        install_uki_oem_addon
+    fi
 }
 
 # Write the OEM sysext file into the OEM partition.
@@ -576,26 +614,62 @@ install_oem_sysext() {
     local built_sysext_dir="${FLAGS_to}/${oem_sysext}-sysext"
     local built_sysext_filename="${oem_sysext}.raw"
     local built_sysext_path="${built_sysext_dir}/${built_sysext_filename}"
+    # Use the version that matches what os-release VERSION will contain at boot,
+    # since initrd-setup-root-after-ignition looks up the sysext by that value.
     local version="${FLATCAR_VERSION}"
+    if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+        version="${IMAGE_VERSION}"
+    fi
     local metapkg="coreos-base/${oem_sysext}"
     # The --install_root_basename="${name}-oem-sysext-rootfs" flag is
     # important - it sets the name of a rootfs directory, which is
     # used to determine the package target in
     # coreos/base/profile.bashrc
+    # SYSEXT_COMPRESSION can be set to override default compression (zstd).
+    local compression_opt=""
+    if [[ -n "${SYSEXT_COMPRESSION:-}" ]]; then
+        compression_opt="--compression=${SYSEXT_COMPRESSION}"
+    fi
     local build_sysext_flags=(
         --board="${BOARD}"
         --squashfs_base="${VM_SRC_SYSEXT_IMG}"
         --image_builddir="${built_sysext_dir}"
         --metapkgs="${metapkg}"
         --install_root_basename="${VM_IMG_TYPE}-oem-sysext-rootfs"
+        ${compression_opt}
     )
     local overlay_path mangle_fs
-    overlay_path=$(portageq get_repo_path / coreos-overlay)
+    if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+        overlay_path="${SCRIPT_ROOT}/sdk_container/src/third_party/coreos-overlay"
+    else
+        overlay_path=$(portageq get_repo_path / coreos-overlay)
+    fi
     mangle_fs="${overlay_path}/${metapkg}/files/manglefs.sh"
     if [[ -x "${mangle_fs}" ]]; then
         build_sysext_flags+=(
             --manglefs_script="${mangle_fs}"
         )
+    fi
+
+    local -a build_sysext_env=()
+    # For RPM mode, set environment variables to pass to build_sysext.
+    # Only oem-azure currently needs Python preserved for its dependency closure.
+    if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+        build_sysext_env+=(
+            "PACKAGE_SOURCE_MODE=${PACKAGE_SOURCE_MODE}"
+            "RPM_STAGING_DIR=${RPM_STAGING_DIR}"
+            "IMAGE_VERSION=${IMAGE_VERSION:-}"
+            "IMAGE_VERSION_ID=${IMAGE_VERSION_ID:-}"
+            "IMAGE_BUILD_ID=${IMAGE_BUILD_ID:-}"
+        )
+        if [[ "${oem_sysext}" == "oem-azure" ]]; then
+            build_sysext_env+=("RPM_PRESERVE_PYTHON=1")
+        fi
+        info "RPM mode: Set environment variables:"
+        # Print environment variables for debugging
+        for var in "${build_sysext_env[@]}"; do
+            info "  ${var}"
+        done
     fi
 
     mkdir -p "${built_sysext_dir}"
@@ -616,7 +690,8 @@ install_oem_sysext() {
     local upload_dir to_move
     upload_dir="$(_dst_dir)"
     for to_move in "${built_sysext_dir}/${oem_sysext}"*; do
-        mv "${to_move}" "${upload_dir}/${to_move##*/}"
+        # -f to overwrite stale artifacts from previous runs
+        mv -f "${to_move}" "${upload_dir}/${to_move##*/}"
     done
     # Generate dev-key-signed update payload for testing
     delta_generator \
@@ -627,8 +702,58 @@ install_oem_sysext() {
     # succeeded.
     rm -rf "${built_sysext_dir}"
 
+    if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" && "${INJECT_DOCKER_SYSEXT:-false}" == "true" ]]; then
+        # Inject the docker sysext into oem partition for testing, since
+        # docker is built as a standalone sysext and not in base image.
+        local built_docker_sysext_path="${upload_dir}/docker.raw"
+        local installed_docker_sysext_abspath="${installed_sysext_oem_dir}/docker.raw"
+
+        info "RPM mode: Injecting docker sysext into OEM partition for testing"
+        sudo install -Dpm 0644 \
+             "${built_docker_sysext_path}" \
+             "${VM_TMP_ROOT}${installed_docker_sysext_abspath}" ||
+            die "Could not install docker sysext into OEM partition"
+    fi
+
     # Mark the installed sysext as active.
     sudo touch "${VM_TMP_ROOT}${installed_sysext_oem_dir}/active-${oem_sysext}"
+}
+
+# Build and install a UKI addon with OEM-specific kernel cmdline args.
+# Requires: BOOTLOADER_MODE=uki, ukify on PATH, the main UKI already
+# installed on the ESP (by uki_install.sh during build_image).
+install_uki_oem_addon() {
+    if [[ "${BOOTLOADER_MODE}" != "uki" ]]; then
+        return 0
+    fi
+
+    local oem_use=$(_get_vm_opt OEM_USE)
+    if [[ -z "${oem_use}" ]]; then
+        info "UKI addon: No OEM_USE defined for ${VM_IMG_TYPE}; skipping addon"
+        return 0
+    fi
+
+    # The ESP is mounted at ${VM_TMP_ROOT}/boot during image_to_vm.
+    local esp_dir="${VM_TMP_ROOT}/boot"
+    if [[ ! -d "${esp_dir}/EFI/Linux" ]]; then
+        warn "UKI addon: ESP directory ${esp_dir}/EFI/Linux not found; skipping"
+        return 0
+    fi
+
+    # Locate the per-platform uki.cfg files in the coreos-overlay.
+    local oem_files_dir="${SRC_ROOT}/third_party/coreos-overlay/coreos-base/common-oem-files/files"
+
+    info "UKI addon: Building OEM addon for '${oem_use}' (${VM_IMG_TYPE})"
+
+    # Pass VM_TMP_ROOT as board_root so uki_addon.sh can read the EFI stub
+    # from the image's mounted USR-A partition (${VM_TMP_ROOT}/usr/lib/systemd/boot/efi/).
+    # disk_util mounts all partitions under VM_TMP_ROOT, including USR-A (read-only, verity).
+    "${BUILD_LIBRARY_DIR}/rpm/uki_addon.sh" \
+        "${esp_dir}" \
+        "${oem_use}" \
+        "${ARCH}" \
+        "${VM_TMP_ROOT}" \
+        "${oem_files_dir}"
 }
 
 # Any other tweaks required?
@@ -759,6 +884,7 @@ _write_cpio_common() {
     # Build the squashfs, embed squashfs into a gzipped cpio
     pushd "${cpio_target}" >/dev/null
     sudo mksquashfs "${base_dir}" "./usr.squashfs" "${mksquashfs_opts[@]}"
+    pad_squashfs_for_loopdev "./usr.squashfs" sudo
     find . | cpio -o -H newc | gzip > "$2"
     popd >/dev/null
 
@@ -920,12 +1046,19 @@ _write_qemu_uefi_secure_conf() {
             ;;
     esac
 
+    local add_uki_cert_args=()
+    local uki_signing_cert="$(_dst_dir)/uki-signing-ca.pem"
+    if [[ -f "${uki_signing_cert}" ]]; then
+        add_uki_cert_args=(--add-db "${owner}" "${uki_signing_cert}")
+    fi
+
     # TODO: Remove the temporary flatcar shim signing cert
     virt-fw-vars \
         --input "${flash_in}" \
         --output "$(_dst_dir)/${flash_rw}" \
         --add-db "${owner}" /usr/share/sb_keys/DB.crt \
-        --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-shim-2025.cert"
+        --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-shim-2025.cert" \
+        "${add_uki_cert_args[@]}"
 
     sed -e "s%^SECURE_BOOT=.*%SECURE_BOOT=1%" -i "${script}"
 }

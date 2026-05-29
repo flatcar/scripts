@@ -212,7 +212,7 @@ function setup_sdk_env() {
         GPG_AGENT_INFO \
         \
         USE FEATURES PORTAGE_USERNAME FORCE_STAGES \
-        SIGNER \
+        SIGNER PACKAGE_SOURCE_MODE \
         all_proxy ftp_proxy http_proxy https_proxy no_proxy; do
 
         if [ -n "${!var:-}" ] ; then

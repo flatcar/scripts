@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>flatcar-linux@googlegroups.com</email>
+		<name>Flatcar Linux</name>
+	</maintainer>
+	<longdescription>
+		DNF5 is a command-line package manager that automates the process of installing,
+		upgrading, configuring, and removing computer programs in a consistent manner.
+		It supports RPM packages, modulemd modules, and comps groups and environments.
+		This is the next-generation version of DNF with improved performance and features.
+	</longdescription>
+	<use>
+		<flag name="comps">Enable support for comps (package groups and environments)</flag>
+		<flag name="modulemd">Enable support for modularity (modulemd)</flag>
+		<flag name="zchunk">Enable zchunk compression support for repository metadata</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">rpm-software-management/dnf5</remote-id>
+	</upstream>
+</pkgmetadata>

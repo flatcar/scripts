@@ -71,7 +71,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="${OEMIDS[*]}"
+IUSE="${OEMIDS[*]} uki"
 REQUIRED_USE="^^ ( ${OEMIDS[*]} )"
 
 # No source directory.
@@ -154,6 +154,8 @@ src_compile() {
 
 src_install() {
     insinto "/oem"
-    doins "${T}/grub.cfg"
+    # In UKI mode grub.cfg is not used; OEM cmdline args are delivered
+    # via a UKI addon built by install_uki_oem_addon() instead.
+    use uki || doins "${T}/grub.cfg"
     doins "${T}/oem-release"
 }

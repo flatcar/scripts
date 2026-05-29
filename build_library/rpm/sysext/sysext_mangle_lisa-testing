@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Mangle script for lisa-testing sysext
+# Relocates LISA testing framework files to /usr to comply with sysext requirements
+
+set -euo pipefail
+
+ROOT="$1"
+
+echo "Starting lisa-testing sysext mangle process for ${ROOT}"
+
+# Remove unnecessary debug packages and static libraries to reduce size
+echo "Cleaning debug files and static libraries..."
+find "${ROOT}" -name '*.a' -delete 2>/dev/null || true
+find "${ROOT}" -path '*/debug/*' -delete 2>/dev/null || true
+find "${ROOT}" -name '*-debug-*' -delete 2>/dev/null || true
+
+# Move any configuration files from /etc to /usr/lib
+if [[ -d "${ROOT}/etc" ]]; then
+    echo "Relocating /etc files to /usr/lib/lisa-testing/etc..."
+    mkdir -p "${ROOT}/usr/lib/lisa-testing"
+    mv "${ROOT}/etc" "${ROOT}/usr/lib/lisa-testing/etc"
+fi
+
+# Ensure all binaries are in /usr/bin
+if [[ -d "${ROOT}/bin" ]]; then
+    echo "Moving /bin to /usr/bin..."
+    mkdir -p "${ROOT}/usr/bin"
+    cp -a "${ROOT}/bin/"* "${ROOT}/usr/bin/" || true
+    rm -rf "${ROOT}/bin"
+fi
+
+if [[ -d "${ROOT}/sbin" ]]; then
+    echo "Moving /sbin to /usr/sbin..."
+    mkdir -p "${ROOT}/usr/sbin" 
+    cp -a "${ROOT}/sbin/"* "${ROOT}/usr/sbin/" || true
+    rm -rf "${ROOT}/sbin"
+fi
+
+# Ensure all libraries are in /usr/lib
+if [[ -d "${ROOT}/lib" ]]; then
+    echo "Moving /lib to /usr/lib..."
+    mkdir -p "${ROOT}/usr/lib"
+    cp -a "${ROOT}/lib/"* "${ROOT}/usr/lib/" || true
+    rm -rf "${ROOT}/lib"
+fi
+
+if [[ -d "${ROOT}/lib64" ]]; then
+    echo "Moving /lib64 to /usr/lib64..."
+    mkdir -p "${ROOT}/usr/lib64"
+    cp -a "${ROOT}/lib64/"* "${ROOT}/usr/lib64/" || true
+    rm -rf "${ROOT}/lib64"
+fi
+
+echo "LISA testing sysext mangle completed successfully"

@@ -22,6 +22,11 @@ assert_not_root_user
 . "${BUILD_LIBRARY_DIR}/vm_image_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/cros_vm_constants.sh" || exit 1
 
+# UKI mode uses a dedicated disk layout without BIOS and unused partitions
+if [[ "${BOOTLOADER_MODE:-}" == "uki" ]]; then
+  export DISK_LAYOUT_FILE="${BUILD_LIBRARY_DIR}/disk_layout_uki.json"
+fi
+
 # Flags
 DEFINE_string board "${DEFAULT_BOARD}" \
   "Board for which the image was built"
@@ -31,7 +36,7 @@ DEFINE_string board "${DEFAULT_BOARD}" \
 DEFINE_string format "" \
   "Output format, one of: ${VALID_IMG_TYPES[*]}"
 DEFINE_string from "" \
-  "Directory containing flatcar_production_image.bin."
+  "Directory containing the production image file."
 DEFINE_string disk_layout "" \
   "The disk layout type to use for this image."
 DEFINE_integer mem "${DEFAULT_MEM}" \
@@ -40,6 +45,8 @@ DEFINE_string to "" \
   "Destination folder for VM output file(s)"
 DEFINE_string oem_pkg "" \
   "OEM package to install"
+DEFINE_string image_name "" \
+  "Override the base image name. If not set, defaults to flatcar_production_image.bin"
 DEFINE_boolean getbinpkg "${FLAGS_FALSE}" \
   "Download binary packages from remote repository."
 DEFINE_string getbinpkgver "" \
@@ -80,6 +87,16 @@ fi
 # Loaded late because board_options depends on setup_board
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 
+# Override image name if provided via flag
+if [[ -n "${FLAGS_image_name}" ]]; then
+  FLATCAR_PRODUCTION_IMAGE_NAME="${FLAGS_image_name}"
+  # Also update sysext base name to match custom image name
+  FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE="${FLAGS_image_name%.bin}_sysext.squashfs"
+  info "Using custom image name: ${FLATCAR_PRODUCTION_IMAGE_NAME}"
+  info "Using custom sysext base name: ${FLATCAR_PRODUCTION_IMAGE_SYSEXT_BASE}"
+else
+  info "Using default image name: ${FLATCAR_PRODUCTION_IMAGE_NAME}"
+fi
 
 IMAGES_DIR="${DEFAULT_BUILD_ROOT}/images/${FLAGS_board}"
 # Default to the most recent image
@@ -113,10 +130,22 @@ fix_mtab
 # Setup new (raw) image, possibly resizing filesystems
 setup_disk_image "${FLAGS_disk_layout}"
 
-# Optionally install any OEM packages
+# Install OEM package (oem-release for sysext activation in all modes,
+# plus grub.cfg in GRUB mode or a UKI addon in UKI mode).
 install_oem_package
 install_oem_sysext
 run_fs_hook
+
+# Sign UKI EFI files with an ephemeral key for Secure Boot testing. At this
+# point the ESP is still mounted at ${VM_TMP_ROOT}/boot with all EFI files in
+# place (UKI + addons). The public certificate is written to the image
+# output directory so _write_qemu_uefi_secure_conf() can enroll it in the OVMF
+# Secure Boot db.
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" && "${BOOTLOADER_MODE:-uki}" == "uki" ]]; then
+    "${BUILD_LIBRARY_DIR}/rpm/sign_uki_ephemeral.sh" \
+        "${VM_TMP_ROOT}/boot" \
+        "$(_dst_dir)"
+fi
 
 # Changes done, glue it together
 write_vm_disk

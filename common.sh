@@ -164,7 +164,7 @@ die_notrace() {
   for line in "$@"; do
     error "${DIE_PREFIX}${line}"
   done
-  if [[ ! -e "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME" ]]; then
+  if [[ ! -e "${SCRIPTS_DIR}/NO_DEBUG_OUTPUT_DELETE_ME" && "${SKIP_DIE_DEBUG_OUTPUT:-}" != "true" ]]; then
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
       error "${DIE_PREFIX}!! BEGIN DEBUG OUTPUT: !!"
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -177,10 +177,13 @@ die_notrace() {
       error "${DIE_PREFIX}========"
       error_command_output "${DIE_PREFIX}" df -h
       error
-      error "${DIE_PREFIX}== DMESG =="
-      error "${DIE_PREFIX}==========="
-      error_command_output "${DIE_PREFIX}" sudo dmesg
-      error
+      # Skip dmesg by default - it's usually too verbose and not helpful
+      if [[ "${SHOW_DMESG_ON_ERROR:-}" == "true" ]]; then
+          error "${DIE_PREFIX}== DMESG =="
+          error "${DIE_PREFIX}==========="
+          error_command_output "${DIE_PREFIX}" sudo dmesg
+          error
+      fi
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
       error "${DIE_PREFIX}!! END DEBUG OUTPUT: !!"
       error "${DIE_PREFIX}!!!!!!!!!!!!!!!!!!!!!!!"
@@ -364,6 +367,62 @@ fi
 
 # Compatibility alias
 FLATCAR_VERSION_STRING="${FLATCAR_VERSION}"
+
+# Package source mode: PORTAGE (traditional Gentoo) or RPM (Azure Linux).
+# Scripts that need RPM mode should export PACKAGE_SOURCE_MODE=RPM
+# *before* sourcing common.sh.
+PACKAGE_SOURCE_MODE="${PACKAGE_SOURCE_MODE:-PORTAGE}"
+
+# Distribution share directory: where distro-specific data lives under /usr/share.
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  DISTRO_SHARE_DIR="/usr/share/distro"
+else
+  DISTRO_SHARE_DIR="/usr/share/flatcar"
+fi
+
+# Bootloader mode: 'uki' (default, systemd-boot + UKI) or 'grub'.
+# Scripts that need grub mode should export BOOTLOADER_MODE=grub
+# *before* sourcing common.sh.
+BOOTLOADER_MODE="${BOOTLOADER_MODE:-uki}"
+
+# Image version for OS identity (os-release, lsb-release) in RPM builds.
+# This is separate from FLATCAR_VERSION which must track the SDK container.
+# Override via environment: IMAGE_VERSION_ID, IMAGE_BUILD_ID
+# Default: 3.0.YYYYMMDD+HHMMSS-<git-short-hash>[-dirty]
+# Values are cached in __build__/image-version.env to ensure consistency
+# across build steps. Delete that file (or use --rebuild) to regenerate.
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
+  _image_version_stamp="${SCRIPTS_DIR}/__build__/image-version.env"
+
+  # Read cached values if no env override is set
+  if [[ -f "${_image_version_stamp}" ]] \
+      && [[ -z "${IMAGE_VERSION:-}" ]] \
+      && [[ -z "${IMAGE_VERSION_ID:-}" ]] \
+      && [[ -z "${IMAGE_BUILD_ID:-}" ]]; then
+    source "${_image_version_stamp}"
+  fi
+
+  : ${IMAGE_VERSION_ID:="3.0.$(date +%Y%m%d)"}
+  if [[ -z "${IMAGE_BUILD_ID:-}" ]]; then
+    _git_hash=$(git -C "${SCRIPTS_DIR}" rev-parse --short HEAD 2>/dev/null || echo unknown)
+    _git_dirty=""
+    if ! git -C "${SCRIPTS_DIR}" diff --quiet HEAD 2>/dev/null; then
+      _git_dirty="-dirty"
+    fi
+    IMAGE_BUILD_ID="$(date +%H%M%S)-${_git_hash}${_git_dirty}"
+    unset _git_hash _git_dirty
+  fi
+  IMAGE_VERSION="${IMAGE_VERSION:-${IMAGE_VERSION_ID}+${IMAGE_BUILD_ID}}"
+
+  # Persist for subsequent build steps
+  mkdir -p "$(dirname "${_image_version_stamp}")"
+  cat > "${_image_version_stamp}" <<-STAMP
+	IMAGE_VERSION_ID="${IMAGE_VERSION_ID}"
+	IMAGE_BUILD_ID="${IMAGE_BUILD_ID}"
+	IMAGE_VERSION="${IMAGE_VERSION}"
+	STAMP
+  unset _image_version_stamp
+fi
 
 # Calculate what today's build version should be, used by release
 # scripts to provide a reasonable default value. The value is the number
@@ -1026,4 +1085,33 @@ clean_qemu_static() {
     ;;
     *) die "Unsupported arch" ;;
   esac
+}
+
+# Pad a squashfs image so the kernel's block-layer read-ahead never
+# overshoots the loop device backing file.  Without padding, the last
+# read-ahead window can extend past EOF, producing:
+#   "I/O error, dev loopN, sector XXXX op 0x0:(READ)"
+#
+# The pad size equals the kernel's default read_ahead_kb for block devices
+# (128 KB / 131072 bytes), set in block/blk-settings.c at device creation.
+# This is the value used by Azure Linux kernel today.
+# Should a future kernel change the default, update LOOP_READ_AHEAD_BYTES below.
+# At runtime the actual value is visible at /sys/block/loopN/queue/read_ahead_kb.
+#
+# See ACL Bug 17844.
+# Usage: pad_squashfs_for_loopdev <file> [sudo]
+#   Pass "sudo" as the second arg when running as a non-root user.
+LOOP_READ_AHEAD_BYTES=131072  # 128 KB — must match kernel default read_ahead_kb
+
+pad_squashfs_for_loopdev() {
+    local file="$1"
+    local run_as="${2:-}"
+    local file_size pad_bytes original_mtime
+    file_size=$(stat -c '%s' "${file}")
+    pad_bytes=$(( (LOOP_READ_AHEAD_BYTES - (file_size % LOOP_READ_AHEAD_BYTES)) % LOOP_READ_AHEAD_BYTES ))
+    if (( pad_bytes > 0 )); then
+        original_mtime=$(stat -c '%y' "${file}")
+        ${run_as} truncate -s "+${pad_bytes}" "${file}"
+        ${run_as} touch -d "${original_mtime}" "${file}"
+    fi
 }

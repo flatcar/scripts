@@ -1,0 +1,38 @@
+From bb5ac3d5d0c4798086f19c6c81e7b78c6d7107c7 Mon Sep 17 00:00:00 2001
+From: Chris PeBenito <chpebeni@linux.microsoft.com>
+Date: Thu, 21 Aug 2025 11:07:58 -0400
+Subject: [PATCH 57/58] cloudinit: Add sys_admin to set security.sehash.
+
+Fixes errors like:
+
+Aug 21 14:10:16 linux cloud-init[764]: setxattr failed: /var/lib/cloud: Operation not permitted
+Aug 21 14:10:16 linux cloud-init[764]: setxattr failed: /var/lib/cloud/data: Operation not permitted
+Aug 21 14:10:16 linux cloud-init[777]: setxattr failed: /var/lib/cloud: Operation not permitted
+Aug 21 14:10:16 linux cloud-init[777]: setxattr failed: /var/lib/cloud/data: Operation not permitted
+Aug 21 14:10:16 linux cloud-init[777]: setxattr failed: /var/lib/cloud/scripts: Operation not permitted
+Aug 21 14:10:16 linux cloud-init[777]: setxattr failed: /var/lib/cloud/scripts: Operation not permitted
+
+Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+---
+ policy/modules/admin/cloudinit.te | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/policy/modules/admin/cloudinit.te b/policy/modules/admin/cloudinit.te
+index d0530e85c..15fa5fc5b 100644
+--- a/policy/modules/admin/cloudinit.te
++++ b/policy/modules/admin/cloudinit.te
+@@ -45,8 +45,9 @@ files_tmp_file(cloud_init_tmp_t)
+ # Local policy
+ #
+ 
+-allow cloud_init_t self:capability { chown dac_override dac_read_search fowner fsetid setgid setuid };
+-dontaudit cloud_init_t self:capability { net_admin sys_admin sys_tty_config };
++# sys_admin: Set security.sehash
++allow cloud_init_t self:capability { chown dac_override dac_read_search fowner fsetid setgid setuid sys_admin };
++dontaudit cloud_init_t self:capability { net_admin sys_tty_config };
+ allow cloud_init_t self:fifo_file rw_fifo_file_perms;
+ allow cloud_init_t self:unix_dgram_socket create_socket_perms;
+ allow cloud_init_t self:passwd passwd;
+-- 
+2.50.1
+

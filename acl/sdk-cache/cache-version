@@ -1,0 +1,21 @@
+1
+# SDK Container Cache Version
+#
+# Increment this value to force a full SDK scratch rebuild on the next
+# pipeline run. The content of this file is included in the SDK content
+# hash used for ACR-based caching (see acl-pipelines RFC:
+# docs/rfcs/sdk-container-caching.md).
+#
+# When to increment:
+#   - A change to a shared infrastructure file outside the hash scope
+#     affects the SDK container output
+#   - Suspected stale upstream base image (ghcr.io/flatcar/flatcar-sdk-all)
+#   - Transient build environment issue produced a bad cached image
+#
+# Shared files NOT in the content hash (require salt bump if changed):
+#   - common.sh          — core library sourced by update_chroot, setup_board
+#   - settings.env       — binary package server URLs, sourced by common.sh
+#   - lib/shflags/shflags — CLI flag parsing library, sourced by common.sh
+#   - update_chroot      — top-level SDK update entry point
+#   - setup_board        — board setup entry point (calls update_chroot)
+#   - flatcar_workon     — package workon management

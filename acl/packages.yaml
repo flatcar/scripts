@@ -1,0 +1,35 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# ACL RPM Package List
+# ====================
+#
+# Custom and patched package specs for Azure Container Linux.
+# These are packages that require ACL-specific modifications beyond what
+# Azure Linux ships by default — typically Flatcar compatibility patches,
+# Azure integration fixes, or packages not yet available upstream.
+#
+# build.sh receives these as positional arguments.
+# This file is part of the pipeline cache key — changes here invalidate
+# the RPM staging cache even when SPECS/ content is unchanged.
+#
+# NOTE: qemu is not listed here — it is built separately via --build-rpms-qemu
+# for arm64 cross-compilation and has its own pipeline cache key.
+
+packages:
+  # --- Ported from Flatcar ------------------------------------------------
+  - coreos-init         # Init scripts, systemd units, generators (autologin fix)
+  - sdnotify-proxy      # sd_notify proxy for containerized services
+
+  # --- LISA testing dependencies ------------------------------------------
+  - stress-ng           # Stress test tool
+  - Judy                # Dynamic array library (stress-ng build dep)
+  - libbsd              # BSD compatibility functions (stress-ng build dep)
+  - lksctp-tools        # SCTP user-space tools (stress-ng build dep)
+
+  # --- ACL-patched system packages ----------------------------------------
+  - bootengine          # Flatcar bootengine (glob-based firstboot addon removal for UAPI UKI naming)
+  - microcode_ctl       # CPU microcode updater (Fedora import)
+  - selinux-policy      # SELinux reference policy (ACL-specific modules)
+  - systemd             # System manager
+  - WALinuxAgent        # Azure Linux Agent
