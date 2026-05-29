@@ -6,11 +6,6 @@ source "${GHA_SCRIPTS_DIR}/.github/workflows/common.sh"
 
 prepare_git_repo
 
-if ! check_remote_branch "cacerts-${VERSION_NEW}-${TARGET_BRANCH}"; then
-    echo "remote branch already exists, nothing to do"
-    exit 0
-fi
-
 pushd "${SDK_OUTER_OVERLAY}"
 
 # Parse the Manifest file for already present source files and keep the latest version in the current series
@@ -32,7 +27,4 @@ generate_update_changelog 'ca-certificates' "${VERSION_NEW}" "${URL}" 'ca-certif
 
 commit_changes app-misc/ca-certificates "${VERSION_OLD}" "${VERSION_NEW}"
 
-cleanup_repo
-
-echo "VERSION_OLD=${VERSION_OLD}" >>"${GITHUB_OUTPUT}"
-echo 'UPDATE_NEEDED=1' >>"${GITHUB_OUTPUT}"
+push_changes_with_rebase

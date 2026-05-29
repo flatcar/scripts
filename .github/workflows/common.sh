@@ -191,6 +191,16 @@ function commit_changes() {
   popd
 }
 
+# Push the changes to the current remote and branch. If this fails, clean up
+# (rebase needs this), pull, and rebase before trying again.
+function push_changes_with_rebase() {
+  if ! git -C "${SDK_OUTER_TOPDIR}" push; then
+    cleanup_repo
+    git -C "${SDK_OUTER_TOPDIR}" pull --rebase
+    git -C "${SDK_OUTER_TOPDIR}" push
+  fi
+}
+
 # Prints the status of the git repo and cleans it up - reverts
 # uncommitted changes, removes untracked files. It's usually called at
 # the end of a script making changes to the repository in order to

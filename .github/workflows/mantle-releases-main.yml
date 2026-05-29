@@ -33,10 +33,6 @@ jobs:
             else
               major=$(grep -e ':supported' lts-info | sort -V | head -n 1 | awk -F: '{print $1}')
               branch="flatcar-${major}"
-              # Drop this corner case when 2605 is not supported.
-              if [[ ${major} -eq 2605 ]]; then
-                branch='flatcar-lts-2605'
-              fi
             fi
             rm -f lts-info
           else
@@ -59,24 +55,14 @@ jobs:
           echo "COMMIT=${commit}" >>"${GITHUB_OUTPUT}"
       - name: Try to apply patch
         if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/work"
         run: |
           set -euo pipefail
+          source "${{ github.workspace }}/gha/.github/workflows/common.sh"
           set -x
           commit=${{ steps.fetch-latest-mantle.outputs.COMMIT }}
-          if ! grep -q "ghcr.io/flatcar/mantle:git-${commit}" sdk_container/.repo/manifests/mantle-container; then
-            echo "ghcr.io/flatcar/mantle:git-${commit}" > sdk_container/.repo/manifests/mantle-container
-            git add sdk_container/.repo/manifests/mantle-container
-          fi
-      - name: Create pull request for branch
-        if: ${{ steps.figure-out-branch.outputs.SKIP == 0 }}
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.BOT_PR_TOKEN }}
-          base: ${{ steps.figure-out-branch.outputs.BRANCH }}
-          branch: mantle-update-${{ steps.figure-out-branch.outputs.BRANCH }}
-          author: Flatcar Buildbot <buildbot@flatcar-linux.org>
-          committer: Flatcar Buildbot <buildbot@flatcar-linux.org>
-          title: Upgrade mantle container image to latest HEAD in ${{ steps.figure-out-branch.outputs.BRANCH }}
-          commit-message: Update mantle container image to latest HEAD
-          delete-branch: true
-          signoff: true
+          echo "ghcr.io/flatcar/mantle:git-${commit}" > sdk_container/.repo/manifests/mantle-container
+          prepare_git_repo
+          git commit --signoff -m "Update mantle container image to latest HEAD" sdk_container/.repo/manifests/mantle-container
+          push_changes_with_rebase
