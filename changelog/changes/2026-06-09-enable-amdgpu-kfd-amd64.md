@@ -1,0 +1,1 @@
+- enable `/dev/kfd/` in amdgpu driver on AMD64
