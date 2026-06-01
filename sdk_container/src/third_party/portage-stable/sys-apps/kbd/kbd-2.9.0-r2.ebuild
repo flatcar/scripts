@@ -1,9 +1,9 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit multiprocessing
+inherit autotools multiprocessing
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit autotools git-r3
@@ -22,27 +22,42 @@ fi
 DESCRIPTION="Keyboard and console utilities"
 HOMEPAGE="https://kbd-project.org/"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
-IUSE="nls selinux pam test"
+IUSE="bzip2 lzma nls selinux pam test zlib zstd"
 RESTRICT="!test? ( test )"
 
 DEPEND="
 	app-alternatives/gzip
+	bzip2? ( app-arch/bzip2 )
+	lzma? ( app-arch/xz-utils )
 	pam? (
 		!app-misc/vlock
 		sys-libs/pam
 	)
+	zlib? ( virtual/zlib:= )
+	zstd? ( app-arch/zstd:= )
 "
 RDEPEND="
 	${DEPEND}
-	selinux? ( sec-policy/selinux-loadkeys )
+	selinux? (
+		sec-policy/selinux-loadkeys
+		sec-policy/selinux-vlock
+	)
 "
 BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	test? ( dev-libs/check )
 "
+
+PATCHES=(
+	"${FILESDIR}"/${P}-install-no-attr.patch
+	"${FILESDIR}"/${P}-install-posix.patch
+	"${FILESDIR}"/${P}-nullptr.patch
+	"${FILESDIR}"/${P}-uninit.patch
+	"${FILESDIR}"/${P}-time64.patch
+)
 
 src_prepare() {
 	default
@@ -56,9 +71,12 @@ src_prepare() {
 	mv qwerty/cz.map qwerty/cz-qwerty.map || die
 	popd &> /dev/null || die
 
-	if [[ ${PV} == 9999 ]] || [[ $(ver_cut 3) -ge 90 ]] ; then
-		eautoreconf
-	fi
+	#if [[ ${PV} == 9999 ]] || [[ $(ver_cut 3) -ge 90 ]] ; then
+	#	eautoreconf
+	#fi
+
+	# Drop after 2.9.0
+	eautoreconf
 }
 
 src_configure() {
@@ -67,32 +85,22 @@ src_configure() {
 
 	local myeconfargs=(
 		--disable-werror
+		# No Valgrind for the testsuite
+		--disable-memcheck
 
 		$(use_enable nls)
 		$(use_enable pam vlock)
 		$(use_enable test tests)
+		$(use_with bzip2)
+		$(use_with lzma)
+		$(use_with zlib)
+		$(use_with zstd)
 	)
 
 	econf "${myeconfargs[@]}"
 }
 
 src_test() {
-	# These tests want a tty and the check passes when it shouldn't
-	# when running via the ebuild.
-	sed -i -e "s:tty 2>/dev/null:false:" tests/testsuite || die
-
-	# Workaround Valgrind being mandatory for tests
-	# https://github.com/legionus/kbd/issues/133 (bug #956964)
-	#
-	# XXX: Drop this on next release (>2.8.0) and replace with
-	# --disable-memcheck in configure.
-	cat <<-EOF > tests/valgrind.sh || die
-	#!/bin/sh
-	shift
-	exec "\$@" 1>stdout 2>stderr
-	EOF
-	chmod +x tests/valgrind.sh || die
-
 	emake -Onone check TESTSUITEFLAGS="--jobs=$(get_makeopts_jobs)"
 }
 
