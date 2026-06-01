@@ -3,14 +3,12 @@
 
 EAPI=8
 
-# Ukrainian translation causes compile failure, so skip it for now
-#PLOCALES="ca de es fr ja ko pt_BR ru sv tr uk"
 PLOCALES="ca de es fr ja ko pt_BR ru sv tr"
 PLOCALES_BIN="${PLOCALES} bg cs eu fi hu id it ka nb nl pl pt tg zh_TW zh_CN"
 PLOCALE_BACKUP="sv"
 PYTHON_COMPAT=( python3_{11..14} )
 
-inherit autotools linux-info multilib-minimal optfeature plocale \
+inherit autotools fcaps linux-info multilib-minimal optfeature plocale \
 	python-single-r1 pam systemd tmpfiles udev toolchain-funcs verify-sig
 
 DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
@@ -18,7 +16,7 @@ HOMEPAGE="https://github.com/SSSD/sssd"
 if [[ ${PV} != 9999 ]]; then
 	SRC_URI="https://github.com/SSSD/sssd/releases/download/${PV}/${P}.tar.gz
 		https://github.com/SSSD/sssd/releases/download/${PV}/${P}.tar.gz.asc"
-	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~sparc ~x86"
 else
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/SSSD/sssd.git"
@@ -27,7 +25,7 @@ fi
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="doc +netlink nfsv4 nls passkey python samba selinux systemd systemtap test"
+IUSE="doc +netlink nfsv4 nls openid passkey python samba selinux systemd systemtap test"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
@@ -47,7 +45,7 @@ DEPEND="
 	net-fs/cifs-utils[acl]
 	>=sys-apps/dbus-1.6
 	>=sys-apps/keyutils-1.5:=
-	sys-libs/libcap
+	sys-libs/libcap:=[${MULTILIB_USEDEP}]
 	>=sys-libs/pam-0-r1[${MULTILIB_USEDEP}]
 	>=sys-libs/talloc-2.0.7
 	>=sys-libs/tdb-1.2.9
@@ -57,6 +55,10 @@ DEPEND="
 	netlink? ( dev-libs/libnl:3 )
 	nfsv4? ( >=net-fs/nfs-utils-2.3.1-r2 )
 	nls? ( >=sys-devel/gettext-0.18 )
+	openid? (
+		dev-libs/jose
+		net-misc/curl
+	)
 	passkey? ( dev-libs/libfido2:= )
 	python? (
 		${PYTHON_DEPS}
@@ -79,7 +81,6 @@ DEPEND="
 RDEPEND="${DEPEND}
 	acct-user/sssd
 	acct-group/sssd
-	passkey? ( sys-apps/pcsc-lite[policykit] )
 	selinux? ( >=sec-policy/selinux-sssd-2.20120725-r9 )"
 DEPEND+="
 	sys-apps/shadow"
@@ -93,6 +94,7 @@ BDEPEND="
 	nls? (	app-text/po4a
 		sys-devel/gettext )
 	test? (
+		app-alternatives/bc
 		dev-libs/check
 		dev-libs/softhsm:2
 		dev-util/cmocka
@@ -128,41 +130,19 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/sss_certmap.h
 )
 
-sssd_migrate_files() {
-	if has_version "<=sys-auth/sssd-2.9.9999"
-	then
-		einfo "Checking if sssd is running"
-		if [ -f /run/sssd.pid ]
-		then
-			elog "Please stop sssd after installing before"
-			elog "performing the migration process"
-		fi
-		einfo "Checking if /var/lib/sss ownership"
-		if [ -d /var/lib/sss ] && [ $(stat -c "%U:%G" /var/lib/sss) != "sssd:sssd" ]
-		then
-			elog "After installing, please execute"
-			elog "chown -R sssd:sssd /var/lib/sss"
-		fi
-		einfo "Checking if /var/log/sssd ownership"
-		if [ -d /var/log/sssd ] && [ $(stat -c "%U:%G" /var/log/sssd) != "sssd:sssd" ]
-		then
-			elog "After installing, please execute"
-			elog "chown -R sssd:sssd /var/log/sssd"
-		fi
-		einfo "Checking if /etc/sssd ownership"
-		if ! use systemd && [ -d /etc/sssd ] && [ $(stat -c "%U:%G" /etc/sssd) != "root:sssd" ]
-		then
-			elog "After installing, please execute"
-			elog "chown -R root:sssd /etc/sssd"
-		fi
-	fi
-}
+# mimic upstream's setcap here, they're liable to get lost
+# https://github.com/SSSD/sssd/blob/a6d0f0cf484aeeead535b7138d1334b309c61a4e/Makefile.am#L5567
+FILECAPS=(
+	cap_dac_read_search=p "usr/libexec/sssd/ldap_child"
+	--
+	cap_dac_read_search,cap_setuid,cap_setgid=p "usr/libexec/sssd/krb5_child"
+	--
+	cap_dac_read_search=p "usr/libexec/sssd/sssd_pam"
+)
 
 pkg_setup() {
 	linux-info_pkg_setup
 	python-single-r1_pkg_setup
-
-	sssd_migrate_files
 }
 
 src_prepare() {
@@ -258,7 +238,7 @@ multilib_src_configure() {
 		--with-sudo
 		$(multilib_native_with autofs)
 		$(multilib_native_with ssh)
-		--without-oidc-child
+		$(multilib_native_use_with openid oidc-child)
 		$(multilib_native_with passkey)
 		--with-subid
 		$(use_enable systemtap)
@@ -273,6 +253,7 @@ multilib_src_configure() {
 
 	use systemd && myconf+=(
 		--with-systemdunitdir=$(systemd_get_systemunitdir)
+		--with-syslog=$(usex systemd journald syslog)
 	)
 
 	if ! multilib_is_native_abi; then
@@ -284,6 +265,7 @@ multilib_src_configure() {
 			{DHASH,UNISTRING,INI_CONFIG_V{0,1,1_1,1_3}}_{CFLAGS,LIBS}=' '
 			{PCRE,CARES,SYSTEMD_LOGIN,SASL,DBUS,CRYPTO,P11_KIT}_{CFLAGS,LIBS}=' '
 			{NDR_NBT,SAMBA_UTIL,SMBCLIENT,NDR_KRB5PAC,JANSSON}_{CFLAGS,LIBS}=' '
+			JOURNALD_{CFLAGS,LIBS}=' '
 
 			# use native include path for dbus (needed for build)
 			DBUS_CFLAGS="${native_dbus_cflags}"
@@ -377,6 +359,8 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
+	fcaps_pkg_postinst
+	udev_reload
 	tmpfiles_process sssd-tmpfiles.conf
 	echo
 	elog "You must set up sssd.conf (default installed into /etc/sssd)"
@@ -389,4 +373,8 @@ pkg_postinst() {
 		echo
 		ewarn "sssctl analyze will not work because the python USE flag is disabled."
 	fi
+}
+
+pkg_postrm() {
+	udev_reload
 }
