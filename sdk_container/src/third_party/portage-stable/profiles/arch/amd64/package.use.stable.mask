@@ -17,6 +17,14 @@
 
 #--- END OF EXAMPLES ---
 
+# Paul Zander <negril.nx+gentoo@gmail.com> (2026-04-28)
+# SPIRV target requires dev-libs/level-zero.
+llvm-runtimes/openmp level-zero
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2026-04-28)
+# OpenMP offloading GPU runtimes are not keyworded everywhere.
+llvm-runtimes/clang-runtime llvm_targets_AMDGPU llvm_targets_NVPTX llvm_targets_SPIRV
+
 # Matt Jolly <kangie@gentoo.org> (2026-03-10)
 # mrustc is not yet stable on amd64, but we want bootstrap for Rust
 ~dev-lang/rust-1.90.0 mrustc-bootstrap
@@ -39,6 +47,7 @@ media-sound/liblc3 -test
 # Ionen Wolkens <ionen@gentoo.org> (2025-03-10)
 # dev-util/nvidia-cuda-toolkit may never be stabilized
 media-libs/osl clang-cuda
+media-gfx/blender optix
 
 # Sam James <sam@gentoo.org> (2025-02-13)
 # sys-cluster/corosync is marked stable here
