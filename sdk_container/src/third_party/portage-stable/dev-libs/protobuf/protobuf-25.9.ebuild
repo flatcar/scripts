@@ -3,10 +3,13 @@
 
 EAPI=8
 
-inherit cmake-multilib dot-a elisp-common flag-o-matic multilib toolchain-funcs
+inherit cmake-multilib elisp-common multilib toolchain-funcs
 
-# NOTE from https://github.com/protocolbuffers/protobuf/blob/main/cmake/dependencies.cmake
-ABSEIL_MIN_VER="20250127.0"
+# NOTE from https://github.com/protocolbuffers/protobuf/blob/main/.gitmodules
+ABSEIL_BRANCH="lts_2023_08_02"
+
+ABSEIL_MIN_VER="${ABSEIL_BRANCH//lts_}"
+ABSEIL_MIN_VER="${ABSEIL_MIN_VER//_/}"
 
 if [[ "${PV}" == *9999 ]]; then
 	EGIT_REPO_URI="https://github.com/protocolbuffers/protobuf.git"
@@ -16,7 +19,7 @@ if [[ "${PV}" == *9999 ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/protocolbuffers/protobuf/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos"
 	SLOT="0/$(ver_cut 1-2).0"
 fi
 
@@ -24,7 +27,7 @@ DESCRIPTION="Google's Protocol Buffers - Extensible mechanism for serializing st
 HOMEPAGE="https://protobuf.dev/"
 
 LICENSE="BSD"
-IUSE="conformance debug emacs examples +libprotoc +libupb +protobuf +protoc test zlib"
+IUSE="conformance debug emacs examples +libprotoc +protobuf +protoc test zlib"
 
 # Require protobuf for the time being
 REQUIRED_USE="
@@ -32,8 +35,6 @@ REQUIRED_USE="
 	protobuf? ( protoc )
 	examples? ( protobuf )
 	libprotoc? ( protobuf )
-	libupb? ( protobuf )
-	protoc? ( libupb )
 "
 
 RESTRICT="!test? ( test )"
@@ -64,8 +65,9 @@ RDEPEND="
 "
 
 PATCHES=(
+	"${FILESDIR}/${PN}-26.1-disable-32-bit-tests.patch"
 	"${FILESDIR}/${PN}-23.3-static_assert-failure.patch"
-	"${FILESDIR}/${PN}-30.0-findJsonCpp.patch"
+	"${FILESDIR}/${PN}-27.4-findJsonCpp.patch"
 )
 
 DOCS=( CONTRIBUTORS.txt README.md )
@@ -77,18 +79,12 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	# bug #963340 (seems to only happen when upgrading from older pb,
-	# possibly w/o tests too).
-	use libupb && filter-lto
-
-	# Currently, the only static library is libupb (and there is no
-	# USE=static-libs), so optimize away the fat-lto build time penalty.
-	use libupb && lto-guarantee-fat
-
 	local mycmakeargs=(
+		-Dprotobuf_ABSL_PROVIDER="package"
+		-Dprotobuf_JSONCPP_PROVIDER="package"
+
 		-Dprotobuf_BUILD_CONFORMANCE="$(usex test "$(usex conformance)")"
 		-Dprotobuf_BUILD_LIBPROTOC="$(usex libprotoc)"
-		-Dprotobuf_BUILD_LIBUPB="$(usex libupb)"
 		-Dprotobuf_BUILD_PROTOBUF_BINARIES="$(usex protobuf)"
 		-Dprotobuf_BUILD_PROTOC_BINARIES="$(usex protoc)"
 		-Dprotobuf_BUILD_SHARED_LIBS="yes"
@@ -102,9 +98,6 @@ multilib_src_configure() {
 		-Dprotobuf_WITH_ZLIB="$(usex zlib)"
 		-Dprotobuf_VERBOSE="$(usex debug)"
 		-DCMAKE_MODULE_PATH="${S}/cmake"
-
-		-Dprotobuf_LOCAL_DEPENDENCIES_ONLY="yes"
-		# -Dprotobuf_FORCE_FETCH_DEPENDENCIES="no"
 	)
 	if use protobuf ; then
 		if use examples ; then
@@ -114,6 +107,8 @@ multilib_src_configure() {
 			)
 		fi
 	fi
+
+	use test && mycmakeargs+=( -Dprotobuf_USE_EXTERNAL_GTEST="yes" )
 
 	cmake_src_configure
 }
@@ -126,45 +121,22 @@ src_compile() {
 	fi
 }
 
-# we override here to inject env vars
-multilib_src_test() {
-	local -x TEST_TMPDIR="${T%/}/TEST_TMPDIR_${ABI}"
-	mkdir -p -m 770 "${TEST_TMPDIR}" || die
-
-	ln -srf "${S}/src" "${BUILD_DIR}/include" || die
-
-	cmake_src_test "${_cmake_args[@]}"
-}
-
 src_test() {
 	local -x srcdir="${S}/src"
 
-	local GTEST_SKIP_TESTS=(
-		"PackedTest/12.DecodeEmptyPackedField"
-	)
+	local -x TEST_TMPDIR="${T%/}/TEST_TMPDIR_${ABI}"
+	mkdir -m 777 "${TEST_TMPDIR}" || die
 
-	if tc-is-lto; then
-		# Do headstands for LTO # 942985
-		GTEST_SKIP_TESTS+=(
-			"FileDescriptorSetSource/EncodeDecodeTest*"
-			"LazilyBuildDependenciesTest.GeneratedFile"
-			"PythonGeneratorTest/PythonGeneratorTest.PythonWithCppFeatures/*"
-		)
-	fi
+	setup_test_env() {
+		ln -sr "${S}/src" "${BUILD_DIR}/include" || die
+	}
 
-	if [[ ! -v GTEST_FILTER ]]; then
-		local -x GTEST_FILTER
-	fi
-
-	[[ -n ${GTEST_RUN_TESTS[*]} ]] && GTEST_FILTER+="$(IFS=':' ; echo "${GTEST_SKIP_TESTS[*]}")"
-	[[ -n ${GTEST_SKIP_TESTS[*]} ]] && GTEST_FILTER+="${GTEST_FILTER+:}-$(IFS=':' ; echo "${GTEST_SKIP_TESTS[*]}")"
+	multilib_foreach_abi setup_test_env
 
 	cmake-multilib_src_test
 }
 
 multilib_src_install_all() {
-	use libupb && strip-lto-bytecode
-
 	find "${ED}" -name "*.la" -delete || die
 
 	if ! tc-is-cross-compiler && [[ ! -f "${ED}/usr/$(get_libdir)/libprotobuf$(get_libname "${SLOT#*/}")" ]]; then
