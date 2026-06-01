@@ -12,7 +12,7 @@ TMPFILES_OPTIONAL=1
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=7
+PATCH_VER=9
 PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
@@ -43,10 +43,10 @@ HOMEPAGE="https://www.gnu.org/software/libc/"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
+	SRC_URI+=" https://distfiles.gentoo.org/pub/proj/toolchain/glibc/patches/${P}-patches-${PATCH_VER}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/glibc/${P}.tar.xz.sig )"
-	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
 
 SRC_URI+=" multilib-bootstrap? ( https://dev.gentoo.org/~dilfridge/distfiles/gcc-multilib-bootstrap-${GCC_BOOTSTRAP_VER}.tar.xz )"
@@ -375,7 +375,12 @@ setup_target_flags() {
 					[[ ${t} == "x86_64" ]] && t="x86-64"
 					filter-flags '-march=*'
 					# ugly, ugly, ugly.  ugly.
-					CFLAGS_x86=$(CFLAGS=${CFLAGS_x86}; filter-flags '-march=*'; echo "${CFLAGS}")
+					CFLAGS_x86=$(
+						CFLAGS=${CFLAGS_x86}
+						filter-flags '-march=*'
+						is-flagq '-mfpmath=sse' && append-cflags -msse
+						echo "${CFLAGS}"
+					)
 					export CFLAGS_x86="${CFLAGS_x86} -march=${t}"
 					einfo "Auto adding -march=${t} to CFLAGS_x86 #185404 (ABI=${ABI})"
 				fi
@@ -1556,7 +1561,7 @@ glibc_do_src_install() {
 
 	if is_hurd && has amd64 $(get_install_abis) ; then
 		# First, let's check for sanity
-		if [[ -f "$(alt_prefix)/lib/ld-x86-64.so.1" ]] ; then
+		if [[ -f "${D}/$(alt_prefix)/lib/ld-x86-64.so.1" ]] ; then
 			die "Somehow your amd64 hurd glibc installed /lib/ld-x86-64.so.1 ... this should not happen."
 		fi
 
@@ -1566,7 +1571,7 @@ glibc_do_src_install() {
 
 	if is_hurd && has x86 $(get_install_abis) ; then
 		# First, let's check for sanity
-		if [[ -f "$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
+		if [[ -f "${D}/$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
 			die "Somehow your x86 hurd glibc installed ld.so ... this should not happen."
 		fi
 
