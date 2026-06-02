@@ -1,41 +1,35 @@
-From bbc8ff28a7f0208b6b1020d0d2ca900cdfb5a42f Mon Sep 17 00:00:00 2001
+From 450c8acb76f851bb594f725f834c04b041c2859e Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 24 Oct 2025 11:06:57 +0200
-Subject: [PATCH 08/14] units: Make multi-user.target the default target
+Subject: [PATCH 8/8] units: Make multi-user.target the default target
 
 Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
 ---
- units/meson.build | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ units/meson.build | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/units/meson.build b/units/meson.build
-index 12cf47d797..58de76dca9 100644
+index b2cf9bd8f3..74d7f61519 100644
 --- a/units/meson.build
 +++ b/units/meson.build
-@@ -47,10 +47,7 @@ units = [
-           'file' : 'getty@.service.in',
-           'symlinks' : ['autovt@.service'],
+@@ -48,7 +48,7 @@ units = [
+         { 'file' : 'getty@.service.in' },
+         {
+           'file' : 'graphical.target',
+-          'symlinks' : ['default.target'] + (runlevels ? ['runlevel5.target'] : []),
++          'symlinks' : runlevels ? ['runlevel5.target'] : [],
          },
--        {
--          'file' : 'graphical.target',
--          'symlinks' : ['default.target'],
--        },
-+        { 'file' : 'graphical.target' },
          { 'file' : 'halt.target' },
          {
-           'file' : 'hibernate.target',
-@@ -142,7 +139,10 @@ units = [
-           'conditions' : ['ENABLE_MACHINED'],
-         },
+@@ -143,7 +143,7 @@ units = [
          { 'file' : 'modprobe@.service' },
--        { 'file' : 'multi-user.target' },
-+        {
-+          'file' : 'multi-user.target',
-+          'symlinks' : ['default.target'],
-+        },
+         {
+           'file' : 'multi-user.target',
+-          'symlinks' : runlevels ? ['runlevel2.target', 'runlevel3.target', 'runlevel4.target'] : [],
++          'symlinks' : ['default.target'] + (runlevels ? ['runlevel2.target', 'runlevel3.target', 'runlevel4.target'] : []),
+         },
          {
            'file' : 'systemd-mute-console.socket',
-           'symlinks' : ['sockets.target.wants/']
 -- 
-2.52.0
+2.53.0
 

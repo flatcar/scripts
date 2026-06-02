@@ -1,8 +1,7 @@
-From 9d6db023c34d96b582e763da77c464629266f8e8 Mon Sep 17 00:00:00 2001
+From e8de255a0141ab8d169488338dc24f391299d653 Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Wed, 22 Oct 2025 10:39:42 +0200
-Subject: [PATCH 07/14] tmpfiles.d: Fix DNS issues with default k8s
- configuration
+Subject: [PATCH 7/8] tmpfiles.d: Fix DNS issues with default k8s configuration
 
 The Kubelet takes /etc/resolv.conf for, e.g., CoreDNS which has dnsPolicy
 "default", but unless the kubelet `--resolv-conf` flag is set to point to
@@ -33,5 +32,5 @@ index be5edc98e0..bea686682a 100644
 -L! /etc/resolv.conf - - - - ../run/systemd/resolve/stub-resolv.conf
 +L! /etc/resolv.conf - - - - ../run/systemd/resolve/resolv.conf
 -- 
-2.52.0
+2.53.0
 
