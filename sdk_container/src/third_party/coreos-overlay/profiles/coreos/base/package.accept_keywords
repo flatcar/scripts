@@ -111,9 +111,6 @@ sys-apps/azure-vm-utils
 # Keep versions on both arches in sync.
 =sys-fs/lxcfs-6.0.5 ~arm64
 
-# Bump early for newer features.
-=sys-kernel/dracut-109* ~amd64 ~arm64
-
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.
 =sys-libs/libselinux-3.8.1-r3 ~amd64 ~arm64
