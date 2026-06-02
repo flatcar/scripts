@@ -19,3 +19,7 @@
 # those as a dependency for some packages.
 <dev-lang/python-3.12
 >=dev-lang/python-3.13
+
+# We are using RedHat patches for grub, so until they rebase them on
+# top of 2.14, we are locked out of the update.
+>=sys-boot/grub-2.14
