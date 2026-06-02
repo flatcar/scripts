@@ -104,8 +104,8 @@ CRATES="
 	once_cell@1.21.3
 	openssl-macros@0.1.1
 	openssl-probe@0.1.6
-	openssl-sys@0.9.114
-	openssl@0.10.78
+	openssl-sys@0.9.116
+	openssl@0.10.80
 	pem-rfc7468@0.7.0
 	percent-encoding@2.3.1
 	pin-project-lite@0.2.16
@@ -119,7 +119,7 @@ CRATES="
 	protobuf@3.7.2
 	quote@1.0.40
 	r-efi@5.2.0
-	rand@0.8.5
+	rand@0.8.6
 	rand_chacha@0.3.1
 	rand_core@0.6.4
 	regex-automata@0.4.9
@@ -235,7 +235,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/ue-rs.git"
 	inherit git-r3
 else
-	EGIT_VERSION="f1e0301c36a2f5259f5d7ea2f2a60769f922b2f5" # main
+	EGIT_VERSION="9a227b3e7566902dc0702fe4906917b4b23636ba" # main
 	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz
 		${CARGO_CRATE_URIS}"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
