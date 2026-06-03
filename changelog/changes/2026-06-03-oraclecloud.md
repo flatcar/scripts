@@ -1,0 +1,1 @@
+- Added Oracle Cloud Infrastructure images ([flatcar/scripts#3846](https://github.com/flatcar/scripts/pull/3846))
