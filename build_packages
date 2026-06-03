@@ -260,26 +260,29 @@ break_dep_loop() {
 if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   # Breaking the following loops here:
   #
+  # util-linux[pam] -> pam[audit] -> audit -> tmpfiles -> systemd -> util-linux
   # util-linux[udev] -> virtual/udev -> systemd -> util-linux
   # util-linux[systemd] -> systemd -> util-linux
   # util-linux[cryptsetup] -> cryptsetup -> util-linux
   # cryptsetup[udev] -> virtual/udev -> systemd[cryptsetup] -> cryptsetup
   # lvm2[udev] -> virtual/udev -> systemd[cryptsetup] -> cryptsetup -> lvm2
   # lvm2[systemd] -> systemd[cryptsetup] -> cryptsetup -> lvm2
+  # systemd[audit] -> audit -> tmpfiles -> systemd
   # systemd[cryptsetup] -> cryptsetup[udev] -> virtual/udev -> systemd
   # systemd[tpm] -> tpm2-tss -> util-linux[udev] -> virtual/udev -> systemd
+  # systemd[selinux] -> selinux-base-policy -> selinux-base -> policycoreutils -> libsemanage -> audit -> tmpfiles -> systemd
   # curl[http2] -> nghttp2[systemd] -> systemd[curl] -> curl
   # sys-libs/pam[systemd] -> sys-apps/systemd[pam] -> sys-libs/pam
   #   dropping USE=pam from sys-apps/systemd requires dropping
   #   USE=systemd from sys-auth/pambase
   # sys-auth/pambase[sssd] -> sys-auth/sssd -> sys-apps/shadow[pam] -> sys-auth/pambase
-  break_dep_loop sys-apps/util-linux cryptsetup,systemd,udev \
+  break_dep_loop sys-apps/util-linux cryptsetup,pam,systemd,udev \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 systemd,udev \
-                 sys-apps/systemd cryptsetup,pam,tpm \
+                 sys-apps/systemd audit,cryptsetup,pam,selinux,tpm \
                  net-misc/curl http2 \
                  net-libs/nghttp2 systemd \
-                 sys-libs/pam systemd \
+                 sys-libs/pam audit,systemd \
                  sys-auth/pambase sssd,systemd
 fi
 
