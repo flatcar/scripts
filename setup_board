@@ -253,7 +253,9 @@ sudo_clobber "${BOARD_ETC}/portage/make.conf" <<EOF
 # Settings derived from the host environment
 CBUILD="$(portageq envvar CHOST)"
 HOSTCC="$(portageq envvar CHOST)-gcc"
-$(portageq envvar -v DISTDIR MAKEOPTS PORTAGE_USERNAME FETCHCOMMAND RESUMECOMMAND | sed 's:\$:\\$:g')
+DISTDIR="$(portageq envvar DISTDIR)"
+MAKEOPTS="$(portageq envvar MAKEOPTS)"
+PORTAGE_USERNAME="$(portageq envvar PORTAGE_USERNAME)"
 
 # Board specific settings
 CHOST="${BOARD_CHOST}"
