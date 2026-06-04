@@ -1,0 +1,79 @@
+#################################################################################
+#              ACL GitHub PR Validation — Trigger                                #
+#                                                                               #
+# Thin entry point for GitHub PR validation. This file lives in the GitHub      #
+# repo (microsoft/azure-container-linux) and:                                   #
+#   1. Triggers on PRs targeting aclmain                                        #
+#   2. Delegates the actual build/test to ACL-GitHub-PR.yml in the              #
+#      acl-pipelines ADO repo                                                   #
+#                                                                               #
+# Security:                                                                     #
+#   - Fork PRs do NOT get secrets by default (ADO default behavior)             #
+#   - Use "Require a team member's comment to run" in pipeline settings         #
+#     to gate fork PR builds (standard ADO mechanism)                           #
+#################################################################################
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - aclmain
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+    - repository: acl_pipelines
+      type: git
+      name: ACL/acl-pipelines
+      ref: refs/heads/main
+    - repository: azure_container_linux
+      type: github
+      endpoint: github.com_acl
+      name: microsoft/azure-container-linux
+      ref: $(Build.SourceBranch)
+    - repository: mantle
+      type: github
+      endpoint: github.com_acl
+      name: microsoft/azure-container-linux-mantle
+      ref: refs/heads/aclmain
+
+variables:
+  - template: pipelines/templates/variables/acl-defaults.yml@acl_pipelines
+  - name: pipelinesRoot
+    value: '$(Build.SourcesDirectory)/acl_pipelines'
+
+extends:
+  template: v2/OneBranch.NonOfficial.CrossPlat.yml@templates
+  parameters:
+    git:
+      persistCredentials: false
+      lfs: false
+
+    globalSdl:
+      tsa:
+        enabled: false
+      credscan:
+        suppressionsFile: $(Build.SourcesDirectory)/.config/CredScanSuppressions.json
+      policheck:
+        break: true
+      disableLegacyManifest: true
+
+    featureFlags:
+      runOnHost: true
+      EnableCDPxPAT: false
+      use1esentry: false
+      networkisolation:
+        enabled: false
+      golang:
+        internalModuleProxy:
+          enabled: false
+
+    stages:
+      - template: pipelines/ACL-GitHub-PR.yml@acl_pipelines
+        parameters:
+          aclRef: $(Build.SourceBranch)
+          mantleRef: 'aclmain'
