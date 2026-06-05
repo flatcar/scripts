@@ -60,4 +60,7 @@ src_install() {
 	# Not strictly required but this is where we used to install the config.
 	dosym "../${build}/.config" "/usr/boot/config-${KV_FULL}"
 	dosym "../${build}/.config" "/usr/boot/config"
+
+ 	# Symlink "source" to "build" for compatibility. Fedora does this.
+ 	dosym build "/usr/${build}/../source"
 }
