@@ -1,0 +1,5 @@
+# adcli configure script uses AC_CHECK_FILE and this fails when
+# cross-compiling, so work it around with a cache variable. Set it to
+# no, because I haven't seen this file being installed at all.
+
+export ac_cv_file__usr_share_selinux_devel_Makefile=no
