@@ -1,0 +1,1 @@
+ - Exoscale images are now built as 10G .qcow2 so they can be directly used with Exoscale Custom Templates

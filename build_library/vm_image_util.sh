@@ -187,7 +187,8 @@ IMG_cloudstack_vhd_OEM_SYSEXT=cloudstack
 IMG_digitalocean_OEM_SYSEXT=digitalocean
 
 ## exoscale
-IMG_exoscale_DISK_FORMAT=qcow2
+IMG_exoscale_DISK_FORMAT=exoscale
+IMG_exoscale_DISK_EXTENSION=qcow2
 IMG_exoscale_OEM_SYSEXT=exoscale
 
 ## azure
@@ -474,6 +475,15 @@ _write_raw_disk() {
 
 _write_qcow2_disk() {
     qemu-img convert -f raw "$1" -O qcow2 -c -o compat=0.10 "$2"
+    assert_image_size "$2" qcow2
+}
+
+_write_exoscale_disk() {
+    qemu-img convert -f raw "$1" -O qcow2 -c -o compat=0.10 "$2"
+    # Exoscale images should be exactly 10G. This is the minimum for
+    # Custom Templates, and it also can't be any larger because it
+    # would prevent creation of an instance with the 10G disk size option.
+    qemu-img resize "$2" 10G
     assert_image_size "$2" qcow2
 }
 
