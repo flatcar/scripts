@@ -1,11 +1,11 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/openssl.org.asc
 inherit edo flag-o-matic linux-info sysroot toolchain-funcs
-inherit multilib multilib-minimal multiprocessing preserve-libs
+inherit multibuild multilib multilib-build multiprocessing preserve-libs
 
 DESCRIPTION="Robust, full-featured Open Source Toolkit for the Transport Layer Security (TLS)"
 HOMEPAGE="https://openssl-library.org/"
@@ -20,17 +20,17 @@ if [[ ${PV} == *9999 ]] ; then
 else
 	inherit verify-sig
 	SRC_URI="
-		https://github.com/openssl/openssl/releases/download/${P}/${P}.tar.gz
+		https://github.com/openssl/openssl/releases/download/${MY_P}/${MY_P}.tar.gz
 		verify-sig? (
-			https://github.com/openssl/openssl/releases/download/${P}/${P}.tar.gz.asc
+			https://github.com/openssl/openssl/releases/download/${MY_P}/${MY_P}.tar.gz.asc
 		)
 	"
 
-	#if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
-	#	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
-	#fi
+	if [[ ${PV} != *_alpha* && ${PV} != *_beta* ]] ; then
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	fi
 
-	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-openssl-20240920 )"
+	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-openssl-20260415 )"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -105,9 +105,27 @@ src_prepare() {
 		einfo "Disabling test '80-test_ssl_new.t' which is known to fail with FEATURES=network-sandbox ..."
 		rm test/recipes/80-test_ssl_new.t || die
 	fi
+}
 
-	# Test fails depending on kernel configuration, bug #699134
-	rm test/recipes/30-test_afalg.t || die
+_openssl_variant() {
+	local OPENSSL_VARIANT=${MULTIBUILD_VARIANT}
+	mkdir -p "${BUILD_DIR}" || die
+	pushd "${BUILD_DIR}" >/dev/null || die
+	"$@"
+	popd >/dev/null || die
+}
+
+openssl_foreach_variant() {
+	local MULTIBUILD_VARIANTS=( "${OPENSSL_VARIANTS[@]}" )
+	multibuild_foreach_variant _openssl_variant "$@"
+}
+
+openssl_run_phase() {
+	multilib_foreach_abi openssl_foreach_variant "$@"
+}
+
+openssl_is_default_variant() {
+	[[ ${OPENSSL_VARIANT} == shared ]] && multilib_is_native_abi
 }
 
 src_configure() {
@@ -151,10 +169,13 @@ src_configure() {
 
 	tc-export AR CC CXX RANLIB RC
 
-	multilib-minimal_src_configure
+	OPENSSL_VARIANTS=( shared )
+	use static-libs && OPENSSL_VARIANTS+=( static )
+
+	openssl_run_phase openssl_src_configure
 }
 
-multilib_src_configure() {
+openssl_src_configure() {
 	use_ssl() { usex $1 "enable-${2:-$1}" "no-${2:-$1}" " ${*:3}" ; }
 
 	local krb5=$(has_version app-crypt/mit-krb5 && echo "MIT" || echo "Heimdal")
@@ -178,7 +199,7 @@ multilib_src_configure() {
 	local myeconfargs=(
 		${sslout}
 
-		$(multilib_is_native_abi || echo "no-docs")
+		$(openssl_is_default_variant || echo "no-docs")
 		$(use cpu_flags_x86_sse2 || echo "no-sse2")
 		enable-camellia
 		enable-ec
@@ -203,21 +224,32 @@ multilib_src_configure() {
 		--openssldir="${EPREFIX}"${SSL_CNF_DIR}
 		--libdir=$(get_libdir)
 
-		shared
 		threads
 	)
+
+	if [[ ${OPENSSL_VARIANT} == static ]]; then
+		myeconfargs+=( no-module no-shared )
+	fi
 
 	edo perl "${S}/Configure" "${myeconfargs[@]}"
 }
 
-multilib_src_compile() {
+src_compile() {
+	openssl_run_phase openssl_src_compile
+}
+
+openssl_src_compile() {
 	emake build_sw
-	if multilib_is_native_abi; then
+	if openssl_is_default_variant; then
 		emake build_docs
 	fi
 }
 
-multilib_src_test() {
+src_test() {
+	openssl_run_phase openssl_src_test
+}
+
+openssl_src_test() {
 	# See https://github.com/openssl/openssl/blob/master/test/README.md for options.
 	#
 	# VFP = show subtests verbosely and show failed tests verbosely
@@ -229,35 +261,35 @@ multilib_src_test() {
 	emake -Onone -j1 HARNESS_JOBS="$(makeopts_jobs)" VFP=1 test
 }
 
-multilib_src_install() {
+openssl_src_install() {
+	if [[ ${OPENSSL_VARIANT} == static ]]; then
+		dolib.a libcrypto.a libssl.a
+		return
+	fi
+
 	# Only -j1 is supported for the install targets:
 	# https://github.com/openssl/openssl/issues/21999#issuecomment-1771150305
 	emake DESTDIR="${D}" -j1 install_sw
+	rm "${ED}"/usr/$(get_libdir)/lib{crypto,ssl}.a || die
+
 	if use fips; then
 		emake DESTDIR="${D}" -j1 install_fips
 		# Regen this in pkg_preinst, bug 900625
 		rm "${ED}${SSL_CNF_DIR}"/fipsmodule.cnf || die
 	fi
 
-	if multilib_is_native_abi; then
+	if openssl_is_default_variant; then
 		emake DESTDIR="${D}" -j1 install_ssldirs
 		emake DESTDIR="${D}" DOCDIR='$(INSTALLTOP)'/share/doc/${PF} -j1 install_docs
 	fi
 
-	# This is crappy in that the static archives are still built even
-	# when USE=static-libs. But this is due to a failing in the openssl
-	# build system: the static archives are built as PIC all the time.
-	# Only way around this would be to manually configure+compile openssl
-	# twice; once with shared lib support enabled and once without.
-	if ! use static-libs ; then
-		rm "${ED}"/usr/$(get_libdir)/lib{crypto,ssl}.a || die
-	fi
+	multilib_prepare_wrappers
+	multilib_check_headers
 }
 
-multilib_src_install_all() {
-	# openssl installs perl version of c_rehash by default, but
-	# we provide a shell version via app-misc/c_rehash
-	rm "${ED}"/usr/bin/c_rehash || die
+src_install() {
+	openssl_run_phase openssl_src_install
+	multilib_install_wrappers
 
 	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
 
