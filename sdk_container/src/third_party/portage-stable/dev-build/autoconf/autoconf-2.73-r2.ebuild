@@ -11,25 +11,31 @@ EAPI=8
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://git.savannah.gnu.org/git/autoconf.git"
 	inherit git-r3
+	AUTOCONF_SLOT="9999"
 else
-	# For _beta handling replace with real version number
-	MY_PV="${PV}"
-	MY_P="${PN}-${MY_PV}"
 	#PATCH_TARBALL_NAME="${PN}-2.70-patches-01"
 
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/zackweinberg.asc
 	inherit verify-sig
 
 	SRC_URI="
-		mirror://gnu/${PN}/${MY_P}.tar.xz
-		https://alpha.gnu.org/pub/gnu/${PN}/${MY_P}.tar.xz
+		mirror://gnu/${PN}/${P}.tar.xz
+		https://alpha.gnu.org/gnu/${PN}/${P}.tar.xz
 		https://meyering.net/ac/${P}.tar.xz
-		verify-sig? ( mirror://gnu/${PN}/${MY_P}.tar.xz.sig )
+		verify-sig? (
+			https://alpha.gnu.org/gnu/${PN}/${P}.tar.xz.sig
+			mirror://gnu/${PN}/${P}.tar.xz.sig
+		)
 	"
-	S="${WORKDIR}"/${MY_P}
 
-	if [[ ${PV} != *_beta* ]] && ! [[ $(ver_cut 3) =~ [a-z] ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	AUTOCONF_EXTRA_VER=$(ver_cut 3)
+	if [[ ${AUTOCONF_EXTRA_VER} -ge 90 ]] ; then
+		# Prereleases get no keywords and their slot bumped up
+		# e.g. SLOT for 2.72(.90) -> 2.73
+		AUTOCONF_SLOT=$(ver_cut 1).$((($(ver_cut 2) + 1)))
+	else
+		AUTOCONF_SLOT=$(ver_cut 1-2)
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 	fi
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-zackweinberg )"
@@ -41,7 +47,7 @@ DESCRIPTION="Used to create autoconfiguration files"
 HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
 
 LICENSE="GPL-3+"
-SLOT="$(ver_cut 1-2)"
+SLOT="${AUTOCONF_SLOT}"
 
 BDEPEND+="
 	>=dev-lang/perl-5.10
@@ -49,17 +55,14 @@ BDEPEND+="
 "
 RDEPEND="
 	${BDEPEND}
-	>=dev-build/autoconf-wrapper-20231224
+	>=dev-build/autoconf-wrapper-20260320
 	sys-devel/gnuconfig
 	!~${CATEGORY}/${P}:2.5
 "
 [[ ${PV} == 9999 ]] && BDEPEND+=" >=sys-apps/texinfo-4.3"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Invoke-autopoint-in-more-situations.patch
-	"${FILESDIR}"/${PN}-2.72-gettext-0.25-autoreconf-Adapt-to-the-on-disk-situation-after-auto.patch
-	"${FILESDIR}"/${PN}-2.72-Port-C11-test-to-C-20.patch
-	"${FILESDIR}"/${PN}-2.72-Port-AC_SYS_LARGEFILE-to-CXX.patch
+	"${FILESDIR}"/${PN}-2.73-maintainer-mode-autoheader.patch
 )
 
 src_prepare() {
@@ -69,12 +72,16 @@ src_prepare() {
 		local ver=$(./build-aux/git-version-gen .tarball-version)
 		echo "${ver}" > .tarball-version || die
 
-		autoreconf -f -i || die
+		export WANT_AUTOCONF=2.5
+		export WANT_AUTOMAKE=1.17
+		# Don't try wrapping the autotools - this thing runs as it tends
+		# to be a bit esoteric, and the script does `set -e` itself.
+		./bootstrap || die
 	fi
 
 	# usr/bin/libtool is provided by binutils-apple, need gnu libtool
 	if [[ ${CHOST} == *-darwin* ]] ; then
-		PATCHES+=( "${FILESDIR}"/${PN}-2.71-darwin.patch )
+		PATCHES+=( "${FILESDIR}"/${PN}-2.73-darwin.patch )
 	fi
 
 	# Save timestamp to avoid later makeinfo call
@@ -96,6 +103,7 @@ src_install() {
 
 	# dissuade Portage from removing our dir file
 	touch "${ED}"/usr/share/${P}/info/.keepinfodir || die
+	docompress -x /usr/share/${P}/info/dir
 
 	local f
 	for f in config.{guess,sub} ; do
