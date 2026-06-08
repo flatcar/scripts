@@ -1,11 +1,11 @@
-# Copyright 2022-2025 Gentoo Authors
+# Copyright 2022-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=standalone
 PYTHON_TESTED=( pypy3_11 python3_{11..14} )
-PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_{13,14}t )
+PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_15 python3_{13..15}t )
 
 inherit distutils-r1
 
@@ -24,7 +24,7 @@ S=${WORKDIR}/${MY_P}/backend
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -35,9 +35,6 @@ RDEPEND="
 	>=dev-python/packaging-24.2[${PYTHON_USEDEP}]
 	>=dev-python/pathspec-0.10.1[${PYTHON_USEDEP}]
 	>=dev-python/pluggy-1.0.0[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep '
-		>=dev-python/tomli-1.2.2[${PYTHON_USEDEP}]
-	' 3.10)
 	dev-python/trove-classifiers[${PYTHON_USEDEP}]
 "
 BDEPEND="
@@ -96,6 +93,6 @@ python_test() {
 		tests/backend/builders/test_binary.py::TestBuildBootstrap::test_no_cargo
 	)
 
-	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
-	epytest -p pytest_mock tests/backend
+	local EPYTEST_PLUGINS=( pytest-mock )
+	epytest tests/backend
 }
