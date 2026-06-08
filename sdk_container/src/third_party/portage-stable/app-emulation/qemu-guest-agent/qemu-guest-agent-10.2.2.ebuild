@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{10..14} )
 PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 inherit edo linux-info python-any-r1 systemd toolchain-funcs udev
