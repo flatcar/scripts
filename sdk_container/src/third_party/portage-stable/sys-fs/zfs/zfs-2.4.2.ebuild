@@ -48,7 +48,7 @@ fi
 
 LICENSE="BSD-2 CDDL MIT modules? ( debug? ( GPL-2+ ) )"
 # just libzfs soname major for now.
-# possible candidates are libzpool and libnvpair. Those do not provide stable abi, but are considered.
+# possible candidates: libuutil, libzpool, libnvpair. Those do not provide stable abi, but are considered.
 # see libsoversion_check() below as well
 SLOT="0/7"
 IUSE="custom-cflags debug dist-kernel minimal nls pam python +rootfs selinux test-suite unwind"
@@ -127,6 +127,7 @@ RESTRICT="test"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.11-gentoo.patch
+	"${FILESDIR}"/2.4.2-properly_apply_ro_rw_mount_option_to_superblock.patch
 )
 
 pkg_pretend() {
@@ -199,8 +200,7 @@ libsoversion_check() {
 	local bugurl libzfs_sover
 	bugurl="https://bugs.gentoo.org/enter_bug.cgi?form_name=enter_bug&product=Gentoo+Linux&component=Current+packages"
 
-	libzfs_sover="$(grep -E 'libzfs_la_LDFLAGS[[:space:]]*\+?=[[:space:]]*-version-info' \
-		lib/libzfs/Makefile.am \
+	libzfs_sover="$(grep 'libzfs_la_LDFLAGS += -version-info' lib/libzfs/Makefile.am \
 		| grep -Eo '[0-9]+:[0-9]+:[0-9]+')"
 	libzfs_sover="${libzfs_sover%%:*}"
 
@@ -317,7 +317,7 @@ src_install() {
 	# bug #965156
 	unset DOCS
 
-	gen_usr_ldscript -a nvpair zfsbootenv zfs zfs_core zpool
+	gen_usr_ldscript -a nvpair uutil zfsbootenv zfs zfs_core zpool
 
 	use pam && { rm -rv "${ED}/unwanted_files" || die ; }
 
