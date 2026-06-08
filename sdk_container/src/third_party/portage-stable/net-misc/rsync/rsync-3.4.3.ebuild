@@ -1,11 +1,11 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 # Uncomment when introducing a patch which touches configure
 RSYNC_NEEDS_AUTOCONF=1
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 inherit flag-o-matic prefix python-single-r1 systemd
 
 DESCRIPTION="File transfer program to keep remote files into sync"
@@ -16,7 +16,7 @@ if [[ ${PV} == *9999 ]] ; then
 
 	REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 else
-	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/waynedavison.asc
+	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/andrewtridgell.asc
 	inherit verify-sig
 
 	if [[ -n ${RSYNC_NEEDS_AUTOCONF} ]] ; then
@@ -37,14 +37,12 @@ fi
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="acl examples iconv lz4 rrsync ssl stunnel system-zlib xattr xxhash zstd"
+IUSE="acl examples iconv lz4 rrsync ssl stunnel system-zlib xattr +xxhash zstd"
 REQUIRED_USE+=" examples? ( ${PYTHON_REQUIRED_USE} )"
 REQUIRED_USE+=" rrsync? ( ${PYTHON_REQUIRED_USE} )"
 
-# attr is autodetected and then dropped by -Wl,--as-needed:
-# https://github.com/RsyncProject/rsync/pull/753
 RDEPEND="
-	>=dev-libs/popt-1.5
+	>=dev-libs/popt-1.19
 	acl? ( virtual/acl )
 	examples? (
 		${PYTHON_DEPS}
@@ -74,13 +72,8 @@ if [[ ${PV} == *9999 ]] ; then
 			dev-python/commonmark[${PYTHON_USEDEP}]
 		')"
 else
-	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-waynedavison )"
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-andrewtridgell )"
 fi
-
-PATCHES=(
-	# Temporary just for the bug #948106 CVE fixes
-	"${FILESDIR}"/3.3.0
-)
 
 pkg_setup() {
 	# - USE=examples needs Python itself at runtime, but nothing else
@@ -114,9 +107,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# Should be fixed upstream in next release (>3.3.0) (bug #943745)
-	append-cflags $(test-flags-CC -std=gnu17)
-
 	local myeconfargs=(
 		--with-rsyncd-conf="${EPREFIX}"/etc/rsyncd.conf
 		--without-included-popt
