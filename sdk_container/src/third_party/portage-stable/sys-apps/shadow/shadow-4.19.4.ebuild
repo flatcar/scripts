@@ -20,7 +20,7 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="BSD GPL-2"
 # Subslot is for libsubid's SONAME.
 SLOT="0/5"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="acl audit nls pam selinux skey split-usr su systemd test xattr"
 RESTRICT="!test? ( test )"
 
@@ -224,7 +224,7 @@ src_install() {
 
 	if use kernel_Hurd ; then
 		# sys-kernel/hurd provides this instead
-		rm "${ED}"/bin/login || die
+		mv "${ED}"/bin/login "${ED}"/bin/login.shadow || die
 	fi
 }
 
