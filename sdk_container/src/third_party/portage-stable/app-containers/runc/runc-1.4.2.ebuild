@@ -7,7 +7,7 @@ inherit go-module linux-info
 
 # update on bump, look for commit ID on release tag.
 # https://github.com/opencontainers/runc
-RUNC_COMMIT=e89a29929c775025419ab0d218a43588b4c12b9a
+RUNC_COMMIT=c241c0bb5e60a8e8c1b2e53d4eca8d0068d8d57e
 
 CONFIG_CHECK="~USER_NS"
 
@@ -37,6 +37,89 @@ BDEPEND="
 # sandboxing disabled: mount-sandbox pid-sandbox ipc-sandbox
 # majority of tests pass
 RESTRICT+=" test"
+
+# Please refer:
+# https://github.com/opencontainers/runc/blob/main/script/check-config.sh
+pkg_setup() {
+	CONFIG_CHECK="
+		~NAMESPACES
+		~NET_NS
+		~PID_NS
+		~IPC_NS
+		~UTS_NS
+		~CGROUPS
+		~CGROUP_CPUACCT
+		~CGROUP_DEVICE
+		~CGROUP_FREEZER
+		~CGROUP_SCHED
+		~CPUSETS
+		~MEMCG
+		~KEYS
+		~VETH
+		~BRIDGE
+		~BRIDGE_NETFILTER
+		~IP_NF_FILTER
+		~IP_NF_TARGET_MASQUERADE
+		~NETFILTER_XT_MATCH_ADDRTYPE
+		~NETFILTER_XT_MATCH_COMMENT
+		~NETFILTER_XT_MATCH_CONNTRACK
+		~NETFILTER_XT_MATCH_IPVS
+		~IP_NF_NAT
+		~NF_NAT
+		~POSIX_MQUEUE
+		~OVERLAY_FS
+	"
+
+	CONFIG_CHECK+="
+		~USER_NS
+	"
+
+	use seccomp && CONFIG_CHECK+="
+		~SECCOMP
+		~SECCOMP_FILTER
+	"
+	WARNING_SECCOMP="CONFIG_SECCOMP is required as optional feature"
+
+	CONFIG_CHECK+="
+		~CGROUP_PIDS
+	"
+	WARNING_CGROUP_PIDS="CONFIG_CGROUP_PIDS is required as optional feature"
+
+	if kernel_is lt 6 1; then
+		CONFIG_CHECK+="
+			~MEMCG_SWAP
+		"
+	fi
+
+	CONFIG_CHECK+="
+		~BLK_CGROUP
+		~BLK_DEV_THROTTLING
+		~CGROUP_PERF
+		~CGROUP_HUGETLB
+		~NET_CLS_CGROUP
+		~CFS_BANDWIDTH
+		~FAIR_GROUP_SCHED
+		~RT_GROUP_SCHED
+		~IP_NF_TARGET_REDIRECT
+		~IP_VS
+		~IP_VS_NFCT
+		~IP_VS_PROTO_TCP
+		~IP_VS_PROTO_UDP
+		~IP_VS_RR
+		~CHECKPOINT_RESTORE
+		~CGROUP_NET_PRIO
+	"
+
+	use selinux && CONFIG_CHECK+="
+		~SECURITY_SELINUX"
+
+	use apparmor && CONFIG_CHECK+="
+		~SECURITY_APPARMOR"
+
+	if [[ -n ${CONFIG_CHECK} ]]; then
+		linux-info_pkg_setup
+	fi
+}
 
 src_compile() {
 	# build up optional flags
