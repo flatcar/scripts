@@ -17,7 +17,7 @@ HOMEPAGE="
 	https://github.com/python/cpython/
 "
 SRC_URI="
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 "
 EGIT_REPO_URI="https://github.com/python/cpython.git"
 EGIT_BRANCH=${PYVER%t}
@@ -44,10 +44,10 @@ RDEPEND="
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
+	sys-apps/util-linux
 	>=virtual/zlib-1.1.3:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
-	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
 		!libedit? ( >=sys-libs/readline-4.1:= )

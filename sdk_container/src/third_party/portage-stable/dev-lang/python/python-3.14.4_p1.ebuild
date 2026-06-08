@@ -12,7 +12,7 @@ inherit autotools check-reqs eapi9-ver flag-o-matic linux-info llvm-r1
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
-MY_PV=${PV/_/}
+MY_PV=${PV}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -24,7 +24,7 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
 		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.sigstore
 	)
@@ -33,7 +33,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm jit libedit +ncurses pgo
 	+readline +sqlite +ssl tail-call-interp test tk valgrind
@@ -55,10 +55,10 @@ RDEPEND="
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
+	sys-apps/util-linux
 	>=virtual/zlib-1.1.3:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
-	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
 		!libedit? ( >=sys-libs/readline-4.1:= )

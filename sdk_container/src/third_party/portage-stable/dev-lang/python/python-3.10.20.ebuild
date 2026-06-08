@@ -19,7 +19,7 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
 		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
 	)
@@ -28,7 +28,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
 	+readline +sqlite +ssl test tk valgrind
@@ -48,11 +48,11 @@ RDEPEND="
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
+	sys-apps/util-linux
 	>=virtual/zlib-1.1.3:=
 	virtual/libcrypt:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
-	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
 		!libedit? ( >=sys-libs/readline-4.1:= )

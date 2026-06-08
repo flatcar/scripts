@@ -11,7 +11,7 @@ inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
 REAL_PV=${PV#0.}
-MY_PV=${REAL_PV/_/}
+MY_PV=${REAL_PV}
 MY_P="Python-${MY_PV%_p*}"
 PYVER="$(ver_cut 2-3)t"
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -23,7 +23,7 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~mgorny/dist/python/${PATCHSET}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
 		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
 	)
@@ -53,10 +53,10 @@ RDEPEND="
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
+	sys-apps/util-linux
 	>=virtual/zlib-1.1.3:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
-	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
 		!libedit? ( >=sys-libs/readline-4.1:= )
