@@ -6,14 +6,13 @@ EAPI=8
 # Bumping notes: https://wiki.gentoo.org/wiki/Project:Toolchain/sys-libs/glibc
 # Please read & adapt the page as necessary if obsolete.
 
-PYTHON_COMPAT=( python3_{10..14} )
+PYTHON_COMPAT=( python3_{11..14} )
 TMPFILES_OPTIONAL=1
 
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
 PATCH_VER=1
-PATCH_DEV=dilfridge
 
 # gcc mulitilib bootstrap files version
 GCC_BOOTSTRAP_VER=20201208
@@ -45,8 +44,8 @@ if [[ ${PV} == *9999 ]]; then
 else
 	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
+	SRC_URI+=" https://distfiles.gentoo.org/pub/proj/toolchain/glibc/patches/${P}-patches-${PATCH_VER}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/glibc/${P}.tar.xz.sig )"
-	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
 
 SRC_URI+=" multilib-bootstrap? ( https://dev.gentoo.org/~dilfridge/distfiles/gcc-multilib-bootstrap-${GCC_BOOTSTRAP_VER}.tar.xz )"
@@ -222,6 +221,7 @@ XFAIL_NSPAWN_TEST_LIST=(
 	tst-aarch64-pkey
 	tst-bz21269
 	tst-mlock2
+	tst-mseal-pkey
 	tst-ntp_gettime
 	tst-ntp_gettime-time64
 	tst-ntp_gettimex
@@ -386,12 +386,22 @@ setup_target_flags() {
 					[[ ${t} == "x86_64" ]] && t="x86-64"
 					filter-flags '-march=*'
 					# ugly, ugly, ugly.  ugly.
-					CFLAGS_x86=$(CFLAGS=${CFLAGS_x86}; filter-flags '-march=*'; echo "${CFLAGS}")
+					CFLAGS_x86=$(
+						CFLAGS=${CFLAGS_x86}
+						filter-flags '-march=*'
+						is-flagq '-mfpmath=sse' && append-cflags -msse
+						echo "${CFLAGS}"
+					)
 					export CFLAGS_x86="${CFLAGS_x86} -march=${t}"
 					einfo "Auto adding -march=${t} to CFLAGS_x86 #185404 (ABI=${ABI})"
 				fi
 				# For compatibility with older binaries at slight performance cost.
 				use stack-realign && export CFLAGS_x86+=" -mstackrealign"
+			fi
+
+			if is_hurd ; then
+				# doesnt build with -march=native and probably other values, debugging required
+				filter-flags '-march=*'
 			fi
 		;;
 		mips)
@@ -840,7 +850,7 @@ sanity_prechecks() {
 			[[ ${I_ALLOW_TO_BREAK_MY_SYSTEM} = yes ]] || die "Aborting to save your system."
 		fi
 
-		if ! do_run_test '#include <unistd.h>\n#include <sys/syscall.h>\nint main(){return syscall(1000)!=-1;}\n' ; then
+		if is_linux && ! do_run_test '#include <unistd.h>\n#include <sys/syscall.h>\nint main(){return syscall(1000)!=-1;}\n' ; then
 			eerror "Your old kernel is broken. You need to update it to a newer"
 			eerror "version as syscall(<bignum>) will break. See bug 279260."
 			[[ ${I_ALLOW_TO_BREAK_MY_SYSTEM} = yes ]] || die "Old and broken kernel."
@@ -897,7 +907,7 @@ sanity_prechecks() {
 			die "Found directory (${ESYSROOT}/usr/lib/include) which will break build (bug #833620)!"
 		fi
 
-		if [[ ${CTARGET} == *-linux* ]] ; then
+		if is_linux ; then
 			local run_kv build_kv want_kv
 
 			run_kv=$(g_get_running_KV)
@@ -1020,8 +1030,10 @@ src_prepare() {
 		eapply "${WORKDIR}"/patches
 		einfo "Done."
 
-		# TODO: Put into our patchset
-		eapply "${FILESDIR}"/glibc-2.43-hurd-link-helpers.patch
+		# Patches we should apply only for Hurd to be conservative
+		if is_hurd ; then
+			eapply "${FILESDIR}"/glibc-2.43-hurd-CLOCK_MONOTONIC.patch
+		fi
 	fi
 
 	case ${CTARGET} in
@@ -1406,7 +1418,7 @@ run_locale_gen() {
 	# number of processors saved in the environment of a binary package may
 	# differ strongly from the number of processes available during postinst
 	if [[ ${EMERGE_FROM} != binary ]]; then
-		localegen_args+=( --jobs "$(makeopts_jobs)" )
+		localegen_args+=( --jobs "$(get_makeopts_jobs)" )
 	fi
 
 	printf 'Executing: locale-gen %s\n' "${localegen_args[*]@Q}" >&2
@@ -1578,14 +1590,25 @@ glibc_do_src_install() {
 		done
 	fi
 
-	if is_hurd && has x86 $(get_install_abis) ; then
-		# On ix86, glibc and (unpatched) gcc disagree about the proper location for the dynamic loader.
-		# Which is maximally stupid since this one information is hardcoded into every single
-		# binary...
+	# On Hurd, glibc and (unpatched) gcc tend to disagree about the proper location for
+	# the dynamic loader. Which is maximally stupid since this one information is hardcoded
+	# into every single binary, and even if we were to fix *our* gcc it could still prevent
+	# us from running binaries prepared anywhere else...
 
+	if is_hurd && has amd64 $(get_install_abis) ; then
 		# First, let's check for sanity
-		if [[ -f "$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
-			die "Somehow your hurd glibc installed a literal ld.so ... this should not happen."
+		if [[ -f "${D}/$(alt_prefix)/lib/ld-x86-64.so.1" ]] ; then
+			die "Somehow your amd64 hurd glibc installed /lib/ld-x86-64.so.1 ... this should not happen."
+		fi
+
+		# Then make a compatibility symlink.
+		dosym ../lib64/ld-x86-64.so.1 "$(alt_prefix)/lib/ld-x86-64.so.1"
+	fi
+
+	if is_hurd && has x86 $(get_install_abis) ; then
+		# First, let's check for sanity
+		if [[ -f "${D}/$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
+			die "Somehow your x86 hurd glibc installed ld.so ... this should not happen."
 		fi
 
 		# Then make a compatibility symlink.
