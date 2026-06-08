@@ -9,7 +9,7 @@ EAPI=8
 #
 # Also recommend subscribing to the coreutils and bug-coreutils MLs.
 
-PYTHON_COMPAT=( python3_{11..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/coreutils.asc
 inherit branding flag-o-matic python-any-r1 toolchain-funcs verify-sig
 
@@ -23,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 elif [[ ${PV} == *_p* ]] ; then
 	# Note: could put this in devspace, but if it's gone, we don't want
 	# it in tree anyway. It's just for testing.
-	MY_SNAPSHOT="$(ver_cut 1-2).327-71a8c"
+	MY_SNAPSHOT="$(ver_cut 1-2).299-27a7c"
 	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
 	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
@@ -33,7 +33,7 @@ else
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
 
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
@@ -118,7 +118,6 @@ src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}"/${PN}-9.5-skip-readutmp-test.patch
 		# Upstream patches
-		"${FILESDIR}"/${PN}-9.10-dash-tests.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
@@ -175,6 +174,11 @@ src_configure() {
 		myconf+=( --with-libgmp-prefix="${ESYSROOT}"/usr )
 	fi
 
+	# https://savannah.gnu.org/support/?111394
+	# This can be removed when we patch dev-build/autoconf, though
+	# packages w/o eautoreconf will still need it.
+	[[ ${enable_year2038} == "no" ]] && myconf+=( --disable-year2038 )
+
 	if tc-is-cross-compiler && [[ ${CHOST} == *linux* ]] ; then
 		# bug #311569
 		export fu_cv_sys_stat_statfs2_bsize=yes
@@ -191,9 +195,7 @@ src_configure() {
 		sed -i '/elf_sys=yes/s:yes:no:' configure || die
 	fi
 
-	# TODO: Drop CONFIG_SHELL for bash after 9.10
-	# https://cgit.git.savannah.gnu.org/cgit/coreutils.git/commit/?id=a72ad1216d8cf96be542e2e7a4dd1d6151d6087b
-	CONFIG_SHELL="${BROOT}"/bin/bash econf "${myconf[@]}"
+	econf "${myconf[@]}"
 }
 
 src_test() {
