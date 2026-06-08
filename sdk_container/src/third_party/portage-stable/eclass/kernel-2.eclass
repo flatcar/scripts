@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kernel-2.eclass
@@ -208,19 +208,19 @@
 # @DEFAULT_UNSET
 # @OUTPUT_VARIABLE
 # @DESCRIPTION:
-# Kernel major version from <KV_MAJOR>.<KV_MINOR>.<KV_PATCH
+# Kernel major version from <KV_MAJOR>.<KV_MINOR>.<KV_PATCH>
 
 # @ECLASS_VARIABLE: KV_MINOR
 # @DEFAULT_UNSET
 # @OUTPUT_VARIABLE
 # @DESCRIPTION:
-# Kernel minor version from <KV_MAJOR>.<KV_MINOR>.<KV_PATCH
+# Kernel minor version from <KV_MAJOR>.<KV_MINOR>.<KV_PATCH>
 
 # @ECLASS_VARIABLE: KV_PATCH
 # @DEFAULT_UNSET
 # @OUTPUT_VARIABLE
 # @DESCRIPTION:
-# Kernel patch version from <KV_MAJOR>.<KV_MINOR>.<KV_PATCH
+# Kernel patch version from <KV_MAJOR>.<KV_MINOR>.<KV_PATCH>
 
 # @ECLASS_VARIABLE: LINUX_HOSTCFLAGS
 # @DEFAULT_UNSET
@@ -373,7 +373,7 @@ handle_genpatches() {
 			UNIPATCH_LIST_GENPATCHES+=" ${DISTDIR}/${tarball}"
 			debug-print "genpatches tarball: ${tarball}"
 		fi
-		GENPATCHES_URI+=" ${use_cond_start}$(echo https://dev.gentoo.org/~{alicef,mpagano}/dist/genpatches/${tarball})${use_cond_end}"
+		GENPATCHES_URI+=" ${use_cond_start}$(echo https://distfiles.gentoo.org/pub/proj/kernel/genpatches/${tarball} https://dev.gentoo.org/~{alicef,mpagano}/dist/genpatches/${tarball})${use_cond_end}"
 	done
 }
 
@@ -659,6 +659,7 @@ if [[ ${ETYPE} == sources ]]; then
 		dev-build/make
 		sys-devel/bison
 		sys-devel/flex
+		sys-libs/binutils-libs
 		>=sys-libs/ncurses-5.2
 		virtual/libelf
 		virtual/pkgconfig
@@ -666,7 +667,7 @@ if [[ ${ETYPE} == sources ]]; then
 
 	SLOT=${SLOT:=${PVR}}
 	DESCRIPTION="Sources based on the Linux Kernel"
-	IUSE="symlink build"
+	IUSE="symlink build vanilla"
 
 	# Bug #266157, deblob for libre support
 	if [[ -z ${K_PREDEBLOBBED} ]]; then
@@ -1114,6 +1115,29 @@ unipatch() {
 			fi
 		fi
 
+        # If we use genpatches, let's make sure it includes the
+        # kernel patch for the version we are trying to install
+        # This is a sanity check to make sure the genpatches version
+        # in the ebuild is correct
+        #
+        # Iterate through patch and look for OKV
+        if [[ -n "${K_WANT_GENPATCHES}" ]]; then
+            KV_PATCH_FOUND=
+            while IFS= read -r -d '' file; do
+                filename="${file##*/}"
+                if [[ "$filename" == *"${OKV}"* ]]; then
+                    KV_PATCH_FOUND=yes
+                    break;
+                fi
+            done < <(find "$KPATCH_DIR" -type f -print0)
+
+            if [[ -z ${KV_PATCH_FOUND} ]]; then
+                eerror "GENPATCHES does not contain linux patch ${OKV}"
+                eerror "Please check your ebuild for the proper K_GENPATCHES_VER=N"
+                die "GENPATCHES appears to be missing Linux patch ${OKV}"
+            fi
+        fi
+
 		# If experimental was not chosen by the user, drop experimental patches not in K_EXP_GENPATCHES_LIST.
 		if [[ ${i} == *genpatches-*.experimental.* && -n ${K_EXP_GENPATCHES_PULL} ]]; then
 			if [[ -z ${K_EXP_GENPATCHES_NOUSE} ]] && use experimental; then
@@ -1210,10 +1234,25 @@ unipatch() {
 	# So now lets get rid of the patch numbers we want to exclude
 	UNIPATCH_DROP="${UNIPATCH_EXCLUDE} ${UNIPATCH_DROP}"
 	for i in ${UNIPATCH_DROP}; do
-		ebegin "Excluding Patch #${i}"
+		ebegin "Excluding Patch ${i}"
 		for x in ${KPATCH_DIR}; do rm -f ${x}/${i}* 2>/dev/null; done
 		eend $?
 	done
+
+	# for USE=vanilla, remove non-upstream patches
+	# which should be labeled as 1000_ through 1499_
+	if in_iuse vanilla && use vanilla; then
+		for patch in ${KPATCH_DIR}/*; do
+			patchname="${patch##*/}" # Extract filename without path
+			numericprefix="${patchname:0:4}" # Get first 4 characters
+			# Check if it's exactly 4 digits and greater than 1499
+			if [[ $numericprefix =~ ^[0-9]{4}$ ]] && (( numericprefix > 1499 )); then
+				ebegin "Excluding Patch ${patchname}"
+				rm ${patch} 2>/dev/null
+				eend $?
+			fi
+		done
+	fi
 
 	# and now, finally, we patch it :)
 	for x in ${KPATCH_DIR}; do
