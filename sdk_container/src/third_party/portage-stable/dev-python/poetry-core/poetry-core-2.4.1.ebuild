@@ -6,7 +6,7 @@ EAPI=8
 DISTUTILS_USE_PEP517=standalone
 PYPI_VERIFY_REPO=https://github.com/python-poetry/poetry-core
 PYTHON_TESTED=( pypy3_11 python3_{11..14} )
-PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" )
+PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_15 )
 
 inherit distutils-r1 pypi
 
@@ -27,7 +27,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	>=dev-python/fastjsonschema-2.21.2[${PYTHON_USEDEP}]
 	>=dev-python/lark-1.3.1[${PYTHON_USEDEP}]
-	>=dev-python/packaging-25.0[${PYTHON_USEDEP}]
+	>=dev-python/packaging-26.2[${PYTHON_USEDEP}]
 "
 BDEPEND="
 	${RDEPEND}
