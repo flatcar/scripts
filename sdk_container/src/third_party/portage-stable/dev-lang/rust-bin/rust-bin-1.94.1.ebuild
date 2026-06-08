@@ -3,7 +3,7 @@
 
 EAPI=8
 
-LLVM_COMPAT=( 22 )
+LLVM_COMPAT=( 21 )
 LLVM_OPTIONAL="yes"
 
 inherit edo llvm-r1 multilib prefix rust-toolchain verify-sig multilib-minimal optfeature
@@ -22,9 +22,9 @@ elif [[ ${PV} == *beta* ]]; then
 else
 	# curl -Ls static.rust-lang.org/dist/channel-rust-${PV}.toml | grep "xz_url.*rust-src"
 	SRC_URI="$(rust_all_arch_uris "rust-${PV}")
-		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2026-03-05/rust-src-${PV}.tar.xz )
+		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2026-03-26/rust-src-${PV}.tar.xz )
 	"
-	KEYWORDS=""~mips # ~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86""
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~s390 ~x86" # "~mips ~sparc"
 fi
 
 GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PVR}" # omit trailing slash
