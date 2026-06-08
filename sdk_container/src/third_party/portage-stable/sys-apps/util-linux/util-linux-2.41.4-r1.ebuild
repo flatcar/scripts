@@ -23,7 +23,7 @@ else
 	inherit verify-sig
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos"
+		KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos"
 	fi
 
 	SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PV:0:4}/${MY_P}.tar.xz"
@@ -32,7 +32,9 @@ fi
 
 S="${WORKDIR}/${MY_P}"
 
-LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
+# GPL-2+ first per README.licensing ("default license"), then the rest
+# are in order as listed in that file.
+LICENSE="GPL-2+ GPL-1+ GPL-2 GPL-2+ GPL-3+ LGPL-2.1+ MIT BSD-2 BSD BSD-4 EUPL-1.2 public-domain"
 SLOT="0"
 IUSE="audit build caps +cramfs cryptsetup fdformat +hardlink kill +logger magic ncurses nls pam python +readline rtas selinux slang static-libs +su +suid systemd test tty-helpers udev unicode uuidd"
 
@@ -87,6 +89,7 @@ RDEPEND+="
 	)
 	uuidd? (
 		acct-user/uuidd
+		selinux? ( sec-policy/selinux-uuidd )
 		systemd? ( virtual/tmpfiles )
 	)
 	!net-wireless/rfkill
@@ -101,6 +104,10 @@ fi
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.41.4-no-AF_ALG.patch
+)
 
 pkg_pretend() {
 	if use su && ! use suid ; then
@@ -155,6 +162,9 @@ src_prepare() {
 
 			# Hangs on some machines
 			script/replay
+
+			# Fails for 32-bit time_t which some profiles have
+			misc/time_t
 		)
 
 		# debug prints confuse the tests which look for a diff
@@ -355,6 +365,11 @@ multilib_src_configure() {
 			--enable-agetty
 		)
 	fi
+
+	# https://savannah.gnu.org/support/?111394
+	# This can be removed when we patch dev-build/autoconf, though
+	# packages w/o eautoreconf will still need it.
+	[[ ${enable_year2038} == "no" ]] && myeconfargs+=( --disable-year2038 )
 
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
 
