@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -26,9 +26,14 @@ BDEPEND="
 	dev-libs/libxslt
 	virtual/pkgconfig
 "
+RDEPEND+=" selinux? ( sec-policy/selinux-bubblewrap )"
 
 # tests require root privileges
 RESTRICT="test"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.11.2-no-werror.patch
+)
 
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
@@ -43,6 +48,8 @@ src_configure() {
 		-Dbash_completion_dir="$(get_bashcompdir)"
 		-Dman=enabled
 		-Dtests=false
+		# whether bwrap will run under suid mode
+		-Dsupport_setuid=$(usex suid true false)
 		-Dzsh_completion=enabled
 		$(meson_feature selinux)
 	)
