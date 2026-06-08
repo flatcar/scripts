@@ -34,8 +34,9 @@ else
 		"${FILESDIR}/0016-docs-Add-re-added-platforms-to-docs-to-pass-tests.patch"
 		"${FILESDIR}/0017-usr-share-oem-oem.patch"
 		"${FILESDIR}/0018-internal-exec-stages-mount-Mount-oem.patch"
-		"${FILESDIR}/0019-stages-disks-Make-getRealStartAndSize-return-a-map-l.patch"
-		"${FILESDIR}/0020-stages-disks-Allow-partx-to-fail-then-check-the-stat.patch"
+		"${FILESDIR}/0019-stages-disks-Fix-handling-of-device-mapper-when-part.patch"
+		"${FILESDIR}/0020-stages-disks-Fix-giving-partition-number-0-to-get-th.patch"
+		"${FILESDIR}/0021-stages-disks-Allow-partx-to-fail-then-check-the-stat.patch"
 	)
 fi
 
