@@ -1,6 +1,22 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2026-05-04)
+# Unkeyworded dependencies
+sys-kernel/dracut test
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2026-05-04)
+# Unkeyworded dependencies
+sys-fs/mdadm corosync
+
+# Alfred Wingate <parona@protonmail.com> (2026-05-03)
+# dev-libs/libthai not keyworded here
+x11-libs/pango libthai
+
+# Sam James <sam@gentoo.org> (2026-04-11)
+# Unkeyworded dependencies
+sys-libs/libcap-ng bpf
+
 # Robin H. Johnson <robbat2@gentoo.org> (2026-03-22)
 # sys-block/vdo not keyworded here
 sys-fs/lvm2 vdo
@@ -52,10 +68,6 @@ net-mail/dovecot cdb
 # NRK <nrk@disroot.org> (2025-04-07)
 # media-libs/libyuv is not keyworded
 media-libs/imlib2 y4m
-
-# Cristian Othón Martínez Vera <cfuga@cfuga.mx> (2025-04-09)
-# dev-db/tinycdb is not keyworded here
-mail-mta/sendmail tinycdb
 
 # NRK <nrk@disroot.org> (2025-03-17)
 # media-libs/libavif is not keyworded
@@ -137,10 +149,6 @@ dev-libs/mongo-c-driver test
 # net-libs/grpc not keyworded here
 app-admin/syslog-ng grpc
 
-# Nowa Ammerlaan <nowa@gentoo.org> (2024-01-12)
-# dracut is not keyworded here
-sys-kernel/installkernel dracut
-
 # Sam James <sam@gentoo.org> (2024-01-02)
 # dev-libs/capstone not keyworded here
 dev-lang/php capstone
@@ -156,10 +164,11 @@ media-libs/libv4l bpf
 # Michał Górny <mgorny@gentoo.org> (2023-10-15)
 # Need dev-python/notebook (that indirectly requires net-libs/nodejs).
 dev-python/ipython notebook
+dev-python/matplotlib-inline test
 dev-python/nbclient test
 dev-python/nbconvert test
 
-# Violet Purcell <vimproved@inventati.org> (2023-10-12)
+# Violet Purcell <vi@vimproved.dev> (2023-10-12)
 # dev-build/samurai is not keyworded here.
 app-alternatives/ninja samurai
 
