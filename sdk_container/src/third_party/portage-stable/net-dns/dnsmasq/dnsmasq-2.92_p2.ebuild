@@ -1,15 +1,20 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 LUA_COMPAT=( lua5-{1..4} luajit )
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/simonkelley.asc
+inherit toolchain-funcs lua-single systemd verify-sig
 
-inherit toolchain-funcs lua-single systemd
-
+MY_P="${P/_p/rel}"
 DESCRIPTION="Small forwarding DNS server"
 HOMEPAGE="https://thekelleys.org.uk/dnsmasq/doc.html"
-SRC_URI="https://thekelleys.org.uk/dnsmasq/${P}.tar.xz"
+SRC_URI="
+	https://thekelleys.org.uk/dnsmasq/${MY_P}.tar.xz
+	verify-sig? ( https://thekelleys.org.uk/dnsmasq/${MY_P}.tar.xz.asc )
+"
+S="${WORKDIR}"/${MY_P}
 
 LICENSE="|| ( GPL-2 GPL-3 )"
 SLOT="0"
@@ -24,6 +29,7 @@ BDEPEND="
 	app-arch/xz-utils
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )
+	verify-sig? ( sec-keys/openpgp-keys-simonkelley )
 "
 
 COMMON_DEPEND="
