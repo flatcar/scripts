@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -33,6 +33,7 @@ RDEPEND="
 	>=app-containers/conmon-2.1.10
 	>=app-containers/containers-common-0.58.0-r1
 	app-crypt/gpgme:=
+	dev-db/sqlite:3
 	dev-libs/libassuan:=
 	dev-libs/libgpg-error:=
 	sys-apps/shadow:=
@@ -88,7 +89,7 @@ src_prepare() {
 }
 
 src_compile() {
-	export PREFIX="${EPREFIX}/usr" BUILD_ORIGIN="Gentoo Portage"
+	export ETCDIR="${EPREFIX}/etc" PREFIX="${EPREFIX}/usr" BUILD_ORIGIN="Gentoo Portage"
 
 	# For non-live versions, prevent git operations which causes sandbox violations
 	# https://github.com/gentoo/gentoo/pull/33531#issuecomment-1786107493
