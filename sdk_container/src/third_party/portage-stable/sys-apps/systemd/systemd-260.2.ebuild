@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -24,7 +24,7 @@ else
 	fi
 fi
 
-inherit branding linux-info meson-multilib optfeature pam python-single-r1
+inherit branding flag-o-matic linux-info meson-multilib optfeature pam python-single-r1
 inherit secureboot shell-completion systemd toolchain-funcs udev
 
 DESCRIPTION="System and service manager for Linux"
@@ -34,7 +34,7 @@ LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
 	acl apparmor audit boot bpf cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnutls homed idn importd +kernel-install +kmod +lz4 lzma
+	fido2 +gcrypt gnutls homed idn importd +kernel-install +kmod +libarchive +lz4 lzma
 	+openssl pam passwdqc pcre pkcs11 policykit pwquality qrcode remote
 	+resolvconf +seccomp selinux sysv-utils test tpm ukify vanilla xkb +zstd
 "
@@ -44,7 +44,7 @@ REQUIRED_USE="
 	dns-over-tls? ( openssl )
 	fido2? ( cryptsetup openssl )
 	homed? ( cryptsetup pam openssl )
-	importd? ( curl lzma openssl )
+	importd? ( curl libarchive lzma openssl )
 	?? ( passwdqc pwquality )
 	passwdqc? ( homed )
 	pwquality? ( homed )
@@ -84,6 +84,7 @@ COMMON_DEPEND="
 		virtual/zlib:=
 	)
 	kmod? ( >=sys-apps/kmod-15:0= )
+	libarchive? ( >=app-arch/libarchive-3.0:0= )
 	lz4? ( >=app-arch/lz4-0_p131:0= )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0= )
 	openssl? ( >=dev-libs/openssl-3.0.0:0= )
@@ -206,7 +207,6 @@ pkg_pretend() {
 			~CGROUP_BPF ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
 			~TIMERFD ~TMPFS_XATTR ~UNIX ~USER_NS
-			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
 			~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
 			~!SYSFS_DEPRECATED_V2"
 
@@ -256,8 +256,6 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-260-mips.patch"
-		"${FILESDIR}/systemd-260-kernel-install.patch"
 	)
 
 	if ! use vanilla; then
@@ -272,6 +270,20 @@ src_prepare() {
 src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
 	tc-export AR CC NM OBJCOPY RANLIB
+
+	# Our toolchain sets F_S=2 by default w/ >= -O2, so we need
+	# to unset F_S first, then explicitly set 2, to negate any default
+	# and anything set by the user if they're choosing 3 (or if they've
+	# modified GCC to set 3).
+	#
+	# malloc_usable_size doesn't play well with _F_S=3:
+	#  https://github.com/systemd/systemd/issues/41459 (bug #971773)
+	if tc-is-clang && tc-enables-fortify-source ; then
+		# We can't unconditionally do this b/c we fortify needs
+		# some level of optimisation.
+		filter-flags -D_FORTIFY_SOURCE=3
+		append-cppflags -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+	fi
 
 	python_setup
 
@@ -343,6 +355,7 @@ multilib_src_configure() {
 			$(meson_feature importd zlib)
 			$(meson_use kernel-install)
 			$(meson_feature kmod)
+			$(meson_feature libarchive)
 			$(meson_feature lz4)
 			$(meson_feature lzma xz)
 			$(meson_feature zstd)
@@ -535,16 +548,18 @@ pkg_postinst() {
 
 	# Keep this here in case the database format changes so it gets updated
 	# when required.
-	systemd-hwdb --root="${ROOT}" update
-
+	udev_hwdb_update || FAIL=1
 	udev_reload || FAIL=1
 
 	# Bug 465468, make sure locales are respected, and ensure consistency
 	# between OpenRC & systemd
 	migrate_locale
 
-	# Bug 971385
-	systemd_reenable getty@.service
+	# Bug 971385, 974688
+	local autovt=${EROOT}/etc/systemd/system/autovt@.service
+	if [[ ! -e ${autovt} && ! -L ${autovt} ]]; then
+		ln -s "${EPREFIX}/usr/lib/systemd/system/getty@.service" "${autovt}" || FAIL=1
+	fi
 
 	if [[ -z ${REPLACING_VERSIONS} ]]; then
 		if type systemctl &>/dev/null; then
