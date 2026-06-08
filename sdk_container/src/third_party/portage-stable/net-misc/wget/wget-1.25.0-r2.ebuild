@@ -68,6 +68,10 @@ DOCS=( AUTHORS MAILING-LIST NEWS README )
 # gnulib FPs
 QA_CONFIG_IMPL_DECL_SKIP=( unreachable MIN alignof static_assert fpurge )
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.25.0-openssl-4.patch
+)
+
 pkg_setup() {
 	use test && python-any-r1_pkg_setup
 }
