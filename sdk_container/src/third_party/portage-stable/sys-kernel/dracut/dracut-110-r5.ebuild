@@ -8,12 +8,12 @@ inherit cargo flag-o-matic bash-completion-r1 edo optfeature systemd toolchain-f
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/dracut-ng/dracut-ng"
+	EGIT_REPO_URI="https://github.com/dracut/dracut-ng"
 else
 	if [[ "${PV}" != *_rc* ]]; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 	fi
-	SRC_URI="https://github.com/dracut-ng/dracut-ng/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/dracut-ng/dracut/archive/refs/tags/${PV}.tar.gz -> ${P}-r1.tar.gz"
 fi
 
 DESCRIPTION="Generic initramfs generation tool"
@@ -104,9 +104,9 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
 	# Gentoo specific acct-user and acct-group conf adjustments
-	"${FILESDIR}"/${PN}-108-acct-user-group-gentoo.patch
-	# https://github.com/dracut-ng/dracut-ng/pull/1122#issuecomment-3192110686
-	"${FILESDIR}"/${PN}-108-disable-ukify-magic.patch
+	"${FILESDIR}"/${PN}-110-acct-user-group-gentoo.patch
+	"${FILESDIR}"/${PN}-110-set-defaults.patch
+	"${FILESDIR}"/${P}-dash-printf.patch
 )
 
 pkg_setup() {
@@ -115,11 +115,12 @@ pkg_setup() {
 
 src_configure() {
 	local myconf=(
+		--bashcompletiondir="$(get_bashcompdir)"
+		--disable-dracut-cpio
+		--enable-network-legacy
 		--prefix="${EPREFIX}/usr"
 		--sysconfdir="${EPREFIX}/etc"
-		--bashcompletiondir="$(get_bashcompdir)"
 		--systemdsystemunitdir="$(systemd_get_systemunitdir)"
-		--disable-dracut-cpio
 	)
 
 	if ! has_version -b dev-ruby/asciidoctor; then
