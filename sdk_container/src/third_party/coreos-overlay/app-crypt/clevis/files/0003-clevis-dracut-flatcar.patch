@@ -1,3 +1,13 @@
+From 8a78144072d0c2d085e06b64f362eb3f0b4ecdf5 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Wed, 10 Jun 2026 11:12:14 +0200
+Subject: [PATCH 3/4] clevis dracut flatcar
+
+---
+ src/dracut/clevis-pin-tang/module-setup.sh.in | 2 +-
+ src/dracut/clevis/module-setup.sh.in          | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
 diff --git a/src/dracut/clevis-pin-tang/module-setup.sh.in b/src/dracut/clevis-pin-tang/module-setup.sh.in
 index 929b878..c48e282 100755
 --- a/src/dracut/clevis-pin-tang/module-setup.sh.in
@@ -23,3 +33,6 @@ index dbce790..c9581db 100755
          clevis-luks-common-functions \
          grep sed cut \
          clevis-decrypt \
+-- 
+2.53.0
+

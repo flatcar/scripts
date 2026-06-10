@@ -12,7 +12,7 @@ SRC_URI="https://github.com/latchset/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64 arm64"
 IUSE="+luks +tpm"
 
 # Flatcar: add dependency for Dracut module
@@ -28,7 +28,7 @@ DEPEND="
 	tpm? ( app-crypt/tpm2-tools )
 "
 # Flatcar: The Clevis meson build will not build certain features if certain executables are not found at build time, such as `tpm2_createprimary`.
-# The meson function `find_program` that checks for the existence of the executables does not seem to search paths under ${ROOT}, but rather 
+# The meson function `find_program` that checks for the existence of the executables does not seem to search paths under ${ROOT}, but rather
 # under `/`. A fix to make meson find all binaries and include all desired features is to install such runtime dependencies into the SDK.
 BDEPEND="
 	luks? (
@@ -43,15 +43,17 @@ RDEPEND="${DEPEND}"
 PATCHES=(
 	# From https://github.com/latchset/clevis/pull/347
 	# Allows using dracut without systemd
-	"${FILESDIR}/clevis-dracut.patch"
+	"${FILESDIR}/0001-clevis-dracut.patch"
 	# Fix for systemd on Gentoo
-	"${FILESDIR}/clevis-meson.patch"
-	# Flatcar: 
-	# * install `clevis-pin-tang` dracut module in the absence of dracut `network` 
+	"${FILESDIR}/0002-clevis-meson.patch"
+	# Flatcar:
+	# * install `clevis-pin-tang` dracut module in the absence of dracut `network`
 	#   module; Flatcar uses a custom network module
-	# * skip copying `/etc/services` into initramfs when installing `clevis` dracut 
+	# * skip copying `/etc/services` into initramfs when installing `clevis` dracut
 	# 	module, which would fail
-	"${FILESDIR}/clevis-dracut-flatcar.patch"
+	"${FILESDIR}/0003-clevis-dracut-flatcar.patch"
+	# Fix ordering issue that appeared in dracut 110.
+	"${FILESDIR}/0004-Fix-for-dracut-110.patch"
 )
 
 post_src_install() {

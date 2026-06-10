@@ -1,3 +1,37 @@
+From 50bbfab9efc6b06ddcc3b2f9ccb06854205c9d2d Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Wed, 10 Jun 2026 11:10:26 +0200
+Subject: [PATCH 1/4] clevis-dracut
+
+---
+ .../dracut/clevis-pin-sss/meson.build         |  0
+ .../dracut/clevis-pin-sss/module-setup.sh.in  |  0
+ .../dracut/clevis-pin-tang/meson.build        |  0
+ .../dracut/clevis-pin-tang/module-setup.sh.in |  0
+ .../dracut/clevis-pin-tpm2/meson.build        |  0
+ .../dracut/clevis-pin-tpm2/module-setup.sh.in |  0
+ src/dracut/clevis/clevis-hook.sh.in           |  3 +
+ .../clevis/clevis-luks-generic-unlocker       | 70 +++++++++++++++++++
+ .../systemd => }/dracut/clevis/meson.build    |  1 +
+ .../dracut/clevis/module-setup.sh.in          | 19 +++--
+ src/{luks/systemd => }/dracut/meson.build     |  1 -
+ .../systemd/dracut/clevis/clevis-hook.sh.in   |  2 -
+ src/luks/systemd/meson.build                  |  1 -
+ src/meson.build                               |  1 +
+ 14 files changed, 90 insertions(+), 8 deletions(-)
+ rename src/{luks/systemd => }/dracut/clevis-pin-sss/meson.build (100%)
+ rename src/{luks/systemd => }/dracut/clevis-pin-sss/module-setup.sh.in (100%)
+ rename src/{luks/systemd => }/dracut/clevis-pin-tang/meson.build (100%)
+ rename src/{luks/systemd => }/dracut/clevis-pin-tang/module-setup.sh.in (100%)
+ rename src/{luks/systemd => }/dracut/clevis-pin-tpm2/meson.build (100%)
+ rename src/{luks/systemd => }/dracut/clevis-pin-tpm2/module-setup.sh.in (100%)
+ create mode 100755 src/dracut/clevis/clevis-hook.sh.in
+ create mode 100755 src/dracut/clevis/clevis-luks-generic-unlocker
+ rename src/{luks/systemd => }/dracut/clevis/meson.build (87%)
+ rename src/{luks/systemd => }/dracut/clevis/module-setup.sh.in (76%)
+ rename src/{luks/systemd => }/dracut/meson.build (78%)
+ delete mode 100755 src/luks/systemd/dracut/clevis/clevis-hook.sh.in
+
 diff --git a/src/luks/systemd/dracut/clevis-pin-sss/meson.build b/src/dracut/clevis-pin-sss/meson.build
 similarity index 100%
 rename from src/luks/systemd/dracut/clevis-pin-sss/meson.build
@@ -214,3 +248,6 @@ index c4e696f..a0dff5b 100644
  subdir('initramfs-tools')
  
  bins += join_paths(meson.current_source_dir(), 'clevis-decrypt')
+-- 
+2.53.0
+
