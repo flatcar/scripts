@@ -169,6 +169,8 @@ export BOOTLOADER_MODE="${BOOTLOADER_MODE:-uki}"
 export IMAGE_VERSION="${IMAGE_VERSION:-}"
 export IMAGE_VERSION_ID="${IMAGE_VERSION_ID:-}"
 export IMAGE_BUILD_ID="${IMAGE_BUILD_ID:-}"
+# Extra kernel cmdline args baked into a UKI debug addon (e.g., for boot profiling)
+export EXTRA_KERNEL_CMDLINE="${EXTRA_KERNEL_CMDLINE:-}"
 
 # Pipeline build identifier — used for deterministic gallery image versions in CI.
 BUILD_ID="${BUILD_ID:-}"

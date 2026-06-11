@@ -289,6 +289,7 @@ OSREL
     _uki_build_firstboot_addon "${ESP_DIR}" "${uki_name}"
     _uki_build_fips_addon "${ESP_DIR}"
     _uki_build_kdump_addon "${ESP_DIR}"
+    _uki_build_debug_addon "${ESP_DIR}" "${uki_name}"
 
     # Clean up
     rm -rf "${uki_temp_dir}"
@@ -405,6 +406,49 @@ _uki_build_kdump_addon() {
     info "UKI/RPM: To enable kdump, copy to EFI/Linux/acl.efi.extra.d/kdump.addon.efi"
 
     rm -rf "${kdump_temp_dir}"
+}
+
+# Build an optional debug addon that appends extra kernel cmdline args.
+# Only built when EXTRA_KERNEL_CMDLINE is set (e.g., via the Dev pipeline
+# for boot performance profiling: systemd.log_level=debug, printk.devkmsg=on, etc.).
+# The addon is installed in the active .extra.d directory so it takes effect
+# on every boot of this image.
+_uki_build_debug_addon() {
+    local esp_dir="$1"
+    local uki_name="$2"
+
+    local extra_cmdline="${EXTRA_KERNEL_CMDLINE:-}"
+    if [[ -z "${extra_cmdline}" ]]; then
+        info "UKI/RPM: EXTRA_KERNEL_CMDLINE not set; skipping debug addon"
+        return 0
+    fi
+
+    info "UKI/RPM: Building debug addon with extra cmdline"
+
+    local addon_dir="${esp_dir}/EFI/Linux/${uki_name}.extra.d"
+    sudo mkdir -p "${addon_dir}"
+
+    local debug_temp_dir
+    debug_temp_dir=$(mktemp -d)
+
+    printf '%s\n' "${extra_cmdline}" > "${debug_temp_dir}/debug-cmdline.txt"
+
+    local efi_stub="${BOARD_ROOT}/usr/lib/systemd/boot/efi/linux${EFI_ARCH}.efi.stub"
+
+    sudo ukify build \
+        --cmdline=@"${debug_temp_dir}/debug-cmdline.txt" \
+        --stub="${efi_stub}" \
+        --output="${debug_temp_dir}/debug.addon.efi"
+
+    if [[ ! -f "${debug_temp_dir}/debug.addon.efi" ]]; then
+        die "UKI/RPM: ukify failed to produce debug.addon.efi"
+    fi
+
+    sudo cp "${debug_temp_dir}/debug.addon.efi" "${addon_dir}/debug.addon.efi"
+    info "UKI/RPM: Installed debug addon → EFI/Linux/${uki_name}.extra.d/debug.addon.efi"
+    info "UKI/RPM: debug cmdline = ${extra_cmdline}"
+
+    rm -rf "${debug_temp_dir}"
 }
 
 info "Installing UKI packages for target ${FLAGS_target}"
