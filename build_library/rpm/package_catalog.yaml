@@ -30,7 +30,6 @@ packages:
     - selinux-policy
     - policycoreutils
     - ca-certificates
-    - irqbalance
   sys-libs/systemd-libs: systemd-libs
   sys-apps/systemd-networkd: systemd-networkd
   net-misc/systemd-networkd: systemd-networkd

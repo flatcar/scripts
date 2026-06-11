@@ -44,28 +44,22 @@ boot_id() {
     ssh_cmd 'cat /proc/sys/kernel/random/boot_id' 2>/dev/null
 }
 
-# Set (or remove) the tag on the VM, then wait for in-guest IMDS to converge.
-#
-# Uses the generic ARM tag endpoint (`az tag update`) rather than
-# `az vm update --set tags.…`. The latter round-trips the whole VM resource
-# through the Compute RP, so it can fail on unrelated VM properties.
+# Set (or remove) the tag on the VM, then wait for in-guest IMDS to converge
 set_selinux_tag() {
     local value="$1"
-    local vm_id
-    vm_id=$(az vm show --resource-group "$VM_RG" --name "$VM_NAME" --query id -o tsv)
     if [[ -z "$value" ]]; then
         info "Removing acl-node-security-profile tag..."
-        az tag update \
-            --resource-id "$vm_id" \
-            --operation delete \
-            --tags "acl-node-security-profile=" \
+        az vm update \
+            --resource-group "$VM_RG" \
+            --name "$VM_NAME" \
+            --remove tags.acl-node-security-profile \
             --output none
     else
         info "Setting acl-node-security-profile=${value}..."
-        az tag update \
-            --resource-id "$vm_id" \
-            --operation merge \
-            --tags "acl-node-security-profile=${value}" \
+        az vm update \
+            --resource-group "$VM_RG" \
+            --name "$VM_NAME" \
+            --set "tags.acl-node-security-profile=${value}" \
             --output none
     fi
     info "Waiting for in-guest IMDS to report tag='${value:-<absent>}'..."

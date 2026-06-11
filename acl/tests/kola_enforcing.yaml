@@ -26,22 +26,16 @@ tests:
       - platforms: [qemu]
         architectures: [aarch64]
         reason: 3-node etcd cluster on TCG-emulated arm64 races systemd's DefaultDeviceTimeoutSec for /dev/disk/by-label/OEM; tracked by the OEM fsck conditional dropin work
-      - platforms: [azure]
-        reason: Azure version depends on discovery.etcd.io, which is unmaintained.
 
   - name: acl.flannel.udp
     exceptions:
       - architectures: [aarch64]
         reason: Flannel UDP coverage is registered only for amd64
-      - platforms: [azure]
-        reason: Azure version depends on discovery.etcd.io, which is unmaintained.
   - name: acl.flannel.vxlan
     exceptions:
       - platforms: [qemu]
         architectures: [aarch64]
         reason: Flakiness on TCG-emulated arm64 in aclmain, failures due to slow device enumeration.
-      - platforms: [azure]
-        reason: Azure version depends on discovery.etcd.io, which is unmaintained.
 
   - name: acl.internet
     exceptions:
@@ -96,9 +90,6 @@ tests:
 
   - name: cl.etcd-member.etcdctlv3
   - name: cl.etcd-member.v2-backup-restore
-    exceptions:
-      - platforms: [azure]
-        reason: Azure version depends on discovery.etcd.io, which is unmaintained.
 
   - name: cl.filesystem
     exceptions:
