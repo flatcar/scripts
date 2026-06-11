@@ -418,7 +418,7 @@ start_vm_qemu() {
     local board="$2"
 
     if [[ "${board}" == "arm64-usr" ]] && ! command -v qemu-system-aarch64 &>/dev/null; then
-        error "qemu-system-aarch64 not found. Install with: sudo apt-get install -y qemu-system-arm"
+        error "qemu-system-aarch64 not found. Install with: sudo tdnf install -y qemu-system-aarch64 (AzL) or sudo apt-get install -y qemu-system-arm (Ubuntu)"
         exit 1
     fi
 
@@ -526,7 +526,7 @@ start_vm_qemu() {
     if [[ -z "$ovmf_code" ]] || [[ -z "$ovmf_vars_template" ]]; then
         if [[ "${board}" == "arm64-usr" ]]; then
             error "AAVMF (aarch64 UEFI) firmware files not found"
-            error "Install with: sudo apt-get install -y qemu-efi-aarch64"
+            error "Install with: sudo tdnf install -y edk2-aarch64"
         else
             error "OVMF firmware files not found"
             error "Install with: sudo apt-get install -y ovmf"
