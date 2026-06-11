@@ -34,6 +34,7 @@ acct-group/root
 acct-group/sgx
 acct-group/shadow
 acct-group/sshd
+acct-group/sssd
 acct-group/systemd-coredump
 acct-group/systemd-journal
 acct-group/systemd-journal-remote
@@ -66,6 +67,7 @@ acct-user/polkitd
 acct-user/portage
 acct-user/root
 acct-user/sshd
+acct-user/sssd
 acct-user/systemd-coredump
 acct-user/systemd-journal-remote
 acct-user/systemd-network
@@ -255,6 +257,7 @@ dev-libs/jansson
 dev-libs/jose
 dev-libs/json-c
 dev-libs/jsoncpp
+dev-libs/leancrypto
 dev-libs/libaio
 dev-libs/libassuan
 dev-libs/libbsd
@@ -375,6 +378,7 @@ dev-python/truststore
 dev-python/typing-extensions
 dev-python/uc-micro-py
 dev-python/urllib3
+dev-python/vcs-versioning
 dev-python/wheel
 
 dev-util/bpftool
@@ -442,6 +446,7 @@ eclass/linux-info.eclass
 eclass/linux-mod-r1.eclass
 eclass/linux-mod.eclass
 eclass/llvm-r1.eclass
+eclass/llvm-r2.eclass
 eclass/llvm-utils.eclass
 eclass/llvm.eclass
 eclass/lua-single.eclass
@@ -500,6 +505,7 @@ eclass/udev.eclass
 eclass/unpacker.eclass
 eclass/user-info.eclass
 eclass/usr-ldscript.eclass
+eclass/vala.eclass
 eclass/vcs-clean.eclass
 eclass/vcs-snapshot.eclass
 eclass/verify-sig.eclass

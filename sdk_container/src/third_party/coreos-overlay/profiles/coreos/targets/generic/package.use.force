@@ -1,0 +1,6 @@
+# Copyright (c) 2026 Flatcar Maintainers. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+# Needed by sys-auth/sssd, needs to be forced, because acl is normally
+# disabled in make.defaults.
+net-fs/cifs-utils acl

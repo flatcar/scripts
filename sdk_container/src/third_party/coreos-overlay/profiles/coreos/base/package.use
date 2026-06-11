@@ -28,9 +28,11 @@ dev-vcs/git -perl -iconv
 # removes mta dependencies
 app-admin/sudo -sendmail
 
-# disable hybrid cgroup as we use the unified mode now
 # use lzma which is the default on non-gentoo systems, enable selinux,
-sys-apps/systemd -cgroup-hybrid curl idn lzma selinux tpm
+#
+# Avoid initrd bloat by using OpenSSL instead of gcrypt in systemd.
+# systemd-journal's FSS feature requires gcrypt, but Flatcar doesn't need it.
+sys-apps/systemd -gcrypt curl idn lzma selinux tpm
 net-libs/libmicrohttpd -ssl
 
 # disable kernel config detection and module building
@@ -160,10 +162,6 @@ sys-kernel/coreos-firmware -initramfs
 # For sys-auth/sssd
 net-dns/bind gssapi
 
-# Avoid initrd bloat by using OpenSSL instead of gcrypt in systemd.
-# systemd-journal's FSS feature requires gcrypt, but Flatcar doesn't need it.
-sys-apps/systemd -gcrypt
-
 # Make dracut module available for initrd build.
 sys-apps/azure-vm-utils dracut
 
@@ -199,3 +197,12 @@ dev-perl/File-Slurper minimal
 
 # This is only needed for debuginfod support, which we masked.
 dev-libs/elfutils -libarchive
+
+# Needed by net-fs/samba
+net-libs/ngtcp2 gnutls
+
+# Pulls in dev-python/mypy, which pulls in even more stuff.
+dev-python/charset-normalizer -native-extensions
+
+# We only use rust for compiling, not for formatting or linting.
+dev-lang/rust -clippy -doc -rustfmt

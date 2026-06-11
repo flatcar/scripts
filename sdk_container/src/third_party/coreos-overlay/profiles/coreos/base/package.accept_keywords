@@ -7,9 +7,6 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# To address CVE-2025-60753
-=app-arch/libarchive-3.8.5 ~amd64 ~arm64
-
 # We always want the latest version available.
 =app-containers/containerd-2.2* ~amd64 ~arm64
 
@@ -25,7 +22,7 @@
 =app-containers/syft-1.18.1 ~amd64 ~arm64
 
 # Seems to be the only available ebuild in portage-stable right now.
-=app-crypt/adcli-0.9.2 ~arm64
+=app-crypt/adcli-0.9.3.1
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
@@ -34,9 +31,6 @@ app-crypt/azure-keyvault-pkcs11
 
 # Needed by arm64-native SDK
 =app-crypt/ccid-1.6.1 ~arm64
-
-# The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
-=app-crypt/clevis-19-r1 **
 
 # Keep versions on both arches in sync.
 =app-crypt/mit-krb5-1.21.3-r1 ~arm64
@@ -58,15 +52,17 @@ dev-cpp/azure-security-keyvault-keys
 # Not stabilised for arm64 yet.
 dev-db/etcd amd64
 
+# To address a bunch of CVEs.
+=dev-lang/go-1.26.3
+
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
+=dev-libs/jose-14
+=dev-libs/libtraceevent-1.9.0
 
-# Needed to address CVE-2025-13601, CVE-2025-14087
-=dev-libs/glib-2.84.4-r2
-
-# The only available ebuild has ~amd64 and no keyword for arm64 yet.
-=dev-libs/jose-14 **
+# To address CVEs.
+=dev-libs/libxml2-2.15.3
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
@@ -85,15 +81,16 @@ dev-db/etcd amd64
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.1.1 ~amd64 ~arm64
 
-# Needed to build with gcc 15
-=net-analyzer/netperf-2.7.0_p20210121-r1
-
 # Keep versions on both arches in sync.
-=net-firewall/conntrack-tools-1.4.8-r1 ~arm64
-
-# Keep versions on both arches in sync.
+=net-firewall/conntrack-tools-1.4.9
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
+
+# Needed to address some CVEs.
+=net-libs/gnutls-3.8.13
+
+# Needed to address a CVE.
+=net-libs/ngtcp2-1.22.1
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
@@ -102,11 +99,7 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.2.1 ~arm64
-
-# Needed to address CVE-2025-11561
-=sys-auth/sssd-2.9.8
-
-# Keep versions on both arches in sync.
+=sys-auth/sssd-2.13.0
 =sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
@@ -114,9 +107,6 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-fs/lxcfs-6.0.5 ~arm64
-
-# Bump early for newer features.
-=sys-kernel/dracut-109* ~amd64 ~arm64
 
 # Our own ebuild fixing issues in Gentoo, hopefully will be fixed
 # there too eventually.

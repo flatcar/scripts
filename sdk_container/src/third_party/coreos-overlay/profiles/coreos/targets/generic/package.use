@@ -25,7 +25,7 @@ sys-fs/lvm2		-readline thin lvm
 sys-libs/pam		audit
 
 # enable journal gateway, bootctl and container features
-sys-apps/systemd audit elfutils gnuefi http importd iptables
+sys-apps/systemd audit elfutils gnuefi remote importd
 
 # epoll is needed for systemd-journal-remote to work. coreos/bugs#919
 net-libs/libmicrohttpd epoll

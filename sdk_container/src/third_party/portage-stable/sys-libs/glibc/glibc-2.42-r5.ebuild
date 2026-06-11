@@ -43,7 +43,7 @@ HOMEPAGE="https://www.gnu.org/software/libc/"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/glibc/${P}.tar.xz.sig )"
 	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
@@ -1377,7 +1377,7 @@ run_locale_gen() {
 	# number of processors saved in the environment of a binary package may
 	# differ strongly from the number of processes available during postinst
 	if [[ ${EMERGE_FROM} != binary ]]; then
-		localegen_args+=( --jobs "$(makeopts_jobs)" )
+		localegen_args+=( --jobs "$(get_makeopts_jobs)" )
 	fi
 
 	printf 'Executing: locale-gen %s\n' "${localegen_args[*]@Q}" >&2
@@ -1549,14 +1549,25 @@ glibc_do_src_install() {
 		done
 	fi
 
-	if is_hurd && has x86 $(get_install_abis) ; then
-		# On ix86, glibc and (unpatched) gcc disagree about the proper location for the dynamic loader.
-		# Which is maximally stupid since this one information is hardcoded into every single
-		# binary...
+	# On Hurd, glibc and (unpatched) gcc tend to disagree about the proper location for
+	# the dynamic loader. Which is maximally stupid since this one information is hardcoded
+	# into every single binary, and even if we were to fix *our* gcc it could still prevent
+	# us from running binaries prepared anywhere else...
 
+	if is_hurd && has amd64 $(get_install_abis) ; then
+		# First, let's check for sanity
+		if [[ -f "$(alt_prefix)/lib/ld-x86-64.so.1" ]] ; then
+			die "Somehow your amd64 hurd glibc installed /lib/ld-x86-64.so.1 ... this should not happen."
+		fi
+
+		# Then make a compatibility symlink.
+		dosym ../lib64/ld-x86-64.so.1 "$(alt_prefix)/lib/ld-x86-64.so.1"
+	fi
+
+	if is_hurd && has x86 $(get_install_abis) ; then
 		# First, let's check for sanity
 		if [[ -f "$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
-			die "Somehow your hurd glibc installed a literal ld.so ... this should not happen."
+			die "Somehow your x86 hurd glibc installed ld.so ... this should not happen."
 		fi
 
 		# Then make a compatibility symlink.

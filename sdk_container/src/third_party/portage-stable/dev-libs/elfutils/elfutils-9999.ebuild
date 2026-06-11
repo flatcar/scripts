@@ -77,16 +77,22 @@ src_prepare() {
 		sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in || die
 	fi
 
-	# TODO: Fails with some CFLAGS
+	# Fails with some CFLAGS
 	# " __divhc3: /var/tmp/portage/dev-libs/elfutils-0.193/work/elfutils-0.193-abi_x86_32.x86/tests/funcretval:
 	#	dwfl_module_return_value_location: cannot handle DWARF type description"
 	printf "#!/bin/sh\nexit 77" > tests/run-native-test.sh || die
-	# TODO: Fails for abi_x86_32 w/ DT_RELR
+	# Fails for abi_x86_32 w/ DT_RELR
 	# "section [14] '.rel.plt': relocation 55: relocation type invalid for the file type"
 	printf "#!/bin/sh\nexit 77" > tests/run-elflint-self.sh || die
 	printf "#!/bin/sh\nexit 77" > tests/run-reverse-sections-self.sh || die
-	# TODO: Fails with SFrames
+	# Fails with SFrames
 	printf "#!/bin/sh\nexit 77" > tests/run-strip-strmerge.sh || die
+	# Fails under sandbox
+	cat <<-EOF > tests/dwfl-proc-attach.c || die
+	int main() {
+		return 77;
+	}
+	EOF
 
 	# https://sourceware.org/PR23914
 	sed -i 's:-Werror::' */Makefile.in || die
@@ -106,6 +112,9 @@ src_configure() {
 
 multilib_src_configure() {
 	unset LEX YACC
+
+	# Only for IMA verification of RPMs
+	export ac_cv_lib_rpm_headerGet=no
 
 	local myeconfargs=(
 		$(use_enable nls)
