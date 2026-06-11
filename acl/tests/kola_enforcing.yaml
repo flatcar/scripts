@@ -93,6 +93,9 @@ tests:
         reason: Root RAID coverage requires an additional disk, which this Kola test only provisions on QEMU
       - bootloader: [grub]
         reason: Mantle hardcodes UKI partition layout (part5); GRUB uses part9
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64, failures due to slow device enumeration.
 
   - name: cl.etcd-member.etcdctlv3
   - name: cl.etcd-member.v2-backup-restore
