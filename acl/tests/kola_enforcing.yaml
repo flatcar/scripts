@@ -192,6 +192,10 @@ tests:
   - name: coreos.auth.verify
   - name: coreos.ignition.groups
   - name: coreos.ignition.once
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64, failures due to slow device enumeration.
   - name: coreos.ignition.resource.local
     exceptions:
       - platforms: [qemu]
@@ -212,6 +216,10 @@ tests:
   - name: coreos.tls.fetch-urls
 
   - name: docker.base
+    exceptions:
+      - platforms: [qemu]
+        architectures: [aarch64]
+        reason: Flakiness on TCG-emulated arm64, failures due to slow device enumeration.
   - name: docker.btrfs-storage
   - name: docker.containerd-restart
   - name: docker.enable-service.sysext
