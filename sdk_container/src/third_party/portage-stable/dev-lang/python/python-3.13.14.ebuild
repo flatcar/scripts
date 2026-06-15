@@ -3,15 +3,15 @@
 
 EAPI="8"
 
-LLVM_COMPAT=( 19 )
+LLVM_COMPAT=( 18 )
 LLVM_OPTIONAL=1
-VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
 inherit autotools check-reqs flag-o-matic linux-info llvm-r1
-inherit multiprocessing pax-utils toolchain-funcs verify-sig
+inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
+inherit verify-sig
 
-MY_PV=${PV/_beta/b}
+MY_PV=${PV}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -25,16 +25,17 @@ SRC_URI="
 	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.sigstore
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm jit libedit +ncurses pgo
-	+readline +sqlite +ssl tail-call-interp test tk valgrind
+	+readline +sqlite +ssl test tk valgrind
 "
 REQUIRED_USE="jit? ( ${LLVM_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
@@ -47,16 +48,16 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-arch/zstd:=
+	app-crypt/libb2
 	app-misc/mime-types
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
+	sys-apps/util-linux
 	>=virtual/zlib-1.1.3:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
-	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
 		!libedit? ( >=sys-libs/readline-4.1:= )
@@ -78,7 +79,6 @@ DEPEND="
 	test? (
 		dev-python/ensurepip-pip
 		dev-python/ensurepip-setuptools
-		dev-python/ensurepip-wheel
 	)
 	valgrind? ( dev-debug/valgrind )
 "
@@ -93,12 +93,7 @@ BDEPEND="
 			llvm-core/llvm:${LLVM_SLOT}
 		')
 	)
-	tail-call-interp? (
-		|| (
-			>=sys-devel/gcc-16:*
-			>=llvm-core/clang-19:*
-		)
-	)
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
 if [[ ${PV} != *_alpha* ]]; then
 	RDEPEND+="
@@ -109,14 +104,12 @@ PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
-# https://www.python.org/downloads/metadata/sigstore/
-VERIFY_SIG_CERT_IDENTITY=hugo@python.org
-VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
 
-QA_PKGCONFIG_VERSION=${PYVER%t}
+QA_PKGCONFIG_VERSION=${PYVER}
 # false positives -- functions specific to *BSD
 QA_CONFIG_IMPL_DECL_SKIP=( chflags lchflags )
 
@@ -151,16 +144,12 @@ pkg_setup() {
 			done
 			linux-info_pkg_setup
 		fi
-		if use tail-call-interp; then
-			tc-check-min_ver gcc 16
-			tc-check-min_ver clang 19
-		fi
 	fi
 }
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
 	fi
 	default
 }
@@ -376,10 +365,6 @@ src_configure() {
 			# Hangs (actually runs indefinitely executing itself w/ many cpython builds)
 			# bug #900429
 			-x test_tools
-
-			# Test terminates abruptly which corrupts written profile data
-			# bug #964023
-			-x test_pyrepl
 		)
 
 		if has_version "app-arch/rpm" ; then
@@ -419,7 +404,6 @@ src_configure() {
 		$(use_enable jit experimental-jit)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
-		$(use_with tail-call-interp)
 		$(use_with valgrind)
 	)
 
@@ -546,14 +530,9 @@ src_test() {
 
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
-	local build_dir=$(<pybuilddir.txt)
 
 	# -j1 hack for now for bug #843458
 	emake -j1 DESTDIR="${D}" TEST_MODULES=no altinstall
-
-	# Install build-details.json manually because it was randomly removed
-	# from altinstall in https://github.com/python/cpython/pull/142269.
-	cp "${build_dir}"/build-details.json "${libdir}"/ || die
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -610,4 +589,28 @@ src_install() {
 		-e "s:@PYDOC@:pydoc${PYVER}:" \
 		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
 		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
+
+	# python-exec wrapping support
+	local pymajor=${PYVER%.*}
+	local EPYTHON=python${PYVER}
+	local scriptdir=${D}$(python_get_scriptdir)
+	mkdir -p "${scriptdir}" || die
+	# python and pythonX
+	ln -s "../../../bin/${abiver}" "${scriptdir}/python${pymajor}" || die
+	ln -s "python${pymajor}" "${scriptdir}/python" || die
+	# python-config and pythonX-config
+	# note: we need to create a wrapper rather than symlinking it due
+	# to some random dirname(argv[0]) magic performed by python-config
+	cat > "${scriptdir}/python${pymajor}-config" <<-EOF || die
+		#!/bin/sh
+		exec "${abiver}-config" "\${@}"
+	EOF
+	chmod +x "${scriptdir}/python${pymajor}-config" || die
+	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
+	# pydoc
+	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
+	# idle
+	if use tk; then
+		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
+	fi
 }
