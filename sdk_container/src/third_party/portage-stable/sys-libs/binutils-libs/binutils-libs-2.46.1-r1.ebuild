@@ -16,10 +16,8 @@ IUSE="64-bit-bfd cet multitarget nls static-libs test"
 #                      Default: empty, no patching
 # PATCH_BINUTILS_VER - the binutils version in the patchset name
 #                    - Default: PV
-# PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
-#                      for the patchsets
 
-PATCH_VER=1
+PATCH_VER=2
 
 MY_PN=binutils
 MY_P=${MY_PN}-${PV}
@@ -34,14 +32,13 @@ else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/binutils.asc
 	inherit verify-sig
 	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-	PATCH_DEV=${PATCH_DEV:-dilfridge}
 	SRC_URI="
 		mirror://gnu/binutils/${MY_P}.tar.xz
 		verify-sig? ( mirror://gnu/binutils/${MY_P}.tar.xz.sig )
 	"
 	[[ -z ${PATCH_VER} ]] || SRC_URI+=" https://distfiles.gentoo.org/pub/proj/toolchain/${MY_PN}/patches/${MY_PN}-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 	SLOT="0/${PV}"
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha"
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-binutils )"
 fi
