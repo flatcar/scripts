@@ -6,6 +6,28 @@
 
 # New entries go on top.
 
+# Christian Ruppert <idl0r@gentoo.org> (2026-06-08)
+# dev-libs/openssl-4.0.0/0.4 is currently masked
+net-proxy/haproxy ech
+
+# Sam James <sam@gentoo.org> (2026-06-01)
+# Broken with new dev-python/pathspec (bug #973108)
+<dev-python/mypy-2.1.0 native-extensions
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2026-05-04)
+# opengl is broken
+# pastix is broken, metis requires pastix
+# blas and lapack are poorly maintained
+# tests are finicky for 3/3.4
+dev-cpp/eigen blas lapack
+dev-cpp/eigen opengl
+dev-cpp/eigen metis pastix
+dev-cpp/eigen:3/3.4 test
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2026-05-04)
+# uses MeDiPack
+~sci-libs/adolc-9999 -mpi
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-05-15)
 # Various integration packages. Preparing Qt5 last-rites.
 # Removal some time after 2026-05-30.
@@ -262,10 +284,6 @@ www-client/firefox wasm-sandbox
 # We'll mask it for a few weeks to use the bundled ICU
 # while Google fixes the issue.
 www-client/chromium system-icu
-
-# Joonas Niilola <juippis@gentoo.org> (2024-11-07)
-# Dependency for generating docs not packaged in Gentoo. #942992
-dev-util/repolite doc
 
 # Sam James <sam@gentoo.org> (2024-10-29)
 # Currently needs patched dev-util/sysprof.
