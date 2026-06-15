@@ -33,7 +33,7 @@ else
 		verify-sig? ( mirror://gnu/${PN}/${P}.tar.xz.sig )
 	"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 SRC_URI+=" !vanilla? ( https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCH}.tar.xz )"
@@ -118,6 +118,7 @@ src_prepare() {
 	local PATCHES=(
 		"${FILESDIR}"/${PN}-9.5-skip-readutmp-test.patch
 		# Upstream patches
+		"${FILESDIR}"/${PN}-9.11-tee.patch
 	)
 
 	if ! use vanilla && [[ -d "${WORKDIR}"/${MY_PATCH} ]] ; then
@@ -248,7 +249,7 @@ src_test() {
 		)
 	fi
 
-	[[ ${enable_year2038} == "no" ]] && xfail_tests+=( test-year2038 )
+	[[ ${enable_year2038} == "no" ]] && xfail_tests+=( test-year2038 )+
 
 	# This test is flaky (bug #910640).
 	cat > tests/tty/tty-eof.pl <<-EOF || die
