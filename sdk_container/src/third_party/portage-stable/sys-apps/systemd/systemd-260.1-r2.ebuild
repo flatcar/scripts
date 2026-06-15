@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{12..14} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -20,7 +20,7 @@ else
 	SRC_URI="https://github.com/systemd/${PN}/archive/refs/tags/v${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 
 	if [[ ${PV} != *rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 	fi
 fi
 
@@ -131,7 +131,6 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-group/systemd-journal-0-r1
 	>=acct-user/root-0-r1
 	acct-user/nobody
-	acct-user/systemd-imds
 	>=acct-user/systemd-journal-remote-0-r1
 	>=acct-user/systemd-coredump-0-r1
 	>=acct-user/systemd-network-0-r1
@@ -257,6 +256,10 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
+		"${FILESDIR}/systemd-260.1-fuzz-journald.patch"
+		"${FILESDIR}/systemd-260.1-openssl-4.patch"
+		"${FILESDIR}/systemd-260.1-gcc-17.patch"
+		"${FILESDIR}/systemd-260.1-gpt-generator.patch"
 	)
 
 	if ! use vanilla; then
@@ -381,7 +384,7 @@ multilib_src_configure() {
 		case $(tc-arch) in
 			amd64|arm|arm64|loong|ppc|ppc64|riscv|s390|x86)
 				# src/vmspawn/vmspawn-util.h: QEMU_MACHINE_TYPE
-				myconf+=( -Dvmspawn=enabled ) ;;
+				myconf+=( $(meson_native_enabled vmspawn) ) ;;
 			*)
 				myconf+=( -Dvmspawn=disabled ) ;;
 		esac
