@@ -27,7 +27,7 @@ LICENSE="
 	curl openssl public-domain
 "
 SLOT="0/${PV%%.*}"
-KEYWORDS="-* amd64 ~arm64"
+KEYWORDS="-* ~amd64 ~arm64"
 IUSE="+X abi_x86_32 abi_x86_64 persistenced powerd +static-libs +tools wayland"
 
 COMMON_DEPEND="
@@ -60,6 +60,7 @@ RDEPEND="
 		dev-libs/openssl-compat:3
 		dev-libs/openssl:0/3
 	)
+	sys-devel/gcc:*
 	sys-libs/glibc
 	X? (
 		media-libs/libglvnd[X,abi_x86_32(-)?]
@@ -333,7 +334,7 @@ documentation that is installed alongside this README."
 		linux-mod-r1_src_install
 
 		insinto /etc/modprobe.d
-		newins "${FILESDIR}"/nvidia-595.conf nvidia.conf
+		newins "${FILESDIR}"/nvidia-610.conf nvidia.conf
 
 		# used for gpu verification with binpkgs (not kept, see pkg_preinst)
 		insinto /usr/share/nvidia
