@@ -81,7 +81,7 @@ function run_local_tests() (
   # Using globs will prevent tests to be run which aren't meant for the OS version we're testing.
   # NOTE that update tests get special handling because qemu_update is a separate "platform".
   if [[ $# -eq 0 ]] ; then
-    tests="$(docker run "${mantle_container}" \
+    tests="$(docker run --rm "${mantle_container}" \
               kola list --platform qemu \
               | awk '!/^(devcontainer|Test)/ {if ($1 != "") print gensub(/^([^.]+).*/,"\\1",1,$1) ".*"}' | uniq)"
     update_tests=true
