@@ -1,0 +1,1 @@
+- Fixed using Ignition to create new partitions with number 0 to get the next available slot. ([ignition#2234](https://github.com/coreos/ignition/pull/2234))

@@ -5,6 +5,7 @@ export EXTRA_ECONF="--enable-sss-default-nss-plugin"
 cros_post_src_install_flatcar_modifications() {
     # This is to make sure that some sssd config is always in place.
     cp -a "${ED}"/etc/sssd/sssd{-example,}.conf
+    fowners sssd:sssd /etc/sssd/sssd.conf
 
     # Move pam files to /usr.
     vendorize_pam_files

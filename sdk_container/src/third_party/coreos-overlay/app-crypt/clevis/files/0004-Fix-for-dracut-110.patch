@@ -1,0 +1,25 @@
+From a93044a922887e6859d443afbbe405cb7f696e65 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Wed, 10 Jun 2026 11:14:56 +0200
+Subject: [PATCH 4/4] Fix for dracut 110
+
+See https://github.com/latchset/clevis/pull/549
+---
+ src/dracut/clevis/module-setup.sh.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/dracut/clevis/module-setup.sh.in b/src/dracut/clevis/module-setup.sh.in
+index c9581db..6bf6e5f 100755
+--- a/src/dracut/clevis/module-setup.sh.in
++++ b/src/dracut/clevis/module-setup.sh.in
+@@ -32,6 +32,7 @@ install() {
+         inst_multiple \
+             $systemdsystemunitdir/clevis-luks-askpass.service \
+             $systemdsystemunitdir/clevis-luks-askpass.path \
++            $systemdsystemunitdir/cryptsetup.target \
+             @SYSTEMD_REPLY_PASS@ \
+             @libexecdir@/clevis-luks-askpass
+         systemctl -q --root "$initdir" add-wants cryptsetup.target clevis-luks-askpass.path
+-- 
+2.53.0
+

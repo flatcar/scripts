@@ -1,7 +1,7 @@
-From 2cc519ebec4f01f76bcdcde61259ba23a810ea30 Mon Sep 17 00:00:00 2001
+From 5e8b4b38473018964ac462a0c0aa9ec994945828 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
-Subject: [PATCH 03/14] core: use max for DefaultTasksMax
+Subject: [PATCH 3/8] core: use max for DefaultTasksMax
 
 Since systemd v228, systemd has a DefaultTasksMax which defaulted
 to 512, later 15% of the system's maximum number of PIDs.  This
@@ -34,15 +34,15 @@ index b7fe53dc9c..175fe67139 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/manager.c b/src/core/manager.c
-index a5a51023c5..ef0ce9e31d 100644
+index 79fa19d976..d83b5b38b0 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
 @@ -113,7 +113,7 @@
  /* How many units and jobs to process of the bus queue before returning to the event loop. */
  #define MANAGER_BUS_MESSAGE_BUDGET 100U
  
--#define DEFAULT_TASKS_MAX ((CGroupTasksMax) { 15U, 100U }) /* 15% */
-+#define DEFAULT_TASKS_MAX ((CGroupTasksMax) { 100U, 100U }) /* 15% */
+-#define DEFAULT_TASKS_MAX ((const CGroupTasksMax) { 15U, 100U }) /* 15% */
++#define DEFAULT_TASKS_MAX ((const CGroupTasksMax) { 100U, 100U }) /* 100% */
  
  static int manager_dispatch_notify_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
  static int manager_dispatch_signal_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
@@ -60,5 +60,5 @@ index 54196e8489..b0b5c78b56 100644
  #DefaultLimitFSIZE=
  #DefaultLimitDATA=
 -- 
-2.52.0
+2.53.0
 

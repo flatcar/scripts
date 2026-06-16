@@ -3,6 +3,10 @@
 CROS_BUILD_BOARD_TREE="${SYSROOT}/build"
 CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 
+# EAPI 9 is not exporting those variables, but some of them are still
+# used by cross-pkg-config, for instance.
+export ARCH EROOT ESYSROOT BROOT ROOT SYSROOT EPREFIX
+
 # Are we merging for the board sysroot, or for the SDK, or for
 # the images? Returns a string in a passed variable:
 #
