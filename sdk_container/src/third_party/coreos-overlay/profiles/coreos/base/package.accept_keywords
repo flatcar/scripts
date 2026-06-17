@@ -115,3 +115,6 @@ sys-apps/azure-vm-utils
 # Use unstable version for cross-compile fix. This needs to be at least as new
 # as app-containers/docker.
 =app-containers/docker-cli-29.1.3
+
+# Take this version early for a cross fix and buildpkg-proactive.
+=sys-apps/portage-3.0.80
