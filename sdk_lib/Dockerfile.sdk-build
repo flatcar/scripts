@@ -7,7 +7,8 @@ ARG OFFICIAL=0
 # mark build as official where appropriate
 RUN echo "export COREOS_OFFICIAL=$OFFICIAL" > /mnt/host/source/.env
 
-RUN /home/sdk/sdk_entry.sh ./sdk_lib/setup_boards.sh start "${BINHOST}"
+RUN FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox" \
+        /home/sdk/sdk_entry.sh ./sdk_lib/setup_boards.sh start "${BINHOST}"
 
 RUN rm /mnt/host/source/.env
 RUN rm -rf /home/sdk/toolchain-pkgs

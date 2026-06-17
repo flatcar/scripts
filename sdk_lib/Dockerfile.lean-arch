@@ -5,7 +5,8 @@ ARG RMARCH
 ARG RMCROSS
 
 RUN if [ -n "$RMCROSS" ]; then \
-        sudo crossdev --clean --force "$RMCROSS"; \
+        FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox" \
+            sudo crossdev --clean --force "$RMCROSS"; \
     fi
 
 RUN if [ -n "$RMARCH" ]; then \

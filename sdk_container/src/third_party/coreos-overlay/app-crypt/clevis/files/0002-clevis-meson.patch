@@ -1,0 +1,24 @@
+From 4ed752ebe05942af7a7368206aba913789ee90a9 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Wed, 10 Jun 2026 11:11:49 +0200
+Subject: [PATCH 2/4] clevis meson
+
+---
+ src/luks/systemd/meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/luks/systemd/meson.build b/src/luks/systemd/meson.build
+index b10494e..09f7fb5 100644
+--- a/src/luks/systemd/meson.build
++++ b/src/luks/systemd/meson.build
+@@ -5,6 +5,7 @@ sd_reply_pass = find_program(
+   join_paths(get_option('prefix'), 'lib', 'systemd', 'systemd-reply-password'),
+   join_paths('/', 'usr', get_option('libdir'), 'systemd', 'systemd-reply-password'),
+   join_paths('/', 'usr', 'lib', 'systemd', 'systemd-reply-password'),
++  join_paths('/', 'lib', 'systemd', 'systemd-reply-password'),
+   required: false
+ )
+ 
+-- 
+2.53.0
+
