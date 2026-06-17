@@ -1,0 +1,1 @@
+- dev: portage ([3.0.81](https://codeberg.org/gentoo/portage/raw/tag/portage-3.0.81/NEWS) (includes [3.0.80](https://codeberg.org/gentoo/portage/raw/tag/portage-3.0.80/NEWS), [3.0.79](https://codeberg.org/gentoo/portage/raw/tag/portage-3.0.79/NEWS), [3.0.78](https://codeberg.org/gentoo/portage/raw/tag/portage-3.0.78/NEWS)))
