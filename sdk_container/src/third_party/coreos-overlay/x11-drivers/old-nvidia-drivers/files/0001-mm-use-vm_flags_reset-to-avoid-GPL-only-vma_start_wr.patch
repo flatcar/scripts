@@ -1,0 +1,74 @@
+From d1154945f8b2d22392d30a5e522612dfbcf17cff Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+Date: Wed, 17 Jun 2026 15:48:55 +0530
+Subject: [PATCH 1/2] mm: use vm_flags_reset to avoid GPL-only
+ vma_start_write()
+
+Linux 6.15 made vma_start_write() GPL-only, which nv_vm_flags_set/clear
+depend on via vm_flags_set/vm_flags_clear.  Redefine them using
+vm_flags_reset which carries no such restriction.
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+---
+ kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c | 7 +++++++
+ kernel-open/nvidia-drm/nvidia-drm-gem.c             | 7 +++++++
+ kernel-open/nvidia/nv-mmap.c                        | 7 +++++++
+ 3 files changed, 21 insertions(+)
+
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c b/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
+index 9d2a0512..e473b66f 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
+@@ -40,6 +40,13 @@
+ #include <vm/vm_pageout.h>
+ #endif
+ 
++#include <linux/version.h>
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
++#define nv_vm_flags_set(vma, f)   vm_flags_reset((vma), (vma)->vm_flags | (f))
++#define nv_vm_flags_clear(vma, f) vm_flags_reset((vma), (vma)->vm_flags & ~(f))
++#endif
++
+ static inline
+ void __nv_drm_gem_user_memory_free(struct nv_drm_gem_object *nv_gem)
+ {
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-gem.c b/kernel-open/nvidia-drm/nvidia-drm-gem.c
+index ef0e0f83..c8489a72 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-gem.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-gem.c
+@@ -51,6 +51,13 @@
+ 
+ #include "nv-mm.h"
+ 
++#include <linux/version.h>
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
++#define nv_vm_flags_set(vma, f)   vm_flags_reset((vma), (vma)->vm_flags | (f))
++#define nv_vm_flags_clear(vma, f) vm_flags_reset((vma), (vma)->vm_flags & ~(f))
++#endif
++
+ void nv_drm_gem_free(struct drm_gem_object *gem)
+ {
+     struct nv_drm_gem_object *nv_gem = to_nv_gem_object(gem);
+diff --git a/kernel-open/nvidia/nv-mmap.c b/kernel-open/nvidia/nv-mmap.c
+index 8e98c817..f72731c0 100644
+--- a/kernel-open/nvidia/nv-mmap.c
++++ b/kernel-open/nvidia/nv-mmap.c
+@@ -25,6 +25,13 @@
+ 
+ #include "os-interface.h"
+ #include "nv-linux.h"
++
++#include <linux/version.h>
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
++#define nv_vm_flags_set(vma, f)   vm_flags_reset((vma), (vma)->vm_flags | (f))
++#define nv_vm_flags_clear(vma, f) vm_flags_reset((vma), (vma)->vm_flags & ~(f))
++#endif
+ #include "nv_speculation_barrier.h"
+ 
+ /*
+-- 
+2.53.0
+

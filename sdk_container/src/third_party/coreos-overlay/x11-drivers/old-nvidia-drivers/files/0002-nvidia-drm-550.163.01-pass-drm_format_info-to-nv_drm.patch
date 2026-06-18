@@ -1,0 +1,154 @@
+From 828e2d5aa8808f34030a726fb5f1038ea474add7 Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+Date: Wed, 17 Jun 2026 16:45:03 +0530
+Subject: [PATCH 2/2] nvidia-drm 550.163.01: pass drm_format_info to
+ nv_drm_framebuffer_create for Linux 6.17+
+
+Linux kernel commit 81112eaac559 ("drm: Pass the format info to
+.fb_create()") changed drm_mode_config_funcs.fb_create to take a 4th
+argument: const struct drm_format_info *info
+
+This landed in v6.17-rc1; we hit it while updating our build target
+to Linux 6.18, which carries the same API forward.
+
+Simultaneously, drm_helper_mode_fill_fb_struct() gained the same
+parameter between the framebuffer and the mode_cmd arguments (4 args
+total with dev).
+
+Use a conftest probe (NV_DRM_FB_CREATE_TAKES_FORMAT_INFO) rather than
+a hardcoded LINUX_VERSION_CODE check, since this detects the feature
+directly against the actual kernel headers and remains correct for
+backports or non-standard kernel versioning.
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+---
+ kernel-open/conftest.sh                      | 19 +++++++++++++++++++
+ kernel-open/nvidia-drm/nvidia-drm-drv.c      |  6 ++++++
+ kernel-open/nvidia-drm/nvidia-drm-fb.c       |  7 +++++++
+ kernel-open/nvidia-drm/nvidia-drm-fb.h       |  4 ++++
+ kernel-open/nvidia-drm/nvidia-drm-sources.mk |  1 +
+ 5 files changed, 37 insertions(+)
+
+diff --git a/kernel-open/conftest.sh b/kernel-open/conftest.sh
+index 889cf654..30506f8f 100755
+--- a/kernel-open/conftest.sh
++++ b/kernel-open/conftest.sh
+@@ -4511,6 +4511,25 @@ compile_test() {
+             compile_check_conftest "$CODE" "NV_DRM_ROTATION_AVAILABLE" "" "functions"
+             ;;
+ 
++        drm_fb_create_takes_format_info)
++            #
++            # Determine if a `struct drm_format_info *` is passed into
++            # the .fb_create callback (4-arg form). Added by commit
++            # 81112eaac559 ("drm: Pass the format info to .fb_create")
++            # in linux-next (2025-07-16).
++            #
++            CODE="
++            #include <drm/drm_mode_config.h>
++            #include <drm/drm_framebuffer.h>
++
++            static const struct drm_mode_config_funcs funcs;
++            void conftest_drm_fb_create_takes_format_info(void) {
++                funcs.fb_create(NULL, NULL, NULL, NULL);
++            }"
++
++            compile_check_conftest "$CODE" "NV_DRM_FB_CREATE_TAKES_FORMAT_INFO" "" "types"
++        ;;
++
+         drm_driver_prime_flag_present)
+             #
+             # Determine whether driver feature flag DRIVER_PRIME is present.
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-drv.c b/kernel-open/nvidia-drm/nvidia-drm-drv.c
+index da2b7010..12fe50ef 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-drv.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-drv.c
+@@ -186,6 +186,9 @@ static void nv_drm_output_poll_changed(struct drm_device *dev)
+ static struct drm_framebuffer *nv_drm_framebuffer_create(
+     struct drm_device *dev,
+     struct drm_file *file,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++    const struct drm_format_info *info,
++#endif
+     #if defined(NV_DRM_HELPER_MODE_FILL_FB_STRUCT_HAS_CONST_MODE_CMD_ARG)
+     const struct drm_mode_fb_cmd2 *cmd
+     #else
+@@ -201,6 +204,9 @@ static struct drm_framebuffer *nv_drm_framebuffer_create(
+     fb = nv_drm_internal_framebuffer_create(
+             dev,
+             file,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++            info,
++#endif
+             &local_cmd);
+ 
+     #if !defined(NV_DRM_HELPER_MODE_FILL_FB_STRUCT_HAS_CONST_MODE_CMD_ARG)
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-fb.c b/kernel-open/nvidia-drm/nvidia-drm-fb.c
+index 1c842015..973c2c64 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-fb.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-fb.c
+@@ -33,6 +33,7 @@
+ #include "nvidia-drm-format.h"
+ 
+ #include <drm/drm_crtc_helper.h>
++#include <linux/version.h>
+ 
+ static void __nv_drm_framebuffer_free(struct nv_drm_framebuffer *nv_fb)
+ {
+@@ -206,6 +207,9 @@ fail:
+ struct drm_framebuffer *nv_drm_internal_framebuffer_create(
+     struct drm_device *dev,
+     struct drm_file *file,
++#if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++    const struct drm_format_info *info,
++#endif
+     struct drm_mode_fb_cmd2 *cmd)
+ {
+     struct nv_drm_device *nv_dev = to_nv_device(dev);
+@@ -259,6 +263,9 @@ struct drm_framebuffer *nv_drm_internal_framebuffer_create(
+         dev,
+         #endif
+         &nv_fb->base,
++        #if defined(NV_DRM_FB_CREATE_TAKES_FORMAT_INFO)
++        info,
++        #endif
+         cmd);
+ 
+     /*
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-fb.h b/kernel-open/nvidia-drm/nvidia-drm-fb.h
+index cf477cc7..5a1a34af 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-fb.h
++++ b/kernel-open/nvidia-drm/nvidia-drm-fb.h
+@@ -37,6 +37,7 @@
+ 
+ #include "nvidia-drm-gem-nvkms-memory.h"
+ #include "nvkms-kapi.h"
++#include <linux/version.h>
+ 
+ struct nv_drm_framebuffer {
+     struct NvKmsKapiSurface *pSurface;
+@@ -59,6 +60,9 @@ static inline struct nv_drm_framebuffer *to_nv_framebuffer(
+ struct drm_framebuffer *nv_drm_internal_framebuffer_create(
+     struct drm_device *dev,
+     struct drm_file *file,
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
++    const struct drm_format_info *info,
++#endif
+     struct drm_mode_fb_cmd2 *cmd);
+ 
+ #endif /* NV_DRM_ATOMIC_MODESET_AVAILABLE */
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-sources.mk b/kernel-open/nvidia-drm/nvidia-drm-sources.mk
+index 1328ffd8..4ccaf27b 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-sources.mk
++++ b/kernel-open/nvidia-drm/nvidia-drm-sources.mk
+@@ -86,6 +86,7 @@ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_driver_has_set_busid
+ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_crtc_state_has_connectors_changed
+ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_init_function_args
+ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_helper_mode_fill_fb_struct
++NV_CONFTEST_TYPE_COMPILE_TESTS += drm_fb_create_takes_format_info
+ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_master_drop_has_from_release_arg
+ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_driver_unload_has_int_return_type
+ NV_CONFTEST_TYPE_COMPILE_TESTS += vm_fault_has_address
+-- 
+2.53.0
+
