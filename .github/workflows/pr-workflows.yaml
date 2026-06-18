@@ -28,7 +28,7 @@ jobs:
   update_sdk:
     name: "Build an updated SDK container"
     needs: [ approval_gate ]
-    if: contains(github.event.pull_request.body, '/update-sdk')
+    if: "!contains(github.event.pull_request.labels.*.name, 'jenkins-ci') && contains(github.event.pull_request.body, '/update-sdk')"
     # SDK build needs access to bincache ssh secret
     secrets: inherit
     uses: ./.github/workflows/update-sdk.yaml
@@ -37,9 +37,26 @@ jobs:
     needs: [ approval_gate, update_sdk ]
     # The update-sdk job may be skipped, which is fine. We only care if it tried to
     # run, but failed.
-    if: always() && !cancelled() && needs.approval_gate.result == 'success' && needs.update_sdk.result != 'failure'
+    if: "!contains(github.event.pull_request.labels.*.name, 'jenkins-ci') && always() && !cancelled() && needs.approval_gate.result == 'success' && needs.update_sdk.result != 'failure'"
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
     with:
       custom_sdk_version: ${{ needs.update_sdk.outputs.sdk_version }}
       image_formats: qemu_uefi pxe
+
+  jenkins_ci:
+    name: "Trigger Jenkins CI"
+    needs: [ approval_gate ]
+    if: contains(github.event.pull_request.labels.*.name, 'jenkins-ci')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins build
+        run: |
+          curl -fsSL \
+            https://jenkins.flatcar.org/buildByToken/buildWithParameters \
+            --data-urlencode "token=${{ secrets.JENKINS_REMOTE_TRIGGER_TOKEN }}" \
+            --data-urlencode "job=container/packages_all_arches" \
+            --data-urlencode "cause=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --data-urlencode "version=main-9999.0.${{ github.run_number }}-github-${{ github.event.pull_request.number }}" \
+            --data-urlencode "scripts_ref=${{ github.event.pull_request.head.sha }}" \
+            --data-urlencode "git_sha=${{ github.event.pull_request.head.sha }}"
