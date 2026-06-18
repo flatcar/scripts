@@ -17,7 +17,6 @@ jobs:
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: gha
-          ref: main
       - name: Figure out branch
         id: figure-out-branch
         run: gha/.github/workflows/figure-out-branch.sh '${{ matrix.channel }}'
