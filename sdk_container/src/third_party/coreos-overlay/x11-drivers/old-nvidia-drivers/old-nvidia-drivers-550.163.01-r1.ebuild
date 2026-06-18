@@ -7,7 +7,7 @@ MODULES_OPTIONAL_IUSE=+modules
 inherit desktop dot-a eapi9-pipestatus flag-o-matic linux-mod-r1
 inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
-MODULES_KERNEL_MAX=6.14
+MODULES_KERNEL_MAX=6.18
 NV_URI="https://download.nvidia.com/XFree86/"
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
@@ -91,6 +91,8 @@ QA_PREBUILT="lib/firmware/* usr/bin/* usr/lib*"
 PATCHES=(
 	"${FILESDIR}"/nvidia-modprobe-390.141-uvm-perms.patch
 	"${FILESDIR}"/nvidia-settings-530.30.02-desktop.patch
+  "${FILESDIR}"/0001-mm-use-vm_flags_reset-to-avoid-GPL-only-vma_start_wr.patch
+  "${FILESDIR}"/0002-nvidia-drm-550.163.01-pass-drm_format_info-to-nv_drm.patch
 )
 
 pkg_setup() {
@@ -146,6 +148,19 @@ src_prepare() {
 	rm nvidia-settings && mv nvidia-settings{-${PV},} || die
 	rm nvidia-xconfig && mv nvidia-xconfig{-${PV},} || die
 	mv NVIDIA-kernel-module-source-${PV} kernel-module-source || die
+
+	# Linux 6.15 removed EXTRA_CFLAGS support for out-of-tree kernel modules
+	# (upstream commit b2c885b9). NVIDIA 550 uses EXTRA_CFLAGS in its Kbuild
+	# files to pass -I$(src)/common/inc, so headers like os-interface.h,
+	# nv-firmware.h, and nv-pci-types.h are never found at compile time on
+	# kernels >= 6.15. Replace with ccflags-y, the correct variable.
+	find "${S}" \( -name 'Kbuild' -o -name 'Makefile' \) \
+		-exec sed -i 's/\bEXTRA_CFLAGS\b/ccflags-y/g' {} + || die
+
+	# Linux 6.15 renamed del_timer_sync() to timer_delete_sync() (commit
+	# d4b4c87). NVIDIA 550 calls del_timer_sync in nv.c and nv-nano-timer.c.
+	find "${S}" \( -name '*.c' -o -name '*.h' \) \
+		-exec sed -i 's/\bdel_timer_sync\b/timer_delete_sync/g' {} + || die
 
 	default
 
