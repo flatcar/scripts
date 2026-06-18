@@ -1,0 +1,91 @@
+From 0000000000000000000000000000000000000007 Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+Date: Thu, 17 Jul 2026 10:00:00 +0530
+Subject: [PATCH] nvidia-uvm: guard iommu_dev_enable/disable_feature
+ for Linux 6.16+
+
+Linux 6.16 removed iommu_dev_enable_feature() and
+iommu_dev_disable_feature() with IOMMU_DEV_FEAT_SVA. SVA is now
+handled implicitly by iommu_sva_bind_device(). Guard the calls in
+uvm_ats_sva.c with LINUX_VERSION_CODE.
+
+Applied to both the proprietary kernel/ and open-source kernel-open/
+trees.
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+---
+diff --git a/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c b/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
+index 1a2b3c4d..5e6f7a8b 100644
+--- a/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
++++ b/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
+@@ -42,6 +42,7 @@
+ // present in all the supported versions. Instead of adding a conftest just for
+ // this header file, use UVM_ATS_SVA_SUPPORTED().
+ #include <linux/sched/mm.h>
++#include <linux/version.h>
+ 
+ // iommu_sva_bind_device() removed drvdata paramter with commit
+ // 942fd5435dccb273f90176b046ae6bbba60cfbd8 (10/31/2022).
+@@ -304,11 +305,13 @@
+ 
+ NV_STATUS uvm_ats_sva_add_gpu(uvm_parent_gpu_t *parent_gpu)
+ {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
+     int ret;
+ 
+     ret = iommu_dev_enable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+     if (ret)
+         return errno_to_nv_status(ret);
++#endif
+ 
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         return uvm_ats_smmu_war_init(parent_gpu);
+@@ -321,7 +324,9 @@
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         uvm_ats_smmu_war_deinit(parent_gpu);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
+     iommu_dev_disable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
++#endif
+ }
+ 
+ NV_STATUS uvm_ats_sva_bind_gpu(uvm_gpu_va_space_t *gpu_va_space)
+diff --git a/kernel/nvidia-uvm/uvm_ats_sva.c b/kernel/nvidia-uvm/uvm_ats_sva.c
+index 1a2b3c4d..5e6f7a8b 100644
+--- a/kernel/nvidia-uvm/uvm_ats_sva.c
++++ b/kernel/nvidia-uvm/uvm_ats_sva.c
+@@ -42,6 +42,7 @@
+ // present in all the supported versions. Instead of adding a conftest just for
+ // this header file, use UVM_ATS_SVA_SUPPORTED().
+ #include <linux/sched/mm.h>
++#include <linux/version.h>
+ 
+ // iommu_sva_bind_device() removed drvdata paramter with commit
+ // 942fd5435dccb273f90176b046ae6bbba60cfbd8 (10/31/2022).
+@@ -304,11 +305,13 @@
+ 
+ NV_STATUS uvm_ats_sva_add_gpu(uvm_parent_gpu_t *parent_gpu)
+ {
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
+     int ret;
+ 
+     ret = iommu_dev_enable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+     if (ret)
+         return errno_to_nv_status(ret);
++#endif
+ 
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         return uvm_ats_smmu_war_init(parent_gpu);
+@@ -321,7 +324,9 @@
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         uvm_ats_smmu_war_deinit(parent_gpu);
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
+     iommu_dev_disable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
++#endif
+ }
+ 
+ NV_STATUS uvm_ats_sva_bind_gpu(uvm_gpu_va_space_t *gpu_va_space)
+--
+2.53.0
+

@@ -1,0 +1,121 @@
+From 0000000000000000000000000000000000000008 Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+Date: Thu, 17 Jul 2026 10:30:00 +0530
+Subject: [PATCH] nvidia-uvm: guard SMMU WAR code with UVM_ATS_SMMU_WAR_REQUIRED
+
+The SMMU WAR helper functions (smmu_vcmdq_write64, uvm_ats_smmu_war_init,
+etc.) use ARM64-specific APIs like iowrite64 and arm64_mm_context_get
+that are not available on x86_64. They were previously compiled on any
+arch with CONFIG_IOMMU_SVA enabled because they lack the
+UVM_ATS_SMMU_WAR_REQUIRED() guard that covers only the TLB invalidation
+function.
+
+Wrap the entire SMMU WAR definition block (structs, macros, helpers,
+war_init/deinit) with #if UVM_ATS_SMMU_WAR_REQUIRED() and replace the
+runtime if (UVM_ATS_SMMU_WAR_REQUIRED()) checks in uvm_ats_sva_add_gpu
+and uvm_ats_sva_remove_gpu with compile-time #if guards.
+
+Applied to both the proprietary kernel/ and open-source kernel-open/
+trees.
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+---
+diff --git a/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c b/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
+index 1a2b3c4d..5e6f7a8b 100644
+--- a/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
++++ b/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
+@@ -53,6 +53,7 @@
+ #endif
+ 
++#if UVM_ATS_SMMU_WAR_REQUIRED()
+ // Type to represent a 128-bit SMMU command queue command.
+ struct smmu_cmd {
+     NvU64 low;
+     NvU64 high;
+@@ -235,7 +236,6 @@
+ // Use the same maximum as used for MAX_TLBI_OPS in the upstream
+ // kernel.
+ #define UVM_MAX_TLBI_OPS (1UL << (PAGE_SHIFT - 3))
+ 
+-#if UVM_ATS_SMMU_WAR_REQUIRED()
+ void uvm_ats_smmu_invalidate_tlbs(uvm_gpu_va_space_t *gpu_va_space, NvU64 addr, size_t size)
+ {
+@@ -314,9 +314,10 @@
+ #endif
+ 
+-    if (UVM_ATS_SMMU_WAR_REQUIRED())
+-        return uvm_ats_smmu_war_init(parent_gpu);
+-    else
+-        return NV_OK;
++#if UVM_ATS_SMMU_WAR_REQUIRED()
++    return uvm_ats_smmu_war_init(parent_gpu);
++#else
++    return NV_OK;
++#endif
+ }
+ 
+ void uvm_ats_sva_remove_gpu(uvm_parent_gpu_t *parent_gpu)
+@@ -322,9 +323,10 @@
+ void uvm_ats_sva_remove_gpu(uvm_parent_gpu_t *parent_gpu)
+ {
+-    if (UVM_ATS_SMMU_WAR_REQUIRED())
+-        uvm_ats_smmu_war_deinit(parent_gpu);
++#if UVM_ATS_SMMU_WAR_REQUIRED()
++    uvm_ats_smmu_war_deinit(parent_gpu);
++#endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
+     iommu_dev_disable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+ #endif
+ }
+diff --git a/kernel/nvidia-uvm/uvm_ats_sva.c b/kernel/nvidia-uvm/uvm_ats_sva.c
+index 1a2b3c4d..5e6f7a8b 100644
+--- a/kernel/nvidia-uvm/uvm_ats_sva.c
++++ b/kernel/nvidia-uvm/uvm_ats_sva.c
+@@ -53,6 +53,7 @@
+ #endif
+ 
++#if UVM_ATS_SMMU_WAR_REQUIRED()
+ // Type to represent a 128-bit SMMU command queue command.
+ struct smmu_cmd {
+     NvU64 low;
+     NvU64 high;
+@@ -235,7 +236,6 @@
+ // Use the same maximum as used for MAX_TLBI_OPS in the upstream
+ // kernel.
+ #define UVM_MAX_TLBI_OPS (1UL << (PAGE_SHIFT - 3))
+ 
+-#if UVM_ATS_SMMU_WAR_REQUIRED()
+ void uvm_ats_smmu_invalidate_tlbs(uvm_gpu_va_space_t *gpu_va_space, NvU64 addr, size_t size)
+ {
+@@ -314,9 +314,10 @@
+ #endif
+ 
+-    if (UVM_ATS_SMMU_WAR_REQUIRED())
+-        return uvm_ats_smmu_war_init(parent_gpu);
+-    else
+-        return NV_OK;
++#if UVM_ATS_SMMU_WAR_REQUIRED()
++    return uvm_ats_smmu_war_init(parent_gpu);
++#else
++    return NV_OK;
++#endif
+ }
+ 
+ void uvm_ats_sva_remove_gpu(uvm_parent_gpu_t *parent_gpu)
+@@ -322,9 +323,10 @@
+ void uvm_ats_sva_remove_gpu(uvm_parent_gpu_t *parent_gpu)
+ {
+-    if (UVM_ATS_SMMU_WAR_REQUIRED())
+-        uvm_ats_smmu_war_deinit(parent_gpu);
++#if UVM_ATS_SMMU_WAR_REQUIRED()
++    uvm_ats_smmu_war_deinit(parent_gpu);
++#endif
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
+     iommu_dev_disable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+ #endif
+ }
+--
+2.53.0
+
