@@ -11,8 +11,8 @@ ETYPE="sources"
 K_BASE_VER="5.15"
 
 inherit kernel-2
-EXTRAVERSION="-flatcar"
 detect_version
+EXTRAVERSION="-flatcar"
 
 DESCRIPTION="Full sources for the CoreOS Linux kernel"
 HOMEPAGE="http://www.kernel.org"
