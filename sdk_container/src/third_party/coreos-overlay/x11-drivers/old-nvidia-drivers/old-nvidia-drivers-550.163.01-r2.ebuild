@@ -7,7 +7,7 @@ MODULES_OPTIONAL_IUSE=+modules
 inherit desktop dot-a eapi9-pipestatus flag-o-matic linux-mod-r1
 inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
-MODULES_KERNEL_MAX=6.14
+MODULES_KERNEL_MAX=6.18
 NV_URI="https://download.nvidia.com/XFree86/"
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
@@ -92,6 +92,12 @@ PATCHES=(
 	"${FILESDIR}"/nvidia-modprobe-390.141-uvm-perms.patch
 	"${FILESDIR}"/nvidia-settings-530.30.02-desktop.patch
 	"${FILESDIR}"/nvidia-pci-resize-resource-fix-550.patch
+  "${FILESDIR}"/0001-mm-use-vm_flags_reset-to-avoid-GPL-only-vma_start_wr.patch
+  "${FILESDIR}"/0002-nvidia-drm-550.163.01-pass-drm_format_info-to-nv_drm.patch
+  "${FILESDIR}"/0003-nvidia-use-hrtimer_setup-for-Linux-6.15.patch
+  "${FILESDIR}"/0004-nvidia-uvm-guard-iommu_dev_enable_disable_feature-fo.patch
+  "${FILESDIR}"/0005-nvidia-uvm-guard-SMMU-WAR-code-with-UVM_ATS_SMMU_WA.patch
+  "${FILESDIR}"/0006-nvidia-uvm-adapt-to-page_pgmap-and-make_device_excl.patch
 )
 
 pkg_setup() {
@@ -148,11 +154,34 @@ src_prepare() {
 	rm nvidia-xconfig && mv nvidia-xconfig{-${PV},} || die
 	mv NVIDIA-kernel-module-source-${PV} kernel-module-source || die
 
+	# Linux 6.15 removed EXTRA_CFLAGS support for out-of-tree kernel modules
+	# (upstream commit b2c885b9).
+	find "${S}" \( -name 'Kbuild' -o -name 'Makefile' \) \
+		-exec sed -i 's/\bEXTRA_CFLAGS\b/ccflags-y/g' {} + || die
+
+	# Linux 6.15 renamed del_timer_sync() to timer_delete_sync() (commit
+	# d4b4c87), removing the old symbol outright.
+	if kernel_is -ge 6 15; then
+		find "${S}/kernel" "${S}/kernel-module-source" \( -name '*.c' -o -name '*.h' \) \
+			-exec sed -i 's/\bdel_timer_sync\b/timer_delete_sync/g' {} + || die
+	fi
+
 	default
 
 	# prevent detection of incomplete kernel DRM support (bug #603818)
 	sed 's/defined(CONFIG_DRM/defined(CONFIG_DRM_KMS_HELPER/g' \
 		-i kernel{,-module-source/kernel-open}/conftest.sh || die
+
+	# Linux 6.18 removed dma_buf_attachment_is_dynamic() but it still appears
+	# in a doc comment in <linux/dma-buf.h>. The conftest uses an inline
+	# "$CC $CFLAGS -c conftest.c" (not compile_check_conftest) and compiles
+	# without -Werror=implicit-function-declaration, so the implicit declaration
+	# is only a warning and the compilation succeeds, incorrectly defining
+	# NV_DMA_BUF_HAS_DYNAMIC_ATTACHMENT. Add the flag scoped to just that block.
+	find "${S}" -name "conftest.sh" -exec sed -i \
+		'/dma_buf_has_dynamic_attachment)/,/;;/ s/\$CC \$CFLAGS -c conftest/\$CC \$CFLAGS -Werror=implicit-function-declaration -c conftest/' \
+		{} + || die
+
 
 	sed 's/__USER__/nvpd/' \
 		nvidia-persistenced/init/systemd/nvidia-persistenced.service.template \
