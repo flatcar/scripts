@@ -1,0 +1,75 @@
+From 0000000000000000000000000000000000000007 Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+Date: Thu, 17 Jul 2026 10:00:00 +0530
+Subject: [PATCH] nvidia-uvm: drop iommu_dev_enable/disable_feature calls
+
+Linux 6.16 removed iommu_dev_enable_feature() and
+iommu_dev_disable_feature() with IOMMU_DEV_FEAT_SVA; SVA is now
+handled implicitly by iommu_sva_bind_device().
+
+Rather than guarding the calls with LINUX_VERSION_CODE, drop them
+entirely, matching NVIDIA's own upstream fix for this (first guarded
+behind a symbol-presence conftest in the 570.169 driver release, then
+removed outright in 580.65.06, and still absent as of 610.43.02) --
+by the time SVA enablement stopped needing an explicit feature toggle
+at all, keeping a version-gated call around was unnecessary complexity.
+
+Applied to both the proprietary kernel/ and open-source kernel-open/
+trees.
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+---
+diff --git a/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c b/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
+index 1a2b3c4d..7c8d9e0f 100644
+--- a/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
++++ b/kernel-module-source/kernel-open/nvidia-uvm/uvm_ats_sva.c
+@@ -304,12 +304,6 @@
+ 
+ NV_STATUS uvm_ats_sva_add_gpu(uvm_parent_gpu_t *parent_gpu)
+ {
+-    int ret;
+-
+-    ret = iommu_dev_enable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+-    if (ret)
+-        return errno_to_nv_status(ret);
+-
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         return uvm_ats_smmu_war_init(parent_gpu);
+     else
+@@ -320,8 +314,6 @@
+ {
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         uvm_ats_smmu_war_deinit(parent_gpu);
+-
+-    iommu_dev_disable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+ }
+ 
+ NV_STATUS uvm_ats_sva_bind_gpu(uvm_gpu_va_space_t *gpu_va_space)
+diff --git a/kernel/nvidia-uvm/uvm_ats_sva.c b/kernel/nvidia-uvm/uvm_ats_sva.c
+index 1a2b3c4d..7c8d9e0f 100644
+--- a/kernel/nvidia-uvm/uvm_ats_sva.c
++++ b/kernel/nvidia-uvm/uvm_ats_sva.c
+@@ -304,12 +304,6 @@
+ 
+ NV_STATUS uvm_ats_sva_add_gpu(uvm_parent_gpu_t *parent_gpu)
+ {
+-    int ret;
+-
+-    ret = iommu_dev_enable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+-    if (ret)
+-        return errno_to_nv_status(ret);
+-
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         return uvm_ats_smmu_war_init(parent_gpu);
+     else
+@@ -320,8 +314,6 @@
+ {
+     if (UVM_ATS_SMMU_WAR_REQUIRED())
+         uvm_ats_smmu_war_deinit(parent_gpu);
+-
+-    iommu_dev_disable_feature(&parent_gpu->pci_dev->dev, IOMMU_DEV_FEAT_SVA);
+ }
+ 
+ NV_STATUS uvm_ats_sva_bind_gpu(uvm_gpu_va_space_t *gpu_va_space)
+--
+2.53.0
