@@ -12,12 +12,11 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-      - name: Check out main scripts branch for GitHub workflow scripts only
+      - name: Check out scripts at ${{ github.ref }} for GHA scripts only
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: gha
-          ref: main
       - name: Figure out branch
         id: figure-out-branch
         run: gha/.github/workflows/figure-out-branch.sh '${{ matrix.channel }}'
