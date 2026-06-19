@@ -12,6 +12,12 @@
 SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
+# Ensure all contexts share the same FLATCAR_BUILD_ID. Otherwise,
+# ${BUILD_DIR}/version.txt and ${rootfs}/lib/os-release could have different
+# FLATCAR_BUILD_ID values, causing the QEMU image to fail to start.
+# https://github.com/flatcar/Flatcar/issues/2041
+export FLATCAR_BUILD_ID
+
 # Script must run inside the chroot
 assert_inside_chroot
 
