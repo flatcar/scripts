@@ -6,7 +6,7 @@ EAPI=8
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=maturin
 PYPI_VERIFY_REPO=https://github.com/pyca/cryptography
-PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
+PYTHON_COMPAT=( python3_{12..15} )
 PYTHON_REQ_USE="threads(+)"
 
 CARGO_OPTIONAL=yes
@@ -16,7 +16,7 @@ CRATES="
 	asn1_derive@0.24.1
 	base64@0.22.1
 	bitflags@2.11.1
-	cc@1.2.60
+	cc@1.2.61
 	cfg-if@1.0.4
 	find-msvc-tools@0.1.9
 	foreign-types-shared@0.1.1
@@ -26,8 +26,8 @@ CRATES="
 	libc@0.2.186
 	once_cell@1.21.4
 	openssl-macros@0.1.1
-	openssl-sys@0.9.114
-	openssl@0.10.78
+	openssl-sys@0.9.115
+	openssl@0.10.79
 	pem@3.0.6
 	pkg-config@0.3.33
 	portable-atomic@1.13.1
@@ -69,7 +69,7 @@ LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD MIT Unicode-3.0
 "
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 RDEPEND="
 	>=dev-libs/openssl-1.0.2o-r6:0=
@@ -97,7 +97,7 @@ BDEPEND="
 # Files built without CFLAGS/LDFLAGS, acceptable for rust
 QA_FLAGS_IGNORED="usr/lib.*/py.*/site-packages/cryptography/hazmat/bindings/_rust.*.so"
 
-EPYTEST_PLUGINS=( hypothesis pytest-subtests )
+EPYTEST_PLUGINS=( hypothesis )
 EPYTEST_XDIST=1
 distutils_enable_tests pytest
 
@@ -135,5 +135,10 @@ python_test() {
 	local EPYTEST_IGNORE=(
 		tests/bench
 	)
+	local EPYTEST_DESELECT=(
+		# OOMs depending on overcommit setting and available memory
+		tests/hazmat/primitives/test_argon2.py::TestArgon2::test_argon2_malloc_failure
+	)
+
 	epytest
 }
