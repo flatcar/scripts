@@ -5,8 +5,8 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_UPSTREAM_PEP517=standalone
-PYTHON_COMPAT=( pypy3_11 python3_{11..15} )
-RUST_MIN_VER=1.88.0
+PYTHON_COMPAT=( python3_{12..15} )
+RUST_MIN_VER=1.89.0
 inherit cargo distutils-r1 flag-o-matic shell-completion toolchain-funcs
 
 DESCRIPTION="Build and publish crates with pyo3, rust-cpython and cffi bindings"
@@ -21,7 +21,8 @@ SRC_URI="
 LICENSE="|| ( Apache-2.0 MIT ) doc? ( Apache-2.0 OFL-1.1 )"
 LICENSE+="
 	0BSD Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD
-	CDLA-Permissive-2.0 MIT MIT-0 MPL-2.0 Unicode-3.0 ZLIB BZIP2
+	CDLA-Permissive-2.0 ISC MIT MIT-0 MPL-2.0 openssl Unicode-3.0 ZLIB
+	BZIP2
 " # crates
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
@@ -31,15 +32,15 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/xz-utils
 	app-arch/zstd:=
-	ssl? ( <dev-libs/openssl-4:= )
+	ssl? ( dev-libs/openssl:= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
 	virtual/pkgconfig
 	doc? ( >=app-text/mdbook-0.5 )
 	test? (
-		$(python_gen_cond_dep 'dev-python/cffi[${PYTHON_USEDEP}]' 'python*')
 		dev-python/boltons[${PYTHON_USEDEP}]
+		dev-python/cffi[${PYTHON_USEDEP}]
 		dev-python/virtualenv[${PYTHON_USEDEP}]
 		dev-vcs/git
 		elibc_musl? ( dev-util/patchelf )
