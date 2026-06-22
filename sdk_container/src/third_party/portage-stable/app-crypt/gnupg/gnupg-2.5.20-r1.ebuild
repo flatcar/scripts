@@ -71,6 +71,7 @@ DOCS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
 	"${FILESDIR}"/0002-Fix-stub-functions-to-avoid-LTO-linking-bugs-followup.patch
+	"${FILESDIR}"/${PN}-2.5.20-gpgme-poppler-expire.patch
 )
 
 src_prepare() {
