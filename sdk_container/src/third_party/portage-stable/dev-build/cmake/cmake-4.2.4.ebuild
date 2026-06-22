@@ -291,6 +291,11 @@ src_test() {
 		"RunCMake.CMP0125"
 	)
 
+	local myctestargs=(
+		# Filter all tests requiring Fortran
+		-LE "Fortran"
+	)
+
 	local -x QT_QPA_PLATFORM=offscreen
 
 	cmake_src_test

@@ -70,7 +70,7 @@ RESTRICT="!test? ( test )"
 
 # >= 1.51.0-r1 for ppc32 workaround (bug #941738)
 RDEPEND="
-	>=app-arch/libarchive-3.3.3:=
+	>=app-arch/libarchive-3.8.0:=
 	app-crypt/rhash:0=
 	>=dev-libs/expat-2.0.1
 	>=dev-libs/jsoncpp-1.9.2-r2:0=
@@ -289,6 +289,11 @@ src_test() {
 		"TestUpload"
 		# RunCMake.CMP0125, known failure reported upstream (bug #829414)
 		"RunCMake.CMP0125"
+	)
+
+	local myctestargs=(
+		# Filter all tests requiring Fortran
+		-LE "Fortran"
 	)
 
 	local -x QT_QPA_PLATFORM=offscreen
