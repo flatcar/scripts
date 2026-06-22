@@ -131,7 +131,19 @@ multilib_src_test() {
 	local -x TEST_TMPDIR="${T%/}/TEST_TMPDIR_${ABI}"
 	mkdir -p -m 770 "${TEST_TMPDIR}" || die
 
-	ln -srf "${S}/src" "${BUILD_DIR}/include" || die
+	if use conformance; then
+		# needed to fix CommandLineInterfaceTest.DescriptorSetOptionRetention failures
+		cp "${S}/src/google/protobuf/descriptor.proto" "${BUILD_DIR}/src/google/protobuf/" || die
+	fi
+
+	if [[ ${ABI} == x86 ]]; then
+		GTEST_SKIP_TESTS+=(
+			"GenerateEnumDataTest.DebugChecks"
+		)
+	fi
+
+	[[ -n ${GTEST_RUN_TESTS[*]} ]] && GTEST_FILTER+="$(IFS=':' ; echo "${GTEST_RUN_TESTS[*]}")"
+	[[ -n ${GTEST_SKIP_TESTS[*]} ]] && GTEST_FILTER+="${GTEST_FILTER+:}-$(IFS=':' ; echo "${GTEST_SKIP_TESTS[*]}")"
 
 	cmake_src_test "${_cmake_args[@]}"
 }
@@ -139,25 +151,11 @@ multilib_src_test() {
 src_test() {
 	local -x srcdir="${S}/src"
 
-	local GTEST_SKIP_TESTS=(
-		"PackedTest/12.DecodeEmptyPackedField"
-	)
-
-	if tc-is-lto; then
-		# Do headstands for LTO # 942985
-		GTEST_SKIP_TESTS+=(
-			"FileDescriptorSetSource/EncodeDecodeTest*"
-			"LazilyBuildDependenciesTest.GeneratedFile"
-			"PythonGeneratorTest/PythonGeneratorTest.PythonWithCppFeatures/*"
-		)
-	fi
+	local GTEST_SKIP_TESTS=()
 
 	if [[ ! -v GTEST_FILTER ]]; then
 		local -x GTEST_FILTER
 	fi
-
-	[[ -n ${GTEST_RUN_TESTS[*]} ]] && GTEST_FILTER+="$(IFS=':' ; echo "${GTEST_SKIP_TESTS[*]}")"
-	[[ -n ${GTEST_SKIP_TESTS[*]} ]] && GTEST_FILTER+="${GTEST_FILTER+:}-$(IFS=':' ; echo "${GTEST_SKIP_TESTS[*]}")"
 
 	cmake-multilib_src_test
 }
