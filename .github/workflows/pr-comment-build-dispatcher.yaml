@@ -57,7 +57,7 @@ jobs:
 
       - name: Post a link to the workflow run to the PR
         id: step3
-        uses: mshick/add-pr-comment@v2
+        uses: mshick/add-pr-comment@v3
         with:
           issue: ${{ github.event.issue.pull_request.number }}
           message: "Build action triggered: [${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
