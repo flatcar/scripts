@@ -1,0 +1,49 @@
+From 7eecfffbf7642d6c4c2d33243225ff6e6047bd59 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 23 Jun 2026 18:26:28 +0200
+Subject: [PATCH] Revert "systemd: Add noop sysupdate transfer config"
+
+This reverts commit de81605b7c10de0c547edc5b919fc163560f9844.
+---
+ Makefile                  | 2 --
+ sysupdate.d/noop.transfer | 8 --------
+ 2 files changed, 10 deletions(-)
+ delete mode 100644 sysupdate.d/noop.transfer
+
+diff --git a/Makefile b/Makefile
+index 90d2a14..1b1495b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -16,7 +16,6 @@ install:
+ 		$(DESTDIR)/usr/bin \
+ 		$(DESTDIR)/usr/sbin \
+ 		$(DESTDIR)/usr/lib/flatcar \
+-		$(DESTDIR)/usr/lib/sysupdate.d \
+ 		$(DESTDIR)/usr/lib/systemd/system \
+ 		$(DESTDIR)/usr/lib/systemd/network \
+ 		$(DESTDIR)/usr/lib/systemd/system-generators \
+@@ -34,7 +33,6 @@ install:
+ 	install -m 644 configs/modules-load.d/* $(DESTDIR)/usr/lib/modules-load.d/
+ 	install -m 644 configs/tmpfiles.d/* $(DESTDIR)/usr/lib/tmpfiles.d/
+ 	cp -a systemd/* $(DESTDIR)/usr/lib/systemd/
+-	cp -a sysupdate.d/* $(DESTDIR)/usr/lib/sysupdate.d/
+ 	chmod 755 $(DESTDIR)/usr/lib/systemd/system-generators/*
+ 	ln -sf ../run/issue $(DESTDIR)/etc/issue
+ 	ln -sfT flatcar $(DESTDIR)/usr/lib/coreos
+diff --git a/sysupdate.d/noop.transfer b/sysupdate.d/noop.transfer
+deleted file mode 100644
+index a591a2e..0000000
+--- a/sysupdate.d/noop.transfer
++++ /dev/null
+@@ -1,8 +0,0 @@
+-[Source]
+-Type=regular-file
+-Path=/
+-MatchPattern=invalid@v.raw
+-[Target]
+-Type=regular-file
+-Path=/
+-MatchPattern=invalid@v.raw
+-- 
+2.53.0
+
