@@ -1,0 +1,36 @@
+https://src.fedoraproject.org/rpms/grub2/pull-request/238
+
+From db7782da011a39b06fe80282f608390ed76dae1c Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Fri, 26 Jun 2026 14:08:05 +0100
+Subject: [PATCH] verifiers: Fix NULL pointer dereference when verification
+ fails on x64
+
+verified_free() references verified->file->size, so verified->file must
+be set before calling this function.
+
+This was noticed after building EDK2 with --pcd
+PcdNullPointerDetectionPropertyMask=0x03.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/grub-core/kern/verifiers.c
++++ b/grub-core/kern/verifiers.c
+@@ -155,6 +155,7 @@ grub_verifiers_open (grub_file_t io, enum grub_file_type type)
+     {
+       goto fail;
+     }
++  verified->file = io;
+ #if defined (GRUB_MACHINE_EFI) && defined (__x86_64__)
+   verified->buf = grub_efi_allocate_any_pages (GRUB_EFI_BYTES_TO_PAGES (ret->size));
+ #else
+@@ -205,7 +206,6 @@ grub_verifiers_open (grub_file_t io, enum grub_file_type type)
+ 	ver->close (context);
+     }
+ 
+-  verified->file = io;
+   ret->data = verified;
+   return ret;
+ 
+-- 
+2.54.0
+
