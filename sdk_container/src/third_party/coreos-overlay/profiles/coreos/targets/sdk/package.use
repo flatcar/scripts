@@ -15,6 +15,7 @@ app-emulation/qemu -doc -jpeg -pin-upstream-blobs ncurses python static-user vir
 dev-libs/glib static-libs
 dev-libs/libpcre2 static-libs
 sys-apps/attr static-libs
+sys-firmware/edk2-bin qemu_softmmu_targets_aarch64 qemu_softmmu_targets_x86_64
 sys-libs/zlib static-libs
 virtual/zlib static-libs
 
