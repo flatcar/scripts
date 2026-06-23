@@ -10,40 +10,53 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pre_check:
-    name: "Check if we need to update the SDK"
+  approval_gate:
+    name: "Wait for approval"
     runs-on: ubuntu-latest
-    # Setting the environment is the more important reason we need this job.
-    # We use this job as a gate, so we can approve the PR workflow only once. If
+    # Use this job as a gate, so we can approve the PR workflow only once. If
     # we set this in the update_sdk job and in the build_image job, we would have
     # to approve the workflow for every job that kicks off. Given that the jobs
     # are sequenced, this is cumbersome. Use this job as a gate and make the rest
     # dependent on it.
-    environment: development
-    outputs:
-      sdk_changes: ${{ steps.step1.outputs.sdk_changes }}
+    #
+    # Skip the environment gate for auto-ci PRs from the bot to allow
+    # automatic triggering without manual approval.
+    environment: ${{ (github.actor != 'flatcar-infra' || !contains(github.event.pull_request.labels.*.name, 'auto-ci')) && 'development' || null }}
     steps:
-      - name: Set outputs
-        id: step1
-        shell: bash
-        run: |
-          echo "sdk_changes=${{ contains(github.event.pull_request.body, '/update-sdk') }}" >> $GITHUB_OUTPUT
+      - run: 'true'
 
   update_sdk:
     name: "Build an updated SDK container"
-    needs: [ pre_check ]
-    if: needs.pre_check.outputs.sdk_changes == 'true'
+    needs: [ approval_gate ]
+    if: "!contains(github.event.pull_request.labels.*.name, 'jenkins-ci') && contains(github.event.pull_request.body, '/update-sdk')"
     # SDK build needs access to bincache ssh secret
     secrets: inherit
     uses: ./.github/workflows/update-sdk.yaml
 
   build_image:
-    needs: [ update_sdk ]
+    needs: [ approval_gate, update_sdk ]
     # The update-sdk job may be skipped, which is fine. We only care if it tried to
     # run, but failed.
-    if: (always() && !cancelled()) && needs.update_sdk.result != 'failure'
+    if: "!contains(github.event.pull_request.labels.*.name, 'jenkins-ci') && always() && !cancelled() && needs.approval_gate.result == 'success' && needs.update_sdk.result != 'failure'"
     name: "Build the OS image"
     uses: ./.github/workflows/ci.yaml
     with:
       custom_sdk_version: ${{ needs.update_sdk.outputs.sdk_version }}
       image_formats: qemu_uefi pxe
+
+  jenkins_ci:
+    name: "Trigger Jenkins CI"
+    needs: [ approval_gate ]
+    if: contains(github.event.pull_request.labels.*.name, 'jenkins-ci')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins build
+        run: |
+          curl -fsSL \
+            https://jenkins.flatcar.org/buildByToken/buildWithParameters \
+            --data-urlencode "token=${{ secrets.JENKINS_REMOTE_TRIGGER_TOKEN }}" \
+            --data-urlencode "job=container/packages_all_arches" \
+            --data-urlencode "cause=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --data-urlencode "version=main-9999.0.${{ github.run_number }}-github-${{ github.event.pull_request.number }}" \
+            --data-urlencode "scripts_ref=${{ github.event.pull_request.head.sha }}" \
+            --data-urlencode "git_sha=${{ github.event.pull_request.head.sha }}"
