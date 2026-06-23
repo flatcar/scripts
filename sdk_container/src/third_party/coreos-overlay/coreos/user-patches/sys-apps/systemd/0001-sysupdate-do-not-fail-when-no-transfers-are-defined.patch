@@ -1,0 +1,39 @@
+From f5f1ae2462f192825c5cfd050b33d093a68d8add Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 23 Jun 2026 14:44:49 +0200
+Subject: [PATCH] sysupdate: do not fail when no transfers are defined
+
+`sysupdate` operations like 'list', 'reboot', etc. should not fail when
+no transfers are defined.
+
+We can still warn but this should not fail (i.e return an exit code
+different from zero).
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/sysupdate/sysupdate.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/src/sysupdate/sysupdate.c b/src/sysupdate/sysupdate.c
+index 69848c3fcb..60710875d8 100644
+--- a/src/sysupdate/sysupdate.c
++++ b/src/sysupdate/sysupdate.c
+@@ -250,12 +250,10 @@ static int context_read_definitions(Context *c, const char* node, bool requires_
+ 
+         if (c->n_transfers + (requires_enabled_transfers ? 0 : c->n_disabled_transfers) == 0) {
+                 if (arg_component)
+-                        return log_error_errno(SYNTHETIC_ERRNO(ENOENT),
+-                                               "No transfer definitions for component '%s' found.",
+-                                               arg_component);
++                        log_warning("No transfer definitions for component '%s' found.", arg_component);
++                        return 0;
+ 
+-                return log_error_errno(SYNTHETIC_ERRNO(ENOENT),
+-                                       "No transfer definitions found.");
++                log_warning("No transfer definitions found.");
+         }
+ 
+         return 0;
+-- 
+2.53.0
+
