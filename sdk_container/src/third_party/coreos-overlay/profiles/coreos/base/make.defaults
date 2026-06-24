@@ -112,8 +112,8 @@ LINGUAS="en"
 PORTAGE_BZIP2_COMMAND="lbzip2"
 PORTAGE_BUNZIP2_COMMAND="lbunzip2"
 
-# Always build binary packages, remove old build logs, avoid running as root.
-FEATURES="buildpkg clean-logs compressdebug parallel-install splitdebug
+# Always remove old build logs, avoid running as root.
+FEATURES="clean-logs compressdebug parallel-install splitdebug
           userfetch userpriv usersandbox ipc-sandbox network-sandbox
           -ccache -merge-sync -binpkg-multi-instance"
 
