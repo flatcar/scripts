@@ -4,6 +4,11 @@
 # New entries go on top.
 # Please use the same syntax as in package.use.mask.
 
+# Paul Zander <negril.nx+gentoo@gmail.com> (2026-05-04)
+# Not intended for general use.
+# The tests are wired up so we can test compilers.
+dev-cpp/eigen test
+
 # Sam James <sam@gentoo.org> (2026-05-03)
 # Needs not-yet-stable GCC 16.
 dev-lang/python tail-call-interp
@@ -160,10 +165,6 @@ app-backup/backup-manager s3
 # Requires unmaintained unstable dependency net-libs/gloox.
 # The go flag requires stable masked dev-lang/go[gccgo].
 www-servers/uwsgi go uwsgi_plugins_alarm_xmpp
-
-# Michael Palimaka <kensington@gentoo.org> (2017-08-11)
-# Unstable dependencies.
-dev-util/rpmdevtools emacs
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2017-03-23)
 # Requires dev-lang/julia stabilisation, bug #613576
