@@ -6,6 +6,29 @@
 
 # New entries go on top.
 
+# Christian Ruppert <idl0r@gentoo.org> (2026-06-08)
+# dev-libs/openssl-4.0.0/0.4 is currently masked
+net-misc/curl ech
+net-proxy/haproxy ech
+
+# Sam James <sam@gentoo.org> (2026-06-01)
+# Broken with new dev-python/pathspec (bug #973108)
+<dev-python/mypy-2.1.0 native-extensions
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2026-05-04)
+# opengl is broken
+# pastix is broken, metis requires pastix
+# blas and lapack are poorly maintained
+# tests are finicky for 3/3.4
+dev-cpp/eigen blas lapack
+dev-cpp/eigen opengl
+dev-cpp/eigen metis pastix
+dev-cpp/eigen:3/3.4 test
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2026-05-04)
+# uses MeDiPack
+~sci-libs/adolc-9999 -mpi
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-05-15)
 # Various integration packages. Preparing Qt5 last-rites.
 # Removal some time after 2026-05-30.
@@ -91,10 +114,6 @@ media-libs/subrandr debug
 # repository was archived.
 gui-wm/hyprland qtutils
 
-# Michał Górny <mgorny@gentoo.org> (2025-12-20)
-# Needs last-rited dev-lang/julia.
-<kde-apps/cantor-25.12.2-r1 julia
-
 # Lukas Schmelting <lschmelting@posteo.com (2025-11-06)
 # https://bugs.gentoo.org/933164
 app-misc/localsearch gif
@@ -125,6 +144,7 @@ mail-mta/exim pam
 # really added to test if ILP64 packaging works, mask it for the time
 # being.
 dev-python/numpy index64
+dev-python/scipy index64
 
 # Nicolas PARLANT <nicolas.parlant@parhuet.fr> (2025-09-20)
 # Require dev-libs/libtsm, only keyworded on amd64 and x86
@@ -159,7 +179,8 @@ games-simulation/flightgear gdal
 
 # Joonas Niilola <juippis@gentoo.org> (2025-05-14)
 # Experimental, no official upstream support.
-www-client/firefox jpegxl
+# 2026-06-15 update: after 152.0 upstream officially supports it.
+<www-client/firefox-152.0 jpegxl
 
 # Paul Zander <negril.nx+gentoo@gmail.com> (2025-05-01)
 # Requires llvm-15
@@ -220,10 +241,6 @@ llvm-core/llvm debuginfod
 # Missing dependencies not packaged currently
 dev-python/pyside doc
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-29)
-# Prepare cleanup of kde-frameworks/syndication:5
-kde-frameworks/knewstuff:5 opds
-
 # Eli Schwartz <eschwartz@gentoo.org> (2025-01-27)
 # Dependencies e.g. bindgen/netcdf/pypy not keyworded or stable in
 # most places.
@@ -262,10 +279,6 @@ www-client/firefox wasm-sandbox
 # We'll mask it for a few weeks to use the bundled ICU
 # while Google fixes the issue.
 www-client/chromium system-icu
-
-# Joonas Niilola <juippis@gentoo.org> (2024-11-07)
-# Dependency for generating docs not packaged in Gentoo. #942992
-dev-util/repolite doc
 
 # Sam James <sam@gentoo.org> (2024-10-29)
 # Currently needs patched dev-util/sysprof.

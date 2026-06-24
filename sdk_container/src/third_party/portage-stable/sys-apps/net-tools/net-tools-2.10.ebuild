@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -57,6 +57,8 @@ src_configure() {
 	set_opt HAVE_HOSTNAME_TOOLS use hostname
 	set_opt HAVE_HOSTNAME_SYMLINKS use nis
 	set_opt HAVE_PLIP_TOOLS use plipconfig
+	set_opt HAVE_AFROSE has_version '<sys-kernel/linux-headers-7.1'
+	set_opt HAVE_HWROSE has_version '<sys-kernel/linux-headers-7.1'
 	set_opt HAVE_SERIAL_TOOLS use slattach
 	if use static ; then
 		append-flags -static
