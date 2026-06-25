@@ -43,10 +43,10 @@ index 69848c3fcb..638dc21c1e 100644
                  return r;
 -        if (!context->newest_installed)
 -                return log_error_errno(SYNTHETIC_ERRNO(ENODATA), "Couldn't find any suitable installed versions.");
-+        if (!context->newest_installed || context->n_transfers) {
-+                log_warning("Couldn't find any suitable installed versions.");
-+                return 0;
-+        }
++        if (!context->newest_installed)
++                return context->n_transfers == 0
++                        ? (log_warning("Couldn't find any suitable installed versions."), 0)
++                        : log_error_errno(SYNTHETIC_ERRNO(ENODATA), "Couldn't find any suitable installed versions.");
  
          r = parse_os_release(arg_root, "IMAGE_VERSION", &booted_version);
          if (r < 0) /* yes, arg_root is NULL here, but we have to pass something, and it's a lot more readable
