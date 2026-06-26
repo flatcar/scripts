@@ -1,0 +1,340 @@
+From 45769b525e8350cda246427987c6349dfabfef1c Mon Sep 17 00:00:00 2001
+From: Philip Withnall <pwithnall@gnome.org>
+Date: Thu, 21 May 2026 11:14:01 +0100
+Subject: [PATCH 1/4] sysupdate: Convert an internal bool argument to flags
+
+This commit makes no functional changes, but the new flags will be
+used and extended in the following commit. We need a flags variable to
+avoid having two bool arguments, which would be confusing.
+
+Signed-off-by: Philip Withnall <pwithnall@gnome.org>
+Helps: https://github.com/systemd/systemd/issues/41501
+---
+ src/sysupdate/sysupdate.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/src/sysupdate/sysupdate.c b/src/sysupdate/sysupdate.c
+index 69848c3fcb..dc8fe388cd 100644
+--- a/src/sysupdate/sysupdate.c
++++ b/src/sysupdate/sysupdate.c
+@@ -175,7 +175,11 @@ static int read_definitions(
+         return 0;
+ }
+
+-static int context_read_definitions(Context *c, const char* node, bool requires_enabled_transfers) {
++typedef enum ReadDefinitionsFlags {
++        READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS = 1 << 0,
++} ReadDefinitionsFlags;
++
++static int context_read_definitions(Context *c, const char* node, ReadDefinitionsFlags flags) {
+         _cleanup_strv_free_ char **dirs = NULL;
+         int r;
+
+@@ -248,7 +252,7 @@ static int context_read_definitions(Context *c, const char* node, bool requires_
+                         log_warning("As of v257, transfer definitions should have the '.transfer' extension.");
+         }
+
+-        if (c->n_transfers + (requires_enabled_transfers ? 0 : c->n_disabled_transfers) == 0) {
++        if (c->n_transfers + (FLAGS_SET(flags, READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS) ? 0 : c->n_disabled_transfers) == 0) {
+                 if (arg_component)
+                         return log_error_errno(SYNTHETIC_ERRNO(ENOENT),
+                                                "No transfer definitions for component '%s' found.",
+@@ -925,7 +929,7 @@ static int context_vacuum(
+         return 0;
+ }
+
+-static int context_make_offline(Context **ret, const char *node, bool requires_enabled_transfers) {
++static int context_make_offline(Context **ret, const char *node, ReadDefinitionsFlags read_definitions_flags) {
+         _cleanup_(context_freep) Context* context = NULL;
+         int r;
+
+@@ -938,7 +942,7 @@ static int context_make_offline(Context **ret, const char *node, bool requires_e
+         if (!context)
+                 return log_oom();
+
+-        r = context_read_definitions(context, node, requires_enabled_transfers);
++        r = context_read_definitions(context, node, read_definitions_flags);
+         if (r < 0)
+                 return r;
+
+@@ -959,7 +963,7 @@ static int context_make_online(Context **ret, const char *node) {
+         /* Like context_make_offline(), but also communicates with the update source looking for new
+          * versions (as long as --offline is not specified on the command line). */
+
+-        r = context_make_offline(&context, node, /* requires_enabled_transfers= */ true);
++        r = context_make_offline(&context, node, READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+@@ -1361,7 +1365,7 @@ static int verb_features(int argc, char **argv, void *userdata) {
+         if (r < 0)
+                 return r;
+
+-        r = context_make_offline(&context, loop_device ? loop_device->node : NULL, /* requires_enabled_transfers= */ false);
++        r = context_make_offline(&context, loop_device ? loop_device->node : NULL, 0);
+         if (r < 0)
+                 return r;
+
+@@ -1536,7 +1540,7 @@ static int verb_vacuum(int argc, char **argv, void *userdata) {
+         if (r < 0)
+                 return r;
+
+-        r = context_make_offline(&context, loop_device ? loop_device->node : NULL, /* requires_enabled_transfers= */ false);
++        r = context_make_offline(&context, loop_device ? loop_device->node : NULL, 0);
+         if (r < 0)
+                 return r;
+
+@@ -1639,7 +1643,7 @@ static int verb_pending_or_reboot(int argc, char **argv, void *userdata) {
+                 return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                                        "The --root=/--image= switches may not be combined with the '%s' operation.", argv[0]);
+
+-        r = context_make_offline(&context, /* node= */ NULL, /* requires_enabled_transfers= */ true);
++        r = context_make_offline(&context, /* node= */ NULL, READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+--
+2.53.0
+
+
+From 8aa830339a86cc76b2d4199d6d31a70e03924e54 Mon Sep 17 00:00:00 2001
+From: Philip Withnall <pwithnall@gnome.org>
+Date: Thu, 21 May 2026 11:17:56 +0100
+Subject: [PATCH 2/4] sysupdate: Add a flag to control error behaviour in
+ internal function
+
+Optionally prevent `context_read_definitions()` erroring out if zero
+transfer definitions were found.
+
+This commit makes no functional changes (the flag is always passed to
+calls to `context_make_offline()` for the moment), but the new flag will be
+used in the following commit.
+
+Signed-off-by: Philip Withnall <pwithnall@gnome.org>
+Helps: https://github.com/systemd/systemd/issues/41501
+---
+ src/sysupdate/sysupdate.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/src/sysupdate/sysupdate.c b/src/sysupdate/sysupdate.c
+index dc8fe388cd..61d5eeb01c 100644
+--- a/src/sysupdate/sysupdate.c
++++ b/src/sysupdate/sysupdate.c
+@@ -177,6 +177,7 @@ static int read_definitions(
+
+ typedef enum ReadDefinitionsFlags {
+         READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS = 1 << 0,
++        READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS     = 1 << 1,
+ } ReadDefinitionsFlags;
+
+ static int context_read_definitions(Context *c, const char* node, ReadDefinitionsFlags flags) {
+@@ -252,7 +253,8 @@ static int context_read_definitions(Context *c, const char* node, ReadDefinition
+                         log_warning("As of v257, transfer definitions should have the '.transfer' extension.");
+         }
+
+-        if (c->n_transfers + (FLAGS_SET(flags, READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS) ? 0 : c->n_disabled_transfers) == 0) {
++        if (FLAGS_SET(flags, READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS) &&
++            c->n_transfers + (FLAGS_SET(flags, READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS) ? 0 : c->n_disabled_transfers) == 0) {
+                 if (arg_component)
+                         return log_error_errno(SYNTHETIC_ERRNO(ENOENT),
+                                                "No transfer definitions for component '%s' found.",
+@@ -963,7 +965,8 @@ static int context_make_online(Context **ret, const char *node) {
+         /* Like context_make_offline(), but also communicates with the update source looking for new
+          * versions (as long as --offline is not specified on the command line). */
+
+-        r = context_make_offline(&context, node, READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS);
++        r = context_make_offline(&context, node,
++                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS | READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+@@ -1365,7 +1368,8 @@ static int verb_features(int argc, char **argv, void *userdata) {
+         if (r < 0)
+                 return r;
+
+-        r = context_make_offline(&context, loop_device ? loop_device->node : NULL, 0);
++        r = context_make_offline(&context, loop_device ? loop_device->node : NULL,
++                                 READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+@@ -1540,7 +1544,8 @@ static int verb_vacuum(int argc, char **argv, void *userdata) {
+         if (r < 0)
+                 return r;
+
+-        r = context_make_offline(&context, loop_device ? loop_device->node : NULL, 0);
++        r = context_make_offline(&context, loop_device ? loop_device->node : NULL,
++                                 READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+@@ -1643,7 +1648,8 @@ static int verb_pending_or_reboot(int argc, char **argv, void *userdata) {
+                 return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                                        "The --root=/--image= switches may not be combined with the '%s' operation.", argv[0]);
+
+-        r = context_make_offline(&context, /* node= */ NULL, READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS);
++        r = context_make_offline(&context, /* node= */ NULL,
++                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS | READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+--
+2.53.0
+
+
+From 674cd89ea7afac66ddd4f9342e5788925bc20842 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 26 Jun 2026 10:21:01 +0200
+Subject: [PATCH 3/4] sysupdate: List default component only if transfer
+ definition exists
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+`sysupdate --json=short components` lists the components known to
+sysupdate; these are the components which something like `updatectl`
+will try to update.
+
+The `default` component represents the host, and is meant to be listed
+if transfer definitions exist in (for example) `/etc/sysupdate.d`
+corresponding to the host OS. This then corresponds to `TARGET_HOST` in
+`updatectl` and causes it to try updating that target.
+
+The logic for working out whether the `default` component was present
+essentially boiled down to “does `{/run,/etc,/usr/lib}/sysupdate.d`
+exist”, and it didn’t check whether a `.transfer` or `.conf` file
+actually existed in the config directory.
+
+This is quite the corner case, but becomes more evident on systems where
+sysupdate is being used to update a portable service but not the main
+OS. At that point, if `/etc/sysupdate.d` exists empty (for some reason),
+`updatectl` falls over because it starts trying to update the host OS
+without any configuration to do so.
+
+So, modify `sysupdate` to more fully load the available configuration
+when listing components, and query it a bit more deeply to check whether
+a default component exists.
+
+If `sysupdate` is called with various command line arguments to affect
+how its configuration is loaded, do *not* say that a default component
+exists, as these arguments essentially anull the possibility of a
+default being used in that process.
+
+Add an integration test based on the reproducer provided by the issue
+reporter. This test has been tested to fail if the changes to
+`sysupdate.c` aren’t applied — if so, the second call to `sysupdate
+components` would return
+`{"default":true,"components":["some-component"]}`.
+
+Signed-off-by: Philip Withnall <pwithnall@gnome.org>
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/sysupdate/sysupdate.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/src/sysupdate/sysupdate.c b/src/sysupdate/sysupdate.c
+index 61d5eeb01c..552491ee1a 100644
+--- a/src/sysupdate/sysupdate.c
++++ b/src/sysupdate/sysupdate.c
+@@ -1713,6 +1713,7 @@ static int component_name_valid(const char *c) {
+ }
+
+ static int verb_components(int argc, char **argv, void *userdata) {
++        _cleanup_(context_freep) Context* context = NULL;
+         _cleanup_(loop_device_unrefp) LoopDevice *loop_device = NULL;
+         _cleanup_(umount_and_rmdir_and_freep) char *mounted_dir = NULL;
+         _cleanup_set_free_ Set *names = NULL;
+@@ -1725,6 +1726,10 @@ static int verb_components(int argc, char **argv, void *userdata) {
+         if (r < 0)
+                 return r;
+
++        r = context_make_offline(&context, loop_device ? loop_device->node : NULL, 0);
++        if (r < 0)
++                return r;
++
+         ConfFile **directories = NULL;
+         size_t n_directories = 0;
+
+@@ -1739,7 +1744,6 @@ static int verb_components(int argc, char **argv, void *userdata) {
+                 ConfFile *e = *i;
+
+                 if (streq(e->filename, "sysupdate.d")) {
+-                        has_default_component = true;
+                         continue;
+                 }
+
+@@ -1767,6 +1771,14 @@ static int verb_components(int argc, char **argv, void *userdata) {
+                 TAKE_PTR(n);
+         }
+
++        /* Does the system have at least one transfer file in /etc/sysupdate.d, which can be considered a
++         * TARGET_HOST? See target_get_argument() in sysupdated.c */
++        has_default_component = (!arg_definitions &&
++                                 !arg_component &&
++                                 !arg_root &&
++                                 !arg_image &&
++                                 context->n_transfers > 0);
++
+         /* We use simple free() rather than strv_free() here, since set_free() will free the strings for us */
+         _cleanup_free_ char **z = set_get_strv(names);
+         if (!z)
+--
+2.53.0
+
+
+From 99c72ce41713b3f670ea21ced32330aed08e4f17 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 26 Jun 2026 10:23:12 +0200
+Subject: [PATCH 4/4] sysupdate: do not fail when no transfers are defined
+
+sysupdate operations like 'list', 'reboot', etc.
+should not fail when no transfers are defined.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/sysupdate/sysupdate.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/sysupdate/sysupdate.c b/src/sysupdate/sysupdate.c
+index 552491ee1a..96d4db9a8e 100644
+--- a/src/sysupdate/sysupdate.c
++++ b/src/sysupdate/sysupdate.c
+@@ -966,7 +966,7 @@ static int context_make_online(Context **ret, const char *node) {
+          * versions (as long as --offline is not specified on the command line). */
+
+         r = context_make_offline(&context, node,
+-                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS | READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
++                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+@@ -1369,7 +1369,7 @@ static int verb_features(int argc, char **argv, void *userdata) {
+                 return r;
+
+         r = context_make_offline(&context, loop_device ? loop_device->node : NULL,
+-                                 READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
++                                 0);
+         if (r < 0)
+                 return r;
+
+@@ -1545,7 +1545,7 @@ static int verb_vacuum(int argc, char **argv, void *userdata) {
+                 return r;
+
+         r = context_make_offline(&context, loop_device ? loop_device->node : NULL,
+-                                 READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
++                                 0);
+         if (r < 0)
+                 return r;
+
+@@ -1649,7 +1649,7 @@ static int verb_pending_or_reboot(int argc, char **argv, void *userdata) {
+                                        "The --root=/--image= switches may not be combined with the '%s' operation.", argv[0]);
+
+         r = context_make_offline(&context, /* node= */ NULL,
+-                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS | READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
++                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS);
+         if (r < 0)
+                 return r;
+
+--
+2.53.0
+
