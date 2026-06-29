@@ -34,12 +34,9 @@ DEPEND="acct-group/incus
 	sys-libs/libcap
 	virtual/udev"
 RDEPEND="${DEPEND}
-	|| (
-		net-firewall/iptables
-		net-firewall/nftables[json]
-	)
 	fuidshift? ( !app-containers/lxd )
 	net-firewall/ebtables
+	net-firewall/nftables[json]
 	sys-apps/iproute2
 	sys-fs/fuse:*
 	>=sys-fs/lxcfs-5.0.0
@@ -50,8 +47,9 @@ RDEPEND="${DEPEND}
 		app-cdr/cdrtools
 		app-emulation/qemu[spice,usbredir,virtfs]
 		sys-apps/gptfdisk
-	)"
-BDEPEND=">=dev-lang/go-1.24.7
+	)
+	selinux? ( sec-policy/selinux-incus )"
+BDEPEND=">=dev-lang/go-1.25.10
 	nls? ( sys-devel/gettext )
 	verify-sig? ( sec-keys/openpgp-keys-linuxcontainers )"
 
@@ -89,8 +87,7 @@ QA_PREBUILT="/usr/bin/incus
 	/usr/bin/incus-migrate
 	/usr/bin/lxc-to-incus
 	/usr/sbin/fuidshift
-	/usr/sbin/incusd
-	/usr/sbin/lxd-to-incus"
+	/usr/sbin/incusd"
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/linuxcontainers.asc
 
@@ -152,7 +149,7 @@ src_compile() {
 	export GOPATH="${S}/_dist"
 	export CGO_LDFLAGS_ALLOW="-Wl,-z,now"
 
-	for k in incus-benchmark incus-simplestreams incus-user incus lxc-to-incus lxd-to-incus ; do
+	for k in incus-benchmark incus-simplestreams incus-user incus lxc-to-incus; do
 		ego install -v -x "${S}/cmd/${k}"
 	done
 
@@ -203,7 +200,7 @@ src_install() {
 	newsbin "${FILESDIR}"/incus-startup-0.4.sh incus-startup
 
 	# Admin tools
-	for l in incusd incus-user lxd-to-incus ; do
+	for l in incusd incus-user; do
 		dosbin "${bindir}/${l}"
 	done
 
