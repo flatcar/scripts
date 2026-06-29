@@ -5,12 +5,11 @@ EAPI=8
 
 inherit alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
-PATCH_VER=1
+PATCH_VER=2
 CROSS_VER=1.6.4
-PATCH_BASE="perl-5.42.0-patches-${PATCH_VER}"
-PATCH_DEV=dilfridge
+PATCH_BASE="perl-5.44.0-RC1-patches-${PATCH_VER}"
 
-DIST_AUTHOR=SHAY
+DIST_AUTHOR=LEONT
 
 # Greatest first, don't include yourself
 # Devel point-releases are not ABI-intercompatible, but stable point releases are
@@ -18,7 +17,7 @@ DIST_AUTHOR=SHAY
 PERL_BIN_OLDVERSEN=""
 
 if [[ "${PV##*.}" == "9999" ]]; then
-	DIST_VERSION=5.42.0
+	DIST_VERSION=5.45.0
 else
 	DIST_VERSION="${PV/_rc/-RC}"
 fi
@@ -44,7 +43,7 @@ HOMEPAGE="https://www.perl.org/"
 SRC_URI="
 	mirror://cpan/src/5.0/${MY_P}.tar.xz
 	mirror://cpan/authors/id/${DIST_AUTHOR:0:1}/${DIST_AUTHOR:0:2}/${DIST_AUTHOR}/${MY_P}.tar.xz
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${PATCH_BASE}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/perl/${PATCH_BASE}.tar.xz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
 "
 
@@ -54,8 +53,8 @@ LICENSE="|| ( Artistic GPL-1+ )"
 
 SLOT="0/${SUBSLOT}"
 
-if [[ "${PV##*.}" != "9999" ]] && [[ "${PV/rc//}" == "${PV}" ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+if [[ "${PV##*.}" != "9999" ]] ; then
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 fi
 
 IUSE="berkdb perl_features_debug doc gdbm perl_features_ithreads minimal perl_features_quadmath"
@@ -85,19 +84,19 @@ PDEPEND="
 # virtual/perl-Test-Harness is here for the bundled ExtUtils::MakeMaker
 
 dual_scripts() {
-	src_remove_dual      perl-core/Archive-Tar        3.40.0        ptar ptardiff ptargrep
+	src_remove_dual      perl-core/Archive-Tar        3.120.0        ptar ptardiff ptargrep
 	src_remove_dual      perl-core/CPAN               2.380.0       cpan
 	src_remove_dual      perl-core/Digest-SHA         6.40.0        shasum
-	src_remove_dual      perl-core/Encode             3.210.0       enc2xs piconv
-	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.760.0       instmodsh
-	src_remove_dual      perl-core/ExtUtils-ParseXS   3.570.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.213.0       zipdetails
+	src_remove_dual      perl-core/Encode             3.240.0       enc2xs piconv
+	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.780.0       instmodsh
+	src_remove_dual      perl-core/ExtUtils-ParseXS   3.630.0       xsubpp
+	src_remove_dual      perl-core/IO-Compress        2.220.0       zipdetails
 	src_remove_dual      perl-core/JSON-PP            4.160.0       json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.507.20  corelist
+	src_remove_dual      perl-core/Module-CoreList    5.202.606.10  corelist
 	src_remove_dual      perl-core/Pod-Checker        1.770.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
 	src_remove_dual      perl-core/Pod-Usage          2.50.0        pod2usage
-	src_remove_dual      perl-core/Test-Harness       3.500.0       prove
+	src_remove_dual      perl-core/Test-Harness       3.520.0       prove
 	src_remove_dual      perl-core/podlators          6.0.2         pod2man pod2text
 	src_remove_dual_man  perl-core/podlators          6.0.2         /usr/share/man/man1/perlpodstyle.1
 }
