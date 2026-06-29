@@ -3,11 +3,10 @@
 
 EAPI="8"
 
-VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs eapi9-ver flag-o-matic linux-info
-inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
+inherit autotools check-reqs flag-o-matic linux-info
+inherit multiprocessing pax-utils toolchain-funcs
 inherit verify-sig
 
 REAL_PV=${PV#0.}
@@ -25,7 +24,7 @@ SRC_URI="
 	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
 	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
+		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
@@ -35,7 +34,7 @@ SLOT="${PYVER}"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
 	bluetooth debug +ensurepip examples gdbm libedit +ncurses pgo
-	+readline +sqlite +ssl tail-call-interp test tk valgrind
+	+readline +sqlite +ssl test tk valgrind
 "
 RESTRICT="!test? ( test )"
 
@@ -47,16 +46,16 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
-	app-arch/zstd:=
+	app-crypt/libb2
 	app-misc/mime-types
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
 	dev-libs/mpdecimal:=
 	dev-python/gentoo-common
+	sys-apps/util-linux
 	>=virtual/zlib-1.1.3:=
 	virtual/libintl
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
-	kernel_linux? ( sys-apps/util-linux:= )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
 		!libedit? ( >=sys-libs/readline-4.1:= )
@@ -86,25 +85,13 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
-	tail-call-interp? (
-		|| (
-			>=sys-devel/gcc-16:*
-			>=llvm-core/clang-19:*
-		)
-	)
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20221025 )
 "
-if [[ ${PV} != *_alpha* ]]; then
-	RDEPEND+="
-		dev-lang/python-exec[python_targets_python${PYVER/./_}(-)]
-	"
-fi
 PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
-# https://www.python.org/downloads/metadata/sigstore/
-VERIFY_SIG_CERT_IDENTITY=hugo@python.org
-VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
@@ -122,6 +109,12 @@ pkg_pretend() {
 	if use pgo || use test; then
 		check-reqs_pkg_pretend
 	fi
+
+	ewarn "Freethreading build is considered experimental upstream.  Using it"
+	ewarn "could lead to unexpected breakage, including race conditions"
+	ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
+	ewarn "you can reproduce the problem with dev-lang/python.  Instead,"
+	ewarn "please consider reporting freethreading problems upstream."
 }
 
 pkg_setup() {
@@ -135,16 +128,12 @@ pkg_setup() {
 			done
 			linux-info_pkg_setup
 		fi
-		if use tail-call-interp; then
-			tc-check-min_ver gcc 16
-			tc-check-min_ver clang 19
-		fi
 	fi
 }
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
 	fi
 	default
 }
@@ -360,10 +349,6 @@ src_configure() {
 			# Hangs (actually runs indefinitely executing itself w/ many cpython builds)
 			# bug #900429
 			-x test_tools
-
-			# Test terminates abruptly which corrupts written profile data
-			# bug #964023
-			-x test_pyrepl
 		)
 
 		if has_version "app-arch/rpm" ; then
@@ -402,7 +387,6 @@ src_configure() {
 		$(use_with debug assertions)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
-		$(use_with tail-call-interp)
 		$(use_with valgrind)
 	)
 
@@ -595,41 +579,4 @@ src_install() {
 		-e "s:@PYDOC@:pydoc${PYVER}:" \
 		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
 		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
-
-	# python-exec wrapping support
-	local pymajor=${PYVER%.*}
-	local EPYTHON=python${PYVER}
-	local scriptdir=${D}$(python_get_scriptdir)
-	mkdir -p "${scriptdir}" || die
-	# python and pythonX
-	ln -s "../../../bin/${abiver}" "${scriptdir}/python${pymajor}" || die
-	ln -s "python${pymajor}" "${scriptdir}/python" || die
-	# python-config and pythonX-config
-	# note: we need to create a wrapper rather than symlinking it due
-	# to some random dirname(argv[0]) magic performed by python-config
-	cat > "${scriptdir}/python${pymajor}-config" <<-EOF || die
-		#!/bin/sh
-		exec "${abiver}-config" "\${@}"
-	EOF
-	chmod +x "${scriptdir}/python${pymajor}-config" || die
-	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
-	# pydoc
-	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
-	# idle
-	if use tk; then
-		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
-	fi
-}
-
-pkg_postinst() {
-	if ver_replacing -lt 0.3.14.0_beta3; then
-		ewarn "Python 3.14.0b3 has changed its module ABI.  The .pyc files"
-		ewarn "installed previously are no longer valid and will be regenerated"
-		ewarn "(or ignored) on the next import.  This may cause sandbox failures"
-		ewarn "when installing some packages and checksum mismatches when removing"
-		ewarn "old versions.  To actively prevent this, rebuild all packages"
-		ewarn "installing Python 3.14 modules, e.g. using:"
-		ewarn
-		ewarn "  emerge -1v /usr/lib/python3.14t/site-packages"
-	fi
 }
