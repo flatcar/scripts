@@ -29,6 +29,12 @@ function emerge_pretend() {
     shift ${count}
     # rest are uses, if any
 
+    printf '%s\n' \
+           "Invoking emerge" \
+           "ROOT: ${root}" \
+           "USE: ${*}" \
+           "packages: ${pkgs[*]}"
+
     # Probably a bunch of those flags are not necessary, but I'm not
     # touching it - they seem to be working. :)
     local -a emerge_opts=(
@@ -63,10 +69,16 @@ function emerge_pretend() {
     local rv
     rv=0
     if [[ ${#} -gt 0 ]]; then
+        printf 'actual command: %s\n\n\n' "USE=\"${*}\" emerge ${emerge_opts[*]} ${pkgs[*]}"
+    else
+        printf 'actual command: %s\n\n\n' "emerge ${emerge_opts[*]} ${pkgs[*]}"
+    fi
+    if [[ ${#} -gt 0 ]]; then
         USE="${*}" emerge "${emerge_opts[@]}" "${pkgs[@]}" || rv=${?}
     else
         emerge "${emerge_opts[@]}" "${pkgs[@]}" || rv=${?}
     fi
+    printf 'exit status: %d\n\n\n' "${rv}"
     if [[ ${rv} -ne 0 ]]; then
         echo "WARNING: emerge exited with status ${rv}" >&2
     fi
@@ -280,6 +292,19 @@ function package_info_for_board() {
         fi
     done
 
+    local -a oem_descriptors
+    mapfile -t oem_descriptors < <(
+        source build_library/oem_sysexts.sh
+        local -a oem_descs=()
+        get_oem_sysext_matrix "${arch}" oem_descs
+        printf '%s\n' "${oem_descs[@]}"
+    )
+    local -a fields
+    for entry in "${oem_descriptors[@]}"; do
+        read -r -a fields <<<"${entry//|/ }"
+        sysext_pkgs_csv_to_uses_csv_flags_map["${fields[1]}"]=${fields[2]:-}
+    done
+
     # Generate additional reports for the yet unreported sysext
     # packages.
     local dbg_suffix
@@ -296,7 +321,7 @@ function package_info_for_board() {
         read -r -a pkgs <<<"${pkgs_csv//,/ }"
         read -r -a uses <<<"${uses_csv//,/ }"
         debug_print "${debug}" "packages ${pkgs[*]} with USE ${uses[*]}"
-        emerge_pretend "${root}" "${pkgs[@]}" -- "${uses[@]}" | tee "${debug_output_file}" >>"${output_file}"
+        emerge_pretend "${root}" coreos-devel/board-packages "${pkgs[@]}" -- "${uses[@]}" | tee "${debug_output_file}" >>"${output_file}"
     done
     revert_crossdev_stuff "${root}"
     revert_crossdev_stuff /

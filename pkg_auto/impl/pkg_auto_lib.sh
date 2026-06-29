@@ -2154,7 +2154,7 @@ function pkg_job_state_unset() {
 # WEAREDONE is a message that the main process sends to a package job
 # when there are no more packages to process, so the job should
 # terminate.
-declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE'
+declare -gr ready_for_more_msg='READYFORMORE' we_are_done_msg='WEAREDONE' pkg_start_re_msg='PKGSTART[[:space:]]*([^[:space:]]*)$' pkg_done_re_msg='PKGDONE[[:space:]]*([^[:space:]]*)[[:space:]]*([^[:space:]]*)$'
 
 # A job function for handling package updates. Receives a batch of
 # packages to process, processes them, writes results to a given
@@ -2169,7 +2169,7 @@ function handle_package_changes_job() {
     local bunch_of_maps_var_name=${1}; shift
     local we_are_done='' line
     local -a reply_lines pair
-    local -i i pkg_count
+    local -i i pkg_count start end
     local used_licenses_file="${output_dir}/used-licenses"
 
     local -A hpcj_used_licenses_set=()
@@ -2190,7 +2190,11 @@ function handle_package_changes_job() {
             for line in "${reply_lines[@]}"; do
                 mapfile -t pair <<<"${line// /$'\n'}"
                 if [[ ${#pair[@]} -eq 2 ]]; then
+                    echo "PKGSTART ${pair[0]}:${pair[1]}"
+                    start=${BASH_MONOSECONDS}
                     handle_one_package_change "${output_dir}" "${bunch_of_maps_var_name}" hpcj_used_licenses_set "${pair[@]}"
+                    end=${BASH_MONOSECONDS}
+                    echo "PKGDONE ${pair[0]}:${pair[1]} $((end - start))"
                 else
                     echo "invalid message received: ${line@Q}, expected a pair of package names"
                 fi
@@ -3004,6 +3008,123 @@ function handle_package_changes() {
     local -i current_idx=0 next_idx=1 idx state_count=${#pkg_job_state_names[@]}
     local -a pkg_job_state_names_0=( "${pkg_job_state_names[@]}" ) pkg_job_state_names_1=() pkg_job_output_lines
     local pkg_job_output_line pkg_job_input_sent
+
+    function zipit() {
+        local -n a1=${1}; shift
+        local -n a2=${1}; shift
+        local -n ao=${1}; shift
+
+        local -i size1=${#a1[@]}
+        local -i size2=${#a2[@]}
+        local -i size=size1
+        if [[ size -gt size2 ]]; then
+            size=size2
+        fi
+
+        local -i idx
+        local i1 i2
+        ao=()
+        for ((idx = 0; idx < size; ++idx)); do
+            i1=${a1[idx]}
+            i2=${a2[idx]}
+            ao+=( "${i1}:${i2}" )
+        done
+        for ((idx = size; idx < size1; ++idx)); do
+            i1=${a1[idx]}
+            i2=${a1[idx]}
+            ao+=( "${i1}:${i2}" )
+        done
+        for ((idx = size; idx < size2; ++idx)); do
+            i1=${a2[idx]}
+            i2=${a2[idx]}
+            ao+=( "${i1}:${i2}" )
+        done
+    }
+
+    local -a pkgs_waiting=()
+    local -A pkgs_pending=() pkgs_processing=() pkgs_done=()
+    local -i print_stat_count=25 print_stat_counter=0 duration=0 timestamp=0
+    local zipped
+
+    function print_stats() {
+        local -a tmp_ar=()
+        local tmp_v
+        local -i timestamp=${BASH_MONOSECONDS} pkg_t dur
+        local -a lines=(
+            '================================='
+            '==============STATS=============='
+            '================================='
+            "waiting packages count: ${#pkgs_waiting[*]}"
+        )
+        if [[ ${#pkgs_waiting[@]} -gt 0 ]]; then
+            tmp_ar=( "${pkgs_waiting[@]:0:20}" )
+            lines+=(
+                "first 20 waiting packages:"
+                "${tmp_ar[@]/#/    }"
+            )
+        fi
+        lines+=(
+            ""
+            "pending packages:"
+        )
+
+        if [[ ${#pkgs_pending[@]} -eq 0 ]]; then
+            lines+=("    NONE")
+        else
+            mapfile -t tmp_ar < <(printf '%s\n' "${!pkgs_pending[@]}" | csort)
+            for tmp_v in "${tmp_ar[@]}"; do
+                pkg_t=${pkgs_pending["${tmp_v}"]}
+                dur=$((timestamp - pkg_t))
+                lines+=( "    ${tmp_v} (waiting for ${dur} seconds)" )
+            done
+        fi
+        lines+=(
+            ""
+            "processing packages count: ${#pkgs_processing[*]}"
+        )
+        if [[ ${#pkgs_processing[*]} -gt 0 ]]; then
+            lines+=( "processing packages sorted by duration:" )
+            tmp_ar=()
+            for tmp_v in "${!pkgs_processing[@]}"; do
+                pkg_t=${pkgs_processing["${tmp_v}"]}
+                dur=$((timestamp - pkg_t))
+                tmp_ar+=( "${dur} ${tmp_v}" )
+            done
+            mapfile -t tmp_ar_2 < <(printf '%s\n' "${tmp_ar[@]}" | csort -k 1nr,1 -k 2b,2)
+            for tmp_v in "${tmp_ar_2[@]}"; do
+                read -r -a tmp_ar <<<"${tmp_v}"
+                lines+=( "    ${tmp_ar[1]} (processing for ${tmp_ar[0]} seconds)" )
+            done
+        fi
+        lines+=(
+            ""
+            "done packages count: ${#pkgs_done[*]}"
+        )
+        local -a tmp_ar_2
+        if [[ ${#pkgs_done[@]} -gt 0 ]]; then
+            lines+=("first 20 with longest processing duration:")
+            tmp_ar=()
+            for tmp_v in "${!pkgs_done[@]}"; do
+                pkg_t=${pkgs_done["${tmp_v}"]}
+                tmp_ar+=( "${pkg_t} ${tmp_v}" )
+            done
+            mapfile -t tmp_ar_2 < <(printf '%s\n' "${tmp_ar[@]}" | csort -k 1nr,1 -k 2b,2 | head -n 20)
+            for tmp_v in "${tmp_ar_2[@]}"; do
+                read -r -a tmp_ar <<<"${tmp_v}"
+                lines+=( "    ${tmp_ar[1]} (processed ${tmp_ar[0]} seconds)" )
+            done
+        fi
+        lines+=(
+            '================================='
+            '============END STATS============'
+            '================================='
+        )
+        info_lines "${lines[@]}"
+    }
+
+    zipit old_pkgs new_pkgs pkgs_waiting
+    unset -f zipit
+
     while [[ state_count -gt 0 ]]; do
         local -n pkg_job_state_names_ref=pkg_job_state_names_${current_idx}
         local -n next_pkg_job_state_names_ref=pkg_job_state_names_${next_idx}
@@ -3026,18 +3147,46 @@ function handle_package_changes() {
                         else
                             old_pkgs_batch=( "${old_pkgs[@]:pkg_idx:pkg_batch_size}" )
                             new_pkgs_batch=( "${new_pkgs[@]:pkg_idx:pkg_batch_size}" )
+
                             this_batch_size=${#old_pkgs_batch[@]}
+                            pkgs_waiting=( "${pkgs_waiting[@]:this_batch_size}" )
                             pkg_batch=( "${this_batch_size}" )
                             for ((i = 0; i < this_batch_size; ++i)); do
                                 old_pkg=${old_pkgs_batch[i]}
                                 new_pkg=${new_pkgs_batch[i]}
                                 pkg_batch+=( "${old_pkg} ${new_pkg}" )
+                                if [[ -n ${pkgs_pending["${old_pkg}:${new_pkg}"]:-} ]]; then
+                                    fail "${old_pkg}:${new_pkg} already in pending"
+                                fi
+                                pkgs_pending["${old_pkg}:${new_pkg}"]=${BASH_MONOSECONDS}
                             done
                             pkg_idx=$((pkg_idx + pkg_batch_size))
                             job_send_input "${pkg_job_name}" "${pkg_batch[@]}"
                         fi
                         pkg_job_input_sent=x
                     fi
+                elif [[ ${pkg_job_output_line} =~ ${pkg_start_re_msg} ]]; then
+                    zipped=${BASH_REMATCH[1]}
+                    timestamp=${BASH_MONOSECONDS}
+                    if [[ -z ${pkgs_pending["${zipped}"]:-} ]]; then
+                        fail "${zipped} is being processed, but not in pending"
+                    fi
+                    if [[ -n ${pkgs_processing["${zipped}"]:-} ]]; then
+                        fail "${zipped} is being processed, but is already in processing"
+                    fi
+                    unset "pkgs_pending[${zipped}]"
+                    pkgs_processing["${zipped}"]=${timestamp}
+                elif [[ ${pkg_job_output_line} =~ ${pkg_done_re_msg} ]]; then
+                    zipped=${BASH_REMATCH[1]}
+                    duration=${BASH_REMATCH[2]}
+                    if [[ -z ${pkgs_processing["${zipped}"]:-} ]]; then
+                        fail "${zipped} done, but not in processing"
+                    fi
+                    if [[ -n ${pkgs_done["${zipped}"]:-} ]]; then
+                        fail "${zipped} done, but is already in done"
+                    fi
+                    unset "pkgs_processing[${zipped}]"
+                    pkgs_done["${zipped}"]=${duration}
                 else
                     # The job already used info to print this line, so
                     # we should just echo it, otherwise we will get
@@ -3049,6 +3198,12 @@ function handle_package_changes() {
         done
         state_count=${#next_pkg_job_state_names_ref[@]}
         if [[ state_count -gt 0 ]]; then
+            if [[ print_stat_counter -eq print_stat_count ]]; then
+                print_stat_counter=0
+                print_stats
+            else
+                ((++print_stat_counter))
+            fi
             sleep 0.2
         fi
 
@@ -3057,6 +3212,9 @@ function handle_package_changes() {
         current_idx=${next_idx}
         next_idx=${idx}
     done
+
+    print_stats
+    unset -f print_stats
 
     # All the jobs are done, so here we collect all their reports and
     # merge them into the main ones in reports directory.
@@ -4055,7 +4213,7 @@ function drop_unused_licenses() {
             # licenses directory was updated during last sync, so
             # amend it with the removals
             local error_file=${WORKDIR}/licenses-rebase-error-message
-            local -i rv
+            local -i rv=0
             git -C "${NEW_STATE}" commit --quiet --fixup "${new_commit_hash}"
             add_cleanup "rm -f ${error_file@Q}"
             git -C "${NEW_STATE}" rebase --quiet --autosquash "${old_head}" 2>"${error_file}" || rv=${?}
