@@ -369,6 +369,7 @@ function diff_lib_generate_maps() {
 
     # maybe we will find more generally irrelevant iuses, maybe "doc" or "full-test"?
     irrelevant_iuses_set_ref['test']=x
+    irrelevant_iuses_set_ref['test-full']=x
 
     unset -n relevant_iuses_set_ref questionable_prefixes_ref irrelevant_iuses_set_ref relevant_python_urs_set_ref questionable_python_ur_prefixes_ref
 
@@ -1536,30 +1537,54 @@ function __mcdl_diff_deps() {
             ;;
     esac
 
+    local -i start_timestamp end_timestamp
+
     local old_group_name=${old_ref[${deps_idx}]} new_group_name=${new_ref[${deps_idx}]}
     local -a dd_old_flattened_list=() dd_new_flattened_list=()
 
     group_declare old_sorted_group new_sorted_group
 
+    start_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "starting copying and sorting of the old group"
     group_copy old_sorted_group "${old_group_name}"
-    __mcdl_debug_group old_sorted_group "copy of old ${label} group"
     __mcdl_sort_group old_sorted_group
+    end_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "done the copying and sorting of the old group in $((end_timestamp - start_timestamp)) seconds"
+    __mcdl_debug_group old_sorted_group "copy of old ${label} group"
     __mcdl_debug_group old_sorted_group "sorted old ${label} group"
 
+    start_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "starting copying and sorting of the new group"
     group_copy new_sorted_group "${new_group_name}"
-    __mcdl_debug_group new_sorted_group "copy of new ${label} group"
     __mcdl_sort_group new_sorted_group
+    end_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "done the copying and sorting of the new group in $((end_timestamp - start_timestamp)) seconds"
+    __mcdl_debug_group new_sorted_group "copy of new ${label} group"
     __mcdl_debug_group old_sorted_group "sorted new ${label} group"
 
+    start_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "starting flattening of the old group"
     __mcdl_flatten_group old_sorted_group dd_old_flattened_list
+    end_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "done the flattening of the old group in $((end_timestamp - start_timestamp)) seconds"
+
+    start_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "starting flattening of the new group"
     __mcdl_flatten_group new_sorted_group dd_new_flattened_list
+    end_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "done the flattening of the new group in $((end_timestamp - start_timestamp)) seconds"
 
     __mcdl_debug_flattened_list dd_old_flattened_list "flattened old ${label} group"
     __mcdl_debug_flattened_list dd_new_flattened_list "flattened new ${label} group"
 
     local -a dd_common_items=()
+    local -i lcs_start_timestamp lcs_end_timestamp
 
+    start_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "starting computation of the diff between old and new flattened lists"
     lcs_run dd_old_flattened_list dd_new_flattened_list dd_common_items __mcdl_flattened_group_item_score
+    end_timestamp=${BASH_MONOSECONDS}
+    pkg_debug "done the computation of the diff between old and new flattened lists in $((end_timestamp - start_timestamp)) seconds"
 
     diff_report_declare local_dr
 
