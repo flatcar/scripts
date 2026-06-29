@@ -15,6 +15,7 @@ INTROSPECTION_PV="1.86.0"
 INTROSPECTION_P="${INTROSPECTION_PN}-${INTROSPECTION_PV}"
 SRC_URI="
 	${SRC_URI}
+	https://distfiles.gentoo.org/pub/dev/sam%40gentoo.org/${CATEGORY}/${PN}/${PN}-2.88.2-const-whoops.patch.xz
 	introspection? ( mirror://gnome/sources/gobject-introspection/${INTROSPECTION_PV%.*}/gobject-introspection-${INTROSPECTION_PV}.tar.${GNOME_TARBALL_SUFFIX} )
 "
 INTROSPECTION_SOURCE_DIR="${WORKDIR}/${INTROSPECTION_P}"
@@ -91,7 +92,7 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-	"${FILESDIR}"/${PN}-2.84.4-fix-const-attribute.patch
+	"${WORKDIR}"/${PN}-2.88.2-const-whoops.patch
 )
 
 python_check_deps() {
