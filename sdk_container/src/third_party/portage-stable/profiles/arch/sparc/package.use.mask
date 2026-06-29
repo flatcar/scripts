@@ -6,8 +6,9 @@
 app-misc/fastfetch efl
 
 # Pacho Ramos <pacho@gentoo.org> (2026-05-09)
-# appstream not keyworded
+# dev-libs/appstream not keyworded, bug #977775
 app-misc/media-player-info test
+dev-util/meld test
 
 # Jaco Kroon <jkroon@gentoo.org> (2026-05-04)
 # media-libs/libyuv is not keyworded
@@ -103,10 +104,6 @@ media-libs/imlib2 y4m
 # libgccjit testsuite: bug #953775 (https://gcc.gnu.org/PR119767).
 app-editors/emacs jit
 sys-devel/gcc jit
-
-# Cristian Othón Martínez Vera <cfuga@cfuga.mx> (2025-04-09)
-# dev-db/tinycdb is not keyworded here
-mail-mta/sendmail tinycdb
 
 # NRK <nrk@disroot.org> (2025-03-17)
 # media-libs/libyuv is not keyworded
