@@ -8,8 +8,11 @@ USE="${USE} -cros_host -expat -cairo -X -man"
 USE="${USE} -acl -gpm -python"
 USE="${USE} -fortran -abiword -perl -poppler-data"
 
+# Proactively ensure usable binary packages exist for building an image.
+FEATURES="buildpkg buildpkg-proactive"
+
 # Exclude documentation
-FEATURES="nodoc noinfo noman"
+FEATURES="${FEATURES} nodoc noinfo noman"
 
 # Exclude even more documentation
 # Remove bash-completion files as we don't install bash-completion.
