@@ -6,7 +6,7 @@ EAPI=8
 # Bump notes: https://wiki.gentoo.org/wiki/Project:Rust/Rust_bump
 
 LLVM_COMPAT=( 21 )
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 
 # Patches are kept in rust-patches.git, see its README.rst for the versioning
 # scheme.
@@ -61,7 +61,7 @@ else
 	"
 	S="${WORKDIR}/${MY_P}-src"
 
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
 fi
 
 DESCRIPTION="Systems programming language originally developed by Mozilla"
