@@ -1,11 +1,10 @@
 #################################################################################
-#              ACL GitHub PR Validation — Trigger                                #
+#              ACL GitHub PR Validation - Trigger                                #
 #                                                                               #
-# Thin entry point for GitHub PR validation. This file lives in the GitHub      #
-# repo (microsoft/azure-container-linux) and:                                   #
-#   1. Triggers on PRs targeting aclmain                                        #
-#   2. Delegates the actual build/test to ACL-GitHub-PR.yml in the              #
-#      acl-pipelines ADO repo                                                   #
+# Thin entry point for GitHub PR validation, living in the GitHub repo          #
+# (microsoft/azure-container-linux). Triggers on PRs targeting aclmain and      #
+# extends the shared ACL-GitHub-PR.yml template in the acl-pipelines ADO        #
+# repo, which runs the actual build and test.                                   #
 #                                                                               #
 # Security:                                                                     #
 #   - Fork PRs do NOT get secrets by default (ADO default behavior)             #
@@ -22,10 +21,6 @@ pr:
 
 resources:
   repositories:
-    - repository: templates
-      type: git
-      name: OneBranch.Pipelines/GovernedTemplates
-      ref: refs/heads/main
     - repository: acl_pipelines
       type: git
       name: ACL/acl-pipelines
@@ -43,37 +38,10 @@ resources:
 
 variables:
   - template: pipelines/templates/variables/acl-defaults.yml@acl_pipelines
-  - name: pipelinesRoot
-    value: '$(Build.SourcesDirectory)/acl_pipelines'
+  - template: pipelines/templates/variables/pipelines-root-onees.yml@acl_pipelines
 
 extends:
-  template: v2/OneBranch.NonOfficial.CrossPlat.yml@templates
+  template: pipelines/ACL-GitHub-PR.yml@acl_pipelines
   parameters:
-    git:
-      persistCredentials: false
-      lfs: false
-
-    globalSdl:
-      tsa:
-        enabled: false
-      credscan:
-        suppressionsFile: $(Build.SourcesDirectory)/.config/CredScanSuppressions.json
-      policheck:
-        break: true
-      disableLegacyManifest: true
-
-    featureFlags:
-      runOnHost: true
-      EnableCDPxPAT: false
-      use1esentry: false
-      networkisolation:
-        enabled: false
-      golang:
-        internalModuleProxy:
-          enabled: false
-
-    stages:
-      - template: pipelines/ACL-GitHub-PR.yml@acl_pipelines
-        parameters:
-          aclRef: $(Build.SourceBranch)
-          mantleRef: 'aclmain'
+    aclRef: $(Build.SourceBranch)
+    mantleRef: 'aclmain'
