@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-cd $(dirname "$0")
+cd "$(dirname "$0")"
 source sdk_lib/sdk_container_common.sh
 
 arch="all"
@@ -19,10 +19,11 @@ tty=()
 remove=""
 cleanup=""
 mounts=()
+git_repos=()
 
 usage() {
     echo "  Usage:"
-    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [-m <src>:<dest>] [--] [<container-command>]"
+    echo "  $0 [-t] [-v <version>] [-V <SDK version>] [-a <amd64|arm64|all>] [-n <name> ] [-x <script>] [-C <custom-container>] [--rm] [-U] [-m <src>:<dest>] [-g <name>:<src>:<dest>] [--] [<container-command>]"
     echo "       Start an SDK container of a given SDK release version."
     echo "       This will create the container if it does not exist, otherwise start the existing container."
     echo "       If the container is already running then it will exec into the container."
@@ -49,6 +50,11 @@ usage() {
     echo "      -U             Do not update the versionfile. Instead, use the version from the versionfile as-is."
     echo "      -m <src>:<dest> - Mount local file or directory inside the container."
     echo "                     Can be specified multiple times."
+    echo "      -g <name:><src>:<dest> - Mount local git repository inside the container."
+    echo "                     Takes care of properly mounting and setting up "
+    echo "                     other worktrees of the git repo inside the container."
+    echo "                     Can be specified multiple times, but each with different name."
+    echo "                     <name> can't be 'scripts'"
     echo "      --             Stop parsing options at this point, pass the rest as the container command."
     echo "      -h             Print this help."
     echo
@@ -73,6 +79,7 @@ while [[ $# -gt 0 ]] ; do
         update_versionfile=
         shift;;
     -m) mounts+=( -v "$2" ); shift; shift;;
+    -g) git_repos+=( "$2" ); shift; shift;;
     --) shift; break;;
     -*) echo "Unknown flag ${1@Q}, use '-h' or '--help' for usage"; exit 1;;
     *) break;;
@@ -115,8 +122,41 @@ hostname=${name:0:63}
 hostname=${hostname//./_}
 
 if [[ -n ${cleanup} ]] ; then
-    echo "${docker_a[@]@Q} container rm -f ${name@Q}" >>"${cleanup}"
+    echo "${docker_a[*]@Q} container rm -f ${name@Q}" >>"${cleanup}"
 fi
+
+function prev_trap_cmd {
+    local sig=${1}; shift
+    local cmd
+    cmd=$(trap -p "${sig}")
+
+    if [[ -z ${cmd} ]]; then
+        echo ':'
+    fi
+
+    cmd=${cmd#'trap -- '}
+    cmd=${cmd%" ${sig}"}
+
+    # This unquotes the trap cmd. So the following:
+    #
+    # 'echo '\''foo'\'''
+    #
+    # becomes:
+    #
+    # echo 'foo'
+    xargs <<<"${cmd}"
+}
+
+function add_trap {
+    local cmd sig
+    cmd=${1}; shift
+    sig=${1}; shift
+
+    local full_cmd
+    full_cmd="$(prev_trap_cmd "${sig}"); ${cmd}"
+    # shellcheck disable=SC2064 # we want to expand full_cmd right now, not at trap time
+    trap "${full_cmd}" "${sig}"
+}
 
 if [[ -z ${stat} ]] ; then
     yell "Creating a new container '$name'"
@@ -137,6 +177,59 @@ if [[ -z ${stat} ]] ; then
         call_docker pull "${container_image_name}" || true
     fi
 
+    source sdk_lib/git_worktree_handling.sh
+    declare -A linked_repos repo_overrides linked_repos_sdk
+    declare -a repo_mounts=() fields
+    for git_repo in "scripts:${PWD}:/mnt/host/source/src/scripts" "${git_repos[@]}"; do
+        mapfile -t fields <<<"${git_repo//:/$'\n'}"
+        if [[ ${#fields[@]} -ne 3 ]]; then
+            echo "invalid -g parameter, should have 3 fields, has ${#fields[@]}: ${git_repo}" >&2
+            exit 1
+        fi
+        main_name=${fields[0]}
+        path=${fields[1]}
+        sdk_path=${fields[2]}
+        main_repo=''
+        linked_repos=()
+        discover_repo_layout "${path}" main_repo linked_repos
+        if [[ ${#linked_repos[@]} -eq 0 ]]; then
+            repo_mounts+=( -v "${path}:${sdk_path}" )
+            continue
+        fi
+
+        this_name=''
+        linked_repo_name "${path}" "${main_repo}" linked_repos this_name
+        if [[ -z ${this_name} ]]; then
+            continue;
+        fi
+
+        base_directory="/mnt/host/all-worktrees/${main_name}"
+        repo_overrides=(["${this_name}"]="${sdk_path}")
+        main_repo_sdk=''
+        linked_repos_sdk=()
+        new_repo_mounts=()
+        repo_layout_inside_sdk \
+            "${base_directory}" \
+            repo_overrides \
+            main_repo_sdk \
+            linked_repos_sdk \
+            "${!linked_repos[@]}"
+        repo_layouts_to_docker_volumes \
+            "${main_repo}" \
+            "${main_repo_sdk}" \
+            linked_repos \
+            linked_repos_sdk \
+            new_repo_mounts
+        repo_mounts+=( "${new_repo_mounts[@]}" )
+        # sdk_entry will read this directory and remove it afterwards
+        mkdir -p .replacements
+        replacements_file=$(mktemp --tmpdir=.replacements replacements-XXXXXXXXXX)
+        repo_layout_to_replacements \
+            "${main_repo_sdk}" \
+            linked_repos_sdk \
+            "${replacements_file}"
+    done
+
     docker_flags=(
         "${tty[@]}"
         -i
@@ -144,7 +237,7 @@ if [[ -z ${stat} ]] ; then
         -v /dev:/dev
         -v "${PWD}/sdk_container:/mnt/host/source/"
         -v "${PWD}/__build__/images:/mnt/host/source/src/build"
-        -v "${PWD}:/mnt/host/source/src/scripts"
+        "${repo_mounts[@]}"
         "${gpg_volumes[@]}"
         "${mounts[@]}"
         --privileged
@@ -163,12 +256,10 @@ fi
 
 if [[ ${stat} != "Up" ]] ; then
     yell "Starting stopped container '$name'"
+    add_trap "call_docker stop -t 0 ${name@Q}" EXIT
     if [[ -n ${remove} ]]; then
-      remove_command="call_docker rm -f ${name@Q}"
-    else
-      remove_command=":"
+        add_trap "call_docker rm -f ${name@Q}" EXIT
     fi
-    trap "call_docker stop -t 0 ${name@Q} ; ${remove_command}" EXIT
     call_docker start "${name}"
 fi
 
