@@ -11,6 +11,21 @@
 # The devcontainer tests will be skipped since these require a valid commit ref in
 #   the upstream scripts repo.
 #
+# Usage:
+#   ./run_local_tests.sh [ARCH] [PARALLEL] [TEST ...]
+#
+#   ARCH      : Machine architecture to test (default: amd64)
+#   PARALLEL  : Number of parallel tests (default: 2)
+#   TEST ...  : Optional list of kola tests/globs to run. If omitted,
+#               all suitable qemu_uefi tests (except devcontainer) are run
+#               and qemu_update tests are executed as well.
+#
+#
+#   Helper options:
+#     -h, --help       : Show this help and exit.
+#     --list-tests : List all qemu/qemu_update tests that would be run by
+#                    default (excluding devcontainer tests) and exit.
+#
 # Requirements:
 # - Docker (for running the Mantle container).
 #
@@ -60,6 +75,23 @@ EOF
 
   export MAX_RETRIES=5
   export SKIP_COPY_TO_BINCACHE=1
+}
+#--
+
+function usage() {
+  cat <<EOF
+Usage: ./run_local_tests.sh [ARCH] [PARALLEL] [TEST ...]
+
+  ARCH      : Machine architecture to test (default: amd64)
+  PARALLEL  : Number of parallel tests (default: 2)
+  TEST ...  : Optional list of kola tests/globs to run. If omitted,
+              all suitable qemu_uefi tests (except devcontainer) are run
+              and qemu_update tests are executed as well.
+  Helper options:
+    -h, --help       : Show this help and exit.
+    --list-tests     : List all qemu/qemu_update tests that would be run by
+                       default (excluding devcontainer tests) and exit.
+EOF
 }
 #--
 
@@ -120,5 +152,18 @@ function run_local_tests() (
 
 if [[ "$(basename "${0}")" = "run_local_tests.sh" ]] ; then
   set -euo pipefail
+  case "${1:-}" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --list-tests)
+      # List all tests that would be run by default and exit.
+      mantle_container="$(cat "sdk_container/.repo/manifests/mantle-container")"
+      docker run --rm "${mantle_container}" kola list --platform qemu
+      exit 0
+      ;;
+  esac
+
   run_local_tests "${@}"
 fi
