@@ -24,7 +24,7 @@
 #   --az-region=REGION                   Azure region to override default
 #   --az-vm-size=SIZE                    Azure VM size (default: Standard_D2s_v5)
 #   --board=BOARD                        Target board (default: amd64-usr)
-#   --boot-timeout=SECS                  Timeout waiting for VM boot (default: 180)
+#   --boot-timeout=SECS                  Timeout waiting for VM boot (default: arch-based — amd64 100s, arm64 300s)
 #   --build-vm-image                     Build VM images before starting
 #   --console-password=PASS              Serial console login password (empty for passwordless)
 #   --console-user=USER                  Serial console login user (default: root)
@@ -68,7 +68,7 @@
 # Environment Variables:
 #   ACL_SDK_IMAGE           Override SDK container image
 #   NO_TTY                  Set to "true" to disable TTY allocation (for CI)
-#   VM_BOOT_TIMEOUT         Boot timeout in seconds (default: 180)
+#   VM_BOOT_TIMEOUT         Boot timeout in seconds (default: arch-based — amd64 100s, arm64 300s)
 #   VM_SSH_USER             SSH user for VM (default: core)
 #   VM_SSH_KEY              SSH private key path
 #   VM_SSH_TIMEOUT          SSH connection timeout in seconds (default: 120)

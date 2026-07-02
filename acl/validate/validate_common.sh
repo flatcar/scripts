@@ -41,7 +41,13 @@ VM_PASSWORD="${VM_PASSWORD:-}"  # Password for VM user (optional)
 USE_SERIAL_CONSOLE="${USE_SERIAL_CONSOLE:-false}"  # Use serial console instead of SSH
 VM_CONSOLE_USER="${VM_CONSOLE_USER:-root}"  # Console login user
 VM_CONSOLE_PASSWORD="${VM_CONSOLE_PASSWORD:-}"  # Console login password (empty for no password)
-VM_BOOT_TIMEOUT="${VM_BOOT_TIMEOUT:-180}"  # Seconds to wait for VM boot
+# VM boot timeout is arch-dependent: emulated arm64 (TCG) boots far slower than
+# native amd64, so it needs a much higher ceiling. The effective value is chosen
+# by resolve_boot_timeout() based on BOARD unless VM_BOOT_TIMEOUT / --boot-timeout
+# is set explicitly (an explicit value always wins).
+VM_BOOT_TIMEOUT_AMD64="${VM_BOOT_TIMEOUT_AMD64:-100}"  # Native boot: seconds to wait
+VM_BOOT_TIMEOUT_ARM64="${VM_BOOT_TIMEOUT_ARM64:-300}"  # Emulated boot: seconds to wait
+VM_BOOT_TIMEOUT="${VM_BOOT_TIMEOUT:-}"  # Explicit override; empty = auto-select by arch
 SECURE_BOOT_ENABLED="${SECURE_BOOT_ENABLED:-true}"  # Enable secure boot
 RUN_KOLA_TESTS=false  # Run kola tests (qemu via run_local_tests.sh, azure via run_azure_tests.sh)
 ACG_IMAGE_VERSION_ID=""  # Pre-existing Azure Compute Gallery image version resource ID
@@ -711,7 +717,7 @@ parse_validate_args() {
                 echo ""
                 echo "Options:"
                 echo "  --board=BOARD              Target board (default: amd64-usr)"
-                echo "  --boot-timeout=SECS        Timeout waiting for VM boot (default: 180)"
+                echo "  --boot-timeout=SECS        Timeout waiting for VM boot (default: arch-based — amd64 ${VM_BOOT_TIMEOUT_AMD64}s, arm64 ${VM_BOOT_TIMEOUT_ARM64}s)"
 
                 echo "  --console-password=PASS    Serial console login password"
                 echo "  --console-user=USER        Serial console login user (default: root)"
@@ -757,8 +763,23 @@ parse_validate_args() {
 
 # ── Main entry point ──────────────────────────────────────────────
 
+# Select an arch-appropriate VM boot timeout when the caller hasn't pinned one.
+# Emulated arm64 boots take far longer than native amd64; a single fixed timeout
+# is either too tight for arm64 (flaky boot failures) or wastefully loose for amd64.
+resolve_boot_timeout() {
+    [[ -n "${VM_BOOT_TIMEOUT}" ]] && return 0  # explicit env / --boot-timeout wins
+
+    local arch="${BOARD%%-*}"  # arm64-usr -> arm64, amd64-usr -> amd64
+    case "$arch" in
+        arm64|aarch64) VM_BOOT_TIMEOUT="${VM_BOOT_TIMEOUT_ARM64}" ;;
+        *)             VM_BOOT_TIMEOUT="${VM_BOOT_TIMEOUT_AMD64}" ;;
+    esac
+    info "Using VM boot timeout for ${arch}: ${VM_BOOT_TIMEOUT}s"
+}
+
 validate_main() {
     parse_validate_args "$@"
+    resolve_boot_timeout
 
     # Source platform module now that VM_TYPE is known from arg parsing
     case "$VM_TYPE" in

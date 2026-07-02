@@ -23,7 +23,7 @@
 #   --az-region=REGION                   Azure region to override default (for start-vm --vm-type=azure)
 #   --az-vm-size=SIZE                    Azure VM size (default: Standard_D2s_v5)
 #   --board=BOARD                        Target board (default: amd64-usr)
-#   --boot-timeout=SECS                  Timeout waiting for VM boot (default: 180)
+#   --boot-timeout=SECS                  Timeout waiting for VM boot (default: arch-based — amd64 100s, arm64 300s)
 #   --build-rpms                         Build custom RPM packages using Azure Linux toolkit (runs acl/build.sh)
 #   --build-sdk-container                Update/rebuild SDK container with RPM tools (can run standalone)
 #   --build-standalone-sysexts[=TAG,...]  Build standalone sysexts (all, or only those matching any given tag)
@@ -98,7 +98,7 @@
 #   USE_SERIAL_CONSOLE      Use serial console (true) or SSH (false) - default: true
 #   VM_CONSOLE_USER         Serial console login user (default: root)
 #   VM_CONSOLE_PASSWORD     Serial console login password
-#   VM_BOOT_TIMEOUT         Boot timeout in seconds (default: 180)
+#   VM_BOOT_TIMEOUT         Boot timeout in seconds (default: arch-based — amd64 100s, arm64 300s)
 #   VM_SSH_KEY              SSH private key path
 #   VM_SSH_TIMEOUT          SSH connection timeout in seconds (default: 120)
 #
@@ -143,7 +143,7 @@ VM_PASSWORD="${VM_PASSWORD:-}"  # Password for VM user (optional)
 USE_SERIAL_CONSOLE="${USE_SERIAL_CONSOLE:-false}"  # Use serial console instead of SSH
 VM_CONSOLE_USER="${VM_CONSOLE_USER:-root}"  # Console login user
 VM_CONSOLE_PASSWORD="${VM_CONSOLE_PASSWORD:-}"  # Console login password (empty for no password)
-VM_BOOT_TIMEOUT="${VM_BOOT_TIMEOUT:-180}"  # Seconds to wait for VM boot
+VM_BOOT_TIMEOUT="${VM_BOOT_TIMEOUT:-}"  # Empty = auto-select by arch in validate (amd64 vs arm64)
 RUN_KOLA_TESTS=false  # Run kola tests (qemu via run_local_tests.sh, azure via run_azure_tests.sh)
 ACG_IMAGE_VERSION_ID=""  # Pre-existing Azure Compute Gallery image version resource ID (bypasses VHD upload)
 REUSE_IMAGE=false  # Reuse the latest published gallery image (skip VHD upload)
@@ -1355,7 +1355,7 @@ main() {
         validate_args+=("--vm-type=${VM_TYPE}")
         validate_args+=("--vm-name=${VM_NAME}")
         validate_args+=("--ssh-timeout=${VM_SSH_TIMEOUT}")
-        validate_args+=("--boot-timeout=${VM_BOOT_TIMEOUT}")
+        [[ -n "${VM_BOOT_TIMEOUT}" ]] && validate_args+=("--boot-timeout=${VM_BOOT_TIMEOUT}")
         validate_args+=("--console-user=${VM_CONSOLE_USER}")
         [[ -n "${AZ_SUB_ID:-}" ]] && validate_args+=("--az-sub-id=${AZ_SUB_ID}")
         [[ -n "${AZ_REGION:-}" ]] && validate_args+=("--az-region=${AZ_REGION}")
