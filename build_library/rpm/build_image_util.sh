@@ -1425,6 +1425,19 @@ finish_image_backup_etc_rpm() {
     # Also remove the manually-created Nvidia repo file and any leftovers
     sudo rm -rf "${root_fs_dir}/etc/yum.repos.d"
 
+    # Emit the rpmdb as an IC sidecar artifact alongside the VHD.
+    local rpmdb_src="${root_fs_dir}/var/lib/rpm/rpmdb.sqlite"
+    if [[ -f "${rpmdb_src}" ]]; then
+        if [[ -z "${BUILD_DIR:-}" ]]; then
+            die "RPM mode: BUILD_DIR is not set — cannot save rpmdb IC sidecar"
+        fi
+        info "RPM mode: Saving rpmdb IC sidecar to ${BUILD_DIR}/acl_production_image_rpmdb.sqlite"
+        sudo cp "${rpmdb_src}" "${BUILD_DIR}/acl_production_image_rpmdb.sqlite" \
+            || die "RPM mode: Failed to save rpmdb sidecar to ${BUILD_DIR}"
+        sudo chmod 644 "${BUILD_DIR}/acl_production_image_rpmdb.sqlite" \
+            || die "RPM mode: Failed to chmod rpmdb sidecar"
+    fi
+
     # Bulk-copy all of /etc to ${DISTRO_SHARE_DIR}/etc.
     # This is the overlay lowerdir — at boot, /etc is a tmpfs overlay
     # whose lower layer is this directory.  Mirrors the Portage-mode

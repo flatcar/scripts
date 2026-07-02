@@ -243,7 +243,7 @@ info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_
 # Unlike Portage (one dir per package), RPM uses a single DB file that gets
 # fully copied-up by overlayfs on any write, so rpm -qa after install returns
 # base + new packages. Snapshot here to diff later.
-if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]] && [[ -d "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm" ]]; then
+if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]] && [[ -f "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm/rpmdb.sqlite" ]]; then
   rpm --root="${BUILD_DIR}/${FLAGS_install_root_basename}" -qa 2>/dev/null | sort > "${BUILD_DIR}/.rpm-base.tmp"
   rpm_query_manifest "${BUILD_DIR}/${FLAGS_install_root_basename}" | sort > "${BUILD_DIR}/.rpm-base-manifest.tmp"
 fi
@@ -328,7 +328,7 @@ if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
   # actual contents when an RPM database is present.
   touch "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
   # Diff against pre-install snapshot to list only sysext-added packages.
-  if [[ -d "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm" ]]; then
+  if [[ -f "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm/rpmdb.sqlite" ]]; then
     rpm --root="${BUILD_DIR}/${FLAGS_install_root_basename}" -qa 2>/dev/null | sort > "${BUILD_DIR}/.rpm-all.tmp"
     rpm_query_manifest "${BUILD_DIR}/${FLAGS_install_root_basename}" | sort > "${BUILD_DIR}/.rpm-all-manifest.tmp"
     # comm -13: output lines unique to the right file (i.e. newly installed packages only)

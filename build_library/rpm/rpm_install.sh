@@ -51,15 +51,15 @@ rpm_query_manifest() {
 # Initialize RPM database in target rootfs
 rpm_init_database() {
     local root_fs_dir="$1"
+    local dbpath_fs="${root_fs_dir}/var/lib/rpm"
 
-    if [[ -d "${root_fs_dir}/var/lib/rpm" ]] && [[ -f "${root_fs_dir}/var/lib/rpm/rpmdb.sqlite" ]]; then
+    if [[ -f "${dbpath_fs}/rpmdb.sqlite" ]]; then
         info "RPM database already initialized in ${root_fs_dir}"
         return 0
     fi
 
     info "Initializing RPM database in ${root_fs_dir}"
-    sudo mkdir -p "${root_fs_dir}/var/lib/rpm"
-
+    sudo mkdir -p "${dbpath_fs}"
     sudo rpm --root="${root_fs_dir}" --initdb
     if [[ $? -ne 0 ]]; then
         error "Failed to initialize RPM database"
@@ -529,9 +529,8 @@ rpm_get_metadata() {
     local package="$2"
     local key="$3"
     local dbpath="${root_fs_dir}/var/lib/rpm"
-
-    local format=""
-    case "$key" in
+    local format
+    case "${key}" in
         LICENSE) format="%{LICENSE}" ;;
         HOMEPAGE) format="%{URL}" ;;
         VERSION) format="%{VERSION}" ;;
