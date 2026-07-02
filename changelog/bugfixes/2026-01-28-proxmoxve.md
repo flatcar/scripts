@@ -1,0 +1,1 @@
+- Fixed static network configuration from cloud-init on ProxmoxVE ([flatcar/scripts#3677](https://github.com/flatcar/scripts/pull/3677))
