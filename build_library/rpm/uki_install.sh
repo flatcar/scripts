@@ -373,8 +373,9 @@ _uki_build_fips_addon() {
 
 # Build a reusable kdump addon template for UKI systems.
 # NOT installed in the active .extra.d directory by default -> kdump
-# must be explicitly enabled by copying this addon into
-# EFI/Linux/acl.efi.extra.d/ on the ESP.
+# must be explicitly enabled by copying this addon into the running
+# kernel's UKI addon directory on the ESP:
+#   EFI/Linux/vmlinuz-<kernel_version>.efi.extra.d/
 _uki_build_kdump_addon() {
     local esp_dir="$1"
 
@@ -403,7 +404,7 @@ _uki_build_kdump_addon() {
 
     sudo cp "${kdump_temp_dir}/kdump.addon.efi" "${template_dir}/kdump.addon.efi"
     info "UKI/RPM: Saved kdump addon template -> acl/uki-addons/kdump.addon.efi"
-    info "UKI/RPM: To enable kdump, copy to EFI/Linux/acl.efi.extra.d/kdump.addon.efi"
+    info "UKI/RPM: To enable kdump, copy to EFI/Linux/vmlinuz-<kver>.efi.extra.d/kdump.addon.efi"
 
     rm -rf "${kdump_temp_dir}"
 }
