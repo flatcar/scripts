@@ -33,6 +33,7 @@ DEPEND="
 	sys-apps/busybox
 	sys-apps/coreutils
 	sys-apps/findutils
+	sys-apps/gptfdisk
 	sys-apps/grep
 	sys-apps/hwdata
 	sys-apps/ignition:=
