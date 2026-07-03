@@ -1,0 +1,1 @@
+- Improved early boot `ip=` kernel command line handling by dropping Flatcar's custom parser in favour of systemd-network-generator. It will no longer assign the given IP address to the loopback interface if you don't specify the device name.
