@@ -3335,9 +3335,9 @@ function handle_pkg_update() {
     if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( '0:TODO: review occurences' )
+    lines+=( '0:TODO: review occurrences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( '0:TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurrences-for-old-name' )
     fi
 
     local -a hpu_tags
@@ -3413,9 +3413,9 @@ function handle_pkg_as_is() {
         return 0
     fi
     changed_ref=x
-    lines+=( '0:TODO: review occurences' )
+    lines+=( '0:TODO: review occurrences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( '0:TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurrences-for-old-name' )
     fi
 
     local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
@@ -3470,9 +3470,9 @@ function handle_pkg_downgrade() {
     if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( '0:TODO: review occurences' )
+    lines+=( '0:TODO: review occurrences' )
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( '0:TODO: review occurences-for-old-name' )
+        lines+=( '0:TODO: review occurrences-for-old-name' )
     fi
 
     local -a hpd_tags
@@ -3761,10 +3761,10 @@ function generate_package_mention_reports() {
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
 
-    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${out_dir}/occurences"
+    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${out_dir}/occurrences"
 
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${out_dir}/occurences-for-old-name"
+        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${out_dir}/occurrences-for-old-name"
     fi
 }
 
