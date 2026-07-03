@@ -179,13 +179,26 @@ function package_info_for_board() {
         debug_output_file=${output_file}.debug.main
     fi
 
+    local -a oem_descriptors
+    mapfile -t oem_descriptors < <(
+        source build_library/oem_sysexts.sh
+        local -a oem_descs=()
+        get_oem_sysext_matrix "${arch}" oem_descs
+        printf '%s\n' "${oem_descs[@]}"
+    )
+    local -a fields oem_pkgs=()
+    for entry in "${oem_descriptors[@]}"; do
+        read -r -a fields <<<"${entry//|/ }"
+        oem_pkgs+=("${fields[1]}")
+    done
+
     # Ignore crossdev stuff in both SDK root and board root - emerge
     # may query SDK stuff for the board packages.
     ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
     local pkg='coreos-devel/board-packages'
     debug_print "${debug}" "package ${pkg}"
-    emerge_pretend "${root}" coreos-devel/board-packages | tee "${debug_output_file}" >"${output_file}"
+    emerge_pretend "${root}" coreos-devel/board-packages "${oem_pkgs[@]}" | tee "${debug_output_file}" >"${output_file}"
 
     # There are packages that are installed only in sysexts and are
     # not pulled in by the coreos-devel/board-packages
@@ -290,19 +303,6 @@ function package_info_for_board() {
         if [[ -n ${do_emerge} ]]; then
             sysext_pkgs_csv_to_uses_csv_flags_map["${pkgs_csv}"]=${uses_csv}
         fi
-    done
-
-    local -a oem_descriptors
-    mapfile -t oem_descriptors < <(
-        source build_library/oem_sysexts.sh
-        local -a oem_descs=()
-        get_oem_sysext_matrix "${arch}" oem_descs
-        printf '%s\n' "${oem_descs[@]}"
-    )
-    local -a fields
-    for entry in "${oem_descriptors[@]}"; do
-        read -r -a fields <<<"${entry//|/ }"
-        sysext_pkgs_csv_to_uses_csv_flags_map["${fields[1]}"]=${fields[2]:-}
     done
 
     # Generate additional reports for the yet unreported sysext
