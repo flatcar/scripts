@@ -872,15 +872,16 @@ TMPFILES_KDUMP
 
     # Ensure /etc/kdump.conf exists with a default config.
     # kdumpctl expects this file to determine the dump target.
-    # dracut_args --tmpdir /var/crash: use ext4 ROOT partition for dracut's
-    #   scratch space instead of /tmp (tmpfs) to avoid tmpfs space pressure
-    #   when building the kdump initramfs.
+    # dracut_args:
+    #   --tmpdir /var/crash: use ext4 ROOT for dracut scratch (avoids tmpfs pressure)
+    #   -o "setup-root ignition": crash kernel cannot mount dm-verity /usr, so
+    #     these modules must be excluded to prevent emergency.target on aarch64
     sudo tee "${root_fs_dir}/etc/kdump.conf" > /dev/null <<'KDUMP_CONF'
 # kdump configuration for ACL
 # Dump to local filesystem
 path /var/crash
 core_collector makedumpfile -l --message-level 7 -d 31
-dracut_args --tmpdir /var/crash
+dracut_args --tmpdir /var/crash -o "setup-root ignition"
 KDUMP_CONF
 
     # kdumpctl constructs the kernel path as:
@@ -899,6 +900,9 @@ KDUMP_CONF
 # The kernel is copied here by the kdump.service ExecStartPre drop-in.
 KDUMP_BOOTDIR="/var/crash"
 KDUMP_IMG="vmlinuz"
+# Crash kernel cmdline: nr_cpus=1 avoids SMP hang on aarch64,
+# irqpoll + reset_devices ensure stable device access post-panic.
+KDUMP_COMMANDLINE_APPEND="irqpoll nr_cpus=1 reset_devices"
 KDUMP_SYSCONFIG
 }
 
