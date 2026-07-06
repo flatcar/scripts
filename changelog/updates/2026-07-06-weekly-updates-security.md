@@ -1,0 +1,3 @@
+- base, dev: openssl ([3.5.7](https://openssl-library.org/news/openssl-3.5-notes/))
+- sysext-containerd: containerd ([2.2.5](https://github.com/containerd/containerd/releases/tag/v2.2.5) (includes [2.2.4](https://github.com/containerd/containerd/releases/tag/v2.2.4), [2.2.3](https://github.com/containerd/containerd/releases/tag/v2.2.3)))
+- sysext-containerd: runc ([1.4.3](https://github.com/opencontainers/runc/releases/tag/v1.4.3) (includes [1.4.2](https://github.com/opencontainers/runc/releases/tag/v1.4.2), [1.4.1](https://github.com/opencontainers/runc/releases/tag/v1.4.1)))
