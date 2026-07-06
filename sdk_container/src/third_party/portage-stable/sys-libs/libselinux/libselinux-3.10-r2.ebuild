@@ -24,7 +24,7 @@ if [[ ${PV} == 9999 ]]; then
 	S="${WORKDIR}/${P}/${PN}"
 else
 	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~riscv ~x86"
+	KEYWORDS="amd64 arm arm64 ~mips ~riscv x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -45,7 +45,6 @@ DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig
 	python? (
 		>=dev-lang/swig-2.0.9
-		dev-python/pip[${PYTHON_USEDEP}]
 		${PYTHON_DEPS}
 		${DISTUTILS_DEPS}
 	)
