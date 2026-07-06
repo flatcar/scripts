@@ -15,6 +15,7 @@ INTROSPECTION_PV="1.86.0"
 INTROSPECTION_P="${INTROSPECTION_PN}-${INTROSPECTION_PV}"
 SRC_URI="
 	${SRC_URI}
+	https://distfiles.gentoo.org/pub/dev/sam%40gentoo.org/${CATEGORY}/${PN}/${PN}-2.88.2-const-whoops.patch.xz
 	introspection? ( mirror://gnome/sources/gobject-introspection/${INTROSPECTION_PV%.*}/gobject-introspection-${INTROSPECTION_PV}.tar.${GNOME_TARBALL_SUFFIX} )
 "
 INTROSPECTION_SOURCE_DIR="${WORKDIR}/${INTROSPECTION_P}"
@@ -22,7 +23,7 @@ INTROSPECTION_BUILD_DIR="${WORKDIR}/${INTROSPECTION_P}-build"
 
 LICENSE="LGPL-2.1+"
 SLOT="2"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="dbus debug +elf doc +introspection +mime selinux static-libs sysprof systemtap test utils xattr"
 RESTRICT="!test? ( test )"
 
@@ -91,7 +92,7 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-	"${FILESDIR}"/${PN}-2.84.4-fix-const-attribute.patch
+	"${WORKDIR}"/${PN}-2.88.2-const-whoops.patch
 )
 
 python_check_deps() {
