@@ -292,7 +292,7 @@ function _release_build_impl() {
 TEMPLATE='
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Flatcar Linux on EC2: https://kinvolk.io/docs/flatcar-container-linux/latest/installing/cloud/aws-ec2/",
+  "Description": "Flatcar Linux on EC2: https://www.flatcar.org/docs/latest/installing/cloud/aws-ec2/",
   "Mappings" : {
       "RegionMap" : {
 ###AMIS###
