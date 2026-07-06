@@ -6,22 +6,23 @@ EAPI=9
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/alekseysanin.asc
 inherit autotools verify-sig
 
+MY_PV=$(ver_rs 3 '-') # normalize RC versions
 DESCRIPTION="Command line tool for signing, verifying, encrypting and decrypting XML"
 HOMEPAGE="https://www.aleksey.com/xmlsec/"
 SRC_URI="
-	https://www.aleksey.com/xmlsec/download/${PN}1-${PV}.tar.gz
+	https://www.aleksey.com/xmlsec/download/${PN}1-${MY_PV}.tar.gz
 	https://www.aleksey.com/xmlsec/download/older-releases/${PN}1-${PV}.tar.gz
 	verify-sig? (
 		https://www.aleksey.com/xmlsec/download/${PN}1-${PV}.sig
 		https://www.aleksey.com/xmlsec/download/older-releases/${PN}1-${PV}.sig
 	)
 "
-S="${WORKDIR}/${PN}1-${PV}"
+S="${WORKDIR}/${PN}1-$(ver_cut 1-3)"
 
 LICENSE="MIT"
-# Upstream consider major version bumps to be changes in either X or Y in X.Y.Z
-SLOT="0/$(ver_cut 1-2)"
-KEYWORDS="amd64 arm arm64 ~loong ppc ppc64 ~riscv ~sparc x86"
+# configure.ac: "For simplicity we just bump current all the time and don't bother"
+SLOT="0/${PV}"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
 IUSE="doc gcrypt gnutls http nss +openssl static-libs test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="
@@ -29,23 +30,27 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-	>=dev-libs/libxml2-2.7.4:=
-	>=dev-libs/libxslt-1.0.20
-	dev-libs/libltdl
+	>=dev-libs/libxml2-2.9.13:=
+	>=dev-libs/libxslt-1.1.35:=
+	>=dev-libs/libltdl-1.0.0:=
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.0:= )
-	gnutls? ( >=net-libs/gnutls-3.6.13:= )
+	gnutls? ( >=net-libs/gnutls-3.8.3:= )
 	nss? (
-		>=dev-libs/nspr-4.4.1
-		>=dev-libs/nss-3.9
+		>=dev-libs/nspr-4.34.1:=
+		>=dev-libs/nss-3.91:=
 	)
-	openssl? ( dev-libs/openssl:= )
+	openssl? ( >=dev-libs/openssl-3.0.13:= )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
 	virtual/pkgconfig
+	doc? (
+		app-text/doxygen
+		virtual/pandoc
+	)
 	test? (
 		nss? (
-			>=dev-libs/nss-3.9[utils]
+			>=dev-libs/nss-3.91[utils]
 		)
 	)
 	verify-sig? ( sec-keys/openpgp-keys-alekseysanin )
@@ -57,7 +62,7 @@ PATCHES=(
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${PN}1-${PV}.{tar.gz,sig}
+		verify-sig_verify_detached "${DISTDIR}"/${PN}1-${MY_PV}.{tar.gz,sig}
 	fi
 	default
 }
@@ -65,33 +70,39 @@ src_unpack() {
 src_prepare() {
 	default
 
+	# Upstream has removed the option not to build docs - use the Force
+	if ! use doc; then
+		sed -i -e 's/^SUBDIRS.*$/SUBDIRS = include src apps man/' Makefile.am || die
+	fi
+
 	eautoreconf
 }
 
 src_configure() {
 	local myeconfargs=(
-		$(use_enable doc docs)
+		$(use_enable http)
 		$(use_enable static-libs static)
 		$(use_with gcrypt)
 		$(use_with gnutls)
 		$(use_with nss nspr)
 		$(use_with nss)
 		$(use_with openssl)
-
-		--disable-werror
-		--enable-mans
-		--enable-pkgconfig
-
-		--enable-concatkdf
-		--enable-pbkdf2
-		--enable-ec
-		--enable-dh
-		--enable-sha3
-
-		--enable-files
-		$(use_enable http)
 		--disable-ftp
+		--disable-werror
+		--enable-concatkdf
+		--enable-dh
+		--enable-ec
+		--enable-files
+		--enable-pbkdf2
+		--enable-pkgconfig
+		--enable-sha3
+		--with-man-dir="${EPREFIX}"/usr/share/man/man1
 	)
+	if use doc; then
+		myeconfargs+=(
+			"--with-docs-dir=${EPREFIX}/usr/share/doc/${PF}"
+		)
+	fi
 
 	# Bash because of bug #721128
 	CONFIG_SHELL="${BROOT}"/bin/bash econf "${myeconfargs[@]}"
