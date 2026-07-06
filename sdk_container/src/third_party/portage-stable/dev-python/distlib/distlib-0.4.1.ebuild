@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{11..15} python3_{13..15}t pypy3_11 )
+PYTHON_COMPAT=( python3_{12..15} python3_{14..15}t )
 
 inherit distutils-r1
 
@@ -19,7 +19,7 @@ SRC_URI="
 
 LICENSE="PSF-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-macos"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -34,10 +34,8 @@ src_prepare() {
 	local PATCHES=(
 		# use system pypiserver instead of bundled one
 		"${FILESDIR}/distlib-0.3.9-system-pypiserver.patch"
-		# https://github.com/pypa/distlib/commit/6286442857de9f734686d08f0e59ca8048ee357a
-		"${FILESDIR}/${P}-py314-test.patch"
 		# https://github.com/pypa/distlib/pull/256
-		"${FILESDIR}/${P}-py315.patch"
+		"${FILESDIR}/${PN}-0.4.0-py315.patch"
 	)
 
 	# make sure it's not used
