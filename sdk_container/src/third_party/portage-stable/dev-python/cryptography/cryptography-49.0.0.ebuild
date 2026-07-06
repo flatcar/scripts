@@ -3,49 +3,46 @@
 
 EAPI=8
 
-CARGO_OPTIONAL=yes
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=maturin
 PYPI_VERIFY_REPO=https://github.com/pyca/cryptography
-PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
+PYTHON_COMPAT=( python3_{12..15} )
 PYTHON_REQ_USE="threads(+)"
 
+CARGO_OPTIONAL=yes
+RUST_MIN_VER="1.83.0"
 CRATES="
-	asn1@0.22.0
-	asn1_derive@0.22.0
-	autocfg@1.5.0
+	asn1@0.24.1
+	asn1_derive@0.24.1
 	base64@0.22.1
-	bitflags@2.9.4
-	cc@1.2.37
-	cfg-if@1.0.3
-	find-msvc-tools@0.1.1
+	bitflags@2.13.0
+	cc@1.2.64
+	cfg-if@1.0.4
+	find-msvc-tools@0.1.9
 	foreign-types-shared@0.1.1
 	foreign-types@0.3.2
 	heck@0.5.0
-	indoc@2.0.6
-	itoa@1.0.15
-	libc@0.2.175
-	memoffset@0.9.1
-	once_cell@1.21.3
+	itoa@1.0.18
+	libc@0.2.186
+	once_cell@1.21.4
 	openssl-macros@0.1.1
-	openssl-sys@0.9.110
-	openssl@0.10.74
-	pem@3.0.5
-	pkg-config@0.3.32
-	portable-atomic@1.11.1
-	proc-macro2@1.0.101
-	pyo3-build-config@0.26.0
-	pyo3-ffi@0.26.0
-	pyo3-macros-backend@0.26.0
-	pyo3-macros@0.26.0
-	pyo3@0.26.0
-	quote@1.0.40
-	self_cell@1.2.0
-	shlex@1.3.0
-	syn@2.0.106
-	target-lexicon@0.13.3
-	unicode-ident@1.0.19
-	unindent@0.2.4
+	openssl-sys@0.9.117
+	openssl@0.10.81
+	pem@3.0.6
+	pkg-config@0.3.33
+	portable-atomic@1.13.1
+	proc-macro2@1.0.106
+	pyo3-build-config@0.29.0
+	pyo3-ffi@0.29.0
+	pyo3-macros-backend@0.29.0
+	pyo3-macros@0.29.0
+	pyo3@0.29.0
+	quote@1.0.45
+	self_cell@1.2.2
+	shlex@2.0.1
+	syn@2.0.117
+	target-lexicon@0.13.5
+	unicode-ident@1.0.24
 	vcpkg@0.2.15
 "
 
@@ -72,7 +69,7 @@ LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD MIT Unicode-3.0
 "
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 RDEPEND="
 	>=dev-libs/openssl-1.0.2o-r6:0=
@@ -100,14 +97,9 @@ BDEPEND="
 # Files built without CFLAGS/LDFLAGS, acceptable for rust
 QA_FLAGS_IGNORED="usr/lib.*/py.*/site-packages/cryptography/hazmat/bindings/_rust.*.so"
 
-EPYTEST_PLUGINS=( hypothesis pytest-subtests )
+EPYTEST_PLUGINS=( hypothesis )
 EPYTEST_XDIST=1
 distutils_enable_tests pytest
-
-PATCHES=(
-	# https://github.com/pyca/cryptography/pull/14319
-	"${FILESDIR}/${PN}-46.0.5-stray-files.patch"
-)
 
 src_unpack() {
 	if use verify-provenance; then
@@ -143,5 +135,10 @@ python_test() {
 	local EPYTEST_IGNORE=(
 		tests/bench
 	)
+	local EPYTEST_DESELECT=(
+		# OOMs depending on overcommit setting and available memory
+		tests/hazmat/primitives/test_argon2.py::TestArgon2::test_argon2_malloc_failure
+	)
+
 	epytest
 }
