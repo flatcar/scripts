@@ -4,22 +4,19 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{11..14} python3_{13,14}t pypy3_11 )
+PYTHON_COMPAT=( python3_{12..15} python3_{14..15}t )
 
-inherit distutils-r1
+inherit distutils-r1 pypi
 
 DESCRIPTION="Low-level components of distutils2/packaging"
 HOMEPAGE="
 	https://pypi.org/project/distlib/
 	https://github.com/pypa/distlib/
 "
-SRC_URI="
-	https://github.com/pypa/distlib/archive/${PV}.tar.gz -> ${P}.gh.tar.gz
-"
 
 LICENSE="PSF-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -34,12 +31,7 @@ src_prepare() {
 	local PATCHES=(
 		# use system pypiserver instead of bundled one
 		"${FILESDIR}/distlib-0.3.9-system-pypiserver.patch"
-		# https://github.com/pypa/distlib/commit/6286442857de9f734686d08f0e59ca8048ee357a
-		"${FILESDIR}/${P}-py314-test.patch"
 	)
-
-	# make sure it's not used
-	rm tests/pypi-server-standalone.py || die
 
 	distutils-r1_src_prepare
 }
