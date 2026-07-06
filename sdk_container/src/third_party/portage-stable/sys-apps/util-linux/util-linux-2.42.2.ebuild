@@ -32,7 +32,9 @@ fi
 
 S="${WORKDIR}/${MY_P}"
 
-LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
+# GPL-2+ first per README.licensing ("default license"), then the rest
+# are in order as listed in that file.
+LICENSE="GPL-2+ GPL-1+ GPL-2 GPL-2+ GPL-3+ LGPL-2.1+ MIT BSD-2 BSD BSD-4 EUPL-1.2 public-domain"
 SLOT="0"
 IUSE="audit build caps +cramfs cryptsetup fdformat +hardlink kill +logger magic ncurses nls pam python +readline rtas selinux slang static-libs +su +suid systemd test tty-helpers udev unicode uuidd"
 
@@ -87,6 +89,7 @@ RDEPEND+="
 	)
 	uuidd? (
 		acct-user/uuidd
+		selinux? ( sec-policy/selinux-uuidd )
 		systemd? ( virtual/tmpfiles )
 	)
 	!net-wireless/rfkill
@@ -101,6 +104,10 @@ fi
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} ) su? ( pam )"
 RESTRICT="!test? ( test )"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.41.4-no-AF_ALG.patch
+)
 
 pkg_pretend() {
 	if use su && ! use suid ; then
@@ -155,6 +162,15 @@ src_prepare() {
 
 			# Hangs on some machines
 			script/replay
+
+			# Fails for 32-bit time_t which some profiles have
+			misc/time_t
+
+			# Permission issues with changing OOM score
+			choom/choom
+
+			# MKFDS_PID is empty
+			lsfd/option-hyperlink
 		)
 
 		# debug prints confuse the tests which look for a diff
