@@ -318,7 +318,10 @@ function override_sdk_image_name() {
 }
 
 function add_ignore_packages() {
-    local map_def
+    if [[ ${#} -eq 0 ]]; then
+        append_to_globals "local -A IGNORE_PACKAGES=()"
+        return
+    fi
 
     local -a map_members
     mapfile -t map_members < <(printf '[%q]=x\n' "${@}")
