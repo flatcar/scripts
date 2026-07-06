@@ -7,26 +7,20 @@ inherit go-env go-module linux-info optfeature systemd toolchain-funcs verify-si
 
 DESCRIPTION="Modern, secure and powerful system container and virtual machine manager"
 HOMEPAGE="https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus"
-
-if [[ "${PV}" == 9999* ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://github.com/lxc/incus.git"
-else
-	SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
-		verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
-	KEYWORDS="~amd64 ~arm64"
-fi
+SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
+	verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
 
 LICENSE="Apache-2.0 BSD LGPL-3 MIT"
-SLOT="0/stable"
+SLOT="0/lts"
+KEYWORDS="amd64 ~arm64"
 IUSE="apparmor fuidshift nls qemu selinux"
 
 DEPEND="acct-group/incus
 	acct-group/incus-admin
 	app-arch/xz-utils
-	>=app-containers/lxc-5.0.0:=[apparmor?,seccomp(+)]
+	>=app-containers/lxc-6.0.0:=[apparmor?,seccomp(+)]
 	dev-db/sqlite:3
-	>=dev-libs/cowsql-1.15.7
+	>=dev-libs/cowsql-1.15.9
 	dev-libs/lzo
 	>=dev-libs/raft-0.22.1:=[lz4]
 	>=dev-util/xdelta-3.0[lzma(+)]
@@ -34,15 +28,12 @@ DEPEND="acct-group/incus
 	sys-libs/libcap
 	virtual/udev"
 RDEPEND="${DEPEND}
-	|| (
-		net-firewall/iptables
-		net-firewall/nftables[json]
-	)
 	fuidshift? ( !app-containers/lxd )
 	net-firewall/ebtables
+	net-firewall/nftables[json]
 	sys-apps/iproute2
 	sys-fs/fuse:*
-	>=sys-fs/lxcfs-5.0.0
+	>=sys-fs/lxcfs-6.0.0
 	sys-fs/squashfs-tools[lzma]
 	virtual/acl
 	apparmor? ( sec-policy/apparmor-profiles )
@@ -50,8 +41,9 @@ RDEPEND="${DEPEND}
 		app-cdr/cdrtools
 		app-emulation/qemu[spice,usbredir,virtfs]
 		sys-apps/gptfdisk
-	)"
-BDEPEND=">=dev-lang/go-1.24.7
+	)
+	selinux? ( sec-policy/selinux-incus )"
+BDEPEND=">=dev-lang/go-1.25.6
 	nls? ( sys-devel/gettext )
 	verify-sig? ( sec-keys/openpgp-keys-linuxcontainers )"
 
@@ -101,14 +93,8 @@ RESTRICT="test"
 GOPATH="${S}/_dist"
 
 src_unpack() {
-	if [[ "${PV}" == 9999* ]]; then
-		git-r3_src_unpack
-		go-module_live_vendor
-		go-env_set_compile_environment
-	else
-		verify-sig_src_unpack
-		go-module_src_unpack
-	fi
+	verify-sig_src_unpack
+	go-module_src_unpack
 }
 
 src_prepare() {
@@ -271,9 +257,9 @@ pkg_postinst() {
 	elog
 	optfeature "OCI container images support" app-containers/skopeo app-containers/umoci
 	optfeature "support for ACME certificate issuance" app-crypt/lego
-	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "ipv6 support" net-dns/dnsmasq[ipv6]
 	optfeature "full incus-migrate support" net-misc/rsync
+	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "lvm2 storage backend" sys-fs/lvm2
 	optfeature "zfs storage backend" sys-fs/zfs
 	elog
