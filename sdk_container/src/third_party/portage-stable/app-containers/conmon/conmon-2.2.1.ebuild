@@ -21,12 +21,15 @@ SLOT="0"
 IUSE="+seccomp selinux systemd"
 RESTRICT="test"
 
-RDEPEND="dev-libs/glib:=
+DEPEND="
+	dev-libs/glib:=
 	seccomp? ( sys-libs/libseccomp )
-	systemd? ( sys-apps/systemd:= )"
-DEPEND="${RDEPEND}"
+	systemd? ( sys-apps/systemd:= )
+"
+RDEPEND="${DEPEND}
+	selinux? ( sec-policy/selinux-podman )
+"
 BDEPEND="dev-go/go-md2man"
-RDEPEND+=" selinux? ( sec-policy/selinux-podman )"
 
 src_prepare() {
 	default
@@ -42,6 +45,6 @@ src_compile() {
 
 src_install() {
 	default
-	dodir /usr/libexec/podman
-	dosym ../../bin/"${PN}" /usr/libexec/podman/"${PN}"
+	dosym -r /usr/bin/"${PN}" /usr/libexec/crio/"${PN}"
+	dosym -r /usr/bin/"${PN}" /usr/libexec/podman/"${PN}"
 }
