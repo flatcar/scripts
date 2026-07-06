@@ -7,7 +7,8 @@ EAPI=8
 # check Fedora's packaging (https://src.fedoraproject.org/rpms/audit/tree/rawhide)
 # on bumps (or if hitting a bug) to see what they've done there.
 
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..15} )
+TMPFILES_OPTIONAL=1
 
 inherit autotools multilib-minimal toolchain-funcs python-r1 linux-info systemd tmpfiles usr-ldscript
 
@@ -19,8 +20,8 @@ SRC_URI="https://github.com/linux-audit/audit-userspace/archive/refs/tags/v${PV}
 S="${WORKDIR}/audit-userspace-${PV}"
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="gssapi io-uring ldap python static-libs"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+IUSE="build gssapi io-uring ldap python static-libs"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -37,11 +38,10 @@ DEPEND="
 BDEPEND="
 	python? (
 		dev-lang/swig
-		$(python_gen_cond_dep '
-			dev-python/setuptools[${PYTHON_USEDEP}]
-		' python3_12)
+		dev-python/setuptools[${PYTHON_USEDEP}]
 	)
 "
+IDEPEND="!build? ( virtual/tmpfiles )"
 
 CONFIG_CHECK="~AUDIT"
 
@@ -116,6 +116,8 @@ src_configure() {
 multilib_src_compile() {
 	default
 
+	# We could copy this for tests but the only thing the bindings do
+	# in check-local is rebuild (!) with -Wl,--no-undefined.
 	if multilib_is_native_abi; then
 		local native_build="${BUILD_DIR}"
 
@@ -181,7 +183,7 @@ multilib_src_install_all() {
 
 pkg_postinst() {
 	lockdown_perms "${EROOT}"
-	tmpfiles_process audit.conf
+	! use build && tmpfiles_process audit.conf
 }
 
 lockdown_perms() {
