@@ -310,7 +310,6 @@ dev-libs/yajl
 dev-perl/File-Slurper
 dev-perl/Parse-Yapp
 
-dev-python/backports-tarfile
 dev-python/cachecontrol
 dev-python/certifi
 dev-python/cffi
