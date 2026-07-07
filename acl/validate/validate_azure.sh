@@ -30,7 +30,11 @@ AZ_GALLERY_RG="${AZ_GALLERY_RG:?Must be set — resource group for Azure Compute
 AZ_ACG="${AZ_ACG:?Must be set — Azure Compute Gallery name}"
 NO_CLEANUP="${NO_CLEANUP:-false}"
 BUILD_ID="${BUILD_ID:-}"
-RESOURCE_TAGS=("createdBy=$(whoami)")
+# Only default when empty — don't clobber the buildId/adoProject/arch tags that
+# validate_common.sh parsed from --tag (the pipeline's per-run RG cleanup needs them).
+if [[ -z "${RESOURCE_TAGS+x}" || ${#RESOURCE_TAGS[@]} -eq 0 ]]; then
+    RESOURCE_TAGS=("createdBy=$(whoami)")
+fi
 VM_RG_PREFIX="${VM_RG_PREFIX:-$(whoami)-acl-test-vm-rg}"
 VM_RG=""
 AZ_VM_ARGS="${AZ_VM_ARGS:-}"
