@@ -175,6 +175,7 @@ app-misc/mime-types
 app-misc/pax-utils
 
 app-portage/elt-patches
+app-portage/gemato
 app-portage/gentoolkit
 app-portage/getuto
 app-portage/portage-utils
