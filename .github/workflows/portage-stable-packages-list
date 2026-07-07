@@ -478,6 +478,7 @@ eclass/python-r1.eclass
 eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
 eclass/qmake-utils.eclass
+eclass/qt-utils.eclass
 eclass/readme.gentoo-r1.eclass
 eclass/rpm.eclass
 eclass/ruby-single.eclass
