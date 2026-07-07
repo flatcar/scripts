@@ -738,6 +738,7 @@ sys-process/audit
 sys-process/lsof
 sys-process/procps
 sys-process/psmisc
+sys-process/time
 sys-process/tini
 
 virtual/acl
