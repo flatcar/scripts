@@ -443,7 +443,6 @@ eclass/kernel-2.eclass
 eclass/libtool.eclass
 eclass/linux-info.eclass
 eclass/linux-mod-r1.eclass
-eclass/linux-mod.eclass
 eclass/llvm-r1.eclass
 eclass/llvm-r2.eclass
 eclass/llvm-utils.eclass
