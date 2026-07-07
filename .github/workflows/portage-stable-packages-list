@@ -354,6 +354,7 @@ dev-python/packaging
 dev-python/pathspec
 dev-python/pefile
 dev-python/pip
+dev-python/pkg-resources
 dev-python/platformdirs
 dev-python/pluggy
 dev-python/ply
