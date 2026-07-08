@@ -19,8 +19,10 @@ sys-firmware/edk2-bin
 # To address CVE-2026-30892
 =app-containers/crun-1.28
 
+# To address a bunch of CVEs
+=app-containers/incus-7.2
+
 # Keep versions on both arches in sync.
-=app-containers/incus-7.0.0-r1
 =app-containers/lxc-7.0.0
 
 # We always want the latest version available.
