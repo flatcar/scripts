@@ -149,7 +149,7 @@ CRATES="
 LLVM_COMPAT=( {17..21} )
 MODULES_INITRAMFS_IUSE=+initramfs
 MODULES_KERNEL_MIN=6.16
-MODULES_OPTIONAL_IUSE=+modules
+MODULES_OPTIONAL_IUSE=modules
 PYTHON_COMPAT=( python3_{11..14} )
 RUST_MIN_VER="1.85.0"
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/kentoverstreet.asc
@@ -210,7 +210,7 @@ BDEPEND="
 	verify-sig? ( >=sec-keys/openpgp-keys-kentoverstreet-20241012 )
 "
 
-QA_FLAGS_IGNORED="/sbin/bcachefs"
+QA_FLAGS_IGNORED="/usr/sbin/bcachefs"
 
 python_check_deps() {
 	python_has_version "dev-python/docutils[${PYTHON_USEDEP}]"
@@ -328,17 +328,22 @@ src_compile() {
 }
 
 src_install() {
-	into /
+	# Install under /usr so the binary and compat symlinks survive when
+	# this ebuild is packaged as a Flatcar sysext (build_sysext prunes
+	# every non-/usr top-level directory before the manglefs script gets
+	# a chance to relocate them). /sbin is unified with /usr/sbin on
+	# usrmerge systems, so this doesn't change what users see on disk.
+	into /usr
 	dosbin bcachefs
 
-	dosym bcachefs /sbin/fsck.bcachefs
-	dosym bcachefs /sbin/mkfs.bcachefs
-	dosym bcachefs /sbin/mount.bcachefs
+	dosym bcachefs /usr/sbin/fsck.bcachefs
+	dosym bcachefs /usr/sbin/mkfs.bcachefs
+	dosym bcachefs /usr/sbin/mount.bcachefs
 
 	# Uses a crate-based implementation of FUSE, no dependency on sys-fs/fuse and unconditionally included.
-	dosym bcachefs /sbin/fsck.fuse.bcachefs
-	dosym bcachefs /sbin/mkfs.fuse.bcachefs
-	dosym bcachefs /sbin/mount.fuse.bcachefs
+	dosym bcachefs /usr/sbin/fsck.fuse.bcachefs
+	dosym bcachefs /usr/sbin/mkfs.fuse.bcachefs
+	dosym bcachefs /usr/sbin/mount.fuse.bcachefs
 
 	newbashcomp bash.completion bcachefs
 	newfishcomp fish.completion bcachefs.fish
