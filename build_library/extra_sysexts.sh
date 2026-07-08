@@ -1,5 +1,5 @@
 EXTRA_SYSEXTS=(
-  "bcachefs|sys-fs/bcachefs-tools|modules|amd64"
+  "bcachefs|sys-fs/bcachefs-tools|modules|amd64|6.16"
   "overlaybd|sys-fs/overlaybd,app-containers/accelerated-container-image"
   "incus|app-containers/incus"
   "nvidia-drivers-535|x11-drivers/nvidia-drivers:0/535|-kernel-open persistenced|amd64"

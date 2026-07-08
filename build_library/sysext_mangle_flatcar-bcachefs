@@ -20,11 +20,13 @@ rm -rf ./usr/lib64/pkgconfig
 
 # /usr/sbin on Flatcar is a symlink to /usr/bin; shipping a /usr/sbin
 # directory in a sysext would clobber the symlink at merge time. Relocate
-# anything the tools ebuild installed there.
+# anything the tools ebuild installed there. `cp -a src/. dst/` includes
+# dotfiles (Portage `.keep*` placeholders) so nothing lingers to make the
+# subsequent `rm -rf` racy.
 if [ -d ./usr/sbin ]; then
   mkdir -p ./usr/bin
-  mv ./usr/sbin/* ./usr/bin/ 2>/dev/null || true
-  rmdir ./usr/sbin
+  cp -a ./usr/sbin/. ./usr/bin/
+  rm -rf ./usr/sbin
 fi
 
 # Wire up the out-of-tree module through the shared kmod helper. This
