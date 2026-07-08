@@ -16,6 +16,9 @@ sys-firmware/edk2-bin
 # Keep versions on both arches in sync.
 =app-containers/cri-tools-1.33.0 ~arm64
 
+# To address CVE-2026-30892
+=app-containers/crun-1.28
+
 # Use unstable version for cross-compile fix. This needs to be at least as new
 # as app-containers/docker.
 =app-containers/docker-cli-29.1.3
