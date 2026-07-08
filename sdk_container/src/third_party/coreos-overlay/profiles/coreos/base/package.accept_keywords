@@ -19,10 +19,6 @@ sys-firmware/edk2-bin
 # To address CVE-2026-30892
 =app-containers/crun-1.28
 
-# Use unstable version for cross-compile fix. This needs to be at least as new
-# as app-containers/docker.
-=app-containers/docker-cli-29.1.3
-
 # Keep versions on both arches in sync.
 =app-containers/incus-7.0.0-r1
 =app-containers/lxc-7.0.0
