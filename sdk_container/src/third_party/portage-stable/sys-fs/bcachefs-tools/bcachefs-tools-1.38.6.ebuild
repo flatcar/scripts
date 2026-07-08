@@ -260,17 +260,24 @@ src_unpack() {
 		git-r3_src_unpack
 		S="${S}/src" cargo_live_src_unpack
 	else
-		# Upstream signs the uncompressed tarball
 		if use verify-sig; then
-			einfo "Unpacking ${P}.tar.zst ..."
+			# Upstream signs the uncompressed tarball. Stream-verify the
+			# detached signature while extracting the tarball via tee,
+			# leaving the source tree in place.
+			einfo "Verifying and unpacking ${P}.tar.zst ..."
 			verify-sig_verify_detached - "${DISTDIR}"/${P}.tar.sign \
 				< <(zstd -fdc "${DISTDIR}"/${P}.tar.zst | tee >(tar -xf -))
 			assert "Unpack failed"
+			# Filter the tarball and its detached signature out of ${A}
+			# so cargo_src_unpack doesn't re-extract the tarball or feed
+			# the .sign file to unpack (which would die).
+			local A=${A//${P}.tar.zst/}
+			A=${A//${P}.tar.sign/}
 		fi
-		unpacker ${P}.tar.zst
+		# cargo_src_unpack extracts the vendored Cargo crates and, when
+		# not filtered above, the source tarball itself.
 		cargo_src_unpack
 	fi
-
 }
 
 src_prepare() {
@@ -310,8 +317,8 @@ src_compile() {
 	cargo_env emake bcachefs || die
 	use modules && linux-mod-r1_src_compile
 
-	# Recent versions mangle the 'bcachefs' symbolic link, work around it.
-	[[ -e bcachefs ]] && die "bcachefs symlink is valid, please remove workaround"
+	# Recent versions mangle the 'bcachefs' symbolic link. Force the link
+	# unconditionally so this keeps working once upstream stops mangling.
 	ln -rsf target/release/bcachefs bcachefs || die
 
 	local shell
