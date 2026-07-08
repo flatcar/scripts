@@ -230,8 +230,8 @@ create_prod_sysexts() {
   local image_name="$1"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
   for sysext in "${EXTRA_SYSEXTS[@]}"; do
-    local name pkgs useflags arches min_kernel
-    IFS="|" read -r name pkgs useflags arches min_kernel <<< "$sysext"
+    local name pkgs useflags arches
+    IFS="|" read -r name pkgs useflags arches <<< "$sysext"
     name="flatcar-$name"
     local pkg_array=(${pkgs//,/ })
     local arch_array=(${arches//,/ })
@@ -250,21 +250,6 @@ create_prod_sysexts() {
         fi
       done
       if [[ $should_skip -eq 1 ]]; then
-        continue
-      fi
-    fi
-
-    # Some sysexts (e.g. out-of-tree kernel modules) refuse to build below
-    # a specific kernel version; skip them here rather than letting the
-    # ebuild fail the whole batch under `set -e`.
-    if [[ -n "$min_kernel" ]]; then
-      local kernel_cpv kernel_ver
-      kernel_cpv=$(pkg_version installed sys-kernel/coreos-kernel)
-      kernel_ver=${kernel_cpv#sys-kernel/coreos-kernel-}
-      kernel_ver=${kernel_ver%-r*}
-      if [[ -z "$kernel_ver" ]] || \
-         [[ "$(printf '%s\n%s\n' "$min_kernel" "$kernel_ver" | sort -V | head -n1)" != "$min_kernel" ]]; then
-        info "Skipping sysext ${name}: kernel ${kernel_ver:-unknown} < required ${min_kernel}"
         continue
       fi
     fi

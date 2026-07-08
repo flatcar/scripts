@@ -3,9 +3,6 @@
 set -euo pipefail
 rootfs="${1}"
 
-DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-. "$DIR/sysext_mangle_kmod"
-
 pushd "${rootfs}"
 
 # Drop dev/debug/initramfs files — the sysext only needs runtime bits.
@@ -28,11 +25,5 @@ if [ -d ./usr/sbin ]; then
   cp -a ./usr/sbin/. ./usr/bin/
   rm -rf ./usr/sbin
 fi
-
-# Wire up the out-of-tree module through the shared kmod helper. This
-# installs modprobe.d entries and a helper script that overlays the
-# kernel-modules directory at load time so bcachefs.ko can be inserted
-# without violating the read-only /usr guarantee.
-configure_modprobe flatcar-bcachefs
 
 popd
