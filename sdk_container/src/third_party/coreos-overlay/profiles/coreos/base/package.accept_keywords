@@ -53,9 +53,6 @@ app-crypt/azure-keyvault-pkcs11
 # Needed by arm64-native SDK
 =app-crypt/ccid-1.6.1 ~arm64
 
-# Keep versions on both arches in sync.
-=app-crypt/mit-krb5-1.21.3-r1 ~arm64
-
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
