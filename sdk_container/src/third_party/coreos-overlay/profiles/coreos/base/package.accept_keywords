@@ -7,9 +7,6 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# Chewi maintains edk2 in Gentoo, and we generally want the latest.
-sys-firmware/edk2-bin
-
 # We always want the latest version available.
 =app-containers/containerd-2.2* ~amd64 ~arm64
 

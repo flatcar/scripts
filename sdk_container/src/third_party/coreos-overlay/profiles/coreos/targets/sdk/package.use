@@ -11,13 +11,27 @@ dev-lang/rust rustfmt
 app-crypt/gnupg smartcard usb
 
 # for qemu
-app-emulation/qemu -doc -jpeg -pin-upstream-blobs ncurses python static-user virtfs qemu_softmmu_targets_aarch64 qemu_softmmu_targets_x86_64 qemu_user_targets_aarch64 qemu_user_targets_x86_64
+app-arch/bzip2 static-libs
+app-emulation/qemu -doc -jpeg ncurses python static-user virtfs qemu_softmmu_targets_aarch64 qemu_softmmu_targets_x86_64 qemu_user_targets_aarch64 qemu_user_targets_x86_64
 dev-libs/glib static-libs
+dev-libs/libaio static-libs
 dev-libs/libpcre2 static-libs
+dev-libs/openssl static-libs
+media-libs/libjpeg-turbo static-libs
+media-libs/libpng static-libs
+net-misc/curl static-libs
 sys-apps/attr static-libs
-sys-firmware/edk2-bin qemu_softmmu_targets_aarch64 qemu_softmmu_targets_x86_64
+sys-apps/dtc static-libs
+sys-libs/libcap-ng static-libs
+sys-libs/libseccomp static-libs
+sys-libs/ncurses static-libs
 sys-libs/zlib static-libs
+virtual/jpeg static-libs
 virtual/zlib static-libs
+x11-libs/pixman static-libs
+
+# Get latest EDK2 firmware for Secure Boot on arm64.
+app-emulation/qemu -pin-upstream-blobs
 
 # Needed for signed sysexts using systemd-repart
 sys-apps/systemd cryptsetup
