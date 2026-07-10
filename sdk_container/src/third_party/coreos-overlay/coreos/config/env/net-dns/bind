@@ -21,7 +21,7 @@ unset ndb_install_mask
 # Override fowners to ignore changing owner or group to named. The
 # only files that this happens for are files that we have put into
 # {PKG_,}INSTALL_MASK. This will help us avoid installing
-# acct-user/named and acct-user/group.
+# acct-user/named and acct-group/named.
 if [[ -z ${flatcar_hacked_fowners:-} ]]; then
     flatcar_hacked_fowners=$(command -v fowners)
 fi
