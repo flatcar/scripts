@@ -118,10 +118,6 @@ app-containers/aardvark-dns
 app-containers/catatonit
 app-containers/conmon
 app-containers/containerd
-app-containers/containers-common
-app-containers/containers-image
-app-containers/containers-shortnames
-app-containers/containers-storage
 app-containers/cri-tools
 app-containers/crun
 app-containers/docker
@@ -306,7 +302,6 @@ dev-libs/tree-sitter-bash
 dev-libs/userspace-rcu
 dev-libs/xmlsec
 dev-libs/xxhash
-dev-libs/yajl
 
 dev-perl/File-Slurper
 dev-perl/Parse-Yapp
