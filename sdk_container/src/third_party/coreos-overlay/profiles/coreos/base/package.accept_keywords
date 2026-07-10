@@ -140,6 +140,3 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-libs/libunwind-1.8.3
-
-# Take this version early for a cross fix and buildpkg-proactive.
-=sys-apps/portage-3.0.81
