@@ -10,6 +10,9 @@
 # Chewi maintains edk2 in Gentoo, and we generally want the latest.
 sys-firmware/edk2-bin
 
+# Needed to address CVE-2026-14164.
+=app-arch/libarchive-3.8.8
+
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
 =app-containers/conmon-2.2.1
@@ -96,6 +99,14 @@ dev-db/etcd amd64
 # Keep versions on both arches in sync.
 =net-dns/bind-9.20.23
 =net-firewall/conntrack-tools-1.4.9
+
+# Needed to address CVE-2026-12505.
+=net-fs/cifs-utils-7.6
+
+# Needed to address CVE-2025-59777, CVE-2025-62689.
+=net-libs/libmicrohttpd-1.0.5
+
+# Keep versions on both arches in sync.
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
