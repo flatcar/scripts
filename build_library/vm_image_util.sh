@@ -724,7 +724,7 @@ _write_qemu_uefi_secure_conf() {
     local _sb_extra_db_certs=()
     if [[ -z ${SBSIGN_DB_CERT:-} ]]; then
         # Default behavior: include the temporary dev shim cert alongside DB.crt
-        _sb_extra_db_certs=( --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-shim-2025.cert" )
+        _sb_extra_db_certs=( --add-db "${owner}" "${BUILD_LIBRARY_DIR}/flatcar-sb-dev-ca.pem" )
     fi
     virt-fw-vars \
         --input "${flash_in}" \
