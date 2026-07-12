@@ -261,13 +261,16 @@ src_unpack() {
 		S="${S}/src" cargo_live_src_unpack
 	else
 		if use verify-sig; then
-			# Upstream signs the uncompressed tarball. Stream-verify the
-			# detached signature while extracting the tarball via tee,
-			# leaving the source tree in place.
-			einfo "Verifying and unpacking ${P}.tar.zst ..."
-			verify-sig_verify_detached - "${DISTDIR}"/${P}.tar.sign \
-				< <(zstd -fdc "${DISTDIR}"/${P}.tar.zst | tee >(tar -xf -))
-			assert "Unpack failed"
+			# Upstream signs the uncompressed tarball. Decompress to a temp
+			# file first so zstd / verify-sig / tar all fail loudly in the
+			# main shell instead of getting swallowed by a process
+			# substitution pipeline.
+			einfo "Decompressing ${P}.tar.zst for signature verification ..."
+			zstd -fdc "${DISTDIR}"/${P}.tar.zst >"${T}"/${P}.tar || die "zstd decompression failed"
+			verify-sig_verify_detached "${T}"/${P}.tar "${DISTDIR}"/${P}.tar.sign
+			einfo "Unpacking ${P}.tar ..."
+			tar -xf "${T}"/${P}.tar -C "${WORKDIR}" || die "tar extraction failed"
+			rm -f "${T}"/${P}.tar
 			# Filter the tarball and its detached signature out of ${A}
 			# so cargo_src_unpack doesn't re-extract the tarball or feed
 			# the .sign file to unpack (which would die).
