@@ -5,7 +5,7 @@ EAPI=8
 
 inherit go-env go-module systemd toolchain-funcs
 
-GIT_REVISION=e53c7c1516c3b2bff98eb76f1f4117477e6f4e66
+GIT_REVISION=fff62f14765df376e5fc36f5a8f8e795b5670f61
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -24,11 +24,12 @@ DEPEND="
 "
 # recommended minimum version of runc is found in script/setup/runc-version
 RDEPEND="${DEPEND}
-	>=app-containers/runc-1.3.6[apparmor?,seccomp?]
+	>=app-containers/runc-1.4.3[apparmor?,seccomp?]
+	selinux? ( sec-policy/selinux-docker )
 "
 BDEPEND="
-	selinux? ( sec-policy/selinux-docker )
 	dev-go/go-md2man
+	>=dev-lang/go-1.26.3
 	virtual/pkgconfig
 "
 
