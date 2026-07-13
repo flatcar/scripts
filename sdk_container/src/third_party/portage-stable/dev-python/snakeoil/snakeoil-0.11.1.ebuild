@@ -1,11 +1,13 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=flit
-PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
+PYPI_VERIFY_REPO=https://github.com/pkgcore/snakeoil
+PYTHON_COMPAT=( python3_{12..15} )
 PYTHON_REQ_USE="threads(+)"
+
 inherit distutils-r1
 
 if [[ ${PV} == *9999 ]] ; then
@@ -18,13 +20,13 @@ else
 fi
 
 DESCRIPTION="misc common functionality and useful optimizations"
-HOMEPAGE="https://github.com/pkgcore/snakeoil"
+HOMEPAGE="
+	https://github.com/pkgcore/snakeoil/
+	https://pypi.org/project/snakeoil/
+"
 
 LICENSE="BSD BSD-2 MIT"
 SLOT="0"
 
-RDEPEND="
-	dev-python/lazy-object-proxy[${PYTHON_USEDEP}]
-"
-
+EPYTEST_PLUGINS=()
 distutils_enable_tests pytest
