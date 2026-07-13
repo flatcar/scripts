@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,7 +10,7 @@ EAPI=8
 
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..15} )
 
 inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info pam systemd udev usr-ldscript
 
@@ -110,8 +110,7 @@ REQUIRED_USE="
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}"/2.1.5-dracut-zfs-missing.patch
-	"${FILESDIR}"/2.3.4-musl.patch
+	"${FILESDIR}"/${PN}-2.1.11-gentoo.patch
 )
 
 pkg_pretend() {
