@@ -7,7 +7,8 @@ PYTHON_COMPAT=( python3_{12..14} )
 # NEED_BOOTSTRAP is for developers to quickly generate a tarball
 # for publishing to the tree.
 NEED_BOOTSTRAP="no"
-inherit crossdev multibuild multilib python-any-r1 flag-o-matic toolchain-funcs multilib-minimal
+inherit crossdev multibuild multilib python-any-r1 flag-o-matic
+inherit toolchain-funcs multilib-minimal
 
 DESCRIPTION="Extended crypt library for descrypt, md5crypt, bcrypt, and others"
 HOMEPAGE="https://github.com/besser82/libxcrypt"
@@ -15,12 +16,12 @@ if [[ ${NEED_BOOTSTRAP} == "yes" ]] ; then
 	inherit autotools
 	SRC_URI="https://github.com/besser82/libxcrypt/releases/download/v${PV}/${P}.tar.xz"
 else
-	SRC_URI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}-autotools.tar.xz"
+	SRC_URI="https://distfiles.gentoo.org/pub/proj/toolchain/libxcrypt/${P}-autotools.tar.xz"
 fi
 
 LICENSE="LGPL-2.1+ public-domain BSD BSD-2"
 SLOT="0/1"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="+compat static-libs +system test headers-only"
 RESTRICT="!test? ( test )"
 
@@ -36,13 +37,19 @@ DEPEND="
 		)
 	)
 "
-RDEPEND="${DEPEND}
+RDEPEND="
+	${DEPEND}
 	!<sys-apps/man-pages-6.16-r1
 "
 BDEPEND="
 	dev-lang/perl
 	test? ( $(python_gen_any_dep 'dev-python/libpass[${PYTHON_USEDEP}]') )
 "
+
+PATCHES=(
+	"${FILESDIR}"/${P}-const.patch
+	"${FILESDIR}"/${P}-getrandom.patch
+)
 
 python_check_deps() {
 	python_has_version "dev-python/libpass[${PYTHON_USEDEP}]"
