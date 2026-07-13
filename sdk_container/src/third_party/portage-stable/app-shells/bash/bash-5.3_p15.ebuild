@@ -75,7 +75,7 @@ fi
 LICENSE="GPL-3+"
 SLOT="0"
 if (( PLEVEL >= 0 )); then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="afs bashlogger examples mem-scramble +net nls plugins pgo +readline"
 
@@ -100,6 +100,12 @@ QA_CONFIGURE_OPTIONS="--disable-static"
 
 PATCHES=(
 	#"${WORKDIR}"/${PN}-${GENTOO_PATCH_VER}/
+
+	# bug #971782
+	"${FILESDIR}"/${PN}-5.3_p9-general-workaround-aliasing-violation-in-REVERSE_LIS.patch
+
+	# bug #965423, bug #970713
+	"${FILESDIR}"/${PN}-5.3_p9-pid-reuse.patch
 
 	# Patches to or from Chet, posted to the bug-bash mailing list.
 	"${FILESDIR}"/${PN}-5.0-syslog-history-extern.patch
