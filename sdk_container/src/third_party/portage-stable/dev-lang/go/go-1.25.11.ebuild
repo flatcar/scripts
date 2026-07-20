@@ -20,7 +20,7 @@ case ${PV}  in
 *)
 	SRC_URI="https://go.dev/dl/go${MY_PV}.src.tar.gz "
 	S="${WORKDIR}"/go
-	KEYWORDS="-* amd64 arm arm64 ~loong ~mips ppc64 ~riscv ~s390 x86 ~x64-macos ~x64-solaris"
+	KEYWORDS="-* ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~x86 ~x64-macos ~x64-solaris"
 	;;
 esac
 
@@ -117,7 +117,11 @@ src_compile() {
 
 src_test() {
 	go_cross_compile && return 0
-	cd src
+	cd src || die
+
+	# remove bad test because of ebuild toolchain environment
+	rm -v cmd/go/testdata/script/autocgo.txt || die
+
 	PATH="${GOBIN}:${PATH}" \
 	./run.bash -no-rebuild -k || die "tests failed"
 }
