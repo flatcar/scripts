@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000006 Mon Sep 17 00:00:00 2001
+From: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+Date: Thu, 17 Jul 2026 09:30:00 +0530
+Subject: [PATCH] nvidia: use hrtimer_setup() for Linux 6.15+
+
+Linux 6.15 introduced hrtimer_setup() which replaces the two-step
+hrtimer_init() + timer->function assignment idiom. hrtimer_init() was
+subsequently removed, causing build failures on Linux 6.18.
+
+Guard the call site in nv-nano-timer.c using LINUX_VERSION_CODE.
+Applied to kernel-module-source/kernel-open/ only since the proprietary
+kernel/ tree does not use hrtimer in this path.
+
+Based on: https://github.com/Boux/nvidia-550xx-dkms
+
+Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
+---
+diff --git a/kernel-module-source/kernel-open/nvidia/nv-nano-timer.c b/kernel-module-source/kernel-open/nvidia/nv-nano-timer.c
+index 1a2b3c4d..5e6f7a8b 100644
+--- a/kernel-module-source/kernel-open/nvidia/nv-nano-timer.c
++++ b/kernel-module-source/kernel-open/nvidia/nv-nano-timer.c
+@@ -27,5 +27,6 @@
+ #include <linux/hrtimer.h>
+ #include <linux/ktime.h>
+ #include <linux/timer.h>
++#include <linux/version.h>
+ #include "os-interface.h"
+ #include "nv-linux.h"
+@@ -154,8 +155,13 @@
+     nv_nstimer->nv_nano_timer_callback = nvidia_nano_timer_callback;
+ 
+ #if NV_NANO_TIMER_USE_HRTIMER
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
+     hrtimer_init(&nv_nstimer->hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+     nv_nstimer->hr_timer.function = nv_nano_timer_callback_typed_data;
++#else
++    hrtimer_setup(&nv_nstimer->hr_timer, nv_nano_timer_callback_typed_data,
++                  CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++#endif
+ #else
+ #if defined(NV_TIMER_SETUP_PRESENT)
+     timer_setup(&nv_nstimer->jiffy_timer, nv_jiffy_timer_callback_typed_data, 0);
+--
+2.53.0

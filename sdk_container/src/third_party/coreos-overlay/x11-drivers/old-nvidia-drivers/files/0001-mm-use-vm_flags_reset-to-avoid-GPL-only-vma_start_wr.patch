@@ -20,10 +20,10 @@ Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
  kernel/nvidia/nv-mmap.c                             | 7 +++++++
  6 files changed, 42 insertions(+)
 
-diff --git a/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c b/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
+diff --git a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
 index 9d2a0512..e473b66f 100644
---- a/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
-+++ b/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
+--- a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
++++ b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem-user-memory.c
 @@ -40,6 +40,13 @@
  #include <vm/vm_pageout.h>
  #endif
@@ -38,10 +38,10 @@ index 9d2a0512..e473b66f 100644
  static inline
  void __nv_drm_gem_user_memory_free(struct nv_drm_gem_object *nv_gem)
  {
-diff --git a/kernel-open/nvidia-drm/nvidia-drm-gem.c b/kernel-open/nvidia-drm/nvidia-drm-gem.c
+diff --git a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem.c b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem.c
 index ef0e0f83..c8489a72 100644
---- a/kernel-open/nvidia-drm/nvidia-drm-gem.c
-+++ b/kernel-open/nvidia-drm/nvidia-drm-gem.c
+--- a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem.c
++++ b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-gem.c
 @@ -51,6 +51,13 @@
 
  #include "nv-mm.h"
@@ -56,10 +56,10 @@ index ef0e0f83..c8489a72 100644
  void nv_drm_gem_free(struct drm_gem_object *gem)
  {
      struct nv_drm_gem_object *nv_gem = to_nv_gem_object(gem);
-diff --git a/kernel-open/nvidia/nv-mmap.c b/kernel-open/nvidia/nv-mmap.c
+diff --git a/kernel-module-source/kernel-open/nvidia/nv-mmap.c b/kernel-module-source/kernel-open/nvidia/nv-mmap.c
 index 8e98c817..f72731c0 100644
---- a/kernel-open/nvidia/nv-mmap.c
-+++ b/kernel-open/nvidia/nv-mmap.c
+--- a/kernel-module-source/kernel-open/nvidia/nv-mmap.c
++++ b/kernel-module-source/kernel-open/nvidia/nv-mmap.c
 @@ -25,6 +25,13 @@
 
  #include "os-interface.h"
@@ -74,6 +74,29 @@ index 8e98c817..f72731c0 100644
  #include "nv_speculation_barrier.h"
 
  /*
+diff --git a/kernel-module-source/kernel-open/nvidia-uvm/uvm.c b/kernel-module-source/kernel-open/nvidia-uvm/uvm.c
+index 1a2b3c4d..5e6f7a8b 100644
+--- a/kernel-module-source/kernel-open/nvidia-uvm/uvm.c
++++ b/kernel-module-source/kernel-open/nvidia-uvm/uvm.c
+@@ -21,6 +21,8 @@
+
+ *******************************************************************************/
+
++#include <linux/version.h>
++
+ #include "uvm_api.h"
+ #include "uvm_global.h"
+ #include "uvm_gpu_replayable_faults.h"
+@@ -40,4 +42,9 @@
+
+ #define NVIDIA_UVM_DEVICE_NAME          "nvidia-uvm"
+
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
++#define nv_vm_flags_set(v, f) vm_flags_reset((v), (v)->vm_flags | (f))
++#define nv_vm_flags_clear(v, f) vm_flags_reset((v), (v)->vm_flags & ~(f))
++#endif
++
+ static dev_t g_uvm_base_dev;
 diff --git a/kernel/nvidia-drm/nvidia-drm-gem-user-memory.c b/kernel/nvidia-drm/nvidia-drm-gem-user-memory.c
 index 9d2a0512..e473b66f 100644
 --- a/kernel/nvidia-drm/nvidia-drm-gem-user-memory.c

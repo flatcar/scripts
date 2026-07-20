@@ -36,10 +36,10 @@ Signed-off-by: Sayan Chowdhury <sayan.chowdhury2012@gmail.com>
  kernel/nvidia-drm/nvidia-drm-sources.mk      |  1 +
  10 files changed, 74 insertions(+)
 
-diff --git a/kernel-open/conftest.sh b/kernel-open/conftest.sh
+diff --git a/kernel-module-source/kernel-open/conftest.sh b/kernel-module-source/kernel-open/conftest.sh
 index 889cf654..30506f8f 100755
---- a/kernel-open/conftest.sh
-+++ b/kernel-open/conftest.sh
+--- a/kernel-module-source/kernel-open/conftest.sh
++++ b/kernel-module-source/kernel-open/conftest.sh
 @@ -4511,6 +4511,25 @@ compile_test() {
              compile_check_conftest "$CODE" "NV_DRM_ROTATION_AVAILABLE" "" "functions"
              ;;
@@ -66,10 +66,10 @@ index 889cf654..30506f8f 100755
          drm_driver_prime_flag_present)
              #
              # Determine whether driver feature flag DRIVER_PRIME is present.
-diff --git a/kernel-open/nvidia-drm/nvidia-drm-drv.c b/kernel-open/nvidia-drm/nvidia-drm-drv.c
+diff --git a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-drv.c b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-drv.c
 index da2b7010..12fe50ef 100644
---- a/kernel-open/nvidia-drm/nvidia-drm-drv.c
-+++ b/kernel-open/nvidia-drm/nvidia-drm-drv.c
+--- a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-drv.c
++++ b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-drv.c
 @@ -186,6 +186,9 @@ static void nv_drm_output_poll_changed(struct drm_device *dev)
  static struct drm_framebuffer *nv_drm_framebuffer_create(
      struct drm_device *dev,
@@ -90,10 +90,10 @@ index da2b7010..12fe50ef 100644
              &local_cmd);
 
      #if !defined(NV_DRM_HELPER_MODE_FILL_FB_STRUCT_HAS_CONST_MODE_CMD_ARG)
-diff --git a/kernel-open/nvidia-drm/nvidia-drm-fb.c b/kernel-open/nvidia-drm/nvidia-drm-fb.c
+diff --git a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.c b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.c
 index 1c842015..973c2c64 100644
---- a/kernel-open/nvidia-drm/nvidia-drm-fb.c
-+++ b/kernel-open/nvidia-drm/nvidia-drm-fb.c
+--- a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.c
++++ b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.c
 @@ -33,6 +33,7 @@
  #include "nvidia-drm-format.h"
 
@@ -122,10 +122,10 @@ index 1c842015..973c2c64 100644
          cmd);
 
      /*
-diff --git a/kernel-open/nvidia-drm/nvidia-drm-fb.h b/kernel-open/nvidia-drm/nvidia-drm-fb.h
+diff --git a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.h b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.h
 index cf477cc7..5a1a34af 100644
---- a/kernel-open/nvidia-drm/nvidia-drm-fb.h
-+++ b/kernel-open/nvidia-drm/nvidia-drm-fb.h
+--- a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.h
++++ b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-fb.h
 @@ -37,6 +37,7 @@
 
  #include "nvidia-drm-gem-nvkms-memory.h"
@@ -144,10 +144,10 @@ index cf477cc7..5a1a34af 100644
      struct drm_mode_fb_cmd2 *cmd);
 
  #endif /* NV_DRM_ATOMIC_MODESET_AVAILABLE */
-diff --git a/kernel-open/nvidia-drm/nvidia-drm-sources.mk b/kernel-open/nvidia-drm/nvidia-drm-sources.mk
+diff --git a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-sources.mk b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-sources.mk
 index 1328ffd8..4ccaf27b 100644
---- a/kernel-open/nvidia-drm/nvidia-drm-sources.mk
-+++ b/kernel-open/nvidia-drm/nvidia-drm-sources.mk
+--- a/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-sources.mk
++++ b/kernel-module-source/kernel-open/nvidia-drm/nvidia-drm-sources.mk
 @@ -86,6 +86,7 @@ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_driver_has_set_busid
  NV_CONFTEST_TYPE_COMPILE_TESTS += drm_crtc_state_has_connectors_changed
  NV_CONFTEST_TYPE_COMPILE_TESTS += drm_init_function_args
