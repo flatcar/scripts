@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -20,7 +20,7 @@ else
 	SRC_URI="https://github.com/systemd/${PN}/archive/refs/tags/v${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 
 	if [[ ${PV} != *rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	fi
 fi
 
@@ -44,7 +44,7 @@ REQUIRED_USE="
 	dns-over-tls? ( openssl )
 	fido2? ( cryptsetup openssl )
 	homed? ( cryptsetup pam openssl )
-	importd? ( curl lzma openssl )
+	importd? ( curl libarchive lzma openssl )
 	?? ( passwdqc pwquality )
 	passwdqc? ( homed )
 	pwquality? ( homed )
@@ -256,10 +256,7 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-260.1-fuzz-journald.patch"
-		"${FILESDIR}/systemd-260.1-openssl-4.patch"
-		"${FILESDIR}/systemd-260.1-gcc-17.patch"
-		"${FILESDIR}/systemd-260.1-gpt-generator.patch"
+		"${FILESDIR}/systemd-260.2-networkd-resolve-hook.patch"
 	)
 
 	if ! use vanilla; then
@@ -286,7 +283,7 @@ src_configure() {
 		# We can't unconditionally do this b/c we fortify needs
 		# some level of optimisation.
 		filter-flags -D_FORTIFY_SOURCE=3
-		append-cppflags -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+		append-cppflags -U_FORTIFY_SOURCE -D_GENTOO_NO_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 	fi
 
 	python_setup
@@ -559,8 +556,11 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	# Bug 971385
-	systemd_reenable getty@.service
+	# Bug 971385, 974688
+	local autovt=${EROOT}/etc/systemd/system/autovt@.service
+	if [[ ! -e ${autovt} && ! -L ${autovt} ]]; then
+		ln -s "${EPREFIX}/usr/lib/systemd/system/getty@.service" "${autovt}" || FAIL=1
+	fi
 
 	if [[ -z ${REPLACING_VERSIONS} ]]; then
 		if type systemctl &>/dev/null; then
