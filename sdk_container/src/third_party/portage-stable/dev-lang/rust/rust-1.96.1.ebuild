@@ -5,7 +5,7 @@ EAPI=8
 
 # Bump notes: https://wiki.gentoo.org/wiki/Project:Rust/Rust_bump
 
-LLVM_COMPAT=( 21 )
+LLVM_COMPAT=( 22 )
 PYTHON_COMPAT=( python3_{12..14} )
 
 # Patches are kept in rust-patches.git, see its README.rst for the versioning
@@ -61,7 +61,7 @@ else
 	"
 	S="${WORKDIR}/${MY_P}-src"
 
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 DESCRIPTION="Systems programming language originally developed by Mozilla"
@@ -89,7 +89,7 @@ ALL_RUST_SYSROOTS=( "${ALL_RUST_SYSROOTS[@]/#/rust_sysroots_}" )
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
 SLOT="${PV%%_*}" # Beta releases get to share the same SLOT as the eventual stable
 
-IUSE="big-endian +clippy cpu_flags_x86_sse2 debug dist +doc llvm-libunwind lto"
+IUSE="big-endian +clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind lto"
 IUSE+=" +rustfmt rust-analyzer rust-src +system-llvm test"
 IUSE+=" ${ALL_LLVM_TARGETS[*]} ${ALL_RUST_SYSROOTS[*]}"
 
@@ -367,11 +367,12 @@ src_configure() {
 	if tc-is-cross-compiler; then
 		export PKG_CONFIG_ALLOW_CROSS=1
 
+		local rust_host_triple="$(rust_abi "${CHOST}")"
+
 		# https://docs.rs/pkg-config/latest/pkg_config/#cross-compilation
 		local pcvar
 		for pcvar in PKG_CONFIG_{PATH,LIBDIR} ; do
-			pcvar="${pcvar}_${CHOST//./_}"
-			pcvar="${pcvar//-/_}"
+			pcvar="${pcvar}_${rust_host_triple//-/_}"
 
 			[[ -n ${!pcvar} ]] && continue
 
@@ -393,7 +394,7 @@ src_configure() {
 		# https://docs.rs/openssl/latest/openssl/#manual
 		local osslvar
 		for osslvar in OPENSSL_{INCLUDE_,LIB_,}DIR ; do
-			osslvar="${CHOST}_${osslvar}"
+			osslvar="${rust_host_triple}_${osslvar}"
 			osslvar="${osslvar^^}"
 			osslvar="${osslvar//-/_}"
 
@@ -777,8 +778,8 @@ src_test() {
 	# those are basic and codegen tests.
 	local tests=(
 		codegen-units
-		codegen-llvm
 		crashes
+		codegen-llvm
 		incremental
 		mir-opt
 		pretty
