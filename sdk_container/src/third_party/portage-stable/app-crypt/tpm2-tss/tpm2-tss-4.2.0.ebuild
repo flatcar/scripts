@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,7 +11,7 @@ SRC_URI="https://github.com/tpm2-software/${PN}/releases/download/${PV}/${P}.tar
 
 LICENSE="BSD-2"
 SLOT="0/4"
-KEYWORDS="amd64 arm arm64 ~loong ppc64 ~riscv x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 IUSE="doc +fapi +openssl mbedtls +policy static-libs test"
 RESTRICT="!test? ( test )"
 
@@ -29,7 +29,7 @@ RDEPEND="
 		dev-libs/json-c:=[${MULTILIB_USEDEP}]
 		>=net-misc/curl-7.80.0[${MULTILIB_USEDEP}]
 	)
-	mbedtls? ( net-libs/mbedtls:0=[${MULTILIB_USEDEP}] )
+	mbedtls? ( net-libs/mbedtls:3=[${MULTILIB_USEDEP}] )
 	openssl? ( dev-libs/openssl:=[${MULTILIB_USEDEP}] )
 "
 
@@ -38,6 +38,7 @@ DEPEND="
 	test? ( app-crypt/swtpm
 		dev-libs/uthash
 		dev-util/cmocka
+		sys-apps/iproute2[-minimal]
 		fapi? ( >=net-misc/curl-7.80.0 ) )
 "
 
@@ -49,6 +50,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-4.0.2-Dont-install-files-into-run.patch"
+	"${FILESDIR}/${PN}-4.1.4-use-mbedtls-3.patch"
 )
 
 pkg_setup() {
@@ -101,7 +103,7 @@ multilib_src_install() {
 }
 
 pkg_postinst() {
-	tmpfiles_process tpm2-tss-fapi.conf
+	use fapi && tmpfiles_process tpm2-tss-fapi.conf
 	udev_reload
 }
 
