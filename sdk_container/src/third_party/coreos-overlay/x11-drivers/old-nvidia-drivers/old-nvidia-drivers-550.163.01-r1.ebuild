@@ -93,6 +93,9 @@ PATCHES=(
 	"${FILESDIR}"/nvidia-settings-530.30.02-desktop.patch
   "${FILESDIR}"/0001-mm-use-vm_flags_reset-to-avoid-GPL-only-vma_start_wr.patch
   "${FILESDIR}"/0002-nvidia-drm-550.163.01-pass-drm_format_info-to-nv_drm.patch
+  "${FILESDIR}"/0003-nvidia-use-hrtimer_setup-for-Linux-6.15.patch
+  "${FILESDIR}"/0004-nvidia-uvm-guard-iommu_dev_enable_disable_feature-fo.patch
+  "${FILESDIR}"/0005-nvidia-uvm-guard-SMMU-WAR-code-with-UVM_ATS_SMMU_WA.patch
 )
 
 pkg_setup() {
@@ -167,6 +170,17 @@ src_prepare() {
 	# prevent detection of incomplete kernel DRM support (bug #603818)
 	sed 's/defined(CONFIG_DRM/defined(CONFIG_DRM_KMS_HELPER/g' \
 		-i kernel{,-module-source/kernel-open}/conftest.sh || die
+
+	# Linux 6.18 removed dma_buf_attachment_is_dynamic() but it still appears
+	# in a doc comment in <linux/dma-buf.h>. The conftest uses an inline
+	# "$CC $CFLAGS -c conftest.c" (not compile_check_conftest) and compiles
+	# without -Werror=implicit-function-declaration, so the implicit declaration
+	# is only a warning and the compilation succeeds, incorrectly defining
+	# NV_DMA_BUF_HAS_DYNAMIC_ATTACHMENT. Add the flag scoped to just that block.
+	find "${S}" -name "conftest.sh" -exec sed -i \
+		'/dma_buf_has_dynamic_attachment)/,/;;/ s/\$CC \$CFLAGS -c conftest/\$CC \$CFLAGS -Werror=implicit-function-declaration -c conftest/' \
+		{} + || die
+
 
 	sed 's/__USER__/nvpd/' \
 		nvidia-persistenced/init/systemd/nvidia-persistenced.service.template \
