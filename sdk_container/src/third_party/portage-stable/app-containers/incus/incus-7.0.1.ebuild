@@ -12,13 +12,13 @@ SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
 
 LICENSE="Apache-2.0 BSD LGPL-3 MIT"
 SLOT="0/lts"
-KEYWORDS="~amd64 ~arm64"
-IUSE="apparmor fuidshift nls qemu"
+KEYWORDS="amd64 ~arm64"
+IUSE="apparmor fuidshift nls qemu selinux"
 
 DEPEND="acct-group/incus
 	acct-group/incus-admin
 	app-arch/xz-utils
-	>=app-containers/lxc-5.0.0:=[apparmor?,seccomp(+)]
+	>=app-containers/lxc-6.0.0:=[apparmor?,seccomp(+)]
 	dev-db/sqlite:3
 	>=dev-libs/cowsql-1.15.9
 	dev-libs/lzo
@@ -28,15 +28,12 @@ DEPEND="acct-group/incus
 	sys-libs/libcap
 	virtual/udev"
 RDEPEND="${DEPEND}
-	|| (
-		net-firewall/iptables
-		net-firewall/nftables[json]
-	)
 	fuidshift? ( !app-containers/lxd )
 	net-firewall/ebtables
+	net-firewall/nftables[json]
 	sys-apps/iproute2
 	sys-fs/fuse:*
-	>=sys-fs/lxcfs-5.0.0
+	>=sys-fs/lxcfs-6.0.0
 	sys-fs/squashfs-tools[lzma]
 	virtual/acl
 	apparmor? ( sec-policy/apparmor-profiles )
@@ -44,8 +41,9 @@ RDEPEND="${DEPEND}
 		app-cdr/cdrtools
 		app-emulation/qemu[spice,usbredir,virtfs]
 		sys-apps/gptfdisk
-	)"
-BDEPEND=">=dev-lang/go-1.21
+	)
+	selinux? ( sec-policy/selinux-incus )"
+BDEPEND=">=dev-lang/go-1.25.11
 	nls? ( sys-devel/gettext )
 	verify-sig? ( sec-keys/openpgp-keys-linuxcontainers )"
 
@@ -150,6 +148,7 @@ src_compile() {
 
 	ego install -v -x -tags libsqlite3 "${S}"/cmd/incusd
 
+	# Needs to be built statically
 	CGO_ENABLED=0 go install -v -tags agent,netgo,static -buildmode default "${S}"/cmd/incus-migrate
 
 	local bindir=$(incus_get_bindir "$(go-env_goarch "${CBUILD}")")
@@ -242,8 +241,12 @@ src_install() {
 	use nls && domo po/*.mo
 
 	# Incus needs INCUS_EDK2_PATH in env to find OVMF files for virtual machines, #946184,
-	# and INCUS_AGENT_PATH to find multi-setup agents for VMs, #959878.
+	# and INCUS_AGENT_PATH to find multi-setup agents for VMs, #959878,
+	# and INCUS_SECURITY_SELINUX=true to enable selinux support (until its enabled by default)
 	newenvd "${FILESDIR}"/90incus.envd 90incus
+	if use selinux; then
+		echo "INCUS_SECURITY_SELINUX=true" >> "${D}"/etc/env.d/90incus
+	fi
 }
 
 pkg_postinst() {
