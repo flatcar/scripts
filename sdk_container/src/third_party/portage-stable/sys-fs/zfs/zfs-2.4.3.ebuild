@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,7 +10,7 @@ EAPI=8
 
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..15} )
 
 MODULES_INITRAMFS_IUSE=+initramfs
 MODULES_OPTIONAL_IUSE=+modules
@@ -21,7 +21,7 @@ inherit linux-mod-r1 multiprocessing pam systemd udev usr-ldscript
 DESCRIPTION="Linux kernel module and userland utilities for ZFS"
 HOMEPAGE="https://github.com/openzfs/zfs"
 
-MODULES_KERNEL_MAX=6.18
+MODULES_KERNEL_MAX=7.0
 MODULES_KERNEL_MIN=4.18
 
 if [[ ${PV} == "9999" ]]; then
@@ -42,7 +42,7 @@ else
 	ZFS_KERNEL_DEP="${ZFS_KERNEL_DEP%%.*}.$(( ${ZFS_KERNEL_DEP##*.} + 1))"
 
 	if [[ ${PV} != *_rc* ]]; then
-		KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc"
+		KEYWORDS="amd64 arm64 ~loong ppc64 ~riscv ~sparc"
 	fi
 fi
 
@@ -81,17 +81,6 @@ BDEPEND="
 	)
 "
 
-if [[ ${PV} != "9999" ]] ; then
-	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-openzfs )"
-
-	IUSE+=" +dist-kernel-cap"
-	RDEPEND="
-		dist-kernel-cap? ( dist-kernel? (
-			<virtual/dist-kernel-${ZFS_KERNEL_DEP}
-		) )
-	"
-fi
-
 # awk is used for some scripts, completions, and the Dracut module
 RDEPEND="
 	${DEPEND}
@@ -116,6 +105,17 @@ RDEPEND="
 	)
 	!<sys-fs/zfs-kmod-2.4.0_rc2-r1
 "
+
+if [[ ${PV} != "9999" ]] ; then
+	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-openzfs )"
+
+	IUSE+=" +dist-kernel-cap"
+	RDEPEND+="
+		dist-kernel-cap? ( dist-kernel? (
+			<virtual/dist-kernel-${ZFS_KERNEL_DEP}
+		) )
+	"
+fi
 
 REQUIRED_USE="
 	!minimal? ( ${PYTHON_REQUIRED_USE} )
@@ -224,6 +224,9 @@ src_prepare() {
 
 	# Run unconditionally (bug #792627)
 	eautoreconf
+
+	# strip forced -Werror, #904378
+	sed -i '/BUILD_FREEBSD_TRUE/s/-Werror //g' Makefile.in || die
 
 	if [[ ${PV} != "9999" ]]; then
 		# Set revision number
