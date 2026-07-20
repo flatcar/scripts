@@ -7,8 +7,8 @@ EAPI=8
 # please bump dev-python/ensurepip-setuptools along with this package!
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_TESTED=( python3_{12..14} )
-PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_15 python3_{14..15}t )
+PYTHON_TESTED=( python3_{12..15} )
+PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_{14..15}t )
 PYTHON_REQ_USE="xml(+)"
 
 inherit distutils-r1 pypi
@@ -21,25 +21,17 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	!<dev-python/setuptools-rust-1.8.0
-	dev-python/jaraco-collections[${PYTHON_USEDEP}]
-	>=dev-python/jaraco-functools-4[${PYTHON_USEDEP}]
-	>=dev-python/jaraco-text-3.7.0-r1[${PYTHON_USEDEP}]
-	>=dev-python/more-itertools-8.12.0-r1[${PYTHON_USEDEP}]
-	>=dev-python/packaging-24.2[${PYTHON_USEDEP}]
-	>=dev-python/platformdirs-4.2.2[${PYTHON_USEDEP}]
-	>=dev-python/wheel-0.44.0[${PYTHON_USEDEP}]
-	$(python_gen_cond_dep '
-		>=dev-python/tomli-2.0.1[${PYTHON_USEDEP}]
-	' 3.10)
-	!<=dev-libs/gobject-introspection-1.76.1-r0
-	!=dev-libs/gobject-introspection-1.78.1-r0
-	!=dev-libs/gobject-introspection-1.80.1-r1
+	>=dev-python/jaraco-functools-4.4.0[${PYTHON_USEDEP}]
+	>=dev-python/jaraco-text-4.0.0[${PYTHON_USEDEP}]
+	>=dev-python/more-itertools-10.8.0[${PYTHON_USEDEP}]
+	>=dev-python/packaging-25.0[${PYTHON_USEDEP}]
+	>=dev-python/platformdirs-4.4.0[${PYTHON_USEDEP}]
+	>=dev-python/wheel-0.45.1[${PYTHON_USEDEP}]
 "
 BDEPEND="
 	${RDEPEND}
@@ -77,16 +69,11 @@ PDEPEND="
 
 src_prepare() {
 	local PATCHES=(
-		# TODO: remove this when we're 100% PEP517 mode
-		"${FILESDIR}/setuptools-62.4.0-py-compile.patch"
 		# https://github.com/abravalheri/validate-pyproject/pull/221
 		"${FILESDIR}/setuptools-75.6.0-disable-trove-classifiers.patch"
 	)
 
 	distutils-r1_src_prepare
-
-	# breaks tests
-	sed -i -e '/--import-mode/d' pytest.ini || die
 
 	# remove bundled dependencies
 	rm -r */_vendor || die
@@ -98,33 +85,33 @@ python_test() {
 	fi
 
 	local EPYTEST_DESELECT=(
-		# network
-		setuptools/tests/test_build_meta.py::test_legacy_editable_install
+		# broken by unbundling (e.g. installs self-wheel into venv)
+		setuptools/tests/config/test_apply_pyprojecttoml.py::TestMeta
 		setuptools/tests/test_distutils_adoption.py
 		setuptools/tests/test_editable_install.py
+		setuptools/tests/test_sdist.py::test_sanity_check_setuptools_own_sdist
+		setuptools/tests/test_setuptools.py::test_wheel_includes_vendored_metadata
 		setuptools/tests/test_virtualenv.py::test_no_missing_dependencies
-		setuptools/tests/test_virtualenv.py::test_test_command_install_requirements
+		setuptools/tests/config/test_setupcfg.py::TestOptions::test_entry_points
 		# TODO
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_basic
 		setuptools/tests/config/test_setupcfg.py::TestConfigurationReader::test_ignore_errors
-		# expects bundled deps in virtualenv
-		setuptools/tests/config/test_apply_pyprojecttoml.py::TestMeta::test_example_file_in_sdist
-		setuptools/tests/config/test_apply_pyprojecttoml.py::TestMeta::test_example_file_not_in_wheel
-		# fails if python-xlib is installed
-		setuptools/tests/test_easy_install.py::TestSetupRequires::test_setup_requires_with_allow_hosts
 		# TODO, probably some random package
 		setuptools/tests/config/test_setupcfg.py::TestOptions::test_cmdclass
-		# broken by unbundling
-		setuptools/tests/test_setuptools.py::test_wheel_includes_vendored_metadata
-		# fails on normalized metadata, perhaps different dep version?
-		setuptools/tests/test_build_meta.py::TestBuildMetaBackend::test_build_with_pyproject_config
-		# TODO
-		setuptools/tests/test_sdist.py::test_sanity_check_setuptools_own_sdist
 		# relies on -Werror
 		setuptools/_static.py::setuptools._static.Dict
 		setuptools/_static.py::setuptools._static.List
+		# Internet
+		setuptools/tests/test_build_py.py::TestTypeInfoFiles::test_type_files_included_by_default
+		setuptools/tests/test_dist.py::test_dist_fetch_build_egg
+		setuptools/tests/test_namespaces.py::TestNamespaces::test_mixed_site_and_non_site
+		setuptools/tests/test_namespaces.py::TestNamespaces::test_namespace_package_installed_and_cwd
+		setuptools/tests/test_namespaces.py::TestNamespaces::test_packages_in_the_same_namespace_installed_and_cwd
+		setuptools/tests/test_namespaces.py::TestNamespaces::test_pkg_resources_import
+		# broken by warnings from setuptools-scm
+		setuptools/tests/config/test_apply_pyprojecttoml.py::TestPresetField::test_scripts_dont_require_dynamic_entry_points
 		# TODO
-		setuptools/dist.py::setuptools.dist.Distribution._find_pattern
+		'setuptools/tests/test_egg_info.py::TestEggInfo::test_requires[setup_requires_with_markers]'
 	)
 
 	local EPYTEST_XDIST=1
