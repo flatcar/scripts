@@ -1,0 +1,35 @@
+From 96d06898d327223066897c5beb44281b2a13dd32 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 21 Jul 2026 09:40:50 +0200
+Subject: [PATCH] make: fix cross compilation error
+
+Bug: https://bugs.gentoo.org/945877
+Ref: https://gitlab.isc.org/isc-projects/bind9/-/work_items/4840
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ bin/rndc/Makefile.am | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/bin/rndc/Makefile.am b/bin/rndc/Makefile.am
+index f8f0ac96d5..e65e2a4bc6 100644
+--- a/bin/rndc/Makefile.am
++++ b/bin/rndc/Makefile.am
+@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.top
+ AM_CPPFLAGS +=			\
+ 	$(LIBISC_CFLAGS)	\
+ 	$(LIBDNS_CFLAGS)	\
++	$(LIBNS_CFLAGS)		\
+ 	$(LIBISCCFG_CFLAGS)	\
+ 	$(LIBISCCC_CFLAGS)
+ 
+@@ -20,5 +21,6 @@ rndc_SOURCES =	\
+ rndc_LDADD =			\
+ 	$(LIBISC_LIBS)		\
+ 	$(LIBDNS_LIBS)		\
++	$(LIBNS_LIBS)		\
+ 	$(LIBISCCC_LIBS)	\
+ 	$(LIBISCCFG_LIBS)
+-- 
+2.54.0
+
