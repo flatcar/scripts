@@ -31,4 +31,3 @@ packages:
   - bootengine          # Flatcar bootengine (glob-based firstboot addon removal for UAPI UKI naming)
   - microcode_ctl       # CPU microcode updater (Fedora import)
   - selinux-policy      # SELinux reference policy (ACL-specific modules)
-  - WALinuxAgent        # Azure Linux Agent

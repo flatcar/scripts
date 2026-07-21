@@ -240,7 +240,7 @@ packages:
   # Dependencies of oem-azure for Azure image building
   # oras is not sent through the catalog (used to pull sysexts)
   app-emulation/wa-linux-agent:
-    - WALinuxAgent
+    - walinuxagent-acl-config  # pulls WALinuxAgent as a dependency
     - oras
     - fuse
     - fuse3-libs
