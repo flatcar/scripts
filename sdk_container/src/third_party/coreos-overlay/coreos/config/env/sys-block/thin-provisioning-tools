@@ -1,2 +1,7 @@
 # This is to disable building thin_migrate tool.
 export ECARGO_EXTRA_ARGS=--no-default-features
+
+# As such, we don't care about Rust's LLVM version. Make this global and
+# read-only so that it forcibly overrides the ebuild. Note that this doesn't
+# avoid pulling in another rust(-bin) version, but it does avoid it being used.
+declare -gr RUST_NEEDS_LLVM=

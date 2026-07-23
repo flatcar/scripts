@@ -118,10 +118,6 @@ app-containers/aardvark-dns
 app-containers/catatonit
 app-containers/conmon
 app-containers/containerd
-app-containers/containers-common
-app-containers/containers-image
-app-containers/containers-shortnames
-app-containers/containers-storage
 app-containers/cri-tools
 app-containers/crun
 app-containers/docker
@@ -175,6 +171,7 @@ app-misc/mime-types
 app-misc/pax-utils
 
 app-portage/elt-patches
+app-portage/gemato
 app-portage/gentoolkit
 app-portage/getuto
 app-portage/portage-utils
@@ -305,12 +302,10 @@ dev-libs/tree-sitter-bash
 dev-libs/userspace-rcu
 dev-libs/xmlsec
 dev-libs/xxhash
-dev-libs/yajl
 
 dev-perl/File-Slurper
 dev-perl/Parse-Yapp
 
-dev-python/backports-tarfile
 dev-python/cachecontrol
 dev-python/certifi
 dev-python/cffi
@@ -354,6 +349,7 @@ dev-python/packaging
 dev-python/pathspec
 dev-python/pefile
 dev-python/pip
+dev-python/pkg-resources
 dev-python/platformdirs
 dev-python/pluggy
 dev-python/ply
@@ -444,7 +440,6 @@ eclass/kernel-2.eclass
 eclass/libtool.eclass
 eclass/linux-info.eclass
 eclass/linux-mod-r1.eclass
-eclass/linux-mod.eclass
 eclass/llvm-r1.eclass
 eclass/llvm-r2.eclass
 eclass/llvm-utils.eclass
@@ -480,6 +475,7 @@ eclass/python-r1.eclass
 eclass/python-single-r1.eclass
 eclass/python-utils-r1.eclass
 eclass/qmake-utils.eclass
+eclass/qt-utils.eclass
 eclass/readme.gentoo-r1.eclass
 eclass/rpm.eclass
 eclass/ruby-single.eclass
@@ -738,6 +734,7 @@ sys-process/audit
 sys-process/lsof
 sys-process/procps
 sys-process/psmisc
+sys-process/time
 sys-process/tini
 
 virtual/acl
