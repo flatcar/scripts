@@ -90,9 +90,9 @@ dual_scripts() {
 	src_remove_dual      perl-core/Encode             3.240.0       enc2xs piconv
 	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.780.0       instmodsh
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.630.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.220.0       zipdetails
+	src_remove_dual      perl-core/IO-Compress        2.223.0       zipdetails
 	src_remove_dual      perl-core/JSON-PP            4.160.0       json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.606.10  corelist
+	src_remove_dual      perl-core/Module-CoreList    5.202.607.80  corelist
 	src_remove_dual      perl-core/Pod-Checker        1.770.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
 	src_remove_dual      perl-core/Pod-Usage          2.50.0        pod2usage
@@ -277,8 +277,8 @@ src_prepare_perlcross() {
 	eapply "${FILESDIR}/perl-5.34.0-crossfit.patch"
 	# fix cross-compilation configure tests w/ lto
 	eapply "${FILESDIR}/perl-5.42.0-cross-no-lto.patch"
-	# https://github.com/arsv/perl-cross/pull/174
-	eapply "${FILESDIR}/perl-5.42.2-cross.patch"
+	# https://github.com/arsv/perl-cross/pull/178
+	eapply "${FILESDIR}/perl-5.44.0-cross.patch"
 
 	# bug 604072
 	MAKEOPTS+=" -j1"
