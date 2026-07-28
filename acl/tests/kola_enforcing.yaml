@@ -54,17 +54,21 @@ tests:
           does not SNAT ICMP. Revert once mantle/infra restores outbound ICMP
           (NSG-on-NIC keeping the PIP, or a NAT Gateway on the kola subnet).
 
-  - name: acl.kdump
-    exceptions:
-      - bootloader: [grub]
-        reason: acl.kdump requires UKI boot (addon-based crashkernel)
-
-  - name: acl.kdump.grub
-    exceptions:
-      - platforms: [azure]
-        reason: writing /oem/grub.cfg does not persist across reboot on cloud platforms.
-      - bootloader: [uki]
-        reason: acl.kdump.grub is for GRUB images only
+  # TEMPORARY (AB#22249): acl.kdump and acl.kdump.grub are disabled on the ACL
+  # distro in mantle (ExcludeDistros: [acl]), so kola never selects them and the
+  # "enforced test NOT SELECTED" check fails. Restore both entries when the
+  # mantle-side ExcludeDistros is dropped.
+  # - name: acl.kdump
+  #   exceptions:
+  #     - bootloader: [grub]
+  #       reason: acl.kdump requires UKI boot (addon-based crashkernel)
+  #
+  # - name: acl.kdump.grub
+  #   exceptions:
+  #     - platforms: [azure]
+  #       reason: writing /oem/grub.cfg does not persist across reboot on cloud platforms.
+  #     - bootloader: [uki]
+  #       reason: acl.kdump.grub is for GRUB images only
 
   - name: acl.ignition.v1.users
   - name: acl.ignition.v2.users
