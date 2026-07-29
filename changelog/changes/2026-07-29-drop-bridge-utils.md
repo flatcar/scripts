@@ -1,0 +1,1 @@
+- Removed the `net-misc/bridge-utils` package. It is deprecated upstream in favor of the `bridge` utility from iproute2, which Flatcar ships through `sys-apps/iproute2`. Use `ip link add ... type bridge` instead of `brctl addbr ...`.
