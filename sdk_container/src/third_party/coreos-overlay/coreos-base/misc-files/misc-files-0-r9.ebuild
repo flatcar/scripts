@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="openssh policycoreutils"
+IUSE="openssh"
 
 # No source directory.
 S="${WORKDIR}"
@@ -31,7 +31,6 @@ DEPEND="
 RDEPEND="
         ${DEPEND}
         >=app-shells/bash-5.2_p15-r2
-        policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
 "
 
 declare -A CORE_BASH_SYMLINKS
@@ -153,16 +152,6 @@ src_install() {
 
         # Enable some sockets that aren't enabled by their own ebuilds.
         systemd_enable_service sockets.target sshd.socket
-    fi
-
-    if use policycoreutils; then
-        # Exceptionally, the location for policy definitions is set up
-        # in profiles/coreos/base/profile.bashrc. See the comment for
-        # cros_post_src_install_set_up_var_lib_selinux for reasoning.
-        #
-        # Recreate the symlink in /var in case of wiping the root
-        # filesystem.
-        dotmpfiles "${FILESDIR}/selinux/10-var-lib-selinux.conf"
     fi
 
     # Create a symlink for Kubernetes to redirect writes from /usr/libexec/... to /var/kubernetes/...
