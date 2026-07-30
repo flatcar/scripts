@@ -1,15 +1,115 @@
-ntp_install_mask=''
 # Do not install ntpdate or sntp systemd files in /etc.
-ntp_install_mask+=" /etc/systemd"
-# Do not install the default ntp.conf, we provide our own in
-# coreos-base/misc-files.
-ntp_install_mask+=" /etc/ntp.conf"
+INSTALL_MASK+=" /etc/systemd "
 # Do not install perl scripts to /usr/bin.
-ntp_install_mask+=" /usr/bin/calc_tickadj /usr/bin/ntp-wait /usr/bin/ntptrace /usr/bin/update-leap"
-# Do not install perl package to /usr/share/ntp.
-ntp_install_mask+=" /usr/share/ntp"
+INSTALL_MASK+=" /usr/bin/calc_tickadj /usr/bin/ntp-wait /usr/bin/ntptrace /usr/bin/update-leap "
 
-ntp_install_mask+=' '
-INSTALL_MASK+=${ntp_install_mask}
-PKG_INSTALL_MASK+=${ntp_install_mask}
-unset ntp_install_mask
+cros_post_src_install_ntp_flatcar_modifications() {
+    # Drop perl package. Not in install mask, because we install our own symlink here.
+    rm -rf "${ED}/usr/share/ntp/"* || die
+    dosym -r /usr/share/flatcar/etc/ntp.conf /usr/share/ntp/ntp.conf
+    insinto /usr/share/flatcar/etc/
+    newins - ntp.conf
+
+    rm -f "${ED}/etc/ntp/ntp.conf"
+    insinto /etc
+    newins - ntp.conf <<'EOF'
+# NOTES:
+# DHCP clients can append or replace NTP configuration files.
+# You should consult your DHCP client documentation about its
+# default behaviour and how to change it.
+
+# Name of the servers ntpd should sync with
+# Please respect the access policy as stated by the responsible person.
+#server		ntp.example.tld		iburst
+
+# Common pool for random people
+#server pool.ntp.org
+
+# AWS Time Sync Service.
+server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4
+# AWS Time Sync Service IPv6:
+server fd00:ec2::123 prefer iburst minpoll 4 maxpoll 4
+
+# GCP NTP Service
+server metadata.google.internal prefer iburst
+
+# Pools for Flatcar users
+server 0.flatcar.pool.ntp.org
+server 1.flatcar.pool.ntp.org
+server 2.flatcar.pool.ntp.org
+server 3.flatcar.pool.ntp.org
+
+##
+# A list of available servers can be found here:
+# http://www.pool.ntp.org/
+# http://www.pool.ntp.org/#use
+# A good way to get servers for your machine is:
+# netselect -s 3 pool.ntp.org
+##
+
+# you should not need to modify the following paths
+driftfile	/var/lib/ntp/ntp.drift
+
+#server ntplocal.example.com prefer
+#server timeserver.example.org
+
+# Warning: Using default NTP settings will leave your NTP
+# server accessible to all hosts on the Internet.
+
+# If you want to deny all machines (including your own)
+# from accessing the NTP server, uncomment:
+#restrict default ignore
+
+
+# Default configuration:
+# - Allow only time queries, at a limited rate, sending KoD when in excess.
+# - Allow all local queries (IPv4, IPv6)
+# From commit da515112395ea7ce0da7cba7103de65d53fc93c9:
+#
+# net-misc/ntp: add notrap to default restrict config
+#
+# It's a common security hardening option and doesn't seem likely to
+# affect any actual usage.
+restrict default nomodify nopeer noquery notrap limited kod
+restrict 127.0.0.1
+restrict [::1]
+
+
+# To allow machines within your network to synchronize
+# their clocks with your server, but ensure they are
+# not allowed to configure the server or used as peers
+# to synchronize against, uncomment this line.
+#
+#restrict 192.168.0.0 mask 255.255.255.0 nomodify nopeer notrap
+EOF
+
+    (
+        insopts -m 0644
+        unit_dir=$(systemd_get_systemunitdir)
+        insinto "${unit_dir}/ntpd.service.d"
+        newins - ntpd-always-restart.conf <<'EOF'
+[Service]
+# From commit 5e5abb4d7ea48a9238b9baa22941fda6a6bbda8c:
+#
+# ntpd: always restart, required to handle large time jumps.
+#
+# Some VM platforms suspend machines by simply stopping them instead of
+# gracefully suspending them like real hardware would. This means that
+# when the system is resumed the kernel's time will be completely wrong
+# and it doesn't have a way to fix it. Additionally ntp will abort if the
+# clock offset is greater than 1000 seconds (conveniently without logging
+# any error messages). We can tune that in ntp.conf but ntpd has so many
+# knobs related to how it skews the clock and other update strategies that
+# the easiest option is to just restart.
+Restart=always
+EOF
+        cat >"${T}/ntp-environment.conf" <<'EOF'
+[Service]
+Environment="SERVER=0.flatcar.pool.ntp.org 1.flatcar.pool.ntp.org 2.flatcar.pool.ntp.org 3.flatcar.pool.ntp.org"
+EOF
+        insinto "${unit_dir}/ntpdate.service.d"
+        doins "${T}/ntp-environment.conf"
+        insinto "${unit_dir}/sntp.service.d"
+        doins "${T}/ntp-environment.conf"
+    )
+}
