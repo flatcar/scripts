@@ -12,7 +12,7 @@ HOMEPAGE='https://www.flatcar.org/'
 LICENSE='Apache-2.0'
 SLOT='0'
 KEYWORDS='amd64 arm64'
-IUSE="ntp openssh policycoreutils"
+IUSE="openssh policycoreutils"
 
 # No source directory.
 S="${WORKDIR}"
@@ -31,7 +31,6 @@ DEPEND="
 RDEPEND="
         ${DEPEND}
         >=app-shells/bash-5.2_p15-r2
-        ntp? ( >=net-misc/ntp-4.2.8_p17 )
         policycoreutils? ( >=sys-apps/policycoreutils-3.6 )
 "
 
@@ -99,11 +98,6 @@ src_install() {
         ['/usr/lib/selinux/mcs']='/usr/share/flatcar/etc/selinux/mcs'
         ['/usr/lib/selinux/semanage.conf']='/usr/share/flatcar/etc/selinux/semanage.conf'
     )
-    if use ntp; then
-        compat_symlinks+=(
-            ['/usr/share/ntp/ntp.conf']='/usr/share/flatcar/etc/ntp.conf'
-        )
-    fi
     if use openssh; then
         compat_symlinks+=(
             ['/usr/share/ssh/ssh_config']='/usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf'
@@ -145,14 +139,6 @@ src_install() {
         dosym "${target}" "${link}"
         fowners --no-dereference 500:500 "${link}"
     done
-
-    if use ntp; then
-        insinto /etc
-        doins "${FILESDIR}/ntp/ntp.conf"
-        misc_files_install_dropin ntpd.service "${FILESDIR}/ntp/ntpd-always-restart.conf"
-        misc_files_install_dropin ntpdate.service "${FILESDIR}/ntp/ntp-environment.conf"
-        misc_files_install_dropin sntp.service "${FILESDIR}/ntp/ntp-environment.conf"
-    fi
 
     if use openssh; then
         # Install our configuration snippets.
