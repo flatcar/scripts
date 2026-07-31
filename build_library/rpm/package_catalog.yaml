@@ -182,8 +182,10 @@ packages:
 
   # Version control
   dev-vcs/git: git
-  dev-vcs/mercurial: mercurial
-  dev-vcs/subversion: subversion
+  # mercurial and subversion are build-time only; they appear in no image
+  # or sysext package list.
+  dev-vcs/mercurial: SKIP
+  dev-vcs/subversion: SKIP
 
   # Debugging tools
   dev-debug/strace: strace
@@ -398,7 +400,12 @@ packages:
 
   # Additional Azure Linux packages - archives/compression
   app-arch/lz4: lz4
-  app-arch/ncompress: ncompress
+  # Legacy .Z (LZW) compress/uncompress. Pulled in as a direct RDEPEND of
+  # Flatcar's coreos-base/coreos image manifest, but nothing in the ACL
+  # image actually uses it: the only Azure Linux reverse dependency is
+  # perl-Archive-Extract-Z-uncompress in azurelinux-extended, which we do
+  # not ship.
+  app-arch/ncompress: SKIP
   app-arch/pigz: pigz
 
   # Container tools
@@ -420,7 +427,11 @@ packages:
   app-misc/jq: jq
 
   # Development libraries - C++
-  dev-cpp/gflags: gflags
+  # Only reaches the image through coreos-base/update_engine, which is
+  # already SKIPped (ACL does not ship update_engine). No other consumer:
+  # rocksdb and glog are the only Azure Linux reverse dependencies and
+  # neither is installed.
+  dev-cpp/gflags: SKIP
 
   # Development libraries - languages
   dev-lang/duktape: duktape
@@ -625,7 +636,9 @@ packages:
   dev-libs/mpdecimal: SKIP
   app-crypt/rhash: SKIP
   app-crypt/libb2: SKIP
-  dev-go/go-md2man: go-md2man
+  # go-md2man only generates man pages at build time; it is installed in no
+  # image or sysext.
+  dev-go/go-md2man: SKIP
 
   # Build tool alternatives (skip - build-time only)
   app-alternatives/lex: SKIP
