@@ -234,10 +234,14 @@ packages:
   app-admin/toolbox: SKIP
 
   # Flatcar-specific packages
-  app-admin/ignition: ignition
+  # NOTE: the RPM is named ignition-flatcar.  Azure Linux 3 has no package
+  # named "ignition" at all, so the historical mapping to "ignition" only
+  # worked because dnf5 silently resolved the spec to the single matching
+  # ignition-* package.  Name it explicitly.
+  app-admin/ignition: ignition-flatcar
   coreos-base/afterburn: afterburn
   coreos-base/flatcar-base: azurelinux-release
-  sys-apps/ignition: ignition
+  sys-apps/ignition: ignition-flatcar
 
   # Dependencies of oem-azure for Azure image building
   # oras is not sent through the catalog (used to pull sysexts)
