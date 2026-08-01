@@ -34,3 +34,9 @@ app-emulation/qemu -pin-upstream-blobs
 
 # Enable systemd-boot and ukify in the SDK for UKI generation.
 sys-apps/systemd boot ukify
+
+# Azure Linux ships xz- (and bzip2-) compressed RPM payloads. rpm only
+# advertises the matching rpmlib(PayloadIs*) capabilities when built with the
+# lzma/bzip2 USE flags, which are off by default upstream. caps is required to
+# apply file capabilities from Azure Linux packages.
+app-arch/rpm caps lzma bzip2
