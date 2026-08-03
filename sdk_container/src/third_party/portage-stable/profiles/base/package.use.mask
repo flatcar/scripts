@@ -6,6 +6,14 @@
 
 # New entries go on top.
 
+# Emi <reedy.sailors.8t@icloud.com> (2026-07-30)
+# Turnstile is currently in ::guru
+sys-auth/pambase turnstile
+
+# Michael Orlitzky <mjo@gentoo.org> (2026-07-17)
+# Broke upstream, not an easy fix, bug 978718.
+>=net-analyzer/monitoring-plugins-3.0.1 snmp
+
 # Michał Górny <mgorny@gentoo.org> (2026-07-02)
 # Unsurpringly upstream doesn't support custom slotted Gentoo install.
 dev-libs/libevent mbedtls
@@ -41,12 +49,11 @@ dev-cpp/eigen:3/3.4 test
 ~sci-libs/adolc-9999 -mpi
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-05-15)
-# Various integration packages. Preparing Qt5 last-rites.
-# Removal some time after 2026-05-30.
-app-i18n/fcitx-qt qt5
-app-i18n/uim qt5
-x11-themes/QGnomePlatform qt5
-x11-themes/adwaita-qt qt5
+# Various integration packages. Maintainers, you must drop Qt5 support.
+<=app-i18n/fcitx-qt-5.1.14-r0 qt5
+<=app-i18n/uim-1.9.6-r0 qt5
+<=x11-themes/QGnomePlatform-0.9.2-r7 qt5
+<=x11-themes/adwaita-qt-1.4.2-r1 qt5
 
 # Michał Górny <mgorny@gentoo.org> (2026-05-07)
 # Force-enable all PYTHON_TARGETS for python-exec to avoid using private
@@ -62,7 +69,7 @@ dev-lang/python-exec -python_targets_python3_15t
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-04-12)
 # net-wireless/gnuradio and dependencies. Preparing Qt5 last-rites.
 # Bugs #948049, #954887.  Removal some time after 2026-04-30.
-dev-python/pyqtgraph qt5
+<=dev-python/pyqtgraph-0.14.0-r0 qt5
 net-wireless/gnuradio qt5
 <=net-wireless/gnuradio-3.10.99 channels
 
@@ -102,11 +109,6 @@ sci-physics/bullet test
 # choice of the compiler. By masking this useflag, the ebuild
 # forcibly resets the compiler to gcc.
 sys-libs/glibc clang
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2026-01-07)
-# openjfx for OpenJDK 26 and 27 is not yet available.
-dev-java/openjdk:26 javafx
-dev-java/openjdk:27 javafx
 
 # Paul Zander <negril.nx+gentoo@gmail.com> (2025-12-27)
 # breaks with old in-tree sys-cluster/ampi bug #586746 #830093 #815007
@@ -264,10 +266,6 @@ sci-libs/symengine boost
 # Conrad Kostecki <conikost@gentoo.org> (2024-12-30)
 # Currently experimental features do not compile.
 app-emulation/pcem experimental
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-12-29)
-# openjfx for OpenJDK 25 is not yet available.
-dev-java/openjdk:25 javafx
 
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-12-16)
 # sci-libs/atlas requires you to disable frequency scaling to build.
@@ -672,11 +670,6 @@ media-video/mjpg-streamer http-management
 # pdfannotextractor gets masked as it does not support
 # updated dev-java/pdfbox-2.0.24, Bug #803488
 app-text/texlive pdfannotextractor
-
-# Georgy Yakovlev <gyakovlev@gentoo.org> (2021-10-16)
-# openjfx for OpenJDK 17 and 21 is not yet available.
-dev-java/openjdk:17 javafx
-dev-java/openjdk:21 javafx
 
 # Marek Szuba <marecki@gentoo.org> (2021-10-10)
 # Legacy interface that depends on dev-libs/libx86 and specific kernel
