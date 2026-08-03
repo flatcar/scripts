@@ -12,7 +12,7 @@ if [[ ${PV} == *9999 ]] ; then
 		https://github.com/pkgcore/pkgcore.git"
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-macos"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
 	inherit pypi
 fi
 
@@ -25,7 +25,7 @@ SLOT="0"
 if [[ ${PV} == *9999 ]]; then
 	RDEPEND="~dev-python/snakeoil-9999[${PYTHON_USEDEP}]"
 else
-	RDEPEND=">=dev-python/snakeoil-0.11.1[${PYTHON_USEDEP}]"
+	RDEPEND=">=dev-python/snakeoil-0.11.3[${PYTHON_USEDEP}]"
 fi
 
 RDEPEND+="
@@ -39,7 +39,7 @@ BDEPEND="${RDEPEND}
 	)
 "
 
-EPYTEST_PLUGINS=()
+EPYTEST_PLUGINS=( pkgcore )
 distutils_enable_tests pytest
 
 python_install_all() {
