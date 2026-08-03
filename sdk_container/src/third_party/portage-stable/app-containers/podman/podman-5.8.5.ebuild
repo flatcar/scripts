@@ -31,7 +31,7 @@ RESTRICT="test"
 RDEPEND="
 	app-containers/catatonit
 	>=app-containers/conmon-2.1.10
-	>=app-containers/container-libs-0.68.0[extra(-)]
+	>=app-containers/containers-common-0.58.0-r1
 	app-crypt/gpgme:=
 	dev-db/sqlite:3
 	dev-libs/libassuan:=
@@ -48,8 +48,8 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="
 	${PYTHON_DEPS}
+	>=dev-lang/go-1.25.0
 	dev-go/go-md2man
-	>=dev-lang/go-1.25.7
 "
 
 PATCHES=(
@@ -105,12 +105,12 @@ src_compile() {
 		tc-export PKG_CONFIG
 	fi
 
-	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" EXTRA_BUILDTAGS="$(usev seccomp)" \
+	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" EXTRA_BUILDTAGS="$(usev seccomp)" SELINUXOPT= \
 		  all $(usev wrapper docker-docs)
 }
 
 src_install() {
-	emake DESTDIR="${D}" install install.completions $(usev wrapper install.docker-full)
+	emake DESTDIR="${D}" SELINUXOPT= install install.completions $(usev wrapper install.docker-full)
 
 	newconfd "${FILESDIR}"/podman-5.0.0_rc4.confd podman
 	newinitd "${FILESDIR}"/podman-5.0.0_rc4.initd podman
@@ -125,7 +125,6 @@ src_install() {
 		exeinto /etc/cron.daily
 		newexe "${FILESDIR}"/podman-auto-update-5.0.0.cron podman-auto-update
 	fi
-
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}/podman.logrotated" podman
 
