@@ -12,7 +12,7 @@ if [[ ${PV} == *9999 ]] ; then
 		https://github.com/pkgcore/pkgcheck.git"
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-macos"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
 	inherit pypi
 fi
 
@@ -29,8 +29,8 @@ if [[ ${PV} == *9999 ]]; then
 		~sys-apps/pkgcore-9999[${PYTHON_USEDEP}]"
 else
 	RDEPEND="
-		>=dev-python/snakeoil-0.11.1[${PYTHON_USEDEP}]
-		>=sys-apps/pkgcore-0.12.34[${PYTHON_USEDEP}]"
+		>=dev-python/snakeoil-0.11.3[${PYTHON_USEDEP}]
+		>=sys-apps/pkgcore-0.12.37[${PYTHON_USEDEP}]"
 fi
 RDEPEND+="
 	app-arch/zstd
@@ -55,10 +55,6 @@ BDEPEND="${RDEPEND}
 "
 
 SITEFILE="50${PN}-gentoo.el"
-
-PATCHES=(
-	"${FILESDIR}"/${P}-py315.patch
-)
 
 EPYTEST_PLUGINS=( pkgcore )
 distutils_enable_tests pytest
