@@ -16,7 +16,7 @@ else
 	MY_PV=$(ver_cut 1-2)
 	SRC_URI="https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${MY_PV/./_}/refpolicy-${MY_PV}.tar.bz2
 		https://dev.gentoo.org/~perfinion/patches/${PN}/patchbundle-${P}.tar.bz2"
-	KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86"
+	KEYWORDS="amd64 arm arm64 ~riscv x86"
 fi
 
 S="${WORKDIR}/refpolicy"
@@ -41,6 +41,12 @@ BDEPEND="
 	sys-apps/checkpolicy
 	sys-devel/m4
 "
+
+PATCHES=(
+	"${FILESDIR}/0002-authlogin-allow-pam_domain-to-read-usr-share-pam.patch"
+	"${FILESDIR}/0003-su-use-auth_use_pam.patch"
+	"${FILESDIR}/0004-authlogin-guard-auth_use_pam_systemd-dbus_system_bus.patch"
+)
 
 MODS="application authlogin bootloader clock consoletype cron dmesg fstools getty hostname init iptables libraries locallogin logging lvm miscfiles modutils mount mta netutils nscd portage raid rsync selinuxutil setrans ssh staff storage su sysadm sysnetwork systemd tmpfiles udev userdomain usermanage unprivuser xdg"
 # A previous, old release of refpolicy had the hotplug policy module. However,
