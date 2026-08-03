@@ -26,6 +26,7 @@ else
 	fi
 	SRC_URI="
 		${CURL_URI}${P//_/-}.tar.xz
+		https://distfiles.gentoo.org/pub/dev/sam@gentoo.org/net-misc/curl/curl-8.21.0-hang.patch.xz
 		verify-sig? ( ${CURL_URI}${P//_/-}.tar.xz.asc )
 	"
 fi
@@ -170,7 +171,13 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 PATCHES=(
 	"${FILESDIR}/${PN}-prefix-6.patch"
 	"${FILESDIR}/${PN}-respect-cflags-3.patch"
+	"${WORKDIR}/${P}-hang.patch"
 )
+
+src_unpack() {
+	use verify-sig && verify-sig_verify_detached "${DISTDIR}"/${P}.tar.xz{,.asc}
+	default
+}
 
 src_prepare() {
 	default
