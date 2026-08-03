@@ -90,9 +90,9 @@ dual_scripts() {
 	src_remove_dual      perl-core/Encode             3.240.0       enc2xs piconv
 	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.780.0       instmodsh
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.630.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.220.0       zipdetails
+	src_remove_dual      perl-core/IO-Compress        2.223.0       zipdetails
 	src_remove_dual      perl-core/JSON-PP            4.160.0       json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.202.606.10  corelist
+	src_remove_dual      perl-core/Module-CoreList    5.202.607.80  corelist
 	src_remove_dual      perl-core/Pod-Checker        1.770.0       podchecker
 	src_remove_dual      perl-core/Pod-Perldoc        3.280.100     perldoc
 	src_remove_dual      perl-core/Pod-Usage          2.50.0        pod2usage
@@ -277,8 +277,8 @@ src_prepare_perlcross() {
 	eapply "${FILESDIR}/perl-5.34.0-crossfit.patch"
 	# fix cross-compilation configure tests w/ lto
 	eapply "${FILESDIR}/perl-5.42.0-cross-no-lto.patch"
-	# https://github.com/arsv/perl-cross/pull/174
-	eapply "${FILESDIR}/perl-5.42.2-cross.patch"
+	# https://github.com/arsv/perl-cross/pull/178
+	eapply "${FILESDIR}/perl-5.44.0-cross.patch"
 
 	# bug 604072
 	MAKEOPTS+=" -j1"
@@ -454,21 +454,11 @@ src_prepare() {
 		sed -i "/my..sysroot/s:'':'${EPREFIX}':" ext/Errno/Errno_pm.PL || die
 	fi
 
-	if [[ ${CHOST} == *-solaris* ]] ; then
-		# set a soname, fix linking against just built libperl
-		sed -i -e 's/netbsd\*/netbsd*|solaris*/' Makefile.SH || die
-	fi
+	# set a soname, fix linking against just built libperl
+	eapply "${FILESDIR}"/perl-5.44.0-solaris-soname.patch
 
-	if [[ ${CHOST} == *-darwin* ]] ; then
-		# fix install_name (soname) not to reference $D
-		sed -i -e '/install_name `pwd/s/`pwd`/\\$(shrpdir)/' Makefile.SH || die
-
-		# fix environ linkage absence (only a real issue on Darwin9)
-		if [[ ${CHOST##*-darwin} -le 9 ]] ; then
-			sed -i -e '/^PLDLFLAGS =/s/=/= -include crt_externs.h -Denviron="(*_NSGetEnviron())"/' \
-				Makefile.SH || die
-		fi
-	fi
+	# fix install_name (soname) not to reference $D
+	eapply "${FILESDIR}"/perl-5.44.0-darwin-install_name.patch
 
 	default
 }
@@ -679,13 +669,6 @@ src_configure() {
 	# target to override hardcoded 10.3 which breaks on modern OSX
 	[[ ${CHOST} == *-darwin* ]] && \
 		myconf "-Dld=env MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} $(tc-getCC)"
-
-	# Older macOS with non-Apple GCC chokes on inline in system headers
-	# using c89 mode as injected by cflags.SH, in addition, we override
-	# cflags, so we loose PERL_DARWIN which enables compat code that
-	# apparently on more recent macOS releases is no longer necessary
-	[[ ${CHOST} == *-darwin* && ${CHOST##*darwin} -le 9 ]] && tc-is-gcc && \
-		append-cflags -Dinline=__inline__ -DPERL_DARWIN
 
 	# Prefix: the host system needs not to follow Gentoo multilib stuff, and in
 	# Prefix itself we don't do multilib either, so make sure perl can find
