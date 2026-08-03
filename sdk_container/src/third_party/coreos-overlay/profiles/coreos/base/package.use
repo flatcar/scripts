@@ -152,7 +152,7 @@ app-containers/docker btrfs overlay seccomp
 sys-apps/policycoreutils vanilla -python
 sys-libs/libsemanage -python
 
-sys-fs/zfs minimal -rootfs
+sys-fs/zfs minimal -rootfs -initramfs
 
 # Do not tinker with /boot partition at installation time.
 sys-firmware/intel-microcode -initramfs
