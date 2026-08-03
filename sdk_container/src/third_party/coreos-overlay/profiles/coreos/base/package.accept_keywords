@@ -10,6 +10,9 @@
 # Chewi maintains edk2 in Gentoo, and we generally want the latest.
 sys-firmware/edk2-bin
 
+# Keep versions on both arches in sync.
+=app-admin/logrotate-3.22.0-r1
+
 # Needed to address CVE-2026-14164.
 =app-arch/libarchive-3.8.8
 
@@ -128,7 +131,7 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.2.1 ~arm64
-=sys-auth/sssd-2.13.0
+=sys-auth/sssd-2.13.1
 =sys-boot/mokutil-0.7.2 **
 
 # Enable ipvsadm for arm64.
