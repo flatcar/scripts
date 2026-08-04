@@ -119,6 +119,7 @@ app-containers/catatonit
 app-containers/conmon
 app-containers/container-libs
 app-containers/containerd
+app-containers/containers-shortnames
 app-containers/cri-tools
 app-containers/crun
 app-containers/docker
