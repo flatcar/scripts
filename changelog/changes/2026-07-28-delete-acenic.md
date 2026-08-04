@@ -1,0 +1,1 @@
+- Deleted ACENIC deprecated ethernet drivers from Kernel config to be able to build linux-firmware 20260622 or later. ([Flatcar#2205](https://github.com/flatcar/Flatcar/issues/2205))
