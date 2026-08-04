@@ -1,10 +1,10 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{12..15} )
 
-inherit python-r1 toolchain-funcs multilib-minimal
+inherit dot-a python-r1 toolchain-funcs multilib-minimal
 
 MY_PV="${PV//_/-}"
 MY_P="${PN}-${MY_PV}"
@@ -18,43 +18,63 @@ if [[ ${PV} == 9999 ]]; then
 	S="${WORKDIR}/${P}/${PN}"
 else
 	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="amd64 arm arm64 ~mips ~riscv x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~riscv ~x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
 LICENSE="GPL-2"
 SLOT="0/2"
-IUSE="+python"
-REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-RDEPEND="
-	app-arch/bzip2[${MULTILIB_USEDEP}]
+RDEPEND="app-arch/bzip2[${MULTILIB_USEDEP}]
 	>=sys-libs/libsepol-${PV}:=[${MULTILIB_USEDEP}]
 	>=sys-libs/libselinux-${PV}:=[${MULTILIB_USEDEP}]
 	>=sys-process/audit-2.2.2[${MULTILIB_USEDEP}]
-	python? ( ${PYTHON_DEPS} )
-"
+	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}"
-BDEPEND="
+BDEPEND=">=dev-lang/swig-2.0.4-r1
 	app-alternatives/yacc
 	app-alternatives/lex
-	python? (
-		>=dev-lang/swig-2.0.4-r1
-		virtual/pkgconfig
-	)
-"
+	virtual/pkgconfig"
 
 # tests are not meant to be run outside of the
 # full SELinux userland repo
 RESTRICT="test"
 
-PATCHES=(
-    "${FILESDIR}/libsemanage-extra-config.patch"
-)
-
 src_prepare() {
-	default
+	eapply_user
+
+	cat <<-EOF >> "${S}/src/semanage.conf" || die
+	# Set this to true to save the linked policy.
+	# This is normally only useful for analysis
+	# or debugging of policy.
+	save-linked=false
+
+	# Set this to 0 to disable assertion checking.
+	# This should speed up building the kernel policy
+	# from policy modules, but may leave you open to
+	# dangerous rules which assertion checking
+	# would catch.
+	expand-check=1
+
+	# Modules in the module store can be compressed
+	# with bzip2.  Set this to the bzip2 blocksize
+	# 1-9 when compressing.  The higher the number,
+	# the more memory is traded off for disk space.
+	# Set to 0 to disable bzip2 compression.
+	bzip-blocksize=0
+
+	# Reduce memory usage for bzip2 compression and
+	# decompression of modules in the module store.
+	bzip-small=true
+	EOF
+
 	multilib_copy_sources
+}
+
+src_configure() {
+	lto-guarantee-fat
+	multilib-minimal_src_configure
 }
 
 multilib_src_compile() {
@@ -66,7 +86,7 @@ multilib_src_compile() {
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
 		all
 
-	if use python && multilib_is_native_abi; then
+	if multilib_is_native_abi; then
 		building_py() {
 			emake \
 				AR="$(tc-getAR)" \
@@ -85,7 +105,9 @@ multilib_src_install() {
 		LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
 		DESTDIR="${ED}" install
 
-	if use python && multilib_is_native_abi; then
+	strip-lto-bytecode
+
+	if multilib_is_native_abi; then
 		installation_py() {
 			emake DESTDIR="${ED}" \
 				LIBDIR="${EPREFIX}/usr/$(get_libdir)" \
@@ -98,8 +120,6 @@ multilib_src_install() {
 }
 
 multiib_src_install_all() {
-	if use python; then
-		python_setup
-		python_fix_shebang "${ED}"/usr/libexec/selinux/semanage_migrate_store
-	fi
+	python_setup
+	python_fix_shebang "${ED}"/usr/libexec/selinux/semanage_migrate_store
 }
