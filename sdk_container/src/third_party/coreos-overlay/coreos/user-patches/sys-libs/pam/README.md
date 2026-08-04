@@ -3,3 +3,5 @@ https://github.com/linux-pam/linux-pam/issues/261.
 
 Possibly it should be dropped in favor of `chage -E 0`, as mentioned
 in the issue.
+
+The second patch can be dropped when 1.7.3 or 1.8 is released.
