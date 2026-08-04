@@ -19,7 +19,7 @@ sys-firmware/edk2-bin
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
 =app-containers/conmon-2.2.1
-=app-containers/container-libs-0.68.0
+=app-containers/container-libs-0.69.0
 
 # We always want the latest version available.
 =app-containers/containerd-2.2* ~amd64 ~arm64
