@@ -13,6 +13,9 @@ sys-firmware/edk2-bin
 # Keep versions on both arches in sync.
 =app-admin/logrotate-3.22.0-r1
 
+# To address CVE-2026-41991
+=app-arch/gzip-1.14_p20260502
+
 # Needed to address CVE-2026-14164.
 =app-arch/libarchive-3.8.8
 
@@ -61,6 +64,9 @@ app-crypt/azure-keyvault-pkcs11
 
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
+
+# To address CVE-2026-3886.
+=app-emulation/qemu-10.2.3
 
 # Keep versions on both arches in sync.
 =app-emulation/qemu-guest-agent-10.2.2
