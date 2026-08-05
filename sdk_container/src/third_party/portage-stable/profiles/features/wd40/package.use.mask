@@ -1,6 +1,11 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Eli Schwartz <eschwartz@gentoo.org> (2026-07-07)
+# Requires >= on gtk/libadwaita, which is masked for librsvg
+# reasons.
+>=dev-util/sysprof-50.0 gtk
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-06-08)
 # Requires dev-build/corrosion, iow rust/cargo.
 kde-plasma/kdeplasma-addons led
@@ -124,6 +129,7 @@ sys-kernel/installkernel efistub
 # Need dev-python/jsonschema (or its revdeps).
 dev-python/botocore test
 dev-python/ipython nbconvert test
+dev-python/opentelemetry-sdk test
 dev-python/sphinx-autodoc-typehints test
 >=sci-libs/gdal-3.11.3 python
 

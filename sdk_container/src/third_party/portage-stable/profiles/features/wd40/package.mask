@@ -390,6 +390,7 @@ dev-python/aws-sam-translator
 dev-python/cfn-lint
 >=dev-python/cryptography-36
 dev-python/aioquic
+dev-python/apispec
 dev-python/apprise
 dev-python/bitstring
 dev-python/cramjam
@@ -450,6 +451,7 @@ dev-python/pytest-trio
 dev-python/python-glanceclient
 dev-python/python-ironicclient
 dev-python/python-jose
+dev-python/python-manilaclient
 dev-python/python-neutronclient
 dev-python/python-openstackclient
 dev-python/python-snappy
