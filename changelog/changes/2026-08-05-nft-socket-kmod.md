@@ -1,0 +1,1 @@
+- Enabled the `nft_socket` kernel module, which provides the nftables `socket` expression (including `socket cgroupv2`). This is required by the OVN-Kubernetes user-defined networks (UDN) host isolation rules. ([Flatcar#2172](https://github.com/flatcar/Flatcar/issues/2172))
