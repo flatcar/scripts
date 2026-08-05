@@ -95,6 +95,9 @@ dev-db/etcd amd64
 # Needed to address a CVE.
 =net-libs/ngtcp2-1.22.1
 
+# For CVE-2026-{59995,59996,59997,59998,59999,60000,60001,60002}
+=net-misc/openssh-10.4_p1-r1
+
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
