@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,7 +11,7 @@ inherit user-info flag-o-matic autotools optfeature pam systemd toolchain-funcs 
 
 # Make it more portable between straight releases
 # and _p? releases.
-PARCH=${PN}-10.0p1
+PARCH=${P/_}
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
@@ -19,28 +19,21 @@ SRC_URI="
 	mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz
 	verify-sig? ( mirror://openbsd/OpenSSH/portable/${PARCH}.tar.gz.asc )
 "
-if [[ ${PV} != 10.0_p2 ]] ; then
-	die "Please restore the old S/PATCHES. 10.0_p2 had a workaround that should be dropped."
-fi
-S="${WORKDIR}/${PN}-10.0p1"
+S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
-IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam security-key selinux +ssl static test xmss"
+IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam security-key selinux +ssl static test"
 
 RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	ldns? ( ssl )
 	static? ( !kerberos !pam )
-	xmss? ( ssl  )
 	test? ( ssl )
 "
-
-# tests currently fail with XMSS
-REQUIRED_USE+="test? ( !xmss )"
 
 LIB_DEPEND="
 	audit? ( sys-process/audit[static-libs(+)] )
@@ -82,10 +75,9 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-9.4_p1-Allow-MAP_NORESERVE-in-sandbox-seccomp-filter-maps.patch"
-	"${FILESDIR}/${PN}-9.6_p1-fix-xmss-c99.patch"
 	"${FILESDIR}/${PN}-9.7_p1-config-tweaks.patch"
 	# Backports from upstream release branch
-	"${FILESDIR}/${PV}"
+	#"${FILESDIR}/${PV}"
 	# Our own backports
 )
 
@@ -160,7 +152,6 @@ src_configure() {
 
 	use debug && append-cppflags -DSANDBOX_SECCOMP_FILTER_DEBUG
 	use static && append-ldflags -static
-	use xmss && append-cflags -DWITH_XMSS
 
 	if [[ ${CHOST} == *-solaris* ]] ; then
 		# Solaris' glob.h doesn't have things like GLOB_TILDE, configure
@@ -193,8 +184,8 @@ src_configure() {
 		#    Clang (bug #872548), ICEs on m68k (bug #920350, gcc PR113086,
 		#    gcc PR104820, gcc PR104817, gcc PR110934)).
 		#
-		# Furthermore, OSSH_CHECK_CFLAG_COMPILE does not use AC_CACHE_CHECK
-		# util 10.1_p1, so we cannot just disable -fzero-call-used-regs=used.
+		# Furthermore, OSSH_CHECK_CFLAG_COMPILE did not use AC_CACHE_CHECK
+		# until 10.1_p1, so we couldn't disable -fzero-call-used-regs=used.
 		#
 		# Therefore, just pass --without-hardening, given it doesn't negate
 		# our already hardened toolchain defaults, and avoids adding flags
@@ -313,8 +304,8 @@ src_install() {
 	emake install-nokeys DESTDIR="${D}"
 	fperms 600 /etc/ssh/sshd_config
 	dobin contrib/ssh-copy-id
-	newinitd "${FILESDIR}"/sshd-r1.initd sshd
-	newconfd "${FILESDIR}"/sshd-r1.confd sshd
+	newinitd "${FILESDIR}"/sshd-r2.initd sshd
+	newconfd "${FILESDIR}"/sshd-r2.confd sshd
 	exeinto /etc/user/init.d
 	newexe "${FILESDIR}"/ssh-agent.initd ssh-agent
 
@@ -395,6 +386,11 @@ pkg_postinst() {
 		ewarn "but it can increase the vulnerability of the system in the event of a future exploit."
 		ewarn "If you have a web-facing setup or are concerned about security, it is recommended to"
 		ewarn "set 'Restart=no' in your sshd unit file."
+	fi
+	if ver_replacing -lt "10.2_p1-r1"; then
+		ewarn "The sshd init script no longer greps for ListenAddress in the sshd config."
+		ewarn "If you have configured the ListenAddress parameter, you may need to adjust"
+		ewarn "init script dependencies via rc_need in /etc/conf.d/sshd."
 	fi
 
 	if [[ -n ${show_ssl_warning} ]]; then
