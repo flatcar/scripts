@@ -12,7 +12,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/baselayout.git"
 	inherit git-r3
 else
-	EGIT_VERSION="9cd8630fd00a78f1af2812791dda0331db963ba7" # flatcar-master
+	EGIT_VERSION="a84fe9fe7c680a9de488ed58f85debf08432cbdd" # contribution/satwiksps/fix-missing-nss-files
 	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
