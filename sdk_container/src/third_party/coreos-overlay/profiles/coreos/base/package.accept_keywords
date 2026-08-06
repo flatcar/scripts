@@ -16,9 +16,6 @@ sys-firmware/edk2-bin
 # To address CVE-2026-41991 (has no keywords)
 =app-arch/gzip-1.14_p20260502 **
 
-# Needed to address CVE-2026-14164.
-=app-arch/libarchive-3.8.8
-
 # Needed to fix build with acl 2.4.0
 =app-arch/tar-1.35-r1
 
