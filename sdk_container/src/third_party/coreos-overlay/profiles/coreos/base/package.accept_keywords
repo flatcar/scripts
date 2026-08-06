@@ -13,25 +13,37 @@ sys-firmware/edk2-bin
 # Keep versions on both arches in sync.
 =app-admin/logrotate-3.22.0-r1
 
-# To address CVE-2026-41991
-=app-arch/gzip-1.14_p20260502
+# To address CVE-2026-41991 (has no keywords)
+=app-arch/gzip-1.14_p20260502 **
 
 # Needed to address CVE-2026-14164.
 =app-arch/libarchive-3.8.8
 
+# Needed to fix build with acl 2.4.0
+=app-arch/tar-1.35-r1
+
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
+
+# To address CVE-2025-0495.
+=app-containers/docker-buildx-0.35.0
+
+# For podman 6.0.0
 =app-containers/conmon-2.2.1
 =app-containers/container-libs-0.69.0
 
 # We always want the latest version available.
-=app-containers/containerd-2.2* ~amd64 ~arm64
+=app-containers/containerd-2.3*
 
-# Keep versions on both arches in sync.
-=app-containers/cri-tools-1.33.0 ~arm64
+# To address some CVEs.
+=app-containers/cri-tools-1.36.0
 
 # To address CVE-2026-30892
 =app-containers/crun-1.28
+
+# To address some CVEs.
+=app-containers/docker-cli-29.5.2
+=app-containers/docker-29.5.2
 
 # To address a bunch of CVEs
 =app-containers/incus-7.2
@@ -62,6 +74,13 @@ app-crypt/azure-keyvault-pkcs11
 # Needed by arm64-native SDK
 =app-crypt/ccid-1.6.1 ~arm64
 
+# Needed to address CVE-2026-13757.
+=app-crypt/p11-kit-0.26.4
+
+# Needed to address a bunch of GHSA issues.
+=app-crypt/tpm2-tools-5.8
+=app-crypt/tpm2-tss-4.2.0
+
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
@@ -79,12 +98,20 @@ dev-cpp/azure-identity
 dev-cpp/azure-security-keyvault-certificates
 dev-cpp/azure-security-keyvault-keys
 
-# Not stabilised for arm64 yet.
-dev-db/etcd amd64
+# To address CVE-2025-22869, CVE-2025-30204, CVE-2026-33186
+=dev-db/etcd-3.6.11
+
+# Needed to address CVE-2026-27145, CVE-2026-39822, CVE-2026-42504, CVE-2026-42505, CVE-2026-42507.
+=dev-lang/go-1.26.5
 
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
+
+# To address CVE-2026-9146.
+=dev-libs/json-c-0.19-r2
+
+# Keep versions on both arches in sync.
 =dev-libs/jose-14
 =dev-libs/libtraceevent-1.9.0
 
@@ -130,6 +157,12 @@ dev-db/etcd amd64
 # For podman 6.0.0
 =net-misc/passt-2026.05.26
 
+# To address CVE-2026-54369, CVE-2026-54370.
+=sys-apps/acl-2.4.0-r2
+
+# To address CVE-2026-54371.
+=sys-apps/attr-2.6.0
+
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
 # latest version of the package with the unstable keywords.
@@ -148,6 +181,9 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-fs/lxcfs-7.0.0
+
+# To address GHSA-2hqh-5c36-grrm, GHSA-46fr-jh49-xvhx, GHSA-4q85-33p6-j5g6.
+=sys-libs/libseccomp-2.6.1
 
 # To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
 =sys-libs/libselinux-3.11
