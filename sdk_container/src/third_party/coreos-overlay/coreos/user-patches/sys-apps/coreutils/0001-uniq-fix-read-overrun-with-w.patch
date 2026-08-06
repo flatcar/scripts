@@ -1,0 +1,33 @@
+From e2da005e28935f23b2c0f224f6fcbfe0d8c13c12 Mon Sep 17 00:00:00 2001
+From: Paul Eggert <eggert@cs.ucla.edu>
+Date: Tue, 28 Apr 2026 11:25:00 -0700
+Subject: [PATCH 1/2] uniq: fix read overrun with -w
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Problem reported by Michał Majchrowicz.
+* src/uniq.c (find_field): Fix typo.
+* tests/uniq/uniq.pl (add_z_variants): Test for the bug.
+---
+ src/uniq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/uniq.c b/src/uniq.c
+index 30463598a..5834596f9 100644
+--- a/src/uniq.c
++++ b/src/uniq.c
+@@ -285,8 +285,8 @@ find_field (struct linebuffer const *line, idx_t *plen)
+   else
+     {
+       char *ep = lp;
+-      for (idx_t i = check_chars; 0 < i && lp < lim; i--)
+-        ep += mcel_scan (lp, lim).len;
++      for (idx_t i = check_chars; 0 < i && ep < lim; i--)
++        ep += mcel_scan (ep, lim).len;
+       len = ep - lp;
+     }
+ 
+-- 
+2.54.0
+
