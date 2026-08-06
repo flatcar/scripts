@@ -13,8 +13,8 @@ sys-firmware/edk2-bin
 # Keep versions on both arches in sync.
 =app-admin/logrotate-3.22.0-r1
 
-# To address CVE-2026-41991
-=app-arch/gzip-1.14_p20260502
+# To address CVE-2026-41991 (has no keywords)
+=app-arch/gzip-1.14_p20260502 **
 
 # Needed to address CVE-2026-14164.
 =app-arch/libarchive-3.8.8
@@ -103,9 +103,6 @@ dev-cpp/azure-security-keyvault-keys
 
 # Needed to address CVE-2026-27145, CVE-2026-39822, CVE-2026-42504, CVE-2026-42505, CVE-2026-42507.
 =dev-lang/go-1.26.5
-
-# Needed to address CVE-2026-13221, CVE-2026-57432.
-=dev-lang/perl-5.44.0
 
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
