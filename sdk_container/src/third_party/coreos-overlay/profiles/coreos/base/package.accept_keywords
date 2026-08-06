@@ -23,7 +23,7 @@ sys-firmware/edk2-bin
 =app-containers/aardvark-dns-2.0.0
 
 # To address CVE-2025-0495.
-=app-containers/buildx-0.35.0
+=app-containers/docker-buildx-0.35.0
 
 # For podman 6.0.0
 =app-containers/conmon-2.2.1
