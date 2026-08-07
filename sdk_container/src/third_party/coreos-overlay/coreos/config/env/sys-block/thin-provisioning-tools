@@ -5,3 +5,11 @@ export ECARGO_EXTRA_ARGS=--no-default-features
 # read-only so that it forcibly overrides the ebuild. Note that this doesn't
 # avoid pulling in another rust(-bin) version, but it does avoid it being used.
 declare -gr RUST_NEEDS_LLVM=
+
+# Avoid using incompatible rust-bin. Our dev-lang/rust build is
+# configured for cross-compiling, while dev-lang/rust-bin is not. The
+# latter will be pulled in because of RUST_NEEDS_LLVM=1, but we don't
+# need LLVM for our build. The env change above avoids using rust-bin,
+# but it cannot avoid pulling it in. This change does that. Probably
+# makes RUST_NEEDS_LLVM override unnecessary, but whatever.
+declare -gra LLVM_COMPAT=( {19..22} )
