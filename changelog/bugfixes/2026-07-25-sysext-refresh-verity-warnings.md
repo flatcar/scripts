@@ -1,0 +1,1 @@
+- Fixed noisy `systemd-sysext refresh` `device-mapper: reload ioctl ... Invalid argument` warnings by backporting an upstream `systemd` dm-verity mapper naming fix for loop-backed extension images.

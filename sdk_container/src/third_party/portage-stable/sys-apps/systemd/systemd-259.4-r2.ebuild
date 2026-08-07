@@ -280,6 +280,7 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
+		"${FILESDIR}/systemd-259.4-dissect-image-include-diskseq-in-dm-names.patch"
 		"${FILESDIR}/systemd-260-mips.patch"
 	)
 
