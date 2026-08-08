@@ -13,6 +13,18 @@ if [ -n "${SDK_GROUP_ID:-}" ] ; then
     groupmod --non-unique -g $SDK_GROUP_ID sdk
 fi
 
+# scripts' worktrees handling.
+if [[ -d /mnt/host/source/src/scripts/.replacements ]]; then
+    mv /mnt/host/source/src/scripts/.replacements /root/replacements
+    (
+        source /home/sdk/trunk/src/scripts/sdk_lib/git_worktree_handling.sh
+        for path in /root/replacements/*; do
+            replacements_to_bind_mounts "${path}" /root /dev/null
+        done
+    )
+    rm -rf /root/replacements
+fi
+
 chown -R sdk:sdk /home/sdk
 
 # Fix up SDK repo configuration to use the new coreos-overlay name.
