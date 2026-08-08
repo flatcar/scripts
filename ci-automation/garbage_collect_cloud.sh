@@ -25,3 +25,11 @@ for channel in alpha beta stable lts; do
       --aws-credentials="${aws_credentials_config_file}"
   done
 done
+oraclecloud_private_key_path=''
+secret_to_file oraclecloud_private_key_path "${ORACLECLOUD_PRIVATE_KEY}"
+timeout --signal=SIGQUIT 60m ore oraclecloud gc --duration 6h \
+  --oraclecloud-tenancy="${ORACLECLOUD_TENANCY}" \
+  --oraclecloud-user="${ORACLECLOUD_USER}" \
+  --oraclecloud-fingerprint="${ORACLECLOUD_FINGERPRINT}" \
+  --oraclecloud-private-key-path="${oraclecloud_private_key_path}" \
+  --oraclecloud-compartment-id="${ORACLECLOUD_COMPARTMENT_ID}"
