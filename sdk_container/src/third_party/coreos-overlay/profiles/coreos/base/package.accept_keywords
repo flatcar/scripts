@@ -115,6 +115,9 @@ dev-db/etcd amd64
 =net-libs/ngtcp2-1.22.1
 =net-misc/curl-8.21.0
 
+# For CVE-2026-{59995,59996,59997,59998,59999,60000,60001,60002}
+=net-misc/openssh-10.4_p1-r1
+
 # For podman 6.0.0
 =net-misc/passt-2026.05.26
 
