@@ -216,36 +216,75 @@ function docker_commit_to_buildcache() {
 }
 # --
 
+# Prints the name:tag the image is available under locally, or nothing
+# if it is not present.
+function local_image_name() {
+    local name="$1"
+    local version="$2"
+
+    if image_exists_locally "${name}" "${version}" ; then
+        echo "${name}:${version}"
+    elif image_exists_locally "${CONTAINER_REGISTRY}/${name}" "${version}" ; then
+        echo "${CONTAINER_REGISTRY}/${name}:${version}"
+    fi
+}
+# --
+
+# Prints the ID of a local image, cutting the "sha256:" prefix that is
+# present in Docker but not in Podman.
+function local_image_id() {
+    $docker image inspect "${1}" | jq -r '.[].Id' | sed 's/^sha256://'
+}
+# --
+
+# Prints the image ID published in the buildcache, or "not found".
+function buildcache_image_id() {
+    local name="$1"
+    local version="$2"
+    local id_file="${name}-${version}.id"
+
+    curl --fail --silent --show-error --location --retry-delay 1 \
+        --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
+        "https://${BUILDCACHE_SERVER}/containers/${version}/${id_file}" \
+        || curl --fail --silent --show-error --location --retry-delay 1 \
+        --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
+        "https://mirror.release.flatcar-linux.net/containers/${version}/${id_file}" \
+        || echo "not found"
+}
+# --
+
 function docker_image_from_buildcache() {
     local name="$1"
     local version="$2"
     local compr="${3:-zst}"
     local tgz="${name}-${version}.tar.${compr}"
-    local id_file="${name}-${version}.id"
-    local id_file_url="https://${BUILDCACHE_SERVER}/containers/${version}/${id_file}"
-    local id_file_url_release="https://mirror.release.flatcar-linux.net/containers/${version}/${id_file}"
+    # Holds "<published id> <local id>" of the last image we loaded from
+    # the buildcache.
+    local stamp_file="${name}-${version}.id.local"
+
+    local remote_id=""
+    remote_id=$(buildcache_image_id "${name}" "${version}")
 
     local local_image=""
-    if image_exists_locally "${name}" "${version}" ; then
-        local_image="${name}:${version}"
-    elif image_exists_locally "${CONTAINER_REGISTRY}/${name}" "${version}" ; then
-        local_image="${CONTAINER_REGISTRY}/${name}:${version}"
-    fi
+    local_image=$(local_image_name "${name}" "${version}")
 
     if [[ -n "${local_image}" ]] ; then
         local image_id=""
-        image_id=$($docker image inspect "${local_image}" | jq -r '.[].Id' | sed 's/^sha256://')
-        local remote_id=""
-        remote_id=$(curl --fail --silent --show-error --location --retry-delay 1 \
-                    --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
-                    "${id_file_url}" \
-                    || curl --fail --silent --show-error --location --retry-delay 1 \
-                    --retry 60 --retry-connrefused --retry-max-time 60 --connect-timeout 20 \
-                    "${id_file_url_release}" \
-                    || echo "not found")
+        image_id=$(local_image_id "${local_image}")
         if [ "${image_id}" = "${remote_id}" ]; then
           echo "Local image is up-to-date" >&2
           return
+        fi
+        # docker load derives its own image ID, so a loaded image can
+        # differ from the published one while holding the exact same
+        # content. Compare the published ID against the one the local
+        # image was loaded from instead, and only trust that as long as
+        # the local image itself has not changed since.
+        local stamp=""
+        stamp=$(cat "${stamp_file}" 2>/dev/null) || true
+        if [[ "${stamp}" = "${remote_id} ${image_id}" ]] ; then
+            echo "Local image is up-to-date" >&2
+            return
         fi
         echo "Local image outdated, downloading..." >&2
     fi
@@ -270,6 +309,13 @@ function docker_image_from_buildcache() {
     zstd -d -c ${tgz} | $docker load
 
     rm "${tgz}"
+
+    rm -f "${stamp_file}"
+    local loaded_image=""
+    loaded_image=$(local_image_name "${name}" "${version}")
+    if [[ -n "${loaded_image}" && "${remote_id}" != "not found" ]] ; then
+        echo "${remote_id} $(local_image_id "${loaded_image}")" >"${stamp_file}"
+    fi
 }
 # --
 
