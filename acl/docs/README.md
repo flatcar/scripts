@@ -12,6 +12,7 @@ Detailed documentation for Azure Container Linux.
 
 ## Operational Guides
 
-| Document                                     | Description                   |
-| -------------------------------------------- | ----------------------------- |
-| [Build RPM Image](BUILD_RPM_IMAGE_README.md) | Building ACL images from RPMs |
+| Document                                               | Description                                                           |
+| ------------------------------------------------------ | --------------------------------------------------------------------- |
+| [Build RPM Image](BUILD_RPM_IMAGE_README.md)           | Building ACL images from RPMs                                         |
+| [Container Image Preload](containerd-image-preload.md) | Baking OCI images into the containerd store with the Image Customizer |
