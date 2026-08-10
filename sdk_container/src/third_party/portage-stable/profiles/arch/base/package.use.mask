@@ -1,6 +1,10 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Sam James <sam@gentoo.org> (2026-07-22)
+# media-libs/libmysofa not keyworded in most places
+media-video/pipewire sofa
+
 # Michał Górny <mgorny@gentoo.org> (2026-03-14)
 # SPIRV target requires dev-libs/level-zero.
 llvm-runtimes/offload llvm_targets_SPIRV
@@ -13,6 +17,7 @@ llvm-runtimes/clang-runtime llvm_targets_AMDGPU llvm_targets_NVPTX
 # Ionen Wolkens <ionen@gentoo.org> (2026-02-11)
 # net-libs/librist currently has very few keywords
 media-video/ffmpeg rist
+media-video/ffmpeg-compat rist
 
 # Andrey Grozin <grozin@gentoo.org> (2026-01-08)
 # Needs dev-python/pyside[tools]
@@ -163,6 +168,7 @@ media-gfx/blender gnome renderdoc
 dev-qt/qtdeclarative:6 qmlls
 dev-qt/qttools:6 qmlls
 dev-python/pyside tools
+dev-python/pyqtgraph pyside6
 
 # Mike Gilbert <floppym@gentoo.org> (2024-04-13)
 # Missing keywords on dev-python/looseversion.
@@ -394,7 +400,6 @@ dev-lang/rust-bin doc
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2019-06-22)
 # mask here and unmask in profiles for specific arches
-dev-java/openjdk:8 javafx
 dev-java/openjdk:11 javafx
 
 # Matt Turner <mattst88@gentoo.org> (2019-06-20)

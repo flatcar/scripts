@@ -36,6 +36,111 @@
 
 #--- END OF EXAMPLES ---
 
+# Brett A C Sheffield <bacs@librecast.net> (2026-08-09)
+# Unmaintained by upstream for 16 years. Two unpatched security bugs
+# (Bug #906111 and Bug #916866) and many more unpatched issues upstream.
+# Removal on 2026-09-09.
+app-text/catdoc
+
+# Michał Górny <mgorny@gentoo.org> (2026-08-08)
+# A chain of NIH packages that have seen no upstream activity in 3+
+# years.  They are all broken with >=dev-python/flit-core-4, and have
+# no reverse dependencies outside the chain.
+# Removal on 2026-09-07.  Bug #980500.
+dev-python/autoprop
+dev-python/signature-dispatch
+dev-python/vecrec
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2026-08-06)
+# This version was pulled from upstream. The reason for this is
+# unclear. But masked just as a precaution. Bug #980367.
+=sys-boot/shim-16.1_p8
+
+# Michał Górny <mgorny@gentoo.org> (2026-08-05)
+# Last released in 2017.  Carries a significant patchset already.
+# Uses pkg_resources namespaces.  No reverse dependencies.
+# Removal on 2026-09-04.  Bug #957269.
+dev-python/pyformance
+
+# Michał Górny <mgorny@gentoo.org> (2026-08-04)
+# Slop package.  The old versions bundle a very old fork of
+# app-i18n/uchardet.  The new ones require app-i18n/uchardet from git
+# that suffers from regressions (and upstream slop-patched them anyway).
+# The only revdep supports fallback to dev-python/chardet and
+# dev-python/charset-normalizer (both are also slop nowadays, but we're
+# stuck with them anyway), and uses a || dep.
+# Removal on 2026-09-03.  Bug #980354.
+dev-python/faust-cchardet
+
+# James Le Cuirot <chewi@gentoo.org> (2026-07-29)
+# These packages have been superseded by recent versions of
+# games-fps/ut2004-data, which now includes this content regardless of
+# installation source. For the XP Bonus Maps that were included in the ECE
+# package, install games-fps/ut2004-bonuspack-xp. Removal on 2026-08-29.
+games-fps/ut2004-bonuspack-ece
+games-fps/ut2004-bonuspack-mega
+
+# James Le Cuirot <chewi@gentoo.org> (2026-07-29)
+# UT2004 now has modern builds and is essentially free to download, so there is
+# no need for this ancient package that allowed you to run a server for free.
+# Use games-fps/ut2004[dedicated] instead. Removal on 2026-08-29. Bug #979392.
+games-server/ut2004-ded
+
+# James Le Cuirot <chewi@gentoo.org> (2026-07-29)
+# UT2004 now has modern builds and is essentially free to download, so there is
+# no reason to bother with this old demo. Removal on 2026-08-29. Bug #979271.
+games-fps/ut2004-demo
+
+# James Le Cuirot <chewi@gentoo.org> (2026-07-29)
+# UT2004 is basically the same as UT2003, only bigger and better. Unlike UT2003,
+# UT2004 now has modern builds and is essentially free to download, so there is
+# no reason to choose UT2003 anymore. Removal on 2026-08-29. Bug #790173.
+games-fps/ut2003
+games-fps/ut2003-bonuspack-cm
+games-fps/ut2003-bonuspack-de
+games-fps/ut2003-bonuspack-epic
+games-fps/ut2003-data
+games-fps/ut2003-demo
+games-util/uz2unpack
+
+# James Le Cuirot <chewi@gentoo.org> (2026-07-28)
+# microsoft-identity-broker no longer needs a user. Removal on 2026-09-28.
+acct-user/microsoft-identity-broker
+acct-group/microsoft-identity-broker
+
+# Alfred Wingate <parona@protonmail.com> (2026-07-24)
+# Renamed to libgedit-tepl upstream.
+# Unbuildable for half a year. Last revdep moved to libgedit-tepl.
+# Removal on 2026-07-27. Bug #949068.
+gui-libs/tepl
+
+# Sam James <sam@gentoo.org> (2026-07-16)
+# Stub since Bind 9.18. Maintaining a separate build just for the client
+# binaries proved brittle and unsustainable (see discussion in
+# bug #832218 for details). Please use net-dns/bind instead. Other options
+# include net-dns/cares-tools, net-libs/ldns's drill, and net-dns/doggo.
+# Removal on 2026-08-15.  Bug #977172.
+net-dns/bind-tools
+
+# Sam James <sam@gentoo.org> (2026-07-16)
+# Outdated and replaced by app-arch/7zip. Many unfixed bugs including
+# severe vulnerabilities.
+# Removal on 2026-08-15.  Bug #942397.
+app-arch/p7zip
+
+# Michał Górny <mgorny@gentoo.org> (2026-07-13)
+# dev-python/fields is unmaintained for 5 years.  Broken with pytest-9,
+# we already patch it for earlier pytest versions.  It is the only
+# revdep of dev-python/characteristic which was archived in 2023.
+# No revdeps left.
+# Removal on 2026-08-12.  Bug #978175.
+dev-python/characteristic
+dev-python/fields
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2026-07-07)
+# dev-embedded/ponyprog destabilisation mask, bug #978907
+=dev-embedded/ponyprog-3.1.4_p20250501-r0
+
 # Eray Aslan <eras@gentoo.org> (2026-07-06)
 # Introduces backwards breaking change. Mask until downstreams adjust
 >=dev-db/lmdb-1.0.0
@@ -50,47 +155,10 @@ dev-python/jsonschema-spec
 # Removal on 2026-07-30.
 dev-python/roman-numerals-py
 
-# Conrad Kostecki <conikost@gentoo.org> (2026-06-29)
-# ICR (Intel Compute Runtime) is currently not compatible.
-# Will be unmasked, once a new version is available.
->=dev-libs/level-zero-1.32.0
-
 # Michał Górny <mgorny@gentoo.org> (2026-06-29)
 # Unmaintained.  Requires patching since py3.12.  No revdeps.
 # Removal on 2026-07-29.  Bug #978274.
 dev-python/commentjson
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2026-06-23)
-# Work in progress
-=dev-lang/perl-5.44*
-~virtual/perl-Archive-Tar-3.120.0
-~virtual/perl-Compress-Raw-Bzip2-2.218.0
-~virtual/perl-CPAN-Meta-2.150.13
-~virtual/perl-CPAN-Meta-Requirements-2.145.0
-~virtual/perl-DB_File-1.860.0
-~virtual/perl-Encode-3.240.0
-~virtual/perl-ExtUtils-CBuilder-0.280.243
-~virtual/perl-ExtUtils-MakeMaker-7.780.0
-~virtual/perl-ExtUtils-ParseXS-3.630.0
-~virtual/perl-File-Spec-3.950.0
-~virtual/perl-IO-1.560.0
-~virtual/perl-IO-Compress-2.220.0
-~virtual/perl-IO-Socket-IP-0.440.0
-~virtual/perl-Math-BigInt-2.5.3
-~virtual/perl-Module-CoreList-5.202.606.10
-~virtual/perl-Module-Metadata-1.0.39
-~virtual/perl-Pod-Simple-3.480.0
-~virtual/perl-Scalar-List-Utils-1.700.0
-~virtual/perl-Socket-2.41.0
-~virtual/perl-Storable-3.410.0
-~virtual/perl-Term-Table-0.28.0
-~virtual/perl-Test2-Suite-1.302.219
-~virtual/perl-Test-Harness-3.520.0
-~virtual/perl-Test-Simple-1.302.219
-~virtual/perl-Text-Balanced-2.70.0
-~virtual/perl-threads-2.450.0
-~virtual/perl-Time-HiRes-1.978.0
-~virtual/perl-version-0.993.400
 
 # Michał Górny <mgorny@gentoo.org> (2026-06-20)
 # No py3.14 in compat, tests lost on bump, no revdeps.
@@ -135,17 +203,6 @@ dev-python/pytrie
 dev-python/txaio
 dev-python/vpython
 dev-python/wsaccel
-
-# Ionen Wolkens <ionen@gentoo.org> (2026-06-11)
-# Not used by maintainer anymore and, upon consideration, would rather
-# not handle the new rust rewrite using GTK4 and /dev/uinput (notably
-# needs permissions for uinput but we do not have global rules to handle
-# that yet and having this package arbitrarily set this up is
-# questionable and could break current usage). Seems better to last-rite
-# rather than leave it outdated as maintainer-needed with this old
-# version that is known to occasionally segfault.
-# Removal on 2026-07-11.
-x11-misc/mygestures
 
 # Ulrich Müller <ulm@gentoo.org> (2026-06-05)
 # Pretest versions, masked for testing.
@@ -574,12 +631,6 @@ media-plugins/kodi-game-libretro-dosbox
 # <glibc-2.26.
 ~net-libs/libnsl-0
 ~net-libs/rpcsvc-proto-0
-
-# Nicolas Bock <nicolasbock@gentoo.org> (2017-10-31)
-# There are multiple unresolved upstream issues with >=jabref-bin-4.0 (#636036).
-# If you still would like to use this version, please report any issues to
-# upstream.
->=app-text/jabref-bin-4.0
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2017-05-21)
 # (and others, updated later)
