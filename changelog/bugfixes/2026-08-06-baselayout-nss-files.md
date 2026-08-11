@@ -1,0 +1,1 @@
+- Added missing symlinks protocols, services, rpc, networks from /usr/share/baselayout to /etc. ([Flatcar#1852](https://github.com/flatcar/Flatcar/issues/1852))

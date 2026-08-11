@@ -12,7 +12,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/baselayout.git"
 	inherit git-r3
 else
-	EGIT_VERSION="9cd8630fd00a78f1af2812791dda0331db963ba7" # flatcar-master
+	EGIT_VERSION="509343f640e48feced4c861f14100c60457e55b9" # flatcar-master
 	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
