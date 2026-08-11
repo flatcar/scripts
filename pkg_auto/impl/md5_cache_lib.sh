@@ -166,7 +166,7 @@ function parse_cache_file() {
     local -n pkg_license_group_name_ref='cache_file_ref[PCF_LICENSE_IDX]'
     local -n pkg_eclasses_ref='cache_file_ref[PCF_ECLASSES_IDX]'
 
-    local l key
+    local l key got_keywords=''
     while read -r l; do
         key=${l%%=*}
         pkg_debug "parsing ${key@Q}"
@@ -176,6 +176,7 @@ function parse_cache_file() {
                 pkg_debug "EAPI: ${pkg_eapi_ref}"
                 ;;
             'KEYWORDS')
+                got_keywords=x
                 __mcl_parse_keywords "${l#*=}" pkg_keywords_ref "${@}"
                 ;;
             'IUSE')
@@ -207,6 +208,10 @@ function parse_cache_file() {
                 ;;
         esac
     done <"${path}"
+    if [[ -z ${got_keywords} ]]; then
+        pkg_debug "no KEYWORDS found in cache file, filling with unknowns"
+        __mcl_fill_keywords_as_unknowns pkg_keywords_ref "${@}"
+    fi
 }
 
 #
@@ -1126,6 +1131,40 @@ function __mcl_parse_eclasses() {
         local joined_eclasses_string
         join_by joined_eclasses_string ' ' "${eclasses_ref[@]}"
         pkg_debug_print "eclasses: ${joined_eclasses_string}"
+    fi
+}
+
+function __mcl_fill_keywords_as_unknowns() {
+    local -n keywords_out_var_name_ref=${1}; shift
+    # rest are architectures
+
+    local keywords_var_name
+    gen_varname keywords_var_name
+    declare -ga "${keywords_var_name}=()"
+    local -n keywords_ref=${keywords_var_name}
+
+    local arch kw_name
+    for arch; do
+        gen_varname kw_name
+        kw_declare "${kw_name}"
+        local -n k_ref=${kw_name}
+        k_ref[KW_NAME_IDX]=${arch}
+        k_ref[KW_LEVEL_IDX]=${KW_UNKNOWN}
+        unset -n k_ref
+        keywords_ref+=( "${kw_name}" )
+    done
+    keywords_out_var_name_ref=${keywords_var_name}
+
+    if pkg_debug_enabled; then
+        local -a all_kws_strings=()
+        local kw_name pk_kw_str
+        local joined_kws_string
+        for kw_name in "${keywords_ref[@]}"; do
+            kw_to_string "${kw_name}" pk_kw_str
+            all_kws_strings+=( "${pk_kw_str}" )
+        done
+        join_by joined_kws_string ' ' "${all_kws_strings[@]}"
+        pkg_debug_print "keywords: ${joined_kws_string}"
     fi
 }
 
