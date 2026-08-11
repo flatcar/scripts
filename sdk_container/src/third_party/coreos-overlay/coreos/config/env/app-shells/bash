@@ -1,1 +1,28 @@
 export bash_cv_getcwd_malloc=yes
+
+cros_post_src_install_flatcar_modifications() {
+    # These links exist because old installations can still have
+    # references to them.
+    dosym -r '/usr/share/flatcar/etc/bash/bash_logout' '/usr/share/bash/bash_logout'
+    dosym -r '/usr/share/flatcar/etc/bash/bashrc' '/usr/share/bash/bashrc'
+    insinto '/usr/share/flatcar/etc/bash'
+    newins - 'bash_logout'
+    newins - 'bashrc'
+
+    dosym -r '/usr/share/flatcar/etc/skel/.bash_logout' '/usr/share/skel/.bash_logout'
+    dosym -r '/usr/share/flatcar/etc/skel/.bash_profile' '/usr/share/skel/.bash_profile'
+    dosym -r '/usr/share/flatcar/etc/skel/.bashrc' '/usr/share/skel/.bashrc'
+    insinto '/usr/share/flatcar/etc/skel'
+    newins - '.bash_logout'
+    newins - '.bash_profile'
+    newins - '.bashrc'
+
+    insinto '/etc/bash/bashrc.d'
+    newins - '99-flatcar-bcc.bash' <<'EOF'
+for iovisor_bcc_tool in tcpretrans tcpconnect tcpaccept biolatency; do
+    alias "iovisor-${iovisor_bcc_tool}=docker run --rm -it -v /lib/modules:/lib/modules -v /sys/kernel/debug:/sys/kernel/debug -v /sys/fs/cgroup:/sys/fs/cgroup -v /sys/fs/bpf:/sys/fs/bpf --privileged --net host --pid host quay.io/iovisor/bcc /usr/share/bcc/tools/${iovisor_bcc_tool}"
+done
+
+unset -v iovisor_bcc_tool
+EOF
+}
