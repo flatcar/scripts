@@ -1,0 +1,9 @@
+cros_post_src_install_flatcar_modifications() {
+    # These links exist because old installations can still have
+    # references to them.
+    dosym -r '/usr/share/flatcar/etc/selinux/mcs' '/usr/lib/selinux/mcs'
+    dosym -r '/usr/share/flatcar/etc/selinux/config' '/usr/lib/selinux/config'
+    insinto '/usr/share/flatcar/etc/selinux'
+    newins - 'mcs'
+    newins - 'config'
+}
