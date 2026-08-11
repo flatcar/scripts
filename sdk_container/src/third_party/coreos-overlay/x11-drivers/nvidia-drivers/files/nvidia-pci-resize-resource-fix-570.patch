@@ -1,0 +1,154 @@
+Starting from Kernel 6.12.97, prototype of pci_resize_resource() has changed
+so it started to take 4 args instead of 3. To deal with both cases of 3 and 4
+args, define a new config check in conftest.sh to check if the Kernel header
+has which variant of pci_resize_resource(), and define a variable
+NV_PCI_RESIZE_RESOURCE_HAS_EXCLUDE_BARS_ARG if that has 4 args. Use that later
+from the caller in nvidia/nv-pci.c.
+--- a/kernel-open/conftest.sh	2026-07-28 08:58:15.053510731 -0000
++++ b/kernel-open/conftest.sh	2026-07-28 09:00:34.490711754 -0000
+@@ -6528,6 +6528,27 @@
+             compile_check_conftest "$CODE" "NV_WAIT_FOR_RANDOM_BYTES_PRESENT" "" "functions"
+         ;;
+ 
++        pci_resize_resource_has_exclude_bars_arg)
++            #
++            # Determine if pci_resize_resource() has exclude_bars argument.
++            #
++            # exclude_bars argument was added to pci_resize_resource by commit
++            # 337b1b566db0 (11/14/2025) ("PCI: Fix restoring BARs on BAR resize rollback path")
++            # in linux-next.
++            #
++            CODE="
++            #include <linux/pci.h>
++
++            typeof(pci_resize_resource) conftest_pci_resize_resource_has_exclude_bars_arg;
++            int __must_check conftest_pci_resize_resource_has_exclude_bars_arg(struct pci_dev *dev,
++                                                                               int i, int size,
++                                                                               int exclude_bars) {
++                return 0;
++            }"
++
++            compile_check_conftest "$CODE" "NV_PCI_RESIZE_RESOURCE_HAS_EXCLUDE_BARS_ARG" "" "types"
++        ;;
++
+         drm_connector_has_override_edid)
+             #
+             # Determine if 'struct drm_connector' has an 'override_edid' member.
+--- a/kernel-open/nvidia/nv-pci.c	2026-07-28 08:34:08.084158759 -0000
++++ b/kernel-open/nvidia/nv-pci.c	2026-07-28 08:34:46.162723864 -0000
+@@ -234,7 +234,11 @@
+ 
+ resize:
+     /* Attempt to resize BAR1 to the largest supported size */
++#if defined(NV_PCI_RESIZE_RESOURCE_HAS_EXCLUDE_BARS_ARG)
++    r = pci_resize_resource(pci_dev, NV_GPU_BAR1, requested_size, 0);
++#else
+     r = pci_resize_resource(pci_dev, NV_GPU_BAR1, requested_size);
++#endif
+ 
+     if (r) {
+         if (r == -ENOSPC)
+--- a/kernel-open/nvidia/nvidia.Kbuild	2026-07-28 13:18:21.556378527 -0000
++++ b/kernel-open/nvidia/nvidia.Kbuild	2026-07-28 13:17:41.159211837 -0000
+@@ -259,6 +259,7 @@
+ NV_CONFTEST_TYPE_COMPILE_TESTS += class_create_has_no_owner_arg
+ NV_CONFTEST_TYPE_COMPILE_TESTS += class_devnode_has_const_arg
+ NV_CONFTEST_TYPE_COMPILE_TESTS += has_enum_pidtype_tgid
++NV_CONFTEST_TYPE_COMPILE_TESTS += pci_resize_resource_has_exclude_bars_arg
+ 
+ NV_CONFTEST_GENERIC_COMPILE_TESTS += dom0_kernel_present
+ NV_CONFTEST_GENERIC_COMPILE_TESTS += nvidia_vgpu_kvm_build
+--- a/kernel-module-source/kernel-open/conftest.sh	2026-07-28 08:58:15.053510731 -0000
++++ b/kernel-module-source/kernel-open/conftest.sh	2026-07-28 09:00:34.490711754 -0000
+@@ -6528,6 +6528,27 @@
+             compile_check_conftest "$CODE" "NV_WAIT_FOR_RANDOM_BYTES_PRESENT" "" "functions"
+         ;;
+ 
++        pci_resize_resource_has_exclude_bars_arg)
++            #
++            # Determine if pci_resize_resource() has exclude_bars argument.
++            #
++            # exclude_bars argument was added to pci_resize_resource by commit
++            # 337b1b566db0 (11/14/2025) ("PCI: Fix restoring BARs on BAR resize rollback path")
++            # in linux-next.
++            #
++            CODE="
++            #include <linux/pci.h>
++
++            typeof(pci_resize_resource) conftest_pci_resize_resource_has_exclude_bars_arg;
++            int __must_check conftest_pci_resize_resource_has_exclude_bars_arg(struct pci_dev *dev,
++                                                                               int i, int size,
++                                                                               int exclude_bars) {
++                return 0;
++            }"
++
++            compile_check_conftest "$CODE" "NV_PCI_RESIZE_RESOURCE_HAS_EXCLUDE_BARS_ARG" "" "types"
++        ;;
++
+         drm_connector_has_override_edid)
+             #
+             # Determine if 'struct drm_connector' has an 'override_edid' member.
+--- a/kernel-module-source/kernel-open/nvidia/nv-pci.c	2026-07-28 08:34:08.084158759 -0000
++++ b/kernel-module-source/kernel-open/nvidia/nv-pci.c	2026-07-28 08:34:46.162723864 -0000
+@@ -234,7 +234,11 @@
+ 
+ resize:
+     /* Attempt to resize BAR1 to the largest supported size */
++#if defined(NV_PCI_RESIZE_RESOURCE_HAS_EXCLUDE_BARS_ARG)
++    r = pci_resize_resource(pci_dev, NV_GPU_BAR1, requested_size, 0);
++#else
+     r = pci_resize_resource(pci_dev, NV_GPU_BAR1, requested_size);
++#endif
+ 
+     if (r) {
+         if (r == -ENOSPC)
+--- a/kernel-module-source/kernel-open/nvidia/nvidia.Kbuild	2026-07-28 13:18:21.556378527 -0000
++++ b/kernel-module-source/kernel-open/nvidia/nvidia.Kbuild	2026-07-28 13:17:41.159211837 -0000
+@@ -259,6 +259,7 @@
+ NV_CONFTEST_TYPE_COMPILE_TESTS += class_create_has_no_owner_arg
+ NV_CONFTEST_TYPE_COMPILE_TESTS += class_devnode_has_const_arg
+ NV_CONFTEST_TYPE_COMPILE_TESTS += has_enum_pidtype_tgid
++NV_CONFTEST_TYPE_COMPILE_TESTS += pci_resize_resource_has_exclude_bars_arg
+ 
+ NV_CONFTEST_GENERIC_COMPILE_TESTS += dom0_kernel_present
+ NV_CONFTEST_GENERIC_COMPILE_TESTS += nvidia_vgpu_kvm_build
+--- a/kernel/conftest.sh	2026-07-28 08:58:15.053510731 -0000
++++ b/kernel/conftest.sh	2026-07-28 09:00:34.490711754 -0000
+@@ -6528,6 +6528,27 @@
+             compile_check_conftest "$CODE" "NV_WAIT_FOR_RANDOM_BYTES_PRESENT" "" "functions"
+         ;;
+ 
++        pci_resize_resource_has_exclude_bars_arg)
++            #
++            # Determine if pci_resize_resource() has exclude_bars argument.
++            #
++            # exclude_bars argument was added to pci_resize_resource by commit
++            # 337b1b566db0 (11/14/2025) ("PCI: Fix restoring BARs on BAR resize rollback path")
++            # in linux-next.
++            #
++            CODE="
++            #include <linux/pci.h>
++
++            typeof(pci_resize_resource) conftest_pci_resize_resource_has_exclude_bars_arg;
++            int __must_check conftest_pci_resize_resource_has_exclude_bars_arg(struct pci_dev *dev,
++                                                                               int i, int size,
++                                                                               int exclude_bars) {
++                return 0;
++            }"
++
++            compile_check_conftest "$CODE" "NV_PCI_RESIZE_RESOURCE_HAS_EXCLUDE_BARS_ARG" "" "types"
++        ;;
++
+         drm_connector_has_override_edid)
+             #
+             # Determine if 'struct drm_connector' has an 'override_edid' member.
+--- a/kernel/nvidia/nvidia.Kbuild	2026-07-28 13:18:21.556378527 -0000
++++ b/kernel/nvidia/nvidia.Kbuild	2026-07-28 13:17:41.159211837 -0000
+@@ -259,6 +259,7 @@
+ NV_CONFTEST_TYPE_COMPILE_TESTS += class_create_has_no_owner_arg
+ NV_CONFTEST_TYPE_COMPILE_TESTS += class_devnode_has_const_arg
+ NV_CONFTEST_TYPE_COMPILE_TESTS += has_enum_pidtype_tgid
++NV_CONFTEST_TYPE_COMPILE_TESTS += pci_resize_resource_has_exclude_bars_arg
+ 
+ NV_CONFTEST_GENERIC_COMPILE_TESTS += dom0_kernel_present
+ NV_CONFTEST_GENERIC_COMPILE_TESTS += nvidia_vgpu_kvm_build
