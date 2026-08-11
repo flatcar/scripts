@@ -16,12 +16,6 @@ KEYWORDS='amd64 arm64'
 # No source directory.
 S="${WORKDIR}"
 
-# Versions listed below are version of packages that shedded the
-# modifications in their ebuilds.
-RDEPEND="
-        >=app-shells/bash-5.2_p15-r2
-"
-
 declare -A CORE_BASH_SYMLINKS
 CORE_BASH_SYMLINKS=(
     ['.bash_logout']='../../usr/share/flatcar/etc/skel/.bash_logout'
@@ -46,57 +40,7 @@ src_compile() {
     LC_ALL=C sort "${config_tmp}" >"${config}"
 }
 
-misc_files_install_dropin() {
-    local unit conf
-    unit=${1}; shift
-    conf=${1}; shift
-
-    [[ -n ${unit} ]] || die "No unit specified"
-    [[ -n ${conf} ]] || die "No conf file specified"
-    [[ ${conf} = *.conf ]] || die "Conf file must have .conf suffix"
-
-    local override_dir
-    override_dir="$(systemd_get_systemunitdir)/${unit}.d"
-    (
-        insopts -m 0644
-        insinto "${override_dir}"
-        doins "${conf}"
-    )
-}
-
 src_install() {
-    # Use absolute paths to be clear about what locations are used. The
-    # dosym below will make relative paths out of them.
-    #
-    # For files inside /usr/share/flatcar/etc the ebuild will create empty
-    # files to avoid having dangling symlinks. During the assembly of the
-    # image, the /usr/share/flatcar/etc directory will be removed, and
-    # /etc will be moved in its place.
-    #
-    # These links exist because old installations can still have
-    # references to them.
-    local -A compat_symlinks
-    compat_symlinks=(
-        ['/usr/share/bash/bash_logout']='/usr/share/flatcar/etc/bash/bash_logout'
-        ['/usr/share/bash/bashrc']='/usr/share/flatcar/etc/bash/bashrc'
-        ['/usr/share/skel/.bash_logout']='/usr/share/flatcar/etc/skel/.bash_logout'
-        ['/usr/share/skel/.bash_profile']='/usr/share/flatcar/etc/skel/.bash_profile'
-        ['/usr/share/skel/.bashrc']='/usr/share/flatcar/etc/skel/.bashrc'
-    )
-
-    local link target
-    for link in "${!compat_symlinks[@]}"; do
-        target=${compat_symlinks["${link}"]}
-        dosym -r "${target}" "${link}"
-        if [[ "${target}" = /usr/share/flatcar/etc/* ]]; then
-            insinto "${target%/*}"
-            newins "${T}/empty-file" "${target##*/}"
-        fi
-    done
-
-    insinto '/etc/bash/bashrc.d'
-    doins "${FILESDIR}/bash/99-flatcar-bcc.bash"
-
     insinto '/usr/share/flatcar'
     # The "oems" folder should contain a file "$OEMID" for each expected OEM sysext and
     # either be empty or contain a newline-separated list of files to delete during the
