@@ -1,0 +1,7 @@
+cros_post_src_install_tmpfiles_perms() {
+    # Upstream installs its tmpfiles config file with unnecessarilly
+    # restrictive mode, relax it. It could be also fixed by passing
+    # --enable-write_install option to configure script, but that
+    # would affect a lot of other files too.
+    fperms 0644 /usr/lib/tmpfiles.d/lvm2.conf
+}
