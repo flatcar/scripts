@@ -472,6 +472,7 @@ function list_files() {
     # rest of the parameters are files or directories to list
     local -n files="${files_variable_name}"
     local file
+    local tmp_file
     local tmp_files
     local pattern=''
 
@@ -491,11 +492,11 @@ function list_files() {
             files+=( "${tmp_files[@]}" )
             continue
         fi
-        for file in "${tmp_files[@]}"; do
-            if [[ "${file}" =~ ${pattern} ]]; then
+        for tmp_file in "${tmp_files[@]}"; do
+            if [[ "${tmp_file}" =~ ${pattern} ]]; then
                 continue
             fi
-            files+=( "${file}" )
+            files+=( "${tmp_file}" )
         done
     done
 }
