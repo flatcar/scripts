@@ -1,0 +1,5 @@
+cros_post_src_prepare_no_docs_and_tests() {
+    # Do not build tests nor docs. Building docs involves running the
+    # built diff3, which is an additional hurdle when cross-compiling.
+    sed -i -e 's/ tests\b//' -e 's/ doc\b//' -e 's/ man\b//' -e 's/ gnulib-tests\b//' Makefile.in
+}
