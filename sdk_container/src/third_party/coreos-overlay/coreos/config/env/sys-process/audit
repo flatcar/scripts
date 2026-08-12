@@ -1,7 +1,12 @@
 # Do not install Gentoo-provided audit rules, we will install our own
 # in coreos-base/misc-files. Also skip installing legacy initscripts
 # stuff in /usr/libexec.
-audit_install_mask=" /etc/audit/audit.rules* /usr/libexec "
-INSTALL_MASK+="${audit_install_mask}"
-PKG_INSTALL_MASK+="${audit_install_mask}"
-unset audit_install_mask
+INSTALL_MASK+=" /etc/audit/audit.rules* /usr/libexec "
+
+cros_post_src_install_audit_flatcar_modifications() {
+    # Upstream installs its tmpfiles config file with unnecessarilly
+    # restrictive mode, relax it.
+    #
+    # https://github.com/linux-audit/audit-userspace/pull/547
+    fperms 0644 /usr/lib/tmpfiles.d/audit.conf
+}
