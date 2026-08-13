@@ -10,10 +10,11 @@
     "layouts": {
         "base": {
             "1": {
+                "_comment": "128 MiB -> 192 MiB (blocks are 512-byte sectors). UKI boot keeps kernel+initramfs on the ESP, and the acl-t UKI rebuilt by Image Customizer needs more headroom than stock.",
                 "label": "EFI-SYSTEM",
                 "fs_label": "EFI-SYSTEM",
                 "type": "efi",
-                "blocks": "262144",
+                "blocks": "393216",
                 "fs_type": "vfat",
                 "mount": "/boot",
                 "features": []
