@@ -682,23 +682,14 @@ EOF
   # The labeling has to be done before moving /etc to /usr/share/flatcar/etc to prevent wrong labels for these files and as
   # the relabeling on boot would cause upcopies in the overlay.
   if pkg_use_enabled coreos-base/coreos selinux; then
+    # setfiles from version 3.11 requires the passed path to have no symlinks
+    local real_root_fs_dir
+    real_root_fs_dir=$(realpath "${root_fs_dir}")
     # TODO: Breaks the system:
-    # sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"
-    # sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/usr
+    # sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"
+    # sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/usr
     # For now we only try it with /etc
-    local w="${root_fs_dir}/etc"
-    while true; do
-        echo "STAT ${w}"
-        stat "${w}"
-        if [[ ${w} = '/' ]]; then
-            break
-        fi
-        w=${w%/*}
-        if [[ -z ${w} ]]; then
-            w='/';
-        fi
-    done
-    sudo setfiles -Dv -r "${root_fs_dir}" "${root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${root_fs_dir}"/etc
+    sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/etc
   fi
 
   # Temporary hack: set group ownership of /etc/{g,}shadow to the
