@@ -20,11 +20,8 @@ fi
 LICENSE="Apache-2.0"
 SLOT="0"
 
+BDEPEND=">=dev-lang/go-1.26.3"
 RDEPEND="sys-fs/overlaybd"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-go-1.25.patch
-)
 
 src_unpack() {
 	[[ ${PV} == 9999* ]] && git-r3_src_unpack
