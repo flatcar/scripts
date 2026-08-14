@@ -27,6 +27,10 @@ function _release_azure_marketplace_impl() {
   source sdk_container/.repo/manifests/version.txt
 
   local docker_vernum=""
+  local vernum="${FLATCAR_VERSION}"
+  local channel=""
+  channel="$(get_git_channel)"
+
   docker_vernum=$(vernum_to_docker_image_version "${vernum}")
   local container_name="az-marketplace-publish-${docker_vernum}"
 
