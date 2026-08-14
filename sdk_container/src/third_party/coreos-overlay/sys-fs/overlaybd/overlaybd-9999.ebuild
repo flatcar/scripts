@@ -14,7 +14,7 @@ if [[ ${PV} == 9999* ]]; then
 	RESTRICT="network-sandbox"
 else
 	EROFS_UTILS_COMMIT="eec6f7a2755dfccc8f655aa37cf6f26db9164e60"
-	PHOTON_COMMIT="v0.6.17"
+	PHOTON_COMMIT="0178d14499d8639759a81e32ad58da5226df5e9b"
 	TCMU_COMMIT="813fd65361bb2f348726b9c41478a44211847614"
 	OCF_COMMIT="c2dd2259e47c2e5e72dc77f99d0150a5d05496d7"
 	SRC_URI="https://github.com/containerd/overlaybd/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
@@ -60,6 +60,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/0001-Patch-Photon-after-fetching-to-fix-cross-issues.patch
+	"${FILESDIR}"/0002-photon-no-resize.patch
 )
 
 src_prepare() {

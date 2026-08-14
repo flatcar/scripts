@@ -1,0 +1,30 @@
+https://github.com/containerd/overlaybd/pull/444
+
+From bc3b72c451bf5b54b9ab926bf2f3a33e5b91cead Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Fri, 14 Aug 2026 17:14:20 +0100
+Subject: [PATCH] Disable resize support in Photon when building with an
+ external e2fs
+
+Otherwise the build will fail.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/CMake/Findphoton.cmake
++++ b/CMake/Findphoton.cmake
+@@ -1,8 +1,11 @@
+ include(FetchContent)
+ set(FETCHCONTENT_QUIET false)
+ set(PHOTON_ENABLE_EXTFS ON)
+-set(PHOTON_ENABLE_RESIZE ON)
+-add_definitions(-DPHOTON_ENABLE_RESIZE)
++
++if(NOT ORIGIN_EXT2FS)
++  set(PHOTON_ENABLE_RESIZE ON)
++  add_definitions(-DPHOTON_ENABLE_RESIZE)
++endif()
+ 
+ FetchContent_Declare(
+   photon
+-- 
+2.55.0
+
