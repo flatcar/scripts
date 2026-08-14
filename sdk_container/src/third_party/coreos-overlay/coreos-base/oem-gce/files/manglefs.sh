@@ -4,6 +4,8 @@ set -euo pipefail
 
 rootfs=${1}
 
+rm -rf "${rootfs}/usr/lib/debug"
+
 # Remove test stuff from python - it's quite large.
 for p in "${rootfs}"/usr/lib/python*; do
     if [[ ! -d ${p} ]]; then
