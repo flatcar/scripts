@@ -11,7 +11,6 @@ DESCRIPTION="Tool to setup encrypted devices with dm-crypt"
 HOMEPAGE="https://gitlab.com/cryptsetup/cryptsetup"
 SRC_URI="
 	https://www.kernel.org/pub/linux/utils/${PN}/v$(ver_cut 1-2)/${P/_/-}.tar.xz
-	https://distfiles.gentoo.org/pub/dev/sam@gentoo.org/${CATEGORY}/${PN}/${P}-patches.tar.xz
 	verify-sig? ( https://www.kernel.org/pub/linux/utils/${PN}/v$(ver_cut 1-2)/${P/_/-}.tar.sign )
 "
 S="${WORKDIR}"/${P/_/-}
@@ -19,11 +18,11 @@ S="${WORKDIR}"/${P/_/-}
 LICENSE="GPL-2+"
 SLOT="0/12" # libcryptsetup.so version
 if [[ ${PV} != *_rc* ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 ~loong ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
-# we don't support nss since it doesn't allow cryptsetup to be built statically
+# We don't support nss since it doesn't allow cryptsetup to be built statically
 # and it's missing ripemd160 support so it can't provide full backward compatibility
 IUSE="${CRYPTO_BACKENDS} +argon2 fips nls pwquality passwdqc ssh static static-libs test +udev urandom"
 RESTRICT="!test? ( test )"
@@ -74,10 +73,6 @@ BDEPEND="
 	verify-sig? ( sec-keys/openpgp-keys-milanbroz )
 "
 
-PATCHES=(
-	"${WORKDIR}"/${P}-patches/
-)
-
 pkg_setup() {
 	local CONFIG_CHECK="~DM_CRYPT ~CRYPTO ~CRYPTO_CBC ~CRYPTO_SHA256"
 	local WARNING_DM_CRYPT="CONFIG_DM_CRYPT:\tis not set (required for cryptsetup)\n"
@@ -87,6 +82,9 @@ pkg_setup() {
 
 	# The kernel crypto backend talks to the in-kernel crypto API via AF_ALG
 	if use kernel ; then
+		ewarn "AF_ALG support (controlled by USE=kernel) is deprecated and to-be-removed from the Linux kernel."
+		ewarn "Please test your usecases with USE=-kernel in preparation for removal."
+
 		CONFIG_CHECK+=" ~CRYPTO_USER_API ~CRYPTO_USER_API_HASH ~CRYPTO_USER_API_SKCIPHER"
 		local WARNING_CRYPTO_USER_API="CONFIG_CRYPTO_USER_API:\tis not set (required for the kernel crypto backend)\n"
 		local WARNING_CRYPTO_USER_API_HASH="CONFIG_CRYPTO_USER_API_HASH:\tis not set (required for the kernel crypto backend)\n"
@@ -102,15 +100,6 @@ src_unpack() {
 	else
 		default
 	fi
-
-	unpack ${P}-patches.tar.xz
-}
-
-src_prepare() {
-	default
-
-	# Drop with 2.8.6
-	sed -i -e 's/jq /_jq /' tests/generators/generate-luks2-tokens-invalid.img.sh || die
 }
 
 src_configure() {
