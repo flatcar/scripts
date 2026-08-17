@@ -17,19 +17,19 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 RDEPEND="
-	>=dev-python/packaging-20[${PYTHON_USEDEP}]
+	>=dev-python/packaging-26.2[${PYTHON_USEDEP}]
 "
 BDEPEND="
-	>=dev-python/packaging-20[${PYTHON_USEDEP}]
+	${RDEPEND}
 	test? (
 		>=dev-python/setuptools-scm-10.1.1[${PYTHON_USEDEP}]
 	)
 "
 
-EPYTEST_PLUGINS=()
+EPYTEST_PLUGINS=( pytest-timeout )
 EPYTEST_XDIST=1
 distutils_enable_tests pytest
 
