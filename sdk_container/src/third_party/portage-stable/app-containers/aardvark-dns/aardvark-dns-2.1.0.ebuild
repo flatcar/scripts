@@ -3,7 +3,7 @@
 
 EAPI=8
 
-RUST_MIN_VER="1.87.0"
+RUST_MIN_VER="1.88.0"
 [[ ${PV} == 9999* ]] || CRATES="${PN}@${PV}"
 inherit cargo
 
@@ -16,7 +16,7 @@ if [[ ${PV} == 9999* ]]; then
 else
 	SRC_URI="${CARGO_CRATE_URIS}"
 	SRC_URI+="https://github.com/containers/aardvark-dns/releases/download/v${PV}/${PN}-v${PV}-vendor.tar.gz"
-	KEYWORDS="amd64 arm64 ~loong ~ppc64 ~riscv"
+	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv"
 fi
 
 # main
@@ -28,6 +28,10 @@ SLOT="0"
 QA_FLAGS_IGNORED="usr/libexec/podman/${PN}"
 QA_PRESTRIPPED="usr/libexec/podman/${PN}"
 ECARGO_VENDOR="${WORKDIR}/vendor"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.1.0-musl-close_range.patch #bug #980641, fixed in >2.1.0
+)
 
 src_unpack() {
 	if [[ ${PV} == 9999* ]]; then
