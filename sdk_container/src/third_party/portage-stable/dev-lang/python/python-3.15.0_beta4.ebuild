@@ -3,19 +3,18 @@
 
 EAPI="8"
 
-LLVM_COMPAT=( 19 )
+LLVM_COMPAT=( 21 )
 LLVM_OPTIONAL=1
 VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs flag-o-matic linux-info llvm-r1
-inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
-inherit verify-sig
+inherit autotools check-reqs eapi9-ver flag-o-matic linux-info llvm-r2
+inherit multiprocessing pax-utils toolchain-funcs verify-sig
 
-MY_PV=${PV}
+MY_PV=${PV/_beta/b}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-${MY_PV}"
+PATCHSET="python-gentoo-patches-${MY_PV}_p1"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
@@ -33,9 +32,6 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
-if [[ ${PV} != *_rc* ]]; then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
-fi
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm jit libedit +ncurses pgo
 	+readline +sqlite +ssl tail-call-interp test tk valgrind
@@ -82,6 +78,7 @@ DEPEND="
 	test? (
 		dev-python/ensurepip-pip
 		dev-python/ensurepip-setuptools
+		dev-python/ensurepip-wheel
 	)
 	valgrind? ( dev-debug/valgrind )
 "
@@ -140,11 +137,26 @@ pkg_pretend() {
 		ewarn "you can reproduce the problem with dev-lang/python[-jit].  Instead,"
 		ewarn "please consider reporting JIT problems upstream."
 	fi
+
+	if [[ ${MERGE_TYPE} != buildonly ]] && ver_replacing -lt 3.15.0_beta4; then
+		ewarn
+		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
+		ewarn "with older versions may crash at runtime or worse after upgrading."
+		ewarn "A rebuild is recommended after the merge is complete, e.g. using:"
+		ewarn
+		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
+		ewarn
+		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
+		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
+		ewarn "If you do not wish to perform the rebuild at the time, it is"
+		ewarn "recommended to abort the upgrade."
+		ewarn
+	fi
 }
 
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
-		use jit && llvm-r1_pkg_setup
+		use jit && llvm-r2_pkg_setup
 		if use test || use pgo; then
 			check-reqs_pkg_setup
 
@@ -550,9 +562,14 @@ src_test() {
 
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
+	local build_dir=$(<pybuilddir.txt)
 
 	# -j1 hack for now for bug #843458
 	emake -j1 DESTDIR="${D}" TEST_MODULES=no altinstall
+
+	# Install build-details.json manually because it was randomly removed
+	# from altinstall in https://github.com/python/cpython/pull/142269.
+	cp "${build_dir}"/build-details.json "${libdir}"/ || die
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -609,28 +626,17 @@ src_install() {
 		-e "s:@PYDOC@:pydoc${PYVER}:" \
 		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
 		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
+}
 
-	# python-exec wrapping support
-	local pymajor=${PYVER%.*}
-	local EPYTHON=python${PYVER}
-	local scriptdir=${D}$(python_get_scriptdir)
-	mkdir -p "${scriptdir}" || die
-	# python and pythonX
-	ln -s "../../../bin/${abiver}" "${scriptdir}/python${pymajor}" || die
-	ln -s "python${pymajor}" "${scriptdir}/python" || die
-	# python-config and pythonX-config
-	# note: we need to create a wrapper rather than symlinking it due
-	# to some random dirname(argv[0]) magic performed by python-config
-	cat > "${scriptdir}/python${pymajor}-config" <<-EOF || die
-		#!/bin/sh
-		exec "${abiver}-config" "\${@}"
-	EOF
-	chmod +x "${scriptdir}/python${pymajor}-config" || die
-	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
-	# pydoc
-	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
-	# idle
-	if use tk; then
-		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
+pkg_postinst() {
+	if ver_replacing -lt 3.15.0_beta4; then
+		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
+		ewarn "with older versions may crash at runtime or worse.  To prevent this,"
+		ewarn "please rebuild all extensions using the versoned ABI, e.g. using:"
+		ewarn
+		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
+		ewarn
+		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
+		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
 	fi
 }
