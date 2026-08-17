@@ -2,8 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+
 inherit go-env go-module systemd toolchain-funcs
-GIT_REVISION=1c4457e00facac03ce1d75f7b6777a7a851e5c41
+
+GIT_REVISION=fff62f14765df376e5fc36f5a8f8e795b5670f61
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -11,31 +13,25 @@ SRC_URI="https://github.com/containerd/containerd/archive/v${PV}.tar.gz -> ${P}.
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
+KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv ~x86"
 IUSE="apparmor btrfs device-mapper +cri +seccomp selinux test"
+# tests require root or docker
+RESTRICT="test"
 
-COMMON_DEPEND="
+DEPEND="
 	btrfs? ( sys-fs/btrfs-progs )
 	seccomp? ( sys-libs/libseccomp )
 "
-
-DEPEND="
-${COMMON_DEPEND}
-"
-
 # recommended minimum version of runc is found in script/setup/runc-version
-RDEPEND="
-	${COMMON_DEPEND}
-	>=app-containers/runc-1.3.0[apparmor?,seccomp?]
+RDEPEND="${DEPEND}
+	>=app-containers/runc-1.4.3[apparmor?,seccomp?]
+	selinux? ( sec-policy/selinux-docker )
 "
-
 BDEPEND="
 	dev-go/go-md2man
+	>=dev-lang/go-1.26.3
 	virtual/pkgconfig
 "
-
-# tests require root or docker
-RESTRICT+="test"
 
 src_prepare() {
 	default
@@ -57,22 +53,16 @@ src_compile() {
 		$(usev selinux)
 	)
 
-	myemakeargs=(
+	local myemakeargs=(
 		BUILDTAGS="${options[*]}"
 		REVISION="${GIT_REVISION}"
 		VERSION=v${PV}
 	)
 
-	# The Go env is already set, but reset it for CBUILD in a subshell to allow
-	# building the man pages when cross-compiling.
-	(
-		CHOST="${CBUILD}" go-env_set_compile_environment
-		# race condition in man target https://bugs.gentoo.org/765100
-		tc-env_build emake "${myemakeargs[@]}" man -j1 #nowarn
-	)
-
 	emake "${myemakeargs[@]}" all
 
+	# race condition in man target https://bugs.gentoo.org/765100
+	tc-env_build go-env_run emake "${myemakeargs[@]}" man -j1 #nowarn
 }
 
 src_install() {
