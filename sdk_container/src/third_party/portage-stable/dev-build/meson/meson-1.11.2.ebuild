@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{12..15} )
+PYTHON_COMPAT=( python3_{11..14} pypy3_11 )
 DISTUTILS_USE_PEP517=setuptools
 
 inherit shell-completion edo distutils-r1 flag-o-matic toolchain-funcs vala
