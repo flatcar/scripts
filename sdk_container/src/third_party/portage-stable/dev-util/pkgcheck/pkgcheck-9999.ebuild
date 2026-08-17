@@ -29,8 +29,8 @@ if [[ ${PV} == *9999 ]]; then
 		~sys-apps/pkgcore-9999[${PYTHON_USEDEP}]"
 else
 	RDEPEND="
-		>=dev-python/snakeoil-0.11.1[${PYTHON_USEDEP}]
-		>=sys-apps/pkgcore-0.12.34[${PYTHON_USEDEP}]"
+		>=dev-python/snakeoil-0.11.2[${PYTHON_USEDEP}]
+		>=sys-apps/pkgcore-0.12.36[${PYTHON_USEDEP}]"
 fi
 RDEPEND+="
 	app-arch/zstd
