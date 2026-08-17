@@ -59,9 +59,8 @@ if [[ ${GAWK_IS_BETA} != yes ]] ; then
 fi
 
 PATCHES=(
-	"${FILESDIR}"/${P}-no-assertions-for-pma.patch
-	"${FILESDIR}"/${P}-Fix-gensub-bug-for-use-with-MinRX.-Add-test-case.patch
-	"${FILESDIR}"/${P}-Small-efficiency-fix-in-array.c.patch
+	"${FILESDIR}"/${PN}-5.4.1-no-gmp-mpfr.patch
+	"${FILESDIR}"/${PN}-5.4.1-update-minrx.patch
 )
 
 src_prepare() {
