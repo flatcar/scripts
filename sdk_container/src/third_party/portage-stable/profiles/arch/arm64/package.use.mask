@@ -1,6 +1,10 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Alfredo Tupone <tupone@gentoo.org> (2026-07-09)
+# dependencies not arm64 ready
+sci-ml/ggml rocm
+
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2026-07-06)
 # Dependencies still need keywording and are ISA-sensitive
 mail-filter/rspamd hyperscan
@@ -28,6 +32,7 @@ app-admin/vaultwarden cli
 # Ionen Wolkens <ionen@gentoo.org> (2026-02-11)
 # net-libs/librist is available here
 media-video/ffmpeg -rist
+media-video/ffmpeg-compat -rist
 
 # Sam James <sam@gentoo.org> (2025-12-23)
 # sys-process/numactl is available here
@@ -80,6 +85,7 @@ sci-libs/flexiblas -blis -openblas
 dev-qt/qtdeclarative:6 -qmlls
 dev-qt/qttools:6 -qmlls
 dev-python/pyside -tools
+dev-python/pyqtgraph -pyside6
 
 # Alfred Wingate <parona@protonmail.com> (2025-06-10)
 # Upstream supports arm64
@@ -100,6 +106,8 @@ sci-ml/datasets test
 # Alfredo Tupone <tupone@gentoo.org> (2025-05-03)
 # dependencies not arm64 ready
 sci-ml/caffe2 distributed gloo fbgemm nnpack onednn qnnpack rocm xnnpack
+sci-ml/pytorch distributed fbgemm nnpack onednn qnnpack rocm xnnpack
+sci-ml/gloo rocm
 
 # Sam James <sam@gentoo.org> (2025-04-30)
 # 32-bit only (bug #951981).
@@ -519,10 +527,6 @@ mate-base/mate-applets-meta sensors
 mate-extra/caja-extensions gajim
 sci-libs/gdal armadillo netcdf
 sys-fs/btrfs-progs reiserfs
-www-client/chromium widevine
-www-client/qutebrowser widevine
-www-client/vivaldi widevine
-www-client/vivaldi-snapshot widevine
 
 # Michał Górny <mgorny@gentoo.org> (2018-02-17)
 # Requires unkeyworded dependencies.

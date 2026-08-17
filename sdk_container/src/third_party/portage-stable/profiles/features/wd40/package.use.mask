@@ -1,6 +1,29 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Pacho Ramos <pacho@gentoo.org> (2026-08-10)
+# Needs gnome-control-center and other rust reverse deps
+app-emulation/winetricks gui
+dev-perl/Panotools-Script gui
+gnome-base/gvfs google onedrive test
+x11-misc/mugshot gnome
+x11-misc/xscreensaver gdm
+
+# Michał Górny <mgorny@gentoo.org> (2025-08-09)
+# Require dev-python/pydantic and dev-python/inline-snapshot,
+# respectively.
+dev-python/cappa test
+dev-python/yaxmldiff test
+
+# Michał Górny <mgorny@gentoo.org> (2025-08-09)
+# Require dev-python/sybil.
+dev-python/tldextract test
+
+# Eli Schwartz <eschwartz@gentoo.org> (2026-07-07)
+# Requires >= on gtk/libadwaita, which is masked for librsvg
+# reasons.
+>=dev-util/sysprof-50.0 gtk
+
 # Andreas Sturmlechner <asturm@gentoo.org> (2026-06-08)
 # Requires dev-build/corrosion, iow rust/cargo.
 kde-plasma/kdeplasma-addons led
@@ -124,12 +147,14 @@ sys-kernel/installkernel efistub
 # Need dev-python/jsonschema (or its revdeps).
 dev-python/botocore test
 dev-python/ipython nbconvert test
+dev-python/opentelemetry-sdk test
 dev-python/sphinx-autodoc-typehints test
 >=sci-libs/gdal-3.11.3 python
 
 # Michał Górny <mgorny@gentoo.org> (2024-02-01)
 # Need dev-python/trio.
 >=dev-python/urllib3-2.2.0 test
+>=dev-python/websockets-17.0 test
 
 # Takuya Wakazono <pastalian46@gmail.com> (2023-11-21)
 # Need app-crypt/rpm-sequoia.
