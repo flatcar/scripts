@@ -161,8 +161,29 @@ die_notrace() {
   for line in "$@"; do
     error "${DIE_PREFIX}${line}"
   done
+
+  # `exit` only leaves the current shell. When die is reached inside a $(...)
+  # command substitution or other subshell, the parent keeps running with bad
+  # data and usually hits another die, so the same failure gets reported several
+  # times. BASHPID (unlike $$, which stays the top-level PID even in subshells)
+  # lets us detect that case and signal the main script so the whole run stops
+  # immediately. Passing 0 to kill terminates the whole process group.
+  [[ ${BASHPID:-$$} != $$ ]] && kill -s TERM 0
   exit 1
 }
+
+# When die fires inside a subshell it uses `kill -s TERM 0` to bring the whole
+# process group down (see die_notrace). Without a handler the main shell is
+# terminated by that signal and reports exit code 143. Trap SIGTERM in the
+# top-level shell so it exits with the conventional failure code 1 instead.
+# Subshells reset traps to their default, so they are unaffected and still die
+# immediately from the group signal.
+#
+# Only arm this in the real top-level shell (BASHPID == $$), and never clobber
+# an existing TERM trap. The latter keeps re-sourcing common.sh idempotent and
+# defers to any caller that installed its own handler first. Note that `trap -p`
+# reports the parent's traps even from a command substitution.
+[[ ${BASHPID:-$$} == $$ && -z $(trap -p TERM) ]] && trap 'exit 1' TERM
 
 # Simple version comparison routine
 # Note: not a true semver comparison and build revisions are ignored
