@@ -711,6 +711,7 @@ _collect_failed_vm_diagnostics() {
     if ! az vm boot-diagnostics get-boot-log \
         --resource-group "$vm_rg_name" \
         --name "$vm_name" \
+        --output tsv \
         >"$boot_log_file" \
         2>"$boot_log_error"; then
         warn "Could not collect boot log for ${label}; see ${boot_log_error}"
