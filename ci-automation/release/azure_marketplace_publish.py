@@ -22,7 +22,7 @@ CONFIG = {
     "az_storage": {
         "account_name": "flatcar",
         "container_name": "publish",
-        "blob_name_format": "flatcar-linux-{version}-{plan}-{arch}.vhd"
+        "blob_name_format": "flatcar-linux-{version}-{plan}-{arch}.vhd",
     },
     "offer_metadata": {
         "flatcar-container-linux-corevm": "arm64",
@@ -31,32 +31,95 @@ CONFIG = {
         "flatcar-container-linux": "amd64",
     },
     "plan_metadata": {
-        "alpha": ["flatcar-container-linux-corevm", "flatcar-container-linux-corevm-amd64", "flatcar-container-linux-free", "flatcar-container-linux"],
-        "beta": ["flatcar-container-linux-corevm", "flatcar-container-linux-corevm-amd64", "flatcar-container-linux-free", "flatcar-container-linux"],
-        "stable": ["flatcar-container-linux-corevm", "flatcar-container-linux-corevm-amd64", "flatcar-container-linux-free", "flatcar-container-linux"],
-        "lts2024": ["flatcar-container-linux-free", "flatcar-container-linux", "flatcar-container-linux-corevm-amd64", "flatcar-container-linux-corevm"],
+        "alpha": [
+            "flatcar-container-linux-corevm",
+            "flatcar-container-linux-corevm-amd64",
+            "flatcar-container-linux-free",
+            "flatcar-container-linux",
+        ],
+        "beta": [
+            "flatcar-container-linux-corevm",
+            "flatcar-container-linux-corevm-amd64",
+            "flatcar-container-linux-free",
+            "flatcar-container-linux",
+        ],
+        "stable": [
+            "flatcar-container-linux-corevm",
+            "flatcar-container-linux-corevm-amd64",
+            "flatcar-container-linux-free",
+            "flatcar-container-linux",
+        ],
+        "lts2024": [
+            "flatcar-container-linux-free",
+            "flatcar-container-linux",
+            "flatcar-container-linux-corevm-amd64",
+            "flatcar-container-linux-corevm",
+        ],
     },
     "test_offer_metadata": {
         "test-release-automation-corevm": "amd64",
         "test-release-automation": "amd64",
     },
     "test_plan_metadata": {
-        "release-test-automation": ["test-release-automation-corevm", "test-release-automation"],
-    }
+        "release-test-automation": [
+            "test-release-automation-corevm",
+            "test-release-automation",
+        ],
+    },
 }
 
 
-def get_active_plans():
-    resp = requests.get('https://flatcar.cdn.cncf.io/channel-info.txt')
+def get_channel_info():
+    resp = requests.get("https://flatcar.cdn.cncf.io/channel-info.txt")
 
     if resp.status_code != 200:
-        logging.error("There is some issue with the channel-info.txt file. Please check https://flatcar.cdn.cncf.io/channel-info.txt")
+        logging.error(
+            "There is some issue with the channel-info.txt file. Please check https://flatcar.cdn.cncf.io/channel-info.txt"
+        )
         logging.error(f"Returned status code: {resp.status_code}")
+        return {}
 
-    plans = [i.split("=")[0].replace('_CURRENT','').lower() for i in resp.text.strip().split('\n')]
-    plans = [plan for plan in plans if plan != 'lts']
+    entries = {}
+    for line in resp.text.strip().split("\n"):
+        key, _, value = line.partition("=")
+        entries[key.strip()] = value.strip()
+
+    return entries
+
+
+def get_active_plans(channel_info):
+    plans = [key.replace("_CURRENT", "").lower() for key in channel_info]
+    plans = [plan for plan in plans if plan != "lts"]
+    # channel-info.txt uses "lts_<year>" (e.g. "lts_2024"), but the plan
+    # names registered on Azure Marketplace drop the underscore, e.g. "lts2024".
+    plans = [plan.replace("lts_", "lts") for plan in plans]
 
     return plans
+
+
+def resolve_lts_plan(channel_info, version):
+    """
+    This function primarily to search the LTS version for the corresponding plans
+    """
+    matches = []
+    for key, value in channel_info.items():
+        if (
+            key == "LTS_CURRENT"
+            or not key.startswith("LTS_")
+            or not key.endswith("_CURRENT")
+        ):
+            continue
+        year = key[len("LTS_") : -len("_CURRENT")]
+        if year.isdigit() and value == version:
+            matches.append(year)
+
+    if len(matches) != 1:
+        logging.error(
+            f"Could not LTS year for version {version} in channel-info.txt, matches: {matches}"
+        )
+        return None
+
+    return f"lts{matches[0]}"
 
 
 def generate_partner_center_token(tenant_id, client_id, secret_value):
@@ -271,8 +334,14 @@ def main():
         logging.error("Both version and plan is required")
         return
 
-    active_plans = get_active_plans()
+    channel_info = get_channel_info()
+    active_plans = get_active_plans(channel_info)
     plan = args.plan
+    if not args.test_mode and plan == "lts":
+        plan = resolve_lts_plan(channel_info, args.version)
+        if plan is None:
+            return
+
     if not args.test_mode and plan not in active_plans:
         logging.error(f"plan value should be either {', '.join(active_plans)}")
         return
@@ -297,16 +366,12 @@ def main():
     if args.test_mode:
         OFFER_METADATA = CONFIG.get("test_offer_metadata")
         if not OFFER_METADATA:
-            logging.error(
-                "test_mode: Missing `test_offer_metadata` section in config"
-            )
+            logging.error("test_mode: Missing `test_offer_metadata` section in config")
             return
 
         PLAN_METADATA = CONFIG.get("test_plan_metadata")
         if not PLAN_METADATA:
-            logging.error(
-                "test_mode: Missing `test_plan_metadata` section in config"
-            )
+            logging.error("test_mode: Missing `test_plan_metadata` section in config")
             return
     else:
         OFFER_METADATA = CONFIG.get("offer_metadata")
@@ -334,7 +399,9 @@ def main():
             kwargs = {}
             if test_plan:
                 kwargs = {"test_plan": test_plan}
-            az_sas_url = generate_az_sas_url("lts" if plan.startswith("lts") else plan, version, arch, **kwargs)
+            az_sas_url = generate_az_sas_url(
+                "lts" if plan.startswith("lts") else plan, version, arch, **kwargs
+            )
             if az_sas_url is None:
                 logging.error(
                     f"generate_az_sas_url returned None for {plan}, {version}, {arch}"
@@ -365,7 +432,9 @@ def main():
             image_type_arch,
             corevm=corevm,
         )
-        print("Done preparing offers, you now have to click the publish button for each offer in https://partner.microsoft.com/en-us/dashboard/marketplace-offers/overview")
+        print(
+            "Done preparing offers, you now have to click the publish button for each offer in https://partner.microsoft.com/en-us/dashboard/marketplace-offers/overview"
+        )
 
 
 if __name__ == "__main__":
