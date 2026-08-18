@@ -5,7 +5,7 @@ rootfs="${1}"
 
 pushd "${rootfs}"
 
-rm -rf ./usr/{lib/debug,lib64/pkgconfig,include}/
+rm -rf ./usr/{lib/debug,lib64/pkgconfig,include,lib64/cmake}/
 
 pushd ./usr/lib/systemd/system
 mkdir -p "multi-user.target.d"
