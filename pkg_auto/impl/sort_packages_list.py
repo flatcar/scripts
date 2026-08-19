@@ -106,7 +106,7 @@ class Reader:
                 pkg_lines += [line]
             else:
                 if pkg_lines:
-                    while not free_form_lines[-1]:
+                    while free_form_lines and not free_form_lines[-1]:
                         free_form_lines = free_form_lines[:-1]
                     batches += [Reader.CommentBatch(free_form_lines, pkg_lines)]
                     free_form_lines = []
