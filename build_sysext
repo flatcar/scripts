@@ -157,7 +157,8 @@ cleanup() {
   rm -rf "${BUILD_DIR}/img-pkginfo"
   # Remove RPM package log (created by rpm_install_package, root-owned)
   rm -f "${BUILD_DIR}/.rpm-packages-explicit"
-  rm -f "${BUILD_DIR}/.rpm-base-manifest.tmp" "${BUILD_DIR}/.rpm-all-manifest.tmp" "${BUILD_DIR}/.rpm-sysext-manifest.tmp"
+  rm -f "${BUILD_DIR}/.rpm-base-manifest.tmp" "${BUILD_DIR}/.rpm-all-manifest.tmp" "${BUILD_DIR}/.rpm-sysext-manifest.tmp" \
+        "${BUILD_DIR}/.rpm-base.tmp" "${BUILD_DIR}/.rpm-all.tmp"
 }
 
 # Set up trap to execute cleanup() on script exit
@@ -244,7 +245,7 @@ info "Building '${SYSEXTNAME}' squashfs with (meta-)packages '${@}' in '${BUILD_
 # fully copied-up by overlayfs on any write, so rpm -qa after install returns
 # base + new packages. Snapshot here to diff later.
 if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]] && [[ -f "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm/rpmdb.sqlite" ]]; then
-  rpm --root="${BUILD_DIR}/${FLAGS_install_root_basename}" -qa 2>/dev/null | sort > "${BUILD_DIR}/.rpm-base.tmp"
+  rpm_query_packages "${BUILD_DIR}/${FLAGS_install_root_basename}" > "${BUILD_DIR}/.rpm-base.tmp"
   rpm_query_manifest "${BUILD_DIR}/${FLAGS_install_root_basename}" | sort > "${BUILD_DIR}/.rpm-base-manifest.tmp"
 fi
 
@@ -329,7 +330,7 @@ if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
   touch "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
   # Diff against pre-install snapshot to list only sysext-added packages.
   if [[ -f "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm/rpmdb.sqlite" ]]; then
-    rpm --root="${BUILD_DIR}/${FLAGS_install_root_basename}" -qa 2>/dev/null | sort > "${BUILD_DIR}/.rpm-all.tmp"
+    rpm_query_packages "${BUILD_DIR}/${FLAGS_install_root_basename}" > "${BUILD_DIR}/.rpm-all.tmp"
     rpm_query_manifest "${BUILD_DIR}/${FLAGS_install_root_basename}" | sort > "${BUILD_DIR}/.rpm-all-manifest.tmp"
     # comm -13: output lines unique to the right file (i.e. newly installed packages only)
     comm -13 "${BUILD_DIR}/.rpm-base.tmp" "${BUILD_DIR}/.rpm-all.tmp" > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"

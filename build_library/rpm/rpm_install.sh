@@ -33,9 +33,11 @@ rpm_get_staging_dir() {
     echo "${rpm_staging}"
 }
 
-RPM_MANIFEST_QUERY_FORMAT='%{NAME}\t%{VERSION}-%{RELEASE}\t%{INSTALLTIME}\t%{BUILDTIME}\t%{VENDOR}\t%{EPOCH}\t%{SIZE}\t%{ARCH}\t%{EPOCHNUM}\t%{SOURCERPM}\n'
+RPM_MANIFEST_QUERY_FORMAT='%|ARCH?{%{NAME}\t%{VERSION}-%{RELEASE}\t%{INSTALLTIME}\t%{BUILDTIME}\t%{VENDOR}\t%{EPOCH}\t%{SIZE}\t%{ARCH}\t%{EPOCHNUM}\t%{SOURCERPM}\n}:{}|'
 
 # Emit a Syft-compatible RPM manifest for the installed packages in a rootfs.
+# The ARCH guard drops non-package entries for the same reason as in
+# rpm_query_packages. This is so both producers agree on what a package is.
 rpm_query_manifest() {
     local root_fs_dir="$1"
     local dbpath="${root_fs_dir}/var/lib/rpm"
@@ -519,8 +521,20 @@ rpm_query_packages() {
         return 0
     fi
 
-    # Use --dbpath only and simple -qa (default format is NVRA which is what we want)
-    sudo rpm --dbpath="${dbpath}" -qa 2>/dev/null | sort
+    # "rpm -qa" lists gpg-pubkey-<hash>-<hash> rpmdb entries, which are imported
+    # signing keys rather than packages. These carry no ARCH tag
+    # (lib/keystore.cc makePubkeyHeader never sets RPMTAG_ARCH) and %|TAG?...|
+    # tests presence, so the guard drops them. rpm applies the same test in
+    # reverse: an entry named gpg-pubkey that does have ARCH is rejected as
+    # "not a valid public key" (lib/keystore.cc keystore_rpmdb::load_keys).
+    #
+    # We additionally use the "%{NEVRA}" format for two reasons:
+    #     1. to provide a stable API for readers: "rpm -qa" alone does not guarantee every line to be a NEVRA,
+    #        e.g. gpg-pubkey-<hash>-<hash>.
+    #     2. to include the epoch: "rpm -qa" returns NVRAs, not NEVRAs, for packages, and the epoch is sometimes needed
+    #        to completely identify a package, e.g. during security scanning, where the epoch is used to map packages to
+    #        vulnerabilities.
+    sudo rpm --dbpath="${dbpath}" -qa --qf '%|ARCH?{%{NEVRA}\n}:{}|' 2>/dev/null | sort
 }
 
 # Get RPM package metadata
@@ -756,7 +770,7 @@ rpm_install_package_using_portage_name() {
             info "Backing up RPM package list to ${backup_file}"
             # Use sudo to remove any existing file (may be owned by root from previous run)
             sudo rm -f "${backup_file}" 2>/dev/null || true
-            # Query packages - use default format (no second argument to avoid format issues)
+            # Query packages
             rpm_query_packages "${root_fs_dir}" | sudo tee "${backup_file}" > /dev/null 2>/dev/null || true
             # Make it readable and writable by the current user for cleanup
             sudo chown "$(id -u):$(id -g)" "${backup_file}" 2>/dev/null || true
