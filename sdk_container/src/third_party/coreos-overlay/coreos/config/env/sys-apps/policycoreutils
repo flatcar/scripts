@@ -1,14 +1,9 @@
 # sys-apps/policycoreutils creates /var/lib/selinux directory in
 # src_install and then needs it to be available when running
-# pkg_postinst, because it does a policy module rebuild there. We
-# initially have put /var/lib/selinux into INSTALL_MASK and told
-# coreos-base/misc-files to install the directory at
-# /usr/lib/selinux/policy together with a symlink at /var/lib/selinux
-# pointing to the directory. But this is done too late - at
-# sys-apps/policycoreutils' pkg_postinst time, /var/lib/selinux does
-# not exist, because coreos-base/misc-files was not yet emerged. So we
-# need to fall back to this hack, where we set up /var/lib/selinux and
-# /usr/lib/selinux/policy the way we want.
+# pkg_postinst, because it does a policy module rebuild there. We want
+# the policies to be in /usr/lib/selinux/policy and /var/lib/selinux
+# to be a symlink to it, so we need to fall back to this hack, where
+# we set the paths up the way we want.
 cros_post_src_install_flatcar_modifications() {
     vendorize_pam_files
 
