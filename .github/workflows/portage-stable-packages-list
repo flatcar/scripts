@@ -117,7 +117,9 @@ app-cdr/cdrtools
 app-containers/aardvark-dns
 app-containers/catatonit
 app-containers/conmon
+app-containers/container-libs
 app-containers/containerd
+app-containers/containers-shortnames
 app-containers/cri-tools
 app-containers/crun
 app-containers/docker
@@ -239,6 +241,7 @@ dev-lang/swig
 dev-lang/tcl
 dev-lang/yasm
 
+dev-libs/blake3
 dev-libs/cJSON
 dev-libs/cowsql
 dev-libs/cyrus-sasl
