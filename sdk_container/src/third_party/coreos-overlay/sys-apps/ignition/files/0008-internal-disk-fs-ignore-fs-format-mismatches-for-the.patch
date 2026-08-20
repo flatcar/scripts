@@ -1,7 +1,7 @@
-From 09d762d8d295316a27d5efa4c32de587a5d8f1ea Mon Sep 17 00:00:00 2001
+From b3d28f4138837555b62bf00d9124189b9fba29fd Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 22 Sep 2021 14:53:49 +0200
-Subject: [PATCH 09/20] internal/disk/fs: ignore fs format mismatches for the
+Subject: [PATCH 08/19] internal/disk/fs: ignore fs format mismatches for the
  OEM partition
 
 As soon as the OEM partition's filesystem format changes, all users
@@ -22,7 +22,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/internal/exec/stages/disks/filesystems.go b/internal/exec/stages/disks/filesystems.go
-index a12c59d7..360267ff 100644
+index 28a931d6..2114e713 100644
 --- a/internal/exec/stages/disks/filesystems.go
 +++ b/internal/exec/stages/disks/filesystems.go
 @@ -126,7 +126,7 @@ func (s stage) createFilesystem(fs types.Filesystem) error {
@@ -35,5 +35,5 @@ index a12c59d7..360267ff 100644
  			(fs.UUID == nil || canonicalizeFilesystemUUID(info.Type, info.UUID) == canonicalizeFilesystemUUID(fileSystemFormat, *fs.UUID)) {
  			s.Info("filesystem at %q is already correctly formatted. Skipping mkfs...", fs.Device)
 -- 
-2.53.0
+2.54.0
 

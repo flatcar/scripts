@@ -1,7 +1,7 @@
-From ec53df4431c91342caeed84e35e590ccd191e593 Mon Sep 17 00:00:00 2001
+From 1fc41c5464381fd487492bf2cb13ab375ca2ed39 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Tue, 2 Jun 2026 15:12:37 +0100
-Subject: [PATCH 20/21] stages/disks: Fix giving partition number 0 to get the
+Subject: [PATCH 18/19] stages/disks: Fix giving partition number 0 to get the
  next available
 
 This was broken since partx was used in commit c2cc56cd. Passing 0 to
@@ -17,6 +17,12 @@ sgdisk does support --new=0, but it has no way to report which partition
 number it actually used.
 
 Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ internal/exec/stages/disks/partitions.go | 64 ++++++++++++++----------
+ 1 file changed, 37 insertions(+), 27 deletions(-)
+
+diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
+index f68d6dad..3b92a461 100644
 --- a/internal/exec/stages/disks/partitions.go
 +++ b/internal/exec/stages/disks/partitions.go
 @@ -112,15 +112,6 @@ func partitionMatchesCommon(existing util.PartitionInfo, spec sgdisk.Partition)
