@@ -1,9 +1,9 @@
-# Copyright (c) 2023 The Flatcar Maintainers.
+# Copyright (c) 2026 The Flatcar Maintainers.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=9
 
-DESCRIPTION='Flatcar miscellaneous files'
+DESCRIPTION='Listings of old OEM files'
 HOMEPAGE='https://www.flatcar.org/'
 
 LICENSE='Apache-2.0'
