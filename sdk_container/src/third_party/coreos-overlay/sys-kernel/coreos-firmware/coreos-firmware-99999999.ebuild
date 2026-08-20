@@ -1,9 +1,8 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-
-inherit dist-kernel-utils linux-info mount-boot savedconfig
+inherit dist-kernel-utils eapi9-ver linux-info mount-boot savedconfig
 
 # In case this is a real snapshot, fill in commit below.
 # For normal, tagged releases, leave blank
@@ -20,24 +19,22 @@ else
 	else
 		SRC_URI="https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/linux-firmware-${PV}.tar.xz -> linux-firmware-${PV}.tar.xz"
 	fi
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 DESCRIPTION="Linux firmware files"
 HOMEPAGE="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git"
 
 LICENSE="GPL-2 GPL-2+ GPL-3 BSD MIT || ( MPL-1.1 GPL-2 )
-	redistributable? ( linux-fw-redistributable BSD-2 BSD BSD-4 ISC MIT )
-	unknown-license? ( all-rights-reserved )"
+	redistributable? ( linux-fw-redistributable BSD-2 BSD BSD-4 ISC MIT )"
 SLOT="0"
-IUSE="bindist compress-xz compress-zstd deduplicate dist-kernel +initramfs +redistributable unknown-license"
+IUSE="bindist compress-xz compress-zstd deduplicate dist-kernel +initramfs +redistributable"
 REQUIRED_USE="initramfs? ( redistributable )
 	?? ( compress-xz compress-zstd )
 	savedconfig? ( !deduplicate )"
 
 RESTRICT="binchecks strip test
-	!bindist? ( bindist )
-	unknown-license? ( bindist )"
+	!bindist? ( bindist )"
 
 BDEPEND="initramfs? ( app-alternatives/cpio )
 	compress-xz? ( app-arch/xz-utils )
@@ -52,15 +49,9 @@ DEPEND=">=sys-kernel/coreos-modules-6.1:=
 #add anything else that collides to this
 RDEPEND="!savedconfig? (
 		redistributable? (
-			!sys-firmware/alsa-firmware[alsa_cards_ca0132]
+			!sys-firmware/alsa-firmware[alsa_cards_ca0132,-deduplicate(-)]
 			!sys-block/qla-fc-firmware
 			!sys-firmware/raspberrypi-wifi-ucode
-		)
-		unknown-license? (
-			!sys-firmware/alsa-firmware[alsa_cards_korg1212]
-			!sys-firmware/alsa-firmware[alsa_cards_maestro3]
-			!sys-firmware/alsa-firmware[alsa_cards_sb16]
-			!sys-firmware/alsa-firmware[alsa_cards_ymfpci]
 		)
 	)
 	dist-kernel? (
@@ -77,7 +68,6 @@ IDEPEND="
 "
 
 QA_PREBUILT="*"
-
 # Flatcar: source name is linux-firmware, not coreos-firmware
 S="${WORKDIR}/linux-firmware-${PV}"
 
@@ -198,6 +188,44 @@ src_prepare() {
 
 	default
 
+	# Stub out this script to avoid errors in the live ebuild
+	cat >check_whence.py<<-EOF
+	#!/bin/sh
+	exit 0
+	EOF
+
+	if use savedconfig; then
+		restore_config ${PN}.conf
+		ebegin "Removing all files not listed in config"
+
+		local file delete_file preserved_file preserved_files=()
+
+		while IFS= read -r file; do
+			# Ignore comments.
+			if [[ ${file} != "#"* ]]; then
+				preserved_files+=("${file}")
+			fi
+		done < ${PN}.conf || die
+
+		while IFS= read -d "" -r file; do
+			delete_file=true
+			for preserved_file in "${preserved_files[@]}"; do
+				if [[ "${file}" == "${preserved_file}" ]]; then
+					delete_file=false
+				fi
+			done
+
+			if ${delete_file}; then
+				rm "${file}" || die
+			fi
+		done < <(find * \( \! -type d -and \! -name ${PN}.conf \) -print0 || die)
+
+		eend || die
+
+		# remove empty directories, bug #396073
+		find -type d -empty -delete || die
+	fi
+
 	# whitelist of misc files
 	local misc_files=(
 		build_packages.py
@@ -277,59 +305,8 @@ src_prepare() {
 		mellanox/mlxsw_spectrum-13.2000.1122.mfa2
 	)
 
-	# blacklist of images with unknown license
-	# Flatcar: remove Alteon AceNIC drivers from unknown_license to install
-	# the firmware files: acenic/tg?.bin.
-	local unknown_license=(
-		korg/k1212.dsp
-		ess/maestro3_assp_kernel.fw
-		ess/maestro3_assp_minisrc.fw
-		yamaha/ds1_ctrl.fw
-		yamaha/ds1_dsp.fw
-		yamaha/ds1e_ctrl.fw
-		ttusb-budget/dspbootcode.bin
-		emi62/bitstream.fw
-		emi62/loader.fw
-		emi62/midi.fw
-		emi62/spdif.fw
-		ti_3410.fw
-		ti_5052.fw
-		mts_mt9234mu.fw
-		mts_mt9234zba.fw
-		whiteheat.fw
-		whiteheat_loader.fw
-		cpia2/stv0672_vp4.bin
-		vicam/firmware.fw
-		edgeport/boot.fw
-		edgeport/boot2.fw
-		edgeport/down.fw
-		edgeport/down2.fw
-		edgeport/down3.bin
-		sb16/mulaw_main.csp
-		sb16/alaw_main.csp
-		sb16/ima_adpcm_init.csp
-		sb16/ima_adpcm_playback.csp
-		sb16/ima_adpcm_capture.csp
-		sun/cassini.bin
-		adaptec/starfire_rx.bin
-		adaptec/starfire_tx.bin
-		yam/1200.bin
-		yam/9600.bin
-		ositech/Xilinx7OD.bin
-		qlogic/isp1000.bin
-		myricom/lanai.bin
-		yamaha/yss225_registers.bin
-		lgs8g75.fw
-	)
-
-	if use !unknown-license; then
-		einfo "Removing files with unknown license ..."
-		# Flatcar: do not die even if no such license file is there.
-		rm -vf "${unknown_license[@]}"
-	fi
-
 	if use !redistributable; then
-		# remove files _not_ in the free_software or unknown_license lists
+		# remove files _not_ in the free_software lists
 		# everything else is confirmed (or assumed) to be redistributable
 		# based on upstream acceptance policy
 		einfo "Removing non-redistributable files ..."
@@ -337,7 +314,7 @@ src_prepare() {
 		local IFS=$'\n'
 		set -o pipefail
 		find ! -type d -printf "%P\n" \
-			| grep -Fvx -e "${misc_files[*]}" -e "${free_software[*]}" -e "${unknown_license[*]}" \
+			| grep -Fvx -e "${misc_files[*]}" -e "${free_software[*]}" \
 			| xargs -d '\n' --no-run-if-empty rm -v
 
 		[[ ${?} -ne 0 ]] && die "Failed to remove non-redistributable files"
@@ -383,6 +360,13 @@ pkg_preinst() {
 pkg_postinst() {
 	elog "If you are only interested in particular firmware files, edit the saved"
 	elog "configfile and remove those that you do not want."
+
+	if ver_replacing -lt 20190514; then
+		elog
+		elog 'Starting with version 20190514, installation of many firmware'
+		elog 'files is controlled by USE flags. Please review your USE flag'
+		elog 'and package.license settings if you are missing some files.'
+	fi
 
 	if use initramfs; then
 		if use dist-kernel; then
