@@ -114,7 +114,7 @@ RDEPEND="${RDEPEND}
 	coreos-base/afterburn
 	coreos-base/coreos-cloudinit
 	coreos-base/coreos-init
-	coreos-base/misc-files
+	coreos-base/old-oem-files
 	coreos-base/update-ssh-keys
 	coreos-base/update_engine
 	coreos-base/ue-rs
@@ -218,9 +218,11 @@ RDEPEND+="
 
 # Group and user packages to eventually replace passwd in baselayout.
 RDEPEND="${RDEPEND}
+	acct-group/core
 	acct-group/floppy
 	acct-group/man
 	acct-group/uucp
 
+	acct-user/core
 	acct-user/man
 "
