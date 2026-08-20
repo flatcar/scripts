@@ -1,6 +1,6 @@
 # Do not install Gentoo-provided audit rules, we will install our own
-# in coreos-base/misc-files. Also skip installing legacy initscripts
-# stuff in /usr/libexec.
+# in the hook below. Also skip installing legacy initscripts stuff in
+# /usr/libexec.
 INSTALL_MASK+=" /etc/audit/audit.rules* /usr/libexec "
 
 cros_post_src_install_audit_flatcar_modifications() {
