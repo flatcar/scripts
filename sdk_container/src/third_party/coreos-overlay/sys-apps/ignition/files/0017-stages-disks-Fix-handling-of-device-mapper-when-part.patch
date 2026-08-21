@@ -1,13 +1,19 @@
-From 1a2908e042ce2fb35cf87890b0cceb25be399383 Mon Sep 17 00:00:00 2001
+From 15178ee5bc94c1e98e51ebf32d2db8d9c671249e Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Thu, 11 Jun 2026 23:03:00 +0100
-Subject: [PATCH 19/21] stages/disks: Fix handling of device mapper when
+Subject: [PATCH 17/19] stages/disks: Fix handling of device mapper when
  partitioning
 
 It was handled correctly when checking whether the whole disk was in use
 but not when checking individual partitions.
 
 Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ internal/exec/stages/disks/partitions.go | 63 +++++++++++++++++++-----
+ 1 file changed, 50 insertions(+), 13 deletions(-)
+
+diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
+index c20e4875..f68d6dad 100644
 --- a/internal/exec/stages/disks/partitions.go
 +++ b/internal/exec/stages/disks/partitions.go
 @@ -323,11 +323,15 @@ func (p PartitionList) Swap(i, j int) {

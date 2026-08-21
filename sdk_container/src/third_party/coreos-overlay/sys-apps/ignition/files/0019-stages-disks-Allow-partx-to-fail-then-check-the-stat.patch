@@ -1,7 +1,7 @@
-From 55f30de3bb7cd9fb8fbea9f2c11d7411744f36b8 Mon Sep 17 00:00:00 2001
+From a7a5457de9039ae7313298a4b1e6756f6b43d5b5 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Fri, 8 May 2026 17:58:38 +0100
-Subject: [PATCH 21/21] stages/disks: Allow partx to fail then check the state
+Subject: [PATCH 19/19] stages/disks: Allow partx to fail then check the state
  later
 
 `partx --add` will fail if the kernel is already aware of the new
@@ -17,24 +17,33 @@ just when partitions on the disk were active. It seems best to run it
 just in case.
 
 Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ internal/distro/distro.go                |   2 +
+ internal/exec/stages/disks/partitions.go | 137 +++++++++++++++++++----
+ 2 files changed, 115 insertions(+), 24 deletions(-)
+
+diff --git a/internal/distro/distro.go b/internal/distro/distro.go
+index a970ef17..a1b63e14 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
-@@ -36,6 +36,7 @@ var (
- 	// Helper programs
+@@ -37,6 +37,7 @@ var (
  	groupaddCmd  = "groupadd"
+ 	groupmodCmd  = "groupmod"
  	groupdelCmd  = "groupdel"
 +	dmsetupCmd   = "dmsetup"
  	mdadmCmd     = "mdadm"
  	mountCmd     = "mount"
  	partxCmd     = "partx"
-@@ -94,6 +95,7 @@ func OEMLookasideDir() string   { return fromEnv("OEM_LOOKASIDE_DIR", oemLookasi
- 
+@@ -96,6 +97,7 @@ func OEMLookasideDir() string   { return fromEnv("OEM_LOOKASIDE_DIR", oemLookasi
  func GroupaddCmd() string  { return groupaddCmd }
+ func GroupmodCmd() string  { return groupmodCmd }
  func GroupdelCmd() string  { return groupdelCmd }
 +func DmsetupCmd() string   { return dmsetupCmd }
  func MdadmCmd() string     { return mdadmCmd }
  func MountCmd() string     { return mountCmd }
  func PartxCmd() string     { return partxCmd }
+diff --git a/internal/exec/stages/disks/partitions.go b/internal/exec/stages/disks/partitions.go
+index 3b92a461..32573295 100644
 --- a/internal/exec/stages/disks/partitions.go
 +++ b/internal/exec/stages/disks/partitions.go
 @@ -22,10 +22,12 @@ import (

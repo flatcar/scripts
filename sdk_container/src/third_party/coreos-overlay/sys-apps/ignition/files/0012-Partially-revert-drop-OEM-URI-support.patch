@@ -1,21 +1,20 @@
-From 80163399609ab18b97cc8aaba63f1fca205b0cfb Mon Sep 17 00:00:00 2001
+From 3a322043816015861d66d416822ef273c0919012 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Wed, 1 Apr 2026 16:11:52 +0100
-Subject: [PATCH 13/20] Partially revert "*: drop OEM URI support"
+Subject: [PATCH 12/19] Partially revert "*: drop OEM URI support"
 
 This partially reverts commit 0c088d6de77aa1b1f47b9252a07f51cb1e249df3.
 
 Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
 ---
- config/v3_0/types/url.go    |  2 +-
- config/v3_1/types/url.go    |  2 +-
- config/v3_2/types/url.go    |  2 +-
- config/v3_3/types/url.go    |  2 +-
- config/v3_4/types/url.go    |  2 +-
- docs/supported-platforms.md |  2 ++
- internal/distro/distro.go   |  3 +++
- internal/resource/url.go    | 27 +++++++++++++++++++++++++++
- 8 files changed, 37 insertions(+), 5 deletions(-)
+ config/v3_0/types/url.go  |  2 +-
+ config/v3_1/types/url.go  |  2 +-
+ config/v3_2/types/url.go  |  2 +-
+ config/v3_3/types/url.go  |  2 +-
+ config/v3_4/types/url.go  |  2 +-
+ internal/distro/distro.go |  3 +++
+ internal/resource/url.go  | 29 ++++++++++++++++++++++++++++-
+ 7 files changed, 36 insertions(+), 6 deletions(-)
 
 diff --git a/config/v3_0/types/url.go b/config/v3_0/types/url.go
 index 2d8c44b1..f560bc22 100644
@@ -82,21 +81,8 @@ index b1f96337..752044ce 100644
  		return nil
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
-diff --git a/docs/supported-platforms.md b/docs/supported-platforms.md
-index afd49437..897eeabd 100644
---- a/docs/supported-platforms.md
-+++ b/docs/supported-platforms.md
-@@ -12,6 +12,8 @@ Ignition is currently supported for the following platforms:
- * [Amazon Web Services] (`aws`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
- * [Microsoft Azure] (`azure`)- Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
- * [Microsoft Azure Stack] (`azurestack`) - Ignition will read its configuration from the custom data provided to the instance. Cloud SSH keys are handled separately.
-+* Bare Metal - Use the `ignition.config.url` kernel parameter to provide a URL to the configuration. The URL can use the `http://`, `https://`, `tftp://`, `s3://`, or `gs://` schemes to specify a remote config or the `oem://` scheme to specify a local config, rooted in `/usr/share/oem`.
-+* PXE - Use the `ignition.config.url` and first boot kernel parameters to provide a URL to the configuration. The URL can use the `http://`, `https://`, `tftp://`, or `s3://` schemes to specify a remote config or the `oem://` scheme to specify a local config, rooted in `/usr/share/oem`.
- * [Brightbox] (`brightbox`) - Ignition will read its configuration from the instance userdata. Cloud SSH keys are handled separately.
- * [CloudStack] (`cloudstack`) - Ignition will read its configuration from the instance userdata via either metadata service or config drive. Cloud SSH keys are handled separately.
- * [DigitalOcean] (`digitalocean`) - Ignition will read its configuration from the droplet userdata. Cloud SSH keys and network configuration are handled separately.
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 9d9351e7..fb12b792 100644
+index 235882d5..98d0625d 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
 @@ -30,6 +30,8 @@ var (
@@ -108,35 +94,40 @@ index 9d9351e7..fb12b792 100644
  
  	// Helper programs
  	groupaddCmd  = "groupadd"
-@@ -88,6 +90,7 @@ func DiskByLabelDir() string { return diskByLabelDir }
+@@ -89,6 +91,7 @@ func DiskByLabelDir() string { return diskByLabelDir }
  func KernelCmdlinePath() string { return kernelCmdlinePath }
  func BootIDPath() string        { return bootIDPath }
  func SystemConfigDir() string   { return fromEnv("SYSTEM_CONFIG_DIR", systemConfigDir) }
 +func OEMLookasideDir() string   { return fromEnv("OEM_LOOKASIDE_DIR", oemLookasideDir) }
  
  func GroupaddCmd() string  { return groupaddCmd }
- func GroupdelCmd() string  { return groupdelCmd }
+ func GroupmodCmd() string  { return groupmodCmd }
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 5f08f059..ab1d80fa 100644
+index 8d00d823..10af133b 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
-@@ -27,6 +27,7 @@ import (
- 	"net/http"
+@@ -28,6 +28,7 @@ import (
+ 	"net/netip"
  	"net/url"
  	"os"
 +	"path/filepath"
  	"strings"
+ 	"sync"
  	"syscall"
- 	"time"
-@@ -34,6 +35,7 @@ import (
+@@ -35,10 +36,11 @@ import (
+ 
  	"cloud.google.com/go/compute/metadata"
  	"cloud.google.com/go/storage"
++	"github.com/coreos/vcontext/report"
  	configErrors "github.com/flatcar/ignition/v2/config/shared/errors"
 +	"github.com/flatcar/ignition/v2/internal/distro"
  	"github.com/flatcar/ignition/v2/internal/log"
  	"github.com/flatcar/ignition/v2/internal/util"
+-	"github.com/coreos/vcontext/report"
  	"golang.org/x/oauth2/google"
-@@ -165,6 +167,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
+ 	"google.golang.org/api/option"
+ 
+@@ -176,6 +178,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
  		err = f.fetchFromTFTP(u, dest, opts)
  	case "data":
  		err = f.fetchFromDataURL(u, dest, opts)
@@ -145,7 +136,7 @@ index 5f08f059..ab1d80fa 100644
  	case "s3", "arn":
  		buf := &s3buf{
  			WriteAtBuffer: manager.NewWriteAtBuffer([]byte{}),
-@@ -237,6 +241,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
+@@ -248,6 +252,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
  		return f.fetchFromTFTP(u, dest, opts)
  	case "data":
  		return f.fetchFromDataURL(u, dest, opts)
@@ -154,7 +145,7 @@ index 5f08f059..ab1d80fa 100644
  	case "s3", "arn":
  		return f.fetchFromS3(u, dest, opts)
  	case "gs":
-@@ -447,6 +453,27 @@ type s3target interface {
+@@ -465,6 +471,27 @@ type s3target interface {
  	io.ReadSeeker
  }
  
@@ -183,5 +174,5 @@ index 5f08f059..ab1d80fa 100644
  // dest, returning an error if one is encountered. It will attempt to acquire
  // IAM credentials from the EC2 metadata service, and if this fails will attempt
 -- 
-2.53.0
+2.54.0
 

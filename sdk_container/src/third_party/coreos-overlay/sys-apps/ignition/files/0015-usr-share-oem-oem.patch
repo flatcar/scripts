@@ -1,0 +1,44 @@
+From becd01b0e801430a97a9abb82ec984b1af32d110 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Wed, 25 Mar 2026 10:55:24 +0000
+Subject: [PATCH 15/19] /usr/share/oem -> /oem
+
+Flatcar previously kept looking at the initrd's /usr/share/oem even
+after the migration for compatibility, but the minimal initrd now moves
+it to /oem before Ignition starts.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ config/util/translate.go  | 2 +-
+ internal/distro/distro.go | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/config/util/translate.go b/config/util/translate.go
+index 347d148c..d4c057b2 100644
+--- a/config/util/translate.go
++++ b/config/util/translate.go
+@@ -154,7 +154,7 @@ func FSGeneration(name string, fsMap map[string]string) (string, error) {
+ 	if _, ok := fsMap[name]; !ok {
+ 		addedSuffixCounter += 1
+ 		if name == "oem" {
+-			fsMap[name] = "/usr/share/oem"
++			fsMap[name] = "/oem"
+ 		} else {
+ 			// generate a new path
+ 			fsMap[name] = "/tmp/" + name + "-ign" + strconv.FormatUint(addedSuffixCounter, 10)
+diff --git a/internal/distro/distro.go b/internal/distro/distro.go
+index 98d0625d..a970ef17 100644
+--- a/internal/distro/distro.go
++++ b/internal/distro/distro.go
+@@ -31,7 +31,7 @@ var (
+ 	// initramfs directory containing distro-provided base config
+ 	systemConfigDir = "/usr/lib/ignition"
+ 	// initramfs directory to check before retrieving file from OEM partition
+-	oemLookasideDir = "/usr/share/oem"
++	oemLookasideDir = "/oem"
+ 
+ 	// Helper programs
+ 	groupaddCmd  = "groupadd"
+-- 
+2.54.0
+

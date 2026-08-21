@@ -1,7 +1,7 @@
-From 2f2966af34f99767b48722702119e4ab36e0670f Mon Sep 17 00:00:00 2001
+From 6357e8465cd9dc5a008fb45a8505ba628924df81 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Tue, 12 Aug 2025 15:10:57 +0200
-Subject: [PATCH 05/20] vendor: go mod vendor
+Date: Thu, 20 Aug 2026 14:24:00 +0200
+Subject: [PATCH 05/19] vendor: go mod vendor
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
@@ -17029,18 +17029,18 @@ index 00000000..1b1efb0f
 +	return
 +}
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 2b1e4041..0161a31b 100644
+index 36c02885..a36e3fa1 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
 @@ -132,6 +132,9 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric
- # github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.53.0
- ## explicit; go 1.23.0
+ # github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.54.0
+ ## explicit; go 1.24.0
  github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping
 +# github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437
 +## explicit
 +github.com/ajeddeloh/go-json
- # github.com/aws/aws-sdk-go-v2 v1.39.2
- ## explicit; go 1.22
+ # github.com/aws/aws-sdk-go-v2 v1.41.1
+ ## explicit; go 1.23
  github.com/aws/aws-sdk-go-v2/aws
 @@ -255,6 +258,9 @@ github.com/coreos/go-json
  # github.com/coreos/go-semver v0.3.1
@@ -17077,19 +17077,19 @@ index 2b1e4041..0161a31b 100644
 +github.com/flatcar/ignition/config/validate/astjson
 +github.com/flatcar/ignition/config/validate/astnode
 +github.com/flatcar/ignition/config/validate/report
- # github.com/go-jose/go-jose/v4 v4.1.1
- ## explicit; go 1.23.0
+ # github.com/go-jose/go-jose/v4 v4.1.3
+ ## explicit; go 1.24.0
  github.com/go-jose/go-jose/v4
-@@ -500,6 +527,9 @@ go.opentelemetry.io/otel/trace
+@@ -496,6 +523,9 @@ go.opentelemetry.io/otel/trace
  go.opentelemetry.io/otel/trace/embedded
  go.opentelemetry.io/otel/trace/internal/telemetry
  go.opentelemetry.io/otel/trace/noop
 +# go4.org v0.0.0-20160314031811-03efcb870d84
 +## explicit
 +go4.org/errorutil
- # golang.org/x/crypto v0.43.0
+ # golang.org/x/crypto v0.47.0
  ## explicit; go 1.24.0
  golang.org/x/crypto/chacha20
 -- 
-2.53.0
+2.54.0
 

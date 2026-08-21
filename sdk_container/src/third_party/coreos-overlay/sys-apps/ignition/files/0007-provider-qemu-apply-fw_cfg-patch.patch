@@ -1,44 +1,46 @@
-From 2b6ce6afda965f8c37d26321b523acb8462f1258 Mon Sep 17 00:00:00 2001
+From 5c38c01e21c6616c4a1e78b35e2f0764cbbd1b94 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Tue, 20 Feb 2024 10:02:28 +0100
-Subject: [PATCH 07/20] provider/qemu: apply fw_cfg patch
+Date: Thu, 20 Aug 2026 15:11:57 +0200
+Subject: [PATCH 07/19] provider/qemu: apply fw_cfg patch
 
 we support both CoreOS and Flatcar fw_cfg path to ensure compatiblity
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- internal/providers/qemu/qemu_fwcfg.go | 133 ++++++++++++++------------
- 1 file changed, 70 insertions(+), 63 deletions(-)
+ internal/providers/qemu/qemu_fwcfg.go | 138 ++++++++++++++------------
+ 1 file changed, 72 insertions(+), 66 deletions(-)
 
 diff --git a/internal/providers/qemu/qemu_fwcfg.go b/internal/providers/qemu/qemu_fwcfg.go
-index 863c9601..e8d4fec7 100644
+index a0b25902..3fc04aa3 100644
 --- a/internal/providers/qemu/qemu_fwcfg.go
 +++ b/internal/providers/qemu/qemu_fwcfg.go
-@@ -29,6 +29,7 @@ import (
+@@ -28,6 +28,7 @@ import (
  	"strings"
  	"time"
  
-+	iErrors "github.com/flatcar/ignition/v2/config/shared/errors"
- 	"github.com/flatcar/ignition/v2/config/v3_6_experimental/types"
++ 	iErrors "github.com/flatcar/ignition/v2/config/shared/errors"
+ 	"github.com/flatcar/ignition/v2/config/v3_7_experimental/types"
  	"github.com/flatcar/ignition/v2/internal/distro"
  	"github.com/flatcar/ignition/v2/internal/platform"
-@@ -38,9 +39,11 @@ import (
+@@ -37,10 +38,12 @@ import (
  	"github.com/coreos/vcontext/report"
  )
  
 -const (
 -	firmwareConfigPath     = "/sys/firmware/qemu_fw_cfg/by_name/opt/com.coreos/config/raw"
 -	firmwareConfigSizePath = "/sys/firmware/qemu_fw_cfg/by_name/opt/com.coreos/config/size"
+-)
 +var (
 +	firmwareConfigPaths = map[string]string{
 +		"/sys/firmware/qemu_fw_cfg/by_name/opt/org.flatcar-linux/config/raw": "/sys/firmware/qemu_fw_cfg/by_name/opt/org.flatcar-linux/config/size",
 +		"/sys/firmware/qemu_fw_cfg/by_name/opt/com.coreos/config/raw":        "/sys/firmware/qemu_fw_cfg/by_name/opt/com.coreos/config/size",
 +	}
- )
++)
  
  func init() {
-@@ -56,72 +59,76 @@ func fetchConfig(f *resource.Fetcher) (cfg types.Config, rpt report.Report, err
- 		return
+ 	platform.Register(platform.Provider{
+@@ -57,72 +60,75 @@ func fetchConfig(f *resource.Fetcher) (cfg types.Config, rpt report.Report, err
+ 		}
  	}
  
 -	// get size of firmware blob, if it exists
@@ -58,24 +60,7 @@ index 863c9601..e8d4fec7 100644
 -		f.Logger.Err("couldn't parse QEMU firmware config size: %v", err)
 -		return
 -	}
-+	for cfgPath, sizePath := range firmwareConfigPaths {
-+		// get size of firmware blob, if it exists
-+		var sizeBytes []byte
-+		sizeBytes, err = os.ReadFile(sizePath)
-+		if os.IsNotExist(err) {
-+			f.Logger.Info("QEMU firmware config was not found. Ignoring...")
-+			continue
-+		} else if err != nil {
-+			f.Logger.Err("couldn't read QEMU firmware config size: %v", err)
-+			return
-+		}
-+		var size int
-+		size, err = strconv.Atoi(strings.TrimSpace(string(sizeBytes)))
-+		if err != nil {
-+			f.Logger.Err("couldn't parse QEMU firmware config size: %v", err)
-+			return
-+		}
- 
+-
 -	// Read firmware blob.  We need to make as few, large read() calls as
 -	// possible, since the qemu_fw_cfg kernel module takes O(offset)
 -	// time for each read syscall.  os.ReadFile() would eventually
@@ -99,6 +84,24 @@ index 863c9601..e8d4fec7 100644
 -		// where it would return io.EOF
 -		var n int
 -		n, err = fh.Read(data[len(data):cap(data)])
++ 	for cfgPath, sizePath := range firmwareConfigPaths {
++ 		// get size of firmware blob, if it exists
++ 		var sizeBytes []byte
++ 		sizeBytes, err = os.ReadFile(sizePath)
++ 		if os.IsNotExist(err) {
++ 			f.Logger.Info("QEMU firmware config was not found. Ignoring...")
++ 			continue
++ 		} else if err != nil {
++ 			f.Logger.Err("couldn't read QEMU firmware config size: %v", err)
++ 			return
++ 		}
++ 		var size int
++ 		size, err = strconv.Atoi(strings.TrimSpace(string(sizeBytes)))
++ 		if err != nil {
++ 			f.Logger.Err("couldn't parse QEMU firmware config size: %v", err)
++ 			return
++ 		}
++ 
 +		// Read firmware blob.  We need to make as few, large read() calls as
 +		// possible, since the qemu_fw_cfg kernel module takes O(offset)
 +		// time for each read syscall.  os.ReadFile() would eventually
@@ -118,7 +121,7 @@ index 863c9601..e8d4fec7 100644
 -			f.Logger.Warning("Reading QEMU fw_cfg takes quadratic time. Consider moving large files or config fragments to a remote URL.")
 -			reporting = true
 +		defer func() {
-+			fh.Close()
++			_ = fh.Close()
 +		}()
 +		lastReport := time.Now()
 +		reporting := false
@@ -162,7 +165,6 @@ index 863c9601..e8d4fec7 100644
 +		// of the file so the extra read would be maximally expensive.
 +		cfg, rpt, err = util.ParseConfig(f.Logger, data)
  		return
-+
  	}
 -	// If size is not at a page boundary, we know we're at EOF because
 -	// the guard byte was not filled.  If size is at a page boundary,
@@ -171,9 +173,10 @@ index 863c9601..e8d4fec7 100644
 -	// of the file so the extra read would be maximally expensive.
 -	cfg, rpt, err = util.ParseConfig(f.Logger, data)
 -	return
-+	return types.Config{}, report.Report{}, iErrors.ErrEmpty
-+
- }
+-}
++ 	return types.Config{}, report.Report{}, iErrors.ErrEmpty
++ 
++ }
 -- 
-2.53.0
+2.54.0
 
