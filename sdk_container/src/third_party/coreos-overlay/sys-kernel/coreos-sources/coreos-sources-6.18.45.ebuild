@@ -17,11 +17,11 @@ EXTRAVERSION="-flatcar"
 DESCRIPTION="Full sources for the CoreOS Linux kernel"
 HOMEPAGE="http://www.kernel.org"
 if [[ "${PV%%_rc*}" != "${PV}" ]]; then
-	SRC_URI="https://git.kernel.org/torvalds/p/v${KV%-coreos}/v${OKV} -> patch-${KV%-coreos}.patch ${KERNEL_BASE_URI}/linux-${OKV}.tar.xz"
-	PATCH_DIR="${FILESDIR}/${KV_MAJOR}.${KV_PATCH}"
+  SRC_URI="https://git.kernel.org/torvalds/p/v${KV%-coreos}/v${OKV} -> patch-${KV%-coreos}.patch ${KERNEL_BASE_URI}/linux-${OKV}.tar.xz"
+  PATCH_DIR="${FILESDIR}/${KV_MAJOR}.${KV_PATCH}"
 else
-	SRC_URI="${KERNEL_URI}"
-	PATCH_DIR="${FILESDIR}/${KV_MAJOR}.${KV_MINOR}"
+  SRC_URI="${KERNEL_URI}"
+  PATCH_DIR="${FILESDIR}/${KV_MAJOR}.${KV_MINOR}"
 fi
 
 # make modules_prepare depends on pahole
@@ -35,11 +35,11 @@ IUSE=""
 # patchlevel revision.  We mustn't apply our patches first, it fails when the
 # local patches overlap with the upstream patch.
 UNIPATCH_LIST="
-	${PATCH_DIR}/z0001-pahole-support-reproducible-builds.patch \
-	${PATCH_DIR}/z0002-Revert-x86-boot-Remove-the-bugger-off-message.patch \
-	${PATCH_DIR}/z0003-efi-Add-an-EFI_SECURE_BOOT-flag-to-indicate-secure-b.patch \
-	${PATCH_DIR}/z0004-efi-Lock-down-the-kernel-if-booted-in-secure-boot-mo.patch \
-	${PATCH_DIR}/z0005-mtd-phram-slram-Disable-when-the-kernel-is-locked-do.patch \
-	${PATCH_DIR}/z0006-arm64-add-kernel-config-option-to-lock-down-when-in-.patch \
-	${PATCH_DIR}/z0007-tools-hv-fix-cross-compilation-for-ARM64.patch \
+  ${PATCH_DIR}/z0001-pahole-support-reproducible-builds.patch \
+  ${PATCH_DIR}/z0002-Revert-x86-boot-Remove-the-bugger-off-message.patch \
+  ${PATCH_DIR}/z0003-efi-Add-an-EFI_SECURE_BOOT-flag-to-indicate-secure-b.patch \
+  ${PATCH_DIR}/z0004-efi-Lock-down-the-kernel-if-booted-in-secure-boot-mo.patch \
+  ${PATCH_DIR}/z0005-mtd-phram-slram-Disable-when-the-kernel-is-locked-do.patch \
+  ${PATCH_DIR}/z0006-arm64-add-kernel-config-option-to-lock-down-when-in-.patch \
+  ${PATCH_DIR}/z0007-tools-hv-fix-cross-compilation.patch \
 "
