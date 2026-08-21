@@ -1,0 +1,1 @@
+- Added support for containerd drop-in configuration in `/etc/containerd/conf.d/*.toml`, so settings can be adjusted without replacing the shipped config ([scripts#4150](https://github.com/flatcar/scripts/pull/4150))

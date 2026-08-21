@@ -1,5 +1,8 @@
 version = 2
 
+# drop-in configuration, takes precedence over the settings below
+imports = ["/etc/containerd/conf.d/*.toml"]
+
 # persistent data location
 root = "/var/lib/containerd"
 # runtime state information
