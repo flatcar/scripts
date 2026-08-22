@@ -1,4 +1,4 @@
-From 3d6bfde35c8ce5c21ca55104852a319246a92bb8 Mon Sep 17 00:00:00 2001
+From 5097368cb45b455355165706876509272e49d538 Mon Sep 17 00:00:00 2001
 From: Alex Crawford <alex.crawford@coreos.com>
 Date: Wed, 2 Mar 2016 10:46:33 -0800
 Subject: [PATCH 2/8] needs-update: don't require strictly newer usr
@@ -54,5 +54,5 @@ index 1a03fdbe37..8577c35fa0 100644
  
  static bool in_first_boot(void) {
 -- 
-2.51.0
+2.52.0
 

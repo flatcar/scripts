@@ -1,4 +1,4 @@
-From 6f691278df570cc87cb863a98fe320a1997c6dad Mon Sep 17 00:00:00 2001
+From 18ce110c4a4a5065ac9003ef67ccd58ada6d3c38 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
 Subject: [PATCH 3/8] core: use max for DefaultTasksMax
@@ -34,7 +34,7 @@ index f7b414da5c..9c07e235ab 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/manager.c b/src/core/manager.c
-index 4ccaba9054..3ab59c5bb3 100644
+index e9fa84079d..af8d3c7b41 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
 @@ -117,7 +117,7 @@
@@ -60,5 +60,5 @@ index 1c08aa4d22..2faea3605e 100644
  #DefaultLimitFSIZE=
  #DefaultLimitDATA=
 -- 
-2.51.0
+2.52.0
 
