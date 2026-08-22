@@ -1,0 +1,297 @@
+From 62130f765549392adb071bcfd612b74d7de8bb0b Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 5 May 2026 09:58:30 +0200
+Subject: [PATCH 1/3] src/shared/mount-util: backport
+ open_tree_attr_with_fallback
+
+This is adapted from upstream to remove the `open_tree_attr` syscall
+which does not exist yet (it's from kernel 6.15)
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/shared/mount-util.c | 21 +++++++++++++++++++++
+ src/shared/mount-util.h |  2 ++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/src/shared/mount-util.c b/src/shared/mount-util.c
+index b80ffc56bc..b238017cb5 100644
+--- a/src/shared/mount-util.c
++++ b/src/shared/mount-util.c
+@@ -1896,3 +1896,24 @@ int path_is_network_fs_harder_at(int dir_fd, const char *path) {
+ 
+         return false;
+ }
++
++int open_tree_attr_with_fallback(int dir_fd, const char *path, unsigned flags, struct mount_attr *attr) {
++        _cleanup_close_ int fd = -EBADF;
++
++        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
++        assert(attr);
++
++        if (isempty(path)) {
++                path = "";
++                flags |= AT_EMPTY_PATH;
++        }
++
++        fd = open_tree(dir_fd, path, flags);
++        if (fd < 0)
++                return log_debug_errno(errno, "Failed to open tree: %m");
++
++        if (mount_setattr(fd, "", AT_EMPTY_PATH | (flags & AT_RECURSIVE), attr, sizeof(struct mount_attr)) < 0)
++                return log_debug_errno(errno, "Failed to change mount attributes: %m");
++
++        return TAKE_FD(fd);
++}
+diff --git a/src/shared/mount-util.h b/src/shared/mount-util.h
+index 496a95ab05..0cab0ebad1 100644
+--- a/src/shared/mount-util.h
++++ b/src/shared/mount-util.h
+@@ -162,6 +162,8 @@ typedef enum RemountIdmapping {
+         _REMOUNT_IDMAPPING_INVALID = -EINVAL,
+ } RemountIdmapping;
+ 
++int open_tree_attr_with_fallback(int dir_fd, const char *path, unsigned flags, struct mount_attr *attr);
++
+ int make_userns(uid_t uid_shift, uid_t uid_range, uid_t host_owner, uid_t dest_owner, RemountIdmapping idmapping);
+ int remount_idmap_fd(char **p, int userns_fd, uint64_t extra_mount_attr_set);
+ int remount_idmap(char **p, uid_t uid_shift, uid_t uid_range, uid_t host_owner, uid_t dest_owner, RemountIdmapping idmapping);
+-- 
+2.52.0
+
+
+From fafa718dac3d193a6fca08a466bce7e6fb30d042 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Wed, 3 Jun 2026 17:36:29 +0200
+Subject: [PATCH 2/3] mount-util: Compact list of sub mounts after dropping
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When nested mounts appear under a sysext hierarchy like this:
+  mkdir -p /opt/trigger/
+  mount -t tmpfs tmpfs /opt/trigger
+  mkdir -p /opt/trigger/inner
+  mount -t tmpfs tmpfs /opt/trigger/inner
+Then systemd-sysext merge hit an assertion reported in
+flatcar/Flatcar#2111 because when it iterates
+over the list of sub mounts it doesn't expect entries with NULL in the
+path from the dropped entries.
+Instead of having to deal with entries with path NULL, better sort the
+holes from dropping to the end and then reduce the array length.
+
+Authored-by: Kai Lüke <kai@amutable.com>
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/shared/mount-util.c | 34 ++++++++++++++++++++++++++--------
+ 1 file changed, 26 insertions(+), 8 deletions(-)
+
+diff --git a/src/shared/mount-util.c b/src/shared/mount-util.c
+index b238017cb5..1d3902d0d4 100644
+--- a/src/shared/mount-util.c
++++ b/src/shared/mount-util.c
+@@ -1472,21 +1472,39 @@ void sub_mount_array_free(SubMount *s, size_t n) {
+ static int sub_mount_compare(const SubMount *a, const SubMount *b) {
+         assert(a);
+         assert(b);
+-        assert(a->path);
+-        assert(b->path);
++
++         /* sub_mount_drop() creates NULL paths which we order to the end so that after the sort we can
++          * truncate the array. */
++        if (!a->path)
++                return b->path ? 1 : 0;
++        if (!b->path)
++                return -1;
+ 
+         return path_compare(a->path, b->path);
+ }
+ 
+-static void sub_mount_drop(SubMount *s, size_t n) {
+-        assert(s || n == 0);
++static void sub_mount_drop(SubMount *s, size_t *n) {
++        assert(n);
++        assert(s || *n == 0);
++
++        /* Works on a sorted array. Drops mounts that are covered by the preceding entry's recursive
++         * open_tree() clone, clearing the slot in place. Then sorts again for the NULL paths to be shifted
++         * past the kept count. */
+ 
+-        for (size_t m = 0, i = 1; i < n; i++) {
++        size_t kept = *n > 0;
++        for (size_t m = 0, i = 1; i < *n; i++)
+                 if (path_startswith(s[i].path, s[m].path))
+                         sub_mount_clear(s + i);
+-                else
++                else {
+                         m = i;
+-        }
++                        kept ++;
++
++                }
++
++        if (kept < *n)
++                typesafe_qsort(s, *n, sub_mount_compare);
++
++        *n = kept;
+ }
+ 
+ int get_sub_mounts(const char *prefix, SubMount **ret_mounts, size_t *ret_n_mounts) {
+@@ -1562,7 +1580,7 @@ int get_sub_mounts(const char *prefix, SubMount **ret_mounts, size_t *ret_n_moun
+         }
+ 
+         typesafe_qsort(mounts, n, sub_mount_compare);
+-        sub_mount_drop(mounts, n);
++        sub_mount_drop(mounts, &n);
+ 
+         *ret_mounts = TAKE_PTR(mounts);
+         *ret_n_mounts = n;
+-- 
+2.52.0
+
+
+From f1924b7d8788ce20919dc1bbce7c850b9308885b Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Wed, 3 Jun 2026 17:41:18 +0200
+Subject: [PATCH 3/3] mount-util/sysext: Clone sub mounts as private to
+ preserve nested ones
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When nested mounts appear under a sysext hierarchy like this:
+  mkdir -p /opt/trigger/
+  mount -t tmpfs tmpfs /opt/trigger
+  mkdir -p /opt/trigger/inner
+  mount -t tmpfs tmpfs /opt/trigger/inner
+Then systemd-sysext merge will lose the inner mount because it uses a
+regular bind mount with propagation and then unmounts the source,
+unmounting all children with it which propagates (as found out in
+flatcar/Flatcar#2111).
+To solve this, clone the sub mount with MS_PRIVATE to decouple sub
+mounts from the original mount. Then attach the cloned mount instead of
+doing regular bind mounts. For old kernels we still attach the cloned
+mount but we fallback to cloning without MS_PRIVATE. This change also
+affects mount_private_apivfs which is used for private /proc, /sys, and
+cgroupfs but I think it makes sense there, too, instead of only doing
+mount_setattr for sysext alone because, e.g., a container and the host
+should not be leaking mount actions into each other for these mounts.
+
+Authored-by: Kai Lüke <kai@amutable.com>
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/shared/mount-util.c | 41 +++++++++++++++++++++++++++++++++++++----
+ src/shared/mount-util.h |  2 ++
+ src/sysext/sysext.c     | 23 +++++++++++++++--------
+ 3 files changed, 54 insertions(+), 12 deletions(-)
+
+diff --git a/src/shared/mount-util.c b/src/shared/mount-util.c
+index 1d3902d0d4..28d28dcaaf 100644
+--- a/src/shared/mount-util.c
++++ b/src/shared/mount-util.c
+@@ -1558,12 +1558,35 @@ int get_sub_mounts(const char *prefix, SubMount **ret_mounts, size_t *ret_n_moun
+                         continue;
+                 }
+ 
+-                mount_fd = open(path, O_CLOEXEC|O_PATH);
+-                if (mount_fd < 0) {
+-                        if (errno == ENOENT) /* The path may be hidden by another over-mount or already unmounted. */
++                /* If possible on a newer kernel, use MS_PRIVATE to decouple it from the original
++                 * mount. Otherwise MNT_DETACH of the source path could propagate through and
++                 * unmount the just-moved nested children at the destination (relevant for
++                 * preserving nested mounts under sysext hierarchies). */
++                static bool mount_attr_unsupported = false;
++
++                if (!mount_attr_unsupported) {
++                        mount_fd = open_tree_attr_with_fallback(
++                                        AT_FDCWD, path,
++                                        OPEN_TREE_CLONE|OPEN_TREE_CLOEXEC|AT_RECURSIVE,
++                                        &(struct mount_attr) { .propagation = MS_PRIVATE });
++                        if (mount_fd == -ENOENT) /* The path may be hidden by another over-mount or already unmounted. */
+                                 continue;
++                        if (mount_fd < 0 && ERRNO_IS_NEG_NOT_SUPPORTED(mount_fd)) {
++                                /* On a kernel older than 5.12 without mount_setattr() we do the
++                                 * regular clone. Nested mounts under sysext and similar cases
++                                 * may get lost. */
++                                log_debug_errno(mount_fd, "open_tree_attr() not supported, falling back to plain open_tree() without MS_PRIVATE: %m");
++                                mount_attr_unsupported = true;
++                        } else if (mount_fd < 0)
++                                return log_debug_errno(mount_fd, "Failed to open subtree of mounted filesystem '%s': %m", path);
++                }
+ 
+-                        return log_debug_errno(errno, "Failed to open subtree of mounted filesystem '%s': %m", path);
++                if (mount_attr_unsupported) {
++                        mount_fd = RET_NERRNO(open_tree(AT_FDCWD, path, OPEN_TREE_CLONE|OPEN_TREE_CLOEXEC|AT_RECURSIVE));
++                        if (mount_fd == -ENOENT)
++                                continue;
++                        if (mount_fd < 0)
++                                return log_debug_errno(mount_fd, "Failed to open subtree of mounted filesystem '%s': %m", path);
+                 }
+ 
+                 p = strdup(path);
+@@ -1935,3 +1958,13 @@ int open_tree_attr_with_fallback(int dir_fd, const char *path, unsigned flags, s
+ 
+         return TAKE_FD(fd);
+ }
++
++int make_mount_point_inode_from_mode(int dir_fd, const char *dest, mode_t source_mode, mode_t target_mode) {
++        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
++        assert(dest);
++
++        if (S_ISDIR(source_mode))
++                return mkdirat_label(dir_fd, dest, target_mode & 07777);
++        else
++                return RET_NERRNO(mknodat(dir_fd, dest, S_IFREG|(target_mode & 07666), 0)); /* Mask off X bit */
++}
+diff --git a/src/shared/mount-util.h b/src/shared/mount-util.h
+index 0cab0ebad1..bf6bd02af8 100644
+--- a/src/shared/mount-util.h
++++ b/src/shared/mount-util.h
+@@ -187,3 +187,5 @@ int path_is_network_fs_harder_at(int dir_fd, const char *path);
+ static inline int path_is_network_fs_harder(const char *path) {
+         return path_is_network_fs_harder_at(AT_FDCWD, path);
+ }
++
++int make_mount_point_inode_from_mode(int dir_fd, const char *dest, mode_t source_mode, mode_t target_mode);
+diff --git a/src/sysext/sysext.c b/src/sysext/sysext.c
+index f8439206f7..9f84735328 100644
+--- a/src/sysext/sysext.c
++++ b/src/sysext/sysext.c
+@@ -301,20 +301,27 @@ static int move_submounts(const char *src, const char *dst) {
+                 if (!t)
+                         return log_oom();
+ 
+-                if (fstat(m->mount_fd, &st) < 0)
+-                        return log_error_errno(errno, "Failed to stat %s: %m", m->path);
+-
+-                r = mkdir_parents(t, 0755);
++                _cleanup_free_ char *fn = NULL;
++                _cleanup_close_ int fd = -EBADF;
++                r = chase(t, /* root= */ NULL, CHASE_PARENT|CHASE_EXTRACT_FILENAME|CHASE_PROHIBIT_SYMLINKS|CHASE_MKDIR_0755, &fn, &fd);
+                 if (r < 0)
+-                        return log_error_errno(r, "Failed to create parent directories of %s: %m", t);
++                        return log_error_errno(r, "Failed to create and pin parent directory of %s: %m", t);
+ 
+-                r = make_mount_point_inode_from_stat(&st, t, 0755);
++                r = make_mount_point_inode_from_mode(fd, fn, st.st_mode, 0755);
+                 if (r < 0 && r != -EEXIST)
+                         return log_error_errno(r, "Failed to create mountpoint %s: %m", t);
+ 
+-                r = mount_follow_verbose(LOG_ERR, m->path, t, NULL, MS_BIND|MS_REC, NULL);
++                _cleanup_close_ int child_fd = openat(fd, fn, O_PATH|O_CLOEXEC);
++                if (child_fd < 0)
++                        return log_error_errno(errno, "Failed to pin mountpoint %s: %m", t);
++
++                /* Instead of a bind mount we attach the detached clone produced by
++                 * open_tree_attr_with_fallback() from get_sub_mounts() because that has no propagation
++                 * relationship with the original anymore and the MNT_DETACH below won't propagate for
++                 * nested mounts. */
++                r = RET_NERRNO(move_mount(m->mount_fd, "", child_fd, "", MOVE_MOUNT_F_EMPTY_PATH|MOVE_MOUNT_T_EMPTY_PATH));
+                 if (r < 0)
+-                        return r;
++                        return log_error_errno(r, "Failed to move mount %s to %s: %m", m->path, t);
+ 
+                 (void) umount_verbose(LOG_WARNING, m->path, MNT_DETACH);
+         }
+-- 
+2.52.0
+
