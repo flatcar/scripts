@@ -181,7 +181,7 @@ if [ -n "${SWTPM_DIR}" ]; then
     # The swtpm process exits if qemu disconnects but if we never started qemu because
     # this script fails or qemu failed to start, we need to kill the process.
     # The EXIT trap is already in use by the config drive cleanup and anyway doesn't work with kill -9.
-    (while [ -e "/proc/${PARENT}" ]; do sleep 1; done; kill "${SWTPM_PROC}" 2>/dev/null; exit 0) &
+    (while kill -0 "${PARENT}" 2>/dev/null; do sleep 1; done; kill "${SWTPM_PROC}" 2>/dev/null; exit 0) &
     set -- -chardev "socket,id=chrtpm,path=${SWTPM_SOCK}" -tpmdev emulator,id=tpm0,chardev=chrtpm -device "${TPM_DEV}",tpmdev=tpm0 "$@"
 fi
 
