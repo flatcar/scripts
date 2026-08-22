@@ -87,6 +87,11 @@ src_install() {
 	doins Makefile
 	exeinto /usr/share/baselayout
 	doexe dumb-tmpfiles-proc.sh
+
+	# Create a symlink for Kubernetes to redirect writes from /usr/libexec/... to /var/kubernetes/...
+	# (The below keepdir will result in a tmpfiles entry in base_image_var.conf)
+	keepdir /var/kubernetes/kubelet-plugins/volume/exec
+	dosym /var/kubernetes/kubelet-plugins/volume/exec /usr/libexec/kubernetes/kubelet-plugins/volume/exec
 }
 
 pkg_preinst() {

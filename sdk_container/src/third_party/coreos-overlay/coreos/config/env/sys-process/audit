@@ -1,9 +1,43 @@
 # Do not install Gentoo-provided audit rules, we will install our own
-# in coreos-base/misc-files. Also skip installing legacy initscripts
-# stuff in /usr/libexec.
+# in the hook below. Also skip installing legacy initscripts stuff in
+# /usr/libexec.
 INSTALL_MASK+=" /etc/audit/audit.rules* /usr/libexec "
 
 cros_post_src_install_audit_flatcar_modifications() {
+    # install these for backward compatibility
+    dosym -r /usr/share/flatcar/etc/audit/rules.d/00-clear.rules /usr/share/audit/rules.d/00-clear.rules
+    dosym -r /usr/share/flatcar/etc/audit/rules.d/80-selinux.rules /usr/share/audit/rules.d/80-selinux.rules
+    dosym -r /usr/share/flatcar/etc/audit/rules.d/99-default.rules /usr/share/audit/rules.d/99-default.rules
+    insinto /usr/share/flatcar/etc/audit/rules.d/
+    newins - 00-clear.rules 80-selinux.rules 99-default.rules
+    dosym -r /usr/share/flatcar/etc/audit/auditd.conf /usr/share/auditd/auditd.conf
+    insinto /usr/share/flatcar/etc/audit/
+    newins - auditd.conf
+
+    insinto /etc/audit/rules.d
+    newins - 00-clear.rules <<'EOF'
+# First rule - delete all
+# This is to clear out old rules, so we don't append to them.
+-D
+EOF
+    newins - 80-selinux.rules <<'EOF'
+# Enable all SELinux related events
+# 1400 to 1499 are for kernel SELinux use (see /include/uapi/linux/audit.h)
+
+-a exclude,never -F msgtype>=1400 -F msgtype<=1499
+EOF
+    newins - 99-default.rules <<'EOF'
+# Always report changes to the audit subsystem itself.
+-a exclude,never -F msgtype=CONFIG_CHANGE
+
+# Ignore everything else.
+-a exclude,always -F msgtype>0
+EOF
+    # Upstream wants these to have restrictive perms.
+    fperms 0640 /etc/audit/rules.d/{00-clear.rules,80-selinux.rules,99-default.rules}
+    # Enable audit-rules.service by default.
+    systemd_enable_service multi-user.target audit-rules.service
+
     # Upstream installs its tmpfiles config file with unnecessarilly
     # restrictive mode, relax it.
     #
