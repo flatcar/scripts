@@ -12,6 +12,9 @@
 # Flatcar SDK tarballs
 *.tar.bz2
 
+# Record of the container images loaded from the buildcache
+*.id.local
+
 # SDK container env passing helpers
 sdk_container/.env
 sdk_container/.sdkenv
