@@ -23,7 +23,7 @@ S="${WORKDIR}/${PARCH}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 # Probably want to drop ssl defaulting to on in a future version.
 IUSE="abi_mips_n32 audit debug kerberos ldns libedit livecd pam security-key selinux +ssl static test"
 
@@ -77,7 +77,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-9.4_p1-Allow-MAP_NORESERVE-in-sandbox-seccomp-filter-maps.patch"
 	"${FILESDIR}/${PN}-9.7_p1-config-tweaks.patch"
 	# Backports from upstream release branch
-	"${FILESDIR}/${PV}"
+	#"${FILESDIR}/${PV}"
 	# Our own backports
 )
 
@@ -297,10 +297,14 @@ src_test() {
 		tests+=( interop-tests file-tests unit )
 	else
 		tests+=( tests )
+
+		# Some tests ignore HOME variable, bug 978966
+		local realhome=$(unset HOME; echo ~)
+		local -x SANDBOX_WRITE="${SANDBOX_WRITE}"
+		addwrite "${realhome}"
 	fi
 
 	local -x SUDO= SSH_SK_PROVIDER= TEST_SSH_UNSAFE_PERMISSIONS=1
-	mkdir -p "${HOME}"/.ssh || die
 	emake -j1 "${tests[@]}" </dev/null
 }
 
