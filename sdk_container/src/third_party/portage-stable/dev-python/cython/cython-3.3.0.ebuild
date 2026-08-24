@@ -5,9 +5,9 @@ EAPI=8
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_FULLY_TESTED=( python3_{11..14} )
-PYTHON_TESTED=( "${PYTHON_FULLY_TESTED[@]}" pypy3_11 )
-PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_15 python3_{13..15}t )
+PYTHON_FULLY_TESTED=( python3_{12..14} )
+PYTHON_TESTED=( "${PYTHON_FULLY_TESTED[@]}" )
+PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" python3_15 python3_{14..15}t )
 PYTHON_REQ_USE="threads(+)"
 
 inherit distutils-r1 flag-o-matic multiprocessing pypi toolchain-funcs
@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test test-full"
 RESTRICT="!test? ( test )"
 
@@ -108,18 +108,6 @@ python_test() {
 		# changes these tests s.t. they break with our build layout.
 		--exclude 'build.depfile*'
 	)
-
-	if [[ ${EPYTHON} == pypy3* ]] ; then
-		testargs+=(
-			# Recursion issue
-			--exclude 'run.if_else_expr'
-			--exclude 'run.test_patma*'
-			# Slight output difference (missing '<')
-			--exclude 'run.cpp_exception_ptr_just_handler'
-			# No freethreading here
-			--exclude 'run.freethreaded_list_indexing_stress_test'
-		)
-	fi
 
 	# Keep test-full for numpy as it's large and doesn't pass tests itself
 	# on niche arches.
