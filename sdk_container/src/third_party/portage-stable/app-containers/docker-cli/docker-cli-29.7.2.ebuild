@@ -7,7 +7,7 @@ inherit shell-completion go-env go-module toolchain-funcs
 MY_PV=${PV/_/-}
 
 # update this on every bump
-GIT_COMMIT=79eb04c7d8e1d73247cb7fe011eecc645063e0f0
+GIT_COMMIT=a7dcaa6fdb6ed04aacbfdc76357fdae01605609e
 
 DESCRIPTION="the command line binary for docker"
 HOMEPAGE="https://www.docker.com/"
@@ -16,7 +16,7 @@ S="${WORKDIR}/cli-${PV}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ~loong ppc64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 IUSE="selinux"
 
 RDEPEND="selinux? ( sec-policy/selinux-docker )"
