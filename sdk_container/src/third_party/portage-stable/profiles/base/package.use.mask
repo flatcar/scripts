@@ -10,10 +10,6 @@
 # Turnstile is currently in ::guru
 sys-auth/pambase turnstile
 
-# Michael Orlitzky <mjo@gentoo.org> (2026-07-17)
-# Broke upstream, not an easy fix, bug 978718.
->=net-analyzer/monitoring-plugins-3.0.1 snmp
-
 # Michał Górny <mgorny@gentoo.org> (2026-07-02)
 # Unsurpringly upstream doesn't support custom slotted Gentoo install.
 dev-libs/libevent mbedtls
@@ -89,13 +85,6 @@ net-vpn/eduvpn-client doc
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2026-01-30)
 # No suitable versions of dev-libs/protobuf available.
 ~dev-java/protobuf-java-4.33.5 system-protoc
-
-# Sam James <sam@gentoo.org> (2026-02-14)
-# binutils-2.46 changes SFrame format to v3. We don't want binaries
-# distributed with v2 and binutils doesn't support mixing v2+v3. From
-# v3 on, compatibility will be guaranteed. Please rebuild without SFrames
-# first with <binutils-2.46.
-sys-libs/glibc sframe
 
 # Eli Schwartz <eschwartz@gentoo.org> (2026-01-09)
 # tests fail to build during src_compile:
@@ -187,11 +176,6 @@ dev-games/ogre wayland
 # Does not compile as of 2024.1.1, requires buildsystem fixes.
 dev-games/simgear gdal
 games-simulation/flightgear gdal
-
-# Joonas Niilola <juippis@gentoo.org> (2025-05-14)
-# Experimental, no official upstream support.
-# 2026-06-15 update: after 152.0 upstream officially supports it.
-<www-client/firefox-152.0 jpegxl
 
 # Paul Zander <negril.nx+gentoo@gmail.com> (2025-05-01)
 # Requires llvm-15
@@ -806,11 +790,6 @@ app-metrics/collectd collectd_plugins_onewire
 # Thomas Deutschmann <whissi@gentoo.org> (2020-08-17)
 # Only supported on 64bit systems, see storage/columnstore/CMakeLists.txt
 dev-db/mariadb columnstore
-
-# Brian Dolbec <dolsen@gentoo.org> (2020-07-20)
-# Required dependencies are not yet in the Gentoo ebuild tree
-# Please file a bug if this feature is needed
-dev-python/autobahn xbr
 
 # Stephan Hartmann <stha09@googlemail.com> (2020-06-28)
 # Mostly intended for development and not for general use.
