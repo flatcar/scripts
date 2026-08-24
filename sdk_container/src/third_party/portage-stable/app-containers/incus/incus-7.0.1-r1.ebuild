@@ -7,26 +7,21 @@ inherit go-env go-module linux-info optfeature systemd toolchain-funcs verify-si
 
 DESCRIPTION="Modern, secure and powerful system container and virtual machine manager"
 HOMEPAGE="https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus"
-
-if [[ "${PV}" == 9999* ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://github.com/lxc/incus.git"
-else
-	SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
-		verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
-	KEYWORDS="~amd64 ~arm64"
-fi
+SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
+	https://dev.gentoo.org/~juippis/distfiles/incus-7.3-cve-commits-bgo980304.tar.xz
+	verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
 
 LICENSE="Apache-2.0 BSD LGPL-3 MIT"
-SLOT="0/stable"
+SLOT="0/lts"
+KEYWORDS="amd64 ~arm64"
 IUSE="apparmor fuidshift nls qemu selinux"
 
 DEPEND="acct-group/incus
 	acct-group/incus-admin
 	app-arch/xz-utils
-	>=app-containers/lxc-5.0.0:=[apparmor?,seccomp(+)]
+	>=app-containers/lxc-6.0.0:=[apparmor?,seccomp(+)]
 	dev-db/sqlite:3
-	>=dev-libs/cowsql-1.15.7
+	>=dev-libs/cowsql-1.15.9
 	dev-libs/lzo
 	>=dev-libs/raft-0.22.1:=[lz4]
 	>=dev-util/xdelta-3.0[lzma(+)]
@@ -39,7 +34,7 @@ RDEPEND="${DEPEND}
 	net-firewall/nftables[json]
 	sys-apps/iproute2
 	sys-fs/fuse:*
-	>=sys-fs/lxcfs-5.0.0
+	>=sys-fs/lxcfs-6.0.0
 	sys-fs/squashfs-tools[lzma]
 	virtual/acl
 	apparmor? ( sec-policy/apparmor-profiles )
@@ -49,7 +44,7 @@ RDEPEND="${DEPEND}
 		sys-apps/gptfdisk
 	)
 	selinux? ( sec-policy/selinux-incus )"
-BDEPEND=">=dev-lang/go-1.25.12
+BDEPEND=">=dev-lang/go-1.25.11
 	nls? ( sys-devel/gettext )
 	verify-sig? ( sec-keys/openpgp-keys-linuxcontainers )"
 
@@ -87,7 +82,8 @@ QA_PREBUILT="/usr/bin/incus
 	/usr/bin/incus-migrate
 	/usr/bin/lxc-to-incus
 	/usr/sbin/fuidshift
-	/usr/sbin/incusd"
+	/usr/sbin/incusd
+	/usr/sbin/lxd-to-incus"
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/linuxcontainers.asc
 
@@ -98,20 +94,19 @@ RESTRICT="test"
 GOPATH="${S}/_dist"
 
 src_unpack() {
-	if [[ "${PV}" == 9999* ]]; then
-		git-r3_src_unpack
-		go-module_live_vendor
-		go-env_set_compile_environment
-	else
-		verify-sig_src_unpack
-		go-module_src_unpack
+	if use verify-sig ; then
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.xz{,.asc}
 	fi
+	go-module_src_unpack
 }
 
 src_prepare() {
 	export GOPATH="${S}/_dist"
 
 	default
+
+	# bgo#980304, patch multiple CVEs before 7.0.2.
+	eapply "${WORKDIR}"/incus-7.3-cve-commits-bgo980304/*.patch
 
 	sed -i \
 		-e "s:\./configure:./configure --prefix=/usr --libdir=${EPREFIX}/usr/lib/incus:g" \
@@ -149,7 +144,7 @@ src_compile() {
 	export GOPATH="${S}/_dist"
 	export CGO_LDFLAGS_ALLOW="-Wl,-z,now"
 
-	for k in incus-benchmark incus-simplestreams incus-user incus lxc-to-incus; do
+	for k in incus-benchmark incus-simplestreams incus-user incus lxc-to-incus lxd-to-incus ; do
 		ego install -v -x "${S}/cmd/${k}"
 	done
 
@@ -200,7 +195,7 @@ src_install() {
 	newsbin "${FILESDIR}"/incus-startup-0.4.sh incus-startup
 
 	# Admin tools
-	for l in incusd incus-user; do
+	for l in incusd incus-user lxd-to-incus ; do
 		dosbin "${bindir}/${l}"
 	done
 
@@ -268,9 +263,9 @@ pkg_postinst() {
 	elog
 	optfeature "OCI container images support" app-containers/skopeo app-containers/umoci
 	optfeature "support for ACME certificate issuance" app-crypt/lego
-	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "ipv6 support" net-dns/dnsmasq[ipv6]
 	optfeature "full incus-migrate support" net-misc/rsync
+	optfeature "btrfs storage backend" sys-fs/btrfs-progs
 	optfeature "lvm2 storage backend" sys-fs/lvm2
 	optfeature "zfs storage backend" sys-fs/zfs
 	elog
