@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=standalone
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..15} )
 inherit distutils-r1
 
 if [[ ${PV} == *9999 ]] ; then
@@ -25,7 +25,7 @@ SLOT="0"
 if [[ ${PV} == *9999 ]]; then
 	RDEPEND="~dev-python/snakeoil-9999[${PYTHON_USEDEP}]"
 else
-	RDEPEND=">=dev-python/snakeoil-0.11.0[${PYTHON_USEDEP}]"
+	RDEPEND=">=dev-python/snakeoil-0.11.4[${PYTHON_USEDEP}]"
 fi
 
 RDEPEND+="
@@ -39,6 +39,7 @@ BDEPEND="${RDEPEND}
 	)
 "
 
+EPYTEST_PLUGINS=( pkgcore )
 distutils_enable_tests pytest
 
 python_install_all() {
