@@ -4,13 +4,7 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/isc.asc
-## HERE WE ADD INHERITING OF AUTOTOOLS ECLASS.
-##
-## THIS IS A RARE FLATCAR MODIFICATION IN PORTAGE-STABLE EBUILD.
-## REINSTATE IT AFTER WEEKLY UPDATES AUTOMATION CLOBBERS IT AGAIN.  WE
-## NEED TO KEEP IT UNTIL WE UPDATE TO BIND 9.21 (USES MESON) OR GENTOO
-## UPDATES THE EBUILD TO DO THE SAME THING.
-inherit autotools eapi9-ver systemd tmpfiles toolchain-funcs verify-sig
+inherit eapi9-ver systemd tmpfiles toolchain-funcs verify-sig
 
 MY_PV="${PV/_p/-P}"
 MY_PV="${MY_PV/_rc/rc}"
@@ -68,14 +62,6 @@ BDEPEND="
 
 src_prepare() {
 	default
-	## HERE WE ADD A CALL TO EAUTORECONF.
-	##
-	## THIS IS A RARE FLATCAR MODIFICATION IN PORTAGE-STABLE
-	## EBUILD.  REINSTATE IT AFTER WEEKLY UPDATES AUTOMATION
-	## CLOBBERS IT AGAIN.  WE NEED TO KEEP IT UNTIL WE UPDATE TO
-	## BIND 9.21 (USES MESON) OR GENTOO UPDATES THE EBUILD TO DO
-	## THE SAME THING.
-	eautoreconf
 
 	# Don't clobber our toolchain defaults
 	sed -i -e '/FORTIFY_SOURCE=/d' configure || die
