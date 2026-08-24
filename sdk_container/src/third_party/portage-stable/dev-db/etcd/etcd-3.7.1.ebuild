@@ -3,12 +3,21 @@
 
 EAPI=8
 inherit go-module systemd tmpfiles
-GIT_COMMIT=e838ef116
+GIT_COMMIT=5e7fd0de9
 
 DESCRIPTION="Highly-available key value store for shared configuration and service discovery"
 HOMEPAGE="https://github.com/etcd-io/etcd"
 SRC_URI="https://github.com/etcd-io/etcd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI+=" https://dev.gentoo.org/~chewi/distfiles/${P}-deps.tar.xz"
+SRC_URI+=" https://dev.gentoo.org/~chewi/distfiles/${P}-vendor.tar.xz"
+
+# `go mod vendor` doesn't work but `go work vendor` does. Additional steps can
+# make the vendor tarball a bit smaller.
+#
+# P=etcd-3.X.Y
+# cd /var/tmp/portage/dev-db/${P}/work/${P}
+# sed -i "/\.\/tools\//d" go.work
+# go work vendor
+# tar --owner root --group root -Jcf /var/cache/distfiles/${P}-vendor.tar.xz -C .. ${P}/vendor ${P}/go.work
 
 LICENSE="Apache-2.0"
 LICENSE+=" BSD BSD-2 MIT"
@@ -22,10 +31,15 @@ COMMON_DEPEND="server? (
 	)"
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}"
+BDEPEND=">=dev-lang/go-1.26"
 
 # Unit tests attempt to download go modules.
 PROPERTIES="test_network"
 RESTRICT="test"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.7.1-vendor.patch
+)
 
 src_prepare() {
 	default
@@ -44,7 +58,8 @@ src_compile() {
 }
 
 src_test() {
-	PASSES="unit" scripts/test.sh -v || die
+	# -buildmode=pie is incompatible with -race used by the tests.
+	GOFLAGS=${GOFLAGS//-buildmode=pie} PASSES="unit" scripts/test.sh -v || die
 }
 
 src_install() {
