@@ -21,7 +21,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
@@ -112,6 +112,8 @@ python_test() {
 		setuptools/tests/config/test_apply_pyprojecttoml.py::TestPresetField::test_scripts_dont_require_dynamic_entry_points
 		# TODO
 		'setuptools/tests/test_egg_info.py::TestEggInfo::test_requires[setup_requires_with_markers]'
+		# broken by scikit-build-core somehow
+		'setuptools/tests/test_extern.py::test_distribution_picklable'
 	)
 
 	local EPYTEST_XDIST=1
