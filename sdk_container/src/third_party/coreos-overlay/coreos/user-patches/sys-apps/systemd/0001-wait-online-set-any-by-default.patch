@@ -1,4 +1,4 @@
-From c16ef94786281a7a75c498f33995191f7e1cc93d Mon Sep 17 00:00:00 2001
+From e1ae9447fa048c3668c1f1f6f0eb5dddd6543e64 Mon Sep 17 00:00:00 2001
 From: David Michael <dm0@redhat.com>
 Date: Tue, 16 Apr 2019 02:44:51 +0000
 Subject: [PATCH 1/8] wait-online: set --any by default
@@ -15,10 +15,10 @@ earlier) for the original implementation.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/network/wait-online/wait-online.c b/src/network/wait-online/wait-online.c
-index b1d0b9cde2..e07c11d807 100644
+index e566f89d02..323041be40 100644
 --- a/src/network/wait-online/wait-online.c
 +++ b/src/network/wait-online/wait-online.c
-@@ -24,7 +24,7 @@ static Hashmap *arg_interfaces = NULL;
+@@ -25,7 +25,7 @@ static Hashmap *arg_interfaces = NULL;
  static char **arg_ignore = NULL;
  static LinkOperationalStateRange arg_required_operstate = LINK_OPERSTATE_RANGE_INVALID;
  static AddressFamily arg_required_family = ADDRESS_FAMILY_NO;
@@ -28,5 +28,5 @@ index b1d0b9cde2..e07c11d807 100644
  
  STATIC_DESTRUCTOR_REGISTER(arg_interfaces, hashmap_freep);
 -- 
-2.53.0
+2.54.0
 
