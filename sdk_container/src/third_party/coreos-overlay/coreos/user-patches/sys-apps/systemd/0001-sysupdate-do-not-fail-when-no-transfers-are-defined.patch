@@ -1,0 +1,62 @@
+From c57f7efee706ce3bd0f12e87036c2edbde442403 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 25 Aug 2026 15:05:52 +0200
+Subject: [PATCH] sysupdate: do not fail when no transfers are defined
+
+sysupdate operations like 'list', 'reboot', etc.
+should not fail when no transfers are defined.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/sysupdate/sysupdate.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/src/sysupdate/sysupdate.c b/src/sysupdate/sysupdate.c
+index 925e855a4a..ca8f627d86 100644
+--- a/src/sysupdate/sysupdate.c
++++ b/src/sysupdate/sysupdate.c
+@@ -1373,7 +1373,7 @@ static int verb_features(int argc, char *argv[], uintptr_t _data, void *userdata
+                 return r;
+ 
+         r = context_make_offline(&context, loop_device ? loop_device->node : NULL,
+-                                 READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
++                                 /* read_definition_flags= */ 0);
+         if (r < 0)
+                 return r;
+ 
+@@ -1642,7 +1642,7 @@ static int verb_vacuum(int argc, char *argv[], uintptr_t _data, void *userdata)
+                 return r;
+ 
+         r = context_make_offline(&context, loop_device ? loop_device->node : NULL,
+-                                 READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
++                                /* read_definitions_flags= */ 0);
+         if (r < 0)
+                 return r;
+ 
+@@ -1665,7 +1665,7 @@ static int verb_pending_or_reboot(int argc, char *argv[], uintptr_t _data, void
+                                        "The --root=/--image= switches may not be combined with the '%s' operation.", argv[0]);
+ 
+         r = context_make_offline(&context, /* node= */ NULL,
+-                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS | READ_DEFINITIONS_REQUIRES_ANY_TRANSFERS);
++                                 READ_DEFINITIONS_REQUIRES_ENABLED_TRANSFERS);
+         if (r < 0)
+                 return r;
+ 
+@@ -1674,8 +1674,13 @@ static int verb_pending_or_reboot(int argc, char *argv[], uintptr_t _data, void
+         r = context_discover_update_sets_by_flag(context, UPDATE_INSTALLED);
+         if (r < 0)
+                 return r;
+-        if (!context->newest_installed)
++        if (!context->newest_installed) {
++                if (context.n_transfers == 0) {
++                        log_warning("Couldn't find any suitable installed versions.");
++                        return 0;
++                }
+                 return log_error_errno(SYNTHETIC_ERRNO(ENODATA), "Couldn't find any suitable installed versions.");
++        }
+ 
+         r = parse_os_release(arg_root, "IMAGE_VERSION", &booted_version);
+         if (r < 0) /* yes, arg_root is NULL here, but we have to pass something, and it's a lot more readable
+-- 
+2.54.0
+
