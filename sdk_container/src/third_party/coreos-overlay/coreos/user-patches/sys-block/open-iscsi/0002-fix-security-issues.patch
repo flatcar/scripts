@@ -1,0 +1,209 @@
+From 668ca1df9c9a1e9bdd5c999ae1d67c9c8909237e Mon Sep 17 00:00:00 2001
+From: Lee Duncan <lduncan@suse.com>
+Date: Tue, 14 Jul 2026 12:16:58 -0700
+Subject: [PATCH] Fix security issues recently discovered by Keith at Linneman
+ Labs (#535)
+
+* Fix iscsiuio control-socket credential verification.
+
+Prevent unprivilidged user from driving the isscsiuio control socket,
+by validating connection against correct file descriptor.
+
+Reference: CVE-2026-44944
+Found-by: <keith@linnemanlabs.com>
+
+* Improve iscsid discovery handling of IQN names.
+
+Currently, IQN names received via discovery are assumed to be valid up
+to the NULL character, i.e. the end of the supplied string. But this
+may not be correct.
+
+The ASCII characters allowed in an IQN are detailed in RFC 3722, section
+6.2: "Currently Prohibited ASCII Characters".
+
+Disallowing such characters should not break current usage, since the
+disallowed characters should not be in an IQN anyway. For example, they
+include characters like forward slashes, backward slashes, spaces,
+control characters, etc..
+
+Open-iscsi uses target names as directory names in the "database"
+directory (typically /var/lib/iscsi), so fixing this eliminates discovery
+target name containing sequences like "../../../*" from being allowed.
+
+Reference: CVE-2026-44943
+Found-by: <keith@linnemanlabs.com>
+---
+ iscsiuio/src/unix/iscsid_ipc.c |  4 ++--
+ usr/discovery.c                | 18 ++++++++++++++++++
+ usr/initiator.h                |  3 +++
+ usr/initiator_common.c         | 33 +++++++++++++++++++++++++++++++++
+ usr/iscsiadm.c                 |  4 ++++
+ usr/iscsistart.c               |  5 ++++-
+ 6 files changed, 64 insertions(+), 3 deletions(-)
+
+diff --git a/iscsiuio/src/unix/iscsid_ipc.c b/iscsiuio/src/unix/iscsid_ipc.c
+index bcd6437c..c4740fa0 100644
+--- a/iscsiuio/src/unix/iscsid_ipc.c
++++ b/iscsiuio/src/unix/iscsid_ipc.c
+@@ -1120,10 +1120,10 @@ static void *iscsid_loop(void *arg)
+ 			continue;
+ 		}
+ 
+-		if (!mgmt_peeruser(iscsid_opts.fd, user) || strncmp(user, "root", PEERUSER_MAX)) {
++		if (!mgmt_peeruser(s2, user) || strncmp(user, "root", PEERUSER_MAX)) {
+ 			close(s2);
+ 			ILOG_ERR(PFX "Access error: non-administrative connection rejected");
+-			break;
++			continue;
+ 		}
+ 
+ 		/* this closes the file descriptor s2 */
+diff --git a/usr/discovery.c b/usr/discovery.c
+index 9936630a..da9957f5 100644
+--- a/usr/discovery.c
++++ b/usr/discovery.c
+@@ -137,7 +137,9 @@ int discovery_isns_query(struct discovery_rec *drec, const char *iname,
+ 	uint32_t status;
+ 	int rc;
+ 
++
+ 	isns_config.ic_security = 0;
++
+ 	source = isns_source_create_iscsi(iname);
+ 	if (!source)
+ 		return ISCSI_ERR_NOMEM;
+@@ -215,6 +217,11 @@ int discovery_isns_query(struct discovery_rec *drec, const char *iname,
+ 			continue;
+ 		}
+ 
++		if (!iqn_name_valid(pg_tgt)) {
++			log_error("iSNS discovery Target Name invalid: ignoring it");
++			continue;
++		}
++
+ 		if (!isns_object_get_ipaddr(obj, ISNS_TAG_PG_PORTAL_IP_ADDR,
+ 					    &in_addr)) {
+ 			log_debug(1, "Missing addr");
+@@ -293,6 +300,11 @@ static int discovery_isns_reg_node(const char *iname, int op_reg)
+ 	log_debug(1, "trying to %s %s with iSNS server.",
+ 		  op_reg ? "register" : "deregister", iname);
+ 
++	if (!iqn_name_valid(iname)) {
++		log_error("iSNS initiatorname invalid: ignoring it");
++		return ISCSI_ERR_INVAL;
++	}
++
+ 	source = isns_source_create_iscsi(iname);
+ 	if (!source)
+ 		return ISCSI_ERR_NOMEM;
+@@ -612,6 +624,12 @@ add_target_record(char *name, char *end, discovery_rec_t *drec,
+ 		log_error("TargetName %s too long, ignoring", name);
+ 		return 0;
+ 	}
++
++	if (!iqn_name_valid(name)) {
++		log_error("Discovery TargetName invalid, ignoring");
++		return 0;
++	}
++
+ 	text = name + length;
+ 
+ 	/* skip NULs after the name */
+diff --git a/usr/initiator.h b/usr/initiator.h
+index 9d0264c9..daeebebe 100644
+--- a/usr/initiator.h
++++ b/usr/initiator.h
+@@ -21,6 +21,7 @@
+ #define INITIATOR_H
+ 
+ #include <stdint.h>
++#include <stdbool.h>
+ #include <net/if.h>
+ #include <sys/time.h>
+ 
+@@ -412,4 +413,6 @@ extern int iscsi_set_net_config(struct iscsi_transport *t,
+ extern void iscsi_session_init_params(struct iscsi_session *session);
+ 
+ extern int session_in_use(int sid);
++
++extern bool iqn_name_valid(const char *name);
+ #endif /* INITIATOR_H */
+diff --git a/usr/initiator_common.c b/usr/initiator_common.c
+index 80b76522..3d580236 100644
+--- a/usr/initiator_common.c
++++ b/usr/initiator_common.c
+@@ -24,6 +24,7 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <dirent.h>
++#include <stdbool.h>
+ #include <libmount/libmount.h>
+ 
+ #include "iface.h"
+@@ -749,3 +750,35 @@ int iscsi_host_set_net_params(struct iface_rec *iface,
+ 	}
+ 	return 0;
+ }
++
++/**
++ * @brief iqn_name_valid -- return whether or not the supplied
++ * IQN name valid
++ *
++ * @details Checks for invalid characters, using RFC 3722,
++ * section 6.2, "Currently Prohibited ASCII Characters"
++ *
++ * @param name the IQN name we are checking
++ * @return true iff the whole name (string) has valid
++ * charaters
++ */
++bool
++iqn_name_valid(const char *name)
++{
++	unsigned char *cp;
++
++	/* ensure no invalid characters */
++	for (cp = name; *cp != '\0'; cp++)
++		if ((*cp <= '\x2c') ||
++		    (*cp == '\x2f') ||
++		    ((*cp >= '\x3b') && (*cp <= '\x40')) ||
++		    ((*cp >= '\x5b') && (*cp <= '\x60')) ||
++		    (*cp >= '\x7b')) {
++			log_debug(8, "IQN name is invalid: \"%s\" (char: '%#02x')",
++				  name, *cp);
++			return false;
++		}
++
++	log_debug(8, "IQN name has all valid characters: \"%s\"", name);
++	return true;
++}
+diff --git a/usr/iscsiadm.c b/usr/iscsiadm.c
+index dafce209..4881eaeb 100644
+--- a/usr/iscsiadm.c
++++ b/usr/iscsiadm.c
+@@ -1165,6 +1165,10 @@ exec_disc_op_on_recs(discovery_rec_t *drec, struct list_head *rec_list,
+ 	if (op & OP_NEW || op & OP_UPDATE) {
+ 		/* now add/update records */
+ 		list_for_each_entry(new_rec, rec_list, list) {
++			if (!iqn_name_valid(new_rec->name)) {
++				log_error("FW discovery Target Name invalid: ignoring it");
++				continue;
++			}
+ 			rc = idbm_add_node(new_rec, drec, op & OP_UPDATE);
+ 			if (rc)
+ 				log_error("Could not add/update "
+diff --git a/usr/iscsistart.c b/usr/iscsistart.c
+index df92d247..6f133d6a 100644
+--- a/usr/iscsistart.c
++++ b/usr/iscsistart.c
+@@ -403,7 +403,10 @@ int main(int argc, char *argv[])
+ 		case 't':
+ 			check_str_param_len(optarg, TARGET_NAME_MAXLEN,
+ 					    "targetname");
+-			strlcpy(config_rec.name, optarg, TARGET_NAME_MAXLEN);
++			if (!iqn_name_valid(optarg))
++				log_error("iscsistart Target Name invalid: ignoring");
++			else
++				strlcpy(config_rec.name, optarg, TARGET_NAME_MAXLEN);
+ 			break;
+ 		case 'g':
+ 			config_rec.tpgt = atoi(optarg);
