@@ -19,6 +19,10 @@ sys-firmware/edk2-bin
 # Needed to fix build with acl 2.4.0
 =app-arch/tar-1.35-r1
 
+# Needed to address security issues.
+=app-arch/unzip-6.0_p31
+=app-arch/zip-3.0_p16
+
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
 
@@ -42,8 +46,8 @@ sys-firmware/edk2-bin
 =app-containers/docker-cli-29.5.2
 =app-containers/docker-29.5.2
 
-# To address a bunch of CVEs
-=app-containers/incus-7.2
+# To address security issues
+=app-containers/incus-7.3-r1
 
 # Keep versions on both arches in sync.
 =app-containers/lxc-7.0.0
@@ -98,14 +102,15 @@ dev-cpp/azure-security-keyvault-keys
 # Not stabilised for arm64 yet.
 dev-db/etcd amd64
 
-# Needed to address CVE-2026-27145, CVE-2026-39822, CVE-2026-42504, CVE-2026-42505, CVE-2026-42507.
-=dev-lang/go-1.26.5
+# Needed to address security issues.
+=dev-lang/go-1.26.7
 
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
 
-# To address CVE-2026-9146.
+# To address security issues.
+=dev-libs/glib-2.88.3
 =dev-libs/json-c-0.19-r2
 
 # Keep versions on both arches in sync.
@@ -143,11 +148,14 @@ dev-db/etcd amd64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# For CVE-2026-{59995,59996,59997,59998,59999,60000,60001,60002}
-=net-misc/openssh-10.4_p1-r1
+# To address security issues.
+=net-misc/openssh-10.5_p1
 
 # For podman 6.0.0
 =net-misc/passt-2026.05.26
+
+# To address security issues.
+=net-misc/rsync-3.5.0
 
 # To address CVE-2026-54369, CVE-2026-54370.
 =sys-apps/acl-2.4.0-r2
@@ -170,6 +178,9 @@ sys-apps/azure-vm-utils
 
 # Enable ipvsadm for arm64.
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
+
+# To address security issues.
+=sys-firmware/intel-microcode-20260812_p20260813
 
 # Keep versions on both arches in sync.
 =sys-devel/binutils-2.46.1
