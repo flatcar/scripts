@@ -183,3 +183,5 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-libs/libunwind-1.8.3
+
+=sys-apps/systemd-261.2
