@@ -516,6 +516,7 @@ eclass/wrapper.eclass
 eclass/xdg-utils.eclass
 eclass/xdg.eclass
 eclass/xorg-3.eclass
+eclass/xorg-meson.eclass
 
 licenses
 
