@@ -1,4 +1,4 @@
-From 5e8b4b38473018964ac462a0c0aa9ec994945828 Mon Sep 17 00:00:00 2001
+From 2c6a64e63e8197a373b9c7fa39197e7af29432f9 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:22:08 +0000
 Subject: [PATCH 3/8] core: use max for DefaultTasksMax
@@ -21,7 +21,7 @@ Signed-off-by: Adrian Vladu <avladu@cloudbasesolutions.com>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/man/systemd-system.conf.xml b/man/systemd-system.conf.xml
-index b7fe53dc9c..175fe67139 100644
+index e33267409b..d37bd8c456 100644
 --- a/man/systemd-system.conf.xml
 +++ b/man/systemd-system.conf.xml
 @@ -227,7 +227,7 @@
@@ -34,10 +34,10 @@ index b7fe53dc9c..175fe67139 100644
          Kernel has a default value for <varname>kernel.pid_max=</varname> and an algorithm of counting in case of more than 32 cores.
          For example, with the default <varname>kernel.pid_max=</varname>, <varname>DefaultTasksMax=</varname> defaults to 4915,
 diff --git a/src/core/manager.c b/src/core/manager.c
-index 79fa19d976..d83b5b38b0 100644
+index 74c9d3e7aa..7a46141a5f 100644
 --- a/src/core/manager.c
 +++ b/src/core/manager.c
-@@ -113,7 +113,7 @@
+@@ -117,7 +117,7 @@
  /* How many units and jobs to process of the bus queue before returning to the event loop. */
  #define MANAGER_BUS_MESSAGE_BUDGET 100U
  
@@ -47,10 +47,10 @@ index 79fa19d976..d83b5b38b0 100644
  static int manager_dispatch_notify_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
  static int manager_dispatch_signal_fd(sd_event_source *source, int fd, uint32_t revents, void *userdata);
 diff --git a/src/core/system.conf.in b/src/core/system.conf.in
-index 54196e8489..b0b5c78b56 100644
+index aa8208ca1d..fbfef9ec37 100644
 --- a/src/core/system.conf.in
 +++ b/src/core/system.conf.in
-@@ -58,7 +58,7 @@
+@@ -60,7 +60,7 @@
  #DefaultIPAccounting=no
  #DefaultMemoryAccounting={{ 'yes' if MEMORY_ACCOUNTING_DEFAULT else 'no' }}
  #DefaultTasksAccounting=yes
@@ -60,5 +60,5 @@ index 54196e8489..b0b5c78b56 100644
  #DefaultLimitFSIZE=
  #DefaultLimitDATA=
 -- 
-2.53.0
+2.54.0
 

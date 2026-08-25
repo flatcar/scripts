@@ -1,4 +1,4 @@
-From 450c8acb76f851bb594f725f834c04b041c2859e Mon Sep 17 00:00:00 2001
+From a955d445702a754e9bd1883b68fd994f9c35152a Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Fri, 24 Oct 2025 11:06:57 +0200
 Subject: [PATCH 8/8] units: Make multi-user.target the default target
@@ -9,7 +9,7 @@ Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/units/meson.build b/units/meson.build
-index b2cf9bd8f3..74d7f61519 100644
+index 27d8ef2f72..282d178c4a 100644
 --- a/units/meson.build
 +++ b/units/meson.build
 @@ -48,7 +48,7 @@ units = [
@@ -31,5 +31,5 @@ index b2cf9bd8f3..74d7f61519 100644
          {
            'file' : 'systemd-mute-console.socket',
 -- 
-2.53.0
+2.54.0
 
