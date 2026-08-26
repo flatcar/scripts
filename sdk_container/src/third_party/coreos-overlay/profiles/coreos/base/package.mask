@@ -23,3 +23,7 @@
 # We are using RedHat patches for grub, so until they rebase them on
 # top of 2.14, we are locked out of the update.
 >=sys-boot/grub-2.14
+
+# I don't want to deal with etcd update right now. Also, locksmith
+# needs to stop using v2 first.
+>=dev-db/etcd-3.6
