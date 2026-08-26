@@ -1,0 +1,1 @@
+- python ([CVE-2026-1502](https://www.cve.org/CVERecord/?id=CVE-2026-1502), [CVE-2026-6100](https://www.cve.org/CVERecord/?id=CVE-2026-6100))
