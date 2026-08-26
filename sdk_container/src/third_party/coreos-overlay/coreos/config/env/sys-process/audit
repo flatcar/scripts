@@ -9,7 +9,9 @@ cros_post_src_install_audit_flatcar_modifications() {
     dosym -r /usr/share/flatcar/etc/audit/rules.d/80-selinux.rules /usr/share/audit/rules.d/80-selinux.rules
     dosym -r /usr/share/flatcar/etc/audit/rules.d/99-default.rules /usr/share/audit/rules.d/99-default.rules
     insinto /usr/share/flatcar/etc/audit/rules.d/
-    newins - 00-clear.rules 80-selinux.rules 99-default.rules
+    newins - 00-clear.rules
+    newins - 80-selinux.rules
+    newins - 99-default.rules
     dosym -r /usr/share/flatcar/etc/audit/auditd.conf /usr/share/auditd/auditd.conf
     insinto /usr/share/flatcar/etc/audit/
     newins - auditd.conf
