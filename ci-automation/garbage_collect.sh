@@ -265,6 +265,11 @@ function _garbage_collect_impl() {
       --env AKAMAI_TOKEN \
       --env STACKIT_SERVICE_ACCOUNT \
       --env STACKIT_PROJECT_ID \
+      --env ORACLECLOUD_TENANCY \
+      --env ORACLECLOUD_USER \
+      --env ORACLECLOUD_FINGERPRINT \
+      --env ORACLECLOUD_PRIVATE_KEY \
+      --env ORACLECLOUD_COMPARTMENT_ID \
       -w /work -v "$PWD":/work "${mantle_ref}" /work/ci-automation/garbage_collect_cloud.sh
 
     echo
