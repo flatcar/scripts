@@ -1,0 +1,519 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "creationInfo": {
+    "created": "2025-01-01T00:00:00Z",
+    "creators": [
+      "Tool: generate_package_manifest"
+    ]
+  },
+  "dataLicense": "CC0-1.0",
+  "documentDescribes": [
+    "SPDXRef-DocumentRoot"
+  ],
+  "documentNamespace": "https://azurelinux.microsoft.com/spdxdocs/acl_production_image-03b29ff5-169e-5841-a76e-819f6cad8af7",
+  "name": "acl_production_image",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-DocumentRoot",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "acl_production_image",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "0.0.0-spec-conformance"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-0-azurelinux-release",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/azurelinux-release@3.0-49.azl3?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "azurelinux-release",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "3.0-49.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-1-bash",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/bash@5.2.15-3.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "bash",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "5.2.15-3.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-2-ca-certificates-shared",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/ca-certificates-shared@3.0.0-15.azl3?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "ca-certificates-shared",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "3.0.0-15.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-3-coreutils",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/coreutils@9.4-7.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "coreutils",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "9.4-7.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-4-device-mapper-event-libs",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/device-mapper-event-libs@2.03.23-1.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "device-mapper-event-libs",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "2.03.23-1.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-5-e2fsprogs-libs",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/e2fsprogs-libs@1.47.0-2.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "e2fsprogs-libs",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "1.47.0-2.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-6-elfutils-default-yama-scope",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/elfutils-default-yama-scope@0.189-6.azl3?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "elfutils-default-yama-scope",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "0.189-6.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-7-filesystem",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/filesystem@1.1-21.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "filesystem",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "1.1-21.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-8-glibc",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/glibc@2.38-20.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "glibc",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "2.38-20.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-9-iscsi-initiator-utils-iscsiuio",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/iscsi-initiator-utils-iscsiuio@2.1.9-1.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "iscsi-initiator-utils-iscsiuio",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "2.1.9-1.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-10-kernel",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/kernel@6.6.145.2-1.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "kernel",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "6.6.145.2-1.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-11-libstdc--",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/libstdc%2B%2B@13.2.0-7.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "libstdc++",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "13.2.0-7.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-12-lshw",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/lshw@B.02.20-1.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "lshw",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "B.02.20-1.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-13-openssl-libs",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/openssl-libs@3.3.7-4.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "openssl-libs",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "3.3.7-4.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-14-python3-libs",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/python3-libs@3.12.9-6.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "python3-libs",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "3.12.9-6.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-15-shadow-utils-subid",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/shadow-utils-subid@4.14.3-2.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "shadow-utils-subid",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "4.14.3-2.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-16-systemd",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/systemd@255-33.azl3?arch=x86_64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "systemd",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "255-33.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-17-systemd-rpm-macros",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/systemd-rpm-macros@255-33.azl3?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "systemd-rpm-macros",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "255-33.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-18-tzdata",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/tzdata@2025c-2.azl3?arch=noarch",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "tzdata",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "2025c-2.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-19-zlib",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/zlib@1.3.1-1.azl3?arch=aarch64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "zlib",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "1.3.1-1.azl3"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-20-zlib",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/azurelinux/zlib@1.3.1-1.azl3?arch=x86_64&epoch=1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "name": "zlib",
+      "supplier": "Organization: Microsoft Corporation",
+      "versionInfo": "1:1.3.1-1.azl3"
+    }
+  ],
+  "relationships": [
+    {
+      "relatedSpdxElement": "SPDXRef-DocumentRoot",
+      "relationshipType": "DESCRIBES",
+      "spdxElementId": "SPDXRef-DOCUMENT"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-0-azurelinux-release",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-1-bash",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-2-ca-certificates-shared",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-3-coreutils",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-4-device-mapper-event-libs",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-5-e2fsprogs-libs",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-6-elfutils-default-yama-scope",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-7-filesystem",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-8-glibc",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-9-iscsi-initiator-utils-iscsiuio",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-10-kernel",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-11-libstdc--",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-12-lshw",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-13-openssl-libs",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-14-python3-libs",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-15-shadow-utils-subid",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-16-systemd",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-17-systemd-rpm-macros",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-18-tzdata",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-19-zlib",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-Package-20-zlib",
+      "relationshipType": "CONTAINS",
+      "spdxElementId": "SPDXRef-DocumentRoot"
+    }
+  ],
+  "spdxVersion": "SPDX-2.2"
+}

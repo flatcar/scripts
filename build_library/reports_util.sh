@@ -120,6 +120,59 @@ write_disk_space_usage() {
     write_disk_space_usage_in_paths "${1}" "${2}" ./boot ./usr ./
 }
 
+# Where the SPDX package manifests are written to in a rootfs.
+# systemd-sysext merges every sysext's copy of this directory over the image's,
+# so a booted machine sees one directory holding the image's manifest and one
+# per merged sysext.
+OS_MANIFESTS_DIR="/usr/share/os-manifests"
+
+# Usage:
+#
+#  write_package_manifest image  "${root}" "${name}" "${version}" "${packages_file}" "${created_epoch}"
+#  write_package_manifest sysext "${root}" "${name}" "${version}" "${packages_file}" "${created_epoch}"
+#
+# The kind picks the filename. An image writes package-manifest.spdx.json and a
+# sysext writes package-manifest.<name>.spdx.json, so the copies merged into one
+# /usr safely.
+#
+# The document is not validated here. Its shape is a property of the generator,
+# not of any one rootfs, so it is checked against a fixture and a golden SPDX
+# 2.2 document by the Build RPMs job of the ACL GitHub PR pipeline, which runs
+# /build_library/rpm/tests/test_generate_package_manifest.sh.
+write_package_manifest() {
+    local kind="${1}"
+    local root="${2}"
+    local name="${3}"
+    local version="${4}"
+    local packages_file="${5}"
+    local created_epoch="${6}"
+
+    local infix
+    case "${kind}" in
+        image)  infix="" ;;
+        sysext) infix=".${name}" ;;
+        *) die "write_package_manifest: expected kind 'image' or 'sysext', got '${kind}'" ;;
+    esac
+
+    local output="${root}${OS_MANIFESTS_DIR}/package-manifest${infix}.spdx.json"
+
+    info "Writing ${output##*/}"
+
+    # build_image runs as the sdk user, so writing into an image rootfs needs sudo.
+    sudo install -d -m 0755 "${output%/*}"
+
+    # --force because BUILD_DIR is caller-supplied.
+    sudo "${BUILD_LIBRARY_DIR}/rpm/generate_package_manifest.py" \
+        --packages-file="${packages_file}" \
+        --manifest-file="${output}" \
+        --manifest-name="${name}" \
+        --manifest-version="${version}" \
+        --created-epoch="${created_epoch}" \
+        --force
+
+    sudo chmod 0644 "${output}"
+}
+
 # Write an SPDX SBOM for a rootfs tree.
 write_sysext_sbom() {
     local rootfs="${1}"; shift

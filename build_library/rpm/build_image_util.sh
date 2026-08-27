@@ -1451,6 +1451,35 @@ finish_image_backup_etc_rpm() {
     sudo cp -a "${root_fs_dir}/etc" "${ETC_FULL_PATH}"
 }
 
+# Write the image's package list and SPDX manifest from the final rpmdb.
+finish_image_package_manifest_rpm() {
+    local root_fs_dir="$1"
+    local image_base_name="$2"
+
+    if [[ -z "${BUILD_DIR:-}" ]]; then
+        die "RPM mode: BUILD_DIR is not set — cannot write the image package list"
+    fi
+
+    local packages_file="${BUILD_DIR}/${image_base_name}_packages.txt"
+
+    info "RPM mode: Writing ${packages_file##*/}"
+    rpm_query_packages "${root_fs_dir}" > "${packages_file}"
+    if [[ ! -s "${packages_file}" ]]; then
+        die "RPM mode: No packages in ${root_fs_dir}"
+    fi
+
+    local created_epoch
+    created_epoch=$(stat -c '%Y' "${root_fs_dir}/usr/lib/os-release")
+
+    write_package_manifest \
+        image \
+        "${root_fs_dir}" \
+        "${image_base_name}" \
+        "${IMAGE_VERSION_ID}${IMAGE_BUILD_ID:++${IMAGE_BUILD_ID}}" \
+        "${packages_file}" \
+        "${created_epoch}"
+}
+
 # Escape a string for JSON - handles quotes, backslashes, and control characters
 json_escape() {
     local str="$1"

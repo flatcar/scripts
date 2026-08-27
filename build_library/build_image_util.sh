@@ -830,6 +830,14 @@ EOF
   else
     # Skip this check in RPM mode - we intentionally populate ${DISTRO_SHARE_DIR}/etc earlier
     finish_image_backup_etc_rpm "${root_fs_dir}"
+
+    if [[ "${IMAGE_BUILD_TYPE}" != "container" ]]; then
+      # Writes the image's package list and SPDX package manifest from the final rpmdb.
+      #
+      # Must be called after finish_image_backup_etc_rpm uninstalls the azurelinux-repos* packages above,
+      # and before the rootfs state loop deletes /var (and the rpmdb) below.
+      finish_image_package_manifest_rpm "${root_fs_dir}" "${image_name%.bin}"
+    fi
   fi
 
   # Remove the rootfs state as it should be recreated through the

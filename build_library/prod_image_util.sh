@@ -130,7 +130,11 @@ create_prod_image() {
     sudo rm -rf "${root_sysext_mergedir}"
   fi
 
-  write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
+  # In RPM mode finish_image_package_manifest_rpm writes this from the final
+  # rpmdb, after finish_image uninstalls the azurelinux-repos* packages.
+  if [[ "${PACKAGE_SOURCE_MODE}" == "PORTAGE" ]]; then
+    write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
+  fi
 
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
   insert_extra_slsa "${root_fs_dir}"

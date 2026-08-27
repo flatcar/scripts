@@ -46,3 +46,4 @@ extends:
   parameters:
     aclRef: $(Build.SourceBranch)
     mantleRef: 'aclmain'
+    testGeneratePackageManifest: true

@@ -534,7 +534,13 @@ rpm_query_packages() {
     #     2. to include the epoch: "rpm -qa" returns NVRAs, not NEVRAs, for packages, and the epoch is sometimes needed
     #        to completely identify a package, e.g. during security scanning, where the epoch is used to map packages to
     #        vulnerabilities.
-    sudo rpm --dbpath="${dbpath}" -qa --qf '%|ARCH?{%{NEVRA}\n}:{}|' 2>/dev/null | sort
+    #
+    # Captured rather than piped straight into sort so rpm failures aren't masked.
+    local nevras
+    nevras=$(sudo rpm --dbpath="${dbpath}" -qa --qf '%|ARCH?{%{NEVRA}\n}:{}|') || return 1
+
+    [[ -n "${nevras}" ]] || return 0
+    sort <<< "${nevras}"
 }
 
 # Get RPM package metadata

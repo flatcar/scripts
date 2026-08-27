@@ -109,6 +109,8 @@ tests:
   - name: acl.ignition.v1.users
   - name: acl.ignition.v2.users
 
+  - name: acl.packages.package-manifest
+
   - name: bpf.execsnoop
     exceptions:
       - imageVariants: [acl-t]

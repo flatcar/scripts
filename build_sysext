@@ -269,8 +269,12 @@ for package; do
   fi
 done
 
-# Make squashfs generation more reproducible.
-export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release")
+# Pins mksquashfs timestamps and the package manifest's created field to one
+# value per image build. os-release is rewritten on every build, so this is the
+# build's stamp time rather than a fixed epoch. Split from the export so set -e
+# still catches a failing stat.
+SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release")
+export SOURCE_DATE_EPOCH
 
 # Unmount in order to get rid of the overlay
 umount "${BUILD_DIR}/${FLAGS_install_root_basename}"
@@ -321,13 +325,30 @@ if [[ -n "${FLAGS_manglefs_script}" ]]; then
   "${FLAGS_manglefs_script}" "${BUILD_DIR}/${FLAGS_install_root_basename}"
 fi
 
+# extension-release VERSION_ID must match the host os-release VERSION_ID.
+# In RPM mode that's IMAGE_VERSION_ID, not FLATCAR_VERSION_ID.
+_sysext_version_id="${FLATCAR_VERSION_ID}"
+if [[ "${PACKAGE_SOURCE_MODE:-PORTAGE}" == "RPM" && -n "${IMAGE_VERSION_ID:-}" ]]; then
+  _sysext_version_id="${IMAGE_VERSION_ID}"
+fi
+
 # In RPM mode, write packages.txt after manglefs so that packages removed
 # by mangle scripts (e.g. containerd2/runc from docker) are excluded.
 if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
   info "Writing ${SYSEXTNAME}_packages.txt"
-  # Create the file unconditionally; the diff below will overwrite it with
-  # actual contents when an RPM database is present.
-  touch "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+  # Create the files unconditionally; they'll be overwritten with actual contents
+  # when an RPM database is present. Truncate rather than touch since BUILD_DIR
+  # is caller-supplied and shared across sysexts, so may not be empty.
+  : > "${BUILD_DIR}/${SYSEXTNAME}_packages.txt"
+  : > "${BUILD_DIR}/.rpm-sysext-manifest.tmp"
+
+  # Taking a snapshot is conditional on the base image having an rpmdb. Absent
+  # one, every sysext will diff to nothing, and without this check, would skip
+  # its manifest with no error.
+  if [[ ! -s "${BUILD_DIR}/.rpm-base.tmp" ]]; then
+    die "No pre-install package snapshot for ${SYSEXTNAME}; ${FLAGS_squashfs_base##*/} has no RPM database"
+  fi
+
   # Diff against pre-install snapshot to list only sysext-added packages.
   if [[ -f "${BUILD_DIR}/${FLAGS_install_root_basename}/var/lib/rpm/rpmdb.sqlite" ]]; then
     rpm_query_packages "${BUILD_DIR}/${FLAGS_install_root_basename}" > "${BUILD_DIR}/.rpm-all.tmp"
@@ -339,6 +360,24 @@ if [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
     rm -f "${BUILD_DIR}/.rpm-base-manifest.tmp" "${BUILD_DIR}/.rpm-all-manifest.tmp"
   else
     warn "No RPM database found for ${SYSEXTNAME}; ${SYSEXTNAME}_packages.txt will be empty"
+  fi
+
+  # Empty means either nothing was installed or the base image already had every
+  # package this sysext asks for. Both are valid sysexts with nothing of their
+  # own to describe.
+  if [[ -s "${BUILD_DIR}/${SYSEXTNAME}_packages.txt" ]]; then
+    # _sysext_version_id is pinned to the host os-release VERSION_ID and so is
+    # only date-granular in the pipeline. The manifest is not bound by that
+    # contract and needs the build id to keep its documentNamespace unique.
+    write_package_manifest \
+        sysext \
+        "${BUILD_DIR}/${FLAGS_install_root_basename}" \
+        "${SYSEXTNAME}" \
+        "${_sysext_version_id}${IMAGE_BUILD_ID:++${IMAGE_BUILD_ID}}" \
+        "${BUILD_DIR}/${SYSEXTNAME}_packages.txt" \
+        "${SOURCE_DATE_EPOCH}"
+  else
+    info "No packages unique to ${SYSEXTNAME}: skipping package manifest generation"
   fi
 fi
 
@@ -359,12 +398,6 @@ elif [[ "${PACKAGE_SOURCE_MODE}" == "RPM" ]]; then
   OS_ID="azurelinux"
 fi
 
-# extension-release VERSION_ID must match the host os-release VERSION_ID.
-# In RPM mode that's IMAGE_VERSION_ID, not FLATCAR_VERSION_ID.
-_sysext_version_id="${FLATCAR_VERSION_ID}"
-if [[ "${PACKAGE_SOURCE_MODE:-PORTAGE}" == "RPM" && -n "${IMAGE_VERSION_ID:-}" ]]; then
-  _sysext_version_id="${IMAGE_VERSION_ID}"
-fi
 version_field="${VERSION_FIELD_OVERRIDE:-VERSION_ID=${_sysext_version_id}}"
 all_fields=(
   "ID=${OS_ID}"
