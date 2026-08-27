@@ -310,7 +310,7 @@ def document_namespace(manifest_name: str, manifest_version: str, packages: list
 
     Follows the recommended [CreatorWebsite]/[pathToSpdx]/[DocumentName]-[UUID]
     shape, building a version 5 UUID over the name, the version and the package
-    list so that the same list always yields the same URI.
+    list, so the same three inputs always yield the same URI.
     -- https://github.com/spdx/spdx-spec/blob/development/v2.2.2/chapters/document-creation-information.md#65-spdx-document-namespace-field-
     """
     nevras = "/".join(package.nevra for package in packages)
