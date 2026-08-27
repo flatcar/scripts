@@ -561,7 +561,6 @@ net-libs/nghttp2
 net-libs/ngtcp2
 net-libs/rpcsvc-proto
 
-net-misc/bridge-utils
 net-misc/chrony
 net-misc/curl
 net-misc/ethertypes

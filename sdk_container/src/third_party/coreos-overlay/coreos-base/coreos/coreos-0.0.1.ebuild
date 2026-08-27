@@ -136,7 +136,6 @@ RDEPEND="${RDEPEND}
 	net-firewall/nftables
 	net-fs/nfs-utils
 	net-fs/cifs-utils
-	net-misc/bridge-utils
 	net-misc/curl
 	net-misc/iputils
 	net-misc/ntp
