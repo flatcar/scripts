@@ -9,7 +9,7 @@ Detailed documentation for Azure Container Linux.
 | [Platforms](platforms.md)       | Supported platforms and OEM packages                                         |
 | [Testing](testing.md)           | Kola/Mantle framework, test categories, enforcing tests                      |
 | [Kdump](kdump.md)               | Enabling crash dump (kdump) collection via the UKI addon                     |
-| [SELinux](selinux.md)           | Container domains, privilege boundaries, and log-reader configuration        |
+| [SELinux](selinux.md)           | Container workload domains, privilege boundaries, and selection guidance     |
 
 ## Operational Guides
 
