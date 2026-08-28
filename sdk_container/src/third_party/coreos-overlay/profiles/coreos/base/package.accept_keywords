@@ -83,8 +83,8 @@ dev-cpp/azure-identity
 dev-cpp/azure-security-keyvault-certificates
 dev-cpp/azure-security-keyvault-keys
 
-# Not stabilised for arm64 yet.
-dev-db/etcd amd64
+# To pick up latest 3.5 version Gentoo has.
+=dev-db/etcd-3.5* **
 
 # Needed to address security issues.
 =dev-lang/go-1.26.7
