@@ -104,6 +104,9 @@ dev-db/etcd amd64
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
+# To address security issues.
+=dev-libs/openssl-3.6.4
+
 # Keep versions on both arches in sync.
 =dev-libs/raft-0.22.1 ~arm64
 
