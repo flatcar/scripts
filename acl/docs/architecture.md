@@ -84,4 +84,4 @@ The ROOT partition is created at a minimal size in the shipped image. On first b
 
 ### SELinux
 
-ACL ships with **SELinux in enforcing mode by default**. The policy is aligned with Flatcar's upstream SELinux policy, which focuses on strict separation between the host OS and container workloads — host system services run in confined domains while containers are isolated by the `container_t` type.
+ACL ships with **SELinux in enforcing mode by default**. The policy is aligned with Flatcar's upstream SELinux policy, which focuses on strict separation between the host OS and container workloads — host system services run in confined domains while containers are isolated by the `container_t` type. See [SELinux Container Domains](selinux.md) for specialized workload domains and safe configuration examples.

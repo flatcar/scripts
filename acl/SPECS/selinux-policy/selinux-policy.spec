@@ -10,7 +10,7 @@
 Summary:        SELinux policy
 Name:           selinux-policy
 Version:        %{refpolicy_major}.%{refpolicy_minor}
-Release:        9%{?dist}
+Release:        10%{?dist}
 License:        GPLv2
 Vendor:         Microsoft Corporation
 Distribution:   Azure Linux
@@ -81,6 +81,7 @@ Patch57:        0057-cloudinit-Add-sys_admin-to-set-security.sehash.patch
 Patch58:        0058-sysnetwork-Silence-sys_admin-denials.patch
 Patch59:        0059-container-Drop-unqualified-etc-dir-filetrans-to-conta.patch
 Patch60:        0060-container-Add-log-reader-domain.patch
+Patch61:        0061-container-Allow-log-reader-to-map-journals.patch
 BuildRequires:  bzip2
 BuildRequires:  checkpolicy >= %{CHECKPOLICYVER}
 BuildRequires:  m4
@@ -359,6 +360,9 @@ exit 0
 selinuxenabled && semodule -nB
 exit 0
 %changelog
+* Fri Aug 21 2026 Sean Dougherty <sdougherty@microsoft.com> - 2.20250213-10
+- Allow confined container log readers to map systemd journal files.
+
 * Wed Aug 19 2026 Sean Dougherty <sdougherty@microsoft.com> - 2.20250213-9
 - Add a confined container log reader domain.
 
