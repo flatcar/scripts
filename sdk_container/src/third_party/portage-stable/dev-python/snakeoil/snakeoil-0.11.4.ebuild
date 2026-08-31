@@ -15,7 +15,7 @@ if [[ ${PV} == *9999 ]] ; then
 		https://github.com/pkgcore/snakeoil.git"
 	inherit git-r3
 else
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-macos"
 	inherit pypi
 fi
 
@@ -27,6 +27,10 @@ HOMEPAGE="
 
 LICENSE="BSD BSD-2 MIT"
 SLOT="0"
+
+BDEPEND="
+	test? ( dev-python/sphinx[${PYTHON_USEDEP}] )
+"
 
 EPYTEST_PLUGINS=()
 distutils_enable_tests pytest
