@@ -334,6 +334,7 @@ systemd-repart \
   --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
   --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
   --make-ddi=sysext \
+  --sector-size=4096 \
   --copy-source="${BUILD_DIR}/${FLAGS_install_root_basename}" \
   "${BUILD_DIR}/${SYSEXT_ID}.raw"
 
