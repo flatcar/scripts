@@ -1,16 +1,16 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=9
 
 export CBUILD=${CBUILD:-${CHOST}}
 export CTARGET=${CTARGET:-${CHOST}}
 
 # See "Bootstrap" in release notes
-GO_BOOTSTRAP_MIN=1.22.12
+GO_BOOTSTRAP_MIN=1.24.6
 MY_PV=${PV/_/}
 
-inherit go-env toolchain-funcs
+inherit flag-o-matic go-env toolchain-funcs
 
 case ${PV}  in
 *9999*)
@@ -20,7 +20,7 @@ case ${PV}  in
 *)
 	SRC_URI="https://go.dev/dl/go${MY_PV}.src.tar.gz "
 	S="${WORKDIR}"/go
-	KEYWORDS="-* amd64 arm arm64 ~loong ~mips ppc64 ~riscv ~s390 x86 ~x64-macos ~x64-solaris"
+	KEYWORDS="-* ~amd64 ~arm ~arm64 ~loong ~mips ~ppc64 ~riscv ~s390 ~x86 ~x64-macos ~x64-solaris"
 	;;
 esac
 
@@ -70,9 +70,7 @@ go_cross_compile() {
 
 PATCHES=(
 	"${FILESDIR}"/go-1.24-skip-gdb-tests.patch
-	"${FILESDIR}"/go-1.24-dont-force-gold-arm.patch
 	"${FILESDIR}"/go-1.25-no-dwarf5.patch
-	"${FILESDIR}"/go-1.25-strip-top-level-const.patch
 	"${FILESDIR}"/go-never-download-newer-toolchains.patch
 )
 
@@ -84,6 +82,20 @@ src_compile() {
 	else
 		eerror "Go cannot be built without go or go-bootstrap installed"
 		die "Should not be here, please report a bug"
+	fi
+
+	if tc-is-gcc ; then
+		# XXX: Hack for checking ICE (bug #912152, gcc PR113204)
+		#
+		# For either USE=debug or an unreleased compiler, non-default
+		# checking will trigger.
+		if has_version -b "sys-devel/gcc[debug]" || [[ $(gcc-minor-version) -eq 0 ]] ; then
+			rm src/cmd/link/cgo_test.go || die
+		fi
+
+		# bug #929219
+		replace-flags -g3 -g
+		replace-flags -ggdb3 -ggdb
 	fi
 
 	# Go's build script does not use BUILD/HOST/TARGET consistently. :(
@@ -104,7 +116,11 @@ src_compile() {
 
 src_test() {
 	go_cross_compile && return 0
-	cd src
+	cd src || die
+
+	# remove bad test because of ebuild toolchain environment
+	rm -v cmd/go/testdata/script/autocgo.txt || die
+
 	PATH="${GOBIN}:${PATH}" \
 	./run.bash -no-rebuild -k || die "tests failed"
 }
