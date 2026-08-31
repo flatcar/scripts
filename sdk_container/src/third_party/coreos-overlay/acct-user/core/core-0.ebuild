@@ -51,7 +51,7 @@ src_install() {
 pkg_postinst() {
 	acct-user_pkg_postinst
 	local t n i name
-	read t n i <"${EROOT}/usr/lib/sysusers.d/acct-group-core.conf" || die
+	read -r t n i <"${EROOT}/usr/lib/sysusers.d/acct-group-core.conf" || die
 	for name in "${!CORE_BASH_SYMLINKS[@]}"; do
 		target=${CORE_BASH_SYMLINKS["${name}"]}
 		link="${ACCT_USER_HOME}/${name}"
