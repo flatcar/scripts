@@ -729,10 +729,11 @@ do_gcc_gentoo_patches() {
 				fi
 			fi
 
-			local -
+			local shopt_save=$(shopt -p nullglob)
 			shopt -s nullglob
 			einfo "Applying musl patches ..."
 			eapply "${WORKDIR}"/musl/{,nocross/}*.patch
+			${shopt_save}
 		fi
 
 		#
@@ -1386,7 +1387,7 @@ toolchain_src_configure() {
 	# Turn on the -Wl,--build-id flag by default for ELF targets. bug #953869
 	# This helps with locating debug files.
 	case ${CTARGET} in
-		*-linux-*|*-elf|*-eabi)
+		*-linux-*)
 			tc_version_is_at_least 4.5 && confgcc+=(
 				--enable-linker-build-id
 			)
@@ -2103,7 +2104,7 @@ gcc_do_filter_flags() {
 			eerror "Different values of l1-cache-size detected!"
 			eerror "GCC will fail to bootstrap when comparing files with these flags."
 			eerror "This CPU is likely big.little/hybrid hardware with power/efficiency cores."
-			eerror "Please install app-misc/resolve-march-native and run 'resolve-march-native'"
+			eerror "Please install app-misc/resolve-march-native and run 'resolve-march-native --drop-cache-sizes'"
 			eerror "to find a safe value of CFLAGS for this CPU. Note that this may vary"
 			eerror "depending on the core it ran on. taskset can be used to fix the cores used."
 			die "Varying l1-cache-size found, aborting (bug #915389, gcc PR#111768)"
