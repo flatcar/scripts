@@ -20,9 +20,9 @@ if [[ ${PV} == *9999 ]] ; then
 else
 	inherit verify-sig
 	SRC_URI="
-		https://github.com/openssl/openssl/releases/download/${MY_P}/${MY_P}.tar.gz
+		https://github.com/openssl/openssl/releases/download/${P}/${P}.tar.gz
 		verify-sig? (
-			https://github.com/openssl/openssl/releases/download/${MY_P}/${MY_P}.tar.gz.asc
+			https://github.com/openssl/openssl/releases/download/${P}/${P}.tar.gz.asc
 		)
 	"
 
@@ -30,7 +30,7 @@ else
 		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 	fi
 
-	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-openssl-20260415 )"
+	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-openssl-20260617-r1 )"
 fi
 
 S="${WORKDIR}"/${MY_P}
@@ -105,6 +105,9 @@ src_prepare() {
 		einfo "Disabling test '80-test_ssl_new.t' which is known to fail with FEATURES=network-sandbox ..."
 		rm test/recipes/80-test_ssl_new.t || die
 	fi
+
+	# Test fails depending on kernel configuration, bug #699134
+	rm test/recipes/30-test_afalg.t || die
 }
 
 _openssl_variant() {
@@ -290,6 +293,10 @@ openssl_src_install() {
 src_install() {
 	openssl_run_phase openssl_src_install
 	multilib_install_wrappers
+
+	# openssl installs perl version of c_rehash by default, but
+	# we provide a shell version via app-misc/c_rehash
+	rm "${ED}"/usr/bin/c_rehash || die
 
 	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
 
