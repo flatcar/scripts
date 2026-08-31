@@ -325,15 +325,18 @@ if [[ "${FLAGS_compression}" != "none" ]]; then
     # Default options for zstd
     export SYSTEMD_REPART_MKFS_OPTIONS_EROFS="${SYSTEMD_REPART_MKFS_OPTIONS_EROFS},level=22 -C524288 -Efragments,ztailpacking"
   fi
-  info "Building sysext with ${FLAGS_compression} compression"
+  info "Building sysext with ${FLAGS_compression} compression (${SYSTEMD_REPART_MKFS_OPTIONS_EROFS})"
 else
   info "Building sysext without compression (built-in sysexts)"
 fi
 
+SYSTEMD_LOG_LEVEL=debug
 systemd-repart \
   --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
   --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
   --make-ddi=sysext \
+  --grain-size=4096 \
+  --sector-size=4096 \
   --copy-source="${BUILD_DIR}/${FLAGS_install_root_basename}" \
   "${BUILD_DIR}/${SYSEXT_ID}.raw"
 
