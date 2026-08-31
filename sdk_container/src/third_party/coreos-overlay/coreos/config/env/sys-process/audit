@@ -40,7 +40,7 @@ EOF
     # Enable audit-rules.service by default.
     systemd_enable_service multi-user.target audit-rules.service
 
-    # Upstream installs its tmpfiles config file with unnecessarilly
+    # Upstream installs its tmpfiles config file with unnecessarily
     # restrictive mode, relax it.
     #
     # https://github.com/linux-audit/audit-userspace/pull/547
