@@ -8,6 +8,7 @@ inherit go-env go-module linux-info optfeature systemd toolchain-funcs verify-si
 DESCRIPTION="Modern, secure and powerful system container and virtual machine manager"
 HOMEPAGE="https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus"
 SRC_URI="https://linuxcontainers.org/downloads/incus/${P}.tar.xz
+	https://dev.gentoo.org/~juippis/distfiles/incus-7.3-cve-commits-bgo980304.tar.xz
 	verify-sig? ( https://linuxcontainers.org/downloads/incus/${P}.tar.xz.asc )"
 
 LICENSE="Apache-2.0 BSD LGPL-3 MIT"
@@ -93,7 +94,9 @@ RESTRICT="test"
 GOPATH="${S}/_dist"
 
 src_unpack() {
-	verify-sig_src_unpack
+	if use verify-sig ; then
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.xz{,.asc}
+	fi
 	go-module_src_unpack
 }
 
@@ -101,6 +104,9 @@ src_prepare() {
 	export GOPATH="${S}/_dist"
 
 	default
+
+	# bgo#980304, patch multiple CVEs before 7.0.2.
+	eapply "${WORKDIR}"/incus-7.3-cve-commits-bgo980304/*.patch
 
 	sed -i \
 		-e "s:\./configure:./configure --prefix=/usr --libdir=${EPREFIX}/usr/lib/incus:g" \
