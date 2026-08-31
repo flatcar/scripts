@@ -16,11 +16,6 @@ ACCT_USER_GROUPS=( core docker wheel systemd-journal portage )
 
 acct-user_add_deps
 
-# coreutils for realpath
-BDEPEND+="
-	sys-apps/coreutils
-"
-
 declare -A CORE_BASH_SYMLINKS
 CORE_BASH_SYMLINKS=(
 	['.bash_logout']='/usr/share/flatcar/etc/skel/.bash_logout'
