@@ -19,12 +19,12 @@ HOMEPAGE="
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos"
 
 BDEPEND="
 	test? (
+		dev-python/lxml[${PYTHON_USEDEP}]
 		$(python_gen_cond_dep '
-			dev-python/lxml[${PYTHON_USEDEP}]
 			dev-python/pillow[${PYTHON_USEDEP}]
 		' "${PYTHON_FULLY_TESTED[@]}")
 		dev-python/wcag-contrast-ratio[${PYTHON_USEDEP}]
