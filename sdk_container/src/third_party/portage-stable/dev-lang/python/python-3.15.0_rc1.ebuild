@@ -5,13 +5,16 @@ EAPI="8"
 
 LLVM_COMPAT=( 21 )
 LLVM_OPTIONAL=1
+VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs eapi9-ver flag-o-matic git-r3 linux-info llvm-r2
-inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
+inherit autotools check-reqs eapi9-ver flag-o-matic linux-info llvm-r2
+inherit multiprocessing pax-utils toolchain-funcs verify-sig
 
+MY_PV=${PV/_}
+MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-3.15.0b3"
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
@@ -19,9 +22,13 @@ HOMEPAGE="
 	https://github.com/python/cpython/
 "
 SRC_URI="
+	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
+	verify-sig? (
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.sigstore
+	)
 "
-EGIT_REPO_URI="https://github.com/python/cpython.git"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
@@ -102,6 +109,10 @@ PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
+# https://www.python.org/downloads/metadata/sigstore/
+VERIFY_SIG_CERT_IDENTITY=hugo@python.org
+VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
 
@@ -163,7 +174,9 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git-r3_src_unpack
+	if use verify-sig; then
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+	fi
 	default
 }
 
@@ -592,7 +605,7 @@ src_install() {
 
 	ln -s ../python/EXTERNALLY-MANAGED "${libdir}/EXTERNALLY-MANAGED" || die
 
-	dodoc Misc/{ACKS,HISTORY}
+	dodoc Misc/{ACKS,HISTORY,NEWS}
 
 	if use examples; then
 		docinto examples
@@ -613,30 +626,6 @@ src_install() {
 		-e "s:@PYDOC@:pydoc${PYVER}:" \
 		-i "${ED}/etc/conf.d/pydoc-${PYVER}" \
 		"${ED}/etc/init.d/pydoc-${PYVER}" || die "sed failed"
-
-	# python-exec wrapping support
-	local pymajor=${PYVER%.*}
-	local EPYTHON=python${PYVER}
-	local scriptdir=${D}$(python_get_scriptdir)
-	mkdir -p "${scriptdir}" || die
-	# python and pythonX
-	ln -s "../../../bin/${abiver}" "${scriptdir}/python${pymajor}" || die
-	ln -s "python${pymajor}" "${scriptdir}/python" || die
-	# python-config and pythonX-config
-	# note: we need to create a wrapper rather than symlinking it due
-	# to some random dirname(argv[0]) magic performed by python-config
-	cat > "${scriptdir}/python${pymajor}-config" <<-EOF || die
-		#!/bin/sh
-		exec "${abiver}-config" "\${@}"
-	EOF
-	chmod +x "${scriptdir}/python${pymajor}-config" || die
-	ln -s "python${pymajor}-config" "${scriptdir}/python-config" || die
-	# pydoc
-	ln -s "../../../bin/pydoc${PYVER}" "${scriptdir}/pydoc" || die
-	# idle
-	if use tk; then
-		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
-	fi
 }
 
 pkg_postinst() {

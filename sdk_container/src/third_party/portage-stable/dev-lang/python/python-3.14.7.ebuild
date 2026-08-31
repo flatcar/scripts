@@ -3,15 +3,19 @@
 
 EAPI="8"
 
-LLVM_COMPAT=( 21 )
+LLVM_COMPAT=( 19 )
 LLVM_OPTIONAL=1
+VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs eapi9-ver flag-o-matic git-r3 linux-info llvm-r2
+inherit autotools check-reqs flag-o-matic linux-info llvm-r1
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
+inherit verify-sig
 
+MY_PV=${PV/_/}
+MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-3.15.0b3"
+PATCHSET="python-gentoo-patches-${MY_PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
@@ -19,12 +23,19 @@ HOMEPAGE="
 	https://github.com/python/cpython/
 "
 SRC_URI="
+	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
+	verify-sig? (
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.sigstore
+	)
 "
-EGIT_REPO_URI="https://github.com/python/cpython.git"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
+if [[ ${PV} != *_rc* ]]; then
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+fi
 IUSE="
 	bluetooth build debug +ensurepip examples gdbm jit libedit +ncurses pgo
 	+readline +sqlite +ssl tail-call-interp test tk valgrind
@@ -71,7 +82,6 @@ DEPEND="
 	test? (
 		dev-python/ensurepip-pip
 		dev-python/ensurepip-setuptools
-		dev-python/ensurepip-wheel
 	)
 	valgrind? ( dev-debug/valgrind )
 "
@@ -102,6 +112,10 @@ PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
+# https://www.python.org/downloads/metadata/sigstore/
+VERIFY_SIG_CERT_IDENTITY=hugo@python.org
+VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
 
@@ -126,26 +140,11 @@ pkg_pretend() {
 		ewarn "you can reproduce the problem with dev-lang/python[-jit].  Instead,"
 		ewarn "please consider reporting JIT problems upstream."
 	fi
-
-	if [[ ${MERGE_TYPE} != buildonly ]] && ver_replacing -lt 3.15.0_beta4; then
-		ewarn
-		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
-		ewarn "with older versions may crash at runtime or worse after upgrading."
-		ewarn "A rebuild is recommended after the merge is complete, e.g. using:"
-		ewarn
-		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
-		ewarn
-		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
-		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
-		ewarn "If you do not wish to perform the rebuild at the time, it is"
-		ewarn "recommended to abort the upgrade."
-		ewarn
-	fi
 }
 
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
-		use jit && llvm-r2_pkg_setup
+		use jit && llvm-r1_pkg_setup
 		if use test || use pgo; then
 			check-reqs_pkg_setup
 
@@ -163,7 +162,9 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git-r3_src_unpack
+	if use verify-sig; then
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+	fi
 	default
 }
 
@@ -549,14 +550,9 @@ src_test() {
 
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
-	local build_dir=$(<pybuilddir.txt)
 
 	# -j1 hack for now for bug #843458
 	emake -j1 DESTDIR="${D}" TEST_MODULES=no altinstall
-
-	# Install build-details.json manually because it was randomly removed
-	# from altinstall in https://github.com/python/cpython/pull/142269.
-	cp "${build_dir}"/build-details.json "${libdir}"/ || die
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -592,7 +588,7 @@ src_install() {
 
 	ln -s ../python/EXTERNALLY-MANAGED "${libdir}/EXTERNALLY-MANAGED" || die
 
-	dodoc Misc/{ACKS,HISTORY}
+	dodoc Misc/{ACKS,HISTORY,NEWS}
 
 	if use examples; then
 		docinto examples
@@ -636,18 +632,5 @@ src_install() {
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
-	fi
-}
-
-pkg_postinst() {
-	if ver_replacing -lt 3.15.0_beta4; then
-		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
-		ewarn "with older versions may crash at runtime or worse.  To prevent this,"
-		ewarn "please rebuild all extensions using the versoned ABI, e.g. using:"
-		ewarn
-		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
-		ewarn
-		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
-		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
 	fi
 }
