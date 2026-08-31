@@ -10,7 +10,7 @@ EAPI=8
 
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{11..15} )
+PYTHON_COMPAT=( python3_{12..15} )
 
 inherit autotools bash-completion-r1 dist-kernel-utils distutils-r1 flag-o-matic linux-info pam systemd udev usr-ldscript
 
@@ -30,7 +30,7 @@ else
 	S="${WORKDIR}/${MY_P}"
 
 	if [[ ${PV} != *_rc* ]]; then
-		KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~sparc"
+		KEYWORDS="amd64 arm64 ~loong ppc64 ~riscv ~sparc"
 	fi
 fi
 
@@ -110,7 +110,7 @@ REQUIRED_USE="
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}"/2.1.5-dracut-zfs-missing.patch
+	"${FILESDIR}"/${PN}-2.1.11-gentoo.patch
 )
 
 pkg_pretend() {
