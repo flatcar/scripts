@@ -31,16 +31,13 @@ CORE_BASH_SYMLINKS=(
 src_compile() {
 	# Generate the tmpfiles config file for bash symlinks in
 	# core's home directory.
-	local config config_tmp name target
-	config="${T}/home-core-bash-symlinks.conf"
-	config_tmp="${config}.tmp"
-	truncate --size 0 "${config_tmp}"
-	for name in "${!CORE_BASH_SYMLINKS[@]}"; do
-		target=${CORE_BASH_SYMLINKS["${name}"]}
-		target=$(realpath --relative-to="${ACCT_USER_HOME}" --canonicalize-missing --no-symlinks "${target}")
-		echo "L ${ACCT_USER_HOME}/${name} - core core - ${target}" >>"${config_tmp}"
-	done
-	LC_ALL=C sort "${config_tmp}" >"${config}"
+	(
+		for name in "${!CORE_BASH_SYMLINKS[@]}"; do
+			target=${CORE_BASH_SYMLINKS["${name}"]}
+			target=$(realpath --relative-to="${ACCT_USER_HOME}" --canonicalize-missing --no-symlinks "${target}" || die)
+			echo "L ${ACCT_USER_HOME}/${name} - core core - ${target}" || die
+		done
+	) | LC_ALL=C sort >"${T}/home-core-bash-symlinks.conf" || die
 }
 
 src_install() {
