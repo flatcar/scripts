@@ -1,6 +1,6 @@
 cros_post_src_install_flatcar_modifications() {
-    # This links exist because old installations can still have
-    # references to them.
+    # This link exists because old installations can still have
+    # references to it.
     dosym -r '/usr/share/flatcar/etc/selinux/semanage.conf' '/usr/lib/selinux/semanage.conf'
     insinto '/usr/share/flatcar/etc/selinux'
     newins - 'semanage.conf'
