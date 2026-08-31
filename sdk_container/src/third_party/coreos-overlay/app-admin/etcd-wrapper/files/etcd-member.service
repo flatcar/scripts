@@ -14,7 +14,7 @@ RestartSec=10s
 TimeoutStartSec=0
 LimitNOFILE=40000
 
-Environment="ETCD_IMAGE_URL=quay.io/coreos/etcd"
+Environment="ETCD_IMAGE_URL=mcr.microsoft.com/oss/v2/etcd-io/etcd"
 Environment="ETCD_IMAGE_TAG=@ETCD_IMAGE_TAG@"
 Environment="ETCD_NAME=%m"
 Environment="ETCD_USER=etcd"
