@@ -12,8 +12,7 @@ TMPFILES_OPTIONAL=1
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=2
-PATCH_DEV=dilfridge
+PATCH_VER=4
 
 # gcc mulitilib bootstrap files version
 GCC_BOOTSTRAP_VER=20201208
@@ -45,8 +44,8 @@ if [[ ${PV} == *9999 ]]; then
 else
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
+	SRC_URI+=" https://distfiles.gentoo.org/pub/proj/toolchain/glibc/patches/${P}-patches-${PATCH_VER}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/glibc/${P}.tar.xz.sig )"
-	SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 fi
 
 SRC_URI+=" multilib-bootstrap? ( https://dev.gentoo.org/~dilfridge/distfiles/gcc-multilib-bootstrap-${GCC_BOOTSTRAP_VER}.tar.xz )"
@@ -223,6 +222,7 @@ XFAIL_NSPAWN_TEST_LIST=(
 	tst-aarch64-pkey
 	tst-bz21269
 	tst-mlock2
+	tst-mseal-pkey
 	tst-ntp_gettime
 	tst-ntp_gettime-time64
 	tst-ntp_gettimex
@@ -356,6 +356,21 @@ setup_target_flags() {
 	just_headers && return 0
 
 	case $(tc-arch) in
+		alpha)
+			# glibc selects its hand-written assembly mem*/str* routines by the
+			# host triplet's machine prefix (sysdeps/alpha/preconfigure does
+			# machine=alpha/$machine), NOT by the -mcpu codegen flag.  With the
+			# bare alpha-*-* CHOST only the generic C is built.  Map -mcpu to the
+			# most specific sysdeps/alpha/alphaev* dir that exists (Implies chain
+			# alphaev67 -> alphaev6 -> alphaev5) so the tuned asm is selected.
+			local cpu
+			case $(get-flag mcpu) in
+			21264a|ev67)           cpu="alphaev67" ;;
+			21264|ev6)             cpu="alphaev6" ;;
+			21164*|ev5|ev56|pca56) cpu="alphaev5" ;;
+			esac
+			[[ -n ${cpu} ]] && CTARGET_OPT="${cpu}-${CTARGET#*-}"
+		;;
 		x86)
 			# -march needed for #185404 #199334
 			# TODO: When creating the first glibc cross-compile, this test will
@@ -387,7 +402,12 @@ setup_target_flags() {
 					[[ ${t} == "x86_64" ]] && t="x86-64"
 					filter-flags '-march=*'
 					# ugly, ugly, ugly.  ugly.
-					CFLAGS_x86=$(CFLAGS=${CFLAGS_x86}; filter-flags '-march=*'; echo "${CFLAGS}")
+					CFLAGS_x86=$(
+						CFLAGS=${CFLAGS_x86}
+						filter-flags '-march=*'
+						is-flagq '-mfpmath=sse' && append-cflags -msse
+						echo "${CFLAGS}"
+					)
 					export CFLAGS_x86="${CFLAGS_x86} -march=${t}"
 					einfo "Auto adding -march=${t} to CFLAGS_x86 #185404 (ABI=${ABI})"
 				fi
@@ -1365,6 +1385,9 @@ glibc_src_test() {
 			myxfailparams+="test-xfail-${myt}=yes "
 		done
 	fi
+
+	# https://inbox.sourceware.org/libc-alpha/lhuikb5ibey.fsf@oldenburg.str.redhat.com/
+	local -x GAWK_GNU_MATCHERS=1
 
 	# sandbox does not understand unshare() and prevents
 	# writes to /proc/, which makes many tests fail
