@@ -331,6 +331,7 @@ else
 fi
 
 systemd-repart \
+  --sector-size=4096 \
   --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
   --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
   --make-ddi=sysext \
