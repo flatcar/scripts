@@ -1,0 +1,1 @@
+- Fixed swtpm process cleanup in QEMU launcher on macOS by using POSIX kill -0 instead of checking Linux-only /proc.
