@@ -97,6 +97,7 @@ PATCHES=(
   "${FILESDIR}"/0003-nvidia-use-hrtimer_setup-for-Linux-6.15.patch
   "${FILESDIR}"/0004-nvidia-uvm-guard-iommu_dev_enable_disable_feature-fo.patch
   "${FILESDIR}"/0005-nvidia-uvm-guard-SMMU-WAR-code-with-UVM_ATS_SMMU_WA.patch
+  "${FILESDIR}"/0006-nvidia-uvm-adapt-to-page_pgmap-and-make_device_excl.patch
 )
 
 pkg_setup() {
