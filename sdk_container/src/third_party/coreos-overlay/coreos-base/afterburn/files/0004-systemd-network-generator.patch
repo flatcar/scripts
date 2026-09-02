@@ -1,0 +1,283 @@
+From 33a1f0e050784f469f86ca14f2bf1411075db91e Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 26 Jun 2026 12:11:42 +0200
+Subject: [PATCH 1/5] proxmoxve: explicit static IP configuration
+
+This costs nothing to append - dracut explodes this 'ip=' into variables[^1],
+and downstream libraries might default to 'dhcp' if the 'autoconf'
+variable is empty.
+
+[^1]: https://github.com/dracutdevs/dracut/blob/5d2bda46f4e75e85445ee4d3bd3f68bf966287b9/modules.d/40network/net-lib.sh#L541
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+--- a/src/providers/proxmoxve/cloudconfig.rs
++++ b/src/providers/proxmoxve/cloudconfig.rs
+@@ -199,13 +199,17 @@ impl MetadataProvider for ProxmoxVECloudConfig {
+                                 .find(|r| r.destination.is_ipv4() && r.destination.prefix() == 0)
+                             {
+                                 kargs.push(format!(
+-                                    "ip={}::{}:{}",
++                                    "ip={}::{}:{}:::off",
+                                     network.ip(),
+                                     gateway.gateway,
+                                     network.mask()
+                                 ));
+                             } else {
+-                                kargs.push(format!("ip={}:::{}", network.ip(), network.mask()));
++                                kargs.push(format!(
++                                    "ip={}:::{}:::off",
++                                    network.ip(),
++                                    network.mask()
++                                ));
+                             }
+                         }
+                         IpNetwork::V6(network) => {
+@@ -215,13 +219,17 @@ impl MetadataProvider for ProxmoxVECloudConfig {
+                                 .find(|r| r.destination.is_ipv6() && r.destination.prefix() == 0)
+                             {
+                                 kargs.push(format!(
+-                                    "ip={}::{}:{}",
++                                    "ip={}::{}:{}:::off",
+                                     network.ip(),
+                                     gateway.gateway,
+                                     network.prefix()
+                                 ));
+                             } else {
+-                                kargs.push(format!("ip={}:::{}", network.ip(), network.prefix()));
++                                kargs.push(format!(
++                                    "ip={}:::{}:::off",
++                                    network.ip(),
++                                    network.prefix()
++                                ));
+                             }
+                         }
+                     }
+-- 
+2.55.0
+
+
+From 9cf00f168e1c32fa16a89f8bc64e97ede2c7a948 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Mon, 6 Jul 2026 10:54:29 +0100
+Subject: [PATCH 2/5] initrd: Write an env file for systemd-network-generator
+ to consume
+
+systemd-network-generator parses /proc/cmdline or SYSTEMD_PROC_CMDLINE,
+so the kargs we inject into Dracut's cmdline.d fragment are invisible to
+it. Flatcar would like to switch from its own custom parser to the
+generator's parser (and not Dracut's own).
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/src/initrd/mod.rs
++++ b/src/initrd/mod.rs
+@@ -8,12 +8,25 @@ use crate::providers::proxmoxve::ProxmoxVEConfigDrive;
+ use crate::providers::vmware::VmwareProvider;
+ use crate::providers::MetadataProvider;
+ use anyhow::{Context, Result};
+-use std::fs::File;
++use std::fs::{self, File};
+ use std::io::Write;
++use std::path::Path;
+ 
+ /// Path to cmdline.d fragment for network kernel arguments.
+ static KARGS_PATH: &str = "/etc/cmdline.d/50-afterburn-network-kargs.conf";
+ 
++/// Path to the environment file consumed by systemd-network-generator.
++///
++/// systemd-network-generator only parses /proc/cmdline (or the command line
++/// provided through the SYSTEMD_PROC_CMDLINE environment variable), so the
++/// kargs we inject into Dracut's cmdline.d fragment above are invisible to it.
++/// We therefore expose the augmented command line through this file, which a
++/// shipped generator drop-in references via EnvironmentFile=.
++static GENERATOR_ENV_PATH: &str = "/run/afterburn/network-generator.env";
++
++/// Path to the kernel command line.
++static PROC_CMDLINE_PATH: &str = "/proc/cmdline";
++
+ /// Fetch network kargs for the given provider.
+ pub(crate) fn fetch_network_kargs(provider: &str) -> Result<Option<String>> {
+     match provider {
+@@ -23,10 +36,17 @@ pub(crate) fn fetch_network_kargs(provider: &str) -> Result<Option<String>> {
+     }
+ }
+ 
+-/// Write network kargs into a cmdline.d fragment.
++/// Write network kargs into a cmdline.d fragment and hand the augmented kernel
++/// command line to systemd-network-generator.
+ pub(crate) fn write_network_kargs(kargs: &str) -> Result<()> {
+-    let mut fragment_file = File::create(KARGS_PATH)
+-        .with_context(|| format!("failed to create file {KARGS_PATH:?}"))?;
++    write_cmdline_fragment(KARGS_PATH, kargs)?;
++    write_generator_env(GENERATOR_ENV_PATH, PROC_CMDLINE_PATH, kargs)
++}
++
++/// Write network kargs into a Dracut cmdline.d fragment.
++fn write_cmdline_fragment(path: &str, kargs: &str) -> Result<()> {
++    let mut fragment_file =
++        File::create(path).with_context(|| format!("failed to create file {path:?}"))?;
+ 
+     fragment_file
+         .write_all(kargs.as_bytes())
+@@ -37,3 +57,37 @@ pub(crate) fn write_network_kargs(kargs: &str) -> Result<()> {
+ 
+     Ok(())
+ }
++
++/// Write the augmented kernel command line for systemd-network-generator.
++///
++/// The generator does not read Dracut's cmdline.d fragments, so we combine the
++/// real kernel command line with the injected kargs and expose the result via
++/// SYSTEMD_PROC_CMDLINE in an environment file consumed by the generator's
++/// drop-in.
++fn write_generator_env(path: &str, proc_cmdline_path: &str, kargs: &str) -> Result<()> {
++    let kargs = kargs.trim();
++    if kargs.is_empty() {
++        return Ok(());
++    }
++
++    let base = fs::read_to_string(proc_cmdline_path)
++        .with_context(|| format!("failed to read {proc_cmdline_path:?}"))?;
++    let base = base.trim();
++    let cmdline = if base.is_empty() {
++        kargs.to_string()
++    } else {
++        format!("{base} {kargs}")
++    };
++
++    if let Some(parent) = Path::new(path).parent() {
++        fs::create_dir_all(parent)
++            .with_context(|| format!("failed to create directory {parent:?}"))?;
++    }
++
++    let mut env_file =
++        File::create(path).with_context(|| format!("failed to create file {path:?}"))?;
++    writeln!(env_file, "SYSTEMD_PROC_CMDLINE={cmdline}")
++        .context("failed to write network generator environment file")?;
++
++    Ok(())
++}
+-- 
+2.55.0
+
+
+From a9f3a8300471b60aaf982e59cf1ec099b83e3e60 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Tue, 18 Aug 2026 13:25:35 +0100
+Subject: [PATCH 3/5] initrd: Prevent ProxmoxVE from failing without a config
+ drive
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/src/initrd/mod.rs
++++ b/src/initrd/mod.rs
+@@ -4,7 +4,7 @@
+ //! services are configured, so it may not be able to use all usual metadata
+ //! fetcher.
+ 
+-use crate::providers::proxmoxve::ProxmoxVEConfigDrive;
++use crate::providers::proxmoxve;
+ use crate::providers::vmware::VmwareProvider;
+ use crate::providers::MetadataProvider;
+ use anyhow::{Context, Result};
+@@ -31,7 +31,7 @@ static PROC_CMDLINE_PATH: &str = "/proc/cmdline";
+ pub(crate) fn fetch_network_kargs(provider: &str) -> Result<Option<String>> {
+     match provider {
+         "vmware" => VmwareProvider::try_new()?.rd_network_kargs(),
+-        "proxmoxve" => ProxmoxVEConfigDrive::try_new()?.rd_network_kargs(),
++        "proxmoxve" => proxmoxve::try_config_drive_else_leave()?.rd_network_kargs(),
+         _ => Ok(None),
+     }
+ }
+-- 
+2.55.0
+
+
+From 0aad29f76fe4f3539356192263768ecb18ea4308 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 20 Aug 2026 18:36:21 +0100
+Subject: [PATCH 4/5] proxmoxve: Use ip=any rather than ip=dhcp,dhcp6 for dual
+ stack
+
+systemd-network-generator does not support multiple autoconf values, and
+fixing this appears difficult. Even then, Dracut does not treat
+`dhcp,dhcp6` in quite the same way that systemd and NetworkManager do.
+It only tries IPv6 if IPv4 fails.
+
+As of Dracut 112, `any` is treated as IPv4-only, despite the name.
+However, I have submitted https://github.com/dracut-ng/dracut/pull/2628
+to change this behaviour so that it is dual stack in the same manner as
+systemd and NetworkManager.
+
+This would break Afterburn consumers relying on Dracut's network-legacy
+in the meantime. However, FCOS has already migrated to NetworkManager,
+and Flatcar is now migrating to systemd-network-manager. I'm not aware
+of any other consumers.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/src/providers/proxmoxve/cloudconfig.rs
++++ b/src/providers/proxmoxve/cloudconfig.rs
+@@ -240,7 +240,7 @@ impl MetadataProvider for ProxmoxVECloudConfig {
+                     match dhcp {
+                         DhcpSetting::V4 => kargs.push("ip=dhcp".to_string()),
+                         DhcpSetting::V6 => kargs.push("ip=dhcp6".to_string()),
+-                        DhcpSetting::Both => kargs.push("ip=dhcp,dhcp6".to_string()),
++                        DhcpSetting::Both => kargs.push("ip=any".to_string()),
+                     }
+                 }
+ 
+-- 
+2.55.0
+
+
+From ba688edc0b12bf59ed0204dbf5f45097a5db9671 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Fri, 21 Aug 2026 17:34:37 +0100
+Subject: [PATCH 5/5] proxmoxve: Fix dual stack network configuration
+
+Dual stack wasn't possible before because it would iterate over the
+subnets, setting the type as either V4 or V6, but never combining them.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+--- a/src/network.rs
++++ b/src/network.rs
+@@ -153,6 +153,17 @@ impl DhcpSetting {
+         };
+         setting.to_string()
+     }
++
++    /// Combine DHCP settings, to easily merge [`Self::V4`] and [`Self::V6`] variants into
++    /// [`Self::Both`] where applicable.
++    pub fn merge(self, other: Self) -> Self {
++        use DhcpSetting::*;
++        match (self, other) {
++            (V4, V4) => V4,
++            (V6, V6) => V6,
++            _ => Both,
++        }
++    }
+ }
+ 
+ impl Interface {
+--- a/src/providers/proxmoxve/cloudconfig.rs
++++ b/src/providers/proxmoxve/cloudconfig.rs
+@@ -399,10 +399,16 @@ impl ProxmoxVECloudNetworkConfigEntry {
+             }
+ 
+             if subnet.subnet_type == "dhcp" || subnet.subnet_type == "dhcp4" {
+-                iface.dhcp = Some(DhcpSetting::V4)
++                iface.dhcp = iface
++                    .dhcp
++                    .map(|d| d.merge(DhcpSetting::V4))
++                    .or(Some(DhcpSetting::V4))
+             }
+             if subnet.subnet_type == "dhcp6" {
+-                iface.dhcp = Some(DhcpSetting::V6)
++                iface.dhcp = iface
++                    .dhcp
++                    .map(|d| d.merge(DhcpSetting::V6))
++                    .or(Some(DhcpSetting::V6))
+             }
+             if subnet.subnet_type == "ipv6_slaac" {
+                 warn!("subnet type \"ipv6_slaac\" not supported, ignoring");
+-- 
+2.55.0
+
