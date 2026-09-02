@@ -53,27 +53,3 @@ sed -i 's|-v ${ETCD_SSL_DIR}:/etc/ssl/certs:ro|-v /etc/pki/ca-trust/extracted/pe
 mkdir -p "${rootfs}/usr/share/ca-certificates"
 ln -sf /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem \
     "${rootfs}/usr/share/ca-certificates/ca-certificates.crt"
-
-# ── flannel-wrapper: Docker-based flanneld ───────────────────────────────────
-# flannel-wrapper runs flanneld in a Docker container (like etcd-wrapper).
-echo ">>> NOTICE: $0: installing flannel-wrapper (Docker-based flanneld)"
-
-flannel_wrapper_src="${script_root}/sdk_container/src/third_party/coreos-overlay/app-admin/flannel-wrapper/files"
-flannel_version="0.14.0"
-if [[ ! -d "${flannel_wrapper_src}" ]]; then
-  echo ">>> ERROR: $0: flannel-wrapper source not found at ${flannel_wrapper_src}" >&2
-  exit 1
-fi
-
-# flannel-wrapper script -> /usr/lib/flatcar/flannel-wrapper
-# (resolves via /usr/lib/coreos -> flatcar symlink created by _configure_etcd_rpm)
-cp "${flannel_wrapper_src}/flannel-wrapper" "${rootfs}/usr/lib/flatcar/flannel-wrapper"
-chmod 0755 "${rootfs}/usr/lib/flatcar/flannel-wrapper"
-# NOTE: flanneld.service and flannel-docker-opts.service are installed in the
-# rootfs by _configure_flannel_services_rpm() in build_image_util.sh. They MUST
-# be in the rootfs because Ignition needs to read their [Install] sections to
-# create enable symlinks, and Ignition runs before sysext merge.
-
-# networkd configs for flannel interfaces
-cp "${flannel_wrapper_src}/50-flannel.network" "${rootfs}/usr/lib/systemd/network/50-flannel.network"
-cp "${flannel_wrapper_src}/50-flannel.link" "${rootfs}/usr/lib/systemd/network/50-flannel.link"

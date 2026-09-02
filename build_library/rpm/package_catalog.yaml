@@ -262,7 +262,6 @@ packages:
 
   # Flatcar-only packages (skipped in RPM mode)
   app-admin/etcd-wrapper: SKIP
-  app-admin/flannel-wrapper: SKIP
   app-admin/locksmith: SKIP
   app-admin/mayday: SKIP
   app-admin/sdnotify-proxy: SKIP

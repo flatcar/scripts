@@ -43,34 +43,6 @@ tests:
           and docker has no RPM replacement (same as docker.*) — so no
           etcd server can start for the test to drive.
 
-  - name: acl.flannel.udp
-    exceptions:
-      - architectures: [aarch64]
-        reason: Flannel UDP coverage is registered only for amd64
-      - platforms: [azure]
-        reason: Azure version depends on discovery.etcd.io, which is unmaintained.
-      - imageVariants: [acl-t]
-        reason: |
-          flanneld runs in a docker container (flanneld.service via
-          flannel-wrapper) and the test drives docker on each node;
-          acl-t has no docker daemon — the standalone `docker` sysext is
-          not carried and docker has no RPM replacement (same as
-          docker.*) — so flanneld cannot start.
-  - name: acl.flannel.vxlan
-    exceptions:
-      - platforms: [qemu]
-        architectures: [aarch64]
-        reason: Flakiness on TCG-emulated arm64 in aclmain, failures due to slow device enumeration.
-      - platforms: [azure]
-        reason: Azure version depends on discovery.etcd.io, which is unmaintained.
-      - imageVariants: [acl-t]
-        reason: |
-          flanneld runs in a docker container (flanneld.service via
-          flannel-wrapper) and the test drives docker on each node;
-          acl-t has no docker daemon — the standalone `docker` sysext is
-          not carried and docker has no RPM replacement (same as
-          docker.*) — so flanneld cannot start.
-
   - name: acl.internet
     exceptions:
       - platforms: [qemu]

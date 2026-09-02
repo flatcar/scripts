@@ -1091,30 +1091,6 @@ SYSUSERS_EOF
     sudo cp "${etcd_wrapper_src}/etcd-wrapper.conf" "${root_fs_dir}/usr/lib/tmpfiles.d/etcd-wrapper.conf"
 }
 
-# Install flannel service units into the rootfs so Ignition can enable them.
-# Same rationale as etcd-member.service above: Ignition runs before sysext
-# merge, so it can't read [Install] sections from sysext-only unit files.
-# The flannel-wrapper binary stays in the docker sysext (it depends on Docker).
-_configure_flannel_services_rpm() {
-    local root_fs_dir="$1"
-
-    local flannel_wrapper_src="${SCRIPT_ROOT}/sdk_container/src/third_party/coreos-overlay/app-admin/flannel-wrapper/files"
-    local flannel_version="0.14.0"
-    if [[ ! -d "${flannel_wrapper_src}" ]]; then
-        die "flannel-wrapper source not found at ${flannel_wrapper_src}"
-    fi
-
-    info "RPM mode: Installing flannel service units into rootfs (Ignition visibility)"
-    # flanneld.service (substitute image tag)
-    sed "s|@FLANNEL_IMAGE_TAG@|v${flannel_version}|g" \
-        "${flannel_wrapper_src}/flanneld.service" \
-        | sudo tee "${root_fs_dir}/usr/lib/systemd/system/flanneld.service" > /dev/null
-    # flannel-docker-opts.service (substitute image tag)
-    sed "s|@FLANNEL_IMAGE_TAG@|v${flannel_version}|g" \
-        "${flannel_wrapper_src}/flannel-docker-opts.service" \
-        | sudo tee "${root_fs_dir}/usr/lib/systemd/system/flannel-docker-opts.service" > /dev/null
-}
-
 # CIS Level 1 hardening
 # Addresses CIS Azure Container Linux 4 Level 1 failures without affecting
 # network connectivity or core system operation. All settings are safe for
@@ -1393,7 +1369,6 @@ finish_image_post_tmpfiles_rpm() {
     _remove_unused_systemd_components_rpm "${root_fs_dir}"
     _configure_pcrlock_rpm "${root_fs_dir}"
     _configure_etcd_rpm "${root_fs_dir}"
-    _configure_flannel_services_rpm "${root_fs_dir}"
     _configure_kdump_rpm "${root_fs_dir}"
     _configure_misc_rpm "${root_fs_dir}"
     _configure_cis_hardening_rpm "${root_fs_dir}"

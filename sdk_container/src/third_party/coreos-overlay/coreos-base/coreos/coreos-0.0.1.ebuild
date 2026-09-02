@@ -81,7 +81,6 @@ RDEPEND="${RDEPEND}
 # sys-devel/gettext: it embeds 'envsubst' binary which is useful for simple file templating.
 RDEPEND="${RDEPEND}
 	app-admin/etcd-wrapper
-	app-admin/flannel-wrapper
 	app-admin/locksmith
 	app-admin/mayday
 	app-admin/sdnotify-proxy
