@@ -35,4 +35,4 @@
 # # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod
 # # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
 # go: go.etcd.io/gofail@v0.2.0: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.info": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
-=dev-db/etcd-2.5.26
+=dev-db/etcd-3.5.26
