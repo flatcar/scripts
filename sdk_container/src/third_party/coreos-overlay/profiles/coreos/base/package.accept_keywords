@@ -81,7 +81,7 @@ dev-cpp/azure-security-keyvault-certificates
 dev-cpp/azure-security-keyvault-keys
 
 # To pick up latest 3.5 version Gentoo has.
-=dev-db/etcd-3.5*
+=dev-db/etcd-3.5* **
 
 # Needed to address security issues.
 =dev-lang/go-1.26.7
