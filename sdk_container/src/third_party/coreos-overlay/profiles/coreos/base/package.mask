@@ -27,3 +27,12 @@
 # I don't want to deal with etcd update right now. Also, locksmith
 # needs to stop using v2 first.
 >=dev-db/etcd-3.6
+# Also, 3.5.26 repeatedly fails to build in Jenkins.
+#
+# >>> Compiling source in /build/amd64-usr/var/tmp/portage/dev-db/etcd-3.5.26/work/etcd-3.5.26 ...
+# # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.info
+# # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.info: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.info": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
+# # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod
+# # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
+# go: go.etcd.io/gofail@v0.2.0: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.info": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
+=dev-db/etcd-2.5.26
