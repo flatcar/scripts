@@ -28,9 +28,8 @@ else
 		"${FILESDIR}"/0010-translation-support-OEM-and-oem.patch
 		"${FILESDIR}"/0011-internal-exec-stages-mount-Mount-oem.patch
 		"${FILESDIR}"/0012-go-mod-vendor.patch
-		"${FILESDIR}"/0013-Partially-revert-drop-OEM-URI-support.patch
-		"${FILESDIR}"/0014-config-Support-oem-schema-in-newer-config-spec-versi.patch
-		"${FILESDIR}"/0015-usr-share-oem-oem.patch
+		"${FILESDIR}"/0013-internal-resource-url-Add-a-file-schema-for-local-fi.patch
+		"${FILESDIR}"/0014-internal-resource-url-Add-an-optional-oem-schema-to-.patch
 	)
 fi
 
@@ -59,9 +58,11 @@ src_prepare() {
 }
 
 src_compile() {
-	ego build \
-		-ldflags "-X github.com/flatcar/ignition/v2/internal/version.Raw=${PV} -X github.com/flatcar/ignition/v2/internal/distro.selinuxRelabel=false" \
-		"${S}"/internal/main.go
+	ego build -ldflags "
+		-X github.com/flatcar/ignition/v2/internal/version.Raw=${PV}
+		-X github.com/flatcar/ignition/v2/internal/distro.oemFetch=true
+		-X github.com/flatcar/ignition/v2/internal/distro.selinuxRelabel=false
+		" "${S}"/internal/main.go
 }
 
 src_install() {
