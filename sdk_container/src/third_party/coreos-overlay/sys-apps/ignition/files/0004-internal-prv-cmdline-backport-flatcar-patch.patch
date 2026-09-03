@@ -1,0 +1,44 @@
+From b243d181ee03c845db23b41eadcc9955aff44212 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Mon, 19 Feb 2024 18:12:22 +0100
+Subject: [PATCH 04/15] internal/prv/cmdline: backport flatcar patch
+
+this patch provides backward compatibility for various config
+key
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ internal/providers/cmdline/cmdline.go | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/internal/providers/cmdline/cmdline.go b/internal/providers/cmdline/cmdline.go
+index b0c66156..580606c0 100644
+--- a/internal/providers/cmdline/cmdline.go
++++ b/internal/providers/cmdline/cmdline.go
+@@ -43,9 +43,11 @@ import (
+ type cmdlineFlag string
+ 
+ const (
+-	flagUrl          cmdlineFlag = "ignition.config.url"
+-	flagDeviceLabel  cmdlineFlag = "ignition.config.device"
+-	flagUserDataPath cmdlineFlag = "ignition.config.path"
++	flagUrlLegacyCoreOS cmdlineFlag = "coreos.config.url"
++	flagUrlLegacy       cmdlineFlag = "flatcar.config.url"
++	flagUrl             cmdlineFlag = "ignition.config.url"
++	flagDeviceLabel     cmdlineFlag = "ignition.config.device"
++	flagUserDataPath    cmdlineFlag = "ignition.config.path"
+ )
+ 
+ type cmdlineOpts struct {
+@@ -115,7 +117,7 @@ func parseCmdline(logger *log.Logger, path string) (*cmdlineOpts, error) {
+ 		value := parts[1]
+ 
+ 		switch key {
+-		case flagUrl:
++		case flagUrl, flagUrlLegacy, flagUrlLegacyCoreOS:
+ 			if value == "" {
+ 				logger.Info("url flag found but no value provided")
+ 				continue
+-- 
+2.55.0
+
