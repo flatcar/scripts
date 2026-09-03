@@ -143,3 +143,6 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-libs/libunwind-1.8.3
+
+# Pull some fixes (nested mount issue with sysext)
+=sys-apps/systemd-260.4
