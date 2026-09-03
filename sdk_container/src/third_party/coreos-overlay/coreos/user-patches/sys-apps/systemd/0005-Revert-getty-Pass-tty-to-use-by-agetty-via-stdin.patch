@@ -1,4 +1,4 @@
-From 6c97801bdec3730f49f68683b141909145826f2f Mon Sep 17 00:00:00 2001
+From 7ba8b1d2428b4ad3da9e391fcbb622ac41d13963 Mon Sep 17 00:00:00 2001
 From: Sayan Chowdhury <schowdhury@microsoft.com>
 Date: Fri, 16 Dec 2022 16:28:26 +0530
 Subject: [PATCH 5/8] Revert "getty: Pass tty to use by agetty via stdin"
@@ -99,5 +99,5 @@ index d89805a0ef..73d88541fe 100644
  TTYReset=yes
  TTYVHangup=yes
 -- 
-2.53.0
+2.54.0
 
