@@ -1,0 +1,149 @@
+From 3260832f0723d547f8b97e9b99a7716e9353af3d Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 3 Sep 2026 11:26:29 +0100
+Subject: [PATCH] internal/resource/url: Add a file:// schema for local files
+
+The recent addition of `ignition.config.path` already supports local
+files, but only for fetching Ignition config, and it includes mounting
+logic that may be unwanted when all you want to do is read an
+already-mounted file.
+
+This file:// schema does exactly what you would expect it to do, just
+read a local file without trying to mount anything first, and it works
+as a generic resource that can be used in the files section.
+
+Only absolute paths are supported.
+
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
+---
+ config/doc/ignition.yaml              |  7 ++++++-
+ config/shared/errors/errors.go        |  1 +
+ config/v3_7_experimental/types/url.go |  5 +++++
+ internal/resource/url.go              | 18 +++++++++++++++++-
+ internal/util/url.go                  |  2 +-
+ 5 files changed, 30 insertions(+), 3 deletions(-)
+
+diff --git a/config/doc/ignition.yaml b/config/doc/ignition.yaml
+index 508c4406..29c7c7a6 100644
+--- a/config/doc/ignition.yaml
++++ b/config/doc/ignition.yaml
+@@ -1,7 +1,7 @@
+ resource:
+   children:
+     - name: source
+-      desc: "the URL of the %TYPE%. Supported schemes are `http`, `https`, `tftp`, `s3`, `arn`, `gs`, and [`data`](https://tools.ietf.org/html/rfc2397). When using `http`, it is advisable to use the verification option to ensure the contents haven't been modified."
++      desc: "the URL of the %TYPE%. Supported schemes are `http`, `https`, `tftp`, `s3`, `arn`, `gs`, `file`, and [`data`](https://tools.ietf.org/html/rfc2397). When using `http`, it is advisable to use the verification option to ensure the contents haven't been modified."
+       # source is typically required by validation, but some inclusion sites
+       # will override this
+       required: true
+@@ -16,6 +16,11 @@ resource:
+           if:
+             - variant: ignition
+               max: 3.3.0
++        - regex: "`file`, "
++          replacement: ""
++          if:
++            - variant: ignition
++              max: 3.6.0
+     - name: compression
+       desc: "the type of compression used on the %TYPE% (null or gzip). Compression cannot be used with S3."
+     - name: httpHeaders
+diff --git a/config/shared/errors/errors.go b/config/shared/errors/errors.go
+index 98296d02..e24a4ff6 100644
+--- a/config/shared/errors/errors.go
++++ b/config/shared/errors/errors.go
+@@ -110,6 +110,7 @@ var (
+ 	ErrHashWrongSize                   = errors.New("incorrect size for hash sum")
+ 	ErrHashUnrecognized                = errors.New("unrecognized hash function")
+ 	ErrEngineConfiguration             = errors.New("engine incorrectly configured")
++	ErrPathNotAbsolute                 = errors.New("path is not absolute")
+ 
+ 	// AWS S3 specific errors
+ 	ErrInvalidS3ARN             = errors.New("invalid S3 ARN format")
+diff --git a/config/v3_7_experimental/types/url.go b/config/v3_7_experimental/types/url.go
+index 97a4c9ae..97120e89 100644
+--- a/config/v3_7_experimental/types/url.go
++++ b/config/v3_7_experimental/types/url.go
+@@ -70,6 +70,11 @@ func validateURL(s string) error {
+ 			return err
+ 		}
+ 		return nil
++	case "file":
++		if u.Host != "" || u.Path == "" {
++			return errors.ErrPathNotAbsolute
++		}
++		return nil
+ 	default:
+ 		return errors.ErrInvalidScheme
+ 	}
+diff --git a/internal/resource/url.go b/internal/resource/url.go
+index 6fe693a6..63e9b7d1 100644
+--- a/internal/resource/url.go
++++ b/internal/resource/url.go
+@@ -28,6 +28,7 @@ import (
+ 	"net/netip"
+ 	"net/url"
+ 	"os"
++	"path/filepath"
+ 	"strings"
+ 	"sync"
+ 	"syscall"
+@@ -60,7 +61,6 @@ const (
+ 
+ var (
+ 	ErrSchemeUnsupported      = errors.New("unsupported source scheme")
+-	ErrPathNotAbsolute        = errors.New("path is not absolute")
+ 	ErrNotFound               = errors.New("resource not found")
+ 	ErrFailed                 = errors.New("failed to fetch resource")
+ 	ErrCompressionUnsupported = errors.New("compression is not supported with that scheme")
+@@ -183,6 +183,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
+ 		return buf.Bytes(), err
+ 	case "gs":
+ 		err = f.fetchFromGCS(u, dest, opts)
++	case "file":
++		err = f.fetchFromFile(u.Path, dest, opts)
+ 	case "":
+ 		return nil, nil
+ 	default:
+@@ -251,6 +253,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
+ 		return f.fetchFromS3(u, dest, opts)
+ 	case "gs":
+ 		return f.fetchFromGCS(u, dest, opts)
++	case "file":
++		return f.fetchFromFile(u.Path, dest, opts)
+ 	case "":
+ 		return nil
+ 	default:
+@@ -459,6 +463,18 @@ func (f *Fetcher) fetchFromGCS(u url.URL, dest io.Writer, opts FetchOptions) err
+ 	return f.fetchFromHTTP(gcsURL, dest, opts)
+ }
+ 
++func (f *Fetcher) fetchFromFile(path string, dest io.Writer, opts FetchOptions) error {
++	path = filepath.Clean(path)
++
++	fi, err := os.Open(path)
++	if err != nil {
++		f.Logger.Err("failed to read file: %v", err)
++		return err
++	}
++	defer fi.Close()
++	return f.decompressCopyHashAndVerify(dest, fi, opts)
++}
++
+ type s3target interface {
+ 	io.WriterAt
+ 	io.ReadSeeker
+diff --git a/internal/util/url.go b/internal/util/url.go
+index 3087187e..de465ba4 100644
+--- a/internal/util/url.go
++++ b/internal/util/url.go
+@@ -19,5 +19,5 @@ import (
+ )
+ 
+ func UrlNeedsNet(u url.URL) bool {
+-	return u.Scheme != "data" && u.Scheme != ""
++	return u.Scheme != "data" && u.Scheme != "file" && u.Scheme != ""
+ }
+-- 
+2.55.0
+
