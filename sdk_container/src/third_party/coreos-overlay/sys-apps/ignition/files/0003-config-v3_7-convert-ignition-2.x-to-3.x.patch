@@ -1,7 +1,7 @@
-From 18a1200935058a9ab8afc9c05532c62a7344bdfb Mon Sep 17 00:00:00 2001
+From 051aad96d87cbbce464990584663cc5a0a867ec1 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 20 Aug 2026 14:23:22 +0200
-Subject: [PATCH 04/19] config/v3_7: convert ignition 2.x to 3.x
+Subject: [PATCH 03/15] config/v3_7: convert ignition 2.x to 3.x
 
 if the version of ignition is 2.x we convert it to 3.x using
 ign-converter.
@@ -14,7 +14,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 37 insertions(+)
 
 diff --git a/config/v3_7_experimental/config.go b/config/v3_7_experimental/config.go
-index 8d02129e..18193de1 100644
+index c82ca703..57c958c7 100644
 --- a/config/v3_7_experimental/config.go
 +++ b/config/v3_7_experimental/config.go
 @@ -15,9 +15,14 @@
@@ -24,14 +24,14 @@ index 8d02129e..18193de1 100644
 +	"encoding/json"
 +	"fmt"
 +
-+	"github.com/flatcar/ignition/config/v2_4"
- 	"github.com/flatcar/ignition/v2/config/merge"
- 	"github.com/flatcar/ignition/v2/config/shared/errors"
- 	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v24tov31"
- 	prev "github.com/flatcar/ignition/v2/config/v3_6"
- 	"github.com/flatcar/ignition/v2/config/v3_7_experimental/translate"
- 	"github.com/flatcar/ignition/v2/config/v3_7_experimental/types"
++	"github.com/coreos/ignition/config/v2_4"
+ 	"github.com/coreos/ignition/v2/config/merge"
+ 	"github.com/coreos/ignition/v2/config/shared/errors"
+ 	"github.com/coreos/ignition/v2/config/util"
++	"github.com/coreos/ignition/v2/config/v24tov31"
+ 	prev "github.com/coreos/ignition/v2/config/v3_6"
+ 	"github.com/coreos/ignition/v2/config/v3_7_experimental/translate"
+ 	"github.com/coreos/ignition/v2/config/v3_7_experimental/types"
 @@ -67,6 +72,38 @@ func ParseCompatibleVersion(raw []byte) (types.Config, report.Report, error) {
  		return types.Config{}, rpt, err
  	}
@@ -72,5 +72,5 @@ index 8d02129e..18193de1 100644
  		return Parse(raw)
  	}
 -- 
-2.54.0
+2.55.0
 

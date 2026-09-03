@@ -1,36 +1,27 @@
-From 820949eec50518f34b528082b34acc732ac2763f Mon Sep 17 00:00:00 2001
+From 53af65c1f108785d61aff862ff8978220d41d3a4 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 10 Nov 2022 11:58:49 +0100
-Subject: [PATCH 14/19] translation: support OEM and oem
+Subject: [PATCH 10/15] translation: support OEM and oem
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
- config/v24tov31/v24tov31.go      |   6 +-
+ config/v24tov31/v24tov31.go      |   3 +-
  config/v24tov31/v24tov31_test.go | 109 +++++++++++++++++++++++++++++++
- 2 files changed, 112 insertions(+), 3 deletions(-)
+ 2 files changed, 111 insertions(+), 1 deletion(-)
 
 diff --git a/config/v24tov31/v24tov31.go b/config/v24tov31/v24tov31.go
-index 46749385..68da4014 100644
+index dd8d2d00..6749a912 100644
 --- a/config/v24tov31/v24tov31.go
 +++ b/config/v24tov31/v24tov31.go
-@@ -21,14 +21,14 @@ import (
+@@ -21,6 +21,7 @@ import (
  	"path"
  	"path/filepath"
  	"reflect"
 +	"strings"
  
- 	old "github.com/flatcar/ignition/config/v2_4/types"
- 	oldValidate "github.com/flatcar/ignition/config/validate"
- 	"github.com/flatcar/ignition/v2/config/merge"
-+	"github.com/flatcar/ignition/v2/config/util"
- 	"github.com/flatcar/ignition/v2/config/v3_1/types"
- 	"github.com/flatcar/ignition/v2/config/validate"
--	"github.com/flatcar/ignition/v2/config/util"
--
- )
- 
- // Check2_4 returns if the config is translatable but does not do any translation.
-@@ -474,7 +474,7 @@ func translateFilesystems(fss []old.Filesystem, m map[string]string) (ret []type
+ 	old "github.com/coreos/ignition/config/v2_4/types"
+ 	oldValidate "github.com/coreos/ignition/config/validate"
+@@ -473,7 +474,7 @@ func translateFilesystems(fss []old.Filesystem, m map[string]string) (ret []type
  		}
  
  		format := f.Mount.Format
@@ -40,7 +31,7 @@ index 46749385..68da4014 100644
  		}
  
 diff --git a/config/v24tov31/v24tov31_test.go b/config/v24tov31/v24tov31_test.go
-index e81f6bed..68c07109 100644
+index 17f7c00c..abc7801d 100644
 --- a/config/v24tov31/v24tov31_test.go
 +++ b/config/v24tov31/v24tov31_test.go
 @@ -1690,3 +1690,112 @@ func TestDuplicateUnits(t *testing.T) {
@@ -157,5 +148,5 @@ index e81f6bed..68c07109 100644
 +	}
 +}
 -- 
-2.54.0
+2.55.0
 

@@ -1,7 +1,7 @@
-From 3a322043816015861d66d416822ef273c0919012 Mon Sep 17 00:00:00 2001
+From 1c4a140b210d2a6480f43cf1a65d7ff58bf51f69 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Wed, 1 Apr 2026 16:11:52 +0100
-Subject: [PATCH 12/19] Partially revert "*: drop OEM URI support"
+Subject: [PATCH 13/15] Partially revert "*: drop OEM URI support"
 
 This partially reverts commit 0c088d6de77aa1b1f47b9252a07f51cb1e249df3.
 
@@ -12,12 +12,12 @@ Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
  config/v3_2/types/url.go  |  2 +-
  config/v3_3/types/url.go  |  2 +-
  config/v3_4/types/url.go  |  2 +-
- internal/distro/distro.go |  3 +++
- internal/resource/url.go  | 29 ++++++++++++++++++++++++++++-
- 7 files changed, 36 insertions(+), 6 deletions(-)
+ internal/distro/distro.go |  4 ++++
+ internal/resource/url.go  | 27 +++++++++++++++++++++++++++
+ 7 files changed, 36 insertions(+), 5 deletions(-)
 
 diff --git a/config/v3_0/types/url.go b/config/v3_0/types/url.go
-index 2d8c44b1..f560bc22 100644
+index 6a1f9397..a18e49dc 100644
 --- a/config/v3_0/types/url.go
 +++ b/config/v3_0/types/url.go
 @@ -30,7 +30,7 @@ func validateURL(s string) error {
@@ -30,7 +30,7 @@ index 2d8c44b1..f560bc22 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/config/v3_1/types/url.go b/config/v3_1/types/url.go
-index 2d8c44b1..f560bc22 100644
+index 6a1f9397..a18e49dc 100644
 --- a/config/v3_1/types/url.go
 +++ b/config/v3_1/types/url.go
 @@ -30,7 +30,7 @@ func validateURL(s string) error {
@@ -43,7 +43,7 @@ index 2d8c44b1..f560bc22 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/config/v3_2/types/url.go b/config/v3_2/types/url.go
-index bf1f3a5e..63297beb 100644
+index 0d8771bf..5020bf7e 100644
 --- a/config/v3_2/types/url.go
 +++ b/config/v3_2/types/url.go
 @@ -30,7 +30,7 @@ func validateURL(s string) error {
@@ -56,7 +56,7 @@ index bf1f3a5e..63297beb 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/config/v3_3/types/url.go b/config/v3_3/types/url.go
-index bf1f3a5e..63297beb 100644
+index 0d8771bf..5020bf7e 100644
 --- a/config/v3_3/types/url.go
 +++ b/config/v3_3/types/url.go
 @@ -30,7 +30,7 @@ func validateURL(s string) error {
@@ -69,7 +69,7 @@ index bf1f3a5e..63297beb 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/config/v3_4/types/url.go b/config/v3_4/types/url.go
-index b1f96337..752044ce 100644
+index 97a4c9ae..7bcad990 100644
 --- a/config/v3_4/types/url.go
 +++ b/config/v3_4/types/url.go
 @@ -32,7 +32,7 @@ func validateURL(s string) error {
@@ -82,31 +82,32 @@ index b1f96337..752044ce 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 235882d5..98d0625d 100644
+index 5e03425b..7bdb284d 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
-@@ -30,6 +30,8 @@ var (
- 	bootIDPath        = "/proc/sys/kernel/random/boot_id"
- 	// initramfs directory containing distro-provided base config
- 	systemConfigDir = "/usr/lib/ignition"
+@@ -33,6 +33,8 @@ var (
+ 	systemRuntimeConfigDir = "/run/ignition"
+ 	systemLocalConfigDir   = "/etc/ignition"
+ 	systemConfigDir        = "/usr/lib/ignition"
 +	// initramfs directory to check before retrieving file from OEM partition
 +	oemLookasideDir = "/usr/share/oem"
  
  	// Helper programs
  	groupaddCmd  = "groupadd"
-@@ -89,6 +91,7 @@ func DiskByLabelDir() string { return diskByLabelDir }
- func KernelCmdlinePath() string { return kernelCmdlinePath }
- func BootIDPath() string        { return bootIDPath }
- func SystemConfigDir() string   { return fromEnv("SYSTEM_CONFIG_DIR", systemConfigDir) }
-+func OEMLookasideDir() string   { return fromEnv("OEM_LOOKASIDE_DIR", oemLookasideDir) }
+@@ -107,6 +109,8 @@ func SystemConfigDirs() []string {
+ 	}
+ }
  
++func OEMLookasideDir() string { return fromEnv("OEM_LOOKASIDE_DIR", oemLookasideDir) }
++
  func GroupaddCmd() string  { return groupaddCmd }
  func GroupmodCmd() string  { return groupmodCmd }
+ func GroupdelCmd() string  { return groupdelCmd }
 diff --git a/internal/resource/url.go b/internal/resource/url.go
-index 8d00d823..10af133b 100644
+index 6fe693a6..f1eb2787 100644
 --- a/internal/resource/url.go
 +++ b/internal/resource/url.go
-@@ -28,6 +28,7 @@ import (
+@@ -28,12 +28,14 @@ import (
  	"net/netip"
  	"net/url"
  	"os"
@@ -114,20 +115,14 @@ index 8d00d823..10af133b 100644
  	"strings"
  	"sync"
  	"syscall"
-@@ -35,10 +36,11 @@ import (
  
  	"cloud.google.com/go/compute/metadata"
- 	"cloud.google.com/go/storage"
-+	"github.com/coreos/vcontext/report"
- 	configErrors "github.com/flatcar/ignition/v2/config/shared/errors"
-+	"github.com/flatcar/ignition/v2/internal/distro"
- 	"github.com/flatcar/ignition/v2/internal/log"
- 	"github.com/flatcar/ignition/v2/internal/util"
--	"github.com/coreos/vcontext/report"
- 	"golang.org/x/oauth2/google"
- 	"google.golang.org/api/option"
- 
-@@ -176,6 +178,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
+ 	configErrors "github.com/coreos/ignition/v2/config/shared/errors"
++	"github.com/coreos/ignition/v2/internal/distro"
+ 	"github.com/coreos/ignition/v2/internal/log"
+ 	"github.com/coreos/ignition/v2/internal/util"
+ 	"github.com/coreos/vcontext/report"
+@@ -175,6 +177,8 @@ func (f *Fetcher) FetchToBuffer(u url.URL, opts FetchOptions) ([]byte, error) {
  		err = f.fetchFromTFTP(u, dest, opts)
  	case "data":
  		err = f.fetchFromDataURL(u, dest, opts)
@@ -136,7 +131,7 @@ index 8d00d823..10af133b 100644
  	case "s3", "arn":
  		buf := &s3buf{
  			WriteAtBuffer: manager.NewWriteAtBuffer([]byte{}),
-@@ -248,6 +252,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
+@@ -247,6 +251,8 @@ func (f *Fetcher) Fetch(u url.URL, dest *os.File, opts FetchOptions) error {
  		return f.fetchFromTFTP(u, dest, opts)
  	case "data":
  		return f.fetchFromDataURL(u, dest, opts)
@@ -145,7 +140,7 @@ index 8d00d823..10af133b 100644
  	case "s3", "arn":
  		return f.fetchFromS3(u, dest, opts)
  	case "gs":
-@@ -465,6 +471,27 @@ type s3target interface {
+@@ -464,6 +470,27 @@ type s3target interface {
  	io.ReadSeeker
  }
  
@@ -174,5 +169,5 @@ index 8d00d823..10af133b 100644
  // dest, returning an error if one is encountered. It will attempt to acquire
  // IAM credentials from the EC2 metadata service, and if this fails will attempt
 -- 
-2.54.0
+2.55.0
 
