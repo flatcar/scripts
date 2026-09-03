@@ -124,3 +124,6 @@ sys-apps/azure-vm-utils
 
 # Take this version early for a cross fix and buildpkg-proactive.
 =sys-apps/portage-3.0.81
+
+# Pull some fixes (nested mount issue with sysext)
+=sys-apps/systemd-260.4
