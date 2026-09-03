@@ -1,0 +1,1 @@
+- Added containerd registry certificate directory support for `/etc/containerd/certs.d` in the containerd sysext. ([Flatcar#583](https://github.com/flatcar/Flatcar/issues/583))
