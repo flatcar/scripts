@@ -117,8 +117,15 @@ def get_product_durable_id(access_token, offer):
         url=f"https://graph.microsoft.com/rp/product-ingestion/product?externalId={offer}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
+    resp.raise_for_status()
 
-    return resp.json().get("value", [])[0].get("id")
+    # An unknown externalId comes back as an empty list rather than an error, so
+    # report the offer here instead of letting the index raise further down.
+    values = resp.json().get("value", [])
+    if not values:
+        raise ValueError(f"no product found for offer externalId={offer}")
+
+    return values[0].get("id")
 
 
 def get_plan_durable_id(access_token, product_durable_id, plan):
@@ -126,8 +133,15 @@ def get_plan_durable_id(access_token, product_durable_id, plan):
         url=f"https://graph.microsoft.com/rp/product-ingestion/plan?product={product_durable_id}&externalId={plan}",
         headers={"Authorization": f"Bearer {access_token}"},
     )
+    resp.raise_for_status()
 
-    return resp.json().get("value", [])[0].get("id")
+    values = resp.json().get("value", [])
+    if not values:
+        raise ValueError(
+            f"no plan found for externalId={plan} under product {product_durable_id}"
+        )
+
+    return values[0].get("id")
 
 
 def get_image_versions(access_token, product_durable_id, plan_durable_id, corevm=False):
