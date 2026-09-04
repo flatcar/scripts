@@ -7,9 +7,6 @@
 # Gentoo upstream package stabilisation
 # (the following packages are "unstable" upstream; we're stabilising these)
 
-# Chewi maintains edk2 in Gentoo, and we generally want the latest.
-sys-firmware/edk2-bin
-
 # Keep versions on both arches in sync.
 =app-admin/logrotate-3.22.0-r1
 
@@ -19,11 +16,12 @@ sys-firmware/edk2-bin
 # Needed to fix build with acl 2.4.0
 =app-arch/tar-1.35-r1
 
+# Needed to address security issues.
+=app-arch/unzip-6.0_p31
+=app-arch/zip-3.0_p16
+
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
-
-# To address CVE-2025-0495.
-=app-containers/docker-buildx-0.35.0
 
 # For podman 6.0.0
 =app-containers/conmon-2.2.1
@@ -35,15 +33,8 @@ sys-firmware/edk2-bin
 # To address some CVEs.
 =app-containers/cri-tools-1.36.0
 
-# To address CVE-2026-30892
-=app-containers/crun-1.28
-
-# To address some CVEs.
-=app-containers/docker-cli-29.5.2
-=app-containers/docker-29.5.2
-
-# To address a bunch of CVEs
-=app-containers/incus-7.2
+# To address security issues
+=app-containers/incus-7.3-r1
 
 # Keep versions on both arches in sync.
 =app-containers/lxc-7.0.0
@@ -55,7 +46,7 @@ sys-firmware/edk2-bin
 =app-containers/podman-6.0.0
 
 # We always want the latest version available.
-=app-containers/runc-1.4* ~amd64 ~arm64
+=app-containers/runc-1.4*
 
 # No stable keywords.
 =app-containers/syft-1.18.1 ~amd64 ~arm64
@@ -81,9 +72,6 @@ app-crypt/azure-keyvault-pkcs11
 # No stable keywords yet because it's new.
 =app-emulation/open-vmdk-0.3.12 ~amd64
 
-# To address CVE-2026-3886.
-=app-emulation/qemu-10.2.3
-
 # Keep versions on both arches in sync.
 =app-emulation/qemu-guest-agent-10.2.2
 
@@ -95,17 +83,18 @@ dev-cpp/azure-identity
 dev-cpp/azure-security-keyvault-certificates
 dev-cpp/azure-security-keyvault-keys
 
-# Not stabilised for arm64 yet.
-dev-db/etcd amd64
+# To pick up latest 3.5 version Gentoo has.
+=dev-db/etcd-3.5* **
 
-# Needed to address CVE-2026-27145, CVE-2026-39822, CVE-2026-42504, CVE-2026-42505, CVE-2026-42507.
-=dev-lang/go-1.26.5
+# Needed to address security issues.
+=dev-lang/go-1.26.7
 
 # Keep versions on both arches in sync.
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
 
-# To address CVE-2026-9146.
+# To address security issues.
+=dev-libs/glib-2.88.3
 =dev-libs/json-c-0.19-r2
 
 # Keep versions on both arches in sync.
@@ -114,6 +103,9 @@ dev-db/etcd amd64
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
+
+# To address security issues.
+=dev-libs/openssl-3.6.4
 
 # Keep versions on both arches in sync.
 =dev-libs/raft-0.22.1 ~arm64
@@ -129,8 +121,11 @@ dev-db/etcd amd64
 # Catalyst 4 is not stable yet, but earlier versions are masked now.
 =dev-util/catalyst-4.1.1-r1
 
+# Needed for new glib
+=dev-util/gdbus-codegen-2.88.3
+=dev-util/glib-utils-2.88.3
+
 # Keep versions on both arches in sync.
-=net-dns/bind-9.20.23
 =net-firewall/conntrack-tools-1.4.9
 
 # Needed to address CVE-2026-12505.
@@ -143,17 +138,14 @@ dev-db/etcd amd64
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
-# For CVE-2026-{59995,59996,59997,59998,59999,60000,60001,60002}
-=net-misc/openssh-10.4_p1-r1
+# To address security issues.
+=net-misc/openssh-10.5_p1
 
 # For podman 6.0.0
 =net-misc/passt-2026.05.26
 
-# To address CVE-2026-54369, CVE-2026-54370.
-=sys-apps/acl-2.4.0-r2
-
-# To address CVE-2026-54371.
-=sys-apps/attr-2.6.0
+# To address security issues.
+=net-misc/rsync-3.5.0
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
@@ -172,7 +164,17 @@ sys-apps/azure-vm-utils
 =sys-cluster/ipvsadm-1.31-r1 ~arm64
 
 # Keep versions on both arches in sync.
+=sys-devel/binutils-2.46.1
+
+# To address security issues.
+=sys-firmware/intel-microcode-20260812_p20260813
+
+# Chewi maintains edk2 in Gentoo, and we generally want the latest.
+sys-firmware/edk2-bin
+
+# Keep versions on both arches in sync.
 =sys-fs/lxcfs-7.0.0
+=sys-libs/binutils-libs-2.46.1
 
 # To address GHSA-2hqh-5c36-grrm, GHSA-46fr-jh49-xvhx, GHSA-4q85-33p6-j5g6.
 =sys-libs/libseccomp-2.6.1
@@ -183,3 +185,6 @@ sys-apps/azure-vm-utils
 
 # Keep versions on both arches in sync.
 =sys-libs/libunwind-1.8.3
+
+# rsync 3.5.0 needs it
+=virtual/acl-2.4.0

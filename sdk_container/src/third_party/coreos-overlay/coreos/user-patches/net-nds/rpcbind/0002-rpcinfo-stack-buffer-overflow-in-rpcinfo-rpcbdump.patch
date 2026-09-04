@@ -1,0 +1,47 @@
+From 62371b84babbc2f3546edb44d7d2b1ba62429d03 Mon Sep 17 00:00:00 2001
+From: Krzesimir Nowak <knowak@microsoft.com>
+Date: Tue, 25 Aug 2026 20:19:01 +0200
+Subject: [PATCH] rpcinfo: stack buffer overflow in rpcinfo rpcbdump()
+
+rpcinfo's rpcbdump() formats a server-controlled list of versions into
+a fixed size buffer with sprintf(). A malicious server returning a
+large number of versions may overflow it.
+
+Reported-by: Michalis Vasileiadis <vmihalis.tmd@gmail.com>
+Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
+---
+ src/rpcinfo.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/src/rpcinfo.c b/src/rpcinfo.c
+index 30d535e..9917913 100644
+--- a/src/rpcinfo.c
++++ b/src/rpcinfo.c
+@@ -958,17 +958,19 @@ rpcbdump (
+       for (rs = rs_head; rs; rs = rs->next)
+ 	{
+ 	  size_t netidmax = sizeof(buf) - 1;
+-	  char *p = buf;
++	  int l = 0;
+ 
+ 	  printf ("%10ld  ", rs->prog);
+ 	  for (vl = rs->vlist; vl; vl = vl->next)
+ 	    {
+-	      sprintf (p, "%d", vl->vers);
+-	      p = p + strlen (p);
++	      l += printf ("%d", vl->vers);
+ 	      if (vl->next)
+-		sprintf (p++, ",");
++		l += printf (",");
+ 	    }
+-	  printf ("%-10s", buf);
++	  if (l < 10)
++	    printf("%*s", 10 - l, " ");
++	  else
++	    printf(" ");
+ 	  buf[0] = '\0';
+ 
+           for (nl = rs->nlist; nl; nl = nl->next)
+-- 
+2.54.0
+

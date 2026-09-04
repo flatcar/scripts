@@ -22,7 +22,7 @@ configure_dev_portage() {
     local repo
     for repo in portage-stable coreos-overlay; do
         sudo mkdir -p "${root_fs_dir}/var/lib/portage/${repo}"
-        sudo rsync -rtl --exclude=md5-cache \
+        sudo rsync -rtl --exclude=md5-cache --insecure-links \
             "${SRC_ROOT}/third_party/${repo}/metadata" \
             "${SRC_ROOT}/third_party/${repo}/profiles" \
             "${root_fs_dir}/var/lib/portage/${repo}"
