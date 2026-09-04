@@ -4,7 +4,6 @@
 - SDK: rust ([1.96.1](https://blog.rust-lang.org/2026/06/30/Rust-1.96.1/) (includes [1.96.0](https://blog.rust-lang.org/2026/05/28/Rust-1.96.0/)))
 - base, dev: bash ([5.3_p15](https://cgit.git.savannah.gnu.org/cgit/bash.git/log/?id=b460816602167718f78a6233164e8875f49b75b2))
 - base, dev: bind ([9.20.26](https://bind9.readthedocs.io/en/v9.20.26/notes.html#notes-for-bind-9-20-26) (includes [9.20.25](https://bind9.readthedocs.io/en/v9.20.25/notes.html#notes-for-bind-9-20-25), [9.20.24](https://bind9.readthedocs.io/en/v9.20.24/notes.html#notes-for-bind-9-20-24)))
-- base, dev: etcd ([3.5.26](https://github.com/etcd-io/etcd/blob/main/CHANGELOG/CHANGELOG-3.5.md#v3526-2025-12-17))
 - base, dev: expat ([2.8.3](https://blog.hartwork.org/posts/expat-2-8-3-released/))
 - base, dev: findutils ([4.11.0](https://cgit.git.savannah.gnu.org/cgit/findutils.git/tree/NEWS?h=v4.11.0))
 - base, dev: glib ([2.88.3](https://gitlab.gnome.org/GNOME/glib/-/releases/2.88.3))
