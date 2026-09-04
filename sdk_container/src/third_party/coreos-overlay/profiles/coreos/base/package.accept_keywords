@@ -188,3 +188,6 @@ sys-firmware/edk2-bin
 
 # rsync 3.5.0 needs it
 =virtual/acl-2.4.0
+
+# Pull some fixes (nested mount issue with sysext)
+=sys-apps/systemd-260.4
