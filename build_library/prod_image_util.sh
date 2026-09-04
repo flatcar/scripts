@@ -134,7 +134,7 @@ create_prod_image() {
   fi
 
   sudo cp -a "${root_fs_dir}" "${BUILD_DIR}/root_fs_dir2"
-  sudo rsync -a --delete  "${BUILD_DIR}/configroot/etc/portage" "${BUILD_DIR}/root_fs_dir2/etc"
+  sudo rsync -a --delete --insecure-links "${BUILD_DIR}/configroot/etc/portage" "${BUILD_DIR}/root_fs_dir2/etc"
   sudo mksquashfs "${BUILD_DIR}/root_fs_dir2"  "${BUILD_DIR}/${image_sysext_base}" -noappend -xattrs-exclude '^btrfs.'
   sudo rm -rf "${BUILD_DIR}/root_fs_dir2"
 
