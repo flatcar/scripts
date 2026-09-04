@@ -92,12 +92,12 @@ PATCHES=(
 	"${FILESDIR}"/nvidia-modprobe-390.141-uvm-perms.patch
 	"${FILESDIR}"/nvidia-settings-530.30.02-desktop.patch
 	"${FILESDIR}"/nvidia-pci-resize-resource-fix-550.patch
-  "${FILESDIR}"/0001-mm-use-vm_flags_reset-to-avoid-GPL-only-vma_start_wr.patch
-  "${FILESDIR}"/0002-nvidia-drm-550.163.01-pass-drm_format_info-to-nv_drm.patch
-  "${FILESDIR}"/0003-nvidia-use-hrtimer_setup-for-Linux-6.15.patch
-  "${FILESDIR}"/0004-nvidia-uvm-guard-iommu_dev_enable_disable_feature-fo.patch
-  "${FILESDIR}"/0005-nvidia-uvm-guard-SMMU-WAR-code-with-UVM_ATS_SMMU_WA.patch
-  "${FILESDIR}"/0006-nvidia-uvm-adapt-to-page_pgmap-and-make_device_excl.patch
+	"${FILESDIR}"/0001-mm-use-vm_flags_reset-to-avoid-GPL-only-vma_start_wr.patch
+	"${FILESDIR}"/0002-nvidia-drm-550.163.01-pass-drm_format_info-to-nv_drm.patch
+	"${FILESDIR}"/0003-nvidia-use-hrtimer_setup-for-Linux-6.15.patch
+	"${FILESDIR}"/0004-nvidia-uvm-guard-iommu_dev_enable_disable_feature-fo.patch
+	"${FILESDIR}"/0005-nvidia-uvm-guard-SMMU-WAR-code-with-UVM_ATS_SMMU_WA.patch
+	"${FILESDIR}"/0006-nvidia-uvm-adapt-to-page_pgmap-and-make_device_excl.patch
 )
 
 pkg_setup() {
