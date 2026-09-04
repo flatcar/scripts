@@ -1,16 +1,16 @@
-From f57b41faa275285dafb9df26285e35dd34722738 Mon Sep 17 00:00:00 2001
+From 70dd79997dd9766d49a9e847d6b293b10e90198c Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 26 Sep 2022 12:12:04 +0200
-Subject: [PATCH 02/19] config: add ignition translation
+Subject: [PATCH 01/15] config: add ignition translation
 
 it's a merge from flatcar/ign-converter
 
 Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 ---
  config/util/translate.go         |  166 +++
- config/v24tov31/v24tov31.go      |  729 +++++++++++++
+ config/v24tov31/v24tov31.go      |  728 +++++++++++++
  config/v24tov31/v24tov31_test.go | 1692 ++++++++++++++++++++++++++++++
- 3 files changed, 2587 insertions(+)
+ 3 files changed, 2586 insertions(+)
  create mode 100644 config/util/translate.go
  create mode 100644 config/v24tov31/v24tov31.go
  create mode 100644 config/v24tov31/v24tov31_test.go
@@ -189,10 +189,10 @@ index 00000000..347d148c
 +}
 diff --git a/config/v24tov31/v24tov31.go b/config/v24tov31/v24tov31.go
 new file mode 100644
-index 00000000..46749385
+index 00000000..dd8d2d00
 --- /dev/null
 +++ b/config/v24tov31/v24tov31.go
-@@ -0,0 +1,729 @@
+@@ -0,0 +1,728 @@
 +// Copyright 2020 Red Hat, Inc.
 +//
 +// Licensed under the Apache License, Version 2.0 (the "License");
@@ -217,13 +217,12 @@ index 00000000..46749385
 +	"path/filepath"
 +	"reflect"
 +
-+	old "github.com/flatcar/ignition/config/v2_4/types"
-+	oldValidate "github.com/flatcar/ignition/config/validate"
-+	"github.com/flatcar/ignition/v2/config/merge"
-+	"github.com/flatcar/ignition/v2/config/v3_1/types"
-+	"github.com/flatcar/ignition/v2/config/validate"
-+	"github.com/flatcar/ignition/v2/config/util"
-+
++	old "github.com/coreos/ignition/config/v2_4/types"
++	oldValidate "github.com/coreos/ignition/config/validate"
++	"github.com/coreos/ignition/v2/config/merge"
++	"github.com/coreos/ignition/v2/config/util"
++	"github.com/coreos/ignition/v2/config/v3_1/types"
++	"github.com/coreos/ignition/v2/config/validate"
 +)
 +
 +// Check2_4 returns if the config is translatable but does not do any translation.
@@ -924,7 +923,7 @@ index 00000000..46749385
 +}
 diff --git a/config/v24tov31/v24tov31_test.go b/config/v24tov31/v24tov31_test.go
 new file mode 100644
-index 00000000..e81f6bed
+index 00000000..17f7c00c
 --- /dev/null
 +++ b/config/v24tov31/v24tov31_test.go
 @@ -0,0 +1,1692 @@
@@ -948,13 +947,13 @@ index 00000000..e81f6bed
 +	"fmt"
 +	"testing"
 +
-+	types2_4 "github.com/flatcar/ignition/config/v2_4/types"
-+	types3_1 "github.com/flatcar/ignition/v2/config/v3_1/types"
++	types2_4 "github.com/coreos/ignition/config/v2_4/types"
++	types3_1 "github.com/coreos/ignition/v2/config/v3_1/types"
 +
 +	"github.com/stretchr/testify/assert"
 +
-+	"github.com/flatcar/ignition/v2/config/util"
-+	"github.com/flatcar/ignition/v2/config/v24tov31"
++	"github.com/coreos/ignition/v2/config/util"
++	"github.com/coreos/ignition/v2/config/v24tov31"
 +)
 +
 +// Configs using _all_ the (undeprecated) fields
@@ -2621,5 +2620,5 @@ index 00000000..e81f6bed
 +	}
 +}
 -- 
-2.54.0
+2.55.0
 

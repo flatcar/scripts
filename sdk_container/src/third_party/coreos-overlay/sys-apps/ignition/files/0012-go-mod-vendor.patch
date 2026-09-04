@@ -1,9 +1,9 @@
-From 6357e8465cd9dc5a008fb45a8505ba628924df81 Mon Sep 17 00:00:00 2001
-From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
-Date: Thu, 20 Aug 2026 14:24:00 +0200
-Subject: [PATCH 05/19] vendor: go mod vendor
+From d9a2c83900a0d66021dfe69bbf00c625287a6437 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <jlecuirot@microsoft.com>
+Date: Thu, 3 Sep 2026 15:00:47 +0100
+Subject: [PATCH 12/15] go mod vendor
 
-Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
 ---
  vendor/github.com/ajeddeloh/go-json/README    |   10 +
  vendor/github.com/ajeddeloh/go-json/decode.go | 1226 +++++++++++++++++
@@ -17029,33 +17029,33 @@ index 00000000..1b1efb0f
 +	return
 +}
 diff --git a/vendor/modules.txt b/vendor/modules.txt
-index 36c02885..a36e3fa1 100644
+index 4cd3527f..4b1f9e9e 100644
 --- a/vendor/modules.txt
 +++ b/vendor/modules.txt
-@@ -132,6 +132,9 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric
- # github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.54.0
- ## explicit; go 1.24.0
- github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping
+@@ -76,6 +76,9 @@ github.com/AzureAD/microsoft-authentication-library-for-go/apps/internal/shared
+ github.com/AzureAD/microsoft-authentication-library-for-go/apps/internal/version
+ github.com/AzureAD/microsoft-authentication-library-for-go/apps/managedidentity
+ github.com/AzureAD/microsoft-authentication-library-for-go/apps/public
 +# github.com/ajeddeloh/go-json v0.0.0-20160803184958-73d058cf8437
 +## explicit
 +github.com/ajeddeloh/go-json
- # github.com/aws/aws-sdk-go-v2 v1.41.1
- ## explicit; go 1.23
+ # github.com/aws/aws-sdk-go-v2 v1.43.4
+ ## explicit; go 1.24
  github.com/aws/aws-sdk-go-v2/aws
-@@ -255,6 +258,9 @@ github.com/coreos/go-json
+@@ -191,6 +194,9 @@ github.com/coreos/go-json
  # github.com/coreos/go-semver v0.3.1
  ## explicit; go 1.8
  github.com/coreos/go-semver/semver
 +# github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142
 +## explicit
 +github.com/coreos/go-systemd/unit
- # github.com/coreos/go-systemd/v22 v22.6.0
+ # github.com/coreos/go-systemd/v22 v22.7.0
  ## explicit; go 1.23
  github.com/coreos/go-systemd/v22/dbus
-@@ -316,6 +322,27 @@ github.com/envoyproxy/protoc-gen-validate/validate
- # github.com/felixge/httpsnoop v1.0.4
- ## explicit; go 1.13
- github.com/felixge/httpsnoop
+@@ -207,6 +213,27 @@ github.com/coreos/vcontext/yaml
+ # github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
+ ## explicit
+ github.com/davecgh/go-spew/spew
 +# github.com/flatcar/ignition v0.36.2
 +## explicit; go 1.16
 +github.com/flatcar/ignition/config/shared/errors
@@ -17077,19 +17077,19 @@ index 36c02885..a36e3fa1 100644
 +github.com/flatcar/ignition/config/validate/astjson
 +github.com/flatcar/ignition/config/validate/astnode
 +github.com/flatcar/ignition/config/validate/report
- # github.com/go-jose/go-jose/v4 v4.1.3
- ## explicit; go 1.24.0
- github.com/go-jose/go-jose/v4
-@@ -496,6 +523,9 @@ go.opentelemetry.io/otel/trace
- go.opentelemetry.io/otel/trace/embedded
- go.opentelemetry.io/otel/trace/internal/telemetry
- go.opentelemetry.io/otel/trace/noop
+ # github.com/godbus/dbus/v5 v5.1.0
+ ## explicit; go 1.12
+ github.com/godbus/dbus/v5
+@@ -264,6 +291,9 @@ github.com/vmware/vmw-guestinfo/message
+ github.com/vmware/vmw-guestinfo/rpcout
+ github.com/vmware/vmw-guestinfo/rpcvmx
+ github.com/vmware/vmw-guestinfo/vmcheck
 +# go4.org v0.0.0-20160314031811-03efcb870d84
 +## explicit
 +go4.org/errorutil
- # golang.org/x/crypto v0.47.0
- ## explicit; go 1.24.0
- golang.org/x/crypto/chacha20
+ # golang.org/x/crypto v0.54.0
+ ## explicit; go 1.25.0
+ golang.org/x/crypto/pkcs12
 -- 
-2.54.0
+2.55.0
 

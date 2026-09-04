@@ -16,25 +16,21 @@ else
 	KEYWORDS="amd64 arm64"
 
 	PATCHES=(
-		"${FILESDIR}/0001-sed-s-coreos-flatcar.patch"
-		"${FILESDIR}/0002-config-add-ignition-translation.patch"
-		"${FILESDIR}/0003-mod-add-flatcar-ignition-0.36.2.patch"
-		"${FILESDIR}/0004-config-v3_7-convert-ignition-2.x-to-3.x.patch"
-		"${FILESDIR}/0005-vendor-go-mod-vendor.patch"
-		"${FILESDIR}/0006-internal-prv-cmdline-backport-flatcar-patch.patch"
-		"${FILESDIR}/0007-provider-qemu-apply-fw_cfg-patch.patch"
-		"${FILESDIR}/0008-internal-disk-fs-ignore-fs-format-mismatches-for-the.patch"
-		"${FILESDIR}/0009-VMware-Fix-guestinfo.-.config.data-and-.config.url-v.patch"
-		"${FILESDIR}/0010-config-version-handle-configuration-version-1.patch"
-		"${FILESDIR}/0011-config-util-add-cloud-init-detection-to-initial-pars.patch"
-		"${FILESDIR}/0012-Partially-revert-drop-OEM-URI-support.patch"
-		"${FILESDIR}/0013-config-Support-oem-schema-in-newer-config-spec-versi.patch"
-		"${FILESDIR}/0014-translation-support-OEM-and-oem.patch"
-		"${FILESDIR}/0015-usr-share-oem-oem.patch"
-		"${FILESDIR}/0016-internal-exec-stages-mount-Mount-oem.patch"
-		"${FILESDIR}/0017-stages-disks-Fix-handling-of-device-mapper-when-part.patch"
-		"${FILESDIR}/0018-stages-disks-Fix-giving-partition-number-0-to-get-th.patch"
-		"${FILESDIR}/0019-stages-disks-Allow-partx-to-fail-then-check-the-stat.patch"
+		"${FILESDIR}"/0001-config-add-ignition-translation.patch
+		"${FILESDIR}"/0002-mod-add-flatcar-ignition-0.36.2.patch
+		"${FILESDIR}"/0003-config-v3_7-convert-ignition-2.x-to-3.x.patch
+		"${FILESDIR}"/0004-internal-prv-cmdline-backport-flatcar-patch.patch
+		"${FILESDIR}"/0005-provider-qemu-apply-fw_cfg-patch.patch
+		"${FILESDIR}"/0006-internal-disk-fs-ignore-fs-format-mismatches-for-the.patch
+		"${FILESDIR}"/0007-VMware-Fix-guestinfo.-.config.data-and-.config.url-v.patch
+		"${FILESDIR}"/0008-config-version-handle-configuration-version-1.patch
+		"${FILESDIR}"/0009-config-util-add-cloud-init-detection-to-initial-pars.patch
+		"${FILESDIR}"/0010-translation-support-OEM-and-oem.patch
+		"${FILESDIR}"/0011-internal-exec-stages-mount-Mount-oem.patch
+		"${FILESDIR}"/0012-go-mod-vendor.patch
+		"${FILESDIR}"/0013-Partially-revert-drop-OEM-URI-support.patch
+		"${FILESDIR}"/0014-config-Support-oem-schema-in-newer-config-spec-versi.patch
+		"${FILESDIR}"/0015-usr-share-oem-oem.patch
 	)
 fi
 
@@ -56,6 +52,11 @@ RDEPEND="
 	sys-fs/mdadm
 	sys-fs/xfsprogs
 "
+
+src_prepare() {
+	default
+	find -type f -print0 | xargs -0 sed -i "s:\bgithub\.com/coreos/ignition\b:github.com/flatcar/ignition:g" || die
+}
 
 src_compile() {
 	ego build \

@@ -1,7 +1,7 @@
-From 24ebb8d1b0ed9b33343666f1c674ac6fd3ca9248 Mon Sep 17 00:00:00 2001
+From 098a5be89077eeb510f3b1a64e74a5f9ba8a9081 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Tue, 22 Feb 2022 15:41:13 +0100
-Subject: [PATCH 11/19] config/util: add cloud init detection to initial
+Subject: [PATCH 09/15] config/util: add cloud init detection to initial
  parsing
 
 we detect if the config is not an ignition one (script/cloudinit) and we
@@ -14,7 +14,7 @@ Signed-off-by: Gabriel Adrian Samfira <gsamfira@cloudbasesolutions.com>
  1 file changed, 53 insertions(+)
 
 diff --git a/config/util/parsingErrors.go b/config/util/parsingErrors.go
-index 865d75d2..313d42ea 100644
+index 2af85e2b..10af2729 100644
 --- a/config/util/parsingErrors.go
 +++ b/config/util/parsingErrors.go
 @@ -15,7 +15,14 @@
@@ -30,7 +30,7 @@ index 865d75d2..313d42ea 100644
 +	"strings"
 +	"unicode"
  
- 	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 	"github.com/coreos/ignition/v2/config/shared/errors"
  
 @@ -24,10 +31,56 @@ import (
  	"github.com/coreos/vcontext/tree"
@@ -90,5 +90,5 @@ index 865d75d2..313d42ea 100644
  	if err == nil {
  		return report.Report{}, nil
 -- 
-2.54.0
+2.55.0
 

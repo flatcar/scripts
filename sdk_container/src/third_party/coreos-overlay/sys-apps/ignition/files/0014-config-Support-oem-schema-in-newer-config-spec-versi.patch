@@ -1,7 +1,7 @@
-From 4cb701db0bcf6e315a9b83ffac2acf0ab8daa03c Mon Sep 17 00:00:00 2001
+From 691dfae5bebac72a36b99e6cbfca5a5f43741d64 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Mon, 6 Apr 2026 13:13:58 +0100
-Subject: [PATCH 13/19] config: Support oem:// schema in newer config spec
+Subject: [PATCH 14/15] config: Support oem:// schema in newer config spec
  versions
 
 Signed-off-by: James Le Cuirot <jlecuirot@microsoft.com>
@@ -13,7 +13,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  3 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/config/v3_5/types/url.go b/config/v3_5/types/url.go
-index b1f96337..752044ce 100644
+index 97a4c9ae..7bcad990 100644
 --- a/config/v3_5/types/url.go
 +++ b/config/v3_5/types/url.go
 @@ -32,7 +32,7 @@ func validateURL(s string) error {
@@ -26,7 +26,7 @@ index b1f96337..752044ce 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/config/v3_6/types/url.go b/config/v3_6/types/url.go
-index b1f96337..752044ce 100644
+index 97a4c9ae..7bcad990 100644
 --- a/config/v3_6/types/url.go
 +++ b/config/v3_6/types/url.go
 @@ -32,7 +32,7 @@ func validateURL(s string) error {
@@ -39,7 +39,7 @@ index b1f96337..752044ce 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 diff --git a/config/v3_7_experimental/types/url.go b/config/v3_7_experimental/types/url.go
-index b1f96337..752044ce 100644
+index 97a4c9ae..7bcad990 100644
 --- a/config/v3_7_experimental/types/url.go
 +++ b/config/v3_7_experimental/types/url.go
 @@ -32,7 +32,7 @@ func validateURL(s string) error {
@@ -52,5 +52,5 @@ index b1f96337..752044ce 100644
  	case "s3":
  		if v, ok := u.Query()["versionId"]; ok {
 -- 
-2.54.0
+2.55.0
 

@@ -1,7 +1,7 @@
-From becd01b0e801430a97a9abb82ec984b1af32d110 Mon Sep 17 00:00:00 2001
+From 62e22b4b62eadddeda74a8bdc5df30d753345aea Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Wed, 25 Mar 2026 10:55:24 +0000
-Subject: [PATCH 15/19] /usr/share/oem -> /oem
+Subject: [PATCH 15/15] /usr/share/oem -> /oem
 
 Flatcar previously kept looking at the initrd's /usr/share/oem even
 after the migration for compatibility, but the minimal initrd now moves
@@ -27,12 +27,12 @@ index 347d148c..d4c057b2 100644
  			// generate a new path
  			fsMap[name] = "/tmp/" + name + "-ign" + strconv.FormatUint(addedSuffixCounter, 10)
 diff --git a/internal/distro/distro.go b/internal/distro/distro.go
-index 98d0625d..a970ef17 100644
+index 7bdb284d..0602325e 100644
 --- a/internal/distro/distro.go
 +++ b/internal/distro/distro.go
-@@ -31,7 +31,7 @@ var (
- 	// initramfs directory containing distro-provided base config
- 	systemConfigDir = "/usr/lib/ignition"
+@@ -34,7 +34,7 @@ var (
+ 	systemLocalConfigDir   = "/etc/ignition"
+ 	systemConfigDir        = "/usr/lib/ignition"
  	// initramfs directory to check before retrieving file from OEM partition
 -	oemLookasideDir = "/usr/share/oem"
 +	oemLookasideDir = "/oem"
@@ -40,5 +40,5 @@ index 98d0625d..a970ef17 100644
  	// Helper programs
  	groupaddCmd  = "groupadd"
 -- 
-2.54.0
+2.55.0
 

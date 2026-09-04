@@ -1,7 +1,7 @@
-From 6e16eb458d8c7a9d7804832aa37a0a8dceb20de5 Mon Sep 17 00:00:00 2001
+From 53ef77a20decae34e311708cb49c31d4a1cfd03e Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 2 Feb 2022 13:27:18 +0100
-Subject: [PATCH 10/19] config/version: handle configuration version 1
+Subject: [PATCH 08/15] config/version: handle configuration version 1
 
 version 2 should be able to translate configuration version 1 but the `GetConfigVersion`
 was not able to detect version 1 configuration since for this particular
@@ -13,7 +13,7 @@ Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/config/util/config.go b/config/util/config.go
-index 3b9bb22f..f81056fa 100644
+index 0b676698..b865a5e8 100644
 --- a/config/util/config.go
 +++ b/config/util/config.go
 @@ -15,6 +15,8 @@
@@ -22,7 +22,7 @@ index 3b9bb22f..f81056fa 100644
  import (
 +	"strconv"
 +
- 	"github.com/flatcar/ignition/v2/config/shared/errors"
+ 	"github.com/coreos/ignition/v2/config/shared/errors"
  
  	"github.com/coreos/go-semver/semver"
 @@ -25,6 +27,7 @@ type versionStub struct {
@@ -49,5 +49,5 @@ index 3b9bb22f..f81056fa 100644
  		return semver.Version{}, report.Report{}, errors.ErrInvalidVersion
  	}
 -- 
-2.54.0
+2.55.0
 
