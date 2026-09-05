@@ -1,4 +1,4 @@
-From 521b70f1082a7400d5635f70d86f2ad3e7518439 Mon Sep 17 00:00:00 2001
+From de5bb7b5770c60ae3df9b9ee276fde22f62b18fd Mon Sep 17 00:00:00 2001
 From: Krzesimir Nowak <knowak@microsoft.com>
 Date: Mon, 4 Dec 2023 12:17:25 +0100
 Subject: [PATCH] Flatcar modifications
@@ -10,12 +10,12 @@ Signed-off-by: Krzesimir Nowak <knowak@microsoft.com>
  policy/modules/kernel/corenetwork.if.in |  26 ++++
  policy/modules/kernel/corenetwork.te.in |  12 +-
  policy/modules/kernel/files.if          |  45 ++++++
- policy/modules/kernel/kernel.te         | 125 +++++++++++++++++
+ policy/modules/kernel/kernel.te         | 133 ++++++++++++++++++
  policy/modules/services/container.fc    |   6 +
  policy/modules/services/container.te    | 178 +++++++++++++++++++++++-
  policy/modules/system/init.te           |   8 ++
  policy/modules/system/locallogin.te     |   9 +-
- 9 files changed, 426 insertions(+), 3 deletions(-)
+ 9 files changed, 434 insertions(+), 3 deletions(-)
 
 diff --git a/policy/modules/admin/netutils.te b/policy/modules/admin/netutils.te
 index 286cae13b..aae2f8d21 100644
@@ -169,10 +169,10 @@ index 47698fd77..710ba58ac 100644
 +	relabelfrom_chr_files_pattern($1, { file_type -policy_config_t $2 }, { file_type -policy_config_t $2 })
 +')
 diff --git a/policy/modules/kernel/kernel.te b/policy/modules/kernel/kernel.te
-index 9161da0aa..3fa9c58a1 100644
+index 9161da0aa..a43c68fef 100644
 --- a/policy/modules/kernel/kernel.te
 +++ b/policy/modules/kernel/kernel.te
-@@ -388,6 +388,131 @@ files_mounton_default(kernel_t)
+@@ -388,6 +388,139 @@ files_mounton_default(kernel_t)
  
  mcs_process_set_categories(kernel_t)
  
@@ -300,6 +300,14 @@ index 9161da0aa..3fa9c58a1 100644
 +# avc:  denied  { bpf } for  pid=[0-9]* comm="runc" capability=39  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability2 permissive=0
 +#
 +allow kernel_t self:capability2 { bpf };
++
++#
++# FLATCAR:
++#
++# This one happens in kubeadm.*.calico*.
++#
++# avc: denied { execmem } for  pid=2873 comm="calico-node" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=process permissive=0
++allow kernel_t self:process { execmem };
 +
  mls_process_read_all_levels(kernel_t)
  mls_process_write_all_levels(kernel_t)
