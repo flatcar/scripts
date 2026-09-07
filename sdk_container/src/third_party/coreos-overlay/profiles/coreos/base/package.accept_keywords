@@ -185,6 +185,7 @@ sys-firmware/edk2-bin
 
 # Keep versions on both arches in sync.
 =sys-libs/libunwind-1.8.3
+=sys-libs/liburing-2.12
 
 # rsync 3.5.0 needs it
 =virtual/acl-2.4.0
