@@ -52,11 +52,30 @@ def get_active_plans():
     if resp.status_code != 200:
         logging.error("There is some issue with the channel-info.txt file. Please check https://flatcar.cdn.cncf.io/channel-info.txt")
         logging.error(f"Returned status code: {resp.status_code}")
+        return []
 
     plans = [i.split("=")[0].replace('_CURRENT','').lower() for i in resp.text.strip().split('\n')]
     plans = [plan for plan in plans if plan != 'lts']
 
     return plans
+
+
+def _parse_json_dict(resp, context):
+    try:
+        data = resp.json()
+    except Exception as e:
+        logging.error(
+            f"Failed to parse JSON response for {context}. Status: {resp.status_code}, Error: {e}"
+        )
+        return None
+
+    if not isinstance(data, dict):
+        logging.error(
+            f"Unexpected response format for {context}. Status: {resp.status_code}, Response: {resp.text}"
+        )
+        return None
+
+    return data
 
 
 def generate_partner_center_token(tenant_id, client_id, secret_value):
@@ -66,8 +85,10 @@ def generate_partner_center_token(tenant_id, client_id, secret_value):
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         data=data,
     )
-    access_token = resp.json().get("access_token")
-    return access_token
+    parsed = _parse_json_dict(resp, f"partner center token (tenant '{tenant_id}')")
+    if not parsed:
+        return None
+    return parsed.get("access_token")
 
 
 def generate_az_sas_url(plan, version, arch, **kwargs):
@@ -118,7 +139,21 @@ def get_product_durable_id(access_token, offer):
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    return resp.json().get("value", [])[0].get("id")
+    data = _parse_json_dict(resp, f"product durable ID (offer '{offer}')")
+    if not data:
+        return None
+
+    values = data.get("value", [])
+    if not values:
+        logging.error(
+            f"Failed to fetch product durable ID for offer '{offer}'. Status: {resp.status_code}, Response: {resp.text}"
+        )
+        return None
+
+    first_val = values[0]
+    if isinstance(first_val, dict):
+        return first_val.get("id")
+    return None
 
 
 def get_plan_durable_id(access_token, product_durable_id, plan):
@@ -127,7 +162,23 @@ def get_plan_durable_id(access_token, product_durable_id, plan):
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    return resp.json().get("value", [])[0].get("id")
+    data = _parse_json_dict(
+        resp, f"plan durable ID (product '{product_durable_id}', plan '{plan}')"
+    )
+    if not data:
+        return None
+
+    values = data.get("value", [])
+    if not values:
+        logging.error(
+            f"Failed to fetch plan durable ID for product '{product_durable_id}', plan '{plan}'. Status: {resp.status_code}, Response: {resp.text}"
+        )
+        return None
+
+    first_val = values[0]
+    if isinstance(first_val, dict):
+        return first_val.get("id")
+    return None
 
 
 def get_image_versions(access_token, product_durable_id, plan_durable_id, corevm=False):
@@ -140,7 +191,20 @@ def get_image_versions(access_token, product_durable_id, plan_durable_id, corevm
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
-    return resp.json().get("vmImageVersions")
+    data = _parse_json_dict(
+        resp, f"vmImageVersions (product '{product_durable_id}', plan '{plan_durable_id}')"
+    )
+    if not data:
+        return []
+
+    image_versions = data.get("vmImageVersions")
+    if image_versions is None:
+        logging.warning(
+            f"No existing vmImageVersions found for product '{product_durable_id}', plan '{plan_durable_id}'."
+        )
+        return []
+
+    return image_versions
 
 
 def draft_new_image_versions(
@@ -342,7 +406,14 @@ def main():
                 continue
 
         product_durable_id = get_product_durable_id(access_token, offer)
+        if not product_durable_id:
+            logging.error(f"Skipping offer '{offer}' due to missing product durable ID.")
+            continue
+
         plan_durable_id = get_plan_durable_id(access_token, product_durable_id, plan)
+        if not plan_durable_id:
+            logging.error(f"Skipping offer '{offer}' due to missing plan durable ID.")
+            continue
 
         product_durable_id = product_durable_id.split("/")[1]
         plan_durable_id = plan_durable_id.split("/")[2]
