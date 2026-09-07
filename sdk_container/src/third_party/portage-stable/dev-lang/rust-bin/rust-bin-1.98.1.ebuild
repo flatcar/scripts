@@ -3,7 +3,7 @@
 
 EAPI=8
 
-LLVM_COMPAT=( 20 )
+LLVM_COMPAT=( 22 )
 LLVM_OPTIONAL="yes"
 
 inherit edo llvm-r2 multilib prefix rust-toolchain verify-sig multilib-minimal optfeature
@@ -20,50 +20,48 @@ elif [[ ${PV} == *beta* ]]; then
 		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/rust-src-beta.tar.xz -> rust-src-${PV}.tar.xz )
 	"
 else
-	RUST_TOOLCHAIN_BASEURL=https://static.rust-lang.org/dist/rust-
 	# curl -Ls static.rust-lang.org/dist/channel-rust-${PV}.toml | grep "xz_url.*rust-src"
-	SRC_URI="$(rust_all_arch_uris "${PV}")
-		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/rust-}/2025-05-15/rust-src-${PV}.tar.xz )
-		ppc64? ( elibc_musl? ( !big-endian? (
-			$(rust_arch_uri powerpc64le-unknown-linux-musl ${PV})
-		) ) )
+	SRC_URI="$(rust_all_arch_uris "rust-${PV}")
+		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2026-09-03/rust-src-${PV}.tar.xz )
 	"
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
+
+GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PVR}" # omit trailing slash
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
 
-if [[ ${PV} != *9999* && ${PV} != *beta* ]]; then
-	GENTOO_BIN_BASEURI="https://github.com/projg2/rust-bootstrap/releases/download/${PV}" # omit trailing slash
-	MY_P=rust-${PV}
+if [[ ${PV} != *9999* && ${PV} != *beta* ]] ; then
 	# Keep this separate to allow easy commenting out if not yet built
-	SRC_URI+=" sparc? ( ${GENTOO_BIN_BASEURI}/${MY_P}-sparc64-unknown-linux-gnu.tar.xz ) "
+	SRC_URI+=" sparc? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-sparc64-unknown-linux-gnu.tar.xz ) "
 	SRC_URI+=" mips? (
 		abi_mips_o32? (
-			big-endian?  ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips-unknown-linux-gnu.tar.xz )
-			!big-endian? ( ${GENTOO_BIN_BASEURI}/${MY_P}-mipsel-unknown-linux-gnu.tar.xz )
+			big-endian?  ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mips-unknown-linux-gnu.tar.xz )
+			!big-endian? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mipsel-unknown-linux-gnu.tar.xz )
 		)
 		abi_mips_n64? (
-			big-endian?  ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips64-unknown-linux-gnuabi64.tar.xz )
-			!big-endian? ( ${GENTOO_BIN_BASEURI}/${MY_P}-mips64el-unknown-linux-gnuabi64.tar.xz )
+			big-endian?  ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mips64-unknown-linux-gnuabi64.tar.xz )
+			!big-endian? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-mips64el-unknown-linux-gnuabi64.tar.xz )
 		)
 	)"
 	SRC_URI+=" riscv? (
-		elibc_musl? ( ${GENTOO_BIN_BASEURI}/${MY_P}-riscv64gc-unknown-linux-musl.tar.xz )
+		elibc_musl? ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-riscv64gc-unknown-linux-musl.tar.xz )
 	)"
-	SRC_URI+=" ppc64? ( big-endian? (
-		elibc_musl? ( ${GENTOO_BIN_BASEURI}/${MY_P}-powerpc64-unknown-linux-musl.tar.xz )
+	SRC_URI+=" ppc64? ( elibc_musl? (
+		big-endian?  ( ${GENTOO_BIN_BASEURI}/rust-${PVR}-powerpc64-unknown-linux-musl.tar.xz )
 	) )"
 fi
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
 SLOT="${PV%%_*}" # Beta releases get to share the same SLOT as the eventual stable
-IUSE="big-endian clippy cpu_flags_x86_sse2 doc prefix rust-analyzer rust-src rustfmt"
+IUSE="big-endian +clippy cpu_flags_x86_sse2 doc prefix rust-analyzer rust-src +rustfmt"
 
+# net-misc/curl is needed for our own bootstrapped rustc, since cross-compiling bundled curl is not supported
 RDEPEND="
 	>=app-eselect/eselect-rust-20190311
 	dev-libs/openssl
+	net-misc/curl
 	sys-apps/lsb-release
 	|| (
 		llvm-runtimes/libgcc
@@ -95,7 +93,7 @@ QA_PREBUILT="
 # An rmeta file is custom binary format that contains the metadata for the crate.
 # rmeta files do not support linking, since they do not contain compiled object files.
 # so we can safely silence the warning for this QA check.
-QA_EXECSTACK="opt/${P}/lib/rustlib/*/lib*.rlib:lib.rmeta"
+QA_EXECSTACK="opt/${PN}-${SLOT}/lib/rustlib/*/lib*.rlib:lib.rmeta"
 
 VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/rust.asc"
 
@@ -107,8 +105,6 @@ src_unpack() {
 		curl -Ls static.rust-lang.org/dist/channel-rust-nightly.toml > "${WORKDIR}/channel-rust-nightly.toml" ||
 			die "Failed to fetch nightly revision info"
 		rustc_src_url=$(grep 'xz_url.*rust-src' "${WORKDIR}/channel-rust-nightly.toml" | cut -d '"' -f 2)
-		rust_bin_url=$(grep "xz_url.*rust-nightly-$(rust_abi)" "${WORKDIR}/channel-rust-nightly.toml" | cut -d '"' -f 2)
-		einfo "Using nightly Rust from: ${rust_bin_url}"
 
 		if use rust-src; then
 			einfo "Using nightly Rust-src from: ${rustc_src_url}"
@@ -120,15 +116,23 @@ src_unpack() {
 			tar -xf "${WORKDIR}/rust-src-${PV}.tar.xz" || die "Failed to unpack nightly rust-src tarball"
 		fi
 
-		einfo "Fetching nightly Rust tarball ..."
-		curl --progress-bar -L "${rust_bin_url}" -O || die "Failed to fetch nightly tarball"
-		if use verify-sig; then
-			einfo "Fetching nightly signature ..."
-			curl --progress-bar -L "${rust_bin_url}.asc" -O || die "Failed to fetch nightly signature"
-			verify-sig_verify_detached "${WORKDIR}/rust-nightly-$(rust_abi).tar.xz" \
-				"${WORKDIR}/rust-nightly-$(rust_abi).tar.xz.asc"
-		fi
-		tar -xf "${WORKDIR}/rust-nightly-$(rust_abi).tar.xz" || die "Failed to unpack nightly tarball"
+		local v
+		for v in $(multilib_get_enabled_abi_pairs); do
+			rust_target="$(rust_abi $(get_abi_CHOST ${v##*.}))"
+			rust_bin_url=$(grep "xz_url.*rust-nightly-${rust_target}" "${WORKDIR}/channel-rust-nightly.toml" | cut -d '"' -f 2)
+			einfo "Using nightly Rust from ${rust_bin_url} for ${rust_target}"
+
+			einfo "Fetching nightly Rust tarball for ${rust_target} ..."
+			curl --progress-bar -L "${rust_bin_url}" -O || die "Failed to fetch nightly tarball for ${rust_target}"
+			if use verify-sig; then
+				einfo "Fetching nightly signature for ${rust_target} ..."
+				curl --progress-bar -L "${rust_bin_url}.asc" -O || die "Failed to fetch nightly signature for ${rust_target}"
+				verify-sig_verify_detached "${WORKDIR}/rust-nightly-${rust_target}.tar.xz" \
+					"${WORKDIR}/rust-nightly-${rust_target}.tar.xz.asc"
+			fi
+
+			tar -xf "${WORKDIR}/rust-nightly-${rust_target}.tar.xz" || die "Failed to unpack nightly tarball for ${rust_target}"
+		done
 	else
 		# sadly rust-src tarball does not have corresponding .asc file
 		# so do partial verification
@@ -141,8 +145,10 @@ src_unpack() {
 		fi
 
 		default_src_unpack
-
 	fi
+
+	# We only want to do this for the native ABI. Non-native ABIs are
+	# handled differently in multilib_src_install.
 	case ${PV} in
 		*9999*)
 			mv "${WORKDIR}/rust-nightly-$(rust_abi)" "${S}" || die
@@ -205,9 +211,8 @@ rust_native_abi_install() {
 
 	if use prefix; then
 		local interpreter=$(patchelf --print-interpreter "${EPREFIX}"/bin/bash)
-		local binpth="${ED}/opt/rust-bin-${SLOT}/bin"
-		ebegin "Changing interpreter to ${interpreter} for Gentoo Prefix at ${binpth}"
-		find "${binpth}" -type f -print0 | \
+		ebegin "Changing interpreter to ${interpreter} for Gentoo prefix at ${ED}/opt/rust-bin-${SLOT}/bin"
+		find "${ED}/opt/rust-bin-${SLOT}/bin" -type f -print0 | \
 			while IFS=  read -r -d '' filename; do
 				patchelf_for_bin ${filename} ${interpreter} \; || die
 			done
@@ -287,10 +292,21 @@ multilib_src_install() {
 	if multilib_is_native_abi; then
 		rust_native_abi_install
 	else
-		local rust_target
+		local rust_target version
+		case ${PV} in
+			*9999*)
+				version=nightly
+				;;
+			*beta*)
+				version=beta
+				;;
+			*)
+				version=${PV}
+				;;
+		esac
 		rust_target="$(rust_abi $(get_abi_CHOST ${v##*.}))"
 		dodir "/opt/${P}/lib/rustlib"
-		cp -vr "${WORKDIR}/rust-${PV}-${rust_target}/rust-std-${rust_target}/lib/rustlib/${rust_target}"\
+		cp -vr "${WORKDIR}/rust-${version}-${rust_target}/rust-std-${rust_target}/lib/rustlib/${rust_target}"\
 			"${ED}/opt/${P}/lib/rustlib" || die
 	fi
 
