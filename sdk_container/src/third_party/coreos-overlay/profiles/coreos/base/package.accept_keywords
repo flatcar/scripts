@@ -16,10 +16,6 @@
 # Needed to fix build with acl 2.4.0
 =app-arch/tar-1.35-r1
 
-# Needed to address security issues.
-=app-arch/unzip-6.0_p31
-=app-arch/zip-3.0_p16
-
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
 
@@ -94,6 +90,7 @@ dev-cpp/azure-security-keyvault-keys
 =dev-lang/go-1.26.7
 
 # Keep versions on both arches in sync.
+=dev-lang/swig-4.3.1
 =dev-libs/cowsql-1.15.9 ~arm64
 =dev-libs/ding-libs-0.6.2-r1 ~arm64
 
@@ -156,6 +153,9 @@ dev-cpp/azure-security-keyvault-keys
 # latest version of the package with the unstable keywords.
 sys-apps/azure-vm-utils
 
+# Keep versions on both arches in sync.
+=sys-apps/bubblewrap-0.12.0
+
 # To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
 =sys-apps/semodule-utils-3.11
 
@@ -193,6 +193,3 @@ sys-firmware/edk2-bin
 
 # rsync 3.5.0 needs it
 =virtual/acl-2.4.0
-
-# Pull some fixes (nested mount issue with sysext)
-=sys-apps/systemd-260.4
