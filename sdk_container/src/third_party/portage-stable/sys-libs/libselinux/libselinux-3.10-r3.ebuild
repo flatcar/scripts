@@ -6,7 +6,7 @@ EAPI=8
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_EXT=1
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python3_{12..15} )
+PYTHON_COMPAT=( python3_{11..14} )
 USE_RUBY="ruby32 ruby33"
 
 # No, I am not calling ruby-ng
@@ -24,7 +24,7 @@ if [[ ${PV} == 9999 ]]; then
 	S="${WORKDIR}/${P}/${PN}"
 else
 	SRC_URI="https://github.com/SELinuxProject/selinux/releases/download/${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~riscv ~x86"
+	KEYWORDS="amd64 arm arm64 ~mips ~riscv x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 
@@ -33,22 +33,26 @@ SLOT="0"
 IUSE="python ruby static-libs ruby_targets_ruby32 ruby_targets_ruby33"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-RDEPEND="dev-libs/libpcre2:=[static-libs?,${MULTILIB_USEDEP}]
+RDEPEND="
 	>=sys-libs/libsepol-${PV}:=[${MULTILIB_USEDEP},static-libs(+)]
+	virtual/libpcre2-internals:=[static-libs?,${MULTILIB_USEDEP}]
 	python? ( ${PYTHON_DEPS} )
 	ruby? (
 		ruby_targets_ruby32? ( dev-lang/ruby:3.2 )
 		ruby_targets_ruby33? ( dev-lang/ruby:3.3 )
 	)
-	elibc_musl? ( sys-libs/fts-standalone )"
+	elibc_musl? ( sys-libs/fts-standalone )
+"
 DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig
+BDEPEND="
+	virtual/pkgconfig
 	python? (
 		>=dev-lang/swig-2.0.9
 		${PYTHON_DEPS}
 		${DISTUTILS_DEPS}
 	)
-	ruby? ( >=dev-lang/swig-2.0.9 )"
+	ruby? ( >=dev-lang/swig-2.0.9 )
+"
 
 src_prepare() {
 	eapply_user
