@@ -158,13 +158,13 @@ function copy_from_bincache_to_bucket() {
 
     echo "Copying the images from bincache to Cloudflare bucket"
     docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
-      docker.io/rclone/rclone:1.71.1 \
+      docker.io/rclone/rclone:1.75.1 \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}" || { echo "ERROR: Skipping images copy to bucket due to failure" ; }
 
     echo "Copying the binary packages from bincache to Cloudflare bucket"
     docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
-      docker.io/rclone/rclone:1.71.1 \
+      docker.io/rclone/rclone:1.75.1 \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/boards/${arch}-usr/${version}" :http: "r2:flatcar/mirror/boards/${arch}-usr/${version}" || { echo "ERROR: Skipping binary packages copy to bucket due to failure" ; }
 
@@ -172,7 +172,7 @@ function copy_from_bincache_to_bucket() {
     if [ "${arch}" = "amd64" ]; then
       echo "Copying SDK and packages containers from bincache to Cloudflare bucket"
       docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
-        docker.io/rclone/rclone:1.71.1 \
+        docker.io/rclone/rclone:1.75.1 \
           sync \
           --http-url "https://${BUILDCACHE_SERVER}/containers/${version}" :http: "r2:flatcar/mirror/containers/${version}" || { echo "ERROR: Skipping containers copy (SDK / packages) to bucket due to failure" ; }
     fi
@@ -202,7 +202,7 @@ function publish_sdk() {
 
     echo "Copying the SDK from bincache to Cloudflare bucket"
     docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
-      docker.io/rclone/rclone:1.71.1 \
+      docker.io/rclone/rclone:1.75.1 \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/sdk/amd64/${docker_sdk_vernum}" :http: "r2:flatcar/mirror/sdk/amd64/${docker_sdk_vernum}" || { echo "ERROR: Skipping SDK copy to bucket due to failure" ; }
 }
