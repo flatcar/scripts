@@ -256,32 +256,6 @@ get_gclient_root() {
   fi
 }
 
-# Populate the ENVIRONMENT_ALLOWLIST array.
-load_environment_allowlist() {
-  ENVIRONMENT_ALLOWLIST=(
-    COREOS_OFFICIAL
-    FLATCAR_BUILD_ID
-    FORCE_STAGES
-    GIT_AUTHOR_EMAIL
-    GIT_AUTHOR_NAME
-    GIT_COMMITTER_EMAIL
-    GIT_COMMITTER_NAME
-    GIT_PROXY_COMMAND
-    GIT_SSH
-    RSYNC_PROXY
-    GNUPGHOME
-    GPG_AGENT_INFO
-    SSH_AGENT_PID
-    SSH_AUTH_SOCK
-    USE
-    all_proxy
-    ftp_proxy
-    http_proxy
-    https_proxy
-    no_proxy
-  )
-}
-
 load_environment_var() {
   local file="$1"; shift
   unset "${@}"
