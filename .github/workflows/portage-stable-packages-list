@@ -750,6 +750,7 @@ virtual/libcrypt
 virtual/libelf
 virtual/libiconv
 virtual/libintl
+virtual/libpcre2-internals
 virtual/libudev
 virtual/libusb
 virtual/man
