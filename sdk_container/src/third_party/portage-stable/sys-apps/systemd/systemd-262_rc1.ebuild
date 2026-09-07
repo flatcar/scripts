@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -20,12 +20,12 @@ else
 	SRC_URI="https://github.com/systemd/${PN}/archive/refs/tags/v${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 
 	if [[ ${PV} != *rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	fi
 fi
 
 inherit branding flag-o-matic linux-info meson-multilib optfeature pam python-single-r1
-inherit secureboot shell-completion systemd toolchain-funcs udev
+inherit secureboot shell-completion systemd toolchain-funcs udev xdg-utils
 
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="https://systemd.io/"
@@ -33,10 +33,11 @@ HOMEPAGE="https://systemd.io/"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="
-	acl apparmor audit boot bpf cryptsetup curl +dns-over-tls elfutils
-	fido2 +gcrypt gnutls homed idn importd +kernel-install +kmod +libarchive +lz4 lzma
-	+openssl pam passwdqc pcre pkcs11 policykit pwquality qrcode remote
-	+resolvconf +seccomp selinux sysv-utils test tpm ukify vanilla xkb +zstd
+	acl apparmor audit boot bpf cryptsetup curl +dns-over-tls elfutils fido2
+	+gcrypt gnutls homed idn imds importd +kernel-install +kmod +libarchive
+	+lz4 lzma +openssl pam passwdqc pcre pkcs11 policykit pwquality qrcode
+	remote +resolvconf +seccomp selinux sysv-utils test tpm ukify vanilla xkb
+	+zstd
 "
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
@@ -44,6 +45,7 @@ REQUIRED_USE="
 	dns-over-tls? ( openssl )
 	fido2? ( cryptsetup openssl )
 	homed? ( cryptsetup pam openssl )
+	imds? ( curl )
 	importd? ( curl libarchive lzma openssl )
 	?? ( passwdqc pwquality )
 	passwdqc? ( homed )
@@ -69,7 +71,8 @@ COMMON_DEPEND="
 		>=sys-libs/libxcrypt-4.4.0
 	)
 	elibc_musl? (
-		>=sys-libs/musl-1.2.5-r8
+		>=sys-libs/musl-1.2.6
+		sys-libs/libucontext
 		virtual/libcrypt
 	)
 	fido2? (
@@ -138,6 +141,7 @@ RDEPEND="${COMMON_DEPEND}
 	>=acct-user/systemd-resolve-0-r1
 	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
+	imds? ( acct-user/systemd-imds )
 	ukify? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep "${PEFILE_DEPEND}")
@@ -256,10 +260,6 @@ src_unpack() {
 
 src_prepare() {
 	local PATCHES=(
-		"${FILESDIR}/systemd-260.1-fuzz-journald.patch"
-		"${FILESDIR}/systemd-260.1-openssl-4.patch"
-		"${FILESDIR}/systemd-260.1-gcc-17.patch"
-		"${FILESDIR}/systemd-260.1-gpt-generator.patch"
 		"${FILESDIR}/systemd-261-lxml-6.1.3.patch"
 	)
 
@@ -354,6 +354,7 @@ multilib_src_configure() {
 			$(meson_feature gnutls)
 			$(meson_feature homed)
 			$(meson_use idn)
+			$(meson_feature imds)
 			$(meson_feature importd)
 			$(meson_feature importd bzip2)
 			$(meson_feature importd sysupdate)
@@ -385,7 +386,7 @@ multilib_src_configure() {
 		case $(tc-arch) in
 			amd64|arm|arm64|loong|ppc|ppc64|riscv|s390|x86)
 				# src/vmspawn/vmspawn-util.h: QEMU_MACHINE_TYPE
-				myconf+=( $(meson_native_enabled vmspawn) ) ;;
+				myconf+=( -Dvmspawn=enabled ) ;;
 			*)
 				myconf+=( -Dvmspawn=disabled ) ;;
 		esac
@@ -549,6 +550,7 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
+	xdg_mimeinfo_database_update
 	systemd_update_catalog
 
 	# Keep this here in case the database format changes so it gets updated
@@ -611,4 +613,8 @@ pkg_prerm() {
 	if [[ ! ${REPLACED_BY_VERSION} ]]; then
 		rm -f -v "${EROOT}"/var/lib/systemd/catalog/database
 	fi
+}
+
+pkg_postrm() {
+	xdg_mimeinfo_database_update
 }
