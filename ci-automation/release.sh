@@ -156,41 +156,26 @@ function copy_from_bincache_to_bucket() {
     local arch="${2}"
     local version="${3}"
 
-    rclone_configuration_file="$(mktemp)"
-    chmod 600 "${rclone_configuration_file}"
-
-    (
-    trap "rm -f ${rclone_configuration_file}" EXIT
-    echo "${RCLONE_CONFIGURATION_FILE}" | base64 --decode > "${rclone_configuration_file}"
-
-    echo "Copying the images from bincache to CloudFlare bucket"
-    docker run --rm --net host \
-      -v "${rclone_configuration_file}:/opt/rclone.conf:ro" \
+    echo "Copying the images from bincache to Cloudflare bucket"
+    docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
       docker.io/rclone/rclone:1.71.1 \
-        --config "/opt/rclone.conf" \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/images/${arch}/${version}" :http: "r2:flatcar/${channel}/${arch}-usr/${version}" || { echo "ERROR: Skipping images copy to bucket due to failure" ; }
 
-    echo "Copying the binary packages from bincache to CloudFlare bucket"
-    docker run --rm --net host \
-      -v "${rclone_configuration_file}:/opt/rclone.conf:ro" \
+    echo "Copying the binary packages from bincache to Cloudflare bucket"
+    docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
       docker.io/rclone/rclone:1.71.1 \
-        --config "/opt/rclone.conf" \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/boards/${arch}-usr/${version}" :http: "r2:flatcar/mirror/boards/${arch}-usr/${version}" || { echo "ERROR: Skipping binary packages copy to bucket due to failure" ; }
 
     # Only copy once the 'containers' artifacts
     if [ "${arch}" = "amd64" ]; then
-      echo "Copying SDK and packages containers from bincache to CloudFlare bucket"
-      docker run --rm --net host \
-        -v "${rclone_configuration_file}:/opt/rclone.conf:ro" \
+      echo "Copying SDK and packages containers from bincache to Cloudflare bucket"
+      docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
         docker.io/rclone/rclone:1.71.1 \
-          --config "/opt/rclone.conf" \
           sync \
           --http-url "https://${BUILDCACHE_SERVER}/containers/${version}" :http: "r2:flatcar/mirror/containers/${version}" || { echo "ERROR: Skipping containers copy (SDK / packages) to bucket due to failure" ; }
     fi
-
-    )
 }
 
 function publish_sdk() {
@@ -215,21 +200,11 @@ function publish_sdk() {
       docker push "${sdk_container_common_registry}/flatcar-sdk-${a}:${docker_sdk_vernum}"
     done
 
-    rclone_configuration_file="$(mktemp)"
-    chmod 600 "${rclone_configuration_file}"
-
-    (
-    trap "rm -f ${rclone_configuration_file}" EXIT
-    echo "${RCLONE_CONFIGURATION_FILE}" | base64 --decode > "${rclone_configuration_file}"
-
-    echo "Copying the SDK from bincache to CloudFlare bucket"
-    docker run --rm --net host \
-      -v "${rclone_configuration_file}:/opt/rclone.conf:ro" \
+    echo "Copying the SDK from bincache to Cloudflare bucket"
+    docker run --rm --net host --env-file="sdk_lib/env_rclone.txt" \
       docker.io/rclone/rclone:1.71.1 \
-        --config "/opt/rclone.conf" \
         sync \
         --http-url "https://${BUILDCACHE_SERVER}/sdk/amd64/${docker_sdk_vernum}" :http: "r2:flatcar/mirror/sdk/amd64/${docker_sdk_vernum}" || { echo "ERROR: Skipping SDK copy to bucket due to failure" ; }
-    )
 }
 
 function _release_build_impl() {
