@@ -1,7 +1,7 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=9
 
 export CBUILD=${CBUILD:-${CHOST}}
 export CTARGET=${CTARGET:-${CHOST}}
@@ -70,7 +70,6 @@ go_cross_compile() {
 
 PATCHES=(
 	"${FILESDIR}"/go-1.24-skip-gdb-tests.patch
-	"${FILESDIR}"/go-1.24-dont-force-gold-arm.patch
 	"${FILESDIR}"/go-1.25-no-dwarf5.patch
 	"${FILESDIR}"/go-never-download-newer-toolchains.patch
 )
@@ -117,7 +116,11 @@ src_compile() {
 
 src_test() {
 	go_cross_compile && return 0
-	cd src
+	cd src || die
+
+	# remove bad test because of ebuild toolchain environment
+	rm -v cmd/go/testdata/script/autocgo.txt || die
+
 	PATH="${GOBIN}:${PATH}" \
 	./run.bash -no-rebuild -k || die "tests failed"
 }
