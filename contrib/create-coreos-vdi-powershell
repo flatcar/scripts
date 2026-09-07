@@ -1,0 +1,114 @@
+param (
+    [string]$VERSION_ID = "stable",
+    [string]$DEST,
+    [switch]$Help
+)
+
+$USAGE = @"
+Usage: $MyInvocation.MyCommand [-V version] [-d /target/path]
+Options:
+    -d DEST     Create Flatcar VDI image to the given path.
+    -V VERSION  Version to install (e.g. alpha) [default: ${VERSION_ID}]
+    -h          This help
+
+This tool creates a Flatcar VDI image to be used with VirtualBox.
+"@
+
+$GPG_KEY_URL = "https://www.flatcar.org/security/image-signing-key/Flatcar_Image_Signing_Key.pem"
+$GPG_LONG_ID = "E25D9AED0593B34A"
+
+if ($Help) {
+    Write-Output $USAGE
+    exit
+}
+
+if ($VERSION_ID -eq "stable") {
+    $BASE_URL = "https://stable.release.flatcar-linux.net/amd64-usr/current"
+}
+elseif ($VERSION_ID -eq "alpha") {
+    $BASE_URL = "https://alpha.release.flatcar-linux.net/amd64-usr/current"
+}
+elseif ($VERSION_ID -eq "beta") {
+    $BASE_URL = "https://beta.release.flatcar-linux.net/amd64-usr/current"
+}
+else {
+    $BASE_URL = "https://alpha.release.flatcar-linux.net/amd64-usr/$VERSION_ID"
+}
+
+if (-not $DEST) {
+    $DEST = $PWD
+}
+
+if (-not (Test-Path -Path $DEST -PathType Container)) {
+    Write-Output "$($MyInvocation.MyCommand): Target path ($DEST) does not exist."
+    exit 1
+}
+
+$WORKDIR = Join-Path $DEST "tmp.$([System.IO.Path]::GetRandomFileName())"
+New-Item -ItemType Directory -Path $WORKDIR | Out-Null
+
+$RAW_IMAGE_NAME = "flatcar_production_image.bin"
+$IMAGE_NAME = "$RAW_IMAGE_NAME.bz2"
+$DIGESTS_NAME = "$IMAGE_NAME.DIGESTS.asc"
+
+$IMAGE_URL = "$BASE_URL/$IMAGE_NAME"
+$DIGESTS_URL = "$BASE_URL/$DIGESTS_NAME"
+$DOWN_IMAGE = Join-Path $WORKDIR $RAW_IMAGE_NAME
+
+# Download the image file with error handling
+$retryCount = 3
+$retryDelaySeconds = 5
+for ($i = 0; $i -lt $retryCount; $i++) {
+    try {
+        Invoke-WebRequest -Uri $IMAGE_URL -OutFile "$WORKDIR/$IMAGE_NAME" -UseBasicParsing -ErrorAction Stop
+        break
+    } catch {
+        if ($i -eq ($retryCount - 1)) {
+            Write-Output "$($_.Exception.Message)"
+            exit 1
+        }
+        Write-Output "Download failed. Retrying in $retryDelaySeconds seconds..."
+        Start-Sleep -Seconds $retryDelaySeconds
+    }
+}
+
+# Check if the file was downloaded successfully
+if (-not (Test-Path -Path "$WORKDIR/$IMAGE_NAME" -PathType Leaf)) {
+    Write-Output "Failed to download the image file."
+    exit 1
+}
+
+# Verify the image file hash
+$sums = "sha1", "sha512"
+foreach ($sum in $sums) {
+    Select-String -Path "$WORKDIR/$DIGESTS_NAME" -Pattern "$sum HASH" -Context 0,1 | 
+    ForEach-Object {
+        $hashLine = $_.Context.PostContext | Where-Object { $_ -like "*$IMAGE_NAME*" }
+        $hash = $hashLine -split '\s+'
+        $filePath = Join-Path $WORKDIR $RAW_IMAGE_NAME
+        if ((Get-FileHash -Algorithm $sum -Path $filePath).Hash -ne $hash[0]) {
+            Write-Output "$($MyInvocation.MyCommand): Hash verification failed for $IMAGE_NAME"
+            exit 1
+        }
+    }
+}
+
+Write-Output "Writing $IMAGE_NAME to $DOWN_IMAGE..."
+Expand-Archive -Path "$WORKDIR/$IMAGE_NAME" -DestinationPath $WORKDIR -Force
+
+# Check if the image file was extracted successfully
+$extractedImagePath = "$WORKDIR/$RAW_IMAGE_NAME"
+if (-not (Test-Path -Path $extractedImagePath -PathType Leaf)) {
+    Write-Output "Failed to extract the image file."
+    exit 1
+}
+
+# If extract fails, manually extracts file then run following command
+# VBoxManage.exe convertdd "flatcar_production_image.bin" "flatcarOS.vdi" --format VDI
+
+Write-Output "Converting $RAW_IMAGE_NAME to VirtualBox format..."
+& VBoxManage.exe convertdd "$extractedImagePath" "$VDI_IMAGE" --format VDI
+
+Remove-Item -Path $WORKDIR -Recurse -Force
+
+Write-Output "Success! Flatcar $VERSION_ID VDI image was created on $VDI_IMAGE_NAME"
