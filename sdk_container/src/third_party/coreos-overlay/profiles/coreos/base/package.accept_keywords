@@ -180,7 +180,7 @@ sys-firmware/edk2-bin
 =sys-libs/libseccomp-2.6.1
 
 # To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
-=sys-libs/libselinux-3.11
+=sys-libs/libselinux-3.11-r1
 =sys-libs/libsepol-3.11
 
 # Keep versions on both arches in sync.
