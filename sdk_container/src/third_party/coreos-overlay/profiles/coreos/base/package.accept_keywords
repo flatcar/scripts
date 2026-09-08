@@ -34,7 +34,7 @@
 =app-containers/docker-cli-29*
 
 # To address security issues
-=app-containers/incus-7.3-r1
+=app-containers/incus-7.4
 
 # Keep versions on both arches in sync.
 =app-containers/lxc-7.0.0
@@ -96,10 +96,16 @@ dev-cpp/azure-security-keyvault-keys
 
 # To address security issues.
 =dev-libs/glib-2.88.3
-=dev-libs/json-c-0.19-r2
 
 # Keep versions on both arches in sync.
 =dev-libs/jose-14
+
+# To address security issues.
+=dev-libs/json-c-0.19-r2
+=dev-libs/libgcrypt-1.12.3-r1
+=dev-libs/libksba-1.8.1
+
+# Keep versions on both arches in sync.
 =dev-libs/libtraceevent-1.9.0
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
@@ -158,6 +164,9 @@ sys-apps/azure-vm-utils
 
 # To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
 =sys-apps/semodule-utils-3.11
+
+# To address CVE-2026-76642, CVE-2026-78408, CVE-2026-78409, CVE-2026-78410
+=sys-apps/util-linux-2.42.3
 
 # Keep versions on both arches in sync.
 =sys-apps/zram-generator-1.2.1 ~arm64
