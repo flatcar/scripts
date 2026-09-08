@@ -1,0 +1,19 @@
+diff '--color=auto' -r -u git-2.55.0/src/cargo-meson.sh git-2.55.0-mod/src/cargo-meson.sh
+--- git-2.55.0/src/cargo-meson.sh	2026-09-08 09:35:45.445569075 -0000
++++ git-2.55.0-mod/src/cargo-meson.sh	2026-09-08 09:36:40.445141695 -0000
+@@ -38,7 +38,12 @@
+ 	exit $RET
+ fi
+ 
+-if ! cmp "$BUILD_DIR/$BUILD_TYPE/$LIBNAME" "$BUILD_DIR/libgitcore.a" >/dev/null 2>&1
++if test "$CBUILD" != "$CHOST" && test -n "$CARGO_BUILD_TARGET"
+ then
+-	cp "$BUILD_DIR/$BUILD_TYPE/$LIBNAME" "$BUILD_DIR/libgitcore.a"
++	BUILD_DIR_EXTRA="$CARGO_BUILD_TARGET/"
++fi
++
++if ! cmp "$BUILD_DIR/$BUILD_DIR_EXTRA$BUILD_TYPE/$LIBNAME" "$BUILD_DIR/libgitcore.a" >/dev/null 2>&1
++then
++	cp "$BUILD_DIR/$BUILD_DIR_EXTRA$BUILD_TYPE/$LIBNAME" "$BUILD_DIR/libgitcore.a"
+ fi
+Only in git-2.55.0-mod/src: cargo-meson.sh.orig
