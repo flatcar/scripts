@@ -15,10 +15,7 @@ KEYWORDS="amd64 arm64"
 RDEPEND=">=app-admin/sdnotify-proxy-0.1.0"
 
 src_install() {
-	local tag="v${PV}"
-	if [[ "${ARCH}" != "amd64" ]]; then
-		tag+="-${ARCH}"
-	fi
+	local tag="v${PV}-${ARCH}"
 
 	exeinto /usr/lib/flatcar
 	doexe "${FILESDIR}"/etcd-wrapper
