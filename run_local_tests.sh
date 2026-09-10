@@ -55,6 +55,7 @@ export QEMU_IMAGE_NAME=/work/__build__/images/images/${arch@Q}-usr/latest/flatca
 export QEMU_UEFI_FIRMWARE=/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_qemu_uefi_efi_code.qcow2
 export QEMU_UEFI_OVMF_VARS=/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_qemu_uefi_efi_vars.qcow2
 export QEMU_UPDATE_PAYLOAD=/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_test_update.gz
+export QEMU_DEVCONTAINER_FILE=/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_developer_container.bin.bz2
 export PARALLEL_TESTS=${parallel@Q}
 EOF
 
