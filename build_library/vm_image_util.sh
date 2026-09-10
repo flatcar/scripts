@@ -345,7 +345,6 @@ IMG_kubevirt_OEM_SYSEXT=oem-kubevirt
 IMG_kubevirt_DISK_EXTENSION=qcow2
 
 ## akamai (Linode)
-IMG_akamai_DISK_LAYOUT=vm
 IMG_akamai_OEM_PACKAGE=common-oem-files
 IMG_akamai_OEM_USE=akamai
 IMG_akamai_OEM_SYSEXT=oem-akamai
