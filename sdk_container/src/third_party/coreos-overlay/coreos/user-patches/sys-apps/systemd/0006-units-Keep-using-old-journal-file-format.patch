@@ -1,4 +1,4 @@
-From c05273535a1d96e187c7837929f0c88bfbf0ae68 Mon Sep 17 00:00:00 2001
+From 1916bda083e4f25fae1af9f156e058f57e172429 Mon Sep 17 00:00:00 2001
 From: Adrian Vladu <avladu@cloudbasesolutions.com>
 Date: Fri, 16 Feb 2024 11:29:04 +0000
 Subject: [PATCH 6/8] units: Keep using old journal file format
@@ -38,5 +38,5 @@ index b705ce08ff..874701dac4 100644
  FileDescriptorStoreMax=4224
  Group=systemd-journal
 -- 
-2.53.0
+2.55.0
 
