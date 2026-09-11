@@ -230,7 +230,6 @@ IMG_kubevirt_OEM_SYSEXT=kubevirt
 IMG_kubevirt_DISK_EXTENSION=qcow2
 
 ## akamai (Linode)
-IMG_akamai_DISK_LAYOUT=vm
 IMG_akamai_OEM_SYSEXT=akamai
 
 # proxmoxve
