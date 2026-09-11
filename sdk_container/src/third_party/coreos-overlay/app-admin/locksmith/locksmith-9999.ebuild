@@ -13,7 +13,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/locksmith.git"
 	inherit git-r3
 else
-	EGIT_VERSION="a1cb1f901971165827d68188e9f60752c0e33c10" # flatcar-master
+	EGIT_VERSION="6ea5e7c73bb83cf6c013ff191cc0646e08cb3240" # flatcar-master
 	SRC_URI="https://github.com/flatcar/locksmith/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
@@ -22,14 +22,10 @@ fi
 LICENSE="Apache-2.0"
 SLOT="0"
 
+BDEPEND=">=dev-lang/go-1.26.0"
+
 src_compile() {
 	go build -o bin/locksmithctl ./locksmithctl
-}
-
-# Drop it when we switch to EAPI 9.
-src_configure() {
-	default
-	go-module_src_configure
 }
 
 src_install() {
