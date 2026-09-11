@@ -98,6 +98,13 @@
         "blocks":"33845248"
       }
     },
+    "akamai":{
+      "9":{
+        "label":"ROOT",
+        "fs_label":"ROOT",
+        "blocks":"131072"
+      }
+    },
     "container":{
       "1":{
         "type":"blank"
