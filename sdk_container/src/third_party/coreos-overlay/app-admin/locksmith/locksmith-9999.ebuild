@@ -13,7 +13,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/locksmith.git"
 	inherit git-r3
 else
-	EGIT_VERSION="a1cb1f901971165827d68188e9f60752c0e33c10" # flatcar-master
+	EGIT_VERSION="ec045e63f89b86b6c8ba0c61591d6e13f3e16362" # krnowak/deps-bump
 	SRC_URI="https://github.com/flatcar/locksmith/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
 	KEYWORDS="amd64 arm64"
