@@ -1,3 +1,4 @@
+- bubblewrap ([CVE-2026-87766](https://www.cve.org/CVERecord?id=CVE-2026-87766))
 - docker ([CVE-2026-46680](https://www.cve.org/CVERecord?id=CVE-2026-46680))
 - etcd ([CVE-2025-22869](https://www.cve.org/CVERecord?id=CVE-2025-22869), [CVE-2025-30204](https://www.cve.org/CVERecord?id=CVE-2025-30204), [CVE-2026-33186](https://www.cve.org/CVERecord?id=CVE-2026-33186), [CVE-2026-73500](https://www.cve.org/CVERecord?id=CVE-2026-73500))
 - expat ([CVE-2026-66046](https://www.cve.org/CVERecord?id=CVE-2026-66046), [CVE-2026-76641](https://www.cve.org/CVERecord?id=CVE-2026-76641), [CVE-2026-76956](https://www.cve.org/CVERecord?id=CVE-2026-76956), [CVE-2026-76957](https://www.cve.org/CVERecord?id=CVE-2026-76957))

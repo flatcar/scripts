@@ -1,3 +1,4 @@
+- SDK: bubblewrap ([0.12.0](https://github.com/containers/bubblewrap/releases/tag/v0.12.0))
 - SDK: rust ([1.97.1](https://blog.rust-lang.org/2026/07/16/Rust-1.97.1/) (includes [1.97.0](https://blog.rust-lang.org/2026/07/09/Rust-1.97.0/)))
 - azure, dev, gce, sysext-python: python ([3.13.15](https://docs.python.org/release/3.13.15/whatsnew/changelog.html#python-3-13-15-final))
 - base, dev: btrfs-progs ([7.1](https://github.com/kdave/btrfs-progs/releases/tag/v7.1))
