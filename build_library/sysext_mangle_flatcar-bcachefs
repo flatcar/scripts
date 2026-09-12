@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -euo pipefail
+rootfs="${1}"
+
+pushd "${rootfs}"
+
+# Drop dev/debug/initramfs files — the sysext only needs runtime bits.
+rm -rf ./usr/{lib/debug/,lib64/cmake/,include/}
+rm -rf ./usr/lib/dracut/
+rm -rf ./usr/share/initramfs-tools
+rm -rf ./usr/src
+rm -rf ./usr/share/man
+rm -rf ./usr/share/doc
+rm -rf ./usr/lib/pkgconfig
+rm -rf ./usr/lib64/pkgconfig
+
+# /usr/sbin on Flatcar is a symlink to /usr/bin; shipping a /usr/sbin
+# directory in a sysext would clobber the symlink at merge time. Relocate
+# anything the tools ebuild installed there. `cp -a src/. dst/` includes
+# dotfiles (Portage `.keep*` placeholders) so nothing lingers to make the
+# subsequent `rm -rf` racy.
+if [ -d ./usr/sbin ]; then
+  mkdir -p ./usr/bin
+  cp -a ./usr/sbin/. ./usr/bin/
+  rm -rf ./usr/sbin
+fi
+
+popd
