@@ -24,7 +24,7 @@ sdk_download_tarball() {
     local server url suffix
     local -a suffixes
 
-    suffixes=('' '.DIGESTS') # TODO(marineam): download .asc
+    suffixes=('' '.DIGESTS' '.DIGESTS.asc')
     for server in "${FLATCAR_SDK_SERVERS[@]}"; do
         url="${server}/sdk/${FLATCAR_SDK_ARCH}/${FLATCAR_SDK_VERSION}/${FLATCAR_SDK_TARBALL}"
         info "URL: ${url}"
@@ -72,11 +72,16 @@ _sdk_check_downloads() {
 
 sdk_verify_digests() {
     if [[ ! -f "${FLATCAR_SDK_TARBALL_PATH}" || \
-          ! -f "${FLATCAR_SDK_TARBALL_PATH}.DIGESTS" ]]; then
+          ! -f "${FLATCAR_SDK_TARBALL_PATH}.DIGESTS" || \
+          ! -f "${FLATCAR_SDK_TARBALL_PATH}.DIGESTS.asc" ]]; then
         return 1
     fi
 
-    # TODO(marineam): Add gpg signature verification too.
+    info "Verifying GPG signature of the DIGESTS file..."
+    if ! gpg --verify "${FLATCAR_SDK_TARBALL_PATH}.DIGESTS.asc" "${FLATCAR_SDK_TARBALL_PATH}.DIGESTS"; then
+        error "GPG signature verification failed! The SDK artifact may be compromised."
+        return 1
+    fi
 
     verify_digests "${FLATCAR_SDK_TARBALL_PATH}" || return 1
 }
