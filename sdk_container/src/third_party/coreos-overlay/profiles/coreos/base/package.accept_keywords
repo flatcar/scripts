@@ -103,7 +103,6 @@ dev-cpp/azure-security-keyvault-keys
 
 # To address security issues.
 =dev-libs/json-c-0.19-r2
-=dev-libs/libgcrypt-1.12.3-r1
 =dev-libs/libksba-1.8.1
 =dev-libs/libpcre2-10.48
 
