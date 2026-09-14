@@ -197,10 +197,6 @@ sys-firmware/edk2-bin
 =sys-fs/lxcfs-7.0.0
 =sys-libs/binutils-libs-2.46.1
 
-# To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
-=sys-libs/libselinux-3.11-r1
-=sys-libs/libsepol-3.11
-
 # Keep versions on both arches in sync.
 =sys-libs/libunwind-1.8.3
 =sys-libs/liburing-2.12
