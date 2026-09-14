@@ -36,6 +36,40 @@
 
 #--- END OF EXAMPLES ---
 
+# Lukas Schmelting <lschmelting@posteo.com> (2026-09-06)
+# Most revdeps still need gexiv2-0.16 compatibility fixes
+# See: https://bugs.gentoo.org/982084
+=media-libs/gexiv2-0.16*
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2026-09-11)
+# EAPI=7, old PYTHON_COMPAT, doesn't work with spotify for a long time,
+# upstream inactive for a decade.
+# Removal on 2026-10-11.  Bugs #982278, #952501.
+gnome-extra/gnome-integration-spotify
+
+# Arthur Zamarin <arthurzam@gentoo.org> (2026-09-11)
+# EAPI=7, uses deprecated golang eclass, fails to compile.
+# Removal on 2026-10-11.  Bugs #982277, #657284, #739422, #844712, #926030.
+net-analyzer/kapacitor
+
+# Alexey Sokolov <alexey+gentoo@asokolov.org> (2026-09-09)
+# Upstream abandoned the project, suggests www-servers/gatling
+# by the same upstream instead.
+# Removal on 2026-10-09. Bugs #783666, #944275.
+www-servers/fnord
+acct-user/fnord
+acct-user/fnordlog
+
+# Sam James <sam@gentoo.org> (2026-09-08)
+# Changes ctest(1) behaviour to exit non-zero if no tests, which
+# may break many ebuilds. Needs some assessment.
+>=dev-build/cmake-4.4.0
+
+# David Seifert <soap@gentoo.org> (2026-09-07)
+# Unmaintained, lots of FetchContent_* hacks.
+# Removal on 2026-10-07. Bug #927149.
+sci-physics/espresso
+
 # Michał Górny <mgorny@gentoo.org> (2026-09-05)
 # Broken with current dev-python/pywayland version.  Stuck on old
 # gui-libs/wlroots.  Used only by old versions of x11-wm/qtile.
@@ -81,11 +115,6 @@ dev-python/pyproject-fmt
 # Ulrich Müller <ulm@gentoo.org> (2026-08-31)
 # Snapshot versions, masked for testing.
 <app-editors/emacs-32.0.9999:32-vcs
-
-# Joonas Niilola <juippis@gentoo.org> (2026-08-28)
-# Parallel-build issue. While "emake -j1" works, have some time to
-# figure it out for now. Bug #981581
-=dev-libs/nss-3.128
 
 # Bernard Cafarelli <voyageur@gentoo.org> (2026-08-24)
 # Abandoned (last release in 2008), and uncertain useful value with modern
