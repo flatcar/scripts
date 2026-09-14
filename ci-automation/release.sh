@@ -271,10 +271,6 @@ function _release_build_impl() {
     if [ "${vernum}" = "${sdk_version}" ]; then
       publish_sdk "${docker_sdk_vernum}"
     fi
-    echo "===="
-    echo "Done, now you can copy the images to Origin"
-    echo "===="
-
 
     # Future: trigger update payload signing
 
