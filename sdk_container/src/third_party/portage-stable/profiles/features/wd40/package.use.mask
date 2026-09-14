@@ -65,8 +65,12 @@ sci-libs/pyshp test
 # Pacho Ramos <pacho@gentoo.org> (2026-08-10)
 # Needs gnome-control-center and other rust reverse deps
 app-emulation/winetricks gui
+app-office/gnucash doc
 dev-perl/Panotools-Script gui
 gnome-base/gvfs google onedrive test
+gnome-extra/gnome-commander doc
+mate-base/mate help
+media-sound/pulseeffects doc
 x11-misc/mugshot gnome
 x11-misc/xscreensaver gdm
 
