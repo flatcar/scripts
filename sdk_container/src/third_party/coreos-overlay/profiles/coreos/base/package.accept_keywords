@@ -107,6 +107,7 @@ dev-cpp/azure-security-keyvault-keys
 =dev-libs/json-c-0.19-r2
 =dev-libs/libgcrypt-1.12.3-r1
 =dev-libs/libksba-1.8.1
+=dev-libs/libpcre2-10.48
 
 # Keep versions on both arches in sync.
 =dev-libs/libtraceevent-1.9.0
@@ -211,3 +212,6 @@ sys-firmware/edk2-bin
 
 # rsync 3.5.0 needs it
 =virtual/acl-2.4.0
+
+# To address security issues.
+=virtual/libpcre2-internals-10.48
