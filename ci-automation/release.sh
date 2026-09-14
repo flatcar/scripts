@@ -44,7 +44,7 @@
 #   4. REGISTRY_PASSWORD. Environment variable. The password to use for Docker registry login.
 #        Defaults to nothing if not set - in such case, SDK container will not be pushed.
 #
-#   5. Cloud credentials as secrets via the environment variables AZURE_PROFILE, AZURE_AUTH_CREDENTIALS,
+#   5. Cloud credentials as secrets via the environment variables
 #      AWS_CREDENTIALS, AWS_MARKETPLACE_CREDENTIALS, AWS_MARKETPLACE_ARN, AWS_CLOUDFORMATION_CREDENTIALS,
 #      GCP_JSON_KEY, GOOGLE_RELEASE_CREDENTIALS.
 #
@@ -79,10 +79,6 @@ function _inside_mantle() {
     source sdk_container/.env
     CHANNEL="$(get_git_channel)"
     VERSION="${FLATCAR_VERSION}"
-    azure_profile_config_file=""
-    secret_to_file azure_profile_config_file "${AZURE_PROFILE}"
-    azure_auth_config_file=""
-    secret_to_file azure_auth_config_file "${AZURE_AUTH_CREDENTIALS}"
     aws_credentials_config_file=""
     secret_to_file aws_credentials_config_file "${AWS_CREDENTIALS}"
     aws_marketplace_credentials_file=""

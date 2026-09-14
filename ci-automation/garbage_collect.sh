@@ -256,7 +256,6 @@ function _garbage_collect_impl() {
     local mantle_ref
     mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
     docker run --pull always --rm --net host \
-      --env AZURE_AUTH_CREDENTIALS --env AZURE_PROFILE \
       --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY \
       --env AWS_CREDENTIALS \
       --env DIGITALOCEAN_TOKEN_JSON \
