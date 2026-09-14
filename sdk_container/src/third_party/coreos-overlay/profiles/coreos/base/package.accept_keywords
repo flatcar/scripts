@@ -197,9 +197,6 @@ sys-firmware/edk2-bin
 =sys-fs/lxcfs-7.0.0
 =sys-libs/binutils-libs-2.46.1
 
-# To address GHSA-2hqh-5c36-grrm, GHSA-46fr-jh49-xvhx, GHSA-4q85-33p6-j5g6.
-=sys-libs/libseccomp-2.6.1
-
 # To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
 =sys-libs/libselinux-3.11-r1
 =sys-libs/libsepol-3.11
