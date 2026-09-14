@@ -9,7 +9,6 @@
 #
 sdk_container_common_versionfile="sdk_container/.repo/manifests/version.txt"
 sdk_container_common_registry="ghcr.io/flatcar"
-sdk_container_common_env_file="sdk_container/.sdkenv"
 
 # Check for podman and docker; use docker if present, podman alternatively.
 # Podman needs 'sudo' since we need privileged containers for the SDK.
@@ -180,138 +179,32 @@ EOF
 }
 # --
 
-#
-# Set up SDK environment variables.
-#  Environment vars are put in a file that is sourced by the container's
-#  .bashrc (if present). GNUPGHOME and SSH_AUTH_SOCK are set
-#  to container-specific paths if applicable.
-
-function setup_sdk_env() {
-    local var
-
-    rm -f "$sdk_container_common_env_file"
-
-    # conditionally set up gnupg, ssh socket, and gcloud auth / boto
-    #  depending on availability on the host
-    GNUPGHOME="${GNUPGHOME:-$HOME/.gnupg}"
-    if [ -d "${GNUPGHOME}" ] ; then
-        echo "GNUPGHOME=\"/home/sdk/.gnupg\""  >> "$sdk_container_common_env_file"
-        echo "export GNUPGHOME"  >> "$sdk_container_common_env_file"
-        export GNUPGHOME
-    fi
-
-    if [ -e "${SSH_AUTH_SOCK:-}" ] ; then
-        local sockname="$(basename "${SSH_AUTH_SOCK}")"
-        echo "SSH_AUTH_SOCK=\"/run/sdk/ssh/$sockname\""  >> "$sdk_container_common_env_file"
-        echo "export SSH_AUTH_SOCK"  >> "$sdk_container_common_env_file"
-    fi
-
-    # keep in sync with 90_env_keep, without GNUPGHOME and
-    # SSH_AUTH_SOCK as those are set up above, and without BOTO_PATH
-    # and GOOGLE_APPLICATION_CREDENTIALS as those are set up in the
-    # setup_gsutil function.
-    for var in FLATCAR_BUILD_ID COREOS_OFFICIAL \
-        EMAIL GIT_AUTHOR_EMAIL GIT_AUTHOR_NAME \
-        GIT_COMMITTER_EMAIL GIT_COMMITTER_NAME \
-        GIT_PROXY_COMMAND GIT_SSH RSYNC_PROXY \
-        GPG_AGENT_INFO \
-        \
-        USE FEATURES PORTAGE_USERNAME FORCE_STAGES \
-        SIGNER \
-        SBSIGN_KEY SBSIGN_CERT SBSIGN_DB_KEY SBSIGN_DB_CERT \
-        SHIM_SIGNING_CERTIFICATE \
-        MODULE_SIGNING_KEY_DIR SYSEXT_SIGNING_KEY_DIR \
-        all_proxy ftp_proxy http_proxy https_proxy no_proxy; do
-
-        if [ -n "${!var:-}" ] ; then
-            echo "${var}=\"${!var}\"" >> "$sdk_container_common_env_file"
-            echo "export ${var}" >> "$sdk_container_common_env_file"
-        fi
-    done
-}
-# --
-
-# Set up gcloud legacy creds (via GOOGLE_APPLICATION_CREDENTIALS)
-#  for the SDK container.
-#  This will also create a boto config right next to the
-#  GOOGLE_APPLICATION_CREDENTIALS json file.
-
-function setup_gsutil() {
-    local creds="${GOOGLE_APPLICATION_CREDENTIALS:-$HOME/.config/gcloud/application_default_credentials.json}"
-    if [ ! -e "$creds" ]; then
-        return
-    fi
-
-    local creds_dir="$(dirname "$creds")"
-    local botofile="$creds_dir/boto-flatcar-sdk"
-
-    # TODO t-lo: move generation of boto file to sdk_entry so
-    #               it's only created inside the container.
-
-    # read creds file and create boto file for gsutil
-    local tmp="$(mktemp)"
-    trap "rm -f '$tmp'" EXIT
-
-    local oauth_refresh="$(jq  -r '.refresh_token' "$creds")"
-    local client_id="$(jq  -r '.client_id' "$creds")"
-    local client_secret="$(jq  -r '.client_secret' "$creds")"
-
-    cat >>"$tmp" <<EOF
-[Credentials]
-gs_oauth2_refresh_token = $oauth_refresh
-
-[OAuth2]
-client_id = $client_id
-client_secret = $client_secret
-EOF
-    mv "$tmp" "$botofile"
-
-    echo "BOTO_PATH=\"$botofile\"" >> "$sdk_container_common_env_file"
-    echo "export BOTO_PATH" >> "$sdk_container_common_env_file"
-    echo "GOOGLE_APPLICATION_CREDENTIALS=\"$creds\"" >> "$sdk_container_common_env_file"
-    echo "export GOOGLE_APPLICATION_CREDENTIALS" >> "$sdk_container_common_env_file"
-
-    BOTO_PATH="$botofile"
-    GOOGLE_APPLICATION_CREDENTIALS="$creds"
-    export BOTO_PATH
-    export GOOGLE_APPLICATION_CREDENTIALS
-}
-
-# --
-
-# Generate volume mount command line options for docker
-#  to pass gpg, ssh, and gcloud auth host directories
-#  into the SDK container.
-
-function gnupg_ssh_gcloud_mount_opts() {
+# Generate command line options for Docker to pass GPG and SSH host directories
+# into the SDK container.
+function credential_docker_args() {
     local -n args_ref="${1}"; shift
+    args_ref=()
 
     local sdk_gnupg_home="/home/sdk/.gnupg"
-    local gpgagent_dir="/run/user/$(id -u)/gnupg"
+    local gpgagent_dir="/run/user/${UID}/gnupg"
 
-    args_ref=()
     # pass host GPG home and Agent directories to container
-    if [[ -d ${GNUPGHOME} ]] ; then
-        args_ref+=( -v "$GNUPGHOME:$sdk_gnupg_home" )
+    : "${GNUPGHOME:="${HOME}"/.gnupg}"
+    if [[ -d ${GNUPGHOME:-} ]] ; then
+        args_ref+=(
+            -v "$GNUPGHOME:$sdk_gnupg_home"
+            -e GNUPGHOME="$sdk_gnupg_home"
+        )
     fi
     if [[ -d ${gpgagent_dir} ]] ; then
         args_ref+=( -v "${gpgagent_dir}:${gpgagent_dir}" )
     fi
 
-    local sshsockdir
     if [[ -e ${SSH_AUTH_SOCK:-} ]] ; then
-        sshsockdir=$(dirname "$SSH_AUTH_SOCK")
-        args_ref+=( -v "${sshsockdir}:/run/sdk/ssh" )
-    fi
-
-    local creds_dir
-    if [[ -e ${GOOGLE_APPLICATION_CREDENTIALS:-} ]] ; then
-        creds_dir=$(dirname "${GOOGLE_APPLICATION_CREDENTIALS}")
-        if [[ -d ${creds_dir} ]] ; then
-            echo "Mounting gcloud credentials from ${creds_dir} (used for artifact uploads, safe to ignore if not needed, not baked into any image)"
-            echo "-v $creds_dir:$creds_dir"
-            args_ref+=( -v "${creds_dir}:${creds_dir}" )
-        fi
+        args_ref+=(
+            -v "${SSH_AUTH_SOCK%/*}:/run/sdk/ssh"
+            -e SSH_AUTH_SOCK="/run/sdk/ssh/${SSH_AUTH_SOCK##*/}"
+        )
     fi
 }
 
