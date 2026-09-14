@@ -357,6 +357,7 @@ dev-python/platformdirs
 dev-python/pluggy
 dev-python/ply
 dev-python/poetry-core
+dev-python/py-landlock
 dev-python/pycparser
 dev-python/pydecomp
 dev-python/pygments
@@ -371,6 +372,7 @@ dev-python/six
 dev-python/snakeoil
 dev-python/tomli
 dev-python/tomli-w
+dev-python/tomlkit
 dev-python/tree-sitter
 dev-python/trove-classifiers
 dev-python/truststore
