@@ -16,6 +16,9 @@
 # Needed to fix build with acl 2.4.0
 =app-arch/tar-1.35-r1
 
+# To address GHSA-5qpq-xqfv-j9pg.
+=app-arch/xz-utils-5.8.4
+
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
 
