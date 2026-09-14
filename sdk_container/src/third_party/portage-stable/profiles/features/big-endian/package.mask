@@ -101,7 +101,6 @@ media-gfx/alembic
 games-fps/freedoom
 games-engines/odamex
 games-engines/uzdoom
-games-fps/chocolate-doom
 games-fps/crispy-doom
 games-fps/freedoom-data
 media-libs/zmusic
