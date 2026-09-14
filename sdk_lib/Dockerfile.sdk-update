@@ -8,6 +8,9 @@ RUN chown sdk:sdk /mnt/host/source
 RUN FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox" \
         /home/sdk/sdk_entry.sh ./update_chroot --toolchain_boards="amd64-usr arm64-usr"
 
+RUN /home/sdk/sdk_entry.sh sudo crossdev --init-target --ex-gdb aarch64-cros-linux-gnu
+RUN /home/sdk/sdk_entry.sh sudo crossdev --init-target --ex-gdb x86_64-cros-linux-gnu
+
 RUN /home/sdk/sdk_entry.sh ./setup_board --board="arm64-usr" --regen_configs
 RUN /home/sdk/sdk_entry.sh ./setup_board --board="amd64-usr" --regen_configs
 
