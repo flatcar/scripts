@@ -156,6 +156,7 @@ dev-cpp/azure-security-keyvault-keys
 =net-libs/nghttp2-1.70.0
 
 # To address security issues.
+=net-misc/curl-8.22.0
 =net-misc/openssh-10.5_p1
 
 # For podman 6.0.0
