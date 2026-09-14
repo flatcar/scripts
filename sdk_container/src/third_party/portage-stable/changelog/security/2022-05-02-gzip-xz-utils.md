@@ -1,1 +1,0 @@
-- gzip,xz-utils ([CVE-2022-1271](https://nvd.nist.gov/vuln/detail/CVE-2022-1271))

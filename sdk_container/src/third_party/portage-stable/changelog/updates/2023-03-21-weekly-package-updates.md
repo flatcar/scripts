@@ -1,1 +1,0 @@
-- SDK: pahole ([1.24](https://github.com/acmel/dwarves/releases/tag/v1.24))
