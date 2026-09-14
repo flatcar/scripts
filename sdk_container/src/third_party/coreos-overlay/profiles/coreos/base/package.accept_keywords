@@ -168,6 +168,9 @@ sys-apps/azure-vm-utils
 # Keep versions on both arches in sync.
 =sys-apps/bubblewrap-0.12.0
 
+# To address CVE-2026-40553, CVE-2026-40467, CVE-2026-40468.
+=sys-apps/gawk-5.4.1-r1
+
 # To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
 =sys-apps/semodule-utils-3.11
 
