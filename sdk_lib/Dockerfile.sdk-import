@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG VERSION=9999.99.99-version-missing
 FROM flatcar-sdk-tarball:${VERSION}
 
@@ -26,10 +28,12 @@ COPY --chown=sdk:sdk sdk_container/ /mnt/host/source
 COPY --chown=sdk:sdk . /mnt/host/source/src/scripts
 RUN chown sdk:sdk /mnt/host/source
 
-COPY sdk_lib/90_env_keep /etc/sudoers.d/90_env_keep
-RUN chmod 0440 /etc/sudoers.d/90_env_keep
+RUN --mount=type=bind,target=/mnt/host/source/src/scripts \
+        cat /mnt/host/source/src/scripts/sdk_lib/env_{pass,keep}.txt | \
+        sed -e '1i Defaults env_keep += " \\' -e 's:$: \\:' -e '$a "' | \
+        install -m0440 /dev/stdin /etc/sudoers.d/90_env_keep
 
-RUN mkdir -p /mnt/host/source/src/scripts /mnt/host/source/src/build
+RUN mkdir -p /mnt/host/source/src/build
 RUN ln -s /mnt/host/source /home/sdk/trunk
 
 RUN rm /home/sdk/.bashrc
@@ -39,7 +43,6 @@ RUN echo 'export PATH="$PATH:/usr/local/bin:/usr/local/sbin"' >> /home/sdk/.bash
 
 # user and SDK environment variables pass-through into container
 RUN echo "if [ -f /mnt/host/source/.env ]; then source /mnt/host/source/.env; fi" >> /home/sdk/.bashrc
-RUN echo "if [ -f /mnt/host/source/.sdkenv ]; then source /mnt/host/source/.sdkenv; fi" >> /home/sdk/.bashrc
 
 RUN chown -h sdk:sdk /mnt/host/source/src/scripts /mnt/host/source/src/build /home/sdk/trunk /home/sdk/.bashrc
 
