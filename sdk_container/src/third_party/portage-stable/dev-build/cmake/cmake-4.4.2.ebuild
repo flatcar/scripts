@@ -56,7 +56,7 @@ else
 		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 	fi
 
-	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20260908 )"
+	BDEPEND="verify-sig? ( >=sec-keys/openpgp-keys-bradking-20250904 )"
 fi
 
 [[ ${CMAKE_DOCS_PREBUILT} == 1 ]] && CMAKE_DOCS_USEFLAG="doc"
