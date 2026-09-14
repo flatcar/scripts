@@ -220,7 +220,7 @@ configure_crossdev_overlay() {
     fi
 
     "${sudo[@]}" mkdir -p "${root}${location}/"{profiles,metadata}
-    echo "x-crossdev" | \
+    echo "crossdev" | \
         "${sudo[@]}" tee "${root}${location}/profiles/repo_name" > /dev/null
     "${sudo[@]}" tee "${root}${location}/metadata/layout.conf" > /dev/null <<EOF
 masters = gentoo coreos-overlay
@@ -229,7 +229,7 @@ thin-manifests = true
 EOF
 
     "${sudo[@]}" tee "${root}/etc/portage/repos.conf/crossdev.conf" > /dev/null <<EOF
-[x-crossdev]
+[crossdev]
 location = ${location}
 EOF
 }
@@ -362,17 +362,6 @@ install_cross_toolchain() {
     local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
         sudo=("sudo" "-E")
-    fi
-
-    # crossdev will arbitrarily choose an overlay that it finds first.
-    # Force it to use the one created by configure_crossdev_overlay
-    local cross_overlay
-    cross_overlay=$(portageq get_repo_path / x-crossdev)
-    if [[ -n "${cross_overlay}" ]]; then
-        cross_flags+=( --ov-output "${cross_overlay}" )
-    else
-        echo "No x-crossdev overlay found!" >&2
-        return 1
     fi
 
     # Only call crossdev to regenerate configs if something has changed
