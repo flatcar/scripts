@@ -1,0 +1,32 @@
+From 8180e70a2708dbf8ac6f089119922dec81fcc503 Mon Sep 17 00:00:00 2001
+From: Alexey Tikhonov <atikhono@redhat.com>
+Date: Wed, 9 Sep 2026 17:18:02 +0200
+Subject: [PATCH] IDP: fix user matching in `eval_access_token_buf()`
+
+Make sure it is exact, not merely a prefix match.
+
+:fixes: CVE-2026-87853
+
+Reviewed-by: Sumit Bose <sbose@redhat.com>
+(cherry picked from commit f3a324918c1a35bd0195a1de5b17897a0d3b6274)
+---
+ src/providers/idp/idp_auth_eval.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/providers/idp/idp_auth_eval.c b/src/providers/idp/idp_auth_eval.c
+index e992c07ed..f6340b402 100644
+--- a/src/providers/idp/idp_auth_eval.c
++++ b/src/providers/idp/idp_auth_eval.c
+@@ -294,7 +294,8 @@ errno_t eval_access_token_buf(struct idp_auth_ctx *idp_auth_ctx,
+         goto done;
+     }
+ 
+-    if (strncmp(uuid, (char *) user_reply, user_reply_len) != 0) {
++    if ((strlen(uuid) != user_reply_len) ||
++        (strncmp(uuid, (char *) user_reply, user_reply_len) != 0)) {
+         DEBUG(SSSDBG_OP_FAILURE,
+               "UUID [%s] of user [%s] and input [%.*s] do not match.\n",
+               uuid, user, (int) user_reply_len, user_reply);
+-- 
+2.55.0
+
