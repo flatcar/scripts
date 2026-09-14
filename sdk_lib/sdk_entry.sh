@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Source SDK environment variables if available (includes COREOS_OFFICIAL, etc.)
-if [ -f /mnt/host/source/.sdkenv ]; then
-    source /mnt/host/source/.sdkenv
-fi
-
 if [ -n "${SDK_USER_ID:-}" ] ; then
     # If the "core" user from /usr/share/baselayout/passwd has the same ID, allow to take it instead
     usermod --non-unique -u $SDK_USER_ID sdk
@@ -14,6 +9,9 @@ if [ -n "${SDK_GROUP_ID:-}" ] ; then
 fi
 
 chown -R sdk:sdk /home/sdk
+
+# GPG won't use the socket dir if /var/run/${UID} has the wrong permissions.
+install -o "${SDK_USER_ID}" -g "${SDK_GROUP_ID}" -m 0700 -d "/run/user/${SDK_USER_ID}"
 
 # Fix up SDK repo configuration to use the new coreos-overlay name.
 sed -i -r 's/^\[coreos\]/[coreos-overlay]/' /etc/portage/repos.conf/coreos.conf 2>/dev/null
@@ -72,7 +70,7 @@ fi
 # Create key directory if not already configured in .bashrc
 if ! grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
     if [[ -n ${MODULE_SIGNING_KEY_DIR:-} ]]; then
-        # Pre-set via environment (e.g. .sdkenv) — use as-is
+        # Pre-set via environment — use as-is
         :
     elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
         # For official builds, use ephemeral keys
@@ -101,7 +99,7 @@ if grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc; then
 fi
 grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
     if [[ -n ${SYSEXT_SIGNING_KEY_DIR:-} ]]; then
-        # Pre-set via environment (e.g. .sdkenv) — use as-is
+        # Pre-set via environment — use as-is
         :
     elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
         SYSEXT_SIGNING_KEY_DIR=$(sudo -u sdk mktemp -d)
