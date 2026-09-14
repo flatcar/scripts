@@ -223,7 +223,7 @@ configure_crossdev_overlay() {
     echo "x-crossdev" | \
         "${sudo[@]}" tee "${root}${location}/profiles/repo_name" > /dev/null
     "${sudo[@]}" tee "${root}${location}/metadata/layout.conf" > /dev/null <<EOF
-masters = portage-stable coreos-overlay
+masters = gentoo coreos-overlay
 use-manifests = true
 thin-manifests = true
 EOF
