@@ -1,1 +1,0 @@
-- MIT Kerberos V ([1.20.1](https://web.mit.edu/kerberos/krb5-1.20/krb5-1.20.1.html))

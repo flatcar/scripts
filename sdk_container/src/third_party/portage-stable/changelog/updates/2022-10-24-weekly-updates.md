@@ -1,2 +1,0 @@
-- bpftool ([5.19.8](https://lwn.net/Articles/907523/))
-- git ([2.37.4](https://github.com/git/git/blob/master/Documentation/RelNotes/2.37.4.txt))

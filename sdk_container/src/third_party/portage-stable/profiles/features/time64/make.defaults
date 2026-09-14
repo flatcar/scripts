@@ -1,6 +1,0 @@
-# Copyright 2024-2026 Gentoo Authors
-# Distributed under the terms of the GNU General Public License v2
-
-# We need to switch this explicitly on since it's explicitly disabled
-# in profiles otherwise.
-enable_year2038="yes"

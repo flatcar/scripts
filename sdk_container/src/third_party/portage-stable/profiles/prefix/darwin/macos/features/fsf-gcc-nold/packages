@@ -1,6 +1,0 @@
-# Copyright 1999-2025 Gentoo Authors
-# Distributed under the terms of the GNU General Public License v2
-
-# usage of FSF GCC, without binutils-apple using host-provided ld (due
-# to xtools missing recent features, most notably arm64 support)
-*sys-devel/native-cctools

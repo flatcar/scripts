@@ -29,8 +29,8 @@ unset QEMU
 
 DEFINE_string catalyst_root "${DEFAULT_CATALYST_ROOT}" \
     "Path to directory for all catalyst images and other files."
-DEFINE_string portage_stable "${SRC_ROOT}/third_party/portage-stable" \
-    "Path to the portage-stable git checkout."
+DEFINE_string portage_stable "${SRC_ROOT}/third_party/gentoo" \
+    "Path to the gentoo git checkout."
 DEFINE_string coreos_overlay "${SRC_ROOT}/third_party/coreos-overlay" \
     "Path to the coreos-overlay git checkout."
 DEFINE_string seed_tarball "${DEFAULT_SEED}" \
@@ -64,7 +64,7 @@ distdir="$DISTDIR"
 envscript="$TEMPDIR/catalystrc"
 port_logdir="$CATALYST_ROOT/log"
 repo_basedir="/mnt/host/source/src/third_party"
-repo_name="portage-stable"
+repo_name="gentoo"
 EOF
 }
 
@@ -90,7 +90,7 @@ subarch: $ARCH
 rel_type: $TYPE
 portage_confdir: $TEMPDIR/portage
 repos: $FLAGS_coreos_overlay
-keep_repos: portage-stable coreos-overlay
+keep_repos: gentoo coreos-overlay
 profile: ${2:-$FLAGS_profile}
 snapshot_treeish: $FLAGS_version
 version_stamp: $FLAGS_version
@@ -275,7 +275,7 @@ build_snapshot() {
     repo_dir=${1:-"${FLAGS_portage_stable}"}
     snapshot=${2:-"${FLAGS_version}"}
     snapshots_dir="${CATALYST_ROOT}/snapshots"
-    snapshot_path="${snapshots_dir}/portage-stable-${snapshot}.sqfs"
+    snapshot_path="${snapshots_dir}/gentoo-${snapshot}.sqfs"
     if [[ -f ${snapshot_path} && $FLAGS_rebuild == $FLAGS_FALSE ]]
     then
         info "Skipping snapshot, ${snapshot_path} exists"
