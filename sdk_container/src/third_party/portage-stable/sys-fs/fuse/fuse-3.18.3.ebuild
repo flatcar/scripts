@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..15} )
 inherit flag-o-matic meson-multilib toolchain-funcs udev python-any-r1
 
 DESCRIPTION="An interface for filesystems implemented in userspace"
@@ -12,10 +12,9 @@ SRC_URI="https://github.com/libfuse/libfuse/releases/download/${P}/${P}.tar.gz"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="3/4"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="io-uring +suid systemtap test"
-RESTRICT="test"
-PROPERTIES="test_privileged"
+RESTRICT="!test? ( test )"
 
 DEPEND="
 	io-uring? (
@@ -31,17 +30,10 @@ BDEPEND="
 	virtual/pkgconfig
 	test? (
 		${PYTHON_DEPS}
-		$(python_gen_any_dep '
-			dev-python/pytest[${PYTHON_USEDEP}]
-		')
 	)
 "
 
 DOCS=( AUTHORS ChangeLog.rst README.md doc/README.NFS doc/kernel.txt )
-
-python_check_deps() {
-	python_has_version "dev-python/pytest[${PYTHON_USEDEP}]"
-}
 
 pkg_setup() {
 	use test && python-any-r1_pkg_setup
@@ -64,19 +56,14 @@ multilib_src_configure() {
 }
 
 src_test() {
-	# For tests to pass:
-	# - sandbox must be disabled.
-	# - Write access to /dev/cuse* and /dev/fuse is required.
-	# - root must be a member of the portage group; CAP_DAC_OVERRIDE is dropped.
-	# - TMPDIR must be short for unix socket paths.
+	# Need short unix socket paths
 	local -x TMPDIR=/tmp
+	# mount/mountpoint-validation fails
 	local -x SANDBOX_ON=0
-	multilib-minimal_src_test
-}
+	# Don't try to use systemd-run
+	local -x FUSE_TESTS_UNDER_SCOPE=1
 
-multilib_src_test() {
-	# Explicit test/ needed to pick up pytest.ini
-	epytest test/
+	multilib-minimal_src_test
 }
 
 multilib_src_install_all() {
