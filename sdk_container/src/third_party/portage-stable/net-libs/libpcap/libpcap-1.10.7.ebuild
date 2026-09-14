@@ -3,9 +3,9 @@
 
 EAPI=8
 
-inherit autotools edo multilib-minimal multiprocessing
+inherit autotools multilib-minimal
 
-DESCRIPTION="System-independent library for user-level network packet capture"
+DESCRIPTION="A system-independent library for user-level network packet capture"
 HOMEPAGE="https://www.tcpdump.org/ https://github.com/the-tcpdump-group/libpcap"
 
 if [[ ${PV} == *9999* ]] ; then
@@ -18,7 +18,7 @@ else
 	SRC_URI="https://www.tcpdump.org/release/${P}.tar.gz"
 	SRC_URI+=" verify-sig? ( https://www.tcpdump.org/release/${P}.tar.gz.sig )"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~x64-macos"
 fi
 
 # The project itself has COPYING with BSD, but the files used for
@@ -42,7 +42,6 @@ BDEPEND="
 	app-alternatives/yacc
 	sys-devel/flex
 	dbus? ( virtual/pkgconfig )
-	test? ( dev-lang/perl )
 "
 
 if [[ ${PV} != *9999* ]] ; then
@@ -71,6 +70,7 @@ multilib_src_configure() {
 		$(use_enable usb)
 		$(use_enable yydebug)
 		$(use_with netlink libnl)
+		--enable-ipv6
 	)
 
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
@@ -78,22 +78,15 @@ multilib_src_configure() {
 
 multilib_src_compile() {
 	emake all shared
+	use test && emake testprogs
 }
 
 multilib_src_test() {
-	if has_version -b "dev-lang/perl[perl_features_ithreads]" ; then
-		# errors out if this is set w/o ithreads
-		local -x TESTRUN_JOBS=$(get_makeopts_jobs)
-	else
-		ewarn "Running tests serially without dev-lang/perl[perl_features_ithreads]"
-	fi
-
-	emake -Onone check
-	edo testprogs/findalldevstest
+	testprogs/findalldevstest || die
 }
 
 multilib_src_install_all() {
-	dodoc CREDITS CHANGES VERSION README.* doc/README.*
+	dodoc CREDITS CHANGES VERSION TODO README.* doc/README.*
 
 	# remove static libraries (--disable-static does not work)
 	if ! use static-libs; then
