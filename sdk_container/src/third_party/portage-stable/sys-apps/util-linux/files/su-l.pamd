@@ -1,5 +1,0 @@
-auth	   include      su
-account    include      su
-password   include      su
-session	   optional pam_lastlog.so
-session	   include      su

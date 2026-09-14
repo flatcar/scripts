@@ -1,7 +1,0 @@
-# Copyright 2025-2026 Gentoo Authors
-# Distributed under the terms of the GNU General Public License v2
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2025-06-02)
-# Since we are using -maligned-int by default here, we also need the
-# corresponding fixed / patched toolchain versions...
-<sys-libs/glibc-2.41-r2
