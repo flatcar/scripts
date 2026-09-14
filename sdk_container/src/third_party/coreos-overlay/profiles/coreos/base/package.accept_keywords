@@ -112,6 +112,9 @@ dev-cpp/azure-security-keyvault-keys
 # Keep versions on both arches in sync.
 =dev-libs/libtraceevent-1.9.0
 
+# To address security issues.
+=dev-libs/libxml2-2.15.4
+
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
 
