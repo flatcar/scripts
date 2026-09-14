@@ -1,1 +1,0 @@
-- libarchive [3.5.2](https://github.com/libarchive/libarchive/releases/tag/v3.5.2)

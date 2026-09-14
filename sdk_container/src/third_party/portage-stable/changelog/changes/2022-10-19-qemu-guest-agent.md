@@ -1,1 +1,0 @@
-- Add qemu-guest-agent to all amd64 images, it will be automatically enabled when qemu-ga virtio-port is detected ([coreos-overlay#2240](https://github.com/flatcar/coreos-overlay/pull/2240), [portage-stable#373](https://github.com/flatcar/portage-stable/pull/373))
