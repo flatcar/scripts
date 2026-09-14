@@ -34,7 +34,7 @@
 =app-containers/docker-cli-29*
 
 # To address security issues
-=app-containers/incus-7.4
+=app-containers/incus-7.4-r1
 
 # Keep versions on both arches in sync.
 =app-containers/lxc-7.0.0
