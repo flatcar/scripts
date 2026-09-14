@@ -173,9 +173,6 @@ sys-apps/azure-vm-utils
 # To address CVE-2026-40553, CVE-2026-40467, CVE-2026-40468.
 =sys-apps/gawk-5.4.1-r1
 
-# To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
-=sys-apps/semodule-utils-3.11
-
 # To address CVE-2026-76642, CVE-2026-78408, CVE-2026-78409, CVE-2026-78410
 =sys-apps/util-linux-2.42.3
 
