@@ -42,7 +42,7 @@ src_compile() {
 	)
 
 	emake "${myemakeargs[@]}" dynbinary
-	tc-env_build go-env_run emake "${myemakeargs[@]}" manpages
+	CGO_ENABLED=0 tc-env_build go-env_run emake "${myemakeargs[@]}" manpages
 }
 
 src_install() {
