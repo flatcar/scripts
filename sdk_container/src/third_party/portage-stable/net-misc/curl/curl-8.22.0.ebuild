@@ -86,7 +86,7 @@ REQUIRED_USE="
 
 # cURL's docs and CI/CD are great resources for confirming supported versions
 # particulary for fast-moving targets like HTTP/2 and TCP/2 e.g.:
-# - https://github.com/curl/curl/blob/master/docs/INTERNALS.md (core dependencies + minimum versions)
+# - https://github.com/curl/curl/blob/master/docs/DEPENDENCIES.md (core dependencies + minimum versions)
 # - https://github.com/curl/curl/blob/master/docs/HTTP3.md (example of a feature that moves quickly)
 # - https://github.com/curl/curl/blob/master/.github/workflows/http3-linux.yml (CI/CD for TCP/2)
 # - https://curl.se/dev/deprecate.html - good source of deprecation timelines, e.g. for OpenSSL 1.1.1
@@ -96,24 +96,24 @@ REQUIRED_USE="
 RDEPEND="
 	>=virtual/zlib-1.2.5:=[${MULTILIB_USEDEP}]
 	adns? ( >=net-dns/c-ares-1.16.0:=[${MULTILIB_USEDEP}] )
-	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
+	brotli? ( >=app-arch/brotli-1.0.0:=[${MULTILIB_USEDEP}] )
 	http2? ( >=net-libs/nghttp2-1.15.0:=[${MULTILIB_USEDEP}] )
 	http3? ( >=net-libs/nghttp3-1.1.0[${MULTILIB_USEDEP}] )
 	idn? ( >=net-dns/libidn2-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	ldap? ( >=net-nds/openldap-2.0.0:=[static-libs?,${MULTILIB_USEDEP}] )
-	psl? ( net-libs/libpsl[${MULTILIB_USEDEP}] )
+	psl? ( >=net-libs/libpsl-0.16.0[${MULTILIB_USEDEP}] )
 	quic? (
 		gnutls? ( >=net-libs/ngtcp2-1.20.0-r1[gnutls,ssl,${MULTILIB_USEDEP}] )
 		openssl? ( >=net-libs/ngtcp2-1.20.0-r1[openssl,ssl,${MULTILIB_USEDEP}] )
 	)
-	ssh? ( >=net-libs/libssh2-1.2.8[${MULTILIB_USEDEP}] )
+	ssh? ( >=net-libs/libssh2-1.9.0[${MULTILIB_USEDEP}] )
 	sasl-scram? ( >=net-misc/gsasl-2.2.0[static-libs?,${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
 			app-misc/ca-certificates
-			>=net-libs/gnutls-3.1.10:=[static-libs?,${MULTILIB_USEDEP}]
-			dev-libs/nettle:=[${MULTILIB_USEDEP}]
+			>=net-libs/gnutls-3.6.5:=[static-libs?,${MULTILIB_USEDEP}]
+			>=dev-libs/nettle-3.4.1:=[${MULTILIB_USEDEP}]
 		)
 		mbedtls? (
 			app-misc/ca-certificates
@@ -127,7 +127,7 @@ RDEPEND="
 			>=net-libs/rustls-ffi-0.15.0:=[${MULTILIB_USEDEP}]
 		)
 	)
-	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
+	zstd? ( >=app-arch/zstd-1.0:=[${MULTILIB_USEDEP}] )
 "
 
 DEPEND="${RDEPEND}"
@@ -138,12 +138,12 @@ BDEPEND="
 	test? (
 		sys-apps/diffutils
 		http2? ( >=net-libs/nghttp2-1.15.0:=[utils,${MULTILIB_USEDEP}] )
-		http3? ( net-libs/nghttp2:=[utils,${MULTILIB_USEDEP}] )
+		http3? ( >=net-libs/nghttp2-1.15.0:=[utils,${MULTILIB_USEDEP}] )
 	)
 	verify-sig? ( sec-keys/openpgp-keys-danielstenberg )
 "
 
-DOCS=( README docs/{FEATURES.md,INTERNALS.md,FAQ.md,BUGS.md,CONTRIBUTE.md} )
+DOCS=( README docs/{FEATURES.md,FAQ.md,BUGS.md,CONTRIBUTE.md} )
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/curl/curlbuild.h
@@ -279,6 +279,8 @@ multilib_src_configure() {
 		$(use_enable httpsrr)
 		$(use_with http2 nghttp2)
 		$(use_with http3 nghttp3)
+		# TODO: --enable-proxy-http3?
+		--disable-proxy-http3
 	)
 
 	# --enable/disable options
@@ -311,7 +313,6 @@ multilib_src_configure() {
 		--disable-sspi
 		$(use_enable static-libs static)
 		--enable-symbol-hiding
-		--enable-tls-srp
 		--disable-versioned-symbols
 	)
 
@@ -337,6 +338,7 @@ multilib_src_configure() {
 		--without-test-caddy
 		--without-test-httpd
 		--without-test-nghttpx
+		--without-test-h2o
 	)
 
 	if use debug; then
@@ -390,18 +392,21 @@ multilib_src_test() {
 	# -n: no valgrind (unreliable in sandbox and doesn't work correctly on all arches)
 	# -v: verbose
 	# -a: keep going on failure (so we see everything that breaks, not just 1st test)
-	# -k: keep test files after completion
 	# -am: automake style TAP output
 	# -p: print logs if test fails
 	# --retry: retry any failing tests up to 3 times; this is a band-aid for timing-dependent flakiness.
+	#
 	# Note: if needed, we can skip specific tests. See e.g. Fedora's packaging
 	# or just read https://github.com/curl/curl/tree/master/tests#run.
+	#
 	# Note: we don't run the testsuite for cross-compilation.
+	#
 	# Upstream recommend 7*nproc as a starting point for parallel tests, but
 	# this ends up breaking when nproc is huge (like -j80).
+	#
 	# The network sandbox causes tests 241 and 1083 to fail; these are typically skipped
 	# as most gentoo users don't have an 'ip6-localhost'
-	multilib_is_native_abi && emake test TFLAGS="-n -v -a -k -am -p -j$((2*$(get_makeopts_jobs))) --retry=3 !241 !1083"
+	multilib_is_native_abi && emake test TFLAGS="-n -v -a -am -p -j$((2*$(get_makeopts_jobs))) --retry=3 !241 !1083"
 	# TODO: enable python tests (make pytest).
 }
 
