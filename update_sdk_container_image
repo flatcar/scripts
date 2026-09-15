@@ -19,6 +19,7 @@ new_sdk_version=""
 
 keep="false"
 cleanup=""
+arch_imgs="true"
 
 usage() {
     echo "  $0 - Update SDK container image."
@@ -29,10 +30,11 @@ usage() {
     echo "        1.    flatcar-sdk-all - includes both ARM64 and AMD64 support"
     echo "        2.+3. flatcar-sdk-(amd64|arm64) - only includes support for one target."
     echo "  Usage:"
-    echo "  $0  [-k] [-x <script>] <new-sdk-version>"
+    echo "  $0  [-k] [-a] [-x <script>] <new-sdk-version>"
     echo
     echo "      <new-sdk-version> is the new SDK version to be built."
     echo "      -k           - Keep intermediate container image."
+    echo "      -a           - Do not build arch specific images, only ...-all."
     echo "      -x <script>  - For each resource generated during build (container etc.)"
     echo "                     add a cleanup line to <script> which, when run, will free"
     echo "                     the resource. Useful for CI."
@@ -45,6 +47,7 @@ while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
     -k) keep="true";      shift;;
+    -a) arch_imgs="false";      shift;;
     -x) cleanup="$2";     shift; shift;;
     *)  if [ -z "$new_sdk_version" ] ;  then
             new_sdk_version="$1"; shift
@@ -80,6 +83,8 @@ docker_build \
     --build-arg BASE="$sdk_container_common_registry/flatcar-sdk-all:${base_sdk_version}" \
     -f sdk_lib/Dockerfile.sdk-update \
     .
+
+$arch_imgs || exit 0
 
 for a in all arm64 amd64; do
     yell "Creating '$a' arch SDK image"
