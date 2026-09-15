@@ -28,18 +28,17 @@ The SDK can be used to
 # Using the scripts repository
 
 The repository is meant to be the entry point for Flatcar builds and development.
-Ebuilds for all packages reside in one of 2 subdirectories - [coreos-overlay](sdk_container/src/third_party/coreos-overlay) and [portage-stable](sdk_container/src/third_party/portage-stable/):
+Ebuilds for all packages reside in one of 2 subdirectories - [coreos-overlay](sdk_container/src/third_party/coreos-overlay) and [gentoo](sdk_container/src/third_party/gentoo/):
 ```
 scripts
    +--sdk_container
           +---------src
                      +--third_party
                              +------coreos-overlay
-                             +------portage-stable
+                             +------gentoo
 ```
 
-`portage-stable` is kept in alignment with upstream Gentoo and should not contain any modifications (with only minor, well-justified exceptions).
-Consider it a small sub-set of Gentoo.
+`gentoo` is a git submodule, pointing to Flatcar's fork of the main upstream Gentoo package repository. That fork is generally aligned with Gentoo and only occasionally diverges into alternative branches for brief periods to apply fixes shortly before upstream does. It includes far more packages than Flatcar actually uses.
 
 `coreos-overlay` contains significantly modified or even entirely self-written ebuilds.
 
@@ -66,7 +65,7 @@ While work on a native ARM64 native SDK is ongoing, it's unfortunately not ready
 
 The container can be run in one of two ways - "standalone", or integrated with the [scripts](https://github.com/flatcar/scripts) repo:
 * Standalone mode will use no host volumes and will allow you to play with the SDK in a sandboxed throw-away environment. In standalone mode, you interface with Docker directly to use the SDK container.
-* Integrated mode will closely integrate with the scripts repo directory and bind-mount it as well as the portage-stable and coreos-overlay directories into the container. Integrated mode uses wrapper scripts to interact with the SDK container. This is the recommended way for developing patches for Flatcar.
+* Integrated mode will closely integrate with the scripts repo directory and bind-mount it as well as the gentoo and coreos-overlay directories into the container. Integrated mode uses wrapper scripts to interact with the SDK container. This is the recommended way for developing patches for Flatcar.
 
 ## Standalone mode
 
@@ -96,7 +95,7 @@ To start a container in privileged mode with `/dev` available use:
 
 This is the preferred mode of working with the SDK.
 Interaction with the container happens via wrapper scripts from the scripts repository.
-Both the host's scripts repo as well as the ebuild paths (portage-stable and coreos-overlay) are made available in the container, allowing for work on these directly.
+Both the host's scripts repo as well as the ebuild directories (gentoo and coreos-overlay) are made available in the container, allowing for work on these directly.
 The wrapper scripts will re-use existing containers instead of creating new ones to preserve your work in the container, enabling consistency.
 
 To clone the scripts repo and pick a version:
