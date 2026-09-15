@@ -268,12 +268,12 @@ sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
 
 for REPO_NAME in $(cat "${REPO_ROOT}"/src/third_party/*/profiles/repo_name); do
   [[ ${REPO_NAME} == prefix ]] && continue # Ignore for now.
-
-  for CONF in "${REPO_ROOT}/src/third_party/${REPO_NAME}"/coreos/config/portage/*; do
-    [[ ${CONF} == *.md || ! -e ${CONF} ]] && continue
-    sudo mkdir -p "${BOARD_ETC}/portage/${CONF##*/}"
-    sudo ln -snf "${CONF}" "${BOARD_ETC}/portage/${CONF##*/}/${REPO_NAME}.conf"
-  done
+  symlink_portage_config "${REPO_ROOT}" "${REPO_NAME}" "${BOARD_ETC}"
+  CONF=$(prioritise_non_gentoo_pkgs "${REPO_ROOT}" "${REPO_NAME}")
+  if [[ -e ${CONF} ]]; then
+    sudo mkdir -p "${BOARD_ROOT}${CONF%/*}"
+    sudo ln -snf "${CONF}" "${BOARD_ROOT}${CONF}"
+  fi
 done
 
 # set PORTAGE_CONFIGROOT to tell eselect to modify the profile inside
