@@ -16,10 +16,10 @@ SLOT="0"
 KEYWORDS="amd64 arm64"
 
 for arch in ${KEYWORDS}; do
-	SRC_URI+="${arch}? ( https://mirror.release.flatcar-linux.net/coreos/shim${ARCHES[$arch]}-${PVR}.efi.signed ) "
+	SRC_URI+="${arch}? ( https://mirror.release.flatcar-linux.net/coreos/shim${ARCHES[$arch]}-${PV}.efi.signed ) "
 done
 
 src_install() {
 	insinto /usr/share/shim
-	newins "${DISTDIR}/shim${ARCHES[$ARCH]}-${PVR}.efi.signed" "shim${ARCHES[$ARCH]}.efi.signed"
+	newins "${DISTDIR}/shim${ARCHES[$ARCH]}-${PV}.efi.signed" "shim${ARCHES[$ARCH]}.efi.signed"
 }
