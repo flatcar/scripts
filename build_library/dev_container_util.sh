@@ -20,7 +20,7 @@ configure_dev_portage() {
 
     # Need profiles at the bare minimum
     local repo
-    for repo in portage-stable coreos-overlay; do
+    for repo in gentoo coreos-overlay; do
         sudo mkdir -p "${root_fs_dir}/var/lib/portage/${repo}"
         sudo rsync -rtl --exclude=md5-cache --insecure-links \
             "${SRC_ROOT}/third_party/${repo}/metadata" \
@@ -41,12 +41,12 @@ PORT_LOGDIR="/var/log/portage"
 PORTAGE_BINHOST="$(get_binhost_url "${binhost}" "${update_group}" 'pkgs')"
 EOF
 
-    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/portage-stable.conf" <<EOF
+    sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/gentoo.conf" <<EOF
 [DEFAULT]
-main-repo = portage-stable
+main-repo = gentoo
 
-[portage-stable]
-location = /var/lib/portage/portage-stable
+[gentoo]
+location = /var/lib/portage/gentoo
 EOF
 
     sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
