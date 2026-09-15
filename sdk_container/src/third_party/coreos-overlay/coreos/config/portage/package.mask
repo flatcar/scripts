@@ -1,1 +1,0 @@
-sys-boot/shim::gentoo
