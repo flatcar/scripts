@@ -1,0 +1,37 @@
+From c8c2a5fcbed172fb60b0238919d323bc343f84fd Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Tue, 15 Sep 2026 18:01:42 +0100
+Subject: [PATCH] Support arguments in the patched get_config_vars
+
+This has accepted a list of dictionary keys for very many years, but no
+one seemingly passed these until setuptools 84.0.0, which now does so
+unconditionally. When cross-compiling under Gentoo, the msgpack build
+fails entirely with an error while the crcmod build silently fails to
+install the native module.
+
+This new code is copied directly from the real get_config_vars.
+
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+--- a/gpep517/build.py
++++ b/gpep517/build.py
+@@ -83,7 +83,7 @@ def patch_sysconfig(sysroot: Path,
+     orig_config_vars = sysconfig.get_config_vars
+     orig_get_platform = sysconfig.get_platform
+ 
+-    def patched_config_vars():
++    def patched_config_vars(*args):
+         cvars = orig_config_vars().copy()
+ 
+         # path variables: we copy them from sysroot, and prepend sysroot
+@@ -108,7 +108,7 @@ def patch_sysconfig(sysroot: Path,
+             if modvar in sysroot_vars:
+                 cvars[modvar] = sysroot_vars[modvar]
+ 
+-        return cvars
++        return [cvars.get(name) for name in args] if args else cvars
+ 
+     def patched_get_platform():
+         return sysroot_vars["MULTIARCH"]
+-- 
+2.55.0
+
