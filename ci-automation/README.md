@@ -38,8 +38,8 @@ image_build amd64
 
 ### SDK bootstrap build
 
-1. SDK Bootstrap (`sdk.sh`): Use a seed SDK tarball and seed SDK container image to build a new SDK tarball.
-   The resulting SDK tarball will ship packages and versions from the updated coreos-overlay and portage-stable ebuild directories.
+1. SDK Bootstrap (`sdk_bootstrap.sh`): Use a seed SDK tarball and seed SDK container image to build a new SDK tarball.
+   The resulting SDK tarball will ship packages and versions from the updated coreos-overlay and gentoo ebuild repositories.
    This step updates the versionfile, recording the SDK container version just built.
    It will generate and push a new version tag to the scripts repo.
 2. SDK container build (`sdk_container.sh`) : use SDK tarball to build an SDK container image.
@@ -66,7 +66,7 @@ image_build amd64
                       continue to OS
                        image build
                             |
-                            v 
+                            v
 ```
 
 ### OS image build
