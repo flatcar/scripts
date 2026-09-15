@@ -43,6 +43,6 @@ src_compile() {
 }
 
 src_install() {
-	insinto /usr/lib/shim
+	insinto /usr/share/shim
 	doins shim?*.efi mm?*.efi
 }

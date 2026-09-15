@@ -20,6 +20,6 @@ for arch in ${KEYWORDS}; do
 done
 
 src_install() {
-	insinto /usr/lib/shim
+	insinto /usr/share/shim
 	newins "${DISTDIR}/shim${ARCHES[$ARCH]}-${PVR}.efi.signed" "shim${ARCHES[$ARCH]}.efi.signed"
 }
