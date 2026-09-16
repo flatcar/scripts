@@ -157,6 +157,28 @@ src_prepare() {
 		amdgpu/aldebaran_cap.bin
 		amdgpu/gc_11_0_0_toc.bin
 		amdgpu/gc_11_0_3_mes.bin
+		# btrtl declares MODULE_FIRMWARE for Realtek chips whose firmware or
+		# config blobs are not shipped by linux-firmware (they are either
+		# vendor-supplied or optional, and the driver copes with their absence).
+		rtl_bt/rtl8723b_config.bin
+		rtl_bt/rtl8723cs_cg_config.bin
+		rtl_bt/rtl8723cs_cg_fw.bin
+		rtl_bt/rtl8723cs_vf_config.bin
+		rtl_bt/rtl8723cs_vf_fw.bin
+		rtl_bt/rtl8723d_config.bin
+		rtl_bt/rtl8723ds_config.bin
+		rtl_bt/rtl8723ds_fw.bin
+		rtl_bt/rtl8761a_config.bin
+		rtl_bt/rtl8821a_config.bin
+		rtl_bt/rtl8821cs_config.bin
+		rtl_bt/rtl8822cu_config.bin
+		rtl_bt/rtl8851bu_config.bin
+		rtl_bt/rtl8852au_config.bin
+		rtl_bt/rtl8852bs_config.bin
+		rtl_bt/rtl8852bs_fw.bin
+		rtl_bt/rtl8852btu_config.bin
+		rtl_bt/rtl8852bu_config.bin
+		rtl_bt/rtl8852cu_config.bin
 	)
 
 	# Fail if any firmware is missing.
