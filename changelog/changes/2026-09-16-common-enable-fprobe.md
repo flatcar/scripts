@@ -1,0 +1,1 @@
+- Enabled CONFIG_FPROBE to support additional ebpf based debug tools. ([flatcar/scripts#4281](https://github.com/flatcar/scripts/pull/4281))
