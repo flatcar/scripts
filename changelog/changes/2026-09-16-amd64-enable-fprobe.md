@@ -1,0 +1,1 @@
+- Enabled CONFIG_FPROBE for amd64 images to support additional ebpf based debug tools. ([flatcar/scripts#4281](https://github.com/flatcar/scripts/pull/4281))
