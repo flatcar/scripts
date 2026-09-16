@@ -17,27 +17,13 @@ configure_dev_portage() {
     local root_fs_dir="${1}"; shift
     local binhost="${1}"; shift
     local update_group="${1}"; shift
-
-    # Need profiles at the bare minimum
-    local repo
-    for repo in gentoo coreos-overlay; do
-        sudo mkdir -p "${root_fs_dir}/var/lib/portage/${repo}"
-        sudo rsync -rtl --exclude=md5-cache --insecure-links \
-            "${SRC_ROOT}/third_party/${repo}/metadata" \
-            "${SRC_ROOT}/third_party/${repo}/profiles" \
-            "${root_fs_dir}/var/lib/portage/${repo}"
-    done
+    local repos="/home/core/scripts/sdk_container/src/third_party"
 
     sudo mkdir -p "${root_fs_dir}/etc/portage/repos.conf"
     sudo_clobber "${root_fs_dir}/etc/portage/make.conf" <<EOF
 # make.conf for Flatcar dev images
 ARCH=$(get_board_arch $BOARD)
 CHOST=$(get_board_chost $BOARD)
-
-# Use /var/lib/portage instead of /usr/portage
-DISTDIR="/var/lib/portage/distfiles"
-PKGDIR="/var/lib/portage/pkgs"
-PORT_LOGDIR="/var/log/portage"
 PORTAGE_BINHOST="$(get_binhost_url "${binhost}" "${update_group}" 'pkgs')"
 EOF
 
@@ -46,24 +32,19 @@ EOF
 main-repo = gentoo
 
 [gentoo]
-location = /var/lib/portage/gentoo
+location = ${repos}/gentoo
 EOF
 
     sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
 [coreos-overlay]
-location = /var/lib/portage/coreos-overlay
+location = ${repos}/coreos-overlay
 EOF
 
-    # Now set the correct profile, we do not use the eselect tool - it
-    # does not seem to be usable outside of the chroot without using
-    # deprecated PORTDIR and PORTDIR_OVERLAY environment variables.
+    # Now set the correct profile. We do not use the eselect tool because the
+    # Portage configuration is broken until emerge-gitclone is run.
     local profile_name=$(get_board_profile "${BOARD}")
     # Turn coreos-overlay:coreos/amd64/generic into coreos/amd64/generic/dev
-    profile_name="${profile_name#*:}/dev"
-    local profile_directory="${root_fs_dir}/var/lib/portage/coreos-overlay/profiles/${profile_name}"
-    if [[ ! -d "${profile_directory}" ]]; then
-        die "Not a valid profile: ${profile_name}"
-    fi
+    local profile_directory="${root_fs_dir}${repos}/coreos-overlay/profiles/${profile_name#*:}/dev"
     local profile_link="${root_fs_dir}/etc/portage/make.profile"
     sudo ln -sfrT "${profile_directory}" "${profile_link}"
 }
