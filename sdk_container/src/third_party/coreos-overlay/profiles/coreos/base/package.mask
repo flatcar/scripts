@@ -36,3 +36,12 @@
 # # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
 # go: go.etcd.io/gofail@v0.2.0: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.info": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
 =dev-db/etcd-3.5.26
+
+# This version of refpolicy has some issues with Flatcar at the moment.
+=sec-policy/selinux-base-2.20260616_p1
+=sec-policy/selinux-base-policy-2.20260616_p1
+=sec-policy/selinux-unconfined-2.20260616_p1
+=sec-policy/selinux-container-2.20260616_p1
+=sec-policy/selinux-dbus-2.20260616_p1
+=sec-policy/selinux-policykit-2.20260616_p1
+=sec-policy/selinux-sssd-2.20260616_p1
