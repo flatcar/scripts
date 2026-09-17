@@ -29,7 +29,7 @@ unset QEMU
 
 DEFINE_string catalyst_root "${DEFAULT_CATALYST_ROOT}" \
     "Path to directory for all catalyst images and other files."
-DEFINE_string portage_stable "${SRC_ROOT}/third_party/gentoo" \
+DEFINE_string gentoo_repo "${SRC_ROOT}/third_party/gentoo" \
     "Path to the gentoo git checkout."
 DEFINE_string coreos_overlay "${SRC_ROOT}/third_party/coreos-overlay" \
     "Path to the coreos-overlay git checkout."
@@ -272,7 +272,7 @@ build_stage() {
 build_snapshot() {
     local repo_dir snapshot snapshots_dir snapshot_path
 
-    repo_dir=${1:-"${FLAGS_portage_stable}"}
+    repo_dir=${1:-"${FLAGS_gentoo_repo}"}
     snapshot=${2:-"${FLAGS_version}"}
     snapshots_dir="${CATALYST_ROOT}/snapshots"
     snapshot_path="${snapshots_dir}/gentoo-${snapshot}.sqfs"
@@ -323,5 +323,5 @@ catalyst_build() {
     fi
 
     # Cleanup snapshots, we don't use them
-    rm -rf "$CATALYST_ROOT/snapshots/${FLAGS_portage_stable##*/}-${FLAGS_version}.sqfs"*
+    rm -rf "$CATALYST_ROOT/snapshots/${FLAGS_gentoo_repo##*/}-${FLAGS_version}.sqfs"*
 }
