@@ -1,92 +1,53 @@
-name: Keep portage-stable packages updated
+name: Keep Gentoo submodule updated
 on:
   schedule:
-    - cron:  '0 7 * * 1'
+    - cron: '0 4 * * 0-4'
   workflow_dispatch:
 
 jobs:
-  keep-packages-updated:
+  keep-gentoo-updated:
     runs-on: ubuntu-latest
     steps:
       - name: Check out scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ./scripts
-      - name: Check out Gentoo
-        uses: actions/checkout@v4
-        with:
-          repository: gentoo/gentoo
-          path: gentoo
-          # Gentoo is quite a large repo, so limit ourselves to last
-          # quarter milion of commits. It is about two years worth of changes.
-          # Is is needed by the sync script to find out the hash of the last commit
-          # that made the changes to the package.
-          fetch-depth: 250000
-          ref: master
-      - name: Check out build scripts
-        uses: actions/checkout@v4
-        with:
-          repository: flatcar/flatcar-build-scripts
-          path: flatcar-build-scripts
-      - name: Update listed packages
-        id: update-listed-packages
-        run: |
-          git config --global user.name "Flatcar Buildbot"
-          git config --global user.email "buildbot@flatcar-linux.org"
-          old_head=$(git -C scripts rev-parse HEAD)
-          packages_list=$(realpath scripts/.github/workflows/portage-stable-packages-list)
-          gentoo_repo=$(realpath gentoo)
-          build_scripts=$(realpath flatcar-build-scripts)
-          pushd scripts/sdk_container/src/third_party/portage-stable
-          while read -r package; do
-              if [[ ! -e "${package}" ]]; then
-                  # If this happens, it means that the package was moved to overlay
-                  # or dropped, the list ought to be updated.
-                  echo "::warning title=${package}::Nonexistent package"
-                  continue
-              fi
-              if [[ ! -e "${gentoo_repo}/${package}" ]]; then
-                  # If this happens, it means that the package was obsoleted or moved
-                  # in Gentoo. The obsoletion needs to be handled in the case-by-case
-                  # manner, while move should be handled by doing the same move
-                  # in portage-stable. The build should not break because of the move,
-                  # because most likely it's already reflected in the profiles/updates
-                  # directory.
-                  echo "::warning title=${package}::Obsolete or moved package"
-                  continue
-              fi
-              GENTOO_REPO="${gentoo_repo}" "${build_scripts}/sync-with-gentoo" "${package}"
-          done < <(grep '^[^#]' "${packages_list}")
-          popd
-          new_head=$(git -C scripts rev-parse HEAD)
-          updated=0
-          if [[ "${new_head}" != "${old_head}" ]]; then
-              updated=1
-          fi
-          todaydate=$(date +%Y-%m-%d)
-          echo "UPDATED=${updated}" >>"${GITHUB_OUTPUT}"
-          echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
-      - name: Create pull request for main branch
-        uses: peter-evans/create-pull-request@v6
-        if: steps.update-listed-packages.outputs.UPDATED == 1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.BOT_PR_TOKEN }}
           path: scripts
-          branch: buildbot/weekly-portage-stable-package-updates-${{steps.update-listed-packages.outputs.TODAYDATE }}
+          sparse-checkout: |
+            .gitmodules
+            .github/workflows/common.sh
+          sparse-checkout-cone-mode: false
+      - name: Update Gentoo submodule
+        id: update-gentoo
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+        run: |
+          set -euo pipefail
+          source scripts/.github/workflows/common.sh
+          prepare_git_repo
+          submodule=sdk_container/src/third_party/gentoo
+          url=$(git -C "${WORK_SCRIPTS_DIR}" config --file .gitmodules --get "submodule.${submodule}.url")
+          branch=$(git -C "${WORK_SCRIPTS_DIR}" config --file .gitmodules --get "submodule.${submodule}.branch")
+          read -r latest_commit _ < <(git ls-remote --exit-code "${url}" "refs/heads/${branch}")
+          short_commit=${latest_commit:0:12}
+          git -C "${WORK_SCRIPTS_DIR}" update-index --cacheinfo "160000,${latest_commit},${submodule}"
+          if git -C "${WORK_SCRIPTS_DIR}" diff --cached --quiet -- "${submodule}"; then
+              echo 'UPDATE_NEEDED=0' >>"${GITHUB_OUTPUT}"
+              exit 0
+          fi
+          git -C "${WORK_SCRIPTS_DIR}" commit --signoff -m "gentoo: Update to ${short_commit}"
+          cleanup_repo
+          echo 'UPDATE_NEEDED=1' >>"${GITHUB_OUTPUT}"
+          echo "LATEST_COMMIT=${latest_commit}" >>"${GITHUB_OUTPUT}"
+          echo "SHORT_COMMIT=${short_commit}" >>"${GITHUB_OUTPUT}"
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8
+        if: steps.update-gentoo.outputs.UPDATE_NEEDED == 1
+        with:
+          token: ${{ secrets.BOT_PR_TOKEN }}
+          path: scripts
+          branch: buildbot/update-gentoo-submodule
           delete-branch: true
-          base: main
-          title: Weekly portage-stable package updates ${{steps.update-listed-packages.outputs.TODAYDATE }}
-          body: |
-            CI: TODO
-
-            --
-
-            TODO: Changes.
-
-            --
-
-            - [ ] changelog
-            - [ ] image diff
-          labels: main
-          draft: true
+          title: Update gentoo submodule to ${{ steps.update-gentoo.outputs.SHORT_COMMIT }}
+          body: Update `sdk_container/src/third_party/gentoo` to flatcar-hub/gentoo@${{ steps.update-gentoo.outputs.LATEST_COMMIT }}.
+          labels: auto-ci,jenkins-ci,main
