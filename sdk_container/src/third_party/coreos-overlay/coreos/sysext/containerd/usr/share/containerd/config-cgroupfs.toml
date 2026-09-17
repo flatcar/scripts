@@ -1,5 +1,8 @@
 version = 2
 
+# allow local settings without copying the shipped config
+imports = ["/etc/containerd/conf.d/*.toml"]
+
 # persistent data location
 root = "/var/lib/containerd"
 # runtime state information

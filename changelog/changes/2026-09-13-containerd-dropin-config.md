@@ -1,0 +1,1 @@
+- Added containerd configuration imports from `/etc/containerd/conf.d/*.toml` to allow local settings without copying the shipped config ([scripts#4150](https://github.com/flatcar/scripts/pull/4150))
