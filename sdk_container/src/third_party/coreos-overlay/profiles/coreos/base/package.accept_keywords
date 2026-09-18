@@ -16,6 +16,9 @@
 # Needed to fix build with acl 2.4.0
 =app-arch/tar-1.35-r1
 
+# To address GHSA-5qpq-xqfv-j9pg.
+=app-arch/xz-utils-5.8.4
+
 # For podman 6.0.0
 =app-containers/aardvark-dns-2.0.0
 
@@ -27,14 +30,15 @@
 =app-containers/containerd-2.3*
 
 # To address some CVEs.
-=app-containers/cri-tools-1.36.0
+=app-containers/cri-tools-1.37.0
 
 # We always want the latest version available.
+=app-containers/crun-1*
 =app-containers/docker-29*
 =app-containers/docker-cli-29*
 
 # To address security issues
-=app-containers/incus-7.4
+=app-containers/incus-7.4-r1
 
 # Keep versions on both arches in sync.
 =app-containers/lxc-7.0.0
@@ -61,9 +65,6 @@ app-crypt/azure-keyvault-pkcs11
 
 # Needed by arm64-native SDK
 =app-crypt/ccid-1.6.1 ~arm64
-
-# Needed to address CVE-2026-13757.
-=app-crypt/p11-kit-0.26.4
 
 # Needed to address a bunch of GHSA issues.
 =app-crypt/tpm2-tools-5.8
@@ -102,11 +103,14 @@ dev-cpp/azure-security-keyvault-keys
 
 # To address security issues.
 =dev-libs/json-c-0.19-r2
-=dev-libs/libgcrypt-1.12.3-r1
 =dev-libs/libksba-1.8.1
+=dev-libs/libpcre2-10.48
 
 # Keep versions on both arches in sync.
 =dev-libs/libtraceevent-1.9.0
+
+# To address security issues.
+=dev-libs/libxml2-2.15.4
 
 # The only available ebuild (from GURU) has ~amd64 and no keyword for arm64 yet.
 =dev-libs/luksmeta-9-r1 **
@@ -145,7 +149,11 @@ dev-cpp/azure-security-keyvault-keys
 =net-libs/libnetfilter_cthelper-1.0.1-r1 ~arm64
 =net-libs/libnetfilter_cttimeout-1.0.1 ~arm64
 
+# To address CVE-2026-58055
+=net-libs/nghttp2-1.70.0
+
 # To address security issues.
+=net-misc/curl-8.22.0
 =net-misc/openssh-10.5_p1
 
 # For podman 6.0.0
@@ -162,8 +170,8 @@ sys-apps/azure-vm-utils
 # Keep versions on both arches in sync.
 =sys-apps/bubblewrap-0.12.0
 
-# To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
-=sys-apps/semodule-utils-3.11
+# To address CVE-2026-40553, CVE-2026-40467, CVE-2026-40468.
+=sys-apps/gawk-5.4.1-r1
 
 # To address CVE-2026-76642, CVE-2026-78408, CVE-2026-78409, CVE-2026-78410
 =sys-apps/util-linux-2.42.3
@@ -189,16 +197,12 @@ sys-firmware/edk2-bin
 =sys-fs/lxcfs-7.0.0
 =sys-libs/binutils-libs-2.46.1
 
-# To address GHSA-2hqh-5c36-grrm, GHSA-46fr-jh49-xvhx, GHSA-4q85-33p6-j5g6.
-=sys-libs/libseccomp-2.6.1
-
-# To address CVE-2026-59676, CVE-2026-59677 in policycoreutils.
-=sys-libs/libselinux-3.11-r1
-=sys-libs/libsepol-3.11
-
 # Keep versions on both arches in sync.
 =sys-libs/libunwind-1.8.3
 =sys-libs/liburing-2.12
 
 # rsync 3.5.0 needs it
 =virtual/acl-2.4.0
+
+# To address security issues.
+=virtual/libpcre2-internals-10.48
