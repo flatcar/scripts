@@ -179,7 +179,7 @@ function _sdk_bootstrap_impl() {
     local failed=''
     local logdir='__build__/sdk-bootstrap-logs-to-upload/'
     mkdir -p "${logdir}"
-    ./bootstrap_sdk_container -l "${logdir}" -x ./ci-cleanup.sh "${seed_version}" "${vernum}" || failed=x
+    ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}" || failed=x
 
     # push SDK tarball to buildcache
     # Get Flatcar version number format (separator is '+' instead of '-',
