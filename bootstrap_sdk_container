@@ -9,6 +9,8 @@ set -eu
 cd $(dirname "$0")
 source sdk_lib/sdk_container_common.sh
 
+unset seed_tarball
+bootstrap_args=()
 seed_version=""
 target_version=""
 
@@ -27,6 +29,7 @@ usage() {
     echo "                             The SDK container will be pulled and the tarball"
     echo "                             downloaded if necessary."
     echo "       <new-sdk-vernum>   - SDK version number (e.g. '3027.0.0') of the new SDK."
+    echo "      --seed_tarball <x>  - Optional path or URL to override the default seed tarball."
     echo "      -x <cleanup-script> - For each resource generated during build (container etc.)"
     echo "                             add a cleanup line to <script> which, when run, will free"
     echo "                             the resource. Useful for CI."
@@ -38,7 +41,8 @@ usage() {
 while [ 0 -lt $# ] ; do
     case "$1" in
     -h) usage; exit 0;;
-    -x) cleanup=("-x" "$2"); shift; shift;;
+    -x) cleanup=("-x" "$2"); shift 2;;
+    --seed_tarball) seed_tarball=$2; shift 2 ;;
     *)  if [ -z "$seed_version" ] ; then
             seed_version="$1"
         elif [ -z "$target_version" ] ; then
@@ -71,10 +75,12 @@ if $official; then
     export COREOS_OFFICIAL=1
 fi
 
+[[ -n ${seed_tarball-} ]] && bootstrap_args+=( --seed_tarball "$seed_tarball" )
+
 # bootstrap_sdk needs FLATCAR_SDK_VERSION set to the seed version
 failed=''
 ./run_sdk_container "${cleanup[@]}" -V "$seed_version" -v "$target_version" \
-          sudo -E ./bootstrap_sdk || failed=x
+          sudo -E ./bootstrap_sdk "${bootstrap_args[@]}" || failed=x
 
 # Update versionfile to the actual SDK version
 create_versionfile "${target_version}"

@@ -9,7 +9,7 @@
 # sdk_bootstrap() should be called w/ the positional INPUT parameters below.
 
 # Bootstrap SDK build automation stub.
-#  This script will use a seed SDK container + tarball to bootstrap a 
+#  This script will use a seed SDK container + tarball to bootstrap a
 #   new SDK tarball.
 #
 # INPUT:
@@ -41,6 +41,9 @@
 #
 #   7. AVOID_NIGHTLY_BUILD_SHORTCUTS. Environment variable. Tells the script to build the SDK even if nothing has changed since last nightly build.
 #        See the description in ci-config.env.
+#
+#   8. SEED_TARBALL. Environment variable. Overrides the default seed tarball
+#        from the given seed SDK. A Gentoo stage3 tarball URL can be used here.
 #
 # OUTPUT:
 #
@@ -176,10 +179,12 @@ function _sdk_bootstrap_impl() {
     fi
     apply_local_patches
 
+    local bootstrap_args=()
     local failed=''
     local logdir='__build__/sdk-bootstrap-logs-to-upload/'
     mkdir -p "${logdir}"
-    ./bootstrap_sdk_container -x ./ci-cleanup.sh "${seed_version}" "${vernum}" || failed=x
+    [[ -n ${SEED_TARBALL-} ]] && bootstrap_args+=( --seed_tarball "${SEED_TARBALL}" )``
+    ./bootstrap_sdk_container -x ./ci-cleanup.sh "${bootstrap_args[@]}" "${seed_version}" "${vernum}" || failed=x
 
     # push SDK tarball to buildcache
     # Get Flatcar version number format (separator is '+' instead of '-',

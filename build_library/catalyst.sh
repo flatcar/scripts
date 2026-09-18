@@ -108,7 +108,7 @@ cat <<EOF
 # stage1 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
 update_seed: yes
-update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
+update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/perl --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
 EOF
 catalyst_stage_default 1 "${FLAGS_profile}/transition"
 }
@@ -180,35 +180,21 @@ catalyst_init() {
     TEMPDIR="$CATALYST_ROOT/tmp/$TYPE"
     DISTDIR="$CATALYST_ROOT/distfiles"
 
-    # automatically download the current SDK if it is the seed tarball.
-    if [[ "$FLAGS_seed_tarball" == "${FLATCAR_SDK_TARBALL_PATH}" ]]; then
-        sdk_download_tarball
-    fi
+    # Download seed tarball, if necessary, and get its local path.
+    local seed_tarball=$(seed_tarball_download "$FLAGS_seed_tarball")
 
-    # confirm seed exists
-    if [[ ! -f "$FLAGS_seed_tarball" ]]; then
-        die_notrace "Seed tarball not found: $FLAGS_seed_tarball"
-    fi
-
-    # so far so good, expand path to work with weird comparison code below
-    FLAGS_seed_tarball=$(readlink -f "$FLAGS_seed_tarball")
-
-    if [[ ! "$FLAGS_seed_tarball" =~ .\.tar\.(bz2|xz) ]]; then
+    if [[ ! ${seed_tarball} =~ .\.tar\.(bz2|xz) ]]; then
         die_notrace "Seed tarball doesn't end in .tar.bz2 or .tar.xz :-/"
     fi
 
     # catalyst is obnoxious and wants the $TYPE/stage3-$VERSION part of the
     # path, not the real path to the seed tarball. (Because it could be a
     # directory under $TEMPDIR instead, aka the SEEDCACHE feature.)
-    if [[ "$FLAGS_seed_tarball" =~ "$CATALYST_ROOT/builds/".* ]]; then
-        SEED="${FLAGS_seed_tarball#$CATALYST_ROOT/builds/}"
-        SEED="${SEED%.tar.*}"
-    else
-        mkdir -p "$CATALYST_ROOT/builds/seed"
-        cp -n "$FLAGS_seed_tarball" "$CATALYST_ROOT/builds/seed"
-        SEED="seed/${FLAGS_seed_tarball##*/}"
-        SEED="${SEED%.tar.*}"
-    fi
+    mkdir -p "$CATALYST_ROOT/builds/seed"
+    SEED="seed/${seed_tarball##*/}"
+    [[ ${seed_tarball} -ef ${CATALYST_ROOT}/builds/${SEED} ]] ||
+        ln -snf "${seed_tarball}" "${CATALYST_ROOT}/builds/${SEED}"
+    SEED="${SEED%.tar.*}"
 
     # Emulate the build, if needed. Note the SDK itself may already be emulated,
     # so check the requested arch against the kernel's real arch, not uname -m.
