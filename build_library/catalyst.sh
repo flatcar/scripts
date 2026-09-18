@@ -56,7 +56,7 @@ DEFINE_boolean debug ${FLAGS_FALSE} "Enable verbose output from catalyst."
 catalyst_conf() {
 cat <<EOF
 # catalyst.conf
-digests=["md5", "sha1", "sha512", "blake2b"]
+digests=["sha512", "blake2b"]
 options=["pkgcache"]
 sharedir="/usr/share/catalyst"
 storedir="$CATALYST_ROOT"
