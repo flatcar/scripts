@@ -1,0 +1,1 @@
+- Fixed stability on some AMD hardware by enabling CONFIG_X86_AMD_PLATFORM_DEVICE in the kernel. ([Flatcar#2060](https://github.com/flatcar/Flatcar/issues/2060))
