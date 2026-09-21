@@ -16,6 +16,8 @@ ConditionKernelCommandLine=|coreos.oem.id=openstack
 
 ConditionKernelCommandLine=|flatcar.oem.id=oraclecloud
 
+ConditionKernelCommandLine=|flatcar.oem.id=outscale
+
 ConditionKernelCommandLine=|flatcar.oem.id=scaleway
 
 ConditionKernelCommandLine=|flatcar.oem.id=hetzner
