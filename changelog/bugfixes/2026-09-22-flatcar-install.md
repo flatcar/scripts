@@ -1,0 +1,1 @@
+- Fixed 'flatcar-install' quotes bug with new '/etc/os-release' file format ([flatcar#2425](https://github.com/flatcar/Flatcar/issues/2425))
