@@ -185,7 +185,8 @@ function _sdk_bootstrap_impl() {
     # Get Flatcar version number format (separator is '+' instead of '-',
     # equal to $(strip_version_prefix "$version")
     source sdk_container/.repo/manifests/version.txt
-    local dest_tarball="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}.tar.bz2"
+    local name_prefix="flatcar-sdk-${ARCH}-${FLATCAR_SDK_VERSION}"
+    local dest_tarball="${name_prefix}.tar.bz2"
     local logs_tarball="sdk-bootstrap-logs-${ARCH}-$(date --utc '+%F-%H%M-%S').tar.xz"
 
     # change the owner of the files and directories in __build__ back
@@ -200,9 +201,9 @@ function _sdk_bootstrap_impl() {
     if [[ -z ${failed} ]]; then
         (
             cd "__build__/images/catalyst/builds/flatcar-sdk"
-            create_digests "${SIGNER}" "${dest_tarball}"
-            sign_artifacts "${SIGNER}" "${dest_tarball}"*
-            copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"*
+            create_digests "${SIGNER}" "${dest_tarball}" "${name_prefix}"-*-packages-slots-repos.txt
+            sign_artifacts "${SIGNER}" "${dest_tarball}"* "${name_prefix}"-*-packages-slots-repos.txt*
+            copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"* "${name_prefix}"-*-packages-slots-repos.txt*
         )
     fi
 

@@ -243,6 +243,20 @@ write_configs() {
         rm "${TEMPDIR}"/portage/package.env/qemu
 }
 
+generate_stage_packages_listing() {
+    local stage=${1}; shift
+    mkdir -p "${TEMPDIR}/${stage}-listing"
+    tar -xf "${BUILDS}/${stage}-${ARCH}-${FLAGS_version}.tar.bz2" -C "${TEMPDIR}/${stage}-listing" ./var/db/pkg
+    local pkgs=() pkg slot repo
+    mapfile -t -d '' pkgs < <(find "${TEMPDIR}/${stage}-listing/var/db/pkg/" -mindepth 2 -maxdepth 2 -printf '%P\0')
+    for pkg in "${pkgs[@]}"; do
+        slot=$(< "${TEMPDIR}/${stage}-listing/var/db/pkg/${pkg}/SLOT")
+        repo=$(< "${TEMPDIR}/${stage}-listing/var/db/pkg/${pkg}/repository")
+        echo "${pkg}:${slot}::${repo}"
+    done | LC_ALL=C sort >"${BUILDS}/${TYPE}-${ARCH}-${FLAGS_version}-${stage}-packages-slots-repos.txt"
+    rm -rf "${TEMPDIR}/${stage}-listing"
+}
+
 build_stage() {
     local stage catalyst_conf target_tarball
 
@@ -266,6 +280,7 @@ build_stage() {
         --file "$TEMPDIR/${stage}.spec"
     ln -sf "$stage-${ARCH}-${FLAGS_version}.tar.bz2" \
         "$BUILDS/$stage-${ARCH}-latest.tar.bz2"
+    generate_stage_packages_listing "${stage}"
     info "Finished building $target_tarball"
 }
 
