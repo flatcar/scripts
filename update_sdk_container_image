@@ -84,9 +84,10 @@ docker_build \
     -f sdk_lib/Dockerfile.sdk-update \
     .
 
-$arch_imgs || exit 0
-
 for a in all arm64 amd64; do
+    if [[ "$a" != "all" ]] && ! $arch_imgs; then
+      continue
+    fi
     yell "Creating '$a' arch SDK image"
     rmarch=""; rmcross=""
     case $a in
