@@ -193,7 +193,7 @@ catalyst_init() {
     mkdir -p "$CATALYST_ROOT/builds/seed"
     SEED="seed/${seed_tarball##*/}"
     [[ ${seed_tarball} -ef ${CATALYST_ROOT}/builds/${SEED} ]] ||
-        ln -snf "${seed_tarball}" "${CATALYST_ROOT}/builds/${SEED}"
+        ln -snf "$(realpath "${seed_tarball}")" "${CATALYST_ROOT}/builds/${SEED}"
     SEED="${SEED%.tar.*}"
 
     # Emulate the build, if needed. Note the SDK itself may already be emulated,
