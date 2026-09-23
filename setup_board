@@ -267,7 +267,6 @@ sudo ln -sfT "$(portageq get_repo_path / coreos-overlay)/coreos/user-patches" \
 sudo cp /etc/portage/repos.conf/* "${BOARD_ETC}"/portage/repos.conf/
 
 for REPO_NAME in $(cat "${REPO_ROOT}"/src/third_party/*/profiles/repo_name); do
-  [[ ${REPO_NAME} == prefix ]] && continue # Ignore for now.
   symlink_portage_config "${REPO_ROOT}" "${REPO_NAME}" "${BOARD_ETC}"
   CONF=$(prioritise_non_gentoo_pkgs "${REPO_ROOT}" "${REPO_NAME}")
   if [[ -e ${CONF} ]]; then

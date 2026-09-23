@@ -103,7 +103,6 @@ source "/etc/portage/make.conf.user"
 EOF
 
 for REPO_NAME in $(cat "${REPO_ROOT}"/src/third_party/*/profiles/repo_name); do
-  [[ ${REPO_NAME} == prefix ]] && continue # Ignore for now.
   symlink_portage_config "${REPO_ROOT}" "${REPO_NAME}" /etc
   prioritise_non_gentoo_pkgs "${REPO_ROOT}" "${REPO_NAME}" >/dev/null
 
