@@ -1,0 +1,744 @@
+From d8a5efaf9354a4440c2b596275831685d558d3ae Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Tue, 22 Sep 2026 11:24:12 +0100
+Subject: [PATCH 1/3] porttree: ensure getRepositories is consistent after
+ changing porttrees
+
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+---
+ lib/portage/dbapi/porttree.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/portage/dbapi/porttree.py b/lib/portage/dbapi/porttree.py
+index 2d791d35b..54ed08b8e 100644
+--- a/lib/portage/dbapi/porttree.py
++++ b/lib/portage/dbapi/porttree.py
+@@ -222,9 +222,6 @@ class portdbapi(dbapi):
+         self.xcache = {}
+         self.frozen = 0
+ 
+-        # Keep a list of repo names, sorted by priority (highest priority first).
+-        self._ordered_repo_name_list = tuple(reversed(self.repositories.prepos_order))
+-
+         self.auxdbmodule = self.settings.load_best_module("portdbapi.auxdbmodule")
+         self.auxdb = {}
+         self._pregen_auxdb = {}
+@@ -345,6 +342,9 @@ class portdbapi(dbapi):
+             )
+         )
+ 
++        # Keep a list of repo names, sorted by priority (highest priority first).
++        self._ordered_repo_name_list = tuple(reversed(self._porttrees_repos))
++
+     def _get_porttrees(self):
+         return self._porttrees
+ 
+-- 
+2.55.0
+
+
+From 6c9241d1221215956b8e39d30f80cbb667901799 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Thu, 24 Sep 2026 18:20:31 +0100
+Subject: [PATCH 2/3] config: repos.conf: Add package-priority option
+
+This prefer packages in higher priority repositories, regardless of
+package version and any other configuration.
+
+Bug: https://bugs.gentoo.org/983159
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+---
+ NEWS                                         |   4 +
+ lib/_emerge/depgraph.py                      |  42 +++++++-
+ lib/portage/dbapi/porttree.py                | 107 ++++++++++++-------
+ lib/portage/repository/config.py             |  13 +++
+ lib/portage/tests/resolver/test_multirepo.py |  96 ++++++++++++++++-
+ man/portage.5                                |  11 ++
+ 6 files changed, 232 insertions(+), 41 deletions(-)
+
+diff --git a/lib/_emerge/depgraph.py b/lib/_emerge/depgraph.py
+index 272d0d4b2..8698cdaf8 100644
+--- a/lib/_emerge/depgraph.py
++++ b/lib/_emerge/depgraph.py
+@@ -6516,6 +6516,15 @@ class depgraph:
+             self._frozen_config.myopts.get("--use-ebuild-visibility", "n") != "n"
+         )
+ 
++        # Determine which repos prioritized this package in case that is the
++        # reason the dependency wasn't satisfied. This check is cheap.
++        cp_priority = portdb.cp_priority(atom.cp) if atom.package else None
++        prioritized_repos = (
++            {cp.repo for cp in portdb.cp_list(atom.cp)}
++            if cp_priority is not None
++            else None
++        )
++
+         for db, pkg_type, built, installed, db_keys in dbs:
+             if installed:
+                 continue
+@@ -6524,7 +6533,14 @@ class depgraph:
+                     continue
+                 cpv_list = db.match(atom)
+             elif hasattr(db, "xmatch"):
+-                cpv_list = db.xmatch("match-all-cpv-only", atom.without_use)
++                # xmatch (via cp_list) is influenced by package priority, so we
++                # must determine which versions are masked by this another way.
++                if atom.repo is None and cp_priority is not None:
++                    cpv_list = match_from_list(
++                        atom.without_use, db.cp_list(atom.cp, mytree=db.porttrees)
++                    )
++                else:
++                    cpv_list = db.xmatch("match-all-cpv-only", atom.without_use)
+             else:
+                 cpv_list = db.match(atom.without_use)
+ 
+@@ -6602,6 +6618,17 @@ class depgraph:
+                             )
+                         ):
+                             mreasons = ["exclude option"]
++                        if (
++                            not mreasons
++                            and cp_priority is not None
++                            and repo in portdb.repositories
++                        ):
++                            repo_config = portdb.repositories[repo]
++                            if cp_priority > (repo_config.package_priority or 0):
++                                mreasons = [
++                                    f"package-priority favors "
++                                    + ", ".join(prioritized_repos)
++                                ]
+                         if mreasons:
+                             masked_pkg_instances.add(pkg)
+                         if atom.package and atom.unevaluated_atom.use:
+@@ -7134,6 +7161,7 @@ class depgraph:
+         checks (to avoid the expense when possible).
+         """
+ 
++        portdb = self._frozen_config.trees[root_config.root]["porttree"].dbapi
+         db = root_config.trees[self.pkg_tree_map[pkg_type]].dbapi
+         atom_exp = dep_expand(atom, mydb=db, settings=root_config.settings)
+         cp_list = db.cp_list(atom_exp.cp)
+@@ -7143,6 +7171,12 @@ class depgraph:
+         if cp_list:
+             atom_set = InternalPackageSet(initial_atoms=(atom,), allow_repo=True)
+ 
++            # Package priority filtering is handled by portdbapi.cp_list, but
++            # this is not applied to binary packages, so do that here.
++            cp_priority = (
++                portdb.cp_priority(atom_exp.cp) if pkg_type == "binary" else None
++            )
++
+             # descending order
+             cp_list.reverse()
+             for cpv in cp_list:
+@@ -7162,6 +7196,11 @@ class depgraph:
+                     except portage.exception.PackageNotFound:
+                         pass
+                     else:
++                        if cp_priority is not None and pkg.repo in portdb.repositories:
++                            repo = portdb.repositories[pkg.repo]
++                            if cp_priority > (repo.package_priority or 0):
++                                continue
++
+                         # A cpv can be returned from dbapi.match() as an
+                         # old-style virtual match even in cases when the
+                         # package does not actually PROVIDE the virtual.
+@@ -7195,7 +7234,6 @@ class depgraph:
+             if "remove" in self._dynamic_config.myparams:
+                 # We need to search the portdbapi, which is not in our
+                 # normal dbs list, in order to find the real SLOT.
+-                portdb = self._frozen_config.trees[root_config.root]["porttree"].dbapi
+                 db_keys = list(portdb._aux_cache_keys)
+                 dbs = [(portdb, "ebuild", False, False, db_keys)]
+             else:
+diff --git a/lib/portage/dbapi/porttree.py b/lib/portage/dbapi/porttree.py
+index 54ed08b8e..ad5007e0e 100644
+--- a/lib/portage/dbapi/porttree.py
++++ b/lib/portage/dbapi/porttree.py
+@@ -342,9 +342,15 @@ class portdbapi(dbapi):
+             )
+         )
+ 
+-        # Keep a list of repo names, sorted by priority (highest priority first).
++        # Keep a list of repo names, sorted by version priority (highest first).
+         self._ordered_repo_name_list = tuple(reversed(self._porttrees_repos))
+ 
++        # Also keep a grouped list of repos, sorted by package priority. The
++        # version priority above is preserved within each group.
++        self._package_prioritized_repos = _group_repos_by_package_priority(
++            self._porttrees_repos.values()
++        )
++
+     def _get_porttrees(self):
+         return self._porttrees
+ 
+@@ -1174,45 +1180,56 @@ class portdbapi(dbapi):
+                 for repo in reversed(self._better_cache[mycp])
+                 if repo.name in self._porttrees_repos
+             ]
++        if mytree is not None or len(self._package_prioritized_repos) < 2:
++            prioritized_repos = (repos,)
++        elif self._better_cache is None:
++            prioritized_repos = self._package_prioritized_repos
++        else:
++            prioritized_repos = _group_repos_by_package_priority(repos)
+         mylist = []
+-        for repo in repos:
+-            oroot = repo.location
+-            try:
+-                file_list = os.listdir(os.path.join(oroot, mycp))
+-            except OSError:
+-                continue
+-            for x in file_list:
+-                pf = None
+-                if x[-7:] == ".ebuild":
+-                    pf = x[:-7]
+-
+-                if pf is not None:
+-                    ps = pkgsplit(pf)
+-                    if not ps:
+-                        writemsg(
+-                            _("\nInvalid ebuild name: %s\n")
+-                            % os.path.join(oroot, mycp, x),
+-                            noiselevel=-1,
+-                        )
+-                        continue
+-                    if ps[0] != mysplit[1]:
+-                        writemsg(
+-                            _("\nInvalid ebuild name: %s\n")
+-                            % os.path.join(oroot, mycp, x),
+-                            noiselevel=-1,
+-                        )
+-                        continue
+-                    ver_match = ver_regexp.match("-".join(ps[1:]))
+-                    if ver_match is None or not ver_match.groups():
+-                        writemsg(
+-                            _("\nInvalid ebuild version: %s\n")
+-                            % os.path.join(oroot, mycp, x),
+-                            noiselevel=-1,
++        for equal_repos in prioritized_repos:
++            for repo in equal_repos:
++                oroot = repo.location
++                try:
++                    file_list = os.listdir(os.path.join(oroot, mycp))
++                except OSError:
++                    continue
++                for x in file_list:
++                    pf = None
++                    if x[-7:] == ".ebuild":
++                        pf = x[:-7]
++
++                    if pf is not None:
++                        ps = pkgsplit(pf)
++                        if not ps:
++                            writemsg(
++                                _("\nInvalid ebuild name: %s\n")
++                                % os.path.join(oroot, mycp, x),
++                                noiselevel=-1,
++                            )
++                            continue
++                        if ps[0] != mysplit[1]:
++                            writemsg(
++                                _("\nInvalid ebuild name: %s\n")
++                                % os.path.join(oroot, mycp, x),
++                                noiselevel=-1,
++                            )
++                            continue
++                        ver_match = ver_regexp.match("-".join(ps[1:]))
++                        if ver_match is None or not ver_match.groups():
++                            writemsg(
++                                _("\nInvalid ebuild version: %s\n")
++                                % os.path.join(oroot, mycp, x),
++                                noiselevel=-1,
++                            )
++                            continue
++                        mylist.append(
++                            _pkg_str(mysplit[0] + "/" + pf, db=self, repo=repo.name)
+                         )
+-                        continue
+-                    mylist.append(
+-                        _pkg_str(mysplit[0] + "/" + pf, db=self, repo=repo.name)
+-                    )
++            # Note that a package directory must contain at least one valid
++            # ebuild for the repository to be prioritized over another.
++            if mylist:
++                break
+         if invalid_category and mylist:
+             writemsg(
+                 _(
+@@ -1235,6 +1252,13 @@ class portdbapi(dbapi):
+             self.xcache["match-all"][(mycp, mycp)] = cachelist
+         return mylist
+ 
++    def cp_priority(self, cp):
++        mylist = self.cp_list(cp)
++        if not mylist:
++            return None
++        repo = self.repositories.prepos.get(mylist[0].repo)
++        return None if repo is None else (repo.package_priority or 0)
++
+     def freeze(self):
+         for x in (
+             "bestmatch-visible",
+@@ -1772,3 +1796,10 @@ def _parse_uri_map(cpv, metadata, use=None, only_restricted=False):
+         uri_map[k] = tuple(v)
+ 
+     return uri_map
++
++
++def _group_repos_by_package_priority(repos):
++    by_prio = {}
++    for repo in repos:
++        by_prio.setdefault(repo.package_priority or 0, []).append(repo)
++    return [by_prio[p] for p in sorted(by_prio, reverse=True)]
+diff --git a/lib/portage/repository/config.py b/lib/portage/repository/config.py
+index e8600def6..f0b74c56c 100644
+--- a/lib/portage/repository/config.py
++++ b/lib/portage/repository/config.py
+@@ -162,6 +162,7 @@ class RepoConfig:
+         "missing_repo_name",
+         "module_specific_options",
+         "name",
++        "package_priority",
+         "portage1_profiles",
+         "portage1_profiles_compat",
+         "priority",
+@@ -281,6 +282,14 @@ class RepoConfig:
+                 self.usepkg_exclude.remove(a)
+                 self.usepkg_include.remove(a)
+ 
++        package_priority = repo_opts.get("package-priority")
++        if package_priority is not None:
++            try:
++                package_priority = int(package_priority)
++            except ValueError:
++                package_priority = None
++        self.package_priority = package_priority
++
+         priority = repo_opts.get("priority")
+         if priority is not None:
+             try:
+@@ -719,6 +728,8 @@ class RepoConfig:
+             )
+         if self.priority is not None:
+             repo_msg.append(indent + "priority: " + str(self.priority))
++        if self.package_priority is not None:
++            repo_msg.append(indent + "package-priority: " + str(self.package_priority))
+         if self.aliases:
+             repo_msg.append(indent + "aliases: " + " ".join(self.aliases))
+         if self.eclass_overrides:
+@@ -756,6 +767,7 @@ _str_or_int_keys = (
+     "format",
+     "location",
+     "main_repo",
++    "package_priority",
+     "priority",
+     "sync_depth",
+     "sync_openpgp_keyserver",
+@@ -863,6 +875,7 @@ class RepoConfigLoader:
+                             "force",
+                             "masters",
+                             "module_specific_options",
++                            "package_priority",
+                             "priority",
+                             "strict_misc_digests",
+                             "sync_allow_hardlinks",
+diff --git a/lib/portage/tests/resolver/test_multirepo.py b/lib/portage/tests/resolver/test_multirepo.py
+index fd849a530..947828295 100644
+--- a/lib/portage/tests/resolver/test_multirepo.py
++++ b/lib/portage/tests/resolver/test_multirepo.py
+@@ -298,6 +298,12 @@ class MultirepoTestCase(TestCase):
+             "dev-libs/G-1::repo1": {},
+             # package.mask with wildcards
+             "dev-libs/Z-1::repo3": {},
++            # package-priority
++            "dev-libs/PPA-1": {},
++            "dev-libs/PPA-2::pp-repo1": {},
++            "dev-libs/PPA-3::pp-repo2": {},
++            "dev-libs/PPB-1": {"DEPEND": "=dev-libs/PPA-1"},
++            "dev-libs/PPC-1": {"DEPEND": "=dev-libs/PPA-3"},
+         }
+ 
+         installed = {
+@@ -306,6 +312,14 @@ class MultirepoTestCase(TestCase):
+                 "EAPI": "3",
+             },
+             "dev-libs/I-2::repo1": {"SLOT": "2"},
++            "dev-libs/PPA-1": {},
++        }
++
++        binpkgs = {
++            "dev-libs/PPA-1::pp-repo4": {},
++            "dev-libs/PPA-2::pp-repo1": {},
++            "dev-libs/PPA-4::pp-repo2": {},
++            "dev-libs/PPD-1::pp-repo2": {},
+         }
+ 
+         user_config = {
+@@ -323,6 +337,12 @@ class MultirepoTestCase(TestCase):
+             ),
+             "package.properties": ("dev-libs/F::repo1 -bar",),
+             "package.unmask": ("dev-libs/G::test_repo",),
++            "repos.conf": (
++                "[pp-repo1]",
++                "package-priority = 1",
++                "[pp-repo2]",
++                "package-priority = -1",
++            ),
+         }
+ 
+         test_cases = (
+@@ -397,6 +417,77 @@ class MultirepoTestCase(TestCase):
+             ResolverPlaygroundTestCase(
+                 ["dev-libs/Z"], options={"--autounmask": "n"}, success=False
+             ),
++            # PP: v2 in ::repo1 beats v3 in ::repo2.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPA"],
++                success=True,
++                check_repo_names=True,
++                mergelist=["dev-libs/PPA-2::pp-repo1"],
++            ),
++            # PP: Explicitly requesting deprioritized ::pp-repo2 fails.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPA::pp-repo2"],
++                success=False,
++            ),
++            # PP: Explicitly requesting a non ::pp-repo1 version fails.
++            ResolverPlaygroundTestCase(
++                ["=dev-libs/PPA-3"],
++                success=False,
++            ),
++            # PP: Explicitly requesting unprioritized ::test_repo fails.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPA::test_repo"],
++                success=False,
++            ),
++            # PP: Installed deprioritized packages are okay when selective.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPA::test_repo"],
++                options={"--selective": True},
++                success=True,
++                mergelist=[],
++            ),
++            # PP: Installed deprioritized packages are okay as dependencies.
++            # Also prioritized repos do not mask packages solely in other repos.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPB"],
++                success=True,
++                mergelist=["dev-libs/PPB-1"],
++            ),
++            # PP: Uninstalled deprioritized packages are not okay as deps.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPC"],
++                success=False,
++            ),
++            # PP: Requesting a binpkg from an unconfigured repo succeeds.
++            ResolverPlaygroundTestCase(
++                ["=dev-libs/PPA-1"],
++                options={"--usepkgonly": True},
++                success=True,
++                check_repo_names=True,
++                mergelist=["[binary]dev-libs/PPA-1::pp-repo4"],
++            ),
++            # PP: Requesting binpkg from a configured prioritized repo succeeds.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPA"],
++                options={"--usepkgonly": True},
++                success=True,
++                check_repo_names=True,
++                mergelist=["[binary]dev-libs/PPA-2::pp-repo1"],
++            ),
++            # PP: Requesting binpkg from a configured deprioritized repo fails.
++            ResolverPlaygroundTestCase(
++                ["=dev-libs/PPA-4"],
++                options={"--usepkgonly": True},
++                success=False,
++            ),
++            # PP: Requesting a binpkg with no source succeeds.
++            ResolverPlaygroundTestCase(
++                ["dev-libs/PPD"],
++                options={"--usepkgonly": True},
++                success=True,
++                check_repo_names=True,
++                mergelist=["[binary]dev-libs/PPD-1::pp-repo2"],
++            ),
+         )
+ 
+         for binpkg_format in SUPPORTED_GENTOO_BINPKG_FORMATS:
+@@ -405,7 +496,10 @@ class MultirepoTestCase(TestCase):
+                 sys.stdout.flush()
+                 user_config["make.conf"] = (f'BINPKG_FORMAT="{binpkg_format}"',)
+                 playground = ResolverPlayground(
+-                    ebuilds=ebuilds, installed=installed, user_config=user_config
++                    ebuilds=ebuilds,
++                    installed=installed,
++                    binpkgs=binpkgs,
++                    user_config=user_config,
+                 )
+ 
+                 try:
+-- 
+2.55.0
+
+
+From 85694efe939f4fe66950f61034cba979ee290128 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Thu, 24 Sep 2026 18:49:33 +0100
+Subject: [PATCH 3/3] config: repos.conf: Rename priority to version-priority
+
+This avoids confusion with the new package-priority. The old priority
+name is kept as an alias for compatibility.
+
+Bug: https://bugs.gentoo.org/983159
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+---
+ NEWS                                          |  4 +++
+ lib/_emerge/Package.py                        |  4 +--
+ lib/_emerge/depgraph.py                       |  6 ++--
+ lib/portage/dbapi/porttree.py                 | 12 +++----
+ lib/portage/repository/config.py              | 34 +++++++++++--------
+ .../resolver/test_binpackage_selection.py     |  8 ++---
+ lib/portage/tests/resolver/test_multirepo.py  |  2 +-
+ man/portage.5                                 |  4 +--
+ 8 files changed, 41 insertions(+), 33 deletions(-)
+
+diff --git a/lib/_emerge/Package.py b/lib/_emerge/Package.py
+index a41d3e0c4..b861955a4 100644
+--- a/lib/_emerge/Package.py
++++ b/lib/_emerge/Package.py
+@@ -712,11 +712,11 @@ class Package(Task):
+         return self._metadata["repository"]
+ 
+     @property
+-    def repo_priority(self):
++    def repo_version_priority(self):
+         repo_info = self.root_config.settings.repositories.prepos.get(self.repo)
+         if repo_info is None:
+             return None
+-        return repo_info.priority
++        return repo_info.version_priority
+ 
+     @property
+     def use(self):
+diff --git a/lib/_emerge/depgraph.py b/lib/_emerge/depgraph.py
+index 8698cdaf8..e45c3251a 100644
+--- a/lib/_emerge/depgraph.py
++++ b/lib/_emerge/depgraph.py
+@@ -8012,7 +8012,7 @@ class depgraph:
+                         # list only contains unbuilt ebuilds since USE can't
+                         # be changed for built packages.
+                         higher_version_rejected = False
+-                        repo_priority = pkg.repo_priority
++                        repo_priority = pkg.repo_version_priority
+                         for rejected in packages_with_invalid_use_config:
+                             if rejected.cp != pkg.cp:
+                                 continue
+@@ -8021,8 +8021,8 @@ class depgraph:
+                                 break
+                             if portage.dep.cpvequal(rejected.cpv, pkg.cpv):
+                                 # If version is identical then compare
+-                                # repo priority (see bug #350254).
+-                                rej_repo_priority = rejected.repo_priority
++                                # repo version-priority (see bug #350254).
++                                rej_repo_priority = rejected.repo_version_priority
+                                 if rej_repo_priority is not None and (
+                                     repo_priority is None
+                                     or rej_repo_priority > repo_priority
+diff --git a/lib/portage/dbapi/porttree.py b/lib/portage/dbapi/porttree.py
+index ad5007e0e..8194760ec 100644
+--- a/lib/portage/dbapi/porttree.py
++++ b/lib/portage/dbapi/porttree.py
+@@ -330,7 +330,7 @@ class portdbapi(dbapi):
+         operations.
+ 
+         @param porttrees: list of repo locations, in ascending order by
+-                repo priority
++                repo version priority
+         @type porttrees: list
+         """
+         self._porttrees = tuple(porttrees)
+@@ -1160,9 +1160,9 @@ class portdbapi(dbapi):
+                 return cachelist[:]
+         mysplit = mycp.split("/")
+         invalid_category = mysplit[0] not in self._categories
+-        # Process repos in ascending order by repo.priority, so that
++        # Process repos in ascending order by repo.version_priority, so that
+         # stable sort by version produces results ordered by
+-        # (pkg.version, repo.priority).
++        # (pkg.version, repo.version_priority).
+         if mytree is not None:
+             if isinstance(mytree, str):
+                 repos = [self.repositories.get_repo_for_location(mytree)]
+@@ -1242,9 +1242,9 @@ class portdbapi(dbapi):
+             mylist = []
+         # Always sort in ascending order here since it's handy and
+         # the result can be easily cached and reused. Since mylist
+-        # is initially in ascending order by repo.priority, stable
+-        # sort by version produces results in ascending order by
+-        # (pkg.version, repo.priority).
++        # is initially in ascending order by repo.version_priority,
++        # stable sort by version produces results in ascending order
++        # by (pkg.version, repo.version_priority).
+         self._cpv_sort_ascending(mylist)
+         if self.frozen and mytree is None:
+             cachelist = mylist[:]
+diff --git a/lib/portage/repository/config.py b/lib/portage/repository/config.py
+index f0b74c56c..40c22a737 100644
+--- a/lib/portage/repository/config.py
++++ b/lib/portage/repository/config.py
+@@ -165,7 +165,6 @@ class RepoConfig:
+         "package_priority",
+         "portage1_profiles",
+         "portage1_profiles_compat",
+-        "priority",
+         "profile_formats",
+         "properties_allowed",
+         "restrict_allowed",
+@@ -197,6 +196,7 @@ class RepoConfig:
+         "usepkg_exclude",
+         "usepkg_include",
+         "user_location",
++        "version_priority",
+         "volatile",
+     )
+ 
+@@ -290,13 +290,17 @@ class RepoConfig:
+                 package_priority = None
+         self.package_priority = package_priority
+ 
+-        priority = repo_opts.get("priority")
+-        if priority is not None:
++        version_priority = (
++            repo_opts.get("version-priority")
++            if "version-priority" in repo_opts
++            else repo_opts.get("priority")
++        )
++        if version_priority is not None:
+             try:
+-                priority = int(priority)
++                version_priority = int(version_priority)
+             except ValueError:
+-                priority = None
+-        self.priority = priority
++                version_priority = None
++        self.version_priority = version_priority
+ 
+         sync_type = repo_opts.get("sync-type")
+         if sync_type is not None:
+@@ -726,8 +730,8 @@ class RepoConfig:
+             repo_msg.append(
+                 indent + "masters: " + " ".join(master.name for master in self.masters)
+             )
+-        if self.priority is not None:
+-            repo_msg.append(indent + "priority: " + str(self.priority))
++        if self.version_priority is not None:
++            repo_msg.append(indent + "version-priority: " + str(self.version_priority))
+         if self.package_priority is not None:
+             repo_msg.append(indent + "package-priority: " + str(self.package_priority))
+         if self.aliases:
+@@ -768,7 +772,6 @@ _str_or_int_keys = (
+     "location",
+     "main_repo",
+     "package_priority",
+-    "priority",
+     "sync_depth",
+     "sync_openpgp_keyserver",
+     "sync_openpgp_key_package",
+@@ -786,6 +789,7 @@ _str_or_int_keys = (
+     "sync_umask",
+     "sync_uri",
+     "sync_user",
++    "version_priority",
+ )
+ _str_tuple_keys = (
+     "aliases",
+@@ -876,7 +880,6 @@ class RepoConfigLoader:
+                             "masters",
+                             "module_specific_options",
+                             "package_priority",
+-                            "priority",
+                             "strict_misc_digests",
+                             "sync_allow_hardlinks",
+                             "sync_depth",
+@@ -901,6 +904,7 @@ class RepoConfigLoader:
+                             "usepkg_exclude",
+                             "usepkg_include",
+                             "volatile",
++                            "version_priority",
+                         ):
+                             v = getattr(repos_conf_opts, k, None)
+ 
+@@ -928,14 +932,14 @@ class RepoConfigLoader:
+                             if old_location == portdir:
+                                 portdir = repo.location
+ 
+-                    if repo.priority is None:
++                    if repo.version_priority is None:
+                         if base_priority == 0 and ov == portdir_orig:
+                             # If it's the original PORTDIR setting and it's not
+                             # in PORTDIR_OVERLAY, then it will be assigned a
+                             # special priority setting later.
+                             pass
+                         else:
+-                            repo.priority = base_priority
++                            repo.version_priority = base_priority
+                             base_priority += 1
+ 
+                     prepos[repo.name] = repo
+@@ -1200,9 +1204,9 @@ class RepoConfigLoader:
+                         noiselevel=-1,
+                     )
+ 
+-        if main_repo is not None and prepos[main_repo].priority is None:
++        if main_repo is not None and prepos[main_repo].version_priority is None:
+             # This happens if main-repo has been set in repos.conf.
+-            prepos[main_repo].priority = -1000
++            prepos[main_repo].version_priority = -1000
+ 
+         # DEPRECATED Backward compatible SYNC support for old mirrorselect.
+         # Feb. 2, 2015.  Version 2.2.16
+@@ -1220,7 +1224,7 @@ class RepoConfigLoader:
+         # Include repo.name in sort key, for predictable sorting
+         # even when priorities are equal.
+         prepos_order = sorted(
+-            prepos.items(), key=lambda r: (r[1].priority or 0, r[1].name)
++            prepos.items(), key=lambda r: (r[1].version_priority or 0, r[1].name)
+         )
+ 
+         # filter duplicates from aliases, by only including
+diff --git a/lib/portage/tests/resolver/test_binpackage_selection.py b/lib/portage/tests/resolver/test_binpackage_selection.py
+index 1205dfe59..c495ee2b3 100644
+--- a/lib/portage/tests/resolver/test_binpackage_selection.py
++++ b/lib/portage/tests/resolver/test_binpackage_selection.py
+@@ -1631,10 +1631,10 @@ class UsePkgExcludeTestCase(BinPkgSelectionTestCase):
+             )
+         }
+ 
+-        # note that repository priority order is not well defined *within* pkgdir
+-        # and so test cases which assume a plan c/p atom will resolve to a binary
+-        # for any given repo implicitly can spuriously fail, regardless of priority
+-        # set in repos.conf.
++        # note that repository version priority order is not well defined
++        # *within* pkgdir and so test cases which assume a plan c/p atom will
++        # resolve to a binary for any given repo implicitly can spuriously fail,
++        # regardless of version-priority set in repos.conf.
+         #
+         # TL;DR = all atoms in these tests cases *must* be ::repo qualified!
+         test_cases = (
+diff --git a/lib/portage/tests/resolver/test_multirepo.py b/lib/portage/tests/resolver/test_multirepo.py
+index 947828295..f5958c608 100644
+--- a/lib/portage/tests/resolver/test_multirepo.py
++++ b/lib/portage/tests/resolver/test_multirepo.py
+@@ -233,7 +233,7 @@ class MultirepoTestCase(TestCase):
+                 check_repo_names=True,
+                 mergelist=["dev-libs/I-2::repo2"],
+             ),
+-            # Check interaction between repo priority and unsatisfied
++            # Check interaction between repo version priority and unsatisfied
+             # REQUIRED_USE, for bug #350254.
+             ResolverPlaygroundTestCase(
+                 ["=dev-libs/G-1"], check_repo_names=True, success=False
+-- 
+2.55.0
+
