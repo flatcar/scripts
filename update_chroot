@@ -104,8 +104,12 @@ EOF
 
 for REPO_NAME in $(cat "${REPO_ROOT}"/src/third_party/*/profiles/repo_name); do
   [[ ${REPO_NAME} == prefix ]] && continue # Ignore for now.
-  symlink_portage_config "${REPO_ROOT}" "${REPO_NAME}" /etc
-  prioritise_non_gentoo_pkgs "${REPO_ROOT}" "${REPO_NAME}" >/dev/null
+
+  for CONF in "${REPO_ROOT}/src/third_party/${REPO_NAME}"/coreos/config/portage/*; do
+    [[ ${CONF} == *.md || ! -e ${CONF} ]] && continue
+    sudo mkdir -p "/etc/portage/${CONF##*/}"
+    sudo ln -snf "${CONF}" "/etc/portage/${CONF##*/}/${REPO_NAME}.conf"
+  done
 
   sudo_clobber "/etc/portage/repos.conf/${REPO_NAME}.conf" <<EOF
 [${REPO_NAME}]
@@ -116,6 +120,10 @@ done
 sudo_append "/etc/portage/repos.conf/gentoo.conf" <<EOF
 [DEFAULT]
 main-repo = gentoo
+EOF
+
+sudo_append "/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
+package-priority = 1
 EOF
 
 # Automatically symlink any provided portage repo configurations into

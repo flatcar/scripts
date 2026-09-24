@@ -38,6 +38,7 @@ EOF
     sudo_clobber "${root_fs_dir}/etc/portage/repos.conf/coreos-overlay.conf" <<EOF
 [coreos-overlay]
 location = ${repos}/coreos-overlay
+package-priority = 1
 EOF
 
     # Now set the correct profile. We do not use the eselect tool because the
