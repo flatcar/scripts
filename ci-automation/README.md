@@ -19,7 +19,7 @@ Please refer to the individual scripts for prerequisites, input parameters, and 
 
 The build pipeline can be used to build everything from scratch, including the SDK (starting from 1. below) or to build a new OS image (starting from 3.).
 "From scratch" builds (i.e. builds which include a new SDK) are usually only done for the `main` branch (`main` can be considered `alpha-next`).
-Release / maintenance branches in the majority of cases do note build a new SDK but start with the OS image build.
+Release / maintenance branches in the majority of cases do not build a new SDK but start with the OS image build.
 Release branches usually use the SDK introduced when the new major version was branched off `main` throughout the lifetime of the major version; i.e. release `stable-MMMM.mm.pp` would use `SDK-MMMM.0.0`.
 
 To reproduce any given build step, follow this pattern:
@@ -165,5 +165,5 @@ It is recommended to stop firewalling on the host the tests are run on (for exam
 
 * `QEMU_IMAGE_NAME` - file name of the QEmu image to fetch from bincache.
 * `QEMU_PARALLEL` - Number of parallel test cases to run.
-                  Note that test cases may involve launching mutliple QEmu VMs (network testing etc.).
-                  Tests are memory bound, not CPU bound; e.g. `20` is a sensible value for a 6 core / 12 threads systwem w/ 32 GB RAM.
+                  Note that test cases may involve launching multiple QEmu VMs (network testing etc.).
+                  Tests are memory bound, not CPU bound; e.g. `20` is a sensible value for a 6 core / 12 threads system w/ 32 GB RAM.
