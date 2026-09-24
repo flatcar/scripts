@@ -65,7 +65,7 @@ declare -a devcontainer_opts
 if [ -n "${QEMU_DEVCONTAINER_URL}" ] ; then
     echo "++++ Using custom devcontainer URL '${QEMU_DEVCONTAINER_URL}'"
     devcontainer_opts+=( "--devcontainer-url" "${QEMU_DEVCONTAINER_URL}" )
-elif [ -n "${QEMU_DEVCONTAINER_FILE}" ]; then
+elif [[ -n "${QEMU_DEVCONTAINER_FILE}" && -f "${QEMU_DEVCONTAINER_FILE}" ]]; then
     echo "++++ Using custom devcontainer FILE '${QEMU_DEVCONTAINER_FILE}'"
     devcontainer_opts+=( "--devcontainer-file" "${QEMU_DEVCONTAINER_FILE}" )
 fi
