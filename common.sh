@@ -700,55 +700,38 @@ get_git_id() {
   git var GIT_COMMITTER_IDENT | sed -e 's/^.*<\(\S\+\)>.*$/\1/'
 }
 
-# Generate a DIGESTS file, as normally used by Gentoo.
-# This is an alternative to shash which doesn't know how to report errors.
-# Usage: make_digests -d file.DIGESTS file1 [file2...]
-_digest_types="md5 sha1 sha512"
-make_digests() {
-    [[ "$1" == "-d" ]] || die
-    local digests="$(readlink -f "$2")"
-    shift 2
-
-    pushd "$(dirname "$1")" >/dev/null
-    echo -n > "${digests}"
-    for filename in "$@"; do
-        filename=$(basename "$filename")
-        info "Computing DIGESTS for ${filename}"
-        for hash_type in $_digest_types; do
-            echo "# $hash_type HASH" | tr "a-z" "A-Z" >> "${digests}"
-            ${hash_type}sum "${filename}" >> "${digests}"
-        done
-    done
-    popd >/dev/null
-}
-
-# Validate a DIGESTS file. Essentially the inverse of make_digests.
+# Validate a DIGESTS file.
 # Usage: verify_digests [-d file.DIGESTS] file1 [file2...]
 # If -d is not specified file1.DIGESTS will be used
 verify_digests() {
-    local digests filename hash_type status
-    if [[ "$1" == "-d" ]]; then
-        [[ -n "$2" ]] || die "-d requires an argument"
-        digests="$(readlink -f "$2")"
-        shift 2
-    else
-        digests=$(basename "${1}.DIGESTS")
-    fi
+  local digests filename hash_type status
+  local -A digest_types=(
+    [BLAKE2B]=b2sum
+    [SHA512]=sha512sum
+  )
 
-    pushd "$(dirname "$1")" >/dev/null
-    for filename in "$@"; do
-        filename=$(basename "$filename")
-        info "Validating DIGESTS for ${filename}"
-        for hash_type in $_digest_types; do
-            grep -A1 -i "^# ${hash_type} HASH$" "${digests}" | \
-                grep "$filename$" | ${hash_type}sum -c - --strict || return 1
-            # Also check that none of the greps failed in the above pipeline
-            for status in ${PIPESTATUS[@]}; do
-                [[ $status -eq 0 ]] || return 1
-            done
-        done
+  if [[ $1 == -d ]]; then
+    [[ -n $2 ]] || die "-d requires an argument"
+    digests=$(readlink -f "$2")
+    shift 2
+  else
+    digests=${1##*/}.DIGESTS
+  fi
+
+  (
+    set -euo pipefail
+    [[ $1 == */* ]] && cd "${1%/*}"
+    [[ -f ${digests} ]] || return 1
+
+    for filename; do
+      filename=${filename##*/}
+      info "Validating DIGESTS for ${filename}"
+      for hash_type in "${!digest_types[@]}"; do
+        grep -A1 -Fx "# ${hash_type} HASH" "${digests}" |
+          grep " ${filename}$" | "${digest_types[$hash_type]}" -c - --strict >&2
+      done
     done
-    popd >/dev/null
+  )
 }
 
 # Get current timestamp. Assumes common.sh runs at startup.

@@ -1,3 +1,11 @@
+# !!! OUTDATED. This needs to be ported to match the changes after the Gentoo move !!!
+
+If anything, working with prefixes should be a lot easier now.
+But the below is outdated and will not work.
+`prefix-overlay` has been removed too, as it duplicated ebuilds now available via `gentoo`.
+
+# !!! OUTDATED. This needs to be ported to match the changes after the Gentoo move !!!
+
 # Prefix - build portable, distro-independent apps
 
 **!!! NOTE: Prefix support in the Flatcar SDK is EXPERIMENTAL at this time !!!**

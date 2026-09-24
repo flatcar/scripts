@@ -1,1 +1,0 @@
-- cryptsetup [2.4.3](https://lore.kernel.org/all/572c18a7bf60cb1b0f67c3a03c531d7e7ed31832.camel@scientia.net/T/) 

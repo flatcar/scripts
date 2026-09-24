@@ -104,12 +104,8 @@ EOF
 
 for REPO_NAME in $(cat "${REPO_ROOT}"/src/third_party/*/profiles/repo_name); do
   [[ ${REPO_NAME} == prefix ]] && continue # Ignore for now.
-
-  for CONF in "${REPO_ROOT}/src/third_party/${REPO_NAME}"/coreos/config/portage/*; do
-    [[ ${CONF} == *.md || ! -e ${CONF} ]] && continue
-    sudo mkdir -p "/etc/portage/${CONF##*/}"
-    sudo ln -snf "${CONF}" "/etc/portage/${CONF##*/}/${REPO_NAME}.conf"
-  done
+  symlink_portage_config "${REPO_ROOT}" "${REPO_NAME}" /etc
+  prioritise_non_gentoo_pkgs "${REPO_ROOT}" "${REPO_NAME}" >/dev/null
 
   sudo_clobber "/etc/portage/repos.conf/${REPO_NAME}.conf" <<EOF
 [${REPO_NAME}]
@@ -117,9 +113,9 @@ location = ${REPO_ROOT}/src/third_party/${REPO_NAME}
 EOF
 done
 
-sudo_append "/etc/portage/repos.conf/portage-stable.conf" <<EOF
+sudo_append "/etc/portage/repos.conf/gentoo.conf" <<EOF
 [DEFAULT]
-main-repo = portage-stable
+main-repo = gentoo
 EOF
 
 # Automatically symlink any provided portage repo configurations into
