@@ -10,3 +10,9 @@ dev-lang/ruby
 # We do not configure/install grub like other distros so shipping the user
 # space tools would have limited utility.
 sys-boot/grub
+
+# Pulled in by sys-devel/gcc, they are needed only by the compiler,
+# which we do not ship.
+dev-libs/mpc
+dev-libs/mpfr
+sys-devel/gcc-config

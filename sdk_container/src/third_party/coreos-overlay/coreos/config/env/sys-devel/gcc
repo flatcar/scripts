@@ -1,0 +1,37 @@
+# The GCC package includes both its libraries and the compiler.
+# In prod images we only need the shared libraries.
+cros_post_src_install_move_and_keep_libs() {
+    # sort will make directories to show after their contents were
+    # listed, head removes the directory entry with an empty name
+    find "${ED}" -printf '%y %P\n' | sort -k2 -r | head -n -1 >"${T}/gcc-listing" || die
+    insinto /usr/share/flatcar
+    doins "${T}/gcc-listing"
+}
+
+# Normally GCC's shared libraries are installed into
+# /usr/lib/gcc/$triplet/$version. For prod images, we move them to
+# plain old /usr/lib64.
+cros_post_src_install_move_and_keep_libs() {
+    if [[ $(flatcar_target) == 'generic-prod' ]]; then
+        local t f
+        while read -r t f; do
+            case ${f} in
+                usr/lib/gcc/*.so*)
+                    mv "${EROOT}/${f}" "${EROOT}/usr/lib64/" || die
+                    ;;
+                usr/share/SLSA|usr/share/SLSA/*)
+                    # keep as is
+                    :
+                    ;;
+                *)
+                    if [[ ${t} = 'd' ]]; then
+                        rmdir "${EROOT}/${f}" || die
+                    else
+                        rm -f "${EROOT}/${f}" || die
+                    fi
+                    ;;
+            esac
+        done <"${EROOT}/usr/share/flatcar/gcc-listing"
+    fi
+    rm -f "${EROOT}/usr/share/flatcar/gcc-listing" || die
+}
