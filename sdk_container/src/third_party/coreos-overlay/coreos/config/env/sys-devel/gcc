@@ -1,0 +1,27 @@
+# The GCC package contains libraries, compilers, header files and so
+# on. In production images we only need the shared libraries. Also,
+# normally GCC's shared libraries are installed into
+# /usr/lib/gcc/$triplet/$version. For production images, we move them
+# to plain old /usr/lib64.
+cros_post_pkg_preinst_move_and_keep_libs() {
+    if [[ $(flatcar_target) = 'generic-prod' ]]; then
+        local f
+        # GCCMAJOR comes from toolchain.eclass.
+        for f in "${ED}/usr/lib/gcc/${CTARGET}/${GCCMAJOR}/"*.so*; do
+            mv "${f}" "${EROOT}/usr/lib64/" || die
+        done
+        rm -r "${ED}/etc" || die
+        rm -r "${ED}/usr/${CTARGET}" || die
+        rm -r "${ED}/usr/bin" || die
+        rm -r "${ED}/usr/lib/gcc" || die
+        rm -r "${ED}/usr/libexec" || die
+        rm -r "${ED}/usr/share" || die
+    fi
+}
+
+if [[ $(flatcar_target) = 'generic-prod' ]]; then
+    # Clobber the do_gcc_config function from toolchain.eclass to a
+    # no-op. We are not installing the compiler on prod images and
+    # gcc-config complains about some missing files.
+    do_gcc_config() { :; }
+fi
