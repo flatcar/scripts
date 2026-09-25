@@ -183,7 +183,7 @@ function _sdk_bootstrap_impl() {
     local failed=''
     local logdir='__build__/sdk-bootstrap-logs-to-upload/'
     mkdir -p "${logdir}"
-    [[ -n ${SEED_TARBALL-} ]] && bootstrap_args+=( --seed_tarball "${SEED_TARBALL}" )``
+    [[ -n ${SEED_TARBALL-} ]] && bootstrap_args+=( --seed_tarball "${SEED_TARBALL}" )
     ./bootstrap_sdk_container -x ./ci-cleanup.sh "${bootstrap_args[@]}" "${seed_version}" "${vernum}" || failed=x
 
     # push SDK tarball to buildcache
