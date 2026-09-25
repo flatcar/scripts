@@ -31,30 +31,3 @@ pkg_use_enabled() {
 pkg_version() {
   portageq-"${BOARD}" best_visible "${BOARD_ROOT}" "$1" "$2" || :
 }
-
-# Usage: pkg_provides [installed|binary] some-pkg/name-1.2.3
-# Prints: x86_32: libfoo.so.2 x86_64: libfoo.so.2
-pkg_provides() {
-  local provides p
-  provides=$(portageq-"${BOARD}" metadata "${BOARD_ROOT}" "$1" "$2" PROVIDES)
-
-  if [[ -z "$provides" ]]; then
-    return
-  fi
-
-  # convert:
-  #  x86_32: libcom_err.so.2 libss.so.2 x86_64: libcom_err.so.2 libss.so.2
-  # into:
-  #  x86_32 libcom_err.so.2 libss.so.2
-  #  x86_64 libcom_err.so.2 libss.so.2
-  echo -n "# $1:"
-  for p in ${provides}; do
-    if [[ "$p" == *: ]]; then
-      echo
-      echo -n "${p%:}"
-    else
-      echo -n " $p"
-    fi
-  done
-  echo
-}

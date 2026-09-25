@@ -5,33 +5,6 @@
 
 source "${BUILD_LIBRARY_DIR}/oem_sysexts.sh" || exit 1
 
-# Lookup the current version of a binary package, downloading it if needed.
-# Usage: get_binary_pkg some-pkg/name
-# Prints: some-pkg/name-1.2.3
-get_binary_pkg() {
-    local name="$1" version
-
-    # If possible use the version installed in $BOARD_ROOT,
-    # fall back to any binary package that is available.
-    version=$(pkg_version installed "${name}")
-    if [[ -z "${version}" ]]; then
-        version=$(pkg_version binary "${name}")
-    fi
-
-    # Nothing? Maybe we can fetch it.
-    if [[ -z "${version}" && ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
-        emerge-${BOARD} --verbose --getbinpkg --usepkgonly --fetchonly --nodeps "${name}" >&2
-        version=$(pkg_version binary "${name}")
-    fi
-
-    # Cry
-    if [[ -z "${version}" ]]; then
-        die "Binary package missing for ${name}"
-    fi
-
-    echo "${version}"
-}
-
 create_prod_image() {
   local image_name="$1"
   local disk_layout="$2"
