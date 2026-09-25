@@ -216,14 +216,6 @@ image_packages_implicit() {
             fi
         done
     fi
-
-    # In production images GCC libraries are extracted manually.
-    if [[ -f "${profile}/package.provided" ]]; then
-        local pkg
-        while read pkg; do
-            query_available_package "${pkg}"
-        done < "${profile}/package.provided"
-    fi
 }
 
 # Generate a list of packages installed in an image.
