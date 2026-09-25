@@ -436,6 +436,33 @@ EOF
     sudo gzip -9 "${root_fs_dir}"/usr/share/licenses/common/*
 }
 
+# Lookup the current version of a binary package, downloading it if needed.
+# Usage: get_binary_pkg some-pkg/name
+# Prints: some-pkg/name-1.2.3
+get_binary_pkg() {
+    local name="$1" version
+
+    # If possible use the version installed in $BOARD_ROOT,
+    # fall back to any binary package that is available.
+    version=$(pkg_version installed "${name}")
+    if [[ -z "${version}" ]]; then
+        version=$(pkg_version binary "${name}")
+    fi
+
+    # Nothing? Maybe we can fetch it.
+    if [[ -z "${version}" && ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
+        emerge-${BOARD} --verbose --getbinpkg --usepkgonly --fetchonly --nodeps "${name}" >&2
+        version=$(pkg_version binary "${name}")
+    fi
+
+    # Cry
+    if [[ -z "${version}" ]]; then
+        die "Binary package missing for ${name}"
+    fi
+
+    echo "${version}"
+}
+
 # Add /usr/share/SLSA reports for packages indirectly contained within the rootfs
 # If the package is available in BOARD_ROOT accesses it from there, otherwise
 # needs to download binpkg.
@@ -462,16 +489,6 @@ insert_extra_slsa() {
     fi
     warn "Missing SLSA information for ${atom}"
   done
-}
-
-# Add an entry to the image's package.provided
-package_provided() {
-    local p profile="${BUILD_DIR}/configroot/etc/portage/profile"
-    for p in "$@"; do
-        info "Writing $p to package.provided and soname.provided"
-        echo "$p" >> "${profile}/package.provided"
-	pkg_provides binary "$p" >> "${profile}/soname.provided"
-    done
 }
 
 assert_image_size() {
