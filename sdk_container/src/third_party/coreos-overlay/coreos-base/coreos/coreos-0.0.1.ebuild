@@ -186,6 +186,7 @@ RDEPEND="${RDEPEND}
 	sys-boot/efibootmgr
 	sys-boot/mokutil
 	sys-cluster/ipvsadm
+	sys-devel/gcc
 	sys-devel/gettext
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
