@@ -24,6 +24,7 @@ VALID_IMG_TYPES=(
     openstack
     openstack_mini
     oraclecloud
+    outscale
     parallels
     proxmoxve
     pxe
@@ -160,6 +161,11 @@ IMG_openstack_mini_OEM_SYSEXT=openstack
 IMG_oraclecloud_DISK_FORMAT=qcow2
 IMG_oraclecloud_DISK_LAYOUT=vm
 IMG_oraclecloud_OEM_SYSEXT=oraclecloud
+
+## Outscale
+IMG_outscale_DISK_FORMAT=qcow2
+IMG_outscale_DISK_LAYOUT=vm
+IMG_outscale_OEM_SYSEXT=outscale
 
 ## pxe, which is an cpio image
 IMG_pxe_DISK_FORMAT=cpio
