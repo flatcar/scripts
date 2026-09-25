@@ -32,29 +32,6 @@ get_binary_pkg() {
     echo "${version}"
 }
 
-# The GCC package includes both its libraries and the compiler.
-# In prod images we only need the shared libraries.
-extract_prod_gcc() {
-    local root_fs_dir="$1" gcc pkg
-    gcc=$(get_binary_pkg sys-devel/gcc)
-
-    # FIXME(marineam): Incompatible with FEATURES=binpkg-multi-instance
-    pkg="$(portageq-${BOARD} pkgdir)/${gcc}.tbz2"
-    [[ -f "${pkg}" ]] || die "${pkg} is missing"
-
-    # Normally GCC's shared libraries are installed to:
-    #  /usr/lib/gcc/x86_64-cros-linux-gnu/$version/*
-    # Instead we extract them to plain old /usr/lib
-    qtbz2 -O -t "${pkg}" | \
-        lbzcat -d -c - | \
-        sudo tar -C "${root_fs_dir}" -x \
-        --transform 's#/usr/lib/.*/#/usr/lib64/#' \
-        --wildcards './usr/lib/gcc/*.so*' \
-        --wildcards './usr/share/SLSA'
-
-    package_provided "${gcc}"
-}
-
 create_prod_image() {
   local image_name="$1"
   local disk_layout="$2"
@@ -93,7 +70,6 @@ create_prod_image() {
 
   # Install minimal GCC (libs only) and then everything else
   set_image_profile prod
-  extract_prod_gcc "${root_fs_dir}"
   emerge_to_image "${root_fs_dir}" "${base_pkg}"
   run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
