@@ -1,0 +1,29 @@
+From 8c30e365218b204c41319aff321f4c2c9ddf1b24 Mon Sep 17 00:00:00 2001
+From: Matt Turner <mattst88@gentoo.org>
+Date: Thu, 27 Aug 2026 08:14:02 -0400
+Subject: [PATCH] stage1: do not rely on Atom being a str subclass
+
+portage commit 7e15fc7fa4c1 ("dep: Atom: remove str subtyping") made
+Atom a plain object.  grabfile_package() returns a mix of Atom instances
+and plain strings, so concatenating an entry with " " now raises
+TypeError, and slicing one raises "'Atom' object is not subscriptable".
+
+Convert to str explicitly at both points.
+
+Signed-off-by: Matt Turner <mattst88@gentoo.org>
+--- a/targets/stage1/build.py
++++ b/targets/stage1/build.py
+@@ -29,10 +29,10 @@ def scan_profile(path):
+     try:
+         bidx = buildpkgs.index(dep_getkey(pkg))
+         buildpkgs[bidx] = pkg
+-        if buildpkgs[bidx][0:1] == "*":
+-            buildpkgs[bidx] = buildpkgs[bidx][1:]
++        if str(buildpkgs[bidx])[0:1] == "*":
++            buildpkgs[bidx] = str(buildpkgs[bidx])[1:]
+     except Exception:
+         pass
+ 
+ for b in buildpkgs:
+-    sys.stdout.write(b + " ")
++    sys.stdout.write(str(b) + " ")
