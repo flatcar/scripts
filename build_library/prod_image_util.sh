@@ -25,6 +25,7 @@ create_prod_image() {
   local image_contents="${image_name%.bin}_contents.txt"
   local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
   local image_packages="${image_name%.bin}_packages.txt"
+  local image_packages_extended="${image_name%.bin}_packages_extended.txt"
   local image_sbom="${image_name%.bin}_sbom.json"
   local image_licenses="${image_name%.bin}_licenses.json"
   local image_kconfig="${image_name%.bin}_kernel_config.txt"
@@ -69,6 +70,7 @@ create_prod_image() {
   fi
 
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
+  write_packages_extended "${root_fs_dir}" "${BUILD_DIR}/${image_packages_extended}"
 
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
   insert_extra_slsa "${root_fs_dir}"
