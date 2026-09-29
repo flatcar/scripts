@@ -189,6 +189,11 @@ image_packages_portage() {
     image_packages_portage_impl "${1}" '$cpv::$repo'
 }
 
+# List packages installed directly in portages package database
+image_packages_slots_repos_portage() {
+    image_packages_portage_impl "${1}" '$cp $fullversion $slot $repo'
+}
+
 # run in a subshell to set nullglob shopt
 image_packages_implicit_impl() (
     local root=${1}; shift
@@ -235,6 +240,11 @@ image_packages_implicit() {
     image_packages_implicit_impl "${1}" '$cpv::$repo'
 }
 
+# List packages implicitly contained in rootfs, such as in initramfs.
+image_packages_slots_repos_implicit() {
+    image_packages_implicit_impl "${1}" '$cp $fullversion $slot $repo'
+}
+
 # Generate a list of packages installed in an image.
 # Usage: image_packages /image/root
 image_packages() {
@@ -242,11 +252,27 @@ image_packages() {
   image_packages_implicit "$1"
 }
 
+# Generate an extended list of packages installed in an image.
+# Usage: image_packages /image/root
+image_packages_slots_repos() {
+    image_packages_slots_repos_portage "${1}"
+    image_packages_slots_repos_implicit "${1}"
+}
+
 # Generate a list of installed packages in the format:
 #   sys-apps/systemd-212-r8::coreos
 write_packages() {
     info "Writing ${2##*/}"
     image_packages "$1" | sort > "$2"
+}
+
+# Generate a list of installed packages in the format
+# "$package $version $slot $repository":
+#
+#   sys-apps/systemd 261.2 0/2 gentoo
+write_packages_extended() {
+    info "Writing ${2##*/}"
+    image_packages_slots_repos "$1" | sort >"$2"
 }
 
 # Generate an SPDX SBOM using syft
