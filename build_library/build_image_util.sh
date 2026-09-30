@@ -220,7 +220,7 @@ image_packages_implicit_impl() (
             grep '.' | \
             sort -u)
     shopt -s nullglob
-    for pkg in "${pkgs[@]}"; do
+    for pkg in "${to_check[@]}"; do
         skip=''
         for p in "${ROOT}/var/db/pkg/${pkg}-"[0-9]*; do
             skip=x
