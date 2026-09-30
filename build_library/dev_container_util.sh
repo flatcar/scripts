@@ -97,7 +97,7 @@ create_dev_container() {
   run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
-  write_extended_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages_extended}"
+  write_packages_extended "${root_fs_dir}" "${BUILD_DIR}/${image_packages_extended}"
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
 
