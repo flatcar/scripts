@@ -146,3 +146,6 @@ sys-apps/azure-vm-utils
 
 # Pull some fixes (nested mount issue with sysext)
 =sys-apps/systemd-260.4
+
+# It pulls security fixes.
+=dev-libs/openssl-3.5.9
