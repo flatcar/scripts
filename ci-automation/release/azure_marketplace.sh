@@ -42,12 +42,13 @@ function _release_azure_marketplace_impl() {
   AZ_TENANT_ID=$(secret_from_base64 "AZ_TENANT_ID" "${AZ_MARKETPLACE_PUBLISH}")
   AZ_CLIENT_ID=$(secret_from_base64 "AZ_CLIENT_ID" "${AZ_MARKETPLACE_PUBLISH}")
   AZ_SECRET_VALUE=$(secret_from_base64 "AZ_SECRET_VALUE" "${AZ_MARKETPLACE_PUBLISH}")
+  export AZ_STORAGE_KEY AZ_TENANT_ID AZ_CLIENT_ID AZ_SECRET_VALUE
 
   docker run --pull always --rm --name="${container_name}" --net host \
-    -e AZ_STORAGE_KEY="${AZ_STORAGE_KEY}" \
-    -e AZ_TENANT_ID="${AZ_TENANT_ID}" \
-    -e AZ_CLIENT_ID="${AZ_CLIENT_ID}" \
-    -e AZ_SECRET_VALUE="${AZ_SECRET_VALUE}" \
+    -e AZ_STORAGE_KEY \
+    -e AZ_TENANT_ID \
+    -e AZ_CLIENT_ID \
+    -e AZ_SECRET_VALUE \
     -v "${PWD}"/ci-automation/release/azure_marketplace_publish.py:/app/azure_marketplace_publish.py \
     -w /app \
     ghcr.io/flatcar/uv:alpine \
