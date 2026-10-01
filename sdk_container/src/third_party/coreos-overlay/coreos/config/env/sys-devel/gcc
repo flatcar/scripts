@@ -21,7 +21,7 @@ cros_post_src_install_move_and_keep_libs() {
                 usr/lib/gcc/*.so*)
                     mv "${EROOT}/${f}" "${EROOT}/usr/lib64/" || die
                     ;;
-                usr/share/SLSA|usr/share/SLSA/*|)
+                usr/share/SLSA|usr/share/SLSA/*)
                     # keep as is
                     :
                     ;;
