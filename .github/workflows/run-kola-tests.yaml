@@ -182,7 +182,6 @@ jobs:
 
           PARALLEL_ARCH=5
 
-          cat > sdk_container/.env <<EOF
           # export the QEMU_IMAGE_NAME to avoid to download it.
           export QEMU_IMAGE_NAME="/work/flatcar_production_image.bin"
           export QEMU_UEFI_FIRMWARE="/work/flatcar_production_qemu_uefi_efi_code.qcow2"
@@ -194,7 +193,6 @@ jobs:
           # The runner uses lxc containers for kola, and can't use loopback devices to
           # prepare the serial console setting - this means that kola may miss some errors
           export QEMU_KOLA_SKIP_MANGLE=true
-          EOF
 
           export MAX_RETRIES=5
           export SKIP_COPY_TO_BINCACHE=1
