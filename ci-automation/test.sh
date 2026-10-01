@@ -72,21 +72,6 @@
 # script would need to make anyway. For more information, please refer
 # to the vendor_test.sh file.
 
-function __escape_multiple() {
-    local out_array_arg_name="${1}"; shift
-    # rest are args to be escape and appended into the array named
-    # after the first arg
-    local -n out_array_arg_ref="${out_array_arg_name}"
-    local arg arg_escaped
-
-    out_array_arg_ref=()
-    for arg; do
-        printf -v arg_escaped '%q' "${arg}"
-        out_array_arg_ref+=( "${arg_escaped}" )
-    done
-}
-# --
-
 function test_run() {
     # Run a subshell, so the traps, environment changes and global
     # variables are not spilled into the caller.
@@ -143,38 +128,28 @@ function _test_run_impl() {
     # A job on each worker prunes old mantle images (docker image prune)
     echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
 
-    local image_escaped
-    printf -v image_escaped '%q' "${image}"
     local common_test_args=(
         "${work_dir}"
         "${tests_dir}"
         "${arch}"
         "${vernum}"
     )
-    local common_test_args_escaped=()
-    __escape_multiple common_test_args_escaped "${common_test_args[@]}"
-
-    local tests_escaped=()
-    __escape_multiple tests_escaped "${@}"
 
     # Vendor tests may need to know if it is a first run or a rerun
     touch "${work_dir}/first_run"
     for retry in $(seq "${retries}"); do
         local tapfile="results-run-${retry}.tap"
         local failfile="failed-run-${retry}.txt"
-        local tapfile_escaped
-        printf -v tapfile_escaped '%q' "${tapfile}"
 
         # Ignore retcode since tests are flaky. We'll re-run failed tests and
         #  determine success based on test results (tapfile).
-        set +e
         touch sdk_container/.env
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
-          -w /work -v "$PWD":/work "${MANTLE_REF}" \
-         bash -c "git config --global --add safe.directory /work && \
-                  source sdk_container/.env && \
-                  ci-automation/vendor-testing/${image_escaped}.sh ${common_test_args_escaped[*]} ${tapfile_escaped} ${tests_escaped[*]}"
-        set -e
+          -w /work -v "$PWD":/work "${MANTLE_REF}" bash -ec \
+            'git config --global --add safe.directory /work
+            source sdk_container/.env
+            ci-automation/vendor-testing/"${1}".sh "${@:2}"' \
+            -- "${image}" "${common_test_args[@]}" "${tapfile}" "${@}" || :
         rm -f "${work_dir}/first_run"
 
         # Note: git safe.directory is not set in this run as it does not use git
@@ -208,7 +183,7 @@ function _test_run_impl() {
         echo "Failed tests:"
         printf '%s\n' "${failed_tests[@]}"
         echo "-----------"
-        __escape_multiple tests_escaped "${failed_tests[@]}"
+        set -- "${failed_tests[@]}"
     done
 
     if ${print_give_up}; then
