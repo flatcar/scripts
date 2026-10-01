@@ -1,11 +1,11 @@
 #!/bin/bash
 #
 # Copyright (c) 2023 The Flatcar Maintainers.
-# Licensed under the Apache License, Version 2.0 (the "License"); 
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at                         
+# You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0                  
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # QoL wrapper around ci-automation test.sh for running local tests of qemu_uefi image.
 # The devcontainer tests will be skipped since these require a valid commit ref in
@@ -17,7 +17,7 @@
 # Prerequisites:
 # - Flatcar OS image and qemu uefi code to be tested in
 #   __build__/images/images/amd64-usr/latest/
-# 
+#
 #   This script is intended to be run after building a qemu_uefi image with the SDK container:
 #    ./build_packages
 #    ./build_image
@@ -48,14 +48,11 @@ function set_vars() {
   local arch="${1}"
   local parallel="${2}"
 
-  # Read by the mantle container.
   # The local directory ("pwd") will be mounted to /work/ in the container.
-  cat > sdk_container/.env <<EOF
-export QEMU_IMAGE_NAME=/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_image.bin
-export QEMU_UEFI_BIOS=/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_production_qemu_uefi_efi_code.fd
-export QEMU_UPDATE_PAYLOAD=/work/__build__/images/images/${arch@Q}-usr/latest/flatcar_test_update.gz
-export PARALLEL_TESTS=${parallel@Q}
-EOF
+  export QEMU_IMAGE_NAME="/work/__build__/images/images/${arch}-usr/latest/flatcar_production_image.bin"
+  export QEMU_UEFI_BIOS="/work/__build__/images/images/${arch}-usr/latest/flatcar_production_qemu_uefi_efi_code.fd"
+  export QEMU_UPDATE_PAYLOAD="/work/__build__/images/images/${arch}-usr/latest/flatcar_test_update.gz"
+  export PARALLEL_TESTS="${parallel}"
 
   export MAX_RETRIES=5
   export SKIP_COPY_TO_BINCACHE=1
@@ -96,7 +93,7 @@ function run_local_tests() (
 
   source ci-automation/test.sh || exit 1
   set_vars "${arch}" "${parallel}"
-  
+
   echo "================================="
   echo "Using Mantle docker image '${mantle_container}'"
 
