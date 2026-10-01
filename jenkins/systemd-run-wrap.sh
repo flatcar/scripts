@@ -7,8 +7,10 @@ export PATH="$PATH:/opt/bin"
 
 # Use a system session unit because the user session may not be set up correctly in a CI env
 ARGS=("--system" "--collect" "--same-dir" "--pipe" "--wait" "--property=User=$USER" "--property=Group=$USER")
-# Extra "sh -c" is needed to only export the exported variables
-for VARNAME in $(sh -c 'compgen -v'); do
+# Extra "bash -c" is needed to only export the exported variables. Do
+# not use sh - it will add POSIXLY_CORRECT into the environment, which
+# is unnecessary.
+for VARNAME in $(bash -c 'compgen -v'); do
   set +u
   VAL="${!VARNAME}"
   set -u
