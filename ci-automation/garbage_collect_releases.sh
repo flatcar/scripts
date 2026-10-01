@@ -43,10 +43,7 @@ function _garbage_collect_releases_impl() {
     source ci-automation/ci_automation_common.sh
     local sshcmd="$(gen_sshcmd)"
 
-    local keep=$( 
-        # For some reasons this is set to the empty string in some environments and it makes gawk
-        #  behave like POSIX awk (i.e. no 'gensub').
-        unset POSIXLY_CORRECT
+    local keep=$(
         curl -s "${RELEASES_JSON_FEED}" \
             | jq -r 'keys_unsorted | .[] | match("[0-9]+\\.[0-9]+\\.[0-9]+") | .string' \
             | sort -Vr \
@@ -102,7 +99,7 @@ function _garbage_collect_releases_impl() {
             #   skip if candidate version is marked for keeping OR if it's a new release about to be published
             #   or if it ships an SDK used by a version in the keep list.
             if printf "%s\n" "${keep_versions[@]}" \
-               | { unset POSIXLY_CORRECT ; awk -v candidate_version="${version}" -v path="${dir}" '
+               | { awk -v candidate_version="${version}" -v path="${dir}" '
                 BEGIN {
                     # Candidate version (from build cache directory) that was passed in candidate_version variable
                     candidate_major = gensub("([0-9]+)\\.[0-9]+\\.[0-9]+","\\1","g", candidate_version) + 0
