@@ -80,34 +80,29 @@ function get_version_from_versionfile() {
 # return true if a given version number is an official build
 #
 function is_official() {
-    local vernum="$1"
-
-    local official="$(echo "$vernum" | sed -n 's/^[0-9]\+\.[0-9]\+\.[0-9]\+$/true/p')"
-
-    test -n "$official"
+    [[ ${1} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 }
 # --
 
 # extract the build ID suffix from a version string ("alpha-3244.0.1-nightly2" => "nightly2")
 #
 function build_id_from_version() {
-    local version="$1"
-
     # support vernums and versions ("alpha-"... is optional)
-    echo "${version}" | sed -n 's/^\([a-z]\+-\)\?[0-9.]\+[-+]\(.*\)$/\2/p'
+    if [[ ${1} =~ ^([a-z]+-)?[0-9.]+[-+](.*)$ ]]; then
+        echo "${BASH_REMATCH[2]}"
+    fi
 }
 # --
 
 # Get channel from a version string ("alpha-3244.0.1-nightly2" => "alpha")
 #
 function channel_from_version() {
-    local version="$1"
-    local channel=""
-
-    channel=$(echo "${version}" | cut -d - -f 1)
-    if [ "${channel}" != "alpha" ] && [ "${channel}" != "beta" ] && [ "${channel}" != "stable" ] && [ "${channel}" != "lts" ]; then
-        channel="developer"
-    fi
+    local version=${1}
+    local channel=${version%%-*}
+    case ${channel} in
+        alpha|beta|stable|lts) :;;
+        *) channel=developer
+    esac
     echo "${channel}"
 }
 # --
@@ -120,10 +115,9 @@ function get_git_channel() {
 # extract the version number (w/o build ID) from a version string ("alpha-3244.0.1-nightly2" => "3244.0.1")
 #
 function vernum_from_version() {
-    local version="$1"
-
-    # support vernums and versions ("alpha-"... is optional)
-    echo "${version}" | sed -n 's/^\([a-z]\+-\)\?\([0-9.]\+\).*/\2/p'
+    if [[ ${1} =~ ^([a-z]+-)?([0-9.]+) ]]; then
+        echo "${BASH_REMATCH[2]}"
+    fi
 }
 # --
 
@@ -147,8 +141,8 @@ function strip_version_prefix() {
 # Derive docker-safe image version string from vernum.
 # Keep in sync with ci-automation/ci_automation_common.sh
 function vernum_to_docker_image_version() {
-    local vernum="$1"
-    echo "$vernum" | sed 's/[+]/-/g'
+    local vernum=${1}; shift
+    echo "${vernum//+/-}"
 }
 # --
 
