@@ -125,12 +125,13 @@ function vernum_from_version() {
 #  and add a "+[build suffix]" if this is a non-official build. The "+" matches the version
 #  string generation in the build scripts.
 function strip_version_prefix() {
-    local version="$1"
+    local version=${1}; shift
+    local build_id version_id
 
-    local build_id="$(build_id_from_version "${version}")"
-    local version_id="$(vernum_from_version "${version}")"
+    build_id=$(build_id_from_version "${version}")
+    version_id=$(vernum_from_version "${version}")
 
-    if [ -n "${build_id}" ] ; then
+    if [[ -n ${build_id} ]]; then
         echo "${version_id}+${build_id}"
     else
         echo "${version_id}"
@@ -156,16 +157,17 @@ function vernum_to_docker_image_version() {
 #   the OS image is to be built with.
 #
 function create_versionfile() {
-    local sdk_version="$1"
-    local os_version="${2:-$sdk_version}"
-    local build_id="$(build_id_from_version "${os_version}")"
-    local version_id="$(vernum_from_version "${os_version}")"
+    local sdk_version=${1}; shift
+    local os_version=${1:-"${sdk_version}"}
+    local build_id version_id
+    build_id=$(build_id_from_version "${os_version}")
+    version_id=$(vernum_from_version "${os_version}")
 
-    sdk_version="$(strip_version_prefix "${sdk_version}")"
-    os_version="$(strip_version_prefix "${os_version}")"
-    yell "Writing versionfile '$sdk_container_common_versionfile' to SDK '$sdk_version', OS '$os_version'."
+    sdk_version=$(strip_version_prefix "${sdk_version}")
+    os_version=$(strip_version_prefix "${os_version}")
+    yell "Writing versionfile '${sdk_container_common_versionfile}' to SDK '${sdk_version}', OS '${os_version}'."
 
-    cat >"$sdk_container_common_versionfile" <<EOF
+    cat >"${sdk_container_common_versionfile}" <<EOF
 FLATCAR_VERSION=${os_version}
 FLATCAR_VERSION_ID=${version_id}
 FLATCAR_BUILD_ID="${build_id}"
