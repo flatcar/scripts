@@ -75,8 +75,6 @@ function _inside_mantle() {
     source sdk_lib/sdk_container_common.sh
     source ci-automation/ci_automation_common.sh
     source sdk_container/.repo/manifests/version.txt
-    # Needed because we are not the SDK container here
-    source sdk_container/.env
     CHANNEL="$(get_git_channel)"
     VERSION="${FLATCAR_VERSION}"
     azure_profile_config_file=""
@@ -244,8 +242,6 @@ function _release_build_impl() {
     source ci-automation/gpg_setup.sh
 
     source sdk_container/.repo/manifests/version.txt
-    # Needed because we are not the SDK container here
-    source sdk_container/.env
     local sdk_version="${FLATCAR_SDK_VERSION}"
     local docker_sdk_vernum=""
     docker_sdk_vernum="$(vernum_to_docker_image_version "${sdk_version}")"
@@ -261,9 +257,9 @@ function _release_build_impl() {
     # A job on each worker prunes old mantle images (docker image prune), no need to do it here
     echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
 
-    touch sdk_container/.env # This file should already contain the required credentials as env vars
     docker run --pull always --rm --name="${container_name}" --net host \
-      -w /work -v "$PWD":/work "${mantle_ref}" bash -c "git config --global --add safe.directory /work && source ci-automation/release.sh && _inside_mantle"
+      -w /work -v "$PWD":/work --env-file="sdk_lib/env_mantle.txt" "${mantle_ref}" \
+      bash -c "git config --global --add safe.directory /work && source ci-automation/release.sh && _inside_mantle"
     # Push flatcar_production_ami_*txt and flatcar_production_ami_*json to the right bincache folder
     for arch in amd64 arm64; do
       sudo chown -R "$USER:$USER" "aws-${arch}"

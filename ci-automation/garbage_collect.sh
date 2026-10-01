@@ -253,15 +253,7 @@ function _garbage_collect_impl() {
 
     local mantle_ref
     mantle_ref=$(cat sdk_container/.repo/manifests/mantle-container)
-    docker run --pull always --rm --net host \
-      --env AZURE_AUTH_CREDENTIALS --env AZURE_PROFILE \
-      --env AWS_ACCESS_KEY_ID --env AWS_SECRET_ACCESS_KEY \
-      --env AWS_CREDENTIALS \
-      --env DIGITALOCEAN_TOKEN_JSON \
-      --env GCP_JSON_KEY \
-      --env VMWARE_ESX_CREDS \
-      --env BRIGHTBOX_CLIENT_ID --env BRIGHTBOX_CLIENT_SECRET \
-      --env AKAMAI_TOKEN \
+    docker run --pull always --rm --net host --env-file="sdk_lib/env_mantle.txt" \
       -w /work -v "$PWD":/work "${mantle_ref}" /work/ci-automation/garbage_collect_cloud.sh
 
     echo

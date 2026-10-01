@@ -37,7 +37,6 @@ function _release_azure_marketplace_impl() {
   # A job on each worker prunes old mantle images (docker image prune), no need to do it here
   echo "docker rm -f '${container_name}'" >> ./ci-cleanup.sh
 
-  source sdk_container/.env
   AZ_STORAGE_KEY=$(secret_from_base64 "AZ_STORAGE_KEY" "${AZ_MARKETPLACE_PUBLISH}")
   AZ_TENANT_ID=$(secret_from_base64 "AZ_TENANT_ID" "${AZ_MARKETPLACE_PUBLISH}")
   AZ_CLIENT_ID=$(secret_from_base64 "AZ_CLIENT_ID" "${AZ_MARKETPLACE_PUBLISH}")

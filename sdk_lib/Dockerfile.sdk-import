@@ -42,8 +42,7 @@ RUN cp /etc/skel/.bashrc /home/sdk
 RUN echo "cd /home/sdk/trunk/src/scripts" >> /home/sdk/.bashrc
 RUN echo 'export PATH="$PATH:/usr/local/bin:/usr/local/sbin"' >> /home/sdk/.bashrc
 
-# user and SDK environment variables pass-through into container
-RUN echo "if [ -f /mnt/host/source/.env ]; then source /mnt/host/source/.env; fi" >> /home/sdk/.bashrc
+# SDK environment variables pass-through into container
 RUN echo "if [ -f /mnt/host/source/.sdkenv ]; then source /mnt/host/source/.sdkenv; fi" >> /home/sdk/.bashrc
 
 RUN chown -h sdk:sdk /mnt/host/source/src/scripts /mnt/host/source/src/build /home/sdk/trunk /home/sdk/.bashrc

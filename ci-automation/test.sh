@@ -33,6 +33,7 @@
 #
 #   3. List of tests / test patterns. Defaults to "*" (all tests).
 #      All positional arguments after the first 2 (see above) are tests / patterns of tests to run.
+#   4. Standard input. Use this to run arbitrary commands inside container before starting the tests.
 #
 #   MAX_RETRIES. Environment variable. Number of re-runs to overcome transient failures. Defaults to 20.
 #   PARALLEL_TESTS. Environment variable. Number of test cases to run in parallel.
@@ -135,6 +136,9 @@ function _test_run_impl() {
         "${vernum}"
     )
 
+    local stdin=""
+    [[ ! -t 0 ]] && stdin=$(< /dev/stdin)
+
     # Vendor tests may need to know if it is a first run or a rerun
     touch "${work_dir}/first_run"
     for retry in $(seq "${retries}"); do
@@ -143,13 +147,12 @@ function _test_run_impl() {
 
         # Ignore retcode since tests are flaky. We'll re-run failed tests and
         #  determine success based on test results (tapfile).
-        touch sdk_container/.env
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
-          -w /work -v "$PWD":/work "${MANTLE_REF}" bash -ec \
+          -w /work -v "$PWD":/work --env-file="sdk_lib/env_mantle.txt" -i "${MANTLE_REF}" bash -ec \
             'git config --global --add safe.directory /work
-            source sdk_container/.env
+            source /dev/stdin
             ci-automation/vendor-testing/"${1}".sh "${@:2}"' \
-            -- "${image}" "${common_test_args[@]}" "${tapfile}" "${@}" || :
+            -- "${image}" "${common_test_args[@]}" "${tapfile}" "${@}" <<< "${stdin}" || :
         rm -f "${work_dir}/first_run"
 
         # Note: git safe.directory is not set in this run as it does not use git
