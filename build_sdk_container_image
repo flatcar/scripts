@@ -229,7 +229,7 @@ else
     docker_build -t "${sdk_build_image}" \
                  --build-arg VERSION="${docker_vernum}" \
                  --build-arg BINHOST="http://${binhost}" \
-                 --build-arg OFFICIAL="${official}" \
+                 --build-arg COREOS_OFFICIAL="${official}" \
                  -f sdk_lib/Dockerfile.sdk-build \
                  .
 
