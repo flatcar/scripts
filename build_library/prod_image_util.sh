@@ -42,7 +42,6 @@ create_prod_image() {
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
 
-  # Install minimal GCC (libs only) and then everything else
   set_image_profile prod
   emerge_to_image "${root_fs_dir}" "${base_pkg}"
   run_ldconfig "${root_fs_dir}"
