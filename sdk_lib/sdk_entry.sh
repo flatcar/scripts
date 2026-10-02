@@ -48,7 +48,7 @@ sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/c
             echo
             echo "Updating board support in '/build/${target}' to use package cache for version '${version}'"
             echo "---"
-            sudo su sdk -l -c "/home/sdk/trunk/src/scripts/setup_board --board='$target' --regen_configs_only"
+            sudo sudo -u sdk -i /home/sdk/trunk/src/scripts/setup_board --board="$target" --regen_configs_only
             echo "TARGET_FLATCAR_VERSION='${version}'" | sudo tee "/build/$target/etc/target-version.txt" >/dev/null
         done
     fi
@@ -76,11 +76,11 @@ if ! grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
         :
     elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
         # For official builds, use ephemeral keys
-        MODULE_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+        MODULE_SIGNING_KEY_DIR=$(sudo -u sdk mktemp -d)
     else
         # For unofficial builds, use persistent directory
         MODULE_SIGNING_KEY_DIR="/home/sdk/.module-signing-keys"
-        su sdk -c "mkdir -p ${MODULE_SIGNING_KEY_DIR@Q}"
+        sudo -u sdk mkdir -p "${MODULE_SIGNING_KEY_DIR}"
     fi
     if [[ ! ${MODULE_SIGNING_KEY_DIR} || ! -d ${MODULE_SIGNING_KEY_DIR} ]]; then
         echo "Failed to create directory for module signing keys."
@@ -104,10 +104,10 @@ grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
         # Pre-set via environment (e.g. .sdkenv) — use as-is
         :
     elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
-        SYSEXT_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+        SYSEXT_SIGNING_KEY_DIR=$(sudo -u sdk mktemp -d)
     else
         SYSEXT_SIGNING_KEY_DIR="/home/sdk/.sysext-signing-keys"
-        su sdk -c "mkdir -p ${SYSEXT_SIGNING_KEY_DIR@Q}"
+        sudo -u sdk mkdir -p "${SYSEXT_SIGNING_KEY_DIR}"
     fi
     if [[ ! "$SYSEXT_SIGNING_KEY_DIR" || ! -d "$SYSEXT_SIGNING_KEY_DIR" ]]; then
         echo "Failed to create directory for sysext signing keys."
@@ -118,14 +118,14 @@ grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
     build_id=$(source "/mnt/host/source/.repo/manifests/version.txt"; echo "$FLATCAR_BUILD_ID")
     # Generate sysext signing key only if missing or empty
     if [[ ! -s sysexts.key || ! -s sysexts.crt ]]; then
-      su sdk -c "openssl req -new -nodes -utf8 \
+      sudo -u sdk openssl req -new -nodes -utf8 \
         -x509 -batch -sha256 \
         -days 36000 \
         -outform PEM \
         -out sysexts.crt \
         -keyout sysexts.key \
         -newkey 4096 \
-        -subj '/CN=Flatcar sysext key/OU=$build_id'" \
+        -subj '/CN=Flatcar sysext key/OU=$build_id' \
           || echo "Generating sysext signing key failed"
     fi
     popd > /dev/null
