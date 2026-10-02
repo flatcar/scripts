@@ -19,6 +19,7 @@ tty=()
 remove=""
 cleanup=""
 mounts=()
+envs=()
 
 usage() {
     echo "  Usage:"
@@ -49,6 +50,8 @@ usage() {
     echo "      -U             Do not update the versionfile. Instead, use the version from the versionfile as-is."
     echo "      -m <src>:<dest> - Mount local file or directory inside the container."
     echo "                     Can be specified multiple times."
+    echo "      -e <vars>      Space-separated list of environment variable names to pass through."
+    echo "                     Can be specified multiple times."
     echo "      --             Stop parsing options at this point, pass the rest as the container command."
     echo "      -h             Print this help."
     echo
@@ -73,6 +76,14 @@ while [[ $# -gt 0 ]] ; do
         update_versionfile=
         shift;;
     -m) mounts+=( -v "$2" ); shift; shift;;
+    -e) if [[ $2 == *=* ]]; then
+            echo "Do not pass environment variable values to -e, only names."
+
+        fi
+        for var in $2; do
+            envs+=( --env "${var}" )
+        done
+        shift 2;;
     --) shift; break;;
     -*) echo "Unknown flag ${1@Q}, use '-h' or '--help' for usage"; exit 1;;
     *) break;;
@@ -176,6 +187,6 @@ EOF
 
 call_docker exec \
     --env-file="sdk_lib/env_pass.txt" \
-    "${tty[@]}" -i \
+    "${envs[@]}" "${tty[@]}" -i \
     "${name}" \
     /mnt/host/source/src/scripts/sdk_lib/sdk_entry.sh "$@"
