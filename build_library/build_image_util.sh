@@ -209,20 +209,25 @@ image_packages_implicit_impl() (
         return 0
     fi
 
-    local -a pkgs to_check existing
+    local -a pkgs to_check
     mapfile -t -d ' ' pkgs <"${root}/var/db/pkg/${kernel_pkg}/DEPEND"
-    # Strip pkgs down to just category and name. Final grep is to drop
-    # empty results. Also add grub and shims - they get installed into
-    # image separately, much later, and not using emerge.
+    # Strip pkgs down to just category and name. First grep is to drop
+    # empty results, second grep is to drop blockers.
+    # sys-kernel/coreos-sources is not a package that gets installed
+    # into initramfs. Also add grub and shims - they get installed
+    # into image separately, much later, and not using emerge.
     mapfile -t to_check < <(
         printf '%s\n' "${pkgs[@]}" sys-boot/grub sys-boot/shim sys-boot/shim-signed | \
             sed -e 's/^[^a-z]*//' -e 's/\[.*\]$//' -e 's/:.*//' -e 's/-[0-9].*//' | \
             grep '.' | \
+            grep -v '^!' | \
+            grep -v -F 'sys-kernel/coreos-sources' | \
             sort -u)
     shopt -s nullglob
+    local pkg skip p
     for pkg in "${to_check[@]}"; do
         skip=''
-        for p in "${ROOT}/var/db/pkg/${pkg}-"[0-9]*; do
+        for p in "${root}/var/db/pkg/${pkg}-"[0-9]*; do
             skip=x
             break
         done
