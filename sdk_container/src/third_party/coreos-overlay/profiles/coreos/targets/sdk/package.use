@@ -21,3 +21,6 @@ virtual/zlib static-libs
 
 # Needed for signed sysexts using systemd-repart
 sys-apps/systemd cryptsetup
+
+# Don't include su because it requires PAM, which we don't want in the SDK.
+sys-apps/util-linux -su
