@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE glsa SYSTEM "http://www.gentoo.org/dtd/glsa.dtd">
+<glsa id="202609-03">
+    <title>Ruby: Remote code execution</title>
+    <synopsis>A vulnerability has been discovered in Ruby, possibly allowing remote code execution.</synopsis>
+    <product type="ebuild">erb,ruby</product>
+    <announced>2026-09-12</announced>
+    <revised count="1">2026-09-12</revised>
+    <bug>979773</bug>
+    <access>remote</access>
+    <affected>
+        <package name="dev-lang/ruby" auto="yes" arch="*">
+            <unaffected range="ge" slot="3.3">3.3.12</unaffected>
+            <unaffected range="ge" slot="3.4">3.4.10</unaffected>
+            <unaffected range="ge" slot="4.0">4.0.6</unaffected>
+            <vulnerable range="lt" slot="3.3">3.3.12</vulnerable>
+            <vulnerable range="lt" slot="3.4">3.4.10</vulnerable>
+            <vulnerable range="lt" slot="4.0">4.0.6</vulnerable>
+        </package>
+        <package name="dev-ruby/erb" auto="yes" arch="*">
+            <unaffected range="ge" slot="6">6.0.6</unaffected>
+            <vulnerable range="lt" slot="6">6.0.6</vulnerable>
+        </package>
+    </affected>
+    <background>
+        <p>Ruby is an interpreted scripting language for quick and easy object-oriented programming.</p>
+    </background>
+    <description>
+        <p>A vulnerability has been discovered in Ruby. Please review the CVE identifier referenced below for details.</p>
+    </description>
+    <impact type="high">
+        <p>Remote code execution is possible.</p>
+    </impact>
+    <workaround>
+        <p>There is no known workaround at this time.</p>
+    </workaround>
+    <resolution>
+        <p>All Ruby 3.3 users should upgrade to the latest version:</p>
+        
+        <code>
+          # emerge --sync
+          # emerge --ask --oneshot --verbose ">=dev-lang/ruby-3.3.12:3.3"
+        </code>
+        
+        <p>All Ruby 3.4 users should upgrade to the latest version:</p>
+        
+        <code>
+          # emerge --sync
+          # emerge --ask --oneshot --verbose ">=dev-lang/ruby-3.4.10:3.4"
+        </code>
+        
+        <p>All Ruby 4.0 users should upgrade to the latest version:</p>
+        
+        <code>
+          # emerge --sync
+          # emerge --ask --oneshot --verbose ">=dev-lang/ruby-4.0.6:4.0"
+        </code>
+        
+        <p>All ERB users should upgrade to the latest version:</p>
+        
+        <code>
+          # emerge --sync
+          # emerge --ask --oneshot --verbose ">=dev-ruby/erb-6.0.6:6"
+        </code>
+    </resolution>
+    <references>
+        <uri link="https://nvd.nist.gov/vuln/detail/CVE-2026-41316">CVE-2026-41316</uri>
+        <uri>GHSA-q339-8rmv-2mhv</uri>
+    </references>
+    <metadata tag="requester" timestamp="2026-09-12T23:35:19.985752Z">sam</metadata>
+    <metadata tag="submitter" timestamp="2026-09-12T23:35:19.990509Z">sam</metadata>
+</glsa>
