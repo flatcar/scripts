@@ -203,9 +203,6 @@ XFAIL_TEST_LIST=(
 	# Fails regularly, unreliable
 	tst-valgrind-smoke
 
-	# https://sourceware.org/bugzilla/show_bug.cgi?id=31877 (bug #927973)
-	tst-shstk-legacy-1g
-
 	# https://sourceware.org/bugzilla/show_bug.cgi?id=33239
 	test-double-compoundn
 	test-float-compoundn
@@ -571,6 +568,9 @@ setup_flags() {
 	#  include/libc-symbols.h:75:3: #error "glibc cannot be compiled without optimization"
 	# https://sourceware.org/glibc/wiki/FAQ#Why_do_I_get:.60.23error_.22glibc_cannot_be_compiled_without_optimization.22.27.2C_when_trying_to_compile_GNU_libc_with_GNU_CC.3F
 	replace-flags -O0 -O1
+
+	# bug #982652 (PR34672)
+	is_hurd && replace-flags -Os -O2
 
 	# Similar issues as with SSP. Can't inject yourself that early.
 	filter-flags '-fsanitize=*'
