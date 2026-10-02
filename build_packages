@@ -276,7 +276,7 @@ if [[ "${FLAGS_usepkgonly}" -eq "${FLAGS_FALSE}" ]]; then
   #   dropping USE=pam from sys-apps/systemd requires dropping
   #   USE=systemd from sys-auth/pambase
   # sys-auth/pambase[sssd] -> sys-auth/sssd -> sys-apps/shadow[pam] -> sys-auth/pambase
-  break_dep_loop sys-apps/util-linux cryptsetup,pam,systemd,udev \
+  break_dep_loop sys-apps/util-linux cryptsetup,pam,su,systemd,udev \
                  sys-fs/cryptsetup udev \
                  sys-fs/lvm2 systemd,udev \
                  sys-apps/systemd audit,cryptsetup,pam,selinux,tpm \
