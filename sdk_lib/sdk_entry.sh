@@ -54,9 +54,8 @@ sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/c
     fi
 )
 
-# SDK container is launched using the su command below, which does not preserve environment
-# moreover, if multiple shells are attached to the same container,
-# we want all of them to share the same value of the variable, therefore we need to save it in .bashrc
+# If multiple shells are attached to the same container, we want all of them to
+# share the same value of the variable, therefore we need to save it in .bashrc.
 # Check if MODULE_SIGNING_KEY_DIR exists in .bashrc and if the directory actually exists
 if grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
     # Extract the existing path
@@ -132,29 +131,8 @@ grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
     popd > /dev/null
 }
 
-# This is ugly.
-#   We need to sudo -u sdk -i so the SDK user gets a fresh login.
-#    'sdk' is member of multiple groups, and plain docker USER only
-#    allows specifying membership of a single group.
-#    When a command is passed to the container, we run, respectively:
-#    sudo -u sdk "<command>".
-#   Then, we need to preserve whitespaces in arguments of commands
-#    passed to the container, e.g.
-#    ./update_chroot --toolchain_boards="amd64-usr arm64-usr".
-#    This is done via a separate ".cmd" file since we have used up
-#    our quotes for sudo "<cmd>" already.
-if [ $# -gt 0 ] ; then
-    cmd="/home/sdk/.cmd"
-    echo -n "exec bash -l -i -c '" >"$cmd"
-    for arg in "$@"; do
-        echo -n "\"$arg\" " >>"$cmd"
-    done
-    echo "'" >>"$cmd"
-    chmod 755 "$cmd"
-    sudo -u sdk "$cmd"
-    rc=$?
-    rm -f "$cmd"
-    exit $rc
-else
-    exec sudo -u sdk -i
-fi
+# We need to sudo -u sdk with bash -l so that the SDK user gets a fresh login.
+# sudo has an -i option to get a login shell, but that cannot be combined with
+# -E to preserve the environment. We already have a relatively clean environment
+# inside the container, but we want to preserve variables passed through Docker.
+exec sudo -u sdk -EH bash -l ${1+-c '"${@}"' -- "${@}"}
