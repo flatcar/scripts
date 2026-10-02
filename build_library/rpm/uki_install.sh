@@ -19,6 +19,10 @@ DEFINE_boolean verity ${FLAGS_FALSE} \
   "Indicates that boot commands should enable dm-verity."
 DEFINE_string verity_hash "" \
   "Path to the file containing the dm-verity root hash for /usr."
+DEFINE_string verity_uuid "" \
+  "Path to the file containing the dm-verity superblock UUID."
+DEFINE_string fs_uuid "" \
+  "Path to the file containing the btrfs filesystem UUID for /usr."
 
 # Parse flags
 FLAGS "$@" || exit 1
@@ -134,60 +138,58 @@ OSREL
     fi
     info "UKI/RPM: Using ukify from $(command -v ukify)"
 
-    # Read partition UUID and compute verity hash offset from the
-    # canonical UKI disk layout so the values never drift from the source.
-    local disk_layout_file="${BUILD_LIBRARY_DIR}/disk_layout_uki.json"
-    if [[ ! -f "${disk_layout_file}" ]]; then
-        die "UKI/RPM: disk_layout_uki.json not found at ${disk_layout_file}"
+    # NOTE: The filesystem/verity UUIDs (FLAGS_fs_uuid, FLAGS_verity_uuid)
+    # are not used by the UKI cmdline — UKI slot identity is delivered via
+    # verity addons using PARTUUID.  They are consumed only by the separate
+    # grub_install.sh entrypoint (GRUB boot path), which build_image_util
+    # invokes independently.  Validate them here as a build-output sanity
+    # check so a missing UUID file fails fast during the UKI install rather
+    # than only surfacing later in a GRUB build.
+    if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
+        local fs_uuid_content verity_uuid_content
+        if [[ -z "${FLAGS_fs_uuid}" || ! -f "${FLAGS_fs_uuid}" ]]; then
+            die "UKI/RPM: FLAGS_fs_uuid not set or file missing (required for grub.cfg)"
+        fi
+        fs_uuid_content=$(tr -d '[:space:]' < "${FLAGS_fs_uuid}")
+        [[ -n "${fs_uuid_content}" ]] || die "UKI/RPM: FS UUID file '${FLAGS_fs_uuid}' is empty"
+        if [[ -z "${FLAGS_verity_uuid}" || ! -f "${FLAGS_verity_uuid}" ]]; then
+            die "UKI/RPM: FLAGS_verity_uuid not set or file missing (required for grub.cfg)"
+        fi
+        verity_uuid_content=$(tr -d '[:space:]' < "${FLAGS_verity_uuid}")
+        [[ -n "${verity_uuid_content}" ]] || die "UKI/RPM: verity UUID file '${FLAGS_verity_uuid}' is empty"
     fi
-
-    local usr_a_uuid
-    usr_a_uuid=$(jq -r '.layouts.base["2"].uuid' "${disk_layout_file}")
-
-    local verity_hash_offset
-    verity_hash_offset=$(jq -r \
-        '(.layouts.base["2"].fs_blocks | tonumber) as $b | (.metadata.fs_block_size | tonumber) as $s | ($b * $s)' \
-        "${disk_layout_file}")
-
-    info "UKI/RPM: USR-A uuid=${usr_a_uuid}  verity hash-offset=${verity_hash_offset}"
 
     local cmdline=""
     if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
-        local usr_hash=""
-        if [[ -n "${FLAGS_verity_hash}" && -f "${FLAGS_verity_hash}" ]]; then
-            usr_hash=$(cat "${FLAGS_verity_hash}")
-            info "UKI/RPM: Verity hash = ${usr_hash}"
-        else
-            die "UKI/RPM: Verity enabled but no hash file at ${FLAGS_verity_hash}"
-        fi
+        # mount.usr is in the main UKI (not the addon) because it is
+        # slot-independent — the mapper device name is the same for both
+        # slots.  The addon supplies only the slot-specific PARTUUID and
+        # root hash.
         cmdline="mount.usr=/dev/mapper/usr mount.usrflags=ro"
-        cmdline+=" systemd.verity_usr_data=PARTUUID=${usr_a_uuid}"
-        cmdline+=" systemd.verity_usr_hash=PARTUUID=${usr_a_uuid}"
-        cmdline+=" systemd.verity_usr_options=hash-offset=${verity_hash_offset},panic-on-corruption"
-        cmdline+=" usrhash=${usr_hash}"
     else
-        cmdline="mount.usr=PARTUUID=${usr_a_uuid} mount.usrflags=ro"
+        die "UKI/RPM: UKI without verity is not supported"
     fi
     # Common base args — platform-agnostic, same for all image types.
     cmdline+=" root=LABEL=ROOT rootflags=rw"
     cmdline+=" consoleblank=0"
-    # NOTE: crashkernel=256M is delivered via a UKI addon (kdump.addon.efi)
-    # rather than baked into the main UKI cmdline.  This allows disabling
-    # kdump by removing the addon from the ESP without rebuilding the UKI.
-    # See _uki_build_kdump_addon() below.
-    # OEM / platform identification (oem_id, ignition platform, console
-    # settings, etc.) are NOT baked into the main UKI.  They are injected
-    # via a per-platform UKI addon built during image_to_vm.sh so that
-    # each VM image format gets the correct OEM-specific cmdline.
-    # See build_library/rpm/uki_addon.sh for the addon builder.
+    # NOTE: The main UKI cmdline contains only slot-independent args.
+    # Slot-specific args are delivered via UKI addons:
     #
-    # NOTE: first-boot args (flatcar.first_boot=detected) are deliberately
-    # NOT baked into the main UKI cmdline because they must only appear on
-    # the very first boot.  Instead, a separate firstboot addon EFI is
-    # placed in the .extra.d/ directory; ignition-quench.service deletes it
-    # after Ignition completes, mirroring how GRUB uses the
-    # /boot/flatcar/first_boot marker file.
-    # See _uki_build_firstboot_addon() below.
+    #   slot-a.addon.efi,  — Active slot's verity partition identity
+    #   slot-b.addon.efi      (PARTUUID for data + hash), root hash, and
+    #                        acl.slot=<a|b>. Trident swaps this (copying
+    #                        the template verbatim, no rename) to switch
+    #                        A/B slots. See _uki_build_verity_addons() below.
+    #   oem.addon.efi      — Platform identification (oem_id, console).
+    #                        Built per-platform during image_to_vm.sh.
+    #                        See build_library/rpm/uki_addon.sh.
+    #   firstboot.addon.efi — Ignition trigger (flatcar.first_boot=detected).
+    #                        Deleted by ignition-quench after first boot.
+    #                        See _uki_build_firstboot_addon() below.
+    #   kdump.addon.efi    — crashkernel=256M (template, not active by default).
+    #                        See _uki_build_kdump_addon() below.
+    #   fips.addon.efi     — fips=1 (template, not active by default).
+    #                        See _uki_build_fips_addon() below.
 
     # Write cmdline to a temp file for ukify
     echo "${cmdline}" > "${uki_temp_dir}/cmdline.txt"
@@ -225,15 +227,19 @@ OSREL
     local uki_output="${uki_temp_dir}/${uki_name}"
     info "UKI/RPM: Building UKI with ukify"
 
-    sudo ukify build \
+    if ! sudo ukify build \
         --stub="${efi_stub}" \
         --linux="${kernel}" \
         --initrd="${initrd}" \
         --cmdline=@"${uki_temp_dir}/cmdline.txt" \
         --os-release=@"${osrelease}" \
-        --output="${uki_output}"
+        --output="${uki_output}"; then
+        sudo rm -rf "${uki_temp_dir}"
+        die "UKI/RPM: ukify build failed for ${uki_output}"
+    fi
 
     if [[ ! -f "${uki_output}" ]]; then
+        sudo rm -rf "${uki_temp_dir}"
         die "UKI/RPM: ukify failed to produce ${uki_output}"
     fi
 
@@ -291,8 +297,13 @@ OSREL
     _uki_build_kdump_addon "${ESP_DIR}"
     _uki_build_debug_addon "${ESP_DIR}" "${uki_name}"
 
+    # Build A/B verity slot addons — slot A is active by default
+    if [[ ${FLAGS_verity} -eq ${FLAGS_TRUE} ]]; then
+        _uki_build_verity_addons "${ESP_DIR}" "${uki_name}"
+    fi
+
     # Clean up
-    rm -rf "${uki_temp_dir}"
+    sudo rm -rf "${uki_temp_dir}"
 }
 
 # Build a self-removing firstboot addon that triggers Ignition on first boot.
@@ -315,12 +326,16 @@ _uki_build_firstboot_addon() {
     # efi_stub existence was already verified by the caller.
     local efi_stub="${BOARD_ROOT}/usr/lib/systemd/boot/efi/linux${EFI_ARCH}.efi.stub"
 
-    sudo ukify build \
+    if ! sudo ukify build \
         --cmdline=@"${fb_temp_dir}/firstboot-cmdline.txt" \
         --stub="${efi_stub}" \
-        --output="${fb_temp_dir}/firstboot.addon.efi"
+        --output="${fb_temp_dir}/firstboot.addon.efi"; then
+        sudo rm -rf "${fb_temp_dir}"
+        die "UKI/RPM: ukify build failed for firstboot addon"
+    fi
 
     if [[ ! -f "${fb_temp_dir}/firstboot.addon.efi" ]]; then
+        sudo rm -rf "${fb_temp_dir}"
         die "UKI/RPM: ukify failed to produce firstboot.addon.efi"
     fi
 
@@ -335,7 +350,7 @@ _uki_build_firstboot_addon() {
     sudo cp "${fb_temp_dir}/firstboot.addon.efi" "${template_dir}/firstboot.addon.efi"
     info "UKI/RPM: Saved firstboot addon template → acl/uki-addons/firstboot.addon.efi"
 
-    rm -rf "${fb_temp_dir}"
+    sudo rm -rf "${fb_temp_dir}"
 }
 
 # Build a reusable FIPS addon template for UKI systems.
@@ -356,19 +371,23 @@ _uki_build_fips_addon() {
 
     local efi_stub="${BOARD_ROOT}/usr/lib/systemd/boot/efi/linux${EFI_ARCH}.efi.stub"
 
-    sudo ukify build \
+    if ! sudo ukify build \
         --cmdline=@"${fips_temp_dir}/fips-cmdline.txt" \
         --stub="${efi_stub}" \
-        --output="${fips_temp_dir}/fips.addon.efi"
+        --output="${fips_temp_dir}/fips.addon.efi"; then
+        sudo rm -rf "${fips_temp_dir}"
+        die "UKI/RPM: ukify build failed for fips addon"
+    fi
 
     if [[ ! -f "${fips_temp_dir}/fips.addon.efi" ]]; then
+        sudo rm -rf "${fips_temp_dir}"
         die "UKI/RPM: ukify failed to produce fips.addon.efi"
     fi
 
     sudo cp "${fips_temp_dir}/fips.addon.efi" "${template_dir}/fips.addon.efi"
     info "UKI/RPM: Saved FIPS addon template -> acl/uki-addons/fips.addon.efi"
 
-    rm -rf "${fips_temp_dir}"
+    sudo rm -rf "${fips_temp_dir}"
 }
 
 # Build a reusable kdump addon template for UKI systems.
@@ -393,12 +412,16 @@ _uki_build_kdump_addon() {
 
     local efi_stub="${BOARD_ROOT}/usr/lib/systemd/boot/efi/linux${EFI_ARCH}.efi.stub"
 
-    sudo ukify build \
+    if ! sudo ukify build \
         --cmdline=@"${kdump_temp_dir}/kdump-cmdline.txt" \
         --stub="${efi_stub}" \
-        --output="${kdump_temp_dir}/kdump.addon.efi"
+        --output="${kdump_temp_dir}/kdump.addon.efi"; then
+        sudo rm -rf "${kdump_temp_dir}"
+        die "UKI/RPM: ukify build failed for kdump addon"
+    fi
 
     if [[ ! -f "${kdump_temp_dir}/kdump.addon.efi" ]]; then
+        sudo rm -rf "${kdump_temp_dir}"
         die "UKI/RPM: ukify failed to produce kdump.addon.efi"
     fi
 
@@ -406,7 +429,7 @@ _uki_build_kdump_addon() {
     info "UKI/RPM: Saved kdump addon template -> acl/uki-addons/kdump.addon.efi"
     info "UKI/RPM: To enable kdump, copy to EFI/Linux/vmlinuz-<kver>.efi.extra.d/kdump.addon.efi"
 
-    rm -rf "${kdump_temp_dir}"
+    sudo rm -rf "${kdump_temp_dir}"
 }
 
 # Build an optional debug addon that appends extra kernel cmdline args.
@@ -436,12 +459,16 @@ _uki_build_debug_addon() {
 
     local efi_stub="${BOARD_ROOT}/usr/lib/systemd/boot/efi/linux${EFI_ARCH}.efi.stub"
 
-    sudo ukify build \
+    if ! sudo ukify build \
         --cmdline=@"${debug_temp_dir}/debug-cmdline.txt" \
         --stub="${efi_stub}" \
-        --output="${debug_temp_dir}/debug.addon.efi"
+        --output="${debug_temp_dir}/debug.addon.efi"; then
+        sudo rm -rf "${debug_temp_dir}"
+        die "UKI/RPM: ukify build failed for debug addon"
+    fi
 
     if [[ ! -f "${debug_temp_dir}/debug.addon.efi" ]]; then
+        sudo rm -rf "${debug_temp_dir}"
         die "UKI/RPM: ukify failed to produce debug.addon.efi"
     fi
 
@@ -449,7 +476,144 @@ _uki_build_debug_addon() {
     info "UKI/RPM: Installed debug addon → EFI/Linux/${uki_name}.extra.d/debug.addon.efi"
     info "UKI/RPM: debug cmdline = ${extra_cmdline}"
 
-    rm -rf "${debug_temp_dir}"
+    sudo rm -rf "${debug_temp_dir}"
+}
+
+# Build verity slot addons for A/B partition switching.
+#
+# Each addon contains the slot-specific kernel cmdline args that tell systemd
+# which partitions to use for dm-verity:
+#   systemd.verity_usr_data=PARTUUID=<data-partition>
+#   systemd.verity_usr_hash=PARTUUID=<hash-partition>
+#   systemd.verity_usr_options=panic-on-corruption
+#   usrhash=<root-hash>
+#   acl.slot=<a|b>
+#
+# mount.usr=/dev/mapper/usr is slot-independent and stays in the main UKI
+# cmdline (not the addon).
+# At boot, systemd-stub appends the active addon's cmdline to the main UKI
+# cmdline.  Trident swaps which addon is in .extra.d/ to switch slots — it
+# copies the slot's template verbatim (slot-a.addon.efi / slot-b.addon.efi,
+# no rename) from acl/uki-addons/ into <uki>.efi.extra.d/.
+_uki_build_verity_addons() {
+    local esp_dir="$1"
+    local uki_name="$2"
+
+    info "UKI/RPM: Building verity slot addons"
+
+    # Read the verity root hash — same for both slots at build time
+    local usr_hash=""
+    if [[ -n "${FLAGS_verity_hash}" && -f "${FLAGS_verity_hash}" ]]; then
+        usr_hash=$(cat "${FLAGS_verity_hash}")
+        info "UKI/RPM: Verity root hash = ${usr_hash}"
+    else
+        die "UKI/RPM: Verity enabled but no hash file at ${FLAGS_verity_hash}"
+    fi
+
+    # Read partition UUIDs from the disk layout
+    local disk_layout_file="${BUILD_LIBRARY_DIR}/disk_layout_uki.json"
+    if [[ ! -f "${disk_layout_file}" ]]; then
+        die "UKI/RPM: disk_layout_uki.json not found at ${disk_layout_file}"
+    fi
+
+    # Validate JSON structure before extracting UUIDs
+    if ! jq -e '.layouts.base' "${disk_layout_file}" >/dev/null 2>&1; then
+        die "UKI/RPM: disk_layout_uki.json missing or malformed .layouts.base"
+    fi
+
+    # Helper: look up a partition UUID by label, dying on missing or duplicate
+    _lookup_partuuid() {
+        local label="$1"
+        local matches uuid
+        matches=$(jq -r "[.layouts.base[] | select(.label == \"${label}\")] | length" "${disk_layout_file}")
+        if [[ "${matches}" -eq 0 ]]; then
+            die "UKI/RPM: No partition with label '${label}' in disk layout"
+        fi
+        if [[ "${matches}" -ne 1 ]]; then
+            die "UKI/RPM: Expected exactly 1 '${label}' partition, found ${matches}"
+        fi
+        uuid=$(jq -r "[.layouts.base[] | select(.label == \"${label}\")] | .[0].uuid" "${disk_layout_file}")
+        if [[ -z "${uuid}" || "${uuid}" == "null" ]]; then
+            die "UKI/RPM: Partition '${label}' has no uuid field"
+        fi
+        echo "${uuid}"
+    }
+
+    local usr_a_uuid usr_b_uuid hash_a_uuid hash_b_uuid
+    usr_a_uuid=$(_lookup_partuuid "USR-A")
+    hash_a_uuid=$(_lookup_partuuid "HASH-A")
+    usr_b_uuid=$(_lookup_partuuid "USR-B")
+    hash_b_uuid=$(_lookup_partuuid "HASH-B")
+
+    info "UKI/RPM: Slot A: USR=${usr_a_uuid}  HASH=${hash_a_uuid}"
+    info "UKI/RPM: Slot B: USR=${usr_b_uuid}  HASH=${hash_b_uuid}"
+
+    local efi_stub="${BOARD_ROOT}/usr/lib/systemd/boot/efi/linux${EFI_ARCH}.efi.stub"
+
+    # Create temp dir after validation so die paths above don't leak it
+    local verity_temp_dir
+    verity_temp_dir=$(mktemp -d)
+
+    local template_dir="${esp_dir}/acl/uki-addons"
+    sudo mkdir -p "${template_dir}"
+
+    # Build addon for each slot
+    local slot slot_label data_uuid hash_uuid cmdline addon_file
+    for slot in a b; do
+        if [[ "${slot}" == "a" ]]; then
+            slot_label="A"
+            data_uuid="${usr_a_uuid}"
+            hash_uuid="${hash_a_uuid}"
+        else
+            slot_label="B"
+            data_uuid="${usr_b_uuid}"
+            hash_uuid="${hash_b_uuid}"
+        fi
+
+        # mount.usr is in the main UKI; addon carries only slot-specific args
+        cmdline="systemd.verity_usr_data=PARTUUID=${data_uuid}"
+        cmdline+=" systemd.verity_usr_hash=PARTUUID=${hash_uuid}"
+        cmdline+=" systemd.verity_usr_options=panic-on-corruption"
+        cmdline+=" usrhash=${usr_hash}"
+        cmdline+=" acl.slot=${slot}"
+
+        info "UKI/RPM: Slot ${slot_label} cmdline = ${cmdline}"
+
+        echo "${cmdline}" > "${verity_temp_dir}/slot-${slot}-cmdline.txt"
+
+        addon_file="${verity_temp_dir}/slot-${slot}.addon.efi"
+        if ! sudo ukify build \
+            --cmdline=@"${verity_temp_dir}/slot-${slot}-cmdline.txt" \
+            --stub="${efi_stub}" \
+            --output="${addon_file}"; then
+            sudo rm -rf "${verity_temp_dir}"
+            die "UKI/RPM: ukify build failed for slot-${slot}.addon.efi"
+        fi
+
+        if [[ ! -f "${addon_file}" ]]; then
+            sudo rm -rf "${verity_temp_dir}"
+            die "UKI/RPM: ukify failed to produce slot-${slot}.addon.efi"
+        fi
+
+        # Save template
+        sudo cp "${addon_file}" "${template_dir}/slot-${slot}.addon.efi"
+        info "UKI/RPM: Saved slot-${slot}.addon.efi → acl/uki-addons/"
+    done
+
+    # Install slot A as the active verity addon — copied verbatim (no
+    # rename) so the staged filename matches its template, mirroring how
+    # Trident activates the target slot during an A/B update.
+    local addon_dir="${esp_dir}/EFI/Linux/${uki_name}.extra.d"
+    sudo mkdir -p "${addon_dir}"
+    sudo cp "${template_dir}/slot-a.addon.efi" "${addon_dir}/slot-a.addon.efi"
+    info "UKI/RPM: Activated slot A → EFI/Linux/${uki_name}.extra.d/slot-a.addon.efi"
+
+    # NOTE: Both slot templates are built with the same root hash at image
+    # build time.  Trident overwrites the active addon (and its root hash)
+    # when switching A/B slots at OS update time.  The templates in
+    # acl/uki-addons/ are starting points, not the final runtime state.
+
+    sudo rm -rf "${verity_temp_dir}"
 }
 
 info "Installing UKI packages for target ${FLAGS_target}"

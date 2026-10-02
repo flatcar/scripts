@@ -968,7 +968,7 @@ EOF
     sudo rm -f "${root_fs_dir}/${policy_hotfix}"
 
     # Remove unnecessary SELinux policy modules (minimize the policy)
-    info "RPM mode: Minimizing SELinux policy".
+    info "RPM mode: Minimizing SELinux policy."
     sudo chroot "${root_fs_dir}" semodule -X 100 -r \
         abrt accountsd acct acpi afs aide aisexec alsa amanda amavis amtu anaconda \
         apache apcupsd apt aptcacher arpwatch asterisk auditadm automount avahi \

@@ -24,23 +24,37 @@
                 "uuid": "7130c94a-213a-4e5a-8e26-6cce9662f132",
                 "type": "flatcar-rootfs",
                 "blocks": "2097152",
-                "fs_blocks": "260094",
+                "fs_blocks": "262144",
                 "fs_type": "btrfs",
                 "fs_compression": "zstd",
                 "mount": "/usr",
+                "verity_hash": "3",
                 "features": [
                     "prioritize",
                     "verity"
                 ]
             },
             "3": {
+                "label": "HASH-A",
+                "uuid": "b736baf1-cdb4-4535-beba-ddaaa30ad7b7",
+                "type": "dps-usr-verity",
+                "blocks": "20480"
+            },
+            "4": {
                 "label": "USR-B",
                 "uuid": "e03dd35c-7c2d-4a47-b3fe-27f15780a57c",
                 "type": "flatcar-rootfs",
                 "blocks": "2097152",
-                "fs_blocks": "262144"
+                "fs_blocks": "262144",
+                "verity_hash": "5"
             },
-            "4": {
+            "5": {
+                "label": "HASH-B",
+                "uuid": "35bdf78b-c453-4661-98e6-f834f534ef5b",
+                "type": "dps-usr-verity",
+                "blocks": "20480"
+            },
+            "6": {
                 "label": "OEM",
                 "fs_label": "OEM",
                 "type": "data",
@@ -49,7 +63,7 @@
                 "fs_compression": "zlib",
                 "mount": "/oem"
             },
-            "5": {
+            "7": {
                 "label": "ROOT",
                 "fs_label": "ROOT",
                 "type": "dps-root",
@@ -59,21 +73,21 @@
             }
         },
         "vm": {
-            "5": {
+            "7": {
                 "label": "ROOT",
                 "fs_label": "ROOT",
                 "blocks": "12943360"
             }
         },
         "azure": {
-            "5": {
+            "7": {
                 "label": "ROOT",
                 "fs_label": "ROOT",
                 "blocks": "58875904"
             }
         },
         "vagrant": {
-            "5": {
+            "7": {
                 "label": "ROOT",
                 "fs_label": "ROOT",
                 "blocks": "33845248"
@@ -93,6 +107,12 @@
                 "type": "blank"
             },
             "5": {
+                "type": "blank"
+            },
+            "6": {
+                "type": "blank"
+            },
+            "7": {
                 "label": "ROOT",
                 "fs_label": "ROOT",
                 "type": "0fc63daf-8483-4772-8e79-3d69d8477de4",

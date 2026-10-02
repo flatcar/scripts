@@ -49,7 +49,12 @@ ensure_libvirt_network() {
             return 1
         fi
     fi
-    if ! virsh net-info default 2>/dev/null | grep -q 'Active:.*yes'; then
+    # Capture output first instead of piping directly into grep: under `set -o pipefail`
+    # (inherited from validate_common.sh, since this file is sourced not executed),
+    # grep -q can exit as soon as it matches while virsh is still writing, causing a
+    # SIGPIPE in virsh and a false pipeline failure even though the pattern matched.
+    net_info="$(virsh net-info default 2>/dev/null)"
+    if ! grep -q 'Active:.*yes' <<< "$net_info"; then
         info "Starting libvirt default network..."
         if sudo virsh net-start default; then
             sudo virsh net-autostart default 2>/dev/null || true

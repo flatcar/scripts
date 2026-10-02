@@ -894,6 +894,8 @@ EOF
 
     "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" --arch="${BOARD}" verity \
         --root_hash="${BUILD_DIR}/${image_name%.bin}_verity.txt" \
+        --verity_uuid="${BUILD_DIR}/${image_name%.bin}_verity_uuid.txt" \
+        --fs_uuid="${BUILD_DIR}/${image_name%.bin}_fs_uuid.txt" \
         "${BUILD_DIR}/${image_name}"
 
     # Magic alert!  Root hash injection works by writing the hash value to a
@@ -960,6 +962,19 @@ EOF
         local verity_hash_file="${BUILD_DIR}/${image_name%.bin}_verity.txt"
         if [[ -f "${verity_hash_file}" ]]; then
           bootloader_args+=(--verity_hash="${verity_hash_file}")
+        fi
+        if [[ "${BOOTLOADER_MODE}" == "uki" ]]; then
+          # UKI cmdline construction is UUID-based (dedicated hash partition);
+          # GRUB uses inline verity (PARTUUID+hash-offset) instead and doesn't
+          # consume these.
+          local verity_uuid_file="${BUILD_DIR}/${image_name%.bin}_verity_uuid.txt"
+          if [[ -f "${verity_uuid_file}" ]]; then
+            bootloader_args+=(--verity_uuid="${verity_uuid_file}")
+          fi
+          local fs_uuid_file="${BUILD_DIR}/${image_name%.bin}_fs_uuid.txt"
+          if [[ -f "${fs_uuid_file}" ]]; then
+            bootloader_args+=(--fs_uuid="${fs_uuid_file}")
+          fi
         fi
       fi
     else

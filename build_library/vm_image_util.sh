@@ -555,6 +555,9 @@ install_oem_package() {
             "${oem_files_dir}"
         if [[ "${BOOTLOADER_MODE}" == "uki" ]]; then
             install_uki_oem_addon
+            install_uki_timeout_addon
+        elif [[ "${BOOTLOADER_MODE}" == "grub" ]]; then
+            install_grub_timeout_override
         fi
         return 0
     fi
@@ -600,6 +603,9 @@ install_oem_package() {
     # UKI addon (replacing the role of grub.cfg).
     if [[ "${BOOTLOADER_MODE}" == "uki" ]]; then
         install_uki_oem_addon
+        install_uki_timeout_addon
+    elif [[ "${BOOTLOADER_MODE}" == "grub" ]]; then
+        install_grub_timeout_override
     fi
 }
 
@@ -754,6 +760,151 @@ install_uki_oem_addon() {
         "${ARCH}" \
         "${VM_TMP_ROOT}" \
         "${oem_files_dir}"
+}
+
+# Build and install a UKI addon that raises the systemd device-init timeout,
+# scoped to the arm64 kola *test* image on QEMU-TCG only (INJECT_DOCKER_SYSEXT=true).
+#
+# Under kola's parallel QEMU-TCG emulation on aarch64, heavy CPU contention can
+# prevent udev from initialising the ESP/OEM/usr-verity devices within the
+# default initrd device timeout, dropping the VM to an emergency shell.  Baking
+# systemd.default_device_timeout_sec=120 into a UKI addon on the test image's
+# ESP fixes this without changing production or amd64 boot behaviour.
+#
+# Deliberately NOT applied to the production VM image (INJECT_DOCKER_SYSEXT=false),
+# to amd64, or to Azure test images: the failure is a CI-only QEMU-TCG-emulation
+# artefact that never occurs on real hardware (including Azure VMs).
+install_uki_timeout_addon() {
+    if [[ "${BOOTLOADER_MODE}" != "uki" ]]; then
+        return 0
+    fi
+
+    # Scope: arm64 QEMU-TCG test image only.
+    if [[ "${ARCH}" != "arm64" ]] || [[ "${VM_IMG_TYPE}" != "qemu_uefi" ]] || [[ "${INJECT_DOCKER_SYSEXT:-false}" != "true" ]]; then
+        return 0
+    fi
+
+    local esp_dir="${VM_TMP_ROOT}/boot"
+    if [[ ! -d "${esp_dir}/EFI/Linux" ]]; then
+        warn "UKI timeout addon: ESP directory ${esp_dir}/EFI/Linux not found; skipping"
+        return 0
+    fi
+
+    # EFI architecture suffix for the systemd-boot stub.
+    local efi_arch
+    case "${ARCH}" in
+        amd64)  efi_arch="x64" ;;
+        arm64)  efi_arch="aa64" ;;
+        *)      warn "UKI timeout addon: unsupported arch ${ARCH}; skipping"; return 0 ;;
+    esac
+
+    local efi_stub="${VM_TMP_ROOT}/usr/lib/systemd/boot/efi/linux${efi_arch}.efi.stub"
+    if [[ ! -f "${efi_stub}" ]]; then
+        warn "UKI timeout addon: EFI stub not found at ${efi_stub}; skipping"
+        return 0
+    fi
+
+    # Detect the main UKI (vmlinuz-<version>.efi) to locate its .extra.d dir.
+    # ACL test images ship exactly one UKI; require that here so the addon is
+    # never silently installed into the wrong <uki>.efi.extra.d (which would
+    # leave the timeout ineffective and resurrect the emergency-shell flake
+    # this addon exists to fix). Mirrors rpm/uki_install.sh's single-UKI rule.
+    local -a uki_matches
+    mapfile -t uki_matches < <(find "${esp_dir}/EFI/Linux/" -maxdepth 1 -name 'vmlinuz-*.efi' -printf '%f\n' | sort -V)
+    if [[ "${#uki_matches[@]}" -eq 0 ]]; then
+        warn "UKI timeout addon: no UKI (vmlinuz-*.efi) found in ESP; skipping"
+        return 0
+    fi
+    if [[ "${#uki_matches[@]}" -gt 1 ]]; then
+        die "UKI timeout addon: expected exactly one UKI in ${esp_dir}/EFI/Linux/, found ${#uki_matches[@]}: ${uki_matches[*]}"
+    fi
+    local uki_name="${uki_matches[0]}"
+
+    if ! command -v ukify &>/dev/null; then
+        die "UKI timeout addon: ukify not found on PATH"
+    fi
+
+    info "UKI timeout addon: Building for arm64 test image (${VM_IMG_TYPE})"
+
+    local addon_dir="${esp_dir}/EFI/Linux/${uki_name}.extra.d"
+    sudo mkdir -p "${addon_dir}"
+
+    local timeout_temp_dir
+    timeout_temp_dir=$(mktemp -d)
+
+    printf '%s\n' "systemd.default_device_timeout_sec=120" \
+        > "${timeout_temp_dir}/timeout-cmdline.txt"
+
+    if ! sudo ukify build \
+        --cmdline=@"${timeout_temp_dir}/timeout-cmdline.txt" \
+        --stub="${efi_stub}" \
+        --output="${timeout_temp_dir}/timeout.addon.efi"; then
+        sudo rm -rf "${timeout_temp_dir}"
+        die "UKI timeout addon: ukify build failed"
+    fi
+
+    if [[ ! -f "${timeout_temp_dir}/timeout.addon.efi" ]]; then
+        sudo rm -rf "${timeout_temp_dir}"
+        die "UKI timeout addon: ukify failed to produce timeout.addon.efi"
+    fi
+
+    sudo cp "${timeout_temp_dir}/timeout.addon.efi" "${addon_dir}/timeout.addon.efi"
+    info "UKI timeout addon: Installed -> EFI/Linux/${uki_name}.extra.d/timeout.addon.efi"
+    info "UKI timeout addon: cmdline = systemd.default_device_timeout_sec=120"
+
+    sudo rm -rf "${timeout_temp_dir}"
+}
+
+# Append systemd.default_device_timeout_sec=120 to grub.cfg's shared cmdline,
+# scoped to the arm64 kola *test* image on QEMU-TCG only (INJECT_DOCKER_SYSEXT=true).
+#
+# GRUB has no addon mechanism like UKI's .extra.d, so unlike
+# install_uki_timeout_addon this patches the already-written grub.cfg copies
+# on the ESP directly (both are plain text, no rebuild/re-signing needed) -
+# same CI-only QEMU-TCG device-init timeout this exists to work around.
+#
+# Deliberately NOT applied to the production VM image (INJECT_DOCKER_SYSEXT=false),
+# to amd64, or to Azure test images: the failure is a CI-only QEMU-TCG-emulation
+# artefact that never occurs on real hardware (including Azure VMs).
+install_grub_timeout_override() {
+    if [[ "${BOOTLOADER_MODE}" != "grub" ]]; then
+        return 0
+    fi
+
+    # Scope: arm64 QEMU-TCG test image only.
+    if [[ "${ARCH}" != "arm64" ]] || [[ "${VM_IMG_TYPE}" != "qemu_uefi" ]] || [[ "${INJECT_DOCKER_SYSEXT:-false}" != "true" ]]; then
+        return 0
+    fi
+
+    local esp_dir="${VM_TMP_ROOT}/boot"
+    local -a grub_cfgs=(
+        "${esp_dir}/EFI/boot/grub.cfg"
+        "${esp_dir}/boot/grub2/grub.cfg"
+    )
+
+    local found=0
+    for cfg in "${grub_cfgs[@]}"; do
+        if [[ ! -f "${cfg}" ]]; then
+            continue
+        fi
+        found=1
+        if sudo grep -q 'systemd.default_device_timeout_sec=' "${cfg}"; then
+            info "GRUB timeout override: ${cfg} already patched; skipping"
+            continue
+        fi
+        sudo sed -i 's/^set linux_cmdline="\(.*\)"$/set linux_cmdline="\1 systemd.default_device_timeout_sec=120"/' "${cfg}"
+        if ! sudo grep -q 'systemd.default_device_timeout_sec=120' "${cfg}"; then
+            die "GRUB timeout override: sed substitution did not match in ${cfg}; linux_cmdline format may have changed"
+        fi
+        info "GRUB timeout override: patched ${cfg}"
+    done
+
+    if [[ "${found}" -eq 0 ]]; then
+        warn "GRUB timeout override: no grub.cfg found under ${esp_dir}; skipping"
+        return 0
+    fi
+
+    info "GRUB timeout override: cmdline += systemd.default_device_timeout_sec=120"
 }
 
 # Any other tweaks required?

@@ -592,6 +592,37 @@ EOF
         sudo sed -i 's|/var/run/|/run/|g' "${root_fs_dir}/usr/lib/systemd/system/rpcbind.socket"
     fi
 
+    # Enable tridentd.socket - listens for trident API requests.
+    # trident-acl (and thus tridentd.socket) is only installed on UKI-ACL
+    # images (package_catalog.sh scopes it to BOOTLOADER_MODE=uki, since
+    # GRUB-ACL has no Trident A/B-update support and never installs it).
+    # A missing unit on UKI is still a broken image - fail the build now
+    # rather than leave a dangling wants-symlink and ship an image whose
+    # provisioning socket never activates.
+    #
+    # Statically enable via a /usr .wants symlink (like systemd's own
+    # core sockets, e.g. systemd-journald.socket) instead of
+    # `systemctl enable --root=`, which would write the enablement
+    # symlink into /etc instead. /etc lives on the shared, non-slotted
+    # ROOT partition and gets repopulated by systemd's first-boot preset
+    # pass; that pass doesn't reliably preserve unit-specific symlinks
+    # created directly at build time (see the /etc symlink cleanup a few
+    # lines below - RPM-preset-created dangling links there abort the
+    # whole preset population). A symlink baked into /usr, by contrast,
+    # ships as part of the read-only, dm-verity-protected partition,
+    # identical on both A/B slots, and needs no first-boot pass to take
+    # effect - it's active from the moment /usr is mounted, every boot.
+    if [[ "${BOOTLOADER_MODE}" == "uki" ]]; then
+        if [[ ! -f "${root_fs_dir}/usr/lib/systemd/system/tridentd.socket" ]]; then
+            die "tridentd.socket not found in image - trident RPM missing (trident is required for UKI-ACL)"
+        fi
+        info "RPM mode: Statically enabling tridentd.socket (via /usr .wants symlink)"
+        sudo mkdir -p "${root_fs_dir}/usr/lib/systemd/system/sockets.target.wants"
+        sudo ln -sf ../tridentd.socket "${root_fs_dir}/usr/lib/systemd/system/sockets.target.wants/tridentd.socket"
+    else
+        info "RPM mode: Skipping tridentd.socket (trident is UKI-only)"
+    fi
+
     # Create /var/lib/nfs directories needed by rpc-statd and NFS server via tmpfiles
     # The nfs-utils RPM only creates v4recovery; sm and sm.bak are missing from the package
     # /var is stateful so we use tmpfiles.d to create these at boot, not mkdir at build time

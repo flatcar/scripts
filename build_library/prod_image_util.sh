@@ -77,7 +77,14 @@ create_prod_image() {
   local image_licenses="${image_name%.bin}_licenses.json"
   local image_kconfig="${image_name%.bin}_kernel_config.txt"
   local image_kernel="${image_name%.bin}.vmlinuz"
-  local image_pcr_policy="${image_name%.bin}_pcr_policy.zip"
+  # PCR-policy generation is only meaningful for the legacy Portage/Flatcar
+  # GRUB boot chain; nothing consumes this artifact for RPM (ACL) builds, so
+  # skip producing it there entirely rather than generate an unused/unverified
+  # PCR policy.
+  local image_pcr_policy=""
+  if [[ "${PACKAGE_SOURCE_MODE}" != "RPM" ]]; then
+    image_pcr_policy="${image_name%.bin}_pcr_policy.zip"
+  fi
   local image_grub="${image_name%.bin}.grub"
   local image_shim="${image_name%.bin}.shim"
   local image_initrd_contents="${image_name%.bin}_initrd_contents.txt"
@@ -206,10 +213,20 @@ EOF
   # Official builds will sign and upload these files later, so remove them to
   # prevent them from being uploaded now.
   if [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
-    rm -v \
-        "${BUILD_DIR}/${image_kernel}" \
-        "${BUILD_DIR}/${image_pcr_policy}" \
-        "${BUILD_DIR}/${image_grub}"
+    # UKI-mode builds skip the standalone kernel copy and GRUB install in
+    # finish_image, so those two artifacts may not exist; only remove what
+    # was actually produced. image_pcr_policy is empty for all RPM builds
+    # (see above), so it is only ever added below for Portage.
+    local official_cleanup_files=("${BUILD_DIR}/${image_kernel}" "${BUILD_DIR}/${image_grub}")
+    if [[ -n "${image_pcr_policy}" ]]; then
+      official_cleanup_files+=("${BUILD_DIR}/${image_pcr_policy}")
+    fi
+    local f
+    for f in "${official_cleanup_files[@]}"; do
+      if [[ -f "${f}" ]]; then
+        rm -v "${f}"
+      fi
+    done
   fi
 
   local files_to_evaluate=( "${BUILD_DIR}/${image_name}" )
@@ -222,13 +239,35 @@ create_prod_tar() {
   local container="${BUILD_DIR}/flatcar-container.tar.gz"
   local lodev="$(sudo losetup --find --show -r -P "${image}")"
   local lodevbase="$(basename "${lodev}")"
-  sudo mkdir -p "/mnt/${lodevbase}p9"
-  sudo mount "${lodev}p9" "/mnt/${lodevbase}p9"
-  sudo mount "${lodev}p3" "/mnt/${lodevbase}p9/usr"
-  sudo tar --xattrs -czpf "${container}" -C "/mnt/${lodevbase}p9" .
-  sudo umount "/mnt/${lodevbase}p9/usr"
-  sudo umount "/mnt/${lodevbase}p9"
-  sudo rmdir "/mnt/${lodevbase}p9"
+  local mountpoint="/mnt/${lodevbase}-root"
+
+  # Resolve ROOT and USR-A by GPT partition label rather than a hardcoded
+  # partition number, since disk_layout.json layouts can renumber
+  # partitions (e.g. ROOT moving from p9 to p11).
+  # rootdev/usrdev must be initialized: this function runs under
+  # switch_to_strict_mode (set -u), and referencing a `local`-declared-but-
+  # unset variable -- even just to test it with `-z` -- is itself an
+  # unbound-variable error, which would abort before the missing-partition
+  # check below ever gets to run.
+  local partdev rootdev="" usrdev=""
+  for partdev in "${lodev}"p*; do
+    case "$(sudo blkid -o value -s PARTLABEL "${partdev}" 2>/dev/null)" in
+      ROOT) rootdev="${partdev}" ;;
+      USR-A) usrdev="${partdev}" ;;
+    esac
+  done
+  if [[ -z "${rootdev}" || -z "${usrdev}" ]]; then
+    sudo losetup --detach "${lodev}"
+    die_notrace "create_prod_tar: could not resolve ROOT/USR-A partitions on ${lodev}"
+  fi
+
+  sudo mkdir -p "${mountpoint}"
+  sudo mount "${rootdev}" "${mountpoint}"
+  sudo mount "${usrdev}" "${mountpoint}/usr"
+  sudo tar --xattrs -czpf "${container}" -C "${mountpoint}" .
+  sudo umount "${mountpoint}/usr"
+  sudo umount "${mountpoint}"
+  sudo rmdir "${mountpoint}"
   sudo losetup --detach "${lodev}"
 }
 
@@ -290,7 +329,10 @@ sbsign_prod_image() {
   local root_fs_dir="${BUILD_DIR}/rootfs"
   local image_prefix="${image_name%.bin}"
   local image_kernel="${image_prefix}.vmlinuz"
-  local image_pcr_policy="${image_prefix}_pcr_policy.zip"
+  local image_pcr_policy=""
+  if [[ "${PACKAGE_SOURCE_MODE}" != "RPM" ]]; then
+    image_pcr_policy="${image_prefix}_pcr_policy.zip"
+  fi
   local image_grub="${image_prefix}.grub"
 
   sbsign_image \

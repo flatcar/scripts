@@ -31,6 +31,14 @@ packages:
     - policycoreutils
     - ca-certificates
     - irqbalance
+    # trident-acl is bootloader-filtered out of this list at resolution time
+    # in get_rpm_package_name() (package_catalog.sh) when BOOTLOADER_MODE !=
+    # uki: GRUB-ACL cannot do Trident A/B updates (no addon-swap
+    # equivalent), so it's never installed there. It has to stay in this
+    # list (rather than its own catalog key) because package resolution
+    # only visits *real* Portage dependencies, and there is no
+    # sys-apps/trident-acl Portage package for a standalone key to match.
+    - trident-acl
   sys-libs/systemd-libs: systemd-libs
   sys-apps/systemd-networkd: systemd-networkd
   net-misc/systemd-networkd: systemd-networkd

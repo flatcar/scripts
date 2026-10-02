@@ -106,6 +106,19 @@ get_rpm_package_name() {
         return 1
     fi
 
+    # trident-acl only belongs on UKI-ACL images (GRUB-ACL has no Trident
+    # A/B-update support). It rides along in the sys-apps/systemd catalog
+    # entry (a real, always-resolved Portage dependency) rather than its
+    # own catalog key, so filter it out here instead of at catalog-load
+    # time -- a standalone key would never be looked up, since nothing
+    # actually depends on a Portage package named sys-apps/trident-acl.
+    if [[ "${BOOTLOADER_MODE:-}" != "uki" ]]; then
+        rpm_name=$(echo "$rpm_name" | tr ' ' '\n' | grep -v '^trident-acl$' | tr '\n' ' ')
+        rpm_name="${rpm_name% }"
+    fi
+
+    [[ -n "$rpm_name" ]] || return 1
+
     echo "$rpm_name"
 }
 

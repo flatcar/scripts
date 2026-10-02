@@ -34,6 +34,11 @@ DPS_ROOT_GUIDS = {
     'aarch64': 'B921B045-1DF0-41C3-AF44-4C6F280D3FAE',
 }
 
+DPS_USR_VERITY_GUIDS = {
+    'x86_64':  '77FF5F63-E7B6-4633-ACF4-1565B864C0E6',
+    'aarch64': '6E11A4E7-FBCA-4DED-B9E9-E1A512BB664E',
+}
+
 # Map BOARD names used by the build system to machine architecture values.
 BOARD_TO_ARCH = {
     'amd64-usr': 'x86_64',
@@ -44,18 +49,24 @@ def _resolve_dps_types(config, arch):
   """Replace symbolic DPS partition type names with architecture-specific GUIDs.
 
   Currently supported placeholders:
-    dps-root  →  DPS root partition GUID for the target architecture
+    dps-root        →  DPS root partition GUID for the target architecture
+    dps-usr-verity  →  DPS /usr verity hash partition GUID
   """
+  dps_map = {
+      'dps-root': DPS_ROOT_GUIDS,
+      'dps-usr-verity': DPS_USR_VERITY_GUIDS,
+  }
   for layout in config.get('layouts', {}).values():
     for part in layout.values():
       if not isinstance(part, dict):
         continue
       ptype = part.get('type', '')
-      if ptype == 'dps-root':
-        guid = DPS_ROOT_GUIDS.get(arch)
+      guids = dps_map.get(ptype)
+      if guids is not None:
+        guid = guids.get(arch)
         if guid is None:
           raise InvalidLayout(
-              'No DPS root GUID defined for architecture %r' % arch)
+              'No %s GUID defined for architecture %r' % (ptype, arch))
         part['type'] = guid
 
 
@@ -73,7 +84,7 @@ def LoadPartitionConfig(options):
       '_comment', 'type', 'num', 'label', 'blocks', 'block_size', 'fs_blocks',
       'fs_block_size', 'fs_type', 'features', 'uuid', 'part_alignment', 'mount',
       'binds', 'fs_subvolume', 'fs_bytes_per_inode', 'fs_inode_size', 'fs_label',
-      'fs_compression'))
+      'fs_compression', 'verity_hash'))
   integer_layout_keys = set((
       'blocks', 'block_size', 'fs_blocks', 'fs_block_size', 'part_alignment',
       'fs_bytes_per_inode', 'fs_inode_size'))
@@ -807,6 +818,12 @@ def Tune(options):
 def Verity(options):
   """Hash verity protected filesystems.
 
+  Only processes partitions that have a filesystem (fs_type) and either a
+  verity_hash cross-reference to a dedicated hash partition or the legacy
+  'verity' feature flag for inline hash mode.  At build time only the
+  active USR slot (the one with 'prioritize') is formatted, so the
+  inactive slot is skipped naturally.
+
   Args:
     options: Flags passed to the script
   """
@@ -815,7 +832,26 @@ def Verity(options):
   GetPartitionTableFromImage(options, config, partitions)
 
   for part_num, part in partitions.items():
-    if 'verity' not in part.get('features', []):
+    hash_part_num = part.get('verity_hash')
+    if hash_part_num is not None:
+      # partitions is keyed by string partition numbers (JSON object keys);
+      # normalize so a numeric verity_hash value still resolves correctly.
+      hash_part_num = str(hash_part_num).strip()
+      # A present-but-empty verity_hash is a malformed layout, not a request
+      # for legacy inline mode: silently falling back would produce an
+      # invalid verity layout that is hard to debug. Fail fast instead.
+      if not hash_part_num:
+        raise InvalidLayout(
+            "partition %r has an empty verity_hash; name a hash partition "
+            "number or omit the key" % part_num)
+    has_verity_feature = 'verity' in part.get('features', [])
+
+    if not hash_part_num and not has_verity_feature:
+      continue
+
+    # Skip partitions without a filesystem — at build time only the active
+    # slot (USR-A with 'prioritize') is formatted; USR-B is empty.
+    if not part.get('fs_type'):
       continue
 
     if not part['image_compat']:
@@ -826,22 +862,63 @@ def Verity(options):
     elif part.get('fs_type', None) == 'btrfs':
       ReadWriteSubvol(options, part, disable_rw=True)
 
-    with PartitionLoop(options, part) as loop_dev:
-      verityout = SudoOutput(['veritysetup', 'format', '--hash=sha256',
+    if hash_part_num:
+      if hash_part_num not in partitions:
+        raise InvalidLayout(
+            "verity_hash references partition %r which is not in the layout"
+            % hash_part_num)
+      hash_part = partitions[hash_part_num]
+      if not hash_part['image_compat']:
+        raise InvalidLayout("Hash partition is incompatible with existing image")
+    else:
+      hash_part = None
+
+    with contextlib.ExitStack() as loops:
+      data_loop = loops.enter_context(PartitionLoop(options, part))
+      base_cmd = ['veritysetup', 'format', '--hash=sha256',
                   '--data-block-size', part['fs_block_size'],
                   '--hash-block-size', part['fs_block_size'],
-                  '--data-blocks', part['fs_blocks'],
-                  '--hash-offset', part['fs_bytes'],
-                  loop_dev, loop_dev]).decode('utf8')
-      print(verityout.strip())
-      m = re.search(r'Root hash:\s+([a-f0-9]{64})$', verityout, re.IGNORECASE|re.MULTILINE)
-      if not m:
-          raise Exception("Failed to parse verity output!")
+                  '--data-blocks', part['fs_blocks']]
+      if hash_part:
+        # Separate hash partition mode: write hash tree to a dedicated partition.
+        hash_loop = loops.enter_context(PartitionLoop(options, hash_part))
+      else:
+        # Legacy inline mode: hash tree appended within the same partition.
+        hash_loop = data_loop
+        base_cmd = base_cmd + ['--hash-offset', part['fs_bytes']]
 
-      if options.root_hash != None:
-          with open(options.root_hash, "w") as hash_file:
-              hash_file.write(m.group(1))
-              hash_file.write("\n")
+      salt = os.urandom(32).hex()
+      verity_cmd = base_cmd + ['--salt', salt, data_loop, hash_loop]
+
+      verityout = SudoOutput(verity_cmd).decode('utf8')
+      print(verityout.strip())
+
+      # Read the filesystem UUID from the data partition for cmdline use.
+      if options.fs_uuid:
+        fs_uuid_out = SudoOutput(
+            ['blkid', '-s', 'UUID', '-o', 'value', data_loop]).decode('utf8').strip()
+        if not fs_uuid_out:
+          raise Exception("Failed to read filesystem UUID from %s" % data_loop)
+        with open(options.fs_uuid, 'w') as f:
+          f.write(fs_uuid_out + '\n')
+
+    m = re.search(r'Root hash:\s+([a-f0-9]{64})$', verityout, re.IGNORECASE|re.MULTILINE)
+    if not m:
+      raise Exception("Failed to parse verity root hash!")
+
+    if options.root_hash is not None:
+      with open(options.root_hash, "w") as hash_file:
+        hash_file.write(m.group(1))
+        hash_file.write("\n")
+
+    # Extract the verity superblock UUID from veritysetup output.
+    if options.verity_uuid:
+      m_uuid = re.search(r'UUID:\s+([a-f0-9-]{36})$', verityout, re.IGNORECASE|re.MULTILINE)
+      if not m_uuid:
+        raise Exception("Failed to parse verity UUID!")
+      with open(options.verity_uuid, 'w') as f:
+        f.write(m_uuid.group(1))
+        f.write("\n")
 
 
 def Extract(options):
@@ -1118,6 +1195,8 @@ def main(argv):
   a = actions.add_parser('verity', help='compute verity hashes')
   a.add_argument('disk_image', help='path to disk image file')
   a.add_argument('--root_hash', help='name of file to contain root hash')
+  a.add_argument('--verity_uuid', help='name of file to contain verity superblock UUID')
+  a.add_argument('--fs_uuid', help='name of file to contain data partition filesystem UUID')
   a.set_defaults(func=Verity)
 
   a = actions.add_parser('extract', help='extract a single partition')

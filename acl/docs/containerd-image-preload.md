@@ -326,7 +326,7 @@ actually recovers the store.
 sudo modprobe nbd max_part=8
 sudo qemu-nbd --connect=/dev/nbd0 --read-only -f vpc staging/out/acl-preloaded.vhd
 sudo mkdir -p /mnt/verify
-sudo mount -o ro /dev/nbd0p5 /mnt/verify   # ROOT is the fifth partition
+sudo mount -o ro /dev/nbd0p7 /mnt/verify   # ROOT is the seventh partition
 
 ls -la /mnt/verify/var/lib/containerd
 strings /mnt/verify/var/lib/containerd/io.containerd.metadata.v1.bolt/meta.db \
