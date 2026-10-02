@@ -81,8 +81,6 @@ function ricj_callback() {
         "PATH=${PWD}/ci-automation/python-bin:${PATH}"
         # Override the default locations of repositories.
         "SCRIPTS_REPO=."
-        "COREOS_OVERLAY_REPO=../coreos-overlay"
-        "PORTAGE_STABLE_REPO=../portage-stable"
     )
     show_changes_params+=(
         # The show-changes script expects a tag name, so using git tag

@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# podman-auto-update(1)
-/usr/bin/podman auto-update && /usr/bin/podman image prune -f
