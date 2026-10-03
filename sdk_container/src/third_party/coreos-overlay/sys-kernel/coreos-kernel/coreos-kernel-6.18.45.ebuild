@@ -1,4 +1,4 @@
-# Copyright 2014-2016 CoreOS, Inc.
+# Copyright 2026 The Flatcar Container Linux Maintainers
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -33,7 +33,6 @@ DEPEND="
 	sys-apps/busybox
 	sys-apps/coreutils
 	sys-apps/findutils
-	sys-apps/gptfdisk
 	sys-apps/grep
 	sys-apps/hwdata
 	sys-apps/ignition:=

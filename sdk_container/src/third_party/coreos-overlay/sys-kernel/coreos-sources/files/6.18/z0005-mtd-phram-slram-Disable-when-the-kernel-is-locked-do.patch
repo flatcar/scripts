@@ -1,7 +1,7 @@
+From 06ae62500c1e2bb641b8f16eb9313a41c4061ab9 Mon Sep 17 00:00:00 2001
 From: Ben Hutchings <ben@decadent.org.uk>
 Date: Fri, 30 Aug 2019 15:54:24 +0100
-Subject: mtd: phram,slram: Disable when the kernel is locked down
-Forwarded: https://lore.kernel.org/linux-security-module/20190830154720.eekfjt6c4jzvlbfz@decadent.org.uk/
+Subject: [PATCH 5/8] mtd: phram,slram: Disable when the kernel is locked down
 
 These drivers allow mapping arbitrary memory ranges as MTD devices.
 This should be disabled to preserve the kernel's integrity when it is
@@ -21,9 +21,11 @@ Cc: linux-mtd@lists.infradead.org
  drivers/mtd/devices/slram.c | 9 ++++++++-
  2 files changed, 13 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/mtd/devices/phram.c b/drivers/mtd/devices/phram.c
+index fd9ec165e61a..8652139ecbe9 100644
 --- a/drivers/mtd/devices/phram.c
 +++ b/drivers/mtd/devices/phram.c
-@@ -364,7 +364,11 @@ static int phram_param_call(const char *
+@@ -365,7 +365,11 @@ static int phram_param_call(const char *val, const struct kernel_param *kp)
  #endif
  }
  
@@ -36,6 +38,8 @@ Cc: linux-mtd@lists.infradead.org
  MODULE_PARM_DESC(phram, "Memory region to map. \"phram=<name>,<start>,<length>[,<erasesize>]\"");
  
  #ifdef CONFIG_OF
+diff --git a/drivers/mtd/devices/slram.c b/drivers/mtd/devices/slram.c
+index 8297b366a066..9f762d988c0b 100644
 --- a/drivers/mtd/devices/slram.c
 +++ b/drivers/mtd/devices/slram.c
 @@ -43,6 +43,7 @@
@@ -73,3 +77,6 @@ Cc: linux-mtd@lists.infradead.org
  	while (map) {
  		devname = devstart = devlength = NULL;
  
+-- 
+2.51.0
+

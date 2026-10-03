@@ -1,4 +1,4 @@
-# Copyright 2014-2016 CoreOS, Inc.
+# Copyright 2026 The Flatcar Container Linux Maintainers
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -51,7 +51,7 @@ src_install() {
 	# Replace the broken /lib/modules/${KV_FULL}/build symlink with a copy of
 	# the files needed to build out-of-tree modules.
 	rm "${ED}/usr/${build}" || die
-	kmake run-command KBUILD_RUN_COMMAND="${KV_DIR}/scripts/package/install-extmod-build ${ED}/usr/${build}"
+	kmake run-command KBUILD_RUN_COMMAND="${KERNEL_DIR}/scripts/package/install-extmod-build ${ED}/usr/${build}"
 
 	# Install the original config because the above doesn't.
 	insinto "/usr/${build}"
@@ -61,6 +61,6 @@ src_install() {
 	dosym "../${build}/.config" "/usr/boot/config-${KV_FULL}"
 	dosym "../${build}/.config" "/usr/boot/config"
 
-	# Symlink "source" to "build" for compatibility. Fedora does this.
-	dosym build "/usr/${build}/../source"
+ 	# Symlink "source" to "build" for compatibility. Fedora does this.
+ 	dosym build "/usr/${build}/../source"
 }
