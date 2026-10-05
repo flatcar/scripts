@@ -37,8 +37,8 @@ RDEPEND+="
 	>=dev-libs/tree-sitter-bash-0.25.1[python,${PYTHON_USEDEP}]
 	dev-python/charset-normalizer[${PYTHON_USEDEP}]
 	dev-python/lxml[${PYTHON_USEDEP}]
-	dev-python/pathspec[${PYTHON_USEDEP}]
-	>=dev-python/tree-sitter-0.25.2[${PYTHON_USEDEP}]
+	>=dev-python/pathspec-1.0.0[${PYTHON_USEDEP}]
+	>=dev-python/tree-sitter-0.26.0[${PYTHON_USEDEP}]
 	emacs? (
 		>=app-editors/emacs-24.1:*
 		app-emacs/ebuild-mode
