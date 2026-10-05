@@ -22,35 +22,47 @@ CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 #    probably something is messed up)
 flatcar_target_ref() {
     local -n type_ref=${1}; shift
+    local revert_shopt=$(shopt -p extglob)
+    shopt -s extglob
 
     local name
     case ${FLATCAR_TYPE} in
         sdk) type_ref='sdk';;
         generic)
-            case ${ROOT} in
-                */prod-image-rootfs) type_ref='generic-prod';;
-                */dev-image-rootfs) type_ref='generic-dev';;
-                */*-base-sysext-rootfs)
-                    name=${ROOT##*/}
-                    name=${name%-base-sysext-rootfs}
-                    type_ref="generic-sysext-base-${name}"
-                    ;;
-                */*-extra-sysext-rootfs)
-                    name=${ROOT##*/}
-                    name=${name%-extra-sysext-rootfs}
-                    type_ref="generic-sysext-extra-${name}"
-                    ;;
-                */*-oem-sysext-rootfs)
-                    name=${ROOT##*/}
-                    name=${name%-oem-sysext-rootfs}
-                    type_ref="generic-sysext-oem-${name}"
-                    ;;
-                "${SYSROOT}") type_ref='generic-board';;
-                *) type_ref='generic-unknown'
-            esac
+            if [[ ${EBUILD_PHASE_FUNC} = src_* ]]; then
+                if [[ -n ${FLATCAR_GENERIC_BUILD_TYPE:-} ]]; then
+                    type_ref=${FLATCAR_GENERIC_BUILD_TYPE}
+                else
+                    type_ref='generic-board'
+                fi
+            elif [[ ${EBUILD_PHASE_FUNC} = pkg_* ]]; then
+                case ${ROOT} in
+                    */prod-image-rootfs) type_ref='generic-prod';;
+                    */dev-image-rootfs) type_ref='generic-dev';;
+                    */*-base-sysext-rootfs)
+                        name=${ROOT##*/}
+                        name=${name%-base-sysext-rootfs}
+                        type_ref="generic-sysext-base-${name}"
+                        ;;
+                    */*-extra-sysext-rootfs)
+                        name=${ROOT##*/}
+                        name=${name%-extra-sysext-rootfs}
+                        type_ref="generic-sysext-extra-${name}"
+                        ;;
+                    */*-oem-sysext-rootfs)
+                        name=${ROOT##*/}
+                        name=${name%-oem-sysext-rootfs}
+                        type_ref="generic-sysext-oem-${name}"
+                        ;;
+                    # not using SYSROOT - not available in most of pkg_* phase funcs
+                    /build/+([^/])-usr) type_ref='generic-board';;
+                    *) type_ref='generic-unknown'
+                esac
+            fi
             ;;
         *) type_ref='unknown';;
     esac
+    ${revert_shopt}
 }
 
 # Prints the type of image we are merging the package for, see
