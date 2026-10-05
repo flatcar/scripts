@@ -44,6 +44,7 @@ function image_changes() (
     git clone \
         --depth 1 \
         --single-branch \
+        --branch=chewi/test \
         "https://github.com/flatcar/flatcar-build-scripts" \
         "${fbs_repo}"
     if [[ -z "${BUILDCACHE_SERVER:-}" ]]; then
@@ -649,120 +650,6 @@ function print_image_reports() {
     shift "${params_shift}"
 
     flatcar_build_scripts_repo=$(realpath "${flatcar_build_scripts_repo}")
-
-    local size_changes_invocation=(
-        env
-        "${size_change_report_env[@]}"
-        "${flatcar_build_scripts_repo}/size-change-report.sh"
-    )
-
-    yell "Image differences compared to ${previous_version_description}"
-    underline "Package updates, compared to ${previous_version_description}:"
-    env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_packages.txt \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-    underline "Image file changes, compared to ${previous_version_description}:"
-    env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt FILESONLY=1 CUTKERNEL=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-    underline "Image file size changes, compared to ${previous_version_description}:"
-    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:wtd}" 2>&1; then
-        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:old}" 2>&1
-    fi
-
-    underline "Image kernel config changes, compared to ${previous_version_description}:"
-    env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_kernel_config.txt CUTSIGKEYPATH=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-    underline "Image file size change (includes /boot, /usr and the default rootfs partitions), compared to ${previous_version_description}:"
-    env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_contents.txt CALCSIZE=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-    yell "Init ramdisk differences compared to ${previous_version_description}"
-    underline "Image init ramdisk file changes, compared to ${previous_version_description}:"
-    env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_initrd_contents.txt FILESONLY=1 CUTKERNEL=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-    underline "Image init ramdisk file size changes, compared to ${previous_version_description}:"
-    if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-wtd}" 2>&1; then
-        "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:initrd-old}" 2>&1
-    fi
-    echo
-    echo "Take the total size difference with a grain of salt as normally initrd is compressed, so the actual difference will be smaller."
-    echo "To see the actual difference in size, see if there was a report for /boot/flatcar/vmlinuz-a."
-    echo "Note that vmlinuz-a also contains the kernel code, which might have changed too, so the reported difference does not accurately describe the change in initrd."
-    echo
-
-    yell "Real/full init ramdisk (bootengine.img) differences compared to ${previous_version_description}"
-    underline "Real/full init ramdisk (bootengine.img) file changes, compared to ${previous_version_description}:"
-    env \
-        "${package_diff_env[@]}" FILE=flatcar_production_image_realinitrd_contents.txt FILESONLY=1 CUTKERNEL=1 \
-        "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1 || true
-
-    underline "Real/full init ramdisk (bootengine.img) file size changes, compared to ${previous_version_description}:"
-    "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:realinitrd-wtd}" 2>&1 || true
-
-    local base_sysext
-    for base_sysext in "${base_sysexts[@]}"; do
-        yell "Base sysext ${base_sysext} changes compared to ${previous_version_description}"
-        underline "Package updates, compared to ${previous_version_description}:"
-        env \
-            "${package_diff_env[@]}" FILE="rootfs-included-sysexts/${base_sysext}_packages.txt" \
-            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-        underline "Image file changes, compared to ${previous_version_description}:"
-        env \
-            "${package_diff_env[@]}" FILE="rootfs-included-sysexts/${base_sysext}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
-            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-        underline "Image file size changes, compared to ${previous_version_description}:"
-        if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:base-sysext-${base_sysext}-wtd}"; then
-            "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:base-sysext-${base_sysext}-old}" 2>&1
-        fi
-    done
-
-    local extra_sysext
-    for extra_sysext in "${extra_sysexts[@]}"; do
-        yell "Extra sysext ${extra_sysext} changes compared to ${previous_version_description}"
-        underline "Package updates, compared to ${previous_version_description}:"
-        env \
-            "${package_diff_env[@]}" FILE="flatcar-${extra_sysext}_packages.txt" \
-            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-        underline "Image file changes, compared to ${previous_version_description}:"
-        env \
-            "${package_diff_env[@]}" FILE="flatcar-${extra_sysext}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
-            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-        underline "Image file size changes, compared to ${previous_version_description}:"
-        if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:extra-sysext-${extra_sysext}-wtd}"; then
-            "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:extra-sysext-${extra_sysext}-old}" 2>&1
-        fi
-    done
-
-    local oemid
-    for oemid in "${oemids[@]}"; do
-        yell "Sysext changes for OEM ${oemid} compared to ${previous_version_description}"
-        underline "Package updates, compared to ${previous_version_description}:"
-        env \
-            "${package_diff_env[@]}" FILE="oem-${oemid}_packages.txt" \
-            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-        underline "Image file changes, compared to ${previous_version_description}:"
-        env \
-            "${package_diff_env[@]}" FILE="oem-${oemid}_contents.txt" FILESONLY=1 CUTKERNEL=1 \
-            "${flatcar_build_scripts_repo}/package-diff" "${package_diff_params[@]}" 2>&1
-
-        underline "Image file size changes, compared to ${previous_version_description}:"
-        if ! "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-wtd}"; then
-            "${size_changes_invocation[@]}" "${size_change_report_params[@]/%/:oem-${oemid}-old}" 2>&1
-        fi
-    done
 
     local param
     for param in "${show_changes_params[@]}"; do
