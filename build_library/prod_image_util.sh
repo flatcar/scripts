@@ -19,8 +19,11 @@ create_prod_image() {
 
   info "Building production image ${image_name}"
   # The "prod-image-rootfs" directory name is important - it is used
-  # to determine the package target in coreos/base/profile.bashrc
+  # to determine the package target in coreos/base/profile.bashrc. The
+  # FLATCAR_GENERIC_BUILD_TYPE environment variable is also used
+  # there, but for different ebuild phase functions.
   local root_fs_dir="${BUILD_DIR}/prod-image-rootfs"
+  local -x FLATCAR_GENERIC_BUILD_TYPE=generic-prod
   local root_fs_sysexts_output_dir="${BUILD_DIR}/rootfs-included-sysexts"
   local image_contents="${image_name%.bin}_contents.txt"
   local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
@@ -212,13 +215,19 @@ create_prod_sysexts() {
     # The --install_root_basename="${name}-extra-sysext-rootfs" flag
     # is important - it sets the name of a rootfs directory, which is
     # used to determine the package target in
-    # coreos/base/profile.bashrc
-    USE="${useflags_array[*]}" sudo -E "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
-        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-        --image_builddir="${BUILD_DIR}" \
-        --install_root_basename="${name}-extra-sysext-rootfs" \
-        ${mangle_script:+--manglefs_script=${mangle_script}} \
-        "${name}" "${pkg_array[@]}"
+    # coreos/base/profile.bashrc. The FLATCAR_GENERIC_BUILD_TYPE
+    # environment variable is also used there, but for different
+    # ebuild phase functions.
+    sudo -E \
+         "USE=${useflags_array[*]}" \
+         "FLATCAR_GENERIC_BUILD_TYPE=generic-sysext-extra-${name}" \
+         "${SCRIPT_ROOT}/build_sysext" \
+             --board="${BOARD}" \
+             --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+             --image_builddir="${BUILD_DIR}" \
+             --install_root_basename="${name}-extra-sysext-rootfs" \
+             ${mangle_script:+--manglefs_script=${mangle_script}} \
+             "${name}" "${pkg_array[@]}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \
@@ -266,18 +275,24 @@ create_oem_sysexts() {
     # The --install_root_basename="${name}-oem-sysext-rootfs" flag is
     # important - it sets the name of a rootfs directory, which is
     # used to determine the package target in
-    # coreos/base/profile.bashrc
+    # coreos/base/profile.bashrc. The FLATCAR_GENERIC_BUILD_TYPE
+    # environment variable is also used there, but for different
+    # ebuild phase functions.
     #
     # OEM sysexts use no compression here since they will be stored
     # in a compressed OEM partition.
-    USE="${useflags}" sudo -E "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
-        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-        --image_builddir="${BUILD_DIR}" \
-        --metapkgs="${metapkg}" \
-        --install_root_basename="${name}-oem-sysext-rootfs" \
-        --compression=none \
-        ${mangle_script:+--manglefs_script="${mangle_script}"} \
-        "${name}"
+    sudo -E \
+         "USE=${useflags}" \
+         "FLATCAR_GENERIC_BUILD_TYPE=generic-sysext-oem-${name}" \
+         "${SCRIPT_ROOT}/build_sysext" \
+             --board="${BOARD}" \
+             --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+             --image_builddir="${BUILD_DIR}" \
+             --metapkgs="${metapkg}" \
+             --install_root_basename="${name}-oem-sysext-rootfs" \
+             --compression=none \
+             ${mangle_script:+--manglefs_script="${mangle_script}"} \
+             "${name}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \
