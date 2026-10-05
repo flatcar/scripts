@@ -29,8 +29,8 @@ unset QEMU
 
 DEFINE_string catalyst_root "${DEFAULT_CATALYST_ROOT}" \
     "Path to directory for all catalyst images and other files."
-DEFINE_string portage_stable "${SRC_ROOT}/third_party/portage-stable" \
-    "Path to the portage-stable git checkout."
+DEFINE_string gentoo_repo "${SRC_ROOT}/third_party/gentoo" \
+    "Path to the gentoo git checkout."
 DEFINE_string coreos_overlay "${SRC_ROOT}/third_party/coreos-overlay" \
     "Path to the coreos-overlay git checkout."
 DEFINE_string seed_tarball "${DEFAULT_SEED}" \
@@ -56,7 +56,7 @@ DEFINE_boolean debug ${FLAGS_FALSE} "Enable verbose output from catalyst."
 catalyst_conf() {
 cat <<EOF
 # catalyst.conf
-digests=["md5", "sha1", "sha512", "blake2b"]
+digests=["sha512", "blake2b"]
 options=["pkgcache"]
 sharedir="/usr/share/catalyst"
 storedir="$CATALYST_ROOT"
@@ -64,7 +64,7 @@ distdir="$DISTDIR"
 envscript="$TEMPDIR/catalystrc"
 port_logdir="$CATALYST_ROOT/log"
 repo_basedir="/mnt/host/source/src/third_party"
-repo_name="portage-stable"
+repo_name="gentoo"
 EOF
 }
 
@@ -90,7 +90,7 @@ subarch: $ARCH
 rel_type: $TYPE
 portage_confdir: $TEMPDIR/portage
 repos: $FLAGS_coreos_overlay
-keep_repos: portage-stable coreos-overlay
+keep_repos: gentoo coreos-overlay
 profile: ${2:-$FLAGS_profile}
 snapshot_treeish: $FLAGS_version
 version_stamp: $FLAGS_version
@@ -108,7 +108,7 @@ cat <<EOF
 # stage1 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
 update_seed: yes
-update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
+update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/perl --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
 EOF
 catalyst_stage_default 1 "${FLAGS_profile}/transition"
 }
@@ -180,35 +180,21 @@ catalyst_init() {
     TEMPDIR="$CATALYST_ROOT/tmp/$TYPE"
     DISTDIR="$CATALYST_ROOT/distfiles"
 
-    # automatically download the current SDK if it is the seed tarball.
-    if [[ "$FLAGS_seed_tarball" == "${FLATCAR_SDK_TARBALL_PATH}" ]]; then
-        sdk_download_tarball
-    fi
+    # Download seed tarball, if necessary, and get its local path.
+    local seed_tarball=$(seed_tarball_download "$FLAGS_seed_tarball")
 
-    # confirm seed exists
-    if [[ ! -f "$FLAGS_seed_tarball" ]]; then
-        die_notrace "Seed tarball not found: $FLAGS_seed_tarball"
-    fi
-
-    # so far so good, expand path to work with weird comparison code below
-    FLAGS_seed_tarball=$(readlink -f "$FLAGS_seed_tarball")
-
-    if [[ ! "$FLAGS_seed_tarball" =~ .\.tar\.(bz2|xz) ]]; then
+    if [[ ! ${seed_tarball} =~ .\.tar\.(bz2|xz) ]]; then
         die_notrace "Seed tarball doesn't end in .tar.bz2 or .tar.xz :-/"
     fi
 
     # catalyst is obnoxious and wants the $TYPE/stage3-$VERSION part of the
     # path, not the real path to the seed tarball. (Because it could be a
     # directory under $TEMPDIR instead, aka the SEEDCACHE feature.)
-    if [[ "$FLAGS_seed_tarball" =~ "$CATALYST_ROOT/builds/".* ]]; then
-        SEED="${FLAGS_seed_tarball#$CATALYST_ROOT/builds/}"
-        SEED="${SEED%.tar.*}"
-    else
-        mkdir -p "$CATALYST_ROOT/builds/seed"
-        cp -n "$FLAGS_seed_tarball" "$CATALYST_ROOT/builds/seed"
-        SEED="seed/${FLAGS_seed_tarball##*/}"
-        SEED="${SEED%.tar.*}"
-    fi
+    mkdir -p "$CATALYST_ROOT/builds/seed"
+    SEED="seed/${seed_tarball##*/}"
+    [[ ${seed_tarball} -ef ${CATALYST_ROOT}/builds/${SEED} ]] ||
+        ln -snf "$(realpath "${seed_tarball}")" "${CATALYST_ROOT}/builds/${SEED}"
+    SEED="${SEED%.tar.*}"
 
     # Emulate the build, if needed. Note the SDK itself may already be emulated,
     # so check the requested arch against the kernel's real arch, not uname -m.
@@ -272,10 +258,10 @@ build_stage() {
 build_snapshot() {
     local repo_dir snapshot snapshots_dir snapshot_path
 
-    repo_dir=${1:-"${FLAGS_portage_stable}"}
+    repo_dir=${1:-"${FLAGS_gentoo_repo}"}
     snapshot=${2:-"${FLAGS_version}"}
     snapshots_dir="${CATALYST_ROOT}/snapshots"
-    snapshot_path="${snapshots_dir}/portage-stable-${snapshot}.sqfs"
+    snapshot_path="${snapshots_dir}/gentoo-${snapshot}.sqfs"
     if [[ -f ${snapshot_path} && $FLAGS_rebuild == $FLAGS_FALSE ]]
     then
         info "Skipping snapshot, ${snapshot_path} exists"
@@ -323,5 +309,5 @@ catalyst_build() {
     fi
 
     # Cleanup snapshots, we don't use them
-    rm -rf "$CATALYST_ROOT/snapshots/${FLAGS_portage_stable##*/}-${FLAGS_version}.sqfs"*
+    rm -rf "$CATALYST_ROOT/snapshots/${FLAGS_gentoo_repo##*/}-${FLAGS_version}.sqfs"*
 }

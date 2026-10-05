@@ -201,19 +201,19 @@ case "${FLAGS_target}" in
             # Sign GRUB and mokmanager(mm) with the shim-embedded key.
             do_sbsign --output "${ESP_DIR}/${GRUB_IMAGE}"{,}
             do_sbsign --output "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi" \
-                "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi"
+                "${BOARD_ROOT}/usr/share/shim/mm${EFI_ARCH}.efi"
 
             # Unofficial build: Sign shim with our development key.
             sudo sbsign \
                 --key "${SBSIGN_DB_KEY}" \
                 --cert "${SBSIGN_DB_CERT}" \
                 --output "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi" \
-                "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi"
+                "${BOARD_ROOT}/usr/share/shim/shim${EFI_ARCH}.efi"
         else
             # Official build: Copy signed shim and mm for signing later.
-            sudo cp "${BOARD_ROOT}/usr/lib/shim/mm${EFI_ARCH}.efi" \
+            sudo cp "${BOARD_ROOT}/usr/share/shim/mm${EFI_ARCH}.efi" \
                 "${ESP_DIR}/EFI/boot/mm${EFI_ARCH}.efi"
-            sudo cp "${BOARD_ROOT}/usr/lib/shim/shim${EFI_ARCH}.efi.signed" \
+            sudo cp "${BOARD_ROOT}/usr/share/shim/shim${EFI_ARCH}.efi.signed" \
                 "${ESP_DIR}/EFI/boot/boot${EFI_ARCH}.efi"
         fi
 
