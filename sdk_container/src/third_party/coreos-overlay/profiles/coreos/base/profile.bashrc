@@ -3,8 +3,8 @@
 CROS_BUILD_BOARD_TREE="${SYSROOT}/build"
 CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 
-# Are we merging for the board sysroot, or for the SDK, or for
-# the images? Returns a string in a passed variable:
+# Prints the type of image we are merging the package for, prints one
+# of the following:
 #
 #  - sdk (the SDK)
 #  - generic-board (board sysroot)
@@ -17,48 +17,29 @@ CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 #  - generic-sysext-oem-${name} (OEM sysext image ${name}, like
 #    azure, qemu_uefi)
 #  - generic-unknown (something using generic profile, but otherwise
-#    unknown, probably something is messed up)
+#    unknown, may happen when config override is sourced between phase
+#    funcs and flatcar_target is called at the toplevel scope instead
+#    of a hook)
 #  - unknown (unknown type of image, neither generic, nor sdk,
 #    probably something is messed up)
-flatcar_target_ref() {
-    local -n type_ref=${1}; shift
-
-    local name
-    case ${FLATCAR_TYPE} in
-        sdk) type_ref='sdk';;
-        generic)
-            case ${ROOT} in
-                */prod-image-rootfs) type_ref='generic-prod';;
-                */dev-image-rootfs) type_ref='generic-dev';;
-                */*-base-sysext-rootfs)
-                    name=${ROOT##*/}
-                    name=${name%-base-sysext-rootfs}
-                    type_ref="generic-sysext-base-${name}"
-                    ;;
-                */*-extra-sysext-rootfs)
-                    name=${ROOT##*/}
-                    name=${name%-extra-sysext-rootfs}
-                    type_ref="generic-sysext-extra-${name}"
-                    ;;
-                */*-oem-sysext-rootfs)
-                    name=${ROOT##*/}
-                    name=${name%-oem-sysext-rootfs}
-                    type_ref="generic-sysext-oem-${name}"
-                    ;;
-                "${SYSROOT}") type_ref='generic-board';;
-                *) type_ref='generic-unknown'
-            esac
-            ;;
-        *) type_ref='unknown';;
-    esac
-}
-
-# Prints the type of image we are merging the package for, see
-# flatcar_target_ref for details.
+#
+# When using it with a string comparison, it is better to always use
+# equality instead of unequality. So:
+#
+# if [[ $(flatcar_target) = 'generic-'* ]]; then …; fi
+#
+# instead of
+#
+# if [[ $(flatcar_target) != 'sdk' ]]; then …; fi
+#
+# The latter will be true if flatcar_target prints 'unknown'.
 flatcar_target() {
     local target_type
-    flatcar_target_ref target_type
+    local revert_shopt=$(shopt -p extglob)
+    shopt -s extglob
+    source "${BASH_SOURCE[0]}.flatcar-target" target_type
     echo "${target_type}"
+    ${revert_shopt}
 }
 
 # Load all additional bashrc files we have for this package.
