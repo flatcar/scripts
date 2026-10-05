@@ -1,0 +1,46 @@
+# In order to parse an extglob pattern, "shopt -s extglob" must be
+# executed outside the outermost block that contains the pattern. In
+# this case, any bash script sourcing this file must call "shopt -s
+# extglob" beforehand. Failing to do so will result in parsing failure
+# with error message like:
+#
+# line XX: syntax error near unexpected token `('
+local -n type_ref=${1}; shift
+local name
+case ${FLATCAR_TYPE} in
+    sdk) type_ref='sdk';;
+    generic)
+        if [[ ${EBUILD_PHASE_FUNC} = src_* ]]; then
+            type_ref=${FLATCAR_GENERIC_BUILD_TYPE:-generic-board}
+        elif [[ ${EBUILD_PHASE_FUNC} = pkg_* ]]; then
+            # Not using FLATCAR_GENERIC_BUILD_TYPE env var, because in
+            # most pkg_* phase funcs, a value of the variable does not
+            # come from the environment of emerge caller, but from the
+            # binary package, so it most likely will be generic-board.
+            case ${ROOT} in
+                */prod-image-rootfs) type_ref='generic-prod';;
+                */dev-image-rootfs) type_ref='generic-dev';;
+                */*-base-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-base-sysext-rootfs}
+                    type_ref="generic-sysext-base-${name}"
+                    ;;
+                */*-extra-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-extra-sysext-rootfs}
+                    type_ref="generic-sysext-extra-${name}"
+                    ;;
+                */*-oem-sysext-rootfs)
+                    name=${ROOT##*/}
+                    name=${name%-oem-sysext-rootfs}
+                    type_ref="generic-sysext-oem-${name}"
+                    ;;
+                /build/+([^/])-usr) type_ref='generic-board';;
+                *) type_ref='generic-unknown';;
+            esac
+        else
+            type_ref='generic-unknown'
+        fi
+        ;;
+    *) type_ref='unknown';;
+esac
