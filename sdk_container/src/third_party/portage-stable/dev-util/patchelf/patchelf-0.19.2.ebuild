@@ -3,7 +3,7 @@
 
 EAPI=9
 
-inherit autotools
+inherit autotools toolchain-funcs
 
 DESCRIPTION="Small utility to modify the dynamic linker and RPATH of ELF executables"
 HOMEPAGE="https://github.com/NixOS/patchelf"
@@ -11,6 +11,8 @@ SRC_URI="https://github.com/NixOS/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~x86"
+IUSE="test"
+RESTRICT="!test? ( test )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-glibc-dt-mips-xhash.patch
@@ -25,4 +27,9 @@ src_prepare() {
 		configure.ac || die
 
 	eautoreconf
+}
+
+src_configure() {
+	use test && tc-ld-is-mold && tc-ld-force-bfd
+	default
 }
