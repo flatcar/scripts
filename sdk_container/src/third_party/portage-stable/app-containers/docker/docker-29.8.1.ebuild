@@ -2,20 +2,19 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-MY_PV=${PV/_/-}
 
 inherit go-module linux-info optfeature systemd toolchain-funcs udev
 
-GIT_COMMIT=fbf3ed25f893e6ce21336f1101590e40a13934f4
+GIT_COMMIT=464cd50c3d9e92877d56940ea160de6fca7bea23
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
-SRC_URI="https://github.com/moby/moby/archive/${PN}-v${MY_PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/moby/moby/archive/${PN}-v${PV/_/-}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/moby-${PN}-v${PV}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv ~x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
 IUSE="apparmor btrfs +container-init cuda +overlay2 seccomp selinux systemd"
 
 DEPEND="
@@ -48,6 +47,7 @@ RDEPEND="
 BDEPEND="
 	dev-go/go-md2man
 	virtual/pkgconfig
+	>=dev-lang/go-1.26.3
 "
 # tests require running dockerd as root and downloading containers
 RESTRICT="installsources strip test"
