@@ -54,11 +54,6 @@ EOF
 catalyst_stage_default 4
 }
 
-# Switch to HTTP because early boostrap stages do not have SSL support.
-GENTOO_MIRRORS=$(portageq envvar GENTOO_MIRRORS)
-GENTOO_MIRRORS="${GENTOO_MIRRORS//https:\/\//http://}"
-export GENTOO_MIRRORS
-
 catalyst_init "$@"
 ROOT_OVERLAY=${TEMPDIR}/stage4_overlay
 
