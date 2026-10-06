@@ -14,7 +14,7 @@ cros_post_src_install_move_and_keep_libs() {
 # /usr/lib/gcc/$triplet/$version. For prod images, we move them to
 # plain old /usr/lib64.
 cros_post_src_install_move_and_keep_libs() {
-    if [[ $(flatcar_target) == 'generic-prod' ]]; then
+    if [[ $(flatcar_target) = 'generic-prod' ]]; then
         local t f
         while read -r t f; do
             case ${f} in

@@ -1,5 +1,5 @@
 cros_post_src_install_tmpfiles_perms() {
-    if [[ $(flatcar_target) != 'sdk' ]]; then
+    if [[ $(flatcar_target) = 'generic-'* ]]; then
         # Upstream installs its tmpfiles config file with unnecessarilly
         # restrictive mode, relax it. It could be also fixed by passing
         # --enable-write_install option to configure script, but that
