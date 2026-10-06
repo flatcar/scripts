@@ -2,14 +2,14 @@
 #
 # Do not install the config snippet that defines a subsystem. We have
 # our own definition in coreos-init.
-if [[ $(flatcar_target) != 'sdk' ]] ; then
+if [[ $(flatcar_target) = 'generic-'* ]] ; then
     INSTALL_MASK+=" /usr/lib*/misc/ssh-keysign /etc/ssh/sshd_config.d/*gentoo-subsystem.conf "
 fi
 
 cros_post_src_install_flatcar_modifications() {
     vendorize_pam_files
 
-    if [[ $(flatcar_target) != 'sdk' ]] ; then
+    if [[ $(flatcar_target) = 'generic-'* ]] ; then
         dosym -r /usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf /usr/share/ssh/ssh_config
         insinto /usr/share/flatcar/etc/ssh/ssh_config.d/
         newins - 50-flatcar-ssh.conf
