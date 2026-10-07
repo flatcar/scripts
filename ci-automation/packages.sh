@@ -38,6 +38,8 @@
 #
 #   4. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
 #
+#   5. RCLONE_S3_*. Environment variables. Credentials for mirroring Portage distfiles. See rclone's documentation.
+#
 # OUTPUT:
 #
 #   1. Exported container image "flatcar-packages-[ARCH]-[VERSION].tar.gz" with binary packages
@@ -91,7 +93,7 @@ function _packages_build_impl() {
     # Build packages; store packages in container
     failed=''
     ./run_sdk_container -x ./ci-cleanup.sh  -n "${packages_container}" -v "${vernum}" \
-        -C "${sdk_image}" \
+        -C "${sdk_image}" -e "${!RCLONE_S3_*}" \
         ./build_packages --board="${arch}-usr" || failed=x
 
     # Copy the build logs to a directory accessible for us.

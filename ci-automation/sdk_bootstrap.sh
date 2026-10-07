@@ -45,6 +45,8 @@
 #   8. SEED_TARBALL. Environment variable. Overrides the default seed tarball
 #        from the given seed SDK. A Gentoo stage3 tarball URL can be used here.
 #
+#   9. RCLONE_S3_*. Environment variables. Credentials for mirroring Portage distfiles. See rclone's documentation.
+#
 # OUTPUT:
 #
 #   1. SDK tarball (gentoo catalyst output) of the new SDK, pushed to buildcache.
