@@ -64,7 +64,7 @@ index 1835124..24920c9 100755
 +            CODE="
 +            #include <linux/mmzone.h>
 +            void conftest_page_pgmap(void) {
-+                (void)page_pgmap(NULL);
++                page_pgmap();
 +            }"
 +
 +            compile_check_conftest "$CODE" "NV_PAGE_PGMAP_PRESENT" "" "functions"
