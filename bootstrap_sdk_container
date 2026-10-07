@@ -81,7 +81,7 @@ fi
 
 # bootstrap_sdk needs FLATCAR_SDK_VERSION set to the seed version
 failed=''
-./run_sdk_container "${cleanup[@]}" -V "$seed_version" -v "$target_version" \
+./run_sdk_container "${cleanup[@]}" -V "$seed_version" -v "$target_version" -e "${!RCLONE_S3_*}" \
           sudo -E ./bootstrap_sdk "${bootstrap_args[@]}" || failed=x
 
 # Update versionfile to the actual SDK version
