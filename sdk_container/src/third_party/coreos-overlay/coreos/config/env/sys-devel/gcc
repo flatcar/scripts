@@ -1,6 +1,11 @@
-# The GCC package includes both its libraries and the compiler.
-# In prod images we only need the shared libraries.
-cros_post_src_install_move_and_keep_libs() {
+# The GCC package includes both its libraries and the compiler. In
+# prod images we only need the shared libraries, but in dev container
+# we want the whole thing. Thus we cannot do the filtering in
+# post_src_install hook, because we want the contents of the binary
+# package to be complete. For this reason, we generate a listing of
+# installed files in post_src_install hook and do the actual filtering
+# in post_pkg_postinst hook.
+cros_post_src_install_generate_listing() {
     # find prints entry type (so mostly d for directory and f for
     # files) together with the path, sort will make directories to
     # show after their contents were listed, head removes the
@@ -13,7 +18,7 @@ cros_post_src_install_move_and_keep_libs() {
 # Normally GCC's shared libraries are installed into
 # /usr/lib/gcc/$triplet/$version. For prod images, we move them to
 # plain old /usr/lib64.
-cros_post_src_install_move_and_keep_libs() {
+cros_post_pkg_postinst_move_and_keep_libs() {
     if [[ $(flatcar_target) = 'generic-prod' ]]; then
         local t f
         while read -r t f; do
