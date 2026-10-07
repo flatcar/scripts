@@ -71,12 +71,13 @@ USE="${USE} bindist"
 ACCEPT_LICENSE="${ACCEPT_LICENSE} no-source-code
     linux-fw-redistributable freedist intel-ucode NVIDIA-2023 NVIDIA-2025"
 
-# Favor our own mirrors over Gentoo's
-GENTOO_MIRRORS="
-    https://mirror.release.flatcar-linux.net/portage-stable/
-    https://mirror.release.flatcar-linux.net/coreos/
-    http://distfiles.gentoo.org/
-"
+# Flatcar's mirror has sources from all recent CI builds. Ideally, we wouldn't
+# include Gentoo's mirror because we don't want to spam them with requests for
+# Flatcar-only sources, but their own gitweb instance is the upstream source for
+# many packages and is currently very unreliable. Other mirrors presumably
+# manage to download these after several tries. *DO NOT* add extra whitespace
+# here. If this is modified, you *MUST* update the fetch-wrapper script.
+GENTOO_MIRRORS="https://mirror.release.flatcar-linux.net https://distfiles.gentoo.org"
 
 # The following files are modified by make_chroot, and we do not want to
 # clobber them.  All other config files should not be protected, so we

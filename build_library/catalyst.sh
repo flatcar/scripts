@@ -62,6 +62,7 @@ sharedir="/usr/share/catalyst"
 storedir="$CATALYST_ROOT"
 distdir="$DISTDIR"
 envscript="$TEMPDIR/catalystrc"
+envvars=[$(printf '"%s", ' $(< sdk_lib/env_rclone.txt))]
 port_logdir="$CATALYST_ROOT/log"
 repo_basedir="/mnt/host/source/src/third_party"
 repo_name="portage-stable"
@@ -69,14 +70,14 @@ EOF
 }
 
 catalystrc() {
-local load=$((NUM_JOBS * 2))
-cat <<EOF
-export TERM='${TERM}'
+    portageq envvar -v {FETCH,RESUME}COMMAND | sed 's:^:export :'
+    local load=$((NUM_JOBS * 2))
+    cat <<EOF
 export MAKEOPTS='--jobs=${NUM_JOBS} --load-average=${load}'
 export EMERGE_DEFAULT_OPTS="--verbose \$MAKEOPTS"
 export PORTAGE_USERNAME=portage
 export PORTAGE_GRPNAME=portage
-export GENTOO_MIRRORS='$(portageq envvar GENTOO_MIRRORS)'
+export FETCH_WRAPPER="/etc/portage/bin/fetch-wrapper"
 export ac_cv_posix_semaphores_enabled=yes
 EOF
 }

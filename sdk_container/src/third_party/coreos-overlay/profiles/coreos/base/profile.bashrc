@@ -110,6 +110,12 @@ cros_setup_hooks() {
 }
 cros_setup_hooks
 
+# Ensure sensitive credentials used for mirroring don't make it into the build
+# environment where they could be stolen.
+cros_pre_pkg_setup_clear_sensitive_env() {
+	unset "${!RCLONE_S3_@}"
+}
+
 # Remove any debug build-id symlinks that are broken because of INSTALL_MASK,
 # and also remove their associated debug files to avoid wasting space.
 cros_post_pkg_preinst_rm_masked_debug_files() {

@@ -1,0 +1,109 @@
+#!/bin/bash
+
+set -euo pipefail
+eval "set -- $1"
+"${@}"
+
+# Don't mirror restricted distfiles. This doesn't check mirror+ overrides, but
+# Flatcar will almost certainly never encounter one.
+for value in ${RESTRICT}; do
+	[[ ${value} == mirror ]] && exit
+done
+
+if ! [[
+	${RCLONE_S3_PROVIDER-} == Cloudflare && \
+	${RCLONE_S3_ACCESS_KEY_ID-} && \
+	${RCLONE_S3_SECRET_ACCESS_KEY-} && \
+	${RCLONE_S3_ENDPOINT-} \
+]]; then
+	echo "* Cloudflare credentials not present. Cannot mirror." >&2
+	exit
+fi
+
+if [[ ${1-} != wget ]]; then
+	echo "* Fetched with a tool other than wget. Cannot mirror." >&2
+	exit
+fi
+
+while [[ 0 -lt $# ]]; do
+	case $1 in
+		--output-document=*)
+			file=${1#*=} shift ;;
+		-O)
+			file=${2-}; shift 2 ;;
+		-*)
+			shift ;;
+		*)
+			url=$1; shift ;;
+	esac
+done
+
+if [[ ${file-} != /*.__download__ || ${url-} != *://* ]]; then
+	echo "* Could not parse wget arguments. Cannot mirror." >&2
+	exit
+fi
+
+if [[ ${url} == */layout.conf ]]; then
+	# distfiles layout configuration shouldn't be mirrored.
+	exit
+fi
+
+# GENTOO_MIRRORS is filtered by Portage. We cannot get the real value if it has
+# been overridden, so don't do that when the S3 credentials are set.
+GENTOO_MIRRORS=$(portageq envvar GENTOO_MIRRORS)
+GENTOO_MIRRORS=${GENTOO_MIRRORS%% *}
+
+# This shouldn't happen, but if it does, it would cost money, so double check.
+if [[ ${GENTOO_MIRRORS} != https://mirror.release.flatcar-linux.net ]]; then
+	echo "* GENTOO_MIRRORS has been modified. Cannot mirror." >&2
+	exit
+fi
+
+if [[ ${url} == "${GENTOO_MIRRORS}"/distfiles/* ]]; then
+	# Already mirrored.
+	exit
+fi
+
+basename=${file##*/}
+basename=${basename%.__download__}
+
+# Upstream Gentoo uses the filename-hash layout, but this has little benefit
+# over the flat layout when hosted on Cloudflare R2. However, the content-hash
+# layout handles different versions of files with the same filename, which could
+# be useful when maintaining several Flatcar release channels.
+path=$(python3 - "${EBUILD%/*}" "${basename}" <<-'EOF'
+	import sys
+	from portage.manifest import Manifest
+	from portage.package.ebuild.fetch import ContentHashLayout, DistfileName
+
+	dir, file = sys.argv[1:]
+	digests = Manifest(dir).getTypeDigests("DIST")[file]
+	filename = DistfileName(file, digests=digests)
+	print(ContentHashLayout("BLAKE2B", "8").get_path(filename))
+EOF
+) || :
+
+if [[ -z ${path} ]]; then
+	echo "* Could not determine content-hash path for ${basename}. Cannot mirror." >&2
+	exit
+fi
+
+# The last part of the path should be the BLAKE2B digest.
+if ! b2sum --check --status <<< "${path##*/} *${file}"; then
+	echo "* Checksum mismatch for ${basename}. Refusing to mirror." >&2
+	exit
+fi
+
+echo "* Attempting to mirror ${basename} ..." >&2
+
+curl \
+	--location \
+	--fail-with-body \
+	--aws-sigv4 "aws:amz:auto:s3" \
+	--variable %RCLONE_S3_ACCESS_KEY_ID \
+	--variable %RCLONE_S3_SECRET_ACCESS_KEY \
+	--expand-user "{{RCLONE_S3_ACCESS_KEY_ID}}:{{RCLONE_S3_SECRET_ACCESS_KEY}}" \
+	--upload-file "${file}" \
+	"${RCLONE_S3_ENDPOINT}/flatcar/mirror/distfiles/${path}" | cat >&2 || :
+
+echo >&2

@@ -93,6 +93,7 @@ PORTAGE_USERNAME="${PORTAGE_USERNAME}"
 MAKEOPTS="--jobs=${NUM_JOBS} --load-average=$((NUM_JOBS * 2))"
 FETCHCOMMAND='wget -t 3 -T 60 --passive-ftp -U "Portage (Flatcar SDK ${FLATCAR_SDK_VERSION}, flatcar.org) distfile-fetch" -O "\\\${DISTDIR}/\\\${FILE}" "\\\${URI}"'
 RESUMECOMMAND='wget -c -t 3 -T 60 --passive-ftp -U "Portage (Flatcar SDK ${FLATCAR_SDK_VERSION}, flatcar.org) distfile-fetch" -O "\\\${DISTDIR}/\\\${FILE}" "\\\${URI}"'
+FETCH_WRAPPER="${BUILD_LIBRARY_DIR}/portage/bin/fetch-wrapper"
 
 # Generally there isn't any need to add packages to @world by default.
 # You can use --select to override this.
