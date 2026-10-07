@@ -29,7 +29,7 @@ COPY --chown=sdk:sdk . /mnt/host/source/src/scripts
 RUN chown sdk:sdk /mnt/host/source
 
 RUN --mount=type=bind,target=/mnt/host/source/src/scripts \
-        cat /mnt/host/source/src/scripts/sdk_lib/env_{pass,keep}.txt | \
+        cat /mnt/host/source/src/scripts/sdk_lib/env_{pass,keep,rclone}.txt | \
         sed -e '1i Defaults env_keep += " \\' -e 's:$: \\:' -e '$a "' | \
         install -m0440 /dev/stdin /etc/sudoers.d/90_env_keep
 
