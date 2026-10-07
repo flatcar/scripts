@@ -9,7 +9,7 @@
 # sdk_bootstrap() should be called w/ the positional INPUT parameters below.
 
 # Bootstrap SDK build automation stub.
-#  This script will use a seed SDK container + tarball to bootstrap a 
+#  This script will use a seed SDK container + tarball to bootstrap a
 #   new SDK tarball.
 #
 # INPUT:
@@ -41,6 +41,8 @@
 #
 #   7. AVOID_NIGHTLY_BUILD_SHORTCUTS. Environment variable. Tells the script to build the SDK even if nothing has changed since last nightly build.
 #        See the description in ci-config.env.
+#
+#   8. RCLONE_S3_*. Environment variables. Credentials for mirroring Portage distfiles. See rclone's documentation.
 #
 # OUTPUT:
 #

@@ -3,6 +3,10 @@
 CROS_BUILD_BOARD_TREE="${SYSROOT}/build"
 CROS_ADDONS_TREE="/mnt/host/source/src/third_party/coreos-overlay/coreos"
 
+# Ensure sensitive credentials used for mirroring don't make it into the build
+# environment where they could be stolen. fetch-wrapper is unaffected by this.
+unset "${!RCLONE_S3_@}"
+
 # Are we merging for the board sysroot, or for the SDK, or for
 # the images? Returns a string in a passed variable:
 #
