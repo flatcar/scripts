@@ -91,7 +91,7 @@ function _packages_build_impl() {
     # Build packages; store packages in container
     failed=''
     ./run_sdk_container -x ./ci-cleanup.sh  -n "${packages_container}" -v "${vernum}" \
-        -C "${sdk_image}" \
+        -C "${sdk_image}" -e "${!RCLONE_S3_*}" \
         ./build_packages --board="${arch}-usr" || failed=x
 
     # Copy the build logs to a directory accessible for us.
