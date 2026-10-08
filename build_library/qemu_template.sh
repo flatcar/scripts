@@ -22,6 +22,7 @@ SAFE_ARGS=0
 FORWARDED_PORTS=""
 PRIMARY_DISK_OPTS=""
 DISKS=()
+SNAPSHOT="off"
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
     -i FILE     File containing an Ignition config
@@ -49,6 +50,9 @@ Options:
     -K FILE     Set kernel for direct boot used to simulate a PXE boot (with -r).
     -r FILE     Set initrd for direct boot used to simulate a PXE boot (with -K).
     -s          Safe settings: single simple cpu and no KVM.
+    -S          Use snapshot mode for all drives / pflash devices.
+                Snapshot mode will never write modifications to disk.
+                All changes will be discarded when the VM shuts down.
     -h          this ;-)
 
 This script is a wrapper around qemu for starting Flatcar virtual machines.
@@ -128,6 +132,9 @@ while [ $# -ge 1 ]; do
         -r|-initrd-file)
             VM_INITRD="$2"
             shift 2 ;;
+        -S|-snapshot)
+            SNAPSHOT="on"
+            shift ;;
         -v|-verbose)
             set -x
             shift ;;
@@ -269,14 +276,14 @@ if [ -n "${CONFIG_DRIVE}" ]; then
 fi
 
 if [ -n "${CONFIG_IMAGE}" ]; then
-    set -- -drive if=virtio,file="${CONFIG_IMAGE}" "$@"
+    set -- -drive if=virtio,file="${CONFIG_IMAGE}",snapshot="${SNAPSHOT}" "$@"
 fi
 
 if [ -n "${VM_IMAGE}" ]; then
     if [[ ,${PRIMARY_DISK_OPTS}, = *,drive=* || ,${PRIMARY_DISK_OPTS}, = *,bootindex=* ]]; then
         die "Can't override drive or bootindex options for primary disk"
     fi
-    set -- -drive if=none,id=blk,file="${VM_IMAGE}" \
+    set -- -drive if=none,id=blk,file="${VM_IMAGE}",snapshot="${SNAPSHOT}" \
         -device virtio-blk-pci,drive=blk,bootindex=1${PRIMARY_DISK_OPTS:+,}${PRIMARY_DISK_OPTS:-} "$@"
 fi
 
@@ -292,7 +299,7 @@ for disk in "${DISKS[@]}"; do
         disk_opts=
     fi
     set -- \
-        -drive "if=none,id=${disk_id},file=${disk_path}" \
+        -drive "if=none,id=${disk_id},file=${disk_path},snapshot=${SNAPSHOT}" \
         -device "virtio-blk-pci,drive=${disk_id}${disk_opts:+,}${disk_opts:-}" \
         "${@}"
 done
@@ -317,7 +324,7 @@ fi
 if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
     set -- \
         -drive if=pflash,unit=0,file="${VM_PFLASH_RO}",format=qcow2,readonly=on \
-        -drive if=pflash,unit=1,file="${VM_PFLASH_RW}",format=qcow2 "$@"
+        -drive if=pflash,unit=1,file="${VM_PFLASH_RW}",format=qcow2,snapshot="${SNAPSHOT}" "$@"
 fi
 
 if [ -n "${IGNITION_CONFIG_FILE}" ]; then
