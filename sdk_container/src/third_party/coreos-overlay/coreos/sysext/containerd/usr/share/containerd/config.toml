@@ -1,13 +1,15 @@
 # containerd default config
 
 version = 3
+
+imports = ['/usr/share/containerd/flatcar-config.toml', '/etc/containerd/conf.d/*.toml']
+
 root = '/var/lib/containerd'
 state = '/run/containerd'
 temp = ''
 disabled_plugins = []
 required_plugins = []
 oom_score = 0
-imports = ['/usr/share/containerd/flatcar-config.toml', '/etc/containerd/conf.d/*.toml']
 
 [grpc]
   address = '/run/containerd/containerd.sock'
@@ -183,9 +185,6 @@ imports = ['/usr/share/containerd/flatcar-config.toml', '/etc/containerd/conf.d/
       reject_sysctl_adjustment = false
       required_plugins = []
       tolerate_missing_plugins_annotation = ''
-
-  [plugins.'io.containerd.runtime.v2.task']
-    platforms = ['linux/amd64']
 
   [plugins.'io.containerd.service.v1.diff-service']
     default = ['walking']
