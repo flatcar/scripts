@@ -1,44 +1,27 @@
-# The GCC package includes both its libraries and the compiler. In
-# prod images we only need the shared libraries, but in dev container
-# we want the whole thing. Thus we cannot do the filtering in
-# post_src_install hook, because we want the contents of the binary
-# package to be complete. For this reason, we generate a listing of
-# installed files in post_src_install hook and do the actual filtering
-# in post_pkg_postinst hook.
-cros_post_src_install_generate_listing() {
-    # find prints entry type (so mostly d for directory and f for
-    # files) together with the path, sort will make directories to
-    # show after their contents were listed, head removes the
-    # directory entry with an empty name
-    find "${ED}" -printf '%y %P\n' | sort -k2 -r | head -n -1 >"${T}/gcc-listing" || die
-    insinto /usr/share/flatcar
-    doins "${T}/gcc-listing"
+# The GCC package contains libraries, compilers, header files and so
+# on. In production images we only need the shared libraries. Also,
+# normally GCC's shared libraries are installed into
+# /usr/lib/gcc/$triplet/$version. For production images, we move them
+# to plain old /usr/lib64.
+cros_post_pkg_preinst_move_and_keep_libs() {
+    if [[ $(flatcar_target) = 'generic-prod' ]]; then
+        local f
+        # GCCMAJOR comes from toolchain.eclass.
+        for f in "${ED}/usr/lib/gcc/${CTARGET}/${GCCMAJOR}/"*.so*; do
+            mv "${f}" "${EROOT}/usr/lib64/" || die
+        done
+        rm -r "${ED}/etc" || die
+        rm -r "${ED}/usr/${CTARGET}" || die
+        rm -r "${ED}/usr/bin" || die
+        rm -r "${ED}/usr/lib/gcc" || die
+        rm -r "${ED}/usr/libexec" || die
+        rm -r "${ED}/usr/share" || die
+    fi
 }
 
-# Normally GCC's shared libraries are installed into
-# /usr/lib/gcc/$triplet/$version. For prod images, we move them to
-# plain old /usr/lib64.
-cros_post_pkg_postinst_move_and_keep_libs() {
-    if [[ $(flatcar_target) = 'generic-prod' ]]; then
-        local t f
-        while read -r t f; do
-            case ${f} in
-                usr/lib/gcc/*.so*)
-                    mv "${EROOT}/${f}" "${EROOT}/usr/lib64/" || die
-                    ;;
-                usr/share/SLSA|usr/share/SLSA/*)
-                    # keep as is
-                    :
-                    ;;
-                *)
-                    if [[ ${t} = 'd' ]]; then
-                        rmdir "${EROOT}/${f}" || die
-                    else
-                        rm -f "${EROOT}/${f}" || die
-                    fi
-                    ;;
-            esac
-        done <"${EROOT}/usr/share/flatcar/gcc-listing"
-    fi
-    rm -f "${EROOT}/usr/share/flatcar/gcc-listing" || die
-}
+if [[ $(flatcar_target) = 'generic-prod' ]]; then
+    # Clobber the do_gcc_config function from toolchain.eclass to a
+    # no-op. We are not installing the compiler on prod images and
+    # gcc-config complains about some missing files.
+    do_gcc_config() { :; }
+fi
