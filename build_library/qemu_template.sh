@@ -22,7 +22,7 @@ SAFE_ARGS=0
 FORWARDED_PORTS=""
 PRIMARY_DISK_OPTS=""
 DISKS=()
-SNAPSHOT="off"
+SNAPSHOT=""
 USAGE="Usage: $0 [-a authorized_keys] [--] [qemu options...]
 Options:
     -i FILE     File containing an Ignition config
@@ -133,7 +133,7 @@ while [ $# -ge 1 ]; do
             VM_INITRD="$2"
             shift 2 ;;
         -S|-snapshot)
-            SNAPSHOT="on"
+            SNAPSHOT=",snapshot=on"
             shift ;;
         -v|-verbose)
             set -x
@@ -276,14 +276,14 @@ if [ -n "${CONFIG_DRIVE}" ]; then
 fi
 
 if [ -n "${CONFIG_IMAGE}" ]; then
-    set -- -drive if=virtio,file="${CONFIG_IMAGE}",snapshot="${SNAPSHOT}" "$@"
+    set -- -drive if=virtio,file="${CONFIG_IMAGE}${SNAPSHOT}" "$@"
 fi
 
 if [ -n "${VM_IMAGE}" ]; then
     if [[ ,${PRIMARY_DISK_OPTS}, = *,drive=* || ,${PRIMARY_DISK_OPTS}, = *,bootindex=* ]]; then
         die "Can't override drive or bootindex options for primary disk"
     fi
-    set -- -drive if=none,id=blk,file="${VM_IMAGE}",snapshot="${SNAPSHOT}" \
+    set -- -drive if=none,id=blk,file="${VM_IMAGE}${SNAPSHOT}" \
         -device virtio-blk-pci,drive=blk,bootindex=1${PRIMARY_DISK_OPTS:+,}${PRIMARY_DISK_OPTS:-} "$@"
 fi
 
@@ -299,7 +299,7 @@ for disk in "${DISKS[@]}"; do
         disk_opts=
     fi
     set -- \
-        -drive "if=none,id=${disk_id},file=${disk_path},snapshot=${SNAPSHOT}" \
+        -drive "if=none,id=${disk_id},file=${disk_path}${SNAPSHOT}" \
         -device "virtio-blk-pci,drive=${disk_id}${disk_opts:+,}${disk_opts:-}" \
         "${@}"
 done
@@ -324,7 +324,7 @@ fi
 if [ -n "${VM_PFLASH_RO}" ] && [ -n "${VM_PFLASH_RW}" ]; then
     set -- \
         -drive if=pflash,unit=0,file="${VM_PFLASH_RO}",format=qcow2,readonly=on \
-        -drive if=pflash,unit=1,file="${VM_PFLASH_RW}",format=qcow2,snapshot="${SNAPSHOT}" "$@"
+        -drive if=pflash,unit=1,file="${VM_PFLASH_RW}",format=qcow2"${SNAPSHOT}" "$@"
 fi
 
 if [ -n "${IGNITION_CONFIG_FILE}" ]; then
