@@ -1,7 +1,7 @@
-From 9f34a9ffe5b94aee93baa5762719546e0bebc28d Mon Sep 17 00:00:00 2001
+From 01bcd1ecda9a9a50a97e20c7987a90cda4a0998f Mon Sep 17 00:00:00 2001
 From: Kai Lueke <kailuke@microsoft.com>
 Date: Fri, 15 Mar 2024 11:49:50 +0100
-Subject: [PATCH] Revert "x86/boot: Remove the 'bugger off' message"
+Subject: [PATCH 2/8] Revert "x86/boot: Remove the 'bugger off' message"
 
 This reverts commit 768171d7ebbce005210e1cf8456f043304805c15 because for
 now this is still needed to store the dm-verity hash.
@@ -11,7 +11,7 @@ now this is still needed to store the dm-verity hash.
  2 files changed, 52 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/boot/header.S b/arch/x86/boot/header.S
-index a1bbedd989e4..c7624caf6840 100644
+index 9bea5a1e2c52..e929789e2cf4 100644
 --- a/arch/x86/boot/header.S
 +++ b/arch/x86/boot/header.S
 @@ -41,15 +41,64 @@ SYSSEG		= 0x1000		/* historical load address >> 4 */
@@ -23,7 +23,7 @@ index a1bbedd989e4..c7624caf6840 100644
 +bootsect_start:
  #ifdef CONFIG_EFI_STUB
  	# "MZ", MS-DOS header
- 	.word	MZ_MAGIC
+ 	.word	IMAGE_DOS_SIGNATURE
 +#endif
 +
 +	# Normalize the start address
@@ -77,10 +77,10 @@ index a1bbedd989e4..c7624caf6840 100644
 +
 +#ifdef CONFIG_EFI_STUB
  pe_header:
- 	.long	PE_MAGIC
+ 	.long	IMAGE_NT_SIGNATURE
  
 diff --git a/arch/x86/boot/setup.ld b/arch/x86/boot/setup.ld
-index 3a2d1360abb0..c3e354d312d0 100644
+index e1d594a60204..f2dc13420a93 100644
 --- a/arch/x86/boot/setup.ld
 +++ b/arch/x86/boot/setup.ld
 @@ -10,11 +10,10 @@ ENTRY(_start)
@@ -99,5 +99,5 @@ index 3a2d1360abb0..c3e354d312d0 100644
  	.entrytext	: { *(.entrytext) }
  	.inittext	: { *(.inittext) }
 -- 
-2.44.0
+2.51.0
 
