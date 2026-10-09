@@ -281,6 +281,7 @@ jobs:
 
       - name: Post reports to PR
         if: github.event.pull_request
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
