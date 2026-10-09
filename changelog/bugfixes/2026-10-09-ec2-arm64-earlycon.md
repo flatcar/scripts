@@ -1,0 +1,1 @@
+- AWS arm64: Removed bare `earlycon` from the kernel command line. It took the UART address from the ACPI SPCR table, which is wrong on Graviton, and could hang boot when an NVMe device was mapped at that address, e.g. on t4g instances with an additional EBS volume. ([Flatcar#2446](https://github.com/flatcar/Flatcar/issues/2446))
