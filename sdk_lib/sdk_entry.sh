@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Source SDK environment variables if available (includes COREOS_OFFICIAL, etc.)
-if [ -f /mnt/host/source/.sdkenv ]; then
-    source /mnt/host/source/.sdkenv
-fi
-
 if [ -n "${SDK_USER_ID:-}" ] ; then
     # If the "core" user from /usr/share/baselayout/passwd has the same ID, allow to take it instead
     usermod --non-unique -u $SDK_USER_ID sdk
@@ -14,6 +9,9 @@ if [ -n "${SDK_GROUP_ID:-}" ] ; then
 fi
 
 chown -R sdk:sdk /home/sdk
+
+# GPG won't use the socket dir if /var/run/${UID} has the wrong permissions.
+install -o sdk -g sdk -m 0700 -d "/run/user/$(id -u sdk)"
 
 # Fix up SDK repo configuration to use the new coreos-overlay name.
 sed -i -r 's/^\[coreos\]/[coreos-overlay]/' /etc/portage/repos.conf/coreos.conf 2>/dev/null
@@ -48,15 +46,14 @@ sed -i -r '/^masters =/s/\bcoreos(\s|$)/coreos-overlay\1/g' /usr/local/portage/c
             echo
             echo "Updating board support in '/build/${target}' to use package cache for version '${version}'"
             echo "---"
-            sudo su sdk -l -c "/home/sdk/trunk/src/scripts/setup_board --board='$target' --regen_configs_only"
+            sudo sudo -u sdk -i /home/sdk/trunk/src/scripts/setup_board --board="$target" --regen_configs_only
             echo "TARGET_FLATCAR_VERSION='${version}'" | sudo tee "/build/$target/etc/target-version.txt" >/dev/null
         done
     fi
 )
 
-# SDK container is launched using the su command below, which does not preserve environment
-# moreover, if multiple shells are attached to the same container,
-# we want all of them to share the same value of the variable, therefore we need to save it in .bashrc
+# If multiple shells are attached to the same container, we want all of them to
+# share the same value of the variable, therefore we need to save it in .bashrc.
 # Check if MODULE_SIGNING_KEY_DIR exists in .bashrc and if the directory actually exists
 if grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
     # Extract the existing path
@@ -73,15 +70,15 @@ fi
 # Create key directory if not already configured in .bashrc
 if ! grep -q 'export MODULE_SIGNING_KEY_DIR=' /home/sdk/.bashrc; then
     if [[ -n ${MODULE_SIGNING_KEY_DIR:-} ]]; then
-        # Pre-set via environment (e.g. .sdkenv) — use as-is
+        # Pre-set via environment — use as-is
         :
     elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
         # For official builds, use ephemeral keys
-        MODULE_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+        MODULE_SIGNING_KEY_DIR=$(sudo -u sdk mktemp -d)
     else
         # For unofficial builds, use persistent directory
         MODULE_SIGNING_KEY_DIR="/home/sdk/.module-signing-keys"
-        su sdk -c "mkdir -p ${MODULE_SIGNING_KEY_DIR@Q}"
+        sudo -u sdk mkdir -p "${MODULE_SIGNING_KEY_DIR}"
     fi
     if [[ ! ${MODULE_SIGNING_KEY_DIR} || ! -d ${MODULE_SIGNING_KEY_DIR} ]]; then
         echo "Failed to create directory for module signing keys."
@@ -102,13 +99,13 @@ if grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc; then
 fi
 grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
     if [[ -n ${SYSEXT_SIGNING_KEY_DIR:-} ]]; then
-        # Pre-set via environment (e.g. .sdkenv) — use as-is
+        # Pre-set via environment — use as-is
         :
     elif [[ ${COREOS_OFFICIAL:-0} -eq 1 ]]; then
-        SYSEXT_SIGNING_KEY_DIR=$(su sdk -c "mktemp -d")
+        SYSEXT_SIGNING_KEY_DIR=$(sudo -u sdk mktemp -d)
     else
         SYSEXT_SIGNING_KEY_DIR="/home/sdk/.sysext-signing-keys"
-        su sdk -c "mkdir -p ${SYSEXT_SIGNING_KEY_DIR@Q}"
+        sudo -u sdk mkdir -p "${SYSEXT_SIGNING_KEY_DIR}"
     fi
     if [[ ! "$SYSEXT_SIGNING_KEY_DIR" || ! -d "$SYSEXT_SIGNING_KEY_DIR" ]]; then
         echo "Failed to create directory for sysext signing keys."
@@ -119,42 +116,21 @@ grep -q 'export SYSEXT_SIGNING_KEY_DIR' /home/sdk/.bashrc || {
     build_id=$(source "/mnt/host/source/.repo/manifests/version.txt"; echo "$FLATCAR_BUILD_ID")
     # Generate sysext signing key only if missing or empty
     if [[ ! -s sysexts.key || ! -s sysexts.crt ]]; then
-      su sdk -c "openssl req -new -nodes -utf8 \
+      sudo -u sdk openssl req -new -nodes -utf8 \
         -x509 -batch -sha256 \
         -days 36000 \
         -outform PEM \
         -out sysexts.crt \
         -keyout sysexts.key \
         -newkey 4096 \
-        -subj '/CN=Flatcar sysext key/OU=$build_id'" \
+        -subj "/CN=Flatcar sysext key/OU=$build_id" \
           || echo "Generating sysext signing key failed"
     fi
     popd > /dev/null
 }
 
-# This is ugly.
-#   We need to sudo -u sdk -i so the SDK user gets a fresh login.
-#    'sdk' is member of multiple groups, and plain docker USER only
-#    allows specifying membership of a single group.
-#    When a command is passed to the container, we run, respectively:
-#    sudo -u sdk "<command>".
-#   Then, we need to preserve whitespaces in arguments of commands
-#    passed to the container, e.g.
-#    ./update_chroot --toolchain_boards="amd64-usr arm64-usr".
-#    This is done via a separate ".cmd" file since we have used up
-#    our quotes for sudo "<cmd>" already.
-if [ $# -gt 0 ] ; then
-    cmd="/home/sdk/.cmd"
-    echo -n "exec bash -l -i -c '" >"$cmd"
-    for arg in "$@"; do
-        echo -n "\"$arg\" " >>"$cmd"
-    done
-    echo "'" >>"$cmd"
-    chmod 755 "$cmd"
-    sudo -u sdk "$cmd"
-    rc=$?
-    rm -f "$cmd"
-    exit $rc
-else
-    exec sudo -u sdk -i
-fi
+# We need to sudo -u sdk with bash -l so that the SDK user gets a fresh login.
+# sudo has an -i option to get a login shell, but that cannot be combined with
+# -E to preserve the environment. We already have a relatively clean environment
+# inside the container, but we want to preserve variables passed through Docker.
+exec sudo -u sdk -EH bash -l -i ${1+-c '"${@}"' -- "${@}"}

@@ -19,6 +19,7 @@ tty=()
 remove=""
 cleanup=""
 mounts=()
+envs=()
 
 usage() {
     echo "  Usage:"
@@ -49,6 +50,8 @@ usage() {
     echo "      -U             Do not update the versionfile. Instead, use the version from the versionfile as-is."
     echo "      -m <src>:<dest> - Mount local file or directory inside the container."
     echo "                     Can be specified multiple times."
+    echo "      -e <vars>      Space-separated list of environment variable names to pass through."
+    echo "                     Can be specified multiple times."
     echo "      --             Stop parsing options at this point, pass the rest as the container command."
     echo "      -h             Print this help."
     echo
@@ -73,6 +76,14 @@ while [[ $# -gt 0 ]] ; do
         update_versionfile=
         shift;;
     -m) mounts+=( -v "$2" ); shift; shift;;
+    -e) if [[ $2 == *=* ]]; then
+            echo "Do not pass environment variable values to -e, only names."
+            exit 1
+        fi
+        for var in $2; do
+            envs+=( --env "${var}" )
+        done
+        shift 2;;
     --) shift; break;;
     -*) echo "Unknown flag ${1@Q}, use '-h' or '--help' for usage"; exit 1;;
     *) break;;
@@ -103,11 +114,6 @@ fi
 stat=$(call_docker ps --all --no-trunc --filter name="${filter}${name}\$" --format '{{.Status}}' \
            | cut -f1 -d' ')
 
-# pass SDK related environment variables and gcloud auth
-#  into container
-setup_sdk_env
-setup_gsutil
-
 mkdir -p "__build__/images"
 mkdir -p "sdk_container/.cache/sdks"
 
@@ -121,8 +127,8 @@ fi
 if [[ -z ${stat} ]] ; then
     yell "Creating a new container '$name'"
 
-    gpg_volumes=()
-    gnupg_ssh_gcloud_mount_opts gpg_volumes
+    credential_args=()
+    credential_docker_args credential_args
 
     if [[ -z ${custom_image} ]]; then
         (
@@ -145,7 +151,7 @@ if [[ -z ${stat} ]] ; then
         -v "${PWD}/sdk_container:/mnt/host/source/"
         -v "${PWD}/__build__/images:/mnt/host/source/src/build"
         -v "${PWD}:/mnt/host/source/src/scripts"
-        "${gpg_volumes[@]}"
+        "${credential_args[@]}"
         "${mounts[@]}"
         --privileged
         --network host
@@ -173,6 +179,14 @@ if [[ ${stat} != "Up" ]] ; then
 fi
 
 # Workaround: The SDK expects to be able to write to /etc/hosts
-call_docker exec "${name}" sh -c 'cp /etc/hosts /etc/hosts2; umount /etc/hosts ; mv /etc/hosts2 /etc/hosts'
+call_docker exec -i "${name}" sh <<EOF
+cp /etc/hosts /etc/hosts2
+umount /etc/hosts
+mv /etc/hosts2 /etc/hosts
+EOF
 
-call_docker exec "${tty[@]}" -i "${name}" /mnt/host/source/src/scripts/sdk_lib/sdk_entry.sh "$@"
+call_docker exec \
+    --env-file="sdk_lib/env_pass.txt" \
+    "${envs[@]}" "${tty[@]}" -i \
+    "${name}" \
+    /mnt/host/source/src/scripts/sdk_lib/sdk_entry.sh "$@"

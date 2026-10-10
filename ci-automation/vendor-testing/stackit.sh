@@ -22,7 +22,7 @@ kola_test_basename="ci-${CIA_VERNUM//[+.]/-}"
 
 # Upload the image on STACKIT.
 IMAGE_ID=$(ore stackit \
-  --stackit-service-account-key-path=<(echo "${STACKIT_SERVICE_ACCOUNT}" | base64 --decode) \
+  --stackit-service-account-key-path=<(base64 --decode <<< "${STACKIT_SERVICE_ACCOUNT}") \
   --stackit-project-id="${STACKIT_PROJECT_ID}" \
   create-image \
   --board "${CIA_ARCH}-usr" \
@@ -39,7 +39,7 @@ timeout --signal=SIGQUIT 2h kola run \
   --channel="${CIA_CHANNEL}" \
   --basename="${kola_test_basename}" \
   --platform=stackit \
-  --stackit-service-account-key-path=<(echo "${STACKIT_SERVICE_ACCOUNT}" | base64 --decode) \
+  --stackit-service-account-key-path=<(base64 --decode <<< "${STACKIT_SERVICE_ACCOUNT}") \
   --stackit-project-id="${STACKIT_PROJECT_ID}" \
   --stackit-image-id="${IMAGE_ID}" \
   --stackit-type="${stackit_instance_type}" \
