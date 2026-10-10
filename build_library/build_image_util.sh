@@ -529,6 +529,30 @@ start_image() {
     --board="${BOARD}"
 }
 
+# Actions common to the dev container and the image
+# but which should be run before the image branches off
+# the base squashfs (used for systemd-sysext image building)
+finish_image_common() {
+  local image_name="$1"
+  local disk_layout="$2"
+  local root_fs_dir="$3"
+  local image_contents="$4"
+  local image_contents_wtd="$5"
+  local image_kernel="$6"
+  local pcr_policy="$7"
+  local image_grub="$8"
+  local image_shim="$9"
+  local image_kconfig="${10}"
+  local image_initrd_contents="${11}"
+  local image_initrd_contents_wtd="${12}"
+  local image_disk_space_usage="${13}"
+
+  # Build the selinux policy
+  if pkg_use_enabled coreos-base/coreos selinux; then
+      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+  fi
+}
+
 finish_image() {
   local image_name="$1"
   local disk_layout="$2"
@@ -645,11 +669,6 @@ EOF
         "${BUILD_DIR}/${image_kconfig}"
   fi
 
-  # Build the selinux policy
-  if pkg_use_enabled coreos-base/coreos selinux; then
-      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
-  fi
-
   # Run tmpfiles once to make sure that /etc has everything in place before
   # we freeze it in /usr/share/flatcar/etc as lowerdir in the overlayfs.
 
@@ -685,10 +704,8 @@ EOF
     # setfiles from version 3.11 requires the passed path to have no symlinks
     local real_root_fs_dir
     real_root_fs_dir=$(realpath "${root_fs_dir}")
-    # TODO: Breaks the system:
-    # sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"
-    # sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/usr
-    # For now we only try it with /etc
+    sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"
+    sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/usr
     sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/etc
   fi
 
