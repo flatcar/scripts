@@ -1,0 +1,39 @@
+From 7a0bf5696d5e701c995690a438af3a9712a15f5e Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 26 Jun 2026 11:32:08 +0200
+Subject: [PATCH] parse-ip: read 'nameserver' from command line
+
+Afterburn ProxmoxVE provider injects the DNS/nameserver inside the
+'nameserver=' command line parameter.
+
+Let's read it to later inject it to systemd network file.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ dracut/50flatcar-network/parse-ip-for-networkd.sh | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/dracut/50flatcar-network/parse-ip-for-networkd.sh b/dracut/50flatcar-network/parse-ip-for-networkd.sh
+index 6bb015e..4c144e6 100755
+--- a/dracut/50flatcar-network/parse-ip-for-networkd.sh
++++ b/dracut/50flatcar-network/parse-ip-for-networkd.sh
+@@ -68,6 +68,8 @@ function mask2cidr() {
+     echo $bits
+ }
+ 
++nameserver=$(getarg nameserver=)
++
+ # Check ip= lines
+ # XXX Would be nice if we could errorcheck ip addresses here as well
+ for p in $(getargs ip=); do
+@@ -128,6 +130,7 @@ for p in $(getargs ip=); do
+     [ -n "$gw" ] && echo "Gateway=$gw" >> $_net_file
+     [ -n "$dns1" ] && echo "DNS=$dns1" >> $_net_file
+     [ -n "$dns2" ] && echo "DNS=$dns2" >> $_net_file
++    [ -n "$nameserver" ] && echo "DNS=$nameserver" >> $_net_file
+     echo '[Address]' >> $_net_file
+     [ -n "$ip" ] && echo "Address=$ip/${cidr:-24}" >> $_net_file
+     [ -n "$srv" ] && echo "Peer=$srv" >> $_net_file
+-- 
+2.53.0
+
