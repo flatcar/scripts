@@ -17,8 +17,9 @@ inherit dist-kernel-utils linux-info mount-boot
 #   b. Rename the Intel directory to intel-microcode-collection-<YYYYMMDD>
 #   c. From the CPUMicrocodes directory tar and xz compress the contents of intel-microcode-collection-<YYYYMMDD>:
 #      tar -cJf intel-microcode-collection-<YYYYMMDD>.tar.xz intel-microcode-collection-<YYYYMMDD>/
-#   d. This file can go in your devspace, add the URL to SRC_URI if it's not there
-#      https://dev.gentoo.org/~<dev nick>/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
+#   d. This file should be signed and uploaded to masterkup.  For detailed instructions, please go to: https://wiki.gentoo.org/wiki/Project:Infrastructure/Project_Distfiles
+#   e. The SRC_URI will then be of the form:
+#      https://distfiles.gentoo.org/pub/proj/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
 #
 # PV:
 # * the first date is upstream
@@ -38,12 +39,13 @@ SRC_URI="
 	https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/raw/437f382b1be4412b9d03e2bbdcda46d83d581242/intel-ucode/06-4e-03 -> intel-ucode-sig_0x406e3-rev_0xd6.bin
 	https://dev.gentoo.org/~mpagano/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
 	https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
+	https://distfiles.gentoo.org/pub/proj/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
 "
 S="${WORKDIR}"
 
 LICENSE="intel-ucode"
 SLOT="0"
-KEYWORDS="-* amd64 x86"
+KEYWORDS="-* ~amd64 ~x86"
 IUSE="dist-kernel hostonly +initramfs +split-ucode vanilla"
 REQUIRED_USE="
 	|| ( initramfs split-ucode )
