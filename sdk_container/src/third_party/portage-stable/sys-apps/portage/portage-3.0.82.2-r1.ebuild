@@ -92,6 +92,10 @@ PDEPEND="
 	)
 "
 
+PATCHES=(
+	"${FILESDIR}"/${P}-qemu-filtered-vars.patch
+)
+
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
 
