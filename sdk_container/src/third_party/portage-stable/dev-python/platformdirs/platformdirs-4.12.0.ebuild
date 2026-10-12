@@ -17,7 +17,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 
 BDEPEND="
 	test? (
@@ -47,4 +47,10 @@ src_configure() {
 		__version__ = version = '${PV}'
 		__version_tuple__ = version_tuple = (${PV//./, })
 	EOF
+}
+
+python_test() {
+	# have to disable removing tmp_paths since upstream mocks are
+	# incomplete and break teardown
+	epytest -p platformdirs.pytest_plugin -o tmp_path_retention_policy=all
 }
