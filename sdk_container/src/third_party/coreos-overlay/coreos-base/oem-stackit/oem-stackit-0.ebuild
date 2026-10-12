@@ -20,7 +20,6 @@ SYSEXT_NAME="STACKIT"
 src_install() {
     systemd_install_dropin chronyd.service "${FILESDIR}"/chronyd-overwrite.conf
     systemd_enable_service multi-user.target chronyd.service
-    dosym /dev/null "$(systemd_get_systemunitdir)"/systemd-timesyncd.service
     dotmpfiles "${FILESDIR}"/var-chrony.conf
     dotmpfiles "${FILESDIR}"/etc-chrony.conf
     insinto /usr/share/"${PN}"
