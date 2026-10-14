@@ -1,0 +1,1 @@
+- STACKIT: Masked `systemd-timesyncd.service` in the OEM sysext. It conflicts with `chronyd.service`, and which of the two ended up running after boot depended on timing. ([scripts#4318](https://github.com/flatcar/scripts/pull/4318))
