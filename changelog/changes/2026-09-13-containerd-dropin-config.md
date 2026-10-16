@@ -1,0 +1,1 @@
+- Updated the shipped containerd configs to version 3 and added imports from `/etc/containerd/conf.d/*.toml` to allow local settings in version 2 or 3 drop-ins without copying the shipped config ([scripts#4150](https://github.com/flatcar/scripts/pull/4150))
