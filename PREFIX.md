@@ -4,7 +4,7 @@
 
 ## Path to stabilisation TODO list
 
-Before prefix build support are considered stable, the below must be implemented:
+Before prefix build support is considered stable, the below must be implemented:
 1. Integrate `cb-bootstrap` with the Flatcar SDK.
    Currently, `setup_prefix` uses cross-boss' `cb-bootstrap` to set up the prefix environment.
    Bootstrapping must be fully integrated with the Flatcar SDK before prefix builds are considered stable.
@@ -51,7 +51,7 @@ Cross-boss location can be customised via the `--cross_boss_root` option to `set
 ## Quick-start guide
 
 For working with a prefix, you will need to agree on:
-1. A name for the prefix. Should be a single word and is used for generating protage wrappers.
+1. A name for the prefix. Should be a single word and is used for generating portage wrappers.
 2. A prefix directory where applications and libraries will live on the target system.
    For use with systemd-sysext this should be a path below `/usr` or `/opt`.
 
