@@ -28,7 +28,7 @@ fi
 
 LICENSE="|| ( GPL-2+ LGPL-3+ ) utils? ( GPL-3+ )"
 SLOT="0"
-IUSE="bzip2 +debuginfod +libarchive +lzma nls static-libs stacktrace test +utils valgrind zstd"
+IUSE="bzip2 +debuginfod +libarchive libpfm +lzma nls static-libs test +utils valgrind zstd"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="debuginfod? ( libarchive )"
 
@@ -44,7 +44,7 @@ RDEPEND="
 	)
 	libarchive? ( >=app-arch/libarchive-3.1.2:= )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1[static-libs?,${MULTILIB_USEDEP}] )
-	stacktrace? ( dev-util/sysprof )
+	utils? ( libpfm? ( dev-libs/libpfm:= ) )
 	zstd? ( app-arch/zstd:=[static-libs?,${MULTILIB_USEDEP}] )
 	elibc_musl? (
 		dev-libs/libbsd
@@ -93,6 +93,12 @@ src_prepare() {
 		return 77;
 	}
 	EOF
+	# Requires static-libs
+	cat <<-EOF > tests/elf-from-memory.c || die
+	int main() {
+		return 77;
+	}
+	EOF
 
 	# https://sourceware.org/PR23914
 	sed -i 's:-Werror::' */Makefile.in || die
@@ -113,6 +119,8 @@ src_configure() {
 multilib_src_configure() {
 	unset LEX YACC
 
+	export ac_cv_header_perfmon_pfmlib_perf_event_h=$(multilib_native_usex libpfm)
+	export ac_cv_lib_pfm_pfm_get_os_event_encoding=$(multilib_native_usex libpfm)
 	# Only for IMA verification of RPMs
 	export ac_cv_lib_rpm_headerGet=no
 
@@ -122,7 +130,7 @@ multilib_src_configure() {
 		# Could do dummy if needed? We could also split libdebuginfod
 		# (client support) into its own USE if required.
 		$(multilib_native_use_enable debuginfod libdebuginfod)
-		$(multilib_native_use_enable stacktrace)
+		$(multilib_native_use_enable utils stackprof)
 		$(use_enable valgrind valgrind-annotations)
 
 		# Explicitly disable thread safety, it's not recommended by upstream

@@ -36,10 +36,23 @@
 
 #--- END OF EXAMPLES ---
 
+# Jaco Kroon <jkroon@gentoo.org> (2026-09-16)
+# Intention was for STIR/SHAKEN, which has proven to have extremely limited
+# usability outside of NANP.  No revdeps.  Outdated.  Three different APIs and
+# unable to properly SLOT.  Removal on 2026-10-16.  Bugs #929073, #939530.
+dev-libs/libjwt
+
+# Michał Górny <mgorny@gentoo.org> (2026-09-16)
+# Used only by dev-python/jupyter-server with Python < 3.12.
+# No revdeps left.  Removal on 2026-10-16.  Bug #982608.
+dev-python/overrides
+
 # Lukas Schmelting <lschmelting@posteo.com> (2026-09-06)
 # Most revdeps still need gexiv2-0.16 compatibility fixes
 # See: https://bugs.gentoo.org/982084
 =media-libs/gexiv2-0.16*
+>=gnome-base/nautilus-50
+>=media-gfx/shotwell-33
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2026-09-11)
 # EAPI=7, old PYTHON_COMPAT, doesn't work with spotify for a long time,
@@ -450,10 +463,6 @@ dev-qt/qtx11extras:5
 # Sam James <sam@gentoo.org> (2025-05-23)
 # Severe memory leak (bug #953874)
 =app-i18n/ibus-anthy-1.5.17
-
-# Alfred Wingate <parona@protonmail.com> (2025-05-17)
-# Masked for testing
-dev-db/mysql:8.4
 
 # Norbert Norbiros <norbiros@protonmail.com> (2025-04-01)
 # Screen v5.0.0 has a lot of regressions
