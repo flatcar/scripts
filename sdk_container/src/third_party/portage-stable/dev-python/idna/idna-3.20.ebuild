@@ -4,7 +4,7 @@
 # please keep this ebuild at EAPI 8 -- sys-apps/portage dep
 EAPI=8
 
-DISTUTILS_USE_PEP517=flit
+DISTUTILS_USE_PEP517=flit-core
 PYPI_VERIFY_REPO=https://github.com/kjd/idna
 PYTHON_COMPAT=( python3_{12..15} python3_{14..15}t )
 
@@ -19,5 +19,13 @@ HOMEPAGE="
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+IUSE="test"
+RESTRICT="!test? ( test )"
+
+BDEPEND="
+	test? (
+		dev-python/hypothesis[${PYTHON_USEDEP}]
+	)
+"
 
 distutils_enable_tests unittest
