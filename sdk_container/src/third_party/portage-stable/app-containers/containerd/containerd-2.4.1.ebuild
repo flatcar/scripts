@@ -5,7 +5,7 @@ EAPI=8
 
 inherit go-env go-module systemd toolchain-funcs
 
-GIT_REVISION=db8809540e1a7a9da5d518876894933ff55692ab
+GIT_REVISION=f2551031d7276a770f65f98c9b52e57e7dad07e8
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
@@ -29,7 +29,7 @@ RDEPEND="${DEPEND}
 "
 BDEPEND="
 	dev-go/go-md2man
-	>=dev-lang/go-1.26.3
+	>=dev-lang/go-1.26.6
 	virtual/pkgconfig
 "
 
