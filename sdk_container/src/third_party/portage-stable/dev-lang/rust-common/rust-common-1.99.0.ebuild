@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -32,7 +32,7 @@ else
 		verify-sig? ( https://static.rust-lang.org/dist/rustc-${PV}-src.tar.xz.asc )
 	"
 	S="${WORKDIR}/rustc-${MY_PV}-src"
-	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD BSD-1 BSD-2 BSD-4"
@@ -55,7 +55,7 @@ src_unpack() {
 
 		# Avoid unpacking the whole tarball which would need check-reqs
 		tar -xf "${DISTDIR}"/rustc-${PV}-src.tar.xz \
-			"rustc-${MY_PV}-src/src/tools/cargo/src/etc/"{_cargo,cargo.bashcomp.sh} || die
+			"rustc-${MY_PV}-src/src/tools/cargo/etc/"{_cargo,cargo.bashcomp.sh} || die
 	fi
 }
 
@@ -68,6 +68,6 @@ src_compile() {
 }
 
 src_install() {
-	newbashcomp src/tools/cargo/src/etc/cargo.bashcomp.sh cargo
-	dozshcomp src/tools/cargo/src/etc/_cargo
+	newbashcomp src/tools/cargo/etc/cargo.bashcomp.sh cargo
+	dozshcomp src/tools/cargo/etc/_cargo
 }
