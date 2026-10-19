@@ -3,16 +3,15 @@
 
 EAPI="8"
 
-LLVM_COMPAT=( 21 )
+LLVM_COMPAT=( 18 )
 LLVM_OPTIONAL=1
-VERIFY_SIG_METHOD=sigstore
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs eapi9-ver flag-o-matic linux-info llvm-r2
+inherit autotools check-reqs flag-o-matic linux-info llvm-r1
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
 inherit verify-sig
 
-MY_PV=${PV/_}
+MY_PV=${PV}
 MY_P="Python-${MY_PV%_p*}"
 PYVER=$(ver_cut 1-2)
 PATCHSET="python-gentoo-patches-${MY_PV}"
@@ -26,16 +25,17 @@ SRC_URI="
 	https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz
 	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
 	verify-sig? (
-		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.sigstore
+		https://www.python.org/ftp/python/${PV%%_*}/${MY_P}.tar.xz.asc
 	)
 "
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="
-	bluetooth build debug +ensurepip examples gdbm jit libedit +ncurses pgo
-	+readline +sqlite +ssl tail-call-interp test tk valgrind
+	bluetooth debug +ensurepip examples gdbm jit libedit +ncurses pgo
+	+readline +sqlite +ssl test tk valgrind
 "
 REQUIRED_USE="jit? ( ${LLVM_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
@@ -48,6 +48,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	app-arch/bzip2:=
 	app-arch/xz-utils:=
+	app-crypt/libb2
 	app-misc/mime-types
 	>=dev-libs/expat-2.1:=
 	dev-libs/libffi:=
@@ -56,7 +57,6 @@ RDEPEND="
 	sys-apps/util-linux
 	>=virtual/zlib-1.1.3:=
 	virtual/libintl
-	!build? ( app-arch/zstd:= )
 	gdbm? ( sys-libs/gdbm:=[berkdb] )
 	ncurses? ( >=sys-libs/ncurses-5.2:= )
 	readline? (
@@ -79,7 +79,6 @@ DEPEND="
 	test? (
 		dev-python/ensurepip-pip
 		dev-python/ensurepip-setuptools
-		dev-python/ensurepip-wheel
 	)
 	valgrind? ( dev-debug/valgrind )
 "
@@ -94,12 +93,7 @@ BDEPEND="
 			llvm-core/llvm:${LLVM_SLOT}
 		')
 	)
-	tail-call-interp? (
-		|| (
-			>=sys-devel/gcc-16:*
-			>=llvm-core/clang-19:*
-		)
-	)
+	verify-sig? ( >=sec-keys/openpgp-keys-python-20260805 )
 "
 if [[ ${PV} != *_alpha* ]]; then
 	RDEPEND+="
@@ -110,14 +104,12 @@ PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
 
-# https://www.python.org/downloads/metadata/sigstore/
-VERIFY_SIG_CERT_IDENTITY=hugo@python.org
-VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/python.org.asc
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
 
-QA_PKGCONFIG_VERSION=${PYVER%t}
+QA_PKGCONFIG_VERSION=${PYVER}
 # false positives -- functions specific to *BSD
 QA_CONFIG_IMPL_DECL_SKIP=( chflags lchflags )
 
@@ -138,26 +130,11 @@ pkg_pretend() {
 		ewarn "you can reproduce the problem with dev-lang/python[-jit].  Instead,"
 		ewarn "please consider reporting JIT problems upstream."
 	fi
-
-	if [[ ${MERGE_TYPE} != buildonly ]] && ver_replacing -lt 3.15.0_beta4; then
-		ewarn
-		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
-		ewarn "with older versions may crash at runtime or worse after upgrading."
-		ewarn "A rebuild is recommended after the merge is complete, e.g. using:"
-		ewarn
-		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
-		ewarn
-		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
-		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
-		ewarn "If you do not wish to perform the rebuild at the time, it is"
-		ewarn "recommended to abort the upgrade."
-		ewarn
-	fi
 }
 
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
-		use jit && llvm-r2_pkg_setup
+		use jit && llvm-r1_pkg_setup
 		if use test || use pgo; then
 			check-reqs_pkg_setup
 
@@ -167,16 +144,12 @@ pkg_setup() {
 			done
 			linux-info_pkg_setup
 		fi
-		if use tail-call-interp; then
-			tc-check-min_ver gcc 16
-			tc-check-min_ver clang 19
-		fi
 	fi
 }
 
 src_unpack() {
 	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
+		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.asc}
 	fi
 	default
 }
@@ -392,10 +365,6 @@ src_configure() {
 			# Hangs (actually runs indefinitely executing itself w/ many cpython builds)
 			# bug #900429
 			-x test_tools
-
-			# Test terminates abruptly which corrupts written profile data
-			# bug #964023
-			-x test_pyrepl
 		)
 
 		if has_version "app-arch/rpm" ; then
@@ -435,7 +404,6 @@ src_configure() {
 		$(use_enable jit experimental-jit)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
-		$(use_with tail-call-interp)
 		$(use_with valgrind)
 	)
 
@@ -450,7 +418,6 @@ src_configure() {
 	cat > Modules/Setup.local <<-EOF || die
 		*disabled*
 		nis
-		$(usev build '_zstd')
 		$(usev !gdbm '_gdbm _dbm')
 		$(usev !sqlite '_sqlite3')
 		$(usev !ssl '_hashlib _ssl')
@@ -563,14 +530,9 @@ src_test() {
 
 src_install() {
 	local libdir=${ED}/usr/lib/python${PYVER}
-	local build_dir=$(<pybuilddir.txt)
 
 	# -j1 hack for now for bug #843458
 	emake -j1 DESTDIR="${D}" TEST_MODULES=no altinstall
-
-	# Install build-details.json manually because it was randomly removed
-	# from altinstall in https://github.com/python/cpython/pull/142269.
-	cp "${build_dir}"/build-details.json "${libdir}"/ || die
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
@@ -650,18 +612,5 @@ src_install() {
 	# idle
 	if use tk; then
 		ln -s "../../../bin/idle${PYVER}" "${scriptdir}/idle" || die
-	fi
-}
-
-pkg_postinst() {
-	if ver_replacing -lt 3.15.0_beta4; then
-		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
-		ewarn "with older versions may crash at runtime or worse.  To prevent this,"
-		ewarn "please rebuild all extensions using the versoned ABI, e.g. using:"
-		ewarn
-		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
-		ewarn
-		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
-		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
 	fi
 }
