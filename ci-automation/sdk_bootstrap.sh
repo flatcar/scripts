@@ -201,9 +201,9 @@ function _sdk_bootstrap_impl() {
     if [[ -z ${failed} ]]; then
         (
             cd "__build__/images/catalyst/builds/flatcar-sdk"
-            create_digests "${SIGNER}" "${dest_tarball}" "${name_prefix}"-*-packages_extended.txt
-            sign_artifacts "${SIGNER}" "${dest_tarball}"* "${name_prefix}"-*-packages_extended.txt*
-            copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"* "${name_prefix}"-*-packages_extended.txt*
+            create_digests "${SIGNER}" "${dest_tarball}" "${name_prefix}"-*-{packages_extended,contents_wtd}.txt
+            sign_artifacts "${SIGNER}" "${dest_tarball}"* "${name_prefix}"-*-{packages_extended,contents_wtd}.txt*
+            copy_to_buildcache "sdk/${ARCH}/${FLATCAR_SDK_VERSION}" "${dest_tarball}"* "${name_prefix}"-*-{packages_extended,contents_wtd}.txt*
         )
     fi
 
