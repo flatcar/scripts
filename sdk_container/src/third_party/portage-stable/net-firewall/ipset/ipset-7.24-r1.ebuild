@@ -106,7 +106,7 @@ src_install() {
 
 	find "${ED}" -name '*.la' -delete || die
 
-	newinitd "${FILESDIR}"/ipset.initd-r7 ${PN}
+	newinitd "${FILESDIR}"/ipset.initd-r8 ${PN}
 	newconfd "${FILESDIR}"/ipset.confd-r1 ${PN}
 	systemd_newunit "${FILESDIR}"/ipset.systemd-r1 ${PN}.service
 	keepdir /var/lib/ipset

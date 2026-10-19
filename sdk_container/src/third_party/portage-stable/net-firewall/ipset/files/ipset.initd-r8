@@ -68,7 +68,6 @@ reload() {
 
     # Build a list of all currently used sets (if any);
     # also make sure all sets' names are fully supported.
-    IFS_O=$IFS
     NEWLINE='
 '
     local IFS=$NEWLINE
@@ -79,7 +78,7 @@ reload() {
       fi
       running_ipset_list="$running_ipset_list $running_ipset"
     done
-    IFS=$IFS_O
+    unset IFS
     running_ipset_list="${running_ipset_list# }"
 
     # Check the configured suffix, and make sure there are no collisions
