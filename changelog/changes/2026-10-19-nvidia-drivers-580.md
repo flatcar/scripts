@@ -1,0 +1,1 @@
+- Provided NVIDIA 580 (LTS branch) driver sysexts as `nvidia-drivers-580` and `nvidia-drivers-580-open`. Write the name to `/etc/flatcar/enabled-sysext.conf` through Ignition to use them. The 535, 550 and 570 branches are end-of-life upstream; switching to 580 is recommended.
