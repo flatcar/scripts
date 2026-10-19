@@ -1,0 +1,1 @@
+- base, dev: nvidia-drivers-service ([580.178.04](https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-580-178-04/index.html))
