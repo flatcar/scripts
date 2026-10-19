@@ -6,6 +6,7 @@
 # common.sh should be sourced first
 [[ -n "${DEFAULT_BUILD_ROOT}" ]] || exit 1
 . "${SCRIPTS_DIR}/sdk_lib/sdk_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 
 # Default option values, may be provided before including this file
@@ -243,14 +244,19 @@ write_configs() {
         rm "${TEMPDIR}"/portage/package.env/qemu
 }
 
-# runs in a subshell for a trap and extglob setting
+# runs in a subshell for a trap
 generate_stage_packages_listing() (
     local stage=${1}; shift
-    shopt -s extglob
     mkdir -p "${TEMPDIR}/${stage}-listing"
     trap 'rm -rf "${TEMPDIR}/${stage}-listing"' EXIT
-    tar -xf "${BUILDS}/${stage}-${ARCH}-${FLAGS_version}.tar.bz2" -C "${TEMPDIR}/${stage}-listing" ./var/db/pkg
+    # use lbzip2 for faster decompression
+    tar \
+        --extract \
+        --use-compress-program=lbzip2 \
+        --file="${BUILDS}/${stage}-${ARCH}-${FLAGS_version}.tar.bz2" \
+        --directory "${TEMPDIR}/${stage}-listing"
     local cpvs=() cpv pkg version slot repo
+    local output_prefix=${BUILDS}/${TYPE}-${ARCH}-${FLAGS_version}-${stage}
     mapfile -t -d '' cpvs < <(find "${TEMPDIR}/${stage}-listing/var/db/pkg/" -mindepth 2 -maxdepth 2 -printf '%P\0')
     for cpv in "${cpv[@]}"; do
         pkg=${cpv%-[0-9]*}
@@ -258,8 +264,8 @@ generate_stage_packages_listing() (
         slot=$(< "${TEMPDIR}/${stage}-listing/var/db/pkg/${pkg}/SLOT")
         repo=$(< "${TEMPDIR}/${stage}-listing/var/db/pkg/${pkg}/repository")
         echo "${pkg} ${version} ${slot} ${repo}"
-    done | LC_ALL=C sort >"${BUILDS}/${TYPE}-${ARCH}-${FLAGS_version}-${stage}-packages-slots-repos.txt"
-    rm -rf "${TEMPDIR}/${stage}-listing"
+    done | LC_ALL=C sort >"${output_prefix}-packages-slots-repos.txt"
+    write_contents_with_technical_details "${TEMPDIR}/${stage}-listing" "${output_prefix}-contents_wtd.txt"
 )
 
 build_stage() {
