@@ -12,8 +12,7 @@ TMPFILES_OPTIONAL=1
 EMULTILIB_PKG="true"
 
 # Gentoo patchset (ignored for live ebuilds)
-PATCH_VER=3
-PATCH_DEV=dilfridge
+PATCH_VER=4
 
 # gcc mulitilib bootstrap files version
 GCC_BOOTSTRAP_VER=20201208
@@ -21,8 +20,11 @@ GCC_BOOTSTRAP_VER=20201208
 # systemd integration version
 GLIBC_SYSTEMD_VER=20210729
 
-# Minimum kernel version that glibc requires
-MIN_KERN_VER="3.2.0"
+# Minimum kernel version that glibc requires (used with USE=old-kernel)
+MIN_KERN_VER_UPSTREAM="3.2.0"
+
+# Minimum kernel version that Gentoo recommends (oldest in the tree)
+MIN_KERN_VER_GENTOO="6.1.0"
 
 # Minimum pax-utils version needed (which contains any new syscall changes for
 # its seccomp filter!). Please double check this!
@@ -43,7 +45,7 @@ HOMEPAGE="https://www.gnu.org/software/libc/"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
 else
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 	SRC_URI+=" https://distfiles.gentoo.org/pub/proj/toolchain/glibc/patches/${P}-patches-${PATCH_VER}.tar.xz"
 	SRC_URI+=" verify-sig? ( mirror://gnu/glibc/${P}.tar.xz.sig )"
@@ -54,7 +56,7 @@ SRC_URI+=" systemd? ( https://gitweb.gentoo.org/proj/toolchain/glibc-systemd.git
 
 LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
 SLOT="2.2"
-IUSE="audit caps cet clang compile-locales custom-cflags doc gd hash-sysv-compat headers-only +multiarch multilib multilib-bootstrap nscd perl profile selinux sframe +ssp stack-realign +static-libs suid systemd systemtap test vanilla"
+IUSE="audit caps cet clang compile-locales custom-cflags doc gd hash-sysv-compat headers-only +multiarch multilib multilib-bootstrap nscd old-kernel perl profile selinux sframe +ssp stack-realign +static-libs suid systemd systemtap test vanilla"
 
 # Here's how the cross-compile logic breaks down ...
 #  CTARGET - machine that will target the binaries
@@ -213,6 +215,9 @@ XFAIL_TEST_LIST=(
 
 	# Fails only in portage. Needs investigation.
 	tst-setvbuf2
+
+	# https://sourceware.org/PR34433
+	tst-dl-llp-stack
 )
 
 XFAIL_NSPAWN_TEST_LIST=(
@@ -570,6 +575,9 @@ setup_flags() {
 	# https://sourceware.org/glibc/wiki/FAQ#Why_do_I_get:.60.23error_.22glibc_cannot_be_compiled_without_optimization.22.27.2C_when_trying_to_compile_GNU_libc_with_GNU_CC.3F
 	replace-flags -O0 -O1
 
+	# bug #982652 (PR34672)
+	is_hurd && replace-flags -Os -O2
+
 	# Similar issues as with SSP. Can't inject yourself that early.
 	filter-flags '-fsanitize=*'
 
@@ -924,7 +932,13 @@ sanity_prechecks() {
 			die "Found directory (${ESYSROOT}/usr/lib/include) which will break build (bug #833620)!"
 		fi
 
-		if [[ ${CTARGET} == *-linux* ]] ; then
+		if is_linux ; then
+			if use old-kernel ; then
+				MIN_KERN_VER=${MIN_KERN_VER_UPSTREAM}
+			else
+				MIN_KERN_VER=${MIN_KERN_VER_GENTOO}
+			fi
+
 			local run_kv build_kv want_kv
 
 			run_kv=$(g_get_running_KV)
@@ -938,7 +952,7 @@ sanity_prechecks() {
 					eend 1
 					echo
 					eerror "You need a kernel of at least ${want_kv}!"
-					die "Kernel version too low!"
+					die "Kernel version too low! Maybe setting USE=old-kernel helps."
 				fi
 				eend 0
 			fi
@@ -1109,6 +1123,11 @@ glibc_do_configure() {
 
 	[[ $(tc-is-softfloat) == "yes" ]] && myconf+=( --without-fp )
 
+	if use old-kernel ; then
+		MIN_KERN_VER=${MIN_KERN_VER_UPSTREAM}
+	else
+		MIN_KERN_VER=${MIN_KERN_VER_GENTOO}
+	fi
 	myconf+=( --enable-kernel=${MIN_KERN_VER} )
 
 	# Since SELinux support is only required for nscd, only enable it if:
@@ -1617,7 +1636,7 @@ glibc_do_src_install() {
 
 	if is_hurd && has amd64 $(get_install_abis) ; then
 		# First, let's check for sanity
-		if [[ -f "${D}$(alt_prefix)/lib/ld-x86-64.so.1" ]] ; then
+		if [[ -f "${D}/$(alt_prefix)/lib/ld-x86-64.so.1" ]] ; then
 			die "Somehow your amd64 hurd glibc installed /lib/ld-x86-64.so.1 ... this should not happen."
 		fi
 
@@ -1627,7 +1646,7 @@ glibc_do_src_install() {
 
 	if is_hurd && has x86 $(get_install_abis) ; then
 		# First, let's check for sanity
-		if [[ -f "${D}$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
+		if [[ -f "${D}/$(alt_prefix)/$(get_abi_LIBDIR x86)/ld.so" ]] ; then
 			die "Somehow your x86 hurd glibc installed ld.so ... this should not happen."
 		fi
 
