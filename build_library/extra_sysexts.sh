@@ -7,6 +7,8 @@ EXTRA_SYSEXTS=(
   "nvidia-drivers-550-open|x11-drivers/old-nvidia-drivers:0/550|kernel-open persistenced|amd64"
   "nvidia-drivers-570|x11-drivers/old-nvidia-drivers:0/570|-kernel-open persistenced|amd64"
   "nvidia-drivers-570-open|x11-drivers/old-nvidia-drivers:0/570|kernel-open persistenced|amd64"
+  "nvidia-drivers-580|x11-drivers/nvidia-drivers:0/580|-kernel-open persistenced|amd64"
+  "nvidia-drivers-580-open|x11-drivers/nvidia-drivers:0/580|kernel-open persistenced|amd64"
   "podman|app-containers/podman,net-misc/passt"
   "python|dev-lang/python,dev-python/pip"
   "zfs|sys-fs/zfs"
