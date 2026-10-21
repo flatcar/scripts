@@ -1,0 +1,1 @@
+- ca-certificates ([CVE-2026-111943](https://nvd.nist.gov/vuln/detail/CVE-2026-111943))
