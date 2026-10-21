@@ -27,3 +27,8 @@
 # Breaks virt-firmware, thus breaks creating qemu images. Remove when
 # moving to python 3.13.
 >=dev-python/setuptools-82.0.0
+
+# Go 1.27 is already stable, but the stable 1.27.1 is affected by
+# CVE-2026-111943. Stay on the 1.26 series (1.26.10 has the fix) until a
+# fixed 1.27.x is stable.
+>=dev-lang/go-1.27
