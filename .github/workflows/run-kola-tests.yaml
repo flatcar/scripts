@@ -42,8 +42,9 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-docker-action@v4
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
+          submodules: false
           path: scripts
           fetch-depth: 0
 
@@ -61,7 +62,6 @@ jobs:
 
           cd scripts
           git checkout ${{ github.event.pull_request.head.sha }}
-          git submodule update
 
       - name: Download binpkgs
         if: ${{ !inputs.workflow_run_id }}
@@ -244,11 +244,11 @@ jobs:
           sudo ln -s /bin/bash /bin/sh
           sudo apt update && sudo apt install -y ca-certificates curl gnupg lsb-release git bzip2 jq sqlite3
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
+          submodules: false
           path: scripts
           fetch-depth: 0
-          submodules: true
 
       # Hack alert: actions/checkout will check out the (disjunct) merge commit of a PR
       #  instead of its head commit. That commit is not connected to any branch.
@@ -264,7 +264,6 @@ jobs:
 
           cd scripts
           git checkout ${{ github.event.pull_request.head.sha }}
-          git submodule update
 
       # This is clunky. Haven't figured out how to re-use matrix.arch here for downloads,
       #  so we download each arch individually.
