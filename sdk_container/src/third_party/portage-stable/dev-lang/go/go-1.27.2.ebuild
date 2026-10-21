@@ -116,7 +116,11 @@ src_compile() {
 
 src_test() {
 	go_cross_compile && return 0
-	cd src
+	cd src || die
+
+	# remove bad test because of ebuild toolchain environment
+	rm -v cmd/go/testdata/script/autocgo.txt || die
+
 	PATH="${GOBIN}:${PATH}" \
 	./run.bash -no-rebuild -k || die "tests failed"
 }
