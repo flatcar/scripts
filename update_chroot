@@ -86,6 +86,7 @@ sudo touch /etc/portage/make.conf.user
 sudo_clobber "/etc/portage/make.conf" <<EOF
 # Created by update_chroot
 DISTDIR="${REPO_CACHE_DIR}/distfiles"
+GLSA_DIR="${REPO_ROOT}/src/third_party/coreos-overlay/metadata/glsa"
 PKGDIR="/var/lib/portage/pkgs"
 PORT_LOGDIR="/var/log/portage"
 PORTAGE_BINHOST="$PORTAGE_BINHOST"
