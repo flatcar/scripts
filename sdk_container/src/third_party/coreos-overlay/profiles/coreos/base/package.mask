@@ -45,3 +45,8 @@
 =sec-policy/selinux-dbus-2.20260616_p1
 =sec-policy/selinux-policykit-2.20260616_p1
 =sec-policy/selinux-sssd-2.20260616_p1
+
+# Go 1.27 is already stable, but the stable 1.27.1 is affected by
+# CVE-2026-111943. Stay on the 1.26 series (1.26.10 has the fix) until a
+# fixed 1.27.x is stable.
+>=dev-lang/go-1.27
