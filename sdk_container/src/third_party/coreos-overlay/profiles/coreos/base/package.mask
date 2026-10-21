@@ -36,3 +36,8 @@
 # # get https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.mod": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
 # go: go.etcd.io/gofail@v0.2.0: Get "https://proxy.golang.org/go.etcd.io/gofail/@v/v0.2.0.info": dial tcp: lookup proxy.golang.org on 168.63.129.16:53: dial udp 168.63.129.16:53: connect: network is unreachable
 =dev-db/etcd-3.5.26
+
+# Go 1.27 is already stable, but the stable 1.27.1 is affected by
+# CVE-2026-111943. Stay on the 1.26 series (1.26.10 has the fix) until a
+# fixed 1.27.x is stable.
+>=dev-lang/go-1.27
