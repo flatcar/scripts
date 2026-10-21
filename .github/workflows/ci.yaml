@@ -57,13 +57,14 @@ jobs:
         uses: docker/setup-docker-action@v4
 
       - name: Checkout scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
+          submodules: true
           path: scripts
           fetch-depth: 0
 
       - name: Checkout build scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: flatcar/flatcar-build-scripts
           path: flatcar-build-scripts
