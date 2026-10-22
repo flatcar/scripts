@@ -16,7 +16,7 @@ hetzner_instance_type="${!hetzner_instance_type_var}"
 hetzner_location_var="HETZNER_${CIA_ARCH}_LOCATION"
 hetzner_location="${!hetzner_location_var}"
 
-# HETZNER_TPS_TOKEN should be provided by sdk_container/.env
+# HETZNER_TPS_TOKEN should be provided by the caller.
 
 # We first need to create a temporary project using HETZNER_TPS_TOKEN
 # When the project is created it returns a regular HETZNER_TOKEN that can be used
