@@ -298,7 +298,7 @@ sudo_clobber "${BOARD_ETC}/portage/make.conf" <<EOF
 # Settings derived from the host environment
 CBUILD="$(portageq envvar CHOST)"
 HOSTCC="$(portageq envvar CHOST)-gcc"
-$(portageq envvar -v DISTDIR GLSA_DIR MAKEOPTS PORTAGE_USERNAME FETCHCOMMAND RESUMECOMMAND | sed 's:\$:\\$:g')
+$(portageq envvar -v DISTDIR EMERGE_DEFAULT_OPTS GLSA_DIR MAKEOPTS PORTAGE_USERNAME FETCHCOMMAND RESUMECOMMAND | sed 's:\$:\\$:g')
 
 # Board specific settings
 CHOST="${BOARD_CHOST}"
@@ -307,10 +307,6 @@ PKGDIR="${BOARD_PKGDIR}"
 PORT_LOGDIR="${BOARD_ROOT}/var/log/portage"
 PORTAGE_TMPDIR="${BOARD_ROOT}/var/tmp"
 PORTAGE_BINHOST="${BOARD_BINHOST}"
-
-# Generally there isn't any need to add packages to @world by default.
-# You can use --select to override this.
-EMERGE_DEFAULT_OPTS="--oneshot --verbose"
 
 # Enable provenance reporting by default. Produced files are in /usr/share/SLSA
 GENERATE_SLSA_PROVENANCE="true"
