@@ -85,13 +85,12 @@ if len(list(obj.items())) > 0:
 # Build up trust database.
 trust = dict()
 for obj in objects:
-    if obj['CKA_CLASS'] not in ('CKO_NETSCAPE_TRUST', 'CKO_NSS_TRUST'):
+    if obj['CKA_CLASS'] != 'CKO_NSS_TRUST':
         continue
-    elif obj['CKA_TRUST_SERVER_AUTH'] in ('CKT_NETSCAPE_TRUSTED_DELEGATOR',
-                                          'CKT_NSS_TRUSTED_DELEGATOR'):
-        trust[obj['CKA_LABEL']] = True
-    elif obj['CKA_TRUST_EMAIL_PROTECTION'] in ('CKT_NETSCAPE_TRUSTED_DELEGATOR',
-                                               'CKT_NSS_TRUSTED_DELEGATOR'):
+    # Only roots trusted for TLS belong in the bundle. Roots Mozilla trusts
+    # only for S/MIME must not become TLS roots, since OpenSSL, curl and Go
+    # use the bundle for TLS without any purpose check.
+    elif obj['CKA_TRUST_SERVER_AUTH'] == 'CKT_NSS_TRUSTED_DELEGATOR':
         trust[obj['CKA_LABEL']] = True
     else:
         print("Ignoring certificate %s.  SAUTH=%s, EPROT=%s" % \
@@ -106,11 +105,12 @@ for obj in objects:
     if obj['CKA_CLASS'] == 'CKO_CERTIFICATE':
         if not obj['CKA_LABEL'] in trust or not trust[obj['CKA_LABEL']]:
             continue
-        fname = obj['CKA_LABEL'][1:-1].replace('/', '_')\
+        bname = obj['CKA_LABEL'][1:-1].replace('/', '_')\
                                       .replace(' ', '_')\
                                       .replace('(', '=')\
                                       .replace(')', '=')\
-                                      .replace(',', '_') + '.pem'
+                                      .replace(',', '_')
+        fname = bname + '.pem'
         # fname can be either in utf8 form ("NetLock Arany (Class
         # Gold) Főtanúsítvány") or in an encoded form ("AC Ra\xC3\xADz
         # Certic\xC3\xA1mara S.A.")
@@ -124,6 +124,11 @@ for obj in objects:
             fname = fname.encode('latin1').decode('unicode_escape').encode('latin1').decode('utf8')
         except (UnicodeEncodeError, UnicodeDecodeError):
             pass
+
+        # Several CAs can share a label; don't let one overwrite the other.
+        if os.path.exists(fname):
+            print("Found duplicate certificate name %s, renaming." % bname)
+            fname = bname + '_2.pem'
 
         f = open(fname.encode(encoding=sys.getfilesystemencoding(), errors="ignore"), 'w')
         f.write("-----BEGIN CERTIFICATE-----\n")
