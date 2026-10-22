@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if [[ -n "${FLATCAR_REPORTS_UTIL_SH_INCLUDED:-}" ]]; then
+if [[ -n ${FLATCAR_REPORTS_UTIL_SH_INCLUDED:-} ]]; then
     return 0
 fi
 

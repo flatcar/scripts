@@ -176,54 +176,78 @@ systemd_enable() {
   sudo ln -sf "../${unit_file}" "${wants_dir}/${unit_alias}"
 }
 
-# "equery list" a potentially uninstalled board package
-query_available_package() {
-    local pkg="$1"
-    local format="${2:-\$cpv::\$repo}"
-    # Ignore masked versions. Assumes that sort --version-sort uses the
-    # same ordering as Portage.
-    equery-${BOARD} --no-color list -po --format "\$mask|$format" "$pkg" | \
-            grep -E '^ +\|' | \
-            cut -f2- -d\| | \
-            sort --version-sort | \
-            tail -n 1
+image_packages_portage_impl() {
+    local root=${1}; shift
+    local format=${1}; shift
+
+    ROOT="${root}" PORTAGE_CONFIGROOT="${BUILD_DIR}/configroot" \
+        equery --quiet --no-color list --format "${format}" '*'
 }
 
 # List packages installed directly in portages package database
 image_packages_portage() {
-    ROOT="$1" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-        equery --no-color list --format '$cpv::$repo' '*'
+    image_packages_portage_impl "${1}" '$cpv::$repo'
 }
+
+# List packages installed directly in portages package database
+image_packages_slots_repos_portage() {
+    image_packages_portage_impl "${1}" '$cp $fullversion $slot $repo'
+}
+
+# run in a subshell to set nullglob shopt
+image_packages_implicit_impl() (
+    local root=${1}; shift
+    local format=${1}; shift
+
+    # We also want to list packages that only exist in the initramfs.
+    # Approximate this by listing build dependencies of coreos-kernel,
+    # excluding those already existing in portage package database.
+    local kernel_pkg=$(ROOT="${root}" PORTAGE_CONFIGROOT="${BUILD_DIR}/configroot" \
+        equery --quiet --no-color list --format '$cpv' sys-kernel/coreos-kernel)
+    # Sysexts have no kernel package. And no kernel means no initramfs.
+    if [[ -z ${kernel_pkg} ]]; then
+        return 0
+    fi
+
+    local -a pkgs to_check
+    mapfile -t -d ' ' pkgs <"${root}/var/db/pkg/${kernel_pkg}/DEPEND"
+    # Strip pkgs down to just category and name. First grep is to drop
+    # empty results, second grep is to drop blockers.
+    # sys-kernel/coreos-sources is not a package that gets installed
+    # into initramfs. Also add grub and shims - they get installed
+    # into image separately, much later, and not using emerge.
+    mapfile -t to_check < <(
+        printf '%s\n' "${pkgs[@]}" sys-boot/grub sys-boot/shim sys-boot/shim-signed | \
+            sed -e 's/^[^a-z]*//' -e 's/\[.*\]$//' -e 's/:.*//' -e 's/-[0-9].*//' | \
+            grep '.' | \
+            grep -v '^!' | \
+            grep -v -F 'sys-kernel/coreos-sources' | \
+            sort -u)
+    shopt -s nullglob
+    local pkg skip p
+    for pkg in "${to_check[@]}"; do
+        skip=''
+        for p in "${root}/var/db/pkg/${pkg}-"[0-9]*; do
+            skip=x
+            break
+        done
+        if [[ -n ${skip} ]]; then continue; fi
+        if ! "equery-${BOARD}" --no-color --quiet list --format "${format}" "${pkg}"; then
+            warn "No information for ${pkg} found in ${BOARD}."
+            warn "This should not happen - by now, all the board packages should be built and installed in the board sysroot."
+        fi
+        # TODO: We should also check ${pkg} RDEPEND recursively.
+    done
+)
 
 # List packages implicitly contained in rootfs, such as in initramfs.
 image_packages_implicit() {
-    local profile="${BUILD_DIR}/configroot/etc/portage/profile"
+    image_packages_implicit_impl "${1}" '$cpv::$repo'
+}
 
-    # We also want to list packages that only exist in the initramfs.
-    # Approximate this by listing build dependencies of coreos-kernel that
-    # are specified with the "=" slot operator, excluding those already
-    # reported above.
-    local kernel_pkg=$(ROOT="$1" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-        equery --no-color list --format '$cpv' sys-kernel/coreos-kernel)
-    # OEM ACIs have no kernel package.
-    if [[ -n "${kernel_pkg}" ]]; then
-        local depend_path="$1/var/db/pkg/$kernel_pkg/DEPEND"
-        local pkg
-        for pkg in $(awk 'BEGIN {RS=" "} /=$/ {print}' "$depend_path"); do
-            if ! ROOT="$1" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-                    equery -q list "$pkg" >/dev/null ; then
-                query_available_package "$pkg"
-            fi
-        done
-    fi
-
-    # In production images GCC libraries are extracted manually.
-    if [[ -f "${profile}/package.provided" ]]; then
-        local pkg
-        while read pkg; do
-            query_available_package "${pkg}"
-        done < "${profile}/package.provided"
-    fi
+# List packages implicitly contained in rootfs, such as in initramfs.
+image_packages_slots_repos_implicit() {
+    image_packages_implicit_impl "${1}" '$cp $fullversion $slot $repo'
 }
 
 # Generate a list of packages installed in an image.
@@ -233,11 +257,27 @@ image_packages() {
   image_packages_implicit "$1"
 }
 
+# Generate an extended list of packages installed in an image.
+# Usage: image_packages /image/root
+image_packages_slots_repos() {
+    image_packages_slots_repos_portage "${1}"
+    image_packages_slots_repos_implicit "${1}"
+}
+
 # Generate a list of installed packages in the format:
 #   sys-apps/systemd-212-r8::coreos
 write_packages() {
     info "Writing ${2##*/}"
     image_packages "$1" | sort > "$2"
+}
+
+# Generate a list of installed packages in the format
+# "$package $version $slot $repository":
+#
+#   sys-apps/systemd 261.2 0/2 gentoo
+write_packages_extended() {
+    info "Writing ${2##*/}"
+    image_packages_slots_repos "$1" | sort >"$2"
 }
 
 # Generate an SPDX SBOM using syft
@@ -436,6 +476,33 @@ EOF
     sudo gzip -9 "${root_fs_dir}"/usr/share/licenses/common/*
 }
 
+# Lookup the current version of a binary package, downloading it if needed.
+# Usage: get_binary_pkg some-pkg/name
+# Prints: some-pkg/name-1.2.3
+get_binary_pkg() {
+    local name="$1" version
+
+    # If possible use the version installed in $BOARD_ROOT,
+    # fall back to any binary package that is available.
+    version=$(pkg_version installed "${name}")
+    if [[ -z "${version}" ]]; then
+        version=$(pkg_version binary "${name}")
+    fi
+
+    # Nothing? Maybe we can fetch it.
+    if [[ -z "${version}" && ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
+        emerge-${BOARD} --verbose --getbinpkg --usepkgonly --fetchonly --nodeps "${name}" >&2
+        version=$(pkg_version binary "${name}")
+    fi
+
+    # Cry
+    if [[ -z "${version}" ]]; then
+        die "Binary package missing for ${name}"
+    fi
+
+    echo "${version}"
+}
+
 # Add /usr/share/SLSA reports for packages indirectly contained within the rootfs
 # If the package is available in BOARD_ROOT accesses it from there, otherwise
 # needs to download binpkg.
@@ -462,16 +529,6 @@ insert_extra_slsa() {
     fi
     warn "Missing SLSA information for ${atom}"
   done
-}
-
-# Add an entry to the image's package.provided
-package_provided() {
-    local p profile="${BUILD_DIR}/configroot/etc/portage/profile"
-    for p in "$@"; do
-        info "Writing $p to package.provided and soname.provided"
-        echo "$p" >> "${profile}/package.provided"
-	pkg_provides binary "$p" >> "${profile}/soname.provided"
-    done
 }
 
 assert_image_size() {
