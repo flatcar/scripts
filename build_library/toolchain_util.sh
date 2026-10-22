@@ -220,16 +220,16 @@ configure_crossdev_overlay() {
     fi
 
     "${sudo[@]}" mkdir -p "${root}${location}/"{profiles,metadata}
-    echo "x-crossdev" | \
+    echo "crossdev" | \
         "${sudo[@]}" tee "${root}${location}/profiles/repo_name" > /dev/null
     "${sudo[@]}" tee "${root}${location}/metadata/layout.conf" > /dev/null <<EOF
-masters = portage-stable coreos-overlay
+masters = gentoo coreos-overlay
 use-manifests = true
 thin-manifests = true
 EOF
 
     "${sudo[@]}" tee "${root}/etc/portage/repos.conf/crossdev.conf" > /dev/null <<EOF
-[x-crossdev]
+[crossdev]
 location = ${location}
 EOF
 }
@@ -362,17 +362,6 @@ install_cross_toolchain() {
     local sudo=("env")
     if [[ $(id -u) -ne 0 ]]; then
         sudo=("sudo" "-E")
-    fi
-
-    # crossdev will arbitrarily choose an overlay that it finds first.
-    # Force it to use the one created by configure_crossdev_overlay
-    local cross_overlay
-    cross_overlay=$(portageq get_repo_path / x-crossdev)
-    if [[ -n "${cross_overlay}" ]]; then
-        cross_flags+=( --ov-output "${cross_overlay}" )
-    else
-        echo "No x-crossdev overlay found!" >&2
-        return 1
     fi
 
     # Only call crossdev to regenerate configs if something has changed
@@ -518,4 +507,29 @@ gcc_set_latest_profile() {
     fi
 
     "${sudo[@]}" gcc-config "${latest}"
+}
+
+# Symlink Portage config for the given overlay into the given /etc directory.
+symlink_portage_config() {
+    local repo_root=$1 repo_name=$2 etc=$3 conf
+    for conf in "${repo_root}/src/third_party/${repo_name}"/coreos/config/portage/*; do
+        [[ ${conf} == *.md || ! -e ${conf} ]] && continue
+        sudo mkdir -p "${etc}/portage/${conf##*/}"
+        sudo ln -snf "${conf}" "${etc}/portage/${conf##*/}/${repo_name}.conf"
+    done
+}
+
+# Generate a package.mask file to ensure packages from the given overlay are
+# always prioritised over packages from Gentoo, regardless of version. Outputs
+# the name of the generated file.
+prioritise_non_gentoo_pkgs() {
+    local repo_root=$1 repo_name=$2 pkg
+    [[ ${repo_name} == gentoo ]] && return
+    local out="/etc/portage/package.mask/${repo_name}-over-gentoo.conf"
+
+    for pkg in "${repo_root}/src/third_party/${repo_name}"/*-*/*/; do
+        pkg=${pkg#"${repo_root}/src/third_party/${repo_name}"/}
+        echo "${pkg%/}::gentoo"
+    done | sudo_clobber "${out}"
+    echo "${out}"
 }

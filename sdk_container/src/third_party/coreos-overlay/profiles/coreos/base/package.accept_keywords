@@ -55,7 +55,7 @@
 # No stable keywords.
 =app-containers/syft-1.18.1 ~amd64 ~arm64
 
-# Seems to be the only available ebuild in portage-stable right now.
+# Seems to be the only available ebuild in the gentoo repo right now.
 =app-crypt/adcli-0.9.3.1
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
@@ -123,8 +123,8 @@ dev-cpp/azure-security-keyvault-keys
 # No arm64 keyword in package.
 =dev-util/bsdiff-4.3-r4 **
 
-# Catalyst 4 is not stable yet, but earlier versions are masked now.
-=dev-util/catalyst-4.1.1-r1
+# Catalyst currently has no stable versions.
+dev-util/catalyst
 
 # Needed for new glib
 =dev-util/gdbus-codegen-2.88.3
