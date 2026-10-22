@@ -1,0 +1,97 @@
+From 15704d0fe341605f97d978c5e8ca9fee8edf5aa0 Mon Sep 17 00:00:00 2001
+From: Mohammad AMLA <mohammad.amla@numspot.com>
+Date: Wed, 19 Aug 2026 13:49:15 +0200
+Subject: [PATCH] providers/outscale: add Outscale support
+
+---
+ internal/providers/outscale/outscale.go | 59 +++++++++++++++++++++++++
+ internal/register/providers.go          |  3 ++
+ 4 files changed, 65 insertions(+)
+ create mode 100644 internal/providers/outscale/outscale.go
+
+diff --git a/internal/providers/outscale/outscale.go b/internal/providers/outscale/outscale.go
+new file mode 100644
+index 0000000000..c2973058cf
+--- /dev/null
++++ b/internal/providers/outscale/outscale.go
+@@ -0,0 +1,59 @@
++// Copyright 2026 CoreOS, Inc.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//     http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++// The outscale provider fetches a remote configuration from the Outscale
++// user-data metadata service URL.
++
++package outscale
++
++import (
++	"net/url"
++
++	"github.com/coreos/ignition/v2/config/v3_7_experimental/types"
++	"github.com/coreos/ignition/v2/internal/platform"
++	"github.com/coreos/ignition/v2/internal/providers/util"
++	"github.com/coreos/ignition/v2/internal/resource"
++
++	"github.com/coreos/vcontext/report"
++)
++
++// userdataURL is the Outscale metadata service endpoint for user-data.
++var (
++	userdataURL = url.URL{
++		Scheme: "http",
++		Host:   "169.254.169.254",
++		Path:   "/latest/user-data",
++	}
++)
++
++// init registers the Outscale provider with the platform registry.
++func init() {
++	platform.Register(platform.Provider{
++		Name:  "outscale",
++		Fetch: fetchConfig,
++	})
++}
++
++// fetchConfig fetches the Ignition config from the Outscale metadata service.
++func fetchConfig(f *resource.Fetcher) (types.Config, report.Report, error) {
++	data, err := f.FetchToBuffer(userdataURL, resource.FetchOptions{})
++	if err != nil {
++		if err == resource.ErrNotFound {
++			return types.Config{}, report.Report{}, nil
++		}
++		return types.Config{}, report.Report{}, err
++	}
++
++	return util.ParseConfig(f.Logger, data)
++}
+diff --git a/internal/register/providers.go b/internal/register/providers.go
+index 7cde7f741c..71c2e06eec 100644
+--- a/internal/register/providers.go
++++ b/internal/register/providers.go
+@@ -12,6 +12,8 @@
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
+ 
++// Package register imports all platform providers so their init functions
++// register themselves with the platform registry.
+ package register
+ 
+ import (
+@@ -35,6 +37,7 @@ import (
+ 	_ "github.com/coreos/ignition/v2/internal/providers/nvidiabluefield"
+ 	_ "github.com/coreos/ignition/v2/internal/providers/openstack"
+ 	_ "github.com/coreos/ignition/v2/internal/providers/oraclecloud"
++	_ "github.com/coreos/ignition/v2/internal/providers/outscale"
+ 	_ "github.com/coreos/ignition/v2/internal/providers/packet"
+ 	_ "github.com/coreos/ignition/v2/internal/providers/powervs"
+ 	_ "github.com/coreos/ignition/v2/internal/providers/proxmoxve"
