@@ -110,6 +110,7 @@ if [ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_TRUE}" ]; then
 fi
 
 "${SCRIPTS_DIR}"/setup_board --quiet --board=${FLAGS_board} "${UPDATE_ARGS[@]}"
+sudo emerge -v1 sys-apps/portage
 
 # set BOARD and BOARD_ROOT
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
