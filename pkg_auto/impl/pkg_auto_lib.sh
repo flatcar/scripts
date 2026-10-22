@@ -3909,12 +3909,6 @@ function handle_gentoo_sync() {
         done < <(git -C "${NEW_STATE}" diff-tree --no-commit-id --name-only -r "${old_head}" "${new_head}")
     fi
 
-    local hgs_licenses_modified=''
-    drop_unused_licenses hgs_used_licenses_set hgs_licenses_modified
-    if [[ -n ${hgs_licenses_modified} ]]; then
-        non_package_updates_set['licenses']=x
-    fi
-
     local entry
     for entry in "${!non_package_updates_set[@]}"; do
         case "${entry}" in
@@ -3922,7 +3916,7 @@ function handle_gentoo_sync() {
                 handle_eclass "${entry}"
                 ;;
             licenses)
-                handle_licenses
+                handle_licenses hgs_used_licenses
                 ;;
             metadata)
                 info "not handling metadata updates, skipping"
@@ -4167,74 +4161,12 @@ function handle_profiles() {
     generate_summary_stub "${REPORTS_DIR}/updates" profiles -- '0:TODO: review the diffs'
 }
 
-function drop_unused_licenses() {
-    local -n used_licenses_set_ref=${1}; shift
-    local -n licenses_modified_ref=${1}; shift
-
-    local file dul_license
-    local -a to_be_dropped=()
-    for file in "${NEW_GENTOO}/licenses/"*; do
-        basename_out "${file}" dul_license
-        if [[ -z ${used_licenses_set_ref["${dul_license}"]:-} ]]; then
-            to_be_dropped+=( "${dul_license}" )
-        fi
-    done
-
-    if [[ ${#to_be_dropped[@]} -gt 0 ]]; then
-        info "dropping unused licenses"
-
-        local -x "${GIT_ENV_VARS[@]}"
-        setup_git_env
-
-        git -C "${NEW_GENTOO}/licenses" rm --force --quiet "${to_be_dropped[@]}"
-        local old_head maybe_new_commit_msg_pair
-        old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
-        maybe_new_commit_msg_pair=$(git -C "${NEW_STATE}" log --max-count=1 --format=oneline "${old_head}..HEAD" -- "${GENTOO_SUFFIX}/licenses")
-        if [[ -n ${maybe_new_commit_msg_pair} ]]; then
-            local new_commit_hash new_commit_msg
-            new_commit_hash=${maybe_new_commit_msg_pair%% *}
-            new_commit_msg=${maybe_new_commit_msg_pair#* }
-            # licenses directory was updated during last sync, so
-            # amend it with the removals
-            local error_file=${WORKDIR}/licenses-rebase-error-message
-            local -i rv=0
-            git -C "${NEW_STATE}" commit --quiet --fixup "${new_commit_hash}"
-            add_cleanup "rm -f ${error_file@Q}"
-            git -C "${NEW_STATE}" rebase --quiet --autosquash "${old_head}" 2>"${error_file}" || rv=${?}
-            if [[ rv -eq 0 ]]; then
-                licenses_modified_ref=x
-            else
-                local fixup_msg="fixup! ${new_commit_msg}"
-                if [[ $(tail --lines 1 "${error_file}") = *"${fixup_msg}"* ]]; then
-                    info 'git rebase failed, most likely due to the empty licenses commit after fixing up, dropping the licenses commit altogether'
-                    rv=0
-                    git -C "${NEW_STATE}" reset HEAD^ || rv=${?}
-                    if [[ rv -eq 0 ]]; then
-                        rv=0
-                        git -C "${NEW_STATE}" rebase --continue || rv=${?}
-                    fi
-                fi
-                if [[ rv -ne 0 ]]; then
-                    local -a error_lines
-                    mapfile -t error_lines <"${error_file}"
-                    fail_lines \
-                        'rebase after fixing up licenses failed, error from git rebase --autosquash:' \
-                        '' \
-                        "${error_lines[@]}"
-                fi
-            fi
-        else
-            # no licenses were updated during last sync, create the
-            # removals commit
-            git -C "${NEW_STATE}" commit --quiet --signoff --message 'licenses: Drop unused licenses'
-            licenses_modified_ref=x
-        fi
-    fi
-}
-
 # Handles changes in license directory. Generates brief reports and
-# diffs about dropped, added or modified licenses.
+# diffs about dropped, added or modified licenses that we actually
+# use.
 function handle_licenses() {
+    local -n used_licenses_set_ref=${1}; shift
+
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
@@ -4253,9 +4185,13 @@ function handle_licenses() {
         if [[ ${line} = 'Only in '* ]]; then
             strip_out "${line##*:}" hl_stripped
             if [[ ${line} = *"${OLD_STATE}"* ]]; then
-                dropped+=( "${hl_stripped}" )
+                if [[ -n ${used_licenses_set_ref["${hl_stripped}"]:-} ]]; then
+                    dropped+=( "${hl_stripped}" )
+                fi
             elif [[ ${line} = *"${NEW_STATE}"* ]]; then
-                added+=( "${hl_stripped}" )
+                if [[ -n ${used_licenses_set_ref["${hl_stripped}"]:-} ]]; then
+                    added+=( "${hl_stripped}" )
+                fi
             else
                 devel_warn "- unhandled license change: ${line}"
             fi
@@ -4263,7 +4199,9 @@ function handle_licenses() {
             line=${line##"Files ${OLD_GENTOO}/licenses/"}
             line=${line%% *}
             strip_out "${line}" hl_stripped
-            changed+=( "${hl_stripped}" )
+            if [[ -n ${used_licenses_set_ref["${hl_stripped}"]:-} ]]; then
+                changed+=( "${hl_stripped}" )
+            fi
         else
             devel_warn \
                 '- unhandled diff --brief line:' \
