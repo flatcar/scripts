@@ -131,7 +131,7 @@ function package_info_for_sdk() {
     # the output of equery is something like this (assuming
     # architectures are amd64 and arm64):
     #
-    # '             1.87.0-r1   | + + | 8 o 1.87.0 | portage-stable'
+    # '             1.87.0-r1   | + + | 8 o 1.87.0 | gentoo'
     #
     # (so version, followed by stability markers, followed by eapi,
     # some "unused" thing, then slot, the repo name, the "|" are table
@@ -620,11 +620,11 @@ function get_provided_file() {
 # Params:
 #
 # 1 - root directory
-# 2 - ID of the crossdev repository (optional, defaults to x-crossdev)
+# 2 - ID of the crossdev repository (optional, defaults to crossdev)
 function ignore_crossdev_stuff() {
     local root crossdev_repo_id
     root=${1}; shift
-    crossdev_repo_id=${1:-x-crossdev}; shift || :
+    crossdev_repo_id=${1:-crossdev}; shift || :
 
     local crossdev_repo_path
     crossdev_repo_path=$(portageq get_repo_path "${root}" "${crossdev_repo_id}")

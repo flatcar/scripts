@@ -80,7 +80,7 @@ new_scripts=${2}
 old_package=${3}
 new_package=${renamed:-${3}}
 
-gentoo_path=sdk_container/src/third_party/portage-stable
+gentoo_path=sdk_container/src/third_party/gentoo
 overlay_path=sdk_container/src/third_party/coreos-overlay
 old_gentoo_path=${old_scripts}/${gentoo_path}/${old_package}
 old_overlay_path=${old_scripts}/${overlay_path}/${old_package}

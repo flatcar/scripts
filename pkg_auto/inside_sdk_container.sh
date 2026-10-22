@@ -74,13 +74,13 @@ mkdir -p "${reports_dir}"
 
 set_eo "${reports_dir}" "${@}"
 
-echo 'Running egencache for portage-stable'
-generate_cache_for "${debug_args[@]}" 'portage-stable' 2>"${EGENCACHE_W}"
+echo 'Running egencache for gentoo'
+generate_cache_for "${debug_args[@]}" 'gentoo' 2>"${EGENCACHE_W}"
 echo 'Running egencache for coreos-overlay'
 generate_cache_for "${debug_args[@]}" 'coreos-overlay' 2>>"${EGENCACHE_W}"
 
-echo 'Copying portage-stable cache to reports'
-copy_cache_to_reports "${debug_args[@]}" 'portage-stable' "${reports_dir}" 2>>"${EGENCACHE_W}"
+echo 'Copying gentoo cache to reports'
+copy_cache_to_reports "${debug_args[@]}" 'gentoo' "${reports_dir}" 2>>"${EGENCACHE_W}"
 echo 'Copying coreos-overlay cache to reports'
 copy_cache_to_reports "${debug_args[@]}" 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
 

@@ -16,7 +16,7 @@ BOARD_PKGS='board-pkgs'
 REPORTS=( "${SDK_PKGS}" "${BOARD_PKGS}" )
 
 local SCRIPTS OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
-local PORTAGE_STABLE_SUFFIX OLD_PORTAGE_STABLE NEW_PORTAGE_STABLE REPORTS_DIR
+local GENTOO_SUFFIX OLD_GENTOO NEW_GENTOO REPORTS_DIR
 local NEW_STATE_PACKAGES_LIST AUX_DIR
 local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
 
@@ -25,9 +25,9 @@ OLD_STATE='/path/to/old_state'
 NEW_STATE='/path/to/new_state'
 OLD_STATE_BRANCH='old-state'
 NEW_STATE_BRANCH='new-state'
-PORTAGE_STABLE_SUFFIX='sdk_container/src/third_party/portage-stable'
-OLD_PORTAGE_STABLE='/path/to/old_state/portage-stable'
-NEW_PORTAGE_STABLE='/path/to/new_state/portage-stable'
+GENTOO_SUFFIX='sdk_container/src/third_party/gentoo'
+OLD_GENTOO='/path/to/old_state/gentoo'
+NEW_GENTOOx='/path/to/new_state/gentoo'
 REPORTS_DIR='/path/to/reports'
 
 COREOS_OVERLAY_SUFFIX='sdk_container/src/third_party/coreos-overlay'
