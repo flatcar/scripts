@@ -1,0 +1,25 @@
+From 852d1878f0757840e9ced6a7cdcefe5988345d4f Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Tue, 30 Jun 2026 15:25:16 +0200
+Subject: [PATCH] parse-ip: it does not make any sense to configure 'loopback'
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ dracut/50flatcar-network/parse-ip-for-networkd.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dracut/50flatcar-network/parse-ip-for-networkd.sh b/dracut/50flatcar-network/parse-ip-for-networkd.sh
+index 4c144e6..4b0e616 100755
+--- a/dracut/50flatcar-network/parse-ip-for-networkd.sh
++++ b/dracut/50flatcar-network/parse-ip-for-networkd.sh
+@@ -121,6 +121,7 @@ for p in $(getargs ip=); do
+     mkdir -p /etc/systemd/network
+     echo '[Match]' > $_net_file
+     _dev=${dev:-"*"}; echo "Name=$_dev" >> $_net_file
++    echo "Type=!loopback" >> $_net_file
+     echo '[Link]' >> $_net_file
+     [ -n "$macaddr" ] && echo "MACAddress=$macaddr" >> $_net_file
+     [ -n "$mtu" ] && echo "MTUBytes=$mtu" >> $_net_file
+-- 
+2.53.0
+
