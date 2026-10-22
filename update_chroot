@@ -97,7 +97,7 @@ RESUMECOMMAND='wget -c -t 3 -T 60 --passive-ftp -U "Portage (Flatcar SDK ${FLATC
 
 # Generally there isn't any need to add packages to @world by default.
 # You can use --select to override this.
-EMERGE_DEFAULT_OPTS="--verbose --oneshot"
+EMERGE_DEFAULT_OPTS="--verbose --oneshot --cycle-break=y"
 
 # Allow the user to override or define additional settings.
 source "/etc/portage/make.conf.user"

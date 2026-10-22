@@ -14,11 +14,9 @@ case ${phase} in
         binhost=${1}; shift
         if ! ( ./setup_board --board="arm64-usr" --binhost="${binhost}/arm64-usr" && \
                    ./setup_board --board="arm64-usr" --regen_configs && \
-                   ./build_packages --board="arm64-usr" --only_resolve_circular_deps && \
                    \
                    ./setup_board --board="amd64-usr" --binhost="${binhost}/amd64-usr" && \
-                   ./setup_board --board="amd64-usr" --regen_configs && \
-                   ./build_packages --board="amd64-usr" --only_resolve_circular_deps ); then
+                   ./setup_board --board="amd64-usr" --regen_configs ); then
             touch BUILD_PACKAGES_FAILED
         fi
         exit 0

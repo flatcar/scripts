@@ -203,3 +203,6 @@ sys-firmware/edk2-bin
 
 # It pulls security fixes.
 =dev-libs/openssl-3.6.5
+
+# Needed for the new --cycle-break option.
+=sys-apps/portage-3.0.83-r1
