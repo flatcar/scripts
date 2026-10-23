@@ -1939,8 +1939,10 @@ function handle_package_changes_job() {
     local -a reply_lines pair
     local -i i pkg_count start end
     local used_licenses_file="${output_dir}/used-licenses"
+    local used_eclasses_file="${output_dir}/used-eclasses"
 
     local -A hpcj_used_licenses_set=()
+    local -A hpcj_used_eclasses_set=()
 
     local REPLY
     while [[ -z ${we_are_done} ]]; do
@@ -1974,6 +1976,10 @@ function handle_package_changes_job() {
 
     if [[ ${#hpcj_used_licenses_set[@]} -gt 0 ]]; then
         printf '%s\n' "${!hpcj_used_licenses_set[@]}" >"${used_licenses_file}"
+    fi
+
+    if [[ ${#hpcj_used_eclasses_set[@]} -gt 0 ]]; then
+        printf '%s\n' "${!hpcj_used_eclasses_set[@]}" >"${used_eclasses_file}"
     fi
 
     return 0
@@ -2587,6 +2593,7 @@ function handle_package_changes() {
     local -n renamed_old_to_new_map_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local -n used_licenses_set_ref=${1}; shift
+    local -n used_eclasses_set_ref=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
@@ -2752,7 +2759,7 @@ function handle_package_changes() {
         for file in summary_stubs changelog_stubs; do
             paths+=( "${pkg_job_dir}/updates/${file}" )
         done
-        paths+=( "${pkg_job_dir}/used-licenses" )
+        paths+=( "${pkg_job_dir}/used-licenses" "${pkg_job_dir}/used-eclasses" )
         # TODO: That's a bit messy
         add_cleanup "find -P ${pkg_job_updates_dir@Q} -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +"
         add_cleanup "rm -f ${paths[*]@Q}"
@@ -2986,7 +2993,7 @@ function handle_package_changes() {
 
     # All the jobs are done, so here we collect all their reports and
     # merge them into the main ones in reports directory.
-    local some_job_failed='' hpc_filename license
+    local some_job_failed='' hpc_filename license eclass
     local -i hpc_rv
     truncate --size=0 "${REPORTS_DIR}/updates/summary_stubs" "${REPORTS_DIR}/updates/changelog_stubs"
     for pkg_job_state_name in "${pkg_job_state_names[@]}"; do
@@ -3002,6 +3009,11 @@ function handle_package_changes() {
             while read -r license; do
                 used_licenses_set_ref["${license}"]=x
             done <"${pkg_job_dir}/used-licenses"
+        fi
+        if [[ -s "${pkg_job_dir}/used-eclasses" ]]; then
+            while read -r eclass; do
+                used_eclasses_set_ref["${eclass}"]=x
+            done <"${pkg_job_dir}/used-eclasses"
         fi
         for file in "${pkg_job_dir}/warnings/"*; do
             basename_out "${file}" hpc_filename
@@ -3021,6 +3033,7 @@ function handle_package_changes() {
     done
 
     printf '%s\n' "${!used_licenses_set_ref[@]}" | sort -u >"${REPORTS_DIR}/used-licenses"
+    printf '%s\n' "${!used_eclasses_set_ref[@]}" | sort -u >"${REPORTS_DIR}/used-eclasses"
 
     pkg_job_state_unset "${pkg_job_state_names[@]}"
     bunch_of_maps_unset hpc_bunch_of_maps
@@ -3653,7 +3666,8 @@ function handle_gentoo_sync() {
     mkdir -p "${REPORTS_DIR}/updates"
 
     local -A hgs_used_licenses_set=()
-    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_set
+    local -A hgs_used_eclasses_set=()
+    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_set hgs_used_eclasses_set
 
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
@@ -3664,7 +3678,7 @@ function handle_gentoo_sync() {
 
     local -A non_package_updates_set
     non_package_updates_set=()
-    local path in_ps category
+    local path in_ps category eclass_name
     if [[ "${old_head}" != "${new_head}" ]]; then
         while read -r path; do
             if [[ ${path} != "${GENTOO_SUFFIX}/"* ]]; then
@@ -3675,9 +3689,14 @@ function handle_gentoo_sync() {
             case "${category}" in
                 eclass)
                     if [[ ${in_ps} != 'eclass/'+([^/])'.eclass' ]]; then
-                        fail "unexpected updated file inside eclass directory: '${path}'"
+                        continue
                     fi
-                    non_package_updates_set["${in_ps}"]=x
+                    eclass_name=${in_ps}
+                    eclass_name=${eclass_name#'eclass/'}
+                    eclass_name=${eclass_name%'.eclass'}
+                    if [[ -n ${hgs_used_eclasses_set["${eclass_name}"]:-} ]]; then
+                        non_package_updates_set["${in_ps}"]=x
+                    fi
                     ;;
                 licenses|metadata|profiles|scripts)
                     non_package_updates_set["${category}"]=x
