@@ -752,3 +752,12 @@ function debug_print() {
 }
 
 fi
+
+function timed_run() {
+    local -n timeinfo_ref=${1}; shift
+    local -i outfd errfd
+
+    exec {outfd}>&1 {errfd}>&2
+    timeinfo_ref=$(TIMEFORMAT='%3lR'; { time "${@}" 1>&${outfd} 2>&${errfd}; } 2>&1)
+    exec {outfd}>&- {errfd}>&-
+}

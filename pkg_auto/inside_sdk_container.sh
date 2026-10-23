@@ -74,10 +74,14 @@ mkdir -p "${reports_dir}"
 
 set_eo "${reports_dir}" "${@}"
 
+timeinfo=''
+
 echo 'Running egencache for gentoo'
-generate_cache_for "${debug_args[@]}" 'gentoo' 2>"${EGENCACHE_W}"
+timed_run timeinfo generate_cache_for "${debug_args[@]}" 'gentoo' 2>"${EGENCACHE_W}"
+echo "Running egencache for gentoo took ${timeinfo}"
 echo 'Running egencache for coreos-overlay'
-generate_cache_for "${debug_args[@]}" 'coreos-overlay' 2>>"${EGENCACHE_W}"
+timed_run timeinfo generate_cache_for "${debug_args[@]}" 'coreos-overlay' 2>>"${EGENCACHE_W}"
+echo "Running egencache for coreos-overlay took ${timeinfo}"
 
 echo 'Copying gentoo cache to reports'
 copy_cache_to_reports "${debug_args[@]}" 'gentoo' "${reports_dir}" 2>>"${EGENCACHE_W}"
@@ -85,12 +89,14 @@ echo 'Copying coreos-overlay cache to reports'
 copy_cache_to_reports "${debug_args[@]}" 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
 
 echo 'Running pretend-emerge to get complete report for SDK'
-package_info_for_sdk "${debug_args[@]}" "${SDK_EO}" 2>"${SDK_EO_W}"
+timed_run timeinfo package_info_for_sdk "${debug_args[@]}" "${SDK_EO}" 2>"${SDK_EO_W}"
+echo "Running pretend-emerge to get complete report for SDK took ${timeinfo}"
 for arch; do
     be=${arch^^}_BOARD_EO
     bew=${arch^^}_BOARD_EO_W
     echo "Running pretend-emerge to get complete report for ${arch} board"
-    package_info_for_board "${debug_args[@]}" "${arch}" "${!be}" 2>"${!bew}"
+    timed_run timeinfo package_info_for_board "${debug_args[@]}" "${arch}" "${!be}" 2>"${!bew}"
+    echo "Running pretend-emerge to get complete report for ${arch} board took ${timeinfo}"
 done
 
 ensure_no_errors "${@}"
