@@ -502,6 +502,7 @@ start_image() {
   mkdir -p "${BUILD_DIR}"/configroot/etc/portage/profile
   ln -s "${BOARD_ROOT}"/etc/portage/make.* \
       "${BOARD_ROOT}"/etc/portage/package.* \
+      "${BOARD_ROOT}"/etc/portage/patches \
       "${BOARD_ROOT}"/etc/portage/repos.conf \
       "${BUILD_DIR}"/configroot/etc/portage/
 
