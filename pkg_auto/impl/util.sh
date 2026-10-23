@@ -350,4 +350,47 @@ function get_num_proc() {
     num_proc_ref=${num_proc}
 }
 
+# Escapes special characters in the passed string so the string can be
+# used as a regexp in the s/regexp/replacement/ sed command to match
+# the passed string literally.
+#
+# Params:
+#
+# 1 - string to escape
+# 2 - separator that will be used in sed using the escaped string
+# 3 - name of a variable, where the escaped string will be stored
+function escape_sed_regexp() {
+    # sed -e 's/[]\/$*.^[]/\\&/g'
+    _escape_sed_impl "${@}" '[' ']' '$' '*' '.' '^'
+}
+
+# Escapes special characters in the passed string so the string can be
+# used as a replacement in the s/regexp/replacement/ sed command to
+# perform replacements the passed string literally.
+#
+# Params:
+#
+# 1 - string to escape
+# 2 - separator that will be used in sed using the escaped string
+# 3 - name of a variable, where the escaped string will be stored
+function escape_sed_replacement() {
+    # sed -e 's/[\/&]/\\&/g'
+    _escape_sed_impl "${@}" '&'
+}
+
+function _escape_sed_impl() {
+    local r=${1}; shift
+    local sed_separator=${1}; shift
+    local -n esi_escaped=${1}; shift
+    shift
+    # rest are entities to escape
+
+    # escape all preexisting backslashes first
+    local l=${r//'\'/'\\'} c
+    for c; do
+        l=${l//"${c}"/'\'"${c}"}
+    done
+    esi_escaped=${l}
+}
+
 fi

@@ -786,78 +786,68 @@ function devel_warn() {
     devel_warn_d "${REPORTS_DIR}" "${@}"
 }
 
+
 # Handles package names that were missing from Gentoo by either
 # renaming and syncing them if a rename exists or by adding the
 # package to the "manual work needed" file.
-function handle_missing_in_gentoo() {
-    local gentoo
-    gentoo=${1}; shift
-
-    local -a hmig_missing_in_gentoo
-    hmig_missing_in_gentoo=()
-    load_missing_in_gentoo hmig_missing_in_gentoo
-
-    if [[ ${#hmig_missing_in_gentoo[@]} -eq 0 ]]; then
-        return 0;
-    fi
-
+#
+# Params:
+#
+# 1 - name of a map variable; will be a mapping of old package name to
+#     new package name
+function handle_renames() {
+    local from_to_map_var_name=${1}; shift
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local -A hmig_rename_map=()
-    process_profile_updates_directory hmig_rename_map
+    process_profile_updates_directory "${from_to_map_var_name}"
 
-    local -a renamed_from renamed_to
-    renamed_from=()
-    renamed_to=()
+    local -n rename_map_ref=${from_to_map_var_name}
 
-    local -x "${GIT_ENV_VARS[@]}"
-    setup_git_env
-
-    local missing new_name hmig_old_basename hmig_new_basename ebuild ebuild_version_ext new_ebuild_filename
-    for missing in "${hmig_missing_in_gentoo[@]}"; do
-        new_name=${hmig_rename_map["${missing}"]:-}
-        if [[ -z "${new_name}" ]]; then
-            manual "- package ${missing} is gone from Gentoo and no rename found"
-            continue
+    info 'checking renames'
+    local old new line found do_commit='' file last_file=''
+    local hr_old_e hr_new_e
+    for old in "${!rename_map_ref[@]}"; do
+        new=${rename_map_ref["${old}"]}
+        escape_sed_regexp "${old}" '/' hr_old_e
+        escape_sed_regexp "${new}" '/' hr_new_e
+        found=''
+        for read -r line; do
+            found=x
+            do_commit=x
+            file=${line%%:*}
+            if [[ ${last_file} = "${file}" ]]; then
+                continue
+            fi
+            sed -i -e "s/${hr_old_e}/${hr_new_e}/g" "${file}"
+        done < <(grep_pkg "${NEW_STATE}" "${old}" '.' ":!${GENTOO_SUFFIX}/**")
+        if [[ -n ${found} ]]; then
+            info "renamed ${old} to ${new}"
         fi
-        mkdir -p "${NEW_GENTOO}/${new_name%/*}"
-        git -C "${NEW_STATE}" mv "${NEW_GENTOO}/${missing}" "${NEW_GENTOO}/${new_name}"
-        basename_out "${missing}" hmig_old_basename
-        basename_out "${new_name}" hmig_new_basename
-        if [[ "${hmig_old_basename}" != "${hmig_new_basename}" ]]; then
-            for ebuild in "${NEW_GENTOO}/${new_name}/${hmig_old_basename}-"*'.ebuild'; do
-                # 1.2.3-r4.ebuild
-                ebuild_version_ext=${ebuild##*/"${hmig_old_basename}-"}
-                new_ebuild_filename="${hmig_new_basename}-${ebuild_version_ext}"
-                git -C "${NEW_STATE}" mv "${ebuild}" "${NEW_GENTOO}/${new_name}/${new_ebuild_filename}"
+        if [[ -d ${NEW_COREOS_OVERLAY}/${old} ]]; then
+            do_commit=x
+            local old_ebuild ebuild_version new_ebuild
+            local old_name=${old#*/} new_name=${new#*/}
+            local new_category=${new%%/*}
+            mkdir -p "${NEW_COREOS_OVERLAY}/${new_category}"
+            git -C "${NEW_STATE}" mv "${COREOS_OVERLAY_SUFFIX}/${old}" "${COREOS_OVERLAY_SUFFIX}/${new}"
+            for old_ebuild in "${NEW_COREOS_OVERLAY}/${new}/${old_name}-"*.ebuild; do
+                ebuild_version=${old_ebuild#"${NEW_COREOS_OVERLAY}/${new}/${old_name}-"}
+                new_ebuild=${NEW_COREOS_OVERLAY}/${new}/${new_name}-${ebuild_version}
+                git -C "${NEW_STATE}" "${old_ebuild}" "${new_ebuild}"
             done
+            manual \
+                '- a package in overlay got renamed, check if it does not break anything (especially inside the renamed ebuild if it uses P, PN, PF or CATEGORY variables):' \
+                "  - old name: ${old}" \
+                "  - new name: ${new}"
         fi
-        git -C "${NEW_STATE}" commit --quiet --signoff --message "${new_name}: Renamed from ${missing}"
-        info "renamed ${missing} to ${new_name}"
-        renamed_from+=("${missing}")
-        renamed_to+=("${new_name}")
     done
-
-    if [[ ${#renamed_from[@]} -eq 0 ]]; then
-        return 0
+    if [[ -n ${do_commit} ]]; then
+        local -x "${GIT_ENV_VARS[@]}"
+        setup_git_env
+        git -C "${NEW_STATE}" add -u
+        git -C "${NEW_STATE}" commit -s -m "*: Rename ${old} to ${new}"
     fi
-
-    env --chdir="${NEW_GENTOO}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${renamed_to[@]}"
-
-    local dir renamed_re
-    dir="${WORKDIR}/missing_in_gentoo"
-    create_cleanup_dir "${dir}"
-    join_by renamed_re '\|' "${renamed_from[@]}"
-    add_cleanup "rm -f ${dir@Q}/pkg_list"
-    {
-        xgrep --invert-match --line-regexp --regexp="${renamed_re}" "${NEW_STATE_PACKAGES_LIST}"
-        printf '%s\n' "${renamed_to[@]}"
-    } >"${dir}/pkg_list"
-    "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
-    git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
-    git -C "${NEW_STATE}" commit --quiet --signoff --message '.github: Update package names in automation'
-    info 'updated packages names in automation'
 }
 
 # Process the package listings stored in the aux directory to find out
@@ -3658,11 +3648,11 @@ function handle_gentoo_sync() {
     source "${WORKDIR}/globals"
 
     local -A hgs_renames_old_to_new_map=()
-    local -A hgs_used_licenses_set=()
-    process_profile_updates_directory hgs_renames_old_to_new_map
+    handle_renames hgs_renames_old_to_new_map
 
     mkdir -p "${REPORTS_DIR}/updates"
 
+    local -A hgs_used_licenses_set=()
     handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_set
 
     mvm_unset hgs_pkg_to_tags_mvm
