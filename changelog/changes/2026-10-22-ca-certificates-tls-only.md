@@ -1,0 +1,1 @@
+- The system CA bundle now only contains roots that Mozilla trusts for TLS. The 49 roots that Mozilla trusts only for S/MIME (email) were removed from `/etc/ssl/certs` and `ca-certificates.crt`, reducing the bundle from 167 to 118 roots. ([scripts#4333](https://github.com/flatcar/scripts/pull/4333))
