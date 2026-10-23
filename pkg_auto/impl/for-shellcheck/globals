@@ -1,13 +1,9 @@
 local -a GIT_ENV_VARS ARCHES WHICH REPORTS
 local SDK_PKGS BOARD_PKGS
-local SYNC_SCRIPT PKG_LIST_SORT_SCRIPT
 
 GIT_ENV_VARS=(
     GIT_{AUTHOR,COMMITTER}_{NAME,EMAIL}
 )
-
-SYNC_SCRIPT='/path/to/sync_with_gentoo.sh'
-PKG_LIST_SORT_SCRIPT='/path/to/sort_packages_list.py'
 
 ARCHES=( 'amd64' 'arm64' )
 WHICH=('old' 'new')
@@ -17,7 +13,7 @@ REPORTS=( "${SDK_PKGS}" "${BOARD_PKGS}" )
 
 local SCRIPTS OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
 local GENTOO_SUFFIX OLD_GENTOO NEW_GENTOO REPORTS_DIR
-local NEW_STATE_PACKAGES_LIST AUX_DIR
+local AUX_DIR
 local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
 
 SCRIPTS='/path/to/scripts'
@@ -33,8 +29,6 @@ REPORTS_DIR='/path/to/reports'
 COREOS_OVERLAY_SUFFIX='sdk_container/src/third_party/coreos-overlay'
 OLD_COREOS_OVERLAY='/path/to/old_state/coreos-overlay'
 NEW_COREOS_OVERLAY='/path/to/new_state/coreos-overlay'
-
-NEW_STATE_PACKAGES_LIST="${NEW_STATE}/.github/workflows/portage-stable-packages-list"
 
 AUX_DIR='/path/to/aux'
 

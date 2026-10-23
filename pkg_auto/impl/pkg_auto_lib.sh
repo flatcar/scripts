@@ -122,24 +122,6 @@ function setup_workdir_with_config() {
     add_ignore_packages "${cfg_ignore_packages[@]}"
 }
 
-# Goes over the list of automatically updated packages and synces them
-# with packages from Gentoo repo. Cleans up missing packages.
-#
-# The function can only be called after the workdir has been set up
-# with setup_workdir_with_config.
-#
-# Params:
-#
-# 1 - a path to the Gentoo repo
-function perform_sync_with_gentoo() {
-    local gentoo
-    gentoo=$(realpath "${1}"); shift
-
-    run_sync "${gentoo}"
-    handle_missing_in_scripts
-    handle_missing_in_gentoo "${gentoo}"
-}
-
 # Generates package update reports. Duh.
 #
 # The function can only be called after the workdir has been set up
@@ -482,10 +464,6 @@ function setup_worktree() {
 # More stuff will be added later to the globals file based on config
 # or else.
 function setup_initial_globals_file() {
-    local sync_script pkg_list_sort_script
-    sync_script="${PKG_AUTO_IMPL_DIR}/sync_with_gentoo.sh"
-    pkg_list_sort_script="${PKG_AUTO_IMPL_DIR}/sort_packages_list.py"
-
     local globals_file
     globals_file="${WORKDIR}/globals"
 
@@ -496,14 +474,10 @@ function setup_initial_globals_file() {
     cat <<EOF >"${globals_file}"
 local -a GIT_ENV_VARS ARCHES WHICH REPORTS
 local SDK_PKGS BOARD_PKGS
-local SYNC_SCRIPT PKG_LIST_SORT_SCRIPT
 
 GIT_ENV_VARS=(
     GIT_{AUTHOR,COMMITTER}_{NAME,EMAIL}
 )
-
-SYNC_SCRIPT=${sync_script@Q}
-PKG_LIST_SORT_SCRIPT=${pkg_list_sort_script@Q}
 
 ARCHES=( ${sigf_arches[*]@Q} )
 WHICH=('old' 'new')
@@ -560,7 +534,7 @@ function extend_globals_file() {
 
 local SCRIPTS OLD_BASE NEW_BASE OLD_STATE NEW_STATE OLD_STATE_BRANCH NEW_STATE_BRANCH
 local GENTOO_SUFFIX OLD_GENTOO NEW_GENTOO REPORTS_DIR
-local NEW_STATE_PACKAGES_LIST AUX_DIR
+local AUX_DIR
 local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
 local INSIDE_DEBUG
 
@@ -579,8 +553,6 @@ REPORTS_DIR=${reports_dir@Q}
 COREOS_OVERLAY_SUFFIX=${coreos_overlay_suffix@Q}
 OLD_COREOS_OVERLAY=${old_coreos_overlay@Q}
 NEW_COREOS_OVERLAY=${new_coreos_overlay@Q}
-
-NEW_STATE_PACKAGES_LIST="\${NEW_STATE}/.github/workflows/portage-stable-packages-list"
 
 AUX_DIR=${aux_dir@Q}
 INSIDE_DEBUG=${inside_debug@Q}
@@ -685,55 +657,6 @@ function setup_git_env() {
     done
 }
 
-# Goes over the packages list and synces them with the passed Gentoo
-# repo.
-#
-# Params:
-#
-# 1 - path to the Gentoo repo
-function run_sync() {
-    local gentoo
-    gentoo=${1}; shift
-
-    local -a missing_in_scripts missing_in_gentoo
-    missing_in_scripts=()
-    missing_in_gentoo=()
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    local -x "${GIT_ENV_VARS[@]}"
-    setup_git_env
-
-    local -a packages_to_update
-    packages_to_update=()
-
-    local package
-    while read -r package; do
-        if [[ ! -e "${NEW_GENTOO}/${package}" ]]; then
-            # If this happens, it means that the package was moved to overlay
-            # or dropped, the list ought to be updated.
-            missing_in_scripts+=("${package}")
-            continue
-        fi
-        if [[ ! -e "${gentoo}/${package}" ]]; then
-            # If this happens, it means that the package was obsoleted
-            # or moved in Gentoo. The obsoletion needs to be handled
-            # in the case-by-case manner, while move should be handled
-            # by doing the same move in gentoo. The build should not
-            # break because of the move, because most likely it's
-            # already reflected in the profiles/updates directory.
-            missing_in_gentoo+=("${package}")
-            continue
-        fi
-        packages_to_update+=( "${package}" )
-    done < <(cat_meaningful "${NEW_STATE_PACKAGES_LIST}")
-    env --chdir="${NEW_GENTOO}" "${SYNC_SCRIPT}" -b -- "${gentoo}" "${packages_to_update[@]}"
-
-    save_missing_in_scripts "${missing_in_scripts[@]}"
-    save_missing_in_gentoo "${missing_in_gentoo[@]}"
-}
-
 # A helper function that prints the contents of a file skipping empty
 # lines and lines starting with a hash.
 #
@@ -745,57 +668,6 @@ function cat_meaningful() {
     file=${1}; shift
 
     xgrep '^[^#]' "${file}"
-}
-
-# Saves a list of package names to a file and adds a cleanup for
-# it. The names can be loaded again with load_simple_package_list.
-#
-# Params:
-#
-# 1 - path to a file where package names will be stored
-# @ - the package names
-function save_simple_package_list() {
-    local file
-    file=${1}; shift
-    # rest are packages
-
-    add_cleanup "rm -f ${file@Q}"
-    if [[ ${#} -eq 0 ]]; then
-        truncate --size=0 "${file}"
-    else
-        printf '%s\n' "${@}" >"${file}"
-    fi
-}
-
-# Loads a list of packages saved previously with
-# save_simple_package_list.
-#
-# Params:
-#
-# 1 - path to a file where packages were stored
-# 2 - name of an array variable; will contain package names
-function load_simple_package_list() {
-    local file packages_var_name
-    file=${1}; shift
-    packages_var_name=${1}; shift
-
-    mapfile -t "${packages_var_name}" <"${file}"
-}
-
-# General function for saving missing packages. Takes care of creating
-# a directory for the listing.
-#
-# Params:
-#
-# 1 - path to a directory which will contain the listing
-# 2 - name of the listing file
-function save_missing_packages() {
-    local dir file
-    dir=${1}; shift
-    file=${1}; shift
-
-    create_cleanup_dir "${dir}"
-    save_simple_package_list "${dir}/${file}" "${@}"
 }
 
 # Creates a directory and adds a cleanup if the directory was missing.
@@ -810,84 +682,6 @@ function create_cleanup_dir() {
         add_cleanup "rmdir ${dir@Q}"
         mkdir "${dir}"
     fi
-}
-
-# Saves a list of package names that we missing in scripts repo (which
-# means that we were asked to sync a package that isn't in scripts to
-# begin with).
-#
-# Params:
-#
-# @ - package names
-function save_missing_in_scripts() {
-    save_missing_packages "${WORKDIR}/missing_in_scripts" "saved_list" "${@}"
-}
-
-# Saves a list of package names that we missing in Gentoo repo (which
-# means that we were asked to sync a possibly obsolete or renamed
-# package).
-#
-# Params:
-#
-# @ - package names
-function save_missing_in_gentoo() {
-    save_missing_packages "${WORKDIR}/missing_in_gentoo" "saved_list" "${@}"
-}
-
-# Loads a list of package names that were missing in scripts repo.
-#
-# Params:
-#
-# 1 - name of an array variable; will contain package names
-function load_missing_in_scripts() {
-    local packages_var_name
-    packages_var_name=${1}; shift
-
-    load_simple_package_list "${WORKDIR}/missing_in_scripts/saved_list" "${packages_var_name}"
-}
-
-# Loads a list of package names that were missing in Gentoo repo.
-#
-# Params:
-#
-# 1 - name of an array variable; will contain package names
-function load_missing_in_gentoo() {
-    local packages_var_name
-    packages_var_name=${1}; shift
-
-    load_simple_package_list "${WORKDIR}/missing_in_gentoo/saved_list" "${packages_var_name}"
-}
-
-# Handles package names that were missing in scripts by dropping them
-# from the listing of packages that should be updated automatically.
-function handle_missing_in_scripts() {
-    local -a hmis_missing_in_scripts
-    hmis_missing_in_scripts=()
-    load_missing_in_scripts hmis_missing_in_scripts
-
-    # shellcheck source=for-shellcheck/globals
-    source "${WORKDIR}/globals"
-
-    if [[ ${#hmis_missing_in_scripts[@]} -eq 0 ]]; then
-        return 0;
-    fi
-
-    # Remove missing in scripts entries from package automation
-    local dir
-    dir="${WORKDIR}/missing_in_scripts"
-    create_cleanup_dir "${dir}"
-    local missing_re
-    join_by missing_re '\|' "${missing_in_scripts[@]}"
-    add_cleanup "rm -f ${dir@Q}/pkg_list"
-    xgrep --invert-match --line-regexp --fixed-strings --regexp="${missing_re}" "${NEW_STATE_PACKAGES_LIST}" >"${dir}/pkg_list"
-    "${PKG_LIST_SORT_SCRIPT}" "${dir}/pkg_list" >"${NEW_STATE_PACKAGES_LIST}"
-
-    local -x "${GIT_ENV_VARS[@]}"
-    setup_git_env
-
-    git -C "${NEW_STATE}" add "${NEW_STATE_PACKAGES_LIST}"
-    git -C "${NEW_STATE}" commit --quiet --signoff --message '.github: Drop missing packages from automation'
-    info_lines 'dropped missing packages from automation' "${missing_in_scripts[@]/#/- }"
 }
 
 # Helper function to print lines to a file clobbering the old
