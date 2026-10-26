@@ -6,6 +6,14 @@
 
 # New entries go on top.
 
+# Sam James <sam@gentoo.org> (2026-09-23)
+# Only supported on Linux.
+dev-libs/elfutils stackprof
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2026-09-19)
+# Building documentation is broken in this version. Bug #976293
+~dev-cpp/eigen-3.4.1 doc
+
 # Michał Górny <mgorny@gentoo.org> (2026-09-05)
 # dev-python/{ioflo,raet} stuck on Python 3.12 and last-rited.
 app-admin/salt raet
@@ -49,8 +57,9 @@ dev-cpp/eigen:3/3.4 test
 ~sci-libs/adolc-9999 -mpi
 
 # Michał Górny <mgorny@gentoo.org> (2026-05-07)
-# Force-enable all PYTHON_TARGETS for python-exec to avoid using private
-# API. Please remember to keep it in sync with python_targets.desc.
+# Unmask the flags where we need them while the flag is masked globally.
+dev-python/python-tests -python_targets_python3_15
+dev-python/python-tests -python_targets_python3_15t
 dev-lang/python-exec -python_targets_python3_15
 dev-lang/python-exec -python_targets_python3_15t
 
@@ -58,11 +67,6 @@ dev-lang/python-exec -python_targets_python3_15t
 # This needs an upgrade to >=dev-cpp/eigen-5.0.1 and I don't
 # need the extra headache right now.
 >=sci-libs/libsemigroups-3.5.5 eigen
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2026-04-12)
-# net-wireless/gnuradio and dependencies. Qt5 was last-rited.
-# Bug #948049.
-<net-wireless/gnuradio-3.10.12.0-r4 channels qt5
 
 # Mike Gilbert <floppym@gentoo.org> (2026-03-20)
 # Only meant for bootstrapping a cross-compiler.
@@ -166,11 +170,6 @@ media-libs/svt-av1 test
 # Alfred Wingate <parona@protonmail.com> <2025-05-24)
 # Doesn't work well at runtime.
 dev-games/ogre wayland
-
-# Maciej Mrozowski <reavertm@gentoo.org> (2025-05-22)
-# Does not compile as of 2024.1.1, requires buildsystem fixes.
-dev-games/simgear gdal
-games-simulation/flightgear gdal
 
 # Paul Zander <negril.nx+gentoo@gmail.com> (2025-05-01)
 # Requires llvm-15
@@ -317,11 +316,6 @@ dev-lang/python jit
 # bug #887223, bug #891367, bug #903891, bug #917139
 dev-lang/ruby static-libs
 
-# Sam James <sam@gentoo.org> (2024-05-09)
-# Experimental option upstream which seems undertested and underdocumented.
-# Fails to build with stricter C compilers too (bug #919685).
-net-misc/openssh xmss
-
 # Matt Turner <mattst88@gentoo.org> (2024-05-08)
 # Brand new, introduces lots of new aspects to the build.
 # Masked for further testing.
@@ -364,6 +358,7 @@ llvm-core/clang-common cet
 sys-devel/gcc cet
 sys-libs/binutils-libs cet
 sys-libs/glibc cet
+media-libs/x265 cet
 
 # Matthew Turnbull <sparky@bluefang-logic.com> (2024-01-24)
 # Cinnamon wayland support is experimental and incomplete.

@@ -17,6 +17,12 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2026-10-22)
+# Since 5.0.0 release, the package is outright broken (unbound local).
+# The "open source" support mailing list dropped my mail, and either way
+# upstream seems to stopped paying any attention to it.
+dev-python/reportlab
+
 # Michał Górny <mgorny@gentoo.org> (2026-08-01)
 # Used only by old dev-python/feedparser versions.  To be last-rited
 # once they're gone.
@@ -34,10 +40,6 @@ dev-python/gitpython
 # Replaced by dev-ruby/sassc
 # https://sass-lang.com/blog/ruby-sass-is-unsupported/
 dev-ruby/sass
-
-# Michał Górny <mgorny@gentoo.org> (2026-06-10)
-# Part of stdlib since Python 3.11 (as tomllib).
-dev-python/tomli
 
 # Michał Górny <mgorny@gentoo.org> (2026-06-06)
 # Discontinued upstream, with explicit note that they will not be fixing
