@@ -11,6 +11,8 @@ PYTHON_REQ_USE="ssl(+),threads(+)"
 inherit distutils-r1 pypi
 
 FLIT_CORE_PV=3.12.0
+CERTIFI_PV=3024.7.22
+CERTIFI_P=certifi-system-store-${CERTIFI_PV}
 
 MY_P=${P#ensurepip-}
 DESCRIPTION="Shared pip wheel for ensurepip Python module"
@@ -21,6 +23,8 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://github.com/pypa/pip/archive/${PV}.tar.gz -> ${MY_P}.gh.tar.gz
+	https://github.com/projg2/certifi-system-store/archive/v${CERTIFI_PV}.tar.gz
+		-> ${CERTIFI_P}.gh.tar.gz
 	test? (
 		$(pypi_wheel_url flit-core "${FLIT_CORE_PV}")
 	)
@@ -29,7 +33,7 @@ S=${WORKDIR}/${MY_P}
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test test-rust"
 RESTRICT="!test? ( test )"
 
@@ -83,13 +87,15 @@ python_prepare_all() {
 		# remove coverage & pytest-subket wheel expectation from test suite
 		# (from dev-python/pip)
 		"${FILESDIR}/pip-26.0-test-wheels.patch"
-
-		# https://github.com/pypa/pip/pull/14033
-		# + https://github.com/pypa/pip/commit/4c6d7471dec62fb004a47a7c2164b6b5b089ac06
-		"${FILESDIR}/pip-26.1.2-py315.patch"
 	)
 
 	distutils-r1_python_prepare_all
+
+	# Replace bundled certifi with certifi-system-store, which is the next
+	# best thing after unbundling certifi entirely.
+	rm -r src/pip/_vendor/certifi || die
+	mv "${WORKDIR}/${CERTIFI_P}/src/certifi" src/pip/_vendor/ || die
+	sed -i -e "/certifi/s:[0-9][0-9.]*:${CERTIFI_PV}:" src/pip/_vendor/vendor.txt || die
 
 	if use test; then
 		local wheels=(
@@ -145,6 +151,11 @@ python_test() {
 		tests/unit/test_base_command.py::test_base_command_global_tempdir_cleanup
 		tests/unit/test_base_command.py::test_base_command_local_tempdir_cleanup
 		tests/unit/test_base_command.py::test_base_command_provides_tempdir_helpers
+		# require cmake wheel
+		tests/functional/test_build_env.py::test_build_env_can_still_access_python_tools_on_system_path
+		tests/functional/test_build_env.py::test_build_env_isolation[venv-inprocess]
+		tests/functional/test_build_env.py::test_build_env_isolation[venv-subprocess]
+		tests/functional/test_install_config.py::test_build_dependency_install_uses_same_keyring_as_root[legacy-isolation]
 	)
 	local EPYTEST_IGNORE=(
 		# from upstream options

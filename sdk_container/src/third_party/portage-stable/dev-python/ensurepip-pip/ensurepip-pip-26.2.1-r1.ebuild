@@ -11,6 +11,8 @@ PYTHON_REQ_USE="ssl(+),threads(+)"
 inherit distutils-r1 pypi
 
 FLIT_CORE_PV=3.12.0
+CERTIFI_PV=3024.7.22
+CERTIFI_P=certifi-system-store-${CERTIFI_PV}
 
 MY_P=${P#ensurepip-}
 DESCRIPTION="Shared pip wheel for ensurepip Python module"
@@ -21,6 +23,8 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://github.com/pypa/pip/archive/${PV}.tar.gz -> ${MY_P}.gh.tar.gz
+	https://github.com/projg2/certifi-system-store/archive/v${CERTIFI_PV}.tar.gz
+		-> ${CERTIFI_P}.gh.tar.gz
 	test? (
 		$(pypi_wheel_url flit-core "${FLIT_CORE_PV}")
 	)
@@ -29,7 +33,7 @@ S=${WORKDIR}/${MY_P}
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 IUSE="test test-rust"
 RESTRICT="!test? ( test )"
 
@@ -86,6 +90,12 @@ python_prepare_all() {
 	)
 
 	distutils-r1_python_prepare_all
+
+	# Replace bundled certifi with certifi-system-store, which is the next
+	# best thing after unbundling certifi entirely.
+	rm -r src/pip/_vendor/certifi || die
+	mv "${WORKDIR}/${CERTIFI_P}/src/certifi" src/pip/_vendor/ || die
+	sed -i -e "/certifi/s:[0-9][0-9.]*:${CERTIFI_PV}:" src/pip/_vendor/vendor.txt || die
 
 	if use test; then
 		local wheels=(
