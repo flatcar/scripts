@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 PYPI_VERIFY_REPO=https://github.com/pypa/setuptools-scm
-PYTHON_COMPAT=( python3_{12..15} python3_{14..15}t )
+PYTHON_COMPAT=( pypy3_12 python3_{12..15} python3_{14..15}t )
 
 inherit distutils-r1 pypi
 
@@ -17,7 +17,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 RDEPEND="
 	>=dev-python/packaging-26.2[${PYTHON_USEDEP}]
@@ -37,3 +37,10 @@ EPYTEST_DESELECT=(
 	# the usual nondescript gpg-agent failure
 	testing_vcs/test_git.py::test_git_getdate_signed_commit
 )
+
+src_prepare() {
+	distutils-r1_src_prepare
+
+	# increase the test timeout
+	sed -i -e '/timeout/s:10:60:' src/vcs_versioning/_test_utils.py || die
+}
