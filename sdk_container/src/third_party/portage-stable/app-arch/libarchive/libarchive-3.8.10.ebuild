@@ -71,6 +71,8 @@ PATCHES=(
 	# https://github.com/libarchive/libarchive/issues/2069
 	# (we can simply update the command since we don't support old lrzip)
 	"${FILESDIR}/${PN}-3.8.9-lrzip.patch"
+	# https://github.com/libarchive/libarchive/pull/3677
+	"${FILESDIR}/${P}-big-env-test.patch"
 )
 
 src_prepare() {
