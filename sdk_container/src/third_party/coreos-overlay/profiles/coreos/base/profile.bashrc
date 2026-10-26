@@ -93,6 +93,14 @@ cros_stack_hooks() {
 			einfo "Running stacked hooks for ${phase}"
 			header=false
 		fi
+
+		# Don't allow *into or *opts helper values to leak between ebuilds and
+		# hook functions. They normally leak between ebuild phases, but leaking
+		# them to and from other scripts maintained by other people is
+		# hazardous. These default values come from Portage's phase-helpers.sh.
+		local -x __E_DESTTREE="/usr" __E_INSDESTTREE= __E_EXEDESTTREE= __E_DOCDESTTREE=
+		local -x INSOPTIONS="-m0644" EXEOPTIONS="-m0755" LIBOPTIONS="-m0644" DIROPTIONS="-m0755"
+
 		ebegin "   ${func#cros_${phase}_}"
 		${func}
 		eend $?
