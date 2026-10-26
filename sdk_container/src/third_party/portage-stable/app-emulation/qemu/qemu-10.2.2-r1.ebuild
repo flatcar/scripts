@@ -13,7 +13,7 @@ QEMU_DOCS_VERSION=$(ver_cut 1-2).0
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{12..14} )
+PYTHON_COMPAT=( python3_{13..14} )
 PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 inherit eapi9-ver flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps \
@@ -36,19 +36,15 @@ if [[ ${PV} == *9999* ]]; then
 		SRC_URI+=" https://gitlab.com/qemu-project/${proj}/-/archive/${c}/${proj}-${c}.tar.bz2"
 	done
 else
-	inherit verify-sig
 	MY_P="${PN}-${PV/_rc/-rc}"
-	SRC_URI="
-		https://download.qemu.org/${MY_P}.tar.xz
-		verify-sig? ( https://download.qemu.org/${MY_P}.tar.xz.sig )
-	"
+	SRC_URI="https://download.qemu.org/${MY_P}.tar.xz"
 
 	if [[ ${QEMU_DOCS_PREBUILT} == 1 ]] ; then
 		SRC_URI+=" !doc? ( https://dev.gentoo.org/~${QEMU_DOCS_PREBUILT_DEV}/distfiles/${CATEGORY}/${PN}/${PN}-${QEMU_DOCS_VERSION}-docs.tar.xz )"
 	fi
 
 	S="${WORKDIR}/${MY_P}"
-	[[ "${PV}" != *_rc* ]] && KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
+	[[ "${PV}" != *_rc* ]] && KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv x86"
 fi
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
@@ -61,7 +57,7 @@ SLOT="0"
 
 IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	+fdt fuse glusterfs +gnutls gtk infiniband iscsi io-uring
-	jack +jpeg keyutils
+	jack jemalloc +jpeg keyutils
 	lzo multipath
 	ncurses nfs nls numa opengl +oss pam passt +pin-upstream-blobs pipewire
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
@@ -192,6 +188,7 @@ SOFTMMU_TOOLS_DEPEND="
 	iscsi? ( net-libs/libiscsi )
 	io-uring? ( sys-libs/liburing:=[static-libs(+)] )
 	jack? ( virtual/jack )
+	jemalloc? ( dev-libs/jemalloc )
 	jpeg? ( media-libs/libjpeg-turbo:=[static-libs(+)] )
 	kernel_linux? ( sys-libs/libcap-ng[static-libs(+)] )
 	keyutils? ( sys-apps/keyutils[static-libs(+)] )
@@ -312,11 +309,6 @@ BDEPEND="
 		dev-python/pycotap[${PYTHON_USEDEP}]
 	)
 "
-if [[ ${PV} != 9999 ]]; then
-	# https://www.qemu.org/download/
-	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-mdroth )"
-	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/mdroth.asc
-fi
 CDEPEND="
 	${ALL_DEPEND//\[static-libs(+)]}
 	${SOFTMMU_TOOLS_DEPEND//\[static-libs(+)]}
@@ -490,7 +482,6 @@ src_unpack() {
 		cd "${S}" || die
 		meson subprojects packagefiles --apply || die
 	else
-		use verify-sig && verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sig}
 		default
 	fi
 }
@@ -635,6 +626,7 @@ qemu_src_configure() {
 		$(conf_notuser infiniband rdma)
 		$(conf_notuser iscsi libiscsi)
 		$(conf_notuser io-uring linux-io-uring)
+		$(conf_malloc jemalloc)
 		$(conf_notuser jpeg vnc-jpeg)
 		$(conf_notuser kernel_linux kvm)
 		$(conf_notuser keyutils libkeyutils)
