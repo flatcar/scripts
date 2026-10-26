@@ -3,39 +3,33 @@
 
 EAPI="8"
 
-VERIFY_SIG_METHOD=sigstore
+LLVM_COMPAT=( 21 )
+LLVM_OPTIONAL=1
 WANT_LIBTOOL="none"
 
-inherit autotools check-reqs eapi9-ver flag-o-matic linux-info
+inherit autotools check-reqs eapi9-ver flag-o-matic git-r3 linux-info llvm-r2
 inherit multiprocessing pax-utils python-utils-r1 toolchain-funcs
-inherit verify-sig
 
-REAL_PV=${PV#0.}
-MY_PV=${REAL_PV/_}
-MY_P="Python-${MY_PV%_p*}"
-PYVER="$(ver_cut 2-3)t"
-PATCHSET="python-gentoo-patches-${MY_PV}"
+PYVER=$(ver_cut 1-2)
+PATCHSET="python-gentoo-patches-3.16.0a1"
 
-DESCRIPTION="Freethreading (no-GIL) version of Python programming language"
+DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="
 	https://www.python.org/
 	https://github.com/python/cpython/
 "
 SRC_URI="
-	https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz
 	https://distfiles.gentoo.org/pub/proj/python/patchsets/${PYVER%t}/${PATCHSET}.tar.xz
-	verify-sig? (
-		https://www.python.org/ftp/python/${REAL_PV%%_*}/${MY_P}.tar.xz.sigstore
-	)
 "
-S="${WORKDIR}/${MY_P}"
+EGIT_REPO_URI="https://github.com/python/cpython.git"
 
 LICENSE="PSF-2"
 SLOT="${PYVER}"
 IUSE="
-	bluetooth build debug +ensurepip examples gdbm libedit +ncurses pgo
+	bluetooth build debug +ensurepip examples gdbm jit libedit +ncurses pgo
 	+readline +sqlite +ssl tail-call-interp test tk valgrind
 "
+REQUIRED_USE="jit? ( ${LLVM_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
 # Do not add a dependency on dev-lang/python to this ebuild.
@@ -86,6 +80,12 @@ BDEPEND="
 	dev-build/autoconf-archive
 	app-alternatives/awk
 	virtual/pkgconfig
+	jit? (
+		$(llvm_gen_dep '
+			llvm-core/clang:${LLVM_SLOT}
+			llvm-core/llvm:${LLVM_SLOT}
+		')
+	)
 	tail-call-interp? (
 		|| (
 			>=sys-devel/gcc-16:*
@@ -101,10 +101,6 @@ fi
 PDEPEND="
 	ensurepip? ( dev-python/ensurepip-pip )
 "
-
-# https://www.python.org/downloads/metadata/sigstore/
-VERIFY_SIG_CERT_IDENTITY=hugo@python.org
-VERIFY_SIG_CERT_OIDC_ISSUER=https://github.com/login/oauth
 
 # large file tests involve a 2.5G file being copied (duplicated)
 CHECKREQS_DISK_BUILD=5500M
@@ -123,22 +119,24 @@ pkg_pretend() {
 		check-reqs_pkg_pretend
 	fi
 
-	ewarn "Freethreading build is considered experimental upstream.  Using it"
-	ewarn "could lead to unexpected breakage, including race conditions"
-	ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
-	ewarn "you can reproduce the problem with dev-lang/python.  Instead,"
-	ewarn "please consider reporting freethreading problems upstream."
+	if use jit; then
+		ewarn "USE=jit is considered experimental upstream.  Using it"
+		ewarn "could lead to unexpected breakage, including race conditions"
+		ewarn "and crashes, respectively.  Please do not file Gentoo bugs, unless"
+		ewarn "you can reproduce the problem with dev-lang/python[-jit].  Instead,"
+		ewarn "please consider reporting JIT problems upstream."
+	fi
 
-	if [[ ${MERGE_TYPE} != buildonly ]] && ver_replacing -lt 0.3.15.0_beta4; then
+	if [[ ${MERGE_TYPE} != buildonly ]] && ver_replacing -lt 3.15.0_beta4; then
 		ewarn
 		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
 		ewarn "with older versions may crash at runtime or worse after upgrading."
 		ewarn "A rebuild is recommended after the merge is complete, e.g. using:"
 		ewarn
-		ewarn "  emerge -1v \$(find /usr/lib/python3.15t/site-packages -name '*.cpython-315t-*.so')"
+		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
 		ewarn
 		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
-		ewarn "the 3.15 rebuild should cover all 3.15t packages as well."
+		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
 		ewarn "If you do not wish to perform the rebuild at the time, it is"
 		ewarn "recommended to abort the upgrade."
 		ewarn
@@ -147,6 +145,7 @@ pkg_pretend() {
 
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
+		use jit && llvm-r2_pkg_setup
 		if use test || use pgo; then
 			check-reqs_pkg_setup
 
@@ -164,9 +163,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	if use verify-sig; then
-		verify-sig_verify_detached "${DISTDIR}"/${MY_P}.tar.xz{,.sigstore}
-	fi
+	git-r3_src_unpack
 	default
 }
 
@@ -414,13 +411,13 @@ src_configure() {
 		--without-ensurepip
 		--without-lto
 		--with-system-expat
-		--with-system-libmpdec
 		--with-platlibdir=lib
 		--with-pkg-config=yes
 		--with-wheel-pkg-dir="${EPREFIX}"/usr/lib/python/ensurepip
-		--disable-gil
+		--enable-gil
 
 		$(use_with debug assertions)
+		$(use_enable jit experimental-jit)
 		$(use_enable pgo optimizations)
 		$(use_with readline readline "$(usex libedit editline readline)")
 		$(use_with tail-call-interp)
@@ -497,10 +494,11 @@ src_compile() {
 	export GENTOO_CPYTHON_BUILD=1
 
 	if use pgo ; then
-		# bug 660358
-		local -x COLUMNS=80
+		# https://bugs.gentoo.org/660358
 		local -x PYTHONDONTWRITEBYTECODE=
 		local -x TMPDIR=/var/tmp
+		# https://bugs.gentoo.org/984547
+		unset COLUMNS
 	fi
 
 	# also need to clear the flags explicitly here or they end up
@@ -537,10 +535,11 @@ src_test() {
 		"${COMMON_TEST_SKIPS[@]}"
 	)
 
-	# bug 660358
-	local -x COLUMNS=80
+	# https://bugs.gentoo.org/660358
 	local -x PYTHONDONTWRITEBYTECODE=
 	local -x TMPDIR=/var/tmp
+	# https://bugs.gentoo.org/984547
+	unset COLUMNS
 
 	nonfatal emake -Onone test EXTRATESTOPTS="${test_opts[*]}" \
 		CPPFLAGS= CFLAGS= LDFLAGS= < /dev/tty
@@ -562,10 +561,6 @@ src_install() {
 
 	# Fix collisions between different slots of Python.
 	rm "${ED}/usr/$(get_libdir)/libpython3.so" || die
-	# Fix collision with GIL-enabled build.
-	rm "${ED}/usr/bin/python${PYVER%t}" || die
-	mv "${ED}"/usr/bin/pydoc{${PYVER%t},${PYVER}} || die
-	mv "${ED}"/usr/share/man/man1/python{${PYVER%t},${PYVER}}.1 || die
 
 	# Cheap hack to get version with ABIFLAGS
 	local abiver=$(cd "${ED}/usr/include"; echo python*)
@@ -591,17 +586,14 @@ src_install() {
 	if ! use sqlite; then
 		rm -r "${libdir}/"sqlite3 || die
 	fi
-	if use tk; then
-		# rename to avoid collision with dev-lang/python
-		mv "${ED}"/usr/bin/idle{${PYVER%t},${PYVER}} || die
-	else
-		rm -r "${ED}/usr/bin/idle${PYVER%t}" || die
+	if ! use tk; then
+		rm -r "${ED}/usr/bin/idle${PYVER}" || die
 		rm -r "${libdir}/"{idlelib,tkinter} || die
 	fi
 
 	ln -s ../python/EXTERNALLY-MANAGED "${libdir}/EXTERNALLY-MANAGED" || die
 
-	dodoc Misc/{ACKS,HISTORY,NEWS}
+	dodoc Misc/{ACKS,HISTORY}
 
 	if use examples; then
 		docinto examples
@@ -649,12 +641,12 @@ src_install() {
 }
 
 pkg_postinst() {
-	if ver_replacing -lt 0.3.15.0_beta4; then
+	if ver_replacing -lt 3.15.0_beta4; then
 		ewarn "Python 3.15.0b4 has broken its extension ABI.  The extensions built"
 		ewarn "with older versions may crash at runtime or worse.  To prevent this,"
 		ewarn "please rebuild all extensions using the versoned ABI, e.g. using:"
 		ewarn
-		ewarn "  emerge -1v \$(find /usr/lib/python3.15t/site-packages -name '*.cpython-315t-*.so')"
+		ewarn "  emerge -1v \$(find /usr/lib/python3.15/site-packages -name '*.cpython-315-*.so')"
 		ewarn
 		ewarn "Note that if you enabled both python3_15 and python3_15t, then"
 		ewarn "the 3.15 rebuild should cover all 3.15t packages already."
