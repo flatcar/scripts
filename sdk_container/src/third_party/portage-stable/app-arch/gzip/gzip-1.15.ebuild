@@ -33,7 +33,7 @@ fi
 LICENSE="GPL-3+"
 SLOT="0"
 if [[ ${PV} != *_p* ]] ; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="pic static"
 
@@ -45,6 +45,7 @@ PDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-1.3.8-install-symlinks.patch"
+	"${FILESDIR}/${P}-arm64.patch"
 )
 
 src_configure() {
