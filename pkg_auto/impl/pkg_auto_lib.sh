@@ -2065,6 +2065,10 @@ function handle_one_package_change() {
             old_repo_path=${OLD_GENTOO}
             old_cache_path="${WORKDIR}/pkg-reports/old/gentoo-cache"
             ;;
+        'portage-stable')
+            old_repo_path=${OLD_GENTOO}
+            old_cache_path="${WORKDIR}/pkg-reports/old/portage-stable-cache"
+            ;;
         'coreos-overlay')
             old_repo_path=${OLD_COREOS_OVERLAY}
             old_cache_path="${WORKDIR}/pkg-reports/old/coreos-overlay-cache"
@@ -2083,6 +2087,10 @@ function handle_one_package_change() {
         'gentoo')
             new_repo_path=${NEW_GENTOO}
             new_cache_path="${WORKDIR}/pkg-reports/new/gentoo-cache"
+            ;;
+        'portage-stable')
+            new_repo_path=${NEW_GENTOO}
+            new_cache_path="${WORKDIR}/pkg-reports/new/portage-stable-cache"
             ;;
         'coreos-overlay')
             new_repo_path=${NEW_COREOS_OVERLAY}
@@ -3914,7 +3922,7 @@ function handle_profiles() {
     local line
     while read -r line; do
         profile_dirs_set["${line}"]=x
-    done < <(xgrep --no-filename '^gentoo:' "${files[@]}" | cut -d: -f2-)
+    done < <(xgrep --no-filename '^\(portage-stable\|gentoo\):' "${files[@]}" | cut -d: -f2-)
 
     local -a diff_opts
     diff_opts=(

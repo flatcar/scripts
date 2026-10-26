@@ -39,11 +39,13 @@ source "$(dirname "${BASH_SOURCE[0]}")/impl/util.sh"
 source "${PKG_AUTO_IMPL_DIR}/inside_sdk_container_lib.sh"
 
 debug_args=()
+debug=''
 
 while [[ ${#} -gt 0 ]]; do
     case ${1} in
         '-d')
             debug_args=(-d)
+            debug=x
             shift
             ;;
         '-h')
@@ -76,15 +78,86 @@ set_eo "${reports_dir}" "${@}"
 
 timeinfo=''
 
-echo 'Running egencache for gentoo'
-timed_run timeinfo generate_cache_for "${debug_args[@]}" 'gentoo' 2>"${EGENCACHE_W}"
-echo "Running egencache for gentoo took ${timeinfo}"
+if [[ -n ${debug} ]]; then
+    set -x
+fi
+
+sdk_type='new'
+main_repo='gentoo'
+repo_config=$(cat /etc/portage/repos.conf/*)
+if grep -qF 'portage-stable' <<<"${repo_config}"; then
+    sdk_type='old'
+    main_repo='portage-stable'
+fi
+repos_type='new'
+ps=${PKG_AUTO_DIR}/../sdk_container/src/third_party/portage-stable
+if [[ -d ${ps} && ! -L ${ps} ]]; then
+    repos_type='old'
+fi
+
+if [[ -n ${debug} ]]; then
+    trap_cmds=('printf "  - %s\n" "${trap_cmds[@]}"; set -x;')
+else
+    trap_cmds=(':;')
+fi
+
+case "${sdk_type} sdk, ${repos_type} repos" in
+    'old sdk, old repos'|'new sdk, new repos')
+        : # nothing to do
+        ;;
+    'old sdk, new repos')
+        # fake gentoo as portage-stable
+        g=${PKG_AUTO_DIR}/../sdk_container/src/third_party/gentoo
+        ln -sf gentoo "${ps}"
+        trap_cmds+=("rm -f ${ps@Q};")
+        # temporarily rename gentoo to portage-stable
+        gprn=${g}/profiles/repo_name
+        mv "${gprn}"{,.bak}
+        echo portage-stable >"${gprn}"
+        trap_cmds+=("rm -f ${gprn@Q}; mv ${gprn@Q}{.bak,};")
+        # temporarily modify overlay metadata to mention portage-stable as master
+        o=${PKG_AUTO_DIR}/../sdk_container/src/third_party/coreos-overlay
+        olc=${o}/metadata/layout.conf
+        mv "${olc}"{,.bak}
+        sed -e 's/masters[[:space:]]*=[[:space:]]*gentoo/masters = portage-stable/' "${olc}.bak" >"${olc}"
+        trap_cmds+=("rm -f ${olc@Q}; mv ${olc@Q}{.bak,};")
+        # temporarily rename gentoo to portage-stable in overlay profiles
+        for parent in $(grep -F 'gentoo:' $(find "${o}/profiles" -name parent) | cut -f1 -d: | sort -u); do
+            mv "${parent}"{,.bak}
+            sed -e 's/gentoo:/portage-stable:/' "${parent}.bak" >"${parent}"
+            trap_cmds+=("rm -f ${parent@Q}; mv ${parent@Q}{.bak,};")
+        done
+        unset parent olc o gprn g
+        ;;
+    'new sdk, old repos') # new sdk, old repos
+        fail "Just use old SDK for old repos"
+        ;;
+    *)
+        fail "Bad case '${sdk_type} sdk, ${repos_type} repos'"
+        ;;
+esac
+
+unset ps
+
+if [[ -n ${debug} ]]; then
+    trap_cmds+=("set +x;")
+fi
+
+trap "${trap_cmds[*]}" EXIT
+
+if [[ -n ${debug} ]]; then
+    set +x
+fi
+
+echo "Running egencache for ${main_repo}"
+timed_run timeinfo generate_cache_for "${debug_args[@]}" "${main_repo}" 2>"${EGENCACHE_W}"
+echo "Running egencache for ${main_repo} took ${timeinfo}"
 echo 'Running egencache for coreos-overlay'
 timed_run timeinfo generate_cache_for "${debug_args[@]}" 'coreos-overlay' 2>>"${EGENCACHE_W}"
 echo "Running egencache for coreos-overlay took ${timeinfo}"
 
 echo 'Copying gentoo cache to reports'
-copy_cache_to_reports "${debug_args[@]}" 'gentoo' "${reports_dir}" 2>>"${EGENCACHE_W}"
+copy_cache_to_reports "${debug_args[@]}" "${main_repo}" "${reports_dir}" 2>>"${EGENCACHE_W}"
 echo 'Copying coreos-overlay cache to reports'
 copy_cache_to_reports "${debug_args[@]}" 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
 
