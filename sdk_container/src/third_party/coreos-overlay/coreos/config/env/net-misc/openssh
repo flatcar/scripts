@@ -10,6 +10,7 @@ cros_post_src_install_flatcar_modifications() {
     vendorize_pam_files
 
     if [[ $(flatcar_target) != 'sdk' ]] ; then
+        insopts -m 0644
         dosym -r /usr/share/flatcar/etc/ssh/ssh_config.d/50-flatcar-ssh.conf /usr/share/ssh/ssh_config
         insinto /usr/share/flatcar/etc/ssh/ssh_config.d/
         newins - 50-flatcar-ssh.conf
@@ -18,6 +19,7 @@ cros_post_src_install_flatcar_modifications() {
 # Use defaults for ssh client system-wide configuration.
 EOF
 
+        insopts -m 0600
         dosym -r /usr/share/flatcar/etc/ssh/sshd_config.d/50-flatcar-sshd.conf /usr/share/ssh/sshd_config
         insinto /usr/share/flatcar/etc/ssh/sshd_config.d/
         newins - 50-flatcar-sshd.conf
@@ -46,18 +48,16 @@ PrintMotd no
 HostkeyAlgorithms +ssh-rsa
 PubkeyAcceptedAlgorithms +ssh-rsa
 EOF
+
         # Install our socket drop-in file that disables the rate
         # limiting on the sshd socket.
-        (
-            insopts -m 0644
-            unit_dir=$(systemd_get_systemunitdir)
-            insinto "${unit_dir}/sshd.socket.d"
-            newins - no-trigger-limit-burst.conf <<'EOF'
+        insopts -m 0644
+        insinto "$(systemd_get_systemunitdir)/sshd.socket.d"
+        newins - no-trigger-limit-burst.conf <<'EOF'
 [Socket]
 TriggerLimitBurst=0
 EOF
-            # Enable some sockets that aren't enabled by their own ebuilds.
-            systemd_enable_service sockets.target sshd.socket
-        )
+        # Enable some sockets that aren't enabled by their own ebuilds.
+        systemd_enable_service sockets.target sshd.socket
     fi
 }
