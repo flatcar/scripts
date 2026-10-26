@@ -624,7 +624,22 @@ function get_provided_file() {
 function ignore_crossdev_stuff() {
     local root crossdev_repo_id
     root=${1}; shift
-    crossdev_repo_id=${1:-crossdev}; shift || :
+    if [[ ${#} -gt 0 ]]; then
+        crossdev_repo_id=${1}; shift
+    else
+        local -a repos
+        local repo
+        mapfile -t -d ' ' repos < <(portageq get_repos "${root}")
+        for repo in "${repos[@]}"; do
+            if [[ ${repo} = *crossdev* ]]; then
+                crossdev_repo_id=${repo}
+                break
+            fi
+        done
+        if [[ -z ${crossdev_repo_id} ]]; then
+            crossdev_repo_id=crossdev
+        fi
+    fi
 
     local crossdev_repo_path
     crossdev_repo_path=$(portageq get_repo_path "${root}" "${crossdev_repo_id}")
