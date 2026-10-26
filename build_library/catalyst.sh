@@ -6,6 +6,7 @@
 # common.sh should be sourced first
 [[ -n "${DEFAULT_BUILD_ROOT}" ]] || exit 1
 . "${SCRIPTS_DIR}/sdk_lib/sdk_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
 . "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 
 # Default option values, may be provided before including this file
@@ -243,6 +244,36 @@ write_configs() {
         rm "${TEMPDIR}"/portage/package.env/qemu
 }
 
+# runs in a subshell for a trap
+generate_stage_listings() (
+    local stage=${1}; shift
+    local listing_dir=${TEMPDIR}/${stage}-listing
+    mkdir -p "${listing_dir}"
+    trap 'rm -rf "${listing_dir}"' EXIT
+    # use lbzip2 for faster decompression
+    tar \
+        --extract \
+        --use-compress-program=lbzip2 \
+        --file="${BUILDS}/${stage}-${ARCH}-${FLAGS_version}.tar.bz2" \
+        --directory "${listing_dir}"
+    local cpvs=() cpv pkg version slot repo
+    local output_prefix=${BUILDS}/${TYPE}-${ARCH}-${FLAGS_version}-${stage}
+    local pkgs_file=${output_prefix}-packages_extended.txt
+    mapfile -t -d '' cpvs < <(find "${listing_dir}/var/db/pkg/" -mindepth 2 -maxdepth 2 -printf '%P\0')
+    info "Writing ${pkgs_file##*/}"
+    for cpv in "${cpvs[@]}"; do
+        # "-[0-9]*" is a glob pattern, not a regex, so it matches a
+        # dash, followed by a digit, followed by any number of any
+        # bytes
+        pkg=${cpv%-[0-9]*}
+        version=${cpv#"${pkg}-"}
+        slot=$(< "${listing_dir}/var/db/pkg/${cpv}/SLOT")
+        repo=$(< "${listing_dir}/var/db/pkg/${cpv}/repository")
+        echo "${pkg} ${version} ${slot} ${repo}"
+    done | LC_ALL=C sort >"${pkgs_file}"
+    write_contents_with_technical_details "${listing_dir}" "${output_prefix}-contents_wtd.txt"
+)
+
 build_stage() {
     local stage catalyst_conf target_tarball
 
@@ -266,6 +297,7 @@ build_stage() {
         --file "$TEMPDIR/${stage}.spec"
     ln -sf "$stage-${ARCH}-${FLAGS_version}.tar.bz2" \
         "$BUILDS/$stage-${ARCH}-latest.tar.bz2"
+    generate_stage_listings "${stage}"
     info "Finished building $target_tarball"
 }
 

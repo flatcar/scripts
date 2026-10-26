@@ -5,56 +5,6 @@
 
 source "${BUILD_LIBRARY_DIR}/oem_sysexts.sh" || exit 1
 
-# Lookup the current version of a binary package, downloading it if needed.
-# Usage: get_binary_pkg some-pkg/name
-# Prints: some-pkg/name-1.2.3
-get_binary_pkg() {
-    local name="$1" version
-
-    # If possible use the version installed in $BOARD_ROOT,
-    # fall back to any binary package that is available.
-    version=$(pkg_version installed "${name}")
-    if [[ -z "${version}" ]]; then
-        version=$(pkg_version binary "${name}")
-    fi
-
-    # Nothing? Maybe we can fetch it.
-    if [[ -z "${version}" && ${FLAGS_getbinpkg} -eq ${FLAGS_TRUE} ]]; then
-        emerge-${BOARD} --verbose --getbinpkg --usepkgonly --fetchonly --nodeps "${name}" >&2
-        version=$(pkg_version binary "${name}")
-    fi
-
-    # Cry
-    if [[ -z "${version}" ]]; then
-        die "Binary package missing for ${name}"
-    fi
-
-    echo "${version}"
-}
-
-# The GCC package includes both its libraries and the compiler.
-# In prod images we only need the shared libraries.
-extract_prod_gcc() {
-    local root_fs_dir="$1" gcc pkg
-    gcc=$(get_binary_pkg sys-devel/gcc)
-
-    # FIXME(marineam): Incompatible with FEATURES=binpkg-multi-instance
-    pkg="$(portageq-${BOARD} pkgdir)/${gcc}.tbz2"
-    [[ -f "${pkg}" ]] || die "${pkg} is missing"
-
-    # Normally GCC's shared libraries are installed to:
-    #  /usr/lib/gcc/x86_64-cros-linux-gnu/$version/*
-    # Instead we extract them to plain old /usr/lib
-    qtbz2 -O -t "${pkg}" | \
-        lbzcat -d -c - | \
-        sudo tar -C "${root_fs_dir}" -x \
-        --transform 's#/usr/lib/.*/#/usr/lib64/#' \
-        --wildcards './usr/lib/gcc/*.so*' \
-        --wildcards './usr/share/SLSA'
-
-    package_provided "${gcc}"
-}
-
 create_prod_image() {
   local image_name="$1"
   local disk_layout="$2"
@@ -69,12 +19,16 @@ create_prod_image() {
 
   info "Building production image ${image_name}"
   # The "prod-image-rootfs" directory name is important - it is used
-  # to determine the package target in coreos/base/profile.bashrc
+  # to determine the package target in coreos/base/profile.bashrc. The
+  # FLATCAR_GENERIC_BUILD_TYPE environment variable is also used
+  # there, but for different ebuild phase functions.
   local root_fs_dir="${BUILD_DIR}/prod-image-rootfs"
+  local -x FLATCAR_GENERIC_BUILD_TYPE=generic-prod
   local root_fs_sysexts_output_dir="${BUILD_DIR}/rootfs-included-sysexts"
   local image_contents="${image_name%.bin}_contents.txt"
   local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
   local image_packages="${image_name%.bin}_packages.txt"
+  local image_packages_extended="${image_name%.bin}_packages_extended.txt"
   local image_sbom="${image_name%.bin}_sbom.json"
   local image_licenses="${image_name%.bin}_licenses.json"
   local image_kconfig="${image_name%.bin}_kernel_config.txt"
@@ -91,9 +45,7 @@ create_prod_image() {
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
 
-  # Install minimal GCC (libs only) and then everything else
   set_image_profile prod
-  extract_prod_gcc "${root_fs_dir}"
   emerge_to_image "${root_fs_dir}" "${base_pkg}"
   run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
@@ -121,6 +73,7 @@ create_prod_image() {
   fi
 
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
+  write_packages_extended "${root_fs_dir}" "${BUILD_DIR}/${image_packages_extended}"
 
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
   insert_extra_slsa "${root_fs_dir}"
@@ -262,13 +215,19 @@ create_prod_sysexts() {
     # The --install_root_basename="${name}-extra-sysext-rootfs" flag
     # is important - it sets the name of a rootfs directory, which is
     # used to determine the package target in
-    # coreos/base/profile.bashrc
-    USE="${useflags_array[*]}" sudo -E "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
-        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-        --image_builddir="${BUILD_DIR}" \
-        --install_root_basename="${name}-extra-sysext-rootfs" \
-        ${mangle_script:+--manglefs_script=${mangle_script}} \
-        "${name}" "${pkg_array[@]}"
+    # coreos/base/profile.bashrc. The FLATCAR_GENERIC_BUILD_TYPE
+    # environment variable is also used there, but for different
+    # ebuild phase functions.
+    sudo -E \
+         "USE=${useflags_array[*]}" \
+         "FLATCAR_GENERIC_BUILD_TYPE=generic-sysext-extra-${name}" \
+         "${SCRIPT_ROOT}/build_sysext" \
+             --board="${BOARD}" \
+             --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+             --image_builddir="${BUILD_DIR}" \
+             --install_root_basename="${name}-extra-sysext-rootfs" \
+             ${mangle_script:+--manglefs_script=${mangle_script}} \
+             "${name}" "${pkg_array[@]}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \
@@ -316,18 +275,24 @@ create_oem_sysexts() {
     # The --install_root_basename="${name}-oem-sysext-rootfs" flag is
     # important - it sets the name of a rootfs directory, which is
     # used to determine the package target in
-    # coreos/base/profile.bashrc
+    # coreos/base/profile.bashrc. The FLATCAR_GENERIC_BUILD_TYPE
+    # environment variable is also used there, but for different
+    # ebuild phase functions.
     #
     # OEM sysexts use no compression here since they will be stored
     # in a compressed OEM partition.
-    USE="${useflags}" sudo -E "${SCRIPT_ROOT}/build_sysext" --board="${BOARD}" \
-        --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
-        --image_builddir="${BUILD_DIR}" \
-        --metapkgs="${metapkg}" \
-        --install_root_basename="${name}-oem-sysext-rootfs" \
-        --compression=none \
-        ${mangle_script:+--manglefs_script="${mangle_script}"} \
-        "${name}"
+    sudo -E \
+         "USE=${useflags}" \
+         "FLATCAR_GENERIC_BUILD_TYPE=generic-sysext-oem-${name}" \
+         "${SCRIPT_ROOT}/build_sysext" \
+             --board="${BOARD}" \
+             --squashfs_base="${BUILD_DIR}/${image_sysext_base}" \
+             --image_builddir="${BUILD_DIR}" \
+             --metapkgs="${metapkg}" \
+             --install_root_basename="${name}-oem-sysext-rootfs" \
+             --compression=none \
+             ${mangle_script:+--manglefs_script="${mangle_script}"} \
+             "${name}"
     delta_generator \
       -private_key "/usr/share/update_engine/update-payload-key.key.pem" \
       -new_image "${BUILD_DIR}/${name}.raw" \

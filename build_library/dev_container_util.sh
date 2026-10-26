@@ -82,11 +82,15 @@ create_dev_container() {
 
   info "Building developer image ${image_name}"
   # The "dev-image-rootfs" directory name is important - it is used to
-  # determine the package target in coreos/base/profile.bashrc
+  # determine the package target in coreos/base/profile.bashrc. The
+  # FLATCAR_GENERIC_BUILD_TYPE environment variable is also used
+  # there, but for different ebuild phase functions.
   local root_fs_dir="${BUILD_DIR}/dev-image-rootfs"
+  local -x FLATCAR_GENERIC_BUILD_TYPE=generic-dev
   local image_contents="${image_name%.bin}_contents.txt"
   local image_contents_wtd="${image_name%.bin}_contents_wtd.txt"
   local image_packages="${image_name%.bin}_packages.txt"
+  local image_packages_extended="${image_name%.bin}_packages_extended.txt"
   local image_licenses="${image_name%.bin}_licenses.json"
 
   start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
@@ -96,6 +100,7 @@ create_dev_container() {
   run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
+  write_packages_extended "${root_fs_dir}" "${BUILD_DIR}/${image_packages_extended}"
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"
 

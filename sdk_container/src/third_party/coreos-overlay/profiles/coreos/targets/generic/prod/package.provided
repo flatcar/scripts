@@ -1,0 +1,5 @@
+# Pulled in by sys-devel/gcc, they are needed only by the compiler,
+# which we do not ship.
+dev-libs/mpc-1.4.1
+dev-libs/mpfr-4.2.2
+sys-devel/gcc-config-2.12.2
