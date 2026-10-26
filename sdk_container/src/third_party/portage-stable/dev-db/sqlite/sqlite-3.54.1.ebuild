@@ -24,7 +24,7 @@ else
 	"
 	S="${WORKDIR}/${PN}-src-${SRC_PV}"
 
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~arm64-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="public-domain"
@@ -51,7 +51,7 @@ else
 fi
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-3.53.2-hwtime.h-Don-t-use-rdtsc-on-i486.patch
+	"${FILESDIR}"/${PN}-3.54.1-changeset.patch
 )
 
 _fossil_fetch() {
@@ -337,7 +337,7 @@ multilib_src_compile() {
 	emake HAVE_TCL="$(usex tcl 1 0)" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}"
 
 	if use tools && multilib_is_native_abi; then
-		emake changeset dbdump dbhash dbtotxt index_usage rbu showdb showjournal showshm showstat4 showwal sqldiff sqlite3_analyzer sqlite3_expert sqltclsh
+		emake changeset dbdump dbhash dbtotxt index_usage rbu showdb showjournal showshm showstat4 showwal sqldiff sqlite3_analyzer sqlite3_expert sqlite3_rsync sqltclsh
 	fi
 
 	if [[ ${PV} == 9999 ]] && use doc && multilib_is_native_abi; then
@@ -369,6 +369,10 @@ multilib_src_test() {
 	local SANDBOX_PREDICT=${SANDBOX_PREDICT}
 	addpredict "/test.db"
 	addpredict "/ÿ.db"
+
+	# sandbox injects libsandbox.so via LD_PRELOAD, which makes
+	# the ASan runtime in fuzzcheck-asan abort at startup.
+	local -x ASAN_OPTIONS="verify_asan_link_order=0"
 
 	emake tclextension
 	if multilib_is_native_abi; then
@@ -414,6 +418,7 @@ multilib_src_install() {
 		install_tool sqlite3_analyzer sqlite3-analyzer
 		install_tool sqlite3_expert sqlite3-expert
 		install_tool sqltclsh sqlite3-tclsh
+		install_tool sqlite3_rsync sqlite3-rsync
 
 		unset -f install_tool
 	fi
