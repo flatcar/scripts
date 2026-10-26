@@ -28,7 +28,7 @@ SRC_URI="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 IUSE="test test-rust"
 RESTRICT="!test? ( test )"
 
@@ -75,10 +75,7 @@ BDEPEND="
 python_prepare_all() {
 	local PATCHES=(
 		# prepare to unbundle dependencies and remove redundant test wheels
-		"${FILESDIR}/pip-26.1.2-unbundle-r1.patch"
-		# https://github.com/pypa/pip/pull/14033
-		# + https://github.com/pypa/pip/commit/4c6d7471dec62fb004a47a7c2164b6b5b089ac06
-		"${FILESDIR}/pip-26.1.2-py315.patch"
+		"${FILESDIR}/pip-26.2.1-unbundle.patch"
 	)
 
 	distutils-r1_python_prepare_all
@@ -155,6 +152,14 @@ python_test() {
 		tests/functional/test_python_option.py::test_python_interpreter
 		tests/functional/test_uninstall.py::test_basic_uninstall
 		tests/functional/test_uninstall.py::test_uninstall_non_local_distutils
+		tests/functional/test_install.py::test_install_warns_on_unexpected_post_install_import
+		# TODO
+		tests/functional/test_build_env.py::test_build_env_can_still_access_python_tools_on_system_path
+		tests/functional/test_build_env.py::test_build_env_console_scripts_use_venv_python[subprocess]
+		tests/functional/test_build_env.py::test_build_env_isolation[venv-inprocess]
+		tests/functional/test_build_env.py::test_build_env_isolation[venv-subprocess]
+		tests/functional/test_build_env.py::test_build_env_requirements_check[venv]
+		tests/functional/test_self_update.py::test_self_update_editable
 	)
 	local EPYTEST_IGNORE=(
 		# from upstream options
