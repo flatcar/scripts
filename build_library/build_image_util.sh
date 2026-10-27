@@ -116,8 +116,9 @@ run_localedef() {
   [[ -f "${i18n}/charmaps/UTF-8.gz" ]] || die
   [[ -f "${i18n}/locales/C" ]] || die
   sudo mkdir -p "${root_fs_dir}/usr/lib/locale"
-  sudo I18NPATH="${i18n}" "bwrap-${BOARD}" "${root_fs_dir}" /usr/bin/localedef \
-      --charmap=UTF-8 --inputfile=C C.UTF-8
+  # We could detect board endianness, but just assume little for now.
+  sudo env I18NPATH="${i18n}" localedef --prefix="${root_fs_dir}" \
+      --little-endian --charmap=UTF-8 --inputfile=C C.UTF-8
 }
 
 # Basic command to emerge binary packages into the target image.
