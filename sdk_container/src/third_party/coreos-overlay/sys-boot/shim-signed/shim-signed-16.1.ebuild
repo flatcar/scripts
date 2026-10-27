@@ -13,7 +13,7 @@ S="${WORKDIR}"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64 arm64 riscv"
+KEYWORDS="amd64 arm64"
 
 for arch in ${KEYWORDS}; do
 	SRC_URI+="${arch}? ( https://mirror.release.flatcar-linux.net/coreos/shim${ARCHES[$arch]}-${PVR}.efi.signed ) "
