@@ -148,6 +148,7 @@ RDEPEND="${RDEPEND}
 	sec-policy/selinux-base-policy
 	sec-policy/selinux-container
 	sec-policy/selinux-dbus
+	sec-policy/selinux-docker
 	sec-policy/selinux-policykit
 	sec-policy/selinux-unconfined
 	sys-apps/acl
