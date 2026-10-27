@@ -6,7 +6,7 @@ COREOS_SOURCE_REVISION=""
 inherit coreos-kernel savedconfig
 
 DESCRIPTION="CoreOS Linux kernel modules"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 RDEPEND="!<sys-kernel/coreos-kernel-4.6.3-r1"
 
 src_prepare() {

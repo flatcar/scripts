@@ -14,7 +14,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="amd64 arm64 riscv"
 # Flatcar: TO UPSTREAM: added fuse3 USE flag
 IUSE="X +deploypkg +dnet doc +fuse fuse3 gtkmm +icu multimon pam +resolutionkms +ssl +vgauth"
 # Flatcar: TO UPSTREAM: made fuse and fuse3 exclusive

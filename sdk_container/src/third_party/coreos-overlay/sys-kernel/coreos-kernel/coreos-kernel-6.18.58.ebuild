@@ -6,7 +6,7 @@ COREOS_SOURCE_REVISION=""
 inherit coreos-kernel toolchain-funcs
 
 DESCRIPTION="CoreOS Linux kernel"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 RESTRICT="userpriv" # dracut (via bootengine) needs root
 
 RDEPEND="

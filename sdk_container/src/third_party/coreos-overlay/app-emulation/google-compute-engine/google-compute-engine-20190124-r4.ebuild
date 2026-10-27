@@ -14,7 +14,7 @@ SRC_URI="https://github.com/GoogleCloudPlatform/compute-image-packages/archive/$
 S="${WORKDIR}/compute-image-packages-${PV}"
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64 riscv"
 
 # These dependencies cover all commands called by the scripts.
 RDEPEND="

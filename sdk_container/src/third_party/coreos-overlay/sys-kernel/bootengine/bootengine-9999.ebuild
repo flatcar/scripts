@@ -13,7 +13,7 @@ else
 	EGIT_VERSION="7727ec78da72e700e8fa1ce2144cb2476448d186" # flatcar-master
 	SRC_URI="https://github.com/flatcar/bootengine/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm arm64 x86"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="BSD"

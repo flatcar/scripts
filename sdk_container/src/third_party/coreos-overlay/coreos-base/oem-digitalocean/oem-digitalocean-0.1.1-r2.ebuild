@@ -8,6 +8,6 @@ HOMEPAGE="https://www.digitalocean.com/"
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64 riscv"
 
 SYSEXT_NAME="DigitalOcean"

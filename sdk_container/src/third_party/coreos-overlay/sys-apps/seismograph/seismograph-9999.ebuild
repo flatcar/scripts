@@ -15,7 +15,7 @@ else
 	EGIT_VERSION="231f8b31c576133f75151d34cb90890bfaf15ebe" # main
 	SRC_URI="https://github.com/flatcar/seismograph/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm arm64 x86"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="BSD"

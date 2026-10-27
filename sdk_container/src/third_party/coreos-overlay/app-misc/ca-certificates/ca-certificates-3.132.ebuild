@@ -18,7 +18,7 @@ SRC_URI="https://archive.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/$
 # NSS is licensed under the MPL, files/certdata2pem.py is GPL
 LICENSE="MPL-2.0 GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
 RDEPEND="

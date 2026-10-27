@@ -17,7 +17,7 @@ else
 	EGIT_VERSION="8df59e8f39474510fbde9440f16b5587b9a3c82d" # main
 	SRC_URI="https://github.com/flatcar/coreos-cloudinit/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="Apache-2.0"

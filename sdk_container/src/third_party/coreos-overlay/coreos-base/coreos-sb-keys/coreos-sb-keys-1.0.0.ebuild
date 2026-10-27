@@ -9,7 +9,7 @@ HOMEPAGE=""
 SRC_URI=""
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
 S="${WORKDIR}"

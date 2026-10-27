@@ -14,7 +14,7 @@ else
 	EGIT_VERSION="bfcb21e4c5ef7077231ef1d879c867f1655da09a" # main
 	SRC_URI="https://github.com/flatcar/updateservicectl/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 DESCRIPTION="Flatcar Container Linux update service CLI"
