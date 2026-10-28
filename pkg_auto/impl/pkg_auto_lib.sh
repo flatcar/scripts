@@ -1167,32 +1167,7 @@ function generate_sdk_reports() {
             # We succeeded, so move the reports from the state dir to
             # workdir and generate cleanups for the moved reports.
             sdk_reports_dir="${WORKDIR}/pkg-reports/${sdk_run_kind}"
-            top_dir="${sdk_run_state}/pkg-reports"
-            dir_queue=( "${top_dir}" )
-            all_dirs=()
-            all_files=()
-            while [[ ${#dir_queue[@]} -gt 0 ]]; do
-                dir=${dir_queue[0]}
-                dir_queue=( "${dir_queue[@]:1}" )
-                entry=${dir#"${top_dir}"}
-                if [[ -z ${entry} ]]; then
-                    all_dirs=( "${sdk_reports_dir}" "${all_dirs[@]}" )
-                else
-                    entry=${entry#/}
-                    all_dirs=( "${sdk_reports_dir}/${entry}" "${all_dirs[@]}" )
-                fi
-                for full_path in "${dir}/"*; do
-                    if [[ -d ${full_path} ]]; then
-                        dir_queue+=( "${full_path}" )
-                    else
-                        entry=${full_path##"${top_dir}/"}
-                        all_files+=( "${sdk_reports_dir}/${entry}" )
-                    fi
-                done
-            done
-            add_cleanup \
-                "rm -f ${all_files[*]@Q}" \
-                "rmdir ${all_dirs[*]@Q}"
+            add_cleanup "rm -rf ${sdk_reports_dir@Q}"
             mv "${sdk_run_state}/pkg-reports" "${sdk_reports_dir}"
         fi
     done
