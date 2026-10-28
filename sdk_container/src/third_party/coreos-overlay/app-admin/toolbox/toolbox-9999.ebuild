@@ -13,7 +13,7 @@ else
 	EGIT_VERSION="a33dd49910b9208bcb835662308242494446a0ff" # main
 	SRC_URI="https://github.com/flatcar/toolbox/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="Apache-2.0"

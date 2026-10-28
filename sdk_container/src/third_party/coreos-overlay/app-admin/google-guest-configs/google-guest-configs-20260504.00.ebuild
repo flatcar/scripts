@@ -16,7 +16,7 @@ S="${WORKDIR}/guest-configs-${PV}"
 
 LICENSE="Apache-2.0 BSD ZLIB"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64 riscv"
 
 RDEPEND="
 	!<app-emulation/google-compute-engine-20190124-r3

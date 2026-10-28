@@ -16,7 +16,7 @@ else
 	EGIT_VERSION="6ea5e7c73bb83cf6c013ff191cc0646e08cb3240" # flatcar-master
 	SRC_URI="https://github.com/flatcar/locksmith/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="Apache-2.0"

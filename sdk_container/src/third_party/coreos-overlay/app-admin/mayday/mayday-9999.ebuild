@@ -13,7 +13,7 @@ else
 	EGIT_VERSION="ae784704884e85de795a56752a9a10f1ff13be15" # main
 	SRC_URI="https://github.com/flatcar/mayday/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 DESCRIPTION="Tool to simplify gathering support information"

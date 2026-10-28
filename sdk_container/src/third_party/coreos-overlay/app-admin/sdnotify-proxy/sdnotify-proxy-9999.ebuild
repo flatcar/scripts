@@ -17,7 +17,7 @@ else
 	EGIT_VERSION="0f8ef1aa86c59fc6d54eadaffb248feaccd1018b" # main
 	SRC_URI="https://github.com/flatcar/sdnotify-proxy/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="Apache-2.0"

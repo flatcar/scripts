@@ -17,7 +17,7 @@ else
 	EGIT_VERSION="27182e3e7b1dfcfb398b5408a619abc4f652a38b"
 	SRC_URI="https://github.com/google/go-tspi/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="Apache-2.0"
