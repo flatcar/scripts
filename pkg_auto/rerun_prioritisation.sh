@@ -8,6 +8,11 @@ assert_inside_chroot
 
 assert_not_root_user
 
+# Do not run prioritisation if there is no actual Gentoo repo.
+if [[ ! -d ${REPO_ROOT}/src/third_party/gentoo || -L ${REPO_ROOT}/src/third_party/gentoo ]]; then
+    exit 0
+fi
+
 for REPO_PATH in "${REPO_ROOT}"/src/third_party/*; do
     case ${REPO_PATH} in
         */portage-stable|*/gentoo) continue;;
