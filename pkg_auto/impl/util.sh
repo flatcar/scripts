@@ -382,12 +382,11 @@ function _escape_sed_impl() {
     local r=${1}; shift
     local sed_separator=${1}; shift
     local -n esi_escaped=${1}; shift
-    shift
     # rest are entities to escape
 
     # escape all preexisting backslashes first
     local l=${r//'\'/'\\'} c
-    for c; do
+    for c in "${@}" "${sed_separator}"; do
         l=${l//"${c}"/'\'"${c}"}
     done
     esi_escaped=${l}
