@@ -58,7 +58,7 @@ jobs:
         run: |
           sudo rm /bin/sh
           sudo ln -s /bin/bash /bin/sh
-          sudo apt-get install -y ca-certificates curl gnupg lsb-release qemu-user-static git jq openssh-client rsync zstd
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release git jq openssh-client rsync zstd
 
       - name: Set up Docker
         uses: docker/setup-docker-action@v4

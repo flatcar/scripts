@@ -116,8 +116,9 @@ run_localedef() {
   [[ -f "${i18n}/charmaps/UTF-8.gz" ]] || die
   [[ -f "${i18n}/locales/C" ]] || die
   sudo mkdir -p "${root_fs_dir}/usr/lib/locale"
-  sudo I18NPATH="${i18n}" "bwrap-${BOARD}" "${root_fs_dir}" /usr/bin/localedef \
-      --charmap=UTF-8 --inputfile=C C.UTF-8
+  # We could detect board endianness, but just assume little for now.
+  sudo env I18NPATH="${i18n}" localedef --prefix="${root_fs_dir}" \
+      --little-endian --charmap=UTF-8 --inputfile=C C.UTF-8
 }
 
 # Basic command to emerge binary packages into the target image.
@@ -647,7 +648,7 @@ EOF
 
   # Build the selinux policy
   if pkg_use_enabled coreos-base/coreos selinux; then
-      sudo chroot "${root_fs_dir}" bash -c "cd /usr/share/selinux/mcs && semodule -s mcs -i *.pp"
+      sudo semodule -n -s mcs -p "${root_fs_dir}" -i "${root_fs_dir}"/usr/share/selinux/mcs/*.pp
   fi
 
   # Run tmpfiles once to make sure that /etc has everything in place before

@@ -127,7 +127,7 @@ EOF
 #!/bin/sh -e
 _ROOT=\${1?Pass a root directory as the first argument}
 shift
-exec bwrap --bind "\${_ROOT}" / --tmpfs /tmp --dev-bind /dev /dev --proc /proc --bind /sys /sys ${qemu+--ro-bind ${qemu} ${qemu}} -- "\$@"
+exec bwrap --bind "\${_ROOT}" / --tmpfs /tmp --dev-bind /dev /dev --proc /proc --bind /sys /sys ${qemu+--ro-bind ${qemu} ${qemu}} -- ${qemu} "\$@"
 EOF
   wrappers+=( "${wrapper}" )
 
