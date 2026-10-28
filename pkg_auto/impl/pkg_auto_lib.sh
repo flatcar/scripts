@@ -451,10 +451,17 @@ function setup_worktree() {
     add_cleanup \
         "git -C ${worktree_dir@Q} reset --hard HEAD" \
         "git -C ${worktree_dir@Q} clean -ffdx" \
-        "git -C ${repo@Q} worktree remove ${worktree_dir@Q}" \
+        "git -C ${repo@Q} worktree remove --force ${worktree_dir@Q}" \
         "git -C ${repo@Q} branch -D ${branch@Q}"
 
     git -C "${repo}" worktree add -b "${branch}" "${worktree_dir}" "${base}"
+    git -C "${worktree_dir}" submodule update --init --depth 1
+
+    local link=${worktree_dir}/sdk_container/src/third_party/gentoo
+    if [[ ! -e ${link} ]]; then
+        add_cleanup "rm ${link@Q}"
+        ln -sf portage-stable "${link}"
+    fi
 }
 
 # Creates an initial globals file. It's initial because it contains
@@ -1026,10 +1033,11 @@ function generate_sdk_reports() {
         add_cleanup \
             "git -C ${sdk_run_state@Q} reset --hard HEAD" \
             "git -C ${sdk_run_state@Q} clean -ffdx" \
-            "git -C ${SCRIPTS@Q} worktree remove ${sdk_run_state@Q}" \
+            "git -C ${SCRIPTS@Q} worktree remove --force ${sdk_run_state@Q}" \
             "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
         git -C "${SCRIPTS}" \
             worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
+        git -C "${sdk_run_state}" submodule update --init --depth 1
 
         pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
         add_cleanup "rm -rf ${pkg_auto_copy@Q}"
