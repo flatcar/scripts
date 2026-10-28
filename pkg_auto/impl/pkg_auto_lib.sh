@@ -2695,6 +2695,8 @@ function handle_package_changes() {
     done
     unset added_pkg_to_index_map
 
+    info "kicking off package processing jobs"
+
     local hpc_diff_lib_filters_name
     get_diff_lib_filters hpc_old_pkg_slot_verminmax_map_mvm hpc_new_pkg_slot_verminmax_map_mvm hpc_diff_lib_filters_name
 
