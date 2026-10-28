@@ -22,7 +22,7 @@ else
 		https://github.com/alibaba/PhotonLibOS/archive/${PHOTON_COMMIT}.tar.gz -> PhotonLibOS-${PHOTON_COMMIT}.tar.gz
 		https://github.com/data-accelerator/photon-libtcmu/archive/${TCMU_COMMIT}.tar.gz -> photon-libtcmu-${TCMU_COMMIT}.tar.gz
 		https://github.com/Open-CAS/ocf/archive/${OCF_COMMIT}.tar.gz -> ocf-${OCF_COMMIT}.tar.gz"
-	KEYWORDS="amd64 arm64 riscv"
+	KEYWORDS="amd64 arm64"
 fi
 
 LICENSE="Apache-2.0"
