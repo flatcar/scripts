@@ -149,6 +149,10 @@ if [[ -n ${debug} ]]; then
     set +x
 fi
 
+echo "Rerunning prioritisation"
+"${PKG_AUTO_DIR}/rerun_prioritisation.sh"
+exit 1
+
 echo "Running egencache for ${main_repo}"
 timed_run timeinfo generate_cache_for "${debug_args[@]}" "${main_repo}" 2>"${EGENCACHE_W}"
 echo "Running egencache for ${main_repo} took ${timeinfo}"
