@@ -811,28 +811,28 @@ function handle_renames() {
 
     local -n rename_map_ref=${from_to_map_var_name}
 
+    local -x "${GIT_ENV_VARS[@]}"
+    setup_git_env
+
     info 'checking renames'
-    local old new line found do_commit='' file last_file=''
+    local old new line found file last_file=''
     local hr_old_e hr_new_e
     for old in "${!rename_map_ref[@]}"; do
         new=${rename_map_ref["${old}"]}
         escape_sed_regexp "${old}" '/' hr_old_e
-        escape_sed_regexp "${new}" '/' hr_new_e
+        escape_sed_replacement "${new}" '/' hr_new_e
         found=''
-        for read -r line; do
+        while read -r line; do
             found=x
-            do_commit=x
             file=${line%%:*}
             if [[ ${last_file} = "${file}" ]]; then
                 continue
             fi
-            sed -i -e "s/${hr_old_e}/${hr_new_e}/g" "${file}"
-        done < <(grep_pkg "${NEW_STATE}" "${old}" '.' ":!${GENTOO_SUFFIX}/**")
-        if [[ -n ${found} ]]; then
-            info "renamed ${old} to ${new}"
-        fi
+            info "hr_old_e: ${hr_old_e@Q}, hr_new_e: ${hr_new_e@Q}"
+            sed -i -e "s/${hr_old_e}/${hr_new_e}/g" "${NEW_STATE}/${file}"
+        done < <(grep_pkg "${NEW_STATE}" "${old}" '.' ":!${GENTOO_SUFFIX}/**" ":!${COREOS_OVERLAY_SUFFIX}/metadata/glsa/**")
         if [[ -d ${NEW_COREOS_OVERLAY}/${old} ]]; then
-            do_commit=x
+            found=x
             local old_ebuild ebuild_version new_ebuild
             local old_name=${old#*/} new_name=${new#*/}
             local new_category=${new%%/*}
@@ -848,13 +848,12 @@ function handle_renames() {
                 "  - old name: ${old}" \
                 "  - new name: ${new}"
         fi
+        if [[ -n ${found} ]]; then
+            info "renamed ${old} to ${new}"
+            git -C "${NEW_STATE}" add -u
+            git -C "${NEW_STATE}" commit -s -m "*: Rename ${old} to ${new}"
+        fi
     done
-    if [[ -n ${do_commit} ]]; then
-        local -x "${GIT_ENV_VARS[@]}"
-        setup_git_env
-        git -C "${NEW_STATE}" add -u
-        git -C "${NEW_STATE}" commit -s -m "*: Rename ${old} to ${new}"
-    fi
 }
 
 # Process the package listings stored in the aux directory to find out
