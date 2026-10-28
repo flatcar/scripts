@@ -1944,7 +1944,7 @@ function handle_package_changes_job() {
                 if [[ ${#pair[@]} -eq 2 ]]; then
                     echo "PKGSTART ${pair[0]}:${pair[1]}"
                     start=${BASH_MONOSECONDS}
-                    handle_one_package_change "${output_dir}" "${bunch_of_maps_var_name}" hpcj_used_licenses_set "${pair[@]}"
+                    handle_one_package_change "${output_dir}" "${bunch_of_maps_var_name}" hpcj_used_licenses_set hpcj_used_eclasses_set "${pair[@]}"
                     end=${BASH_MONOSECONDS}
                     echo "PKGDONE ${pair[0]}:${pair[1]} $((end - start))"
                 else
@@ -1978,12 +1978,15 @@ function handle_package_changes_job() {
 # 1 - the main output directory, the generated output will end up in
 #     some subdirectories
 # 2 - bunch of maps (generally, package information)
-# 3 - old package name
-# 4 - new package name
+# 3 - name of a set variable that stores used licenses
+# 4 - name of a set variable that stores used eclasses
+# 5 - old package name
+# 6 - new package name
 function handle_one_package_change() {
     local output_dir=${1}; shift
     local -n bunch_of_maps_ref=${1}; shift
     local used_licenses_set_var_name=${1}; shift
+    local used_eclasses_set_var_name=${1}; shift
     local old_name=${1}; shift
     local new_name=${1}; shift
 
@@ -2198,6 +2201,7 @@ function handle_one_package_change() {
 
         diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
         evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" "${used_licenses_set_var_name}"
+        store_used_eclasses hopc_new_cache_file "${used_eclasses_set_var_name}"
 
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
@@ -2260,6 +2264,7 @@ function handle_one_package_change() {
 
             diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
             evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${hopc_new_s}" "${new_version}" "${used_licenses_set_var_name}"
+            store_used_eclasses hopc_new_cache_file "${used_eclasses_set_var_name}"
 
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
@@ -2309,7 +2314,7 @@ function handle_one_package_change() {
         manual_d "${warnings_dir}" "${lines[@]}"
         unset lines
 
-        # But we still want to evaluate the licenses.
+        # But we still want to evaluate the licenses and get used eclasses.
         for s in "${!hopc_new_filtered_slots_set[@]}"; do
             new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
             new_version=${new_verminmax##*:}
@@ -2319,6 +2324,7 @@ function handle_one_package_change() {
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
             evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" "${used_licenses_set_var_name}"
+            store_used_eclasses hopc_new_cache_file "${used_eclasses_set_var_name}"
             cache_file_unset hopc_new_cache_file
         done
     fi
@@ -2339,6 +2345,16 @@ function handle_one_package_change() {
         fi
     fi
     pkg_debug_disable
+}
+
+function store_used_eclasses() {
+    local -n cache_ref=${1}; shift
+    local -n used_licenses_set_ref=${1}; shift
+    local -n used_eclasses=${cache_ref[PCF_ECLASSES_IDX]}
+    local eclass
+    for eclass in "${used_eclasses[@]}"; do
+        used_licenses_set_ref["${eclass}"]=x
+    done
 }
 
 function get_diff_lib_filters() {
