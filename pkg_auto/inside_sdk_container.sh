@@ -209,7 +209,7 @@ ensure_valid_reports "${@}"
 
 echo 'Generating SDK packages listing'
 versions_sdk >"${reports_dir}/sdk-pkgs" 2>"${reports_dir}/sdk-pkgs-warnings"
-echo 'Generating SDK packages listing with key-values (USE, PYTHON_TARGETS CPU_FLAGS_X86, etc)'
+echo 'Generating SDK packages listing with key-values (USE, PYTHON_TARGETS, CPU_FLAGS_X86, etc)'
 versions_sdk_with_key_values >"${reports_dir}/sdk-pkgs-kv" 2>"${reports_dir}/sdk-pkgs-kv-warnings"
 echo 'Generating SDK profiles evaluation list'
 ROOT=/ "${PKG_AUTO_IMPL_DIR}/print_profile_tree.sh" -ni -nh >"${reports_dir}/sdk-profiles" 2>"${reports_dir}/sdk-profiles-warnings"
@@ -219,7 +219,7 @@ package_sources_sdk >"${reports_dir}/sdk-package-repos" 2>"${reports_dir}/sdk-pa
 for arch; do
     echo "Generating ${arch} board packages listing"
     versions_board "${arch}" >"${reports_dir}/${arch}-board-pkgs" 2>"${reports_dir}/${arch}-board-pkgs-warnings"
-    echo "Generating ${arch} board packages listing with key-values (USE, PYTHON_TARGETS CPU_FLAGS_X86, etc)"
+    echo "Generating ${arch} board packages listing with key-values (USE, PYTHON_TARGETS, CPU_FLAGS_X86, etc)"
     versions_board_with_key_values "${arch}" >"${reports_dir}/${arch}-board-pkgs-kv" 2>"${reports_dir}/${arch}-board-pkgs-kv-warnings"
     echo "Generating ${arch} board packages bdeps listing"
     board_bdeps "${arch}" >"${reports_dir}/${arch}-board-bdeps" 2>"${reports_dir}/${arch}-board-bdeps-warnings"
