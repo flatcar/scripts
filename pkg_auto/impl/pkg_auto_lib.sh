@@ -3690,9 +3690,13 @@ function handle_gentoo_sync() {
     if [[ "${old_head}" != "${new_head}" ]]; then
         while read -r path; do
             if [[ ${path} != "${GENTOO_SUFFIX}/"* ]]; then
-                continue
+                if [[ ${path} != 'sdk_container/src/third_party/portage-stable/'* ]]; then
+                    continue
+                fi
+                in_ps=${path#'sdk_container/src/third_party/portage-stable/'}
+            else
+                in_ps=${path#"${GENTOO_SUFFIX}/"}
             fi
-            in_ps=${path#"${GENTOO_SUFFIX}/"}
             category=${in_ps%%/*}
             case "${category}" in
                 eclass)
@@ -3714,7 +3718,9 @@ function handle_gentoo_sync() {
                     :
                     ;;
                 *)
-                    fail "unexpected updated file '${path}'"
+                    pkg_warn \
+                        "- unexpected updated file" \
+                        "  - ${path}"
                     ;;
             esac
         done < <(git -C "${NEW_STATE}" diff-tree --no-commit-id --name-only -r "${old_head}" "${new_head}")
@@ -3727,7 +3733,7 @@ function handle_gentoo_sync() {
                 handle_eclass "${entry}"
                 ;;
             licenses)
-                handle_licenses hgs_used_licenses
+                handle_licenses hgs_used_licenses_set
                 ;;
             metadata)
                 info "not handling metadata updates, skipping"
