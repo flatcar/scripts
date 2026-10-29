@@ -22,7 +22,7 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
     exit 1
 fi
 
-# OPENSTACK_CREDS, OPENSTACK_USER, OPENSTACK_HOST, OPENSTACK_KEYFILE should be provided by sdk_container/.env
+# OPENSTACK_CREDS, OPENSTACK_USER, OPENSTACK_HOST, OPENSTACK_KEYFILE should be provided by the caller.
 config_file=''
 secret_to_file config_file "${OPENSTACK_CREDS}"
 

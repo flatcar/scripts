@@ -115,16 +115,6 @@ dev-lang/perl minimal
 # enables ELF support to e.g. allow tc to handle BPF filters.
 sys-apps/iproute2 elf
 
-# Enable su for shadow, because shadow >= 4.11 does not have it by default.
-# Ideally util-linux should have the su binary, but that is currently not
-# possible, because of a bunch of additional dependencies in SDK like
-# pam_sssd in baselayout.
-#
-# Disable su for util-linux to avoid conflict with sys-apps/shadow, which
-# has its own su binary.
-sys-apps/shadow su
-sys-apps/util-linux -su
-
 # Enable kerberos support for NFS
 net-fs/nfs-utils junction kerberos ldap libmount nfsv3 nfsv4 uuid
 net-libs/libtirpc kerberos

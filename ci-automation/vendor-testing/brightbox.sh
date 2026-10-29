@@ -22,7 +22,7 @@ if [[ "${CIA_ARCH}" == "arm64" ]]; then
     exit 1
 fi
 
-# BRIGHTBOX_CLIENT_ID, BRIGHTBOX_CLIENT_SECRET should be provided by sdk_container/.env
+# BRIGHTBOX_CLIENT_ID, BRIGHTBOX_CLIENT_SECRET should be provided by the caller.
 
 # Upload the image on Brightbox.
 IMAGE_ID=$(ore brightbox create-image \
