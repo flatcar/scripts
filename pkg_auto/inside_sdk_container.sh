@@ -143,14 +143,31 @@ if [[ -n ${debug} ]]; then
     trap_cmds+=("set +x;")
 fi
 
+if [[ ${repos_type} = 'new' ]]; then
+    echo "Prioritising overlay over main repo"
+    co="${PKG_AUTO_DIR}"/../sdk_container/src/third_party/coreos-overlay
+    conf="/etc/portage/package.mask/pkg-auto-coreos-overlay-over-${main_repo}.conf"
+    trap_cmds+=( "sudo rm -f ${conf@Q}" )
+    for pkg in "${co}"/*-*/*/ "${co}"/virtual/*/; do
+        pkg=${pkg#"${co}"/}
+        echo "${pkg%/}::${main_repo}"
+    done >"${reports_dir}/mask.conf"
+    sudo mv "${reports_dir}/mask.conf" "${conf}"
+    for arch; do
+        board_conf=/build/${arch}-usr${conf}
+        sudo mkdir -p "${board_conf%/*}"
+        sudo ln -snf "${conf}" "${board_conf}"
+        trap_cmds+=( "sudo rm -f ${board_conf@Q}" )
+    done
+    unset pkg co arch board_conf conf
+fi
+
 trap "${trap_cmds[*]}" EXIT
 
 if [[ -n ${debug} ]]; then
     set +x
 fi
 
-echo "Rerunning prioritisation of overlays over Gentoo"
-"${PKG_AUTO_DIR}/rerun_prioritisation.sh"
 echo "Running egencache for ${main_repo}"
 timed_run timeinfo generate_cache_for "${debug_args[@]}" "${main_repo}" 2>"${EGENCACHE_W}"
 echo "Running egencache for ${main_repo} took ${timeinfo}"
