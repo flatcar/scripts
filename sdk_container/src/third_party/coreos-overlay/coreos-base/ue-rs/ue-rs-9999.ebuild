@@ -4,15 +4,12 @@
 EAPI=8
 
 CRATES="
-	addr2line@0.24.2
-	adler2@2.0.0
 	aho-corasick@1.1.3
 	argh@0.1.13
 	argh_derive@0.1.13
 	argh_shared@0.1.13
 	atomic-waker@1.1.2
 	autocfg@1.4.0
-	backtrace@0.3.74
 	base64@0.22.1
 	base64ct@1.7.3
 	bitflags@1.3.2
@@ -52,9 +49,8 @@ CRATES="
 	generic-array@0.14.7
 	getrandom@0.2.15
 	getrandom@0.3.2
-	gimli@0.31.1
 	globset@0.4.16
-	h2@0.4.12
+	h2@0.4.20
 	hashbrown@0.15.2
 	hermit-abi@0.5.0
 	http-body-util@0.1.3
@@ -62,7 +58,7 @@ CRATES="
 	http@1.4.0
 	httparse@1.10.1
 	humantime@2.2.0
-	hyper-rustls@0.27.7
+	hyper-rustls@0.27.10
 	hyper-tls@0.6.0
 	hyper-util@0.1.19
 	hyper@1.8.1
@@ -86,21 +82,19 @@ CRATES="
 	jetscii@0.5.3
 	js-sys@0.3.77
 	lazy_static@1.5.0
-	libc@0.2.172
+	libc@0.2.191
 	libm@0.2.11
 	linux-raw-sys@0.9.4
 	litemap@0.7.5
 	log@0.4.28
 	memchr@2.7.4
 	mime@0.3.17
-	miniz_oxide@0.8.8
-	mio@1.0.3
+	mio@1.2.4
 	native-tls@0.2.14
 	num-bigint-dig@0.8.6
 	num-integer@0.1.46
 	num-iter@0.1.45
 	num-traits@0.2.19
-	object@0.36.7
 	once_cell@1.21.3
 	openssl-macros@0.1.1
 	openssl-probe@0.1.6
@@ -129,11 +123,10 @@ CRATES="
 	ring@0.17.14
 	rsa@0.9.10
 	rust-fuzzy-search@0.1.1
-	rustc-demangle@0.1.24
 	rustix@1.0.5
 	rustls-pki-types@1.13.1
-	rustls-webpki@0.103.13
-	rustls@0.23.35
+	rustls-webpki@0.103.16
+	rustls@0.23.46
 	rustversion@1.0.20
 	ryu@1.0.20
 	schannel@0.1.27
@@ -150,7 +143,8 @@ CRATES="
 	slab@0.4.9
 	smallvec@1.15.0
 	socket2@0.5.9
-	spin@0.9.8
+	socket2@0.6.5
+	spin@0.9.9
 	spki@0.7.3
 	stable_deref_trait@1.2.0
 	subtle@2.6.1
@@ -166,13 +160,13 @@ CRATES="
 	thiserror@1.0.69
 	tinystr@0.7.6
 	tokio-native-tls@0.3.1
-	tokio-rustls@0.26.4
-	tokio-util@0.7.14
-	tokio@1.44.2
+	tokio-rustls@0.26.6
+	tokio-util@0.7.20
+	tokio@1.54.1
 	tower-http@0.6.8
 	tower-layer@0.3.3
 	tower-service@0.3.3
-	tower@0.5.2
+	tower@0.5.3
 	tracing-core@0.1.33
 	tracing@0.1.41
 	try-lock@0.2.5
@@ -202,6 +196,7 @@ CRATES="
 	windows-strings@0.5.1
 	windows-sys@0.52.0
 	windows-sys@0.59.0
+	windows-sys@0.61.2
 	windows-targets@0.52.6
 	windows_aarch64_gnullvm@0.52.6
 	windows_aarch64_msvc@0.52.6
@@ -235,7 +230,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/flatcar/ue-rs.git"
 	inherit git-r3
 else
-	EGIT_VERSION="9a227b3e7566902dc0702fe4906917b4b23636ba" # main
+	EGIT_VERSION="7f55d53d33b1a755705a468255e47e23b3e057ba" # dongsu/fix-security-20261027
 	SRC_URI="https://github.com/flatcar/${PN}/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz
 		${CARGO_CRATE_URIS}"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
