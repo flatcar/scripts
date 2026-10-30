@@ -9,13 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
+          submodules: false
       - name: Update GLSA metadata
         id: update-glsa-metadata
         run: |
-          glsa_dir='sdk_container/src/third_party/portage-stable/metadata/glsa'
+          glsa_dir='sdk_container/src/third_party/coreos-overlay/metadata/glsa'
           rm -rf "${glsa_dir}"
           mkdir --parents "${glsa_dir}"
           rsync --archive rsync://rsync.gentoo.org/gentoo-portage/metadata/glsa/* "${glsa_dir}"
@@ -30,7 +31,7 @@ jobs:
           base: main
           title: Monthly GLSA metadata ${{steps.update-glsa-metadata.outputs.TODAYDATE }}
           body: Updated GLSA metadata
-          commit-message: "portage-stable/metadata: Monthly GLSA metadata updates"
+          commit-message: "coreos-overlay/metadata: Monthly GLSA metadata updates"
           author: Flatcar Buildbot <buildbot@flatcar-linux.org>
           labels: main
           signoff: true

@@ -1,0 +1,3 @@
+# Masked by Gentoo 2026-10-06 b/c upstream is not maintained; used in Flatcar and tests.
+# We need a migration path to an alternative (systemd? chrony?) and update tests; this unmask is a workaround.
+net-misc/ntp

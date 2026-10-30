@@ -1,0 +1,5 @@
+[submodule "sdk_container/src/third_party/gentoo"]
+	path = sdk_container/src/third_party/gentoo
+	url = https://github.com/flatcar-hub/gentoo.git
+	branch = master
+	shallow = true

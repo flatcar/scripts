@@ -13,18 +13,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out scripts at ${{ github.ref }} for GHA scripts only
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
+          submodules: false
           path: gha
+          sparse-checkout: .github
       - name: Figure out branch
         id: figure-out-branch
         run: gha/.github/workflows/figure-out-branch.sh '${{ matrix.channel }}'
       - name: Check out work scripts branch for updating
         if: steps.figure-out-branch.outputs.SKIP == 0
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
+          submodules: true
           path: work
           ref: ${{ steps.figure-out-branch.outputs.BRANCH }}
       - name: Figure out latest Linux release version
