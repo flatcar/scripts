@@ -144,7 +144,7 @@ if [[ -n ${debug} ]]; then
 fi
 
 if [[ ${repos_type} = 'new' ]]; then
-    echo "Prioritising overlay over main repo"
+    echo "Prioritising overlay over the main repo (${main_repo})"
     co="${PKG_AUTO_DIR}"/../sdk_container/src/third_party/coreos-overlay
     conf="/etc/portage/package.mask/pkg-auto-coreos-overlay-over-${main_repo}.conf"
     trap_cmds+=( "sudo rm -f ${conf@Q}" )

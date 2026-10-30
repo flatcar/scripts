@@ -392,4 +392,24 @@ function _escape_sed_impl() {
     esi_escaped=${l}
 }
 
+# Runs a command with time, stores the time stat in the passed
+# variable. Only realtime is stored - used TIMEFORMAT is %slR.
+#
+# It should be noted that the command will run in a subshell, so if
+# the command is a bash function modifying some global variables,
+# these modifications will not be seen by the called of timed_run.
+#
+# Params:
+#
+# 1 - name of the variable where the time is stored
+# @ - command and parameters
+function timed_run() {
+    local -n timeinfo_ref=${1}; shift
+    local -i outfd errfd
+
+    exec {outfd}>&1 {errfd}>&2
+    timeinfo_ref=$(TIMEFORMAT='%3lR'; { time "${@}" 1>&${outfd} 2>&${errfd}; } 2>&1)
+    exec {outfd}>&- {errfd}>&-
+}
+
 fi

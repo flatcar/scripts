@@ -131,7 +131,9 @@ function setup_workdir_with_config() {
 # passed to setup_workdir_with_config.
 function generate_package_update_reports() {
     generate_sdk_reports
-    handle_gentoo_sync
+    local gpur_timeinfo
+    timed_run gpur_timeinfo handle_gentoo_sync
+    info "Generating package update reports based on emerge reports took ${gpur_timeinfo}"
 }
 
 # Saves the new state to a git branch in scripts.
@@ -263,9 +265,13 @@ function setup_worktrees_in_workdir() {
     # create reports directory now - there may be some developer
     # warnings afoot
     mkdir -p "${reports_dir}"
+    local swiw_timeinfo
 
-    setup_worktree "${scripts}" "${old_base}" "old-state-${RANDOM}" "${old_state}"
-    setup_worktree "${scripts}" "${new_base}" "new-state-${RANDOM}" "${new_state}"
+    info "setting up worktrees for old and new state"
+    timed_run swiw_timeinfo setup_worktree "${scripts}" "${old_base}" "old-state-${RANDOM}" "${old_state}"
+    info "  for old state took ${swiw_timeinfo}"
+    timed_run swiw_timeinfo setup_worktree "${scripts}" "${new_base}" "new-state-${RANDOM}" "${new_state}"
+    info "  for new state took ${swiw_timeinfo}"
     extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}" "${old_base}" "${new_base}" "${inside_debug}"
 }
 
@@ -448,20 +454,38 @@ function setup_worktree() {
     branch=${1}; shift
     worktree_dir=${1}; shift
 
-    add_cleanup \
-        "git -C ${worktree_dir@Q} reset --hard HEAD" \
-        "git -C ${worktree_dir@Q} clean -ffdx" \
-        "git -C ${repo@Q} worktree remove --force ${worktree_dir@Q}" \
-        "git -C ${repo@Q} branch -D ${branch@Q}"
-
-    git -C "${repo}" worktree add -b "${branch}" "${worktree_dir}" "${base}"
-    git -C "${worktree_dir}" submodule update --init --depth 1
+    setup_worktree_basic "${repo}" "${base}" "${branch}" "${worktree_dir}"
 
     local link=${worktree_dir}/sdk_container/src/third_party/gentoo
     if [[ ! -e ${link} ]]; then
         add_cleanup "rm ${link@Q}"
         ln -sf portage-stable "${link}"
     fi
+}
+
+# Sets up a worktree and necessary cleanups.
+#
+# Params:
+#
+# 1 - path to the git repo
+# 2 - name of a branch to be used as a base of a new worktree branch
+# 3 - name of the new worktree branch
+# 4 - path where the new worktree will be created
+function setup_worktree_basic() {
+    local repo base branch worktree_dir
+    repo=${1}; shift
+    base=${1}; shift
+    branch=${1}; shift
+    worktree_dir=${1}; shift
+
+    add_cleanup \
+        "git -C ${worktree_dir@Q} reset --hard HEAD" \
+        "git -C ${worktree_dir@Q} clean -ffdx" \
+        "git -C ${repo@Q} worktree remove --force ${worktree_dir@Q}" \
+        "git -C ${repo@Q} branch -D ${branch@Q}"
+
+    git -C "${repo}" worktree add --quiet -b "${branch}" "${worktree_dir}" "${base}"
+    git -C "${worktree_dir}" submodule update --quiet --init --depth 1
 }
 
 # Creates an initial globals file. It's initial because it contains
@@ -828,9 +852,8 @@ function handle_renames() {
             if [[ ${last_file} = "${file}" ]]; then
                 continue
             fi
-            info "hr_old_e: ${hr_old_e@Q}, hr_new_e: ${hr_new_e@Q}"
             sed -i -e "s/${hr_old_e}/${hr_new_e}/g" "${NEW_STATE}/${file}"
-        done < <(grep_pkg "${NEW_STATE}" "${old}" '.' ":!${GENTOO_SUFFIX}/**" ":!${COREOS_OVERLAY_SUFFIX}/metadata/glsa/**")
+        done < <(grep_pkg "${NEW_STATE}" "${old}" '.' ":!${GENTOO_SUFFIX}/**" ":!sdk_container/src/third_party/portage-stable/**" ":!${COREOS_OVERLAY_SUFFIX}/metadata/glsa/**")
         if [[ -d ${NEW_COREOS_OVERLAY}/${old} ]]; then
             found=x
             local old_ebuild ebuild_version new_ebuild
@@ -1006,7 +1029,7 @@ function generate_sdk_reports() {
         fail "No SDK image named ${SDK_IMAGE@Q} available locally, pull it before running this script"
     fi
 
-    local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch
+    local sdk_run_kind state_var_name sdk_run_state state_branch_var_name sdk_run_state_branch gsr_timeinfo
     local pkg_auto_copy rv
     local sdk_reports_dir top_dir dir entry full_path
     local -a dir_queue all_dirs all_files
@@ -1029,14 +1052,9 @@ function generate_sdk_reports() {
         state_branch_var_name="${sdk_run_kind^^}_STATE_BRANCH"
         sdk_run_state_branch="${!state_branch_var_name}-sdk-run"
 
-        add_cleanup \
-            "git -C ${sdk_run_state@Q} reset --hard HEAD" \
-            "git -C ${sdk_run_state@Q} clean -ffdx" \
-            "git -C ${SCRIPTS@Q} worktree remove --force ${sdk_run_state@Q}" \
-            "git -C ${SCRIPTS@Q} branch -D ${sdk_run_state_branch@Q}"
-        git -C "${SCRIPTS}" \
-            worktree add -b "${sdk_run_state_branch}" "${sdk_run_state}" "${!state_branch_var_name}"
-        git -C "${sdk_run_state}" submodule update --init --depth 1
+        info "setting up worktree for report generation for ${sdk_run_kind} state"
+        timed_run gsr_timeinfo setup_worktree_basic "${SCRIPTS}" "${!state_branch_var_name}" "${sdk_run_state_branch}" "${sdk_run_state}"
+        info "setting up worktree for report generation for ${sdk_run_kind} state took ${gsr_timeinfo}"
 
         pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
         add_cleanup "rm -rf ${pkg_auto_copy@Q}"
@@ -1069,8 +1087,10 @@ function generate_sdk_reports() {
         sdk_job_state_names+=( "${sdk_job_state_name}" )
     done
 
-    # Create the jobs and kick them off.
+    info "Running the report generation for old and new state in parallel"
     local sdk_job_name
+
+    # Create the jobs and kick them off.
     for sdk_job_state_name in "${sdk_job_state_names[@]}"; do
         local -n sdk_job_state_ref=${sdk_job_state_name}
         job_args_var_name=${sdk_job_state_ref[SJS_COMMAND_IDX]}
@@ -1087,6 +1107,10 @@ function generate_sdk_reports() {
         unset -n sdk_job_state_ref
     done
 
+    # Inner function for timing purposes, it shouldn't modify any
+    # variables - it's going to be run in a subshell.
+    function gsr_inner_report_gen() {
+
     # Loop over the current running job states array to check if jobs
     # in the array are still alive. The alive jobs will be added to
     # the next running job states array that will be looped over (thus
@@ -1095,7 +1119,6 @@ function generate_sdk_reports() {
     # and print it to the terminal.
     local -i current_idx=0 next_idx=1 idx state_count=${#sdk_job_state_names[@]}
     local -a sdk_job_state_names_0=( "${sdk_job_state_names[@]}" ) sdk_job_state_names_1=() sdk_job_output_lines=()
-    local run_loop=x
     while [[ state_count -gt 0 ]]; do
         local -n sdk_jobs_state_names_ref=sdk_job_state_names_${current_idx}
         local -n next_sdk_jobs_state_names_ref=sdk_job_state_names_${next_idx}
@@ -1122,6 +1145,13 @@ function generate_sdk_reports() {
         next_idx=${idx}
         unset -n sdk_jobs_state_names_ref next_sdk_jobs_state_names_ref
     done
+
+    }
+
+    timed_run gsr_timeinfo gsr_inner_report_gen
+    unset -f gsr_inner_report_gen
+
+    info "Report generation took ${gsr_timeinfo}"
 
     # All jobs are done now, so reap them and check if the
     # succeeded. If they failed, print the contents of the warning
