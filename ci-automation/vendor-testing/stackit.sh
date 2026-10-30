@@ -15,6 +15,8 @@ stackit_instance_type="${!stackit_instance_type_var}"
 
 stackit_location_var="STACKIT_${CIA_ARCH}_LOCATION"
 stackit_location="${!stackit_location_var}"
+# Availability zones are named "<region>-<n>" (e.g. eu02-2), images are regional.
+stackit_region="${stackit_location%-*}"
 
 copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${STACKIT_IMAGE_NAME}" .
 
@@ -24,6 +26,7 @@ kola_test_basename="ci-${CIA_VERNUM//[+.]/-}"
 IMAGE_ID=$(ore stackit \
   --stackit-service-account-key-path=<(base64 --decode <<< "${STACKIT_SERVICE_ACCOUNT}") \
   --stackit-project-id="${STACKIT_PROJECT_ID}" \
+  --stackit-region="${stackit_region}" \
   create-image \
   --board "${CIA_ARCH}-usr" \
   --name "${kola_test_basename}" \
@@ -41,6 +44,7 @@ timeout --signal=SIGQUIT 2h kola run \
   --platform=stackit \
   --stackit-service-account-key-path=<(base64 --decode <<< "${STACKIT_SERVICE_ACCOUNT}") \
   --stackit-project-id="${STACKIT_PROJECT_ID}" \
+  --stackit-region="${stackit_region}" \
   --stackit-image-id="${IMAGE_ID}" \
   --stackit-type="${stackit_instance_type}" \
   --stackit-availability-zone="${stackit_location}" \
