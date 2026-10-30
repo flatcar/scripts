@@ -1,6 +1,14 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Thibaud CANALE <thican@thican.net> (2026-05-17)
+# Requires dev-python/pydantic
+dev-python/cloudflare
+
+# Ionen Wolkens <ionen@gentoo.org> (2026-09-27)
+# Depends on sys-fs/inotify-tools which now uses rust.
+net-misc/owncloud-client
+
 # Michał Górny <mgorny@gentoo.org> (2025-07-04)
 # Hypothesis has now been RIIR-ed.
 >=dev-python/hypothesis-6.156
@@ -83,6 +91,7 @@ app-text/paperwork
 app-text/paperwork-backend
 dev-python/aiosmtpd
 dev-python/atpublic
+dev-python/authheaders
 dev-python/behave
 dev-python/crispy-bootstrap3
 dev-python/crispy-bootstrap4
@@ -96,16 +105,23 @@ dev-python/django-filter
 dev-python/django-polymorphic
 dev-python/django-tables2
 dev-python/djangorestframework
+dev-python/dkimpy
+dev-python/dnspython
 dev-python/easy-thumbnails
+dev-python/email-validator
 dev-python/flufl-lock
 dev-python/gherkin-official
 dev-python/guessit
-dev-python/knowit
 dev-python/hypothesis
+dev-python/knowit
+dev-python/liblore
 dev-python/logfury
 dev-python/narwhals
 dev-python/progressbar2
+dev-python/pydevd
 dev-python/pykwalify
+dev-python/pymongo
+dev-python/pyspf
 dev-python/pytest-bdd
 dev-python/pytest-describe
 dev-python/pytest-django
@@ -115,17 +131,22 @@ dev-python/python-utils
 dev-python/rebulk
 dev-python/scikit-learn
 dev-python/sphinxcontrib-doxylink
->=dev-python/sphinxcontrib-httpdomain-2.0
+dev-python/sphinxcontrib-httpdomain
 dev-python/sybil
 dev-python/testfixtures
 dev-python/toml-fmt-common
 dev-python/trakit
+dev-python/untangle
 dev-python/uv-build
 dev-python/vcsgraph
 dev-python/zmq-anyio
 dev-util/elf_diff
+mail-filter/spf-engine
 media-video/subliminal
 net-analyzer/fail2ban
+net-analyzer/linkchecker
+net-mail/b4
+net-voip/sipvicious
 sci-libs/cartopy
 sci-libs/pcl
 sci-visualization/pythonprop
@@ -529,6 +550,7 @@ sci-geosciences/gnome-maps
 sys-block/thin-provisioning-tools
 >=sys-process/glances-4.1.2.1
 sys-fs/bcachefs-tools
+>=sys-fs/inotify-tools-4.26
 sys-fs/ubi_reader
 virtual/rust
 www-apps/radicale
@@ -568,6 +590,7 @@ gnome-extra/tecla
 gnome-extra/zenity
 gui-libs/libpanel
 media-gfx/gnome-font-viewer
+>=media-gfx/shotwell-33.0
 media-gfx/simple-scan
 media-sound/easyeffects
 media-sound/gnome-music
@@ -589,3 +612,6 @@ x11-wm/muffin
 x11-wm/mutter
 mate-base/mate
 mate-base/mate-control-center
+gnome-extra/eiciel
+media-sound/pavucontrol
+net-p2p/transmission
