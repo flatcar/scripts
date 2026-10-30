@@ -99,7 +99,7 @@ Both the host's scripts repo as well as the ebuild directories (gentoo and coreo
 The wrapper scripts will re-use existing containers instead of creating new ones to preserve your work in the container, enabling consistency.
 
 To clone the scripts repo and pick a version:
-* Clone the scripts repo: `git clone https://github.com/flatcar/scripts.git`
+* Clone the scripts repo: `git clone --recurse-submodules --shallow-submodules https://github.com/flatcar/scripts.git`
 * Optionally, check out a release tag to base your work on
   * list releases (e.g. all Alpha releases): `git tag -l alpha-*`
   * check out the release version, e.g. `3033.0.0`: `git checkout 3033.0.0`
