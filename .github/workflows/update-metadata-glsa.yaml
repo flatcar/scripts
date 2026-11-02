@@ -23,7 +23,7 @@ jobs:
           todaydate=$(date +%Y-%m-%d)
           echo "TODAYDATE=${todaydate}" >>"${GITHUB_OUTPUT}"
       - name: Create pull request for main branch
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           branch: buildbot/monthly-glsa-metadata-updates-${{steps.update-glsa-metadata.outputs.TODAYDATE }}

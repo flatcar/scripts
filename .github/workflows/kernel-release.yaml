@@ -3,6 +3,13 @@ on:
   schedule:
     - cron:  '0 7 * * *'
   workflow_dispatch:
+    inputs:
+      use_repo_sdk_version:
+        type: boolean
+        description: |
+          Use SDK version from version.txt instead of the last release.
+        required: true
+        default: false
 
 jobs:
   get-kernel-release:
@@ -43,6 +50,7 @@ jobs:
         env:
           WORK_SCRIPTS_DIR: "${{ github.workspace }}/work"
           CHANNEL: ${{ steps.figure-out-branch.outputs.LABEL }}
+          USE_REPO_SDK_VERSION: ${{ inputs.use_repo_sdk_version }}
           # This will be empty for the main channel, but we handle
           # this case inside setup-flatcar-sdk.sh.
           MIRROR_LINK: ${{ steps.figure-out-branch.outputs.LINK }}
@@ -60,7 +68,7 @@ jobs:
         run: gha/.github/workflows/kernel-apply-patch.sh
       - name: Create pull request
         if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: work
