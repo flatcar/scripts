@@ -15,7 +15,7 @@ else
 	EGIT_VERSION="509343f640e48feced4c861f14100c60457e55b9" # flatcar-master
 	SRC_URI="https://github.com/flatcar/baselayout/archive/${EGIT_VERSION}.tar.gz -> flatcar-${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="GPL-2"

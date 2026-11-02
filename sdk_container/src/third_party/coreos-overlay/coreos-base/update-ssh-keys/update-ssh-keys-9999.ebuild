@@ -80,7 +80,7 @@ else
 	SRC_URI="https://github.com/flatcar/update-ssh-keys/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz
 		${CARGO_CRATE_URIS}"
 	S="${WORKDIR}/update-ssh-keys-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="Apache-2.0"

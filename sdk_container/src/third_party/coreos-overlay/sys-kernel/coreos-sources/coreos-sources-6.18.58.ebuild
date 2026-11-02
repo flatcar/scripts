@@ -27,7 +27,7 @@ fi
 # make modules_prepare depends on pahole
 RDEPEND="dev-util/pahole"
 
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
 # XXX: Note we must prefix the patch filenames with "z" to ensure they are
