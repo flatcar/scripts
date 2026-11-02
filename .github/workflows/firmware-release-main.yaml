@@ -3,6 +3,13 @@ on:
   schedule:
     - cron:  '0 7 * * 4'
   workflow_dispatch:
+    inputs:
+      use_repo_sdk_version:
+        type: boolean
+        description: |
+          Use SDK version from version.txt instead of the last release.
+        required: true
+        default: false
 
 jobs:
   get-firmware-release:
@@ -24,6 +31,7 @@ jobs:
         env:
           WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
           CHANNEL: main
+          USE_REPO_SDK_VERSION: ${{ inputs.use_repo_sdk_version }}
         run: scripts/.github/workflows/setup-flatcar-sdk.sh
       - name: Apply patch for main
         id: apply-patch-main

@@ -3,6 +3,13 @@ on:
   schedule:
     - cron:  '0 7 * * 1'
   workflow_dispatch:
+    inputs:
+      use_repo_sdk_version:
+        type: boolean
+        description: |
+          Use SDK version from version.txt instead of the last release.
+        required: true
+        default: false
 
 jobs:
   get-cacerts-release:
@@ -42,6 +49,7 @@ jobs:
         env:
           WORK_SCRIPTS_DIR: "${{ github.workspace }}/work"
           CHANNEL: ${{ steps.figure-out-branch.outputs.LABEL }}
+          USE_REPO_SDK_VERSION: ${{ inputs.use_repo_sdk_version }}
           # This will be empty for the main channel, but we handle
           # this case inside setup-flatcar-sdk.sh.
           MIRROR_LINK: ${{ steps.figure-out-branch.outputs.LINK }}
