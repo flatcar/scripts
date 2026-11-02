@@ -60,7 +60,7 @@ jobs:
         run: gha/.github/workflows/kernel-apply-patch.sh
       - name: Create pull request
         if: (steps.figure-out-branch.outputs.SKIP == 0) && (steps.apply-patch.outputs.UPDATE_NEEDED == 1)
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
           path: work

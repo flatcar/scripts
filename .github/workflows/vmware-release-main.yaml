@@ -39,7 +39,7 @@ jobs:
           TARGET_BRANCH: main
         run: scripts/.github/workflows/vmware-apply-patch.sh
       - name: Create pull request for main
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         if: steps.apply-patch-main.outputs.UPDATE_NEEDED == 1
         with:
           token: ${{ secrets.BOT_PR_TOKEN }}
