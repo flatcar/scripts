@@ -5,6 +5,7 @@
 GLSA_ALLOWLIST=(
 	201412-09 # incompatible CA certificate version numbers
 	202407-05 # ebuild of sys-auth/sssd already has a custom patch to fix CVE-2021-3621
+	202610-01 # incompatible CA certificate version numbers
 )
 
 glsa_image() {
