@@ -90,6 +90,8 @@ while [[ $# -gt 0 ]] ; do
     esac
 done
 
+./init-submodule.sh
+
 if [[ -n ${custom_image} ]] ; then
     container_image_name=${custom_image}
 else
