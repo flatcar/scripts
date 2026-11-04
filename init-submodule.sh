@@ -17,5 +17,7 @@ done
 
 if $force || git submodule status | grep -q '^-' ; then
   echo "Initialising submodules"
-  git submodule update --init --depth 1 --no-single-branch
+  git submodule update --init --depth 1 --single-branch
+  git -C sdk_container/src/third_party/gentoo remote set-branches --add origin master
+  git -C sdk_container/src/third_party/gentoo fetch origin master --depth 1
 fi
