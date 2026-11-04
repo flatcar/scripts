@@ -1,0 +1,1 @@
+- containerd ([CVE-2026-95837](https://nvd.nist.gov/vuln/detail/cve-2026-95837))
