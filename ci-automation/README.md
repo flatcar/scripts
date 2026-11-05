@@ -24,14 +24,16 @@ Release branches usually use the SDK introduced when the new major version was b
 
 To reproduce any given build step, follow this pattern:
 ```
-./checkout <build-tag> # Build tag from either SDK bootstrap pr Packages step
+git checkout <build-tag> # Build tag from either SDK bootstrap pr Packages step
+git submodule update
 source ci-automation/<step-script>.sh
 <step_function> <parameters>
 ```
 
 For example, to rebuild the AMD64 OS image of build `main-3145.0.0-nightly-20220209-0139`, do
 ```
-./checkout main-3145.0.0-nightly-20220209-0139
+git checkout main-3145.0.0-nightly-20220209-0139
+git submodule update
 source ci-automation/image.sh
 image_build amd64
 ```
@@ -138,14 +140,16 @@ The test runs are considered successful only if all tests succeeded for all vend
 
 **Usage**
 ```
-./checkout <version-to-test>
+git checkout <version-to-test>
+git submodule update
 source ci-automation/test.sh
 test_run <arch> <image-type>
 ```
 
 E.g. for running qemu / amd64 tests on `main-3145.0.0-nightly-20220209-0139`:
 ```
-./checkout main-3145.0.0-nightly-20220209-0139
+git checkout main-3145.0.0-nightly-20220209-0139
+git submodule update
 source ci-automation/test.sh
 test_run amd64 qemu
 ```
