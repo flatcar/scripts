@@ -1,0 +1,1397 @@
+[   12539904]  ./rootfs-0/kernel/x86/microcode/GenuineIntel.bin
+[    5343472]  ./rootfs-1/usr/lib64/libcrypto.so.3*
+[    3208664]  ./rootfs-1/usr/lib/systemd/libsystemd-shared-252.so*
+[    2591624]  ./rootfs-1/usr/lib/gcc/x86_64-cros-linux-gnu/13/libstdc++.so.6.0.32*
+[    2058480]  ./rootfs-1/usr/lib/systemd/libsystemd-core-252.so*
+[    1933576]  ./rootfs-1/usr/lib64/libc.so.6*
+[    1845305]  ./rootfs-1/usr/lib/firmware/phanfw.bin
+[    1649076]  ./rootfs-1/usr/lib/firmware/mellanox/mlxsw_spectrum-13.2010.1006.mfa2
+[    1649016]  ./rootfs-1/usr/lib/systemd/systemd-networkd*
+[    1359116]  ./rootfs-1/usr/lib/firmware/mellanox/mlxsw_spectrum2-29.2010.1006.mfa2
+[    1167440]  ./rootfs-1/usr/sbin/nvme*
+[    1145040]  ./rootfs-1/usr/lib64/libgcrypt.so.20.4.3*
+[    1127648]  ./rootfs-1/usr/lib/firmware/mellanox/mlxsw_spectrum3-30.2010.1006.mfa2
+[    1038064]  ./rootfs-1/usr/sbin/btrfs*
+[     971680]  ./rootfs-1/usr/sbin/ldconfig*
+[     968312]  ./rootfs-1/usr/lib64/libssl.so.3*
+[     967632]  ./rootfs-1/usr/lib64/libsystemd.so.0.35.0*
+[     943352]  ./rootfs-1/usr/lib/firmware/qed/qed_init_values_zipped-8.59.1.0.bin
+[     911472]  ./rootfs-1/usr/lib64/libm.so.6*
+[     893472]  ./rootfs-1/usr/bin/bash*
+[     814776]  ./rootfs-1/usr/lib64/libsepol.so.2*
+[     812616]  ./rootfs-1/usr/sbin/xfs_db*
+[     785272]  ./rootfs-1/usr/lib64/libzstd.so.1.5.5*
+[     745872]  ./rootfs-1/usr/sbin/xfs_repair*
+[     730624]  ./rootfs-1/usr/lib/firmware/cxgb4/t6fw-1.27.5.0.bin
+[     714728]  ./rootfs-1/usr/bin/ip*
+[     692776]  ./rootfs-1/usr/lib/firmware/intel/ice/ddp/ice-1.3.36.0.pkg
+[     691244]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/btrfs/btrfs.ko.xz
+[     678912]  ./rootfs-1/usr/lib/firmware/cxgb4/t5fw-1.27.5.0.bin
+[     670760]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/xfs/xfs.ko.xz
+[     659560]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.ko.xz
+[     625552]  ./rootfs-1/usr/sbin/mdadm*
+[     584216]  ./rootfs-1/usr/lib/firmware/ct2fw-3.2.5.1.bin
+[     570880]  ./rootfs-1/usr/lib/firmware/cxgb4/t4fw-1.27.5.0.bin
+[     565416]  ./rootfs-1/usr/sbin/mkfs.btrfs*
+[     563528]  ./rootfs-1/usr/bin/udevadm*
+[     548744]  ./rootfs-1/usr/sbin/mkfs.xfs*
+[     545920]  ./rootfs-1/usr/lib/firmware/myri10ge_rss_ethp_z8e.dat
+[     539144]  ./rootfs-1/usr/lib/firmware/ctfw-3.2.5.1.bin
+[     536176]  ./rootfs-1/usr/lib/firmware/myri10ge_rss_eth_z8e.dat
+[     530600]  ./rootfs-1/usr/lib/systemd/systemd-resolved*
+[     523792]  ./rootfs-1/usr/lib64/libcryptsetup.so.12.9.0*
+[     511784]  ./rootfs-1/usr/lib64/libisns.so.0*
+[     499212]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/lpfc/lpfc.ko.xz
+[     456816]  ./rootfs-1/usr/lib64/libmount.so.1.1.0*
+[     454768]  ./rootfs-1/usr/lib64/libext2fs.so.2.4*
+[     454180]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/smb/client/cifs.ko.xz
+[     450316]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qla2xxx/qla2xxx.ko.xz
+[     414168]  ./rootfs-1/usr/sbin/iscsid*
+[     407260]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/ice/ice.ko.xz
+[     401408]  ./rootfs-1/usr/sbin/iscsiadm*
+[     389056]  ./rootfs-1/usr/lib/firmware/myri10ge_ethp_z8e.dat
+[     387704]  ./rootfs-1/usr/lib64/libpcre2-8.so.0.11.2*
+[     385960]  ./rootfs-1/usr/lib64/libblkid.so.1.1.0*
+[     378736]  ./rootfs-1/usr/lib/firmware/myri10ge_eth_z8e.dat
+[     374504]  ./rootfs-1/usr/lib64/libdevmapper.so.1.02*
+[     373168]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/ext4/ext4.ko.xz
+[     362784]  ./rootfs-1/usr/lib64/libreadline.so.8.2*
+[     359376]  ./rootfs-1/usr/sbin/e2fsck*
+[     345916]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/bnx2x/bnx2x.ko.xz
+[     345416]  ./rootfs-1/usr/sbin/mdmon*
+[     331328]  ./rootfs-1/usr/lib64/libparted.so.2.0.5*
+[     323416]  ./rootfs-1/usr/lib/firmware/bnx2x/bnx2x-e2-7.13.21.0.fw
+[     323360]  ./rootfs-1/usr/lib/firmware/bnx2x/bnx2x-e2-7.13.15.0.fw
+[     309744]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/qlogic/qed/qed.ko.xz
+[     303768]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxsw/mlxsw_spectrum.ko.xz
+[     275128]  ./rootfs-1/usr/lib/firmware/ql2500_fw.bin
+[     272792]  ./rootfs-1/usr/bin/systemctl*
+[     271288]  ./rootfs-1/usr/lib64/libtinfow.so.6.4*
+[     268616]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb4/cxgb4.ko.xz
+[     267160]  ./rootfs-1/usr/lib64/libtinfo.so.6.4*
+[     266400]  ./rootfs-1/usr/lib64/libsmartcols.so.1.1.0*
+[     265300]  ./rootfs-1/usr/lib/firmware/ql2400_fw.bin
+[     254499]  ./rootfs-1/usr/share/ca-certificates/ca-certificates.crt
+[     248128]  ./rootfs-1/usr/lib64/libudev.so.1.7.5*
+[     238576]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/sunrpc/sunrpc.ko.xz
+[     231772]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/sfc/sfc.ko.xz
+[     231748]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/ceph/ceph.ko.xz
+[     227160]  ./rootfs-1/usr/sbin/cryptsetup*
+[     227048]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/i40e/i40e.ko.xz
+[     225944]  ./rootfs-1/usr/bin/less*
+[     225237]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.symbols.bin
+[     220912]  ./rootfs-1/usr/bin/lsblk*
+[     220096]  ./rootfs-1/usr/sbin/sgdisk*
+[     215280]  ./rootfs-1/usr/lib64/libnss_myhostname.so.2*
+[     214744]  ./rootfs-1/usr/lib64/ld-linux-x86-64.so.2*
+[     201698]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.alias
+[     196448]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ceph/libceph.ko.xz
+[     195912]  ./rootfs-1/usr/sbin/kexec*
+[     195368]  ./rootfs-1/usr/lib64/liblzma.so.5.4.6*
+[     192456]  ./rootfs-1/usr/lib64/libnvme.so.1.7.1*
+[     192192]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/drbd/drbd.ko.xz
+[     191976]  ./rootfs-1/usr/bin/grep*
+[     185529]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.symbols
+[     184368]  ./rootfs-1/usr/lib64/libselinux.so.1*
+[     184128]  ./rootfs-1/usr/sbin/iscsiuio*
+[     183515]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.alias.bin
+[     178616]  ./rootfs-1/usr/lib/firmware/bnx2x/bnx2x-e1h-7.13.21.0.fw
+[     178608]  ./rootfs-1/usr/lib/firmware/bnx2x/bnx2x-e1h-7.13.15.0.fw
+[     178424]  ./rootfs-1/usr/lib/systemd/systemd-journald*
+[     178408]  ./rootfs-1/usr/lib64/libnss_resolve.so.2*
+[     175848]  ./rootfs-1/usr/bin/ls*
+[     175592]  ./rootfs-1/usr/bin/cp*
+[     173612]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/core/ib_core.ko.xz
+[     172516]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko.xz
+[     171496]  ./rootfs-1/usr/bin/mv*
+[     171136]  ./rootfs-1/usr/bin/kmod*
+[     170200]  ./rootfs-1/usr/lib/firmware/bnx2x/bnx2x-e1-7.13.21.0.fw
+[     170168]  ./rootfs-1/usr/lib/firmware/bnx2x/bnx2x-e1-7.13.15.0.fw
+[     168528]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlx4/mlx4_core.ko.xz
+[     167756]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/bnxt/bnxt_en.ko.xz
+[     165152]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/mpt3sas/mpt3sas.ko.xz
+[     162824]  ./rootfs-1/usr/lib64/libgpg-error.so.0.34.0*
+[     162512]  ./rootfs-1/usr/sbin/dmsetup*
+[     160444]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/target/target_core_mod.ko.xz
+[     158988]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/zstd/zstd_compress.ko.xz
+[     150032]  ./rootfs-1/usr/lib64/liblz4.so.1.9.4*
+[     145864]  ./rootfs-1/usr/lib/gcc/x86_64-cros-linux-gnu/13/libgcc_s.so.1
+[     145220]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/libata.ko.xz
+[     143100]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/core/usbcore.ko.xz
+[     141520]  ./rootfs-1/usr/lib64/liblzo2.so.2.0.0*
+[     140016]  ./rootfs-1/usr/sbin/useradd*
+[     139472]  ./rootfs-1/usr/sbin/mke2fs*
+[     139376]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qla4xxx/qla4xxx.ko.xz
+[     138856]  ./rootfs-1/usr/sbin/blkid*
+[     138568]  ./rootfs-1/usr/sbin/fsck.minix*
+[     138276]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/bridge/bridge.ko.xz
+[     136038]  ./rootfs-1/usr/lib/firmware/ql2322_fw.bin
+[     134624]  ./rootfs-1/usr/sbin/partx*
+[     131536]  ./rootfs-1/usr/sbin/usermod*
+[     130712]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/bcache/bcache.ko.xz
+[     130480]  ./rootfs-1/usr/sbin/losetup*
+[     129928]  ./rootfs-1/usr/bin/date*
+[     129736]  ./rootfs-1/usr/lib64/libopeniscsiusr.so.0.2.0*
+[     129368]  ./rootfs-1/usr/lib64/libseccomp.so.2.5.5*
+[     126320]  ./rootfs-1/usr/sbin/mkswap*
+[     125252]  ./rootfs-1/usr/lib/firmware/ql2300_fw.bin
+[     125172]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/e1000e/e1000e.ko.xz
+[     122296]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/igb/igb.ko.xz
+[     122260]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/xhci-hcd.ko.xz
+[     122088]  ./rootfs-1/usr/bin/gsed*
+[     121036]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/dlm/dlm.ko.xz
+[     117864]  ./rootfs-1/usr/bin/stat*
+[     117528]  ./rootfs-1/usr/lib64/libaudit.so.1.0.0*
+[     113424]  ./rootfs-1/usr/bin/expr*
+[     112676]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/scsi_mod.ko.xz
+[     109536]  ./rootfs-1/usr/lib64/libkmod.so.2.4.1*
+[     109272]  ./rootfs-1/usr/lib64/libelf-0.190.so*
+[     108664]  ./rootfs-1/usr/bin/networkctl*
+[     105640]  ./rootfs-1/usr/bin/mkdir*
+[     104768]  ./rootfs-1/usr/bin/systemd-tmpfiles*
+[     103904]  ./rootfs-1/usr/lib/firmware/bnx2/bnx2-mips-09-6.2.1b.fw
+[     101872]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/aquantia/atlantic/atlantic.ko.xz
+[     100840]  ./rootfs-1/usr/lib64/libz.so.1.3*
+[      97928]  ./rootfs-1/usr/sbin/userdel*
+[      96368]  ./rootfs-1/usr/lib/systemd/systemd*
+[      94384]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/tg3.ko.xz
+[      94252]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/megaraid/megaraid_sas.ko.xz
+[      93864]  ./rootfs-1/usr/sbin/groupadd*
+[      92824]  ./rootfs-1/usr/lib/firmware/bnx2/bnx2-mips-06-6.2.3.fw
+[      92660]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/bonding/bonding.ko.xz
+[      91960]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/aic7xxx/aic79xx.ko.xz
+[      91436]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb3/cxgb3.ko.xz
+[      91040]  ./rootfs-1/usr/bin/findmnt*
+[      88760]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/raid456.ko.xz
+[      88744]  ./rootfs-1/usr/sbin/fsck.fat*
+[      88264]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/brocade/bna/bna.ko.xz
+[      87864]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxsw/mlxsw_core.ko.xz
+[      86872]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/md-mod.ko.xz
+[      86132]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/isci/isci.ko.xz
+[      85448]  ./rootfs-1/usr/sbin/groupdel*
+[      85064]  ./rootfs-1/usr/bin/mknod*
+[      84968]  ./rootfs-1/usr/bin/chown*
+[      84566]  ./rootfs-1/usr/lib/firmware/ql2200_fw.bin
+[      83600]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/core/mmc_core.ko.xz
+[      83392]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/iavf/iavf.ko.xz
+[      83272]  ./rootfs-1/usr/bin/dmesg*
+[      82556]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/emulex/benet/be2net.ko.xz
+[      82228]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qedf/qedf.ko.xz
+[      80968]  ./rootfs-1/usr/bin/mkfifo*
+[      80656]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/qlogic/qede/qede.ko.xz
+[      80420]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlx4/mlx4_en.ko.xz
+[      80256]  ./rootfs-1/usr/bin/journalctl*
+[      79777]  ./rootfs-0/kernel/x86/microcode/AuthenticAMD.bin
+[      79576]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-mod.ko.xz
+[      78060]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fuse/fuse.ko.xz
+[      77908]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/overlayfs/overlay.ko.xz
+[      77452]  ./rootfs-1/usr/lib/firmware/acenic/tg2.bin
+[      76802]  ./rootfs-1/usr/lib/firmware/ql2100_fw.bin
+[      76784]  ./rootfs-1/usr/bin/ln*
+[      76680]  ./rootfs-1/usr/bin/cgpt*
+[      76648]  ./rootfs-1/usr/bin/rm*
+[      75228]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/aacraid/aacraid.ko.xz
+[      75224]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/libfc/libfc.ko.xz
+[      75220]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/raid6/raid6_pq.ko.xz
+[      73116]  ./rootfs-1/usr/lib/firmware/acenic/tg1.bin
+[      72408]  ./rootfs-1/usr/lib64/libjson-c.so.5.3.0*
+[      72216]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/fnic/fnic.ko.xz
+[      69856]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/e1000/e1000.ko.xz
+[      69248]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qedi/qedi.ko.xz
+[      68344]  ./rootfs-1/usr/lib64/libpam.so.0.85.1*
+[      66532]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/bnx2fc/bnx2fc.ko.xz
+[      64864]  ./rootfs-1/usr/sbin/mkfs.fat*
+[      64864]  ./rootfs-1/usr/bin/mount*
+[      64520]  ./rootfs-1/usr/bin/keyctl*
+[      63896]  ./rootfs-1/usr/lib/systemd/systemd-cryptsetup*
+[      63808]  ./rootfs-1/usr/bin/systemd-run*
+[      63412]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/smartpqi/smartpqi.ko.xz
+[      63200]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/udf/udf.ko.xz
+[      62964]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/jbd2/jbd2.ko.xz
+[      61800]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/cnic.ko.xz
+[      61708]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/amazon/ena/ena.ko.xz
+[      61700]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/nvme/host/nvme-core.ko.xz
+[      61304]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/vxlan/vxlan.ko.xz
+[      60680]  ./rootfs-1/usr/sbin/fsck*
+[      60264]  ./rootfs-1/usr/bin/realpath*
+[      60264]  ./rootfs-1/usr/bin/readlink*
+[      60168]  ./rootfs-1/usr/bin/tr*
+[      59552]  ./rootfs-1/usr/lib/systemd/systemd-coredump*
+[      59372]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/hpsa.ko.xz
+[      57848]  ./rootfs-1/usr/sbin/veritysetup*
+[      57768]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/rbd.ko.xz
+[      57660]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/libphy.ko.xz
+[      57560]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/qlogic/netxen/netxen_nic.ko.xz
+[      56744]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/core/rdma_cm.ko.xz
+[      56584]  ./rootfs-1/usr/bin/env*
+[      56544]  ./rootfs-1/usr/lib64/libpopt.so.0.0.2*
+[      56520]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/libsas/libsas.ko.xz
+[      55416]  ./rootfs-1/usr/lib/systemd/systemd-shutdown*
+[      54940]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hv/hv_vmbus.ko.xz
+[      54796]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid.ko.xz
+[      54168]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/usb/r8152.ko.xz
+[      53788]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/google/gve/gve.ko.xz
+[      52693]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.dep.bin
+[      52528]  ./rootfs-1/usr/bin/timeout*
+[      52320]  ./rootfs-1/usr/sbin/sulogin*
+[      52312]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/hyperv/hv_netvsc.ko.xz
+[      52120]  ./rootfs-1/usr/sbin/wipefs*
+[      52040]  ./rootfs-1/usr/bin/cut*
+[      52040]  ./rootfs-1/usr/bin/chroot*
+[      52008]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/bnx2.ko.xz
+[      51944]  ./rootfs-1/usr/lib64/libcap.so.2.69*
+[      51656]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/scsi_transport_iscsi.ko.xz
+[      51556]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/cisco/enic/enic.ko.xz
+[      51292]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/sym53c8xx_2/sym53c8xx.ko.xz
+[      51268]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/message/fusion/mptbase.ko.xz
+[      48988]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/core/ib_cm.ko.xz
+[      48468]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/cachefiles/cachefiles.ko.xz
+[      48356]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb/cxgb.ko.xz
+[      48008]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf.ko.xz
+[      47976]  ./rootfs-1/usr/sbin/fsck.cramfs*
+[      47976]  ./rootfs-1/usr/bin/cat*
+[      47880]  ./rootfs-1/usr/bin/uname*
+[      47848]  ./rootfs-1/usr/bin/truncate*
+[      47848]  ./rootfs-1/usr/bin/sleep*
+[      47816]  ./rootfs-1/usr/bin/basename*
+[      47296]  ./rootfs-1/usr/sbin/dmeventd*
+[      47092]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/ehci-hcd.ko.xz
+[      45416]  ./rootfs-1/usr/lib64/libe2p.so.2.3*
+[      45084]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/mvsas/mvsas.ko.xz
+[      44976]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/neterion/s2io.ko.xz
+[      43956]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/microsoft/mana/mana.ko.xz
+[      43712]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/realtek/r8169.ko.xz
+[      43656]  ./rootfs-1/usr/bin/echo*
+[      43260]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/fcoe/libfcoe.ko.xz
+[      43120]  ./rootfs-1/usr/lib64/libcrypt.so.1*
+[      42384]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fat/fat.ko.xz
+[      42188]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/persistent-data/dm-persistent-data.ko.xz
+[      41700]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/message/fusion/mptsas.ko.xz
+[      40328]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/vmxnet3/vmxnet3.ko.xz
+[      40320]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/ixgbevf/ixgbevf.ko.xz
+[      40052]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/i2c/i2c-core.ko.xz
+[      40040]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/marvell/sky2.ko.xz
+[      39992]  ./rootfs-1/usr/bin/umount*
+[      39868]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-thin-pool.ko.xz
+[      39548]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/ulp/srp/ib_srp.ko.xz
+[      39264]  ./rootfs-1/usr/lib/systemd/system-generators/systemd-fstab-generator*
+[      37916]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/virtio_net.ko.xz
+[      37124]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/libiscsi.ko.xz
+[      36844]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/raid10.ko.xz
+[      36769]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.dep
+[      36680]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/9p/9p.ko.xz
+[      36208]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mtd/mtd.ko.xz
+[      35888]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/xen-netback/xen-netback.ko.xz
+[      35856]  ./rootfs-1/usr/lib64/liburcu.so.8.1.0*
+[      35796]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-cache.ko.xz
+[      35756]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/host/sdhci.ko.xz
+[      35728]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/storage/usb-storage.ko.xz
+[      35696]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/scsi_transport_fc.ko.xz
+[      35600]  ./rootfs-1/usr/lib64/libip4tc.so.2.0.0*
+[      35580]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fscache/fscache.ko.xz
+[      35560]  ./rootfs-1/usr/bin/flock*
+[      35456]  ./rootfs-1/usr/lib/udev/scsi_id*
+[      35432]  ./rootfs-1/usr/bin/true*
+[      35412]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/nvidia/forcedeth.ko.xz
+[      35336]  ./rootfs-1/usr/lib64/libuuid.so.1.3.0*
+[      35256]  ./rootfs-1/usr/lib64/libnvme-mi.so.1.7.1*
+[      35156]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/host/sdhci-pci.ko.xz
+[      35088]  ./rootfs-1/usr/lib/systemd/systemd-networkd-wait-online*
+[      35088]  ./rootfs-1/usr/lib/systemd/system-generators/systemd-cryptsetup-generator*
+[      34952]  ./rootfs-1/usr/bin/systemd-tty-ask-password-agent*
+[      34928]  ./rootfs-1/usr/lib64/libargon2.so.1*
+[      34852]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/dec/tulip/tulip.ko.xz
+[      34568]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/9p/9pnet.ko.xz
+[      32998]  ./rootfs-1/usr/lib/dracut-lib.sh*
+[      32927]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.order
+[      32744]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/arcmsr/arcmsr.ko.xz
+[      32416]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ssb/ssb.ko.xz
+[      32172]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/squashfs/squashfs.ko.xz
+[      31812]  ./rootfs-1/usr/lib/firmware/cxgb3/t3fw-7.12.0.bin
+[      31380]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/sd_mod.ko.xz
+[      31224]  ./rootfs-1/usr/lib64/libdevmapper-event.so.1.02*
+[      30824]  ./rootfs-1/usr/lib/udev/cdrom_id*
+[      30776]  ./rootfs-1/usr/lib/systemd/system-generators/systemd-gpt-auto-generator*
+[      30048]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/aesni-intel.ko.xz
+[      30032]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/marvell/skge.ko.xz
+[      29960]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/tun.ko.xz
+[      29928]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/myricom/myri10ge/myri10ge.ko.xz
+[      29484]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/BusLogic.ko.xz
+[      29072]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_mv.ko.xz
+[      28516]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/ohci-hcd.ko.xz
+[      28336]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/atl1c/atl1c.ko.xz
+[      28208]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/nvme/host/nvme.ko.xz
+[      28152]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/raid1.ko.xz
+[      28084]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/core/mmc_block.ko.xz
+[      27564]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/cdrom/cdrom.ko.xz
+[      27088]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-crypt.ko.xz
+[      27036]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/libahci.ko.xz
+[      27016]  ./rootfs-1/usr/lib64/libmnl.so.0.2.0*
+[      27000]  ./rootfs-1/usr/lib64/libcap-ng.so.0.0.0*
+[      26960]  ./rootfs-1/usr/lib64/libattr.so.1.1.2501*
+[      26664]  ./rootfs-1/usr/lib/systemd/systemd-fsck*
+[      26596]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/jme.ko.xz
+[      26432]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-snapshot.ko.xz
+[      26408]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/message/fusion/mptscsih.ko.xz
+[      25852]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/fcoe/fcoe.ko.xz
+[      25771]  ./rootfs-1/usr/lib/net-lib.sh*
+[      25688]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/uhci-hcd.ko.xz
+[      25660]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/igbvf/igbvf.ko.xz
+[      25284]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/sg.ko.xz
+[      24900]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/alx/alx.ko.xz
+[      24808]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-raid.ko.xz
+[      24608]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/nbd.ko.xz
+[      24344]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/core/iw_cm.ko.xz
+[      24008]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/megaraid/megaraid_mbox.ko.xz
+[      24008]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/e100.ko.xz
+[      23860]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/usb/asix.ko.xz
+[      23804]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/usbhid/usbhid.ko.xz
+[      23576]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/3w-9xxx.ko.xz
+[      23432]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/phylink.ko.xz
+[      23432]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/amd/pcnet32.ko.xz
+[      23380]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/atl1e/atl1e.ko.xz
+[      23136]  ./rootfs-1/usr/sbin/swapoff*
+[      23012]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/xen-blkfront.ko.xz
+[      22960]  ./rootfs-1/usr/sbin/setfiles*
+[      22940]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/atlx/atl1.ko.xz
+[      22856]  ./rootfs-1/usr/lib64/libcom_err.so.2.1*
+[      22848]  ./rootfs-1/usr/lib64/libkeyutils.so.1.10*
+[      22796]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/isofs/isofs.ko.xz
+[      22752]  ./rootfs-1/usr/bin/systemd-cgls*
+[      22744]  ./rootfs-1/usr/lib/systemd/systemd-sysctl*
+[      22640]  ./rootfs-1/usr/bin/systemd-escape*
+[      22384]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/configfs/configfs.ko.xz
+[      22364]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_nv.ko.xz
+[      22256]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/usb/usbnet.ko.xz
+[      22024]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/netfs/netfs.ko.xz
+[      21780]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/xen-netfront.ko.xz
+[      21728]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/pci/controller/pci-hyperv.ko.xz
+[      21640]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/b44.ko.xz
+[      20688]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/hv_storvsc.ko.xz
+[      20664]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/message/fusion/mptspi.ko.xz
+[      20648]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-bufio.ko.xz
+[      20496]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/natsemi/natsemi.ko.xz
+[      20396]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ipv6/ip6_tunnel.ko.xz
+[      20272]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/scsi_transport_sas.ko.xz
+[      19876]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/realtek/8139too.ko.xz
+[      19816]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/ahci.ko.xz
+[      19692]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-multipath.ko.xz
+[      19620]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/geneve.ko.xz
+[      19604]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/libiscsi_tcp.ko.xz
+[      19492]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/via/via-rhine.ko.xz
+[      19324]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/target/loopback/tcm_loop.ko.xz
+[      19300]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/scsi_transport_spi.ko.xz
+[      18896]  ./rootfs-1/usr/bin/mountpoint*
+[      18816]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxsw/mlxsw_pci.ko.xz
+[      18672]  ./rootfs-1/usr/bin/systemd-ask-password*
+[      18664]  ./rootfs-1/usr/sbin/iscsi-iname*
+[      18664]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/3w-sas.ko.xz
+[      18664]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/usb/cdc_ncm.ko.xz
+[      18656]  ./rootfs-1/usr/lib/systemd/systemd-modules-load*
+[      18604]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/8021q/8021q.ko.xz
+[      18552]  ./rootfs-1/usr/lib/systemd/systemd-vconsole-setup*
+[      18552]  ./rootfs-1/usr/bin/systemd-detect-virt*
+[      18536]  ./rootfs-1/usr/lib/udev/ata_id*
+[      18472]  ./rootfs-1/usr/lib/systemd/systemd-volatile-root*
+[      17996]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/iscsi_tcp.ko.xz
+[      17816]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/atlx/atl2.ko.xz
+[      17764]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/3w-xxxx.ko.xz
+[      17716]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/realtek/8139cp.ko.xz
+[      17508]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ipvlan/ipvlan.ko.xz
+[      17300]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/vmw_pvscsi.ko.xz
+[      17236]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/loop.ko.xz
+[      17232]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_sx4.ko.xz
+[      16988]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/alteon/acenic.ko.xz
+[      16652]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/dlink/dl2k.ko.xz
+[      16592]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/veth.ko.xz
+[      16556]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/char/virtio_console.ko.xz
+[      16512]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/objagg.ko.xz
+[      16468]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/sr_mod.ko.xz
+[      16452]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/storage/uas.ko.xz
+[      16404]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/security/keys/trusted-keys/trusted.ko.xz
+[      16384]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/dlink/sundance.ko.xz
+[      16368]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_sil24.ko.xz
+[      15560]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/host/cqhci.ko.xz
+[      15300]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/curve25519-x86_64.ko.xz
+[      15272]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/xen-scsifront.ko.xz
+[      15220]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_promise.ko.xz
+[      14852]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/ata_piix.ko.xz
+[      14728]  ./rootfs-1/usr/bin/setsid*
+[      14696]  ./rootfs-1/usr/sbin/partprobe*
+[      14684]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/amd/amd8111e.ko.xz
+[      14680]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-verity.ko.xz
+[      14536]  ./rootfs-1/usr/lib/systemd/system-generators/systemd-debug-generator*
+[      14528]  ./rootfs-1/usr/lib/systemd/system-generators/systemd-hibernate-resume-generator*
+[      14520]  ./rootfs-1/usr/bin/e2size*
+[      14512]  ./rootfs-1/usr/sbin/nologin*
+[      14384]  ./rootfs-1/usr/lib/systemd/systemd-reply-password*
+[      14384]  ./rootfs-1/usr/lib/systemd/systemd-hibernate-resume*
+[      14376]  ./rootfs-1/usr/lib/systemd/systemd-cgroups-agent*
+[      14352]  ./rootfs-1/usr/lib64/libinih.so.0*
+[      14296]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/marvell.ko.xz
+[      14160]  ./rootfs-1/usr/lib64/libnss_files.so.2*
+[      14160]  ./rootfs-1/usr/lib64/libnss_dns.so.2*
+[      14076]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/macvlan.ko.xz
+[      14060]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-cache-smq.ko.xz
+[      14052]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-mirror.ko.xz
+[      13768]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/usb/ax88179_178a.ko.xz
+[      13556]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/virtio_scsi.ko.xz
+[      13508]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hwmon/hwmon.ko.xz
+[      13248]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_via.ko.xz
+[      12936]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/host/sdhci-acpi.ko.xz
+[      12888]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crypto/libcurve25519-generic.ko.xz
+[      12732]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/zram/zram.ko.xz
+[      12696]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/virtio_blk.ko.xz
+[      12588]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/bridge/br_netfilter.ko.xz
+[      12532]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/device_handler/scsi_dh_alua.ko.xz
+[      12428]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/scsi_transport_srp.ko.xz
+[      12408]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/mm/zsmalloc.ko.xz
+[      12300]  ./rootfs-1/usr/lib/firmware/mellanox/lc_ini_bundle_2010_1006.bin
+[      12288]  ./rootfs-1/usr/lib/systemd/system/
+[      11768]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/af_alg.ko.xz
+[      11588]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_sil.ko.xz
+[      11568]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxfw/mlxfw.ko.xz
+[      11496]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/at803x.ko.xz
+[      11400]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/raid0.ko.xz
+[      11340]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/pata_sis.ko.xz
+[      11304]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/xhci-pci.ko.xz
+[      11260]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fat/vfat.ko.xz
+[      11224]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/pata_via.ko.xz
+[      11084]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_svw.ko.xz
+[      10960]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/libcxgb/libcxgb.ko.xz
+[      10837]  ./rootfs-1/usr/sbin/iscsiroot*
+[      10728]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ipv4/udp_tunnel.ko.xz
+[      10432]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/pdc_adma.ko.xz
+[      10352]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_qstor.ko.xz
+[      10292]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/security/keys/encrypted-keys/encrypted-keys.ko.xz
+[      10209]  ./rootfs-1/usr/lib/udev/rules.d/60-persistent-storage.rules
+[      10140]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxsw/mlxsw_minimal.ko.xz
+[      10016]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-apple.ko.xz
+[      10000]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/gcm.ko.xz
+[       9956]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-logitech.ko.xz
+[       9940]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/aes_generic.ko.xz
+[       9808]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/sha1-ssse3.ko.xz
+[       9580]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-lg-g15.ko.xz
+[       9564]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/uio/uio.ko.xz
+[       9548]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/bcm-phy-lib.ko.xz
+[       9340]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_vsc.ko.xz
+[       9332]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-log.ko.xz
+[       9288]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/device_handler/scsi_dh_rdac.ko.xz
+[       9268]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/sha256-ssse3.ko.xz
+[       9256]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/ccm.ko.xz
+[       9208]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/megaraid/megaraid_mm.ko.xz
+[       9200]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/poly1305-x86_64.ko.xz
+[       9172]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-hyperv.ko.xz
+[       9152]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/drbg.ko.xz
+[       9144]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/cryptd.ko.xz
+[       8996]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-region-hash.ko.xz
+[       8968]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/ehci-platform.ko.xz
+[       8752]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxsw/mlxsw_i2c.ko.xz
+[       8728]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/usb/cdc_ether.ko.xz
+[       8632]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/802/mrp.ko.xz
+[       8564]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-bio-prison.ko.xz
+[       8560]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/chacha-x86_64.ko.xz
+[       8496]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/quota/quota_tree.ko.xz
+[       8496]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/sata_sis.ko.xz
+[       8256]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/realtek.ko.xz
+[       8052]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fuse/cuse.ko.xz
+[       7876]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/net_failover.ko.xz
+[       7872]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fat/msdos.ko.xz
+[       7860]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/binfmt_misc.ko.xz
+[       7828]  ./rootfs-1/usr/sbin/initrd-setup-root*
+[       7823]  ./rootfs-1/usr/sbin/initrd-setup-root-after-ignition*
+[       7807]  ./rootfs-1/usr/lib/dracut/hooks/cmdline/30-parse-crypt.sh*
+[       7650]  ./rootfs-1/usr/lib/dracut-crypt-lib.sh*
+[       7568]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crypto/libdes.ko.xz
+[       7468]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/bcm-phy-ptp.ko.xz
+[       7396]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/802/garp.ko.xz
+[       7344]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/pata_jmicron.ko.xz
+[       7344]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/jitterentropy_rng.ko.xz
+[       7328]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/broadcom.ko.xz
+[       7300]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/device_handler/scsi_dh_emc.ko.xz
+[       7254]  ./rootfs-1/usr/lib/udev/rules.d/10-dm.rules
+[       7236]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/blake2b_generic.ko.xz
+[       7204]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-microsoft.ko.xz
+[       7144]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/firmware/qemu_fw_cfg.ko.xz
+[       7092]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/ehci-pci.ko.xz
+[       7004]  ./rootfs-1/usr/lib/firmware/tigon/tg3_tso.bin
+[       6992]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/raid_class.ko.xz
+[       6896]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/linear.ko.xz
+[       6816]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/firmware/iscsi_ibft.ko.xz
+[       6736]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/input/serio/hyperv-keyboard.ko.xz
+[       6732]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/input/ff-memless.ko.xz
+[       6624]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/i2c/algos/i2c-algo-bit.ko.xz
+[       6616]  ./rootfs-1/usr/lib/firmware/bnx2/bnx2-rv2p-09ax-6.0.17.fw
+[       6500]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/essiv.ko.xz
+[       6460]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/sha512_generic.ko.xz
+[       6381]  ./rootfs-1/usr/lib/fs-lib.sh*
+[       6200]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crc64.ko.xz
+[       6173]  ./rootfs-1/usr/lib/dracut/hooks/cmdline/99-parse-ip-for-networkd.sh*
+[       6104]  ./rootfs-1/usr/lib/firmware/bnx2/bnx2-rv2p-09-6.0.17.fw
+[       6099]  ./rootfs-1/usr/lib/dracut/hooks/cmdline/90-parse-iscsiroot.sh*
+[       6016]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/async_tx/async_pq.ko.xz
+[       5991]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.builtin.bin
+[       5964]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/block/t10-pi.ko.xz
+[       5944]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/algif_hash.ko.xz
+[       5904]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/mbcache.ko.xz
+[       5892]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/mii.ko.xz
+[       5852]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/xor.ko.xz
+[       5848]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/brd.ko.xz
+[       5824]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/lru_cache.ko.xz
+[       5816]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/iscsi_boot_sysfs.ko.xz
+[       5792]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/authencesn.ko.xz
+[       5776]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8156b-2.fw
+[       5760]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crypto/gf128mul.ko.xz
+[       5736]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/crc32c-intel.ko.xz
+[       5728]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/common/usb-common.ko.xz
+[       5696]  ./rootfs-1/usr/lib/firmware/bnx2/bnx2-rv2p-06-6.0.15.fw
+[       5684]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/quota/quota_v2.ko.xz
+[       5556]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/ohci-pci.ko.xz
+[       5500]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168e-1.fw
+[       5412]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/xts.ko.xz
+[       5400]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/authenc.ko.xz
+[       5352]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crypto/libaes.ko.xz
+[       5315]  ./rootfs-1/usr/lib/udev/rules.d/50-udev-default.rules
+[       5236]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/llc/llc.ko.xz
+[       5236]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/core/selftests.ko.xz
+[       5204]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/crypto_simd.ko.xz
+[       5180]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/mdio.ko.xz
+[       5172]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/async_tx/async_xor.ko.xz
+[       5124]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/algif_skcipher.ko.xz
+[       5076]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/fixed_phy.ko.xz
+[       5039]  ./rootfs-1/usr/lib/udev/rules.d/99-systemd.rules
+[       4896]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168g-2.fw
+[       4880]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-a4tech.ko.xz
+[       4800]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/cts.ko.xz
+[       4731]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.builtin
+[       4724]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/core/failover.ko.xz
+[       4704]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/sha3_generic.ko.xz
+[       4699]  ./rootfs-1/usr/lib/systemd/system-generators/ignition-generator*
+[       4688]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-belkin.ko.xz
+[       4680]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-service-time.ko.xz
+[       4636]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-monterey.ko.xz
+[       4628]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-cherry.ko.xz
+[       4596]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nfs_common/nfs_acl.ko.xz
+[       4504]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-ezkey.ko.xz
+[       4472]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-queue-length.ko.xz
+[       4396]  ./rootfs-1/shutdown*
+[       4352]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/hid-generic.ko.xz
+[       4352]  ./rootfs-1/etc/ld.so.cache
+[       4324]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/smb/common/cifs_md4.ko.xz
+[       4256]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/deflate.ko.xz
+[       4216]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ipv6/tunnel6.ko.xz
+[       4208]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/scsi_common.ko.xz
+[       4184]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-round-robin.ko.xz
+[       4152]  ./rootfs-1/usr/lib/systemd/system-generators/dracut-rootfs-generator*
+[       4096]  ./rootfs-1/var/tmp/
+[       4096]  ./rootfs-1/var/lib/iscsi/
+[       4096]  ./rootfs-1/var/lib/
+[       4096]  ./rootfs-1/var/
+[       4096]  ./rootfs-1/usr/share/terminfo/v/
+[       4096]  ./rootfs-1/usr/share/terminfo/l/
+[       4096]  ./rootfs-1/usr/share/terminfo/
+[       4096]  ./rootfs-1/usr/share/ca-certificates/
+[       4096]  ./rootfs-1/usr/share/
+[       4096]  ./rootfs-1/usr/sbin/
+[       4096]  ./rootfs-1/usr/lib64/
+[       4096]  ./rootfs-1/usr/lib/udev/rules.d/
+[       4096]  ./rootfs-1/usr/lib/udev/
+[       4096]  ./rootfs-1/usr/lib/tmpfiles.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/systemd-resolved.service.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/sockets.target.wants/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/iscsiuio.socket.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/iscsid.socket.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/iscsid.service.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/initrd-switch-root.service.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/initrd-root-device.target.wants/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/initrd-parse-etc.service.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/ignition-diskful.target.requires/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target.requires/
+[       4096]  ./rootfs-1/usr/lib/systemd/system/dev-mapper-usr.device.d/
+[       4096]  ./rootfs-1/usr/lib/systemd/system-generators/
+[       4096]  ./rootfs-1/usr/lib/systemd/network/
+[       4096]  ./rootfs-1/usr/lib/systemd/
+[       4096]  ./rootfs-1/usr/lib/sysctl.d/
+[       4096]  ./rootfs-1/usr/lib/modules/keys/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/security/keys/trusted-keys/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/security/keys/encrypted-keys/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/security/keys/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/security/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/sunrpc/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/llc/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ipv6/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ipv4/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/core/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ceph/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/bridge/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/9p/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/8021q/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/802/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/mm/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/zstd/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/raid6/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/lzo/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crypto/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/xfs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/udf/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/squashfs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/smb/common/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/smb/client/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/smb/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/quota/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/overlayfs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nls/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nfs_common/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/netfs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/jbd2/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/isofs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fuse/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fscache/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/fat/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/ext4/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/dlm/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/configfs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/ceph/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/cachefiles/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/btrfs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/9p/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/storage/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/host/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/core/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/common/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/usb/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/uio/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/target/loopback/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/target/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ssb/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/sym53c8xx_2/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/smartpqi/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qla4xxx/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qla2xxx/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qedi/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/qedf/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/mvsas/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/mpt3sas/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/megaraid/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/lpfc/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/libsas/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/libfc/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/isci/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/fnic/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/fcoe/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/device_handler/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/bnx2fc/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/arcmsr/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/aic7xxx/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/aacraid/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/scsi/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/pci/controller/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/pci/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/nvme/host/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/nvme/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/xen-netback/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/vxlan/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/vmxnet3/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/usb/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/mdio/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ipvlan/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/hyperv/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/via/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/sfc/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/realtek/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/qlogic/qede/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/qlogic/qed/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/qlogic/netxen/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/qlogic/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/nvidia/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/neterion/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/natsemi/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/myricom/myri10ge/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/myricom/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/microsoft/mana/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/microsoft/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxsw/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlxfw/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlx5/core/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlx5/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/mlx4/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/mellanox/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/marvell/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/ixgbevf/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/ixgbe/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/igbvf/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/igb/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/ice/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/iavf/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/i40e/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/e1000e/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/e1000/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/intel/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/google/gve/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/google/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/emulex/benet/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/emulex/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/dlink/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/dec/tulip/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/dec/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/cisco/enic/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/cisco/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/libcxgb/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb4vf/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb4/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb3/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/cxgb/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/chelsio/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/brocade/bna/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/brocade/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/bnxt/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/bnx2x/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/broadcom/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/atlx/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/atl1e/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/atl1c/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/alx/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/atheros/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/aquantia/atlantic/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/aquantia/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/amd/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/amazon/ena/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/amazon/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/alteon/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/ethernet/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/bonding/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mtd/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/host/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/core/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/mmc/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/message/fusion/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/message/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/persistent-data/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/bcache/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/input/serio/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/input/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/ulp/srp/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/ulp/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/core/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/infiniband/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/i2c/algos/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/i2c/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hwmon/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hv/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/usbhid/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/hid/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/firmware/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/char/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/cdrom/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/zram/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/drbd/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/block/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/ata/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/ctr.ko.xz
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/async_tx/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/block/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/crypto/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/x86/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/arch/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/
+[       4096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/
+[       4096]  ./rootfs-1/usr/lib/modules/
+[       4096]  ./rootfs-1/usr/lib/modules-load.d/
+[       4096]  ./rootfs-1/usr/lib/modprobe.d/
+[       4096]  ./rootfs-1/usr/lib/gcc/x86_64-cros-linux-gnu/13/
+[       4096]  ./rootfs-1/usr/lib/gcc/x86_64-cros-linux-gnu/
+[       4096]  ./rootfs-1/usr/lib/gcc/
+[       4096]  ./rootfs-1/usr/lib/firmware/tigon/
+[       4096]  ./rootfs-1/usr/lib/firmware/rtl_nic/
+[       4096]  ./rootfs-1/usr/lib/firmware/qed/
+[       4096]  ./rootfs-1/usr/lib/firmware/mellanox/
+[       4096]  ./rootfs-1/usr/lib/firmware/isci/
+[       4096]  ./rootfs-1/usr/lib/firmware/intel/ice/ddp/
+[       4096]  ./rootfs-1/usr/lib/firmware/intel/ice/
+[       4096]  ./rootfs-1/usr/lib/firmware/intel/
+[       4096]  ./rootfs-1/usr/lib/firmware/e100/
+[       4096]  ./rootfs-1/usr/lib/firmware/cxgb4/
+[       4096]  ./rootfs-1/usr/lib/firmware/cxgb3/
+[       4096]  ./rootfs-1/usr/lib/firmware/bnx2x/
+[       4096]  ./rootfs-1/usr/lib/firmware/bnx2/
+[       4096]  ./rootfs-1/usr/lib/firmware/acenic/
+[       4096]  ./rootfs-1/usr/lib/firmware/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/shutdown/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/shutdown-emergency/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/pre-udev/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/pre-trigger/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/pre-shutdown/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/pre-pivot/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/pre-mount/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/netroot/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/mount/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/initqueue/timeout/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/initqueue/settled/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/initqueue/online/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/initqueue/finished/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/initqueue/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/emergency/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/cmdline/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/cleanup/
+[       4096]  ./rootfs-1/usr/lib/dracut/hooks/
+[       4096]  ./rootfs-1/usr/lib/dracut/
+[       4096]  ./rootfs-1/usr/lib/
+[       4096]  ./rootfs-1/usr/bin/
+[       4096]  ./rootfs-1/usr/
+[       4096]  ./rootfs-1/tmp/
+[       4096]  ./rootfs-1/sysroot/
+[       4096]  ./rootfs-1/sys/
+[       4096]  ./rootfs-1/run/
+[       4096]  ./rootfs-1/root/
+[       4096]  ./rootfs-1/proc/
+[       4096]  ./rootfs-1/etc/udev/rules.d/
+[       4096]  ./rootfs-1/etc/udev/
+[       4096]  ./rootfs-1/etc/systemd/system/systemd-networkd.service.wants/
+[       4096]  ./rootfs-1/etc/systemd/system/systemd-ask-password-console.service.wants/
+[       4096]  ./rootfs-1/etc/systemd/system/sockets.target.wants/
+[       4096]  ./rootfs-1/etc/systemd/system/rescue.target.wants/
+[       4096]  ./rootfs-1/etc/systemd/system/initrd.target.wants/
+[       4096]  ./rootfs-1/etc/systemd/system/emergency.target.wants/
+[       4096]  ./rootfs-1/etc/systemd/system/basic.target.wants/
+[       4096]  ./rootfs-1/etc/systemd/system/
+[       4096]  ./rootfs-1/etc/systemd/system.conf.d/
+[       4096]  ./rootfs-1/etc/systemd/journald.conf.d/
+[       4096]  ./rootfs-1/etc/systemd/
+[       4096]  ./rootfs-1/etc/ssl/certs/
+[       4096]  ./rootfs-1/etc/ssl/
+[       4096]  ./rootfs-1/etc/security/pwquality.conf.d/
+[       4096]  ./rootfs-1/etc/security/
+[       4096]  ./rootfs-1/etc/ld.so.conf.d/
+[       4096]  ./rootfs-1/etc/conf.d/
+[       4096]  ./rootfs-1/etc/cmdline.d/
+[       4096]  ./rootfs-1/etc/
+[       4096]  ./rootfs-1/dev/
+[       4096]  ./rootfs-1/
+[       4096]  ./rootfs-0/kernel/x86/microcode/
+[       4096]  ./rootfs-0/kernel/x86/
+[       4096]  ./rootfs-0/kernel/
+[       4096]  ./rootfs-0/
+[       4096]  ./
+[       4024]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8156a-2.fw
+[       4000]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/cmac.ko.xz
+[       3920]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168e-2.fw
+[       3912]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/asn1_encoder.ko.xz
+[       3884]  ./rootfs-1/usr/lib/firmware/tigon/tg3_tso5.bin
+[       3872]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168e-3.fw
+[       3848]  ./rootfs-1/usr/lib/systemd/system-generators/diskless-generator*
+[       3818]  ./rootfs-1/usr/lib/udev/rules.d/71-seat.rules
+[       3800]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/lzo/lzo_compress.ko.xz
+[       3712]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/parman.ko.xz
+[       3656]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/async_tx/async_tx.ko.xz
+[       3644]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/crypto_null.ko.xz
+[       3604]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crc64-rocksoft.ko.xz
+[       3572]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crc-t10dif.ko.xz
+[       3522]  ./rootfs-1/usr/lib/systemd/system-generators/usr-generator*
+[       3508]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nfs_common/grace.ko.xz
+[       3456]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8125a-3.fw
+[       3424]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/seqiv.ko.xz
+[       3424]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168f-1.fw
+[       3416]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/md/dm-zero.ko.xz
+[       3328]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8125b-2.fw
+[       3292]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/ipv6/ip6_udp_tunnel.ko.xz
+[       3216]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/async_tx/async_raid6_recov.ko.xz
+[       3215]  ./rootfs-1/usr/lib/dracut/hooks/emergency/99-timeout.sh
+[       3204]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/async_tx/async_memcpy.ko.xz
+[       3196]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/mdio/fwnode_mdio.ko.xz
+[       3196]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/geniv.ko.xz
+[       3164]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/echainiv.ko.xz
+[       3136]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nls/nls_cp437.ko.xz
+[       3128]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/cbc.ko.xz
+[       3096]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/ghash-generic.ko.xz
+[       3072]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/lzo-rle.ko.xz
+[       3036]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/lzo.ko.xz
+[       2900]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/bcm87xx.ko.xz
+[       2892]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/net/802/stp.ko.xz
+[       2856]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/ax88796b.ko.xz
+[       2764]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/des_generic.ko.xz
+[       2746]  ./rootfs-1/usr/sbin/ignition-kargs-helper*
+[       2700]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/crc32c_generic.ko.xz
+[       2688]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/ecb.ko.xz
+[       2668]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/mdio_devres.ko.xz
+[       2668]  ./rootfs-1/usr/lib/firmware/tigon/tg3.bin
+[       2651]  ./rootfs-1/usr/bin/dracut-cmdline*
+[       2628]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/phy/amd.ko.xz
+[       2616]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/xxhash_generic.ko.xz
+[       2596]  ./rootfs-1/usr/lib/dracut/hooks/pre-trigger/30-parse-md.sh*
+[       2594]  ./rootfs-1/usr/sbin/fsck.xfs*
+[       2568]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/pci/controller/pci-hyperv-intf.ko.xz
+[       2564]  ./rootfs-1/usr/lib/firmware/cxgb3/t3c_psram-1.1.0.bin
+[       2564]  ./rootfs-1/usr/lib/firmware/cxgb3/t3b_psram-1.1.0.bin
+[       2560]  ./rootfs-1/usr/lib/systemd/system-generators/verity-generator*
+[       2552]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/crct10dif_generic.ko.xz
+[       2532]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nls/nls_ascii.ko.xz
+[       2496]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/crct10dif_common.ko.xz
+[       2480]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/crypto/crc64_rocksoft_generic.ko.xz
+[       2456]  ./rootfs-1/usr/lib/udev/rules.d/63-md-raid-arrays.rules
+[       2450]  ./rootfs-1/usr/lib/systemd/system/systemd-networkd.service
+[       2448]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crc-itu-t.ko.xz
+[       2437]  ./rootfs-1/usr/bin/dracut-initqueue*
+[       2420]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crc16.ko.xz
+[       2404]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/libcrc32c.ko.xz
+[       2368]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/drivers/net/mdio/acpi_mdio.ko.xz
+[       2312]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nls/nls_utf8.ko.xz
+[       2304]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/smb/common/cifs_arc4.ko.xz
+[       2296]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crypto/libarc4.ko.xz
+[       2264]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crc8.ko.xz
+[       2176]  ./rootfs-1/usr/sbin/flatcar-tmpfiles*
+[       2176]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/lib/crypto/libchacha.ko.xz
+[       2123]  ./rootfs-1/usr/lib/udev/rules.d/90-cloud-storage.rules
+[       2112]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8411-1.fw
+[       2109]  ./rootfs-1/etc/udev/rules.d/65-start-root.rules
+[       2105]  ./rootfs-1/usr/lib/systemd/system-generators/usr-fsck-generator*
+[       2099]  ./rootfs-1/usr/lib/systemd/system/systemd-journald.service
+[       2076]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8105e-1.fw
+[       1995]  ./rootfs-1/usr/lib/udev/rules.d/70-nvmf-autoconnect.rules
+[       1968]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/kernel/fs/nls/nls_ucs2_utils.ko.xz
+[       1919]  ./rootfs-1/usr/lib/sysctl.d/50-default.conf
+[       1880]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8153b-2.fw
+[       1861]  ./rootfs-1/usr/lib/udev/rules.d/66-azure-storage.rules
+[       1856]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8106e-1.fw
+[       1838]  ./rootfs-1/usr/sbin/mdraid_start*
+[       1828]  ./rootfs-1/usr/lib/systemd/system/systemd-resolved.service
+[       1824]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8402-1.fw
+[       1816]  ./rootfs-1/usr/lib/sysctl.d/50-coredump.conf
+[       1794]  ./rootfs-1/usr/lib/udev/rules.d/13-dm-disk.rules
+[       1768]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8153a-2.fw
+[       1740]  ./rootfs-1/usr/share/terminfo/l/linux
+[       1638]  ./rootfs-1/usr/lib/systemd/system/flatcar-metadata-hostname.service
+[       1599]  ./rootfs-1/usr/bin/dracut-emergency*
+[       1584]  ./rootfs-1/usr/lib/firmware/cxgb3/ael2020_twx_edc.bin
+[       1514]  ./rootfs-1/etc/passwd
+[       1492]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168d-1.fw
+[       1481]  ./rootfs-1/usr/lib/systemd/system/ignition-mount.service
+[       1468]  ./rootfs-1/usr/lib/firmware/cxgb3/ael2005_twx_edc.bin
+[       1455]  ./rootfs-1/etc/udev/rules.d/65-md-incremental-imsm.rules
+[       1440]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8153a-3.fw
+[       1425]  ./rootfs-1/usr/lib/tmpfiles.d/systemd.conf
+[       1415]  ./rootfs-1/usr/lib/systemd/system/syslog.socket
+[       1413]  ./rootfs-1/usr/bin/dracut-pre-udev*
+[       1413]  ./rootfs-1/etc/systemd/resolved.conf
+[       1391]  ./rootfs-1/usr/share/terminfo/v/vt220
+[       1375]  ./rootfs-1/usr/lib/udev/cloud_aws_ebs_nvme_id*
+[       1353]  ./rootfs-1/usr/lib/udev/rules.d/64-md-raid-assembly.rules
+[       1346]  ./rootfs-1/usr/sbin/rdsosreport*
+[       1343]  ./rootfs-1/usr/lib/systemd/system/systemd-udevd.service
+[       1342]  ./rootfs-1/usr/lib/systemd/system/ignition-disks.service
+[       1324]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168d-2.fw
+[       1282]  ./rootfs-1/usr/share/terminfo/v/vt100
+[       1276]  ./rootfs-1/usr/share/terminfo/v/vt102
+[       1259]  ./rootfs-1/usr/lib/systemd/system/ignition-files.service
+[       1255]  ./rootfs-1/usr/lib/systemd/system/initrd-parse-etc.service
+[       1242]  ./rootfs-1/usr/lib/dracut/hooks/initqueue/timeout/99-rootfallback.sh*
+[       1237]  ./rootfs-1/usr/lib/dracut/hooks/shutdown/25-dm-shutdown.sh*
+[       1232]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168f-2.fw
+[       1227]  ./rootfs-1/usr/lib/dracut/hooks/cmdline/30-parse-lunmask.sh*
+[       1186]  ./rootfs-1/usr/lib/modprobe.d/aliases.conf
+[       1185]  ./rootfs-1/usr/sbin/fsck.btrfs*
+[       1185]  ./rootfs-1/usr/lib/systemd/system/ignition-fetch.service
+[       1182]  ./rootfs-1/usr/lib/systemd/system/systemd-journald-dev-log.socket
+[       1175]  ./rootfs-1/usr/lib/systemd/system/systemd-random-seed.service
+[       1168]  ./rootfs-1/usr/sbin/disk-uuid*
+[       1163]  ./rootfs-1/usr/sbin/initqueue*
+[       1123]  ./rootfs-1/usr/lib/systemd/system/dracut-pre-pivot.service
+[       1111]  ./rootfs-1/usr/lib/systemd/system/sys-kernel-config.mount
+[       1088]  ./rootfs-1/usr/lib/firmware/cxgb3/ael2005_opt_edc.bin
+[       1071]  ./rootfs-1/usr/lib/udev/rules.d/60-cdrom_id.rules
+[       1063]  ./rootfs-1/usr/lib/systemd/system/debug-shell.service
+[       1055]  ./rootfs-1/usr/lib/systemd/system/ignition-fetch-offline.service
+[       1052]  ./rootfs-1/usr/bin/dracut-mount*
+[       1040]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8411-2.fw
+[       1034]  ./rootfs-1/usr/lib/systemd/system/mdmon@.service
+[       1030]  ./rootfs-1/etc/udev/rules.d/61-persistent-storage.rules
+[       1019]  ./rootfs-1/usr/sbin/ignition-setup-pre*
+[       1019]  ./rootfs-1/usr/lib/systemd/system/systemd-modules-load.service
+[        983]  ./rootfs-1/usr/lib/systemd/system/systemd-tmpfiles-setup.service
+[        976]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168h-2.fw
+[        976]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8107e-2.fw
+[        972]  ./rootfs-1/usr/lib/systemd/system/dracut-pre-udev.service
+[        934]  ./rootfs-1/usr/lib/systemd/system/systemd-journald.socket
+[        927]  ./rootfs-1/usr/lib/systemd/system/basic.target
+[        907]  ./rootfs-1/usr/sbin/ignition-setup*
+[        895]  ./rootfs-1/usr/bin/dracut-pre-pivot*
+[        893]  ./rootfs-1/usr/lib/systemd/system/dracut-pre-trigger.service
+[        884]  ./rootfs-1/usr/lib/modprobe.d/dist-blacklist.conf
+[        883]  ./rootfs-1/usr/lib/systemd/system/dracut-cmdline.service
+[        863]  ./rootfs-1/usr/lib/systemd/system/systemd-udev-settle.service
+[        853]  ./rootfs-1/etc/udev/rules.d/59-persistent-storage-md.rules
+[        847]  ./rootfs-1/usr/lib/systemd/system/dracut-cmdline-ask.service
+[        837]  ./rootfs-1/usr/lib/systemd/system/systemd-tmpfiles-setup-dev.service
+[        834]  ./rootfs-1/usr/lib/systemd/system/systemd-ask-password-console.service
+[        832]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168g-3.fw
+[        832]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8153c-1.fw
+[        832]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8106e-2.fw
+[        830]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target
+[        823]  ./rootfs-1/usr/lib/systemd/system/initrd-udevadm-cleanup-db.service
+[        813]  ./rootfs-1/usr/lib/systemd/system/systemd-tmpfiles-setup-dev-early.service
+[        811]  ./rootfs-1/usr/lib/systemd/system/ignition-kargs.service
+[        810]  ./rootfs-1/usr/lib/systemd/system/initrd.target
+[        806]  ./rootfs-1/etc/group
+[        801]  ./rootfs-1/usr/lib/systemd/system/dracut-pre-mount.service
+[        800]  ./rootfs-1/usr/lib/systemd/system/dracut-initqueue.service
+[        800]  ./rootfs-1/usr/lib/systemd/system/afterburn-network-kargs.service
+[        798]  ./rootfs-1/usr/sbin/crypt-run-generator*
+[        789]  ./rootfs-1/usr/lib/systemd/system/ignition-subsequent.target
+[        782]  ./rootfs-1/usr/sbin/xfs_metadump*
+[        779]  ./rootfs-1/usr/lib/systemd/system/initrd-switch-root.target
+[        773]  ./rootfs-1/usr/lib/modprobe.d/systemd.conf
+[        772]  ./rootfs-1/usr/lib/systemd/system/dracut-mount.service
+[        771]  ./rootfs-1/usr/lib/systemd/system/systemd-ask-password-console.path
+[        769]  ./rootfs-1/usr/lib/systemd/network/99-default.link
+[        758]  ./rootfs-1/usr/lib/systemd/system/systemd-udev-trigger.service
+[        751]  ./rootfs-1/usr/lib/systemd/system/systemd-networkd-wait-online.service
+[        743]  ./rootfs-1/usr/lib/systemd/system/systemd-volatile-root.service
+[        733]  ./rootfs-1/usr/lib/systemd/system/systemd-sysctl.service
+[        722]  ./rootfs-1/usr/lib/sysctl.d/60-baselayout.conf
+[        712]  ./rootfs-1/usr/lib/systemd/system/ignition-quench.service
+[        712]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8153a-4.fw
+[        708]  ./rootfs-1/usr/lib/systemd/system/sysroot-boot.service
+[        705]  ./rootfs-1/usr/lib/systemd/system/systemd-fsck@.service
+[        703]  ./rootfs-1/usr/lib/udev/rules.d/60-block.rules
+[        703]  ./rootfs-1/etc/shadow
+[        701]  ./rootfs-1/usr/lib/systemd/system/kmod-static-nodes.service
+[        692]  ./rootfs-1/usr/lib/systemd/system/rescue.service
+[        692]  ./rootfs-1/usr/lib/systemd/system/emergency.service
+[        691]  ./rootfs-1/usr/lib/dracut/hooks/pre-mount/10-mdraid-waitclean.sh*
+[        682]  ./rootfs-1/usr/lib/systemd/system/systemd-networkd.socket
+[        682]  ./rootfs-1/etc/gshadow
+[        681]  ./rootfs-1/usr/lib/systemd/system/dracut-emergency.service
+[        680]  ./rootfs-1/usr/lib/systemd/system/systemd-hibernate-resume@.service
+[        680]  ./rootfs-1/etc/udev/rules.d/59-persistent-storage-dm.rules
+[        670]  ./rootfs-1/usr/lib/systemd/system/initrd-cleanup.service
+[        655]  ./rootfs-1/usr/lib/systemd/system/systemd-journald-audit.socket
+[        650]  ./rootfs-1/usr/lib/systemd/system/systemd-vconsole-setup.service
+[        650]  ./rootfs-1/usr/lib/systemd/system/systemd-udevd-control.socket
+[        635]  ./rootfs-1/usr/lib/sysctl.d/50-pid-max.conf
+[        625]  ./rootfs-1/usr/lib/systemd/system/network-cleanup.service
+[        624]  ./rootfs-1/usr/lib/systemd/system/systemd-udevd-kernel.socket
+[        623]  ./rootfs-1/usr/lib/systemd/system/initrd-switch-root.service
+[        616]  ./rootfs-1/usr/lib/udev/rules.d/64-btrfs.rules
+[        607]  ./rootfs-1/usr/lib/systemd/system/poweroff.target
+[        601]  ./rootfs-1/usr/lib/systemd/system/systemd-kexec.service
+[        600]  ./rootfs-1/usr/lib/udev/rules.d/80-drivers.rules
+[        598]  ./rootfs-1/usr/lib/systemd/system/reboot.target
+[        598]  ./rootfs-1/usr/lib/systemd/system/initrd-fs.target
+[        596]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.softdep
+[        594]  ./rootfs-1/usr/lib/systemd/system/systemd-halt.service
+[        593]  ./rootfs-1/usr/lib/systemd/network/yy-azure-sriov.network
+[        591]  ./rootfs-1/usr/lib/systemd/system/flatcar-openstack-hostname.service
+[        587]  ./rootfs-1/usr/lib/udev/rules.d/73-seat-late.rules
+[        579]  ./rootfs-1/usr/lib/systemd/system/ignition-remount-sysroot.service
+[        575]  ./rootfs-1/usr/lib/systemd/system/systemd-poweroff.service
+[        574]  ./rootfs-1/usr/lib/systemd/system/sysinit.target
+[        571]  ./rootfs-1/usr/lib/systemd/system/initrd-root-fs.target
+[        568]  ./rootfs-1/usr/lib/udev/sas_transport_scan_lun.sh*
+[        568]  ./rootfs-1/usr/lib/systemd/system/systemd-reboot.service
+[        566]  ./rootfs-1/usr/lib/systemd/system/initrd-root-device.target
+[        564]  ./rootfs-1/usr/lib/systemd/system/parse-ip-for-networkd.service
+[        562]  ./rootfs-1/usr/lib/udev/fc_transport_scan_lun.sh*
+[        562]  ./rootfs-1/usr/lib/systemd/system/nss-lookup.target
+[        557]  ./rootfs-1/usr/lib/systemd/system/remote-cryptsetup.target
+[        555]  ./rootfs-1/usr/lib/systemd/system/local-fs.target
+[        553]  ./rootfs-1/usr/lib/systemd/system/ignition-diskful.target
+[        549]  ./rootfs-1/usr/lib/systemd/system/kexec.target
+[        548]  ./rootfs-1/usr/lib/systemd/system/rpcbind.target
+[        548]  ./rootfs-1/usr/lib/systemd/system/disk-uuid.service
+[        542]  ./rootfs-1/usr/lib/systemd/system/halt.target
+[        540]  ./rootfs-1/usr/lib/systemd/system/multi-user.target
+[        539]  ./rootfs-1/usr/lib/firmware/e100/d102e_ucode.bin
+[        539]  ./rootfs-1/usr/lib/firmware/e100/d101s_ucode.bin
+[        539]  ./rootfs-1/usr/lib/firmware/e100/d101m_ucode.bin
+[        537]  ./rootfs-1/usr/lib/systemd/system/ignition-diskful-subsequent.target
+[        532]  ./rootfs-1/usr/sbin/retry-umount*
+[        532]  ./rootfs-1/usr/lib64/libsmartcols.so*
+[        531]  ./rootfs-1/usr/lib64/libkeyutils.so*
+[        530]  ./rootfs-1/usr/lib64/libpcre2-8.so*
+[        530]  ./rootfs-1/usr/lib64/libcom_err.so*
+[        530]  ./rootfs-1/usr/lib/systemd/system/remote-fs.target
+[        529]  ./rootfs-1/usr/lib64/libtinfow.so*
+[        529]  ./rootfs-1/usr/lib64/libext2fs.so*
+[        528]  ./rootfs-1/usr/lib64/libtinfo.so*
+[        528]  ./rootfs-1/usr/lib64/libmount.so*
+[        528]  ./rootfs-1/usr/lib64/libip4tc.so*
+[        528]  ./rootfs-1/usr/lib64/libblkid.so*
+[        528]  ./rootfs-1/usr/lib64/libaudit.so*
+[        527]  ./rootfs-1/usr/lib64/libzstd.so*
+[        527]  ./rootfs-1/usr/lib64/libuuid.so*
+[        527]  ./rootfs-1/usr/lib64/liblzo2.so*
+[        527]  ./rootfs-1/usr/lib64/libattr.so*
+[        526]  ./rootfs-1/usr/lib64/libe2p.so*
+[        526]  ./rootfs-1/usr/lib64/libcap.so*
+[        521]  ./rootfs-1/usr/lib/systemd/system/nss-user-lookup.target
+[        504]  ./rootfs-1/usr/lib/systemd/system/iscsi.service
+[        502]  ./rootfs-1/usr/bin/dracut-pre-mount*
+[        500]  ./rootfs-1/usr/lib/systemd/system/rescue.target
+[        500]  ./rootfs-1/usr/lib/systemd/system/final.target
+[        499]  ./rootfs-1/usr/lib/systemd/system/network.target
+[        493]  ./rootfs-1/usr/sbin/mdraid-cleanup*
+[        492]  ./rootfs-1/usr/sbin/loginit*
+[        490]  ./rootfs-1/usr/lib/systemd/system/network-pre.target
+[        489]  ./rootfs-1/usr/lib/udev/rules.d/90-vconsole.rules
+[        483]  ./rootfs-1/usr/lib/systemd/system/network-online.target
+[        481]  ./rootfs-1/usr/lib/udev/rules.d/99-xx-ignition-systemd-cryptsetup.rules
+[        481]  ./rootfs-1/usr/lib/systemd/system/mdadm-grow-continue@.service
+[        481]  ./rootfs-1/usr/lib/systemd/system/flatcar-static-network.service
+[        479]  ./rootfs-1/usr/lib/udev/rules.d/95-dm-notify.rules
+[        479]  ./rootfs-1/usr/lib/systemd/system/emergency.target
+[        477]  ./rootfs-1/usr/lib/systemd/network/98-gce-virtio.link
+[        476]  ./rootfs-1/usr/lib/systemd/network/98-gce-coreos-virtio.link
+[        473]  ./rootfs-1/usr/lib/systemd/system/cryptsetup-pre.target
+[        467]  ./rootfs-1/usr/lib/dracut/modules.txt
+[        467]  ./rootfs-1/usr/bin/dracut-pre-trigger*
+[        465]  ./rootfs-1/usr/lib/systemd/system/umount.target
+[        462]  ./rootfs-1/usr/lib/systemd/system/slices.target
+[        458]  ./rootfs-1/usr/lib/systemd/system/timers.target
+[        457]  ./rootfs-1/usr/lib/systemd/system/shutdown.target
+[        457]  ./rootfs-1/usr/lib/dracut/hooks/shutdown/30-md-shutdown.sh*
+[        454]  ./rootfs-1/usr/lib/systemd/system/remote-fs-pre.target
+[        453]  ./rootfs-1/usr/lib/systemd/system/local-fs-pre.target
+[        452]  ./rootfs-1/usr/lib/udev/rules.d/75-net-description.rules
+[        445]  ./rootfs-1/etc/udev/rules.d/90-disk-uuid.rules
+[        420]  ./rootfs-1/usr/lib/systemd/system/cryptsetup.target
+[        418]  ./rootfs-1/usr/lib/systemd/system/iscsid.service
+[        414]  ./rootfs-1/usr/bin/dracut-cmdline-ask*
+[        412]  ./rootfs-1/usr/lib/systemd/diskless-btrfs*
+[        410]  ./rootfs-1/usr/lib/systemd/system/sigpwr.target
+[        409]  ./rootfs-1/usr/lib/systemd/system/sockets.target
+[        407]  ./rootfs-1/usr/lib/systemd/system/paths.target
+[        403]  ./rootfs-1/usr/lib/systemd/system/iscsiuio.service
+[        403]  ./rootfs-1/usr/lib/systemd/system/initrd-setup-root-after-ignition.service
+[        402]  ./rootfs-1/usr/lib/systemd/system/swap.target
+[        402]  ./rootfs-1/usr/lib/systemd/system/flatcar-digitalocean-network.service
+[        369]  ./rootfs-1/usr/lib/systemd/system/remount-sysroot.service
+[        336]  ./rootfs-1/usr/lib/firmware/rtl_nic/rtl8168fp-3.fw
+[        332]  ./rootfs-1/usr/lib/systemd/network/98-virtio.link
+[        320]  ./rootfs-1/usr/lib/systemd/system/initrd-setup-root.service
+[        320]  ./rootfs-1/usr/lib/dracut/hooks/cmdline/99-parse-stub.sh
+[        305]  ./rootfs-1/etc/udev/udev.conf
+[        297]  ./rootfs-1/etc/udev/rules.d/59-persistent-storage.rules
+[        295]  ./rootfs-1/usr/lib/udev/rules.d/80-net-setup-link.rules
+[        281]  ./rootfs-1/usr/lib/modprobe.d/raid0.conf
+[        253]  ./rootfs-1/usr/lib64/libc.so*
+[        247]  ./rootfs-1/etc/ld.so.conf
+[        234]  ./rootfs-1/usr/lib/dracut/hooks/pre-trigger/01-load-modsign-keys.sh*
+[        232]  ./rootfs-1/usr/lib/firmware/isci/isci_firmware.bin
+[        231]  ./rootfs-1/usr/lib/dracut/build-parameter.txt
+[        229]  ./rootfs-1/usr/lib/dracut/hooks/pre-shutdown/30-mdmon-pre-shutdown.sh*
+[        210]  ./rootfs-1/usr/lib/systemd/system/mdadm-last-resort@.service
+[        193]  ./rootfs-1/usr/sbin/insmodpost.sh*
+[        192]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.devname
+[        188]  ./rootfs-1/usr/lib/systemd/network/yy-netroot.network
+[        179]  ./rootfs-1/usr/lib/systemd/system/mdadm-last-resort@.timer
+[        177]  ./rootfs-1/usr/lib/systemd/system/initrd-parse-etc.service.d/override.conf
+[        175]  ./rootfs-1/usr/lib/systemd/system/iscsid.socket
+[        165]  ./rootfs-1/usr/lib/systemd/system/iscsiuio.socket
+[        161]  ./rootfs-1/etc/systemd/system.conf.d/nocgroup.conf
+[        157]  ./rootfs-1/usr/lib/systemd/network/20-calico-tunl0.link
+[        155]  ./rootfs-1/usr/lib/dracut/hooks/cleanup/99-mdraid-needshutdown.sh*
+[        148]  ./rootfs-1/usr/lib/systemd/system/initrd-switch-root.service.d/override.conf
+[        144]  ./rootfs-1/usr/lib/firmware/tigon/tg357766.bin
+[        142]  ./rootfs-1/etc/udev/rules.d/11-dm.rules
+[        136]  ./rootfs-1/usr/lib/initrd-release
+[        135]  ./rootfs-1/usr/lib/tmpfiles.d/dracut-tmpfiles.conf
+[        135]  ./rootfs-1/usr/lib/dracut/hooks/cleanup/90-cleanup-iscsi.sh*
+[        134]  ./rootfs-1/usr/lib/systemd/network/yy-pxe.network
+[        132]  ./rootfs-1/usr/lib/systemd/network/zz-default.network
+[        132]  ./rootfs-1/usr/lib/gcc/x86_64-cros-linux-gnu/13/libgcc_s.so
+[        132]  ./rootfs-1/etc/systemd/system/systemd-fsck-usr.service
+[        130]  ./rootfs-1/usr/lib/dracut/hooks/pre-udev/30-mdmon-pre-udev.sh*
+[        126]  ./rootfs-1/usr/lib/systemd/network/yy-digitalocean.network
+[        124]  ./rootfs-1/usr/lib/systemd/network/50-veth.link
+[        124]  ./rootfs-1/etc/conf.d/systemd.conf
+[        122]  ./rootfs-1/usr/lib/modprobe.d/i386.conf
+[        115]  ./rootfs-1/etc/security/pwquality.conf.d/ignition-luks.conf
+[        110]  ./rootfs-1/usr/lib64/libm.so*
+[        102]  ./rootfs-1/usr/lib/dracut/hooks/pre-udev/30-dm-pre-udev.sh*
+[         94]  ./rootfs-1/usr/lib/systemd/system/iscsiuio.socket.d/dracut.conf
+[         94]  ./rootfs-1/usr/lib/systemd/system/iscsid.socket.d/dracut.conf
+[         86]  ./rootfs-1/usr/bin/coreos-metadata*
+[         80]  ./rootfs-1/usr/bin/setfiles
+[         80]  ./rootfs-1/usr/bin/gpg-agent*
+[         79]  ./rootfs-1/usr/bin/ignition*
+[         68]  ./rootfs-1/usr/lib/systemd/system/iscsid.service.d/dracut.conf
+[         68]  ./rootfs-1/usr/lib/modprobe.d/rbd.conf
+[         64]  ./rootfs-1/etc/systemd/journald.conf
+[         62]  ./rootfs-1/usr/lib/modprobe.d/usb-load-ehci-first.conf
+[         61]  ./rootfs-1/usr/lib/firmware/intel/ice/ddp/ice.pkg -> ../../../../../../lib/firmware/intel/ice/ddp/ice-1.3.36.0.pkg
+[         60]  ./rootfs-1/usr/lib/systemd/network/50-flannel.link
+[         55]  ./rootfs-1/etc/systemd/system/systemd-networkd.service.wants/afterburn-network-kargs.service -> /usr/lib/systemd/system/afterburn-network-kargs.service
+[         54]  ./rootfs-1/etc/systemd/system/systemd-ask-password-console.service.wants/systemd-vconsole-setup.service -> /usr/lib/systemd/system/systemd-vconsole-setup.service
+[         54]  ./rootfs-1/etc/systemd/system/rescue.target.wants/systemd-vconsole-setup.service -> /usr/lib/systemd/system/systemd-vconsole-setup.service
+[         54]  ./rootfs-1/etc/systemd/system/emergency.target.wants/systemd-vconsole-setup.service -> /usr/lib/systemd/system/systemd-vconsole-setup.service
+[         54]  ./rootfs-1/etc/ssl/certs/ca-certificates.crt -> ../../../usr/share/ca-certificates/ca-certificates.crt
+[         53]  ./rootfs-1/etc/systemd/system/systemd-networkd.service.wants/parse-ip-for-networkd.service -> /usr/lib/systemd/system/parse-ip-for-networkd.service
+[         50]  ./rootfs-1/usr/lib64/libdevmapper-event.so -> ../../lib64/../../lib64/libdevmapper-event.so.1.02*
+[         50]  ./rootfs-1/usr/lib/systemd/system/ignition-diskful.target.requires/ignition-remount-sysroot.service -> ../../../../../../ignition-remount-sysroot.service
+[         50]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-pre-trigger.service -> /usr/lib/systemd/system/dracut-pre-trigger.service
+[         50]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-cmdline-ask.service -> /usr/lib/systemd/system/dracut-cmdline-ask.service
+[         48]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target.requires/ignition-fetch-offline.service -> ../../../../../../ignition-fetch-offline.service
+[         48]  ./rootfs-1/usr/lib/firmware/cxgb4/t6fw.bin -> ../../../../lib/firmware/cxgb4/t6fw-1.27.5.0.bin
+[         48]  ./rootfs-1/usr/lib/firmware/cxgb4/t5fw.bin -> ../../../../lib/firmware/cxgb4/t5fw-1.27.5.0.bin
+[         48]  ./rootfs-1/usr/lib/firmware/cxgb4/t4fw.bin -> ../../../../lib/firmware/cxgb4/t4fw-1.27.5.0.bin
+[         48]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-pre-pivot.service -> /usr/lib/systemd/system/dracut-pre-pivot.service
+[         48]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-pre-mount.service -> /usr/lib/systemd/system/dracut-pre-mount.service
+[         48]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-initqueue.service -> /usr/lib/systemd/system/dracut-initqueue.service
+[         47]  ./rootfs-1/etc/systemd/system/systemd-networkd.service.wants/network-cleanup.service -> /usr/lib/systemd/system/network-cleanup.service
+[         47]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-pre-udev.service -> /usr/lib/systemd/system/dracut-pre-udev.service
+[         46]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-cmdline.service -> /usr/lib/systemd/system/dracut-cmdline.service
+[         44]  ./rootfs-1/usr/lib64/libdevmapper.so -> ../../lib64/../../lib64/libdevmapper.so.1.02*
+[         44]  ./rootfs-1/etc/systemd/system/initrd.target.wants/dracut-mount.service -> /usr/lib/systemd/system/dracut-mount.service
+[         40]  ./rootfs-1/usr/lib64/libkmod.so -> ../../lib64/../../lib64/libkmod.so.2.4.1*
+[         40]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target.requires/ignition-mount.service -> ../../../../../../ignition-mount.service
+[         40]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target.requires/ignition-kargs.service -> ../../../../../../ignition-kargs.service
+[         40]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target.requires/ignition-files.service -> ../../../../../../ignition-files.service
+[         40]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target.requires/ignition-fetch.service -> ../../../../../../ignition-fetch.service
+[         40]  ./rootfs-1/usr/lib/systemd/system/ignition-complete.target.requires/ignition-disks.service -> ../../../../../../ignition-disks.service
+[         40]  ./rootfs-1/etc/systemd/system/basic.target.wants/iscsiuio.service -> /usr/lib/systemd/system/iscsiuio.service
+[         39]  ./rootfs-1/usr/lib64/libselinux.so -> ../../lib64/../../lib64/libselinux.so.1*
+[         39]  ./rootfs-1/etc/systemd/system/sockets.target.wants/iscsiuio.socket -> /usr/lib/systemd/system/iscsiuio.socket
+[         38]  ./rootfs-1/etc/systemd/system/basic.target.wants/iscsid.service -> /usr/lib/systemd/system/iscsid.service
+[         38]  ./rootfs-1/etc/ld.so.conf.d/05gcc-x86_64-cros-linux-gnu.conf
+[         37]  ./rootfs-1/usr/lib64/libsepol.so -> ../../lib64/../../lib64/libsepol.so.2*
+[         37]  ./rootfs-1/usr/lib64/libcrypt.so -> ../../lib64/../../lib64/libcrypt.so.1*
+[         37]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup-dev.service -> ../systemd-tmpfiles-setup-dev.service
+[         37]  ./rootfs-1/usr/lib/systemd/system/dev-mapper-usr.device.d/no-job-timeout.conf
+[         37]  ./rootfs-1/etc/systemd/system/sockets.target.wants/iscsid.socket -> /usr/lib/systemd/system/iscsid.socket
+[         37]  ./rootfs-1/etc/systemd/system/default.target -> /usr/lib/systemd/system/initrd.target
+[         36]  ./rootfs-1/usr/lib64/libopeniscsiusr.so -> ../../lib64/libopeniscsiusr.so.0.2.0*
+[         36]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-ask-password-console.path -> ../systemd-ask-password-console.path
+[         35]  ./rootfs-1/usr/lib64/libcryptsetup.so.12 -> ../../lib64/libcryptsetup.so.12.9.0*
+[         35]  ./rootfs-1/usr/lib64/libcryptsetup.so -> ../../lib64/libcryptsetup.so.12.9.0*
+[         34]  ./rootfs-1/usr/lib64/libgpg-error.so.0 -> ../../lib64/libgpg-error.so.0.34.0*
+[         34]  ./rootfs-1/usr/lib64/libgpg-error.so -> ../../lib64/libgpg-error.so.0.34.0*
+[         34]  ./rootfs-1/usr/lib/systemd/system/sockets.target.wants/systemd-journald-dev-log.socket -> ../systemd-journald-dev-log.socket
+[         34]  ./rootfs-1/etc/resolv.conf -> ../run/systemd/resolve/resolv.conf
+[         33]  ./rootfs-1/usr/lib64/libsmartcols.so.1 -> ../../lib64/libsmartcols.so.1.1.0*
+[         33]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup.service -> ../systemd-tmpfiles-setup.service
+[         32]  ./rootfs-1/usr/lib64/libsystemd.so.0 -> ../../lib64/libsystemd.so.0.35.0*
+[         32]  ./rootfs-1/usr/lib64/libpcre2-8.so.0 -> ../../lib64/libpcre2-8.so.0.11.2*
+[         32]  ./rootfs-1/usr/lib/systemd/system/sockets.target.wants/systemd-journald-audit.socket -> ../systemd-journald-audit.socket
+[         31]  ./rootfs-1/usr/lib64/libseccomp.so.2 -> ../../lib64/libseccomp.so.2.5.5*
+[         31]  ./rootfs-1/usr/lib64/libseccomp.so -> ../../lib64/libseccomp.so.2.5.5*
+[         31]  ./rootfs-1/usr/lib64/libnvme-mi.so.1 -> ../../lib64/libnvme-mi.so.1.7.1*
+[         31]  ./rootfs-1/usr/lib64/libkeyutils.so.1 -> ../../lib64/libkeyutils.so.1.10*
+[         31]  ./rootfs-1/usr/lib64/libgcrypt.so.20 -> ../../lib64/libgcrypt.so.20.4.3*
+[         31]  ./rootfs-1/usr/lib64/libgcrypt.so -> ../../lib64/libgcrypt.so.20.4.3*
+[         31]  ./rootfs-1/usr/lib64/libattr.so.1 -> ../../lib64/libattr.so.1.1.2501*
+[         31]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-udev-trigger.service -> ../systemd-udev-trigger.service
+[         31]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-modules-load.service -> ../systemd-modules-load.service
+[         31]  ./rootfs-1/usr/lib/systemd/system/sockets.target.wants/systemd-udevd-control.socket -> ../systemd-udevd-control.socket
+[         31]  ./rootfs-1/etc/systemd/journald.conf.d/00-forward-to-console.conf
+[         30]  ./rootfs-1/usr/lib64/libreadline.so.8 -> ../../lib64/libreadline.so.8.2*
+[         30]  ./rootfs-1/usr/lib64/libparted.so.2 -> ../../lib64/libparted.so.2.0.5*
+[         30]  ./rootfs-1/usr/lib64/libparted.so -> ../../lib64/libparted.so.2.0.5*
+[         30]  ./rootfs-1/usr/lib64/libjson-c.so.5 -> ../../lib64/libjson-c.so.5.3.0*
+[         30]  ./rootfs-1/usr/lib64/libcap-ng.so.0 -> ../../lib64/libcap-ng.so.0.0.0*
+[         30]  ./rootfs-1/usr/lib64/libcap-ng.so -> ../../lib64/libcap-ng.so.0.0.0*
+[         30]  ./rootfs-1/usr/lib/systemd/system/systemd-resolved.service.d/10-nodeps.conf
+[         30]  ./rootfs-1/usr/lib/systemd/system/sockets.target.wants/systemd-udevd-kernel.socket -> ../systemd-udevd-kernel.socket
+[         29]  ./rootfs-1/usr/lib64/libmount.so.1 -> ../../lib64/libmount.so.1.1.0*
+[         29]  ./rootfs-1/usr/lib64/libip4tc.so.2 -> ../../lib64/libip4tc.so.2.0.0*
+[         29]  ./rootfs-1/usr/lib64/libcom_err.so.2 -> ../../lib64/libcom_err.so.2.1*
+[         29]  ./rootfs-1/usr/lib64/libblkid.so.1 -> ../../lib64/libblkid.so.1.1.0*
+[         29]  ./rootfs-1/usr/lib64/libaudit.so.1 -> ../../lib64/libaudit.so.1.0.0*
+[         28]  ./rootfs-1/usr/lib64/libzstd.so.1 -> ../../lib64/libzstd.so.1.5.5*
+[         28]  ./rootfs-1/usr/lib64/libuuid.so.1 -> ../../lib64/libuuid.so.1.3.0*
+[         28]  ./rootfs-1/usr/lib64/liburcu.so.8 -> ../../lib64/liburcu.so.8.1.0*
+[         28]  ./rootfs-1/usr/lib64/liburcu.so -> ../../lib64/liburcu.so.8.1.0*
+[         28]  ./rootfs-1/usr/lib64/libudev.so.1 -> ../../lib64/libudev.so.1.7.5*
+[         28]  ./rootfs-1/usr/lib64/libtinfow.so.6 -> ../../lib64/libtinfow.so.6.4*
+[         28]  ./rootfs-1/usr/lib64/libreadline.so -> ../../lib64/libreadline.so.8*
+[         28]  ./rootfs-1/usr/lib64/libpopt.so.0 -> ../../lib64/libpopt.so.0.0.2*
+[         28]  ./rootfs-1/usr/lib64/libpopt.so -> ../../lib64/libpopt.so.0.0.2*
+[         28]  ./rootfs-1/usr/lib64/libpam.so.0 -> ../../lib64/libpam.so.0.85.1*
+[         28]  ./rootfs-1/usr/lib64/libpam.so -> ../../lib64/libpam.so.0.85.1*
+[         28]  ./rootfs-1/usr/lib64/libnvme.so.1 -> ../../lib64/libnvme.so.1.7.1*
+[         28]  ./rootfs-1/usr/lib64/liblzo2.so.2 -> ../../lib64/liblzo2.so.2.0.0*
+[         28]  ./rootfs-1/usr/lib64/liblzma.so.5 -> ../../lib64/liblzma.so.5.4.6*
+[         28]  ./rootfs-1/usr/lib64/liblzma.so -> ../../lib64/liblzma.so.5.4.6*
+[         28]  ./rootfs-1/usr/lib64/libkmod.so.2 -> ../../lib64/libkmod.so.2.4.1*
+[         28]  ./rootfs-1/usr/lib64/libext2fs.so.2 -> ../../lib64/libext2fs.so.2.4*
+[         28]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/kmod-static-nodes.service -> ../kmod-static-nodes.service
+[         27]  ./rootfs-1/usr/lib64/libtinfo.so.6 -> ../../lib64/libtinfo.so.6.4*
+[         27]  ./rootfs-1/usr/lib64/libsystemd.so -> ../../lib64/libsystemd.so.0*
+[         27]  ./rootfs-1/usr/lib64/libnvme-mi.so -> ../../lib64/libnvme-mi.so.1*
+[         27]  ./rootfs-1/usr/lib64/libmnl.so.0 -> ../../lib64/libmnl.so.0.2.0*
+[         27]  ./rootfs-1/usr/lib64/libmnl.so -> ../../lib64/libmnl.so.0.2.0*
+[         27]  ./rootfs-1/usr/lib64/liblz4.so.1 -> ../../lib64/liblz4.so.1.9.4*
+[         27]  ./rootfs-1/usr/lib64/libelf.so.1 -> ../../lib64/libelf-0.190.so*
+[         27]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-journald.service -> ../systemd-journald.service
+[         27]  ./rootfs-1/usr/lib/systemd/system/initrd-root-device.target.wants/remote-cryptsetup.target -> ../remote-cryptsetup.target
+[         26]  ./rootfs-1/usr/lib64/libjson-c.so -> ../../lib64/libjson-c.so.5*
+[         26]  ./rootfs-1/usr/lib64/libcrypto.so -> ../../lib64/libcrypto.so.3*
+[         26]  ./rootfs-1/usr/lib64/libcap.so.2 -> ../../lib64/libcap.so.2.69*
+[         26]  ./rootfs-1/usr/lib64/libargon2.so -> ../../lib64/libargon2.so.1*
+[         26]  ./rootfs-1/usr/lib/systemd/system/sockets.target.wants/systemd-journald.socket -> ../systemd-journald.socket
+[         25]  ./rootfs-1/usr/lib64/libe2p.so.2 -> ../../lib64/libe2p.so.2.3*
+[         25]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-sysctl.service -> ../systemd-sysctl.service
+[         25]  ./rootfs-1/etc/initrd-release -> ../usr/lib/initrd-release
+[         24]  ./rootfs-1/usr/lib64/libudev.so -> ../../lib64/libudev.so.1*
+[         24]  ./rootfs-1/usr/lib64/libnvme.so -> ../../lib64/libnvme.so.1*
+[         24]  ./rootfs-1/usr/lib64/libisns.so -> ../../lib64/libisns.so.0*
+[         24]  ./rootfs-1/usr/lib64/libinih.so -> ../../lib64/libinih.so.0*
+[         24]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/systemd-udevd.service -> ../systemd-udevd.service
+[         23]  ./rootfs-1/usr/lib64/libz.so.1 -> ../../lib64/libz.so.1.3*
+[         23]  ./rootfs-1/usr/lib64/libz.so -> ../../lib64/libz.so.1.3*
+[         23]  ./rootfs-1/usr/lib64/libssl.so -> ../../lib64/libssl.so.3*
+[         23]  ./rootfs-1/usr/lib64/liblz4.so -> ../../lib64/liblz4.so.1*
+[         23]  ./rootfs-1/usr/lib64/libelf.so -> ../../lib64/libelf.so.1*
+[         23]  ./rootfs-1/init -> usr/lib/systemd/systemd*
+[         22]  ./rootfs-1/usr/sbin/init -> ../lib/systemd/systemd*
+[         21]  ./rootfs-1/usr/lib/modules-load.d/k8s.conf
+[         20]  ./rootfs-1/usr/lib/systemd/system/sysinit.target.wants/cryptsetup.target -> ../cryptsetup.target
+[         20]  ./rootfs-1/etc/cmdline.d/00-btrfs.conf
+[         19]  ./rootfs-1/usr/sbin/fsck.vfat -> ../../sbin/fsck.fat*
+[         19]  ./rootfs-1/usr/lib/gcc/x86_64-cros-linux-gnu/13/libstdc++.so.6 -> libstdc++.so.6.0.32*
+[         19]  ./rootfs-1/usr/lib/gcc/x86_64-cros-linux-gnu/13/libstdc++.so -> libstdc++.so.6.0.32*
+[         17]  ./rootfs-1/usr/sbin/fsck.ext4 -> ../../sbin/e2fsck*
+[         17]  ./rootfs-1/usr/sbin/fsck.ext3 -> ../../sbin/e2fsck*
+[         17]  ./rootfs-1/usr/sbin/fsck.ext2 -> ../../sbin/e2fsck*
+[         17]  ./rootfs-1/usr/lib/systemd/systemd-udevd -> ../../bin/udevadm*
+[         17]  ./rootfs-1/etc/mtab -> /proc/self/mounts
+[         16]  ./rootfs-1/usr/sbin/reboot -> ../bin/systemctl*
+[         16]  ./rootfs-1/usr/sbin/poweroff -> ../bin/systemctl*
+[         16]  ./rootfs-1/usr/sbin/halt -> ../bin/systemctl*
+[         14]  ./rootfs-1/usr/lib64/systemd -> ../lib/systemd/
+[         14]  ./rootfs-1/usr/lib/os-release -> initrd-release
+[         14]  ./rootfs-1/etc/os-release -> initrd-release
+[         13]  ./rootfs-1/usr/lib/systemd/system/default.target -> initrd.target
+[         13]  ./rootfs-1/usr/lib/systemd/system/ctrl-alt-del.target -> reboot.target
+[         11]  ./rootfs-1/var/lock -> ../run/lock
+[         11]  ./rootfs-1/usr/sbin/rmmod -> ../bin/kmod*
+[         11]  ./rootfs-1/usr/sbin/modprobe -> ../bin/kmod*
+[         11]  ./rootfs-1/usr/sbin/insmod -> ../bin/kmod*
+[         11]  ./rootfs-1/usr/sbin/depmod -> ../bin/kmod*
+[         11]  ./rootfs-1/usr/lib/dracut/dracut-053
+[          9]  ./rootfs-1/lib64 -> usr/lib64/
+[          8]  ./rootfs-1/sbin -> usr/sbin/
+[          7]  ./rootfs-1/lib -> usr/lib/
+[          7]  ./rootfs-1/bin -> usr/bin/
+[          6]  ./rootfs-1/var/run -> ../run/
+[          6]  ./rootfs-1/usr/sbin/mkfs.ext4 -> mke2fs*
+[          5]  ./rootfs-1/usr/sbin/btrfsck -> btrfs*
+[          4]  ./rootfs-1/usr/bin/sh -> bash*
+[          4]  ./rootfs-1/usr/bin/sed -> gsed*
+[          4]  ./rootfs-1/usr/bin/modinfo -> kmod*
+[          4]  ./rootfs-1/usr/bin/lsmod -> kmod*
+[          4]  ./rootfs-1/usr/bin/loginctl -> true*
+[          2]  ./rootfs-0/early_cpio
+[          0]  ./rootfs-1/usr/lib/modules/6.6.17-flatcar/modules.builtin.alias.bin
+[          0]  ./rootfs-1/usr/lib/dracut/need-initqueue
+[          0]  ./rootfs-1/etc/machine-id
+[          0]  ./rootfs-1/etc/fstab.empty
+304 directories, 1091 files
+
