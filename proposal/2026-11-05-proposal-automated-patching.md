@@ -59,11 +59,11 @@ The ingestion workflow is:
    Test results will be posted to the PR.
 5. create a package version diff between
    1. the current build and the latest nightly
-   2. the current build and the latest Alhpa release
+   2. the current build and the latest release of the target release branch (or the latest Alpha release for `main`)
    and add it to the PR.
 6. create an OS filesystem contents diff
    1. the current build and the latest nightly
-   2. the current build and the latest Alhpa release
+   2. the current build and the latest release of the target release branch (or the latest Alpha release for `main`)
    and add it to the PR.
 7. The PR is approved and merged by a maintainer based on the information provided in the PR.
    1. If build or tests failed, the PR will remain open and automation will re-use the same PR for updated builds.
