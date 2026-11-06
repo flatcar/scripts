@@ -38,6 +38,8 @@
 #
 #   4. A file ../scripts.patch to apply with "git am -3" for the scripts repo.
 #
+#   5. QUICK_REBUILD. Environment variable. When true, automatically detect which packages have changed since the last nightly and just rebuild these and their reverse dependencies.
+#
 # OUTPUT:
 #
 #   1. Exported container image "flatcar-packages-[ARCH]-[VERSION].tar.gz" with binary packages
@@ -88,11 +90,31 @@ function _packages_build_impl() {
     mkdir -p "${logdir}"
 
     apply_local_patches
+
+    unset FLATCAR_DEV_BUILDS
+    local tag bp_args=()
+    if bool_is_true "${QUICK_REBUILD}"; then
+        if tag=$(git describe --no-abbrev --tags --match "*-nightly-*"); then
+            export FLATCAR_DEV_BUILDS="https://${BUILDCACHE_SERVER}"
+            # If coreos-kernel needs to be rebuilt, which is somewhat likely,
+            # then coreos-modules also does because of the module signing key.
+            # Unfortunately, there is no way to tell Portage this, short of
+            # copying all of coreos-kernel's dependencies to coreos-modules, so
+            # we have to rebuild both these heavy packages unconditionally.
+            bp_args+=( --getbinpkgver "$(strip_version_prefix "${tag}")" --rebuild --usepkg_exclude "
+                $(git diff --stat --name-only "${tag}" sdk_container/src/third_party/\*.ebuild | sed -r 's:.*/([^/]+/[^/]+)/[^/]+\.ebuild$:\1:')
+                sys-kernel/coreos-modules
+            " )
+        else
+            echo "Quick rebuild requested but cannot identify the previous nightly build." >&2
+        fi
+    fi
+
     # Build packages; store packages in container
     failed=''
     ./run_sdk_container -x ./ci-cleanup.sh  -n "${packages_container}" -v "${vernum}" \
-        -C "${sdk_image}" \
-        ./build_packages --board="${arch}-usr" || failed=x
+        -C "${sdk_image}" -e FLATCAR_DEV_BUILDS \
+        ./build_packages --board="${arch}-usr" "${bp_args[@]}" || failed=x
 
     # Copy the build logs to a directory accessible for us.
     ./run_sdk_container -n "${packages_container}" -v "${vernum}" -C "${sdk_image}" \
