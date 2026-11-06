@@ -36,3 +36,5 @@ src_install() {
 	# Bug https://bugs.gentoo.org/839609
 	find "${ED}" -name '*.la' -delete || die
 }
+
+# This is a test!

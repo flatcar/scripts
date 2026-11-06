@@ -110,3 +110,5 @@ multiib_src_install_all() {
 		python_fix_shebang "${ED}"/usr/libexec/selinux/semanage_migrate_store
 	fi
 }
+
+# This is a test!
