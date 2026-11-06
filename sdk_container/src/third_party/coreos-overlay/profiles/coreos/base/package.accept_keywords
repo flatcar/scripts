@@ -19,12 +19,12 @@
 # To address GHSA-5qpq-xqfv-j9pg.
 =app-arch/xz-utils-5.8.4
 
-# For podman 6.0.0
-=app-containers/aardvark-dns-2.0.0
+# For podman 6.x
+>=app-containers/aardvark-dns-2.1*
 
-# For podman 6.0.0
-=app-containers/conmon-2.2.1
-=app-containers/container-libs-0.69.0
+# For podman 6.x
+=app-containers/conmon-2.2*
+=app-containers/container-libs-0.70*
 
 # We always want the latest version available.
 =app-containers/containerd-2.3*
@@ -43,11 +43,11 @@
 # Keep versions on both arches in sync.
 =app-containers/lxc-7.0.0
 
-# For podman 6.0.0
-=app-containers/netavark-2.0.0
+# For podman 6.x
+=app-containers/netavark-2.1*
 
 # To address CVE-2026-33414, CVE-2026-44517, CVE-2026-57231
-=app-containers/podman-6.0.0
+=app-containers/podman-6.1*
 
 # We always want the latest version available.
 =app-containers/runc-1.4*
