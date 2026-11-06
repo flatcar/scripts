@@ -145,10 +145,12 @@ jobs:
         run: |
           set -euo pipefail
           set -x
-          # Copy logs
+          # Copy logs. Needs sudo in the SDK container since e.g. NVIDIA debug info is only root readable.
           ./run_sdk_container -n "${container_name}" \
-              tar -cJf ebuild_logs.tar.xz /build/${arch}-usr/var/log/portage \
-              /build/${arch}-usr/var/tmp/portage
+              sudo tar -cJ --to-stdout /build/${arch}-usr/var/log/portage \
+              /build/${arch}-usr/var/tmp/portage \
+              > ebuild_logs.tar.xz
+
 
       - name: Upload build logs
         if: always() && !cancelled()
