@@ -37,8 +37,8 @@
 =app-containers/docker-29*
 =app-containers/docker-cli-29*
 
-# To address security issues
-=app-containers/incus-7.4-r1
+# Masked (experimental) in Gentoo
+=app-containers/incus-7.5.1
 
 # Keep versions on both arches in sync.
 =app-containers/lxc-7.0.0
