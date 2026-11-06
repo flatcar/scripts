@@ -16,7 +16,7 @@ else
 	EGIT_VERSION="f23d6ea848ffe2c8721bc49d2a9f77f4de038ad2" # main
 	SRC_URI="https://github.com/flatcar/update_engine/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/${PN}-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 LICENSE="BSD"

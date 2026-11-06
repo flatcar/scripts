@@ -8,6 +8,6 @@ HOMEPAGE="https://www.qemu.org/"
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 
 SYSEXT_NAME="QEMU"

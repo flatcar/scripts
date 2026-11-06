@@ -8,7 +8,7 @@ DESCRIPTION="Tools for generating TPM policy"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86 arm64"
+KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
 S="${WORKDIR}"

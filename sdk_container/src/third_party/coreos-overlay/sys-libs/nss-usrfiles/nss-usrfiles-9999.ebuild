@@ -10,7 +10,7 @@ else
 	EGIT_VERSION="30ec1be7a9a253c6b723a9d2127d77b088f9ff20" # main
 	SRC_URI="https://github.com/flatcar/nss-altfiles/archive/${EGIT_VERSION}.tar.gz -> ${PN}-${EGIT_VERSION}.tar.gz"
 	S="${WORKDIR}/nss-altfiles-${EGIT_VERSION}"
-	KEYWORDS="amd64 arm arm64 x86"
+	KEYWORDS="amd64 arm64 riscv"
 fi
 
 inherit toolchain-funcs
