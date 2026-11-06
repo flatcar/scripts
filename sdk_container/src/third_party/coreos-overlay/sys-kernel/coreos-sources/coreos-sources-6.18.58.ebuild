@@ -42,4 +42,8 @@ UNIPATCH_LIST="
   ${PATCH_DIR}/z0005-mtd-phram-slram-Disable-when-the-kernel-is-locked-do.patch \
   ${PATCH_DIR}/z0006-arm64-add-kernel-config-option-to-lock-down-when-in-.patch \
   ${PATCH_DIR}/z0007-tools-hv-fix-cross-compilation.patch \
+  ${PATCH_DIR}/z0008-libceph-generalize-ceph_x_encrypt_offset-and-ceph_x_.patch \
+  ${PATCH_DIR}/z0009-libceph-introduce-ceph_crypto_key_prepare.patch \
+  ${PATCH_DIR}/z0010-libceph-add-support-for-CEPH_CRYPTO_AES256KRB5.patch \
+  ${PATCH_DIR}/z0011-libceph-adapt-ceph_x_challenge_blob-hashing-and-msgr.patch \
 "
