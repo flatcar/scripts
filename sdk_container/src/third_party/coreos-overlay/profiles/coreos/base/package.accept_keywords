@@ -20,7 +20,7 @@
 =app-arch/xz-utils-5.8.4
 
 # For podman 6.x
->=app-containers/aardvark-dns-2.1*
+=app-containers/aardvark-dns-2.1*
 
 # For podman 6.x
 =app-containers/conmon-2.2*
