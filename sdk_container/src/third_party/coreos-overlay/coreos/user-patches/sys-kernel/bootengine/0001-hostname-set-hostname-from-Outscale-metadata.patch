@@ -1,0 +1,25 @@
+From 4426d20c1dc67ce363e1482bd384f74b2cdb9d15 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Mon, 21 Sep 2026 16:08:14 +0200
+Subject: [PATCH] hostname: set hostname from Outscale metadata
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ dracut/53ignition/flatcar-metadata-hostname.service | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dracut/53ignition/flatcar-metadata-hostname.service b/dracut/53ignition/flatcar-metadata-hostname.service
+index 68e7c50..d087b2c 100644
+--- a/dracut/53ignition/flatcar-metadata-hostname.service
++++ b/dracut/53ignition/flatcar-metadata-hostname.service
+@@ -33,6 +33,7 @@ ConditionKernelCommandLine=|flatcar.oem.id=kubevirt
+ ConditionKernelCommandLine=|flatcar.oem.id=proxmoxve
+ ConditionKernelCommandLine=|flatcar.oem.id=scaleway
+ ConditionKernelCommandLine=|flatcar.oem.id=oraclecloud
++ConditionKernelCommandLine=|flatcar.oem.id=outscale
+ 
+ OnFailure=emergency.target
+ OnFailureJobMode=replace-irreversibly
+-- 
+2.55.0
+

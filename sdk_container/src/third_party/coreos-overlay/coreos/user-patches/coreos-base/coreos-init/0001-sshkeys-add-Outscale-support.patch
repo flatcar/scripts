@@ -1,0 +1,29 @@
+From b3c41377579d8303ac9373d646e8abea6b19ccce Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Mon, 21 Sep 2026 16:04:58 +0200
+Subject: [PATCH] sshkeys: add Outscale support
+
+Afterburn SSH keys fetching is implemented.
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ systemd/system/sshkeys.service | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/systemd/system/sshkeys.service b/systemd/system/sshkeys.service
+index 7fda698..2b8ca14 100644
+--- a/systemd/system/sshkeys.service
++++ b/systemd/system/sshkeys.service
+@@ -35,6 +35,9 @@ ConditionKernelCommandLine=|flatcar.oem.id=scaleway
+ ConditionKernelCommandLine=|ignition.platform.id=oraclecloud
+ ConditionKernelCommandLine=|flatcar.oem.id=oraclecloud
+ 
++ConditionKernelCommandLine=|ignition.platform.id=outscale
++ConditionKernelCommandLine=|flatcar.oem.id=outscale
++
+ [Service]
+ Type=oneshot
+ RemainAfterExit=yes
+-- 
+2.55.0
+
