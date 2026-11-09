@@ -1,4 +1,4 @@
-From 53af65c1f108785d61aff862ff8978220d41d3a4 Mon Sep 17 00:00:00 2001
+From e9839418517f1d2fe51789ca7916b6a433e4dbe1 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 10 Nov 2022 11:58:49 +0100
 Subject: [PATCH 10/15] translation: support OEM and oem

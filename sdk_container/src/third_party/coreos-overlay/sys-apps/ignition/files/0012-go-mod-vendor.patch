@@ -1,4 +1,4 @@
-From d9a2c83900a0d66021dfe69bbf00c625287a6437 Mon Sep 17 00:00:00 2001
+From f6e31fd76f344601246d3ffe160e5d15c50e6375 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Thu, 3 Sep 2026 15:00:47 +0100
 Subject: [PATCH 12/15] go mod vendor

@@ -1,4 +1,4 @@
-From 0680a8bf7e00fcd64b0e75de31978d322e3a27ee Mon Sep 17 00:00:00 2001
+From 247c19c3aeb9c5bdacab51399c150d3ad31eec6e Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 20 Aug 2026 14:22:56 +0200
 Subject: [PATCH 02/15] mod: add flatcar/ignition@0.36.2

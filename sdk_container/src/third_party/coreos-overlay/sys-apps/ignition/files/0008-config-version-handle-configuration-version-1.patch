@@ -1,4 +1,4 @@
-From 53ef77a20decae34e311708cb49c31d4a1cfd03e Mon Sep 17 00:00:00 2001
+From b503727c295a50f7bc52f59c8aee43b82369e3f0 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Wed, 2 Feb 2022 13:27:18 +0100
 Subject: [PATCH 08/15] config/version: handle configuration version 1
