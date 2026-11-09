@@ -1,0 +1,236 @@
+From 8356b4b1103b8c970648c94bab724aa30e42d869 Mon Sep 17 00:00:00 2001
+From: Ilya Dryomov <idryomov@gmail.com>
+Date: Sat, 12 Jul 2025 17:11:55 +0200
+Subject: [PATCH] libceph: adapt ceph_x_challenge_blob hashing and msgr1
+ message signing
+
+The existing approach where ceph_x_challenge_blob is encrypted with the
+client's secret key and then the digest derived from the ciphertext is
+used for the test doesn't work with CEPH_CRYPTO_AES256KRB5 because the
+confounder randomizes the ciphertext: the client and the server get two
+different ciphertexts and therefore two different digests.
+
+msgr1 signatures are affected the same way: a digest derived from the
+ciphertext for the message's "sigblock" is what becomes a signature and
+the two sides disagree on the expected value.
+
+For CEPH_CRYPTO_AES256KRB5 (and potential future encryption schemes),
+switch to HMAC-SHA256 function keyed in the same way as the existing
+encryption.  For CEPH_CRYPTO_AES, everything is preserved as is.
+
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+---
+ net/ceph/auth_x.c       | 59 ++++++++++++++++++++++++++++++-----------
+ net/ceph/crypto.c       | 18 +++++++++++++
+ net/ceph/crypto.h       |  4 +++
+ net/ceph/messenger_v2.c | 14 +++++-----
+ 4 files changed, 72 insertions(+), 23 deletions(-)
+
+diff --git a/net/ceph/auth_x.c b/net/ceph/auth_x.c
+index 966a382..9350e1a 100644
+--- a/net/ceph/auth_x.c
++++ b/net/ceph/auth_x.c
+@@ -558,8 +558,7 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
+ 	if (need & CEPH_ENTITY_TYPE_AUTH) {
+ 		struct ceph_x_authenticate *auth = (void *)(head + 1);
+ 		void *enc_buf = xi->auth_authorizer.enc_buf;
+-		struct ceph_x_challenge_blob *blob = enc_buf +
+-					     ceph_x_encrypt_offset(&xi->secret);
++		struct ceph_x_challenge_blob *blob;
+ 		u64 *u;
+ 
+ 		p = auth + 1;
+@@ -569,15 +568,29 @@ static int ceph_x_build_request(struct ceph_auth_client *ac,
+ 		dout(" get_auth_session_key\n");
+ 		head->op = cpu_to_le16(CEPHX_GET_AUTH_SESSION_KEY);
+ 
+-		/* encrypt and hash */
++		if (xi->secret.type == CEPH_CRYPTO_AES) {
++			blob = enc_buf + ceph_x_encrypt_offset(&xi->secret);
++		} else {
++			BUILD_BUG_ON(SHA256_DIGEST_SIZE + sizeof(*blob) >
++				     CEPHX_AU_ENC_BUF_LEN);
++			blob = enc_buf + SHA256_DIGEST_SIZE;
++		}
++
+ 		get_random_bytes(&auth->client_challenge, sizeof(u64));
+ 		blob->client_challenge = auth->client_challenge;
+ 		blob->server_challenge = cpu_to_le64(xi->server_challenge);
+-		ret = ceph_x_encrypt(&xi->secret, 0 /* dummy */,
+-				     enc_buf, CEPHX_AU_ENC_BUF_LEN,
+-				     sizeof(*blob));
+-		if (ret < 0)
+-			return ret;
++
++		if (xi->secret.type == CEPH_CRYPTO_AES) {
++			ret = ceph_x_encrypt(&xi->secret, 0 /* dummy */,
++					     enc_buf, CEPHX_AU_ENC_BUF_LEN,
++					     sizeof(*blob));
++			if (ret < 0)
++				return ret;
++		} else {
++			ceph_hmac_sha256(&xi->secret, blob, sizeof(*blob),
++					 enc_buf);
++			ret = SHA256_DIGEST_SIZE;
++		}
+ 
+ 		auth->struct_v = 3;  /* nautilus+ */
+ 		auth->key = 0;
+@@ -1065,11 +1078,19 @@ static int calc_signature(struct ceph_x_authorizer *au, struct ceph_msg *msg,
+ 			__le32 data_crc;
+ 			__le32 data_len;
+ 			__le32 seq_lower_word;
+-		} __packed *sigblock = enc_buf;
++		} __packed *sigblock;
+ 		struct {
+ 			__le64 a, b, c, d;
+ 		} __packed *penc = enc_buf;
+-		int ciphertext_len;
++
++		if (au->session_key.type == CEPH_CRYPTO_AES) {
++			/* no leading len, no ceph_x_encrypt_header */
++			sigblock = enc_buf;
++		} else {
++			BUILD_BUG_ON(SHA256_DIGEST_SIZE + sizeof(*sigblock) >
++				     CEPHX_AU_ENC_BUF_LEN);
++			sigblock = enc_buf + SHA256_DIGEST_SIZE;
++		}
+ 
+ 		sigblock->header_crc = msg->hdr.crc;
+ 		sigblock->front_crc = msg->footer.front_crc;
+@@ -1080,12 +1101,18 @@ static int calc_signature(struct ceph_x_authorizer *au, struct ceph_msg *msg,
+ 		sigblock->data_len = msg->hdr.data_len;
+ 		sigblock->seq_lower_word = *(__le32 *)&msg->hdr.seq;
+ 
+-		/* no leading len, no ceph_x_encrypt_header */
+-		ret = ceph_crypt(&au->session_key, 0 /* dummy */,
+-				 true, enc_buf, CEPHX_AU_ENC_BUF_LEN,
+-				 sizeof(*sigblock), &ciphertext_len);
+-		if (ret)
+-			return ret;
++		if (au->session_key.type == CEPH_CRYPTO_AES) {
++			int ciphertext_len; /* unused */
++
++			ret = ceph_crypt(&au->session_key, 0 /* dummy */,
++					 true, enc_buf, CEPHX_AU_ENC_BUF_LEN,
++					 sizeof(*sigblock), &ciphertext_len);
++			if (ret)
++				return ret;
++		} else {
++			ceph_hmac_sha256(&au->session_key, sigblock,
++					 sizeof(*sigblock), enc_buf);
++		}
+ 
+ 		*psig = penc->a ^ penc->b ^ penc->c ^ penc->d;
+ 	}
+diff --git a/net/ceph/crypto.c b/net/ceph/crypto.c
+index b54085d..b2067ea 100644
+--- a/net/ceph/crypto.c
++++ b/net/ceph/crypto.c
+@@ -84,6 +84,7 @@ int ceph_crypto_key_prepare(struct ceph_crypto_key *key,
+ 	case CEPH_CRYPTO_AES:
+ 		return set_aes_tfm(key);
+ 	case CEPH_CRYPTO_AES256KRB5:
++		hmac_sha256_preparekey(&key->hmac_key, key->key, key->len);
+ 		return set_krb5_tfms(key, key_usages, key_usage_cnt);
+ 	default:
+ 		return -ENOTSUPP;
+@@ -178,6 +179,7 @@ void ceph_crypto_key_destroy(struct ceph_crypto_key *key)
+ 			key->aes_tfm = NULL;
+ 		}
+ 	} else if (key->type == CEPH_CRYPTO_AES256KRB5) {
++		memzero_explicit(&key->hmac_key, sizeof(key->hmac_key));
+ 		for (i = 0; i < ARRAY_SIZE(key->krb5_tfms); i++) {
+ 			if (key->krb5_tfms[i]) {
+ 				crypto_free_aead(key->krb5_tfms[i]);
+@@ -436,6 +438,22 @@ int ceph_crypt_buflen(const struct ceph_crypto_key *key, int data_len)
+ 	}
+ }
+ 
++void ceph_hmac_sha256(const struct ceph_crypto_key *key, const void *buf,
++		      int buf_len, u8 hmac[SHA256_DIGEST_SIZE])
++{
++	switch (key->type) {
++	case CEPH_CRYPTO_NONE:
++	case CEPH_CRYPTO_AES:
++		memset(hmac, 0, SHA256_DIGEST_SIZE);
++		return;
++	case CEPH_CRYPTO_AES256KRB5:
++		hmac_sha256(&key->hmac_key, buf, buf_len, hmac);
++		return;
++	default:
++		BUG();
++	}
++}
++
+ static int ceph_key_preparse(struct key_preparsed_payload *prep)
+ {
+ 	struct ceph_crypto_key *ckey;
+diff --git a/net/ceph/crypto.h b/net/ceph/crypto.h
+index 2c37c54..3a2ade1 100644
+--- a/net/ceph/crypto.h
++++ b/net/ceph/crypto.h
+@@ -2,6 +2,7 @@
+ #ifndef _FS_CEPH_CRYPTO_H
+ #define _FS_CEPH_CRYPTO_H
+ 
++#include <crypto/sha2.h>
+ #include <linux/ceph/types.h>
+ #include <linux/ceph/buffer.h>
+ 
+@@ -20,6 +21,7 @@ struct ceph_crypto_key {
+ 	union {
+ 		struct crypto_sync_skcipher *aes_tfm;
+ 		struct {
++			struct hmac_sha256_key hmac_key;
+ 			const struct krb5_enctype *krb5_type;
+ 			struct crypto_aead *krb5_tfms[3];
+ 		};
+@@ -39,6 +41,8 @@ int ceph_crypt(const struct ceph_crypto_key *key, int usage_slot, bool encrypt,
+ 	       void *buf, int buf_len, int in_len, int *pout_len);
+ int ceph_crypt_data_offset(const struct ceph_crypto_key *key);
+ int ceph_crypt_buflen(const struct ceph_crypto_key *key, int data_len);
++void ceph_hmac_sha256(const struct ceph_crypto_key *key, const void *buf,
++		      int buf_len, u8 hmac[SHA256_DIGEST_SIZE]);
+ int ceph_crypto_init(void);
+ void ceph_crypto_shutdown(void);
+ 
+diff --git a/net/ceph/messenger_v2.c b/net/ceph/messenger_v2.c
+index 4bb238e..d5300c6 100644
+--- a/net/ceph/messenger_v2.c
++++ b/net/ceph/messenger_v2.c
+@@ -778,9 +778,9 @@ static int setup_crypto(struct ceph_connection *con,
+ 	return 0;  /* auth_x, secure mode */
+ }
+ 
+-static void ceph_hmac_sha256(struct ceph_connection *con,
+-			     const struct kvec *kvecs, int kvec_cnt,
+-			     u8 hmac[SHA256_DIGEST_SIZE])
++static void con_hmac_sha256(struct ceph_connection *con,
++			    const struct kvec *kvecs, int kvec_cnt,
++			    u8 hmac[SHA256_DIGEST_SIZE])
+ {
+ 	struct hmac_sha256_ctx ctx;
+ 	int i;
+@@ -1437,8 +1437,8 @@ static int prepare_auth_signature(struct ceph_connection *con)
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ceph_hmac_sha256(con, con->v2.in_sign_kvecs, con->v2.in_sign_kvec_cnt,
+-			 CTRL_BODY(buf));
++	con_hmac_sha256(con, con->v2.in_sign_kvecs, con->v2.in_sign_kvec_cnt,
++			CTRL_BODY(buf));
+ 
+ 	return prepare_control(con, FRAME_TAG_AUTH_SIGNATURE, buf,
+ 			       SHA256_DIGEST_SIZE);
+@@ -2441,8 +2441,8 @@ static int process_auth_signature(struct ceph_connection *con,
+ 		return -EINVAL;
+ 	}
+ 
+-	ceph_hmac_sha256(con, con->v2.out_sign_kvecs, con->v2.out_sign_kvec_cnt,
+-			 hmac);
++	con_hmac_sha256(con, con->v2.out_sign_kvecs, con->v2.out_sign_kvec_cnt,
++			hmac);
+ 
+ 	ceph_decode_need(&p, end, SHA256_DIGEST_SIZE, bad);
+ 	if (crypto_memneq(p, hmac, SHA256_DIGEST_SIZE)) {
