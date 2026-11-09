@@ -352,8 +352,10 @@ if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
     EMERGE_FLAGS+=( --getbinpkg )
   fi
 
-  info "Installing baselayout"
-  "${EMERGE_WRAPPER}" "${EMERGE_FLAGS[@]}" --nodeps sys-apps/baselayout
+  # virtual/libc is required for Portage to accurately determine whether a
+  # package has changed dependencies or not, so ensure it's installed.
+  info "Installing baselayout and virtual/libc"
+  "${EMERGE_WRAPPER}" "${EMERGE_FLAGS[@]}" --nodeps sys-apps/baselayout virtual/libc
 
   if [[ "${FLAGS_usepkg}" -ne "${FLAGS_TRUE}" ||
         "${FLAGS_getbinpkg}" -ne "${FLAGS_TRUE}" ]]
