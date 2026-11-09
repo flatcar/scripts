@@ -1,4 +1,4 @@
-From 691dfae5bebac72a36b99e6cbfca5a5f43741d64 Mon Sep 17 00:00:00 2001
+From a9b8c78fe8dbe8a62fb8e6d6c54b7c50a5323344 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Mon, 6 Apr 2026 13:13:58 +0100
 Subject: [PATCH 14/15] config: Support oem:// schema in newer config spec

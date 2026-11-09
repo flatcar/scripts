@@ -1,4 +1,4 @@
-From 1c4a140b210d2a6480f43cf1a65d7ff58bf51f69 Mon Sep 17 00:00:00 2001
+From b2374ec09b9fc82072f2d1c6dcddb9a6a587ee67 Mon Sep 17 00:00:00 2001
 From: James Le Cuirot <jlecuirot@microsoft.com>
 Date: Wed, 1 Apr 2026 16:11:52 +0100
 Subject: [PATCH 13/15] Partially revert "*: drop OEM URI support"

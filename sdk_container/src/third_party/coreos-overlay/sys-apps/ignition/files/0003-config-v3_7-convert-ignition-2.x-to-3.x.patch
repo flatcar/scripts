@@ -1,4 +1,4 @@
-From 051aad96d87cbbce464990584663cc5a0a867ec1 Mon Sep 17 00:00:00 2001
+From 3b1fae641e4a34523fadca700242bb25dc107246 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 20 Aug 2026 14:23:22 +0200
 Subject: [PATCH 03/15] config/v3_7: convert ignition 2.x to 3.x

@@ -1,4 +1,4 @@
-From b243d181ee03c845db23b41eadcc9955aff44212 Mon Sep 17 00:00:00 2001
+From 4425f57c20657b980b2b6feebb8952596fdfa5a7 Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Mon, 19 Feb 2024 18:12:22 +0100
 Subject: [PATCH 04/15] internal/prv/cmdline: backport flatcar patch

@@ -1,4 +1,4 @@
-From 7678ef605609f94b5e6e41aca95efbae8424d2d5 Mon Sep 17 00:00:00 2001
+From 13fdf59a4e564aed696bf4781d813fd99667c40f Mon Sep 17 00:00:00 2001
 From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
 Date: Thu, 20 Aug 2026 15:11:57 +0200
 Subject: [PATCH 05/15] provider/qemu: apply fw_cfg patch
