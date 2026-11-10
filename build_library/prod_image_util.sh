@@ -95,7 +95,6 @@ create_prod_image() {
   set_image_profile prod
   extract_prod_gcc "${root_fs_dir}"
   emerge_to_image "${root_fs_dir}" "${base_pkg}"
-  run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
 
   local root_with_everything="${root_fs_dir}"

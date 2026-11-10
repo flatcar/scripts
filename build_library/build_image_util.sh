@@ -102,11 +102,6 @@ zip_update_tools() {
     --arch "$(get_sdk_arch)" --output-dir "${BUILD_DIR}" --zip-name "${update_zip}"
 }
 
-run_ldconfig() {
-  # This wrapper is created by setup_board.
-  sudo "ldconfig-${BOARD}" -r "$1"
-}
-
 run_localedef() {
   local root_fs_dir="$1"
   info "Generating C.UTF-8 locale..."
