@@ -89,14 +89,17 @@ create_prod_image() {
   local image_realinitrd_contents_wtd="${image_name%.bin}_realinitrd_contents_wtd.txt"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
 
-  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
+  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}" prod
 
   # Install minimal GCC (libs only) and then everything else
-  set_image_profile prod
   extract_prod_gcc "${root_fs_dir}"
   emerge_to_image "${root_fs_dir}" "${base_pkg}"
-  run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
+
+  # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
+  # all tests are fatal, for now let the old function skip soname errors.
+  ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
+      test_image_content "${root_fs_dir}"
 
   local root_with_everything="${root_fs_dir}"
 

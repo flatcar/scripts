@@ -1,0 +1,26 @@
+From b1a85fb629593de585e63271cfd20cc93319dd01 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Mon, 9 Nov 2026 15:13:23 +0000
+Subject: [PATCH] depgraph: Make buildpkg-proactive aware of
+ --binpkg-respect-user-patches
+
+This now triggers a rebuild when --binpkg-respect-user-patches would
+mask a binary package.
+
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+--- a/lib/_emerge/depgraph.py
++++ b/lib/_emerge/depgraph.py
+@@ -8344,6 +8344,10 @@ class depgraph:
+                                             binpkg_changed_deps
+                                             and self._changed_deps(binpkg)
+                                         )
++                                        and not (
++                                            binpkg_respect_user_patches
++                                            and binpkg.user_patches != pkgsettings.userPatchDigest(binpkg)
++                                        )
+                                     ):
+                                         break
+                                 else:
+-- 
+2.56.0
+

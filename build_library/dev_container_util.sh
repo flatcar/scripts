@@ -71,12 +71,16 @@ create_dev_container() {
   local image_packages="${image_name%.bin}_packages.txt"
   local image_licenses="${image_name%.bin}_licenses.json"
 
-  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
+  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}" dev
 
-  set_image_profile dev
   emerge_to_image "${root_fs_dir}" @system ${base_pkg}
-  run_ldconfig "${root_fs_dir}"
   run_localedef "${root_fs_dir}"
+
+  # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
+  # all tests are fatal, for now let the old function skip soname errors.
+  ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
+      test_image_content "${root_fs_dir}"
+
   write_packages "${root_fs_dir}" "${BUILD_DIR}/${image_packages}"
   write_licenses "${root_fs_dir}" "${BUILD_DIR}/${image_licenses}"
   insert_licenses "${BUILD_DIR}/${image_licenses}" "${root_fs_dir}"

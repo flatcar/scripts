@@ -102,11 +102,6 @@ zip_update_tools() {
     --arch "$(get_sdk_arch)" --output-dir "${BUILD_DIR}" --zip-name "${update_zip}"
 }
 
-run_ldconfig() {
-  # This wrapper is created by setup_board.
-  sudo "ldconfig-${BOARD}" -r "$1"
-}
-
 run_localedef() {
   local root_fs_dir="$1"
   info "Generating C.UTF-8 locale..."
@@ -140,17 +135,6 @@ emerge_to_image() {
       --jobs="${NUM_JOBS}" \
       --verbose \
       "$@"
-
-  # Shortcut if this was just baselayout
-  [[ "$*" == *sys-apps/baselayout ]] && return
-
-  # Make sure profile.env has been generated
-  sudo -E ROOT="${root_fs_dir}" env-update --no-ldconfig
-
-  # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
-  # all tests are fatal, for now let the old function skip soname errors.
-  ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-      test_image_content "${root_fs_dir}"
 }
 
 # Switch to the dev or prod sub-profile
@@ -497,6 +481,7 @@ start_image() {
   local disk_layout="$2"
   local root_fs_dir="$3"
   local update_group="$4"
+  local profile="$5"
 
   local disk_img="${BUILD_DIR}/${image_name}"
 
@@ -506,6 +491,8 @@ start_image() {
       "${BOARD_ROOT}"/etc/portage/patches \
       "${BOARD_ROOT}"/etc/portage/repos.conf \
       "${BUILD_DIR}"/configroot/etc/portage/
+
+  set_image_profile "${profile}"
 
   info "Using image type ${disk_layout}"
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
@@ -520,9 +507,9 @@ start_image() {
   # First thing first, install baselayout to create a working filesystem.
   emerge_to_image "${root_fs_dir}" --nodeps --oneshot sys-apps/baselayout
 
-  # FIXME(marineam): Work around glibc setting EROOT=$ROOT
-  # https://bugs.gentoo.org/show_bug.cgi?id=473728#c12
-  sudo mkdir -p "${root_fs_dir}/etc/ld.so.conf.d"
+  # We need the libc ASAP to execute binaries from the ROOT at install time, but
+  # the dependency is implicit, so explicitly install.
+  emerge_to_image "${root_fs_dir}" --oneshot virtual/libc
 
   # Set /etc/lsb-release on the image.
   "${BUILD_LIBRARY_DIR}/set_lsb_release" \
