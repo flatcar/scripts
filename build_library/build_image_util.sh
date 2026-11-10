@@ -144,9 +144,6 @@ emerge_to_image() {
   # Shortcut if this was just baselayout
   [[ "$*" == *sys-apps/baselayout ]] && return
 
-  # Make sure profile.env has been generated
-  sudo -E ROOT="${root_fs_dir}" env-update --no-ldconfig
-
   # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
   # all tests are fatal, for now let the old function skip soname errors.
   ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
