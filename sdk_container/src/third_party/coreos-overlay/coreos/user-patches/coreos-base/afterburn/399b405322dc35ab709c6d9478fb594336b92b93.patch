@@ -1,0 +1,293 @@
+From 399b405322dc35ab709c6d9478fb594336b92b93 Mon Sep 17 00:00:00 2001
+From: Mohammad AMLA <mohammad.amla@numspot.com>
+Date: Wed, 12 Aug 2026 17:11:31 +0200
+Subject: [PATCH] providers: Add Outscale support
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ docs/platforms.md                             |   4 +
+ docs/release-notes.md                         |   2 +
+ docs/usage/attributes.md                      |   8 ++
+ dracut/30afterburn/afterburn-hostname.service |   1 +
+ src/metadata.rs                               |   2 +
+ src/providers/mod.rs                          |   1 +
+ src/providers/outscale/mock_tests.rs          | 132 ++++++++++++++++++
+ src/providers/outscale/mod.rs                 |  97 +++++++++++++
+ systemd/afterburn-sshkeys@.service.in         |   1 +
+ 9 files changed, 248 insertions(+)
+ create mode 100644 src/providers/outscale/mock_tests.rs
+ create mode 100644 src/providers/outscale/mod.rs
+
+diff --git a/src/metadata.rs b/src/metadata.rs
+index f43f94210..34fca8216 100644
+--- a/src/metadata.rs
++++ b/src/metadata.rs
+@@ -32,6 +32,7 @@ use crate::providers::microsoft::azurestack::AzureStack;
+ use crate::providers::openstack;
+ use crate::providers::openstack::network::OpenstackProviderNetwork;
+ use crate::providers::oraclecloud::OracleCloudProvider;
++use crate::providers::outscale::OutscaleProvider;
+ use crate::providers::packet::PacketProvider;
+ use crate::providers::powervs::PowerVSProvider;
+ use crate::providers::proxmoxve;
+@@ -71,6 +72,7 @@ pub fn fetch_metadata(provider: &str) -> Result<Box<dyn providers::MetadataProvi
+         "kubevirt" => kubevirt::try_new_provider_else_noop(),
+         "openstack" => openstack::try_config_drive_else_network(),
+         "openstack-metadata" => box_result!(OpenstackProviderNetwork::try_new()?),
++        "outscale" => box_result!(OutscaleProvider::try_new()?),
+         "oraclecloud" => box_result!(OracleCloudProvider::try_new()?),
+         "packet" => box_result!(PacketProvider::try_new()?),
+         "powervs" => box_result!(PowerVSProvider::try_new()?),
+diff --git a/src/providers/mod.rs b/src/providers/mod.rs
+index e7757ba63..dedfe8206 100644
+--- a/src/providers/mod.rs
++++ b/src/providers/mod.rs
+@@ -38,6 +38,7 @@ pub mod microsoft;
+ pub mod noop;
+ pub mod openstack;
+ pub mod oraclecloud;
++pub mod outscale;
+ pub mod packet;
+ pub mod powervs;
+ pub mod proxmoxve;
+diff --git a/src/providers/outscale/mock_tests.rs b/src/providers/outscale/mock_tests.rs
+new file mode 100644
+index 000000000..827e6622e
+--- /dev/null
++++ b/src/providers/outscale/mock_tests.rs
+@@ -0,0 +1,132 @@
++use std::collections::HashMap;
++
++use crate::providers::outscale::OutscaleProvider;
++use crate::providers::MetadataProvider;
++use mockito;
++
++#[test]
++fn test_hostname() {
++    let ep = "/latest/meta-data/hostname";
++    let hostname = "test-hostname";
++
++    let mut server = mockito::Server::new();
++    let mut provider = OutscaleProvider::try_new().unwrap();
++    provider.client = provider.client.max_retries(0).mock_base_url(server.url());
++
++    server.mock("GET", ep).with_status(503).create();
++    provider.hostname().unwrap_err();
++
++    server
++        .mock("GET", ep)
++        .with_status(200)
++        .with_body(hostname)
++        .create();
++    let v = provider.hostname().unwrap();
++    assert_eq!(v, Some(hostname.to_string()));
++
++    server.mock("GET", ep).with_status(404).create();
++    let v = provider.hostname().unwrap();
++    assert_eq!(v, None);
++
++    server
++        .mock("GET", ep)
++        .with_status(200)
++        .with_body("")
++        .create();
++    let v = provider.hostname().unwrap();
++    assert_eq!(v, None);
++
++    server.reset();
++    provider.hostname().unwrap_err();
++}
++
++#[test]
++fn test_pubkeys() {
++    let mut server = mockito::Server::new();
++    let mut provider = OutscaleProvider::try_new().unwrap();
++    provider.client = provider.client.max_retries(0).mock_base_url(server.url());
++
++    server.mock("GET", "/latest/meta-data/public-keys/0/openssh-key")
++        .with_status(200)
++        .with_body("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCsXe6CfHl45kCIzMF92VhDf2NpBWUyS1+IiTtxm5a83mT9730Hb8xim7GYeJu47kiESw2DAN8vNJ/Irg0apZ217ah2rXXjPQuWYSXuEuap8yLBSjqw8exgqVj/kzW+YqmnHASxI13eoFDxTQQGzyqbqowvxu/5gQmDwBmNAa9bT809ziB/qmpS1mD6qyyFDpR23kUwu3TkgAbwMXBDoqK+pdwfaF9uo9XaLHNEH8lD5BZuG2BeDafm2o76DhNSo83MvcCPNXKLxu3BbX/FCMFO6O8RRqony4i91fEV1b8TbXrbJz1bwEYEnJRvmjnqI/389tQFeYvplXR2WdT9PCKyEAG+j8y6XgecIcdTqV/7gFfak1mp2S7mYHZDnXixsn3MjCP/cIxxJVDitKusnj1TdFqtSXl4tqGccbg/5Sqnt/EVSK4bGwwBxv/YmE0P9cbXLxuEVI0JYzgrQvC8TtUgd8kUu2jqi1/Yj9IWm3aFsl/hhh8YwYrv/gm8PV0TxkM= root@example1\n
++                   ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDj6FBVgkTt7/DB93VVLk6304Nx7WUjLBJDSCh38zjCimHUpeo9uYDxflfu2N1CLtrSImIKBVP/JRy9g7K4zmRAH/wXw2UxYziX+hZoFIpbW3GmYQqhjx2lDvIRXJI7blhHhTUNWX5f10lFAYOLqA9J859AB1w7ND09+MS3jQgSazCx17h+QZ0qQ6kLSfnXw9PMUOE1Xba9hD1nYj14ryTVj9jrFPMFuUfXdb/G9lsDJ+cGvdE2/RMuPfDmEdo04zvZ5fQJJKvS7OyAuYev4Y+JC8MhEr756ITDZ17yq4BEMo/8rNPxZ5Von/8xnvry+8/2C3ep9rZyHtCwpRb6WT6TndV2ddXKhEIneyd1XiOcWPJguHj5vSoMN3mo8k2PvznGauvxBstvpjUSFLQu869/ZQwyMnbQi3wnkJk5CpLXePXn1J9njocJjt8+SKGijmmIAsmYosx8gmmu3H1mvq9Wi0qqWDITMm+J24AZBEPBhwVrjhLZb5MKxylF6JFJJBs= root@example2")
++    .create();
++
++    let keys = provider.ssh_keys().unwrap();
++    assert_ne!(keys, vec![]);
++    assert_eq!(keys.len(), 2);
++
++    assert_eq!(keys[0].options, None);
++    assert_eq!(keys[0].comment, Some("root@example1".to_string()));
++
++    assert_eq!(keys[1].options, None);
++    assert_eq!(keys[1].comment, Some("root@example2".to_string()));
++
++    server.reset();
++    provider.ssh_keys().unwrap_err();
++}
++
++#[test]
++fn test_attributes() {
++    let instance_id = "i-be1dcf1a";
++    let ami_id = "ami-12345678";
++    let instance_type = "c4.large";
++    let availability_zone = "eu-west-2a";
++    let local_ipv4 = "10.0.0.1";
++    let reservation_id = "r-12345678";
++    let hostname = "ip-10-0-0-1.eu-west-2.compute.outscale.com";
++
++    let endpoints = HashMap::from([
++        ("/latest/meta-data/instance-id", instance_id),
++        ("/latest/meta-data/ami-id", ami_id),
++        ("/latest/meta-data/instance-type", instance_type),
++        (
++            "/latest/meta-data/placement/availability-zone",
++            availability_zone,
++        ),
++        ("/latest/meta-data/local-ipv4", local_ipv4),
++        ("/latest/meta-data/reservation-id", reservation_id),
++        ("/latest/meta-data/hostname", hostname),
++    ]);
++
++    let mut server = mockito::Server::new();
++    for (endpoint, body) in endpoints {
++        server
++            .mock("GET", endpoint)
++            .with_status(200)
++            .with_body(body)
++            .create();
++    }
++
++    let attributes = HashMap::from([
++        ("OUTSCALE_INSTANCE_ID".to_string(), instance_id.to_string()),
++        ("OUTSCALE_AMI_ID".to_string(), ami_id.to_string()),
++        (
++            "OUTSCALE_INSTANCE_TYPE".to_string(),
++            instance_type.to_string(),
++        ),
++        (
++            "OUTSCALE_AVAILABILITY_ZONE".to_string(),
++            availability_zone.to_string(),
++        ),
++        ("OUTSCALE_LOCAL_IPV4".to_string(), local_ipv4.to_string()),
++        (
++            "OUTSCALE_RESERVATION_ID".to_string(),
++            reservation_id.to_string(),
++        ),
++        ("OUTSCALE_HOSTNAME".to_string(), hostname.to_string()),
++    ]);
++
++    let client = crate::retry::Client::try_new()
++        .unwrap()
++        .max_retries(0)
++        .return_on_404(true)
++        .mock_base_url(server.url());
++    let provider = OutscaleProvider { client };
++
++    let v = provider.attributes().unwrap();
++    assert_eq!(v, attributes);
++
++    server.reset();
++    provider.attributes().unwrap_err();
++}
+diff --git a/src/providers/outscale/mod.rs b/src/providers/outscale/mod.rs
+new file mode 100644
+index 000000000..64f299bdb
+--- /dev/null
++++ b/src/providers/outscale/mod.rs
+@@ -0,0 +1,97 @@
++// Copyright 2026 CoreOS, Inc.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//     http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++//! Outscale provider metadata fetcher
++//! This provider is selected via the platform ID `outscale`.
++//! The metadata endpoint is documented at https://docs.outscale.com/en/userguide/Accessing-the-Metadata-and-User-Data-of-a-VM.html.
++
++use anyhow::Result;
++use openssh_keys::PublicKey;
++use std::collections::HashMap;
++
++use crate::providers::MetadataProvider;
++use crate::retry;
++
++#[cfg(test)]
++mod mock_tests;
++
++#[derive(Clone, Debug)]
++pub struct OutscaleProvider {
++    client: retry::Client,
++}
++
++impl OutscaleProvider {
++    pub fn try_new() -> Result<OutscaleProvider> {
++        let client = retry::Client::try_new()?.return_on_404(true);
++
++        Ok(OutscaleProvider { client })
++    }
++
++    fn endpoint_for(name: &str) -> String {
++        format!("http://169.254.169.254/latest/meta-data/{name}")
++    }
++
++    fn fetch_attribute(&self, endpoint: &str) -> Result<Option<String>> {
++        let content: Option<String> = self
++            .client
++            .get(retry::Raw, Self::endpoint_for(endpoint))
++            .send()?;
++
++        Ok(content)
++    }
++}
++
++impl MetadataProvider for OutscaleProvider {
++    fn attributes(&self) -> Result<HashMap<String, String>> {
++        let attributes = [
++            ("OUTSCALE_INSTANCE_ID", "instance-id"),
++            ("OUTSCALE_AMI_ID", "ami-id"),
++            ("OUTSCALE_INSTANCE_TYPE", "instance-type"),
++            ("OUTSCALE_AVAILABILITY_ZONE", "placement/availability-zone"),
++            ("OUTSCALE_LOCAL_IPV4", "local-ipv4"),
++            ("OUTSCALE_RESERVATION_ID", "reservation-id"),
++            ("OUTSCALE_HOSTNAME", "hostname"),
++        ];
++        let mut out = HashMap::with_capacity(attributes.len());
++
++        for (key, endpoint) in attributes {
++            if let Some(value) = self.fetch_attribute(endpoint)? {
++                out.insert(key.to_string(), value);
++            }
++        }
++
++        Ok(out)
++    }
++
++    fn hostname(&self) -> Result<Option<String>> {
++        Ok(self
++            .fetch_attribute("hostname")?
++            .filter(|value| !value.is_empty()))
++    }
++
++    fn ssh_keys(&self) -> Result<Vec<PublicKey>> {
++        let Some(keys) = self.fetch_attribute("public-keys/0/openssh-key")? else {
++            return Ok(Vec::new());
++        };
++
++        let keys = keys
++            .lines()
++            .map(str::trim)
++            .filter(|line| !line.is_empty())
++            .map(PublicKey::parse)
++            .collect::<Result<Vec<_>, _>>()?;
++
++        Ok(keys)
++    }
++}
