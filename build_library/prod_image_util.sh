@@ -89,10 +89,9 @@ create_prod_image() {
   local image_realinitrd_contents_wtd="${image_name%.bin}_realinitrd_contents_wtd.txt"
   local image_sysext_base="${image_name%.bin}_sysext.squashfs"
 
-  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
+  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}" prod
 
   # Install minimal GCC (libs only) and then everything else
-  set_image_profile prod
   extract_prod_gcc "${root_fs_dir}"
   emerge_to_image "${root_fs_dir}" "${base_pkg}"
   run_localedef "${root_fs_dir}"

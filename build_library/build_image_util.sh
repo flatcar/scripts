@@ -481,6 +481,7 @@ start_image() {
   local disk_layout="$2"
   local root_fs_dir="$3"
   local update_group="$4"
+  local profile="$5"
 
   local disk_img="${BUILD_DIR}/${image_name}"
 
@@ -490,6 +491,8 @@ start_image() {
       "${BOARD_ROOT}"/etc/portage/patches \
       "${BOARD_ROOT}"/etc/portage/repos.conf \
       "${BUILD_DIR}"/configroot/etc/portage/
+
+  set_image_profile "${profile}"
 
   info "Using image type ${disk_layout}"
   "${BUILD_LIBRARY_DIR}/disk_util" --disk_layout="${disk_layout}" \
@@ -503,6 +506,10 @@ start_image() {
 
   # First thing first, install baselayout to create a working filesystem.
   emerge_to_image "${root_fs_dir}" --nodeps --oneshot sys-apps/baselayout
+
+  # We need the libc ASAP to execute binaries from the ROOT at install time, but
+  # the dependency is implicit, so explicitly install.
+  emerge_to_image "${root_fs_dir}" --oneshot virtual/libc
 
   # Set /etc/lsb-release on the image.
   "${BUILD_LIBRARY_DIR}/set_lsb_release" \

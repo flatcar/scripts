@@ -71,9 +71,8 @@ create_dev_container() {
   local image_packages="${image_name%.bin}_packages.txt"
   local image_licenses="${image_name%.bin}_licenses.json"
 
-  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}"
+  start_image "${image_name}" "${disk_layout}" "${root_fs_dir}" "${update_group}" dev
 
-  set_image_profile dev
   emerge_to_image "${root_fs_dir}" @system ${base_pkg}
   run_localedef "${root_fs_dir}"
 
