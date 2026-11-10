@@ -520,10 +520,6 @@ start_image() {
   # First thing first, install baselayout to create a working filesystem.
   emerge_to_image "${root_fs_dir}" --nodeps --oneshot sys-apps/baselayout
 
-  # FIXME(marineam): Work around glibc setting EROOT=$ROOT
-  # https://bugs.gentoo.org/show_bug.cgi?id=473728#c12
-  sudo mkdir -p "${root_fs_dir}/etc/ld.so.conf.d"
-
   # Set /etc/lsb-release on the image.
   "${BUILD_LIBRARY_DIR}/set_lsb_release" \
     --root="${root_fs_dir}" \
