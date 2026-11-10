@@ -134,15 +134,12 @@ EOF
   # ldconfig cannot generate caches for non-native arches. Use QEMU and the
   # native ldconfig to work around that. Don't use the bwrap wrapper above
   # because it's unnecessarily complex for this use case.
-  wrapper="/usr/local/sbin/ldconfig-${BOARD_VARIANT}"
+  wrapper="/usr/local/sbin/${BOARD_CHOST}-ldconfig"
   sudo_clobber "${wrapper}" <<EOF
 #!/bin/sh
-exec ${qemu-} "${BOARD_ROOT}"/sbin/ldconfig -r "${BOARD_ROOT}" "\$@"
+exec ${qemu-} "/usr/${BOARD_CHOST}/sbin/ldconfig" "\$@"
 EOF
   wrappers+=( "${wrapper}" )
-
-  # Create a CHOST-based ldconfig symlink for Portage to call.
-  sudo ln -sfT "ldconfig-${BOARD_VARIANT}" "/usr/local/sbin/${BOARD_CHOST}-ldconfig"
 
   cmds+=(
     "chmod a+rx ${wrappers[*]}"
