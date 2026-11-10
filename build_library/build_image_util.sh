@@ -520,6 +520,10 @@ start_image() {
   # First thing first, install baselayout to create a working filesystem.
   emerge_to_image "${root_fs_dir}" --nodeps --oneshot sys-apps/baselayout
 
+  # We need the libc ASAP to execute binaries from the ROOT at install time, but
+  # the dependency is implicit, so explicitly install.
+  emerge_to_image "${root_fs_dir}" --oneshot virtual/libc
+
   # Set /etc/lsb-release on the image.
   "${BUILD_LIBRARY_DIR}/set_lsb_release" \
     --root="${root_fs_dir}" \
