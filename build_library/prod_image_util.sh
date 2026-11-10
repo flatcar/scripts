@@ -97,6 +97,11 @@ create_prod_image() {
   emerge_to_image "${root_fs_dir}" "${base_pkg}"
   run_localedef "${root_fs_dir}"
 
+  # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
+  # all tests are fatal, for now let the old function skip soname errors.
+  ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
+      test_image_content "${root_fs_dir}"
+
   local root_with_everything="${root_fs_dir}"
 
   # Call helper script for adding sysexts to the base OS.
