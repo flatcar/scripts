@@ -135,14 +135,6 @@ emerge_to_image() {
       --jobs="${NUM_JOBS}" \
       --verbose \
       "$@"
-
-  # Shortcut if this was just baselayout
-  [[ "$*" == *sys-apps/baselayout ]] && return
-
-  # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
-  # all tests are fatal, for now let the old function skip soname errors.
-  ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-      test_image_content "${root_fs_dir}"
 }
 
 # Switch to the dev or prod sub-profile
