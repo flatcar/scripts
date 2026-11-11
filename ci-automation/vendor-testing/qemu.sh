@@ -30,7 +30,8 @@ if [ -f "${QEMU_IMAGE_NAME}" ] ; then
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${QEMU_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     rm -f "${QEMU_IMAGE_NAME}.bz2"
-    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${QEMU_IMAGE_NAME}.bz2" .
+    copy_from_buildcache "${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${QEMU_IMAGE_NAME}.bz2" .
+    print_image_origin "${QEMU_IMAGE_NAME}.bz2" "${QEMU_IMAGE_NAME}.bz2"
     lbunzip2 "${QEMU_IMAGE_NAME}.bz2"
 fi
 

@@ -151,6 +151,7 @@ function _garbage_collect_impl() {
         rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/boards/*/${os_vernum}/"
         rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/containers/${os_docker_vernum}/flatcar-images-*"
         rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images/*/${os_vernum}/"
+        rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/images-mkosi/*/${os_vernum}/"
         rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/testing/${os_vernum}/"
         rmpat="${rmpat} ${BUILDCACHE_PATH_PREFIX}/build-logs/${os_vernum}/"
 
@@ -211,6 +212,8 @@ function _garbage_collect_impl() {
                 "boards/arm64-usr" \
                 "images/amd64" \
                 "images/arm64" \
+                "images-mkosi/amd64" \
+                "images-mkosi/arm64" \
                 "testing" \
                 "build-logs" \
                 ; do

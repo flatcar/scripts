@@ -383,3 +383,19 @@ function run_kola_tests_on_instances() {
         rm -f 'instance_'*'_validate.tap'
     fi
 }
+
+# Prints where the tested image comes from and, when given the
+# downloaded file, its sha512 to compare with the .DIGESTS file next to
+# it on the build cache.
+#
+# Parameters:
+# 1 - image file name in ${IMAGES_BUILDCACHE_DIR}/<arch>/<version>/
+# 2 - optional: local path of the downloaded file
+function print_image_origin() {
+    local name="${1}"; shift
+    local file="${1:-}"
+    echo "++++ ${CIA_TESTSCRIPT}: testing ${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${name} ++++"
+    if [[ -n "${file}" ]]; then
+        sha512sum "${file}"
+    fi
+}

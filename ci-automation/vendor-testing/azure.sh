@@ -23,7 +23,8 @@ if [ -f "${AZURE_IMAGE_NAME}" ] ; then
     echo "++++ ${CIA_TESTSCRIPT}: Using existing ${AZURE_IMAGE_NAME} for testing ${CIA_VERNUM} (${CIA_ARCH}) ++++"
 else
     echo "++++ ${CIA_TESTSCRIPT}: downloading ${AZURE_IMAGE_NAME} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
-    copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${AZURE_IMAGE_NAME}.bz2" .
+    copy_from_buildcache "${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${AZURE_IMAGE_NAME}.bz2" .
+    print_image_origin "${AZURE_IMAGE_NAME}.bz2" "${AZURE_IMAGE_NAME}.bz2"
     cp --sparse=always <(lbzcat "${AZURE_IMAGE_NAME}.bz2") "${AZURE_IMAGE_NAME}"
     rm "${AZURE_IMAGE_NAME}.bz2"
 fi

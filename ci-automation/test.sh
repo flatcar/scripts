@@ -39,6 +39,9 @@
 #   PARALLEL_TESTS. Environment variable. Number of test cases to run in parallel.
 #                   Default is image / vendor specific and defined in ci-automation/ci-config.env.
 #   MANTLE_REF. Environment variable. Overrides the Mantle container name and tag to run the tests with.
+#   TEST_RUN_SUFFIX. Environment variable. Appended to the test container name and the buildcache
+#                    results directory, so a second test run of the same version and image (e.g. of
+#                    the mkosi-built images) does not collide with the regular one.
 #
 # OUTPUT:
 #
@@ -48,7 +51,7 @@
 #        These reports will be updated after each (re-)run of each vendor, making the test job safe
 #          to abort at any point - the previous runs' results won't be lost.
 #   2. All intermediate kola tap reports, kola debug output, and merged tap reports (from 1.) published
-#        to buildcache at testing/[VERSION]/[ARCH]/[IMAGE]
+#        to buildcache at testing/[VERSION]/[ARCH]/[IMAGE][TEST_RUN_SUFFIX]
 #   3. "./ci-cleanup.sh" with commands to clean up temporary build resources,
 #        to be run after this step finishes / when this step is aborted.
 #
@@ -116,7 +119,7 @@ function _test_run_impl() {
     get_git_version >"${work_dir}/git_version"
     get_git_channel >"${work_dir}/git_channel"
 
-    local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}"
+    local container_name="flatcar-tests-${arch}-${docker_vernum}-${image}${TEST_RUN_SUFFIX:-}"
     local -I MANTLE_REF
     : "${MANTLE_REF:=$(< sdk_container/.repo/manifests/mantle-container)}"
 
@@ -148,7 +151,8 @@ function _test_run_impl() {
         # Ignore retcode since tests are flaky. We'll re-run failed tests and
         #  determine success based on test results (tapfile).
         docker run --pull always --rm --name="${container_name}" --privileged --net host -v /dev:/dev \
-          -w /work -v "$PWD":/work --env-file="sdk_lib/env_mantle.txt" -i "${MANTLE_REF}" bash -ec \
+          -w /work -v "$PWD":/work --env-file="sdk_lib/env_mantle.txt" \
+          -e TEST_RUN_SUFFIX="${TEST_RUN_SUFFIX:-}" -e IMAGES_BUILDCACHE_DIR="${IMAGES_BUILDCACHE_DIR:-images}" -i "${MANTLE_REF}" bash -ec \
             'git config --global --add safe.directory /work
             source /dev/stdin
             ci-automation/vendor-testing/"${1}".sh "${@:2}"' \
@@ -195,13 +199,13 @@ function _test_run_impl() {
 
     if [ ${skip_copy_to_bincache} -eq 0 ];then
         # publish kola output, TAP files to build cache
-        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}${TEST_RUN_SUFFIX:-}" \
             "${tests_dir}/_kola_temp"
-        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}${TEST_RUN_SUFFIX:-}" \
             "${tests_dir}/"*.tap
-        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}${TEST_RUN_SUFFIX:-}" \
             "${tap_merged_summary}"*
-        copy_to_buildcache "testing/${vernum}/${arch}/${image}" \
+        copy_to_buildcache "testing/${vernum}/${arch}/${image}${TEST_RUN_SUFFIX:-}" \
             "${tap_merged_detailed}"*
     fi
     if ! $success; then
