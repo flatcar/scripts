@@ -1,0 +1,10 @@
+#!/bin/bash
+# Remove packages from $BUILDROOT; useless in Overlay=yes images, which can't
+# express deletions.
+set -euo pipefail
+. "${SRCDIR}/lib/lib.sh"
+
+[ "$#" -gt 0 ] || exit 0
+
+echo "mkosi-remove: $* (board $(sdk_board))"
+sdk_emerge --unmerge --verbose "$@"

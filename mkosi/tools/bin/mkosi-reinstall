@@ -1,0 +1,9 @@
+#!/bin/bash
+# Reinstall packages into $BUILDROOT from the board's binpkgs.
+set -euo pipefail
+. "${SRCDIR}/lib/lib.sh"
+
+[ "$#" -gt 0 ] || exit 0
+
+echo "mkosi-reinstall: $* (board $(sdk_board))"
+sdk_emerge_binpkg --emptytree "$@"

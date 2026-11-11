@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+[[ "${MKOSI_DEBUG:-0}" == "1" ]] && set -x
+
+# shellcheck source=lib/lib.sh
+. "${SRCDIR}/lib/lib.sh"
+
+root_fs_dir="${BUILDROOT:?BUILDROOT must be set by mkosi}"
+
+echo "[postinst] customizing image at $root_fs_dir"
+
+# Sub-images get their own /etc/portage from mkosi.
+rm -rf "${root_fs_dir}/etc/portage"
+
+# create_prod_image(): after the last emerge. The sandbox has no /sys, which
+# run_localedef's bwrap wrapper binds unconditionally.
+mkdir -p /sys
+run_localedef "${root_fs_dir}"
+
+# Also runs when the base tree comes from the cache, without prepare's configroot.
+setup_configroot
+package_provided "$(get_binary_pkg sys-devel/gcc)"
+ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
+    test_image_content "${root_fs_dir}"
+
+# mkosi always runs `systemctl preset-all`, upstream doesn't; base's
+# mkosi.finalize removes these again.
+for d in system-preset user-preset; do
+  install -D -m 0644 /dev/stdin "${root_fs_dir}/usr/lib/systemd/${d}/00-mkosi-ignore.preset" <<<"ignore *"
+done
+
+# mkosi always writes this for kernel-install's sake; it would land on the ESP.
+rm -rf "${root_fs_dir}/boot/loader"
+
+# This is the tree create_prod_image() snapshots for sysexts; the rest of its
+# steps are in the main image's mkosi.postinst.d/.

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# The SDK's FLATCAR_VERSION as ImageVersion (lib.sh passes it on as FLAGS_version).
+# Verbs like `vm` may run without the versionfile; emit nothing then.
+set -euo pipefail
+
+versionfile=/mnt/host/source/.repo/manifests/version.txt
+[[ -r "${versionfile}" ]] || exit 0
+
+# shellcheck disable=SC1090
+. "${versionfile}"
+echo "${FLATCAR_VERSION:-}"

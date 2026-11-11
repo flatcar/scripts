@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Each oem-<flavor> profile describes a whole image (Output=, FLATCAR_VM_TYPE,
+# ROOT size); combined they'd silently merge into one broken image.
+set -euo pipefail
+
+config="$(cat)"
+mapfile -t oems < <(jq -r '.Profiles[] | select(startswith("oem-"))' <<<"${config}")
+if (( ${#oems[@]} > 1 )); then
+    echo "mkosi.configure: only one oem-* profile per build, got: ${oems[*]}." \
+         "Build them one at a time, e.g. for p in ${oems[*]}; do mkosi -f --profile \"\$p\" build; done" >&2
+    exit 1
+fi
+printf '%s\n' "${config}"

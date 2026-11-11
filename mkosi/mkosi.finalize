@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Build the verity'd /usr image (btrfs, then the hash tree) that repart copies
+# onto USR-A, and put its root hash into the kernel, as finish_image() does.
+set -euo pipefail
+
+[[ "${MKOSI_DEBUG:-0}" == "1" ]] && set -x
+. "${SRCDIR}/lib/lib.sh"
+
+root="${BUILDROOT:?BUILDROOT must be set by mkosi}"
+usr_dir="${root}/usr"
+kernel="${root}/boot/flatcar/vmlinuz-a"
+blob="${root}/usr.img"          # 02-usr-a.conf CopyBlocks=
+
+[[ -d "${usr_dir}" ]] || { echo "[verity] ${usr_dir} missing" >&2; exit 1; }
+[[ -f "${kernel}"  ]] || { echo "[verity] ${kernel} missing" >&2; exit 1; }
+
+# Leftovers of mkosi's configure_clock() and fixup_vmlinuz_location(); upstream
+# has neither.
+rm -f "${usr_dir}/lib/clock-epoch" "${usr_dir}"/lib/modules/*/vmlinuz
+
+# mkfs.btrfs --rootdir copies the build host's labels; upstream /usr is
+# unlabeled_t except /usr/share/flatcar/etc. Removing the xattr isn't allowed.
+python3 - "${usr_dir}" <<'EOF'
+import os, sys
+usr = sys.argv[1]
+keep = os.path.join(usr, "share/flatcar/etc")
+label = b"system_u:object_r:unlabeled_t:s0\0"
+for dp, dns, fns in os.walk(usr):
+    dns[:] = [d for d in dns if os.path.join(dp, d) != keep]
+    for p in [dp] + [os.path.join(dp, n) for n in fns]:
+        os.setxattr(p, "security.selinux", label, follow_symlinks=False)
+    for d in dns:
+        p = os.path.join(dp, d)
+        if os.path.islink(p):
+            os.setxattr(p, "security.selinux", label, follow_symlinks=False)
+EOF
+
+# build_image_util.sh finish_image(): where grub reads the hash in the kernel.
+case "${ARCHITECTURE}" in
+  x86-64) verity_offset=64 ;;
+  arm64)  verity_offset=512 ;;
+  *) echo "[verity] unsupported architecture ${ARCHITECTURE}" >&2; exit 1 ;;
+esac
+block_size=4096
+
+# bootengine opens verity at a fixed hash offset (disk_layout.json fs_blocks).
+fs_bytes=1065345024
+data_blocks=$(( fs_bytes / block_size ))
+
+usr_bytes="$(du -sB1 "${usr_dir}" | cut -f1)"
+echo "[verity] /usr is ${usr_bytes} B; building fixed ${fs_bytes} B zstd btrfs"
+
+# 1. zstd btrfs from /usr, with disk_util's FormatBtrfs flags.
+rm -f "${blob}"
+truncate -s "$(( usr_bytes + 128 * 1024 * 1024 ))" "${blob}"   # upper bound for --shrink
+mkfs.btrfs -f -L USR-A -m single -d single \
+    --compress zstd --rootdir "${usr_dir}" --shrink "${blob}"
+
+shrunk="$(stat -c %s "${blob}")"
+echo "[verity] zstd btrfs shrank to ${shrunk} B (must be <= ${fs_bytes} B)"
+if (( shrunk > fs_bytes )); then
+  echo "[verity] /usr does not fit ${fs_bytes} B; strip more packages (offset is pinned)." >&2
+  exit 1
+fi
+
+# Pad so the hash tree starts at the fixed offset.
+truncate -s "${fs_bytes}" "${blob}"
+
+# 2. Append the hash tree.
+verityout="$(mkosi-chroot veritysetup format --hash=sha256 \
+    --data-block-size="${block_size}" \
+    --hash-block-size="${block_size}" \
+    --data-blocks="${data_blocks}" \
+    --hash-offset="${fs_bytes}" \
+    /usr.img /usr.img)"
+echo "${verityout}"
+roothash="$(printf '%s\n' "${verityout}" | sed -n 's/^Root hash:[[:space:]]*\([a-fA-F0-9]\{64\}\)$/\1/p')"
+[[ -n "${roothash}" ]] || { echo "[verity] failed to parse root hash" >&2; exit 1; }
+
+# 3. Inject the hash into the kernel; grub reads it back into the cmdline.
+printf '%s' "${roothash}" | \
+    dd of="${kernel}" bs=1 seek="${verity_offset}" count=64 conv=notrunc status=none
+
+echo "[verity] usrhash=${roothash} injected into vmlinuz-a at offset ${verity_offset}"
+
+# 4. Sign after the injection, which would break the signature (finish_image).
+if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+    do_sbsign --output "${kernel}"{,}
+    cleanup_sbsign_certs
+fi

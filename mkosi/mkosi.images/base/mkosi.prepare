@@ -1,0 +1,18 @@
+#!/bin/bash
+# Base-only setup before any package is installed: mkosi runs this ahead of the
+# shared tools/prepare.sh.
+set -euo pipefail
+
+[[ "${MKOSI_DEBUG:-0}" == "1" ]] && set -x
+
+# mkosi calls prepare scripts twice: "build" (before BuildPackages=) and "final".
+[ "$1" = final ] || exit 0
+
+# shellcheck source=lib/lib.sh
+. "${SRCDIR}/lib/lib.sh"
+
+# extract_prod_gcc's package_provided writes into the configroot.
+create_configroot "$FLATCAR_UPDATE_GROUP"
+# create_prod_image(): before the emerge.
+extract_prod_gcc "$BUILDROOT"
+

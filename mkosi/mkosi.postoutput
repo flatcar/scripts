@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Pin the disk GUID to Flatcar's base value (disk_util -g): bootengine's
+# disk-uuid.sh only repairs the backup GPT of a grown disk when it sees it.
+set -euo pipefail
+
+[[ "${MKOSI_DEBUG:-0}" == "1" ]] && set -x
+
+# Output= differs per OEM profile (image, flatcar_production_<vm>_image, ...).
+img="${OUTPUTDIR:?OUTPUTDIR must be set by mkosi}/$(jq -r .Output "${MKOSI_CONFIG}").raw"
+[[ -f "${img}" ]] || { echo "[postoutput] ${img} not found; does Output= match the disk image's name?" >&2; exit 1; }
+
+# image_to_vm.sh's assert_image_size wants whole MiB; -e moves the backup GPT.
+truncate --size=%1M "${img}"
+sgdisk -e -U 00000000-0000-0000-0000-000000000001 "${img}" >/dev/null
+echo "[postoutput] pinned ${img##*/} disk GUID to 00000000-0000-0000-0000-000000000001"
+
+# OEM profiles: the vendor format. Default image: qemu_uefi, for local testing.
+FLATCAR_VM_TYPE="${FLATCAR_VM_TYPE:-qemu_uefi}" "${SRCDIR}/tools/write-vm-image.sh" "${img}"

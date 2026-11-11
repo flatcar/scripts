@@ -1,0 +1,20 @@
+#!/bin/bash
+# Hooks run as root in a sandbox without /etc/sudoers; drop sudo's options so
+# build_library's sudo calls run verbatim.
+set -euo pipefail
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        # Options taking a separate argument.
+        -[CDghpRrTtUu]|--user|--group|--prompt|--chdir|--chroot|--close-from|\
+        --host|--role|--type|--command-timeout|--other-user)
+                          shift 2 ;;
+        --)               shift; break ;;
+        -*)               shift ;;
+        VAR=*|*=*)        export "${1?}"; shift ;;   # sudo VAR=val cmd
+        *)                break ;;
+    esac
+done
+
+[ "$#" -gt 0 ] || exit 0
+exec "$@"
