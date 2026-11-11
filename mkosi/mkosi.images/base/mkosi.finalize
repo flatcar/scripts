@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Drop the preset overrides base's mkosi.postinst added against preset-all.
+set -euo pipefail
+
+[[ "${MKOSI_DEBUG:-0}" == "1" ]] && set -x
+
+root="${BUILDROOT:?BUILDROOT must be set by mkosi}"
+rm -f "${root}"/usr/lib/systemd/{system,user}-preset/00-mkosi-ignore.preset

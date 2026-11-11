@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Pin the disk GUID to Flatcar's base value (disk_util -g): bootengine's
+# disk-uuid.sh only repairs the backup GPT of a grown disk when it sees it.
+# Then convert the disk to FLATCAR_VM_TYPE's format with image_to_vm.sh's
+# write_vm_*; the layout and OEM partition are already done by mkosi.
+set -euo pipefail
+
+# Post-output scripts get no ARTIFACTDIR; lib/sdk-env.sh needs it only for BUILD_DIR.
+export ARTIFACTDIR="${ARTIFACTDIR:-$(mktemp -d)}"
+. "${SRCDIR}/lib/sdk-env.sh"
+
+# Output= differs per OEM profile (image, flatcar_production_<vm>_image, ...).
+img="${OUTPUTDIR:?OUTPUTDIR must be set by mkosi}/$(jq -r .Output "${MKOSI_CONFIG}").raw"
+[[ -f "${img}" ]] || die "[postoutput] ${img} not found; does Output= match the disk image's name?"
+
+# image_to_vm.sh's assert_image_size wants whole MiB; -e moves the backup GPT.
+truncate --size=%1M "${img}"
+sgdisk -e -U 00000000-0000-0000-0000-000000000001 "${img}" >/dev/null
+echo "[postoutput] pinned ${img##*/} disk GUID to 00000000-0000-0000-0000-000000000001"
+
+# OEM profiles: the vendor format. Default image: qemu_uefi, for local testing.
+FLATCAR_VM_TYPE="${FLATCAR_VM_TYPE:-qemu_uefi}"
+set_vm_type "${FLATCAR_VM_TYPE}" || die "Unknown FLATCAR_VM_TYPE=${FLATCAR_VM_TYPE}"
+
+# As set_vm_paths; the source name only derives the vendor file names.
+outdir="$(dirname "${img}")"
+src_name=flatcar_production_image.bin
+VM_SRC_IMG="${outdir}/${src_name}"
+VM_DST_IMG="${outdir}/$(_src_to_dst_name "${src_name}" "_image.$(_disk_ext)")"
+VM_TMP_DIR="$(mktemp -d)"
+trap 'umount -q "${VM_TMP_ROOT}" || :; rm -rf "${VM_TMP_DIR}"' EXIT
+VM_TMP_IMG="${VM_TMP_DIR}/disk_image.bin"
+VM_TMP_ROOT="${VM_TMP_DIR}/rootfs"
+VM_NAME="$(_src_to_dst_name "${src_name}" "")-${FLATCAR_VERSION}"
+VM_NAME="${VM_NAME//./-}"
+VM_NAME="${VM_NAME//+/-}"
+VM_README="${outdir}/$(_src_to_dst_name "${src_name}" ".README")"
+VM_GENERATED_FILES=()
+
+cp --reflink=auto --sparse=always "${img}" "${VM_TMP_IMG}"
+# write_vm_disk unmounts VM_TMP_ROOT, which image_to_vm.sh would have mounted.
+mkdir -p "${VM_TMP_ROOT}"
+mount -t tmpfs vm-tmp-root "${VM_TMP_ROOT}"
+write_vm_disk
+write_vm_conf
+write_vm_bundle
+
+printf '[vm-image] wrote %s\n' "${VM_GENERATED_FILES[@]##*/}"

@@ -1,0 +1,24 @@
+    1  cd mkosi
+    2  /mkosi/bin/mkosi build -f
+    3  sudo /mkosi/bin/mkosi build -f
+    4  sudo /mkosi/bin/mkosi build -f
+    5  echo $MODULE_SIGNING_KEY_DIR
+    6  mkdir $MODULE_SIGNING_KEY_DIR
+    7  sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts build -ff
+    8  cd mkosi
+    9  sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts build -ff
+   10  fg
+   11  sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts build 
+   12  sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts build -f
+   13  sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts build -ff
+   14  sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts build -ff
+   15  sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts build -ff
+   16  # 1. unmerge from the board root (zfs shouldn't be there anyway)
+   17      sudo emerge-amd64-usr --unmerge sys-kernel/coreos-kernel sys-kernel/coreos-modules sys-fs/zfs
+   18      # 2. drop their binary packages and refresh the PKGDIR index
+   19      P=/build/amd64-usr/var/lib/portage/pkgs
+   20      sudo rm -rf $P/sys-kernel/coreos-kernel-* $P/sys-kernel/coreos-modules-* $P/sys-fs/zfs
+   21      sudo PORTAGE_CONFIGROOT=/build/amd64-usr ROOT=/build/amd64-usr emaint binhost --fix
+   22      sudo --preserve-env=MODULES_SIGN_KEY,MODULES_SIGN_CERT,MODULE_SIGNING_KEY_DIR,COREOS_OFFICIAL         /mkosi/bin/mkosi --profile=extra-sysexts         --environment=FLATCAR_SOURCE_BUILD=1 --environment=FLATCAR_ALLOW_REMOTE_BINPKGS=0 build -ff
+   23  tail -f /var/tmp/modules-v1.log
+   24  history > bash_history

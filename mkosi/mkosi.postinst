@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# The final image's build_image steps, in upstream's order; see lib/image.sh.
+set -euo pipefail
+. "${SRCDIR}/lib/image.sh"
+
+step() {
+  echo "[postinst] $1"
+  "$@"
+}
+
+mapfile -t builtin_sysexts < <(builtin_sysext_names)
+
+step image_bake_sysexts "${builtin_sysexts[@]}"
+step image_esp
+# licenses.json covers base and the built-in sysexts, like upstream's.
+step write_image_licenses "${builtin_sysexts[@]}"
+step image_prod_cleanups
+step image_kernel
+step finish_image_sysusers "${root_fs_dir}"
+step image_var_tmpfiles
+step image_selinux_hwdb
+step image_etc
+step image_confext
+step image_prune_root
