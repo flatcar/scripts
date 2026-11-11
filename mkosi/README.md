@@ -11,9 +11,11 @@ From inside the SDK container, in this directory:
     mkosi genkey                      # once: mkosi.key/mkosi.crt sign the sysexts and confext
     mkosi build                       # production image, amd64
     mkosi --architecture=arm64 build  # arm64
+    mkosi --profile oem-qemu build    # one vendor image, see mkosi.profiles/oem-*
     mkosi --profile extra-sysexts build
 
-i.e. from the host: `./run_sdk_container … sudo mkosi build`. The board needs the OS binary packages first
+i.e. from the host: `./run_sdk_container … sudo mkosi build`. Build one `oem-*`
+profile per run. The board needs the OS binary packages first
 (`./build_packages`).
 
 ## How packages get installed
@@ -27,7 +29,8 @@ helpers, which run the SDK's `emerge` into `$BUILDROOT`. With
 
     mkosi.conf                  top-level disk image and the SDK sandbox setup
     mkosi.images/base/          the OS tree (coreos-base/coreos)
-    mkosi.images/*-sysext/      built-in and extra sysexts
+    mkosi.images/*-sysext/      built-in, extra and OEM sysexts
+    mkosi.profiles/oem-*/       vendor images: OEM sysext, disk layout, output name
     mkosi.postinst.d/           build_image's steps for the final image, in order
     mkosi.finalize              verity'd /usr and its hash in the kernel
     mkosi.repart/               disk_layout.json's partitions
