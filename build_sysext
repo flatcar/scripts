@@ -290,17 +290,21 @@ for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   rm -rf "${entry}"
 done
 
-grep . <<EOF | install -m0644 -D /dev/stdin "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXT_ID}"
+metadata="${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXT_ID}"
+grep . <<EOF | install -m0644 -D /dev/stdin "${metadata}"
 ID='flatcar'
 ${VERSION_FIELD_OVERRIDE:-VERSION_ID}=${FLATCAR_VERSION_ID@Q}
 ARCHITECTURE=${ARCH@Q}
-EXTENSION_RELOAD_MANAGER=1
 SYSEXT_ID=${SYSEXT_ID@Q}
 ${SYSEXT_NAME:+SYSEXT_NAME=${SYSEXT_NAME@Q}}
 ${PVR:+SYSEXT_VERSION_ID=${PVR@Q}}
 ${HOMEPAGE:+SYSEXT_HOME_URL=${HOMEPAGE@Q}}
 SYSEXT_BUG_REPORT_URL='https://issues.flatcar.org'
 EOF
+
+if [[ -d ${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/systemd || -d ${BUILD_DIR}/${FLAGS_install_root_basename}/etc/systemd ]]; then
+  echo "EXTENSION_RELOAD_MANAGER=1" >> "${metadata}"
+fi
 
 info "Removing opaque directory markers to always merge all contents"
 find "${BUILD_DIR}/${FLAGS_install_root_basename}" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
