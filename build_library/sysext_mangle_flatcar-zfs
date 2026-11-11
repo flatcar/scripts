@@ -35,13 +35,8 @@ d  /etc/zfs                                                 0755  root  root  - 
 L  /etc/zfs/zed.d                                           -     -     -     -  /usr/share/zfs/etc/zfs/zed.d
 L  /etc/zfs/zfs-functions                                   -     -     -     -  /usr/share/zfs/etc/zfs/zfs-functions
 L  /etc/zfs/zpool.d                                         -     -     -     -  /usr/share/zfs/etc/zfs/zpool.d
-C  /etc/systemd/system/systemd-udevd.service.d/10-zfs.conf  -     -     -     -  /usr/lib/systemd/system/systemd-udevd.service.d/10-zfs.conf
+r  /etc/systemd/system/systemd-udevd.service.d/10-zfs.conf  -     -     -     -  -
 EOF
 
-mkdir -p ./usr/lib/systemd/system/systemd-udevd.service.d
-cat <<EOF >./usr/lib/systemd/system/systemd-udevd.service.d/10-zfs.conf
-[Unit]
-After=systemd-sysext.service
-EOF
 configure_modprobe flatcar-zfs
 popd

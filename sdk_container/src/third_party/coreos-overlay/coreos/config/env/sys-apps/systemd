@@ -170,4 +170,16 @@ EOF
 SystemCallFilter=@mount
 EOF
     )
+
+    (
+        insinto "$(systemd_get_systemunitdir)/systemd-udev-trigger.service.d"
+        newins - flatcar.conf <<'EOF'
+# Ensure udev rules are reloaded before triggering events with them because
+# udevd caches its rules for 3 seconds. System extensions that include udev
+# rules need them immediately loaded before triggering.
+
+[Service]
+ExecStartPre=-udevadm control --reload
+EOF
+    )
 }
