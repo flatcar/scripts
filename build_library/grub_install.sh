@@ -26,6 +26,12 @@ DEFINE_string copy_efi_grub "" \
   "Copy the EFI GRUB image to the specified path."
 DEFINE_string copy_shim "" \
   "Copy the shim image to the specified path."
+DEFINE_string esp_dir "" \
+  "Install into this directory instead of mounting the ESP of --disk_image. EFI targets only."
+DEFINE_string esp_part_label "" \
+  "Find the ESP by GPT partition label instead of probing its filesystem UUID."
+DEFINE_boolean skip_emerge ${FLAGS_FALSE} \
+  "Use the GRUB and shim packages already installed in the board root."
 
 # Parse flags
 FLAGS "$@" || exit 1
@@ -75,12 +81,21 @@ case "${FLAGS_target}" in
         ;;
 esac
 
-info "Updating GRUB in ${BOARD_ROOT}"
-emerge-${BOARD} \
-        --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
-        sys-boot/grub \
-        sys-boot/shim \
-        sys-boot/shim-signed
+if [[ -n "${FLAGS_esp_dir}" && -z "${EFI_ARCH:-}" ]]; then
+    die_notrace "--esp_dir is only supported for EFI targets, not ${FLAGS_target}"
+fi
+if [[ -n "${FLAGS_esp_part_label}" && -z "${FLAGS_esp_dir}" ]]; then
+    die_notrace "--esp_part_label requires --esp_dir"
+fi
+
+if [[ ${FLAGS_skip_emerge} -ne ${FLAGS_TRUE} ]]; then
+    info "Updating GRUB in ${BOARD_ROOT}"
+    emerge-${BOARD} \
+            --nodeps --select --verbose --update --getbinpkg --usepkgonly --newuse \
+            sys-boot/grub \
+            sys-boot/shim \
+            sys-boot/shim-signed
+fi
 
 GRUB_SRC="${BOARD_ROOT}/usr/lib/grub/${FLAGS_target}"
 [[ -d "${GRUB_SRC}" ]] || die "GRUB not installed at ${GRUB_SRC}"
@@ -96,7 +111,8 @@ LOOP_DEV=
 
 cleanup() {
     cleanup_sbsign_certs
-    if [[ -d "${ESP_DIR}" ]]; then
+    # A caller-supplied --esp_dir is the output; never unmount or delete it.
+    if [[ -z "${FLAGS_esp_dir}" && -d "${ESP_DIR}" ]]; then
         if mountpoint -q "${ESP_DIR}"; then
             sudo umount "${ESP_DIR}"
         fi
@@ -111,23 +127,28 @@ cleanup() {
 }
 trap cleanup EXIT
 
-info "Installing GRUB ${FLAGS_target} in ${FLAGS_disk_image##*/}"
-LOOP_DEV=$(sudo losetup --find --show --partscan "${FLAGS_disk_image}")
-ESP_DIR=$(mktemp --directory)
-MOUNTED=
+if [[ -n "${FLAGS_esp_dir}" ]]; then
+    info "Installing GRUB ${FLAGS_target} in ${FLAGS_esp_dir}"
+    ESP_DIR="${FLAGS_esp_dir}"
+else
+    info "Installing GRUB ${FLAGS_target} in ${FLAGS_disk_image##*/}"
+    LOOP_DEV=$(sudo losetup --find --show --partscan "${FLAGS_disk_image}")
+    ESP_DIR=$(mktemp --directory)
+    MOUNTED=
 
-for (( i=0; i<5; ++i )); do
-    if sudo mount -t vfat "${LOOP_DEV}p1" "${ESP_DIR}"; then
-        MOUNTED=x
-        break
+    for (( i=0; i<5; ++i )); do
+        if sudo mount -t vfat "${LOOP_DEV}p1" "${ESP_DIR}"; then
+            MOUNTED=x
+            break
+        fi
+        warn "loopback device node ${LOOP_DEV}p1 still missing, reprobing..."
+        sudo blockdev --rereadpt "${LOOP_DEV}"
+        # sleep for 0.5, then 1, then 2, then 4, then 8 seconds.
+        sleep "$(bc <<<"scale=1; (2.0 ^ ${i}) / 2.0")"
+    done
+    if [[ -z ${MOUNTED} ]]; then
+        failboat "${LOOP_DEV}p1 where art thou? udev has forsaken us!"
     fi
-    warn "loopback device node ${LOOP_DEV}p1 still missing, reprobing..."
-    sudo blockdev --rereadpt "${LOOP_DEV}"
-    # sleep for 0.5, then 1, then 2, then 4, then 8 seconds.
-    sleep "$(bc <<<"scale=1; (2.0 ^ ${i}) / 2.0")"
-done
-if [[ -z ${MOUNTED} ]]; then
-    failboat "${LOOP_DEV}p1 where art thou? udev has forsaken us!"
 fi
 sudo mkdir -p "${ESP_DIR}/${GRUB_DIR}" "${ESP_DIR}/${GRUB_IMAGE%/*}"
 
@@ -152,12 +173,22 @@ info "Generating ${GRUB_DIR}/load.cfg"
 # by filesystem ID in case the platform doesn't provide the boot disk.
 # $root points to memdisk here so instead use hd0,gpt1 as a hint so it is
 # searched first.
-ESP_FSID=$(sudo grub-probe -t fs_uuid -d "${LOOP_DEV}p1")
-sudo_clobber "${ESP_DIR}/${GRUB_DIR}/load.cfg" <<EOF
+if [[ -n "${FLAGS_esp_part_label}" ]]; then
+    # No block device to probe: the ESP filesystem may not exist yet
+    # (systemd-repart formats it later), so match the GPT label.
+    sudo_clobber "${ESP_DIR}/${GRUB_DIR}/load.cfg" <<EOF
+search --no-floppy --set root --part-label ${FLAGS_esp_part_label} --hint hd0,gpt1
+set prefix=(memdisk)
+set
+EOF
+else
+    ESP_FSID=$(sudo grub-probe -t fs_uuid -d "${LOOP_DEV}p1")
+    sudo_clobber "${ESP_DIR}/${GRUB_DIR}/load.cfg" <<EOF
 search.fs_uuid ${ESP_FSID} root hd0,gpt1
 set prefix=(memdisk)
 set
 EOF
+fi
 
 # Generate a memdisk containing the appropriately generated grub.cfg. Doing
 # this because we need conflicting default behaviors between verity and
