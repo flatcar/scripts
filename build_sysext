@@ -290,11 +290,14 @@ for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   rm -rf "${entry}"
 done
 
+EXTENSION_RELOAD_MANAGER=0
+[[ -d ${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/systemd ]] && EXTENSION_RELOAD_MANAGER=1
+
 grep . <<EOF | install -m0644 -D /dev/stdin "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXT_ID}"
 ID='flatcar'
 ${VERSION_FIELD_OVERRIDE:-VERSION_ID}=${FLATCAR_VERSION_ID@Q}
 ARCHITECTURE=${ARCH@Q}
-EXTENSION_RELOAD_MANAGER=1
+EXTENSION_RELOAD_MANAGER=${EXTENSION_RELOAD_MANAGER}
 SYSEXT_ID=${SYSEXT_ID@Q}
 ${SYSEXT_NAME:+SYSEXT_NAME=${SYSEXT_NAME@Q}}
 ${PVR:+SYSEXT_VERSION_ID=${PVR@Q}}
