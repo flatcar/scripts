@@ -306,6 +306,10 @@ if [[ -d ${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/systemd || -d ${BUI
   echo "EXTENSION_RELOAD_MANAGER=1" >> "${metadata}"
 fi
 
+if [[ -d ${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/udev/rules.d || -d ${BUILD_DIR}/${FLAGS_install_root_basename}/etc/udev/rules.d ]]; then
+  echo "EXTENSION_RESTART_UNITS='systemd-udev-trigger.service'" >> "${metadata}"
+fi
+
 info "Removing opaque directory markers to always merge all contents"
 find "${BUILD_DIR}/${FLAGS_install_root_basename}" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
 
