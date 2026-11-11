@@ -14,6 +14,7 @@ mapfile -t builtin_sysexts < <(builtin_sysext_names)
 
 step image_bake_sysexts "${builtin_sysexts[@]}"
 step image_esp
+step image_oem
 # licenses.json covers base and the built-in sysexts, like upstream's.
 step write_image_licenses "${builtin_sysexts[@]}"
 step image_prod_cleanups
