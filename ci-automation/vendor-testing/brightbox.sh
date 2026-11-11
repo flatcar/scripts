@@ -24,10 +24,13 @@ fi
 
 # BRIGHTBOX_CLIENT_ID, BRIGHTBOX_CLIENT_SECRET should be provided by the caller.
 
+# Brightbox fetches the image itself, so only its origin can be shown.
+print_image_origin "${BRIGHTBOX_IMAGE_NAME}"
+
 # Upload the image on Brightbox.
 IMAGE_ID=$(ore brightbox create-image \
-  --name=flatcar-"${CIA_VERNUM}" \
-  --url="https://${BUILDCACHE_SERVER}/images/${CIA_ARCH}/${CIA_VERNUM}/${BRIGHTBOX_IMAGE_NAME}" \
+  --name=flatcar-"${CIA_VERNUM}${TEST_RUN_SUFFIX:-}" \
+  --url="https://${BUILDCACHE_SERVER}/${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${BRIGHTBOX_IMAGE_NAME}" \
   --brightbox-client-id="${BRIGHTBOX_CLIENT_ID}" \
   --brightbox-client-secret="${BRIGHTBOX_CLIENT_SECRET}"
 )
@@ -46,7 +49,7 @@ ore brightbox remove-ips \
 trap 'ore brightbox delete-image --brightbox-client-id="${BRIGHTBOX_CLIENT_ID}" --brightbox-client-secret="${BRIGHTBOX_CLIENT_SECRET}" --id "${IMAGE_ID}" || true' EXIT
 
 kola_test_basename="ci-${CIA_VERNUM//+/-}"
-kola_test_basename="${kola_test_basename//[+.]/-}"
+kola_test_basename="${kola_test_basename//[+.]/-}${TEST_RUN_SUFFIX:-}"
 
 set -x
 

@@ -10,9 +10,10 @@ set -euo pipefail
 
 source ci-automation/vendor_test.sh
 
-copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${AKAMAI_IMAGE_NAME}" .
+copy_from_buildcache "${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${AKAMAI_IMAGE_NAME}" .
+print_image_origin "${AKAMAI_IMAGE_NAME}" "${AKAMAI_IMAGE_NAME}"
 
-kola_test_basename="ci-${CIA_VERNUM//[+.]/-}"
+kola_test_basename="ci-${CIA_VERNUM//[+.]/-}${TEST_RUN_SUFFIX:-}"
 
 # Upload the image on Akamai.
 IMAGE_ID=$(ore akamai \

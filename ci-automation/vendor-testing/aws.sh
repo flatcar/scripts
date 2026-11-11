@@ -12,7 +12,8 @@ source ci-automation/vendor_test.sh
 
 board="${CIA_ARCH}-usr"
 escaped_vernum="${CIA_VERNUM//+/-}"
-image_name="ci-${escaped_vernum}-${CIA_ARCH}"
+# The suffix keeps a mkosi test run off the AMI and S3 object of the regular one.
+image_name="ci-${escaped_vernum}-${CIA_ARCH}${TEST_RUN_SUFFIX:-}"
 aws_instance_type_var="AWS_${CIA_ARCH}_INSTANCE_TYPE"
 aws_instance_type="${!aws_instance_type_var}"
 more_aws_instance_types_var="AWS_${CIA_ARCH}_MORE_INSTANCE_TYPES"
@@ -29,12 +30,13 @@ if [[ "${AWS_AMI_ID}" == "" ]]; then
         echo "++++ ${CIA_TESTSCRIPT}: using existing ${image_file} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
     else
         echo "++++ ${CIA_TESTSCRIPT}: downloading ${tarball} for ${CIA_VERNUM} (${CIA_ARCH}) ++++"
-        copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${tarball}" .
+        copy_from_buildcache "${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${tarball}" .
+        print_image_origin "${tarball}" "${tarball}"
         lbunzip2 "${tarball}"
     fi
 
     aws_bucket="flatcar-kola-ami-import-${AWS_REGION}"
-    aws_s3_path="s3://${aws_bucket}/${escaped_vernum}/${board}/"
+    aws_s3_path="s3://${aws_bucket}/${escaped_vernum}${TEST_RUN_SUFFIX:-}/${board}/"
     trap 'ore -d aws delete --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --file="${image_file}" --bucket "${aws_s3_path}"' EXIT
     ore aws initialize --region="${AWS_REGION}" --bucket "${aws_bucket}"
     AWS_AMI_ID=$(ore aws upload --force --region="${AWS_REGION}" --board="${board}" --name="${image_name}" --ami-name="${image_name}" --ami-description="Flatcar Test ${image_name}" --file="${image_file}" --object-format=RAW --force --bucket "${aws_s3_path}" | jq -r .HVM)

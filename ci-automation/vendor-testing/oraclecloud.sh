@@ -19,9 +19,10 @@ oraclecloud_location="${!oraclecloud_location_var}"
 oraclecloud_region_var="ORACLECLOUD_${CIA_ARCH}_REGION"
 oraclecloud_region="${!oraclecloud_region_var}"
 
-copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${ORACLECLOUD_IMAGE_NAME}" .
+copy_from_buildcache "${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${ORACLECLOUD_IMAGE_NAME}" .
+print_image_origin "${ORACLECLOUD_IMAGE_NAME}" "${ORACLECLOUD_IMAGE_NAME}"
 
-kola_test_basename="ci-${CIA_VERNUM//[+.]/-}"
+kola_test_basename="ci-${CIA_VERNUM//[+.]/-}${TEST_RUN_SUFFIX:-}"
 
 # Upload the image on OracleCloud.
 IMAGE_ID=$(ore oraclecloud \

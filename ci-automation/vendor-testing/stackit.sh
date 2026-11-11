@@ -18,9 +18,10 @@ stackit_location="${!stackit_location_var}"
 # Availability zones are named "<region>-<n>" (e.g. eu02-2), images are regional.
 stackit_region="${stackit_location%-*}"
 
-copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${STACKIT_IMAGE_NAME}" .
+copy_from_buildcache "${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${STACKIT_IMAGE_NAME}" .
+print_image_origin "${STACKIT_IMAGE_NAME}" "${STACKIT_IMAGE_NAME}"
 
-kola_test_basename="ci-${CIA_VERNUM//[+.]/-}"
+kola_test_basename="ci-${CIA_VERNUM//[+.]/-}${TEST_RUN_SUFFIX:-}"
 
 # Upload the image on STACKIT.
 IMAGE_ID=$(ore stackit \

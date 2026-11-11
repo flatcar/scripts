@@ -25,12 +25,15 @@ fi
 GCP_JSON_KEY_PATH=''
 secret_to_file GCP_JSON_KEY_PATH "${GCP_JSON_KEY}"
 
-copy_from_buildcache "images/${CIA_ARCH}/${CIA_VERNUM}/${GCE_IMAGE_NAME}" .
+copy_from_buildcache "${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${GCE_IMAGE_NAME}" .
+print_image_origin "${GCE_IMAGE_NAME}" "${GCE_IMAGE_NAME}"
+# The suffix keeps a mkosi test run off the GCS object and GCE image of the regular one.
+gce_version="${CIA_VERNUM}${TEST_RUN_SUFFIX:-}"
 gcloud auth activate-service-account --key-file "${GCP_JSON_KEY_PATH}"
-gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${CIA_VERNUM}" || true
-gsutil cp "${GCE_IMAGE_NAME}" "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${CIA_VERNUM}/${GCE_IMAGE_NAME}"
+gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${gce_version}" || true
+gsutil cp "${GCE_IMAGE_NAME}" "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${gce_version}/${GCE_IMAGE_NAME}"
 family="ci"
-image_name="${family}-${CIA_VERNUM//[+.]/-}"
+image_name="${family}-${gce_version//[+.]/-}"
 ore gcloud delete-images --json-key="${GCP_JSON_KEY_PATH}" "${image_name}" || true
 ore gcloud create-image \
     --board="${CIA_ARCH}-usr" \
@@ -38,11 +41,11 @@ ore gcloud create-image \
     --json-key="${GCP_JSON_KEY_PATH}" \
     --source-root="${GCE_GCS_IMAGE_UPLOAD}" \
     --source-name="${GCE_IMAGE_NAME}" \
-    --version="${CIA_VERNUM}"
+    --version="${gce_version}"
 
 trap 'ore gcloud delete-images \
     --json-key="${GCP_JSON_KEY_PATH}" \
-    "${image_name}" ; gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${CIA_VERNUM}" || true' EXIT
+    "${image_name}" ; gsutil rm -r "${GCE_GCS_IMAGE_UPLOAD}/${CIA_ARCH}-usr/${gce_version}" || true' EXIT
 
 run_kola_tests() {
     local instance_type="${1}"; shift

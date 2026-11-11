@@ -31,17 +31,20 @@ HETZNER_TOKEN=$(curl \
     https://tps.hc-integrations.de
 )
 
+# Hetzner fetches the image itself, so only its origin can be shown.
+print_image_origin "${HETZNER_IMAGE_NAME}"
+
 # Upload the image on Hetzner.
 IMAGE_ID=$(ore hetzner \
   --hetzner-token="${HETZNER_TOKEN}" \
   --hetzner-location="${hetzner_location}" \
   create-image \
   --board="${CIA_ARCH}-usr" \
-  --name flatcar-"${CIA_VERNUM}" \
-  --file="https://${BUILDCACHE_SERVER}/images/${CIA_ARCH}/${CIA_VERNUM}/${HETZNER_IMAGE_NAME}"
+  --name flatcar-"${CIA_VERNUM}${TEST_RUN_SUFFIX:-}" \
+  --file="https://${BUILDCACHE_SERVER}/${IMAGES_BUILDCACHE_DIR}/${CIA_ARCH}/${CIA_VERNUM}/${HETZNER_IMAGE_NAME}"
 )
 
-kola_test_basename="ci-${CIA_VERNUM//[+.]/-}"
+kola_test_basename="ci-${CIA_VERNUM//[+.]/-}${TEST_RUN_SUFFIX:-}"
 
 set -x
 
