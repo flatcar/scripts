@@ -211,9 +211,7 @@ RDEPEND="${RDEPEND}
 
 # OEM specific bits that need to go in USR
 RDEPEND+="
-	amd64? (
-		sys-auth/google-oslogin
-	)
+	sys-auth/google-oslogin
 "
 
 # Group and user packages to eventually replace passwd in baselayout.
