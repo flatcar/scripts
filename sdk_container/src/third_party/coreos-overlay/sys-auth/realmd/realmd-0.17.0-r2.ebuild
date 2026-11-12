@@ -12,7 +12,7 @@ SRC_URI="https://gitlab.freedesktop.org/realmd/realmd/-/archive/${PV}/${P}.tar.g
 
 LICENSE="LGPL-2+"
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 IUSE="systemd"
 
 DEPEND="sys-auth/polkit

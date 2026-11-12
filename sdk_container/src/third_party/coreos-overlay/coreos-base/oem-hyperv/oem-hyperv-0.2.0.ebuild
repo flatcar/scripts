@@ -8,7 +8,7 @@ HOMEPAGE="https://learn.microsoft.com/windows-server/virtualization/hyper-v/"
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64 riscv"
 
 RDEPEND="app-emulation/hv-daemons"
 

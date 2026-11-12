@@ -11,7 +11,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64 riscv"
 IUSE="systemd"
 
 inherit pam systemd toolchain-funcs

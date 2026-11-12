@@ -14,7 +14,7 @@ if [[ ${PV} == 9999 ]]; then
 else
 	SRC_URI="https://github.com/coreos/afterburn/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
 		https://github.com/coreos/afterburn/releases/download/v${PV}/${P}-vendor.tar.gz"
-	KEYWORDS="amd64 arm64"
+	KEYWORDS="amd64 arm64 riscv"
 	ECARGO_VENDOR="${WORKDIR}/vendor"
 fi
 
