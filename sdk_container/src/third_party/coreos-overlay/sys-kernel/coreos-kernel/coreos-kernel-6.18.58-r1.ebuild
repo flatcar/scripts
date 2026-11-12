@@ -56,10 +56,8 @@ DEPEND="
 	>=sys-kernel/coreos-firmware-20180103-r1:=
 	sys-process/procps
 	virtual/udev
-	amd64? (
-		app-admin/google-guest-configs
-		sys-firmware/intel-microcode:=
-	)
+	app-admin/google-guest-configs
+	amd64? ( sys-firmware/intel-microcode:= )
 "
 
 src_prepare() {
