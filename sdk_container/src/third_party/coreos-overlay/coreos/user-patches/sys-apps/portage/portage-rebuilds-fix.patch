@@ -1,0 +1,43 @@
+From 675e8fa5d4dc95fb7c0ce52e7b054b3b558f40df Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Thu, 12 Nov 2026 21:03:12 +0000
+Subject: [PATCH] depgraph: Fix rebuilds when same dep is in both DEPEND and
+ BDEPEND
+
+...across different roots. This was broken because the dict tracking the
+dependencies keyed only on the atom and not also on the root, resulting
+in collisions.
+
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+--- a/lib/_emerge/depgraph.py
++++ b/lib/_emerge/depgraph.py
+@@ -484,8 +484,7 @@ class _rebuild_config:
+             return False
+         trees = self._frozen_config.trees
+         reinstall = False
+-        for slot_atom, dep_pkg in build_deps.items():
+-            dep_root_slot = (dep_pkg.root, slot_atom)
++        for dep_root_slot, dep_pkg in build_deps.items():
+             if self._needs_rebuild(dep_pkg):
+                 self.rebuild_list.add(root_slot)
+                 return True
+@@ -559,7 +558,6 @@ class _rebuild_config:
+             if node not in graph:
+                 # This can be triggered by circular dependencies.
+                 continue
+-            slot_atom = node.slot_atom
+ 
+             # Remove our leaf node from the graph, keeping track of deps.
+             parents = graph.parent_nodes(node)
+@@ -570,7 +568,7 @@ class _rebuild_config:
+                     # Ignore a direct cycle.
+                     continue
+                 parent_bdeps = build_deps.setdefault(parent, {})
+-                parent_bdeps[slot_atom] = node
++                parent_bdeps[(node.root, node.slot_atom)] = node
+                 if not graph.child_nodes(parent):
+                     leaf_nodes.append(parent)
+ 
+-- 
+2.56.0
+
