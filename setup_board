@@ -376,6 +376,8 @@ if [[ ${FLAGS_regen_configs} -eq ${FLAGS_FALSE} ]]; then
   "${EMERGE_WRAPPER}" \
       --usepkgonly --getbinpkg --rebuilt-binaries n \
       "${EMERGE_TOOLCHAIN_FLAGS[@]}" "${TOOLCHAIN_PKGS[@]}"
+else
+  "${EMERGE_WRAPPER}" "${EMERGE_FLAGS[@]}" --nodeps -uv1 virtual/libc
 fi
 
 if [ $FLAGS_default -eq $FLAGS_TRUE ] ; then

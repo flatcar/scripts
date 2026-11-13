@@ -338,6 +338,8 @@ build_sysext_packages() {
   done
 }
 
+sudo emerge -v1 sys-apps/portage
+
 info "Merging board packages now"
 sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "$@"
 
