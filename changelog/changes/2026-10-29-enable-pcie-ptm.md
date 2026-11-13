@@ -1,0 +1,1 @@
+- Enabled PCIe Precision Time Measurement (`CONFIG_PCIE_PTM`) in the kernel. NICs that support it, such as Intel I226 with `igc`, now give `phc2sys` and `chrony` precise PHC readings through `PTP_SYS_OFFSET_PRECISE`. ([Flatcar#2457](https://github.com/flatcar/Flatcar/issues/2457))
