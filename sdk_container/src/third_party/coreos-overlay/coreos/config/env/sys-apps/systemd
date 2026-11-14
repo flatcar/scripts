@@ -170,4 +170,34 @@ EOF
 SystemCallFilter=@mount
 EOF
     )
+
+    (
+        insinto "$(systemd_get_systemunitdir)/systemd-udev-trigger.service.d"
+        newins - flatcar.conf <<'EOF'
+# Ensure udev rules are reloaded before triggering events with them because
+# udevd caches its rules for 3 seconds. System extensions that include udev
+# rules need them immediately loaded before triggering.
+
+[Service]
+ExecStartPre=-udevadm control --reload
+EOF
+
+        insinto "$(systemd_get_systemunitdir)"
+        newins - systemd-tmpfiles-setup-again.service <<'EOF'
+# System extensions that include tmpfiles.d configuration can restart this
+# service to have it processed when merging.
+
+[Unit]
+Description=Create System Files and Directories After Booting
+Documentation=man:tmpfiles.d(5) man:systemd-tmpfiles(8)
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=systemd-tmpfiles --create --remove --exclude-prefix=/dev
+SuccessExitStatus=DATAERR CANTCREAT
+ImportCredential=tmpfiles.*
+RestrictSUIDSGID=no
+EOF
+    )
 }

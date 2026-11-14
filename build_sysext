@@ -244,7 +244,6 @@ export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release
 
 # Unmount in order to get rid of the overlay
 umount "${BUILD_DIR}/${FLAGS_install_root_basename}"
-umount "${BUILD_DIR}/fs-root"
 
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXT_ID}_pkginfo.raw'"
@@ -290,11 +289,19 @@ for entry in "${BUILD_DIR}/${FLAGS_install_root_basename}"/*; do
   rm -rf "${entry}"
 done
 
+EXTENSION_RELOAD_MANAGER=0
+[[ -d ${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/systemd ]] && EXTENSION_RELOAD_MANAGER=1
+
+EXTENSION_RESTART_UNITS=()
+[[ -d ${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/tmpfiles.d ]] && EXTENSION_RESTART_UNITS+=( systemd-tmpfiles-setup-again.service )
+[[ -d ${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/udev/rules.d ]] && EXTENSION_RESTART_UNITS+=( systemd-udev-trigger.service )
+
 grep . <<EOF | install -m0644 -D /dev/stdin "${BUILD_DIR}/${FLAGS_install_root_basename}/usr/lib/extension-release.d/extension-release.${SYSEXT_ID}"
 ID='flatcar'
 ${VERSION_FIELD_OVERRIDE:-VERSION_ID}=${FLATCAR_VERSION_ID@Q}
 ARCHITECTURE=${ARCH@Q}
-EXTENSION_RELOAD_MANAGER=1
+EXTENSION_RELOAD_MANAGER=${EXTENSION_RELOAD_MANAGER}
+EXTENSION_RESTART_UNITS='${EXTENSION_RESTART_UNITS[*]}'
 SYSEXT_ID=${SYSEXT_ID@Q}
 ${SYSEXT_NAME:+SYSEXT_NAME=${SYSEXT_NAME@Q}}
 ${PVR:+SYSEXT_VERSION_ID=${PVR@Q}}
@@ -304,6 +311,15 @@ EOF
 
 info "Removing opaque directory markers to always merge all contents"
 find "${BUILD_DIR}/${FLAGS_install_root_basename}" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
+
+if pkg_use_enabled coreos-base/coreos selinux; then
+  # setfiles from version 3.11 requires the passed path to have no symlinks
+  real_install_root=$(realpath "${BUILD_DIR}/${FLAGS_install_root_basename}")
+  real_fs_root=$(realpath "${BUILD_DIR}/fs-root")
+  sudo setfiles -Dv -r "${real_install_root}" "${real_fs_root}/etc/selinux/mcs/contexts/files/file_contexts" "${real_install_root}/usr"
+fi
+
+umount "${BUILD_DIR}/fs-root"
 
 info "Checking for invalid file ownership"
 invalid_files=$(find "${BUILD_DIR}/${FLAGS_install_root_basename}" -user sdk -or -group sdk)
