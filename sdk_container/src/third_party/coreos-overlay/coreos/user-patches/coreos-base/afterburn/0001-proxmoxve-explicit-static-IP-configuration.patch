@@ -1,0 +1,55 @@
+From ed2e4f4d301df757bbfda3cb61de753d45384740 Mon Sep 17 00:00:00 2001
+From: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+Date: Fri, 26 Jun 2026 12:11:42 +0200
+Subject: [PATCH] proxmoxve: explicit static IP configuration
+
+This costs nothing to append - dracut explodes this 'ip=' into variables[^1],
+and downstream libraries might default to 'dhcp' if the 'autoconf'
+variable is empty.
+
+[^1]: https://github.com/dracutdevs/dracut/blob/5d2bda46f4e75e85445ee4d3bd3f68bf966287b9/modules.d/40network/net-lib.sh#L541
+
+Signed-off-by: Mathieu Tortuyaux <mtortuyaux@microsoft.com>
+---
+ src/providers/proxmoxve/cloudconfig.rs | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/providers/proxmoxve/cloudconfig.rs b/src/providers/proxmoxve/cloudconfig.rs
+index 69d806f..2b7ca1f 100644
+--- a/src/providers/proxmoxve/cloudconfig.rs
++++ b/src/providers/proxmoxve/cloudconfig.rs
+@@ -199,13 +199,13 @@ impl MetadataProvider for ProxmoxVECloudConfig {
+                                 .find(|r| r.destination.is_ipv4() && r.destination.prefix() == 0)
+                             {
+                                 kargs.push(format!(
+-                                    "ip={}::{}:{}",
++                                    "ip={}::{}:{}:::off",
+                                     network.ip(),
+                                     gateway.gateway,
+                                     network.mask()
+                                 ));
+                             } else {
+-                                kargs.push(format!("ip={}:::{}", network.ip(), network.mask()));
++                                kargs.push(format!("ip={}:::{}:::off", network.ip(), network.mask()));
+                             }
+                         }
+                         IpNetwork::V6(network) => {
+@@ -215,13 +215,13 @@ impl MetadataProvider for ProxmoxVECloudConfig {
+                                 .find(|r| r.destination.is_ipv6() && r.destination.prefix() == 0)
+                             {
+                                 kargs.push(format!(
+-                                    "ip={}::{}:{}",
++                                    "ip={}::{}:{}:::off",
+                                     network.ip(),
+                                     gateway.gateway,
+                                     network.prefix()
+                                 ));
+                             } else {
+-                                kargs.push(format!("ip={}:::{}", network.ip(), network.prefix()));
++                                kargs.push(format!("ip={}:::{}:::off", network.ip(), network.prefix()));
+                             }
+                         }
+                     }
+-- 
+2.53.0
+
