@@ -719,7 +719,10 @@ EOF
   sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc"
   sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/"
   echo ID=_any | sudo tee "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/extension-release.00-flatcar-default" > /dev/null
-  sudo systemd-repart \
+  # systemd-repart stages in /var/tmp by default. Inside the SDK, this is within
+  # Docker's overlay, which may silently fail to accept SELinux labelling
+  # changes. We must therefore repoint TMPDIR to a bind-mounted directory.
+  sudo TMPDIR="${BUILD_DIR}" systemd-repart \
     --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
     --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
     --make-ddi=confext \
