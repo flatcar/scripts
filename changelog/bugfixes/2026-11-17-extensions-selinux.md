@@ -1,0 +1,1 @@
+- Fixed SELinux labelling of the confexts and system dependent sysexts. These were previously labelled entirely with `container_file_t`. ([scripts#4385](https://github.com/flatcar/scripts/pull/4385))

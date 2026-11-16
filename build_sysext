@@ -244,7 +244,6 @@ export SOURCE_DATE_EPOCH=$(stat -c '%Y' "${BUILD_DIR}/fs-root/usr/lib/os-release
 
 # Unmount in order to get rid of the overlay
 umount "${BUILD_DIR}/${FLAGS_install_root_basename}"
-umount "${BUILD_DIR}/fs-root"
 
 if [[ "$FLAGS_generate_pkginfo" = "${FLAGS_TRUE}" ]] ; then
   info "  Creating pkginfo squashfs '${BUILD_DIR}/${SYSEXT_ID}_pkginfo.raw'"
@@ -305,6 +304,15 @@ EOF
 info "Removing opaque directory markers to always merge all contents"
 find "${BUILD_DIR}/${FLAGS_install_root_basename}" -xdev -type d -exec sh -c 'if [ "$(attr -R -q -g overlay.opaque {} 2>/dev/null)" = y ]; then attr -R -r overlay.opaque {}; fi' \;
 
+if pkg_use_enabled coreos-base/coreos selinux; then
+  # setfiles from version 3.11 requires the passed path to have no symlinks
+  real_install_root=$(realpath "${BUILD_DIR}/${FLAGS_install_root_basename}")
+  real_fs_root=$(realpath "${BUILD_DIR}/fs-root")
+  setfiles -Dv -r "${real_install_root}" -c "${real_fs_root}"/etc/selinux/mcs/policy/policy.* "${real_fs_root}/etc/selinux/mcs/contexts/files/file_contexts" "${real_install_root}/usr"
+fi
+
+umount "${BUILD_DIR}/fs-root"
+
 info "Checking for invalid file ownership"
 invalid_files=$(find "${BUILD_DIR}/${FLAGS_install_root_basename}" -user sdk -or -group sdk)
 if [[ -n "${invalid_files}" ]]; then
@@ -330,7 +338,10 @@ else
   info "Building sysext without compression (built-in sysexts)"
 fi
 
-systemd-repart \
+# systemd-repart stages in /var/tmp by default. Inside the SDK, this is within
+# Docker's overlay, which may silently fail to accept SELinux labelling changes.
+# We must therefore repoint TMPDIR to a bind-mounted directory.
+TMPDIR="${BUILD_DIR}" systemd-repart \
   --sector-size=4096 \
   --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
   --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \

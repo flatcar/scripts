@@ -675,10 +675,10 @@ EOF
     local real_root_fs_dir
     real_root_fs_dir=$(realpath "${root_fs_dir}")
     # TODO: Breaks the system:
-    # sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"
-    # sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/usr
+    # sudo setfiles -Dv -r "${real_root_fs_dir}" -c "${real_root_fs_dir}"/etc/selinux/mcs/policy/policy.* "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"
+    # sudo setfiles -Dv -r "${real_root_fs_dir}" -c "${real_root_fs_dir}"/etc/selinux/mcs/policy/policy.* "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/usr
     # For now we only try it with /etc
-    sudo setfiles -Dv -r "${real_root_fs_dir}" "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/etc
+    sudo setfiles -Dv -r "${real_root_fs_dir}" -c "${real_root_fs_dir}"/etc/selinux/mcs/policy/policy.* "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/etc
   fi
 
   # Temporary hack: set group ownership of /etc/{g,}shadow to the
@@ -719,7 +719,10 @@ EOF
   sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc"
   sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/"
   echo ID=_any | sudo tee "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/extension-release.00-flatcar-default" > /dev/null
-  sudo systemd-repart \
+  # systemd-repart stages in /var/tmp by default. Inside the SDK, this is within
+  # Docker's overlay, which may silently fail to accept SELinux labelling
+  # changes. We must therefore repoint TMPDIR to a bind-mounted directory.
+  sudo TMPDIR="${BUILD_DIR}" systemd-repart \
     --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
     --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
     --make-ddi=confext \
