@@ -932,3 +932,11 @@ BOAT
   echo -e "${V_VIDOFF}"
   die "$* failed"
 }
+
+preload_eatmydata() {
+  if . /usr/libexec/eatmydata.sh && [[ -f ${libeatmydata} ]]; then
+    export LD_PRELOAD="${libeatmydata}${LD_PRELOAD:+ ${LD_PRELOAD}}"
+  else
+    warn "libeatmydata cannot be loaded to speed up the build"
+  fi
+}

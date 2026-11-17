@@ -107,6 +107,7 @@ set_vm_paths "${FLAGS_from}" "${FLAGS_to}" "${FLATCAR_PRODUCTION_IMAGE_NAME}" "$
 trap vm_cleanup EXIT
 
 fix_mtab
+preload_eatmydata
 
 # Setup new (raw) image, possibly resizing filesystems
 setup_disk_image "${FLAGS_disk_layout}"

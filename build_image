@@ -178,6 +178,7 @@ EOF
 fi
 
 fix_mtab
+preload_eatmydata
 
 if [[ "${CONTAINER}" -eq 1 ]]; then
   IMAGE_BUILD_TYPE="container"

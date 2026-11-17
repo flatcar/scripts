@@ -45,11 +45,6 @@ if [[ $# -eq 0 ]]; then
 fi
 # --
 
-function my_board_emerge() {
-  PORTAGE_CONFIGROOT="/build/${FLAGS_board}" SYSROOT="${SYSROOT:-/build/${FLAGS_board}}" ROOT="/build/${FLAGS_board}" sudo -E emerge "${@}"
-}
-# --
-
 pkg_build_list=()
 pkg_skipped_list=()
 
@@ -73,7 +68,7 @@ while read -r pkg; do
   unset IFS
   pkg_build_list+=("=${pkg}")
   echo "      =${pkg}"
-done < <(my_board_emerge --pretend --emptytree --root-deps "${@}" |
+done < <("emerge-${FLAGS_board}" --pretend --emptytree --root-deps "${@}" |
          sed -n "/\[ebuild .* to \/build\/${FLAGS_board}\/ /s/^\[[^]]\+\] \([^ :]\+\)*:.*/\1/p")
 # --
 
@@ -84,4 +79,4 @@ fi
 pretend=""
 [[ ${FLAGS_pretend} -eq ${FLAGS_TRUE} ]] && pretend="--pretend"
 
-my_board_emerge --buildpkg ${pretend} "${pkg_build_list[@]}"
+"emerge-${FLAGS_board}" --buildpkg ${pretend} "${pkg_build_list[@]}"

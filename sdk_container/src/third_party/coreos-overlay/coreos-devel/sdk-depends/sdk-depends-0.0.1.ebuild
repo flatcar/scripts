@@ -49,6 +49,7 @@ DEPEND="
 	sys-fs/btrfs-progs
 	sys-fs/cryptsetup
 	sys-fs/erofs-utils
+	sys-fs/libeatmydata
 "
 
 # Must match the build-time dependencies listed in selinux-policy-2.eclass

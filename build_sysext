@@ -116,6 +116,8 @@ source "${BUILD_LIBRARY_DIR}/toolchain_util.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 source "${BUILD_LIBRARY_DIR}/reports_util.sh" || exit 1
 
+preload_eatmydata
+
 # Architecture values are taken from systemd.unit(5).
 declare -A SYSEXT_ARCHES
 SYSEXT_ARCHES['amd64-usr']='x86-64'
