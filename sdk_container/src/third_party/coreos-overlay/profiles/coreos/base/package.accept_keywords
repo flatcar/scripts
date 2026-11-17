@@ -203,3 +203,6 @@ sys-firmware/edk2-bin
 
 # It pulls security fixes.
 =dev-libs/openssl-3.6.5
+
+# Needed for cross fixes.
+=sys-apps/groff-1.25.0
