@@ -77,6 +77,7 @@ export EMERGE_DEFAULT_OPTS="--verbose \$MAKEOPTS"
 export PORTAGE_USERNAME=portage
 export PORTAGE_GRPNAME=portage
 export GENTOO_MIRRORS='$(portageq envvar GENTOO_MIRRORS)'
+export LD_PRELOAD='/usr/$(get_sdk_libdir)/libeatmydata.so'
 export ac_cv_posix_semaphores_enabled=yes
 EOF
 }
@@ -108,7 +109,7 @@ cat <<EOF
 # stage1 packages aren't published, save in tmp
 pkgcache_path: ${TEMPDIR}/stage1-${ARCH}-packages
 update_seed: yes
-update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/perl --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot
+update_seed_command: --exclude cross-*-cros-linux-gnu/* --exclude dev-lang/perl --exclude dev-lang/rust --exclude dev-lang/rust-bin --ignore-world y --ignore-built-slot-operator-deps y @changed-subslot sys-fs/libeatmydata
 EOF
 catalyst_stage_default 1 "${FLAGS_profile}/transition"
 }
@@ -137,6 +138,7 @@ catalyst_init() {
     FLAGS "$@" || exit 1
     switch_to_strict_mode
     eval set -- "${FLAGS_ARGV}"
+    preload_eatmydata
 
     local stage
 

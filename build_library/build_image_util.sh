@@ -129,6 +129,7 @@ emerge_to_image() {
   sudo -E ROOT="${root_fs_dir}" \
       FEATURES="-ebuild-locks -merge-wait" \
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
+      $(type -P eatmydata) \
       emerge \
       --usepkgonly \
       --binpkg-respect-use=y \

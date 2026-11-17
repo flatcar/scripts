@@ -425,7 +425,7 @@ install_oem_sysext() {
     local installed_sysext_abspath="${installed_sysext_oem_dir}/${installed_sysext_filename}"
 
     info "Installing oem-${oem_sysext} sysext from prebuilt image"
-    sudo install -Dpm 0644 \
+    sudo $(type -P eatmydata) install -Dpm 0644 \
          "${prebuilt_sysext_path}" \
          "${VM_TMP_ROOT}${installed_sysext_abspath}" ||
         die "Could not install oem-${oem_sysext} sysext"
@@ -563,7 +563,7 @@ _write_cpio_common() {
 
     # Build the squashfs, embed squashfs into a gzipped cpio
     pushd "${cpio_target}" >/dev/null
-    sudo mksquashfs "${base_dir}" "./usr.squashfs" "${mksquashfs_opts[@]}"
+    sudo $(type -P eatmydata) mksquashfs "${base_dir}" "./usr.squashfs" "${mksquashfs_opts[@]}"
     find . | cpio -o -H newc | gzip > "$2"
     popd >/dev/null
 
@@ -1062,7 +1062,7 @@ vm_cleanup() {
     if mountpoint -q "${VM_TMP_ROOT}"; then
         cleanup_mounts "${VM_TMP_ROOT}"
     fi
-    sudo rm -rf "${VM_TMP_DIR}"
+    sudo $(type -P eatmydata) rm -rf "${VM_TMP_DIR}"
 }
 
 print_readme() {

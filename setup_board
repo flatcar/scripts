@@ -76,7 +76,7 @@ _generate_wrapper() {
 export PORTAGE_CONFIGROOT="$BOARD_ROOT"
 export SYSROOT="\${SYSROOT:-$BOARD_ROOT}"
 export ROOT="$BOARD_ROOT"
-exec sudo -E ${command} ${extra_args} "\$@"
+exec sudo -E \$(type -P eatmydata) ${command} ${extra_args} "\$@"
 EOF
   # Note: parent will process these.
   wrappers+=( "${target}" )
