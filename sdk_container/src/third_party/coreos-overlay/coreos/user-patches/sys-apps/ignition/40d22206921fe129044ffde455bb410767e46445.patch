@@ -1,0 +1,48 @@
+From 40d22206921fe129044ffde455bb410767e46445 Mon Sep 17 00:00:00 2001
+From: Robin Schneider <mail@robinschneider.dev>
+Date: Wed, 18 Nov 2026 14:05:08 +0100
+Subject: [PATCH] internal/resource: set CheckRedirect once per HTTP client
+
+---
+ internal/resource/http.go | 7 +++++++
+ internal/resource/url.go  | 6 ------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/internal/resource/http.go b/internal/resource/http.go
+index 231ddc52..a1b5a23d 100644
+--- a/internal/resource/http.go
++++ b/internal/resource/http.go
+@@ -291,6 +291,13 @@ func (f *Fetcher) newHttpClient() error {
+ 		return err
+ 	}
+ 
++	// We do not want to redirect HTTP headers. This is set up once here
++	// rather than on each fetch since fetches may run concurrently.
++	defaultClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
++		req.Header = make(http.Header)
++		return nil
++	}
++
+ 	f.client = &HttpClient{
+ 		client:    defaultClient,
+ 		logger:    f.Logger,
+diff --git a/internal/resource/url.go b/internal/resource/url.go
+index 6fe693a6..4986516a 100644
+--- a/internal/resource/url.go
++++ b/internal/resource/url.go
+@@ -358,12 +358,6 @@ func (f *Fetcher) fetchFromHTTP(u url.URL, dest io.Writer, opts FetchOptions) er
+ 		f.client.transport.DialContext = d.DialContext
+ 	}
+ 
+-	// We do not want to redirect HTTP headers
+-	f.client.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+-		req.Header = make(http.Header)
+-		return nil
+-	}
+-
+ 	// TODO use .Clone() when we have a new enough golang
+ 	// (With Rust, we'd have immutability and wouldn't need to defensively clone)
+ 	headers := make(http.Header)
+-- 
+2.53.0
+
