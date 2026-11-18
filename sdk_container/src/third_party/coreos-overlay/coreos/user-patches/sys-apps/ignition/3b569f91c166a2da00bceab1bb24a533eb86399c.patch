@@ -1,0 +1,422 @@
+From 3b569f91c166a2da00bceab1bb24a533eb86399c Mon Sep 17 00:00:00 2001
+From: Robin Schneider <mail@robinschneider.dev>
+Date: Wed, 18 Nov 2026 14:05:08 +0100
+Subject: [PATCH] providers/openstack: wait for metadata service readiness
+
+---
+ .../openstack-metadata-readiness.bugfix.md    |   1 +
+ internal/providers/openstack/openstack.go     | 130 +++++-------
+ .../providers/openstack/openstack_test.go     | 199 ++++++++++++++++++
+ 3 files changed, 251 insertions(+), 79 deletions(-)
+ create mode 100644 docs/release-notes.d/openstack-metadata-readiness.bugfix.md
+ create mode 100644 internal/providers/openstack/openstack_test.go
+
+diff --git a/docs/release-notes.d/openstack-metadata-readiness.bugfix.md b/docs/release-notes.d/openstack-metadata-readiness.bugfix.md
+new file mode 100644
+index 00000000..e7116e62
+--- /dev/null
++++ b/docs/release-notes.d/openstack-metadata-readiness.bugfix.md
+@@ -0,0 +1 @@
++Fix OpenStack provider ignoring the metadata service userdata when the service did not know about the instance yet, by waiting for the instance metadata to become available before fetching the userdata
+diff --git a/internal/providers/openstack/openstack.go b/internal/providers/openstack/openstack.go
+index 803c6f39..0444e940 100644
+--- a/internal/providers/openstack/openstack.go
++++ b/internal/providers/openstack/openstack.go
+@@ -21,14 +21,15 @@ package openstack
+ 
+ import (
+ 	"context"
++	"errors"
+ 	"fmt"
+ 	"net"
++	"net/http"
+ 	"net/url"
+ 	"os"
+ 	"os/exec"
+ 	"path/filepath"
+ 	"strings"
+-	"sync"
+ 	"time"
+ 
+ 	"github.com/coreos/ignition/v2/config/v3_7_experimental/types"
+@@ -43,7 +44,8 @@ import (
+ )
+ 
+ const (
+-	configDriveUserdataPath = "/openstack/latest/user_data"
++	configDriveUserdataPath     = "/openstack/latest/user_data"
++	metadataServiceMetadataPath = "openstack/latest/meta_data.json"
+ )
+ 
+ var (
+@@ -182,41 +184,48 @@ func fetchConfigFromDevice(logger *log.Logger, ctx context.Context, path string)
+ }
+ 
+ func fetchConfigFromMetadataService(f *resource.Fetcher) ([]byte, error) {
++	urls := []url.URL{userdataURLs[resource.IPv4]}
++
+ 	ipv6Interfaces, err := findInterfacesWithIPv6()
+ 	if err != nil {
+-		f.Logger.Info("No active IPv6 network interface found: %v", err)
+ 		// Fall back to IPv4 only
+-		return fetchConfigFromMetadataServiceIPv4Only(f)
++		f.Logger.Info("No active IPv6 network interface found: %v", err)
+ 	}
+ 
+-	urls := []url.URL{userdataURLs[resource.IPv4]}
+-
+ 	for _, ifaceName := range ipv6Interfaces {
+ 		ipv6Url := userdataURLs[resource.IPv6]
+ 		ipv6Url.Host = strings.Replace(ipv6Url.Host, "iface", ifaceName, 1)
+ 		urls = append(urls, ipv6Url)
+ 	}
+ 
+-	// Use parallel fetching for all interfaces
+-	data, err := fetchConfigParallel(f, urls)
++	return fetchConfigParallel(f, urls)
++}
++
++// fetchUserdata fetches the userdata at the given URL. It returns no data
++// if the metadata service doesn't have any userdata for the instance.
++func fetchUserdata(f *resource.Fetcher, userdataURL url.URL) ([]byte, error) {
++	data, err := f.FetchToBuffer(userdataURL, resource.FetchOptions{})
++	if !errors.Is(err, resource.ErrNotFound) {
++		return data, err
++	}
++
++	// The metadata service returns 404 for every path until it knows about
++	// the instance, and 404 for the userdata if none was provided. Wait for
++	// the instance metadata, which always exists, to tell the two apart.
++	metadataURL := userdataURL
++	metadataURL.Path = metadataServiceMetadataPath
++	_, err = f.FetchToBuffer(metadataURL, resource.FetchOptions{
++		RetryCodes: []int{http.StatusNotFound},
++	})
+ 	if err != nil {
+-		// the metadata server exists but doesn't contain any actual metadata,
+-		// assume that there is no config specified
+-		if err == resource.ErrNotFound {
+-			return nil, nil
+-		}
+ 		return nil, err
+ 	}
+ 
+-	return data, nil
+-}
+-
+-func fetchConfigFromMetadataServiceIPv4Only(f *resource.Fetcher) ([]byte, error) {
+-	ipv4Url := userdataURLs[resource.IPv4]
+-
+-	data, err := f.FetchToBuffer(ipv4Url, resource.FetchOptions{})
++	data, err = f.FetchToBuffer(userdataURL, resource.FetchOptions{})
+ 	if err != nil {
+-		if err == resource.ErrNotFound {
++		// the metadata service knows about the instance but doesn't have
++		// any userdata, assume that there is no config specified
++		if errors.Is(err, resource.ErrNotFound) {
+ 			return nil, nil
+ 		}
+ 		return nil, err
+@@ -225,73 +234,36 @@ func fetchConfigFromMetadataServiceIPv4Only(f *resource.Fetcher) ([]byte, error)
+ 	return data, nil
+ }
+ 
++// fetchConfigParallel fetches the userdata from all the URLs in parallel and
++// returns the first successful result. It only fails once every URL has
++// failed.
+ func fetchConfigParallel(f *resource.Fetcher, urls []url.URL) ([]byte, error) {
+-	ctx, cancel := context.WithCancel(context.Background())
+-	defer cancel()
+-
+-	var (
+-		err      error
+-		nbErrors int
+-	)
+-
+-	cfg := make(map[url.URL][]byte)
+-
+-	success := make(chan url.URL, 1)
+-	errors := make(chan error, len(urls))
+-
+-	// Use waitgroup to wait for all goroutines to complete
+-	var wg sync.WaitGroup
+-
+-	fetch := func(_ context.Context, u url.URL) {
+-		defer wg.Done()
+-		d, e := f.FetchToBuffer(u, resource.FetchOptions{})
+-		if e != nil {
+-			f.Logger.Err("fetching configuration for %s: %v", u.String(), e)
+-			err = e
+-			errors <- e
+-		} else {
+-			cfg[u] = d
+-			select {
+-			case success <- u:
+-			default:
+-			}
+-		}
++	type result struct {
++		url  url.URL
++		data []byte
++		err  error
+ 	}
+ 
+-	// Start goroutines for all URLs
++	results := make(chan result, len(urls))
+ 	for _, u := range urls {
+-		wg.Add(1)
+-		go fetch(ctx, u)
++		go func() {
++			data, err := fetchUserdata(f, u)
++			results <- result{url: u, data: data, err: err}
++		}()
+ 	}
+ 
+-	// Wait for the first success or all failures
+-	done := make(chan struct{})
+-	go func() {
+-		wg.Wait()
+-		close(done)
+-	}()
+-
+-	select {
+-	case u := <-success:
+-		f.Logger.Debug("got configuration from: %s", u.String())
+-		return cfg[u], nil
+-	case <-errors:
+-		nbErrors++
+-		if nbErrors == len(urls) {
+-			f.Logger.Debug("all routines have failed to fetch configuration, returning last known error: %v", err)
+-			return nil, err
+-		}
+-	case <-done:
+-		// All goroutines completed, check if we have any success
+-		if len(cfg) > 0 {
+-			// Return the first successful configuration
+-			for u, data := range cfg {
+-				f.Logger.Debug("got configuration from: %s", u.String())
+-				return data, nil
+-			}
++	var err error
++	for range urls {
++		res := <-results
++		if res.err == nil {
++			f.Logger.Debug("got configuration from: %s", res.url.String())
++			return res.data, nil
+ 		}
++		f.Logger.Err("fetching configuration for %s: %v", res.url.String(), res.err)
++		err = res.err
+ 	}
+ 
++	f.Logger.Debug("all routines have failed to fetch configuration, returning last known error: %v", err)
+ 	return nil, err
+ }
+ 
+diff --git a/internal/providers/openstack/openstack_test.go b/internal/providers/openstack/openstack_test.go
+new file mode 100644
+index 00000000..574ae516
+--- /dev/null
++++ b/internal/providers/openstack/openstack_test.go
+@@ -0,0 +1,199 @@
++// Copyright 2026 Red Hat, Inc.
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//     http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++package openstack
++
++import (
++	"net/http"
++	"net/http/httptest"
++	"net/url"
++	"sync/atomic"
++	"testing"
++
++	"github.com/coreos/ignition/v2/config/v3_7_experimental/types"
++	"github.com/coreos/ignition/v2/internal/log"
++	"github.com/coreos/ignition/v2/internal/resource"
++)
++
++const testUserdata = `{"ignition": {"version": "3.0.0"}}`
++
++type metadataServer struct {
++	// number of meta_data.json requests answered with 404 before the
++	// instance becomes known to the metadata service
++	notReadyResponses int32
++	// status code returned for meta_data.json once the instance is known
++	metadataStatus int
++	// whether the instance has userdata
++	hasUserdata bool
++
++	metadataRequests atomic.Int32
++	userdataRequests atomic.Int32
++}
++
++func (s *metadataServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
++	switch r.URL.Path {
++	case "/" + metadataServiceMetadataPath:
++		if s.metadataRequests.Add(1) <= s.notReadyResponses {
++			w.WriteHeader(http.StatusNotFound)
++			return
++		}
++		w.WriteHeader(s.metadataStatus)
++		_, _ = w.Write([]byte(`{"uuid": "d8e02d56-2648-49a3-bf97-6be8f1204f38"}`))
++	case "/" + userdataURLs[resource.IPv4].Path:
++		s.userdataRequests.Add(1)
++		ready := s.metadataRequests.Load() >= s.notReadyResponses
++		if !ready || !s.hasUserdata {
++			w.WriteHeader(http.StatusNotFound)
++			return
++		}
++		_, _ = w.Write([]byte(testUserdata))
++	default:
++		w.WriteHeader(http.StatusNotFound)
++	}
++}
++
++func (s *metadataServer) start(t *testing.T) url.URL {
++	t.Helper()
++
++	if s.metadataStatus == 0 {
++		s.metadataStatus = http.StatusOK
++	}
++	server := httptest.NewServer(s)
++	t.Cleanup(server.Close)
++	serverURL, err := url.Parse(server.URL)
++	if err != nil {
++		t.Fatal(err)
++	}
++	userdataURL := userdataURLs[resource.IPv4]
++	userdataURL.Scheme = serverURL.Scheme
++	userdataURL.Host = serverURL.Host
++	return userdataURL
++}
++
++func newTestFetcher(t *testing.T) *resource.Fetcher {
++	t.Helper()
++
++	logger := log.New(true)
++	fetcher := &resource.Fetcher{Logger: &logger}
++	totalTimeout := 10
++	if err := fetcher.UpdateHttpTimeoutsAndCAs(types.Timeouts{
++		HTTPTotal: &totalTimeout,
++	}, nil, types.Proxy{}); err != nil {
++		t.Fatal(err)
++	}
++	return fetcher
++}
++
++func TestFetchUserdata(t *testing.T) {
++	tests := []struct {
++		name                 string
++		server               metadataServer
++		wantData             string
++		wantErr              bool
++		wantMetadataRequests int32
++		wantUserdataRequests int32
++	}{
++		{
++			name:                 "userdata",
++			server:               metadataServer{hasUserdata: true},
++			wantData:             testUserdata,
++			wantUserdataRequests: 1,
++		},
++		{
++			name:                 "no userdata",
++			server:               metadataServer{},
++			wantMetadataRequests: 1,
++			wantUserdataRequests: 2,
++		},
++		{
++			name:                 "userdata after metadata service becomes ready",
++			server:               metadataServer{notReadyResponses: 2, hasUserdata: true},
++			wantData:             testUserdata,
++			wantMetadataRequests: 3,
++			wantUserdataRequests: 2,
++		},
++		{
++			name:                 "no userdata after metadata service becomes ready",
++			server:               metadataServer{notReadyResponses: 2},
++			wantMetadataRequests: 3,
++			wantUserdataRequests: 2,
++		},
++		{
++			name:                 "userdata without instance metadata",
++			server:               metadataServer{metadataStatus: http.StatusNotFound, hasUserdata: true},
++			wantData:             testUserdata,
++			wantUserdataRequests: 1,
++		},
++		{
++			name:                 "metadata request fails",
++			server:               metadataServer{metadataStatus: http.StatusForbidden},
++			wantErr:              true,
++			wantMetadataRequests: 1,
++			wantUserdataRequests: 1,
++		},
++	}
++
++	for i := range tests {
++		tt := &tests[i]
++		t.Run(tt.name, func(t *testing.T) {
++			userdataURL := tt.server.start(t)
++
++			data, err := fetchUserdata(newTestFetcher(t), userdataURL)
++			if (err != nil) != tt.wantErr {
++				t.Fatalf("got error %v, want error %t", err, tt.wantErr)
++			}
++			if string(data) != tt.wantData {
++				t.Errorf("got data %q, want %q", data, tt.wantData)
++			}
++			if got := tt.server.metadataRequests.Load(); got != tt.wantMetadataRequests {
++				t.Errorf("got %d metadata requests, want %d", got, tt.wantMetadataRequests)
++			}
++			if got := tt.server.userdataRequests.Load(); got != tt.wantUserdataRequests {
++				t.Errorf("got %d userdata requests, want %d", got, tt.wantUserdataRequests)
++			}
++		})
++	}
++}
++
++func TestFetchConfigParallel(t *testing.T) {
++	t.Run("waits for a slow endpoint after another one failed", func(t *testing.T) {
++		failing := metadataServer{metadataStatus: http.StatusForbidden}
++		slow := metadataServer{notReadyResponses: 2, hasUserdata: true}
++		urls := []url.URL{failing.start(t), slow.start(t)}
++
++		data, err := fetchConfigParallel(newTestFetcher(t), urls)
++		if err != nil {
++			t.Fatalf("unexpected error: %v", err)
++		}
++		if string(data) != testUserdata {
++			t.Errorf("got data %q, want %q", data, testUserdata)
++		}
++	})
++
++	t.Run("fails once every endpoint failed", func(t *testing.T) {
++		first := metadataServer{metadataStatus: http.StatusForbidden}
++		second := metadataServer{metadataStatus: http.StatusForbidden}
++		urls := []url.URL{first.start(t), second.start(t)}
++
++		data, err := fetchConfigParallel(newTestFetcher(t), urls)
++		if err == nil {
++			t.Fatalf("expected an error, got data %q", data)
++		}
++		for _, server := range []*metadataServer{&first, &second} {
++			if got := server.metadataRequests.Load(); got != 1 {
++				t.Errorf("got %d metadata requests, want 1", got)
++			}
++		}
++	})
++}
+-- 
+2.53.0
+
