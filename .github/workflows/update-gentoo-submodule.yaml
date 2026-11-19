@@ -5,7 +5,77 @@ on:
   workflow_dispatch:
 
 jobs:
+  sync-gentoo:
+    runs-on: ubuntu-latest
+    outputs:
+      repository: ${{ steps.gentoo.outputs.repository }}
+      branch: ${{ steps.gentoo.outputs.branch }}
+      latest_commit: ${{ steps.rebase.outputs.LATEST_COMMIT }}
+      short_commit: ${{ steps.rebase.outputs.SHORT_COMMIT }}
+    steps:
+      - name: Check out scripts
+        uses: actions/checkout@v7
+        with:
+          path: scripts
+          sparse-checkout: |
+            .gitmodules
+            .github/workflows/common.sh
+            .github/workflows/rebase-gentoo.sh
+          sparse-checkout-cone-mode: false
+      - name: Determine Gentoo repository and branch
+        id: gentoo
+        working-directory: scripts
+        run: |
+          set -euo pipefail
+          submodule=sdk_container/src/third_party/gentoo
+          url=$(git config --file .gitmodules --get "submodule.${submodule}.url")
+          branch=$(git config --file .gitmodules --get "submodule.${submodule}.branch")
+          if [[ ! "${url}" =~ ^https://github\.com/([^/]+)/([^/]+)\.git$ ]]; then
+              echo "::error::Expected a GitHub HTTPS submodule URL ending in .git; got ${url}."
+              exit 1
+          fi
+          {
+              echo "owner=${BASH_REMATCH[1]}"
+              echo "name=${BASH_REMATCH[2]}"
+              echo "repository=${BASH_REMATCH[1]}/${BASH_REMATCH[2]}"
+              echo "branch=${branch}"
+          } >>"${GITHUB_OUTPUT}"
+      - name: Generate Gentoo update token
+        id: gentoo-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.FLATCAR_HUB_APP_CLIENT_ID }}
+          private-key: ${{ secrets.FLATCAR_HUB_APP_PRIVATE_KEY }}
+          owner: ${{ steps.gentoo.outputs.owner }}
+          repositories: ${{ steps.gentoo.outputs.name }}
+          permission-contents: write
+      - name: Sync Gentoo fork
+        env:
+          GH_TOKEN: ${{ steps.gentoo-token.outputs.token }}
+          REPOSITORY: ${{ steps.gentoo.outputs.repository }}
+          BRANCH: ${{ steps.gentoo.outputs.branch }}
+        run: gh repo sync "${REPOSITORY}" --branch "${BRANCH}"
+      - name: Check out Gentoo history
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.gentoo.outputs.repository }}
+          ref: ${{ steps.gentoo.outputs.branch }}
+          token: ${{ steps.gentoo-token.outputs.token }}
+          path: gentoo
+          # Rebasing only needs blobs for changed paths, not the entire Gentoo tree.
+          sparse-checkout: '!/*'
+          sparse-checkout-cone-mode: false
+      - name: Rebase Gentoo tracking branches
+        id: rebase
+        working-directory: gentoo
+        env:
+          WORK_SCRIPTS_DIR: "${{ github.workspace }}/gentoo"
+          GHA_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          BRANCH: ${{ steps.gentoo.outputs.branch }}
+        run: bash ../scripts/.github/workflows/rebase-gentoo.sh
+
   keep-gentoo-updated:
+    needs: sync-gentoo
     runs-on: ubuntu-latest
     steps:
       - name: Check out scripts
@@ -15,7 +85,6 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
           path: scripts
           sparse-checkout: |
-            .gitmodules
             .github/workflows/common.sh
           sparse-checkout-cone-mode: false
       - name: Update Gentoo submodule
@@ -23,14 +92,13 @@ jobs:
         working-directory: scripts
         env:
           WORK_SCRIPTS_DIR: "${{ github.workspace }}/scripts"
+          LATEST_COMMIT: ${{ needs.sync-gentoo.outputs.latest_commit }}
         run: |
           set -euo pipefail
           source .github/workflows/common.sh
           prepare_git_repo
           submodule=sdk_container/src/third_party/gentoo
-          url=$(git config --file .gitmodules --get "submodule.${submodule}.url")
-          branch=$(git config --file .gitmodules --get "submodule.${submodule}.branch")
-          read -r latest_commit _ < <(git ls-remote --exit-code "${url}" "refs/heads/${branch}")
+          latest_commit="${LATEST_COMMIT}"
           short_commit=${latest_commit:0:12}
           git update-index --cacheinfo "160000,${latest_commit},${submodule}"
           if git diff --cached --quiet -- "${submodule}"; then
@@ -55,8 +123,6 @@ jobs:
           fi
           cleanup_repo
           echo 'UPDATE_NEEDED=1' >>"${GITHUB_OUTPUT}"
-          echo "LATEST_COMMIT=${latest_commit}" >>"${GITHUB_OUTPUT}"
-          echo "SHORT_COMMIT=${short_commit}" >>"${GITHUB_OUTPUT}"
       - name: Create pull request
         uses: peter-evans/create-pull-request@v8
         if: steps.update-gentoo.outputs.UPDATE_NEEDED == 1
@@ -65,6 +131,6 @@ jobs:
           path: scripts
           branch: buildbot/update-gentoo-submodule
           delete-branch: true
-          title: Update gentoo submodule to ${{ steps.update-gentoo.outputs.SHORT_COMMIT }}
-          body: Update `sdk_container/src/third_party/gentoo` to flatcar-hub/gentoo@${{ steps.update-gentoo.outputs.LATEST_COMMIT }}.
+          title: Update gentoo submodule to ${{ needs.sync-gentoo.outputs.short_commit }}
+          body: Update `sdk_container/src/third_party/gentoo` to ${{ needs.sync-gentoo.outputs.repository }}@${{ needs.sync-gentoo.outputs.latest_commit }}.
           labels: auto-ci,jenkins-ci,main
