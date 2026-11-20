@@ -154,9 +154,7 @@ ver_test() {
 }
 
 # symbolic names for use with gentoo_ver_cmp_out
-GV_LT=1
-GV_EQ=2
-GV_GT=3
+declare -gri GV_LT=1 GV_EQ=2 GV_GT=3
 
 # Compare two versions. The result can be compared against GV_LT, GV_EQ and GV_GT variables.
 #
@@ -182,5 +180,95 @@ function gentoo_ver_cmp_out() {
             ;;
     esac
 }
+
+function gentoo_ver_part_count() {
+    local v=${1}; shift
+    local -n part_count_ref=${1}; shift
+
+    local -i count=1 idx len=${#v}
+    for ((idx = 0; idx < len; ++idx)); do
+        if [[ ${v:$idx:1} = '.' ]]; then
+            ((++count))
+        fi
+    done
+    part_count_ref=${count}
+}
+
+function gentoo_ver_truncate() {
+    local v=${1}; shift
+    local -i truncated_count=${1}; shift
+    local -n out_v_ref=${1}; shift
+
+    if [[ truncated_count -eq 0 ]]; then
+        fail "truncated length must be 1 or more"
+    fi
+
+    local -i count=1 idx=0 len=${#v} truncated_len=0
+    for ((idx = 0; idx < len; ++idx)); do
+        ((++truncated_len))
+        if [[ ${v:$idx:1} = '.' ]]; then
+            ((++count))
+            if [[ count -gt truncated_count ]]; then
+                ((--truncated_len)) # remove the dot
+                break
+            fi
+        fi
+    done
+    out_v_ref=${v:0:truncated_len}
+}
+
+declare_enum \
+    GVD_NUMBERS_IDX \
+    GVD_LETTER_IDX \
+    GVD_SUFFICES_IDX \
+    GVD_REVISION_IDX
+
+function gentoo_ver_decomposed_declare() {
+    struct_declare -ga "${@}" "( 'EMPTY_ARRAY' '' 'EMPTY_ARRAY' 0 )"
+}
+
+function gentoo_ver_decomposed_unset() {
+    struct_unset \
+        GVD_NUMBERS_IDX -a-- \
+        GVD_SUFFICES_IDX -a-- \
+        --- "${@}"
+}
+
+function decompose_gentoo_version() {
+    local v=${1}; shift
+    local gvd_var_name=${1}; shift
+
+    local an al as ar
+    [[ ${v} =~ ${VER_ERE} ]] || fail "${FUNCNAME[0]}: invalid version: ${v}"
+    an=${BASH_REMATCH[1]}
+    al=${BASH_REMATCH[3]}
+    as=${BASH_REMATCH[4]}
+    ar=${BASH_REMATCH[7]}
+
+    local dgv_numbers_name
+    gen_varname dgv_numbers_name
+    declare -ga "${dgv_numbers_name}=()"
+    read -r -a "${dgv_numbers_name}" <<<"${an//./ }"
+
+    local dgv_suffices_name='EMPTY_ARRAY'
+    if [[ -n ${as} ]]; then
+        as=${as:1} # strip leading underline
+        gen_varname dgv_suffices_name
+        declare -ga "${dgv_suffices_name}=()"
+        read -r -a "${dgv_suffices_name}" <<<"${as//_/ }"
+    fi
+
+    local -i rev=0
+    if [[ -n ${ar} ]]; then
+        rev=${ar#-r}
+    fi
+
+    assign_struct_members "${gvd_var_name}" \
+                          GVD_NUMBERS_IDX "${dgv_numbers_name}" \
+                          GVD_LETTER_IDX "${al}" \
+                          GVD_SUFFICES_IDX "${dgv_suffices_name}" \
+                          GVD_REVISION_IDX "${rev}"
+}
+
 
 fi

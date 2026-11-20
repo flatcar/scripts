@@ -1,0 +1,2 @@
+- deduplicate dependencies
+  - if runtime dependencies and build dependencies have some common changes, write them as a single group

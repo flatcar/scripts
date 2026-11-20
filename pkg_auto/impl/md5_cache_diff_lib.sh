@@ -124,6 +124,7 @@ if [[ -z ${__MD5_CACHE_DIFF_LIB_SH_INCLUDED__:-} ]]; then
 __MD5_CACHE_DIFF_LIB_SH_INCLUDED__=x
 
 source "$(dirname "${BASH_SOURCE[0]}")/util.sh"
+source "${PKG_AUTO_IMPL_DIR}/debug.sh"
 source "${PKG_AUTO_IMPL_DIR}/lcs.sh"
 source "${PKG_AUTO_IMPL_DIR}/md5_cache_lib.sh"
 source "${PKG_AUTO_IMPL_DIR}/mvm.sh"
@@ -519,16 +520,13 @@ function __mcdl_diff_keywords() {
         fi
         old_level=${old_kw_ref[KW_LEVEL_IDX]}
         new_level=${new_kw_ref[KW_LEVEL_IDX]}
-        local extra_todo=''
         if [[ ${old_level} -ne ${new_level} ]]; then
             case ${new_level} in
                 "${KW_STABLE}")
                     level_str='stable'
-                    extra_todo='TODO: update/drop accept keywords for this package in overlay profiles'
                     ;;
                 "${KW_UNSTABLE}")
                     level_str='unstable'
-                    extra_todo='TODO: add/update accept keywords for this package in overlay profiles'
                     ;;
                 "${KW_BROKEN}")
                     level_str='broken'
@@ -538,9 +536,6 @@ function __mcdl_diff_keywords() {
                     ;;
             esac
             diff_report_append "${dr_var_name}" "package became ${level_str} on ${new_name@Q}"
-            if [[ -n ${extra_todo} ]]; then
-                diff_report_append_indented "${dr_var_name}" "${extra_todo}"
-            fi
         fi
         unset -n new_kw old_kw
     done
@@ -1623,7 +1618,7 @@ function __mcdl_diff_deps() {
                     if ! __mcdl_is_pds_irrelevant "${diff_lib_filters_var_name}" "${v1}" old_iuse_stack; then
                         local p_str use_str
                         __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                        pds_to_string "${v1}" p_str
+                        __mcdl_pds_to_string_stripped "${v1}" "${diff_lib_filters_var_name}" p_str
                         local -n p_ref=${v1}
                         local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
                         unset -n p_ref
@@ -1692,7 +1687,7 @@ function __mcdl_diff_deps() {
                     if ! __mcdl_is_pds_irrelevant "${diff_lib_filters_var_name}" "${v2}" new_iuse_stack; then
                         local p_str use_str
                         __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                        pds_to_string "${v2}" p_str
+                        __mcdl_pds_to_string_stripped "${v2}" "${diff_lib_filters_var_name}" p_str
                         local -n p_ref=${v2}
                         local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
                         unset -n p_ref
@@ -1826,7 +1821,7 @@ function __mcdl_diff_deps() {
                 if ! __mcdl_is_pds_irrelevant "${diff_lib_filters_var_name}" "${v1}" old_iuse_stack; then
                     local p_str use_str
                     __mcdl_iuse_stack_to_string_ps old_iuse_stack use_str ' for USE ' ''
-                    pds_to_string "${v1}" p_str
+                    __mcdl_pds_to_string_stripped "${v1}" "${diff_lib_filters_var_name}" p_str
                     local -n p_ref=${v1}
                     local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
                     unset -n p_ref
@@ -1892,10 +1887,10 @@ function __mcdl_diff_deps() {
                 fi
                 ;;
             'p')
-                if ! __mcdl_is_pds_irrelevant  "${diff_lib_filters_var_name}" "${v2}" new_iuse_stack; then
+                if ! __mcdl_is_pds_irrelevant "${diff_lib_filters_var_name}" "${v2}" new_iuse_stack; then
                     local p_str use_str
                     __mcdl_iuse_stack_to_string_ps new_iuse_stack use_str ' for USE ' ''
-                    pds_to_string "${v2}" p_str
+                    __mcdl_pds_to_string_stripped "${v2}" "${diff_lib_filters_var_name}" p_str
                     local -n p_ref=${v2}
                     local -i p_blocks=${p_ref[PDS_BLOCKS_IDX]}
                     unset -n p_ref
@@ -1958,6 +1953,59 @@ function __mcdl_diff_deps() {
     diff_report_unset local_dr
 
     group_unset new_sorted_group old_sorted_group
+}
+
+function __mcdl_pds_to_string_stripped() {
+    local -n pds_ref=${1}; shift
+    local diff_lib_filters_var_name=${1}; shift
+    local -n str_ref=${1}; shift
+
+    case ${pds_ref[PDS_BLOCKS_IDX]} in
+        "${PDS_NO_BLOCK}")
+            str_ref=''
+            ;;
+        "${PDS_WEAK_BLOCK}")
+            str_ref='!'
+            ;;
+        "${PDS_STRONG_BLOCK}")
+            str_ref='!!'
+            ;;
+    esac
+    local op=${pds_ref[PDS_OP_IDX]}
+    local v=${pds_ref[PDS_VER_IDX]}
+    if [[ ${op} = '=*' ]]; then
+        op='='
+        # if there's an op, then we assume version is not empty - so
+        # version will never end up being just *
+        v+='*'
+    fi
+    str_ref+=${op}${pds_ref[PDS_NAME_IDX]}
+    if [[ -n ${v} ]]; then
+        str_ref+=-${v}
+    fi
+    local s=${pds_ref[PDS_SLOT_IDX]}
+    if [[ -n ${s} ]]; then
+        str_ref+=:${s}
+    fi
+    local -a relevant_urs=()
+    local -n urs_ref=${pds_ref[PDS_UR_IDX]}
+    local u u_name
+    for u in "${urs_ref[@]}"; do
+        get_struct_members "${u}" UR_NAME_IDX u_name
+        if __mcdl_is_iuse_irrelevant "${diff_lib_filters_var_name}" "${u_name}"; then
+            continue
+        fi
+        relevant_urs+=( "${u}" )
+    done
+    local ur_str
+    if [[ ${#relevant_urs[@]} -gt 0 ]]; then
+        str_ref+='['
+        for u in "${relevant_urs[@]}"; do
+            ur_to_string "${u}" ur_str
+            str_ref+=${ur_str},
+        done
+        str_ref=${str_ref:0:$(( ${#str_ref} - 1 ))}']'
+    fi
 }
 
 fi

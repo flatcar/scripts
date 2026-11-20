@@ -36,6 +36,7 @@ source "${PKG_AUTO_IMPL_DIR}/debug.sh"
 source "${PKG_AUTO_IMPL_DIR}/gentoo_ver.sh"
 source "${PKG_AUTO_IMPL_DIR}/jobs_lib.sh"
 source "${PKG_AUTO_IMPL_DIR}/md5_cache_diff_lib.sh"
+source "${PKG_AUTO_IMPL_DIR}/accept_keywords_lib.sh"
 
 # Sets up the workdir using the passed config. The config can be
 # created basing on the config_template file or using the
@@ -56,7 +57,7 @@ function setup_workdir_with_config() {
     workdir=${1}; shift
     config_file=${1}; shift
 
-    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base cfg_sdk_image_override cfg_inside_debug
+    local cfg_scripts cfg_aux cfg_reports cfg_old_base cfg_new_base cfg_sdk_image_override cfg_inside_debug cfg_gentoo
     local -a cfg_cleanups cfg_debug_packages cfg_ignore_packages
 
     # some defaults
@@ -78,7 +79,7 @@ function setup_workdir_with_config() {
             fail "empty value for ${key} in config"
         fi
         case ${key} in
-            scripts|aux|reports|inside-debug)
+            scripts|aux|reports|inside-debug|gentoo)
                 var_name="cfg_${key//-/_}"
                 local -n var_ref=${var_name}
                 var_ref=$(realpath "${value}")
@@ -114,7 +115,7 @@ function setup_workdir_with_config() {
     setup_workdir "${workdir}"
     add_cleanup "rm -f ${WORKDIR@Q}/config"
     cp -a "${config_file}" "${WORKDIR}/config"
-    setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}" "${cfg_inside_debug}"
+    setup_worktrees_in_workdir "${cfg_scripts}" "${cfg_old_base}" "${cfg_new_base}" "${cfg_reports}" "${cfg_aux}" "${cfg_inside_debug}" "${cfg_gentoo}"
     if [[ -n ${cfg_sdk_image_override} ]]; then
         override_sdk_image_name "${cfg_sdk_image_override}"
     fi
@@ -131,9 +132,46 @@ function setup_workdir_with_config() {
 # passed to setup_workdir_with_config.
 function generate_package_update_reports() {
     generate_sdk_reports
+    update_accept_keywords_from_sdk_reports
     local gpur_timeinfo
-    timed_run gpur_timeinfo handle_gentoo_sync
+    local -i rv
+    local abort_file="${WORKDIR}/aborted"
+    add_cleanup "rm -f ${abort_file@Q}"
+    touch "${abort_file}"
+    timed_run gpur_timeinfo handle_gentoo_sync --abort-on-accept-keyword-changes "${abort_file}"
+    if [[ -s ${abort_file} ]]; then
+        info "Generating package update reports aborted after ${gpur_timeinfo}, because accept keywords have been changed - rerunning SDK reports generation"
+        regenerate_sdk_reports_for_new_state
+        timed_run gpur_timeinfo handle_gentoo_sync
+    fi
     info "Generating package update reports based on emerge reports took ${gpur_timeinfo}"
+}
+
+update_accept_keywords_from_sdk_reports() {
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
+    local to_update="${WORKDIR}/pkg-reports/new/accept-keywords-to-add"
+
+    if [[ ! -s ${to_update} ]]; then
+        return 0
+    fi
+
+    local ak_in_repo_path='profiles/coreos/base/package.accept_keywords'
+
+    accept_keywords_declare uakfsr_ak
+    accept_keywords_parse uakfsr_ak "${NEW_COREOS_OVERLAY}/${ak_in_repo_path}"
+
+    local qpkg version
+    while read -r qpkg version; do
+        accept_keywords_add \
+            uakfsr_ak \
+            "# Keep versions on both arches in sync." \
+            "${qpkg}" "${version}"
+    done <"${to_update}"
+
+    write_and_commit_accept_keywords uakfsr_ak "${NEW_STATE}" "${COREOS_OVERLAY_SUFFIX}" "${ak_in_repo_path}"
+    accept_keywords_unset uakfsr_ak
 }
 
 # Saves the new state to a git branch in scripts.
@@ -257,6 +295,7 @@ function setup_worktrees_in_workdir() {
     local reports_dir=${1}; shift
     local aux_dir=${1}; shift
     local inside_debug=${1}; shift
+    local gentoo_repo=${1}; shift
 
     local old_state new_state
     old_state="${WORKDIR}/old_state"
@@ -265,14 +304,63 @@ function setup_worktrees_in_workdir() {
     # create reports directory now - there may be some developer
     # warnings afoot
     mkdir -p "${reports_dir}"
-    local swiw_timeinfo
 
     info "setting up worktrees for old and new state"
-    timed_run swiw_timeinfo setup_worktree "${scripts}" "${old_base}" "old-state-${RANDOM}" "${old_state}"
-    info "  for old state took ${swiw_timeinfo}"
-    timed_run swiw_timeinfo setup_worktree "${scripts}" "${new_base}" "new-state-${RANDOM}" "${new_state}"
-    info "  for new state took ${swiw_timeinfo}"
-    extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}" "${old_base}" "${new_base}" "${inside_debug}"
+
+    local old_job_name new_job_name
+    local old_branch="old-state-${RANDOM}" new_branch="new-state-${RANDOM}"
+
+    setup_worktree_cleanup "${scripts}" "${old_state}" "${old_branch}"
+    setup_worktree_cleanup "${scripts}" "${new_state}" "${new_branch}"
+
+    git -C "${scripts}" worktree add --quiet -b "${old_branch}" "${old_state}" "${old_base}"
+    git -C "${scripts}" worktree add --quiet -b "${new_branch}" "${new_state}" "${new_base}"
+
+    local link
+    link=${old_state}/sdk_container/src/third_party/gentoo
+    if [[ ! -e ${link} ]]; then
+        add_cleanup "rm ${link@Q}"
+        ln -sf portage-stable "${link}"
+    fi
+    link=${new_state}/sdk_container/src/third_party/gentoo
+    if [[ ! -e ${link} ]]; then
+        add_cleanup "rm ${link@Q}"
+        ln -sf portage-stable "${link}"
+    fi
+
+
+    local old_gentoo_hash
+    old_gentoo_hash=$(git -C "${old_state}" submodule status | xgrep -m1 -F 'sdk_container/src/third_party/gentoo')
+    old_gentoo_hash=${old_gentoo_hash:1}
+    old_gentoo_hash=${old_gentoo_hash%% *}
+    new_gentoo_hash=$(git -C "${new_state}" submodule status | xgrep -m1 -F 'sdk_container/src/third_party/gentoo')
+    new_gentoo_hash=${new_gentoo_hash:1}
+    new_gentoo_hash=${new_gentoo_hash%% *}
+
+    local swiw_timeinfo
+
+    if [[ -n ${old_gentoo_hash} ]]; then
+        info "updating submodules for old state"
+        timed_run swiw_timeinfo git -C "${old_state}" submodule update --no-fetch --quiet --init --depth 1 --reference="${gentoo_repo}"
+        info "updating submodules for old state took ${swiw_timeinfo}"
+    fi
+    if [[ -n ${new_gentoo_hash} ]]; then
+        info "updating submodules for new state"
+        timed_run swiw_timeinfo git -C "${new_state}" submodule update --no-fetch --quiet --init --depth 1 --reference="${gentoo_repo}"
+        info "updating submodules for new state took ${swiw_timeinfo}"
+    fi
+    extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}" "${old_base}" "${new_base}" "${inside_debug}" "${gentoo_repo}"
+}
+
+function timed_setup_worktree() {
+    local repo=${1}; shift
+    local base=${1}; shift
+    local branch_name=${1}; shift
+    local state_dir=${1}; shift
+
+    local tsw_timeinfo
+    timed_run tsw_timeinfo setup_worktree "${repo}" "${base}" "${branch_name}" "${state_dir}"
+    echo "  took ${tsw_timeinfo}"
 }
 
 # Adds an overridden SDK image name to the globals file.
@@ -448,11 +536,10 @@ function update_rename_maps() {
 # 3 - name of the new worktree branch
 # 4 - path where the new worktree will be created
 function setup_worktree() {
-    local repo base branch worktree_dir
-    repo=${1}; shift
-    base=${1}; shift
-    branch=${1}; shift
-    worktree_dir=${1}; shift
+    local repo=${1}; shift
+    local base=${1}; shift
+    local branch=${1}; shift
+    local worktree_dir=${1}; shift
 
     setup_worktree_basic "${repo}" "${base}" "${branch}" "${worktree_dir}"
 
@@ -472,20 +559,35 @@ function setup_worktree() {
 # 3 - name of the new worktree branch
 # 4 - path where the new worktree will be created
 function setup_worktree_basic() {
-    local repo base branch worktree_dir
-    repo=${1}; shift
-    base=${1}; shift
-    branch=${1}; shift
-    worktree_dir=${1}; shift
+    local repo=${1}; shift
+    local base=${1}; shift
+    local branch=${1}; shift
+    local worktree_dir=${1}; shift
 
-    add_cleanup \
-        "git -C ${worktree_dir@Q} reset --hard HEAD" \
-        "git -C ${worktree_dir@Q} clean -ffdx" \
-        "git -C ${repo@Q} worktree remove --force ${worktree_dir@Q}" \
-        "git -C ${repo@Q} branch -D ${branch@Q}"
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
 
     git -C "${repo}" worktree add --quiet -b "${branch}" "${worktree_dir}" "${base}"
-    git -C "${worktree_dir}" submodule update --quiet --init --depth 1
+    git -C "${worktree_dir}" submodule update --no-fetch --quiet --init --depth 1 --reference="${GENTOO_REPO}"
+}
+
+# Adds cleanup rules for worktrees created with setup_worktree_basic.
+#
+# Params:
+#
+# 1 - path to the git repo
+# 2 - path to the worktree
+# 3 - name of the worktree branch
+function setup_worktree_cleanup() {
+    local repo=${1}; shift
+    local worktree=${1}; shift
+    local branch=${1}; shift
+
+    add_cleanup \
+        "git -C ${worktree@Q} reset --hard HEAD" \
+        "git -C ${worktree@Q} clean -ffdx" \
+        "git -C ${repo@Q} worktree remove --force ${worktree@Q}" \
+        "git -C ${repo@Q} branch -D ${branch@Q}"
 }
 
 # Creates an initial globals file. It's initial because it contains
@@ -540,6 +642,7 @@ function extend_globals_file() {
     local old_base=${1}; shift
     local new_base=${1}; shift
     local inside_debug=${1}; shift
+    local gentoo_repo=${1}; shift
 
     local globals_file
     globals_file="${WORKDIR}/globals"
@@ -568,8 +671,10 @@ local GENTOO_SUFFIX OLD_GENTOO NEW_GENTOO REPORTS_DIR
 local AUX_DIR
 local COREOS_OVERLAY_SUFFIX OLD_COREOS_OVERLAY NEW_COREOS_OVERLAY
 local INSIDE_DEBUG
+local GENTOO_REPO
 
 SCRIPTS=${scripts@Q}
+GENTOO_REPO=${gentoo_repo@Q}
 OLD_BASE=${old_base@Q}
 NEW_BASE=${new_base@Q}
 OLD_STATE=${old_state@Q}
@@ -594,9 +699,9 @@ EOF
 
     local last_nightly_version_id last_nightly_build_id
     # shellcheck source=for-shellcheck/version.txt
-    last_nightly_version_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
+    last_nightly_version_id=$(source "${OLD_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_VERSION_ID}")
     # shellcheck source=for-shellcheck/version.txt
-    last_nightly_build_id=$(source "${NEW_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
+    last_nightly_build_id=$(source "${OLD_STATE}/sdk_container/.repo/manifests/version.txt"; printf '%s' "${FLATCAR_BUILD_ID}")
 
     local -a locals=() definitions=()
     local sdk_image_name sdk_image_var_name=SDK_IMAGE
@@ -853,7 +958,7 @@ function handle_renames() {
                 continue
             fi
             sed -i -e "s/${hr_old_e}/${hr_new_e}/g" "${NEW_STATE}/${file}"
-        done < <(grep_pkg "${NEW_STATE}" "${old}" '.' ":!${GENTOO_SUFFIX}/**" ":!sdk_container/src/third_party/portage-stable/**" ":!${COREOS_OVERLAY_SUFFIX}/metadata/glsa/**")
+        done < <(grep_pkg "${NEW_STATE}" "${old}" '.' ":!${GENTOO_SUFFIX}/**" ":!sdk_container/src/third_party/portage-stable/**" ":!${COREOS_OVERLAY_SUFFIX}/metadata/glsa/**" ":!${COREOS_OVERLAY_SUFFIX}/metadata/md5-cache/**")
         if [[ -d ${NEW_COREOS_OVERLAY}/${old} ]]; then
             found=x
             local old_ebuild ebuild_version new_ebuild
@@ -1052,27 +1157,19 @@ function generate_sdk_reports() {
         state_branch_var_name="${sdk_run_kind^^}_STATE_BRANCH"
         sdk_run_state_branch="${!state_branch_var_name}-sdk-run"
 
-        info "setting up worktree for report generation for ${sdk_run_kind} state"
-        timed_run gsr_timeinfo setup_worktree_basic "${SCRIPTS}" "${!state_branch_var_name}" "${sdk_run_state_branch}" "${sdk_run_state}"
-        info "setting up worktree for report generation for ${sdk_run_kind} state took ${gsr_timeinfo}"
-
+        setup_worktree_cleanup "${SCRIPTS}" "${sdk_run_state}" "${sdk_run_state_branch}"
         pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy.XXXXXXXX")
         add_cleanup "rm -rf ${pkg_auto_copy@Q}"
-        cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
         gen_varname job_args_var_name
         declare -ga "${job_args_var_name}=()"
         local -n job_args_ref=${job_args_var_name}
         job_args_ref=(
-            env
-                --chdir "${sdk_run_state}"
-                ./run_sdk_container
-                    -C "${SDK_IMAGE}"
-                    -n "pkg-${sdk_run_kind}"
-                    -U
-                    -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto"
-                    --rm
-                    ./pkg_auto/inside_sdk_container.sh
-                    "${inside_sdk_container_args[@]}"
+            generate_sdk_reports_job
+            "${!state_branch_var_name}"
+            "${sdk_run_state_branch}"
+            "${sdk_run_state}"
+            "${pkg_auto_copy}"
+            "${inside_sdk_container_args[@]}"
         )
         unset -n job_args_ref
 
@@ -1211,6 +1308,127 @@ function generate_sdk_reports() {
     cp -a "${WORKDIR}/pkg-reports" "${REPORTS_DIR}/reports-from-sdk"
 }
 
+function regenerate_sdk_reports_for_new_state() {
+    # shellcheck source=for-shellcheck/globals
+    source "${WORKDIR}/globals"
+
+    local reports_dirname=pkg-reports-regen
+    local wd_reports_dir="${WORKDIR}/${reports_dirname}"
+
+    add_cleanup "rmdir ${wd_reports_dir@Q}"
+    mkdir "${wd_reports_dir}"
+
+    local -a inside_sdk_container_args=()
+    if [[ -n ${INSIDE_DEBUG} ]]; then
+        inside_sdk_container_args+=( -d )
+    fi
+    inside_sdk_container_args+=( --skip-egencache "${reports_dirname}" "${ARCHES[@]}" )
+    local sdk_run_state="${NEW_STATE}_sdk_run_again"
+    local sdk_run_state_branch="${NEW_STATE_BRANCH}-sdk-run-again"
+
+    local rsrfns_timeinfo
+    setup_worktree_cleanup "${SCRIPTS}" "${sdk_run_state}" "${sdk_run_state_branch}"
+    info "setting up worktree for another report generation"
+    timed_run rsrfns_timeinfo setup_worktree_basic "${SCRIPTS}" "${NEW_STATE_BRANCH}" "${sdk_run_state_branch}" "${sdk_run_state}"
+    info "setting up worktree for another report generation took ${rsrfns_timeinfo}"
+    local pkg_auto_copy
+    pkg_auto_copy=$(mktemp --tmpdir="${WORKDIR}" --directory "pkg-auto-copy-again.XXXXXXXX")
+    add_cleanup "rm -rf ${pkg_auto_copy@Q}"
+    cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
+    # copy md5 cache for new state from previous reports
+    local repo cache_dir='' metadata_dir=''
+    for repo in 'portage-stable' 'gentoo'; do
+        if [[ -z ${cache_dir} && -d "${WORKDIR}/pkg-reports/new/${repo}-cache" ]]; then
+            cache_dir="${WORKDIR}/pkg-reports/new/${repo}-cache"
+        fi
+        if [[ -z ${metadata_dir} && -d "${WORKDIR}/pkg-reports/new/${repo}-cache" ]]; then
+            cache_dir="${WORKDIR}/pkg-reports/new/${repo}-cache"
+        fi
+        if [[ -z ${metadata_dir} && -d "${sdk_run_state}/sdk_container/src/third_party/${repo}/metadata" ]]; then
+            metadata_dir="${sdk_run_state}/sdk_container/src/third_party/${repo}/metadata"
+        fi
+    done
+    if [[ -z ${cache_dir} || -z ${metadata_dir} ]]; then
+        fail "could not find cache dir or metadata dir"
+    fi
+    cp -a "${cache_dir}" "${metadata_dir}/md5-cache"
+    cp -a "${WORKDIR}/pkg-reports/new/coreos-overlay-cache" "${sdk_run_state}/sdk_container/src/third_party/coreos-overlay/metadata/md5-cache"
+
+    local -i rv=0
+    timed_run rsrfns_timeinfo env \
+        --chdir "${sdk_run_state}" \
+        ./run_sdk_container \
+            -C "${SDK_IMAGE}" \
+            -n "another-pkg-gen-for-branch-${sdk_run_state_branch}" \
+            -U \
+            -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto" \
+            --rm \
+            ./pkg_auto/inside_sdk_container.sh \
+            "${inside_sdk_container_args[@]}" || rv=$?
+
+    info "Report generation took ${rsrfns_timeinfo}"
+
+    if [[ ${rv} -ne 0 ]]; then
+        # Report generation failed, save the generated reports in
+        # REPORTS_DIR for further examination by the developer.
+        local salvaged_dir salvaged_dir_sdk rsrfns_sdk_run_state_basename
+        salvaged_dir="${REPORTS_DIR}/salvaged-reports-from-rerun"
+        basename_out "${sdk_run_state}" rsrfns_sdk_run_state_basename
+        salvaged_dir_sdk="${salvaged_dir}/${rsrfns_sdk_run_state_basename}"
+        rm -rf "${salvaged_dir}"
+        mkdir -p "${salvaged_dir}"
+        {
+            info "run_sdk_container rerun for new finished with exit status ${rv}, printing the warnings below for a clue"
+            info
+            for file in "${sdk_run_state}/${reports_dirname}/"*'-warnings'; do
+                info "from ${file}:"
+                echo
+                cat "${file}"
+                echo
+            done
+            info
+            info 'whatever reports generated by the failed run are saved in'
+            info "${salvaged_dir_sdk@Q} directory"
+            info
+        } >&2
+        cp -a "${sdk_run_state}/${reports_dirname}" "${salvaged_dir_sdk}"
+        fail "copying done, stopping now"
+    fi
+
+    # We succeeded, so move the reports from the state dir to
+    # workdir and generate cleanups for the moved reports.
+    local sdk_reports_dir="${wd_reports_dir}/new"
+    add_cleanup "rm -rf ${sdk_reports_dir@Q}"
+    mv "${sdk_run_state}/${reports_dirname}" "${sdk_reports_dir}"
+    cp -a "${wd_reports_dir}" "${REPORTS_DIR}/reports-from-sdk-rerun"
+}
+
+function generate_sdk_reports_job() {
+    local base=${1}; shift
+    local branch=${1}; shift
+    local worktree=${1}; shift
+    local pkg_auto_copy=${1}; shift
+    # rest are args for the inside_sdk_container.sh
+
+    local gsrj_timeinfo
+    info "setting up worktree for report generation"
+    #timed_run gsrj_timeinfo setup_worktree_basic "${SCRIPTS}" "${!state_branch_var_name}" "${sdk_run_state_branch}" "${sdk_run_state}"
+    timed_run gsrj_timeinfo setup_worktree_basic "${SCRIPTS}" "${base}" "${branch}" "${worktree}"
+    info "setting up worktree for report generation took ${gsrj_timeinfo}"
+
+    cp -a "${PKG_AUTO_DIR}"/* "${pkg_auto_copy}"
+    env \
+        --chdir "${worktree}" \
+        ./run_sdk_container \
+            -C "${SDK_IMAGE}" \
+            -n "pkg-gen-for-branch-${branch}" \
+            -U \
+            -m "${pkg_auto_copy}:/mnt/host/source/src/scripts/pkg_auto" \
+            --rm \
+            ./pkg_auto/inside_sdk_container.sh \
+            "${@}"
+}
+
 source "${PKG_AUTO_IMPL_DIR}/mvm.sh"
 
 # pkginfo mvm is a map mvm that has the following Go-like type:
@@ -1346,10 +1564,16 @@ function pkginfo_c_process_file() {
             return 0
             ;;
         "${SDK_PKGS}:amd64")
-            report_file="${WORKDIR}/pkg-reports/${which}/${report}"
+            report_file="${WORKDIR}/pkg-reports-regen/${which}/${report}"
+            if [[ ! -e ${report_file} ]]; then
+                report_file="${WORKDIR}/pkg-reports/${which}/${report}"
+            fi
             ;;
         "${BOARD_PKGS}:"*)
-            report_file="${WORKDIR}/pkg-reports/${which}/${arch}-${report}"
+            report_file="${WORKDIR}/pkg-reports-regen/${which}/${arch}-${report}"
+            if [[ ! -e ${report_file} ]]; then
+                report_file="${WORKDIR}/pkg-reports/${which}/${arch}-${report}"
+            fi
             ;;
         *)
             local c=${report}:${arch}
@@ -1513,6 +1737,7 @@ function consistency_check_for_package() {
     pi2_pimap_mvm_var_name=${1}; shift
     pkg_slot_verminmax_map_mvm_var_name=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
+    local ak_var_name=${1}; shift # if empty, no fixups
 
     local ccfp_slot_version1_map_var_name ccfp_slot_version2_map_var_name
     mvm_get "${pi1_pimap_mvm_var_name}" "${pkg}" ccfp_slot_version1_map_var_name
@@ -1537,7 +1762,8 @@ function consistency_check_for_package() {
     pkginfo_profile "${pi1_pimap_mvm_var_name}" ccfp_profile_1
     pkginfo_profile "${pi2_pimap_mvm_var_name}" ccfp_profile_2
 
-    local s v1 v2 ccfp_min ccfp_max mm
+    local s v1 v2 ccfp_min ccfp_max mm v_for_ak
+    local -i ccfp_cmp_res
     pkg_debug "all slots iterated over: ${!slots_set_ref[*]}"
     for s in "${!slots_set_ref[@]}"; do
         v1=${slot_version1_map_ref["${s}"]:-}
@@ -1548,14 +1774,85 @@ function consistency_check_for_package() {
             pkg_debug "${s} is a common slot for ${ccfp_profile_1} and ${ccfp_profile_2}"
             common_slots+=( "${s}" )
             if [[ ${v1} != "${v2}" ]]; then
-                pkg_warn \
-                    "- version mismatch:" \
-                    "  - package: ${pkg}" \
-                    "  - slot: ${s}" \
-                    "  - profile 1: ${ccfp_profile_1}" \
-                    "    - version: ${v1}" \
-                    "  - profile 1: ${ccfp_profile_2}" \
-                    "    - version: ${v2}"
+                if [[ -n ${ak_var_name} ]]; then
+                    gentoo_ver_cmp_out "${v1}" "${v2}" ccfp_cmp_res
+                    if [[ ccfp_cmp_res -eq GV_LT ]]; then
+                        v_for_ak=${v2}
+                    else
+                        v_for_ak=${v1}
+                    fi
+                    accept_keywords_add \
+                        "${ak_var_name}" \
+                        "# Keep versions on both arches in sync." \
+                        "${pkg}" "${v_for_ak}"
+                else
+                    pkg_warn \
+                        "- version mismatch:" \
+                        "  - package: ${pkg}" \
+                        "  - slot: ${s}" \
+                        "  - profile 1: ${ccfp_profile_1}" \
+                        "    - version: ${v1}" \
+                        "  - profile 1: ${ccfp_profile_2}" \
+                        "    - version: ${v2}"
+                fi
+            elif [[ -n ${ak_var_name} ]]; then
+                local ccfp_ak_entry_var_name
+                # possibly drop or update stale accept keywords
+                accept_keywords_get "${ak_var_name}" "${pkg}" ccfp_ak_entry_var_name
+                if [[ -n ${ccfp_ak_entry_var_name} ]]; then
+                    local ccfp_op ccfp_ver ccfp_kws
+                    get_struct_members "${ccfp_ak_entry_var_name}" \
+                                       AKBE_OP_IDX ccfp_op \
+                                       AKBE_VERSION_IDX ccfp_ver \
+                                       AKBE_KEYWORDS_IDX ccfp_kws
+                    if [[ -n ${ccfp_op} ]]; then
+                        # versioned accept keywords
+                        case ${ccfp_op} in
+                            '=')
+                                # can't drop accept keywords when
+                                # versions are equal - they may be
+                                # equal because accept keywords entry
+                                # exists for the yet-unstabilized
+                                # package, this case will be handled
+                                # elsewhere
+                                #
+                                # but if version in accept keywords is
+                                # lower than the actual installed
+                                # version then the entry in accept
+                                # keywords is outdated and can be
+                                # removed
+                                gentoo_ver_cmp_out "${v2}" "${ccfp_ver}" ccfp_cmp_res
+                                if [[ ccfp_cmp_res -eq GV_GT ]]; then
+                                    accept_keywords_remove "${ak_var_name}" "${pkg}"
+                                fi
+                                ;;
+                            '=*')
+                                # only update such entry if the new
+                                # version truncated to a number of
+                                # parts as in the accept keywords
+                                # version is greater than the accept
+                                # keywords version
+                                local -i ccfp_ver_part_count
+                                local ccfp_v2_truncated
+                                gentoo_ver_part_count "${ccfp_ver}" ccfp_ver_part_count
+                                gentoo_ver_truncate "${v2}" ${ccfp_ver_part_count} ccfp_v2_truncated
+                                gentoo_ver_cmp_out "${ccfp_v2_truncated}" "${ccfp_ver}" ccfp_cmp_res
+                                if [[ ccfp_cmp_res -eq GV_GT ]]; then
+                                    assign_struct_members "${ccfp_ak_entry_var_name}" \
+                                                          AKBE_VERSION_IDX "${ccfp_v2_truncated}"
+                                    accept_keywords_mark_as_modified "${ak_var_name}"
+                                fi
+                                ;;
+                            *)
+                                pkg_warn \
+                                    "- accept keywords exist, but in unexpected form" \
+                                    "  - operator: ${ccfp_op}" \
+                                    "  - package: ${pkg}" \
+                                    "  - version: ${ccfp_ver}" \
+                                    "  - keywords: ${ccfp_kws}"
+                        esac
+                    fi
+                fi
             fi
             ver_min_max ccfp_min ccfp_max "${v1}" "${v2}"
             mm="${ccfp_min}:${ccfp_max}"
@@ -1632,6 +1929,7 @@ function consistency_checks() {
     local -n all_pkgs_ref=${1}; shift
     pkg_slots_set_mvm_var_name=${1}; shift
     pkg_slot_verminmax_mvm_var_name=${1}; shift
+    local ak_var_name=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
@@ -1653,7 +1951,7 @@ function consistency_checks() {
         for pkg in "${all_pkgs_ref[@]}"; do
             pkg_debug_enable "${pkg}"
             pkg_debug "${which} ${arch} sdk <-> ${arch} board"
-            consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" "${name}" "${pkg_slots_set_mvm_var_name}"
+            consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" "${name}" "${pkg_slots_set_mvm_var_name}" "${ak_var_name}"
             pkg_debug_disable
         done
     done
@@ -1675,7 +1973,7 @@ function consistency_checks() {
         for pkg in "${all_pkgs_ref[@]}"; do
             pkg_debug_enable "${pkg}"
             pkg_debug "${which} ${arch1} board <-> ${arch2} board"
-            consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" "${name}" "${pkg_slots_set_mvm_var_name}"
+            consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" "${name}" "${pkg_slots_set_mvm_var_name}" "${ak_var_name}"
             pkg_debug_disable
         done
     done
@@ -1700,7 +1998,7 @@ function consistency_checks() {
         for pkg in "${all_pkgs_ref[@]}"; do
             pkg_debug_enable "${pkg}"
             pkg_debug "${which} ${arch1} sdk <-> ${arch2} sdk"
-            consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" "${name}" "${pkg_slots_set_mvm_var_name}"
+            consistency_check_for_package "${pkg}" "${cc_pimap_mvm_1_var_name}" "${cc_pimap_mvm_2_var_name}" "${name}" "${pkg_slots_set_mvm_var_name}" "${ak_var_name}"
             pkg_debug_disable
         done
     done
@@ -1773,10 +2071,19 @@ function read_package_sources() {
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
 
-    local -a files=( "${WORKDIR}/pkg-reports/${which}/sdk-package-repos" )
+    local -a files=()
+    if [[ -e "${WORKDIR}/pkg-reports-regen/${which}/sdk-package-repos" ]]; then
+        files+=( "${WORKDIR}/pkg-reports-regen/${which}/sdk-package-repos" )
+    else
+        files+=( "${WORKDIR}/pkg-reports/${which}/sdk-package-repos" )
+    fi
     local arch
     for arch in "${ARCHES[@]}"; do
-        files+=( "${WORKDIR}/pkg-reports/${which}/${arch}-board-package-repos" )
+        if [[ -e "${WORKDIR}/pkg-reports-regen/${which}/${arch}-board-package-repos" ]]; then
+            files+=( "${WORKDIR}/pkg-reports-regen/${which}/${arch}-board-package-repos" )
+        else
+            files+=( "${WORKDIR}/pkg-reports/${which}/${arch}-board-package-repos" )
+        fi
     done
 
     local file pkg repo saved_repo
@@ -1842,7 +2149,18 @@ function read_package_sources() {
 #
 # BOM_KVR_REPORTS_IDX - mapping of package name to a map of key-value
 #                       entries
-declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=2 BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX=3 BOM_OLD_PKG_SOURCES_MAP_IDX=4 BOM_NEW_PKG_SOURCES_MAP_IDX=5 BOM_DIFF_LIB_FILTERS_IDX=6 BOM_KVR_REPORTS_IDX=7
+# BOM_ACCEPT_KEYWORDS_IDX - accept keywords struct
+declare_enum \
+    BOM_PKG_TO_TAGS_MVM_IDX \
+    BOM_PKG_SLOTS_SET_MVM_IDX \
+    BOM_OLD_PKG_SLOT_VERMINMAX_MAP_MVM_IDX \
+    BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX \
+    BOM_OLD_PKG_SOURCES_MAP_IDX \
+    BOM_NEW_PKG_SOURCES_MAP_IDX \
+    BOM_DIFF_LIB_FILTERS_IDX \
+    BOM_KVR_REPORTS_IDX \
+    BOM_ACCEPT_KEYWORDS_IDX \
+    BOM_CHANGELOG_TEMPLATES_IDX
 
 # Declare bunch of maps variables.
 #
@@ -1850,7 +2168,7 @@ declare -gri BOM_PKG_TO_TAGS_MVM_IDX=0 BOM_PKG_SLOTS_SET_MVM_IDX=1 BOM_OLD_PKG_S
 #
 # @ - names of variables to be used for bunch of maps
 function bunch_of_maps_declare() {
-    struct_declare -ga "${@}" "( '' '' '' '' '' '' '' '' )"
+    struct_declare -ga "${@}" "( '' '' '' '' '' '' '' '' '' )"
 }
 
 # Unset bunch of maps variables.
@@ -1859,7 +2177,7 @@ function bunch_of_maps_declare() {
 #
 # @ - names of bunch of maps variables
 function bunch_of_maps_unset() {
-    unset "${@}"
+    struct_unset --- "${@}"
 }
 
 # Fields of the package output paths struct.
@@ -1871,7 +2189,13 @@ function bunch_of_maps_unset() {
 #
 # POP_PKG_SLOT_OUT_DIR_IDX - slot-specific output directory under the
 #                            package specific output directory.
-declare -gri POP_OUT_DIR_IDX=0 POP_PKG_OUT_DIR_IDX=1 POP_PKG_SLOT_OUT_DIR_IDX=2
+#
+# POP_WARNINGS_DIR_IDX - path to warnings file
+declare_enum \
+    POP_OUT_DIR_IDX \
+    POP_PKG_OUT_DIR_IDX \
+    POP_PKG_SLOT_OUT_DIR_IDX \
+    POP_WARNINGS_DIR_IDX
 
 # Declare package output paths variables.
 #
@@ -1879,7 +2203,7 @@ declare -gri POP_OUT_DIR_IDX=0 POP_PKG_OUT_DIR_IDX=1 POP_PKG_SLOT_OUT_DIR_IDX=2
 #
 # @ - names of variables to be used for package output paths
 function package_output_paths_declare() {
-    struct_declare -ga "${@}" "( '' '' '')"
+    struct_declare -ga "${@}" "( '' '' '' '' )"
 }
 
 # Unset package output paths variables.
@@ -2031,6 +2355,8 @@ function handle_one_package_change() {
     local -n pkg_new_sources_map_ref=${bunch_of_maps_ref[BOM_NEW_PKG_SOURCES_MAP_IDX]}
     local diff_lib_filters_var_name=${bunch_of_maps_ref[BOM_DIFF_LIB_FILTERS_IDX]}
     local kvr_reports_var_name=${bunch_of_maps_ref[BOM_KVR_REPORTS_IDX]}
+    local ak_var_name=${bunch_of_maps_ref[BOM_ACCEPT_KEYWORDS_IDX]}
+    local changelog_templates_map_name=${bunch_of_maps_ref[BOM_CHANGELOG_TEMPLATES_IDX]}
 
     # The function goes over a pair of old and new package names. For
     # each name there will be some checks done (like does this package
@@ -2184,8 +2510,10 @@ function handle_one_package_change() {
     mkdir -p "${update_dir_non_slot}"
 
     package_output_paths_declare hopc_package_output_paths
-    hopc_package_output_paths[POP_OUT_DIR_IDX]=${updates_dir}
-    hopc_package_output_paths[POP_PKG_OUT_DIR_IDX]=${update_dir_non_slot}
+    assign_struct_members hopc_package_output_paths \
+                          POP_OUT_DIR_IDX "${updates_dir}" \
+                          POP_PKG_OUT_DIR_IDX "${update_dir_non_slot}" \
+                          POP_WARNINGS_DIR_IDX "${warnings_dir}"
     # POP_PKG_SLOT_OUT_DIR_IDX will be set in loops below
 
     generate_non_ebuild_diffs "${update_dir_non_slot}" "${old_repo_path}" "${new_repo_path}" "${old_name}" "${new_name}"
@@ -2229,6 +2557,8 @@ function handle_one_package_change() {
         parse_cache_file hopc_old_cache_file "${old_cache_path}/${old_name}-${old_version}" "${ARCHES[@]}"
         parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
+        check_for_stale_accept_keywords "${new_name}" "${new_version}" hopc_new_cache_file "${ak_var_name}" "${updates_dir}" "${warnings_dir}"
+
         diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
         evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" "${used_licenses_set_var_name}"
         store_used_eclasses hopc_new_cache_file "${used_eclasses_set_var_name}"
@@ -2236,7 +2566,7 @@ function handle_one_package_change() {
         gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
         case ${hopc_cmp_result} in
             "${GV_GT}")
-                handle_pkg_update hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                handle_pkg_update hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${changelog_templates_map_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
             "${GV_EQ}")
@@ -2249,7 +2579,7 @@ function handle_one_package_change() {
                 fi
                 ;;
             "${GV_LT}")
-                handle_pkg_downgrade hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                handle_pkg_downgrade hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${changelog_templates_map_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                 hopc_changed=x
                 ;;
         esac
@@ -2292,6 +2622,8 @@ function handle_one_package_change() {
             parse_cache_file hopc_old_cache_file "${old_cache_path}/${old_name}-${old_version}" "${ARCHES[@]}"
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
 
+            check_for_stale_accept_keywords "${new_name}" "${new_version}" hopc_new_cache_file "${ak_var_name}" "${updates_dir}" "${warnings_dir}"
+
             diff_cache_data hopc_old_cache_file hopc_new_cache_file "${diff_lib_filters_var_name}" hopc_diff_report
             evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${hopc_new_s}" "${new_version}" "${used_licenses_set_var_name}"
             store_used_eclasses hopc_new_cache_file "${used_eclasses_set_var_name}"
@@ -2299,7 +2631,7 @@ function handle_one_package_change() {
             gentoo_ver_cmp_out "${new_version}" "${old_version}" hopc_cmp_result
             case ${hopc_cmp_result} in
                 "${GV_GT}")
-                    handle_pkg_update hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    handle_pkg_update hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${changelog_templates_map_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
                 "${GV_EQ}")
@@ -2312,7 +2644,7 @@ function handle_one_package_change() {
                     fi
                     ;;
                 "${GV_LT}")
-                    handle_pkg_downgrade hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
+                    handle_pkg_downgrade hopc_package_output_paths hopc_diff_report "${pkg_to_tags_mvm_var_name}" "${changelog_templates_map_name}" "${old_name}" "${new_name}" "${old_version}" "${new_version}"
                     hopc_changed=x
                     ;;
             esac
@@ -2344,7 +2676,8 @@ function handle_one_package_change() {
         manual_d "${warnings_dir}" "${lines[@]}"
         unset lines
 
-        # But we still want to evaluate the licenses and get used eclasses.
+        # But we still want to evaluate the licenses, get used
+        # eclasses and check for stale accept keywords.
         for s in "${!hopc_new_filtered_slots_set[@]}"; do
             new_verminmax=${new_slot_verminmax_map_ref["${s}"]:-}
             new_version=${new_verminmax##*:}
@@ -2352,6 +2685,8 @@ function handle_one_package_change() {
             cache_file_declare hopc_new_cache_file
 
             parse_cache_file hopc_new_cache_file "${new_cache_path}/${new_name}-${new_version}" "${ARCHES[@]}"
+
+            check_for_stale_accept_keywords "${new_name}" "${new_version}" hopc_new_cache_file "${ak_var_name}" "${updates_dir}" "${warnings_dir}"
 
             evaluate_licenses hopc_new_cache_file "${kvr_reports_var_name}" "${new_name}" "${s}" "${new_version}" "${used_licenses_set_var_name}"
             store_used_eclasses hopc_new_cache_file "${used_eclasses_set_var_name}"
@@ -2375,6 +2710,75 @@ function handle_one_package_change() {
         fi
     fi
     pkg_debug_disable
+}
+
+function check_for_stale_accept_keywords() {
+    local qpkg=${1}; shift
+    local version=${1}; shift
+    local cache_file_var_name=${1}; shift
+    local ak_var_name=${1}; shift
+    local updates_dir=${1}; shift
+    local warnings_dir=${1}; shift
+
+    local accept_keywords_ops_file=${updates_dir}/ak-ops
+    local cfsak_keywords_var_name
+    get_struct_members "${cache_file_var_name}" \
+                       PCF_KEYWORDS_IDX cfsak_keywords_var_name
+
+    local -i s_stable=0 s_unstable=1 s_unknown=2
+    local -i state=s_stable
+
+    local -n keywords_ref=${cfsak_keywords_var_name}
+    local keyword_var_name
+    local -i cfsak_level
+    for keyword_var_name in "${keywords_ref[@]}"; do
+        get_struct_members "${keyword_var_name}" \
+                           KW_LEVEL_IDX cfsak_level
+        if [[ cfsak_level -ne KW_STABLE ]]; then
+            if [[ cfsak_level -eq KW_UNKNOWN ]]; then
+                state=s_unknown
+                break
+            else
+                state=s_unstable
+            fi
+        fi
+    done
+
+    local cfsak_entry_var_name
+    accept_keywords_get "${ak_var_name}" "${qpkg}" cfsak_entry_var_name
+    if [[ -z ${cfsak_entry_var_name} && state -ne s_stable ]]; then
+        # this probably is a one-arch-only package, ignore it
+        return 0
+    fi
+    if [[ state -eq s_stable ]]; then
+        if [[ -z ${cfsak_entry_var_name} ]]; then
+            # nothing to do, stable package, no accept keywords entry
+            return 0
+        fi
+        local cfsak_op cfsak_version
+        get_struct_members "${cfsak_entry_var_name}" \
+                           AKBE_OP_IDX cfsak_op \
+                           AKBE_VERSION_IDX cfsak_version
+        if [[ ${cfsak_op} = '=' && ${cfsak_version} = "${version}" ]]; then
+            # stale entry, to be removed
+            echo "r ${qpkg}" >>"${accept_keywords_ops_file}"
+        fi
+    else
+        local cfsak_kw
+        get_struct_members "${cfsak_entry_var_name}" \
+                           AKBE_KEYWORDS_IDX cfsak_kw
+        if [[ state -eq s_unstable && -n ${cfsak_kw} ]]; then
+            # update entry to drop keywords
+            echo "u ${qpkg} z kw" >>"${accept_keywords_ops_file}"
+        elif [[ state -eq s_unknown && ${cfsak_kw} != '**' ]]; then
+            # TODO: demote to pkg warnings?
+            devel_warn_d "${warnings_dir}" \
+                "- package has no keywords, but its accept keywords entry has no ** in it" \
+                "  - package: ${qpkg}" \
+                "  - version: ${version}" \
+                "  - keywords in entry: ${cfsak_kw}"
+        fi
+    fi
 }
 
 function store_used_eclasses() {
@@ -2562,10 +2966,16 @@ function kvr_read_reports() {
                     continue
                     ;;
                 "${SDK_PKGS}:amd64")
-                    report_file="${WORKDIR}/pkg-reports/new/${report}-kv"
+                    report_file="${WORKDIR}/pkg-reports-regen/new/${report}-kv"
+                    if [[ ! -e ${report_file} ]]; then
+                        report_file="${WORKDIR}/pkg-reports/new/${report}-kv"
+                    fi
                     ;;
                 "${BOARD_PKGS}:"*)
-                    report_file="${WORKDIR}/pkg-reports/new/${arch}-${report}-kv"
+                    report_file="${WORKDIR}/pkg-reports-regen/new/${arch}-${report}-kv"
+                    if [[ ! -e ${report_file} ]]; then
+                        report_file="${WORKDIR}/pkg-reports/new/${arch}-${report}-kv"
+                    fi
                     ;;
                 *)
                     local c=${report}:${arch}
@@ -2618,6 +3028,23 @@ function kvr_read_reports() {
     done
 }
 
+declare_enum \
+    RNET_TEMPLATE \
+    RNET_IGNORE \
+    RNET_MANUAL
+
+declare_enum \
+    RNE_TYPE_IDX \
+    RNE_MSG_OR_TEMPLATE_IDX
+
+function rn_entry_declare() {
+    struct_declare -ga "${@}" "( 'RNET_IGNORE' '' )"
+}
+
+function rn_entry_unset() {
+    struct_unset --- "${@}"
+}
+
 # Reads the reports, does consistency checks, runs jobs to process all
 # the packages, and writes out reports into the reports directory.
 #
@@ -2626,10 +3053,18 @@ function kvr_read_reports() {
 # 1 - name of the renames map variable
 # 2 - name of the package tags map mvm variable
 function handle_package_changes() {
+    local abort=''
+    local abort_file=/dev/null
+    if [[ ${1:-} = '--abort-on-accept-keyword-changes' ]]; then
+        abort=x
+        abort_file=${2}
+        shift 2
+    fi
     local -n renamed_old_to_new_map_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local -n used_licenses_set_ref=${1}; shift
     local -n used_eclasses_set_ref=${1}; shift
+    local ak_var_name=${1}; shift
 
     # shellcheck source=for-shellcheck/globals
     source "${WORKDIR}/globals"
@@ -2646,15 +3081,54 @@ function handle_package_changes() {
     # map[package]map[slot]string (string being "min version:max version")
     mvm_declare hpc_old_pkg_slot_verminmax_map_mvm mvm_mvc_map
     mvm_declare hpc_new_pkg_slot_verminmax_map_mvm mvm_mvc_map
-    consistency_checks old hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_old_pkg_slot_verminmax_map_mvm
-    consistency_checks new hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_new_pkg_slot_verminmax_map_mvm
+    consistency_checks old hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_old_pkg_slot_verminmax_map_mvm "${ak_var_name}"
+    consistency_checks new hpc_all_pkgs hpc_pkg_slots_set_mvm hpc_new_pkg_slot_verminmax_map_mvm "${ak_var_name}"
 
     unset_report_mvms
+
+    if [[ -n ${abort} ]] && accept_keywords_is_modified "${ak_var_name}"; then
+        echo x >"${abort_file}"
+        mvm_unset hpc_pkg_slots_set_mvm
+        mvm_unset hpc_old_pkg_slot_verminmax_map_mvm
+        mvm_unset hpc_new_pkg_slot_verminmax_map_mvm
+        # remove warnings and manual work needed files from reports
+        rm -f "${REPORTS_DIR}"/{manual-work-needed,warnings}
+        return 0
+    fi
 
     info "reading package key-value reports"
 
     kvr_declare hpc_pkg_key_values
     kvr_read_reports hpc_pkg_key_values
+
+    info "reading changelog templates"
+
+    local match='' type_or_template='' rest='' hpc_entry_name
+    local -i rn_type=RNET_IGNORE
+    local rn_msg_or_template
+    local -A hpc_changelog_templates_map=()
+    while read -r match type_or_template rest; do
+        gen_varname hpc_entry_name
+        rn_entry_declare "${hpc_entry_name}"
+        case ${type_or_template} in
+            '!IGNORE!')
+                rn_type=RNET_IGNORE
+                rn_msg_or_template=''
+                ;;
+            '!MANUAL!')
+                rn_type=RNET_MANUAL
+                rn_msg_or_template=${rest}
+                ;;
+            *)
+                rn_type=RNET_TEMPLATE
+                rn_msg_or_template=${type_or_template}
+                ;;
+        esac
+        assign_struct_members "${hpc_entry_name}" \
+                              RNE_TYPE_IDX "${rn_type}" \
+                              RNE_MSG_OR_TEMPLATE_IDX "${rn_msg_or_template}"
+        hpc_changelog_templates_map["${match}"]=${hpc_entry_name}
+    done <"${PKG_AUTO_IMPL_DIR}/release-notes-templates"
 
     info "preparing for handling package changes"
 
@@ -2753,8 +3227,10 @@ function handle_package_changes() {
     hpc_bunch_of_maps[BOM_NEW_PKG_SLOT_VERMINMAX_MAP_MVM_IDX]=hpc_new_pkg_slot_verminmax_map_mvm
     hpc_bunch_of_maps[BOM_OLD_PKG_SOURCES_MAP_IDX]=hpc_old_package_sources_map
     hpc_bunch_of_maps[BOM_NEW_PKG_SOURCES_MAP_IDX]=hpc_new_package_sources_map
-    hpc_bunch_of_maps[BOM_DIFF_LIB_FILTERS_IDX]="${hpc_diff_lib_filters_name}"
+    hpc_bunch_of_maps[BOM_DIFF_LIB_FILTERS_IDX]=${hpc_diff_lib_filters_name}
     hpc_bunch_of_maps[BOM_KVR_REPORTS_IDX]=hpc_pkg_key_values
+    hpc_bunch_of_maps[BOM_ACCEPT_KEYWORDS_IDX]=${ak_var_name}
+    hpc_bunch_of_maps[BOM_CHANGELOG_TEMPLATES_IDX]=hpc_changelog_templates_map
 
     # We will be spawning as many jobs below as there are available
     # processors/cores. Each job has its own work directory and will
@@ -3034,6 +3510,10 @@ function handle_package_changes() {
     local some_job_failed='' hpc_filename license eclass
     local -i hpc_rv
     truncate --size=0 "${REPORTS_DIR}/updates/summary_stubs" "${REPORTS_DIR}/updates/changelog_stubs"
+
+    local -a ak_op_fields ak_op_qpkg ak_op ak_op_val ak_op_member_mnemonic
+    local -i ak_op_idx ak_op_member
+    local hpc_ak_entry_var_name
     for pkg_job_state_name in "${pkg_job_state_names[@]}"; do
         local -n pkg_job_state_ref=${pkg_job_state_name}
         pkg_job_name=${pkg_job_state_ref[PJS_JOB_IDX]}
@@ -3057,6 +3537,55 @@ function handle_package_changes() {
             basename_out "${file}" hpc_filename
             cat "${file}" >>"${REPORTS_DIR}/${hpc_filename}"
         done
+        if [[ -e ${pkg_job_dir}/updates/ak-ops ]]; then
+            while read -r -a ak_op_fields; do
+                if [[ ${#ak_op_fields[@]} -eq 0 ]]; then
+                    continue
+                fi
+                case ${ak_op_fields[0]} in
+                    'r')
+                        ak_op_qpkg=${ak_op_fields[1]}
+                        accept_keywords_remove "${ak_var_name}" "${ak_op_qpkg}"
+                        ;;
+                    'u')
+                        ak_op_qpkg=${ak_op_fields[1]}
+                        accept_keywords_get "${ak_var_name}" "${ak_op_qpkg}" hpc_ak_entry_var_name
+                        if [[ -z ${hpc_ak_entry_var_name} ]]; then
+                            fail "no accept keywords entry for ${ak_op_qpkg} to update"
+                        fi
+                        ak_op_idx=2
+                        while [[ ak_op_idx -lt ${#ak_op_fields[@]} ]]; do
+                            ak_op=${ak_op_fields[ak_op_idx]}
+                            case ${ak_op} in
+                                'z')
+                                    if [[ $((ak_op_idx + 1)) -ge ${#ak_op_fields[@]} ]]; then
+                                        fail "truncated update zeroing operation"
+                                    fi
+                                    ak_op_member_mnemonic=${ak_op_fields[$((ak_op_idx+1))]}
+                                    ak_op_val=''
+                                    ak_op_idx=$((ak_op_idx+2))
+                                    ;;
+                                *)
+                                    fail "unknown update operation ${ak_op}"
+                            esac
+                            case ${ak_op_member_mnemonic} in
+                                'kw')
+                                    ak_op_member=AKBE_KEYWORDS_IDX
+                                    ;;
+                                *)
+                                    fail "unknown mnemonic ${ak_op_member_mnemonic}"
+                                    ;;
+                            esac
+                            assign_struct_members "${hpc_ak_entry_var_name}" \
+                                                  ak_op_member "${ak_op_val}"
+                            accept_keywords_mark_as_modified "${ak_var_name}"
+                        done
+                        ;;
+                    *) fail "unknown accept keywords operation ${ak_op_fields[*]@Q}";;
+                esac
+            done <"${pkg_job_dir}/updates/ak-ops"
+            rm -f "${pkg_job_dir}/updates/ak-ops"
+        fi
         for file in "${pkg_job_dir}/updates/"*; do
             basename_out "${file}" hpc_filename
             if [[ -f ${file} ]]; then
@@ -3077,6 +3606,8 @@ function handle_package_changes() {
     bunch_of_maps_unset hpc_bunch_of_maps
 
     diff_lib_filters_unset "${hpc_diff_lib_filters_name}"
+
+    map_single_unset hpc_changelog_templates_map -- rn_entry_unset
 
     kvr_unset hpc_pkg_key_values
 
@@ -3123,13 +3654,20 @@ function get_first_from_set() {
 # 6 - old version
 # 7 - new version
 function handle_pkg_update() {
-    local -n package_output_paths_ref=${1}; shift
+    local package_output_paths_name=${1}; shift
     local -n diff_report_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
+    local changelog_templates_map_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
     local new=${1}; shift
+
+    local hpu_out_dir hpu_out_dir_non_slot hpu_top_out_dir
+    get_struct_members "${package_output_paths_name}" \
+                       POP_PKG_SLOT_OUT_DIR_IDX hpu_out_dir \
+                       POP_PKG_OUT_DIR_IDX hpu_out_dir_non_slot \
+                       POP_OUT_DIR_IDX hpu_top_out_dir
 
     local old_no_r=${old%-r+([0-9])}
     local new_no_r=${new%-r+([0-9])}
@@ -3144,34 +3682,34 @@ function handle_pkg_update() {
     lines+=( "${diff_lines_ref[@]}" )
     unset -n diff_lines_ref
 
-    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
     # check if generate_ebuild_diff generated anything
-    if [[ -s "${out_dir}/ebuild.diff" ]]; then
+    if [[ -s "${hpu_out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
-    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
     # check if generate_non_ebuild_diffs generated anything
-    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
+    if [[ -s "${hpu_out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( '0:TODO: review occurrences' )
-    if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( '0:TODO: review occurrences-for-old-name' )
-    fi
+    local occurrences
+    for occurrences in ${hpu_out_dir_non_slot}/occurrences*; do
+        lines+=( "0:TODO: review ${occurrences##*/}" )
+    done
 
     local -a hpu_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpu_tags
 
-    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
-
-    if [[ ${old_pkg%%/*} != 'virtual' && ${new_pkg%%/*} != 'virtual' ]] && \
-           ver_test "${new_no_r}" -gt "${old_no_r}"; then
+    if ver_test "${new_no_r}" -gt "${old_no_r}"; then
         # version bump
-        generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpu_tags[@]}"
-        lines+=( '0:release notes: TODO' )
+        local hpu_add_todo=''
+        generate_changelog_entry_stub "${package_output_paths_name}" "${new_pkg}" "${new_no_r}" "${changelog_templates_map_name}" hpu_add_todo "${hpu_tags[@]}"
+        if [[ -n ${hpu_add_todo} ]]; then
+            lines+=( '0:release notes: TODO' )
+        else
+            lines+=( '0:release notes added to changelog' )
+        fi
     fi
 
-    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${hpu_top_out_dir}" "${new_pkg}" "${hpu_tags[@]}" -- "${lines[@]}"
 }
 
 # Write information to reports directory about the modified package
@@ -3190,13 +3728,20 @@ function handle_pkg_update() {
 #     has changed (empty means nothing changed, non-empty means
 #     something has changed)
 function handle_pkg_as_is() {
-    local -n package_output_paths_ref=${1}; shift
+    local package_output_paths_name=${1}; shift
     local -n diff_report_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local v=${1}; shift
     local -n changed_ref=${1}; shift
+
+    local hpai_out_dir hpai_out_dir_non_slot hpai_top_out_dir
+    get_struct_members "${package_output_paths_name}" \
+                       POP_PKG_SLOT_OUT_DIR_IDX hpai_out_dir \
+                       POP_PKG_OUT_DIR_IDX hpai_out_dir_non_slot \
+                       POP_OUT_DIR_IDX hpai_top_out_dir
+
 
     local pkg_name=${new_pkg#/}
     local -a lines=( "0:still at ${v}" )
@@ -3211,37 +3756,35 @@ function handle_pkg_as_is() {
     local -n diff_lines_ref=${diff_report_ref[DR_LINES_IDX]}
     if [[ ${#diff_lines_ref[@]} -gt 0 ]]; then
         lines+=( "${diff_lines_ref[@]}" )
-        modified=x
     fi
     unset -n diff_lines_ref
 
-    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
     # check if generate_ebuild_diff generated anything
-    if [[ -s "${out_dir}/ebuild.diff" ]]; then
+    if [[ -s "${hpai_out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
         modified=x
     fi
-    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
     # check if generate_non_ebuild_diffs generated anything
-    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
+    if [[ -s "${hpai_out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
-        modified=x
+        # don't mark it as modified - if ebuild hasn't changed or
+        # version was not bumped, the used patches didn't change
+        # either, so there isn't anything interesting to report in
+        # other.diff
     fi
     if [[ -z ${renamed} ]] && [[ -z ${modified} ]]; then
         # Nothing relevant has changed, return early.
         return 0
     fi
     changed_ref=x
-    lines+=( '0:TODO: review occurrences' )
-    if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( '0:TODO: review occurrences-for-old-name' )
-    fi
-
-    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
+    local occurrences
+    for occurrences in ${hpai_out_dir_non_slot}/occurrences*; do
+        lines+=( "0:TODO: review ${occurrences##*/}" )
+    done
 
     local -a hpai_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpai_tags
-    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${hpai_top_out_dir}" "${new_pkg}" "${hpai_tags[@]}" -- "${lines[@]}"
 }
 
 # Write information to reports directory about the package downgrade
@@ -3258,13 +3801,21 @@ function handle_pkg_as_is() {
 # 6 - old version
 # 7 - new version
 function handle_pkg_downgrade() {
-    local -n package_output_paths_ref=${1}; shift
+    local package_output_paths_name=${1}; shift
     local -n diff_report_ref=${1}; shift
     local pkg_to_tags_mvm_var_name=${1}; shift
+    local changelog_templates_map_name=${1}; shift
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
     local old=${1}; shift
     local new=${1}; shift
+
+    local hpd_out_dir hpd_out_dir_non_slot hpd_top_out_dir
+    get_struct_members "${package_output_paths_name}" \
+                       POP_PKG_SLOT_OUT_DIR_IDX hpd_out_dir \
+                       POP_PKG_OUT_DIR_IDX hpd_out_dir_non_slot \
+                       POP_OUT_DIR_IDX hpd_top_out_dir
+
 
     local old_no_r=${old%-r+([0-9])}
     local new_no_r=${new%-r+([0-9])}
@@ -3279,34 +3830,34 @@ function handle_pkg_downgrade() {
     lines+=( "${diff_lines_ref[@]}" )
     unset -n diff_lines_ref
 
-    local out_dir=${package_output_paths_ref[POP_PKG_SLOT_OUT_DIR_IDX]}
     # check if generate_ebuild_diff generated anything
-    if [[ -s "${out_dir}/ebuild.diff" ]]; then
+    if [[ -s "${hpd_out_dir}/ebuild.diff" ]]; then
         lines+=( '0:TODO: review ebuild.diff' )
     fi
-    local out_dir_non_slot=${package_output_paths_ref[POP_PKG_OUT_DIR_IDX]}
     # check if generate_non_ebuild_diffs generated anything
-    if [[ -s "${out_dir_non_slot}/other.diff" ]]; then
+    if [[ -s "${hpd_out_dir_non_slot}/other.diff" ]]; then
         lines+=( '0:TODO: review other.diff' )
     fi
-    lines+=( '0:TODO: review occurrences' )
-    if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        lines+=( '0:TODO: review occurrences-for-old-name' )
-    fi
+    local occurrences
+    for occurrences in ${hpd_out_dir_non_slot}/occurrences*; do
+        lines+=( "0:TODO: review ${occurrences##*/}" )
+    done
 
     local -a hpd_tags
     tags_for_pkg "${pkg_to_tags_mvm_var_name}" "${new_pkg}" hpd_tags
 
-    local top_out_dir=${package_output_paths_ref[POP_OUT_DIR_IDX]}
-
-    if [[ ${old_pkg%%/*} != 'virtual' && ${new_pkg%%/*} != 'virtual' ]] && \
-           ver_test "${new_no_r}" -lt "${old_no_r}"; then
+    if ver_test "${new_no_r}" -lt "${old_no_r}"; then
         # version bump
-        generate_changelog_entry_stub "${top_out_dir}" "${pkg_name}" "${new_no_r}" "${hpd_tags[@]}"
-        lines+=( "0:release notes: TODO" )
+        local hpd_add_todo=''
+        generate_changelog_entry_stub "${package_output_paths_name}" "${new_pkg}" "${new_no_r}" "${changelog_templates_map_name}" hpd_add_todo "${hpd_tags[@]}"
+        if [[ -n ${hpd_add_todo} ]]; then
+            lines+=( "0:release notes: TODO" )
+        else
+            lines+=( '0:release notes added to changelog' )
+        fi
     fi
 
-    generate_summary_stub "${top_out_dir}" "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
+    generate_summary_stub "${hpd_top_out_dir}" "${new_pkg}" "${hpd_tags[@]}" -- "${lines[@]}"
 }
 
 # Retrieves tags for a package.
@@ -3346,10 +3897,19 @@ function tags_for_pkg() {
 # 3 - version
 # @ - package tags
 function generate_changelog_entry_stub() {
-    local out_dir=${1}; shift
-    local pkg_name=${1}; shift
+    local package_output_paths_name=${1}; shift
+    local qpkg=${1}; shift
     local v=${1}; shift
+    local -n changelog_templates_map_ref=${1}; shift
+    local -n add_release_notes_todo_ref=${1}; shift
     # rest are tags
+
+    add_release_notes_todo_ref=''
+
+    local gces_out_dir gces_warnings_dir
+    get_struct_members "${package_output_paths_name}" \
+                       POP_OUT_DIR_IDX gces_out_dir \
+                       POP_WARNINGS_DIR_IDX gces_warnings_dir
 
     local -a applied_tags=()
     for tag; do
@@ -3371,7 +3931,157 @@ function generate_changelog_entry_stub() {
         gces_tags='SDK'
     fi
 
-    printf '%s %s: %s ([%s](TODO))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" >>"${out_dir}/changelog_stubs"
+    local category=${qpkg%/*} pkg_name=${qpkg##*/}
+    local rn_entry_name=${changelog_templates_map_ref["${qpkg}"]:-}
+    if [[ -z ${rn_entry_name} ]]; then
+        rn_entry_name=${changelog_templates_map_ref["${category}"]:-}
+    fi
+    if [[ -z ${rn_entry_name} ]]; then
+        devel_warn_d "${gces_warnings_dir}" \
+                     "- missing template for release notes:" \
+                     "  - package: ${qpkg}"
+        return 0
+    fi
+    local -i gces_type
+    local gces_msg_or_template
+    get_struct_members "${rn_entry_name}" \
+                       RNE_TYPE_IDX gces_type \
+                       RNE_MSG_OR_TEMPLATE_IDX gces_msg_or_template
+    echo "msg_or_template for ${qpkg}: ${gces_msg_or_template}"
+
+    if [[ gces_type -eq RNET_IGNORE ]]; then
+        return 0
+    fi
+    local gces_evaluated
+    evaluate_changelog_template "${gces_msg_or_template}" "${v}" gces_evaluated "${gces_warnings_dir}"
+    if [[ gces_type -eq RNET_MANUAL ]]; then
+        gces_evaluated="TODO: ${gces_evaluated}"
+        add_release_notes_todo_ref=x
+    fi
+
+    printf '%s %s: %s ([%s](%s))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" "${gces_evaluated}" >>"${gces_out_dir}/changelog_stubs"
+}
+
+function evaluate_changelog_template() {
+    local template=${1}; shift
+    local version=${1}; shift
+    local -n out_evaluated_ref=${1}; shift
+    local warnings_dir=${1}; shift
+
+    gentoo_ver_decomposed_declare ect_version
+    decompose_gentoo_version "${version}" ect_version
+
+    local ect_numbers_name ect_suffices_name ect_letter
+    local -i template_len=${#template} idx part_idx=0 part_len=0 tmp_int
+    local c2 result='' in_var='' var ect_tmpstr
+    for ((idx = 0; idx < template_len; ++idx)); do
+        c2=${template:idx:2}
+        if [[ ${c2} = "@@" ]]; then
+            if [[ -z ${in_var} ]]; then
+                part_len=$((idx - part_idx))
+                if [[ part_len -gt 0 ]]; then
+                    result+=${template:part_idx:part_len}
+                fi
+                in_var=x
+                part_idx=$((idx + 2))
+            else
+                part_len=$((idx - part_idx))
+                if [[ part_len -le 0 ]]; then
+                    devel_warn_d "${warnings_dir}" \
+                                 "- bad template string - empty template variable:" \
+                                 "  - template string: ${template}"
+                fi
+                get_struct_members ect_version \
+                                   GVD_NUMBERS_IDX ect_numbers_name \
+                                   GVD_LETTER_IDX ect_letter \
+                                   GVD_SUFFICES_IDX ect_suffices_name
+                local -n numbers_ref=${ect_numbers_name}
+                local -n suffices_ref=${ect_suffices_name}
+                var=${template:part_idx:part_len}
+                case ${var} in
+                    'VERSION_NO_UNDERLINE_PATCH')
+                        join_by ect_tmpstr '.' "${numbers_ref[@]}"
+                        result+=${ect_tmpstr}${ect_letter}
+                        join_by ect_tmpstr '' "${suffices_ref[@]}"
+                        if [[ -n ${ect_tmpstr} ]]; then
+                            result+=${ect_tmpstr}
+                        fi
+                        ;;
+                    'VERSION')
+                        join_by ect_tmpstr '.' "${numbers_ref[@]}"
+                        result+=${ect_tmpstr}${ect_letter}
+                        join_by ect_tmpstr '_' "${suffices_ref[@]}"
+                        if [[ -n ${ect_tmpstr} ]]; then
+                            result+="_${ect_tmpstr}"
+                        fi
+                        ;;
+                    'VERSION_FIRST_'*)
+                        tmp_int=${var#VERSION_FIRST_}
+                        if [[ ${#numbers_ref[@]} -le tmp_int ]]; then
+                            join_by ect_tmpstr '.' ${#numbers_ref[@]}
+                            result+=${ect_tmpstr}${ect_letter}
+                        else
+                            join_by ect_tmpstr '.' ${numbers_ref[@]:0:tmp_int}
+                            result+=${ect_tmpstr}
+                        fi
+                        ;;
+                    'VERSION_DASH')
+                        join_by ect_tmpstr '-' "${numbers_ref[@]}"
+                        result+=${ect_tmpstr}${ect_letter}
+                        join_by ect_tmpstr '-' "${suffices_ref[@]}"
+                        if [[ -n ${ect_tmpstr} ]]; then
+                            result+="-${ect_tmpstr}"
+                        fi
+                        ;;
+                    'VERSION_UNDERLINE')
+                        join_by ect_tmpstr '_' "${numbers_ref[@]}"
+                        result+=${ect_tmpstr}${ect_letter}
+                        join_by ect_tmpstr '_' "${suffices_ref[@]}"
+                        if [[ -n ${ect_tmpstr} ]]; then
+                            result+="-${ect_tmpstr}"
+                        fi
+                        ;;
+                    'VERSION_NO_DOTS')
+                        join_by ect_tmpstr '' "${numbers_ref[@]}"
+                        result+=${ect_tmpstr}${ect_letter}
+                        join_by ect_tmpstr '' "${suffices_ref[@]}"
+                        if [[ -n ${ect_tmpstr} ]]; then
+                            result+="-${ect_tmpstr}"
+                        fi
+                        ;;
+                    'VERSION_NO_P')
+                        join_by ect_tmpstr '.' "${numbers_ref[@]}"
+                        result+=${ect_tmpstr}${ect_letter}
+                        ;;
+                    'VERSION_NO_P_DASH')
+                        join_by ect_tmpstr '-' "${numbers_ref[@]}"
+                        result+=${ect_tmpstr}${ect_letter}
+                        ;;
+                    *)
+                        devel_warn_d "${warnings_dir}" \
+                                     "- bad template string - unknown substitution variable:" \
+                                     "  - template string: ${template}" \
+                                     "  - variable: ${var}"
+                        ;;
+                esac
+                unset -n suffices_ref numbers_ref
+                in_var=''
+                part_idx=$((idx + 2))
+            fi
+            ((++idx))
+        fi
+    done
+    gentoo_ver_decomposed_unset ect_version
+    if [[ -n ${in_var} ]]; then
+        devel_warn_d "${warnings_dir}" \
+                     "- bad template string - unterminated substitution variable:" \
+                     "  - template string: ${template}"
+    fi
+    part_len=$((idx - part_idx))
+    if [[ part_len -gt 0 ]]; then
+        result+=${template:part_idx:part_len}
+    fi
+    out_evaluated_ref=${result}
 }
 
 # Adds a stub to the summary file in reports directory.
@@ -3502,7 +4212,25 @@ function generate_ebuild_diff() {
     local old_path="${old_ps}/${old_pkg}/${old_pkg_name}-${old}.ebuild"
     local new_path="${new_ps}/${new_pkg}/${new_pkg_name}-${new}.ebuild"
 
-    xdiff --unified=3 "${old_path}" "${new_path}" >"${out_dir}/ebuild.diff"
+    local old_ebuild=old/${old_pkg_name}-${old}.ebuild
+    local new_ebuild=old/${new_pkg_name}-${new}.ebuild
+
+    mkdir "${out_dir}/old" "${out_dir}/new"
+
+    # drop keyword diff
+    sed -e 's/^\([[:space:]]*KEYWORDS=\).*/\1""/' "${old_path}" >"${out_dir}/${old_ebuild}"
+    sed -e 's/^\([[:space:]]*KEYWORDS=\).*/\1""/' "${new_path}" >"${out_dir}/${new_ebuild}"
+
+    # TODO: drop diffs for dependencies? We still want to know if the
+    # dependencies changed in the ebuild, not in the eclass. This is
+    # because we don't want to add any report for a package that is
+    # completely unchanged, but its deps have changed, because the
+    # eclass it uses was changed.
+
+    pushd "${out_dir}" >/dev/null 2>/dev/null
+    xdiff --unified=3 "${old_ebuild}" "${new_ebuild}" >"${out_dir}/ebuild.diff"
+    popd >/dev/null 2>/dev/null
+    xdiff --unified=3 "${old_path}" "${new_path}" >"${out_dir}/unfiltered-ebuild.diff"
 }
 
 function evaluate_licenses() {
@@ -3580,10 +4308,10 @@ function generate_package_mention_reports() {
     local old_pkg=${1}; shift
     local new_pkg=${1}; shift
 
-    generate_mention_report_for_package "${scripts}" "${new_pkg}" >"${out_dir}/occurrences"
+    generate_mention_report_for_package "${scripts}" "${new_pkg}" "${out_dir}" ''
 
     if [[ ${old_pkg} != "${new_pkg}" ]]; then
-        generate_mention_report_for_package "${scripts}" "${old_pkg}" >"${out_dir}/occurrences-for-old-name"
+        generate_mention_report_for_package "${scripts}" "${old_pkg}" "${out_dir}" 'for-old-name'
     fi
 }
 
@@ -3593,45 +4321,108 @@ function generate_package_mention_reports() {
 # 1 - path to scripts repo
 # 3 - package name
 function generate_mention_report_for_package() {
-    local scripts pkg
-    scripts=${1}; shift
-    pkg=${1}; shift
+    local scripts=${1}; shift
+    local pkg=${1}; shift
+    local out_dir=${1}; shift
+    local suffix=${1}; shift
+
+    if [[ -n ${suffix} ]]; then
+        suffix="-${suffix}"
+    fi
 
     local ps co
     ps='sdk_container/src/third_party/gentoo'
     co='sdk_container/src/third_party/coreos-overlay'
 
-    yell "${pkg} in overlay profiles"
-    grep_pkg "${scripts}" "${pkg}" "${co}/profiles"
+    local tmp_output tmp_output2 out
+    tmp_output=$(mktemp)
+    tmp_output2=$(mktemp)
 
-    yell "${pkg} in Gentoo profiles"
-    grep_pkg "${scripts}" "${pkg}" "${ps}/profiles"
+    out=${out_dir}/occurrences-in-overlay${suffix}
+    {
+        grep_pkg "${scripts}" "${pkg}" "${co}/profiles" >${tmp_output}
+        if [[ -s ${tmp_output} ]]; then
+            yell "${pkg} in overlay profiles"
+            cat "${tmp_output}"
+        fi
+
+        grep_pkg "${scripts}" "${pkg}" "${co}" ":(exclude)${co}/profiles" ":(exclude)${co}/metadata/md5-cache" >${tmp_output}
+        if [[ -s ${tmp_output} ]]; then
+            yell "${pkg} in overlay (outside profiles)"
+            cat "${tmp_output}"
+        fi
+    } >${out}
+    if [[ ! -s ${out} ]]; then
+        rm -f ${out}
+    fi
 
     # shellcheck disable=SC2164 # we use set -e, so the script will exit if it fails
     pushd "${scripts}/${co}" >/dev/null
 
-    yell "${pkg} in env overrides"
-    cat_entries "coreos/config/env/${pkg}"@(|-+([0-9])*)
+    out=${out_dir}/occurrences-in-env-overrides${suffix}
+    {
+        cat_entries "coreos/config/env/${pkg}"@(|-+([0-9])*) >${tmp_output}
+        if [[ -s ${tmp_output} ]]; then
+            yell "${pkg} in env overrides"
+            cat "${tmp_output}"
+        fi
+    } >${out}
+    if [[ ! -s ${out} ]]; then
+        rm -f ${out}
+    fi
 
-    yell "${pkg} in user patches"
-    local dir
-    for dir in "coreos/user-patches/${pkg}"@(|-+([0-9])*); do
-        echo "BEGIN DIRECTORY: ${dir}"
-        cat_entries "${dir}"/*
-        echo "END DIRECTORY: ${dir}"
-    done
+    out=${out_dir}/occurrences-in-user-patches${suffix}
+    {
+        local dir
+        for dir in "coreos/user-patches/${pkg}"@(|-+([0-9])*); do
+            cat_entries "${dir}"/* >${tmp_output2}
+            if [[ -s ${tmp_output2} ]]; then
+                echo "BEGIN DIRECTORY: ${dir}"
+                cat "${tmp_output2}"
+                echo "END DIRECTORY: ${dir}"
+            fi
+        done >${tmp_output}
+        if [[ -s ${tmp_output} ]]; then
+            yell "${pkg} in user patches"
+            cat ${tmp_output}
+        fi
+    } >${out}
+    if [[ ! -s ${out} ]]; then
+        rm -f ${out}
+    fi
 
     # shellcheck disable=SC2164 # we use set -e, so the script will exit if it fails
     popd >/dev/null
 
-    yell "${pkg} in overlay (outside profiles)"
-    grep_pkg "${scripts}" "${pkg}" "${co}" ":(exclude)${co}/profiles"
+    out=${out_dir}/occurrences-in-gentoo${suffix}
+    {
+        grep_pkg "${scripts}" "${pkg}" "${ps}/profiles" >${tmp_output}
+        if [[ -s ${tmp_output} ]]; then
+            yell "${pkg} in Gentoo profiles"
+            cat "${tmp_output}"
+        fi
 
-    yell "${pkg} in Gentoo (outside profiles)"
-    grep_pkg "${scripts}" "${pkg}" "${ps}" ":(exclude)${ps}/profiles"
+        grep_pkg "${scripts}" "${pkg}" "${ps}" ":(exclude)${ps}/profiles" ":(exclude)${ps}/metadata/md5-cache" >${tmp_output}
+        if [[ -s ${tmp_output} ]]; then
+            yell "${pkg} in Gentoo (outside profiles)"
+            cat "${tmp_output}"
+        fi
+    } >${out}
+    if [[ ! -s ${out} ]]; then
+        rm -f ${out}
+    fi
 
-    yell "${pkg} in scripts (outside overlay and Gentoo)"
-    grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}" ":(exclude)${co}"
+    out=${out_dir}/occurrences-elsewhere${suffix}
+    {
+        grep_pkg "${scripts}" "${pkg}" ":(exclude)${ps}" ":(exclude)${co}" >${tmp_output}
+        if [[ -s ${tmp_output} ]]; then
+            yell "${pkg} in scripts (outside overlay and Gentoo)"
+            cat "${tmp_output}"
+        fi
+    } >${out}
+    if [[ ! -s ${out} ]]; then
+        rm -f ${out}
+    fi
 }
 
 # Gets a slot-specific directory name for ebuild diffs.
@@ -3671,7 +4462,7 @@ function grep_pkg() {
     pkg=${1}; shift
     # rest are directories
 
-    GIT_PAGER='' git -C "${scripts}" grep "${pkg}"'\(-[0-9$]\|[^a-zA-Z0-9_-]\|$\)' -- "${@}" || :
+    GIT_PAGER='' git -C "${scripts}" grep --recurse-submodules "${pkg}"'\(-[0-9$]\|[^a-zA-Z0-9_-]\|$\)' -- "${@}" || :
 }
 
 # Prints the passed files preceding and following with BEGIN ENTRY and
@@ -3691,6 +4482,14 @@ function cat_entries() {
 # Reads the listings and renames, handles updates of both packages and
 # non-packages (eclasses, licenses, profiles, etc.)
 function handle_gentoo_sync() {
+    local -a abort_flags=()
+    local abort_file=/dev/null
+    if [[ ${1:-} = '--abort-on-accept-keyword-changes' ]]; then
+        abort_flags=( "${1}" "${2}" )
+        abort_file=${2}
+        shift 2
+    fi
+
     #mvm_debug_enable hgs_pkg_to_tags_mvm
     mvm_declare hgs_pkg_to_tags_mvm
     process_listings hgs_pkg_to_tags_mvm
@@ -3703,12 +4502,21 @@ function handle_gentoo_sync() {
 
     mkdir -p "${REPORTS_DIR}/updates"
 
+    local ak_in_repo_path='profiles/coreos/base/package.accept_keywords'
+    accept_keywords_declare hgs_ak
+    accept_keywords_parse hgs_ak "${NEW_COREOS_OVERLAY}/${ak_in_repo_path}"
+
     local -A hgs_used_licenses_set=()
     local -A hgs_used_eclasses_set=()
-    handle_package_changes hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_set hgs_used_eclasses_set
+    handle_package_changes "${abort_flags[@]}" hgs_renames_old_to_new_map hgs_pkg_to_tags_mvm hgs_used_licenses_set hgs_used_eclasses_set hgs_ak
 
     mvm_unset hgs_pkg_to_tags_mvm
     #mvm_debug_disable hgs_pkg_to_tags_mvm
+
+    if [[ -s ${abort_file} ]]; then
+        write_and_commit_accept_keywords hgs_ak "${NEW_STATE}" "${COREOS_OVERLAY_SUFFIX}" "${ak_in_repo_path}"
+        return 0
+    fi
 
     local old_head new_head
     old_head=$(git -C "${OLD_STATE}" rev-parse HEAD)
@@ -3779,10 +4587,38 @@ function handle_gentoo_sync() {
                 ;;
         esac
     done
+
+    if ! accept_keywords_is_modified hgs_ak; then
+        write_and_commit_accept_keywords hgs_ak "${NEW_STATE}" "${COREOS_OVERLAY_SUFFIX}" "${ak_in_repo_path}"
+    fi
+
+    accept_keywords_unset hgs_ak
+
     sort_summary_stubs
     sort_changelog_stubs
 
     save_new_state "${NEW_BASE}"
+}
+
+function write_and_commit_accept_keywords {
+    local ak_var_name=${1}; shift
+    local state_dir=${1}; shift
+    local suffix=${1}; shift
+    local in_suffix=${1}; shift
+
+    info "writing accept keywords file"
+
+    local -x "${GIT_ENV_VARS[@]}"
+    setup_git_env
+
+    accept_keywords_write "${ak_var_name}" "${state_dir}/${suffix}/${in_suffix}"
+    local ak_status
+    ak_status=$(git -C "${state_dir}" status --porcelain "${suffix}/${in_suffix}")
+    if [[ -n ${ak_status} ]]; then
+        info "committing changes in accept keywords file"
+        git -C "${state_dir}" add "${suffix}/${in_suffix}"
+        git -C "${state_dir}" commit --quiet --signoff --message "overlay profiles: Update accept keywords"
+    fi
 }
 
 # Sorts entries in the summary file if it exists.
@@ -3897,15 +4733,6 @@ function sort_like_changelog_stubs() {
     mv -f "${t}" "${f}"
 }
 
-# Invokes sort with C locale. Meant to be used in bash pipelines.
-#
-# Params:
-#
-# @ - additional parameters to passed to sort
-function csort() {
-    LC_ALL=C sort "${@}"
-}
-
 # Handle an eclass update. Basically generate a diff.
 #
 # Params:
@@ -3923,8 +4750,14 @@ function handle_eclass() {
     local -a lines
     lines=()
     if [[ -e "${OLD_GENTOO}/${eclass}" ]] && [[ -e "${NEW_GENTOO}/${eclass}" ]]; then
+        local f="${REPORTS_DIR}/updates/${eclass}/eclass.diff"
         mkdir -p "${REPORTS_DIR}/updates/${eclass}"
-        xdiff --unified=3 "${OLD_GENTOO}/${eclass}" "${NEW_GENTOO}/${eclass}" >"${REPORTS_DIR}/updates/${eclass}/eclass.diff"
+        xdiff --unified=3 "${OLD_GENTOO}/${eclass}" "${NEW_GENTOO}/${eclass}" >"${f}"
+        if [[ ! -s ${f} ]]; then
+            rm -f "${f}"
+            rmdir "${REPORTS_DIR}/updates/${eclass}"
+            return 0
+        fi
         lines+=( '0:TODO: review the diff' )
     elif [[ -e "${OLD_GENTOO}/${eclass}" ]]; then
         lines+=( '0:unused, dropped' )
@@ -3947,9 +4780,17 @@ function handle_profiles() {
     local -a files=()
     local which arch
     for which in "${WHICH[@]}"; do
-        files+=("${WORKDIR}/pkg-reports/${which}/sdk-profiles")
+        if [[ -e "${WORKDIR}/pkg-reports-regen/${which}/sdk-profiles" ]]; then
+            files+=("${WORKDIR}/pkg-reports-regen/${which}/sdk-profiles")
+        else
+            files+=("${WORKDIR}/pkg-reports/${which}/sdk-profiles")
+        fi
         for arch in "${ARCHES[@]}"; do
-            files+=("${WORKDIR}/pkg-reports/${which}/${arch}-board-profiles")
+            if [[ -e "${WORKDIR}/pkg-reports-regen/${which}/${arch}-board-profiles" ]]; then
+                files+=("${WORKDIR}/pkg-reports-regen/${which}/${arch}-board-profiles")
+            else
+                files+=("${WORKDIR}/pkg-reports/${which}/${arch}-board-profiles")
+            fi
         done
     done
     local -A profile_dirs_set
@@ -4055,6 +4896,10 @@ function handle_licenses() {
                 "  - ${line}"
         fi
     done < <(xdiff --brief --recursive "${OLD_GENTOO}/licenses" "${NEW_GENTOO}/licenses")
+
+    if [[ ${#dropped[@]} -eq 0 && ${#added[@]} -eq 0 && ${#changed[@]} -eq 0 ]]; then
+        return 0
+    fi
 
     local out_dir
     out_dir="${REPORTS_DIR}/updates/licenses"

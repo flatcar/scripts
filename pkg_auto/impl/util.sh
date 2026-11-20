@@ -334,6 +334,238 @@ function struct_declare() {
     declare "${args[@]}" "${@}"
 }
 
+function declare_enum() {
+    local -a for_declare=()
+    local idx_name
+    local -i idx=0
+    for idx_name; do
+        for_declare+=( "${idx_name}=${idx}" )
+        ((++idx))
+    done
+    declare -gri "${for_declare[@]}"
+}
+
+function struct_unset() {
+    if [[ ${1} = '---' ]]; then
+        shift
+    else
+        local -a pairs=()
+        while [[ ${1} != '---' ]]; do
+            pairs+=( "${1}" )
+            shift
+        done
+        shift # remove ---
+        local item_var_name idx_name desc unset_func member
+        local -i idx len=${#pairs[@]} item_idx
+        for item_var_name; do
+            local -n item_ref=${item_var_name}
+            for ((idx=0; idx < len; idx = idx + 2)); do
+                idx_name=${pairs[idx]}
+                item_idx=${!idx_name}
+                member=${item_ref[item_idx]}
+                desc=${pairs[$((idx + 1))]}
+                case ${desc} in
+                    '-a'*)
+                        if [[ ${member} != 'EMPTY_ARRAY' ]]; then
+                            unset_func=${desc:2}
+                            if [[ ${unset_func} != '--' ]]; then
+                                local -n array_ref=${member}
+                                "${unset_func}" "${array_ref[@]}"
+                                unset -n array_ref
+                            fi
+                            unset "${member}"
+                        fi
+                        ;;
+                    '-A'*)
+                        if [[ ${member} != 'EMPTY_MAP' ]]; then
+                            unset_func=${desc:2}
+                            if [[ ${unset_func} != '--' ]]; then
+                                local -n map_ref=${member}
+                                "${unset_func}" "${map_ref[@]}"
+                                unset -n map_ref
+                            fi
+                            unset "${member}"
+                        fi
+                        ;;
+                    '--')
+                        # simple scalar, nothing to do
+                        :
+                        ;;
+                    *)
+                        unset_func=${desc}
+                        "${unset_func}" "${member}"
+                        ;;
+                esac
+            done
+        done
+    fi
+
+    unset "${@}"
+}
+
+function array_single_unset() {
+    local var_name=${1}; shift
+    local unset_elem=${1}; shift
+    if [[ ${var_name} == 'EMPTY_ARRAY' ]]; then
+        return 0
+    fi
+    local -n ref=${var_name}
+    if [[ ${unset_elem} != '--' ]]; then
+        "${unset_elem}" "${ref[@]}"
+    fi
+    unset -n ref
+    unset "${var_name}"
+}
+
+function map_single_unset() {
+    local var_name=${1}; shift
+    local key_unset=${1}; shift
+    local value_unset=${1}; shift
+    if [[ ${var_name} == 'EMPTY_MAP' ]]; then
+        return 0
+    fi
+    local -n ref=${var_name}
+    if [[ ${key_unset} != '--' ]]; then
+        "${key_unset}" "${!ref[@]}"
+    fi
+    if [[ ${value_unset} != '--' ]]; then
+        "${value_unset}" "${ref[@]}"
+    fi
+    unset -n ref
+    unset "${var_name}"
+}
+
+function assign_struct_members() {
+    local -n ref=${1}; shift
+    local -i idx
+    local item
+    while [[ ${#} -gt 1 ]]; do
+        idx=${!1}
+        item=${2}
+        shift 2
+        ref[idx]=${item}
+    done
+}
+
+function copy_structs() {
+    local -n dest_ref=${1}; shift
+    local -n src_ref=${1}; shift
+
+    local -i idx
+    local funcs val cs_container_var_name item item2 cs_item_var_name
+    local declare_func copy_func declare_func2 copy_func2 func_pair1 func_pair2
+    while [[ ${#} -gt 1 ]]; do
+        idx=${!1}
+        funcs=${2}
+        shift 2
+        val=${src_ref[idx]}
+        case ${funcs} in
+            '-a'*)
+                funcs=${funcs:2}
+                local -n src_array_ref=${val}
+                if [[ ${#src_array_ref[@]} -eq 0 ]]; then
+                    cs_container_var_name='EMPTY_ARRAY'
+                else
+                    gen_varname cs_container_var_name
+                    if [[ ${funcs} = '--' ]]; then
+                        declare -ga "${cs_container_var_name}=( ${src_array_ref[*]@Q} )"
+                    else
+                        declare_func=${funcs%%,*}
+                        copy_func=${funcs#*,}
+                        declare -ga "${cs_container_var_name}=()"
+                        local -n dest_array_ref=${cs_container_var_name}
+                        for item in "${src_array_ref[@]}"; do
+                            gen_varname cs_item_var_name
+                            "${declare_func}" "${cs_item_var_name}"
+                            "${copy_func}" "${cs_item_var_name}" "${item}"
+                            dest_array_ref+=( "${cs_item_var_name}" )
+                        done
+                        unset -n dest_array_ref
+                    fi
+                fi
+                unset -n src_array_ref
+                dest_ref[idx]=${cs_container_var_name}
+                ;;
+            '-A'*)
+                funcs=${funcs:2}
+                local -n src_map_ref=${val}
+                if [[ ${#src_map_ref[@]} ]]; then
+                    cs_container_var_name='EMPTY_MAP'
+                else
+                    gen_varname cs_container_var_name
+                    declare -gA "${cs_container_var_name}=()"
+                    local -n dest_map_ref=${cs_container_var_name}
+                    if [[ ${funcs} = '--' ]]; then
+                        for item in "${!src_map_ref[@]}"; do
+                            item2=${src_map_ref["${item}"]}
+                            dest_map_ref["${item}"]=${item2}
+                        done
+                    else
+                        declare_func=${funcs%%,*}
+                        copy_func=${funcs#*,}
+                        for item in "${!src_map_ref[@]}"; do
+                            item2=${src_map_ref["${item}"]}
+                            gen_varname cs_item_var_name
+                            "${declare_func}" "${cs_item_var_name}"
+                            "${copy_func}" "${cs_item_var_name}" "${item2}"
+                            dest_map_ref["${item}"]=${item2}
+                        done
+                    fi
+                    unset -n dest_map_ref
+                fi
+                unset -n src_map_ref
+                dest_ref[idx]=${cs_container_var_name}
+                ;;
+            '--')
+                dest_ref[idx]=${val}
+                ;;
+            *)
+                :
+                declare_func=${funcs%%,*}
+                copy_func=${funcs#*,}
+                gen_varname cs_item_var_name
+                "${declare_func}" "${cs_item_var_name}"
+                "${copy_func}" "${cs_item_var_name}" "${val}"
+                dest_ref[idx]=${cs_item_var_name}
+                ;;
+        esac
+    done
+}
+
+function get_struct_members() {
+    local -n ref=${1}; shift
+    local -i idx
+    local out_var_name
+    while [[ ${#} -gt 1 ]]; do
+        idx=${!1}
+        out_var_name=${2}
+        shift 2
+        local -n out_ref=${out_var_name}
+        out_ref=${ref[idx]}
+        unset -n out_ref
+    done
+}
+
+function array_ref_len() {
+    local -n arr=${1}; shift
+    local -n len_ref=${1}; shift
+
+    len_ref=${#arr[@]}
+}
+
+function array_ref_get() {
+    local -n arr=${1}; shift
+    local -i idx=${1}; shift
+    local -n out_ref=${1}; shift
+
+    out_ref=${arr[idx]}
+}
+
+function assign_to_ref() {
+    local -n ref=${1}; shift
+    ref=${1}
+}
+
 function get_num_proc() {
     local -n num_proc_ref=${1}; shift
     local -i num_proc=1 rv=1
@@ -405,11 +637,77 @@ function _escape_sed_impl() {
 # @ - command and parameters
 function timed_run() {
     local -n timeinfo_ref=${1}; shift
-    local -i outfd errfd
+    local -i outfd errfd rv=0
 
     exec {outfd}>&1 {errfd}>&2
-    timeinfo_ref=$(TIMEFORMAT='%3lR'; { time "${@}" 1>&${outfd} 2>&${errfd}; } 2>&1)
+    timeinfo_ref=$(TIMEFORMAT='%3lR'; { time "${@}" 1>&${outfd} 2>&${errfd}; } 2>&1) || rv=$?
     exec {outfd}>&- {errfd}>&-
+    return "${rv}"
 }
 
 fi
+
+function dump_var() {
+    local ignore_if_not_var=''
+    if [[ ${1} = '-i' ]]; then
+        ignore_if_not_var=x; shift
+    fi
+    local var_name=${1}; shift
+    local indent=''
+    if [[ ${#} -gt 0 ]]; then
+        indent=${1}; shift
+    fi
+    local name=${var_name}
+    if [[ ${#} -gt 0 ]]; then
+        name=${1}; shift
+    fi
+    local kw type assign
+    local -i rv=0
+
+    read -r kw type assign < <(declare -p "${var_name}" 2>/dev/null) || rv=${?}
+    if [[ rv -ne 0 ]]; then
+        if [[ -n ${ignore_if_not_var} ]]; then
+            return 0
+        fi
+        fail "no such variable to dump: ${var_name}"
+    fi
+
+    case ${type} in
+        '-'*'a'*) type=array;;
+        '-'*'A'*) type=map;;
+        *) type=scalar;;
+    esac
+
+    echo "${indent}${name} (${type}): ${assign#*=}"
+    case ${type} in
+        'array')
+            local -n array_ref=${var_name}
+            local array_item
+            local -i idx=0
+            for array_item in "${array_ref[@]}"; do
+                dump_var -i "${array_item}" "${indent}  " "${var_name}[${idx}]"
+                ((++idx))
+            done
+            unset -n array_ref
+            ;;
+        'map')
+            local -n map_ref=${var_name}
+            local map_key map_value
+            for map_key in "${!map_ref[@]}"; do
+                dump_var -i "${map_key}" "${indent}  " "key ${map_key} in ${var_name}"
+                map_value=${map_ref["${map_key}"]}
+                dump_var -i "${map_value}" "${indent}  " "${var_name}[${map_key}]"
+            done
+            unset -n map_ref
+            ;;
+    esac
+}
+
+# Invokes sort with C locale. Meant to be used in bash pipelines.
+#
+# Params:
+#
+# @ - additional parameters to passed to sort
+function csort() {
+    LC_ALL=C sort "${@}"
+}

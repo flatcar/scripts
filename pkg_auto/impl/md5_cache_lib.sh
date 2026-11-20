@@ -116,25 +116,17 @@ function cache_file_declare() {
 
 # Unsets cache files, can take several names, just like unset.
 function cache_file_unset() {
-    local name
-    for name; do
-        local -n cache_file_ref=${name}
-
-        __mcl_unset_array "${cache_file_ref[PCF_KEYWORDS_IDX]}" kw_unset
-        __mcl_unset_array "${cache_file_ref[PCF_IUSE_IDX]}" iuse_unset
-        __mcl_unset_array "${cache_file_ref[PCF_ECLASSES_IDX]}" unset
-
-        group_unset \
-            "${cache_file_ref[PCF_BDEPEND_IDX]}" \
-            "${cache_file_ref[PCF_DEPEND_IDX]}" \
-            "${cache_file_ref[PCF_IDEPEND_IDX]}" \
-            "${cache_file_ref[PCF_PDEPEND_IDX]}" \
-            "${cache_file_ref[PCF_RDEPEND_IDX]}" \
-            "${cache_file_ref[PCF_LICENSE_IDX]}"
-
-        unset -n cache_file_ref
-    done
-    unset "${@}"
+    struct_unset \
+        PCF_KEYWORDS_IDX -akw_unset \
+        PCF_IUSE_IDX -aiuse_unset \
+        PCF_BDEPEND_IDX group_unset \
+        PCF_DEPEND_IDX group_unset \
+        PCF_IDEPEND_IDX group_unset \
+        PCF_PDEPEND_IDX group_unset \
+        PCF_RDEPEND_IDX group_unset \
+        PCF_LICENSE_IDX group_unset \
+        PCF_ECLASSES_IDX -a-- \
+        --- "${@}"
 }
 
 # Parses a cache file under the passed path.
@@ -242,7 +234,7 @@ function ur_declare() {
 
 # Unsets use requirements, can take several names, just like unset.
 function ur_unset() {
-    unset "${@}"
+    struct_unset --- "${@}"
 }
 
 # Copies use requirement into another.
@@ -252,13 +244,8 @@ function ur_unset() {
 # 1 - use requirement to be clobbered
 # 2 - the source use requirement
 function ur_copy() {
-    local -n to_clobber_ref=${1}; shift
-    local -n to_copy_ref=${1}; shift
-
-    local -i idx
-    for idx in UR_NAME_IDX UR_MODE_IDX UR_PRETEND_IDX; do
-        to_clobber_ref[idx]=${to_copy_ref[idx]}
-    done
+    copy_structs "${1}" "${2}" \
+                 UR_NAME_IDX -- UR_MODE_IDX -- UR_PRETEND_IDX --
 }
 
 # Stringifies use requirement.
@@ -333,21 +320,9 @@ function pds_declare() {
 # Unsets package definition specifications, can take several names,
 # just like unset.
 function pds_unset() {
-    local use_reqs_name name
-    for name; do
-        local -n pds_ref=${name}
-
-        use_reqs_name=${pds_ref[PDS_UR_IDX]}
-        local -n use_reqs_ref=${use_reqs_name}
-        ur_unset "${use_reqs_ref[@]}"
-        unset -n use_reqs_ref
-        if [[ ${use_reqs_name} != 'EMPTY_ARRAY' ]]; then
-            unset "${use_reqs_name}"
-        fi
-
-        unset -n pds_ref
-    done
-    unset "${@}"
+    struct_unset \
+        PDS_UR_IDX -aur_unset \
+        --- "${@}"
 }
 
 # Copies package dependency specification into another.
@@ -357,32 +332,9 @@ function pds_unset() {
 # 1 - package dependency specification to be clobbered
 # 2 - the source package dependency specification
 function pds_copy() {
-    local -n to_clobber_ref=${1}; shift
-    local -n to_copy_ref=${1}; shift
-
-    local -i idx
-    for idx in PDS_BLOCKS_IDX PDS_OP_IDX PDS_NAME_IDX PDS_VER_IDX PDS_SLOT_IDX; do
-        to_clobber_ref[idx]=${to_copy_ref[idx]}
-    done
-
-    if [[ ${to_copy_ref[PDS_UR_IDX]} = 'EMPTY_ARRAY' || ${#to_copy_ref[PDS_UR_IDX]} -eq 0 ]]; then
-        to_clobber_ref[PDS_UR_IDX]='EMPTY_ARRAY'
-    else
-        local pc_ur_array_name
-        gen_varname pc_ur_array_name
-        declare -ga "${pc_ur_array_name}=()"
-
-        local -n urs_to_copy_ref=${to_copy_ref[PDS_UR_IDX]} urs_ref=${pc_ur_array_name}
-        local ur_name pc_ur_name
-        for ur_name in "${urs_to_copy_ref[@]}"; do
-            gen_varname pc_ur_name
-            ur_declare "${pc_ur_name}"
-            ur_copy "${pc_ur_name}" "${ur_name}"
-            urs_ref+=( "${pc_ur_name}" )
-        done
-
-        to_clobber_ref[PDS_UR_IDX]=${pc_ur_array_name}
-    fi
+    copy_structs "${1}" "${2}" \
+                 PDS_BLOCKS_IDX -- PDS_OP_IDX -- PDS_NAME_IDX -- PDS_VER_IDX -- PDS_SLOT_IDX -- \
+                 PDS_UR_IDX -aur_declare,ur_copy
 }
 
 # Adds use requirements to the package dependency specification.
@@ -498,28 +450,17 @@ group_declare -r EMPTY_GROUP
 
 # Unsets groups, can take several names, just like unset.
 function group_unset() {
-    local -a to_unset=()
-    local name items_name
-    for name; do
-        if [[ ${name} == 'EMPTY_GROUP' ]]; then
-            continue
+    local -a groups_to_unset=()
+    local group_name
+    for group_name; do
+        if [[ ${group_name} = 'EMPTY_GROUP' ]]; then
+            continue;
         fi
-
-        local -n group_ref=${name}
-        items_name=${group_ref[GROUP_ITEMS_IDX]}
-        unset -n group_ref
-
-        to_unset+=( "${name}" )
-        if [[ ${items_name} == 'EMPTY_ARRAY' ]]; then
-            continue
-        fi
-        to_unset+=( "${items_name}" )
-
-        local -n items_ref=${items_name}
-        item_unset "${items_ref[@]}"
-        unset -n items_ref
+        groups_to_unset+=( "${group_name}" )
     done
-    unset "${to_unset[@]}"
+    struct_unset \
+        GROUP_ITEMS_IDX -aitem_unset \
+        --- "${groups_to_unset[@]}"
 }
 
 # Copies group into another.
@@ -529,33 +470,9 @@ function group_unset() {
 # 1 - group to be clobbered
 # 2 - the source group
 function group_copy() {
-    local -n to_clobber_ref=${1}; shift
-    local -n to_copy_ref=${1}; shift
-
-    local -i idx
-    for idx in GROUP_TYPE_IDX GROUP_USE_IDX GROUP_ENABLED_IDX; do
-        to_clobber_ref[idx]=${to_copy_ref[idx]}
-    done
-
-    if [[ ${to_copy_ref[GROUP_ITEMS_IDX]} = 'EMPTY_ARRAY' || ${#to_copy_ref[GROUP_ITEMS_IDX]} -eq 0 ]]; then
-        to_clobber_ref[GROUP_ITEMS_IDX]='EMPTY_ARRAY'
-    else
-        local gc_items_name
-        gen_varname gc_items_name
-        declare -ga "${gc_items_name}=()"
-
-        local -n items_to_copy_ref=${to_copy_ref[GROUP_ITEMS_IDX]}
-        local -n items_ref=${gc_items_name}
-        local item_name_to_copy gc_item_name
-        for item_name_to_copy in "${items_to_copy_ref[@]}"; do
-            gen_varname gc_item_name
-            item_declare "${gc_item_name}"
-            item_copy "${gc_item_name}" "${item_name_to_copy}"
-            items_ref+=( "${gc_item_name}" )
-        done
-        unset -n items_ref items_to_copy_ref
-        to_clobber_ref[GROUP_ITEMS_IDX]="${gc_items_name}"
-    fi
+    copy_structs "${1}" "${2}" \
+                 GROUP_TYPE_IDX -- GROUP_USE_IDX -- GROUP_ENABLED_IDX -- \
+                 GROUP_ITEMS_IDX -aitem_declare,item_copy
 }
 
 # Adds items to the group.
@@ -772,9 +689,20 @@ function kw_declare() {
     struct_declare -ga "${@}" "( 'ITS_UNSET' ${KW_UNSTABLE@Q} )"
 }
 
+# Copies keyword into another.
+#
+# Params:
+#
+# 1 - keyword to be clobbered
+# 2 - the source keyword
+function kw_copy() {
+    copy_structs "${1}" "${2}" \
+                 KW_NAME_IDX -- KW_LEVEL_IDX --
+}
+
 # Unsets keywords, can take several names, just like unset.
 function kw_unset() {
-    unset "${@}"
+    struct_unset --- "${@}"
 }
 
 # Stringifies keyword.
@@ -828,7 +756,7 @@ function iuse_declare() {
 
 # Unsets IUSEs, can take several names, just like unset.
 function iuse_unset() {
-    unset "${@}"
+    struct_unset --- "${@}"
 }
 
 # Stringifies IUSE.
@@ -864,6 +792,10 @@ function __mcl_parse_dsf() {
     local -i dsf_type=${1}; shift
     local dep=${1}; shift
     local -n top_group_out_var_name_ref=${1}; shift
+
+    if [[ ${dep} =~ ^[[:space:]]*$ ]]; then
+        return 0
+    fi
 
     local -a group_stack
     local pd_group pd_item pd_group_created='' pd_pds
@@ -1273,19 +1205,6 @@ function __mcl_parse_iuse() {
         join_by joined_iuse_string ' ' "${all_iuse_strings[@]}"
         pkg_debug_print "IUSE: ${joined_iuse_string}"
     fi
-}
-
-function __mcl_unset_array() {
-    local array_name=${1}; shift
-    local item_unset_func=${1}; shift
-
-    if [[ ${array_name} = EMPTY_ARRAY ]]; then
-        return 0
-    fi
-    local -n array_ref=${array_name}
-    "${item_unset_func}" "${array_ref[@]}"
-    unset -n array_ref
-    unset "${array_name}"
 }
 
 fi

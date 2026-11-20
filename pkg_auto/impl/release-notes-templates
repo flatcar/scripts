@@ -1,0 +1,134 @@
+acct-group !IGNORE!
+acct-user !IGNORE!
+app-admin/sudo https://github.com/sudo-project/sudo/releases/tag/v@@VERSION_NO_UNDERLINE_PATCH@@
+app-arch/gzip !MANUAL! search for gzip-@@VERSION@@ released [stable]
+app-arch/libarchive https://github.com/libarchive/libarchive/releases/tag/v@@VERSION@@
+app-containers/containerd https://github.com/containerd/containerd/releases/tag/v@@VERSION@@
+app-containers/docker https://github.com/moby/moby/releases/tag/docker-v@@VERSION@@
+app-containers/docker-buildx https://github.com/docker/buildx/releases/tag/v@@VERSION@@
+app-containers/docker-cli !IGNORE!
+app-crypt/gnupg !MANUAL! search for Release GnuPG @@VERSION@@
+app-crypt/mit-krb5 https://web.mit.edu/kerberos/krb5-@@VERSION_FIRST_2@@/krb5-@@VERSION@@.html
+app-crypt/sbsigntools https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git/commit/?h=v@@VERSION@@
+app-crypt/tpm2-tools https://github.com/tpm2-software/tpm2-tools/releases/tag/@@VERSION@@
+app-doc/eclass-manpages !IGNORE!
+app-editors/vim https://github.com/vim/vim/commits/v@@VERSION@@/
+app-editors/vim-core !IGNORE!
+app-emulation/qemu !MANUAL! either https://wiki.qemu.org/ChangeLog/@@VERSION_FIRST_2@@ or somewhere on https://lists.gnu.org/archive/html/qemu-stable
+app-eselect/eselect-pinentry !IGNORE!
+app-misc/pax-utils https://gitweb.gentoo.org/proj/pax-utils.git/log/?h=v@@VERSION@@
+app-portage/gemato !IGNORE!
+app-portage/gentoolkit https://gitweb.gentoo.org/proj/gentoolkit.git/log/?h=gentoolkit-@@VERSION@@
+app-shells/bash !MANUAL! somewhere on https://cgit.git.savannah.gnu.org/cgit/bash.git/log
+app-shells/gentoo-bashcomp https://github.com/scop/bash-completion/releases/tag/@@VERSION@@
+coreos-base/emerge-gitclone !IGNORE!
+dev-build/autoconf !IGNORE! somewhere on https://lists.gnu.org/archive/html/autotools-announce/
+dev-build/automake !IGNORE! somewhere on https://lists.gnu.org/archive/html/autotools-announce/
+dev-build/automake-wrapper !IGNORE!
+dev-build/meson !MANUAL! either https://mesonbuild.com/Release-notes-for-@@VERSION_DASH@@.html or https://github.com/mesonbuild/meson/commits/@@VERSION@@/
+dev-db/sqlite https://sqlite.org/releaselog/@@VERSION_UNDERLINE@@.html
+dev-debug/gdb !MANUAL! somewhere on https://sourceware.org/pipermail/gdb-announce/
+dev-debug/strace https://github.com/strace/strace/releases/tag/v@@VERSION@@
+dev-lang/go !MANUAL! either https://go.dev/doc/go@@VERSION_FIRST_2@@ or https://go.dev/doc/devel/release#go@@VERSION@@
+dev-lang/perl https://perldoc.perl.org/perl@@VERSION_NO_DOTS@@delta
+dev-lang/python https://docs.python.org/release/@@VERSION_NO_P@@/whatsnew/changelog.html#python-@@VERSION_NO_P_DASH@@-final
+dev-lang/rust !MANUAL! https://blog.rust-lang.org/${SOME_YEAR}/${SOME_MONTH}/${SOME_DAY}/Rust-@@VERSION@@/
+dev-lang/rust-common !IGNORE!
+dev-lang/swig !IGNORE~
+dev-libs/cyrus-sasl https://www.cyrusimap.org/sasl/sasl/release-notes/@@VERSION_FIRST_2@@/index.html#new-in-@@VERSION_DASH@@
+dev-libs/elfutils !MANUAL! somewhere in https://inbox.sourceware.org/elfutils-devel/, search for "elfutils @@VERSION@@ released"
+dev-libs/expat https://github.com/libexpat/libexpat/blob/R_@@VERSION_UNDERLINE@@/expat/Changes
+dev-libs/glib https://gitlab.gnome.org/GNOME/glib/-/releases/@@VERSION@@
+dev-libs/json-c https://raw.githubusercontent.com/json-c/json-c/refs/heads/json-c-@@VERSION@@/ChangeLog
+dev-libs/libffi https://github.com/libffi/libffi/releases/tag/v@@VERSION@@
+dev-libs/libp11 !IGNORE!
+dev-libs/libpcre2 https://github.com/PCRE2Project/pcre2/releases/tag/pcre2-@@VERSION@@
+dev-libs/opensc !IGNORE!
+dev-libs/tree-sitter !IGNORE!
+dev-libs/xmlsec https://github.com/lsh123/xmlsec/releases/tag/@@VERSION@@
+dev-python/charset-normalizer https://github.com/jawah/charset_normalizer/releases/tag/@@VERSION@@
+dev-python/cryptography !IGNORE!
+dev-python/cython !IGNORE!
+dev-python/ensurepip-pip !IGNORE!
+dev-python/fastjsonschema !IGNORE!
+dev-python/flit-core !IGNORE!
+dev-python/gpep517 !IGNORE!
+dev-python/hatchling !IGNORE!
+dev-python/idna https://github.com/kjd/idna/releases/tag/v@@VERSION@@
+dev-python/linkify-it-py https://github.com/tsutsu3/linkify-it-py/releases/tag/v@@VERSION@@
+dev-python/lxml !IGNORE!
+dev-python/msgpack https://github.com/msgpack/msgpack-python/releases/tag/v@@VERSION@@
+dev-python/platformdirs https://github.com/tox-dev/platformdirs/releases/tag/@@VERSION@@
+dev-python/poetry-core !IGNORE!
+dev-python/pygments https://github.com/pygments/pygments/releases/tag/@@VERSION@@
+dev-python/pyproject-hooks !IGNORE!
+dev-python/setuptools-scm https://github.com/pypa/setuptools-scm/releases/tag/setuptools-scm-v@@VERSION@@
+dev-python/snakeoil !IGNORE!
+dev-python/tree-sitter !IGNORE!
+dev-python/trove-classifiers https://github.com/pypa/trove-classifiers/releases/tag/@@VERSION@@
+dev-python/urllib3 https://github.com/urllib3/urllib3/releases/tag/@@VERSION@@
+dev-python/vcs-versioning https://github.com/pypa/setuptools-scm/releases/tag/vcs-versioning-v@@VERSION@@
+dev-util/bpftool https://github.com/libbpf/bpftool/releases/tag/v@@VERSION@@
+dev-util/catalyst https://gitweb.gentoo.org/proj/catalyst.git/log/?h=@@VERSION@@
+dev-util/maturin !IGNORE!
+dev-util/pkgcheck https://github.com/pkgcore/pkgcheck/releases/tag/v@@VERSION@@
+dev-vcs/git https://raw.githubusercontent.com/git/git/refs/tags/v@@VERSION@@/Documentation/RelNotes/@@VERSION@@.adoc
+eclass !IGNORE!
+media-libs/libpng !IGNORE!
+net-analyzer/tcpdump https://raw.githubusercontent.com/the-tcpdump-group/tcpdump/refs/tags/tcpdump-@@VERSION@@/CHANGES
+net-dns/bind https://bind9.readthedocs.io/en/v@@VERSION@@/notes.html#notes-for-bind-@@VERSION_DASH@@
+net-dns/c-ares https://github.com/c-ares/c-ares/releases/tag/v@@VERSION@@
+net-dns/dnsmasq https://dnsmasq.org/CHANGELOG
+net-firewall/ipset !MANUAL! search for "ipset @@VERSION@@ released" on netfilter or netfilter-devel kernel mailing list
+net-firewall/nftables !MANUAL! search for "nftables @@VERSION@@ release" on netfilter or netfilter-devel kernel mailing list
+net-fs/nfs-utils !MANUAL! search for "ANNOUNCE: nfs-utils-@@VERSION@@ released."
+net-libs/libnftnl !MANUAL! search for "libnftnl @@VERSION@@ release" on netfilter or netfilter-devel kernel mailing list
+net-libs/libpcap https://raw.githubusercontent.com/the-tcpdump-group/libpcap/refs/tags/libpcap-@@VERSION@@/CHANGES
+net-libs/ngtcp2 https://github.com/ngtcp2/ngtcp2/releases/tag/v@@VERSION@@
+net-misc/chrony https://gitlab.com/chrony/chrony/-/raw/@@VERSION@@/NEWS
+net-misc/curl https://curl.se/ch/@@VERSION@@.html
+net-misc/iperf https://github.com/esnet/iperf/releases/tag/@@VERSION@@
+net-misc/openssh https://www.openssh.org/txt/release-@@VERSION_NO_P@@
+net-misc/rsync https://download.samba.org/pub/rsync/NEWS#@@VERSION@@
+net-misc/socat https://repo.or.cz/socat.git/blob/refs/tags/tag-@@VERSION@@:/CHANGES
+net-misc/wget !MANUAL! search for "wget-@@VERSION@@ released [stable]" on somewhere https://lists.gnu.org/archive/html/info-gnu/
+net-vpn/wireguard-tools https://git.zx2c4.com/wireguard-tools/log/?h=v@@VERSION@@
+sys-apps/acl https://cgit.git.savannah.nongnu.org/cgit/acl.git/plain/doc/CHANGES?h=v@@VERSION@@
+sys-apps/attr https://cgit.git.savannah.nongnu.org/cgit/attr.git/plain/doc/CHANGES?h=v@@VERSION@@
+sys-apps/busybox https://github.com/vda-linux/busybox_mirror/commits/@@VERSION_UNDERLINE@@/
+sys-apps/coreutils !MANUAL! search for "[coreutils-announce] coreutils-@@VERSION@@ released [stable]" somewhere in https://lists.gnu.org/archive/html/coreutils-announce
+sys-apps/dbus https://gitlab.freedesktop.org/dbus/dbus/-/blob/dbus-@@VERSION@@/NEWS
+sys-apps/groff !MANUAL! search for "Groff version @@VERSION@@" somewhere in https://lists.gnu.org/archive/html/info-gnu/
+sys-apps/iproute2 !MANUAL! search for "iproute2 @@VERSION@@ release" on netdev kernel mailing list
+sys-apps/less https://greenwoodsoftware.com/less/news.@@VERSION@@.html
+sys-apps/pcsc-lite !IGNORE!
+sys-apps/pkgcore https://github.com/pkgcore/pkgcheck/releases/tag/v@@VERSION@@
+sys-apps/portage https://raw.githubusercontent.com/gentoo/portage/refs/tags/portage-@@VERSION@@/NEWS
+sys-apps/pv !IGNORE!
+sys-apps/shadow https://github.com/shadow-maint/shadow/releases/tag/@@VERSION@@
+sys-auth/sssd https://sssd.io/release-notes/sssd-@@VERSION@@.html
+sys-boot/grub !MANUAL! our grub is heavily patched, not sure if official release notes are congruent with our grub
+sys-boot/shim https://github.com/rhboot/shim/releases/tag/@@VERSION@@
+sys-boot/shim-signed !IGNORE!
+sys-devel/binutils !MANUAL! search either for "The @@VERSION@@ release of the GNU Binutils is now available" or "GNU Binutils release @@VERSION@@ is now available"
+sys-devel/crossdev https://gitweb.gentoo.org/proj/crossdev.git/log/?h=@@VERSION@@
+sys-devel/gcc https://gcc.gnu.org/gcc-@@VERSION_FIRST_1@@/changes.html
+sys-devel/patch !MANUAL! search for "GNU Patch @@VERSION@@ released" somewhere on https://lists.gnu.org/archive/html/info-gnu
+sys-firmware/edk2-bin https://github.com/tianocore/edk2/releases/tag/edk2-stable@@VERSION@@
+sys-firmware/intel-microcode https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/releases/tag/microcode-@@VERSION_NO_P@@
+sys-fs/btrfs-progs https://github.com/kdave/btrfs-progs/releases/tag/v@@VERSION@@
+sys-fs/cryptsetup https://gitlab.com/cryptsetup/cryptsetup/-/raw/v@@VERSION@@/docs/v@@VERSION@@-ReleaseNotes
+sys-fs/fuse https://github.com/libfuse/libfuse/releases/tag/fuse-@@VERSION@@
+sys-fs/inotify-tools https://github.com/inotify-tools/inotify-tools/releases/tag/@@VERSION@@
+sys-fs/xfsprogs https://web.git.kernel.org/pub/scm/fs/xfs/xfsprogs-dev.git/plain/doc/CHANGES?h=v@@VERSION@@
+sys-libs/binutils-libs !IGNORE!
+sys-libs/efivar https://github.com/rhboot/efivar/releases/tag/@@VERSION@@
+sys-libs/glibc !MANUAL! search for "The GNU C Library version @@VERSION@@ is now available" somewhere in https://sourceware.org/pipermail/libc-announce
+sys-libs/libunwind https://github.com/libunwind/libunwind/releases/tag/v@@VERSION@@
+sys-libs/libxcrypt https://github.com/besser82/libxcrypt/releases/tag/v@@VERSION@@
+sys-libs/readline !MANUAL!
+sys-libs/timezone-data !MANUAL! search for "@@VERSION@@ release of tz code and data available" somewhere in https://lists.iana.org/hyperkitty/list/tz-announce@iana.org
+sys-process/audit https://github.com/linux-audit/audit-userspace/releases/tag/v@@VERSION@@
+sys-process/procps https://gitlab.com/procps-ng/procps/-/releases/v@@VERSION@@
+virtual !IGNORE!
+x11-misc/makedepend !IGNORE!

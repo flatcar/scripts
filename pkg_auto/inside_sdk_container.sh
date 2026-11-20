@@ -40,6 +40,7 @@ source "${PKG_AUTO_IMPL_DIR}/inside_sdk_container_lib.sh"
 
 debug_args=()
 debug=''
+skip_egencache=''
 
 while [[ ${#} -gt 0 ]]; do
     case ${1} in
@@ -51,6 +52,10 @@ while [[ ${#} -gt 0 ]]; do
         '-h')
             print_help
             exit 0
+            ;;
+        '--skip-egencache')
+            skip_egencache=x
+            shift
             ;;
         '--')
             shift
@@ -168,26 +173,42 @@ if [[ -n ${debug} ]]; then
     set +x
 fi
 
-echo "Running egencache for ${main_repo}"
-timed_run timeinfo generate_cache_for "${debug_args[@]}" "${main_repo}" 2>"${EGENCACHE_W}"
-echo "Running egencache for ${main_repo} took ${timeinfo}"
-echo 'Running egencache for coreos-overlay'
-timed_run timeinfo generate_cache_for "${debug_args[@]}" 'coreos-overlay' 2>>"${EGENCACHE_W}"
-echo "Running egencache for coreos-overlay took ${timeinfo}"
+if [[ -z ${skip_egencache} ]]; then
+    echo "Running egencache for ${main_repo}"
+    timed_run timeinfo generate_cache_for "${debug_args[@]}" "${main_repo}" 2>"${EGENCACHE_W}"
+    echo "Running egencache for ${main_repo} took ${timeinfo}"
+    echo 'Running egencache for coreos-overlay'
+    timed_run timeinfo generate_cache_for "${debug_args[@]}" 'coreos-overlay' 2>>"${EGENCACHE_W}"
+    echo "Running egencache for coreos-overlay took ${timeinfo}"
 
-echo 'Copying gentoo cache to reports'
-copy_cache_to_reports "${debug_args[@]}" "${main_repo}" "${reports_dir}" 2>>"${EGENCACHE_W}"
-echo 'Copying coreos-overlay cache to reports'
-copy_cache_to_reports "${debug_args[@]}" 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
+    echo 'Copying gentoo cache to reports'
+    copy_cache_to_reports "${debug_args[@]}" "${main_repo}" "${reports_dir}" 2>>"${EGENCACHE_W}"
+    echo 'Copying coreos-overlay cache to reports'
+    copy_cache_to_reports "${debug_args[@]}" 'coreos-overlay' "${reports_dir}" 2>>"${EGENCACHE_W}"
+fi
+
+declare -a sdk_extra_packages=() board_extra_packages=() accept_keywords=()
+
+ensure_top_package_versions_are_equal "${debug_args[@]}" sdk_extra_packages board_extra_packages accept_keywords "${@}"
+
+if [[ -n ${debug} ]]; then
+    echo "extra SDK packages: ${sdk_extra_packages[@]@Q}"
+    echo "extra board packages: ${board_extra_packages[@]@Q}"
+    echo "accept keywords to add: ${accept_keywords[@]@Q}"
+fi
+
+if [[ ${#accept_keywords[@]} -gt 0 ]]; then
+    printf '%s\n' "${accept_keywords[@]}" >>"${reports_dir}/accept-keywords-to-add"
+fi
 
 echo 'Running pretend-emerge to get complete report for SDK'
-timed_run timeinfo package_info_for_sdk "${debug_args[@]}" "${SDK_EO}" 2>"${SDK_EO_W}"
+timed_run timeinfo package_info_for_sdk "${debug_args[@]}" "${SDK_EO}" "${sdk_extra_packages[@]}" 2>"${SDK_EO_W}"
 echo "Running pretend-emerge to get complete report for SDK took ${timeinfo}"
 for arch; do
     be=${arch^^}_BOARD_EO
     bew=${arch^^}_BOARD_EO_W
     echo "Running pretend-emerge to get complete report for ${arch} board"
-    timed_run timeinfo package_info_for_board "${debug_args[@]}" "${arch}" "${!be}" 2>"${!bew}"
+    timed_run timeinfo package_info_for_board "${debug_args[@]}" "${arch}" "${!be}" "${board_extra_packages[@]}" 2>"${!bew}"
     echo "Running pretend-emerge to get complete report for ${arch} board took ${timeinfo}"
 done
 

@@ -84,77 +84,253 @@ function emerge_pretend() {
     fi
 }
 
+function create_fake_roots_for_other_sdks() {
+    local fake_roots_dir=${1}; shift
+    # rest are arches
+
+    local make_profile current_arch
+    make_profile=$(realpath /etc/portage/make.profile)
+    if [[ ${make_profile} != */sdk ]]; then
+        fail "unexpected SDK profile: ${make_profile}"
+    fi
+    current_arch=${make_profile%/sdk}
+    current_arch=${current_arch##*/}
+    local found='' arch
+    local -a other_arches=()
+    for arch; do
+        if [[ ${arch} = "${current_arch}" ]]; then
+            found=x
+        else
+            other_arches+=( "${arch}" )
+        fi
+    done
+    if [[ -z ${found} ]]; then
+        fail "architecture ${current_arch} taken from profile ${make_profile} does not match any of the passed architectures ${@@Q}"
+    fi
+    ln -sf / "${fake_roots_dir}/${current_arch}"
+    local other_profile link target
+    local -a links
+    for arch in "${other_arches[@]}"; do
+        other_profile=${make_profile#"/${current_arch}/sdk"}
+        other_profile+=${arch}/sdk
+        mkdir -p "${fake_roots_dir}/${arch}/etc"
+        cp -a /etc/portage "${fake_roots_dir}/${arch}/etc/portage"
+        # rewire symlinks
+        mapfile -t -d '' links < <(find /etc/portage -type l -printf '%P\0')
+        for link in "${links[@]}"; do
+            target=$(realpath "/etc/portage/${link}")
+            ln -sfr "${target}" "${fake_roots_dir}/${arch}/etc/portage/${link}"
+        done
+        # but rewire make.profile to actual SDK profile for the arch
+        rm -f "${fake_roots_dir}/${arch}/etc/portage/make.profile"
+        ln -sfr "${other_profile}" "${fake_roots_dir}/${arch}/etc/portage/make.profile"
+    done
+}
+
+function ensure_top_package_versions_are_equal() {
+    # Rust and binutils packages are annoying - they are both slotted
+    # and emerge often insists on keeping the old version instead of
+    # updating to the new version with a different slot. We can force
+    # emerge to actually update if we tell it to do it explicitly. So
+    # here we do some equeries to find a version and a slot of the
+    # package that is stable on at least one supported architecture.
+    local debug=''
+    local -a debug_args=()
+    if [[ ${1} = '-d' ]]; then
+        debug=x; shift
+        debug_args=( '-d' )
+    fi
+    local -n sdk_extra_pkgs_ref=${1}; shift
+    local -n board_extra_pkgs_ref=${1}; shift
+    local -n accept_keywords_to_add_ref=${1}; shift
+
+    local fake_sdk_roots
+    fake_sdk_roots=$(mktemp --directory)
+    create_fake_roots_for_other_sdks "${fake_sdk_roots}" "${@}"
+    local etpvae_slot etpvae_version etpvae_needs_accept_keywords arch
+    local accept_keywords_file=${PKG_AUTO_DIR}/../sdk_container/src/third_party/coreos-overlay/profiles/coreos/base/package.accept_keywords
+
+    local rust_slot='' rust_version='' rust_needs_accept_keywords=''
+    for arch; do
+        etpvae_slot=''
+        etpvae_version=''
+        etpvae_needs_accept_keywords=''
+        equery_for_stable_package "${debug_args[@]}" "${fake_sdk_roots}/${arch}" 'dev-lang/rust' \
+                                  etpvae_slot etpvae_version etpvae_needs_accept_keywords "${@}"
+        if [[ -z ${rust_slot} ]]; then
+            rust_slot=${etpvae_slot}
+        elif [[ ${rust_slot} != "${etpvae_slot}" ]]; then
+            fail "inconsistent rust slot information, expected ${rust_slot}, but for ${arch} got ${etpvae_slot}"
+        fi
+        if [[ -z ${rust_version} ]]; then
+            rust_version=${etpvae_version}
+        elif [[ ${rust_version} != "${etpvae_version}" ]]; then
+            fail "inconsistent rust version information, expected ${rust_version}, but for ${arch} got ${etpvae_version}"
+        fi
+        if [[ -n ${etpvae_needs_accept_keywords} ]]; then
+            rust_needs_accept_keywords=x
+        fi
+    done
+    if [[ -n ${rust_needs_accept_keywords} ]]; then
+        echo "=dev-lang/rust-${rust_version}" >>"${accept_keywords_file}"
+        accept_keywords_to_add_ref+=( "dev-lang/rust ${rust_version}" )
+    fi
+    sdk_extra_pkgs_ref+=( "dev-lang/rust:${rust_slot}" )
+
+    local binutils_slot='' binutils_version='' binutils_needs_accept_keywords=''
+    for arch; do
+        etpvae_slot=''
+        etpvae_version=''
+        etpvae_needs_accept_keywords=''
+        equery_for_stable_package "${debug_args[@]}" "/build/${arch}-usr" 'sys-devel/binutils' \
+                                  etpvae_slot etpvae_version etpvae_needs_accept_keywords "${@}"
+        if [[ -z ${binutils_slot} ]]; then
+            binutils_slot=${etpvae_slot}
+        elif [[ ${binutils_slot} != "${etpvae_slot}" ]]; then
+            fail "inconsistent binutils slot information, expected ${binutils_slot}, but for ${arch} got ${etpvae_slot}"
+        fi
+        if [[ -z ${binutils_version} ]]; then
+            binutils_version=${etpvae_version}
+        elif [[ ${binutils_version} != "${etpvae_version}" ]]; then
+            fail "inconsistent binutils version information, expected ${binutils_version}, but for ${arch} got ${etpvae_version}"
+        fi
+        if [[ -n ${etpvae_needs_accept_keywords} ]]; then
+            binutils_needs_accept_keywords=x
+        fi
+    done
+    if [[ -n ${binutils_needs_accept_keywords} ]]; then
+        echo "=sys-devel/binutils-${binutils_version}" >>"${accept_keywords_file}"
+        accept_keywords_to_add_ref+=( "sys-devel/binutils ${binutils_version}" )
+    fi
+    board_extra_pkgs_ref+=( "sys-devel/binutils:${binutils_slot}" )
+}
+
+function equery_for_stable_package() {
+    local debug=''
+    if [[ ${1} = '-d' ]]; then
+        debug=x; shift
+    fi
+    local root=${1}; shift
+    local pkg=${1}; shift
+    local -n slot_ref=${1}; shift
+    local -n version_ref=${1}; shift
+    local -n needs_accept_keywords_ref=${1}; shift
+    # rest are architectures
+
+    if [[ ${#} -eq 0 ]]; then
+        fail "need to pass at least one architecture"
+    fi
+
+    local -x PORTAGE_CONFIGROOT=${root}
+    local -x SYSROOT=${root}
+    local -x ROOT=${root}
+
+    # generated pre-filter awk code is something like the following:
+    #
+    # {
+    #   if ((NF >= 9) && ($1 != "|")) {
+    #     slot = $8
+    #     if (slot == "|") {
+    #       slot = last_slot
+    #     }
+    #     last_slot = slot
+    #     print $1, slot, $3, $4
+    #   }
+    # }
+    #
+    # generated awk code is something like following:
+    #
+    # {
+    #   if (substr($1, 1, 3) != "[M]" && ($3 == "+" || $4 == "+")) {
+    #     if (substr($1, 1, 3) == "[I]") {
+    #       v = substr($1, 4)
+    #     } else {
+    #       v = $1
+    #     }
+    #     print v, $2, $3, $4; exit 0
+    #   }
+    # }
+    local equery_arches='' awk_filter_code='' awk_code='' awk_print_code='' awk_eq_code=''
+    local -i awk_arch_idx=3 awk_slot_idx
+
+    local arch
+    for arch; do
+        if [[ -z ${equery_arches} ]]; then
+            equery_arches=${arch}
+        else
+            equery_arches+=",${arch}"
+        fi
+        if [[ awk_arch_idx -gt 3 ]]; then
+            awk_eq_code+=' || '
+        fi
+        awk_eq_code+='$'
+        awk_eq_code+=${awk_arch_idx}
+        awk_eq_code+=' == "+"'
+        awk_print_code+=', $'
+        awk_print_code+=${awk_arch_idx}
+        ((++awk_arch_idx))
+    done
+    awk_slot_idx=$((awk_arch_idx + 3))
+    awk_filter_code+='{ if ((NF >= 9) && ($1 != "|")) { slot = $'
+    awk_filter_code+=${awk_slot_idx}
+    awk_filter_code+='; if (slot == "|") { slot = last_slot }; last_slot = slot; print $1, slot'
+    awk_filter_code+=${awk_print_code}
+    awk_filter_code+=' } }'
+    awk_code+='{ if (substr($1, 0, 3) != "[M]" && ('
+    awk_code+=${awk_eq_code}
+    awk_code+=')) { if (substr($1, 1, 3) == "[I]") { v = substr($1, 4) } else { v = $1 }; print v, $2'
+    awk_code+=${awk_print_code}
+    awk_code+='; exit 0 } }'
+    debug_print "${debug}" 'awk filter code used:' "${awk_filter_code}"
+    debug_print "${debug}" 'awk code used:' "${awk_code}"
+
+    local equery_output awk_output
+    equery_output=$(equery --no-color keywords --overlays --arch "${equery_arches}" "${pkg}")
+    debug_print "${debug}" 'equery output' "${equery_output}"
+    awk_output=$(awk "${awk_filter_code}" <<<"${equery_output}" | tac | awk "${awk_code}")
+    local -a output_fields
+    read -r -a output_fields <<<"${awk_output}"
+    local pkg_version=${output_fields[0]}
+    local pkg_slot=${output_fields[1]}
+    output_fields=( "${output_fields[@]:2}" )
+    debug_print "${debug}" "found slot for ${pkg}: ${pkg_slot} (version: ${pkg_version})"
+    local -i marker_idx=0
+    if [[ ${#} -ne ${#output_fields[@]} ]]; then
+        fail "inconsistent architecture count, given ${#}, and ${#output_fields[@]} through equery"
+    fi
+    needs_accept_keywords_ref=''
+    for ((marker_idx = 0; marker_idx < ${#}; ++marker_idx)); do
+        if [[ ${output_fields[marker_idx]} != '+' ]]; then
+            needs_accept_keywords_ref=x
+        fi
+    done
+    slot_ref=${pkg_slot}
+    version_ref=${pkg_version}
+}
+
 # Gets package list for SDK.
 #
 # Params:
 #
 # ? - optional -d flag for debugging output
 # 1 - path to emerge output file
+# # - extra packages
 function package_info_for_sdk() {
     local debug=''
+    local -a debug_args=()
     if [[ ${1} = '-d' ]]; then
         debug=x; shift
+        debug_args+=(-d)
     fi
     local output_file=${1}; shift
-    local root='/' rust_slot d arches='' match='|' awk_code='{ print $'
-    local -i awk_idx=6
-
-    for d in /build/*-usr; do
-        d=${d#/build/}
-        d=${d%-usr}
-        if [[ -z ${arches} ]]; then
-            arches=${d}
-        else
-            arches+=",${d}"
-        fi
-        match+=' +'
-        : $((++awk_idx))
-    done
-    match+=' |'
-    awk_code+=${awk_idx}
-    awk_code+=' }'
-
-    debug_print "${debug}" \
-                'grep regexp used:' \
-                "${match}" \
-                'awk code used:' \
-                "${awk_code}"
-
-    # rust is annoying - it is slotted, thus parallel-installable and
-    # also bdepends on some older version of rust and all of it causes
-    # emerge to just pick up the rust slot that already exists in the
-    # SDK instead of the latest stable one
-    #
-    # let's try to figure out the latest stable rust slot then and
-    # tell emerge to pick that one
-    #
-    # the output of equery is something like this (assuming
-    # architectures are amd64 and arm64):
-    #
-    # '             1.87.0-r1   | + + | 8 o 1.87.0 | gentoo'
-    #
-    # (so version, followed by stability markers, followed by eapi,
-    # some "unused" thing, then slot, the repo name, the "|" are table
-    # lines)
-    #
-    # the `| + + |` part means that the package is stable for both
-    # architectures, so we want to get the last line that matches this
-    # part
-    #
-    # from that line we want to print the slot which is at index 6 +
-    # number of architectures (in the example output, the index is 8)
-    local equery_output=$(equery --no-color keywords --arch "${arches}" dev-lang/rust)
-    debug_print "${debug}" 'equery output' "${equery_output}"
-    rust_slot=$(grep --fixed-strings "${match}" <<<"${equery_output}" | \
-        tail -n1 | \
-        awk "${awk_code}")
-    debug_print "${debug}" "found rust slot: ${rust_slot}"
+    # rest are extra packages
+    local root=/
 
     ignore_crossdev_stuff "${root}"
     # stage4 build of SDK builds coreos-devel/sdk-depends, fsscript
     # pulls in cross toolchains with crossdev (which we have just
     # ignored) and dev-lang/rust
-    emerge_pretend "${root}" coreos-devel/sdk-depends dev-lang/rust:"${rust_slot}" >"${output_file}"
+    emerge_pretend "${root}" coreos-devel/sdk-depends "${@}" >"${output_file}"
     revert_crossdev_stuff "${root}"
 }
 
@@ -165,10 +341,13 @@ function package_info_for_sdk() {
 # ? - optional -d flag for debugging output
 # 1 - architecture
 # 2 - path to emerge output file
+# # - extra packages
 function package_info_for_board() {
     local debug=''
+    local -a debug_args=()
     if [[ ${1} = '-d' ]]; then
         debug=x; shift
+        debug_args+=(-d)
     fi
     local arch=${1}; shift
     local output_file=${1}; shift
@@ -192,13 +371,50 @@ function package_info_for_board() {
         oem_pkgs+=("${fields[1]}")
     done
 
+    local tmp_emerge_output
+    tmp_emerge_output=$(mktemp)
+
+    local -a base_pkgs=(
+        coreos-devel/board-packages
+        "${@}"
+    )
+
     # Ignore crossdev stuff in both SDK root and board root - emerge
     # may query SDK stuff for the board packages.
     ignore_crossdev_stuff /
     ignore_crossdev_stuff "${root}"
     local pkg='coreos-devel/board-packages'
-    debug_print "${debug}" "package ${pkg}"
-    emerge_pretend "${root}" coreos-devel/board-packages "${oem_pkgs[@]}" | tee "${debug_output_file}" >"${output_file}"
+    debug_print "${debug}" "packages ${base_pkgs[*]} ${oem_pkgs[*]}"
+    emerge_pretend "${root}" "${base_pkgs[@]}" "${oem_pkgs[@]}" | tee "${debug_output_file}" "${tmp_emerge_output}" >"${output_file}"
+
+    return 0
+
+    local -a lines=()
+    mapfile -t lines < <(
+        cat "${tmp_emerge_output}" | \
+            xgrep -e "${FULL_LINE_RE}" | \
+            sed -e "s#/build/${arch}-usr/#/build/BOARD/#" | \
+            sed \
+                "${BOARD_ONLY_PKGS[@]}" \
+                "${PKG_VER_SLOT_SED_FILTERS[@]}" | \
+            sort -u)
+
+    sudo rm -f "${root}${pkg_mask_file}" "${root}${pkg_unmask_file}" "${tmp_emerge_output}"
+
+    local board_pkg_mask_file=${root}/etc/portage/package.mask/pkg-auto-board.conf
+    local board_pkg_unmask_file=${root}/etc/portage/package.unmask/pkg-auto-board.conf
+    local line tmp_mask_file tmp_unmask_file
+    tmp_mask_file=$(mktemp)
+    tmp_unmask_file=$(mktemp)
+    for line in "${lines[@]}"; do
+        qpkg=${line%% *}
+        version=${line#* }
+        version=${version%%:*}
+        echo "${qpkg}" >>"${tmp_mask_file}"
+        echo "=${qpkg}-${version}" >>"${tmp_unmask_file}"
+    done
+    sudo mv "${tmp_mask_file}" "${board_pkg_mask_file}"
+    sudo mv "${tmp_unmask_file}" "${board_pkg_unmask_file}"
 
     # There are packages that are installed only in sysexts and are
     # not pulled in by the coreos-devel/board-packages
@@ -321,8 +537,10 @@ function package_info_for_board() {
         read -r -a pkgs <<<"${pkgs_csv//,/ }"
         read -r -a uses <<<"${uses_csv//,/ }"
         debug_print "${debug}" "packages ${pkgs[*]} with USE ${uses[*]}"
-        emerge_pretend "${root}" coreos-devel/board-packages "${pkgs[@]}" -- "${uses[@]}" | tee "${debug_output_file}" >>"${output_file}"
+        emerge_pretend "${root}" "${base_pkgs[@]}" "${pkgs[@]}" -- "${uses[@]}" | tee "${debug_output_file}" >>"${output_file}"
     done
+
+    sudo rm -f "${board_pkg_mask_file}" "${board_pkg_unmask_file}"
     revert_crossdev_stuff "${root}"
     revert_crossdev_stuff /
 }
@@ -718,17 +936,22 @@ function clean_empty_warning_files() {
 # 1 - repository name
 function generate_cache_for() {
     local debug=''
+    local pmaint_args=()
     if [[ ${1} = '-d' ]]; then
         debug=x; shift
+        pmaint_args+=(--debug --verbose)
+    else
+        pmaint_args+=(-q)
     fi
     local repo=${1}; shift
 
-    local -i gcf_num_proc
-    local load_avg
-    get_num_proc gcf_num_proc
-    load_avg=$(bc <<< "${gcf_num_proc} * 0.75")
-    debug_print "${debug}" "using ${gcf_num_proc} jobs with ${load_avg} load average"
-    egencache --repo "${repo}" --jobs="${gcf_num_proc}" --load-average="${load_avg}" --update
+    #local -i gcf_num_proc
+    #local load_avg
+    #get_num_proc gcf_num_proc
+    #load_avg=$(bc <<< "${gcf_num_proc} * 0.75")
+    #debug_print "${debug}" "using ${gcf_num_proc} jobs with ${load_avg} load average"
+    #egencache --repo "${repo}" --jobs="${gcf_num_proc}" --load-average="${load_avg}" --update
+    pmaint regen "${repo}"
 }
 
 # Copies the generated md5-metadata cache into reports directory.

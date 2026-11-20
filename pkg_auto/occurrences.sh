@@ -40,4 +40,10 @@ if [[ ${#} -ne 2 ]]; then
     fail 'Expected two positional parameters: a path to scripts repository and a package name'
 fi
 
-generate_mention_report_for_package "${1}" "${2}"
+output_dir=$(mktemp --directory)
+
+generate_mention_report_for_package "${1}" "${2}" "${output_dir}" ''
+
+cat "${output_dir}"/*
+
+rm -rf "${output_dir}"
