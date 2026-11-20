@@ -35,12 +35,9 @@ fi
 arch="amd64"
 sdk_name="flatcar-sdk-${arch}"
 
-if [[ ${USE_REPO_SDK_VERSION:-false} = true ]]; then
+if [[ -z ${MIRROR_LINK:-} || ${USE_REPO_SDK_VERSION:-false} = true ]]; then
     docker_sdk_vernum="${FLATCAR_SDK_VERSION}"
 else
-    # for main channel, pull in alpha SDK
-    [[ ${CHANNEL} = main ]] && MIRROR_LINK='https://alpha.release.flatcar-linux.net/amd64-usr/current'
-
     # Pin the docker image version to that of the latest release in the channel.
     docker_sdk_vernum="$(curl -s -S -f -L "${MIRROR_LINK}/version.txt" | grep -m 1 FLATCAR_SDK_VERSION=)"
     docker_sdk_vernum="${docker_sdk_vernum#*=}"
