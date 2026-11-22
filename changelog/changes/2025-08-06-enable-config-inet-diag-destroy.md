@@ -1,0 +1,1 @@
+- Enable CONFIG_INET_DIAG_DESTROY in kernel options ([flatcar/scripts#3176](https://github.com/flatcar/scripts/pull/3176))
