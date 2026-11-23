@@ -43,6 +43,7 @@
 =sec-policy/selinux-unconfined-2.20260616_p1
 =sec-policy/selinux-container-2.20260616_p1
 =sec-policy/selinux-dbus-2.20260616_p1
+=sec-policy/selinux-docker-2.20260616_p1
 =sec-policy/selinux-policykit-2.20260616_p1
 =sec-policy/selinux-sssd-2.20260616_p1
 
