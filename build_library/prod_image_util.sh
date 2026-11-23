@@ -60,6 +60,46 @@ extract_prod_gcc() {
     package_provided "${gcc}"
 }
 
+# Removes build leftovers from the rootfs and moves the ld.so configs to /usr.
+prod_image_cleanups() {
+  local root_fs_dir="$1"
+
+  # clean-ups of things we do not need
+  sudo find ${root_fs_dir}/usr/bin -empty -delete # Bind mounts created by bwrap
+  sudo rm ${root_fs_dir}/etc/csh.env
+  sudo rm -rf ${root_fs_dir}/etc/env.d
+  sudo rm -rf ${root_fs_dir}/usr/include
+  sudo rm -rf ${root_fs_dir}/var/cache/edb
+  sudo rm -rf ${root_fs_dir}/var/db/pkg
+
+  sudo mv ${root_fs_dir}/etc/profile.env \
+      ${root_fs_dir}/usr/share/baselayout/profile.env
+
+  # Move the ld.so configs into /usr so they can be symlinked from /
+  sudo mv ${root_fs_dir}/etc/ld.so.conf ${root_fs_dir}/usr/lib
+  sudo mv ${root_fs_dir}/etc/ld.so.conf.d ${root_fs_dir}/usr/lib
+
+  sudo ln --symbolic ../usr/lib/ld.so.conf ${root_fs_dir}/etc/ld.so.conf
+
+  # Add a tmpfiles rule that symlink ld.so.conf from /usr into /
+  sudo tee "${root_fs_dir}/usr/lib/tmpfiles.d/baselayout-ldso.conf" \
+      > /dev/null <<EOF
+L+  /etc/ld.so.conf     -   -   -   -   ../usr/lib/ld.so.conf
+EOF
+
+  local -a bad_pam_files
+  mapfile -t -d '' bad_pam_files < <(find "${root_fs_dir}"/etc/security "${root_fs_dir}"/etc/pam.d ! -type d ! -name '.keep*' -print0)
+  if [[ ${#bad_pam_files[@]} -gt 0 ]]; then
+    error "Found following PAM config files: ${bad_pam_files[@]#"${root_fs_dir}"}"
+    error "Expected them to be either removed or, better, vendored (/etc/pam.d files should be in /usr/lib/pam, /etc/security files should be in /usr/lib/pam/security)."
+    error "Vendoring can be done with vendorize_pam_files inside a post_src_install hook for the package that installed the config file."
+    die "PAM config errors spotted"
+  fi
+
+  # Remove source locale data, only need to ship the compiled archive.
+  sudo rm -rf ${root_fs_dir}/usr/share/i18n/
+}
+
 create_prod_image() {
   local image_name="$1"
   local disk_layout="$2"
@@ -146,40 +186,7 @@ create_prod_image() {
   sudo mksquashfs "${BUILD_DIR}/root_fs_dir2"  "${BUILD_DIR}/${image_sysext_base}" -noappend -xattrs-exclude '^btrfs.'
   sudo rm -rf "${BUILD_DIR}/root_fs_dir2"
 
-  # clean-ups of things we do not need
-  sudo find ${root_fs_dir}/usr/bin -empty -delete # Bind mounts created by bwrap
-  sudo rm ${root_fs_dir}/etc/csh.env
-  sudo rm -rf ${root_fs_dir}/etc/env.d
-  sudo rm -rf ${root_fs_dir}/usr/include
-  sudo rm -rf ${root_fs_dir}/var/cache/edb
-  sudo rm -rf ${root_fs_dir}/var/db/pkg
-
-  sudo mv ${root_fs_dir}/etc/profile.env \
-      ${root_fs_dir}/usr/share/baselayout/profile.env
-
-  # Move the ld.so configs into /usr so they can be symlinked from /
-  sudo mv ${root_fs_dir}/etc/ld.so.conf ${root_fs_dir}/usr/lib
-  sudo mv ${root_fs_dir}/etc/ld.so.conf.d ${root_fs_dir}/usr/lib
-
-  sudo ln --symbolic ../usr/lib/ld.so.conf ${root_fs_dir}/etc/ld.so.conf
-
-  # Add a tmpfiles rule that symlink ld.so.conf from /usr into /
-  sudo tee "${root_fs_dir}/usr/lib/tmpfiles.d/baselayout-ldso.conf" \
-      > /dev/null <<EOF
-L+  /etc/ld.so.conf     -   -   -   -   ../usr/lib/ld.so.conf
-EOF
-
-  local -a bad_pam_files
-  mapfile -t -d '' bad_pam_files < <(find "${root_fs_dir}"/etc/security "${root_fs_dir}"/etc/pam.d ! -type d ! -name '.keep*' -print0)
-  if [[ ${#bad_pam_files[@]} -gt 0 ]]; then
-    error "Found following PAM config files: ${bad_pam_files[@]#"${root_fs_dir}"}"
-    error "Expected them to be either removed or, better, vendored (/etc/pam.d files should be in /usr/lib/pam, /etc/security files should be in /usr/lib/pam/security)."
-    error "Vendoring can be done with vendorize_pam_files inside a post_src_install hook for the package that installed the config file."
-    die "PAM config errors spotted"
-  fi
-
-  # Remove source locale data, only need to ship the compiled archive.
-  sudo rm -rf ${root_fs_dir}/usr/share/i18n/
+  prod_image_cleanups "${root_fs_dir}"
 
   # Inject ephemeral sysext signing certificate
   sudo mkdir -p "${root_fs_dir}/usr/lib/verity.d"

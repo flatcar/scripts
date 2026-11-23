@@ -518,6 +518,174 @@ start_image() {
     --board="${BOARD}"
 }
 
+# Moves the kernel from /usr to the /boot partition as the A slot.
+finish_image_kernel() {
+  local root_fs_dir="$1"
+
+  # Copy kernel to the /boot partition to support dm-verity boots by embedding
+  # the hash of the /usr partition into the kernel.
+  # Remove the kernel from the /usr partition to save space.
+  sudo mkdir -p "${root_fs_dir}/boot/flatcar"
+  sudo cp "${root_fs_dir}/usr/boot/vmlinuz" \
+       "${root_fs_dir}/boot/flatcar/vmlinuz-a"
+  sudo rm "${root_fs_dir}/usr/boot/vmlinuz"*
+}
+
+# Creates the sysusers.d users and groups in /usr/share/baselayout.
+finish_image_sysusers() {
+  local root_fs_dir="$1"
+
+  # Forbid dynamic user ID allocation because we want stable IDs
+  local found=""
+  # We want to forbid "-", "X:-" (.*:-), "-:X" (-:.*), "/X" (/.*)
+  found=$({ grep '^[ug]' "${root_fs_dir}"/usr/lib/sysusers.d/*.conf || true ; } | awk '{print $3}' | { grep -x -- "-\|.*:-\|-:.*\|/.*" || true ; })
+  if [ "${found}" != "" ]; then
+    die "Found dynamic ID allocation instead of hardcoded ID in /usr/lib/sysusers.d/*.conf (third column must not use '-', 'X:-', '-:X', or '/path')"
+  fi
+  # Run systemd-sysusers once to create users in /etc/passwd so that
+  # we can move them to /usr (relying on nss-altfiles to provide them
+  # at runtime, but we could use systemd's userdb, too).
+  sudo systemd-sysusers --root="${root_fs_dir}"
+  for databasefile in passwd group shadow gshadow; do
+    newentries=$(comm -23 <(sudo cut -d ":" -f 1 "${root_fs_dir}/etc/${databasefile}" | sort) <(sudo cut -d ":" -f 1 "${root_fs_dir}/usr/share/baselayout/${databasefile}" | sort))
+    for newentry in ${newentries}; do
+      sudo grep "^${newentry}:" "${root_fs_dir}/etc/${databasefile}" | sudo tee -a "${root_fs_dir}/usr/share/baselayout/${databasefile}"
+    done
+    sudo rm -f "${root_fs_dir}/etc/${databasefile}" "${root_fs_dir}/etc/${databasefile}-"
+  done
+}
+
+# Records the state partition's directories as tmpfiles rules.
+finish_image_var_tmpfiles() {
+  local root_fs_dir="$1"
+
+  # Record directories installed to the state partition.
+  # Explicitly ignore entries covered by existing configs.
+  local ignores=() allowed_users=() allowed_groups=()
+  mapfile -t ignores < <(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
+                             "${root_fs_dir}"/usr/lib/tmpfiles.d/*.conf)
+  # Also ignore directories owned by users/groups not in /etc/passwd
+  # or /etc/group. This is for setting up needed directories in very
+  # early boot phase (initrd-setup-root). Our source of truth for
+  # allowed users and groups are users and groups copied by the
+  # flatcar-tmpfiles script.
+
+  # The grep, sed and tr below basically turn a line like:
+  # COPY_USERS="root|core"
+  # into:
+  # --allow-user=root
+  # --allow-user=core
+  mapfile -t allowed_users < <(grep '^COPY_USERS=' "${root_fs_dir}/sbin/flatcar-tmpfiles" | sed -e 's/.*="\([^"]*\)"/\1/' | tr '|' '\n' | sed -e 's/^/--allow-user=/')
+  mapfile -t allowed_groups < <(grep '^COPY_GROUPS=' "${root_fs_dir}/sbin/flatcar-tmpfiles" | sed -e 's/.*="\([^"]*\)"/\1/' | tr '|' '\n' | sed -e 's/^/--allow-group=/')
+  sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
+      --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_var.conf" \
+      "${ignores[@]}" "${allowed_users[@]}" "${allowed_groups[@]}" "${root_fs_dir}/var"
+
+  # Now record the rest of the directories installed to the state
+  # partition. We go through tmpfiles again to also ignore the entries
+  # from the just generated base_image_var.conf.
+  mapfile -t ignores < <(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
+                             "${root_fs_dir}"/usr/lib/tmpfiles.d/*.conf)
+  sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
+      --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_var_late.conf" \
+      "${ignores[@]}" "${root_fs_dir}/var"
+}
+
+# Writes the first-boot flag Ignition and grub look for.
+finish_image_first_boot() {
+  local root_fs_dir="$1"
+
+  # Create first-boot flag for grub and Ignition
+  info "Writing first-boot flag"
+  sudo_clobber "${root_fs_dir}/boot/flatcar/first_boot" <<EOF
+If this file exists, Ignition will run and then delete the file.
+EOF
+}
+
+# Drops the /etc tmpfiles rules, recording the files they recreate.
+finish_image_etc_no_whiteouts() {
+  local root_fs_dir="$1"
+
+  # Now that we used the tmpfiles for creating /etc we delete them because
+  # the L, d, D, and C entries cause upcopies. Also filter out rules with ! or - but no other modifiers
+  # like + or = which explicitly recreate files.
+  # But before filtering, first store rules that would recreate missing files
+  # to /usr/share/flatcar/etc-no-whiteouts so that we can ensure that
+  # no overlayfs whiteouts exist for these files (example: /etc/resolv.conf).
+  # These rules are combined with the + modifier in addition.
+  # Other rules like w, e, x, do not create files that don't exist.
+  # Note: '-' must come first in the modifier pattern.
+  grep -Ph '^[fcCdDLvqQpb][-=~^!+]*[ \t]*/etc' "${root_fs_dir}"/usr/lib/tmpfiles.d/* | grep -oP '/etc[^ \t]*' | sudo_clobber "${root_fs_dir}"/usr/share/flatcar/etc-no-whiteouts
+  sudo sed -i '/^[CdDL][-=~^!]*[ \t]*\/etc\//d' "${root_fs_dir}"/usr/lib/tmpfiles.d/*
+}
+
+# Gives /etc/{g,}shadow the shadow group.
+finish_image_shadow_group() {
+  local root_fs_dir="$1"
+
+  # Temporary hack: set group ownership of /etc/{g,}shadow to the
+  # shadow group, that way unix_chkpwd, chage and expiry can act on
+  # those files.
+  #
+  # This permissions setting should likely be done in some ebuild, but
+  # currently files in /usr/share/baselayout are installed by the
+  # baselayout package, we don't want to add more deps to it.
+  sudo chgrp \
+      --reference="${root_fs_dir}/usr/bin/chage" \
+      "${root_fs_dir}"/{etc,usr/share/baselayout}/{g,}shadow
+}
+
+# Copies /etc to /usr/share/flatcar/etc.
+finish_image_freeze_etc() {
+  local root_fs_dir="$1"
+
+  # Backup the /etc contents to /usr/share/flatcar/etc to serve as
+  # source for creating missing files. Make sure that the preexisting
+  # /usr/share/flatcar/etc does not have any meaningful (non-empty)
+  # files, so we remove nothing important. There shouldn't be any
+  # symlinks either. Add "! -type d" to exclude directories as "stat"
+  # usually returns a size of a directory being 4096 or so.
+  if [[ $(sudo find "${root_fs_dir}/usr/share/flatcar/etc" -size +0 ! -type d 2>/dev/null | wc -l) -gt 0 ]]; then
+    die "Unexpected non-empty files in ${root_fs_dir}/usr/share/flatcar/etc"
+  fi
+  # Some backwards-compat symlinks still use this folder as target,
+  # we can't remove it yet
+  sudo rm -rf "${root_fs_dir}/usr/share/flatcar/etc"
+  sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/share/flatcar/etc"
+}
+
+# Builds the signed default confext from /etc.
+finish_image_confext() {
+  local root_fs_dir="$1"
+  local private_key="$2"
+  local certificate="$3"
+
+  # Now set up a default confext and enable it.
+  # It's important to use dm-verity not only for stricter image policies
+  # but also because it allows us the refresh to identify this image and
+  # skip setting it up again in the final boot, which not only saves us
+  # a daemon-reload during boot but also from /etc contents shortly
+  # disappearing until systemd-sysext uses mount beneath for an atomic
+  # remount. Instead of a temporary directory we first prepare it as
+  # folder and then convert it to a DDI and remove the folder.
+  sudo rm -rf "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
+  sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
+  # Do a copy because we keep /etc for the flatcar (.tar) container and the developer container
+  sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc"
+  sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/"
+  echo ID=_any | sudo tee "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/extension-release.00-flatcar-default" > /dev/null
+  # systemd-repart stages in /var/tmp by default. Inside the SDK, this is within
+  # Docker's overlay, which may silently fail to accept SELinux labelling
+  # changes. We must therefore repoint TMPDIR to a bind-mounted directory.
+  sudo TMPDIR="${BUILD_DIR}" systemd-repart \
+    --private-key="${private_key}" \
+    --certificate="${certificate}" \
+    --make-ddi=confext \
+    --copy-source="${root_fs_dir}/usr/lib/confexts/00-flatcar-default" \
+    "${root_fs_dir}/usr/lib/confexts/00-flatcar-default.raw"
+  sudo rm -rf "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
+}
+
 finish_image() {
   local image_name="$1"
   local disk_layout="$2"
@@ -551,62 +719,10 @@ finish_image() {
     *) disable_read_write=${FLAGS_FALSE} ;;
   esac
 
-  # Copy kernel to the /boot partition to support dm-verity boots by embedding
-  # the hash of the /usr partition into the kernel.
-  # Remove the kernel from the /usr partition to save space.
-  sudo mkdir -p "${root_fs_dir}/boot/flatcar"
-  sudo cp "${root_fs_dir}/usr/boot/vmlinuz" \
-       "${root_fs_dir}/boot/flatcar/vmlinuz-a"
-  sudo rm "${root_fs_dir}/usr/boot/vmlinuz"*
+  finish_image_kernel "${root_fs_dir}"
 
-  # Forbid dynamic user ID allocation because we want stable IDs
-  local found=""
-  # We want to forbid "-", "X:-" (.*:-), "-:X" (-:.*), "/X" (/.*)
-  found=$({ grep '^[ug]' "${root_fs_dir}"/usr/lib/sysusers.d/*.conf || true ; } | awk '{print $3}' | { grep -x -- "-\|.*:-\|-:.*\|/.*" || true ; })
-  if [ "${found}" != "" ]; then
-    die "Found dynamic ID allocation instead of hardcoded ID in /usr/lib/sysusers.d/*.conf (third column must not use '-', 'X:-', '-:X', or '/path')"
-  fi
-  # Run systemd-sysusers once to create users in /etc/passwd so that
-  # we can move them to /usr (relying on nss-altfiles to provide them
-  # at runtime, but we could use systemd's userdb, too).
-  sudo systemd-sysusers --root="${root_fs_dir}"
-  for databasefile in passwd group shadow gshadow; do
-    newentries=$(comm -23 <(sudo cut -d ":" -f 1 "${root_fs_dir}/etc/${databasefile}" | sort) <(sudo cut -d ":" -f 1 "${root_fs_dir}/usr/share/baselayout/${databasefile}" | sort))
-    for newentry in ${newentries}; do
-      sudo grep "^${newentry}:" "${root_fs_dir}/etc/${databasefile}" | sudo tee -a "${root_fs_dir}/usr/share/baselayout/${databasefile}"
-    done
-    sudo rm -f "${root_fs_dir}/etc/${databasefile}" "${root_fs_dir}/etc/${databasefile}-"
-  done
-  # Record directories installed to the state partition.
-  # Explicitly ignore entries covered by existing configs.
-  local ignores=() allowed_users=() allowed_groups=()
-  mapfile -t ignores < <(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
-                             "${root_fs_dir}"/usr/lib/tmpfiles.d/*.conf)
-  # Also ignore directories owned by users/groups not in /etc/passwd
-  # or /etc/group. This is for setting up needed directories in very
-  # early boot phase (initrd-setup-root). Our source of truth for
-  # allowed users and groups are users and groups copied by the
-  # flatcar-tmpfiles script.
-
-  # The grep, sed and tr below basically turn a line like:
-  # COPY_USERS="root|core"
-  # into:
-  # --allow-user=root
-  # --allow-user=core
-  mapfile -t allowed_users < <(grep '^COPY_USERS=' "${root_fs_dir}/sbin/flatcar-tmpfiles" | sed -e 's/.*="\([^"]*\)"/\1/' | tr '|' '\n' | sed -e 's/^/--allow-user=/')
-  mapfile -t allowed_groups < <(grep '^COPY_GROUPS=' "${root_fs_dir}/sbin/flatcar-tmpfiles" | sed -e 's/.*="\([^"]*\)"/\1/' | tr '|' '\n' | sed -e 's/^/--allow-group=/')
-  sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
-      --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_var.conf" \
-      "${ignores[@]}" "${allowed_users[@]}" "${allowed_groups[@]}" "${root_fs_dir}/var"
-
-  # Now record the rest of the directories installed to the state
-  # partition. We go through tmpfiles again to also ignore the entries
-  # from the just generated base_image_var.conf.
-  mapfile -t ignores < <(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
-                             "${root_fs_dir}"/usr/lib/tmpfiles.d/*.conf)
-  sudo "${BUILD_LIBRARY_DIR}/gen_tmpfiles.py" --root="${root_fs_dir}" \
-      --output="${root_fs_dir}/usr/lib/tmpfiles.d/base_image_var_late.conf" \
-      "${ignores[@]}" "${root_fs_dir}/var"
+  finish_image_sysusers "${root_fs_dir}"
+  finish_image_var_tmpfiles "${root_fs_dir}"
 
   # Only configure bootloaders if there is a boot partition
   if mountpoint -q "${root_fs_dir}"/boot; then
@@ -614,11 +730,7 @@ finish_image() {
     ${BUILD_LIBRARY_DIR}/configure_bootloaders.sh \
       --boot_dir="${root_fs_dir}"/usr/boot
 
-    # Create first-boot flag for grub and Ignition
-    info "Writing first-boot flag"
-    sudo_clobber "${root_fs_dir}/boot/flatcar/first_boot" <<EOF
-If this file exists, Ignition will run and then delete the file.
-EOF
+    finish_image_first_boot "${root_fs_dir}"
   fi
 
   if [[ -n "${FLAGS_developer_data}" ]]; then
@@ -655,17 +767,7 @@ EOF
     sudo rm -f "${root_fs_dir}"/etc/"${dbfile}"
   done
   sudo "${root_fs_dir}"/usr/sbin/flatcar-tmpfiles "${root_fs_dir}"
-  # Now that we used the tmpfiles for creating /etc we delete them because
-  # the L, d, D, and C entries cause upcopies. Also filter out rules with ! or - but no other modifiers
-  # like + or = which explicitly recreate files.
-  # But before filtering, first store rules that would recreate missing files
-  # to /usr/share/flatcar/etc-no-whiteouts so that we can ensure that
-  # no overlayfs whiteouts exist for these files (example: /etc/resolv.conf).
-  # These rules are combined with the + modifier in addition.
-  # Other rules like w, e, x, do not create files that don't exist.
-  # Note: '-' must come first in the modifier pattern.
-  grep -Ph '^[fcCdDLvqQpb][-=~^!+]*[ \t]*/etc' "${root_fs_dir}"/usr/lib/tmpfiles.d/* | grep -oP '/etc[^ \t]*' | sudo_clobber "${root_fs_dir}"/usr/share/flatcar/etc-no-whiteouts
-  sudo sed -i '/^[CdDL][-=~^!]*[ \t]*\/etc\//d' "${root_fs_dir}"/usr/lib/tmpfiles.d/*
+  finish_image_etc_no_whiteouts "${root_fs_dir}"
 
   # SELinux: Label the root filesystem for using 'file_contexts'.
   # The labeling has to be done before moving /etc to /usr/share/flatcar/etc to prevent wrong labels for these files and as
@@ -681,54 +783,12 @@ EOF
     sudo setfiles -Dv -r "${real_root_fs_dir}" -c "${real_root_fs_dir}"/etc/selinux/mcs/policy/policy.* "${real_root_fs_dir}"/etc/selinux/mcs/contexts/files/file_contexts "${real_root_fs_dir}"/etc
   fi
 
-  # Temporary hack: set group ownership of /etc/{g,}shadow to the
-  # shadow group, that way unix_chkpwd, chage and expiry can act on
-  # those files.
-  #
-  # This permissions setting should likely be done in some ebuild, but
-  # currently files in /usr/share/baselayout are installed by the
-  # baselayout package, we don't want to add more deps to it.
-  sudo chgrp \
-      --reference="${root_fs_dir}/usr/bin/chage" \
-      "${root_fs_dir}"/{etc,usr/share/baselayout}/{g,}shadow
+  finish_image_shadow_group "${root_fs_dir}"
 
-  # Backup the /etc contents to /usr/share/flatcar/etc to serve as
-  # source for creating missing files. Make sure that the preexisting
-  # /usr/share/flatcar/etc does not have any meaningful (non-empty)
-  # files, so we remove nothing important. There shouldn't be any
-  # symlinks either. Add "! -type d" to exclude directories as "stat"
-  # usually returns a size of a directory being 4096 or so.
-  if [[ $(sudo find "${root_fs_dir}/usr/share/flatcar/etc" -size +0 ! -type d 2>/dev/null | wc -l) -gt 0 ]]; then
-    die "Unexpected non-empty files in ${root_fs_dir}/usr/share/flatcar/etc"
-  fi
-  # Some backwards-compat symlinks still use this folder as target,
-  # we can't remove it yet
-  sudo rm -rf "${root_fs_dir}/usr/share/flatcar/etc"
-  sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/share/flatcar/etc"
-  # Now set up a default confext and enable it.
-  # It's important to use dm-verity not only for stricter image policies
-  # but also because it allows us the refresh to identify this image and
-  # skip setting it up again in the final boot, which not only saves us
-  # a daemon-reload during boot but also from /etc contents shortly
-  # disappearing until systemd-sysext uses mount beneath for an atomic
-  # remount. Instead of a temporary directory we first prepare it as
-  # folder and then convert it to a DDI and remove the folder.
-  sudo rm -rf "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
-  sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
-  # Do a copy because we keep /etc for the flatcar (.tar) container and the developer container
-  sudo cp -a "${root_fs_dir}/etc" "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc"
-  sudo mkdir -p "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/"
-  echo ID=_any | sudo tee "${root_fs_dir}/usr/lib/confexts/00-flatcar-default/etc/extension-release.d/extension-release.00-flatcar-default" > /dev/null
-  # systemd-repart stages in /var/tmp by default. Inside the SDK, this is within
-  # Docker's overlay, which may silently fail to accept SELinux labelling
-  # changes. We must therefore repoint TMPDIR to a bind-mounted directory.
-  sudo TMPDIR="${BUILD_DIR}" systemd-repart \
-    --private-key="${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
-    --certificate="${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt" \
-    --make-ddi=confext \
-    --copy-source="${root_fs_dir}/usr/lib/confexts/00-flatcar-default" \
-    "${root_fs_dir}/usr/lib/confexts/00-flatcar-default.raw"
-  sudo rm -rf "${root_fs_dir}/usr/lib/confexts/00-flatcar-default"
+  finish_image_freeze_etc "${root_fs_dir}"
+  finish_image_confext "${root_fs_dir}" \
+      "${SYSEXT_SIGNING_KEY_DIR}/sysexts.key" \
+      "${SYSEXT_SIGNING_KEY_DIR}/sysexts.crt"
 
   # Remove the rootfs state as it should be recreated through tmpfiles
   # (and for /etc we use a confext) and may not be present on updating machines.
