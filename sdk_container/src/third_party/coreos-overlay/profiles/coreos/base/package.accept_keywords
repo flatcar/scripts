@@ -125,7 +125,7 @@ dev-util/catalyst
 =net-firewall/conntrack-tools-1.4.9
 
 # Needed to address CVE-2026-12505.
-=net-fs/cifs-utils-7.6
+=net-fs/cifs-utils-7.6-r1
 
 # Needed to address CVE-2025-59777, CVE-2025-62689.
 =net-libs/libmicrohttpd-1.0.5
