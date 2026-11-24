@@ -5,6 +5,11 @@
 
 source "${BUILD_LIBRARY_DIR}/oem_sysexts.sh" || exit 1
 
+# Sysexts built into the production image, as "name|package[&package...]",
+# comma-separated and in dependency order. build_image's --base_sysexts
+# default.
+DEFAULT_BASE_SYSEXTS="containerd-flatcar|app-containers/containerd,docker-flatcar|app-containers/docker&app-containers/docker-cli&app-containers/docker-buildx"
+
 # Lookup the current version of a binary package, downloading it if needed.
 # Usage: get_binary_pkg some-pkg/name
 # Prints: some-pkg/name-1.2.3
