@@ -240,6 +240,24 @@ done
 QEMU_FORWARDED_PORTS="${QEMU_FORWARDED_PORTS#,}"
 
 # Start assembling our default command line arguments
+# GTK fails with "gtk initialization failed" when DISPLAY and WAYLAND_DISPLAY
+# are unset. Don't add -nographic if the user already passed -display or
+# -nographic (the image README suggests `-display curses`). arm64 still
+# always passes -nographic below.
+if [ "${VM_BOARD}" != "arm64-usr" ] && [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+    add_nographic=1
+    for arg in "$@"; do
+        case "$arg" in
+            -display|-nographic|-curses)
+                add_nographic=0
+                break ;;
+        esac
+    done
+    if [ "${add_nographic}" -eq 1 ]; then
+        set -- -nographic "$@"
+    fi
+fi
+
 if [ "${SAFE_ARGS}" -eq 1 ]; then
     # Disable KVM, for testing things like UEFI which don't like it
     set -- -machine accel=tcg "$@"
@@ -249,19 +267,11 @@ else
             set -- -global ICH9-LPC.disable_s3=1 \
                    -global driver=cfi.pflash01,property=secure,value=on \
                    "$@"
-            # QEMU defaults to GTK on this arch. That fails on a headless host
-            # ("gtk initialization failed"). Use the serial console when no
-            # display server is present, and keep the window otherwise.
-            # Arguments after -- still override this.
-            qemu_display=()
-            if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-                qemu_display=(-nographic)
-            fi
             # Emulate the host CPU closely in both features and cores.
-            set -- -machine q35,accel=kvm:hvf:tcg,smm=on -cpu host -smp "${VM_NCPUS}" "${qemu_display[@]}" "$@"
+            set -- -machine q35,accel=kvm:hvf:tcg,smm=on -cpu host -smp "${VM_NCPUS}" "$@"
             ;;
         amd64-usr+*)
-            set -- -machine q35 -cpu kvm64 -smp 1 -nographic "$@" ;;
+            set -- -machine q35 -cpu kvm64 -smp 1 "$@" ;;
         arm64-usr+aarch64|arm64-usr+arm64)
             set -- -machine virt,accel=kvm:hvf:tcg,gic-version=3 -cpu host -smp "${VM_NCPUS}" -nographic "$@" ;;
         arm64-usr+*)
