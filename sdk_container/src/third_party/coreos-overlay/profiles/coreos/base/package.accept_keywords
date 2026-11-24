@@ -36,7 +36,7 @@
 =app-containers/incus-7.5.1
 
 # Keep versions on both arches in sync.
-=app-containers/lxc-7.0.0
+=app-containers/lxc-7.0.0-r1
 
 # For podman 6.x
 =app-containers/netavark-2.1*
@@ -139,9 +139,6 @@ dev-util/catalyst
 
 # Keep versions on both arches in sync.
 =net-misc/chrony-4.9
-
-# For podman 6.0.0
-=net-misc/passt-2026.05.26
 
 # Packages are in Gentoo but not expected to be used outside Flatcar, so they
 # are generally never stabilised. Thus an unusual form is used to pick up the
