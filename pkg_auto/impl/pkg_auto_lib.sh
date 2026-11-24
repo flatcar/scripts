@@ -3936,27 +3936,29 @@ function generate_changelog_entry_stub() {
     if [[ -z ${rn_entry_name} ]]; then
         rn_entry_name=${changelog_templates_map_ref["${category}"]:-}
     fi
+    local gces_evaluated
     if [[ -z ${rn_entry_name} ]]; then
         devel_warn_d "${gces_warnings_dir}" \
                      "- missing template for release notes:" \
                      "  - package: ${qpkg}"
-        return 0
-    fi
-    local -i gces_type
-    local gces_msg_or_template
-    get_struct_members "${rn_entry_name}" \
-                       RNE_TYPE_IDX gces_type \
-                       RNE_MSG_OR_TEMPLATE_IDX gces_msg_or_template
-    echo "msg_or_template for ${qpkg}: ${gces_msg_or_template}"
-
-    if [[ gces_type -eq RNET_IGNORE ]]; then
-        return 0
-    fi
-    local gces_evaluated
-    evaluate_changelog_template "${gces_msg_or_template}" "${v}" gces_evaluated "${gces_warnings_dir}"
-    if [[ gces_type -eq RNET_MANUAL ]]; then
-        gces_evaluated="TODO: ${gces_evaluated}"
         add_release_notes_todo_ref=x
+        gces_evaluated='TODO'
+    else
+        local -i gces_type
+        local gces_msg_or_template
+        get_struct_members "${rn_entry_name}" \
+                           RNE_TYPE_IDX gces_type \
+                           RNE_MSG_OR_TEMPLATE_IDX gces_msg_or_template
+        echo "msg_or_template for ${qpkg}: ${gces_msg_or_template}"
+
+        if [[ gces_type -eq RNET_IGNORE ]]; then
+            return 0
+        fi
+        evaluate_changelog_template "${gces_msg_or_template}" "${v}" gces_evaluated "${gces_warnings_dir}"
+        if [[ gces_type -eq RNET_MANUAL ]]; then
+            gces_evaluated="TODO: ${gces_evaluated}"
+            add_release_notes_todo_ref=x
+        fi
     fi
 
     printf '%s %s: %s ([%s](%s))\n' '-' "${gces_tags}" "${pkg_name}" "${v}" "${gces_evaluated}" >>"${gces_out_dir}/changelog_stubs"
