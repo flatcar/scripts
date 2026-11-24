@@ -35,7 +35,7 @@ filter_out_too_new() {
 #
 # $ remove_hard_blocks \
 #       emerge-amd64-usr equery-amd64-usr \
-#       dev-python/setuptools_scm:2
+#       dev-python/setuptools-scm:2
 remove_hard_blocks() {
     local emerge_cmd="${1}"
     local equery_cmd="${2}"
