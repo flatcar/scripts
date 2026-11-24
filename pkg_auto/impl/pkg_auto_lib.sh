@@ -3949,7 +3949,6 @@ function generate_changelog_entry_stub() {
         get_struct_members "${rn_entry_name}" \
                            RNE_TYPE_IDX gces_type \
                            RNE_MSG_OR_TEMPLATE_IDX gces_msg_or_template
-        echo "msg_or_template for ${qpkg}: ${gces_msg_or_template}"
 
         if [[ gces_type -eq RNET_IGNORE ]]; then
             return 0

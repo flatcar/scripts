@@ -3,11 +3,18 @@ acct-user !IGNORE!
 app-admin/sudo https://github.com/sudo-project/sudo/releases/tag/v@@VERSION_NO_UNDERLINE_PATCH@@
 app-arch/gzip !MANUAL! search for "gzip-@@VERSION@@ released [stable]" on https://lists.gnu.org/archive/html/info-gnu
 app-arch/libarchive https://github.com/libarchive/libarchive/releases/tag/v@@VERSION@@
+app-containers/aardvark-dns https://github.com/containers/aardvark-dns/releases/tag/v@@VERSION@@
+app-containers/container-libs https://github.com/podman-container-tools/container-libs/releases/tag/common%2Fv@@VERSION@@
 app-containers/containerd https://github.com/containerd/containerd/releases/tag/v@@VERSION@@
+app-containers/crun https://github.com/containers/crun/releases/tag/@@VERSION@@
 app-containers/docker https://github.com/moby/moby/releases/tag/docker-v@@VERSION@@
 app-containers/docker-buildx https://github.com/docker/buildx/releases/tag/v@@VERSION@@
 app-containers/docker-cli !IGNORE!
+app-containers/incus !MANUAL! either search for "Incus @@VERSION@@ has been released" in https://discuss.linuxcontainers.org/ or use https://github.com/lxc/incus/releases/tag/v@@VERSION@@ for patch releases
+app-containers/netavark https://github.com/containers/netavark/releases/tag/v@@VERSION@@
+app-containers/podman https://github.com/podman-container-tools/podman/releases/tag/v@@VERSION@@
 app-crypt/gnupg !MANUAL! search for "Release GnuPG @@VERSION@@"
+app-crypt/gpgme https://raw.githubusercontent.com/gpg/gpgme/refs/tags/gpgme-@@VERSION@@/NEWS
 app-crypt/mit-krb5 https://web.mit.edu/kerberos/krb5-@@VERSION_FIRST_2@@/krb5-@@VERSION@@.html
 app-crypt/sbsigntools https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git/commit/?h=v@@VERSION@@
 app-crypt/tpm2-tools https://github.com/tpm2-software/tpm2-tools/releases/tag/@@VERSION@@
@@ -37,7 +44,8 @@ dev-lang/perl https://perldoc.perl.org/perl@@VERSION_NO_DOTS@@delta
 dev-lang/python https://docs.python.org/release/@@VERSION_NO_P@@/whatsnew/changelog.html#python-@@VERSION_NO_P_DASH@@-final
 dev-lang/rust !MANUAL! https://blog.rust-lang.org/${SOME_YEAR}/${SOME_MONTH}/${SOME_DAY}/Rust-@@VERSION@@/
 dev-lang/rust-common !IGNORE!
-dev-lang/swig !IGNORE~
+dev-lang/swig !IGNORE!
+dev-libs/blake3 https://github.com/BLAKE3-team/BLAKE3/releases/tag/@@VERSION@@
 dev-libs/cyrus-sasl https://www.cyrusimap.org/sasl/sasl/release-notes/@@VERSION_FIRST_2@@/index.html#new-in-@@VERSION_DASH@@
 dev-libs/elfutils !MANUAL! somewhere in https://inbox.sourceware.org/elfutils-devel/, search for "elfutils @@VERSION@@ released"
 dev-libs/expat https://github.com/libexpat/libexpat/blob/R_@@VERSION_UNDERLINE@@/expat/Changes
@@ -49,6 +57,7 @@ dev-libs/libpcre2 https://github.com/PCRE2Project/pcre2/releases/tag/pcre2-@@VER
 dev-libs/opensc !IGNORE!
 dev-libs/tree-sitter !IGNORE!
 dev-libs/xmlsec https://github.com/lsh123/xmlsec/releases/tag/@@VERSION@@
+dev-util/xdelta https://github.com/jmacd/xdelta/releases/tag/v@@VERSION@@
 dev-python/charset-normalizer https://github.com/jawah/charset_normalizer/releases/tag/@@VERSION@@
 dev-python/cryptography !IGNORE!
 dev-python/cython !IGNORE!
@@ -65,12 +74,14 @@ dev-python/lxml !IGNORE!
 dev-python/markupsafe !IGNORE!
 dev-python/more-itertools https://github.com/more-itertools/more-itertools/releases/tag/v@@VERSION@@
 dev-python/msgpack https://github.com/msgpack/msgpack-python/releases/tag/v@@VERSION@@
+dev-python/pip https://raw.githubusercontent.com/pypa/pip/refs/tags/@@VERSION@@/NEWS.rst
 dev-python/platformdirs https://github.com/tox-dev/platformdirs/releases/tag/@@VERSION@@
 dev-python/pluggy !IGNORE!
 dev-python/poetry-core !IGNORE!
 dev-python/pycparser !IGNORE!
 dev-python/pygments https://github.com/pygments/pygments/releases/tag/@@VERSION@@
 dev-python/pyproject-hooks !IGNORE!
+dev-python/dependency-groups https://github.com/pypa/dependency-groups/releases/tag/@@VERSION@@
 dev-python/setuptools-scm https://github.com/pypa/setuptools-scm/releases/tag/setuptools-scm-v@@VERSION@@
 dev-python/snakeoil !IGNORE!
 dev-python/tomli !IGNORE!
@@ -102,6 +113,7 @@ net-misc/chrony https://gitlab.com/chrony/chrony/-/raw/@@VERSION@@/NEWS
 net-misc/curl https://curl.se/ch/@@VERSION@@.html
 net-misc/iperf https://github.com/esnet/iperf/releases/tag/@@VERSION@@
 net-misc/openssh https://www.openssh.org/txt/release-@@VERSION_NO_P@@
+net-misc/passt !MANUAL! search for "passt: new version @@VERSION@@" in https://archives.passt.top/passt-user/
 net-misc/rsync https://download.samba.org/pub/rsync/NEWS#@@VERSION@@
 net-misc/socat https://repo.or.cz/socat.git/blob/refs/tags/tag-@@VERSION@@:/CHANGES
 net-misc/wget !MANUAL! search for "wget-@@VERSION@@ released [stable]" on somewhere https://lists.gnu.org/archive/html/info-gnu/
@@ -149,4 +161,5 @@ sys-libs/timezone-data !MANUAL! search for "@@VERSION@@ release of tz code and d
 sys-process/audit https://github.com/linux-audit/audit-userspace/releases/tag/v@@VERSION@@
 sys-process/procps https://gitlab.com/procps-ng/procps/-/releases/v@@VERSION@@
 virtual !IGNORE!
+x11-drivers/nvidia-drivers https://docs.nvidia.com/datacenter/tesla/tesla-release-notes-@@VERSION_DASH@@/index.html
 x11-misc/makedepend !IGNORE!
