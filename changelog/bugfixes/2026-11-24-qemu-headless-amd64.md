@@ -1,0 +1,1 @@
+- The amd64 QEMU helper now passes `-nographic` when `DISPLAY` and `WAYLAND_DISPLAY` are unset, so a headless host no longer fails with `gtk initialization failed`

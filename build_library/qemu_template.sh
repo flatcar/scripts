@@ -249,8 +249,16 @@ else
             set -- -global ICH9-LPC.disable_s3=1 \
                    -global driver=cfi.pflash01,property=secure,value=on \
                    "$@"
+            # QEMU defaults to GTK on this arch. That fails on a headless host
+            # ("gtk initialization failed"). Use the serial console when no
+            # display server is present, and keep the window otherwise.
+            # Arguments after -- still override this.
+            qemu_display=()
+            if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+                qemu_display=(-nographic)
+            fi
             # Emulate the host CPU closely in both features and cores.
-            set -- -machine q35,accel=kvm:hvf:tcg,smm=on -cpu host -smp "${VM_NCPUS}" "$@"
+            set -- -machine q35,accel=kvm:hvf:tcg,smm=on -cpu host -smp "${VM_NCPUS}" "${qemu_display[@]}" "$@"
             ;;
         amd64-usr+*)
             set -- -machine q35 -cpu kvm64 -smp 1 -nographic "$@" ;;
