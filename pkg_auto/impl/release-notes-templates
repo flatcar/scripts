@@ -21,7 +21,7 @@ app-misc/pax-utils https://gitweb.gentoo.org/proj/pax-utils.git/log/?h=v@@VERSIO
 app-portage/gemato !IGNORE!
 app-portage/gentoolkit https://gitweb.gentoo.org/proj/gentoolkit.git/log/?h=gentoolkit-@@VERSION@@
 app-shells/bash !MANUAL! somewhere on https://lists.gnu.org/archive/html/bug-bash if a new release otherwise savannah, but it is slow and may be unavailable because of scrapping, so no link either is fine too
-app-shells/gentoo-bashcomp https://github.com/scop/bash-completion/releases/tag/@@VERSION@@
+app-shells/gentoo-bashcomp !IGNORE!
 app-vim/gentoo-syntax !IGNORE!
 coreos-base/emerge-gitclone !IGNORE!
 dev-build/autoconf !IGNORE! somewhere on https://lists.gnu.org/archive/html/autotools-announce/
@@ -118,7 +118,7 @@ sys-apps/ignition !MANUAL! go to https://coreos.github.io/ignition/release-notes
 sys-apps/iproute2 !MANUAL! search for "iproute2 @@VERSION@@ release" on https://lore.kernel.org/netdev/
 sys-apps/less https://greenwoodsoftware.com/less/news.@@VERSION@@.html
 sys-apps/pcsc-lite !IGNORE!
-sys-apps/pkgcore https://github.com/pkgcore/pkgcheck/releases/tag/v@@VERSION@@
+sys-apps/pkgcore https://github.com/pkgcore/pkgcore/releases/tag/v@@VERSION@@
 sys-apps/portage https://raw.githubusercontent.com/gentoo/portage/refs/tags/portage-@@VERSION@@/NEWS
 sys-apps/pv !IGNORE!
 sys-apps/shadow https://github.com/shadow-maint/shadow/releases/tag/@@VERSION@@

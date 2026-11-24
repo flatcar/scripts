@@ -284,8 +284,10 @@ function equery_for_stable_package() {
     debug_print "${debug}" 'awk filter code used:' "${awk_filter_code}"
     debug_print "${debug}" 'awk code used:' "${awk_code}"
 
+    local -a equery_call=( equery --no-color keywords --overlays --arch "${equery_arches}" "${pkg}" )
     local equery_output awk_output
-    equery_output=$(equery --no-color keywords --overlays --arch "${equery_arches}" "${pkg}")
+    debug_print "${debug}" "calling equery at ${root@Q}: ${equery_call[*]@Q}"
+    equery_output=$( "${equery_call[@]}" )
     debug_print "${debug}" 'equery output' "${equery_output}"
     awk_output=$(awk "${awk_filter_code}" <<<"${equery_output}" | tac | awk "${awk_code}")
     local -a output_fields
@@ -387,8 +389,6 @@ function package_info_for_board() {
     debug_print "${debug}" "packages ${base_pkgs[*]} ${oem_pkgs[*]}"
     emerge_pretend "${root}" "${base_pkgs[@]}" "${oem_pkgs[@]}" | tee "${debug_output_file}" "${tmp_emerge_output}" >"${output_file}"
 
-    return 0
-
     local -a lines=()
     mapfile -t lines < <(
         cat "${tmp_emerge_output}" | \
@@ -399,7 +399,7 @@ function package_info_for_board() {
                 "${PKG_VER_SLOT_SED_FILTERS[@]}" | \
             sort -u)
 
-    sudo rm -f "${root}${pkg_mask_file}" "${root}${pkg_unmask_file}" "${tmp_emerge_output}"
+    sudo rm -f "${tmp_emerge_output}"
 
     local board_pkg_mask_file=${root}/etc/portage/package.mask/pkg-auto-board.conf
     local board_pkg_unmask_file=${root}/etc/portage/package.unmask/pkg-auto-board.conf
