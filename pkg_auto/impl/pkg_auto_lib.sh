@@ -68,6 +68,7 @@ function setup_workdir_with_config() {
     cfg_debug_packages=()
     cfg_inside_debug=''
     cfg_ignore_packages=()
+    cfg_gentoo=''
 
     local line key value swwc_stripped var_name arch
     while read -r line; do
@@ -341,15 +342,28 @@ function setup_worktrees_in_workdir() {
 
     if [[ -n ${old_gentoo_hash} ]]; then
         info "updating submodules for old state"
-        timed_run swiw_timeinfo git -C "${old_state}" submodule update --no-fetch --quiet --init --depth 1 --reference="${gentoo_repo}"
+        timed_run swiw_timeinfo submodule_update "${old_state}" "${gentoo_repo}"
         info "updating submodules for old state took ${swiw_timeinfo}"
     fi
     if [[ -n ${new_gentoo_hash} ]]; then
         info "updating submodules for new state"
-        timed_run swiw_timeinfo git -C "${new_state}" submodule update --no-fetch --quiet --init --depth 1 --reference="${gentoo_repo}"
+        timed_run swiw_timeinfo submodule_update "${new_state}" "${gentoo_repo}"
         info "updating submodules for new state took ${swiw_timeinfo}"
     fi
     extend_globals_file "${scripts}" "${old_state}" "${new_state}" "${reports_dir}" "${aux_dir}" "${old_base}" "${new_base}" "${inside_debug}" "${gentoo_repo}"
+}
+
+function submodule_update() {
+    local repo=${1}; shift
+    local gentoo_repo=${1}; shift
+
+    local -a extra_args=()
+
+    if [[ -n ${gentoo_repo} ]]; then
+        extra_args+=( --no-fetch --reference="${gentoo_repo}" )
+    fi
+
+    git -C "${repo}" submodule update --quiet --init --depth 1 "${extra_args[@]}"
 }
 
 function timed_setup_worktree() {
@@ -568,7 +582,7 @@ function setup_worktree_basic() {
     source "${WORKDIR}/globals"
 
     git -C "${repo}" worktree add --quiet -b "${branch}" "${worktree_dir}" "${base}"
-    git -C "${worktree_dir}" submodule update --no-fetch --quiet --init --depth 1 --reference="${GENTOO_REPO}"
+    submodule_update "${worktree_dir}" "${GENTOO_REPO}"
 }
 
 # Adds cleanup rules for worktrees created with setup_worktree_basic.
