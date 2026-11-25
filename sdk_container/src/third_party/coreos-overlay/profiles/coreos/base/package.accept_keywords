@@ -118,8 +118,8 @@ dev-cpp/azure-security-keyvault-keys
 dev-util/catalyst
 
 # Needed for new glib
-=dev-util/gdbus-codegen-2.88.3
-=dev-util/glib-utils-2.88.3
+=dev-util/gdbus-codegen-2.88.4
+=dev-util/glib-utils-2.88.4
 
 # Keep versions on both arches in sync.
 =net-firewall/conntrack-tools-1.4.9
