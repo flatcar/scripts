@@ -101,6 +101,9 @@ create_prod_image() {
   ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
       test_image_content "${root_fs_dir}"
 
+  finish_image_common \
+      "${root_fs_dir}"
+
   local root_with_everything="${root_fs_dir}"
 
   # Call helper script for adding sysexts to the base OS.
