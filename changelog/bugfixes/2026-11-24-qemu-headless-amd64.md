@@ -1,0 +1,1 @@
+- The amd64 QEMU helper now uses `-nographic` when there is no display server, instead of exiting with `gtk initialization failed` [scripts#4400](https://github.com/flatcar/scripts/pull/4400)
